@@ -21,10 +21,14 @@
 import React from 'react';
 import { minBy } from 'lodash';
 import { AutoSizer } from 'react-virtualized';
+import {
+  getDisplayedHistoryMetrics,
+  generateSeries,
+  getSeriesMetricType
+} from '../../projectActivity/utils';
+import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import PreviewGraphTooltips from './PreviewGraphTooltips';
-import { generateSeries, getDisplayedHistoryMetrics } from '../../projectActivity/utils';
-import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 import type { History, Metric } from '../types';
@@ -39,7 +43,6 @@ type Props = {
 type State = {
   customMetrics: Array<string>,
   graph: string,
-  metricsType: string,
   selectedDate: ?Date,
   series: Array<Serie>,
   tooltipIdx: ?number,
@@ -56,13 +59,11 @@ export default class PreviewGraph extends React.PureComponent {
     super(props);
     const graph = getGraph();
     const customMetrics = getCustomGraph();
-    const metricsType = this.getMetricType(props.metrics, graph, customMetrics);
     this.state = {
       customMetrics,
       graph,
-      metricsType,
       selectedDate: null,
-      series: this.getSeries(props.history, graph, customMetrics, metricsType),
+      series: this.getSeries(props.history, graph, customMetrics, props.metrics),
       tooltipIdx: null,
       tooltipXPos: null
     };
@@ -72,18 +73,16 @@ export default class PreviewGraph extends React.PureComponent {
     if (nextProps.history !== this.props.history || nextProps.metrics !== this.props.metrics) {
       const graph = getGraph();
       const customMetrics = getCustomGraph();
-      const metricsType = this.getMetricType(nextProps.metrics, graph, customMetrics);
       this.setState({
         customMetrics,
         graph,
-        metricsType,
-        series: this.getSeries(nextProps.history, graph, customMetrics, metricsType)
+        series: this.getSeries(nextProps.history, graph, customMetrics, nextProps.metrics)
       });
     }
   }
 
   formatValue = (tick: number | string) =>
-    formatMeasure(tick, getShortType(this.state.metricsType));
+    formatMeasure(tick, getShortType(this.state.series[0].type));
 
   getDisplayedMetrics = (graph: string, customMetrics: Array<string>): Array<string> => {
     const metrics: Array<string> = getDisplayedHistoryMetrics(graph, customMetrics);
@@ -93,34 +92,23 @@ export default class PreviewGraph extends React.PureComponent {
     return metrics;
   };
 
-  getSeries = (
-    history: ?History,
-    graph: string,
-    customMetrics: Array<string>,
-    metricsType: string
-  ) => {
+  getSeries = (history: ?History, graph: string, customMetrics: Array<string>, metrics: Array<Metric>) => {
     const myHistory = history;
     if (!myHistory) {
       return [];
     }
-    const metrics = this.getDisplayedMetrics(graph, customMetrics);
+    const displayedMetrics = this.getDisplayedMetrics(graph, customMetrics);
     const firstValid = minBy(
-      metrics.map(metric => myHistory[metric].find(p => p.value || p.value === 0)),
+      displayedMetrics.map(metric => myHistory[metric].find(p => p.value || p.value === 0)),
       'date'
     );
-    const measureHistory = metrics.map(metric => ({
+    const measureHistory = displayedMetrics.map(metric => ({
       metric,
       history: firstValid
         ? myHistory[metric].filter(p => p.date >= firstValid.date)
         : myHistory[metric]
     }));
-    return generateSeries(measureHistory, graph, metricsType, metrics);
-  };
-
-  getMetricType = (metrics: Array<Metric>, graph: string, customMetrics: Array<string>) => {
-    const metricKey = this.getDisplayedMetrics(graph, customMetrics)[0];
-    const metric = metrics.find(metric => metric.key === metricKey);
-    return metric ? metric.type : 'INT';
+    return generateSeries(measureHistory, graph, metrics, displayedMetrics);
   };
 
   handleClick = () => {
@@ -149,7 +137,7 @@ export default class PreviewGraph extends React.PureComponent {
                 hideGrid={true}
                 hideXAxis={true}
                 interpolate="linear"
-                metricType={this.state.metricsType}
+                metricType={getSeriesMetricType(series)}
                 padding={GRAPH_PADDING}
                 series={series}
                 showAreas={['coverage', 'duplications'].includes(graph)}

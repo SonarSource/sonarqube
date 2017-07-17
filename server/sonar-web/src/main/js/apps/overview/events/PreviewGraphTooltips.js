@@ -21,7 +21,6 @@ import React from 'react';
 import BubblePopup from '../../../components/common/BubblePopup';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import PreviewGraphTooltipsContent from './PreviewGraphTooltipsContent';
-import { getLocalizedMetricName } from '../../../helpers/l10n';
 import type { Metric } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
@@ -59,17 +58,16 @@ export default class PreviewGraphTooltips extends React.PureComponent {
           </div>
           <table className="width-100">
             <tbody>
-              {this.props.series.map(serie => {
+              {this.props.series.map((serie, idx) => {
                 const point = serie.data[tooltipIdx];
                 if (!point || (!point.y && point.y !== 0)) {
                   return null;
                 }
-                const metric = this.props.metrics.find(metric => metric.key === serie.name);
                 return (
                   <PreviewGraphTooltipsContent
                     key={serie.name}
-                    serie={serie}
-                    translatedName={metric ? getLocalizedMetricName(metric) : serie.translatedName}
+                    style={idx.toString()}
+                    translatedName={serie.translatedName}
                     value={this.props.formatValue(point.y)}
                   />
                 );

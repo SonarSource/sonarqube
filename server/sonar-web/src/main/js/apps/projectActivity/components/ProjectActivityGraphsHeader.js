@@ -29,6 +29,7 @@ type Props = {
   addCustomMetric: string => void,
   graph: string,
   metrics: Array<Metric>,
+  metricsTypeFilter: ?Array<string>,
   selectedMetrics: Array<string>,
   updateGraph: string => void
 };
@@ -63,6 +64,7 @@ export default class ProjectActivityGraphsHeader extends React.PureComponent {
             addMetric={this.props.addCustomMetric}
             className="pull-left spacer-left"
             metrics={this.props.metrics}
+            metricsTypeFilter={this.props.metricsTypeFilter}
             selectedMetrics={this.props.selectedMetrics}
           />}
       </header>

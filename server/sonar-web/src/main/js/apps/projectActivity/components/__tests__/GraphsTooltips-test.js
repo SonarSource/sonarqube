@@ -23,24 +23,8 @@ import GraphsTooltips from '../GraphsTooltips';
 
 const SERIES_OVERVIEW = [
   {
-    name: 'code_smells',
-    translatedName: 'metric.code_smells.name',
-    style: 1,
-    data: [
-      {
-        x: '2011-10-01T22:01:00.000Z',
-        y: 18
-      },
-      {
-        x: '2011-10-25T10:27:41.000Z',
-        y: 15
-      }
-    ]
-  },
-  {
     name: 'bugs',
-    translatedName: 'metric.bugs.name',
-    style: 0,
+    translatedName: 'Bugs',
     data: [
       {
         x: '2011-10-01T22:01:00.000Z',
@@ -53,9 +37,22 @@ const SERIES_OVERVIEW = [
     ]
   },
   {
+    name: 'code_smells',
+    translatedName: 'Code Smells',
+    data: [
+      {
+        x: '2011-10-01T22:01:00.000Z',
+        y: 18
+      },
+      {
+        x: '2011-10-25T10:27:41.000Z',
+        y: 15
+      }
+    ]
+  },
+  {
     name: 'vulnerabilities',
-    translatedName: 'metric.vulnerabilities.name',
-    style: 2,
+    translatedName: 'Vulnerabilities',
     data: [
       {
         x: '2011-10-01T22:01:00.000Z',
@@ -69,17 +66,11 @@ const SERIES_OVERVIEW = [
   }
 ];
 
-const METRICS = [
-  { key: 'bugs', name: 'Bugs', type: 'INT' },
-  { key: 'vulnerabilities', name: 'Vulnerabilities', type: 'INT', custom: true }
-];
-
 const DEFAULT_PROPS = {
   formatValue: val => 'Formated.' + val,
   graph: 'overview',
   graphWidth: 500,
   measuresHistory: [],
-  metrics: METRICS,
   selectedDate: new Date('2011-10-01T22:01:00.000Z'),
   series: SERIES_OVERVIEW,
   tooltipIdx: 0,

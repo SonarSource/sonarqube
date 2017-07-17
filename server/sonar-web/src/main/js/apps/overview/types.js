@@ -28,6 +28,8 @@ export type Component = {
 export type History = { [string]: Array<{ date: Date, value: string }> };
 
 export type Metric = {
+  custom?: boolean,
+  hidden?: boolean,
   key: string,
   name: string,
   type: string

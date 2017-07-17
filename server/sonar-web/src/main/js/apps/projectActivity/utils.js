@@ -19,7 +19,7 @@
  */
 // @flow
 import moment from 'moment';
-import { isEqual } from 'lodash';
+import { isEqual, sortBy } from 'lodash';
 import {
   cleanQuery,
   parseAsArray,
@@ -29,8 +29,8 @@ import {
   serializeDate,
   serializeString
 } from '../../helpers/query';
-import { translate } from '../../helpers/l10n';
-import type { Analysis, MeasureHistory, Query } from './types';
+import { getLocalizedMetricName, translate } from '../../helpers/l10n';
+import type { Analysis, MeasureHistory, Metric, Query } from './types';
 import type { RawQuery } from '../../helpers/query';
 import type { Serie } from '../../components/charts/AdvancedTimeline';
 
@@ -57,13 +57,8 @@ export const activityQueryChanged = (prevQuery: Query, nextQuery: Query): boolea
 export const customMetricsChanged = (prevQuery: Query, nextQuery: Query): boolean =>
   !isEqual(prevQuery.customMetrics, nextQuery.customMetrics);
 
-export const datesQueryChanged = (prevQuery: Query, nextQuery: Query): boolean => {
-  const nextFrom = nextQuery.from ? nextQuery.from.valueOf() : null;
-  const previousFrom = prevQuery.from ? prevQuery.from.valueOf() : null;
-  const nextTo = nextQuery.to ? nextQuery.to.valueOf() : null;
-  const previousTo = prevQuery.to ? prevQuery.to.valueOf() : null;
-  return previousFrom !== nextFrom || previousTo !== nextTo;
-};
+export const datesQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+  !isEqual(prevQuery.from, nextQuery.from) || !isEqual(prevQuery.to, nextQuery.to);
 
 export const hasDataValues = (serie: Serie) => serie.data.some(point => point.y || point.y === 0);
 
@@ -75,16 +70,12 @@ export const historyQueryChanged = (prevQuery: Query, nextQuery: Query): boolean
 
 export const isCustomGraph = (graph: string) => graph === 'custom';
 
-export const selectedDateQueryChanged = (prevQuery: Query, nextQuery: Query): boolean => {
-  const nextSelectedDate = nextQuery.selectedDate ? nextQuery.selectedDate.valueOf() : null;
-  const previousSelectedDate = prevQuery.selectedDate ? prevQuery.selectedDate.valueOf() : null;
-  return nextSelectedDate !== previousSelectedDate;
-};
+export const selectedDateQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+  !isEqual(prevQuery.selectedDate, nextQuery.selectedDate);
 
 export const generateCoveredLinesMetric = (
   uncoveredLines: MeasureHistory,
-  measuresHistory: Array<MeasureHistory>,
-  style: string
+  measuresHistory: Array<MeasureHistory>
 ) => {
   const linesToCover = measuresHistory.find(measure => measure.metric === 'lines_to_cover');
   return {
@@ -95,41 +86,44 @@ export const generateCoveredLinesMetric = (
         }))
       : [],
     name: 'covered_lines',
-    style,
-    translatedName: translate('project_activity.custom_metric.covered_lines')
+    translatedName: translate('project_activity.custom_metric.covered_lines'),
+    type: 'INT'
   };
 };
 
 export const generateSeries = (
   measuresHistory: Array<MeasureHistory>,
   graph: string,
-  dataType: string,
+  metrics: Array<Metric>,
   displayedMetrics: Array<string>
 ): Array<Serie> => {
   if (displayedMetrics.length <= 0) {
     return [];
   }
-  return measuresHistory
-    .filter(measure => displayedMetrics.indexOf(measure.metric) >= 0)
-    .map(measure => {
-      if (measure.metric === 'uncovered_lines' && !isCustomGraph(graph)) {
-        return generateCoveredLinesMetric(
-          measure,
-          measuresHistory,
-          displayedMetrics.indexOf(measure.metric).toString()
-        );
-      }
-      return {
-        name: measure.metric,
-        translatedName: translate('metric', measure.metric, 'name'),
-        style: displayedMetrics.indexOf(measure.metric).toString(),
-        data: measure.history.map(analysis => ({
-          x: analysis.date,
-          y: dataType === 'LEVEL' ? analysis.value : Number(analysis.value)
-        }))
-      };
-    });
+  return sortBy(
+    measuresHistory
+      .filter(measure => displayedMetrics.indexOf(measure.metric) >= 0)
+      .map(measure => {
+        if (measure.metric === 'uncovered_lines' && !isCustomGraph(graph)) {
+          return generateCoveredLinesMetric(measure, measuresHistory);
+        }
+        const metric = metrics.find(metric => metric.key === measure.metric);
+        return {
+          data: measure.history.map(analysis => ({
+            x: analysis.date,
+            y: metric && metric.type === 'LEVEL' ? analysis.value : Number(analysis.value)
+          })),
+          name: measure.metric,
+          translatedName: metric ? getLocalizedMetricName(metric) : measure.metric,
+          type: metric ? metric.type : 'INT'
+        };
+      }),
+    serie => displayedMetrics.indexOf(serie.name)
+  );
 };
+
+export const getSeriesMetricType = (series: Array<Serie>): string =>
+  series.length > 0 ? series[0].type : 'INT';
 
 export const getAnalysesByVersionByDay = (
   analyses: Array<Analysis>,

@@ -22,8 +22,8 @@ import { shallow } from 'enzyme';
 import GraphsLegendStatic from '../GraphsLegendStatic';
 
 const SERIES = [
-  { name: 'bugs', translatedName: 'Bugs', style: '2', data: [] },
-  { name: 'code_smells', translatedName: 'Code Smells', style: '1', data: [] }
+  { name: 'bugs', translatedName: 'Bugs', data: [] },
+  { name: 'code_smells', translatedName: 'Code Smells', data: [] }
 ];
 
 it('should render correctly the list of series', () => {

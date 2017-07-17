@@ -48,7 +48,6 @@ exports[`should correctly render a graph 1`] = `
             },
           ],
           "name": "bugs",
-          "style": 0,
           "translatedName": "metric.bugs.name",
         },
       ]
@@ -60,32 +59,6 @@ exports[`should correctly render a graph 1`] = `
     <AutoSizer
       onResize={[Function]}
     />
-  </div>
-</div>
-`;
-
-exports[`should show a loading view 1`] = `
-<div
-  className="project-activity-graph-container"
->
-  <div
-    className="text-center"
-  >
-    <i
-      className="spinner"
-    />
-  </div>
-</div>
-`;
-
-exports[`should show that there is no data 1`] = `
-<div
-  className="project-activity-graph-container"
->
-  <div
-    className="note text-center"
-  >
-    component_measures.no_history
   </div>
 </div>
 `;

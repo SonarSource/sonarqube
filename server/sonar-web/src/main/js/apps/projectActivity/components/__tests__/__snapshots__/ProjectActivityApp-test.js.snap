@@ -142,7 +142,6 @@ exports[`should render correctly 1`] = `
             },
           ]
         }
-        metricsType="INT"
         query={
           Object {
             "category": "",

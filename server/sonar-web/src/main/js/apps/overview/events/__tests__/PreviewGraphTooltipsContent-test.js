@@ -22,11 +22,7 @@ import { shallow } from 'enzyme';
 import PreviewGraphTooltipsContent from '../PreviewGraphTooltipsContent';
 
 const DEFAULT_PROPS = {
-  serie: {
-    name: 'code_smells',
-    translatedName: 'metric.code_smells.name',
-    style: 1
-  },
+  style: 1,
   translatedName: 'Code Smells',
   value: '1.2k'
 };

@@ -24,7 +24,6 @@ import moment from 'moment';
 import ProjectActivityPageHeader from './ProjectActivityPageHeader';
 import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
 import ProjectActivityGraphs from './ProjectActivityGraphs';
-import { getDisplayedHistoryMetrics } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import './projectActivity.css';
 import type { Analysis, MeasureHistory, Metric, Query } from '../types';
@@ -46,65 +45,50 @@ type Props = {
   updateQuery: (newQuery: Query) => void
 };
 
-export default class ProjectActivityApp extends React.PureComponent {
-  props: Props;
+export default function ProjectActivityApp(props: Props) {
+  const { analyses, measuresHistory, query } = props;
+  const { configuration } = props.project;
+  const canAdmin = configuration ? configuration.showHistory : false;
+  return (
+    <div id="project-activity" className="page page-limited">
+      <Helmet title={translate('project_activity.page')} />
 
-  getMetricType = () => {
-    const historyMetrics = getDisplayedHistoryMetrics(
-      this.props.query.graph,
-      this.props.query.customMetrics
-    );
-    const metricKey = historyMetrics.length > 0 ? historyMetrics[0] : '';
-    const metric = this.props.metrics.find(metric => metric.key === metricKey);
-    return metric ? metric.type : 'INT';
-  };
+      <ProjectActivityPageHeader
+        category={query.category}
+        from={query.from}
+        to={query.to}
+        updateQuery={props.updateQuery}
+      />
 
-  render() {
-    const { analyses, measuresHistory, query } = this.props;
-    const { configuration } = this.props.project;
-    const canAdmin = configuration ? configuration.showHistory : false;
-    return (
-      <div id="project-activity" className="page page-limited">
-        <Helmet title={translate('project_activity.page')} />
-
-        <ProjectActivityPageHeader
-          category={query.category}
-          from={query.from}
-          to={query.to}
-          updateQuery={this.props.updateQuery}
-        />
-
-        <div className="layout-page project-activity-page">
-          <div className="layout-page-side-outer project-activity-page-side-outer boxed-group">
-            <ProjectActivityAnalysesList
-              addCustomEvent={this.props.addCustomEvent}
-              addVersion={this.props.addVersion}
-              analysesLoading={this.props.analysesLoading}
-              analyses={analyses}
-              canAdmin={canAdmin}
-              className="boxed-group-inner"
-              changeEvent={this.props.changeEvent}
-              deleteAnalysis={this.props.deleteAnalysis}
-              deleteEvent={this.props.deleteEvent}
-              loading={this.props.loading}
-              query={this.props.query}
-              updateQuery={this.props.updateQuery}
-            />
-          </div>
-          <div className="project-activity-layout-page-main">
-            <ProjectActivityGraphs
-              analyses={analyses}
-              leakPeriodDate={moment(this.props.project.leakPeriodDate).toDate()}
-              loading={this.props.graphLoading}
-              measuresHistory={measuresHistory}
-              metrics={this.props.metrics}
-              metricsType={this.getMetricType()}
-              query={query}
-              updateQuery={this.props.updateQuery}
-            />
-          </div>
+      <div className="layout-page project-activity-page">
+        <div className="layout-page-side-outer project-activity-page-side-outer boxed-group">
+          <ProjectActivityAnalysesList
+            addCustomEvent={props.addCustomEvent}
+            addVersion={props.addVersion}
+            analysesLoading={props.analysesLoading}
+            analyses={analyses}
+            canAdmin={canAdmin}
+            className="boxed-group-inner"
+            changeEvent={props.changeEvent}
+            deleteAnalysis={props.deleteAnalysis}
+            deleteEvent={props.deleteEvent}
+            loading={props.loading}
+            query={props.query}
+            updateQuery={props.updateQuery}
+          />
+        </div>
+        <div className="project-activity-layout-page-main">
+          <ProjectActivityGraphs
+            analyses={analyses}
+            leakPeriodDate={moment(props.project.leakPeriodDate).toDate()}
+            loading={props.graphLoading}
+            measuresHistory={measuresHistory}
+            metrics={props.metrics}
+            query={query}
+            updateQuery={props.updateQuery}
+          />
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }

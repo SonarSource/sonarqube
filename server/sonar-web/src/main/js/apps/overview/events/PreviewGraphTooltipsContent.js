@@ -20,20 +20,19 @@
 // @flow
 import React from 'react';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
-import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
 type Props = {
-  serie: Serie,
+  style: string,
   translatedName: string,
   value: string
 };
 
-export default function PreviewGraphTooltipsContent({ serie, translatedName, value }: Props) {
+export default function PreviewGraphTooltipsContent({ style, translatedName, value }: Props) {
   return (
     <tr className="overview-analysis-graph-tooltip-line">
       <td className="thin">
         <ChartLegendIcon
-          className={'little-spacer-right line-chart-legend line-chart-legend-' + serie.style}
+          className={'little-spacer-right line-chart-legend line-chart-legend-' + style}
         />
       </td>
       <td className="overview-analysis-graph-tooltip-value text-right little-spacer-right thin">

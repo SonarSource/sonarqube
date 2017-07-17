@@ -51,12 +51,10 @@ const MEASURES_OVERVIEW = [
 
 const DEFAULT_PROPS = {
   measuresHistory: MEASURES_OVERVIEW,
-  serie: {
-    name: 'bugs',
-    translatedName: 'Bugs',
-    style: 2
-  },
+  name: 'bugs',
+  style: '2',
   tooltipIdx: 1,
+  translatedName: 'Bugs',
   value: '1.2k'
 };
 
