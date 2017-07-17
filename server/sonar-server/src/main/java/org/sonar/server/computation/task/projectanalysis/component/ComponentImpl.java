@@ -110,6 +110,11 @@ public class ComponentImpl implements Component {
     throw new IllegalStateException("Only component of type SUBVIEW have a SubViewAttributes object");
   }
 
+  @Override
+  public ViewAttributes getViewAttributes() {
+    throw new IllegalStateException("Only component of type VIEW have a ViewAttributes object");
+  }
+
   public static Builder builder(Type type) {
     return new Builder(type);
   }
