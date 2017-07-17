@@ -26,7 +26,7 @@ import './DuplicationsRating.css';
 export default class DuplicationsRating extends React.PureComponent {
   props: {
     value: number,
-    size?: 'small' | 'normal' | 'big',
+    size?: 'small' | 'normal' | 'big' | 'huge',
     muted?: boolean
   };
 
@@ -40,6 +40,7 @@ export default class DuplicationsRating extends React.PureComponent {
     const className = classNames('duplications-rating', {
       'duplications-rating-small': size === 'small',
       'duplications-rating-big': size === 'big',
+      'duplications-rating-huge': size === 'huge',
       'duplications-rating-muted': muted,
       'duplications-rating-A': inRange(value, 0, 3),
       'duplications-rating-B': inRange(value, 3, 5),

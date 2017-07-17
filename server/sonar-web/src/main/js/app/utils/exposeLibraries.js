@@ -29,6 +29,8 @@ import ListFooter from '../../components/controls/ListFooter';
 import Tooltip from '../../components/controls/Tooltip';
 import ModalForm from '../../components/common/modal-form';
 import SelectList from '../../components/SelectList';
+import CoverageRating from '../../components/ui/CoverageRating';
+import DuplicationsRating from '../../components/ui/DuplicationsRating';
 
 const exposeLibraries = () => {
   window.moment = moment;
@@ -42,6 +44,8 @@ const exposeLibraries = () => {
     Modal,
     Tooltip,
     Select,
+    CoverageRating,
+    DuplicationsRating,
     // deprecated, used in Governance
     ModalForm_deprecated: ModalForm,
     SelectList

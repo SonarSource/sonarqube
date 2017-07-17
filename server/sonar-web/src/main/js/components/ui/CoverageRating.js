@@ -24,19 +24,21 @@ import { DonutChart } from '../charts/donut-chart';
 const SIZE_TO_WIDTH_MAPPING = {
   small: 16,
   normal: 24,
-  big: 40
+  big: 40,
+  huge: 60
 };
 
 const SIZE_TO_THICKNESS_MAPPING = {
   small: 2,
   normal: 3,
-  big: 3
+  big: 3,
+  huge: 4
 };
 
 export default class CoverageRating extends React.PureComponent {
   props: {
     value: number | string,
-    size?: 'small' | 'normal' | 'big',
+    size?: 'small' | 'normal' | 'big' | 'huge',
     muted?: boolean
   };
 
