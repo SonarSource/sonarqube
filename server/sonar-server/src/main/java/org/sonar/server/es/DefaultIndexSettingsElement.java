@@ -30,6 +30,8 @@ import static org.sonar.server.es.DefaultIndexSettings.ANALYSIS;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettings.ASCIIFOLDING;
 import static org.sonar.server.es.DefaultIndexSettings.DELIMITER;
+import static org.sonar.server.es.DefaultIndexSettings.FIELD_FIELDDATA;
+import static org.sonar.server.es.DefaultIndexSettings.FIELDDATA_ENABLED;
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_TEXT;
 import static org.sonar.server.es.DefaultIndexSettings.FILTER;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX;
@@ -126,7 +128,8 @@ public enum DefaultIndexSettingsElement {
       return ImmutableSortedMap.of(
         TYPE, FIELD_TYPE_TEXT,
         INDEX, INDEX_SEARCHABLE,
-        ANALYZER, getName());
+        ANALYZER, getName(),
+        FIELD_FIELDDATA, FIELDDATA_ENABLED);
     }
   },
   INDEX_GRAMS_ANALYZER(ANALYZER) {
