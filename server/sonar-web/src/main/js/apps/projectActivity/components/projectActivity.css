@@ -43,6 +43,14 @@
   padding-top: 52px;
 }
 
+.project-activity-graphs {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+}
+
 .project-activity-graph-container {
   padding: 10px 0;
   flex-grow: 1;

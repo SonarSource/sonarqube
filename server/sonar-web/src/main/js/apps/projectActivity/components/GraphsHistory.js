@@ -19,14 +19,10 @@
  */
 import React from 'react';
 import moment from 'moment';
-import { sortBy } from 'lodash';
-import { AutoSizer } from 'react-virtualized';
-import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
-import GraphsTooltips from './GraphsTooltips';
-import GraphsLegendCustom from './GraphsLegendCustom';
-import GraphsLegendStatic from './GraphsLegendStatic';
-import { formatMeasure, getShortType } from '../../../helpers/measures';
-import { EVENT_TYPES, isCustomGraph } from '../utils';
+import { isEqual, sortBy } from 'lodash';
+import GraphHistory from './GraphHistory';
+import { EVENT_TYPES, getSeriesMetricType, hasHistoryData, isCustomGraph } from '../utils';
+import { translate } from '../../../helpers/l10n';
 import type { Analysis, MeasureHistory } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
@@ -34,11 +30,12 @@ type Props = {
   analyses: Array<Analysis>,
   eventFilter: string,
   graph: string,
+  graphs: Array<Array<Serie>>,
   graphEndDate: ?Date,
   graphStartDate: ?Date,
   leakPeriodDate: Date,
+  loading: boolean,
   measuresHistory: Array<MeasureHistory>,
-  metricsType: string,
   removeCustomMetric: (metric: string) => void,
   selectedDate: ?Date,
   series: Array<Serie>,
@@ -47,20 +44,25 @@ type Props = {
 };
 
 type State = {
-  selectedDate?: ?Date,
-  tooltipIdx: ?number,
-  tooltipXPos: ?number
+  selectedDate?: ?Date
 };
 
 export default class GraphsHistory extends React.PureComponent {
   props: Props;
-  state: State = {
-    tooltipIdx: null,
-    tooltipXPos: null
-  };
+  state: State;
 
-  formatValue = (tick: string | number) =>
-    formatMeasure(tick, getShortType(this.props.metricsType));
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      selectedDate: props.selectedDate
+    };
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (!isEqual(nextProps.selectedDate, this.props.selectedDate)) {
+      this.setState({ selectedDate: nextProps.selectedDate });
+    }
+  }
 
   getEvents = () => {
     const { analyses, eventFilter } = this.props;
@@ -100,54 +102,59 @@ export default class GraphsHistory extends React.PureComponent {
     return [];
   };
 
-  updateTooltip = (selectedDate: ?Date, tooltipXPos: ?number, tooltipIdx: ?number) =>
-    this.setState({ selectedDate, tooltipXPos, tooltipIdx });
+  updateTooltip = (selectedDate: ?Date) => this.setState({ selectedDate });
 
   render() {
     const { graph, series } = this.props;
     const isCustom = isCustomGraph(graph);
-    const { selectedDate, tooltipIdx, tooltipXPos } = this.state;
-    return (
-      <div className="project-activity-graph-container">
-        {isCustom
-          ? <GraphsLegendCustom series={series} removeMetric={this.props.removeCustomMetric} />
-          : <GraphsLegendStatic series={series} />}
-        <div className="project-activity-graph">
-          <AutoSizer>
-            {({ height, width }) =>
-              <div>
-                <AdvancedTimeline
-                  endDate={this.props.graphEndDate}
-                  height={height}
-                  width={width}
-                  interpolate="linear"
-                  formatYTick={this.formatValue}
-                  leakPeriodDate={this.props.leakPeriodDate}
-                  metricType={this.props.metricsType}
-                  selectedDate={this.props.selectedDate}
-                  series={series}
-                  showAreas={['coverage', 'duplications'].includes(graph)}
-                  startDate={this.props.graphStartDate}
-                  updateSelectedDate={this.props.updateSelectedDate}
-                  updateTooltip={this.updateTooltip}
-                  updateZoom={this.props.updateGraphZoom}
-                />
-                {selectedDate != null &&
-                  tooltipXPos != null &&
-                  <GraphsTooltips
-                    events={this.getSelectedDateEvents()}
-                    formatValue={this.formatValue}
-                    graph={graph}
-                    graphWidth={width}
-                    measuresHistory={this.props.measuresHistory}
-                    selectedDate={selectedDate}
-                    series={series}
-                    tooltipIdx={tooltipIdx}
-                    tooltipPos={tooltipXPos}
-                  />}
-              </div>}
-          </AutoSizer>
+
+    if (this.props.loading) {
+      return (
+        <div className="project-activity-graph-container">
+          <div className="text-center">
+            <i className="spinner" />
+          </div>
         </div>
+      );
+    }
+
+    if (!hasHistoryData(series)) {
+      return (
+        <div className="project-activity-graph-container">
+          <div className="note text-center">
+            {translate(
+              isCustom
+                ? 'project_activity.graphs.custom.no_history'
+                : 'component_measures.no_history'
+            )}
+          </div>
+        </div>
+      );
+    }
+    const events = this.getSelectedDateEvents();
+    const showAreas = ['coverage', 'duplications'].includes(graph);
+    return (
+      <div className="project-activity-graphs">
+        {this.props.graphs.map((series, idx) =>
+          <GraphHistory
+            key={idx}
+            events={events}
+            graph={graph}
+            graphEndDate={this.props.graphEndDate}
+            graphStartDate={this.props.graphStartDate}
+            isCustom={isCustom}
+            leakPeriodDate={this.props.leakPeriodDate}
+            measuresHistory={this.props.measuresHistory}
+            metricsType={getSeriesMetricType(series)}
+            removeCustomMetric={this.props.removeCustomMetric}
+            selectedDate={this.state.selectedDate}
+            series={series}
+            showAreas={showAreas}
+            updateGraphZoom={this.props.updateGraphZoom}
+            updateSelectedDate={this.props.updateSelectedDate}
+            updateTooltip={this.updateTooltip}
+          />
+        )}
       </div>
     );
   }

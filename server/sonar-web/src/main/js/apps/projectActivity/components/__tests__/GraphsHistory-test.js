@@ -72,11 +72,12 @@ const DEFAULT_PROPS = {
   analyses: ANALYSES,
   eventFilter: '',
   graph: 'overview',
+  graphs: [SERIES],
   graphEndDate: null,
   graphStartDate: null,
   leakPeriodDate: '2017-05-16T13:50:02+0200',
+  loading: false,
   measuresHistory: [],
-  metricsType: 'INT',
   removeCustomMetric: () => {},
   selectedDate: null,
   series: SERIES,
@@ -88,9 +89,37 @@ it('should correctly render a graph', () => {
   expect(shallow(<GraphsHistory {...DEFAULT_PROPS} />)).toMatchSnapshot();
 });
 
+it('should correctly render multiple graphs', () => {
+  expect(shallow(<GraphsHistory {...DEFAULT_PROPS} graphs={[SERIES, SERIES]} />)).toMatchSnapshot();
+});
+
 it('should correctly filter events', () => {
   expect(shallow(<GraphsHistory {...DEFAULT_PROPS} />).instance().getEvents()).toMatchSnapshot();
   expect(
     shallow(<GraphsHistory {...DEFAULT_PROPS} eventFilter="OTHER" />).instance().getEvents()
+  ).toMatchSnapshot();
+});
+
+it('should show a loading view instead of the graph', () => {
+  expect(
+    shallow(<GraphsHistory {...DEFAULT_PROPS} loading={true} />).find('.spinner')
+  ).toHaveLength(1);
+});
+
+it('should show that there is no history data', () => {
+  expect(shallow(<GraphsHistory {...DEFAULT_PROPS} series={[]} />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <GraphsHistory
+        {...DEFAULT_PROPS}
+        series={[
+          {
+            name: 'bugs',
+            translatedName: 'metric.bugs.name',
+            data: [{ x: new Date('2016-10-27T16:33:50+0200'), y: undefined }]
+          }
+        ]}
+      />
+    )
   ).toMatchSnapshot();
 });
