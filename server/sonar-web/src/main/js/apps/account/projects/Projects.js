@@ -46,11 +46,11 @@ export default class Projects extends React.PureComponent {
 
         {projects.length > 0 &&
           <ul className="account-projects-list">
-            {projects.map(project => (
+            {projects.map(project =>
               <li key={project.key}>
                 <ProjectCard project={project} />
               </li>
-            ))}
+            )}
           </ul>}
 
         {projects.length > 0 &&

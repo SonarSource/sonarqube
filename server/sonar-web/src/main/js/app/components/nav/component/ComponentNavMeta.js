@@ -39,8 +39,7 @@ export default class ComponentNavMeta extends React.PureComponent {
         : translate('component_navigation.status.in_progress');
       metaList.push(
         <li key="isInProgress" data-toggle="tooltip" title={tooltip}>
-          <i className="spinner" style={{ marginTop: '-1px' }} />
-          {' '}
+          <i className="spinner" style={{ marginTop: '-1px' }} />{' '}
           <span className="text-info">{translate('background_task.status.IN_PROGRESS')}</span>
         </li>
       );
@@ -59,22 +58,34 @@ export default class ComponentNavMeta extends React.PureComponent {
         : translate('component_navigation.status.failed');
       metaList.push(
         <li key="isFailed" data-toggle="tooltip" title={tooltip}>
-          <span className="badge badge-danger">{translate('background_task.status.FAILED')}</span>
+          <span className="badge badge-danger">
+            {translate('background_task.status.FAILED')}
+          </span>
         </li>
       );
     }
 
     if (this.props.analysisDate) {
-      metaList.push(<li key="analysisDate">{moment(this.props.analysisDate).format('LLL')}</li>);
+      metaList.push(
+        <li key="analysisDate">
+          {moment(this.props.analysisDate).format('LLL')}
+        </li>
+      );
     }
 
     if (this.props.version) {
-      metaList.push(<li key="version">Version {this.props.version}</li>);
+      metaList.push(
+        <li key="version">
+          Version {this.props.version}
+        </li>
+      );
     }
 
     return (
       <div className="navbar-context-meta">
-        <ul className="list-inline">{metaList}</ul>
+        <ul className="list-inline">
+          {metaList}
+        </ul>
       </div>
     );
   }

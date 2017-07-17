@@ -153,7 +153,9 @@ export default class OrganizationNavigation extends React.PureComponent {
                 <OrganizationIcon />
               </span>
               <Link to={`/organizations/${organization.key}`} className="link-base-color">
-                <strong>{organization.name}</strong>
+                <strong>
+                  {organization.name}
+                </strong>
               </Link>
             </h2>
 

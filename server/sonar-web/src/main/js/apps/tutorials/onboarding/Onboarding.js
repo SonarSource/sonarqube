@@ -139,7 +139,9 @@ export default class Onboarding extends React.PureComponent {
 
         <div className="page page-limited onboarding">
           <header className="page-header">
-            <h1 className="page-title">{header}</h1>
+            <h1 className="page-title">
+              {header}
+            </h1>
             <div className="page-actions">
               {this.state.skipping
                 ? <i className="spinner" />

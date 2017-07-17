@@ -94,15 +94,17 @@ export default class RenameProfileForm extends React.PureComponent {
         className="modal"
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
-
         <form id="rename-profile-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
-            <h2>{header}</h2>
+            <h2>
+              {header}
+            </h2>
           </div>
           <div className="modal-body">
             <div className="modal-field">
               <label htmlFor="rename-profile-name">
-                {translate('quality_profiles.new_name')}<em className="mandatory">*</em>
+                {translate('quality_profiles.new_name')}
+                <em className="mandatory">*</em>
               </label>
               <input
                 autoFocus={true}
@@ -127,7 +129,6 @@ export default class RenameProfileForm extends React.PureComponent {
             </a>
           </div>
         </form>
-
       </Modal>
     );
   }

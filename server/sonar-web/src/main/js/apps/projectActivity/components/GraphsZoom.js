@@ -44,7 +44,7 @@ export default function GraphsZoom(props: Props) {
   return (
     <div className="project-activity-graph-zoom">
       <AutoSizer disableHeight={true}>
-        {({ width }) => (
+        {({ width }) =>
           <ZoomTimeLine
             endDate={props.graphEndDate}
             height={64}
@@ -57,8 +57,7 @@ export default function GraphsZoom(props: Props) {
             showAreas={props.showAreas}
             startDate={props.graphStartDate}
             updateZoom={props.updateGraphZoom}
-          />
-        )}
+          />}
       </AutoSizer>
     </div>
   );

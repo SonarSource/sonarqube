@@ -73,7 +73,11 @@ export default class FacetHeader extends React.PureComponent {
     if (this.props.open || !this.props.values) {
       return null;
     }
-    return <span className="spacer-left badge is-rounded">{this.props.values}</span>;
+    return (
+      <span className="spacer-left badge is-rounded">
+        {this.props.values}
+      </span>
+    );
   }
 
   render() {
@@ -90,7 +94,7 @@ export default class FacetHeader extends React.PureComponent {
 
         {this.props.onClick
           ? <a className="search-navigator-facet-header" href="#" onClick={this.handleClick}>
-              {this.renderCheckbox()}{' '}{this.props.name}{' '}{this.renderValueIndicator()}
+              {this.renderCheckbox()} {this.props.name} {this.renderValueIndicator()}
             </a>
           : <span className="search-navigator-facet-header">
               {this.props.name}

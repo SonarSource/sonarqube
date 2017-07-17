@@ -35,20 +35,26 @@ export default class LicenseRow extends React.PureComponent {
 
     return (
       <tr className="js-license" data-license-key={license.key}>
-        <td className="text-middle"><LicenseStatus license={license} /></td>
+        <td className="text-middle">
+          <LicenseStatus license={license} />
+        </td>
         <td className="js-product text-middle">
           <div className={license.invalidProduct ? 'text-danger' : null}>
             {license.name || license.key}
           </div>
         </td>
-        <td className="js-organization text-middle">{license.organization}</td>
+        <td className="js-organization text-middle">
+          {license.organization}
+        </td>
         <td className="js-expiration text-middle">
           {license.expiration != null &&
             <div className={license.invalidExpiration ? 'text-danger' : null}>
               {moment(license.expiration).format('LL')}
             </div>}
         </td>
-        <td className="js-type text-middle">{license.type}</td>
+        <td className="js-type text-middle">
+          {license.type}
+        </td>
         <td className="js-server-id text-middle">
           <div className={license.invalidServerId ? 'text-danger' : null}>
             {license.serverId}

@@ -107,20 +107,20 @@ export default class TreeView extends React.PureComponent {
 
     const selectedIndex = components.indexOf(selected);
     const sourceViewerPeriod = metric.key.indexOf('new_') === 0 && !!leakPeriod ? leakPeriod : null;
-    const sourceViewerPeriodDate = sourceViewerPeriod != null
-      ? moment(sourceViewerPeriod.date).toDate()
-      : null;
+    const sourceViewerPeriodDate =
+      sourceViewerPeriod != null ? moment(sourceViewerPeriod.date).toDate() : null;
 
-    const filterLine = sourceViewerPeriodDate != null
-      ? line => {
-          if (line.scmDate) {
-            const scmDate = moment(line.scmDate).toDate();
-            return scmDate >= sourceViewerPeriodDate;
-          } else {
-            return false;
+    const filterLine =
+      sourceViewerPeriodDate != null
+        ? line => {
+            if (line.scmDate) {
+              const scmDate = moment(line.scmDate).toDate();
+              return scmDate >= sourceViewerPeriodDate;
+            } else {
+              return false;
+            }
           }
-        }
-      : undefined;
+        : undefined;
 
     return (
       <div ref="container" className="measure-details-plain-list">

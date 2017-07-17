@@ -42,7 +42,8 @@
   background-color: #f3f3f3;
 }
 
-.overview-quality-gate-conditions-list {}
+.overview-quality-gate-conditions-list {
+}
 
 .overview-quality-gate-condition {
   float: left;
@@ -133,7 +134,6 @@
 .overview-quality-gate-condition-warn .overview-quality-gate-threshold {
   color: #ed7d20;
 }
-
 
 /*
  * Domain
@@ -354,7 +354,8 @@
   box-sizing: border-box;
 }
 
-.overview-analysis {}
+.overview-analysis {
+}
 
 .overview-analysis + .overview-analysis {
   margin-top: 8px;
@@ -394,7 +395,8 @@
   font-weight: bold;
 }
 
-.overview-analysis-event {}
+.overview-analysis-event {
+}
 
 .overview-analysis-event.badge {
   vertical-align: middle;

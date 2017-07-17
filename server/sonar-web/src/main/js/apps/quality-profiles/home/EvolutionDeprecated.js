@@ -48,7 +48,9 @@ export default class EvolutionDeprecated extends React.PureComponent {
     return (
       <div className="quality-profile-box quality-profiles-evolution-deprecated">
         <div className="spacer-bottom">
-          <strong>{translate('quality_profiles.deprecated_rules')}</strong>
+          <strong>
+            {translate('quality_profiles.deprecated_rules')}
+          </strong>
         </div>
         <div className="spacer-bottom">
           {translateWithParameters(
@@ -57,7 +59,7 @@ export default class EvolutionDeprecated extends React.PureComponent {
           )}
         </div>
         <ul>
-          {sortedProfiles.map(profile => (
+          {sortedProfiles.map(profile =>
             <li key={profile.key} className="spacer-top">
               <div className="text-ellipsis">
                 <ProfileLink
@@ -84,7 +86,7 @@ export default class EvolutionDeprecated extends React.PureComponent {
                 </Link>
               </div>
             </li>
-          ))}
+          )}
         </ul>
       </div>
     );

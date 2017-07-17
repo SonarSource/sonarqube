@@ -37,15 +37,22 @@ export default class ItemLogLevel extends React.PureComponent {
   };
 
   render() {
-    const options = LOG_LEVELS.map(level => <option key={level} value={level}>{level}</option>);
-    const warning = this.state.level !== 'INFO'
-      ? <div className="alert alert-danger spacer-top" style={{ wordBreak: 'normal' }}>
-          {translate('system.log_level.warning')}
-        </div>
-      : null;
+    const options = LOG_LEVELS.map(level =>
+      <option key={level} value={level}>
+        {level}
+      </option>
+    );
+    const warning =
+      this.state.level !== 'INFO'
+        ? <div className="alert alert-danger spacer-top" style={{ wordBreak: 'normal' }}>
+            {translate('system.log_level.warning')}
+          </div>
+        : null;
     return (
       <div>
-        <select ref="select" onChange={this.onChange} value={this.state.level}>{options}</select>
+        <select ref="select" onChange={this.onChange} value={this.state.level}>
+          {options}
+        </select>
         {warning}
       </div>
     );

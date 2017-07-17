@@ -29,7 +29,8 @@ it('should render correctly with children', () => {
   expect(
     shallow(
       <SelectListItem active="myitem" item="seconditem">
-        <i className="custom-icon" /><p>seconditem</p>
+        <i className="custom-icon" />
+        <p>seconditem</p>
       </SelectListItem>
     )
   ).toMatchSnapshot();

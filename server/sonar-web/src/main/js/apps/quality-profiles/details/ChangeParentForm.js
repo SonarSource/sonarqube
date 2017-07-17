@@ -105,10 +105,11 @@ export default class ChangeParentForm extends React.PureComponent {
         className="modal"
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
-
         <form id="change-profile-parent-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
-            <h2>{translate('quality_profiles.change_parent')}</h2>
+            <h2>
+              {translate('quality_profiles.change_parent')}
+            </h2>
           </div>
           <div className="modal-body">
             <div className="modal-field">
@@ -139,7 +140,6 @@ export default class ChangeParentForm extends React.PureComponent {
             </a>
           </div>
         </form>
-
       </Modal>
     );
   }

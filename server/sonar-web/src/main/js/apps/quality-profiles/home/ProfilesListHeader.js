@@ -58,7 +58,7 @@ export default class ProfilesListHeader extends React.PureComponent {
             {translate('quality_profiles.all_profiles')}
           </IndexLink>
         </li>
-        {this.props.languages.map(language => (
+        {this.props.languages.map(language =>
           <li key={language.key}>
             <IndexLink
               to={getProfilesForLanguagePath(language.key, this.props.organization)}
@@ -67,7 +67,7 @@ export default class ProfilesListHeader extends React.PureComponent {
               {language.name}
             </IndexLink>
           </li>
-        ))}
+        )}
       </ul>
     );
   }

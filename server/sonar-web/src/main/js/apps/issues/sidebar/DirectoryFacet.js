@@ -97,7 +97,7 @@ export default class DirectoryFacet extends React.PureComponent {
 
     return (
       <FacetItemsList>
-        {directories.map(directory => (
+        {directories.map(directory =>
           <FacetItem
             active={this.props.directories.includes(directory)}
             facetMode={this.props.facetMode}
@@ -107,7 +107,7 @@ export default class DirectoryFacet extends React.PureComponent {
             stat={this.getStat(directory)}
             value={directory}
           />
-        ))}
+        )}
       </FacetItemsList>
     );
   }

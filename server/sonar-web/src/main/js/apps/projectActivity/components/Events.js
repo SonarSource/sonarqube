@@ -43,7 +43,7 @@ export default function Events(props: Props) {
 
   return (
     <div className="project-activity-events">
-      {sortedEvents.map(event => (
+      {sortedEvents.map(event =>
         <Event
           analysis={props.analysis}
           canAdmin={props.canAdmin}
@@ -53,7 +53,7 @@ export default function Events(props: Props) {
           isFirst={props.isFirst}
           key={event.key}
         />
-      ))}
+      )}
     </div>
   );
 }

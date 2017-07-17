@@ -39,7 +39,9 @@ export default function PreviewGraphTooltipsContent({ serie, translatedName, val
       <td className="overview-analysis-graph-tooltip-value text-right little-spacer-right thin">
         {value}
       </td>
-      <td className="text-ellipsis">{translatedName}</td>
+      <td className="text-ellipsis">
+        {translatedName}
+      </td>
     </tr>
   );
 }

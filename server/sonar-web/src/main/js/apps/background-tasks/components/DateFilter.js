@@ -75,8 +75,7 @@ export default class DateFilter extends Component {
           ref="minDate"
           type="text"
           placeholder="From"
-        />
-        {' '}
+        />{' '}
         <input
           className="input-small"
           value={maxExecutedAt}

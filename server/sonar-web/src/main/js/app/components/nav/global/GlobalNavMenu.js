@@ -61,9 +61,10 @@ export default class GlobalNavMenu extends React.PureComponent {
   }
 
   renderIssuesLink() {
-    const query = this.props.currentUser.isLoggedIn && isMySet()
-      ? { resolved: 'false', myIssues: 'true' }
-      : { resolved: 'false' };
+    const query =
+      this.props.currentUser.isLoggedIn && isMySet()
+        ? { resolved: 'false', myIssues: 'true' }
+        : { resolved: 'false' };
     const active = this.props.location.pathname === 'issues';
     return (
       <li>
@@ -120,7 +121,9 @@ export default class GlobalNavMenu extends React.PureComponent {
   renderGlobalPageLink = ({ key, name }) => {
     return (
       <li key={key}>
-        <Link to={`/extension/${key}`}>{name}</Link>
+        <Link to={`/extension/${key}`}>
+          {name}
+        </Link>
       </li>
     );
   };

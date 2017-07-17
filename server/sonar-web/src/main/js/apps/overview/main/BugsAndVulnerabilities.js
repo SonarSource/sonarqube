@@ -41,9 +41,13 @@ class BugsAndVulnerabilities extends React.PureComponent {
     return (
       <div className="overview-card-header">
         <div className="overview-title">
-          <Link to={bugsDomainUrl}>{translate('metric.bugs.name')}</Link>
+          <Link to={bugsDomainUrl}>
+            {translate('metric.bugs.name')}
+          </Link>
           {' & '}
-          <Link to={vulnerabilitiesDomainUrl}>{translate('metric.vulnerabilities.name')}</Link>
+          <Link to={vulnerabilitiesDomainUrl}>
+            {translate('metric.vulnerabilities.name')}
+          </Link>
         </div>
       </div>
     );
@@ -95,7 +99,6 @@ class BugsAndVulnerabilities extends React.PureComponent {
     return (
       <div className="overview-domain-nutshell">
         <div className="overview-domain-measures">
-
           <div className="overview-domain-measure">
             <div className="display-inline-block text-middle" style={{ paddingLeft: 56 }}>
               <div className="overview-domain-measure-value">

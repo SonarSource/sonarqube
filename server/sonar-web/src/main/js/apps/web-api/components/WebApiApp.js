@@ -148,7 +148,9 @@ export default class WebApiApp extends React.PureComponent {
         <div className="search-navigator-side search-navigator-side-light" style={{ top: 30 }}>
           <div className="web-api-page-header">
             <Link to="/web_api/">
-              <h1>{translate('api_documentation.page')}</h1>
+              <h1>
+                {translate('api_documentation.page')}
+              </h1>
             </Link>
           </div>
 

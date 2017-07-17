@@ -23,5 +23,11 @@ import { shallow } from 'enzyme';
 import FacetBox from '../FacetBox';
 
 it('should render', () => {
-  expect(shallow(<FacetBox property="foo"><div /></FacetBox>)).toMatchSnapshot();
+  expect(
+    shallow(
+      <FacetBox property="foo">
+        <div />
+      </FacetBox>
+    )
+  ).toMatchSnapshot();
 });

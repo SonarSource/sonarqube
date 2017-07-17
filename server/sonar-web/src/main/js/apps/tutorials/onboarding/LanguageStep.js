@@ -90,7 +90,7 @@ export default class LanguageStep extends React.PureComponent {
     this.setState({ projectKey: undefined }, this.handleChange);
   };
 
-  renderJavaBuild = () => (
+  renderJavaBuild = () =>
     <div className="big-spacer-top">
       <h4 className="spacer-bottom">
         {translate('onboarding.language.java.build_technology')}
@@ -104,10 +104,9 @@ export default class LanguageStep extends React.PureComponent {
         }))}
         value={this.state.javaBuild}
       />
-    </div>
-  );
+    </div>;
 
-  renderCFamilyCompiler = () => (
+  renderCFamilyCompiler = () =>
     <div className="big-spacer-top">
       <h4 className="spacer-bottom">
         {translate('onboarding.language.c-family.compiler')}
@@ -121,10 +120,9 @@ export default class LanguageStep extends React.PureComponent {
         }))}
         value={this.state.cFamilyCompiler}
       />
-    </div>
-  );
+    </div>;
 
-  renderOS = () => (
+  renderOS = () =>
     <div className="big-spacer-top">
       <h4 className="spacer-bottom">
         {translate('onboarding.language.os')}
@@ -138,17 +136,15 @@ export default class LanguageStep extends React.PureComponent {
         }))}
         value={this.state.os}
       />
-    </div>
-  );
+    </div>;
 
-  renderProjectKey = () => (
+  renderProjectKey = () =>
     <NewProjectForm
       onDelete={this.handleProjectKeyDelete}
       onDone={this.handleProjectKeyDone}
       organization={this.props.organization}
       projectKey={this.state.projectKey}
-    />
-  );
+    />;
 
   render() {
     const shouldAskProjectKey =
@@ -165,7 +161,9 @@ export default class LanguageStep extends React.PureComponent {
     return (
       <div>
         <div>
-          <h4 className="spacer-bottom">{translate('onboarding.language')}</h4>
+          <h4 className="spacer-bottom">
+            {translate('onboarding.language')}
+          </h4>
           <RadioToggle
             name="language"
             onCheck={this.handleLanguageChange}

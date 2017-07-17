@@ -38,8 +38,7 @@ export default class MembersListHeader extends React.PureComponent {
         <UsersSearch onSearch={this.props.handleSearch} className="display-inline-block" />
         {total != null &&
           <span className="pull-right little-spacer-top">
-            <strong>{formatMeasure(total, 'INT')}</strong>
-            {' '}
+            <strong>{formatMeasure(total, 'INT')}</strong>{' '}
             {translate('organization.members.members')}
           </span>}
       </div>

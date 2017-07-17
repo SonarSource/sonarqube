@@ -90,9 +90,10 @@ export default ModalForm.extend({
     const applyTo = this.$('[name="apply-to"]:checked').val();
     this.disableForm();
 
-    const request = applyTo === 'all'
-      ? this.bulkApplyToAll(permissionTemplate)
-      : this.bulkApplyToSelected(permissionTemplate);
+    const request =
+      applyTo === 'all'
+        ? this.bulkApplyToAll(permissionTemplate)
+        : this.bulkApplyToSelected(permissionTemplate);
 
     request
       .then(() => {

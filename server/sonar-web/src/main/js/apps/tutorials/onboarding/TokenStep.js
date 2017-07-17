@@ -111,8 +111,13 @@ export default class TokenStep extends React.PureComponent {
       <div className="boxed-group-inner">
         {token != null
           ? <form onSubmit={this.handleTokenRevoke}>
-              <span className="text-middle">{tokenName}{': '}</span>
-              <strong className="spacer-right text-middle">{token}</strong>
+              <span className="text-middle">
+                {tokenName}
+                {': '}
+              </span>
+              <strong className="spacer-right text-middle">
+                {token}
+              </strong>
               {loading
                 ? <i className="spinner text-middle" />
                 : <button className="button-clean text-middle" onClick={this.handleTokenRevoke}>
@@ -131,7 +136,9 @@ export default class TokenStep extends React.PureComponent {
               />
               {loading
                 ? <i className="spinner text-middle" />
-                : <button className="text-middle">{translate('onboarding.token.generate')}</button>}
+                : <button className="text-middle">
+                    {translate('onboarding.token.generate')}
+                  </button>}
             </form>}
 
         <div className="note big-spacer-top width-50">
@@ -158,8 +165,11 @@ export default class TokenStep extends React.PureComponent {
     return (
       <div className="boxed-group-actions">
         <i className="icon-check spacer-right" />
-        {tokenName}{': '}
-        <strong>{token}</strong>
+        {tokenName}
+        {': '}
+        <strong>
+          {token}
+        </strong>
       </div>
     );
   };

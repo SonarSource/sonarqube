@@ -27,7 +27,7 @@ type Props = {
 export default function GraphsLegendStatic({ series }: Props) {
   return (
     <div className="project-activity-graph-legends">
-      {series.map(serie => (
+      {series.map(serie =>
         <GraphsLegendItem
           className="big-spacer-left big-spacer-right"
           key={serie.name}
@@ -35,7 +35,7 @@ export default function GraphsLegendStatic({ series }: Props) {
           name={serie.translatedName}
           style={serie.style}
         />
-      ))}
+      )}
     </div>
   );
 }

@@ -72,7 +72,6 @@ export default class ScannerContext extends React.PureComponent {
         className="modal modal-large"
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
-
         <div className="modal-head">
           <h2>
             {translate('background_tasks.scanner_context')}
@@ -86,7 +85,9 @@ export default class ScannerContext extends React.PureComponent {
 
         <div className="modal-body modal-container">
           {scannerContext != null
-            ? <pre className="js-task-scanner-context">{scannerContext}</pre>
+            ? <pre className="js-task-scanner-context">
+                {scannerContext}
+              </pre>
             : <i className="spinner" />}
         </div>
 
@@ -95,7 +96,6 @@ export default class ScannerContext extends React.PureComponent {
             {translate('close')}
           </a>
         </div>
-
       </Modal>
     );
   }

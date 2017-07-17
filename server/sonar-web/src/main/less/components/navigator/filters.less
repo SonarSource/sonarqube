@@ -21,7 +21,6 @@
 @import (reference) "../../mixins";
 @import (reference) "config";
 
-
 .navigator-filters {
   padding-right: 85px;
   background-color: @navigatorBarBackground;
@@ -44,7 +43,8 @@
 
 .navigator-filter-submit {
   position: absolute;
-  bottom: 0; right: 0;
+  bottom: 0;
+  right: 0;
   width: 85px;
   height: @navigatorFiltersHeight;
   margin: -1px -1px -1px 0;
@@ -55,9 +55,12 @@
   font-weight: normal;
   transition: all 0.2s ease;
 
-  &::-moz-focus-inner { border: 0; }
+  &::-moz-focus-inner {
+    border: 0;
+  }
 
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     border-color: @blue;
     background-color: lighten(@blue, 10%);
   }
@@ -101,7 +104,6 @@
     border-color: @darkGrey;
     background: #fff;
   }
-
 }
 
 .navigator-filter-disabled {
@@ -125,7 +127,7 @@
 }
 
 .navigator-filter-inline .navigator-filter-label:after {
-    content: "";
+  content: "";
 }
 
 .navigator-filter-inactive {
@@ -145,7 +147,9 @@
   color: #333;
   font-size: @baseFontSize;
 
-  &:after { content: ":"; }
+  &:after {
+    content: ":";
+  }
 }
 
 .navigator-filter-value {
@@ -297,7 +301,8 @@
   .fetching &:after {
     content: ' ';
     position: absolute;
-    top: 6px; right: -21px;
+    top: 6px;
+    right: -21px;
     display: block;
     width: 16px;
     height: 16px;
@@ -305,8 +310,9 @@
   }
 
   &.fetching-error {
-
-    input { border: 2px solid @red; }
+    input {
+      border: 2px solid @red;
+    }
   }
 }
 

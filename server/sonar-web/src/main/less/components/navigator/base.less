@@ -21,9 +21,8 @@
 @import (reference) "../../mixins";
 @import (reference) "config";
 
-
-.navigator { }
-
+.navigator {
+}
 
 .navigator-element() {
   position: fixed;
@@ -92,34 +91,33 @@
 }
 
 .navigator-with-notes {
-
   .navigator-notes {
     display: block;
   }
 }
 
-
 .measures-page {
-  .navigator-details { overflow: visible; }
+  .navigator-details {
+    overflow: visible;
+  }
 }
-
 
 .navigator-fetching {
   &:before {
     content: " ";
     position: absolute;
     z-index: @navigator-fetching-z-index;
-    top: 0; bottom: 0; left: 0; right: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
     background: #fff url(../../../images/loading.gif) no-repeat 4px 4px;
   }
 }
 
-
 .navigator-page-loader {
   padding: @navigatorPadding 0 0 @navigatorPadding;
 }
-
-
 
 // Header
 .navigator-header {
@@ -191,12 +189,11 @@
     background-color: #fff;
   }
 
-  [class^="icon-"], [class*=" icon-"] {
+  [class^="icon-"],
+  [class*=" icon-"] {
     font-size: 16px;
   }
 }
-
-
 
 // Notes
 .navigator-notes {
@@ -210,8 +207,6 @@
   line-height: @navigatorNotesHeight;
 }
 
-
-
 // Facets
 .navigator-facets {
   padding: @navigatorPadding;
@@ -220,7 +215,6 @@
 }
 
 .navigator-facets-list {
-
 }
 
 .navigator-facets-list-item {
@@ -246,8 +240,6 @@
   overflow: hidden;
 }
 
-
-
 // Results
 .navigator-results {
   background-color: @white;
@@ -255,8 +247,12 @@
   overflow-y: auto;
 
   &.fetching {
-    .navigator-results-list { visibility: hidden; }
-    .navigator-results-loader { display: block; }
+    .navigator-results-list {
+      visibility: hidden;
+    }
+    .navigator-results-loader {
+      display: block;
+    }
   }
 }
 
@@ -268,7 +264,6 @@
 }
 
 .navigator-results-list {
-
   & > li {
     position: relative;
     z-index: @normal-z-index;
@@ -304,12 +299,14 @@
 
     &.active {
       z-index: @above-normal-z-index;
-      background-color: #CAE3F2;
-      border-color: #4B9FD5;
+      background-color: #cae3f2;
+      border-color: #4b9fd5;
     }
   }
 
-  & > li + li { margin-top: -1px; }
+  & > li + li {
+    margin-top: -1px;
+  }
 }
 
 .navigator-results-no-results {
@@ -321,8 +318,6 @@
   text-align: center;
 }
 
-
-
 // Details
 .navigator-details {
   background-color: @white;
@@ -333,8 +328,6 @@
   }
 }
 
-
-
 // Status
 .navigator-actions {
   padding: 0 @navigatorPadding 0 0;
@@ -344,7 +337,9 @@
   background-color: @navigatorBarBackground;
   font-size: @smallFontSize;
 
-  strong { font-weight: bold; }
+  strong {
+    font-weight: bold;
+  }
 }
 
 .navigator-actions-order {
@@ -400,8 +395,6 @@
   font-size: 16px;
   text-decoration: none;
 }
-
-
 
 // Footer
 .navigator-page #footer {

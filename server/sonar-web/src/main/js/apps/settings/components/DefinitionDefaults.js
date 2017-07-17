@@ -50,9 +50,13 @@ export default class DefinitionDefaults extends React.PureComponent {
 
         {isExplicitlySet &&
           <div className="spacer-top nowrap">
-            <button onClick={e => this.handleReset(e)}>{translate('reset_verb')}</button>
+            <button onClick={e => this.handleReset(e)}>
+              {translate('reset_verb')}
+            </button>
             <span className="spacer-left note">
-              {translate('default')}{': '}{getDefaultValue(setting)}
+              {translate('default')}
+              {': '}
+              {getDefaultValue(setting)}
             </span>
           </div>}
       </div>

@@ -60,7 +60,9 @@ export default class Visualizations extends React.PureComponent {
 
     return (
       <footer className="projects-visualizations-footer">
-        <p>{translate('projects.visualization', this.props.visualization, 'description')}</p>
+        <p>
+          {translate('projects.visualization', this.props.visualization, 'description')}
+        </p>
         {limitReached &&
           <p className="note spacer-top">
             {translateWithParameters(

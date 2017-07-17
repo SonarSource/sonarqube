@@ -100,7 +100,9 @@ class Projects extends React.PureComponent {
     return (
       <span>
         <Organization organizationKey={option.organization} link={false} />
-        <strong>{option.label}</strong>
+        <strong>
+          {option.label}
+        </strong>
       </span>
     );
   };
@@ -122,9 +124,7 @@ class Projects extends React.PureComponent {
         {allProjects.map(project => <ProjectNotifications key={project.key} project={project} />)}
 
         <div className="spacer-top panel bg-muted">
-          <span className="text-middle spacer-right">
-            Set notifications for:
-          </span>
+          <span className="text-middle spacer-right">Set notifications for:</span>
           <Select.Async
             autoload={false}
             cache={false}

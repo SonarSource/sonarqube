@@ -28,7 +28,6 @@
 @topPadding: 8px;
 @bottomPadding: 8px;
 
-
 .issue-list {
   margin: 10px 0;
 }
@@ -123,7 +122,9 @@
   &:before {
     content: " ";
     position: absolute;
-    top: 0; bottom: 0; right: 100%;
+    top: 0;
+    bottom: 0;
+    right: 100%;
     width: 10px;
     background-image: linear-gradient(to right, fade(#fff, 0%), #fff 75%);
   }
@@ -230,7 +231,8 @@ input.issue-action-options-search {
 
 .issue-action-options-search-icon {
   position: absolute;
-  top: 3px; left: 10px;
+  top: 3px;
+  left: 10px;
   color: @secondFontColor;
 
   &:before {
@@ -254,7 +256,6 @@ input.issue-action-options-search {
 }
 
 .issue-comment-form-text {
-
 }
 
 .issue-comment-form-text textarea {
@@ -297,8 +298,8 @@ input.issue-action-options-search {
     margin: -8px 0 0 -3px;
 
     &:before {
-     font-size: 18px;
-   }
+      font-size: 18px;
+    }
   }
 
   &:hover {

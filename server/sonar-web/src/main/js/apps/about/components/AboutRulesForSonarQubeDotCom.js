@@ -68,7 +68,9 @@ export default function AboutRulesForSonarQubeDotCom(props: Props) {
           className="sqcom-about-rules-link">
           C#
         </Link>
-        <Link to={getRulesUrl(null, organization)} className="button">And More</Link>
+        <Link to={getRulesUrl(null, organization)} className="button">
+          And More
+        </Link>
       </div>
     </div>
   );

@@ -45,7 +45,7 @@ import { translate } from '../../../helpers/l10n';
 type Props = {
   component: Object,
   location: Object,
-  fetchOrganizations: Array<string> => string
+  fetchOrganizations: (Array<string>) => string
 };
 
 type State = {

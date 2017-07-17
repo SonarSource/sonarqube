@@ -37,7 +37,11 @@ const Breadcrumb = ({ component, metric, onBrowse }) => {
       </a>
     );
   } else {
-    inner = <span>{component.name}</span>;
+    inner = (
+      <span>
+        {component.name}
+      </span>
+    );
   }
 
   const value = isDiffMetric(metric.key)
@@ -49,7 +53,10 @@ const Breadcrumb = ({ component, metric, onBrowse }) => {
       <QualifierIcon qualifier={component.qualifier} />
       &nbsp;
       {inner}
-      {value != null && <span>{' (' + value + ')'}</span>}
+      {value != null &&
+        <span>
+          {' (' + value + ')'}
+        </span>}
     </span>
   );
 };

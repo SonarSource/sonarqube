@@ -24,8 +24,12 @@ export default function Intro() {
   return (
     <div className="search-navigator-workspace">
       <div className="search-navigator-intro markdown">
-        <p>{translate('quality_gates.intro.1')}</p>
-        <p>{translate('quality_gates.intro.2')}</p>
+        <p>
+          {translate('quality_gates.intro.1')}
+        </p>
+        <p>
+          {translate('quality_gates.intro.2')}
+        </p>
       </div>
     </div>
   );

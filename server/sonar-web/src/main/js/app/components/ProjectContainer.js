@@ -41,7 +41,7 @@ class ProjectContainer extends React.PureComponent {
       qualifier: string
     },
     fetchProject: string => Promise<*>,
-    receiveComponents: Array<*> => void
+    receiveComponents: (Array<*>) => void
   };
 
   componentDidMount() {

@@ -61,7 +61,6 @@ export default function MeasureDetailsHeader({
 
       <TooltipsContainer options={{ html: false }}>
         <div className="measure-details-value">
-
           {isDiff
             ? <div className="measure-details-value-leak">
                 <Measure measure={measure} metric={metric} />

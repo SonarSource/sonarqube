@@ -150,10 +150,16 @@ export default class ProfileRules extends React.PureComponent {
             <thead>
               <tr>
                 <th>
-                  <h2>{translate('rules')}</h2>
+                  <h2>
+                    {translate('rules')}
+                  </h2>
                 </th>
-                <th>{translate('active')}</th>
-                <th>{translate('inactive')}</th>
+                <th>
+                  {translate('active')}
+                </th>
+                <th>
+                  {translate('inactive')}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -164,7 +170,7 @@ export default class ProfileRules extends React.PureComponent {
                 qprofile={profile.key}
                 total={this.state.total}
               />
-              {TYPES.map(type => (
+              {TYPES.map(type =>
                 <ProfileRulesRowOfType
                   key={type}
                   count={this.getRulesCountForType(type)}
@@ -173,7 +179,7 @@ export default class ProfileRules extends React.PureComponent {
                   total={this.getRulesTotalForType(type)}
                   type={type}
                 />
-              ))}
+              )}
             </tbody>
           </table>
 

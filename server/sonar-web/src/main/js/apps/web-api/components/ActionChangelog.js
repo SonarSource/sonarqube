@@ -33,14 +33,14 @@ export default class ActionChangelog extends React.PureComponent {
   render() {
     return (
       <ul className="big-spacer-top">
-        {this.props.changelog.map((item, index) => (
+        {this.props.changelog.map((item, index) =>
           <li key={index} className="spacer-top">
             <span className="spacer-right badge">
               {item.version}
             </span>
             {item.description}
           </li>
-        ))}
+        )}
       </ul>
     );
   }

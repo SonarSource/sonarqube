@@ -40,6 +40,10 @@ export default class Level extends React.PureComponent {
       'level-small': this.props.small,
       'level-muted': this.props.muted
     });
-    return <span className={className}>{formatted}</span>;
+    return (
+      <span className={className}>
+        {formatted}
+      </span>
+    );
   }
 }

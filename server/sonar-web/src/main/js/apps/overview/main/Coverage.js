@@ -95,32 +95,34 @@ class Coverage extends React.PureComponent {
       ? getPeriodValue(newLinesToCover, leakPeriod.index)
       : null;
 
-    const formattedValue = newCoverageValue != null
-      ? <div>
-          <DrilldownLink component={component.key} metric={newCoverageMeasure.metric.key}>
-            <span className="js-overview-main-new-coverage">
-              {formatMeasure(newCoverageValue, 'PERCENT')}
-            </span>
-          </DrilldownLink>
-        </div>
-      : <span>—</span>;
-    const label = newLinesToCoverValue != null && newLinesToCoverValue > 0
-      ? <div className="overview-domain-measure-label">
-          {translate('overview.coverage_on')}
-          <br />
-          <DrilldownLink
-            className="spacer-right overview-domain-secondary-measure-value"
-            component={component.key}
-            metric={newLinesToCover.metric.key}>
-            <span className="js-overview-main-new-coverage">
-              {formatMeasure(newLinesToCoverValue, 'SHORT_INT')}
-            </span>
-          </DrilldownLink>
-          {getMetricName('new_lines_to_cover')}
-        </div>
-      : <div className="overview-domain-measure-label">
-          {getMetricName('new_coverage')}
-        </div>;
+    const formattedValue =
+      newCoverageValue != null
+        ? <div>
+            <DrilldownLink component={component.key} metric={newCoverageMeasure.metric.key}>
+              <span className="js-overview-main-new-coverage">
+                {formatMeasure(newCoverageValue, 'PERCENT')}
+              </span>
+            </DrilldownLink>
+          </div>
+        : <span>—</span>;
+    const label =
+      newLinesToCoverValue != null && newLinesToCoverValue > 0
+        ? <div className="overview-domain-measure-label">
+            {translate('overview.coverage_on')}
+            <br />
+            <DrilldownLink
+              className="spacer-right overview-domain-secondary-measure-value"
+              component={component.key}
+              metric={newLinesToCover.metric.key}>
+              <span className="js-overview-main-new-coverage">
+                {formatMeasure(newLinesToCoverValue, 'SHORT_INT')}
+              </span>
+            </DrilldownLink>
+            {getMetricName('new_lines_to_cover')}
+          </div>
+        : <div className="overview-domain-measure-label">
+            {getMetricName('new_coverage')}
+          </div>;
     return (
       <div className="overview-domain-measure">
         <div className="overview-domain-measure-value">

@@ -136,7 +136,7 @@ export default class ProfileInheritance extends React.PureComponent {
           <table className="data zebra">
             <tbody>
               {ancestors != null &&
-                ancestors.map((ancestor, index) => (
+                ancestors.map((ancestor, index) =>
                   <ProfileInheritanceBox
                     className="js-inheritance-ancestor"
                     depth={index}
@@ -145,7 +145,7 @@ export default class ProfileInheritance extends React.PureComponent {
                     organization={this.props.organization}
                     profile={ancestor}
                   />
-                ))}
+                )}
 
               <ProfileInheritanceBox
                 className={currentClassName}
@@ -158,7 +158,7 @@ export default class ProfileInheritance extends React.PureComponent {
               />
 
               {this.state.children != null &&
-                this.state.children.map(child => (
+                this.state.children.map(child =>
                   <ProfileInheritanceBox
                     className="js-inheritance-child"
                     depth={ancestors ? ancestors.length + 1 : 0}
@@ -167,7 +167,7 @@ export default class ProfileInheritance extends React.PureComponent {
                     organization={this.props.organization}
                     profile={child}
                   />
-                ))}
+                )}
             </tbody>
           </table>}
 

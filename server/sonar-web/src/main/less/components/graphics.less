@@ -48,12 +48,15 @@
 .sonar-d3 .treemap-link {
   position: absolute;
   z-index: @treemap-link-z-index;
-  top: 5px; right: 5px;
+  top: 5px;
+  right: 5px;
   line-height: @iconSmallFontSize;
   opacity: 0.5;
   .link-no-underline;
 
-  &:hover { opacity: 1; }
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .sonar-d3 .treemap-link i,
@@ -64,12 +67,18 @@
 }
 
 .sonar-d3 .treemap-cell-small {
-  .treemap-inner { display: none; }
+  .treemap-inner {
+    display: none;
+  }
 }
 
 .sonar-d3 .treemap-cell-very-small {
-  .treemap-inner { display: none; }
-  .treemap-link { display: none; }
+  .treemap-inner {
+    display: none;
+  }
+  .treemap-link {
+    display: none;
+  }
 }
 
 .sonar-d3 .treemap-breadcrumbs {
@@ -82,13 +91,17 @@
 .sonar-d3 .treemap-breadcrumbs-item {
   color: @secondFontColor;
 
-  & > [class^="icon-qualifier-"] { margin-right: 4px; }
+  & > [class^="icon-qualifier-"] {
+    margin-right: 4px;
+  }
 }
 
 .sonar-d3 .treemap-breadcrumbs-item + .treemap-breadcrumbs-item {
   margin-left: 10px;
 
-  & > .icon-chevron-right { margin-right: 10px; }
+  & > .icon-chevron-right {
+    margin-right: 10px;
+  }
 }
 
 .word-cloud {
@@ -304,11 +317,10 @@
 }
 
 .chart-zoom {
-
-  .zoom-overlay{
+  .zoom-overlay {
     fill: none;
     stroke: none;
-    cursor: crosshair;;
+    cursor: crosshair;
     pointer-events: all;
   }
 

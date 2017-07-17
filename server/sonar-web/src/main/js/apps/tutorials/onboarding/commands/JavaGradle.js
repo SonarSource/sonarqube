@@ -40,7 +40,9 @@ export default function JavaGradle(props: Props) {
 
   return (
     <div>
-      <h4 className="spacer-bottom">{translate('onboarding.analysis.java.gradle.header')}</h4>
+      <h4 className="spacer-bottom">
+        {translate('onboarding.analysis.java.gradle.header')}
+      </h4>
       <p
         className="spacer-bottom markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.java.gradle.text.1') }}

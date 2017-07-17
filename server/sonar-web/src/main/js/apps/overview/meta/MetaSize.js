@@ -49,7 +49,9 @@ export default class MetaSize extends React.PureComponent {
           <DrilldownLink component={this.props.component.key} metric="ncloc">
             {formatMeasure(ncloc.value, 'SHORT_INT')}
           </DrilldownLink>
-          <div className="overview-domain-measure-label text-muted">{getMetricName('ncloc')}</div>
+          <div className="overview-domain-measure-label text-muted">
+            {getMetricName('ncloc')}
+          </div>
         </div>
         <div id="overview-language-distribution" className="overview-meta-size-lang-dist">
           <LanguageDistribution distribution={languageDistribution.value} />

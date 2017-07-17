@@ -53,7 +53,7 @@ export default class Menu extends React.PureComponent {
       <div className="api-documentation-results panel">
         <TooltipsContainer>
           <div className="list-group">
-            {filteredDomains.map(domain => (
+            {filteredDomains.map(domain =>
               <Link
                 key={domain.path}
                 className={classNames('list-group-item', {
@@ -71,7 +71,7 @@ export default class Menu extends React.PureComponent {
                     dangerouslySetInnerHTML={{ __html: domain.description }}
                   />}
               </Link>
-            ))}
+            )}
           </div>
         </TooltipsContainer>
       </div>

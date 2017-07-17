@@ -101,7 +101,7 @@ export default class RuleFacet extends React.PureComponent {
 
     return (
       <FacetItemsList>
-        {rules.map(rule => (
+        {rules.map(rule =>
           <FacetItem
             active={this.props.rules.includes(rule)}
             facetMode={this.props.facetMode}
@@ -111,7 +111,7 @@ export default class RuleFacet extends React.PureComponent {
             stat={this.getStat(rule)}
             value={rule}
           />
-        ))}
+        )}
       </FacetItemsList>
     );
   }

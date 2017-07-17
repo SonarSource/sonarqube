@@ -31,7 +31,9 @@ export default class UserScmAccounts extends React.PureComponent {
 
     return (
       <div>
-        <h2 className="spacer-bottom">{translate('my_profile.scm_accounts')}</h2>
+        <h2 className="spacer-bottom">
+          {translate('my_profile.scm_accounts')}
+        </h2>
         <ul id="scm-accounts">
           <li className="little-spacer-bottom text-ellipsis" title={user.login}>
             {user.login}
@@ -42,11 +44,11 @@ export default class UserScmAccounts extends React.PureComponent {
               {user.email}
             </li>}
 
-          {scmAccounts.map(scmAccount => (
+          {scmAccounts.map(scmAccount =>
             <li key={scmAccount} className="little-spacer-bottom" title={scmAccount}>
               {scmAccount}
             </li>
-          ))}
+          )}
         </ul>
       </div>
     );

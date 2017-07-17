@@ -42,11 +42,8 @@ export default class ComparisonResults extends React.PureComponent {
   renderRule(rule: { key: string, name: string }, severity: string) {
     return (
       <div>
-        <SeverityIcon severity={severity} />
-        {' '}
-        <Link to={getRulesUrl({ rule_key: rule.key }, this.props.organization)}>
-          {rule.name}
-        </Link>
+        <SeverityIcon severity={severity} />{' '}
+        <Link to={getRulesUrl({ rule_key: rule.key }, this.props.organization)}>{rule.name}</Link>
       </div>
     );
   }
@@ -57,11 +54,15 @@ export default class ComparisonResults extends React.PureComponent {
     }
     return (
       <ul>
-        {Object.keys(params).map(key => (
+        {Object.keys(params).map(key =>
           <li key={key} className="spacer-top">
-            <code>{key}{': '}{params[key]}</code>
+            <code>
+              {key}
+              {': '}
+              {params[key]}
+            </code>
           </li>
-        ))}
+        )}
       </ul>
     );
   }
@@ -74,20 +75,24 @@ export default class ComparisonResults extends React.PureComponent {
       <tr key="left-header">
         <td>
           <h6>
-            {translateWithParameters('quality_profiles.x_rules_only_in', this.props.inLeft.length)}
-            {' '}
+            {translateWithParameters(
+              'quality_profiles.x_rules_only_in',
+              this.props.inLeft.length
+            )}{' '}
             {this.props.left.name}
           </h6>
         </td>
         <td>&nbsp;</td>
       </tr>
     );
-    const rows = this.props.inLeft.map(rule => (
+    const rows = this.props.inLeft.map(rule =>
       <tr key={`left-${rule.key}`} className="js-comparison-in-left">
-        <td>{this.renderRule(rule, rule.severity)}</td>
+        <td>
+          {this.renderRule(rule, rule.severity)}
+        </td>
         <td>&nbsp;</td>
       </tr>
-    ));
+    );
     return [header, ...rows];
   }
 
@@ -100,19 +105,23 @@ export default class ComparisonResults extends React.PureComponent {
         <td>&nbsp;</td>
         <td>
           <h6>
-            {translateWithParameters('quality_profiles.x_rules_only_in', this.props.inRight.length)}
-            {' '}
+            {translateWithParameters(
+              'quality_profiles.x_rules_only_in',
+              this.props.inRight.length
+            )}{' '}
             {this.props.right.name}
           </h6>
         </td>
       </tr>
     );
-    const rows = this.props.inRight.map(rule => (
+    const rows = this.props.inRight.map(rule =>
       <tr key={`right-${rule.key}`} className="js-comparison-in-right">
         <td>&nbsp;</td>
-        <td>{this.renderRule(rule, rule.severity)}</td>
+        <td>
+          {this.renderRule(rule, rule.severity)}
+        </td>
       </tr>
-    ));
+    );
     return [header, ...rows];
   }
 
@@ -134,11 +143,19 @@ export default class ComparisonResults extends React.PureComponent {
     );
     const secondHeader = (
       <tr key="modified-second-header">
-        <td><h6>{this.props.left.name}</h6></td>
-        <td><h6>{this.props.right.name}</h6></td>
+        <td>
+          <h6>
+            {this.props.left.name}
+          </h6>
+        </td>
+        <td>
+          <h6>
+            {this.props.right.name}
+          </h6>
+        </td>
       </tr>
     );
-    const rows = this.props.modified.map(rule => (
+    const rows = this.props.modified.map(rule =>
       <tr key={`modified-${rule.key}`} className="js-comparison-modified">
         <td>
           {this.renderRule(rule, rule.left.severity)}
@@ -149,7 +166,7 @@ export default class ComparisonResults extends React.PureComponent {
           {this.renderParameters(rule.right.params)}
         </td>
       </tr>
-    ));
+    );
     return [header, secondHeader, ...rows];
   }
 

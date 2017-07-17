@@ -93,7 +93,7 @@ export default class FileFacet extends React.PureComponent {
 
     return (
       <FacetItemsList>
-        {files.map(file => (
+        {files.map(file =>
           <FacetItem
             active={this.props.files.includes(file)}
             facetMode={this.props.facetMode}
@@ -103,7 +103,7 @@ export default class FileFacet extends React.PureComponent {
             stat={this.getStat(file)}
             value={file}
           />
-        ))}
+        )}
       </FacetItemsList>
     );
   }

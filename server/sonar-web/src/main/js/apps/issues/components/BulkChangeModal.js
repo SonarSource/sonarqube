@@ -208,16 +208,17 @@ export default class BulkChangeModal extends React.PureComponent {
     }));
   }
 
-  renderCancelButton = () => (
+  renderCancelButton = () =>
     <a id="bulk-change-cancel" href="#" onClick={this.handleCloseClick}>
       {translate('cancel')}
-    </a>
-  );
+    </a>;
 
-  renderLoading = () => (
+  renderLoading = () =>
     <div>
       <div className="modal-head">
-        <h2>{translate('bulk_change')}</h2>
+        <h2>
+          {translate('bulk_change')}
+        </h2>
       </div>
       <div className="modal-body">
         <div className="text-center">
@@ -227,29 +228,27 @@ export default class BulkChangeModal extends React.PureComponent {
       <div className="modal-foot">
         {this.renderCancelButton()}
       </div>
-    </div>
-  );
+    </div>;
 
-  renderCheckbox = (field: string) => (
-    <Checkbox checked={this.state[field] != null} onCheck={this.handleFieldCheck(field)} />
-  );
+  renderCheckbox = (field: string) =>
+    <Checkbox checked={this.state[field] != null} onCheck={this.handleFieldCheck(field)} />;
 
-  renderAffected = (affected: number) => (
+  renderAffected = (affected: number) =>
     <div className="pull-right note">
       ({translateWithParameters('issue_bulk_change.x_issues', affected)})
-    </div>
-  );
+    </div>;
 
-  renderField = (field: string, label: string, affected: ?number, input: Object) => (
+  renderField = (field: string, label: string, affected: ?number, input: Object) =>
     <div className="modal-field" id={`issues-bulk-change-${field}`}>
-      <label htmlFor={field}>{translate(label)}</label>
+      <label htmlFor={field}>
+        {translate(label)}
+      </label>
       {this.renderCheckbox(field)}
       {input}
       {affected != null && this.renderAffected(affected)}
-    </div>
-  );
+    </div>;
 
-  renderAssigneeOption = (option: { avatar?: string, email?: string, label: string }) => (
+  renderAssigneeOption = (option: { avatar?: string, email?: string, label: string }) =>
     <span>
       {(option.avatar != null || option.email != null) &&
         <Avatar
@@ -260,8 +259,7 @@ export default class BulkChangeModal extends React.PureComponent {
           size={16}
         />}
       {option.label}
-    </span>
-  );
+    </span>;
 
   renderAssigneeField = () => {
     const affected: number = this.state.issues.filter(hasAction('assign')).length;
@@ -294,12 +292,11 @@ export default class BulkChangeModal extends React.PureComponent {
     const types = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
     const options = types.map(type => ({ label: translate('issue.type', type), value: type }));
 
-    const optionRenderer = (option: { label: string, value: string }) => (
+    const optionRenderer = (option: { label: string, value: string }) =>
       <span>
         <IssueTypeIcon className="little-spacer-right" query={option.value} />
         {option.label}
-      </span>
-    );
+      </span>;
 
     const input = (
       <Select
@@ -403,8 +400,10 @@ export default class BulkChangeModal extends React.PureComponent {
 
     return (
       <div className="modal-field">
-        <label>{translate('issue.transition')}</label>
-        {transitions.map(transition => (
+        <label>
+          {translate('issue.transition')}
+        </label>
+        {transitions.map(transition =>
           <span key={transition.transition}>
             <input
               checked={this.state.transition === transition.transition}
@@ -422,7 +421,7 @@ export default class BulkChangeModal extends React.PureComponent {
             {this.renderAffected(transition.count)}
             <br />
           </span>
-        ))}
+        )}
       </div>
     );
   };
@@ -458,12 +457,13 @@ export default class BulkChangeModal extends React.PureComponent {
     );
   };
 
-  renderNotificationsField = () => (
+  renderNotificationsField = () =>
     <div className="modal-field">
-      <label htmlFor="send-notifications">{translate('issue.send_notifications')}</label>
+      <label htmlFor="send-notifications">
+        {translate('issue.send_notifications')}
+      </label>
       {this.renderCheckbox('notifications')}
-    </div>
-  );
+    </div>;
 
   renderForm = () => {
     const { issues, paging, submitting } = this.state;
@@ -474,7 +474,9 @@ export default class BulkChangeModal extends React.PureComponent {
     return (
       <form id="bulk-change-form" onSubmit={this.handleSubmit}>
         <div className="modal-head">
-          <h2>{translateWithParameters('issue_bulk_change.form.title', issues.length)}</h2>
+          <h2>
+            {translateWithParameters('issue_bulk_change.form.title', issues.length)}
+          </h2>
         </div>
 
         <div className="modal-body">
@@ -495,7 +497,9 @@ export default class BulkChangeModal extends React.PureComponent {
 
         <div className="modal-foot">
           {submitting && <i className="spinner spacer-right" />}
-          <button disabled={submitting} id="bulk-change-submit">{translate('apply')}</button>
+          <button disabled={submitting} id="bulk-change-submit">
+            {translate('apply')}
+          </button>
           {this.renderCancelButton()}
         </div>
       </form>

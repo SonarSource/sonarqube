@@ -49,9 +49,9 @@ export const highlightSymbol = (tokens: Tokens, symbol: string): Tokens => {
   const symbolRegExp = new RegExp(`\\b${symbol}\\b`);
   return tokens.map(
     token =>
-      (symbolRegExp.test(token.className)
+      symbolRegExp.test(token.className)
         ? { ...token, className: `${token.className} highlighted` }
-        : token)
+        : token
   );
 };
 
@@ -104,14 +104,16 @@ export const highlightIssueLocations = (
         nextTokens.push({ ...token, text: p1 });
       }
       if (p2.length) {
-        const newClassName = token.className.indexOf(rootClassName) === -1
-          ? `${token.className} ${rootClassName}`
-          : token.className;
+        const newClassName =
+          token.className.indexOf(rootClassName) === -1
+            ? `${token.className} ${rootClassName}`
+            : token.className;
         nextTokens.push({
           className: newClassName,
-          markers: !markerAdded && location.index != null
-            ? uniq([...token.markers, location.index])
-            : token.markers,
+          markers:
+            !markerAdded && location.index != null
+              ? uniq([...token.markers, location.index])
+              : token.markers,
           text: p2
         });
         markerAdded = true;

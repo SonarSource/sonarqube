@@ -39,7 +39,8 @@ export default function ConciseIssueLocationBadge(props: Props) {
         formatMeasure(props.count)
       )}>
       <LocationIndex onClick={props.onClick} selected={props.selected}>
-        {'+'}{props.count}
+        {'+'}
+        {props.count}
       </LocationIndex>
     </Tooltip>
   );

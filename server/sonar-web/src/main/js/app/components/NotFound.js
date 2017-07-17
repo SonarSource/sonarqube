@@ -25,10 +25,10 @@ export default function NotFound() {
   return (
     <SimpleContainer>
       <h2 className="big-spacer-bottom">The page you were looking for does not exist.</h2>
-      <p className="spacer-bottom">
-        You may have mistyped the address or the page may have moved.
+      <p className="spacer-bottom">You may have mistyped the address or the page may have moved.</p>
+      <p>
+        <Link to="/">Go back to the homepage</Link>
       </p>
-      <p><Link to="/">Go back to the homepage</Link></p>
     </SimpleContainer>
   );
 }

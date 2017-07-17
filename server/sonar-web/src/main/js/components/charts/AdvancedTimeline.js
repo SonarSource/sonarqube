@@ -208,9 +208,10 @@ export default class AdvancedTimeline extends React.PureComponent {
 
   handleMouseOut = (evt: Event & { relatedTarget: HTMLElement }) => {
     const { updateTooltip } = this.props;
-    const targetClass = evt.relatedTarget && typeof evt.relatedTarget.className === 'string'
-      ? evt.relatedTarget.className
-      : '';
+    const targetClass =
+      evt.relatedTarget && typeof evt.relatedTarget.className === 'string'
+        ? evt.relatedTarget.className
+        : '';
     if (
       !updateTooltip ||
       targetClass.includes('bubble-popup') ||
@@ -269,7 +270,7 @@ export default class AdvancedTimeline extends React.PureComponent {
 
     return (
       <g>
-        {ticks.map(tick => (
+        {ticks.map(tick =>
           <g key={tick}>
             {formatYTick != null &&
               <text
@@ -289,7 +290,7 @@ export default class AdvancedTimeline extends React.PureComponent {
               y2={yScale(tick)}
             />
           </g>
-        ))}
+        )}
       </g>
     );
   };
@@ -342,13 +343,13 @@ export default class AdvancedTimeline extends React.PureComponent {
     }
     return (
       <g>
-        {this.props.series.map(serie => (
+        {this.props.series.map(serie =>
           <path
             key={serie.name}
             className={classNames('line-chart-path', 'line-chart-path-' + serie.style)}
             d={lineGenerator(serie.data)}
           />
-        ))}
+        )}
       </g>
     );
   };
@@ -364,13 +365,13 @@ export default class AdvancedTimeline extends React.PureComponent {
     }
     return (
       <g>
-        {this.props.series.map(serie => (
+        {this.props.series.map(serie =>
           <path
             key={serie.name}
             className={classNames('line-chart-area', 'line-chart-area-' + serie.style)}
             d={areaGenerator(serie.data)}
           />
-        ))}
+        )}
       </g>
     );
   };
@@ -387,14 +388,14 @@ export default class AdvancedTimeline extends React.PureComponent {
     const offset = eventSize / 2;
     return (
       <g>
-        {inRangeEvents.map((event, idx) => (
+        {inRangeEvents.map((event, idx) =>
           <path
             d={this.getEventMarker(eventSize)}
             className={classNames('line-chart-event', event.className)}
             key={`${idx}-${event.date.getTime()}`}
             transform={`translate(${xScale(event.date) - offset}, ${yScale.range()[0] + offset})`}
           />
-        ))}
+        )}
       </g>
     );
   };

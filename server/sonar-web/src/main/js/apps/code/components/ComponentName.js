@@ -51,8 +51,12 @@ const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
   const prefix = areBothDirs ? mostCommitPrefix([component.name + '/', previous.name + '/']) : '';
   const name = prefix
     ? <span>
-        <span style={{ color: '#777' }}>{prefix}</span>
-        <span>{component.name.substr(prefix.length)}</span>
+        <span style={{ color: '#777' }}>
+          {prefix}
+        </span>
+        <span>
+          {component.name.substr(prefix.length)}
+        </span>
       </span>
     : component.name;
 
@@ -63,9 +67,7 @@ const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
       <Link
         to={{ pathname: '/dashboard', query: { id: component.refKey } }}
         className="link-with-icon">
-        <QualifierIcon qualifier={component.qualifier} />
-        {' '}
-        <span>{name}</span>
+        <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
       </Link>
     );
   } else if (canBrowse) {
@@ -75,17 +77,13 @@ const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
     }
     inner = (
       <Link to={{ pathname: '/code', query }} className="link-with-icon">
-        <QualifierIcon qualifier={component.qualifier} />
-        {' '}
-        <span>{name}</span>
+        <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
       </Link>
     );
   } else {
     inner = (
       <span>
-        <QualifierIcon qualifier={component.qualifier} />
-        {' '}
-        {name}
+        <QualifierIcon qualifier={component.qualifier} /> {name}
       </span>
     );
   }

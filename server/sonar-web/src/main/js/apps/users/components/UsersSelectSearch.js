@@ -98,9 +98,10 @@ export default class UsersSelectSearch extends React.PureComponent {
   };
 
   render() {
-    const noResult = this.state.search.length === 1
-      ? translateWithParameters('select2.tooShort', 2)
-      : translate('no_results');
+    const noResult =
+      this.state.search.length === 1
+        ? translateWithParameters('select2.tooShort', 2)
+        : translate('no_results');
     return (
       <Select
         autofocus={this.props.autoFocus}

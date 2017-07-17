@@ -119,17 +119,15 @@ export default class ProfileProjects extends React.PureComponent {
 
     return (
       <ul>
-        {projects.map(project => (
+        {projects.map(project =>
           <li key={project.uuid} className="spacer-top js-profile-project" data-key={project.key}>
             <Link
               to={{ pathname: '/dashboard', query: { id: project.key } }}
               className="link-with-icon">
-              <QualifierIcon qualifier="TRK" />
-              {' '}
-              <span>{project.name}</span>
+              <QualifierIcon qualifier="TRK" /> <span>{project.name}</span>
             </Link>
           </li>
-        ))}
+        )}
       </ul>
     );
   }

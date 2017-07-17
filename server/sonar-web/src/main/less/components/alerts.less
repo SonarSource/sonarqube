@@ -20,7 +20,6 @@
 @import (reference) "../variables";
 @import (reference) "../mixins";
 
-
 // Base
 
 .alert {
@@ -30,13 +29,14 @@
   border: 1px solid @secondFontColor;
 }
 
-.alert:empty { display: none; }
+.alert:empty {
+  display: none;
+}
 
 .alert-inline {
   display: inline-block;
   vertical-align: middle;
 }
-
 
 // Color
 
@@ -45,9 +45,15 @@
   background-color: @background-color;
   color: @color;
 }
-.alert-danger  { .alert-emphasis-variant(#a94442, #f2dede, #ebccd1); }
-.alert-warning { .alert-emphasis-variant(#8a6d3b, #fcf8e3, #faebcc); }
-.alert-info    { .alert-emphasis-variant(#31708f, #d9edf7, #bce8f1); }
-.alert-success { .alert-emphasis-variant(#3c763d, #dff0d8, #d6e9c6); }
-
-
+.alert-danger {
+  .alert-emphasis-variant(#a94442, #f2dede, #ebccd1);
+}
+.alert-warning {
+  .alert-emphasis-variant(#8a6d3b, #fcf8e3, #faebcc);
+}
+.alert-info {
+  .alert-emphasis-variant(#31708f, #d9edf7, #bce8f1);
+}
+.alert-success {
+  .alert-emphasis-variant(#3c763d, #dff0d8, #d6e9c6);
+}

@@ -21,10 +21,10 @@
 @import (reference) "../mixins";
 @import (reference) "../components/ui";
 
-
 // Top Level
 
-html, body {
+html,
+body {
   color: @baseFontColor;
 }
 
@@ -34,7 +34,6 @@ body {
   line-height: @baseLineHeight;
 }
 
-
 // Headers
 
 .header(@h) {
@@ -43,30 +42,55 @@ body {
   font-size: ~"@{@{h}-font-size}";
   font-weight: ~"@{@{h}-font-weight}";
 
-  img, svg {
+  img,
+  svg {
     vertical-align: middle;
     transform: translateY(-1px);
   }
 }
 
-h1, .h1 { .header(h1); }
-h2, .h2 { .header(h2); }
-h3, .h3 { .header(h3); }
-h4, .h4 { .header(h4); }
-h5, .h5 { .header(h5); }
-h6, .h6 { .header(h6); }
-
+h1,
+.h1 {
+  .header(h1);
+}
+h2,
+.h2 {
+  .header(h2);
+}
+h3,
+.h3 {
+  .header(h3);
+}
+h4,
+.h4 {
+  .header(h4);
+}
+h5,
+.h5 {
+  .header(h5);
+}
+h6,
+.h6 {
+  .header(h6);
+}
 
 // Superset & Subset
 
-sup { vertical-align: text-top; }
-sub { vertical-align: text-bottom; }
-
+sup {
+  vertical-align: text-top;
+}
+sub {
+  vertical-align: text-bottom;
+}
 
 // Emphasising
 
-em     { font-style: italic; }
-strong { font-weight: 600; }
+em {
+  font-style: italic;
+}
+strong {
+  font-weight: 600;
+}
 
 mark {
   background: none;
@@ -77,7 +101,6 @@ mark {
   font-size: 24px;
   font-weight: 300;
 }
-
 
 // Quotes
 
@@ -93,30 +116,51 @@ blockquote cite {
   font-size: @smallFontSize;
 }
 
-
 // Size
 
 small,
-.small { font-size: (100% * (@smallFontSize / @baseFontSize)); }
+.small {
+  font-size: (100% * (@smallFontSize / @baseFontSize));
+}
 
-.big   { font-size: (100% * (@bigFontSize / @baseFontSize)); }
+.big {
+  font-size: (100% * (@bigFontSize / @baseFontSize));
+}
 
-.zero-font-size { font-size: 0 !important; }
-
+.zero-font-size {
+  font-size: 0 !important;
+}
 
 // Alignment
 
-.text-left    { text-align: left; }
-.text-center  { text-align: center; }
-.text-right   { text-align: right; }
-.text-justify { text-align: justify; }
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
+.text-justify {
+  text-align: justify;
+}
 
-.text-top     { vertical-align: top; }
-.text-middle  { vertical-align: middle; }
-.text-bottom  { vertical-align: bottom; }
-.text-text-top { vertical-align: text-top !important; }
-.text-text-bottom { vertical-align: text-bottom !important; }
-
+.text-top {
+  vertical-align: top;
+}
+.text-middle {
+  vertical-align: middle;
+}
+.text-bottom {
+  vertical-align: bottom;
+}
+.text-text-top {
+  vertical-align: text-top !important;
+}
+.text-text-bottom {
+  vertical-align: text-bottom !important;
+}
 
 // Overflow
 
@@ -132,26 +176,45 @@ small,
   .text-ellipsis;
 }
 
-
 // Transformation
 
-.text-uppercase    { text-transform: uppercase; }
-.text-lowercase    { text-transform: lowercase; }
-.text-no-transform { text-transform: none; }
+.text-uppercase {
+  text-transform: uppercase;
+}
+.text-lowercase {
+  text-transform: lowercase;
+}
+.text-no-transform {
+  text-transform: none;
+}
 
-.text-normal { font-weight: normal; }
-
+.text-normal {
+  font-weight: normal;
+}
 
 // Color
 
-.text-emphasis-variant(@color) { color: @color; }
-.text-muted   { .text-emphasis-variant(@secondFontColor); }
-.text-muted-2 { .text-emphasis-variant(@middleGrey); }
-.text-danger  { .text-emphasis-variant(@red); }
-.text-warning { .text-emphasis-variant(@orange); }
-.text-info    { .text-emphasis-variant(@blue); }
-.text-success { .text-emphasis-variant(@green); }
-
+.text-emphasis-variant(@color) {
+  color: @color;
+}
+.text-muted {
+  .text-emphasis-variant(@secondFontColor);
+}
+.text-muted-2 {
+  .text-emphasis-variant(@middleGrey);
+}
+.text-danger {
+  .text-emphasis-variant(@red);
+}
+.text-warning {
+  .text-emphasis-variant(@orange);
+}
+.text-info {
+  .text-emphasis-variant(@blue);
+}
+.text-success {
+  .text-emphasis-variant(@green);
+}
 
 // Font
 

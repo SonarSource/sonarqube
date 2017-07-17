@@ -77,9 +77,8 @@ export const scrollToElement = (
 
   const scrollTop = getScrollPosition(parent);
 
-  const height: number = parent === window
-    ? window.innerHeight
-    : parent.getBoundingClientRect().height;
+  const height: number =
+    parent === window ? window.innerHeight : parent.getBoundingClientRect().height;
 
   const parentTop = parent === window ? 0 : parent.getBoundingClientRect().top;
 

@@ -76,9 +76,10 @@ export default class ActionsCell extends React.PureComponent {
   }
 
   getAvailableQualifiers() {
-    const topQualifiers = this.props.organization && !this.props.organization.isDefault
-      ? ['TRK']
-      : this.props.topQualifiers;
+    const topQualifiers =
+      this.props.organization && !this.props.organization.isDefault
+        ? ['TRK']
+        : this.props.topQualifiers;
     return difference(topQualifiers, this.props.permissionTemplate.defaultFor);
   }
 
@@ -89,7 +90,11 @@ export default class ActionsCell extends React.PureComponent {
       marginRight: 4,
       textAlign: 'center'
     };
-    return <div style={style}>{icon}</div>;
+    return (
+      <div style={style}>
+        {icon}
+      </div>
+    );
   }
 
   renderSetDefaultsControl() {
@@ -123,7 +128,9 @@ export default class ActionsCell extends React.PureComponent {
     return availableQualifiers.map(qualifier =>
       this.renderSetDefaultLink(
         qualifier,
-        <span>{translate('permission_templates.set_default')}</span>
+        <span>
+          {translate('permission_templates.set_default')}
+        </span>
       )
     );
   }
@@ -133,11 +140,8 @@ export default class ActionsCell extends React.PureComponent {
       this.renderSetDefaultLink(
         qualifier,
         <span>
-          {translate('permission_templates.set_default_for')}
-          {' '}
-          <QualifierIcon qualifier={qualifier} />
-          {' '}
-          {translate('qualifiers', qualifier)}
+          {translate('permission_templates.set_default_for')}{' '}
+          <QualifierIcon qualifier={qualifier} /> {translate('qualifiers', qualifier)}
         </span>
       )
     );
@@ -153,9 +157,7 @@ export default class ActionsCell extends React.PureComponent {
     return (
       <div className="dropdown">
         <button className="dropdown-toggle" data-toggle="dropdown">
-          {translate('actions')}
-          {' '}
-          <i className="icon-dropdown" />
+          {translate('actions')} <i className="icon-dropdown" />
         </button>
 
         <ul className="dropdown-menu dropdown-menu-right">

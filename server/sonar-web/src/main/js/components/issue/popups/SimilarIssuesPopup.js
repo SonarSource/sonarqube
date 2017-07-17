@@ -66,7 +66,9 @@ export default class SimilarIssuesPopup extends React.PureComponent {
         position={this.props.popupPosition}
         customClass="bubble-popup-menu bubble-popup-bottom-right">
         <header className="menu-search">
-          <h6>{translate('issue.filter_similar_issues')}</h6>
+          <h6>
+            {translate('issue.filter_similar_issues')}
+          </h6>
         </header>
 
         <SelectList currentItem={items[0]} items={items} onSelect={this.handleSelect}>
@@ -109,12 +111,12 @@ export default class SimilarIssuesPopup extends React.PureComponent {
           </SelectListItem>
 
           {issue.tags != null &&
-            issue.tags.map(tag => (
+            issue.tags.map(tag =>
               <SelectListItem key={`tag###${tag}`} item={`tag###${tag}`}>
                 <i className="icon-tags icon-half-transparent little-spacer-right" />
                 {tag}
               </SelectListItem>
-            ))}
+            )}
 
           <SelectListItem item="project">
             <QualifierIcon className="little-spacer-right" qualifier="TRK" />

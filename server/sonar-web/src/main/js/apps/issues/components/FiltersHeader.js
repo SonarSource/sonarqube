@@ -45,7 +45,9 @@ export default class FiltersHeader extends React.PureComponent {
             </button>
           </div>}
 
-        <h3>{translate('filters')}</h3>
+        <h3>
+          {translate('filters')}
+        </h3>
       </div>
     );
   }

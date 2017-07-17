@@ -84,9 +84,10 @@ export default class ChangeProjectsForm extends React.PureComponent {
         className="modal"
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
-
         <div className="modal-head">
-          <h2>{header}</h2>
+          <h2>
+            {header}
+          </h2>
         </div>
 
         <div className="modal-body">
@@ -94,9 +95,10 @@ export default class ChangeProjectsForm extends React.PureComponent {
         </div>
 
         <div className="modal-foot">
-          <a href="#" onClick={this.handleCloseClick}>{translate('close')}</a>
+          <a href="#" onClick={this.handleCloseClick}>
+            {translate('close')}
+          </a>
         </div>
-
       </Modal>
     );
   }

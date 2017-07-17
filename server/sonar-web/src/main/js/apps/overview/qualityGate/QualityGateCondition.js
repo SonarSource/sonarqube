@@ -53,7 +53,7 @@ export default class QualityGateCondition extends React.PureComponent {
     const delta = Math.abs(threshold - value);
     if (delta < 0.1 && delta > 0) {
       //$FlowFixMe The matching result can't null because of the previous check
-      return delta.toFixed(20).match('[^0\.]').index - 1;
+      return delta.toFixed(20).match('[^0.]').index - 1;
     }
   }
 

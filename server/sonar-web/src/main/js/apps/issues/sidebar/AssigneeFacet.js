@@ -144,7 +144,7 @@ export default class AssigneeFacet extends React.PureComponent {
 
     return (
       <FacetItemsList>
-        {assignees.map(assignee => (
+        {assignees.map(assignee =>
           <FacetItem
             active={this.isAssigneeActive(assignee)}
             facetMode={this.props.facetMode}
@@ -154,7 +154,7 @@ export default class AssigneeFacet extends React.PureComponent {
             stat={this.getStat(assignee)}
             value={assignee}
           />
-        ))}
+        )}
       </FacetItemsList>
     );
   }

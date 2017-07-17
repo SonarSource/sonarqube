@@ -1,4 +1,5 @@
-.permissions-table {}
+.permissions-table {
+}
 
 .permissions-table > tbody > tr > td {
   border-bottom: 10px solid #fff !important;

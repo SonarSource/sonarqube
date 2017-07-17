@@ -69,7 +69,9 @@ export default class SearchShowMore extends React.PureComponent {
                 )
               }}
             />
-            <span>{translate('show_more')}</span>
+            <span>
+              {translate('show_more')}
+            </span>
           </a>
         </DeferredSpinner>
       </li>

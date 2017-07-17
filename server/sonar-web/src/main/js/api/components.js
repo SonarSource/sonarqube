@@ -47,14 +47,12 @@ export function deleteProject(project: string) {
   return post(url, data);
 }
 
-export function createProject(
-  data: {
-    branch?: string,
-    name: string,
-    project: string,
-    organization?: string
-  }
-) {
+export function createProject(data: {
+  branch?: string,
+  name: string,
+  project: string,
+  organization?: string
+}) {
   const url = '/api/projects/create';
   return postJSON(url, data).catch(throwGlobalError);
 }

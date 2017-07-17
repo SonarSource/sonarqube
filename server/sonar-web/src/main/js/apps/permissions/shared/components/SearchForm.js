@@ -59,7 +59,6 @@ export default class SearchForm extends React.PureComponent {
 
     return (
       <div>
-
         <RadioToggle
           value={filter}
           options={filterOptions}

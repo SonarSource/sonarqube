@@ -99,9 +99,7 @@ export default function WildcardsHelp() {
             </td>
           </tr>
           <tr>
-            <td>
-              **/foo?.js
-            </td>
+            <td>**/foo?.js</td>
             <td>
               <ul>
                 <li>src/foo1.js</li>

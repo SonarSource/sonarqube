@@ -39,10 +39,12 @@ export default class Params extends React.PureComponent {
       <div className="web-api-params">
         <table>
           <tbody>
-            {displayedParameters.map(param => (
+            {displayedParameters.map(param =>
               <tr key={param.key}>
                 <td className="markdown" style={{ width: 180 }}>
-                  <code>{param.key}</code>
+                  <code>
+                    {param.key}
+                  </code>
 
                   {param.internal &&
                     <div className="little-spacer-top">
@@ -57,7 +59,9 @@ export default class Params extends React.PureComponent {
                   {showDeprecated &&
                     param.deprecatedKey &&
                     <div className="little-spacer-top">
-                      <code>{param.deprecatedKey}</code>
+                      <code>
+                        {param.deprecatedKey}
+                      </code>
                     </div>}
 
                   {showDeprecated &&
@@ -89,34 +93,42 @@ export default class Params extends React.PureComponent {
                     <div>
                       <h4>Possible values</h4>
                       <ul className="list-styled">
-                        {param.possibleValues.map(value => (
+                        {param.possibleValues.map(value =>
                           <li key={value} className="little-spacer-top">
-                            <code>{value}</code>
+                            <code>
+                              {value}
+                            </code>
                           </li>
-                        ))}
+                        )}
                       </ul>
                     </div>}
 
                   {param.defaultValue &&
                     <div className="little-spacer-top">
                       <h4>Default value</h4>
-                      <code>{param.defaultValue}</code>
+                      <code>
+                        {param.defaultValue}
+                      </code>
                     </div>}
 
                   {param.exampleValue &&
                     <div className="little-spacer-top">
                       <h4>Example value</h4>
-                      <code>{param.exampleValue}</code>
+                      <code>
+                        {param.exampleValue}
+                      </code>
                     </div>}
 
                   {param.maxValuesAllowed != null &&
                     <div className="little-spacer-top">
                       <h4>Maximum allowed values</h4>
-                      <code>{param.maxValuesAllowed}</code>
+                      <code>
+                        {param.maxValuesAllowed}
+                      </code>
                     </div>}
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

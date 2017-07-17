@@ -62,7 +62,9 @@ export default function enhance(ComposedComponent) {
       return (
         <div className="overview-card-header">
           <div className="overview-title">
-            <Link to={domainUrl}>{label}</Link>
+            <Link to={domainUrl}>
+              {label}
+            </Link>
           </div>
         </div>
       );
@@ -99,9 +101,10 @@ export default function enhance(ComposedComponent) {
       const { measures, leakPeriod } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
       const periodValue = getPeriodValue(measure, leakPeriod.index);
-      const formatted = periodValue != null
-        ? formatMeasureVariation(periodValue, getShortType(measure.metric.type))
-        : NO_VALUE;
+      const formatted =
+        periodValue != null
+          ? formatMeasureVariation(periodValue, getShortType(measure.metric.type))
+          : NO_VALUE;
       return (
         <div className="overview-domain-measure">
           <div className="overview-domain-measure-value">

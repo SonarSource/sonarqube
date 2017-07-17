@@ -23,7 +23,9 @@ import { translate } from '../../../helpers/l10n';
 export default function EmptyInstance() {
   return (
     <div className="projects-empty-list">
-      <h3>{translate('projects.no_projects.empty_instance')}</h3>
+      <h3>
+        {translate('projects.no_projects.empty_instance')}
+      </h3>
     </div>
   );
 }

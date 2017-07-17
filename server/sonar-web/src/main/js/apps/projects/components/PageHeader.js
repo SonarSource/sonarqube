@@ -101,8 +101,7 @@ export default function PageHeader(props: Props) {
 
         {props.projectsAppState.total != null &&
           <span>
-            <strong id="projects-total">{props.projectsAppState.total}</strong>
-            {' '}
+            <strong id="projects-total">{props.projectsAppState.total}</strong>{' '}
             {translate('projects._projects')}
           </span>}
       </div>

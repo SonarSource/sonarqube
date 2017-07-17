@@ -39,18 +39,22 @@ const ComponentsList = ({ components, metrics, selected, metric, onClick }) => {
           <tr>
             <th>&nbsp;</th>
             <th className="text-right">
-              <span className="small">{getLocalizedMetricName(metric)}</span>
+              <span className="small">
+                {getLocalizedMetricName(metric)}
+              </span>
             </th>
-            {otherMetrics.map(metric => (
+            {otherMetrics.map(metric =>
               <th key={metric.key} className="text-right">
-                <span className="small">{getLocalizedMetricName(metric)}</span>
+                <span className="small">
+                  {getLocalizedMetricName(metric)}
+                </span>
               </th>
-            ))}
+            )}
           </tr>
         </thead>}
 
       <tbody>
-        {components.map(component => (
+        {components.map(component =>
           <ComponentsListRow
             key={component.id}
             component={component}
@@ -59,7 +63,7 @@ const ComponentsList = ({ components, metrics, selected, metric, onClick }) => {
             metric={metric}
             onClick={onClick}
           />
-        ))}
+        )}
       </tbody>
     </table>
   );

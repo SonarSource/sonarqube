@@ -55,6 +55,10 @@ export default class IssueTypeIcon extends React.PureComponent {
       return null;
     }
 
-    return this.props.className ? <span className={this.props.className}>{icon}</span> : icon;
+    return this.props.className
+      ? <span className={this.props.className}>
+          {icon}
+        </span>
+      : icon;
   }
 }

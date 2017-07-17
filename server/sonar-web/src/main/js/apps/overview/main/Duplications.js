@@ -79,32 +79,34 @@ class Duplications extends React.PureComponent {
       ? getPeriodValue(newLinesMeasure, leakPeriod.index)
       : null;
 
-    const formattedValue = newDuplicationsValue != null
-      ? <div>
-          <DrilldownLink component={component.key} metric={newDuplicationsMeasure.metric.key}>
-            <span className="js-overview-main-new-duplications">
-              {formatMeasure(newDuplicationsValue, 'PERCENT')}
-            </span>
-          </DrilldownLink>
-        </div>
-      : <span>—</span>;
-    const label = newLinesValue != null && newLinesValue > 0
-      ? <div className="overview-domain-measure-label">
-          {translate('overview.duplications_on')}
-          <br />
-          <DrilldownLink
-            className="spacer-right overview-domain-secondary-measure-value"
-            component={component.key}
-            metric={newLinesMeasure.metric.key}>
-            <span className="js-overview-main-new-lines">
-              {formatMeasure(newLinesValue, 'SHORT_INT')}
-            </span>
-          </DrilldownLink>
-          {getMetricName('new_lines')}
-        </div>
-      : <div className="overview-domain-measure-label">
-          {getMetricName('new_duplications')}
-        </div>;
+    const formattedValue =
+      newDuplicationsValue != null
+        ? <div>
+            <DrilldownLink component={component.key} metric={newDuplicationsMeasure.metric.key}>
+              <span className="js-overview-main-new-duplications">
+                {formatMeasure(newDuplicationsValue, 'PERCENT')}
+              </span>
+            </DrilldownLink>
+          </div>
+        : <span>—</span>;
+    const label =
+      newLinesValue != null && newLinesValue > 0
+        ? <div className="overview-domain-measure-label">
+            {translate('overview.duplications_on')}
+            <br />
+            <DrilldownLink
+              className="spacer-right overview-domain-secondary-measure-value"
+              component={component.key}
+              metric={newLinesMeasure.metric.key}>
+              <span className="js-overview-main-new-lines">
+                {formatMeasure(newLinesValue, 'SHORT_INT')}
+              </span>
+            </DrilldownLink>
+            {getMetricName('new_lines')}
+          </div>
+        : <div className="overview-domain-measure-label">
+            {getMetricName('new_duplications')}
+          </div>;
     return (
       <div className="overview-domain-measure">
         <div className="overview-domain-measure-value">

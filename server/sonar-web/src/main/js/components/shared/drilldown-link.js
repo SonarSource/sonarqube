@@ -122,7 +122,11 @@ export class DrilldownLink extends React.PureComponent {
   renderIssuesLink = () => {
     const url = getComponentIssuesUrl(this.props.component, this.propsToIssueParams());
 
-    return <Link to={url} className={this.props.className}>{this.props.children}</Link>;
+    return (
+      <Link to={url} className={this.props.className}>
+        {this.props.children}
+      </Link>
+    );
   };
 
   render() {
@@ -131,6 +135,10 @@ export class DrilldownLink extends React.PureComponent {
     }
 
     const url = getComponentDrilldownUrl(this.props.component, this.props.metric);
-    return <Link to={url} className={this.props.className}>{this.props.children}</Link>;
+    return (
+      <Link to={url} className={this.props.className}>
+        {this.props.children}
+      </Link>
+    );
   }
 }

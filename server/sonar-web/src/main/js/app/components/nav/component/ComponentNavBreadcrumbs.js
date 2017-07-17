@@ -61,8 +61,12 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
             to={{ pathname: '/dashboard', query: { id: item.key } }}
             className="link-base-color">
             {index === breadcrumbs.length - 1
-              ? <strong>{itemName}</strong>
-              : <span>{itemName}</span>}
+              ? <strong>
+                  {itemName}
+                </strong>
+              : <span>
+                  {itemName}
+                </span>}
           </Link>
           {index < breadcrumbs.length - 1 && <span className="slash-separator" />}
         </span>
@@ -93,8 +97,8 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  organization: ownProps.component.organization &&
-    getOrganizationByKey(state, ownProps.component.organization),
+  organization:
+    ownProps.component.organization && getOrganizationByKey(state, ownProps.component.organization),
   shouldOrganizationBeDisplayed: areThereCustomOrganizations(state)
 });
 

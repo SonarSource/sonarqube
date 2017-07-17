@@ -21,11 +21,11 @@
 @import (reference) "../mixins";
 @import (reference) "../components/ui";
 
-ol, ul {
+ol,
+ul {
   padding-left: 0;
   list-style: none;
 }
-
 
 // Styled lists
 
@@ -33,10 +33,13 @@ ol, ul {
   margin-bottom: 10px;
   padding-left: 40px;
 
-  ul& { list-style: disc; }
-  ol& { list-style: decimal; }
+  ul& {
+    list-style: disc;
+  }
+  ol& {
+    list-style: decimal;
+  }
 }
-
 
 // Inline lists
 
@@ -80,7 +83,6 @@ ol, ul {
   }
 }
 
-
 // Definition lists
 
 dl {
@@ -88,7 +90,8 @@ dl {
   margin-bottom: 20px;
 }
 
-dt, dd {
+dt,
+dd {
   line-height: 1.42857143;
 }
 

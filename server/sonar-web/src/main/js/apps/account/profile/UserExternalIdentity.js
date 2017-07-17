@@ -70,7 +70,9 @@ export default class UserExternalIdentity extends React.PureComponent {
     if (!identityProvider) {
       return (
         <div>
-          {user.externalProvider}{': '}{user.externalIdentity}
+          {user.externalProvider}
+          {': '}
+          {user.externalIdentity}
         </div>
       );
     }
@@ -84,8 +86,7 @@ export default class UserExternalIdentity extends React.PureComponent {
           width="14"
           height="14"
           alt={identityProvider.name}
-        />
-        {' '}
+        />{' '}
         {user.externalIdentity}
       </div>
     );

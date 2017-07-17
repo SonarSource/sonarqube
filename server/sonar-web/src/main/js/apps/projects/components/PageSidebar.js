@@ -83,7 +83,9 @@ export default function PageSidebar({
             </Link>
           </div>}
 
-        <h3>{translate('filters')}</h3>
+        <h3>
+          {translate('filters')}
+        </h3>
       </div>
       <QualityGateFilter {...facetProps} />
       {!isLeakView && [

@@ -100,7 +100,10 @@ export default class Action extends React.PureComponent {
                 <InternalBadge />
               </span>}
 
-            {action.since && <span className="spacer-left badge">since {action.since}</span>}
+            {action.since &&
+              <span className="spacer-left badge">
+                since {action.since}
+              </span>}
 
             {action.deprecatedSince &&
               <span className="spacer-left">

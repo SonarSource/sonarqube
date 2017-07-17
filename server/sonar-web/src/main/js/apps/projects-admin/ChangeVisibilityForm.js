@@ -73,13 +73,14 @@ export default class ChangeVisibilityForm extends React.PureComponent {
         className="modal"
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
-
         <header className="modal-head">
-          <h2>{translate('organization.change_visibility_form.header')}</h2>
+          <h2>
+            {translate('organization.change_visibility_form.header')}
+          </h2>
         </header>
 
         <div className="modal-body">
-          {['public', 'private'].map(visibility => (
+          {['public', 'private'].map(visibility =>
             <div className="big-spacer-bottom" key={visibility}>
               <p>
                 {visibility === 'private' && !canUpdateProjectsVisibilityToPrivate
@@ -107,7 +108,7 @@ export default class ChangeVisibilityForm extends React.PureComponent {
                 {translate('visibility', visibility, 'description.short')}
               </p>
             </div>
-          ))}
+          )}
 
           {canUpdateProjectsVisibilityToPrivate
             ? <div className="alert alert-warning">
@@ -120,9 +121,10 @@ export default class ChangeVisibilityForm extends React.PureComponent {
           <button onClick={this.handleConfirmClick}>
             {translate('organization.change_visibility_form.submit')}
           </button>
-          <a href="#" onClick={this.handleCancelClick}>{translate('cancel')}</a>
+          <a href="#" onClick={this.handleCancelClick}>
+            {translate('cancel')}
+          </a>
         </footer>
-
       </Modal>
     );
   }

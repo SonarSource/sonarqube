@@ -26,15 +26,18 @@ import CodeSmellIconForSonarQubeDotCom from './CodeSmellIconForSonarQubeDotCom';
 export default function AboutQualityModelForSonarQubeDotCom() {
   return (
     <div className="boxed-group about-quality-model sqcom-about-quality-model">
-      <h2>{translate('about_page.quality_model')}</h2>
+      <h2>
+        {translate('about_page.quality_model')}
+      </h2>
 
       <div className="boxed-group-inner clearfix">
         <div className="flex-columns">
           <div className="flex-column flex-column-third">
-            <div className="pull-left little-spacer-right"><BugIconForSonarQubeDotCom /></div>
+            <div className="pull-left little-spacer-right">
+              <BugIconForSonarQubeDotCom />
+            </div>
             <p className="about-page-text overflow-hidden">
-              <strong>{translate('issue.type.BUG.plural')}</strong>
-              {' '}
+              <strong>{translate('issue.type.BUG.plural')}</strong>{' '}
               {translate('about_page.quality_model.bugs')}
             </p>
           </div>
@@ -44,8 +47,7 @@ export default function AboutQualityModelForSonarQubeDotCom() {
               <VulnerabilityIconForSonarQubeDotCom />
             </div>
             <p className="about-page-text overflow-hidden">
-              <strong>{translate('issue.type.VULNERABILITY.plural')}</strong>
-              {' '}
+              <strong>{translate('issue.type.VULNERABILITY.plural')}</strong>{' '}
               {translate('about_page.quality_model.vulnerabilities')}
             </p>
           </div>
@@ -55,8 +57,7 @@ export default function AboutQualityModelForSonarQubeDotCom() {
               <CodeSmellIconForSonarQubeDotCom />
             </div>
             <p className="about-page-text overflow-hidden">
-              <strong>{translate('issue.type.CODE_SMELL.plural')}</strong>
-              {' '}
+              <strong>{translate('issue.type.CODE_SMELL.plural')}</strong>{' '}
               {translate('about_page.quality_model.code_smells')}
             </p>
           </div>

@@ -29,9 +29,10 @@ export default class Defaults extends React.PureComponent {
   };
 
   render() {
-    const qualifiersToDisplay = this.props.organization && !this.props.organization.isDefault
-      ? ['TRK']
-      : this.props.permissionTemplate.defaultFor;
+    const qualifiersToDisplay =
+      this.props.organization && !this.props.organization.isDefault
+        ? ['TRK']
+        : this.props.permissionTemplate.defaultFor;
 
     const qualifiers = sortBy(qualifiersToDisplay)
       .map(qualifier => translate('qualifiers', qualifier))

@@ -75,7 +75,9 @@ export default function ProjectCardLeak({ measures, organization, project }: Pro
             <span className="text-normal">
               <Organization organizationKey={project.organization} />
             </span>}
-          <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
+          <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>
+            {project.name}
+          </Link>
         </h2>
         {displayQualityGate && <ProjectCardQualityGate status={measures['alert_status']} />}
         <div className="pull-right text-right">

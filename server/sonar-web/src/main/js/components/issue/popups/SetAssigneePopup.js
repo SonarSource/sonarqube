@@ -139,7 +139,7 @@ export default class SetAssigneePopup extends React.PureComponent {
             items={map(this.state.users, 'login')}
             currentItem={this.state.currentUser}
             onSelect={this.props.onSelect}>
-            {this.state.users.map(user => (
+            {this.state.users.map(user =>
               <SelectListItem key={user.login} item={user.login}>
                 {!!user.login &&
                   <Avatar
@@ -155,7 +155,7 @@ export default class SetAssigneePopup extends React.PureComponent {
                   {user.name}
                 </span>
               </SelectListItem>
-            ))}
+            )}
           </SelectList>
         </div>
       </BubblePopup>

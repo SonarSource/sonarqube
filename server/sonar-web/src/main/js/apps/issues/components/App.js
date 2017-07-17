@@ -385,9 +385,8 @@ export default class App extends React.PureComponent {
           referencedLanguages: keyBy(other.languages, 'key'),
           referencedRules: keyBy(other.rules, 'key'),
           referencedUsers: keyBy(other.users, 'login'),
-          selected: issues.length > 0
-            ? openIssue != null ? openIssue.key : issues[0].key
-            : undefined,
+          selected:
+            issues.length > 0 ? (openIssue != null ? openIssue.key : issues[0].key) : undefined,
           selectedFlowIndex: null,
           selectedLocationIndex: null
         });
@@ -785,7 +784,9 @@ export default class App extends React.PureComponent {
     return (
       <div className="pull-right note">
         <span className="shortcut-button little-spacer-right">alt</span>
-        <span className="little-spacer-right">{'+'}</span>
+        <span className="little-spacer-right">
+          {'+'}
+        </span>
         <span className="shortcut-button little-spacer-right">↑</span>
         <span className="shortcut-button little-spacer-right">↓</span>
         {hasSeveralFlows &&

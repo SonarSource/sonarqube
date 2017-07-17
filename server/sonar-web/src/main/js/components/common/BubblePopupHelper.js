@@ -30,7 +30,7 @@ type Props = {
   },
   popup: Object,
   position: 'bottomleft' | 'bottomright',
-  togglePopup: ?boolean => void
+  togglePopup: (?boolean) => void
 };
 
 type State = {

@@ -67,7 +67,9 @@ export default class Changelog extends React.PureComponent {
           <td className="thin nowrap">
             {!isBulkChange &&
               (event.authorName
-                ? <span>{event.authorName}</span>
+                ? <span>
+                    {event.authorName}
+                  </span>
                 : <span className="note">System</span>)}
           </td>
 
@@ -93,17 +95,25 @@ export default class Changelog extends React.PureComponent {
         <thead>
           <tr>
             <th className="thin nowrap">
-              {translate('date')}
-              {' '}
-              <i className="icon-sort-desc" />
+              {translate('date')} <i className="icon-sort-desc" />
             </th>
-            <th className="thin nowrap">{translate('user')}</th>
-            <th className="thin nowrap">{translate('action')}</th>
-            <th>{translate('rule')}</th>
-            <th className="thin nowrap">{translate('parameters')}</th>
+            <th className="thin nowrap">
+              {translate('user')}
+            </th>
+            <th className="thin nowrap">
+              {translate('action')}
+            </th>
+            <th>
+              {translate('rule')}
+            </th>
+            <th className="thin nowrap">
+              {translate('parameters')}
+            </th>
           </tr>
         </thead>
-        <tbody>{rows}</tbody>
+        <tbody>
+          {rows}
+        </tbody>
       </table>
     );
   }

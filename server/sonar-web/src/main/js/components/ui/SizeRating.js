@@ -60,6 +60,10 @@ export default class SizeRating extends React.PureComponent {
       'size-rating-muted': this.props.muted
     });
 
-    return <div className={className}>{letter}</div>;
+    return (
+      <div className={className}>
+        {letter}
+      </div>
+    );
   }
 }

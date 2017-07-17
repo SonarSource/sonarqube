@@ -38,7 +38,7 @@ type Props = {|
   onIssueChange: Issue => void,
   onIssueSelect: (issueKey: string) => void,
   onLocationSelect?: number => void,
-  onSymbolClick: Array<string> => void,
+  onSymbolClick: (Array<string>) => void,
   scroll?: HTMLElement => void,
   secondaryIssueLocations: Array<{
     from: number,
@@ -133,8 +133,13 @@ export default class LineCode extends React.PureComponent {
     const ref = message != null ? node => (this.activeMarkerNode = node) : undefined;
     return (
       <LocationIndex key={`marker-${index}`} onClick={onClick} selected={message != null}>
-        <span href="#" ref={ref}>{index + 1}</span>
-        {message != null && <LocationMessage selected={true}>{message}</LocationMessage>}
+        <span href="#" ref={ref}>
+          {index + 1}
+        </span>
+        {message != null &&
+          <LocationMessage selected={true}>
+            {message}
+          </LocationMessage>}
       </LocationIndex>
     );
   }
@@ -185,20 +190,26 @@ export default class LineCode extends React.PureComponent {
     tokens.forEach((token, index) => {
       if (token.markers.length > 0) {
         token.markers.forEach(marker => {
-          const message = highlightedLocationMessage != null &&
-            highlightedLocationMessage.index === marker
-            ? highlightedLocationMessage.text
-            : null;
+          const message =
+            highlightedLocationMessage != null && highlightedLocationMessage.index === marker
+              ? highlightedLocationMessage.text
+              : null;
           renderedTokens.push(this.renderMarker(marker, message));
         });
       }
-      renderedTokens.push(<span className={token.className} key={index}>{token.text}</span>);
+      renderedTokens.push(
+        <span className={token.className} key={index}>
+          {token.text}
+        </span>
+      );
     });
 
     return (
       <td className={className} data-line-number={line.line}>
         <div className="source-line-code-inner">
-          <pre ref={node => (this.codeNode = node)}>{renderedTokens}</pre>
+          <pre ref={node => (this.codeNode = node)}>
+            {renderedTokens}
+          </pre>
         </div>
         {showIssues &&
           issues.length > 0 &&

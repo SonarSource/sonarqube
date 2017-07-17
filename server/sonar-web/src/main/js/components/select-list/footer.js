@@ -36,7 +36,11 @@ export default class Footer extends React.PureComponent {
     if (!hasMore) {
       return null;
     }
-    return <a onClick={this.loadMore} className="spacer-left" href="#">show more</a>;
+    return (
+      <a onClick={this.loadMore} className="spacer-left" href="#">
+        show more
+      </a>
+    );
   };
 
   render() {

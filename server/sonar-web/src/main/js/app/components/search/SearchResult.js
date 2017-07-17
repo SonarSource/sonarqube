@@ -93,7 +93,9 @@ export default class SearchResult extends React.PureComponent {
 
     const organization = this.props.organizations[component.organization];
     return organization
-      ? <div className="navbar-search-item-right text-muted-2">{organization.name}</div>
+      ? <div className="navbar-search-item-right text-muted-2">
+          {organization.name}
+        </div>
       : null;
   };
 
@@ -104,7 +106,9 @@ export default class SearchResult extends React.PureComponent {
 
     const project = this.props.projects[component.project];
     return project
-      ? <div className="navbar-search-item-right text-muted-2">{project.name}</div>
+      ? <div className="navbar-search-item-right text-muted-2">
+          {project.name}
+        </div>
       : null;
   };
 
@@ -127,7 +131,6 @@ export default class SearchResult extends React.PureComponent {
             onClick={this.props.onClose}
             onMouseEnter={this.handleMouseEnter}
             to={getProjectUrl(component.key)}>
-
             <span className="navbar-search-item-icons little-spacer-right">
               {component.isFavorite && <FavoriteIcon favorite={true} size={12} />}
               {!component.isFavorite && component.isRecentlyBrowsed && <ClockIcon size={12} />}
@@ -139,11 +142,12 @@ export default class SearchResult extends React.PureComponent {
                   className="navbar-search-item-match"
                   dangerouslySetInnerHTML={{ __html: component.match }}
                 />
-              : <span className="navbar-search-item-match">{component.name}</span>}
+              : <span className="navbar-search-item-match">
+                  {component.name}
+                </span>}
 
             {this.renderOrganization(component)}
             {this.renderProject(component)}
-
           </Link>
         </Tooltip>
       </li>

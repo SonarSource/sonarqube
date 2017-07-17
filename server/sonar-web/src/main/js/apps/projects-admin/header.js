@@ -57,14 +57,13 @@ export default class Header extends React.PureComponent {
 
     return (
       <header className="page-header">
-        <h1 className="page-title">{translate('projects_management')}</h1>
+        <h1 className="page-title">
+          {translate('projects_management')}
+        </h1>
         <div className="page-actions">
           <span className="big-spacer-right">
-            {translate('organization.default_visibility_of_new_projects')}
-            {' '}
-            <strong>
-              {translate('visibility', organization.projectVisibility)}
-            </strong>
+            {translate('organization.default_visibility_of_new_projects')}{' '}
+            <strong>{translate('visibility', organization.projectVisibility)}</strong>
             <a
               className="spacer-left icon-edit"
               href="#"

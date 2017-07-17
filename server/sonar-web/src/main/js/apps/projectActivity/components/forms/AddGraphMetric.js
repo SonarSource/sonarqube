@@ -105,12 +105,16 @@ export default class AddGraphMetric extends React.PureComponent {
         overlayClassName="modal-overlay"
         onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>{translate('project_activity.graphs.custom.add_metric')}</h2>
+          <h2>
+            {translate('project_activity.graphs.custom.add_metric')}
+          </h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
             <div className="modal-large-field">
-              <label>{translate('project_activity.graphs.custom.search')}</label>
+              <label>
+                {translate('project_activity.graphs.custom.search')}
+              </label>
               <Select
                 autofocus={true}
                 className="Select-big"

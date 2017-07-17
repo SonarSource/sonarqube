@@ -35,11 +35,19 @@
   text-align: center;
   background-color: @blue;
 
-  &:empty { display: none; }
+  &:empty {
+    display: none;
+  }
 
-  a&:hover, a&:focus, a&:active { color: @white; }
+  a&:hover,
+  a&:focus,
+  a&:active {
+    color: @white;
+  }
 
-  a& { .link-no-underline; }
+  a& {
+    .link-no-underline;
+  }
 
   &.is-rounded {
     padding-left: 5px;
@@ -68,7 +76,11 @@
   background-color: transparent;
   color: @secondFontColor;
 
-  &:hover, &:focus, &:active { color: @blue; }
+  &:hover,
+  &:focus,
+  &:active {
+    color: @blue;
+  }
 }
 
 .badge-success,
@@ -83,7 +95,7 @@
 
 .badge-danger,
 .badge-error {
-  background-color: @red
+  background-color: @red;
 }
 
 .badge-danger-light {
@@ -92,7 +104,11 @@
   background-color: #f2dede;
   color: #a94442;
 
-  a&:hover, a&:focus, a&:active { color: #a94442; }
+  a&:hover,
+  a&:focus,
+  a&:active {
+    color: #a94442;
+  }
 }
 
 .badge-focus {
@@ -102,11 +118,15 @@
   color: #8a6d3b;
   font-weight: 400;
 
-  a&:hover, a&:focus, a&:active { color: #8a6d3b; }
+  a&:hover,
+  a&:focus,
+  a&:active {
+    color: #8a6d3b;
+  }
 }
 
 .private-badge,
-.built-in-badge, {
+.built-in-badge {
   display: inline-block;
   vertical-align: middle;
   height: 20px;

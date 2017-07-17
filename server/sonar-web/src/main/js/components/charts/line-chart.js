@@ -83,7 +83,11 @@ export const LineChart = React.createClass({
       const y = yScale(point.y);
       return <circle key={index} className="line-chart-point" r="3" cx={x} cy={y} />;
     });
-    return <g>{points}</g>;
+    return (
+      <g>
+        {points}
+      </g>
+    );
   },
 
   renderVerticalGrid(xScale, yScale) {
@@ -96,7 +100,11 @@ export const LineChart = React.createClass({
       const y2 = yScale(point.y);
       return <line key={index} className="line-chart-grid" x1={x} x2={x} y1={y1} y2={y2} />;
     });
-    return <g>{lines}</g>;
+    return (
+      <g>
+        {lines}
+      </g>
+    );
   },
 
   renderXTicks(xScale, yScale) {
@@ -107,9 +115,17 @@ export const LineChart = React.createClass({
       const point = this.props.data[index];
       const x = xScale(point.x);
       const y = yScale.range()[0];
-      return <text key={index} className="line-chart-tick" x={x} y={y} dy="1.5em">{tick}</text>;
+      return (
+        <text key={index} className="line-chart-tick" x={x} y={y} dy="1.5em">
+          {tick}
+        </text>
+      );
     });
-    return <g>{ticks}</g>;
+    return (
+      <g>
+        {ticks}
+      </g>
+    );
   },
 
   renderXValues(xScale, yScale) {
@@ -120,9 +136,17 @@ export const LineChart = React.createClass({
       const point = this.props.data[index];
       const x = xScale(point.x);
       const y = yScale(point.y);
-      return <text key={index} className="line-chart-tick" x={x} y={y} dy="-1em">{value}</text>;
+      return (
+        <text key={index} className="line-chart-tick" x={x} y={y} dy="-1em">
+          {value}
+        </text>
+      );
     });
-    return <g>{ticks}</g>;
+    return (
+      <g>
+        {ticks}
+      </g>
+    );
   },
 
   renderLine(xScale, yScale) {

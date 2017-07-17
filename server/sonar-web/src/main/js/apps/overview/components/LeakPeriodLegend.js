@@ -85,7 +85,9 @@ export default function LeakPeriodLegend({ period }: { period: Period }) {
       <div className="overview-legend">
         {translateWithParameters('overview.leak_period_x', leakPeriodLabel)}
         <br />
-        <span className="note">{note}</span>
+        <span className="note">
+          {note}
+        </span>
       </div>
     </Tooltip>
   );

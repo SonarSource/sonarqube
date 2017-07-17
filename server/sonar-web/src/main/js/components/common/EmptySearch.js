@@ -22,11 +22,14 @@ import React from 'react';
 import { translate } from '../../helpers/l10n';
 import './EmptySearch.css';
 
-const EmptySearch = () => (
+const EmptySearch = () =>
   <div className="empty-search">
-    <h3>{translate('no_results_search')}</h3>
-    <p className="big-spacer-top">{translate('no_results_search.2')}</p>
-  </div>
-);
+    <h3>
+      {translate('no_results_search')}
+    </h3>
+    <p className="big-spacer-top">
+      {translate('no_results_search.2')}
+    </p>
+  </div>;
 
 export default EmptySearch;

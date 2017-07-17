@@ -130,7 +130,7 @@ export default class OrganizationStep extends React.PureComponent {
     }
   };
 
-  renderPersonalOrganizationOption = () => (
+  renderPersonalOrganizationOption = () =>
     <div>
       <a className="link-base-color link-no-underline" href="#" onClick={this.handlePersonalClick}>
         <i
@@ -139,12 +139,13 @@ export default class OrganizationStep extends React.PureComponent {
           })}
         />
         {translate('onboarding.organization.my_personal_organization')}
-        <span className="note spacer-left">{this.props.currentUser.login}</span>
+        <span className="note spacer-left">
+          {this.props.currentUser.login}
+        </span>
       </a>
-    </div>
-  );
+    </div>;
 
-  renderExistingOrganizationOption = () => (
+  renderExistingOrganizationOption = () =>
     <div className="big-spacer-top">
       <a
         className="js-existing link-base-color link-no-underline"
@@ -170,10 +171,9 @@ export default class OrganizationStep extends React.PureComponent {
             value={this.state.existingOrganization}
           />
         </div>}
-    </div>
-  );
+    </div>;
 
-  renderNewOrganizationOption = () => (
+  renderNewOrganizationOption = () =>
     <div className="big-spacer-top">
       <a
         className="js-new link-base-color link-no-underline"
@@ -194,8 +194,7 @@ export default class OrganizationStep extends React.PureComponent {
             organization={this.state.newOrganization}
           />
         </div>}
-    </div>
-  );
+    </div>;
 
   renderForm = () => {
     return (
@@ -224,7 +223,9 @@ export default class OrganizationStep extends React.PureComponent {
     return result != null
       ? <div className="boxed-group-actions">
           <i className="icon-check spacer-right" />
-          <strong>{result}</strong>
+          <strong>
+            {result}
+          </strong>
         </div>
       : null;
   };

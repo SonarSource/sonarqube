@@ -55,7 +55,9 @@ export default function EntryIssueTypesForSonarQubeDotCom({
                 </Link>
               </td>
               <td>
-                <span className="little-spacer-right"><BugIconForSonarQubeDotCom /></span>
+                <span className="little-spacer-right">
+                  <BugIconForSonarQubeDotCom />
+                </span>
                 {translate('issue.type.BUG.plural')}
               </td>
             </tr>
@@ -72,7 +74,9 @@ export default function EntryIssueTypesForSonarQubeDotCom({
                 </Link>
               </td>
               <td>
-                <span className="little-spacer-right"><VulnerabilityIconForSonarQubeDotCom /></span>
+                <span className="little-spacer-right">
+                  <VulnerabilityIconForSonarQubeDotCom />
+                </span>
                 {translate('issue.type.VULNERABILITY.plural')}
               </td>
             </tr>
@@ -85,7 +89,9 @@ export default function EntryIssueTypesForSonarQubeDotCom({
                 </Link>
               </td>
               <td>
-                <span className="little-spacer-right"><CodeSmellIconForSonarQubeDotCom /></span>
+                <span className="little-spacer-right">
+                  <CodeSmellIconForSonarQubeDotCom />
+                </span>
                 {translate('issue.type.CODE_SMELL.plural')}
               </td>
             </tr>

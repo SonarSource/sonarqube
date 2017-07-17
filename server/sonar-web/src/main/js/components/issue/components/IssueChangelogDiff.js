@@ -67,5 +67,9 @@ export default function IssueChangelogDiff(props: { diff: ChangelogDiff }) {
     }
     message += ` (${translateWithParameters('issue.changelog.was', oldValue)})`;
   }
-  return <p>{message}</p>;
+  return (
+    <p>
+      {message}
+    </p>
+  );
 }

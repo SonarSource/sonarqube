@@ -49,13 +49,13 @@ const ComponentsListRow = ({ component, otherMetrics, isSelected, metric, onClic
 
       <MeasureCell component={component} metric={metric} />
 
-      {otherMeasures.map(measure => (
+      {otherMeasures.map(measure =>
         <MeasureCell
           key={measure.metric.key}
           component={replaceMeasure(component, measure)}
           metric={measure.metric}
         />
-      ))}
+      )}
     </tr>
   );
 };

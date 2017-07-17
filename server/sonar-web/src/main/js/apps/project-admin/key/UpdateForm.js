@@ -72,8 +72,7 @@ export default class UpdateForm extends React.PureComponent {
         <div className="spacer-top">
           <button id="update-key-submit" disabled={!hasChanged}>
             {translate('update_verb')}
-          </button>
-          {' '}
+          </button>{' '}
           <button
             id="update-key-reset"
             disabled={!hasChanged}

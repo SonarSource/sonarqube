@@ -40,7 +40,9 @@
   opacity: 0;
   transition: all 0.2s ease;
 
-  &.shown { opacity: 1; }
+  &.shown {
+    opacity: 1;
+  }
 }
 
 .process-spinner + .process-spinner {
@@ -71,10 +73,7 @@
   color: #fff;
 }
 
-
-
 .shortcuts-section {
-
 }
 
 .shortcuts-section + .shortcuts-section {
@@ -115,7 +114,6 @@
   margin-right: 4px;
 }
 
-
 .nav {
   margin: 0;
   padding: 0;
@@ -134,14 +132,14 @@
   padding: 10px 15px;
 }
 
-
 .nav-crumbs {
   padding: 2px 0;
 
   a {
     color: @baseFontColorLight;
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       color: @blue !important;
     }
   }
@@ -158,7 +156,8 @@
     color: fade(@baseFontColor, 30%);
   }
 
-  [class^="icon-"], [class*=" icon-"] {
+  [class^="icon-"],
+  [class*=" icon-"] {
     position: relative;
     top: 3px;
   }
@@ -218,7 +217,6 @@
   }
 }
 
-
 .flash {
   background-color: transparent;
   transition: all 0.5s ease;
@@ -231,7 +229,6 @@
 .flash-heavy.in {
   background-color: #ffe456;
 }
-
 
 .identity-provider {
   display: inline-block;

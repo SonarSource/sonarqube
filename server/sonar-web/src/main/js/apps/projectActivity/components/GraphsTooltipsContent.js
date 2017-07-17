@@ -43,7 +43,9 @@ export default function GraphsTooltipsContent({ serie, translatedName, value }: 
       <td className="project-activity-graph-tooltip-value text-right spacer-right thin">
         {value}
       </td>
-      <td>{translatedName}</td>
+      <td>
+        {translatedName}
+      </td>
     </tr>
   );
 }

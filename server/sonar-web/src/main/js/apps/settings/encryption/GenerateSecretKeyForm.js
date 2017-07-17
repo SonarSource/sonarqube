@@ -50,44 +50,32 @@ export default class GenerateSecretKeyForm extends React.PureComponent {
 
               <ul className="list-styled markdown">
                 <li className="spacer-bottom">
-                  Store the secret key in the file
-                  {' '}
-                  <code>~/.sonar/sonar-secret.txt</code>
-                  {' '}
-                  of the server. This file can
-                  be relocated by defining the property <code>sonar.secretKeyPath</code>{' '}
-                  in <code>conf/sonar.properties</code>
+                  Store the secret key in the file <code>~/.sonar/sonar-secret.txt</code> of the
+                  server. This file can be relocated by defining the property{' '}
+                  <code>sonar.secretKeyPath</code> in <code>conf/sonar.properties</code>
                 </li>
                 <li className="spacer-bottom">
                   Restrict access to this file by making it readable and by owner only
                 </li>
                 <li className="spacer-bottom">
-                  Restart the server if the property
-                  {' '}
-                  <code>sonar.secretKeyPath</code>
-                  {' '}
-                  has been set or changed.
+                  Restart the server if the property <code>sonar.secretKeyPath</code> has been set
+                  or changed.
                 </li>
                 <li className="spacer-bottom">
-                  Copy this file on all the machines that execute code inspection. Define the
-                  {' '}
-                  property <code>sonar.secretKeyPath</code> on those machines if the path is not
-                  {' '}
+                  Copy this file on all the machines that execute code inspection. Define the{' '}
+                  property <code>sonar.secretKeyPath</code> on those machines if the path is not{' '}
                   <code>~/.sonar/sonar-secret.txt</code>.
                 </li>
                 <li>
-                  For each property that you want to encrypt, generate the encrypted value and
-                  {' '}
-                  replace the original value wherever it is stored
-                  {' '}
-                  (configuration files, command lines).
+                  For each property that you want to encrypt, generate the encrypted value and{' '}
+                  replace the original value wherever it is stored (configuration files, command
+                  lines).
                 </li>
               </ul>
             </div>
           : <div>
               <p className="spacer-bottom">
-                Secret key is required to be able to encrypt properties.
-                {' '}
+                Secret key is required to be able to encrypt properties.{' '}
                 <a href="https://redirect.sonarsource.com/doc/settings-encryption.html">
                   More information
                 </a>

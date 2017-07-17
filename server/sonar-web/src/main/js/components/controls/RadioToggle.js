@@ -61,7 +61,9 @@ export default class RadioToggle extends React.PureComponent {
           onChange={this.handleChange}
         />
 
-        <label htmlFor={htmlId}>{option.label}</label>
+        <label htmlFor={htmlId}>
+          {option.label}
+        </label>
       </li>
     );
   }

@@ -196,7 +196,11 @@ export default class Condition extends Component {
     }
 
     if (metric.type === 'RATING') {
-      return <span className="note">{translate('quality_gates.operator.GT.rating')}</span>;
+      return (
+        <span className="note">
+          {translate('quality_gates.operator.GT.rating')}
+        </span>
+      );
     }
 
     const operators = ['LT', 'GT', 'EQ', 'NE'];
@@ -289,7 +293,6 @@ export default class Condition extends Component {
                   </a>
                 </div>}
           </td>}
-
       </tr>
     );
   }

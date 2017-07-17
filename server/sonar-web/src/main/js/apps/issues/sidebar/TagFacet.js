@@ -98,7 +98,7 @@ export default class TagFacet extends React.PureComponent {
 
     return (
       <FacetItemsList>
-        {tags.map(tag => (
+        {tags.map(tag =>
           <FacetItem
             active={this.props.tags.includes(tag)}
             facetMode={this.props.facetMode}
@@ -108,7 +108,7 @@ export default class TagFacet extends React.PureComponent {
             stat={this.getStat(tag)}
             value={tag}
           />
-        ))}
+        )}
       </FacetItemsList>
     );
   }

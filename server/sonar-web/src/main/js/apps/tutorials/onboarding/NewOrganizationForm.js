@@ -123,7 +123,9 @@ export default class NewOrganizationForm extends React.PureComponent {
 
     return done
       ? <form onSubmit={this.handleOrganizationDelete}>
-          <span className="spacer-right text-middle">{organization}</span>
+          <span className="spacer-right text-middle">
+            {organization}
+          </span>
           {loading
             ? <i className="spinner text-middle" />
             : <button className="button-clean text-middle">
@@ -144,7 +146,9 @@ export default class NewOrganizationForm extends React.PureComponent {
           />
           {loading
             ? <i className="spinner text-middle" />
-            : <button className="text-middle" disabled={!valid}>{translate('create')}</button>}
+            : <button className="text-middle" disabled={!valid}>
+                {translate('create')}
+              </button>}
           {!unique &&
             <span className="big-spacer-left text-danger text-middle">
               <i className="icon-alert-error little-spacer-right text-text-top" />

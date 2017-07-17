@@ -38,7 +38,11 @@ export default class ItemValue extends React.PureComponent {
         formattedValue = <ItemObject value={rawValue} />;
         break;
       default:
-        formattedValue = <code>{rawValue}</code>;
+        formattedValue = (
+          <code>
+            {rawValue}
+          </code>
+        );
     }
     return formattedValue;
   }

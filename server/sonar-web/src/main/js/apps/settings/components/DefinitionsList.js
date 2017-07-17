@@ -30,11 +30,11 @@ export default class DefinitionsList extends React.PureComponent {
   render() {
     return (
       <ul className="settings-definitions-list">
-        {this.props.settings.map(setting => (
+        {this.props.settings.map(setting =>
           <li key={setting.definition.key}>
             <Definition component={this.props.component} setting={setting} />
           </li>
-        ))}
+        )}
       </ul>
     );
   }

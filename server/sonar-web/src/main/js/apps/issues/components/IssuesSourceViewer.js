@@ -65,15 +65,17 @@ export default class IssuesSourceViewer extends React.PureComponent {
   render() {
     const { openIssue, selectedFlowIndex, selectedLocationIndex } = this.props;
 
-    const locations = selectedFlowIndex != null
-      ? openIssue.flows[selectedFlowIndex]
-      : openIssue.flows.length > 0 ? openIssue.flows[0] : openIssue.secondaryLocations;
+    const locations =
+      selectedFlowIndex != null
+        ? openIssue.flows[selectedFlowIndex]
+        : openIssue.flows.length > 0 ? openIssue.flows[0] : openIssue.secondaryLocations;
 
-    const locationMessage = locations != null &&
+    const locationMessage =
+      locations != null &&
       selectedLocationIndex != null &&
       locations.length >= selectedLocationIndex
-      ? { index: selectedLocationIndex, text: locations[selectedLocationIndex].msg }
-      : undefined;
+        ? { index: selectedLocationIndex, text: locations[selectedLocationIndex].msg }
+        : undefined;
 
     return (
       <div ref={node => (this.node = node)}>

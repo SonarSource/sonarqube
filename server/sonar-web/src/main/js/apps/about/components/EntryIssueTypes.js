@@ -50,7 +50,9 @@ export default function EntryIssueTypes({ bugs, codeSmells, loading, vulnerabili
                 </Link>
               </td>
               <td>
-                <span className="little-spacer-right"><BugIcon /></span>
+                <span className="little-spacer-right">
+                  <BugIcon />
+                </span>
                 {translate('issue.type.BUG.plural')}
               </td>
             </tr>
@@ -67,7 +69,9 @@ export default function EntryIssueTypes({ bugs, codeSmells, loading, vulnerabili
                 </Link>
               </td>
               <td>
-                <span className="little-spacer-right"><VulnerabilityIcon /></span>
+                <span className="little-spacer-right">
+                  <VulnerabilityIcon />
+                </span>
                 {translate('issue.type.VULNERABILITY.plural')}
               </td>
             </tr>
@@ -80,7 +84,9 @@ export default function EntryIssueTypes({ bugs, codeSmells, loading, vulnerabili
                 </Link>
               </td>
               <td>
-                <span className="little-spacer-right"><CodeSmellIcon /></span>
+                <span className="little-spacer-right">
+                  <CodeSmellIcon />
+                </span>
                 {translate('issue.type.CODE_SMELL.plural')}
               </td>
             </tr>

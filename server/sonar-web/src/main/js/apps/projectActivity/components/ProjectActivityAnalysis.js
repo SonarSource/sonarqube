@@ -73,9 +73,7 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
                 className="js-analysis-actions button-small button-compact dropdown-toggle"
                 data-toggle="dropdown"
                 onClick={this.stopPropagation}>
-                <i className="icon-settings" />
-                {' '}
-                <i className="icon-dropdown" />
+                <i className="icon-settings" /> <i className="icon-dropdown" />
               </button>
               <ul className="dropdown-menu dropdown-menu-right">
                 {!hasVersion &&
@@ -114,7 +112,6 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
             events={events}
             isFirst={this.props.isFirst}
           />}
-
       </li>
     );
   }

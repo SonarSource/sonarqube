@@ -66,7 +66,7 @@ export default class SourceViewerCode extends React.PureComponent {
     onLineClick: (SourceLine, HTMLElement) => void,
     onLocationSelect?: number => void,
     onSCMClick: (SourceLine, HTMLElement) => void,
-    onSymbolClick: Array<string> => void,
+    onSymbolClick: (Array<string>) => void,
     openIssuesByLine: { [number]: boolean },
     scroll?: HTMLElement => void,
     selectedIssue: string | null,
@@ -126,21 +126,21 @@ export default class SourceViewerCode extends React.PureComponent {
       optimizedHighlightedSymbols = undefined;
     }
 
-    const optimizedSelectedIssue = selectedIssue != null &&
-      issuesForLine.find(issue => issue.key === selectedIssue)
-      ? selectedIssue
-      : null;
+    const optimizedSelectedIssue =
+      selectedIssue != null && issuesForLine.find(issue => issue.key === selectedIssue)
+        ? selectedIssue
+        : null;
 
-    const optimizedSecondaryIssueLocations = secondaryIssueLocations.length > 0
-      ? secondaryIssueLocations
-      : EMPTY_ARRAY;
+    const optimizedSecondaryIssueLocations =
+      secondaryIssueLocations.length > 0 ? secondaryIssueLocations : EMPTY_ARRAY;
 
-    const optimizedLocationMessage = highlightedLocationMessage != null &&
+    const optimizedLocationMessage =
+      highlightedLocationMessage != null &&
       optimizedSecondaryIssueLocations.some(
         location => location.index === highlightedLocationMessage.index
       )
-      ? highlightedLocationMessage
-      : undefined;
+        ? highlightedLocationMessage
+        : undefined;
 
     return (
       <Line

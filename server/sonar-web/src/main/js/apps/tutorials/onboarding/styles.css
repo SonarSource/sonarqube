@@ -1,6 +1,6 @@
- .onboarding {
-   min-height: calc(70vh - 60px);
- }
+.onboarding {
+  min-height: calc(70vh - 60px);
+}
 
 .onboarding-step {
   position: relative;

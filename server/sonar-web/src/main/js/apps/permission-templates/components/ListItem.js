@@ -32,9 +32,9 @@ export default class ListItem extends React.PureComponent {
   };
 
   render() {
-    const permissions = this.props.permissionTemplate.permissions.map(p => (
+    const permissions = this.props.permissionTemplate.permissions.map(p =>
       <PermissionCell key={p.key} permission={p} />
-    ));
+    );
 
     return (
       <tr data-id={this.props.permissionTemplate.id} data-name={this.props.permissionTemplate.name}>

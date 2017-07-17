@@ -71,7 +71,9 @@ class UserOrganizations extends React.PureComponent {
         <Helmet title={translate('my_account.organizations')} />
 
         <header className="page-header">
-          <h2 className="page-title">{translate('my_account.organizations')}</h2>
+          <h2 className="page-title">
+            {translate('my_account.organizations')}
+          </h2>
           {canCreateOrganizations &&
             <div className="page-actions">
               <Link to="/account/organizations/create" className="button">

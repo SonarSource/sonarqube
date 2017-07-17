@@ -38,7 +38,9 @@ export default class NameCell extends React.PureComponent {
     return (
       <td>
         <Link to={{ pathname, query: { id: t.id } }}>
-          <strong className="js-name">{t.name}</strong>
+          <strong className="js-name">
+            {t.name}
+          </strong>
         </Link>
 
         {t.defaultFor.length > 0 &&

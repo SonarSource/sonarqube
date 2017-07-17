@@ -23,7 +23,7 @@ import Breadcrumb from './Breadcrumb';
 export default function Breadcrumbs({ rootComponent, breadcrumbs }) {
   return (
     <ul className="code-breadcrumbs">
-      {breadcrumbs.map((component, index) => (
+      {breadcrumbs.map((component, index) =>
         <li key={component.key}>
           <Breadcrumb
             rootComponent={rootComponent}
@@ -31,7 +31,7 @@ export default function Breadcrumbs({ rootComponent, breadcrumbs }) {
             canBrowse={index < breadcrumbs.length - 1}
           />
         </li>
-      ))}
+      )}
     </ul>
   );
 }

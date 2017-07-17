@@ -28,7 +28,9 @@ type Props = {
 export default function MSBuildScanner(props: Props) {
   return (
     <div className={props.className}>
-      <h4 className="spacer-bottom">{translate('onboarding.analysis.msbuild.header')}</h4>
+      <h4 className="spacer-bottom">
+        {translate('onboarding.analysis.msbuild.header')}
+      </h4>
       <p
         className="spacer-bottom markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.msbuild.text') }}

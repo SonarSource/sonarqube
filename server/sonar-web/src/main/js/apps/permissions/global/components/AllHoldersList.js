@@ -71,9 +71,10 @@ class AllHoldersList extends React.PureComponent {
   }
 
   render() {
-    const order = this.props.organization && !this.props.organization.isDefault
-      ? PERMISSIONS_FOR_CUSTOM_ORG
-      : PERMISSIONS_ORDER;
+    const order =
+      this.props.organization && !this.props.organization.isDefault
+        ? PERMISSIONS_FOR_CUSTOM_ORG
+        : PERMISSIONS_ORDER;
 
     const l10nPrefix = this.props.organization ? 'organizations_permissions' : 'global_permissions';
 
@@ -92,14 +93,12 @@ class AllHoldersList extends React.PureComponent {
         onSelectPermission={this.props.onSelectPermission}
         onToggleUser={this.handleToggleUser.bind(this)}
         onToggleGroup={this.handleToggleGroup.bind(this)}>
-
         <SearchForm
           query={this.props.query}
           filter={this.props.filter}
           onSearch={this.props.onSearch}
           onFilter={this.props.onFilter}
         />
-
       </HoldersList>
     );
   }

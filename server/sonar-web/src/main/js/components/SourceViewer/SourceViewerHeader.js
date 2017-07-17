@@ -99,11 +99,8 @@ export default class SourceViewerHeader extends React.PureComponent {
               </div>}
 
             <div className="component-name-path">
-              <QualifierIcon qualifier={q} />
-              {' '}
-              <span>{collapsedDirFromPath(path)}</span>
+              <QualifierIcon qualifier={q} /> <span>{collapsedDirFromPath(path)}</span>
               <span className="component-name-file">{fileFromPath(path)}</span>
-
               {this.props.component.canMarkAsFavorite &&
                 <FavoriteContainer className="component-name-favorite" componentKey={key} />}
             </div>
@@ -171,8 +168,7 @@ export default class SourceViewerHeader extends React.PureComponent {
                 to={getComponentIssuesUrl(project, { resolved: 'false', fileUuids: uuid })}
                 className="source-viewer-header-external-link"
                 target="_blank">
-                {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}
-                {' '}
+                {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}{' '}
                 <i className="icon-detach" />
               </Link>
             </span>

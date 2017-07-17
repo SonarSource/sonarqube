@@ -64,7 +64,8 @@ export default class MultiSelectOption extends React.PureComponent {
           onClick={this.handleSelect}
           onMouseOver={this.handleHover}
           onFocus={this.handleHover}>
-          <i className={className} />{' '}{this.props.custom && '+ '}{this.props.element}
+          <i className={className} /> {this.props.custom && '+ '}
+          {this.props.element}
         </a>
       </li>
     );

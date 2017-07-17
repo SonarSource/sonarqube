@@ -38,14 +38,22 @@ it('add custom className', () => {
 });
 
 it('renders children before timeout', () => {
-  const spinner = mount(<DeferredSpinner><div>foo</div></DeferredSpinner>);
+  const spinner = mount(
+    <DeferredSpinner>
+      <div>foo</div>
+    </DeferredSpinner>
+  );
   expect(spinner).toMatchSnapshot();
   jest.runAllTimers();
   expect(spinner).toMatchSnapshot();
 });
 
 it('is controlled by loading prop', () => {
-  const spinner = mount(<DeferredSpinner loading={false}><div>foo</div></DeferredSpinner>);
+  const spinner = mount(
+    <DeferredSpinner loading={false}>
+      <div>foo</div>
+    </DeferredSpinner>
+  );
   expect(spinner).toMatchSnapshot();
   spinner.setProps({ loading: true });
   expect(spinner).toMatchSnapshot();

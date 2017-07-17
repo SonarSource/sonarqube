@@ -46,12 +46,12 @@ export default class SetSeverityPopup extends React.PureComponent {
           items={SEVERITY}
           currentItem={this.props.issue.severity}
           onSelect={this.props.onSelect}>
-          {SEVERITY.map(severity => (
+          {SEVERITY.map(severity =>
             <SelectListItem key={severity} item={severity}>
               <SeverityIcon className="little-spacer-right" severity={severity} />
               {translate('severity', severity)}
             </SelectListItem>
-          ))}
+          )}
         </SelectList>
       </BubblePopup>
     );

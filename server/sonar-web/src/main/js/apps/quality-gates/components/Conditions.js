@@ -100,11 +100,15 @@ export default class Conditions extends React.PureComponent {
 
         {uniqDuplicates.length > 0 &&
           <div className="alert alert-warning">
-            <p>{translate('quality_gates.duplicated_conditions')}</p>
+            <p>
+              {translate('quality_gates.duplicated_conditions')}
+            </p>
             <ul className="list-styled spacer-top">
-              {uniqDuplicates.map(d => (
-                <li key={d.metric.key}>{getLocalizedMetricName(d.metric)}</li>
-              ))}
+              {uniqDuplicates.map(d =>
+                <li key={d.metric.key}>
+                  {getLocalizedMetricName(d.metric)}
+                </li>
+              )}
             </ul>
           </div>}
 
@@ -131,7 +135,7 @@ export default class Conditions extends React.PureComponent {
                 </tr>
               </thead>
               <tbody>
-                {sortedConditions.map((condition, index) => (
+                {sortedConditions.map((condition, index) =>
                   <Condition
                     key={getKey(condition, index)}
                     qualityGate={qualityGate}
@@ -143,7 +147,7 @@ export default class Conditions extends React.PureComponent {
                     onError={this.handleError.bind(this)}
                     onResetError={this.handleResetError.bind(this)}
                   />
-                ))}
+                )}
               </tbody>
             </table>
           : <div className="big-spacer-top">

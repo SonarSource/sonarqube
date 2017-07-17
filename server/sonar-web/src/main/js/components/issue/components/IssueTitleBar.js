@@ -55,7 +55,9 @@ export default function IssueTitleBar(props: Props) {
         formatMeasure(locationsCount)
       )}
       placement="left">
-      <LocationIndex>{locationsCount}</LocationIndex>
+      <LocationIndex>
+        {locationsCount}
+      </LocationIndex>
     </Tooltip>
   );
 

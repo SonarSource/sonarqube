@@ -31,7 +31,7 @@ export default class Unauthorized extends React.PureComponent {
     return (
       <div className="text-center">
         <p id="unauthorized">
-          {'You\'re not authorized to access this page. Please contact the administrator.'}
+          {"You're not authorized to access this page. Please contact the administrator."}
         </p>
 
         {!!message &&

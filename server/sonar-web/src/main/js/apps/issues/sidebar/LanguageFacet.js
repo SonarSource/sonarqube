@@ -89,7 +89,7 @@ export default class LanguageFacet extends React.PureComponent {
 
     return (
       <FacetItemsList>
-        {languages.map(language => (
+        {languages.map(language =>
           <FacetItem
             active={this.props.languages.includes(language)}
             facetMode={this.props.facetMode}
@@ -99,7 +99,7 @@ export default class LanguageFacet extends React.PureComponent {
             stat={this.getStat(language)}
             value={language}
           />
-        ))}
+        )}
       </FacetItemsList>
     );
   }

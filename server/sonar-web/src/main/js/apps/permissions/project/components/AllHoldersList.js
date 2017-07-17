@@ -106,14 +106,12 @@ export default class AllHoldersList extends React.PureComponent {
         onSelectPermission={this.handleSelectPermission}
         onToggleUser={this.handleToggleUser}
         onToggleGroup={this.handleToggleGroup}>
-
         <SearchForm
           query={this.props.query}
           filter={this.props.filter}
           onSearch={this.props.onQueryChange}
           onFilter={this.props.onFilterChange}
         />
-
       </HoldersList>
     );
   }

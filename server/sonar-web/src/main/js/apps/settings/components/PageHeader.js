@@ -27,18 +27,24 @@ export default class PageHeader extends React.PureComponent {
   };
 
   render() {
-    const title = this.props.component != null
-      ? translate('project_settings.page')
-      : translate('settings.page');
+    const title =
+      this.props.component != null
+        ? translate('project_settings.page')
+        : translate('settings.page');
 
-    const description = this.props.component != null
-      ? translate('project_settings.page.description')
-      : translate('settings.page.description');
+    const description =
+      this.props.component != null
+        ? translate('project_settings.page.description')
+        : translate('settings.page.description');
 
     return (
       <header className="page-header">
-        <h1 className="page-title">{title}</h1>
-        <div className="page-description">{description}</div>
+        <h1 className="page-title">
+          {title}
+        </h1>
+        <div className="page-description">
+          {description}
+        </div>
       </header>
     );
   }

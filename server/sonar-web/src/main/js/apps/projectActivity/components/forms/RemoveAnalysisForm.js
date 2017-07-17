@@ -91,9 +91,10 @@ export default class RemoveAnalysisForm extends React.PureComponent {
         className="modal"
         overlayClassName="modal-overlay"
         onRequestClose={this.closeForm}>
-
         <header className="modal-head">
-          <h2>{translate('project_activity.delete_analysis')}</h2>
+          <h2>
+            {translate('project_activity.delete_analysis')}
+          </h2>
         </header>
 
         <form onSubmit={this.handleSubmit}>

@@ -144,7 +144,7 @@ export default class AllProjects extends React.PureComponent {
     });
   };
 
-  renderSide = () => (
+  renderSide = () =>
     <div className="layout-page-side-outer">
       <div
         className="layout-page-side projects-page-side"
@@ -161,10 +161,9 @@ export default class AllProjects extends React.PureComponent {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 
-  renderHeader = () => (
+  renderHeader = () =>
     <div className="layout-page-header-panel layout-page-main-header">
       <div className="layout-page-header-panel-inner layout-page-main-header-inner">
         <div className="layout-page-main-inner">
@@ -181,11 +180,10 @@ export default class AllProjects extends React.PureComponent {
           />
         </div>
       </div>
-    </div>
-  );
+    </div>;
 
   renderMain = () =>
-    (this.getView() === 'visualizations'
+    this.getView() === 'visualizations'
       ? <div className="layout-page-main-inner">
           <VisualizationsContainer
             sort={this.state.query.sort}
@@ -204,7 +202,7 @@ export default class AllProjects extends React.PureComponent {
             isFavorite={this.props.isFavorite}
             organization={this.props.organization}
           />
-        </div>);
+        </div>;
 
   render() {
     return (

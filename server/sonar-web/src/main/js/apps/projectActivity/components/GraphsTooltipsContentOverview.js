@@ -57,10 +57,14 @@ export default function GraphsTooltipsContentOverview(props: Props) {
         />
       </td>
       <td className="text-right spacer-right">
-        <span className="project-activity-graph-tooltip-value">{props.value}</span>
+        <span className="project-activity-graph-tooltip-value">
+          {props.value}
+        </span>
         {ratingValue && <Rating className="spacer-left" small={true} value={ratingValue} />}
       </td>
-      <td>{props.serie.translatedName}</td>
+      <td>
+        {props.serie.translatedName}
+      </td>
     </tr>
   );
 }

@@ -26,33 +26,38 @@ import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 export default function AboutQualityModel() {
   return (
     <div className="boxed-group about-quality-model">
-      <h2>{translate('about_page.quality_model')}</h2>
+      <h2>
+        {translate('about_page.quality_model')}
+      </h2>
 
       <div className="boxed-group-inner clearfix">
         <div className="flex-columns">
           <div className="flex-column flex-column-third">
-            <div className="pull-left little-spacer-right"><BugIcon /></div>
+            <div className="pull-left little-spacer-right">
+              <BugIcon />
+            </div>
             <p className="about-page-text overflow-hidden">
-              <strong>{translate('issue.type.BUG.plural')}</strong>
-              {' '}
+              <strong>{translate('issue.type.BUG.plural')}</strong>{' '}
               {translate('about_page.quality_model.bugs')}
             </p>
           </div>
 
           <div className="flex-column flex-column-third">
-            <div className="pull-left little-spacer-right"><VulnerabilityIcon /></div>
+            <div className="pull-left little-spacer-right">
+              <VulnerabilityIcon />
+            </div>
             <p className="about-page-text overflow-hidden">
-              <strong>{translate('issue.type.VULNERABILITY.plural')}</strong>
-              {' '}
+              <strong>{translate('issue.type.VULNERABILITY.plural')}</strong>{' '}
               {translate('about_page.quality_model.vulnerabilities')}
             </p>
           </div>
 
           <div className="flex-column flex-column-third">
-            <div className="pull-left little-spacer-right"><CodeSmellIcon /></div>
+            <div className="pull-left little-spacer-right">
+              <CodeSmellIcon />
+            </div>
             <p className="about-page-text overflow-hidden">
-              <strong>{translate('issue.type.CODE_SMELL.plural')}</strong>
-              {' '}
+              <strong>{translate('issue.type.CODE_SMELL.plural')}</strong>{' '}
               {translate('about_page.quality_model.code_smells')}
             </p>
           </div>
