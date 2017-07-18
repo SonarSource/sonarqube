@@ -19,12 +19,46 @@
  */
 package org.sonar.application.process;
 
-public interface CommandFactory {
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.process.ProcessId;
 
-  EsCommand createEsCommand();
+public class EsCommand extends AbstractCommand<EsCommand> {
+  private File executable;
+  private String url;
+  private List<String> esOptions = new ArrayList<>();
 
-  JavaCommand createWebCommand(boolean leader);
+  public EsCommand(ProcessId id) {
+    super(id);
+  }
 
-  JavaCommand createCeCommand();
+  public File getExecutable() {
+    return executable;
+  }
 
+  public EsCommand setExecutable(File executable) {
+    this.executable = executable;
+    return this;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public EsCommand setUrl(String url) {
+    this.url = url;
+    return this;
+  }
+
+  public List<String> getEsOptions() {
+    return esOptions;
+  }
+
+  public EsCommand addEsOption(String s) {
+    if (!s.isEmpty()) {
+      esOptions.add(s);
+    }
+    return this;
+  }
 }

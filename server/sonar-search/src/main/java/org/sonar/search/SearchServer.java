@@ -67,6 +67,9 @@ public class SearchServer implements Monitored {
       .forEach(entry -> command.add("-E" + entry.getKey() + "=" + entry.getValue()));
     url = "http://"+settingsMap.get("http.host") + ":" + settingsMap.get("http.port");
     System.out.println(command.stream().collect(Collectors.joining(" ")));
+
+
+
     ProcessBuilder builder = new ProcessBuilder(command)
       .directory(new File(absolutePath.getParent().toString()));
     builder.redirectOutput(ProcessBuilder.Redirect.PIPE);

@@ -19,14 +19,17 @@
  */
 package org.sonar.application.process;
 
+import java.io.File;
+import java.util.Map;
+import java.util.Optional;
 import org.sonar.application.config.AppSettings;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 
-import java.io.File;
-import java.util.Optional;
-
-import static org.sonar.process.ProcessProperties.*;
+import static org.sonar.process.ProcessProperties.HTTPS_PROXY_HOST;
+import static org.sonar.process.ProcessProperties.HTTPS_PROXY_PORT;
+import static org.sonar.process.ProcessProperties.HTTP_PROXY_HOST;
+import static org.sonar.process.ProcessProperties.HTTP_PROXY_PORT;
 
 public class CommandFactoryImpl implements CommandFactory {
   /**
@@ -49,15 +52,43 @@ public class CommandFactoryImpl implements CommandFactory {
   }
 
   @Override
-  public JavaCommand createEsCommand() {
+  public EsCommand createEsCommand() {
     File homeDir = settings.getProps().nonNullValueAsFile(ProcessProperties.PATH_HOME);
-    return newJavaCommand(ProcessId.ELASTICSEARCH, homeDir)
-      .addJavaOptions("-Djava.awt.headless=true")
-      .addJavaOptions(settings.getProps().nonNullValue(ProcessProperties.SEARCH_JAVA_OPTS))
-      .addJavaOptions(settings.getProps().nonNullValue(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
-      .setClassName("org.sonar.search.SearchServer")
-      .addClasspath("./lib/common/*")
-      .addClasspath("./lib/search/*");
+    File executable = new File(homeDir, getExecutable());
+    if (!executable.exists()) {
+      throw new IllegalStateException("Cannot find elasticsearch binary");
+    }
+
+    Map<String, String> settingsMap = new EsSettings(settings.getProps()).build();
+
+    EsCommand res = new EsCommand(ProcessId.ELASTICSEARCH)
+      .setWorkDir(executable.getParentFile().getParentFile())
+      .setExecutable(executable)
+      .setArguments(settings.getProps().rawProperties())
+      // TODO add argument to specify log4j configuration file
+      // TODO add argument to specify yaml configuration file
+      .setUrl("http://" + settingsMap.get("http.host") + ":" + settingsMap.get("http.port"));
+
+    settingsMap.entrySet().stream()
+      .filter(entry -> !"path.home".equals(entry.getKey()))
+      .forEach(entry -> res.addEsOption("-E" + entry.getKey() + "=" + entry.getValue()));
+
+    return res;
+
+    // FIXME quid of proxy settings and sonar.search.javaOpts/javaAdditionalOpts
+    // // defaults of HTTPS are the same than HTTP defaults
+    // setSystemPropertyToDefaultIfNotSet(command, HTTPS_PROXY_HOST, HTTP_PROXY_HOST);
+    // setSystemPropertyToDefaultIfNotSet(command, HTTPS_PROXY_PORT, HTTP_PROXY_PORT);
+    // command
+    // .addJavaOptions(settings.getProps().nonNullValue(ProcessProperties.SEARCH_JAVA_OPTS))
+    // .addJavaOptions(settings.getProps().nonNullValue(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS));
+  }
+
+  private static String getExecutable() {
+    if (System.getProperty("os.name").startsWith("Windows")) {
+      return "elasticsearch/bin/elasticsearch.bat";
+    }
+    return "elasticsearch/bin/elasticsearch";
   }
 
   @Override

@@ -35,7 +35,9 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
 import org.sonar.application.config.TestAppSettings;
+import org.sonar.application.process.AbstractCommand;
 import org.sonar.application.process.CommandFactory;
+import org.sonar.application.process.EsCommand;
 import org.sonar.application.process.JavaCommand;
 import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.ProcessMonitor;
@@ -54,7 +56,7 @@ import static org.sonar.process.ProcessId.WEB_SERVER;
 
 public class SchedulerImplTest {
 
-  private static final JavaCommand ES_COMMAND = new JavaCommand(ELASTICSEARCH);
+  private static final EsCommand ES_COMMAND = new EsCommand(ELASTICSEARCH);
   private static final JavaCommand WEB_LEADER_COMMAND = new JavaCommand(WEB_SERVER);
   private static final JavaCommand WEB_FOLLOWER_COMMAND = new JavaCommand(WEB_SERVER);
   private static final JavaCommand CE_COMMAND = new JavaCommand(COMPUTE_ENGINE);
@@ -307,7 +309,7 @@ public class SchedulerImplTest {
 
   private static class TestCommandFactory implements CommandFactory {
     @Override
-    public JavaCommand createEsCommand() {
+    public EsCommand createEsCommand() {
       return ES_COMMAND;
     }
 
@@ -324,11 +326,20 @@ public class SchedulerImplTest {
 
   private class TestProcessLauncher implements ProcessLauncher {
     private final EnumMap<ProcessId, TestProcess> processes = new EnumMap<>(ProcessId.class);
-    private final List<JavaCommand> commands = synchronizedList(new ArrayList<>());
+    private final List<AbstractCommand<?>> commands = synchronizedList(new ArrayList<>());
     private ProcessId makeStartupFail = null;
 
     @Override
+    public ProcessMonitor launch(EsCommand esCommand) {
+      return launchImpl(esCommand);
+    }
+
+    @Override
     public ProcessMonitor launch(JavaCommand javaCommand) {
+      return launchImpl(javaCommand);
+    }
+
+    private ProcessMonitor launchImpl(AbstractCommand<?> javaCommand) {
       commands.add(javaCommand);
       if (makeStartupFail == javaCommand.getProcessId()) {
         throw new IllegalStateException("cannot start " + javaCommand.getProcessId());

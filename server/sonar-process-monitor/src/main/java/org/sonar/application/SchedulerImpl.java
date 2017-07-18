@@ -31,11 +31,13 @@ import org.slf4j.LoggerFactory;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.ClusterSettings;
 import org.sonar.application.process.CommandFactory;
+import org.sonar.application.process.EsCommand;
 import org.sonar.application.process.JavaCommand;
 import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.Lifecycle;
 import org.sonar.application.process.ProcessEventListener;
 import org.sonar.application.process.ProcessLifecycleListener;
+import org.sonar.application.process.ProcessMonitor;
 import org.sonar.application.process.SQProcess;
 import org.sonar.process.ProcessId;
 
@@ -105,7 +107,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private void tryToStartEs() {
     SQProcess process = processesById.get(ProcessId.ELASTICSEARCH);
     if (process != null) {
-      tryToStartProcess(process, commandFactory::createEsCommand);
+      tryToStartEsProcess(process, commandFactory::createEsCommand);
     }
   }
 
@@ -115,9 +117,9 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
       return;
     }
     if (appState.isOperational(ProcessId.WEB_SERVER, false)) {
-      tryToStartProcess(process, () -> commandFactory.createWebCommand(false));
+      tryToStartJavaProcess(process, () -> commandFactory.createWebCommand(false));
     } else if (appState.tryToLockWebLeader()) {
-      tryToStartProcess(process, () -> commandFactory.createWebCommand(true));
+      tryToStartJavaProcess(process, () -> commandFactory.createWebCommand(true));
     } else {
       Optional<String> leader = appState.getLeaderHostName();
       if (leader.isPresent()) {
@@ -131,7 +133,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private void tryToStartCe() {
     SQProcess process = processesById.get(ProcessId.COMPUTE_ENGINE);
     if (process != null && appState.isOperational(ProcessId.WEB_SERVER, false) && isEsClientStartable()) {
-      tryToStartProcess(process, commandFactory::createCeCommand);
+      tryToStartJavaProcess(process, commandFactory::createCeCommand);
     }
   }
 
@@ -140,12 +142,23 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     return appState.isOperational(ProcessId.ELASTICSEARCH, requireLocalEs);
   }
 
-  private void tryToStartProcess(SQProcess process, Supplier<JavaCommand> commandSupplier) {
+  private void tryToStartJavaProcess(SQProcess process, Supplier<JavaCommand> commandSupplier) {
+    tryToStart(process, () -> {
+      JavaCommand command = commandSupplier.get();
+      return processLauncher.launch(command);
+    });
+  }
+
+  private void tryToStartEsProcess(SQProcess process, Supplier<EsCommand> commandSupplier) {
+    tryToStart(process, () -> {
+      EsCommand command = commandSupplier.get();
+      return processLauncher.launch(command);
+    });
+  }
+
+  private void tryToStart(SQProcess process, Supplier<ProcessMonitor> processMonitorSupplier) {
     try {
-      process.start(() -> {
-        JavaCommand command = commandSupplier.get();
-        return processLauncher.launch(command);
-      });
+      process.start(processMonitorSupplier);
     } catch (RuntimeException e) {
       // failed to start command -> stop everything
       terminate();
