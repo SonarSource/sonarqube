@@ -63,17 +63,34 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   }
 
   @Override
+  public ProcessMonitor launch(EsCommand esCommand) {
+    Process process = null;
+    try {
+      ProcessBuilder processBuilder = create(esCommand);
+      LOG.info("Launch process[{}]: {}", esCommand.getProcessId().getKey(), String.join(" ", processBuilder.command()));
+
+      process = processBuilder.start();
+
+      return new EsProcessMonitor(process, esCommand.getUrl());
+    } catch (Exception e) {
+      // just in case
+      if (process != null) {
+        process.destroyForcibly();
+      }
+      throw new IllegalStateException(format("Fail to launch process [%s]", esCommand.getProcessId().getKey()), e);
+    }
+  }
+
+  @Override
   public ProcessMonitor launch(JavaCommand javaCommand) {
     Process process = null;
-    ProcessCommands commands;
     try {
-      commands = allProcessesCommands.createAfterClean(javaCommand.getProcessId().getIpcIndex());
+      ProcessCommands commands = allProcessesCommands.createAfterClean(javaCommand.getProcessId().getIpcIndex());
 
       ProcessBuilder processBuilder = create(javaCommand);
       LOG.info("Launch process[{}]: {}", javaCommand.getProcessId().getKey(), String.join(" ", processBuilder.command()));
       process = processBuilder.start();
       return new ProcessCommandsProcessMonitor(process, commands);
-
     } catch (Exception e) {
       // just in case
       if (process != null) {
@@ -81,6 +98,14 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       }
       throw new IllegalStateException(format("Fail to launch process [%s]", javaCommand.getProcessId().getKey()), e);
     }
+  }
+
+  private ProcessBuilder create(EsCommand esCommand) {
+    List<String> commands = new ArrayList<>();
+    commands.add(esCommand.getExecutable().getAbsolutePath());
+    commands.addAll(esCommand.getEsOptions());
+
+    return create(esCommand, commands);
   }
 
   private ProcessBuilder create(JavaCommand javaCommand) {
@@ -94,6 +119,10 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     commands.add(javaCommand.getClassName());
     commands.add(buildPropertiesFile(javaCommand).getAbsolutePath());
 
+    return create(javaCommand, commands);
+  }
+
+  private ProcessBuilder create(AbstractCommand<?> javaCommand, List<String> commands) {
     ProcessBuilder processBuilder = processBuilderSupplier.get();
     processBuilder.command(commands);
     processBuilder.directory(javaCommand.getWorkDir());
