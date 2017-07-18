@@ -35,7 +35,7 @@ type Props = {
   tooltipPos: number
 };
 
-const TOOLTIP_WIDTH = 150;
+const TOOLTIP_WIDTH = 160;
 
 export default class PreviewGraphTooltips extends React.PureComponent {
   props: Props;

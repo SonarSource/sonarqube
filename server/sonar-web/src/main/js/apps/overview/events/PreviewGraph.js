@@ -24,7 +24,8 @@ import { AutoSizer } from 'react-virtualized';
 import {
   getDisplayedHistoryMetrics,
   generateSeries,
-  getSeriesMetricType
+  getSeriesMetricType,
+  splitSeriesInGraphs
 } from '../../projectActivity/utils';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
@@ -50,6 +51,8 @@ type State = {
 };
 
 const GRAPH_PADDING = [4, 0, 4, 0];
+const MAX_GRAPH_NB = 1;
+const MAX_SERIES_PER_GRAPH = 3;
 
 export default class PreviewGraph extends React.PureComponent {
   props: Props;
@@ -59,11 +62,16 @@ export default class PreviewGraph extends React.PureComponent {
     super(props);
     const graph = getGraph();
     const customMetrics = getCustomGraph();
+    const series = splitSeriesInGraphs(
+      this.getSeries(props.history, graph, customMetrics, props.metrics),
+      MAX_GRAPH_NB,
+      MAX_SERIES_PER_GRAPH
+    );
     this.state = {
       customMetrics,
       graph,
       selectedDate: null,
-      series: this.getSeries(props.history, graph, customMetrics, props.metrics),
+      series: series.length > 0 ? series[0] : [],
       tooltipIdx: null,
       tooltipXPos: null
     };
@@ -73,16 +81,21 @@ export default class PreviewGraph extends React.PureComponent {
     if (nextProps.history !== this.props.history || nextProps.metrics !== this.props.metrics) {
       const graph = getGraph();
       const customMetrics = getCustomGraph();
+      const series = splitSeriesInGraphs(
+        this.getSeries(nextProps.history, graph, customMetrics, nextProps.metrics),
+        MAX_GRAPH_NB,
+        MAX_SERIES_PER_GRAPH
+      );
       this.setState({
         customMetrics,
         graph,
-        series: this.getSeries(nextProps.history, graph, customMetrics, nextProps.metrics)
+        series: series.length > 0 ? series[0] : []
       });
     }
   }
 
   formatValue = (tick: number | string) =>
-    formatMeasure(tick, getShortType(this.state.series[0].type));
+    formatMeasure(tick, getShortType(getSeriesMetricType(this.state.series)));
 
   getDisplayedMetrics = (graph: string, customMetrics: Array<string>): Array<string> => {
     const metrics: Array<string> = getDisplayedHistoryMetrics(graph, customMetrics);
@@ -92,7 +105,12 @@ export default class PreviewGraph extends React.PureComponent {
     return metrics;
   };
 
-  getSeries = (history: ?History, graph: string, customMetrics: Array<string>, metrics: Array<Metric>) => {
+  getSeries = (
+    history: ?History,
+    graph: string,
+    customMetrics: Array<string>,
+    metrics: Array<Metric>
+  ): Array<Serie> => {
     const myHistory = history;
     if (!myHistory) {
       return [];

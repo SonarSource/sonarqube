@@ -395,6 +395,10 @@
   font-weight: bold;
 }
 
+.overview-analysis-graph-tooltip-description {
+  max-width: 120px;
+}
+
 .overview-analysis-event {
 }
 

@@ -291,7 +291,7 @@ export default class ZoomTimeLine extends React.PureComponent {
         className="zoom-selection-handle"
         x={-3}
         y={options.yDim[1]}
-        height={options.yDim[0] - options.yDim[1]}
+        height={options.yDim[0] - options.yDim[1] + 1}
         width={6}
       />
     </Draggable>;
@@ -334,8 +334,8 @@ export default class ZoomTimeLine extends React.PureComponent {
             <rect
               className="zoom-selection"
               x={0}
-              y={yDim[1] + 1}
-              height={yDim[0] - yDim[1]}
+              y={yDim[1]}
+              height={yDim[0] - yDim[1] + 1}
               width={zoomBoxWidth}
               onDoubleClick={this.handleDoubleClick(xScale, xDim)}
             />
@@ -370,7 +370,7 @@ export default class ZoomTimeLine extends React.PureComponent {
     const { xScale, yScale } = this.getScales();
     return (
       <svg className="line-chart " width={this.props.width} height={this.props.height}>
-        <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+        <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0] + 2})`}>
           {this.renderLeak(xScale, yScale)}
           {this.renderBaseLine(xScale, yScale)}
           {this.props.showXTicks && this.renderTicks(xScale, yScale)}

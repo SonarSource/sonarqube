@@ -5,9 +5,9 @@ exports[`should render correctly 1`] = `
   customClass="bubble-popup-right"
   position={
     Object {
-      "left": -125,
+      "left": -135,
       "top": 16,
-      "width": 150,
+      "width": 160,
     }
   }
 >
