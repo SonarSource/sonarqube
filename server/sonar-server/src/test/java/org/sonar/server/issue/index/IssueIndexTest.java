@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import java.util.Date;
@@ -37,7 +36,6 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -115,49 +113,16 @@ public class IssueIndexTest {
       .setEffort(100L);
     indexIssues(issue);
 
-    Issue loaded = getByKey(issue.key());
+    IssueDoc loaded = getByKey(issue.key());
     assertThat(loaded).isNotNull();
 
     assertThat(loaded.key()).isEqualTo("ISSUE1");
     assertThat(loaded.effort()).isEqualTo(Duration.create(100L));
   }
 
-  private Issue getByKey(String key) {
+  private IssueDoc getByKey(String key) {
     SearchResult<IssueDoc> result = underTest.search(IssueQuery.builder().issueKeys(newArrayList(key)).build(), new SearchOptions());
     return result.getDocs().get(0);
-  }
-
-  @Test
-  public void get_by_key_with_attributes() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
-    ComponentDto file = newFileDto(project, null);
-    IssueDoc issue = newDoc("ISSUE1", file).setAttributes((KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234"))));
-    indexIssues(issue);
-
-    Issue result = getByKey(issue.key());
-    assertThat(result.attribute("jira-issue-key")).isEqualTo("SONAR-1234");
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void comments_field_is_not_available() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
-    ComponentDto file = newFileDto(project, null);
-    IssueDoc issue = newDoc("ISSUE1", file);
-    indexIssues(issue);
-
-    Issue result = getByKey(issue.key());
-    result.comments();
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void is_new_field_is_not_available() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
-    ComponentDto file = newFileDto(project, null);
-    IssueDoc issue = newDoc("ISSUE1", file);
-    indexIssues(issue);
-
-    Issue result = getByKey(issue.key());
-    result.isNew();
   }
 
   @Test

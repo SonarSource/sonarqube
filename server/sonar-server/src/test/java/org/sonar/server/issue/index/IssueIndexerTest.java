@@ -21,7 +21,6 @@ package org.sonar.server.issue.index;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.apache.commons.lang.StringUtils;
@@ -173,8 +172,6 @@ public class IssueIndexerTest {
     assertThat(doc.organizationUuid()).isEqualTo(org.getUuid());
     // functional date
     assertThat(doc.updateDate().getTime()).isEqualTo(issue.getIssueUpdateTime());
-    // technical date
-    assertThat(doc.getTechnicalUpdateDate().getTime()).isEqualTo(issue.getUpdatedAt());
   }
 
   @Test
@@ -241,7 +238,6 @@ public class IssueIndexerTest {
   public void index_issue_without_parent_should_work() {
     IssueDoc issueDoc = new IssueDoc();
     issueDoc.setKey("key");
-    issueDoc.setTechnicalUpdateDate(new Date());
     issueDoc.setProjectUuid("non-exitsing-parent");
     new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbTester.getDbClient()))
       .index(asList(issueDoc).iterator());
