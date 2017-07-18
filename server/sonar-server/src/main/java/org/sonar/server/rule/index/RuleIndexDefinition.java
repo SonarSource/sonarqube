@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
@@ -93,6 +94,7 @@ public class RuleIndexDefinition implements IndexDefinition {
    * Keep the document sources in index so that indexer tests can verify content
    * of indexed documents.
    */
+  @VisibleForTesting
   public static RuleIndexDefinition createForTest(Configuration config) {
     return new RuleIndexDefinition(config, true);
   }

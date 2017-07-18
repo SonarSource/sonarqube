@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -28,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -41,10 +44,8 @@ import org.sonar.api.utils.Paging;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryFactory;
-import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
@@ -112,7 +113,7 @@ public class SearchAction implements IssuesWsAction {
   private final SearchResponseFormat searchResponseFormat;
 
   public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory,
-    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat) {
+                      SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
@@ -308,8 +309,10 @@ public class SearchAction implements IssuesWsAction {
     IssueQuery query = issueQueryFactory.create(request);
 
     // execute request
-    SearchResult<IssueDoc> result = issueIndex.search(query, options);
-    List<String> issueKeys = result.getDocs().stream().map(IssueDoc::key).collect(MoreCollectors.toList(result.getDocs().size()));
+    SearchResponse result = issueIndex.search(query, options);
+    List<String> issueKeys = Arrays.stream(result.getHits().getHits())
+      .map(SearchHit::getId)
+      .collect(MoreCollectors.toList(result.getHits().getHits().length));
 
     // load the additional information to be returned in response
     SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(additionalFields, issueKeys);
@@ -317,7 +320,7 @@ public class SearchAction implements IssuesWsAction {
     collectRequestParams(collector, request);
     Facets facets = null;
     if (!options.getFacets().isEmpty()) {
-      facets = result.getFacets();
+      facets = new Facets(result);
       // add missing values to facets. For example if assignee "john" and facet on "assignees" are requested, then
       // "john" should always be listed in the facet. If it is not present, then it is added with value zero.
       // This is a constraint from webapp UX.
@@ -334,7 +337,7 @@ public class SearchAction implements IssuesWsAction {
     facets = reorderFacets(facets, options.getFacets());
 
     // FIXME allow long in Paging
-    Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) result.getTotal());
+    Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) result.getHits().totalHits());
 
     return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
   }
