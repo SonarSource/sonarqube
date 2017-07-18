@@ -23,6 +23,13 @@
   border-width: 3px;
 }
 
+.duplications-rating-huge {
+  width: 60px;
+  height: 60px;
+  border-width: 4px;
+  border-radius: 30px;
+}
+
 .duplications-rating-muted {
   border-color: #bdbdbd !important;
 }
@@ -64,6 +71,11 @@
   height: 12px;
 }
 
+.duplications-rating-huge.duplications-rating-B:after {
+  width: 18px;
+  height: 18px;
+}
+
 .duplications-rating-C {
   border-color: #eabe06;
 }
@@ -82,6 +94,11 @@
 .duplications-rating-big.duplications-rating-C:after {
   width: 16px;
   height: 16px;
+}
+
+.duplications-rating-huge.duplications-rating-C:after {
+  width: 24px;
+  height: 24px;
 }
 
 .duplications-rating-D {
@@ -104,6 +121,11 @@
   height: 24px;
 }
 
+.duplications-rating-huge.duplications-rating-D:after {
+  width: 36px;
+  height: 36px;
+}
+
 .duplications-rating-E {
   border-color: #d4333f;
 }
@@ -122,4 +144,9 @@
 .duplications-rating-big.duplications-rating-E:after {
   width: 28px;
   height: 28px;
+}
+
+.duplications-rating-huge.duplications-rating-E:after {
+  width: 42px;
+  height: 42px;
 }
