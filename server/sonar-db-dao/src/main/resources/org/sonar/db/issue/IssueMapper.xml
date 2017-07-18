@@ -158,7 +158,7 @@
     inner join projects p on p.uuid=i.component_uuid
     inner join projects root on root.uuid=i.project_uuid
     where
-    i.component_uuid=#{componentUuid,jdbcType=VARCHAR} and
+    i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
     i.status &lt;&gt; 'CLOSED'
   </select>
 
@@ -179,6 +179,19 @@
     <foreach collection="list" open="(" close=")" item="key" separator=",">
       #{key,jdbcType=VARCHAR}
     </foreach>
+  </select>
+
+  <select id="scrollNonClosedByModuleOrProject" parameterType="map" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    select
+    <include refid="issueColumns"/>
+    from issues i
+    inner join rules r on r.id = i.rule_id
+    inner join projects p on p.uuid = i.component_uuid
+    inner join projects root on root.uuid = i.project_uuid
+    where
+    i.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
+    p.module_uuid_path like  #{likeModuleUuidPath, jdbcType=VARCHAR} escape '/' and
+    i.status &lt;&gt; 'CLOSED'
   </select>
 </mapper>
 

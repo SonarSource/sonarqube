@@ -28,8 +28,6 @@ public interface IssueMapper {
 
   IssueDto selectByKey(String key);
 
-  void selectNonClosedByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueDto> resultHandler);
-
   Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(String projectUuid);
 
   List<IssueDto> selectByKeys(List<String> keys);
@@ -39,4 +37,11 @@ public interface IssueMapper {
   int update(IssueDto issue);
 
   int updateIfBeforeSelectedDate(IssueDto issue);
+
+  void selectNonClosedByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueDto> handler);
+
+  void scrollNonClosedByModuleOrProject(
+    @Param("projectUuid") String projectUuid,
+    @Param("likeModuleUuidPath") String likeModuleUuidPath,
+    ResultHandler<IssueDto> handler);
 }

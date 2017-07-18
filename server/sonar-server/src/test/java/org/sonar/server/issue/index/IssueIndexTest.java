@@ -20,7 +20,6 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
@@ -63,10 +61,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -187,22 +183,22 @@ public class IssueIndexTest {
     assertThat(
       underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions())
         .getDocs())
-          .isEmpty();
+      .isEmpty();
     assertThat(
       underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions())
         .getDocs())
-          .hasSize(1);
+      .hasSize(1);
     assertThat(
       underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
         .getDocs())
-          .hasSize(2);
+      .hasSize(2);
     assertThat(
       underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions())
         .getDocs())
-          .isEmpty();
+      .isEmpty();
     assertThat(
       underTest.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs())
-        .isEmpty();
+      .isEmpty();
   }
 
   @Test
@@ -419,7 +415,7 @@ public class IssueIndexTest {
     assertThat(
       underTest.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new SearchOptions())
         .getDocs())
-          .hasSize(2);
+      .hasSize(2);
     assertThat(underTest.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE)).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_REMOVED)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
@@ -751,8 +747,8 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-      .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
+        .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+        .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-08-25T01:00:00+0000", 0L),
@@ -767,8 +763,8 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-      .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
+        .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+        .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-08-01T01:00:00+0000", 0L),
@@ -784,8 +780,8 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
-      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
+        .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
+        .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2010-01-01T01:00:00+0000", 0L),
@@ -802,8 +798,8 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
-      .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
+        .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
+        .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-09-01T01:00:00+0000", 2L));
@@ -833,7 +829,7 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder()
-      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
+        .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2011-01-01T01:00:00+0000", 1L),
@@ -901,7 +897,7 @@ public class IssueIndexTest {
       String key = "ISSUE" + i;
       issues.add(newDoc(key, file));
     }
-    indexIssues(issues.toArray(new IssueDoc[] {}));
+    indexIssues(issues.toArray(new IssueDoc[]{}));
 
     IssueQuery.Builder query = IssueQuery.builder();
     SearchResult<IssueDoc> result = underTest.search(query.build(), new SearchOptions().setLimit(Integer.MAX_VALUE));
@@ -1198,98 +1194,6 @@ public class IssueIndexTest {
     userSessionRule.logIn().setRoot();
 
     assertThat(underTest.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
-  }
-
-  @Test
-  public void search_issues_for_batch_return_needed_fields() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto(), "PROJECT");
-    ComponentDto file = newFileDto(project, null).setPath("src/File.xoo");
-
-    IssueDoc issue = newDoc("ISSUE", file)
-      .setRuleKey("squid:S001")
-      .setChecksum("12345")
-      .setAssignee("john")
-      .setLine(11)
-      .setMessage("the message")
-      .setSeverity(Severity.BLOCKER)
-      .setManualSeverity(true)
-      .setStatus(Issue.STATUS_RESOLVED)
-      .setResolution(Issue.RESOLUTION_FIXED)
-      .setType(BUG)
-      .setFuncCreationDate(new Date());
-    indexIssues(issue);
-
-    List<IssueDoc> issues = Lists.newArrayList(underTest.selectIssuesForBatch(file));
-    assertThat(issues).hasSize(1);
-    IssueDoc result = issues.get(0);
-    assertThat(result.key()).isEqualTo("ISSUE");
-    assertThat(result.moduleUuid()).isEqualTo("PROJECT");
-    assertThat(result.filePath()).isEqualTo("src/File.xoo");
-    assertThat(result.ruleKey()).isEqualTo(RuleKey.of("squid", "S001"));
-    assertThat(result.checksum()).isEqualTo("12345");
-    assertThat(result.assignee()).isEqualTo("john");
-    assertThat(result.line()).isEqualTo(11);
-    assertThat(result.message()).isEqualTo("the message");
-    assertThat(result.severity()).isEqualTo(Severity.BLOCKER);
-    assertThat(result.isManualSeverity()).isTrue();
-    assertThat(result.status()).isEqualTo(Issue.STATUS_RESOLVED);
-    assertThat(result.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    assertThat(result.type()).isEqualTo(BUG);
-    assertThat(result.creationDate()).isNotNull();
-  }
-
-  @Test
-  public void search_issues_for_batch() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-    ComponentDto subModule = ComponentTesting.newModuleDto(module);
-    ComponentDto file = newFileDto(subModule, null);
-
-    indexIssues(
-      newDoc("ISSUE3", module),
-      newDoc("ISSUE5", subModule),
-      newDoc("ISSUE2", file),
-      // Close Issue, should never be returned
-      newDoc("CLOSE_ISSUE", file).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED));
-
-    assertThat(Lists.newArrayList(underTest.selectIssuesForBatch(project))).hasSize(3);
-    assertThat(Lists.newArrayList(underTest.selectIssuesForBatch(module))).hasSize(3);
-    assertThat(Lists.newArrayList(underTest.selectIssuesForBatch(subModule))).hasSize(2);
-    assertThat(Lists.newArrayList(underTest.selectIssuesForBatch(file))).hasSize(1);
-    assertThat(Lists.newArrayList(underTest.selectIssuesForBatch(ComponentTesting.newPrivateProjectDto(newOrganizationDto())))).isEmpty();
-  }
-
-  @Test
-  public void fail_to_search_issues_for_batch_on_not_allowed_scope() {
-    try {
-      underTest.selectIssuesForBatch(new ComponentDto().setScope(Scopes.DIRECTORY));
-      failBecauseExceptionWasNotThrown(IllegalStateException.class);
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Component of scope 'DIR' is not allowed");
-    }
-  }
-
-  @Test
-  public void search_issues_for_batch_return_only_authorized_issues() {
-    OrganizationDto org = newOrganizationDto();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(org);
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(org);
-    ComponentDto file1 = newFileDto(project1, null);
-    ComponentDto file2 = newFileDto(project2, null);
-    GroupDto allowedGroup = newGroupDto();
-    GroupDto otherGroup = newGroupDto();
-
-    // project1 can be seen by allowedGroup
-    indexIssue(newDoc("ISSUE1", file1));
-    authorizationIndexerTester.allowOnlyGroup(project1, allowedGroup);
-    // project3 can be seen by nobody
-    indexIssue(newDoc("ISSUE3", file2));
-
-    userSessionRule.logIn().setGroups(allowedGroup);
-    assertThat(Lists.newArrayList(underTest.selectIssuesForBatch(project1))).hasSize(1);
-
-    userSessionRule.logIn().setGroups(otherGroup);
-    assertThat(Lists.newArrayList(underTest.selectIssuesForBatch(project2))).isEmpty();
   }
 
   @Test
