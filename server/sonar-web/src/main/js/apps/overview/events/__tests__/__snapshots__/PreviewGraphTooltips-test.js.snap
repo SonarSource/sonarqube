@@ -41,7 +41,6 @@ exports[`should render correctly 1`] = `
               ],
               "name": "code_smells",
               "style": 1,
-              "translatedName": "Code Smells",
             }
           }
           translatedName="Code Smells"
@@ -62,7 +61,6 @@ exports[`should render correctly 1`] = `
               ],
               "name": "bugs",
               "style": 0,
-              "translatedName": "Bugs",
             }
           }
           translatedName="Bugs"
@@ -83,7 +81,6 @@ exports[`should render correctly 1`] = `
               ],
               "name": "vulnerabilities",
               "style": 2,
-              "translatedName": "Vulnerabilities",
             }
           }
           translatedName="Vulnerabilities"
