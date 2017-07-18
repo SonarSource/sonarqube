@@ -21,10 +21,10 @@
 import React from 'react';
 import { minBy } from 'lodash';
 import { AutoSizer } from 'react-virtualized';
-import { generateSeries, GRAPHS_METRICS_DISPLAYED } from '../../projectActivity/utils';
-import { getGraph } from '../../../helpers/storage';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import PreviewGraphTooltips from './PreviewGraphTooltips';
+import { generateSeries, getDisplayedHistoryMetrics } from '../../projectActivity/utils';
+import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 import type { History, Metric } from '../types';
@@ -37,6 +37,7 @@ type Props = {
 };
 
 type State = {
+  customMetrics: Array<string>,
   graph: string,
   metricsType: string,
   selectedDate: ?Date,
@@ -54,12 +55,14 @@ export default class PreviewGraph extends React.PureComponent {
   constructor(props: Props) {
     super(props);
     const graph = getGraph();
-    const metricsType = this.getMetricType(props.metrics, graph);
+    const customMetrics = getCustomGraph();
+    const metricsType = this.getMetricType(props.metrics, graph, customMetrics);
     this.state = {
+      customMetrics,
       graph,
       metricsType,
       selectedDate: null,
-      series: this.getSeries(props.history, graph, metricsType),
+      series: this.getSeries(props.history, graph, customMetrics, metricsType),
       tooltipIdx: null,
       tooltipXPos: null
     };
@@ -68,11 +71,13 @@ export default class PreviewGraph extends React.PureComponent {
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.history !== this.props.history || nextProps.metrics !== this.props.metrics) {
       const graph = getGraph();
-      const metricsType = this.getMetricType(nextProps.metrics, graph);
+      const customMetrics = getCustomGraph();
+      const metricsType = this.getMetricType(nextProps.metrics, graph, customMetrics);
       this.setState({
+        customMetrics,
         graph,
         metricsType,
-        series: this.getSeries(nextProps.history, graph, metricsType)
+        series: this.getSeries(nextProps.history, graph, customMetrics, metricsType)
       });
     }
   }
@@ -80,20 +85,25 @@ export default class PreviewGraph extends React.PureComponent {
   formatValue = (tick: number | string) =>
     formatMeasure(tick, getShortType(this.state.metricsType));
 
-  getDisplayedMetrics = (graph: string): Array<string> => {
-    const metrics: Array<string> = GRAPHS_METRICS_DISPLAYED[graph];
+  getDisplayedMetrics = (graph: string, customMetrics: Array<string>): Array<string> => {
+    const metrics: Array<string> = getDisplayedHistoryMetrics(graph, customMetrics);
     if (!metrics || metrics.length <= 0) {
-      return GRAPHS_METRICS_DISPLAYED['overview'];
+      return getDisplayedHistoryMetrics('overview', customMetrics);
     }
     return metrics;
   };
 
-  getSeries = (history: ?History, graph: string, metricsType: string) => {
+  getSeries = (
+    history: ?History,
+    graph: string,
+    customMetrics: Array<string>,
+    metricsType: string
+  ) => {
     const myHistory = history;
     if (!myHistory) {
       return [];
     }
-    const metrics = this.getDisplayedMetrics(graph);
+    const metrics = this.getDisplayedMetrics(graph, customMetrics);
     const firstValid = minBy(
       metrics.map(metric => myHistory[metric].find(p => p.value || p.value === 0)),
       'date'
@@ -107,8 +117,8 @@ export default class PreviewGraph extends React.PureComponent {
     return generateSeries(measureHistory, graph, metricsType, metrics);
   };
 
-  getMetricType = (metrics: Array<Metric>, graph: string) => {
-    const metricKey = this.getDisplayedMetrics(graph)[0];
+  getMetricType = (metrics: Array<Metric>, graph: string, customMetrics: Array<string>) => {
+    const metricKey = this.getDisplayedMetrics(graph, customMetrics)[0];
     const metric = metrics.find(metric => metric.key === metricKey);
     return metric ? metric.type : 'INT';
   };

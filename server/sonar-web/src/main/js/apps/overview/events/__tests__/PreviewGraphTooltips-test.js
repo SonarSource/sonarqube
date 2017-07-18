@@ -24,7 +24,6 @@ import PreviewGraphTooltips from '../PreviewGraphTooltips';
 const SERIES_OVERVIEW = [
   {
     name: 'code_smells',
-    translatedName: 'Code Smells',
     style: 1,
     data: [
       {
@@ -39,7 +38,6 @@ const SERIES_OVERVIEW = [
   },
   {
     name: 'bugs',
-    translatedName: 'Bugs',
     style: 0,
     data: [
       {
@@ -54,7 +52,6 @@ const SERIES_OVERVIEW = [
   },
   {
     name: 'vulnerabilities',
-    translatedName: 'Vulnerabilities',
     style: 2,
     data: [
       {
@@ -70,6 +67,7 @@ const SERIES_OVERVIEW = [
 ];
 
 const METRICS = [
+  { key: 'code_smells', name: 'Code Smells', type: 'INT' },
   { key: 'bugs', name: 'Bugs', type: 'INT' },
   { key: 'vulnerabilities', name: 'Vulnerabilities', type: 'INT', custom: true }
 ];
