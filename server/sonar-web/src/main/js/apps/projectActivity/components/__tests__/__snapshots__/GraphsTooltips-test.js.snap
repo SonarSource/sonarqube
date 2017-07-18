@@ -163,7 +163,7 @@ exports[`should render correctly for random graphs 1`] = `
               "translatedName": "metric.bugs.name",
             }
           }
-          translatedName="metric.bugs.name"
+          translatedName="Bugs"
           value="Formated.0"
         />
         <GraphsTooltipsContent

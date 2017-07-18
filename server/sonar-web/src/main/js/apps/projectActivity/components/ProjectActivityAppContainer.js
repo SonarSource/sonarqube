@@ -213,34 +213,32 @@ class ProjectActivityAppContainer extends React.PureComponent {
       ignoreHistory ? Promise.resolve() : this.fetchMeasuresHistory(graphMetrics)
     ]).then(response => {
       if (this.mounted) {
-        setTimeout(() => {
-          const newState = {
-            analyses: response[0].analyses,
-            analysesLoading: true,
-            loading: false,
-            metrics: response[1],
-            paging: response[0].paging
-          };
-          if (ignoreHistory) {
-            this.setState(newState);
-          } else {
+        const newState = {
+          analyses: response[0].analyses,
+          analysesLoading: true,
+          loading: false,
+          metrics: response[1],
+          paging: response[0].paging
+        };
+        if (ignoreHistory) {
+          this.setState(newState);
+        } else {
+          this.setState({
+            ...newState,
+            graphLoading: false,
+            measuresHistory: response[2]
+          });
+        }
+
+        this.loadAllActivities(query.project).then(({ analyses, paging }) => {
+          if (this.mounted) {
             this.setState({
-              ...newState,
-              graphLoading: false,
-              measuresHistory: response[2]
+              analyses,
+              analysesLoading: false,
+              paging
             });
           }
-
-          this.loadAllActivities(query.project).then(({ analyses, paging }) => {
-            if (this.mounted) {
-              this.setState({
-                analyses,
-                analysesLoading: false,
-                paging
-              });
-            }
-          });
-        }, 1000);
+        });
       }
     });
   }

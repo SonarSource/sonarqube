@@ -24,7 +24,11 @@ import Modal from 'react-modal';
 import Select from 'react-select';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { isDiffMetric } from '../../../../helpers/measures';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import {
+  getLocalizedMetricName,
+  translate,
+  translateWithParameters
+} from '../../../../helpers/l10n';
 import type { Metric } from '../../types';
 
 type Props = {
@@ -67,7 +71,7 @@ export default class AddGraphMetric extends React.PureComponent {
       })
       .map((metric: Metric) => ({
         value: metric.key,
-        label: metric.custom ? metric.name : translate('metric', metric.key, 'name')
+        label: getLocalizedMetricName(metric)
       }));
   };
 

@@ -21,13 +21,14 @@ import React from 'react';
 import GraphsLegendItem from './GraphsLegendItem';
 import Tooltip from '../../../components/controls/Tooltip';
 import { hasDataValues } from '../utils';
-import { translate } from '../../../helpers/l10n';
+import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import type { Metric } from '../types';
+import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
 type Props = {
   metrics: Array<Metric>,
   removeMetric: string => void,
-  series: Array<{ name: string, translatedName: string, style: string }>
+  series: Array<Serie & { translatedName: string }>
 };
 
 export default function GraphsLegendCustom({ metrics, removeMetric, series }: Props) {
@@ -39,7 +40,7 @@ export default function GraphsLegendCustom({ metrics, removeMetric, series }: Pr
         const legendItem = (
           <GraphsLegendItem
             metric={serie.name}
-            name={metric && metric.custom ? metric.name : serie.translatedName}
+            name={metric ? getLocalizedMetricName(metric) : serie.translatedName}
             showWarning={!hasData}
             style={serie.style}
             removeMetric={removeMetric}
