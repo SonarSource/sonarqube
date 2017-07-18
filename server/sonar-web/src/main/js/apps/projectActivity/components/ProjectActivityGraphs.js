@@ -19,18 +19,19 @@
  */
 // @flow
 import React from 'react';
-import { debounce, findLast, maxBy, minBy, sortBy, groupBy, flatMap, chunk } from 'lodash';
+import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import GraphsZoom from './GraphsZoom';
 import GraphsHistory from './GraphsHistory';
 import { getCustomGraph, saveCustomGraph, saveGraph } from '../../../helpers/storage';
 import {
   datesQueryChanged,
-  isCustomGraph,
   generateSeries,
   getDisplayedHistoryMetrics,
   getSeriesMetricType,
-  historyQueryChanged
+  historyQueryChanged,
+  isCustomGraph,
+  splitSeriesInGraphs
 } from '../utils';
 import type { RawQuery } from '../../../helpers/query';
 import type { Analysis, MeasureHistory, Metric, Query } from '../types';
@@ -70,7 +71,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     );
     this.state = {
       series,
-      graphs: this.splitSeriesInGraphs(series),
+      graphs: splitSeriesInGraphs(series, MAX_GRAPH_NB, MAX_SERIES_PER_GRAPH),
       ...this.getStateZoomDates(null, props, series)
     };
     this.updateQueryDateRange = debounce(this.updateQueryDateRange, 500);
@@ -89,7 +90,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
         nextProps.metrics,
         getDisplayedHistoryMetrics(nextProps.query.graph, nextProps.query.customMetrics)
       );
-      newGraphs = this.splitSeriesInGraphs(newSeries);
+      newGraphs = splitSeriesInGraphs(newSeries, MAX_GRAPH_NB, MAX_SERIES_PER_GRAPH);
     }
 
     const newDates = this.getStateZoomDates(this.props, nextProps, newSeries);
@@ -151,11 +152,6 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     saveCustomGraph(customMetrics);
     this.props.updateQuery({ customMetrics });
   };
-
-  splitSeriesInGraphs = (series: Array<Serie>): Array<Array<Serie>> =>
-    flatMap(groupBy(series, serie => serie.type), groupType =>
-      chunk(groupType, MAX_SERIES_PER_GRAPH)
-    ).slice(0, MAX_GRAPH_NB);
 
   updateGraph = (graph: string) => {
     saveGraph(graph);

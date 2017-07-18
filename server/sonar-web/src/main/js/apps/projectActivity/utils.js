@@ -19,7 +19,7 @@
  */
 // @flow
 import moment from 'moment';
-import { isEqual, sortBy } from 'lodash';
+import { chunk, flatMap, groupBy, isEqual, sortBy } from 'lodash';
 import {
   cleanQuery,
   parseAsArray,
@@ -121,6 +121,13 @@ export const generateSeries = (
     serie => displayedMetrics.indexOf(serie.name)
   );
 };
+
+export const splitSeriesInGraphs = (
+  series: Array<Serie>,
+  maxGraph: number,
+  maxSeries: number
+): Array<Array<Serie>> =>
+  flatMap(groupBy(series, serie => serie.type), type => chunk(type, maxSeries)).slice(0, maxGraph);
 
 export const getSeriesMetricType = (series: Array<Serie>): string =>
   series.length > 0 ? series[0].type : 'INT';
