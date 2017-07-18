@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -39,8 +38,6 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -54,12 +51,9 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.aggregations.metrics.sum.SumBuilder;
 import org.joda.time.Duration;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
@@ -643,43 +637,5 @@ public class IssueIndex {
       }
     }
     return boolQuery;
-  }
-
-  /**
-   * Return non closed issues for a given project, module, or file. Other kind of components are not allowed.
-   * Only fields needed for the batch are returned.
-   */
-  public Iterator<IssueDoc> selectIssuesForBatch(ComponentDto component) {
-    BoolQueryBuilder filter = boolQuery()
-      .must(createAuthorizationFilter(true))
-      .mustNot(termsQuery(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED));
-
-    switch (component.scope()) {
-      case Scopes.PROJECT:
-        filter.must(termsQuery(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, component.uuid()));
-        break;
-      case Scopes.FILE:
-        filter.must(termsQuery(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, component.uuid()));
-        break;
-      default:
-        throw new IllegalStateException(format("Component of scope '%s' is not allowed", component.scope()));
-    }
-
-    SearchRequestBuilder requestBuilder = client
-      .prepareSearch(INDEX_TYPE_ISSUE)
-      .setSearchType(SearchType.SCAN)
-      .setScroll(TimeValue.timeValueMinutes(EsUtils.SCROLL_TIME_IN_MINUTES))
-      .setSize(10_000)
-      .setFetchSource(
-        new String[] {IssueIndexDefinition.FIELD_ISSUE_KEY, IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID,
-          IssueIndexDefinition.FIELD_ISSUE_FILE_PATH, IssueIndexDefinition.FIELD_ISSUE_SEVERITY, IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY,
-          IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, IssueIndexDefinition.FIELD_ISSUE_STATUS, IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE,
-          IssueIndexDefinition.FIELD_ISSUE_LINE, IssueIndexDefinition.FIELD_ISSUE_MESSAGE, IssueIndexDefinition.FIELD_ISSUE_CHECKSUM,
-          IssueIndexDefinition.FIELD_ISSUE_TYPE, IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT},
-        null)
-      .setQuery(boolQuery().must(matchAllQuery()).filter(filter));
-    SearchResponse response = requestBuilder.get();
-
-    return EsUtils.scroll(client, response.getScrollId(), IssueDoc::new);
   }
 }

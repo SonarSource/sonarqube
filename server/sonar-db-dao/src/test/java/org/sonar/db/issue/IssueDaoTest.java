@@ -19,7 +19,11 @@
  */
 package org.sonar.db.issue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,11 +34,14 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class IssueDaoTest {
 
@@ -47,17 +54,17 @@ public class IssueDaoTest {
   private static final String ISSUE_KEY2 = "I2";
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private IssueDao underTest = dbTester.getDbClient().issueDao();
+  private IssueDao underTest = db.getDbClient().issueDao();
 
   @Test
   public void selectByKeyOrFail() {
     prepareTables();
 
-    IssueDto issue = underTest.selectOrFailByKey(dbTester.getSession(), ISSUE_KEY1);
+    IssueDto issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
     assertThat(issue.getKee()).isEqualTo(ISSUE_KEY1);
     assertThat(issue.getId()).isGreaterThan(0L);
     assertThat(issue.getComponentUuid()).isEqualTo(FILE_UUID);
@@ -92,12 +99,12 @@ public class IssueDaoTest {
 
   @Test
   public void selectByKeyOrFail_fails_if_key_not_found() {
-    thrown.expect(RowNotFoundException.class);
-    thrown.expectMessage("Issue with key 'DOES_NOT_EXIST' does not exist");
+    expectedException.expect(RowNotFoundException.class);
+    expectedException.expectMessage("Issue with key 'DOES_NOT_EXIST' does not exist");
 
     prepareTables();
 
-    underTest.selectOrFailByKey(dbTester.getSession(), "DOES_NOT_EXIST");
+    underTest.selectOrFailByKey(db.getSession(), "DOES_NOT_EXIST");
   }
 
   @Test
@@ -105,7 +112,7 @@ public class IssueDaoTest {
     // contains I1 and I2
     prepareTables();
 
-    List<IssueDto> issues = underTest.selectByKeys(dbTester.getSession(), asList("I1", "I2", "I3"));
+    List<IssueDto> issues = underTest.selectByKeys(db.getSession(), asList("I1", "I2", "I3"));
     // results are not ordered, so do not use "containsExactly"
     assertThat(issues).extracting("key").containsOnly("I1", "I2");
   }
@@ -115,11 +122,62 @@ public class IssueDaoTest {
     // contains I1 and I2
     prepareTables();
 
-    Iterable<IssueDto> issues = underTest.selectByOrderedKeys(dbTester.getSession(), asList("I1", "I2", "I3"));
+    Iterable<IssueDto> issues = underTest.selectByOrderedKeys(db.getSession(), asList("I1", "I2", "I3"));
     assertThat(issues).extracting("key").containsExactly("I1", "I2");
 
-    issues = underTest.selectByOrderedKeys(dbTester.getSession(), asList("I2", "I3", "I1"));
+    issues = underTest.selectByOrderedKeys(db.getSession(), asList("I2", "I3", "I1"));
     assertThat(issues).extracting("key").containsExactly("I2", "I1");
+  }
+
+  @Test
+  public void scrollNonClosedByComponentUuid() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    IssueDto openIssue1OnFile = db.issues().insert(rule, project, file, i -> i.setStatus("OPEN").setResolution(null));
+    IssueDto openIssue2OnFile = db.issues().insert(rule, project, file, i -> i.setStatus("OPEN").setResolution(null));
+    IssueDto closedIssueOnFile = db.issues().insert(rule, project, file, i -> i.setStatus("CLOSED").setResolution("FIXED"));
+    IssueDto openIssueOnProject = db.issues().insert(rule, project, project, i -> i.setStatus("OPEN").setResolution(null));
+
+    Accumulator accumulator = new Accumulator();
+    underTest.scrollNonClosedByComponentUuid(db.getSession(), file.uuid(), accumulator);
+    accumulator.assertThatContainsOnly(openIssue1OnFile, openIssue2OnFile);
+
+    accumulator.clear();
+    underTest.scrollNonClosedByComponentUuid(db.getSession(), project.uuid(), accumulator);
+    accumulator.assertThatContainsOnly(openIssueOnProject);
+
+    accumulator.clear();
+    underTest.scrollNonClosedByComponentUuid(db.getSession(), "does_not_exist", accumulator);
+    assertThat(accumulator.list).isEmpty();
+  }
+
+  @Test
+  public void scrollNonClosedByModuleOrProject() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto anotherProject = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(module));
+    IssueDto openIssue1OnFile = db.issues().insert(rule, project, file, i -> i.setStatus("OPEN").setResolution(null));
+    IssueDto openIssue2OnFile = db.issues().insert(rule, project, file, i -> i.setStatus("OPEN").setResolution(null));
+    IssueDto closedIssueOnFile = db.issues().insert(rule, project, file, i -> i.setStatus("CLOSED").setResolution("FIXED"));
+    IssueDto openIssueOnModule = db.issues().insert(rule, project, module, i -> i.setStatus("OPEN").setResolution(null));
+    IssueDto openIssueOnProject = db.issues().insert(rule, project, project, i -> i.setStatus("OPEN").setResolution(null));
+    IssueDto openIssueOnAnotherProject = db.issues().insert(rule, anotherProject, anotherProject, i -> i.setStatus("OPEN").setResolution(null));
+
+    Accumulator accumulator = new Accumulator();
+    underTest.scrollNonClosedByModuleOrProject(db.getSession(), project, accumulator);
+    accumulator.assertThatContainsOnly(openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject);
+
+    accumulator.clear();
+    underTest.scrollNonClosedByModuleOrProject(db.getSession(), module, accumulator);
+    accumulator.assertThatContainsOnly(openIssue1OnFile, openIssue2OnFile, openIssueOnModule);
+
+    accumulator.clear();
+    ComponentDto notPersisted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    underTest.scrollNonClosedByModuleOrProject(db.getSession(), notPersisted, accumulator);
+    assertThat(accumulator.list).isEmpty();
   }
 
   private static IssueDto newIssueDto(String key) {
@@ -149,19 +207,38 @@ public class IssueDaoTest {
   }
 
   private void prepareTables() {
-    dbTester.rules().insertRule(RULE);
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto projectDto = dbTester.components().insertPrivateProject(organizationDto, (t) -> t.setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
-    dbTester.components().insertComponent(ComponentTesting.newFileDto(projectDto).setUuid(FILE_UUID).setKey(FILE_KEY));
-    underTest.insert(dbTester.getSession(), newIssueDto(ISSUE_KEY1)
+    db.rules().insertRule(RULE);
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto projectDto = db.components().insertPrivateProject(organizationDto, (t) -> t.setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
+    db.components().insertComponent(newFileDto(projectDto).setUuid(FILE_UUID).setKey(FILE_KEY));
+    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
       .setMessage("the message")
       .setRuleId(RULE.getId())
       .setComponentUuid(FILE_UUID)
       .setProjectUuid(PROJECT_UUID));
-    underTest.insert(dbTester.getSession(), newIssueDto(ISSUE_KEY2)
+    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY2)
       .setRuleId(RULE.getId())
       .setComponentUuid(FILE_UUID)
       .setProjectUuid(PROJECT_UUID));
-    dbTester.getSession().commit();
+    db.getSession().commit();
+  }
+
+  private static class Accumulator implements ResultHandler<IssueDto> {
+    private final List<IssueDto> list = new ArrayList<>();
+
+    private void clear() {
+      list.clear();
+    }
+
+    @Override
+    public void handleResult(ResultContext<? extends IssueDto> resultContext) {
+      list.add(resultContext.getResultObject());
+    }
+
+    private void assertThatContainsOnly(IssueDto... issues) {
+      assertThat(list)
+        .extracting(IssueDto::getKey)
+        .containsExactlyInAnyOrder(Arrays.stream(issues).map(IssueDto::getKey).toArray(String[]::new));
+    }
   }
 }

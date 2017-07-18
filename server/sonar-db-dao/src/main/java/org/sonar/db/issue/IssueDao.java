@@ -28,11 +28,15 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.WildcardPosition;
+import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueDao implements Dao {
@@ -88,6 +92,15 @@ public class IssueDao implements Dao {
 
   public Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(DbSession session, String projectUuid) {
     return mapper(session).selectComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
+  }
+
+  public void scrollNonClosedByComponentUuid(DbSession dbSession, String componentUuid, ResultHandler<IssueDto> handler) {
+    mapper(dbSession).selectNonClosedByComponentUuid(componentUuid, handler);
+  }
+
+  public void scrollNonClosedByModuleOrProject(DbSession dbSession, ComponentDto module, ResultHandler<IssueDto> handler) {
+    String likeModuleUuidPath = buildLikeValue(module.moduleUuidPath(), WildcardPosition.AFTER);
+    mapper(dbSession).scrollNonClosedByModuleOrProject(module.projectUuid(), likeModuleUuidPath, handler);
   }
 
   public void insert(DbSession session, IssueDto dto) {
