@@ -42,7 +42,7 @@ class App extends React.PureComponent {
   componentDidMount() {
     if (['VW', 'SVW'].includes(this.props.component.qualifier)) {
       this.props.router.replace({
-        pathname: '/view',
+        pathname: '/portfolio',
         query: { id: this.props.component.key }
       });
     }
