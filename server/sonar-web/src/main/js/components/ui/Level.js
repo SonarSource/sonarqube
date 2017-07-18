@@ -25,6 +25,7 @@ import './Level.css';
 
 export default class Level extends React.PureComponent {
   static propTypes = {
+    className: PropTypes.string,
     level: PropTypes.oneOf(['ERROR', 'WARN', 'OK']).isRequired,
     small: PropTypes.bool,
     muted: PropTypes.bool
@@ -37,7 +38,7 @@ export default class Level extends React.PureComponent {
 
   render() {
     const formatted = formatMeasure(this.props.level, 'LEVEL');
-    const className = classNames('level', 'level-' + this.props.level, {
+    const className = classNames(this.props.className, 'level', 'level-' + this.props.level, {
       'level-small': this.props.small,
       'level-muted': this.props.muted
     });
