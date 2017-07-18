@@ -27,6 +27,13 @@ public interface ProcessLauncher extends Closeable {
   void close();
 
   /**
+   * Launch an ES command.
+   *
+   * @throws IllegalStateException if an error occurs
+   */
+  ProcessMonitor launch(EsCommand esCommand);
+
+  /**
    * Launch a Java command.
    * 
    * @throws IllegalStateException if an error occurs
