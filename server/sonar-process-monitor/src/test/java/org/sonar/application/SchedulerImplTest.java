@@ -35,8 +35,8 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
 import org.sonar.application.config.TestAppSettings;
+import org.sonar.application.process.CommandFactory;
 import org.sonar.application.process.JavaCommand;
-import org.sonar.application.process.JavaCommandFactory;
 import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.ProcessMonitor;
 import org.sonar.process.ProcessId;
@@ -66,7 +66,7 @@ public class SchedulerImplTest {
 
   private AppReloader appReloader = mock(AppReloader.class);
   private TestAppSettings settings = new TestAppSettings();
-  private TestJavaCommandFactory javaCommandFactory = new TestJavaCommandFactory();
+  private TestCommandFactory javaCommandFactory = new TestCommandFactory();
   private TestProcessLauncher processLauncher = new TestProcessLauncher();
   private TestAppState appState = new TestAppState();
   private List<ProcessId> orderedStops = synchronizedList(new ArrayList<>());
@@ -305,7 +305,7 @@ public class SchedulerImplTest {
     }
   }
 
-  private static class TestJavaCommandFactory implements JavaCommandFactory {
+  private static class TestCommandFactory implements CommandFactory {
     @Override
     public JavaCommand createEsCommand() {
       return ES_COMMAND;

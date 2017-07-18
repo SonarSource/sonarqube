@@ -88,7 +88,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     commands.add(buildJavaPath());
     commands.addAll(javaCommand.getJavaOptions());
     // TODO warning - does it work if temp dir contains a whitespace ?
-    // TODO move to JavaCommandFactory ?
+    // TODO move to CommandFactory ?
     commands.add(format("-Djava.io.tmpdir=%s", tempDir.getAbsolutePath()));
     commands.addAll(buildClasspath(javaCommand));
     commands.add(javaCommand.getClassName());
