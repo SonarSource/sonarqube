@@ -39,7 +39,7 @@ import static org.mockito.Mockito.RETURNS_MOCKS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class JavaProcessLauncherImplTest {
+public class ProcessLauncherImplTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -52,7 +52,7 @@ public class JavaProcessLauncherImplTest {
   public void launch_forks_a_new_process() throws Exception {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();
-    JavaProcessLauncher underTest = new JavaProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
     JavaCommand command = new JavaCommand(ProcessId.ELASTICSEARCH);
     command.addClasspath("lib/*.class");
     command.addClasspath("lib/*.jar");
@@ -82,7 +82,7 @@ public class JavaProcessLauncherImplTest {
   public void properties_are_passed_to_command_via_a_temporary_properties_file() throws Exception {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();
-    JavaProcessLauncher underTest = new JavaProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
     JavaCommand command = new JavaCommand(ProcessId.ELASTICSEARCH);
     command.setArgument("foo", "bar");
     command.setArgument("baz", "woo");
@@ -108,9 +108,9 @@ public class JavaProcessLauncherImplTest {
   @Test
   public void throw_ISE_if_command_fails() throws IOException {
     File tempDir = temp.newFolder();
-    JavaProcessLauncherImpl.ProcessBuilder processBuilder = mock(JavaProcessLauncherImpl.ProcessBuilder.class, RETURNS_MOCKS);
+    ProcessLauncherImpl.ProcessBuilder processBuilder = mock(ProcessLauncherImpl.ProcessBuilder.class, RETURNS_MOCKS);
     when(processBuilder.start()).thenThrow(new IOException("error"));
-    JavaProcessLauncher underTest = new JavaProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Fail to launch process [es]");
@@ -118,7 +118,7 @@ public class JavaProcessLauncherImplTest {
     underTest.launch(new JavaCommand(ProcessId.ELASTICSEARCH));
   }
 
-  private static class TestProcessBuilder implements JavaProcessLauncherImpl.ProcessBuilder {
+  private static class TestProcessBuilder implements ProcessLauncherImpl.ProcessBuilder {
     private List<String> commands = null;
     private File dir = null;
     private Boolean redirectErrorStream = null;

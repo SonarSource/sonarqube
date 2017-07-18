@@ -25,8 +25,8 @@ import org.sonar.application.config.AppSettingsLoader;
 import org.sonar.application.config.AppSettingsLoaderImpl;
 import org.sonar.application.process.JavaCommandFactory;
 import org.sonar.application.process.JavaCommandFactoryImpl;
-import org.sonar.application.process.JavaProcessLauncher;
-import org.sonar.application.process.JavaProcessLauncherImpl;
+import org.sonar.application.process.ProcessLauncher;
+import org.sonar.application.process.ProcessLauncherImpl;
 import org.sonar.application.process.StopRequestWatcher;
 import org.sonar.application.process.StopRequestWatcherImpl;
 import org.sonar.process.SystemExit;
@@ -52,8 +52,8 @@ public class App {
       JavaCommandFactory javaCommandFactory = new JavaCommandFactoryImpl(settings);
       fileSystem.reset();
 
-      try (JavaProcessLauncher javaProcessLauncher = new JavaProcessLauncherImpl(fileSystem.getTempDir())) {
-        Scheduler scheduler = new SchedulerImpl(settings, appReloader, javaCommandFactory, javaProcessLauncher, appState);
+      try (ProcessLauncher processLauncher = new ProcessLauncherImpl(fileSystem.getTempDir())) {
+        Scheduler scheduler = new SchedulerImpl(settings, appReloader, javaCommandFactory, processLauncher, appState);
 
         // intercepts CTRL-C
         Runtime.getRuntime().addShutdownHook(new ShutdownHook(scheduler));

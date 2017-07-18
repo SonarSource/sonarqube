@@ -32,7 +32,7 @@ import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.ClusterSettings;
 import org.sonar.application.process.JavaCommand;
 import org.sonar.application.process.JavaCommandFactory;
-import org.sonar.application.process.JavaProcessLauncher;
+import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.Lifecycle;
 import org.sonar.application.process.ProcessEventListener;
 import org.sonar.application.process.ProcessLifecycleListener;
@@ -46,7 +46,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private final AppSettings settings;
   private final AppReloader appReloader;
   private final JavaCommandFactory javaCommandFactory;
-  private final JavaProcessLauncher javaProcessLauncher;
+  private final ProcessLauncher processLauncher;
   private final AppState appState;
   private final NodeLifecycle nodeLifecycle = new NodeLifecycle();
 
@@ -61,12 +61,12 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private long processWatcherDelayMs = SQProcess.DEFAULT_WATCHER_DELAY_MS;
 
   public SchedulerImpl(AppSettings settings, AppReloader appReloader, JavaCommandFactory javaCommandFactory,
-    JavaProcessLauncher javaProcessLauncher,
+    ProcessLauncher processLauncher,
     AppState appState) {
     this.settings = settings;
     this.appReloader = appReloader;
     this.javaCommandFactory = javaCommandFactory;
-    this.javaProcessLauncher = javaProcessLauncher;
+    this.processLauncher = processLauncher;
     this.appState = appState;
     this.appState.addListener(this);
   }
@@ -144,7 +144,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     try {
       process.start(() -> {
         JavaCommand command = commandSupplier.get();
-        return javaProcessLauncher.launch(command);
+        return processLauncher.launch(command);
       });
     } catch (RuntimeException e) {
       // failed to start command -> stop everything
