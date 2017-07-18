@@ -162,7 +162,7 @@ public class SearchServer implements Monitored {
         }
       }
     } catch (MalformedURLException e) {
-      e.printStackTrace();
+      throw new RuntimeException(String.format("Cannot contact local Elasticsearch instance via url '%s'", urlString), e);
     } catch (IOException e) {
       e.printStackTrace();
     }
