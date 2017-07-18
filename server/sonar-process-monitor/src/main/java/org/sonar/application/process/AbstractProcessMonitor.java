@@ -24,70 +24,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
-import org.sonar.process.ProcessCommands;
 
-import static java.util.Objects.requireNonNull;
+abstract class AbstractProcessMonitor implements ProcessMonitor {
+  protected final Process process;
 
-class ProcessMonitorImpl implements ProcessMonitor {
-
-  private final Process process;
-  private final ProcessCommands commands;
-
-  ProcessMonitorImpl(Process process, ProcessCommands commands) {
-    this.process = requireNonNull(process, "process can't be null");
-    this.commands = requireNonNull(commands, "commands can't be null");
+  protected AbstractProcessMonitor(Process process) {
+    this.process = process;
   }
 
-  @Override
   public InputStream getInputStream() {
     return process.getInputStream();
   }
 
-  @Override
   public void closeStreams() {
     closeQuietly(process.getInputStream());
     closeQuietly(process.getOutputStream());
     closeQuietly(process.getErrorStream());
-  }
-
-  @Override
-  public boolean isAlive() {
-    return process.isAlive();
-  }
-
-  @Override
-  public void destroyForcibly() {
-    process.destroyForcibly();
-  }
-
-  @Override
-  public void waitFor() throws InterruptedException {
-    process.waitFor();
-  }
-
-  @Override
-  public void waitFor(long timeout, TimeUnit unit) throws InterruptedException {
-    process.waitFor(timeout, unit);
-  }
-
-  @Override
-  public boolean isOperational() {
-    return commands.isOperational();
-  }
-
-  @Override
-  public void askForStop() {
-    commands.askForStop();
-  }
-
-  @Override
-  public boolean askedForRestart() {
-    return commands.askedForRestart();
-  }
-
-  @Override
-  public void acknowledgeAskForRestart() {
-    commands.acknowledgeAskForRestart();
   }
 
   private static void closeQuietly(@Nullable Closeable closeable) {
@@ -100,4 +52,19 @@ class ProcessMonitorImpl implements ProcessMonitor {
     }
   }
 
+  public boolean isAlive() {
+    return process.isAlive();
+  }
+
+  public void destroyForcibly() {
+    process.destroyForcibly();
+  }
+
+  public void waitFor() throws InterruptedException {
+    process.waitFor();
+  }
+
+  public void waitFor(long timeout, TimeUnit unit) throws InterruptedException {
+    process.waitFor(timeout, unit);
+  }
 }
