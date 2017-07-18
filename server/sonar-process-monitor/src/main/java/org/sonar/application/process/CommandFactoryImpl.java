@@ -28,7 +28,7 @@ import java.util.Optional;
 
 import static org.sonar.process.ProcessProperties.*;
 
-public class JavaCommandFactoryImpl implements JavaCommandFactory {
+public class CommandFactoryImpl implements CommandFactory {
   /**
    * Properties about proxy that must be set as system properties
    */
@@ -44,7 +44,7 @@ public class JavaCommandFactoryImpl implements JavaCommandFactory {
 
   private final AppSettings settings;
 
-  public JavaCommandFactoryImpl(AppSettings settings) {
+  public CommandFactoryImpl(AppSettings settings) {
     this.settings = settings;
   }
 

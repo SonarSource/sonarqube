@@ -19,7 +19,7 @@
  */
 package org.sonar.application.process;
 
-public interface JavaCommandFactory {
+public interface CommandFactory {
 
   JavaCommand createEsCommand();
 
