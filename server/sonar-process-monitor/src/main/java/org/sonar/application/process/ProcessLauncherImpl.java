@@ -40,18 +40,18 @@ import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_KEY;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT;
 
-public class JavaProcessLauncherImpl implements JavaProcessLauncher {
-  private static final Logger LOG = LoggerFactory.getLogger(JavaProcessLauncherImpl.class);
+public class ProcessLauncherImpl implements ProcessLauncher {
+  private static final Logger LOG = LoggerFactory.getLogger(ProcessLauncherImpl.class);
 
   private final File tempDir;
   private final AllProcessesCommands allProcessesCommands;
   private final Supplier<ProcessBuilder> processBuilderSupplier;
 
-  public JavaProcessLauncherImpl(File tempDir) {
+  public ProcessLauncherImpl(File tempDir) {
     this(tempDir, new AllProcessesCommands(tempDir), JavaLangProcessBuilder::new);
   }
 
-  JavaProcessLauncherImpl(File tempDir, AllProcessesCommands allProcessesCommands, Supplier<ProcessBuilder> processBuilderSupplier) {
+  ProcessLauncherImpl(File tempDir, AllProcessesCommands allProcessesCommands, Supplier<ProcessBuilder> processBuilderSupplier) {
     this.tempDir = tempDir;
     this.allProcessesCommands = allProcessesCommands;
     this.processBuilderSupplier = processBuilderSupplier;
@@ -133,7 +133,7 @@ public class JavaProcessLauncherImpl implements JavaProcessLauncher {
   }
 
   /**
-   * An interface of the methods of {@link java.lang.ProcessBuilder} that we use in {@link JavaProcessLauncherImpl}.
+   * An interface of the methods of {@link java.lang.ProcessBuilder} that we use in {@link ProcessLauncherImpl}.
    * <p>Allows testing creating processes without actualling creating them at OS level</p>
    */
   public interface ProcessBuilder {

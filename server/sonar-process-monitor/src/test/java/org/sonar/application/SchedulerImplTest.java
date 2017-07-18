@@ -37,7 +37,7 @@ import org.mockito.Mockito;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.application.process.JavaCommand;
 import org.sonar.application.process.JavaCommandFactory;
-import org.sonar.application.process.JavaProcessLauncher;
+import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.ProcessMonitor;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
@@ -67,7 +67,7 @@ public class SchedulerImplTest {
   private AppReloader appReloader = mock(AppReloader.class);
   private TestAppSettings settings = new TestAppSettings();
   private TestJavaCommandFactory javaCommandFactory = new TestJavaCommandFactory();
-  private TestJavaProcessLauncher processLauncher = new TestJavaProcessLauncher();
+  private TestProcessLauncher processLauncher = new TestProcessLauncher();
   private TestAppState appState = new TestAppState();
   private List<ProcessId> orderedStops = synchronizedList(new ArrayList<>());
 
@@ -322,7 +322,7 @@ public class SchedulerImplTest {
     }
   }
 
-  private class TestJavaProcessLauncher implements JavaProcessLauncher {
+  private class TestProcessLauncher implements ProcessLauncher {
     private final EnumMap<ProcessId, TestProcess> processes = new EnumMap<>(ProcessId.class);
     private final List<JavaCommand> commands = synchronizedList(new ArrayList<>());
     private ProcessId makeStartupFail = null;
