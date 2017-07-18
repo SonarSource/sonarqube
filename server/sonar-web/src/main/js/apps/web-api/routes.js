@@ -20,15 +20,13 @@
 const routes = [
   {
     getIndexRoute(_, callback) {
-      require.ensure([], require =>
-        callback(null, { component: require('./components/WebApiApp').default })
-      );
+      import('./components/WebApiApp').then(i => callback(null, { component: i.default }));
     }
   },
   {
     path: '**',
     getComponent(_, callback) {
-      require.ensure([], require => callback(null, require('./components/WebApiApp').default));
+      import('./components/WebApiApp').then(i => callback(null, i.default));
     }
   }
 ];

@@ -25,11 +25,13 @@
   "env": {
     "production": {
       "plugins": [
+        "syntax-dynamic-import",
         "transform-react-constant-elements"
       ]
     },
     "development": {
       "plugins": [
+        "syntax-dynamic-import",
         "transform-react-jsx-source",
         "transform-react-jsx-self"
       ]
@@ -37,6 +39,7 @@
     "test": {
       "plugins": [
         "transform-es2015-modules-commonjs",
+        "dynamic-import-node",
         "transform-react-jsx-source",
         "transform-react-jsx-self"
       ]

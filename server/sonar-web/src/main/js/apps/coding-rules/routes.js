@@ -21,9 +21,7 @@ const routes = [
   {
     indexRoute: {
       getComponent(_, callback) {
-        require.ensure([], require => {
-          callback(null, require('./components/CodingRulesAppContainer').default);
-        });
+        import('./components/CodingRulesAppContainer').then(i => callback(null, i.default));
       }
     }
   }

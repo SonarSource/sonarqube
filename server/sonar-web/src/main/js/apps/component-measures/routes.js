@@ -20,27 +20,25 @@
 const routes = [
   {
     getComponent(_, callback) {
-      require.ensure([], require => callback(null, require('./app/AppContainer').default));
+      import('./app/AppContainer').then(i => callback(null, i.default));
     },
     childRoutes: [
       {
         getComponent(_, callback) {
-          require.ensure([], require => callback(null, require('./home/HomeContainer').default));
+          import('./home/HomeContainer').then(i => callback(null, i.default));
         },
         childRoutes: [
           {
             getIndexRoute(_, callback) {
-              require.ensure([], require =>
-                callback(null, { component: require('./home/AllMeasuresContainer').default })
+              import('./home/AllMeasuresContainer').then(i =>
+                callback(null, { component: i.default })
               );
             }
           },
           {
             path: 'domain/:domainName',
             getComponent(_, callback) {
-              require.ensure([], require =>
-                callback(null, require('./home/DomainMeasuresContainer').default)
-              );
+              import('./home/DomainMeasuresContainer').then(i => callback(null, i.default));
             }
           }
         ]
@@ -48,9 +46,7 @@ const routes = [
       {
         path: 'metric/:metricKey',
         getComponent(_, callback) {
-          require.ensure([], require =>
-            callback(null, require('./details/MeasureDetailsContainer').default)
-          );
+          import('./details/MeasureDetailsContainer').then(i => callback(null, i.default));
         },
         childRoutes: [
           {
@@ -67,17 +63,13 @@ const routes = [
           {
             path: 'list',
             getComponent(_, callback) {
-              require.ensure([], require =>
-                callback(null, require('./details/drilldown/ListViewContainer').default)
-              );
+              import('./details/drilldown/ListViewContainer').then(i => callback(null, i.default));
             }
           },
           {
             path: 'tree',
             getComponent(_, callback) {
-              require.ensure([], require =>
-                callback(null, require('./details/drilldown/TreeViewContainer').default)
-              );
+              import('./details/drilldown/TreeViewContainer').then(i => callback(null, i.default));
             }
           },
           {
@@ -96,8 +88,8 @@ const routes = [
           {
             path: 'treemap',
             getComponent(_, callback) {
-              require.ensure([], require =>
-                callback(null, require('./details/treemap/MeasureTreemapContainer').default)
+              import('./details/treemap/MeasureTreemapContainer').then(i =>
+                callback(null, i.default)
               );
             }
           }

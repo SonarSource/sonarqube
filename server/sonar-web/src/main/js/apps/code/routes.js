@@ -20,9 +20,7 @@
 const routes = [
   {
     getIndexRoute(_, callback) {
-      require.ensure([], require =>
-        callback(null, { component: require('./components/App').default })
-      );
+      import('./components/App').then(i => callback(null, { component: i.default }));
     }
   }
 ];

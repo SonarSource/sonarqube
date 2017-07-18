@@ -20,52 +20,42 @@
 const routes = [
   {
     getComponent(_, callback) {
-      require.ensure([], require => callback(null, require('./components/Account').default));
+      import('./components/Account').then(i => callback(null, i.default));
     },
     childRoutes: [
       {
         getIndexRoute(_, callback) {
-          require.ensure([], require =>
-            callback(null, { component: require('./profile/Profile').default })
-          );
+          import('./profile/Profile').then(i => callback(null, { component: i.default }));
         }
       },
       {
         path: 'security',
         getComponent(_, callback) {
-          require.ensure([], require => callback(null, require('./components/Security').default));
+          import('./components/Security').then(i => callback(null, i.default));
         }
       },
       {
         path: 'projects',
         getComponent(_, callback) {
-          require.ensure([], require =>
-            callback(null, require('./projects/ProjectsContainer').default)
-          );
+          import('./projects/ProjectsContainer').then(i => callback(null, i.default));
         }
       },
       {
         path: 'notifications',
         getComponent(_, callback) {
-          require.ensure([], require =>
-            callback(null, require('./notifications/Notifications').default)
-          );
+          import('./notifications/Notifications').then(i => callback(null, i.default));
         }
       },
       {
         path: 'organizations',
         getComponent(_, callback) {
-          require.ensure([], require =>
-            callback(null, require('./organizations/UserOrganizations').default)
-          );
+          import('./organizations/UserOrganizations').then(i => callback(null, i.default));
         },
         childRoutes: [
           {
             path: 'create',
             getComponent(_, callback) {
-              require.ensure([], require =>
-                callback(null, require('./organizations/CreateOrganizationForm').default)
-              );
+              import('./organizations/CreateOrganizationForm').then(i => callback(null, i.default));
             }
           }
         ]
