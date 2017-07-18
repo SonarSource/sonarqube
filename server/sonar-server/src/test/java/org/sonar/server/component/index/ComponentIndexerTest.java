@@ -184,6 +184,7 @@ public class ComponentIndexerTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     indexProject(project, PROJECT_CREATION);
+    assertThatIndexHasSize(2);
 
     db.getDbClient().componentDao().delete(db.getSession(), project.getId());
     db.getDbClient().componentDao().delete(db.getSession(), file.getId());

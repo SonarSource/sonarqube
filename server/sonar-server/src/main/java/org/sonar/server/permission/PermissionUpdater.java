@@ -43,7 +43,7 @@ public class PermissionUpdater {
   private final GroupPermissionChanger groupPermissionChanger;
 
   public PermissionUpdater(DbClient dbClient, ProjectIndexers projectIndexers,
-                           UserPermissionChanger userPermissionChanger, GroupPermissionChanger groupPermissionChanger) {
+    UserPermissionChanger userPermissionChanger, GroupPermissionChanger groupPermissionChanger) {
     this.dbClient = dbClient;
     this.projectIndexers = projectIndexers;
     this.userPermissionChanger = userPermissionChanger;
@@ -65,7 +65,7 @@ public class PermissionUpdater {
       dbClient.resourceDao().updateAuthorizationDate(projectId, dbSession);
     }
 
-    projectIndexers.commitAndIndex(dbSession, projectOrViewUuids, ProjectIndexer.Cause.PERMISSION_CHANGE);
+    projectIndexers.commitAndIndexByProjectUuids(dbSession, projectOrViewUuids, ProjectIndexer.Cause.PERMISSION_CHANGE);
   }
 
   private boolean doApply(DbSession dbSession, PermissionChange change) {

@@ -21,15 +21,15 @@
 
   <select id="selectProject" parameterType="String" resultMap="resourceResultMap">
     select * from projects
-    where uuid=#{uuid,jdbcType=VARCHAR}
+    where uuid = #{uuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectProjectResources" parameterType="String" resultMap="resourceResultMap">
     select * from projects
     where
-    root_uuid=#{rootUuid,jdbcType=VARCHAR}
-    and scope!='PRJ'
-    and enabled=${_true}
+    root_uuid = #{rootUuid,jdbcType=VARCHAR}
+    and scope != 'PRJ'
+    and enabled = ${_true}
   </select>
 
   <select id="selectDescendantProjects" parameterType="String" resultMap="resourceResultMap">

@@ -46,18 +46,18 @@ public class ComponentService {
   }
 
   // TODO should be moved to UpdateKeyAction
-  public void updateKey(DbSession dbSession, ComponentDto component, String newKey) {
-    userSession.checkComponentPermission(UserRole.ADMIN, component);
-    checkIsProjectOrModule(component);
+  public void updateKey(DbSession dbSession, ComponentDto projectOrModule, String newKey) {
+    userSession.checkComponentPermission(UserRole.ADMIN, projectOrModule);
+    checkIsProjectOrModule(projectOrModule);
     checkProjectOrModuleKeyFormat(newKey);
-    dbClient.componentKeyUpdaterDao().updateKey(dbSession, component.uuid(), newKey);
-    projectIndexers.commitAndIndex(dbSession, singletonList(component.uuid()), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+    dbClient.componentKeyUpdaterDao().updateKey(dbSession, projectOrModule.uuid(), newKey);
+    projectIndexers.commitAndIndex(dbSession, singletonList(projectOrModule), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
   }
 
   // TODO should be moved to BulkUpdateKeyAction
-  public void bulkUpdateKey(DbSession dbSession, String projectUuid, String stringToReplace, String replacementString) {
-    dbClient.componentKeyUpdaterDao().bulkUpdateKey(dbSession, projectUuid, stringToReplace, replacementString);
-    projectIndexers.commitAndIndex(dbSession, singletonList(projectUuid), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+  public void bulkUpdateKey(DbSession dbSession, ComponentDto projectOrModule, String stringToReplace, String replacementString) {
+    dbClient.componentKeyUpdaterDao().bulkUpdateKey(dbSession, projectOrModule.uuid(), stringToReplace, replacementString);
+    projectIndexers.commitAndIndex(dbSession, singletonList(projectOrModule), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
   }
 
   private static void checkProjectOrModuleKeyFormat(String key) {

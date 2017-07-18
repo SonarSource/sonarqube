@@ -32,7 +32,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.permission.ProjectPermissions;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -104,7 +103,7 @@ public class PermissionTemplateService {
     for (ComponentDto project : projects) {
       copyPermissions(dbSession, template, project, null);
     }
-    projectIndexers.commitAndIndex(dbSession, projects.stream().map(ComponentDto::uuid).collect(MoreCollectors.toList()), ProjectIndexer.Cause.PERMISSION_CHANGE);
+    projectIndexers.commitAndIndex(dbSession, projects, ProjectIndexer.Cause.PERMISSION_CHANGE);
   }
 
   /**

@@ -109,7 +109,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
         } else {
           updatePermissionsToPublic(dbSession, component);
         }
-        projectIndexers.commitAndIndex(dbSession, singletonList(component.uuid()), ProjectIndexer.Cause.PERMISSION_CHANGE);
+        projectIndexers.commitAndIndex(dbSession, singletonList(component), ProjectIndexer.Cause.PERMISSION_CHANGE);
       }
     }
   }

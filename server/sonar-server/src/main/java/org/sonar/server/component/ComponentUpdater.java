@@ -72,7 +72,7 @@ public class ComponentUpdater {
     ComponentDto componentDto = createRootComponent(dbSession, newComponent);
     removeDuplicatedProjects(dbSession, componentDto.getKey());
     handlePermissionTemplate(dbSession, componentDto, newComponent.getOrganizationUuid(), userId);
-    projectIndexers.commitAndIndex(dbSession, singletonList(componentDto.uuid()), Cause.PROJECT_CREATION);
+    projectIndexers.commitAndIndex(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
     return componentDto;
   }
 

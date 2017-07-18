@@ -99,7 +99,7 @@ public class SetAction implements ProjectTagsWsAction {
 
       project.setTags(tags);
       dbClient.componentDao().updateTags(dbSession, project);
-      projectIndexers.commitAndIndex(dbSession, singletonList(project.uuid()), PROJECT_TAGS_UPDATE);
+      projectIndexers.commitAndIndex(dbSession, singletonList(project), PROJECT_TAGS_UPDATE);
     }
 
     response.noContent();

@@ -140,7 +140,7 @@ public class BulkUpdateKeyActionTest {
         tuple(project.key(), "your_project", false),
         tuple(module.key(), "your_project:root:module", false));
 
-    verify(componentService).bulkUpdateKey(any(DbSession.class), eq(project.uuid()), eq(FROM), eq(TO));
+    verify(componentService).bulkUpdateKey(any(DbSession.class), eq(project), eq(FROM), eq(TO));
   }
 
   @Test
@@ -150,7 +150,7 @@ public class BulkUpdateKeyActionTest {
 
     callByKey(provisionedProject.key(), provisionedProject.getKey(), newKey);
 
-    verify(componentService).bulkUpdateKey(any(DbSession.class), eq(provisionedProject.uuid()), eq(provisionedProject.getKey()), eq(newKey));
+    verify(componentService).bulkUpdateKey(any(DbSession.class), eq(provisionedProject), eq(provisionedProject.getKey()), eq(newKey));
   }
 
   @Test
