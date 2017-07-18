@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -88,20 +87,6 @@ public class IssueDoc extends BaseDoc {
 
   public String severity() {
     return getField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY);
-  }
-
-  public boolean isManualSeverity() {
-    return BooleanUtils.isTrue(getField(IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY));
-  }
-
-  @Nullable
-  public String checksum() {
-    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_CHECKSUM);
-  }
-
-  @CheckForNull
-  public String message() {
-    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_MESSAGE);
   }
 
   @CheckForNull
@@ -205,21 +190,6 @@ public class IssueDoc extends BaseDoc {
   public IssueDoc setSeverity(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, s);
     setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE, Severity.ALL.indexOf(s));
-    return this;
-  }
-
-  public IssueDoc setManualSeverity(boolean b) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY, b);
-    return this;
-  }
-
-  public IssueDoc setMessage(@Nullable String s) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_MESSAGE, s);
-    return this;
-  }
-
-  public IssueDoc setChecksum(@Nullable String s) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_CHECKSUM, s);
     return this;
   }
 

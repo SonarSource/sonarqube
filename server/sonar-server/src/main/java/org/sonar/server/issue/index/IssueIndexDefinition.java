@@ -52,7 +52,6 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_KEY = "key";
   public static final String FIELD_ISSUE_LANGUAGE = "language";
   public static final String FIELD_ISSUE_LINE = "line";
-  public static final String FIELD_ISSUE_MESSAGE = "message";
   public static final String FIELD_ISSUE_MODULE_UUID = "module";
   public static final String FIELD_ISSUE_MODULE_PATH = "modulePath";
   public static final String FIELD_ISSUE_ORGANIZATION_UUID = "organization";
@@ -62,9 +61,7 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_RULE_KEY = "ruleKey";
   public static final String FIELD_ISSUE_SEVERITY = "severity";
   public static final String FIELD_ISSUE_SEVERITY_VALUE = "severityValue";
-  public static final String FIELD_ISSUE_MANUAL_SEVERITY = "manualSeverity";
   public static final String FIELD_ISSUE_STATUS = "status";
-  public static final String FIELD_ISSUE_CHECKSUM = "checksum";
   public static final String FIELD_ISSUE_TAGS = "tags";
   public static final String FIELD_ISSUE_TYPE = "type";
 
@@ -95,7 +92,6 @@ public class IssueIndexDefinition implements IndexDefinition {
     type.stringFieldBuilder(FIELD_ISSUE_KEY).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
     type.stringFieldBuilder(FIELD_ISSUE_LANGUAGE).disableNorms().build();
     type.createIntegerField(FIELD_ISSUE_LINE);
-    type.stringFieldBuilder(FIELD_ISSUE_MESSAGE).disableNorms().build();
     type.stringFieldBuilder(FIELD_ISSUE_MODULE_UUID).disableNorms().build();
     type.createUuidPathField(FIELD_ISSUE_MODULE_PATH);
     type.stringFieldBuilder(FIELD_ISSUE_ORGANIZATION_UUID).disableNorms().build();

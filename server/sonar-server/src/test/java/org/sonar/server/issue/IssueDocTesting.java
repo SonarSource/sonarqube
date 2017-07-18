@@ -42,7 +42,6 @@ public class IssueDocTesting {
     doc.setComponentUuid("FILE_1");
     doc.setFilePath("src/Foo.xoo");
     doc.setDirectoryPath("/src");
-    doc.setMessage("the message");
     doc.setModuleUuid("MODULE_1");
     doc.setModuleUuidPath("MODULE_1");
     doc.setProjectUuid("PROJECT_1");
@@ -50,9 +49,7 @@ public class IssueDocTesting {
     doc.setStatus(Issue.STATUS_OPEN);
     doc.setResolution(null);
     doc.setSeverity(Severity.MAJOR);
-    doc.setManualSeverity(true);
     doc.setEffort(10L);
-    doc.setChecksum("12345");
     doc.setFuncCreationDate(DateUtils.parseDate("2014-09-04"));
     doc.setFuncUpdateDate(DateUtils.parseDate("2014-12-04"));
     doc.setFuncCloseDate(null);

@@ -57,17 +57,14 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "root.uuid",
     "i.assignee",
     "i.line",
-    "i.message",
     "i.resolution",
     "i.severity",
-    "i.manual_severity",
-    "i.checksum",
     "i.status",
-
-    // column 11
     "i.effort",
     "i.author_login",
     "i.issue_close_date",
+
+    // column 11
     "i.issue_creation_date",
     "i.issue_update_date",
     "r.plugin_name",
@@ -75,11 +72,11 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "r.language",
     "p.uuid",
     "p.module_uuid_path",
-
-    // column 21
     "p.path",
     "p.scope",
     "p.organization_uuid",
+
+    // column 21
     "i.tags",
     "i.issue_type"
   };
@@ -197,33 +194,30 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setProjectUuid(projectUuid);
       doc.setAssignee(rs.getString(3));
       doc.setLine(DatabaseUtils.getInt(rs, 4));
-      doc.setMessage(rs.getString(5));
-      doc.setResolution(rs.getString(6));
-      doc.setSeverity(rs.getString(7));
-      doc.setManualSeverity(rs.getBoolean(8));
-      doc.setChecksum(rs.getString(9));
-      doc.setStatus(rs.getString(10));
-      doc.setEffort(getLong(rs, 11));
-      doc.setAuthorLogin(rs.getString(12));
-      doc.setFuncCloseDate(longToDate(getLong(rs, 13)));
-      doc.setFuncCreationDate(longToDate(getLong(rs, 14)));
-      doc.setFuncUpdateDate(longToDate(getLong(rs, 15)));
-      String ruleRepo = rs.getString(16);
-      String ruleKey = rs.getString(17);
+      doc.setResolution(rs.getString(5));
+      doc.setSeverity(rs.getString(6));
+      doc.setStatus(rs.getString(7));
+      doc.setEffort(getLong(rs, 8));
+      doc.setAuthorLogin(rs.getString(9));
+      doc.setFuncCloseDate(longToDate(getLong(rs, 10)));
+      doc.setFuncCreationDate(longToDate(getLong(rs, 11)));
+      doc.setFuncUpdateDate(longToDate(getLong(rs, 12)));
+      String ruleRepo = rs.getString(13);
+      String ruleKey = rs.getString(14);
       doc.setRuleKey(RuleKey.of(ruleRepo, ruleKey).toString());
-      doc.setLanguage(rs.getString(18));
-      doc.setComponentUuid(rs.getString(19));
-      String moduleUuidPath = rs.getString(20);
+      doc.setLanguage(rs.getString(15));
+      doc.setComponentUuid(rs.getString(16));
+      String moduleUuidPath = rs.getString(17);
       doc.setModuleUuid(extractModule(moduleUuidPath));
       doc.setModuleUuidPath(moduleUuidPath);
-      String scope = rs.getString(22);
-      String filePath = extractFilePath(rs.getString(21), scope);
+      String scope = rs.getString(19);
+      String filePath = extractFilePath(rs.getString(18), scope);
       doc.setFilePath(filePath);
       doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
-      doc.setOrganizationUuid(rs.getString(23));
-      String tags = rs.getString(24);
+      doc.setOrganizationUuid(rs.getString(20));
+      String tags = rs.getString(21);
       doc.setTags(ImmutableList.copyOf(IssueIteratorForSingleChunk.TAGS_SPLITTER.split(tags == null ? "" : tags)));
-      doc.setType(RuleType.valueOf(rs.getInt(25)));
+      doc.setType(RuleType.valueOf(rs.getInt(22)));
       return doc;
     }
 

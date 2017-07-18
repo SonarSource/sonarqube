@@ -47,10 +47,8 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.resolution()).isEqualTo("FIXED");
     assertThat(issue.status()).isEqualTo("RESOLVED");
     assertThat(issue.severity()).isEqualTo("BLOCKER");
-    assertThat(issue.isManualSeverity()).isFalse();
     assertThat(issue.assignee()).isEqualTo("guy1");
     assertThat(issue.authorLogin()).isEqualTo("guy2");
-    assertThat(issue.checksum()).isEqualTo("FFFFF");
     assertThat(issue.line()).isEqualTo(444);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("squid", "AvoidCycles"));
     assertThat(issue.componentUuid()).isEqualTo("FILE1");
