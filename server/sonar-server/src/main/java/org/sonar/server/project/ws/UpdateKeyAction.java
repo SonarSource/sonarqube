@@ -101,7 +101,6 @@ public class UpdateKeyAction implements ProjectsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.PROJECT_ID_AND_FROM);
       componentService.updateKey(dbSession, projectOrModule, request.getNewKey());
-      dbSession.commit();
     }
   }
 

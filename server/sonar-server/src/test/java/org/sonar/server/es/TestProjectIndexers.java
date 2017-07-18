@@ -29,7 +29,7 @@ public class TestProjectIndexers implements ProjectIndexers {
   private final ListMultimap<String, ProjectIndexer.Cause> calls = ArrayListMultimap.create();
 
   @Override
-  public void commitAndIndex(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
+  public void commitAndIndexByProjectUuids(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
     dbSession.commit();
     projectUuids.forEach(projectUuid -> calls.put(projectUuid, cause));
 

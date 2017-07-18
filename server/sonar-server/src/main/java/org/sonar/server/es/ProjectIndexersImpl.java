@@ -38,7 +38,7 @@ public class ProjectIndexersImpl implements ProjectIndexers {
   }
 
   @Override
-  public void commitAndIndex(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
+  public void commitAndIndexByProjectUuids(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
     Map<ProjectIndexer, Collection<EsQueueDto>> itemsByIndexer = new IdentityHashMap<>();
     indexers.forEach(i -> itemsByIndexer.put(i, i.prepareForRecovery(dbSession, projectUuids, cause)));
     dbSession.commit();

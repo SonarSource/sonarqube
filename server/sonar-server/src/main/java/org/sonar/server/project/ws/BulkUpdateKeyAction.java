@@ -154,8 +154,7 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
   }
 
   private void bulkUpdateKey(DbSession dbSession, BulkUpdateKeyWsRequest request, ComponentDto projectOrModule) {
-    componentService.bulkUpdateKey(dbSession, projectOrModule.uuid(), request.getFrom(), request.getTo());
-    dbSession.commit();
+    componentService.bulkUpdateKey(dbSession, projectOrModule, request.getFrom(), request.getTo());
   }
 
   private static BulkUpdateKeyWsResponse buildResponse(Map<String, String> newKeysByOldKeys, Map<String, Boolean> newKeysWithDuplicateMap) {

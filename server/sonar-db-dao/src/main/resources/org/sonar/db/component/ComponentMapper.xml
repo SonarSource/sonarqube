@@ -425,7 +425,7 @@
       p.enabled=${_true}
       and p.copy_component_uuid is null
       <if test="projectUuid != null">
-        and p.project_uuid=#{projectUuid,jdbcType=VARCHAR}
+        and p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
       </if>
   </select>
 

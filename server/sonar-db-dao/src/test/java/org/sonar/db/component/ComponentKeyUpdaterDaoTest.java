@@ -56,6 +56,7 @@ public class ComponentKeyUpdaterDaoTest {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     underTest.updateKey(dbSession, "B", "struts:core");
+    dbSession.commit();
 
     db.assertDbUnit(getClass(), "shouldUpdateKey-result.xml", "projects");
   }
@@ -70,7 +71,7 @@ public class ComponentKeyUpdaterDaoTest {
     db.components().insertComponent(newFileDto(project, inactiveDirectory).setKey("my_project:inactive_directory/file").setEnabled(false));
 
     underTest.updateKey(dbSession, "A", "your_project");
-    db.commit();
+    dbSession.commit();
 
     List<ComponentDto> result = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, "your_project");
     assertThat(result).hasSize(5).extracting(ComponentDto::getKey)

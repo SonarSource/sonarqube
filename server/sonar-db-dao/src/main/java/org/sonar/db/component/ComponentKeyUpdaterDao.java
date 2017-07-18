@@ -48,22 +48,20 @@ public class ComponentKeyUpdaterDao implements Dao {
 
   private static final Set<String> PROJECT_OR_MODULE_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.MODULE);
 
-  public void updateKey(DbSession dbSession, String projectUuid, String newKey) {
+  public void updateKey(DbSession dbSession, String projectOrModuleUuid, String newKey) {
     ComponentKeyUpdaterMapper mapper = dbSession.getMapper(ComponentKeyUpdaterMapper.class);
     if (mapper.countResourceByKey(newKey) > 0) {
       throw new IllegalArgumentException("Impossible to update key: a component with key \"" + newKey + "\" already exists.");
     }
 
     // must SELECT first everything
-    ResourceDto project = mapper.selectProject(projectUuid);
+    ResourceDto project = mapper.selectProject(projectOrModuleUuid);
     String projectOldKey = project.getKey();
-    List<ResourceDto> resources = mapper.selectProjectResources(projectUuid);
+    List<ResourceDto> resources = mapper.selectProjectResources(projectOrModuleUuid);
     resources.add(project);
 
     // and then proceed with the batch UPDATE at once
     runBatchUpdateForAllResources(resources, projectOldKey, newKey, mapper);
-
-    dbSession.commit();
   }
 
   public static void checkIsProjectOrModule(ComponentDto component) {

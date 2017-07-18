@@ -60,7 +60,7 @@ public class ComponentServiceTest {
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/File.xoo"));
     ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
 
-    underTest.bulkUpdateKey(dbSession, project.uuid(), "my_", "your_");
+    underTest.bulkUpdateKey(dbSession, project, "my_", "your_");
 
     assertComponentKeyUpdated(project.key(), "your_project");
     assertComponentKeyUpdated(module.key(), "your_project:root:module");

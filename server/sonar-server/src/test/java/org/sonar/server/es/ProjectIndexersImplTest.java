@@ -19,14 +19,17 @@
  */
  package org.sonar.server.es;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import org.junit.Test;
 import org.sonar.db.DbSession;
-import org.sonar.db.es.EsQueueDto;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.server.es.ProjectIndexer.Cause;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -34,54 +37,34 @@ import static org.mockito.Mockito.mock;
 public class ProjectIndexersImplTest {
 
   @Test
-  public void commitAndIndex_calls_indexer_with_only_its_supported_items() {
-    EsQueueDto item1a = EsQueueDto.create("fake/fake1", "P1");
-    EsQueueDto item1b = EsQueueDto.create("fake/fake1", "P1");
-    EsQueueDto item2 = EsQueueDto.create("fake/fake2", "P1");
-    FakeIndexer indexer1 = new FakeIndexer(asList(item1a, item1b));
-    FakeIndexer indexer2 = new FakeIndexer(singletonList(item2));
-    DbSession dbSession = mock(DbSession.class);
+  public void commitAndIndex_indexes_project() {
+    OrganizationDto organization = OrganizationTesting.newOrganizationDto();
+    ComponentDto project = ComponentTesting.newPublicProjectDto(organization);
 
-    ProjectIndexersImpl underTest = new ProjectIndexersImpl(indexer1, indexer2);
-    underTest.commitAndIndex(dbSession, singletonList("P1"), ProjectIndexer.Cause.PROJECT_CREATION);
+    FakeIndexers underTest = new FakeIndexers();
+    underTest.commitAndIndex(mock(DbSession.class), singletonList(project), Cause.PROJECT_CREATION);
 
-    assertThat(indexer1.calledItems).containsExactlyInAnyOrder(item1a, item1b);
-    assertThat(indexer2.calledItems).containsExactlyInAnyOrder(item2);
+    assertThat(underTest.calls).containsExactly(project.uuid());
   }
 
-  private static class FakeIndexer implements ProjectIndexer {
+  @Test
+  public void commitAndIndex_of_module_indexes_the_project() {
+    OrganizationDto organization = OrganizationTesting.newOrganizationDto();
+    ComponentDto project = ComponentTesting.newPublicProjectDto(organization);
+    ComponentDto module = ComponentTesting.newModuleDto(project);
 
-    private final List<EsQueueDto> items;
-    private Collection<EsQueueDto> calledItems;
+    FakeIndexers underTest = new FakeIndexers();
+    underTest.commitAndIndex(mock(DbSession.class), singletonList(module), Cause.PROJECT_CREATION);
 
-    private FakeIndexer(List<EsQueueDto> items) {
-      this.items = items;
-    }
+    assertThat(underTest.calls).containsExactly(project.uuid());
+  }
 
-    @Override
-    public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Set<IndexType> getIndexTypes() {
-      throw new UnsupportedOperationException();
-    }
+  private static class FakeIndexers implements ProjectIndexers {
+    private final List<String> calls = new ArrayList<>();
 
     @Override
-    public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, Cause cause) {
-      return items;
-    }
-
-    @Override
-    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
-      this.calledItems = items;
-      return new IndexingResult();
-    }
-
-    @Override
-    public void indexOnAnalysis(String projectUuid) {
-      throw new UnsupportedOperationException();
+    public void commitAndIndexByProjectUuids(DbSession dbSession, Collection<String> projectUuids, Cause cause) {
+      calls.addAll(projectUuids);
     }
   }
 }

@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
-public class ProjectKeyPageTest {
+public class ProjectKeyUpdatePageTest {
 
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;

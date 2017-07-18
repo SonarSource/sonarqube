@@ -20,13 +20,24 @@
 package org.sonar.server.es;
 
 import java.util.Collection;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 
 public interface ProjectIndexers {
 
   /**
    * Commits the DB transaction and indexes the specified projects, if needed (according to
    * "cause" parameter).
+   * IMPORTANT - UUIDs must relate to projects only. Modules, directories and files are forbidden
+   * and will lead to lack of indexing.
    */
-  void commitAndIndex(DbSession dbSession, Collection<String> projectUuid, ProjectIndexer.Cause cause);
+  void commitAndIndexByProjectUuids(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause);
+
+  default void commitAndIndex(DbSession dbSession, Collection<ComponentDto> projectOrModules, ProjectIndexer.Cause cause) {
+    Collection<String> projectUuids = projectOrModules.stream()
+      .map(ComponentDto::projectUuid)
+      .collect(MoreCollectors.toSet(projectOrModules.size()));
+    commitAndIndexByProjectUuids(dbSession, projectUuids, cause);
+  }
 }

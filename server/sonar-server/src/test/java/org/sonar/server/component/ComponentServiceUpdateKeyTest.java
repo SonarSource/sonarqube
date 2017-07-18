@@ -86,10 +86,9 @@ public class ComponentServiceUpdateKeyTest {
   public void update_module_key() {
     ComponentDto project = insertSampleRootProject();
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
-    dbClient.componentDao().insert(dbSession, module);
+    db.components().insertComponent(module);
     ComponentDto file = ComponentTesting.newFileDto(module, null).setKey("sample:root:module:src/File.xoo");
-    dbClient.componentDao().insert(dbSession, file);
-    dbSession.commit();
+    db.components().insertComponent(file);
     logInAsProjectAdministrator(project);
 
     underTest.updateKey(dbSession, module, "sample:root2:module");
@@ -99,7 +98,8 @@ public class ComponentServiceUpdateKeyTest {
     assertComponentKeyHasBeenUpdated(module.key(), "sample:root2:module");
     assertComponentKeyHasBeenUpdated(file.key(), "sample:root2:module:src/File.xoo");
 
-    org.assertj.core.api.Assertions.assertThat(projectIndexers.hasBeenCalled(module.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
+    // do not index the module but the project
+    org.assertj.core.api.Assertions.assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
   }
 
   @Test
@@ -180,7 +180,7 @@ public class ComponentServiceUpdateKeyTest {
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/File.xoo"));
     ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
 
-    underTest.bulkUpdateKey(dbSession, project.uuid(), "my_", "your_");
+    underTest.bulkUpdateKey(dbSession, project, "my_", "your_");
 
     assertComponentKeyUpdated(project.key(), "your_project");
     assertComponentKeyUpdated(module.key(), "your_project:root:module");
