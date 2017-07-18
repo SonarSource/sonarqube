@@ -118,7 +118,9 @@ const startReactApp = () => {
         <Redirect from="/component/index" to="/component" />
         <Redirect from="/component_issues" to="/project/issues" />
         <Redirect from="/dashboard/index" to="/dashboard" />
-        <Redirect from="/governance" to="/view" />
+        <Redirect from="/governance" to="/portfolio" />
+        <Redirect from="/view" to="/portfolio" />
+        <Redirect from="/extension/governance/governance" to="/portfolio" />
         <Redirect from="/extension/governance/portfolios" to="/portfolios" />
         <Redirect from="/profiles/index" to="/profiles" />
         <Redirect from="/quality_gates/index" to="/quality_gates" />
@@ -179,7 +181,6 @@ const startReactApp = () => {
                           component={ProjectAdminPageExtension}
                         />
                       </Route>
-                      <Redirect from="extension/governance/governance" to="/view" />
                       <Route
                         path="extension/:pluginKey/:extensionKey"
                         component={ProjectPageExtension}
@@ -190,7 +191,7 @@ const startReactApp = () => {
                       {projectAdminRoutes}
                     </Route>
                     <Route path="project_roles" childRoutes={projectPermissionsRoutes} />
-                    <Route path="view" component={ViewDashboard} />
+                    <Route path="portfolio" component={ViewDashboard} />
                   </Route>
 
                   <Route component={AdminContainer}>
