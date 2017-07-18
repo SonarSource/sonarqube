@@ -58,23 +58,25 @@ public interface ProcessMonitor {
   void waitFor(long timeout, TimeUnit timeoutUnit) throws InterruptedException;
 
   /**
-   * Whether the process has set the operational flag (in ipc shared memory)
+   * Whether the process has reach operational state after startup.
    */
   boolean isOperational();
 
   /**
-   * Send request to gracefully stop to the process (via ipc shared memory)
+   * Send request to gracefully stop to the process
    */
   void askForStop();
 
   /**
-   * Whether the process asked for a full restart (via ipc shared memory)
+   * Whether the process asked for a full restart
    */
   boolean askedForRestart();
 
   /**
-   * Removes the flag in ipc shared memory so that next call to {@link #askedForRestart()}
-   * returns {@code false}, except if meanwhile process asks again for restart.
+   * Sends a signal to the process to acknowledge that the parent process received the request to restart from the
+   * child process send via {@link #askedForRestart()}.
+   * <br/>
+   * Child process will typically stop sending the signal requesting restart from now on.
    */
   void acknowledgeAskForRestart();
 

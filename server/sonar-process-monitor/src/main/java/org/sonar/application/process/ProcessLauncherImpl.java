@@ -72,7 +72,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       ProcessBuilder processBuilder = create(javaCommand);
       LOG.info("Launch process[{}]: {}", javaCommand.getProcessId().getKey(), String.join(" ", processBuilder.command()));
       process = processBuilder.start();
-      return new ProcessMonitorImpl(process, commands);
+      return new ProcessCommandsProcessMonitor(process, commands);
 
     } catch (Exception e) {
       // just in case
