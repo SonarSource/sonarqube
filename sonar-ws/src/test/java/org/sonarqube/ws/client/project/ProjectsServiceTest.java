@@ -116,19 +116,11 @@ public class ProjectsServiceTest {
   }
 
   @Test
-  public void deletes_project_by_id() {
-    underTest.delete(DeleteRequest.builder().setId("abc").build());
+  public void delete() {
+    underTest.delete(DeleteRequest.builder().setKey("P1").build());
 
     assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/delete");
-    assertThat(serviceTester.getPostRequest().getParams()).containsOnly(entry("id", "abc"));
-  }
-
-  @Test
-  public void deletes_project_by_key() {
-    underTest.delete(DeleteRequest.builder().setKey("project_key").build());
-
-    assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/delete");
-    assertThat(serviceTester.getPostRequest().getParams()).containsOnly(entry("key", "project_key"));
+    assertThat(serviceTester.getPostRequest().getParams()).containsOnly(entry("project", "P1"));
   }
 
   @Test
