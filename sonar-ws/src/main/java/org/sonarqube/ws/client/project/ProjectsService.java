@@ -78,8 +78,7 @@ public class ProjectsService extends BaseService {
    */
   public void delete(DeleteRequest request) {
     call(new PostRequest(path("delete"))
-      .setParam("id", request.getId())
-      .setParam("key", request.getKey()));
+      .setParam("project", request.getKey()));
   }
 
   public void bulkDelete(BulkDeleteRequest request) {
