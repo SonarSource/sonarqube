@@ -27,6 +27,8 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +57,14 @@ public class SearchServer implements Monitored {
 
   @Override
   public void start() {
+    Path path = Paths.get(getExecutable());
+    if (!path.toFile().exists()) {
+      throw new IllegalStateException("Cannot find elasticsearch binary");
+    }
+    String absolutePath = path.toAbsolutePath().toString();
+
     List<String> command = new ArrayList<>();
-    command.add("/Users/danielschwarz/SonarSource/batches/elasticsearch/elasticsearch-5.0.0/bin/elasticsearch");
+    command.add(absolutePath);
     Map<String, String> settingsMap = settings.build();
     settingsMap.entrySet().stream()
       .filter(entry -> !"path.home".equals(entry.getKey()))
@@ -64,7 +72,7 @@ public class SearchServer implements Monitored {
     url = "http://"+settingsMap.get("http.host") + ":" + settingsMap.get("http.port");
     System.out.println(command.stream().collect(Collectors.joining(" ")));
     ProcessBuilder builder = new ProcessBuilder(command)
-      .directory(new File("/Users/danielschwarz/SonarSource/batches/elasticsearch/elasticsearch-5.0.0/bin/"));
+      .directory(new File(path.getParent().toAbsolutePath().toString()));
     builder.redirectOutput(ProcessBuilder.Redirect.PIPE);
     builder.redirectErrorStream(true);
     try {
@@ -110,6 +118,13 @@ public class SearchServer implements Monitored {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  private static String getExecutable() {
+    if (System.getProperty("os.name").startsWith("Windows")) {
+      return "elasticsearch/bin/elasticsearch.bat";
+    }
+    return "elasticsearch/bin/elasticsearch";
   }
 
   @Override
