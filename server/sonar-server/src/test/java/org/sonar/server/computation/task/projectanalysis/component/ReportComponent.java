@@ -122,6 +122,11 @@ public class ReportComponent implements Component {
   }
 
   @Override
+  public ViewAttributes getViewAttributes() {
+    throw new IllegalStateException("Only component of type VIEW have a ViewAttributes object");
+  }
+
+  @Override
   public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
