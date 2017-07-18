@@ -57,7 +57,7 @@ export default class ComponentNavMenu extends React.PureComponent {
   }
 
   renderDashboardLink() {
-    const pathname = this.isView() ? '/view' : '/dashboard';
+    const pathname = this.isView() ? '/portfolio' : '/dashboard';
     return (
       <li>
         <Link to={{ pathname, query: { id: this.props.component.key } }} activeClassName="active">
