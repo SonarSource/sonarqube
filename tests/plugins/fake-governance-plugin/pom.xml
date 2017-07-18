@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.sonarqube.tests</groupId>
     <artifactId>plugins</artifactId>
-    <version>6.5-SNAPSHOT</version>
+    <version>6.6-SNAPSHOT</version>
   </parent>
 
   <artifactId>fake-governance-plugin</artifactId>
@@ -16,13 +16,13 @@
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <version>${project.version}</version>
+      <version>${apiVersion}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-server</artifactId>
-      <version>${project.version}</version>
+      <version>${apiVersion}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
