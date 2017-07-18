@@ -20,61 +20,8 @@
 package org.sonar.application.process;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 public interface JavaProcessLauncher extends Closeable {
-
-  class SystemProcessBuilder {
-    private final ProcessBuilder builder = new ProcessBuilder();
-
-    /**
-     * @see ProcessBuilder#command()
-     */
-    public List<String> command() {
-      return builder.command();
-    }
-
-    /**
-     * @see ProcessBuilder#command(List)
-     */
-    public SystemProcessBuilder command(List<String> commands) {
-      builder.command(commands);
-      return this;
-    }
-
-    /**
-     * @see ProcessBuilder#directory(File)
-     */
-    public SystemProcessBuilder directory(File dir) {
-      builder.directory(dir);
-      return this;
-    }
-
-    /**
-     * @see ProcessBuilder#environment()
-     */
-    public Map<String, String> environment() {
-      return builder.environment();
-    }
-
-    /**
-     * @see ProcessBuilder#redirectErrorStream(boolean)
-     */
-    public SystemProcessBuilder redirectErrorStream(boolean b) {
-      builder.redirectErrorStream(b);
-      return this;
-    }
-
-    /**
-     * @see ProcessBuilder#start()
-     */
-    public Process start() throws IOException {
-      return builder.start();
-    }
-  }
 
   @Override
   void close();
