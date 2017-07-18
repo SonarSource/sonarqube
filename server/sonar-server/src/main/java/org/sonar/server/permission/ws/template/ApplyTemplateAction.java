@@ -38,6 +38,7 @@ import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.crea
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.ProjectWsRef.newWsProjectRef;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -62,7 +63,8 @@ public class ApplyTemplateAction implements PermissionsWsAction {
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
+      .setOrganization(request.param(PARAM_ORGANIZATION));
   }
 
   @Override

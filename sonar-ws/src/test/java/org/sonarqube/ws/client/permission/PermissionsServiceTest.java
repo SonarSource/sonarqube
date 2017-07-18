@@ -34,6 +34,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_G
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -44,6 +45,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 public class PermissionsServiceTest {
+  private static final String ORGANIZATION_VALUE = "organization value";
   private static final String PERMISSION_VALUE = "permission value";
   private static final String PROJECT_ID_VALUE = "project id value";
   private static final String PROJECT_KEY_VALUE = "project key value";
@@ -100,6 +102,7 @@ public class PermissionsServiceTest {
   @Test
   public void addGroup_does_POST_on_Ws_add_group() {
     underTest.addGroup(new AddGroupWsRequest()
+      .setOrganization(ORGANIZATION_VALUE)
       .setPermission(PERMISSION_VALUE)
       .setProjectId(PROJECT_ID_VALUE)
       .setProjectKey(PROJECT_KEY_VALUE)
@@ -110,6 +113,7 @@ public class PermissionsServiceTest {
     PostRequest postRequest = serviceTester.getPostRequest();
     serviceTester.assertThat(postRequest)
       .hasPath("add_group")
+      .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .hasParam(PARAM_PERMISSION, PERMISSION_VALUE)
       .hasParam(PARAM_PROJECT_ID, PROJECT_ID_VALUE)
       .hasParam(PARAM_PROJECT_KEY, PROJECT_KEY_VALUE)
@@ -127,7 +131,7 @@ public class PermissionsServiceTest {
         .setPermission(PERMISSION_VALUE)
         .setTemplateId(TEMPLATE_ID_VALUE)
         .setTemplateName(TEMPLATE_NAME_VALUE)
-      );
+    );
 
     assertThat(serviceTester.getPostParser()).isNull();
     PostRequest postRequest = serviceTester.getPostRequest();
@@ -145,16 +149,18 @@ public class PermissionsServiceTest {
   public void addUser_does_POST_on_Ws_add_user() {
     underTest.addUser(new AddUserWsRequest()
       .setLogin(LOGIN_VALUE)
+      .setOrganization(ORGANIZATION_VALUE)
       .setPermission(PERMISSION_VALUE)
       .setProjectId(PROJECT_ID_VALUE)
       .setProjectKey(PROJECT_KEY_VALUE)
-      );
+    );
 
     assertThat(serviceTester.getPostParser()).isNull();
     PostRequest postRequest = serviceTester.getPostRequest();
     serviceTester.assertThat(postRequest)
       .hasPath("add_user")
       .hasParam(PARAM_USER_LOGIN, LOGIN_VALUE)
+      .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .hasParam(PARAM_PERMISSION, PERMISSION_VALUE)
       .hasParam(PARAM_PROJECT_ID, PROJECT_ID_VALUE)
       .hasParam(PARAM_PROJECT_KEY, PROJECT_KEY_VALUE)
@@ -164,16 +170,18 @@ public class PermissionsServiceTest {
   @Test
   public void addUserToTemplate_does_POST_on_Ws_add_user_to_template() {
     underTest.addUserToTemplate(new AddUserToTemplateWsRequest()
+      .setOrganization(ORGANIZATION_VALUE)
       .setPermission(PERMISSION_VALUE)
       .setLogin(LOGIN_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
-      );
+    );
 
     assertThat(serviceTester.getPostParser()).isNull();
     PostRequest postRequest = serviceTester.getPostRequest();
     serviceTester.assertThat(postRequest)
       .hasPath("add_user_to_template")
+      .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .hasParam(PARAM_PERMISSION, PERMISSION_VALUE)
       .hasParam(PARAM_USER_LOGIN, LOGIN_VALUE)
       .hasParam(PARAM_TEMPLATE_ID, TEMPLATE_ID_VALUE)
@@ -184,16 +192,18 @@ public class PermissionsServiceTest {
   @Test
   public void applyTemplate_does_POST_on_Ws_apply_template() {
     underTest.applyTemplate(new ApplyTemplateWsRequest()
+      .setOrganization(ORGANIZATION_VALUE)
       .setProjectId(PROJECT_ID_VALUE)
       .setProjectKey(PROJECT_KEY_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
-      );
+    );
 
     assertThat(serviceTester.getPostParser()).isNull();
     PostRequest postRequest = serviceTester.getPostRequest();
     serviceTester.assertThat(postRequest)
       .hasPath("apply_template")
+      .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .hasParam(PARAM_PROJECT_ID, PROJECT_ID_VALUE)
       .hasParam(PARAM_PROJECT_KEY, PROJECT_KEY_VALUE)
       .hasParam(PARAM_TEMPLATE_ID, TEMPLATE_ID_VALUE)
@@ -204,6 +214,7 @@ public class PermissionsServiceTest {
   @Test
   public void bulk_apply_template() {
     underTest.bulkApplyTemplate(new BulkApplyTemplateWsRequest()
+      .setOrganization(ORGANIZATION_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
       .setQualifier(QUALIFIER_VALUE)
@@ -213,6 +224,7 @@ public class PermissionsServiceTest {
     PostRequest postRequest = serviceTester.getPostRequest();
     serviceTester.assertThat(postRequest)
       .hasPath("bulk_apply_template")
+      .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .hasParam(PARAM_TEMPLATE_ID, TEMPLATE_ID_VALUE)
       .hasParam(PARAM_TEMPLATE_NAME, TEMPLATE_NAME_VALUE)
       .hasParam("q", QUERY_VALUE)
@@ -223,15 +235,17 @@ public class PermissionsServiceTest {
   @Test
   public void createTemplate_does_POST_on_Ws_create_template() {
     underTest.createTemplate(new CreateTemplateWsRequest()
+      .setOrganization(ORGANIZATION_VALUE)
       .setName(NAME_VALUE)
       .setDescription(DESCRIPTION_VALUE)
       .setProjectKeyPattern(PROJECT_KEY_PATTERN_VALUE)
-      );
+    );
 
     assertThat(serviceTester.getPostParser()).isSameAs(WsPermissions.CreateTemplateWsResponse.parser());
     PostRequest postRequest = serviceTester.getPostRequest();
     serviceTester.assertThat(postRequest)
       .hasPath("create_template")
+      .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .hasParam(PARAM_NAME, NAME_VALUE)
       .hasParam(PARAM_DESCRIPTION, DESCRIPTION_VALUE)
       .hasParam(PARAM_PROJECT_KEY_PATTERN, PROJECT_KEY_PATTERN_VALUE)
@@ -243,7 +257,8 @@ public class PermissionsServiceTest {
     underTest.deleteTemplate(new DeleteTemplateWsRequest()
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
-      );
+      .setOrganization(ORGANIZATION_VALUE)
+    );
 
     assertThat(serviceTester.getPostParser()).isNull();
     PostRequest postRequest = serviceTester.getPostRequest();
@@ -251,6 +266,7 @@ public class PermissionsServiceTest {
       .hasPath("delete_template")
       .hasParam(PARAM_TEMPLATE_ID, TEMPLATE_ID_VALUE)
       .hasParam(PARAM_TEMPLATE_NAME, TEMPLATE_NAME_VALUE)
+      .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .andNoOtherParam();
   }
 
@@ -262,7 +278,8 @@ public class PermissionsServiceTest {
       .setGroupName(GROUP_NAME_VALUE)
       .setProjectId(PROJECT_ID_VALUE)
       .setProjectKey(PROJECT_KEY_VALUE)
-      );
+      .setOrganization(ORGANIZATION_VALUE)
+    );
 
     assertThat(serviceTester.getPostParser()).isNull();
     PostRequest postRequest = serviceTester.getPostRequest();
@@ -273,6 +290,7 @@ public class PermissionsServiceTest {
       .hasParam(PARAM_GROUP_NAME, GROUP_NAME_VALUE)
       .hasParam(PARAM_PROJECT_ID, PROJECT_ID_VALUE)
       .hasParam(PARAM_PROJECT_KEY, PROJECT_KEY_VALUE)
+      .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .andNoOtherParam();
   }
 
@@ -284,7 +302,8 @@ public class PermissionsServiceTest {
       .setGroupName(GROUP_NAME_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
-      );
+      .setOrganization(ORGANIZATION_VALUE)
+    );
 
     assertThat(serviceTester.getPostParser()).isNull();
     PostRequest postRequest = serviceTester.getPostRequest();
@@ -295,6 +314,7 @@ public class PermissionsServiceTest {
       .hasParam(PARAM_GROUP_NAME, GROUP_NAME_VALUE)
       .hasParam(PARAM_TEMPLATE_ID, TEMPLATE_ID_VALUE)
       .hasParam(PARAM_TEMPLATE_NAME, TEMPLATE_NAME_VALUE)
+      .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .andNoOtherParam();
   }
 
@@ -305,7 +325,7 @@ public class PermissionsServiceTest {
       .setLogin(LOGIN_VALUE)
       .setProjectId(PROJECT_ID_VALUE)
       .setProjectKey(PROJECT_KEY_VALUE)
-      );
+    );
 
     assertThat(serviceTester.getPostParser()).isNull();
     PostRequest postRequest = serviceTester.getPostRequest();
@@ -325,7 +345,8 @@ public class PermissionsServiceTest {
       .setLogin(LOGIN_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
-      );
+      .setOrganization(ORGANIZATION_VALUE)
+    );
 
     assertThat(serviceTester.getPostParser()).isNull();
     PostRequest postRequest = serviceTester.getPostRequest();
@@ -335,6 +356,7 @@ public class PermissionsServiceTest {
       .hasParam(PARAM_USER_LOGIN, LOGIN_VALUE)
       .hasParam(PARAM_TEMPLATE_ID, TEMPLATE_ID_VALUE)
       .hasParam(PARAM_TEMPLATE_NAME, TEMPLATE_NAME_VALUE)
+      .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .andNoOtherParam();
   }
 
@@ -358,7 +380,7 @@ public class PermissionsServiceTest {
       .setPage(PAGE_VALUE)
       .setPageSize(PAGE_SIZE_VALUE)
       .setQuery(QUERY_VALUE)
-      );
+    );
 
     assertThat(serviceTester.getGetParser()).isSameAs(WsPermissions.SearchProjectPermissionsWsResponse.parser());
     GetRequest getRequest = serviceTester.getGetRequest();
@@ -377,7 +399,7 @@ public class PermissionsServiceTest {
   public void searchTemplates_does_GET_on_Ws_search_templates() {
     underTest.searchTemplates(new SearchTemplatesWsRequest()
       .setQuery(QUERY_VALUE)
-      );
+    );
 
     assertThat(serviceTester.getGetParser()).isSameAs(WsPermissions.SearchTemplatesWsResponse.parser());
     GetRequest getRequest = serviceTester.getGetRequest();
@@ -393,7 +415,7 @@ public class PermissionsServiceTest {
       .setQualifier(QUALIFIER_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
-      );
+    );
 
     assertThat(serviceTester.getPostParser()).isNull();
     PostRequest postRequest = serviceTester.getPostRequest();
@@ -412,7 +434,7 @@ public class PermissionsServiceTest {
       .setId(TEMPLATE_ID_VALUE)
       .setName(TEMPLATE_NAME_VALUE)
       .setProjectKeyPattern(PROJECT_KEY_PATTERN_VALUE)
-      );
+    );
 
     assertThat(serviceTester.getPostParser()).isSameAs(WsPermissions.UpdateTemplateWsResponse.parser());
     PostRequest postRequest = serviceTester.getPostRequest();
@@ -431,6 +453,7 @@ public class PermissionsServiceTest {
       .setPermission(PERMISSION_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
+      .setOrganization(ORGANIZATION_VALUE)
       .build());
 
     assertThat(serviceTester.getPostParser()).isNull();
@@ -440,6 +463,7 @@ public class PermissionsServiceTest {
       .hasParam(PARAM_PERMISSION, PERMISSION_VALUE)
       .hasParam(PARAM_TEMPLATE_ID, TEMPLATE_ID_VALUE)
       .hasParam(PARAM_TEMPLATE_NAME, TEMPLATE_NAME_VALUE)
+      .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .andNoOtherParam();
   }
 
@@ -449,6 +473,7 @@ public class PermissionsServiceTest {
       .setPermission(PERMISSION_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
+      .setOrganization(ORGANIZATION_VALUE)
       .build());
 
     assertThat(serviceTester.getPostParser()).isNull();
@@ -458,6 +483,7 @@ public class PermissionsServiceTest {
       .hasParam(PARAM_PERMISSION, PERMISSION_VALUE)
       .hasParam(PARAM_TEMPLATE_ID, TEMPLATE_ID_VALUE)
       .hasParam(PARAM_TEMPLATE_NAME, TEMPLATE_NAME_VALUE)
+      .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .andNoOtherParam();
   }
 }

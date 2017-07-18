@@ -25,6 +25,7 @@ import java.net.InetAddress;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.sonarqube.tests.authorisation.PermissionTemplateTest;
 import org.sonarqube.tests.issue.IssueTagsTest;
 import org.sonarqube.tests.issue.OrganizationIssueAssignTest;
 import org.sonarqube.tests.organization.BillingTest;
@@ -73,7 +74,8 @@ import static util.ItUtils.xooPlugin;
   RulesWsTest.class,
   ProjectDeletionTest.class,
   ProjectProvisioningTest.class,
-  ProjectKeyUpdateTest.class
+  ProjectKeyUpdateTest.class,
+  PermissionTemplateTest.class
 })
 public class Category6Suite {
 

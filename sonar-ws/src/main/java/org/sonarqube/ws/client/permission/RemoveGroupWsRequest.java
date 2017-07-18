@@ -23,11 +23,22 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class RemoveGroupWsRequest {
+  private String organization;
   private String groupId;
   private String groupName;
   private String permission;
   private String projectId;
   private String projectKey;
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
+  }
+
+  public RemoveGroupWsRequest setOrganization(@Nullable String s) {
+    this.organization = s;
+    return this;
+  }
 
   @CheckForNull
   public String getGroupId() {

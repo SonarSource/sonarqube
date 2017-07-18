@@ -28,7 +28,7 @@ public class CreateTemplateWsRequest {
   private String description;
   private String name;
   private String projectKeyPattern;
-  private String organizationKey;
+  private String organization;
 
   @CheckForNull
   public String getDescription() {
@@ -60,12 +60,12 @@ public class CreateTemplateWsRequest {
   }
 
   @CheckForNull
-  public String getOrganizationKey() {
-    return organizationKey;
+  public String getOrganization() {
+    return organization;
   }
 
-  public CreateTemplateWsRequest setOrganizationKey(@Nullable String s) {
-    this.organizationKey = s;
+  public CreateTemplateWsRequest setOrganization(@Nullable String s) {
+    this.organization = s;
     return this;
   }
 }

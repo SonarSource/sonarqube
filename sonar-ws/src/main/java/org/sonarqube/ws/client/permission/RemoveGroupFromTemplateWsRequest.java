@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import static java.util.Objects.requireNonNull;
 
 public class RemoveGroupFromTemplateWsRequest {
+  private String organization;
   private String permission;
   private String groupId;
   private String groupName;
@@ -37,6 +38,16 @@ public class RemoveGroupFromTemplateWsRequest {
 
   public RemoveGroupFromTemplateWsRequest setPermission(String permission) {
     this.permission = requireNonNull(permission);
+    return this;
+  }
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
+  }
+
+  public RemoveGroupFromTemplateWsRequest setOrganization(@Nullable String s) {
+    this.organization = s;
     return this;
   }
 
