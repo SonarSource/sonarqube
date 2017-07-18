@@ -40,9 +40,6 @@ import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.es.SearchOptions;
-import org.sonar.server.es.SearchResult;
-import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.index.PermissionIndexer;
@@ -50,7 +47,6 @@ import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -170,10 +166,5 @@ public class IssueServiceMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).index(asList(issue.getKey()));
     return issue;
-  }
-
-  private Issue getIssueByKey(String key) {
-    SearchResult<IssueDoc> result = issueIndex.search(IssueQuery.builder().issueKeys(newArrayList(key)).build(), new SearchOptions());
-    return result.getDocs().get(0);
   }
 }

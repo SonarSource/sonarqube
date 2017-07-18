@@ -33,11 +33,9 @@ public class IssueIndexDefinition implements IndexDefinition {
 
   public static final IndexType INDEX_TYPE_ISSUE = new IndexType("issues", "issue");
   public static final String FIELD_ISSUE_ASSIGNEE = "assignee";
-  public static final String FIELD_ISSUE_ATTRIBUTES = "attributes";
   public static final String FIELD_ISSUE_AUTHOR_LOGIN = "authorLogin";
   public static final String FIELD_ISSUE_COMPONENT_UUID = "component";
   public static final String FIELD_ISSUE_EFFORT = "effort";
-  public static final String FIELD_ISSUE_GAP = "gap";
   public static final String FIELD_ISSUE_FILE_PATH = "filePath";
   /**
    * Functional date
@@ -69,10 +67,6 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_CHECKSUM = "checksum";
   public static final String FIELD_ISSUE_TAGS = "tags";
   public static final String FIELD_ISSUE_TYPE = "type";
-  /**
-   * Technical date
-   */
-  public static final String FIELD_ISSUE_TECHNICAL_UPDATED_AT = "updatedAt";
 
   private final Configuration config;
 
@@ -91,11 +85,9 @@ public class IssueIndexDefinition implements IndexDefinition {
     type.requireProjectAuthorization();
 
     type.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
-    type.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).disableNorms().disableSearch().build();
     type.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).disableNorms().build();
     type.stringFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).disableNorms().build();
     type.createLongField(FIELD_ISSUE_EFFORT);
-    type.createDoubleField(FIELD_ISSUE_GAP);
     type.stringFieldBuilder(FIELD_ISSUE_FILE_PATH).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
     type.createDateTimeField(FIELD_ISSUE_FUNC_CREATED_AT);
     type.createDateTimeField(FIELD_ISSUE_FUNC_UPDATED_AT);
@@ -115,7 +107,6 @@ public class IssueIndexDefinition implements IndexDefinition {
     type.createByteField(FIELD_ISSUE_SEVERITY_VALUE);
     type.stringFieldBuilder(FIELD_ISSUE_STATUS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
     type.stringFieldBuilder(FIELD_ISSUE_TAGS).disableNorms().build();
-    type.createDateTimeField(FIELD_ISSUE_TECHNICAL_UPDATED_AT);
     type.stringFieldBuilder(FIELD_ISSUE_TYPE).disableNorms().build();
   }
 }

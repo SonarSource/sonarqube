@@ -40,7 +40,6 @@ public class IssueDocTesting {
     doc.setAuthorLogin("roger");
     doc.setLanguage("xoo");
     doc.setComponentUuid("FILE_1");
-    doc.setGap(3.14);
     doc.setFilePath("src/Foo.xoo");
     doc.setDirectoryPath("/src");
     doc.setMessage("the message");
@@ -48,7 +47,6 @@ public class IssueDocTesting {
     doc.setModuleUuidPath("MODULE_1");
     doc.setProjectUuid("PROJECT_1");
     doc.setLine(42);
-    doc.setAttributes(null);
     doc.setStatus(Issue.STATUS_OPEN);
     doc.setResolution(null);
     doc.setSeverity(Severity.MAJOR);
@@ -58,7 +56,6 @@ public class IssueDocTesting {
     doc.setFuncCreationDate(DateUtils.parseDate("2014-09-04"));
     doc.setFuncUpdateDate(DateUtils.parseDate("2014-12-04"));
     doc.setFuncCloseDate(null);
-    doc.setTechnicalUpdateDate(DateUtils.parseDate("2014-12-04"));
     return doc;
   }
 

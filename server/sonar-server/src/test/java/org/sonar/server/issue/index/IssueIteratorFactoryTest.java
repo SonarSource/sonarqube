@@ -59,10 +59,8 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.modulePath()).isEqualTo(".PROJECT1.");
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
-    assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
+    assertThat(issue.getTags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.effort().toMinutes()).isGreaterThan(0L);
-    assertThat(issue.gap()).isEqualTo(2d);
-    assertThat(issue.attribute("JIRA")).isEqualTo("http://jira.com");
     assertThat(issue.type().getDbConstant()).isEqualTo(2);
   }
 
@@ -82,7 +80,7 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.modulePath()).isEqualTo(".PROJECT1.");
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
-    assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
+    assertThat(issue.getTags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.effort().toMinutes()).isGreaterThan(0L);
     assertThat(issue.type().getDbConstant()).isEqualTo(1);
 
@@ -95,7 +93,7 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.modulePath()).isEqualTo(".PROJECT1.MODULE1.");
     assertThat(issue.directoryPath()).isNull();
     assertThat(issue.filePath()).isNull();
-    assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
+    assertThat(issue.getTags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.effort().toMinutes()).isGreaterThan(0L);
     assertThat(issue.type().getDbConstant()).isEqualTo(2);
 
@@ -108,7 +106,7 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.modulePath()).isEqualTo(".PROJECT1.");
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
-    assertThat(issue.tags()).isEmpty();
+    assertThat(issue.getTags()).isEmpty();
     assertThat(issue.effort().toMinutes()).isGreaterThan(0L);
     assertThat(issue.type().getDbConstant()).isEqualTo(1);
 
@@ -121,7 +119,7 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.modulePath()).isEqualTo(".PROJECT1.MODULE1.");
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java");
-    assertThat(issue.tags()).isEmpty();
+    assertThat(issue.getTags()).isEmpty();
     assertThat(issue.effort().toMinutes()).isGreaterThan(0L);
     assertThat(issue.type().getDbConstant()).isEqualTo(1);
   }
