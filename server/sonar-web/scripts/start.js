@@ -98,7 +98,8 @@ function runDevServer(compiler, host, port, protocol) {
     proxy: {
       '/api': proxy,
       '/fonts': proxy,
-      '/images': proxy
+      '/images': proxy,
+      '/static': proxy
     },
     setup(app) {
       app.use(errorOverlayMiddleware());
