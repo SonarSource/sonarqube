@@ -21,14 +21,15 @@ package org.sonar.application.process;
 
 import java.io.Closeable;
 
-public interface JavaProcessLauncher extends Closeable {
+public interface ProcessLauncher extends Closeable {
 
   @Override
   void close();
 
   /**
-   * Launch Java command. An {@link IllegalStateException} is thrown
-   * on error.
+   * Launch a Java command.
+   * 
+   * @throws IllegalStateException if an error occurs
    */
   ProcessMonitor launch(JavaCommand javaCommand);
 }
