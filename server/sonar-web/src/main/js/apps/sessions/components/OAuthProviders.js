@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { translateWithParameters } from '../../../helpers/l10n';
 
 type Props = {
   formatLabel?: string => string,
@@ -39,7 +40,8 @@ export default function OAuthProviders(props: Props) {
             <a
               href={`${window.baseUrl}/sessions/init/${identityProvider.key}`}
               style={{ backgroundColor: identityProvider.backgroundColor }}
-              title={`Log in with ${identityProvider.name}`}>
+              // $FlowFixMe formatLabel is always defined through defaultProps
+              title={props.formatLabel(identityProvider.name)}>
               <img
                 alt={identityProvider.name}
                 width="20"
@@ -57,5 +59,5 @@ export default function OAuthProviders(props: Props) {
 }
 
 OAuthProviders.defaultProps = {
-  formatLabel: (name: string) => `Log in with ${name}`
+  formatLabel: (name: string) => translateWithParameters('login.login_with_x', name)
 };
