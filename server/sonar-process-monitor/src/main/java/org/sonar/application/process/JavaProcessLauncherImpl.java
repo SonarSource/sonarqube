@@ -21,10 +21,12 @@ package org.sonar.application.process;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
@@ -43,13 +45,13 @@ public class JavaProcessLauncherImpl implements JavaProcessLauncher {
 
   private final File tempDir;
   private final AllProcessesCommands allProcessesCommands;
-  private final Supplier<SystemProcessBuilder> processBuilderSupplier;
+  private final Supplier<ProcessBuilder> processBuilderSupplier;
 
   public JavaProcessLauncherImpl(File tempDir) {
-    this(tempDir, new AllProcessesCommands(tempDir), SystemProcessBuilder::new);
+    this(tempDir, new AllProcessesCommands(tempDir), JavaLangProcessBuilder::new);
   }
 
-  JavaProcessLauncherImpl(File tempDir, AllProcessesCommands allProcessesCommands, Supplier<SystemProcessBuilder> processBuilderSupplier) {
+  JavaProcessLauncherImpl(File tempDir, AllProcessesCommands allProcessesCommands, Supplier<ProcessBuilder> processBuilderSupplier) {
     this.tempDir = tempDir;
     this.allProcessesCommands = allProcessesCommands;
     this.processBuilderSupplier = processBuilderSupplier;
@@ -67,7 +69,7 @@ public class JavaProcessLauncherImpl implements JavaProcessLauncher {
     try {
       commands = allProcessesCommands.createAfterClean(javaCommand.getProcessId().getIpcIndex());
 
-      SystemProcessBuilder processBuilder = create(javaCommand);
+      ProcessBuilder processBuilder = create(javaCommand);
       LOG.info("Launch process[{}]: {}", javaCommand.getProcessId().getKey(), String.join(" ", processBuilder.command()));
       process = processBuilder.start();
       return new ProcessMonitorImpl(process, commands);
@@ -81,7 +83,7 @@ public class JavaProcessLauncherImpl implements JavaProcessLauncher {
     }
   }
 
-  private SystemProcessBuilder create(JavaCommand javaCommand) {
+  private ProcessBuilder create(JavaCommand javaCommand) {
     List<String> commands = new ArrayList<>();
     commands.add(buildJavaPath());
     commands.addAll(javaCommand.getJavaOptions());
@@ -92,7 +94,7 @@ public class JavaProcessLauncherImpl implements JavaProcessLauncher {
     commands.add(javaCommand.getClassName());
     commands.add(buildPropertiesFile(javaCommand).getAbsolutePath());
 
-    SystemProcessBuilder processBuilder = processBuilderSupplier.get();
+    ProcessBuilder processBuilder = processBuilderSupplier.get();
     processBuilder.command(commands);
     processBuilder.directory(javaCommand.getWorkDir());
     processBuilder.environment().putAll(javaCommand.getEnvVariables());
@@ -127,6 +129,79 @@ public class JavaProcessLauncherImpl implements JavaProcessLauncher {
       return propertiesFile;
     } catch (Exception e) {
       throw new IllegalStateException("Cannot write temporary settings to " + propertiesFile, e);
+    }
+  }
+
+  /**
+   * An interface of the methods of {@link java.lang.ProcessBuilder} that we use in {@link JavaProcessLauncherImpl}.
+   * <p>Allows testing creating processes without actualling creating them at OS level</p>
+   */
+  public interface ProcessBuilder {
+    List<String> command();
+
+    ProcessBuilder command(List<String> commands);
+
+    ProcessBuilder directory(File dir);
+
+    Map<String, String> environment();
+
+    ProcessBuilder redirectErrorStream(boolean b);
+
+    Process start() throws IOException;
+  }
+
+  private static class JavaLangProcessBuilder implements ProcessBuilder {
+    private final java.lang.ProcessBuilder builder = new java.lang.ProcessBuilder();
+
+    /**
+     * @see java.lang.ProcessBuilder#command()
+     */
+    @Override
+    public List<String> command() {
+      return builder.command();
+    }
+
+    /**
+     * @see java.lang.ProcessBuilder#command(List)
+     */
+    @Override
+    public ProcessBuilder command(List<String> commands) {
+      builder.command(commands);
+      return this;
+    }
+
+    /**
+     * @see java.lang.ProcessBuilder#directory(File)
+     */
+    @Override
+    public ProcessBuilder directory(File dir) {
+      builder.directory(dir);
+      return this;
+    }
+
+    /**
+     * @see java.lang.ProcessBuilder#environment()
+     */
+    @Override
+    public Map<String, String> environment() {
+      return builder.environment();
+    }
+
+    /**
+     * @see java.lang.ProcessBuilder#redirectErrorStream(boolean)
+     */
+    @Override
+    public ProcessBuilder redirectErrorStream(boolean b) {
+      builder.redirectErrorStream(b);
+      return this;
+    }
+
+    /**
+     * @see java.lang.ProcessBuilder#start()
+     */
+    @Override
+    public Process start() throws IOException {
+      return builder.start();
     }
   }
 }
