@@ -58,7 +58,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.es.SearchResult;
 import org.sonar.server.es.Sorting;
 import org.sonar.server.es.StickyFacetBuilder;
 import org.sonar.server.issue.IssueQuery;
@@ -171,9 +170,8 @@ public class IssueIndex {
     this.sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_KEY);
   }
 
-  public SearchResult<IssueDoc> search(IssueQuery query, SearchOptions options) {
-    SearchRequestBuilder requestBuilder = client
-      .prepareSearch(INDEX_TYPE_ISSUE);
+  public SearchResponse search(IssueQuery query, SearchOptions options) {
+    SearchRequestBuilder requestBuilder = client.prepareSearch(INDEX_TYPE_ISSUE);
 
     configureSorting(query, requestBuilder);
     configurePagination(options, requestBuilder);
@@ -194,8 +192,8 @@ public class IssueIndex {
     }
 
     configureStickyFacets(query, options, filters, esQuery, requestBuilder);
-    SearchResponse response = requestBuilder.get();
-    return new SearchResult<>(response, IssueDoc::new);
+    requestBuilder.setFetchSource(false);
+    return requestBuilder.get();
   }
 
   /**

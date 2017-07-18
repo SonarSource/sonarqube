@@ -22,6 +22,7 @@ package org.sonar.server.view.index;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
+import org.elasticsearch.action.search.SearchResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -38,9 +39,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
-import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -145,8 +144,8 @@ public class ViewIndexerTest {
     underTest.index(viewUuid);
 
     // Execute issue query on view -> 1 issue on view
-    SearchResult<IssueDoc> docs = issueIndex.search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new SearchOptions());
-    assertThat(docs.getDocs()).hasSize(1);
+    SearchResponse issueResponse = issueIndex.search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new SearchOptions());
+    assertThat(issueResponse.getHits().getHits()).hasSize(1);
 
     // Add a project to the view and index it again
     ComponentDto project2 = addProjectWithIssue(rule, organizationDto);
@@ -159,7 +158,7 @@ public class ViewIndexerTest {
     underTest.index(viewUuid);
 
     // Execute issue query on view -> issue of project2 are well taken into account : the cache has been cleared
-    assertThat(issueIndex.search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(issueIndex.search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new SearchOptions()).getHits()).hasSize(2);
   }
 
   private ComponentDto addProjectWithIssue(RuleDto rule, OrganizationDto org) {

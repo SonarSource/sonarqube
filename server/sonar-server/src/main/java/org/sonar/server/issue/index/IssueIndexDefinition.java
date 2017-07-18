@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.config.Configuration;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
@@ -66,9 +67,24 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_TYPE = "type";
 
   private final Configuration config;
+  private final boolean enableSource;
 
   public IssueIndexDefinition(Configuration config) {
+    this(config, false);
+  }
+
+  private IssueIndexDefinition(Configuration config, boolean enableSource) {
     this.config = config;
+    this.enableSource = enableSource;
+  }
+
+  /**
+   * Keep the document sources in index so that indexer tests can verify content
+   * of indexed documents.
+   */
+  @VisibleForTesting
+  public static IssueIndexDefinition createForTest(Configuration config) {
+    return new IssueIndexDefinition(config, true);
   }
 
   @Override
@@ -80,6 +96,7 @@ public class IssueIndexDefinition implements IndexDefinition {
 
     NewIndex.NewIndexType type = index.createType(INDEX_TYPE_ISSUE.getType());
     type.requireProjectAuthorization();
+    type.setEnableSource(enableSource);
 
     type.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
     type.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).disableNorms().build();
