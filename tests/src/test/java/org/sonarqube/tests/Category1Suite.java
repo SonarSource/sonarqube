@@ -20,7 +20,7 @@
 package org.sonarqube.tests;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.projectAdministration.ProjectVisibilityTest;
+import org.sonarqube.tests.projectAdministration.ProjectVisibilityPageTest;
 import org.sonarqube.tests.user.UsersPageTest;
 import org.sonarqube.tests.authorisation.ExecuteAnalysisPermissionTest;
 import org.sonarqube.tests.authorisation.IssuePermissionTest;
@@ -63,7 +63,7 @@ import static util.ItUtils.xooPlugin;
 @Suite.SuiteClasses({
   // administration
   UsersPageTest.class,
-  ProjectVisibilityTest.class,
+  ProjectVisibilityPageTest.class,
   // project administration
   ProjectBulkDeletionPageTest.class,
   ProjectAdministrationTest.class,

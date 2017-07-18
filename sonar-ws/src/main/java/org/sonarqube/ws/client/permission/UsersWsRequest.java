@@ -23,12 +23,23 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class UsersWsRequest {
+  private String organization;
   private String permission;
   private String projectId;
   private String projectKey;
   private String query;
   private Integer page;
   private Integer pageSize;
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
+  }
+
+  public UsersWsRequest setOrganization(@Nullable String s) {
+    this.organization = s;
+    return this;
+  }
 
   @CheckForNull
   public String getPermission() {

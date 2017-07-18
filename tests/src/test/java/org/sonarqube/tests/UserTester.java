@@ -87,6 +87,13 @@ public class UserTester {
     return user;
   }
 
+  @SafeVarargs
+  public final User generateMember(Organizations.Organization organization, Consumer<CreateRequest.Builder>... populators) {
+    User user = generate(populators);
+    session.wsClient().organizations().addMember(organization.getKey(), user.getLogin());
+    return user;
+  }
+
   public UsersService service() {
     return session.wsClient().users();
   }

@@ -27,7 +27,7 @@ import static java.util.Objects.requireNonNull;
 public class AddGroupWsRequest {
   private String permission;
   private String groupId;
-  private String organizationKey;
+  private String organization;
   private String groupName;
   private String projectId;
   private String projectKey;
@@ -52,12 +52,12 @@ public class AddGroupWsRequest {
   }
 
   @CheckForNull
-  public String getOrganizationKey() {
-    return organizationKey;
+  public String getOrganization() {
+    return organization;
   }
 
-  public AddGroupWsRequest setOrganizationKey(@Nullable String s) {
-    this.organizationKey = s;
+  public AddGroupWsRequest setOrganization(@Nullable String s) {
+    this.organization = s;
     return this;
   }
 

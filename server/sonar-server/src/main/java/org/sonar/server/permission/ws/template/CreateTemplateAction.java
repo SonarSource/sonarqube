@@ -70,7 +70,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
       .setName(request.mandatoryParam(PARAM_NAME))
       .setDescription(request.param(PARAM_DESCRIPTION))
       .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN))
-      .setOrganizationKey(request.param(PARAM_ORGANIZATION));
+      .setOrganization(request.param(PARAM_ORGANIZATION));
   }
 
   private static CreateTemplateWsResponse buildResponse(PermissionTemplateDto permissionTemplateDto) {
@@ -106,7 +106,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
 
   private CreateTemplateWsResponse doHandle(CreateTemplateWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = wsSupport.findOrganization(dbSession, request.getOrganizationKey());
+      OrganizationDto org = wsSupport.findOrganization(dbSession, request.getOrganization());
       checkGlobalAdmin(userSession, org.getUuid());
 
       validateTemplateNameForCreation(dbSession, org, request.getName());
