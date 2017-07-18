@@ -22,12 +22,10 @@ package org.sonar.elasticsearch.test;
 import com.carrotsearch.hppc.ObjectArrayList;
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -39,18 +37,14 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.util.IOUtils;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.Version;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodeStats;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
@@ -62,16 +56,9 @@ import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResp
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.ClusterName;
-import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.metadata.IndexTemplateMetaData;
-import org.elasticsearch.cluster.node.DiscoveryNode;
-import org.elasticsearch.cluster.node.DiscoveryNode.Role;
-import org.elasticsearch.cluster.node.DiscoveryNodes;
-import org.elasticsearch.cluster.routing.ShardRouting;
 import org.elasticsearch.cluster.routing.allocation.DiskThresholdSettings;
-import org.elasticsearch.cluster.service.ClusterService;
-import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.breaker.CircuitBreaker;
 import org.elasticsearch.common.io.FileSystemUtils;
@@ -80,16 +67,13 @@ import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.Settings.Builder;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.util.concurrent.EsExecutors;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
-import org.elasticsearch.discovery.DiscoverySettings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.env.NodeEnvironment;
 import org.elasticsearch.env.ShardLockObtainFailedException;
-import org.elasticsearch.http.HttpServerTransport;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.IndexService;
 import org.elasticsearch.index.engine.CommitStats;
@@ -115,9 +99,7 @@ import org.elasticsearch.transport.TransportService;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
-import org.sonar.server.es.EsTester;
 
-import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertNoTimeout;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -130,129 +112,16 @@ import static org.junit.Assert.fail;
  * The Cluster is bound to a test lifecycle where tests must call {@link #beforeTest(java.util.Random, double)} and
  * {@link #afterTest()} to initialize and reset the cluster in order to be more reproducible. The term "more" relates
  * to the async nature of Elasticsearch in combination with randomized testing. Once Threads and asynchronous calls
- * are involved reproducibility is very limited. This class should only be used through {@code ESIntegTestCase}.
+ * are involved reproducibility is very limited.
  * </p>
  */
 public final class EsTestCluster {
 
   protected final Logger logger = Loggers.getLogger(getClass());
-  private final long seed;
 
   protected Random random;
 
-  protected double transportClientRatio = 0.0;
-
-  /**
-   * Wipes any data that a test can leave behind: indices, templates (except exclude templates) and repositories
-   */
-  public void wipe(Set<String> excludeTemplates) {
-    wipeIndices("_all");
-    wipeAllTemplates(excludeTemplates);
-    wipeRepositories();
-  }
-
-  /**
-   * Deletes the given indices from the tests cluster. If no index name is passed to this method
-   * all indices are removed.
-   */
-  public void wipeIndices(String... indices) {
-    assert indices != null && indices.length > 0;
-    if (size() > 0) {
-      try {
-        assertAcked(client().admin().indices().prepareDelete(indices));
-      } catch (IndexNotFoundException e) {
-        // ignore
-      } catch (IllegalArgumentException e) {
-        // Happens if `action.destructive_requires_name` is set to true
-        // which is the case in the CloseIndexDisableCloseAllTests
-        if ("_all".equals(indices[0])) {
-          ClusterStateResponse clusterStateResponse = client().admin().cluster().prepareState().execute().actionGet();
-          ObjectArrayList<String> concreteIndices = new ObjectArrayList<>();
-          for (IndexMetaData indexMetaData : clusterStateResponse.getState().metaData()) {
-            concreteIndices.add(indexMetaData.getIndex().getName());
-          }
-          if (!concreteIndices.isEmpty()) {
-            assertAcked(client().admin().indices().prepareDelete(concreteIndices.toArray(String.class)));
-          }
-        }
-      }
-    }
-  }
-
-  public void assertAcked(DeleteIndexRequestBuilder builder) {
-    DeleteIndexResponse response = builder.get();
-    MatcherAssert.assertThat("Delete Index failed - not acked", response.isAcknowledged(), CoreMatchers.equalTo(true));
-    // assertTrue(Version.CURRENT.after(VersionUtils.getPreviousVersion()));
-    // /*
-    // * If possible we fetch the NamedWriteableRegistry from the test cluster. That is the only way to make sure that we properly handle
-    // * when plugins register names. If not possible we'll try and set up a registry based on whatever SearchModule registers. But that
-    // * is a hack at best - it only covers some things. If you end up with errors below and get to this comment I'm sorry. Please find
-    // * a way that sucks less.
-    // */
-    // NamedWriteableRegistry registry = this.getInstance(NamedWriteableRegistry.class);
-    // assertVersionSerializable(randomVersion(random()), response, registry);
-  }
-
-  /**
-   * Removes all templates, except the templates defined in the exclude
-   */
-  public void wipeAllTemplates(Set<String> exclude) {
-    if (size() > 0) {
-      GetIndexTemplatesResponse response = client().admin().indices().prepareGetTemplates().get();
-      for (IndexTemplateMetaData indexTemplate : response.getIndexTemplates()) {
-        if (exclude.contains(indexTemplate.getName())) {
-          continue;
-        }
-        try {
-          client().admin().indices().prepareDeleteTemplate(indexTemplate.getName()).execute().actionGet();
-        } catch (IndexTemplateMissingException e) {
-          // ignore
-        }
-      }
-    }
-  }
-
-  /**
-   * Deletes index templates, support wildcard notation.
-   * If no template name is passed to this method all templates are removed.
-   */
-  public void wipeTemplates(String... templates) {
-    if (size() > 0) {
-      // if nothing is provided, delete all
-      if (templates.length == 0) {
-        templates = new String[] {"*"};
-      }
-      for (String template : templates) {
-        try {
-          client().admin().indices().prepareDeleteTemplate(template).execute().actionGet();
-        } catch (IndexTemplateMissingException e) {
-          // ignore
-        }
-      }
-    }
-  }
-
-  /**
-   * Deletes repositories, supports wildcard notation.
-   */
-  public void wipeRepositories(String... repositories) {
-    if (size() > 0) {
-      // if nothing is provided, delete all
-      if (repositories.length == 0) {
-        repositories = new String[] {"*"};
-      }
-      for (String repository : repositories) {
-        try {
-          client().admin().cluster().prepareDeleteRepository(repository).execute().actionGet();
-        } catch (RepositoryMissingException ex) {
-          // ignore
-        }
-      }
-    }
-  }
-
-  public static final int DEFAULT_LOW_NUM_MASTER_NODES = 1;
-  public static final int DEFAULT_HIGH_NUM_MASTER_NODES = 3;
+  private double transportClientRatio = 0.0;
 
   /* sorted map to make traverse order reproducible, concurrent since we do checks on it not within a sync block */
   private final NavigableMap<String, NodeAndClient> nodes = new TreeMap<>();
@@ -274,12 +143,7 @@ public final class EsTestCluster {
    */
   private final long[] sharedNodesSeeds;
 
-  // if set to 0, data nodes will also assume the master role
-  private final int numSharedDedicatedMasterNodes;
-
   private final int numSharedDataNodes;
-
-  private final int numSharedCoordOnlyNodes;
 
   private final NodeConfigurationSource nodeConfigurationSource;
 
@@ -296,10 +160,8 @@ public final class EsTestCluster {
   private Function<Client, Client> clientWrapper;
 
   public EsTestCluster(long clusterSeed, Path baseDir,
-    boolean randomlyAddDedicatedMasters,
-    int numDataNodes, String clusterName, NodeConfigurationSource nodeConfigurationSource, int numClientNodes,
+    int numDataNodes, String clusterName, NodeConfigurationSource nodeConfigurationSource,
     String nodePrefix, Collection<Class<? extends Plugin>> mockPlugins, Function<Client, Client> clientWrapper) {
-    this.seed = clusterSeed;
     this.clientWrapper = clientWrapper;
     this.baseDir = baseDir;
     this.clusterName = clusterName;
@@ -309,56 +171,25 @@ public final class EsTestCluster {
 
     Random random = new Random(clusterSeed);
 
-    boolean useDedicatedMasterNodes = randomlyAddDedicatedMasters ? random.nextBoolean() : false;
-
     this.numSharedDataNodes = numDataNodes;
-    assert this.numSharedDataNodes >= 0;
-
-    if (numSharedDataNodes == 0) {
-      this.numSharedCoordOnlyNodes = 0;
-      this.numSharedDedicatedMasterNodes = 0;
-    } else {
-      if (useDedicatedMasterNodes) {
-        if (random.nextBoolean()) {
-          // use a dedicated master, but only low number to reduce overhead to tests
-          this.numSharedDedicatedMasterNodes = DEFAULT_LOW_NUM_MASTER_NODES;
-        } else {
-          this.numSharedDedicatedMasterNodes = DEFAULT_HIGH_NUM_MASTER_NODES;
-        }
-      } else {
-        this.numSharedDedicatedMasterNodes = 0;
-      }
-      this.numSharedCoordOnlyNodes = numClientNodes;
-    }
-    assert this.numSharedCoordOnlyNodes >= 0;
+    assert this.numSharedDataNodes >= 1;
 
     this.nodePrefix = nodePrefix;
 
     assert nodePrefix != null;
     this.mockPlugins = mockPlugins;
 
-    sharedNodesSeeds = new long[numSharedDedicatedMasterNodes + numSharedDataNodes + numSharedCoordOnlyNodes];
+    sharedNodesSeeds = new long[numSharedDataNodes];
     for (int i = 0; i < sharedNodesSeeds.length; i++) {
       sharedNodesSeeds[i] = random.nextLong();
     }
 
-    logger.info("Setup InternalTestCluster [{}] with seed [{}] using [{}] dedicated masters, " +
-      "[{}] (data) nodes and [{}] coord only nodes",
+    logger.info("Setup InternalTestCluster [{}] with seed [{}] using " +
+      "[{}] (data) nodes",
       clusterName, clusterSeed,
-      numSharedDedicatedMasterNodes, numSharedDataNodes, numSharedCoordOnlyNodes);
+      numSharedDataNodes);
     this.nodeConfigurationSource = nodeConfigurationSource;
     Builder builder = Settings.builder();
-    if (random.nextInt(5) == 0) { // sometimes set this
-      // randomize (multi/single) data path, special case for 0, don't set it at all...
-      final int numOfDataPaths = random.nextInt(5);
-      if (numOfDataPaths > 0) {
-        StringBuilder dataPath = new StringBuilder();
-        for (int i = 0; i < numOfDataPaths; i++) {
-          dataPath.append(baseDir.resolve("d" + i).toAbsolutePath()).append(',');
-        }
-        builder.put(Environment.PATH_DATA_SETTING.getKey(), dataPath.toString());
-      }
-    }
     builder.put(NodeEnvironment.MAX_LOCAL_STORAGE_NODES_SETTING.getKey(), Integer.MAX_VALUE);
     builder.put(Environment.PATH_SHARED_DATA_SETTING.getKey(), baseDir.resolve("custom"));
     builder.put(Environment.PATH_HOME_SETTING.getKey(), baseDir);
@@ -375,12 +206,6 @@ public final class EsTestCluster {
     builder.put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_HIGH_DISK_WATERMARK_SETTING.getKey(), "1b");
     // Some tests make use of scripting quite a bit, so increase the limit for integration tests
     builder.put(ScriptService.SCRIPT_MAX_COMPILATIONS_PER_MINUTE.getKey(), 1000);
-    // if (random.nextInt(100) <= 90) {
-    // builder.put(ThrottlingAllocationDecider.CLUSTER_ROUTING_ALLOCATION_NODE_CONCURRENT_INCOMING_RECOVERIES_SETTING.getKey(),
-    // RandomInts.randomIntBetween(random, 2, 5));
-    // builder.put(ThrottlingAllocationDecider.CLUSTER_ROUTING_ALLOCATION_NODE_CONCURRENT_OUTGOING_RECOVERIES_SETTING.getKey(),
-    // RandomInts.randomIntBetween(random, 2, 5));
-    // }
     // always reduce this - it can make tests really slow
     builder.put(RecoverySettings.INDICES_RECOVERY_RETRY_DELAY_STATE_SYNC_SETTING.getKey(), TimeValue.timeValueMillis(randomIntBetween(random, 20, 50)));
     defaultSettings = builder.build();
@@ -401,18 +226,7 @@ public final class EsTestCluster {
     }
   }
 
-  /**
-   * Returns the cluster name
-   */
-  public String getClusterName() {
-    return clusterName;
-  }
-
-  public String[] getNodeNames() {
-    return nodes.keySet().toArray(Strings.EMPTY_ARRAY);
-  }
-
-  private Settings getSettings(int nodeOrdinal, long nodeSeed, Settings others) {
+  private Settings getSettings(int nodeOrdinal, Settings others) {
     Builder builder = Settings.builder().put(defaultSettings);
     Settings settings = nodeConfigurationSource.nodeSettings(nodeOrdinal);
     if (settings != null) {
@@ -471,75 +285,6 @@ public final class EsTestCluster {
     return null;
   }
 
-  /**
-   * Ensures that at least <code>n</code> data nodes are present in the cluster.
-   * if more nodes than <code>n</code> are present this method will not
-   * stop any of the running nodes.
-   */
-  public void ensureAtLeastNumDataNodes(int n) {
-    final List<Async<String>> asyncs = new ArrayList<>();
-    synchronized (this) {
-      int size = numDataNodes();
-      for (int i = size; i < n; i++) {
-        logger.info("increasing cluster size from {} to {}", size, n);
-        if (numSharedDedicatedMasterNodes > 0) {
-          asyncs.add(startDataOnlyNodeAsync());
-        } else {
-          asyncs.add(startNodeAsync());
-        }
-      }
-    }
-    try {
-      for (Async<String> async : asyncs) {
-        async.get();
-      }
-    } catch (Exception e) {
-      throw new ElasticsearchException("failed to start nodes", e);
-    }
-    if (!asyncs.isEmpty()) {
-      synchronized (this) {
-        assertNoTimeout(client().admin().cluster().prepareHealth().setWaitForNodes(Integer.toString(nodes.size())).get());
-      }
-    }
-  }
-
-  /**
-   * Ensures that at most <code>n</code> are up and running.
-   * If less nodes that <code>n</code> are running this method
-   * will not start any additional nodes.
-   */
-  public synchronized void ensureAtMostNumDataNodes(int n) throws IOException {
-    int size = numDataNodes();
-    if (size <= n) {
-      return;
-    }
-    // prevent killing the master if possible and client nodes
-    final Stream<NodeAndClient> collection = n == 0 ? nodes.values().stream()
-      : nodes.values().stream().filter(new DataNodePredicate().and(new MasterNodePredicate(getMasterName()).negate()));
-    final Iterator<NodeAndClient> values = collection.iterator();
-
-    logger.info("changing cluster size from {} data nodes to {}", size, n);
-    Set<NodeAndClient> nodesToRemove = new HashSet<>();
-    int numNodesAndClients = 0;
-    while (values.hasNext() && numNodesAndClients++ < size - n) {
-      NodeAndClient next = values.next();
-      nodesToRemove.add(next);
-      // removeDisruptionSchemeFromNode(next);
-      next.close();
-    }
-    for (NodeAndClient toRemove : nodesToRemove) {
-      nodes.remove(toRemove.name);
-    }
-    if (!nodesToRemove.isEmpty() && size() > 0) {
-      assertNoTimeout(client().admin().cluster().prepareHealth().setWaitForNodes(Integer.toString(nodes.size())).get());
-    }
-  }
-
-  private NodeAndClient buildNode(Settings settings) {
-    int ord = nextNodeId.getAndIncrement();
-    return buildNode(ord, random.nextLong(), settings, false);
-  }
-
   private NodeAndClient buildNode() {
     int ord = nextNodeId.getAndIncrement();
     return buildNode(ord, random.nextLong(), null, false);
@@ -548,13 +293,13 @@ public final class EsTestCluster {
   private NodeAndClient buildNode(int nodeId, long seed, Settings settings, boolean reuseExisting) {
     assert Thread.holdsLock(this);
     ensureOpen();
-    settings = getSettings(nodeId, seed, settings);
+    settings = getSettings(nodeId, settings);
     Collection<Class<? extends Plugin>> plugins = getPlugins();
-    String name = buildNodeName(nodeId, settings);
+    String name = buildNodeName(nodeId);
     if (reuseExisting && nodes.containsKey(name)) {
       return nodes.get(name);
     } else {
-      assert reuseExisting == true || nodes.containsKey(name) == false : "node name [" + name + "] already exists but not allowed to use it";
+      assert reuseExisting || !nodes.containsKey(name) : "node name [" + name + "] already exists but not allowed to use it";
     }
     Settings finalSettings = Settings.builder()
       .put(Environment.PATH_HOME_SETTING.getKey(), baseDir) // allow overriding path.home
@@ -566,35 +311,8 @@ public final class EsTestCluster {
     return new NodeAndClient(name, node, nodeId);
   }
 
-  private String buildNodeName(int id, Settings settings) {
-    String prefix = nodePrefix;
-    prefix = prefix + getRoleSuffix(settings);
-    return prefix + id;
-  }
-
-  /**
-   * returns a suffix string based on the node role. If no explicit role is defined, the suffix will be empty
-   */
-  private String getRoleSuffix(Settings settings) {
-    String suffix = "";
-    if (Node.NODE_MASTER_SETTING.exists(settings) && Node.NODE_MASTER_SETTING.get(settings)) {
-      suffix = suffix + Role.MASTER.getAbbreviation();
-    }
-    if (Node.NODE_DATA_SETTING.exists(settings) && Node.NODE_DATA_SETTING.get(settings)) {
-      suffix = suffix + Role.DATA.getAbbreviation();
-    }
-    if (Node.NODE_MASTER_SETTING.exists(settings) && Node.NODE_MASTER_SETTING.get(settings) == false &&
-      Node.NODE_DATA_SETTING.exists(settings) && Node.NODE_DATA_SETTING.get(settings) == false) {
-      suffix = suffix + "c";
-    }
-    return suffix;
-  }
-
-  /**
-   * Returns the common node name prefix for this test cluster.
-   */
-  public String nodePrefix() {
-    return nodePrefix;
+  private String buildNodeName(int id) {
+    return nodePrefix + id;
   }
 
   /**
@@ -607,78 +325,6 @@ public final class EsTestCluster {
   }
 
   /**
-   * Returns a node client to a data node in the cluster.
-   * Note: use this with care tests should not rely on a certain nodes client.
-   */
-  public synchronized Client dataNodeClient() {
-    ensureOpen();
-    /* Randomly return a client to one of the nodes in the cluster */
-    return getRandomNodeAndClient(new DataNodePredicate()).client(random);
-  }
-
-  /**
-   * Returns a node client to the current master node.
-   * Note: use this with care tests should not rely on a certain nodes client.
-   */
-  public synchronized Client masterClient() {
-    ensureOpen();
-    NodeAndClient randomNodeAndClient = getRandomNodeAndClient(new MasterNodePredicate(getMasterName()));
-    if (randomNodeAndClient != null) {
-      return randomNodeAndClient.nodeClient(); // ensure node client master is requested
-    }
-    Assert.fail("No master client found");
-    return null; // can't happen
-  }
-
-  /**
-   * Returns a node client to random node but not the master. This method will fail if no non-master client is available.
-   */
-  public synchronized Client nonMasterClient() {
-    ensureOpen();
-    NodeAndClient randomNodeAndClient = getRandomNodeAndClient(new MasterNodePredicate(getMasterName()).negate());
-    if (randomNodeAndClient != null) {
-      return randomNodeAndClient.nodeClient(); // ensure node client non-master is requested
-    }
-    Assert.fail("No non-master client found");
-    return null; // can't happen
-  }
-
-  /**
-   * Returns a client to a coordinating only node
-   */
-  public synchronized Client coordOnlyNodeClient() {
-    ensureOpen();
-    NodeAndClient randomNodeAndClient = getRandomNodeAndClient(new NoDataNoMasterNodePredicate());
-    if (randomNodeAndClient != null) {
-      return randomNodeAndClient.client(random);
-    }
-    int nodeId = nextNodeId.getAndIncrement();
-    Settings settings = getSettings(nodeId, random.nextLong(), Settings.EMPTY);
-    startCoordinatingOnlyNode(settings);
-    return getRandomNodeAndClient(new NoDataNoMasterNodePredicate()).client(random);
-  }
-
-  private synchronized String startCoordinatingOnlyNode(Settings settings) {
-    ensureOpen(); // currently unused
-    Builder builder = Settings.builder().put(settings).put(Node.NODE_MASTER_SETTING.getKey(), false)
-      .put(Node.NODE_DATA_SETTING.getKey(), false).put(Node.NODE_INGEST_SETTING.getKey(), false);
-    if (size() == 0) {
-      // if we are the first node - don't wait for a state
-      builder.put(DiscoverySettings.INITIAL_STATE_TIMEOUT_SETTING.getKey(), 0);
-    }
-    return startNode(builder);
-  }
-
-  /**
-   * Returns a transport client
-   */
-  public synchronized Client transportClient() {
-    ensureOpen();
-    // randomly return a transport client going to one of the nodes in the cluster
-    return getOrBuildRandomNode().transportClient();
-  }
-
-  /**
    * Returns a node client to a given node.
    */
   public synchronized Client client(String nodeName) {
@@ -688,18 +334,6 @@ public final class EsTestCluster {
       return nodeAndClient.client(random);
     }
     Assert.fail("No node found with name: [" + nodeName + "]");
-    return null; // can't happen
-  }
-
-  /**
-   * Returns a "smart" node client to a random node in the cluster
-   */
-  public synchronized Client smartClient() {
-    NodeAndClient randomNodeAndClient = getRandomNodeAndClient();
-    if (randomNodeAndClient != null) {
-      return randomNodeAndClient.nodeClient();
-    }
-    Assert.fail("No smart client found");
     return null; // can't happen
   }
 
@@ -750,7 +384,7 @@ public final class EsTestCluster {
       return node;
     }
 
-    public int nodeAndClientId() {
+    int nodeAndClientId() {
       return nodeAndClientId;
     }
 
@@ -774,13 +408,6 @@ public final class EsTestCluster {
         throw new RuntimeException("already closed");
       }
       return getOrBuildNodeClient();
-    }
-
-    Client transportClient() {
-      if (closed.get()) {
-        throw new RuntimeException("already closed");
-      }
-      return getOrBuildTransportClient();
     }
 
     private Client getOrBuildNodeClient() {
@@ -823,42 +450,6 @@ public final class EsTestCluster {
       node.close();
     }
 
-    void restart(RestartCallback callback, boolean clearDataIfNeeded) throws Exception {
-      assert callback != null;
-      resetClient();
-      if (!node.isClosed()) {
-        closeNode();
-      }
-      Settings newSettings = callback.onNodeStopped(name);
-      if (newSettings == null) {
-        newSettings = Settings.EMPTY;
-      }
-      if (clearDataIfNeeded) {
-        clearDataIfNeeded(callback);
-      }
-      createNewNode(newSettings);
-      startNode();
-    }
-
-    private void clearDataIfNeeded(RestartCallback callback) throws IOException {
-      if (callback.clearData(name)) {
-        NodeEnvironment nodeEnv = node.getNodeEnvironment();
-        if (nodeEnv.hasNodeFile()) {
-          final Path[] locations = nodeEnv.nodeDataPaths();
-          logger.debug("removing node data paths: [{}]", Arrays.toString(locations));
-          IOUtils.rm(locations);
-        }
-      }
-    }
-
-    private void createNewNode(final Settings newSettings) {
-      final long newIdSeed = NodeEnvironment.NODE_ID_SEED_SETTING.get(node.settings()) + 1; // use a new seed to make sure we have new node id
-      Settings finalSettings = Settings.builder().put(node.settings()).put(newSettings).put(NodeEnvironment.NODE_ID_SEED_SETTING.getKey(), newIdSeed).build();
-      Collection<Class<? extends Plugin>> plugins = node.getClasspathPlugins();
-      node = new MockNode(finalSettings, plugins);
-      markNodeDataDirsAsNotEligableForWipe(node);
-    }
-
     @Override
     public void close() throws IOException {
       try {
@@ -870,7 +461,7 @@ public final class EsTestCluster {
     }
   }
 
-  public static final String TRANSPORT_CLIENT_PREFIX = "transport_client_";
+  private static final String TRANSPORT_CLIENT_PREFIX = "transport_client_";
 
   static class TransportClientFactory {
     private final boolean sniff;
@@ -952,29 +543,9 @@ public final class EsTestCluster {
     }
 
     // start any missing node
-    assert newSize == numSharedDedicatedMasterNodes + numSharedDataNodes + numSharedCoordOnlyNodes;
-    for (int i = 0; i < numSharedDedicatedMasterNodes; i++) {
+    assert newSize == numSharedDataNodes;
+    for (int i = 0; i < numSharedDataNodes; i++) {
       final Settings.Builder settings = Settings.builder();
-      settings.put(Node.NODE_MASTER_SETTING.getKey(), true).build();
-      settings.put(Node.NODE_DATA_SETTING.getKey(), false).build();
-      NodeAndClient nodeAndClient = buildNode(i, sharedNodesSeeds[i], settings.build(), true);
-      nodeAndClient.startNode();
-      publishNode(nodeAndClient);
-    }
-    for (int i = numSharedDedicatedMasterNodes; i < numSharedDedicatedMasterNodes + numSharedDataNodes; i++) {
-      final Settings.Builder settings = Settings.builder();
-      if (numSharedDedicatedMasterNodes > 0) {
-        // if we don't have dedicated master nodes, keep things default
-        settings.put(Node.NODE_MASTER_SETTING.getKey(), false).build();
-        settings.put(Node.NODE_DATA_SETTING.getKey(), true).build();
-      }
-      NodeAndClient nodeAndClient = buildNode(i, sharedNodesSeeds[i], settings.build(), true);
-      nodeAndClient.startNode();
-      publishNode(nodeAndClient);
-    }
-    for (int i = numSharedDedicatedMasterNodes + numSharedDataNodes; i < numSharedDedicatedMasterNodes + numSharedDataNodes + numSharedCoordOnlyNodes; i++) {
-      final Builder settings = Settings.builder().put(Node.NODE_MASTER_SETTING.getKey(), false)
-        .put(Node.NODE_DATA_SETTING.getKey(), false).put(Node.NODE_INGEST_SETTING.getKey(), false);
       NodeAndClient nodeAndClient = buildNode(i, sharedNodesSeeds[i], settings.build(), true);
       nodeAndClient.startNode();
       publishNode(nodeAndClient);
@@ -1095,76 +666,16 @@ public final class EsTestCluster {
   }
 
   /**
-   * Returns a reference to a random node's {@link ClusterService}
-   */
-  public ClusterService clusterService() {
-    return clusterService(null);
-  }
-
-  /**
-   * Returns a reference to a node's {@link ClusterService}. If the given node is null, a random node will be selected.
-   */
-  public synchronized ClusterService clusterService(@Nullable String node) {
-    return getInstance(ClusterService.class, node);
-  }
-
-  /**
-   * Returns an Iterable to all instances for the given class &gt;T&lt; across all nodes in the cluster.
-   */
-  public synchronized <T> Iterable<T> getInstances(Class<T> clazz) {
-    List<T> instances = new ArrayList<>(nodes.size());
-    for (NodeAndClient nodeAndClient : nodes.values()) {
-      instances.add(getInstanceFromNode(clazz, nodeAndClient.node));
-    }
-    return instances;
-  }
-
-  /**
-   * Returns an Iterable to all instances for the given class &gt;T&lt; across all data nodes in the cluster.
-   */
-  public synchronized <T> Iterable<T> getDataNodeInstances(Class<T> clazz) {
-    return getInstances(clazz, new DataNodePredicate());
-  }
-
-  /**
-   * Returns an Iterable to all instances for the given class &gt;T&lt; across all data and master nodes
-   * in the cluster.
-   */
-  public synchronized <T> Iterable<T> getDataOrMasterNodeInstances(Class<T> clazz) {
-    return getInstances(clazz, new DataOrMasterNodePredicate());
-  }
-
-  private synchronized <T> Iterable<T> getInstances(Class<T> clazz, Predicate<NodeAndClient> predicate) {
-    Iterable<NodeAndClient> filteredNodes = nodes.values().stream().filter(predicate)::iterator;
-    List<T> instances = new ArrayList<>();
-    for (NodeAndClient nodeAndClient : filteredNodes) {
-      instances.add(getInstanceFromNode(clazz, nodeAndClient.node));
-    }
-    return instances;
-  }
-
-  /**
    * Returns a reference to the given nodes instances of the given class &gt;T&lt;
    */
   public synchronized <T> T getInstance(Class<T> clazz, final String node) {
     return getInstance(clazz, nc -> node == null || node.equals(nc.name));
   }
 
-  public synchronized <T> T getDataNodeInstance(Class<T> clazz) {
-    return getInstance(clazz, new DataNodePredicate());
-  }
-
   private synchronized <T> T getInstance(Class<T> clazz, Predicate<NodeAndClient> predicate) {
     NodeAndClient randomNodeAndClient = getRandomNodeAndClient(predicate);
     assert randomNodeAndClient != null;
     return getInstanceFromNode(clazz, randomNodeAndClient.node);
-  }
-
-  /**
-   * Returns a reference to a random nodes instances of the given class &gt;T&lt;
-   */
-  public synchronized <T> T getInstance(Class<T> clazz) {
-    return getInstance(clazz, nc -> true);
   }
 
   private synchronized <T> T getInstanceFromNode(Class<T> clazz, Node node) {
@@ -1178,577 +689,11 @@ public final class EsTestCluster {
     return this.nodes.size();
   }
 
-  /**
-   * Returns the http addresses of the nodes within the cluster.
-   * Can be used to run REST tests against the test cluster.
-   */
-  public InetSocketAddress[] httpAddresses() {
-    List<InetSocketAddress> addresses = new ArrayList<>();
-    for (HttpServerTransport httpServerTransport : getInstances(HttpServerTransport.class)) {
-      addresses.add(((InetSocketTransportAddress) httpServerTransport.boundAddress().publishAddress()).address());
-    }
-    return addresses.toArray(new InetSocketAddress[addresses.size()]);
-  }
-
-  /**
-   * Stops a random data node in the cluster. Returns true if a node was found to stop, false otherwise.
-   */
-  public synchronized boolean stopRandomDataNode() throws IOException {
-    ensureOpen();
-    NodeAndClient nodeAndClient = getRandomNodeAndClient(new DataNodePredicate());
-    if (nodeAndClient != null) {
-      logger.info("Closing random node [{}] ", nodeAndClient.name);
-      // removeDisruptionSchemeFromNode(nodeAndClient);
-      nodes.remove(nodeAndClient.name);
-      nodeAndClient.close();
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Stops a random node in the cluster that applies to the given filter or non if the non of the nodes applies to the
-   * filter.
-   */
-  public synchronized void stopRandomNode(final Predicate<Settings> filter) throws IOException {
-    ensureOpen();
-    NodeAndClient nodeAndClient = getRandomNodeAndClient(nc -> filter.test(nc.node.settings()));
-    if (nodeAndClient != null) {
-      logger.info("Closing filtered random node [{}] ", nodeAndClient.name);
-      // removeDisruptionSchemeFromNode(nodeAndClient);
-      nodes.remove(nodeAndClient.name);
-      nodeAndClient.close();
-    }
-  }
-
-  /**
-   * Stops the current master node forcefully
-   */
-  public synchronized void stopCurrentMasterNode() throws IOException {
-    ensureOpen();
-    assert size() > 0;
-    String masterNodeName = getMasterName();
-    assert nodes.containsKey(masterNodeName);
-    logger.info("Closing master node [{}] ", masterNodeName);
-    // removeDisruptionSchemeFromNode(nodes.get(masterNodeName));
-    NodeAndClient remove = nodes.remove(masterNodeName);
-    remove.close();
-  }
-
-  /**
-   * Stops any of the current nodes but not the master node.
-   */
-  public synchronized void stopRandomNonMasterNode() throws IOException {
-    NodeAndClient nodeAndClient = getRandomNodeAndClient(new MasterNodePredicate(getMasterName()).negate());
-    if (nodeAndClient != null) {
-      logger.info("Closing random non master node [{}] current master [{}] ", nodeAndClient.name, getMasterName());
-      // removeDisruptionSchemeFromNode(nodeAndClient);
-      nodes.remove(nodeAndClient.name);
-      nodeAndClient.close();
-    }
-  }
-
-  /**
-   * Restarts a random node in the cluster
-   */
-  public void restartRandomNode() throws Exception {
-    restartRandomNode(EMPTY_CALLBACK);
-  }
-
-  /**
-   * Restarts a random node in the cluster and calls the callback during restart.
-   */
-  public void restartRandomNode(RestartCallback callback) throws Exception {
-    restartRandomNode(nc -> true, callback);
-  }
-
-  /**
-   * Restarts a random data node in the cluster
-   */
-  public void restartRandomDataNode() throws Exception {
-    restartRandomDataNode(EMPTY_CALLBACK);
-  }
-
-  /**
-   * Restarts a random data node in the cluster and calls the callback during restart.
-   */
-  public void restartRandomDataNode(RestartCallback callback) throws Exception {
-    restartRandomNode(new DataNodePredicate(), callback);
-  }
-
-  /**
-   * Restarts a random node in the cluster and calls the callback during restart.
-   */
-  private synchronized void restartRandomNode(Predicate<NodeAndClient> predicate, RestartCallback callback) throws Exception {
-    ensureOpen();
-    NodeAndClient nodeAndClient = getRandomNodeAndClient(predicate);
-    if (nodeAndClient != null) {
-      logger.info("Restarting random node [{}] ", nodeAndClient.name);
-      nodeAndClient.restart(callback, true);
-    }
-  }
-
-  /**
-   * Restarts a node and calls the callback during restart.
-   */
-  public synchronized void restartNode(String nodeName, RestartCallback callback) throws Exception {
-    ensureOpen();
-    NodeAndClient nodeAndClient = nodes.get(nodeName);
-    if (nodeAndClient != null) {
-      logger.info("Restarting node [{}] ", nodeAndClient.name);
-      nodeAndClient.restart(callback, true);
-    }
-  }
-
-  private synchronized void restartAllNodes(boolean rollingRestart, RestartCallback callback) throws Exception {
-    ensureOpen();
-    List<NodeAndClient> toRemove = new ArrayList<>();
-    try {
-      for (NodeAndClient nodeAndClient : nodes.values()) {
-        if (!callback.doRestart(nodeAndClient.name)) {
-          logger.info("Closing node [{}] during restart", nodeAndClient.name);
-          toRemove.add(nodeAndClient);
-          // if (activeDisruptionScheme != null) {
-          // activeDisruptionScheme.removeFromNode(nodeAndClient.name, this);
-          // }
-          nodeAndClient.close();
-        }
-      }
-    } finally {
-      for (NodeAndClient nodeAndClient : toRemove) {
-        nodes.remove(nodeAndClient.name);
-      }
-    }
-    logger.info("Restarting remaining nodes rollingRestart [{}]", rollingRestart);
-    if (rollingRestart) {
-      int numNodesRestarted = 0;
-      for (NodeAndClient nodeAndClient : nodes.values()) {
-        callback.doAfterNodes(numNodesRestarted++, nodeAndClient.nodeClient());
-        logger.info("Restarting node [{}] ", nodeAndClient.name);
-        // if (activeDisruptionScheme != null) {
-        // activeDisruptionScheme.removeFromNode(nodeAndClient.name, this);
-        // }
-        nodeAndClient.restart(callback, true);
-        // if (activeDisruptionScheme != null) {
-        // activeDisruptionScheme.applyToNode(nodeAndClient.name, this);
-        // }
-      }
-    } else {
-      int numNodesRestarted = 0;
-      Set[] nodesRoleOrder = new Set[nextNodeId.get()];
-      Map<Set<Role>, List<NodeAndClient>> nodesByRoles = new HashMap<>();
-      for (NodeAndClient nodeAndClient : nodes.values()) {
-        callback.doAfterNodes(numNodesRestarted++, nodeAndClient.nodeClient());
-        logger.info("Stopping node [{}] ", nodeAndClient.name);
-        // if (activeDisruptionScheme != null) {
-        // activeDisruptionScheme.removeFromNode(nodeAndClient.name, this);
-        // }
-        nodeAndClient.closeNode();
-        // delete data folders now, before we start other nodes that may claim it
-        nodeAndClient.clearDataIfNeeded(callback);
-
-        DiscoveryNode discoveryNode = getInstanceFromNode(ClusterService.class, nodeAndClient.node()).localNode();
-        nodesRoleOrder[nodeAndClient.nodeAndClientId()] = discoveryNode.getRoles();
-        nodesByRoles.computeIfAbsent(discoveryNode.getRoles(), k -> new ArrayList<>()).add(nodeAndClient);
-      }
-
-      assert nodesByRoles.values().stream().collect(Collectors.summingInt(List::size)) == nodes.size();
-
-      // randomize start up order, but making sure that:
-      // 1) A data folder that was assigned to a data node will stay so
-      // 2) Data nodes will get the same node lock ordinal range, so custom index paths (where the ordinal is used)
-      // will still belong to data nodes
-      for (List<NodeAndClient> sameRoleNodes : nodesByRoles.values()) {
-        Collections.shuffle(sameRoleNodes, random);
-      }
-
-      for (Set roles : nodesRoleOrder) {
-        if (roles == null) {
-          // if some nodes were stopped, we want have a role for them
-          continue;
-        }
-        NodeAndClient nodeAndClient = nodesByRoles.get(roles).remove(0);
-        logger.info("Starting node [{}] ", nodeAndClient.name);
-        // if (activeDisruptionScheme != null) {
-        // activeDisruptionScheme.removeFromNode(nodeAndClient.name, this);
-        // }
-        // we already cleared data folders, before starting nodes up
-        nodeAndClient.restart(callback, false);
-        // if (activeDisruptionScheme != null) {
-        // activeDisruptionScheme.applyToNode(nodeAndClient.name, this);
-        // }
-      }
-    }
-  }
-
-  public static final RestartCallback EMPTY_CALLBACK = new RestartCallback() {
-    @Override
-    public Settings onNodeStopped(String node) {
-      return null;
-    }
-  };
-
-  /**
-   * Restarts all nodes in the cluster. It first stops all nodes and then restarts all the nodes again.
-   */
-  public void fullRestart() throws Exception {
-    fullRestart(EMPTY_CALLBACK);
-  }
-
-  /**
-   * Restarts all nodes in a rolling restart fashion ie. only restarts on node a time.
-   */
-  public void rollingRestart() throws Exception {
-    rollingRestart(EMPTY_CALLBACK);
-  }
-
-  /**
-   * Restarts all nodes in a rolling restart fashion ie. only restarts on node a time.
-   */
-  public void rollingRestart(RestartCallback function) throws Exception {
-    restartAllNodes(true, function);
-  }
-
-  /**
-   * Restarts all nodes in the cluster. It first stops all nodes and then restarts all the nodes again.
-   */
-  public void fullRestart(RestartCallback function) throws Exception {
-    restartAllNodes(false, function);
-  }
-
-  /**
-   * Returns the name of the current master node in the cluster.
-   */
-  public String getMasterName() {
-    return getMasterName(null);
-  }
-
-  /**
-   * Returns the name of the current master node in the cluster and executes the request via the node specified
-   * in the viaNode parameter. If viaNode isn't specified a random node will be picked to the send the request to.
-   */
-  public String getMasterName(@Nullable String viaNode) {
-    try {
-      Client client = viaNode != null ? client(viaNode) : client();
-      ClusterState state = client.admin().cluster().prepareState().execute().actionGet().getState();
-      return state.nodes().getMasterNode().getName();
-    } catch (Exception e) {
-      logger.warn("Can't fetch cluster state", e);
-      throw new RuntimeException("Can't get master node " + e.getMessage(), e);
-    }
-  }
-
-  synchronized Set<String> allDataNodesButN(int numNodes) {
-    return nRandomDataNodes(numDataNodes() - numNodes);
-  }
-
-  private synchronized Set<String> nRandomDataNodes(int numNodes) {
-    assert size() >= numNodes;
-    Map<String, NodeAndClient> dataNodes = nodes
-      .entrySet()
-      .stream()
-      .filter(new EntryNodePredicate(new DataNodePredicate()))
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    final HashSet<String> set = new HashSet<>();
-    final Iterator<String> iterator = dataNodes.keySet().iterator();
-    for (int i = 0; i < numNodes; i++) {
-      assert iterator.hasNext();
-      set.add(iterator.next());
-    }
-    return set;
-  }
-
-  /**
-   * Returns a set of nodes that have at least one shard of the given index.
-   */
-  public synchronized Set<String> nodesInclude(String index) {
-    if (clusterService().state().routingTable().hasIndex(index)) {
-      List<ShardRouting> allShards = clusterService().state().routingTable().allShards(index);
-      DiscoveryNodes discoveryNodes = clusterService().state().getNodes();
-      Set<String> nodes = new HashSet<>();
-      for (ShardRouting shardRouting : allShards) {
-        if (shardRouting.assignedToNode()) {
-          DiscoveryNode discoveryNode = discoveryNodes.get(shardRouting.currentNodeId());
-          nodes.add(discoveryNode.getName());
-        }
-      }
-      return nodes;
-    }
-    return Collections.emptySet();
-  }
-
-  /**
-   * Starts a node with default settings and returns it's name.
-   */
-  public synchronized String startNode() {
-    return startNode(Settings.EMPTY);
-  }
-
-  /**
-   * Starts a node with the given settings builder and returns it's name.
-   */
-  public synchronized String startNode(Settings.Builder settings) {
-    return startNode(settings.build());
-  }
-
-  /**
-   * Starts a node with the given settings and returns it's name.
-   */
-  public synchronized String startNode(Settings settings) {
-    NodeAndClient buildNode = buildNode(settings);
-    buildNode.startNode();
-    publishNode(buildNode);
-    return buildNode.name;
-  }
-
-  public synchronized Async<List<String>> startMasterOnlyNodesAsync(int numNodes) {
-    return startMasterOnlyNodesAsync(numNodes, Settings.EMPTY);
-  }
-
-  public synchronized Async<List<String>> startMasterOnlyNodesAsync(int numNodes, Settings settings) {
-    Settings settings1 = Settings.builder().put(settings).put(Node.NODE_MASTER_SETTING.getKey(), true).put(Node.NODE_DATA_SETTING.getKey(), false).build();
-    return startNodesAsync(numNodes, settings1, Version.CURRENT);
-  }
-
-  public synchronized Async<List<String>> startDataOnlyNodesAsync(int numNodes) {
-    return startDataOnlyNodesAsync(numNodes, Settings.EMPTY);
-  }
-
-  public synchronized Async<List<String>> startDataOnlyNodesAsync(int numNodes, Settings settings) {
-    Settings settings1 = Settings.builder().put(settings).put(Node.NODE_MASTER_SETTING.getKey(), false).put(Node.NODE_DATA_SETTING.getKey(), true).build();
-    return startNodesAsync(numNodes, settings1, Version.CURRENT);
-  }
-
-  public synchronized Async<String> startMasterOnlyNodeAsync() {
-    return startMasterOnlyNodeAsync(Settings.EMPTY);
-  }
-
-  public synchronized Async<String> startMasterOnlyNodeAsync(Settings settings) {
-    Settings settings1 = Settings.builder().put(settings).put(Node.NODE_MASTER_SETTING.getKey(), true).put(Node.NODE_DATA_SETTING.getKey(), false).build();
-    return startNodeAsync(settings1, Version.CURRENT);
-  }
-
-  public synchronized String startMasterOnlyNode(Settings settings) {
-    Settings settings1 = Settings.builder().put(settings).put(Node.NODE_MASTER_SETTING.getKey(), true).put(Node.NODE_DATA_SETTING.getKey(), false).build();
-    return startNode(settings1);
-  }
-
-  public synchronized Async<String> startDataOnlyNodeAsync() {
-    return startDataOnlyNodeAsync(Settings.EMPTY);
-  }
-
-  public synchronized Async<String> startDataOnlyNodeAsync(Settings settings) {
-    Settings settings1 = Settings.builder().put(settings).put(Node.NODE_MASTER_SETTING.getKey(), false).put(Node.NODE_DATA_SETTING.getKey(), true).build();
-    return startNodeAsync(settings1, Version.CURRENT);
-  }
-
-  public synchronized String startDataOnlyNode(Settings settings) {
-    Settings settings1 = Settings.builder().put(settings).put(Node.NODE_MASTER_SETTING.getKey(), false).put(Node.NODE_DATA_SETTING.getKey(), true).build();
-    return startNode(settings1);
-  }
-
-  /**
-   * Starts a node in an async manner with the given settings and returns future with its name.
-   */
-  public synchronized Async<String> startNodeAsync() {
-    return startNodeAsync(Settings.EMPTY, Version.CURRENT);
-  }
-
-  /**
-   * Starts a node in an async manner with the given settings and returns future with its name.
-   */
-  public synchronized Async<String> startNodeAsync(final Settings settings) {
-    return startNodeAsync(settings, Version.CURRENT);
-  }
-
-  /**
-   * Starts a node in an async manner with the given settings and version and returns future with its name.
-   */
-  public synchronized Async<String> startNodeAsync(final Settings settings, final Version version) {
-    final NodeAndClient buildNode = buildNode(settings);
-    final Future<String> submit = executor.submit(() -> {
-      buildNode.startNode();
-      publishNode(buildNode);
-      return buildNode.name;
-    });
-    return () -> submit.get();
-  }
-
-  /**
-   * Starts multiple nodes in an async manner and returns future with its name.
-   */
-  public synchronized Async<List<String>> startNodesAsync(final int numNodes) {
-    return startNodesAsync(numNodes, Settings.EMPTY, Version.CURRENT);
-  }
-
-  /**
-   * Starts multiple nodes in an async manner with the given settings and returns future with its name.
-   */
-  public synchronized Async<List<String>> startNodesAsync(final int numNodes, final Settings settings) {
-    return startNodesAsync(numNodes, settings, Version.CURRENT);
-  }
-
-  /**
-   * Starts multiple nodes in an async manner with the given settings and version and returns future with its name.
-   */
-  public synchronized Async<List<String>> startNodesAsync(final int numNodes, final Settings settings, final Version version) {
-    final List<Async<String>> asyncs = new ArrayList<>();
-    for (int i = 0; i < numNodes; i++) {
-      asyncs.add(startNodeAsync(settings, version));
-    }
-
-    return () -> {
-      List<String> ids = new ArrayList<>();
-      for (Async<String> async : asyncs) {
-        ids.add(async.get());
-      }
-      return ids;
-    };
-  }
-
-  /**
-   * Starts multiple nodes (based on the number of settings provided) in an async manner, with explicit settings for each node.
-   * The order of the node names returned matches the order of the settings provided.
-   */
-  public synchronized Async<List<String>> startNodesAsync(final Settings... settings) {
-    List<Async<String>> asyncs = new ArrayList<>();
-    for (Settings setting : settings) {
-      asyncs.add(startNodeAsync(setting, Version.CURRENT));
-    }
-    return () -> {
-      List<String> ids = new ArrayList<>();
-      for (Async<String> async : asyncs) {
-        ids.add(async.get());
-      }
-      return ids;
-    };
-  }
-
   private synchronized void publishNode(NodeAndClient nodeAndClient) {
     assert !nodeAndClient.node().isClosed();
     nodes.put(nodeAndClient.name, nodeAndClient);
-    // applyDisruptionSchemeToNode(nodeAndClient);
   }
 
-  public void closeNonSharedNodes(boolean wipeData) throws IOException {
-    reset(wipeData);
-  }
-
-  /**
-   * Returns the number of data nodes in the cluster.
-   */
-  public int numDataNodes() {
-    return dataNodeAndClients().size();
-  }
-
-  /**
-   * Returns the number of data and master eligible nodes in the cluster.
-   */
-  public int numDataAndMasterNodes() {
-    return dataAndMasterNodes().size();
-  }
-
-  // public void setDisruptionScheme(ServiceDisruptionScheme scheme) {
-  // clearDisruptionScheme();
-  // scheme.applyToCluster(this);
-  // activeDisruptionScheme = scheme;
-  // }
-  //
-  // public void clearDisruptionScheme() {
-  // clearDisruptionScheme(true);
-  // }
-  //
-  // public void clearDisruptionScheme(boolean ensureHealthyCluster) {
-  // if (activeDisruptionScheme != null) {
-  // TimeValue expectedHealingTime = activeDisruptionScheme.expectedTimeToHeal();
-  // logger.info("Clearing active scheme {}, expected healing time {}", activeDisruptionScheme, expectedHealingTime);
-  // if (ensureHealthyCluster) {
-  // activeDisruptionScheme.removeAndEnsureHealthy(this);
-  // } else {
-  // activeDisruptionScheme.removeFromCluster(this);
-  // }
-  // }
-  // activeDisruptionScheme = null;
-  // }
-  //
-  // private void applyDisruptionSchemeToNode(NodeAndClient nodeAndClient) {
-  // if (activeDisruptionScheme != null) {
-  // assert nodes.containsKey(nodeAndClient.name);
-  // activeDisruptionScheme.applyToNode(nodeAndClient.name, this);
-  // }
-  // }
-  //
-  // private void removeDisruptionSchemeFromNode(NodeAndClient nodeAndClient) {
-  // if (activeDisruptionScheme != null) {
-  // assert nodes.containsKey(nodeAndClient.name);
-  // activeDisruptionScheme.removeFromNode(nodeAndClient.name, this);
-  // }
-  // }
-
-  private synchronized Collection<NodeAndClient> dataNodeAndClients() {
-    return filterNodes(nodes, new DataNodePredicate());
-  }
-
-  private synchronized Collection<NodeAndClient> dataAndMasterNodes() {
-    return filterNodes(nodes, new DataOrMasterNodePredicate());
-  }
-
-  private synchronized Collection<NodeAndClient> filterNodes(Map<String, EsTestCluster.NodeAndClient> map, Predicate<NodeAndClient> predicate) {
-    return map
-      .values()
-      .stream()
-      .filter(predicate)
-      .collect(Collectors.toCollection(ArrayList::new));
-  }
-
-  private static final class DataNodePredicate implements Predicate<NodeAndClient> {
-    @Override
-    public boolean test(NodeAndClient nodeAndClient) {
-      return DiscoveryNode.isDataNode(nodeAndClient.node.settings());
-    }
-  }
-
-  private static final class DataOrMasterNodePredicate implements Predicate<NodeAndClient> {
-    @Override
-    public boolean test(NodeAndClient nodeAndClient) {
-      return DiscoveryNode.isDataNode(nodeAndClient.node.settings()) ||
-        DiscoveryNode.isMasterNode(nodeAndClient.node.settings());
-    }
-  }
-
-  private static final class MasterNodePredicate implements Predicate<NodeAndClient> {
-    private final String masterNodeName;
-
-    public MasterNodePredicate(String masterNodeName) {
-      this.masterNodeName = masterNodeName;
-    }
-
-    @Override
-    public boolean test(NodeAndClient nodeAndClient) {
-      return masterNodeName.equals(nodeAndClient.name);
-    }
-  }
-
-  private static final class NoDataNoMasterNodePredicate implements Predicate<NodeAndClient> {
-    @Override
-    public boolean test(NodeAndClient nodeAndClient) {
-      return DiscoveryNode.isMasterNode(nodeAndClient.node.settings()) == false &&
-        DiscoveryNode.isDataNode(nodeAndClient.node.settings()) == false;
-    }
-  }
-
-  private static final class EntryNodePredicate implements Predicate<Map.Entry<String, NodeAndClient>> {
-    private final Predicate<NodeAndClient> delegateNodePredicate;
-
-    EntryNodePredicate(Predicate<NodeAndClient> delegateNodePredicate) {
-      this.delegateNodePredicate = delegateNodePredicate;
-    }
-
-    @Override
-    public boolean test(Map.Entry<String, NodeAndClient> entry) {
-      return delegateNodePredicate.test(entry.getValue());
-    }
-  }
 
   /**
    * Returns an {@link Iterable} over all clients in this test cluster
@@ -1780,75 +725,12 @@ public final class EsTestCluster {
   }
 
   /**
-   * Returns a predicate that only accepts settings of nodes with one of the given names.
-   */
-  public static Predicate<Settings> nameFilter(String... nodeName) {
-    return new NodeNamePredicate(new HashSet<>(Arrays.asList(nodeName)));
-  }
-
-  private static final class NodeNamePredicate implements Predicate<Settings> {
-    private final HashSet<String> nodeNames;
-
-    public NodeNamePredicate(HashSet<String> nodeNames) {
-      this.nodeNames = nodeNames;
-    }
-
-    @Override
-    public boolean test(Settings settings) {
-      return nodeNames.contains(settings.get("node.name"));
-
-    }
-  }
-
-  /**
-   * An abstract class that is called during {@link #rollingRestart(EsTestCluster.RestartCallback)}
-   * and / or {@link #fullRestart(EsTestCluster.RestartCallback)} to execute actions at certain
-   * stages of the restart.
-   */
-  public static class RestartCallback {
-
-    /**
-     * Executed once the give node name has been stopped.
-     */
-    public Settings onNodeStopped(String nodeName) throws Exception {
-      return Settings.EMPTY;
-    }
-
-    /**
-     * Executed for each node before the <tt>n+1</tt> node is restarted. The given client is
-     * an active client to the node that will be restarted next.
-     */
-    public void doAfterNodes(int n, Client client) throws Exception {
-    }
-
-    /**
-     * If this returns <code>true</code> all data for the node with the given node name will be cleared including
-     * gateways and all index data. Returns <code>false</code> by default.
-     */
-    public boolean clearData(String nodeName) {
-      return false;
-    }
-
-    /**
-     * If this returns <code>false</code> the node with the given node name will not be restarted. It will be
-     * closed and removed from the cluster. Returns <code>true</code> by default.
-     */
-    public boolean doRestart(String nodeName) {
-      return true;
-    }
-  }
-
-  public Settings getDefaultSettings() {
-    return defaultSettings;
-  }
-
-  /**
    * Ensures that any breaker statistics are reset to 0.
    *
    * The implementation is specific to the test cluster, because the act of
    * checking some breaker stats can increase them.
    */
-  public void ensureEstimatedStats() {
+  private void ensureEstimatedStats() {
     if (size() > 0) {
       // Checks that the breakers have been reset without incurring a
       // network request, because a network request can increment one
@@ -1871,7 +753,7 @@ public final class EsTestCluster {
         // in an assertBusy loop, so it will try for 10 seconds and
         // fail if it never reached 0
         try {
-          EsTester.assertBusy(new Runnable() {
+          assertBusy(new Runnable() {
             @Override
             public void run() {
               CircuitBreaker reqBreaker = breakerService.getBreaker(CircuitBreaker.REQUEST);
@@ -1918,7 +800,7 @@ public final class EsTestCluster {
           .getBreaker(CircuitBreaker.IN_FLIGHT_REQUESTS);
         try {
           // see #ensureEstimatedStats()
-          EsTester.assertBusy(() -> {
+          assertBusy(() -> {
             // ensure that our size accounting on transport level is reset properly
             long bytesUsed = inFlightRequestsBreaker.getUsed();
             assertThat("All incoming requests on node [" + nodeAndClient.name + "] should have finished. Expected 0 but got " +
@@ -1939,6 +821,145 @@ public final class EsTestCluster {
    */
   public interface Async<T> {
     T get() throws ExecutionException, InterruptedException;
+  }
+
+  /**
+   * Wipes any data that a test can leave behind: indices, templates (except exclude templates) and repositories
+   */
+  public void wipe(Set<String> excludeTemplates) {
+    wipeIndices("_all");
+    wipeAllTemplates(excludeTemplates);
+    wipeRepositories();
+  }
+
+  /**
+   * Deletes the given indices from the tests cluster. If no index name is passed to this method
+   * all indices are removed.
+   */
+  public void wipeIndices(String... indices) {
+    assert indices != null && indices.length > 0;
+    if (size() > 0) {
+      try {
+        assertAcked(client().admin().indices().prepareDelete(indices));
+      } catch (IndexNotFoundException e) {
+        // ignore
+      } catch (IllegalArgumentException e) {
+        // Happens if `action.destructive_requires_name` is set to true
+        // which is the case in the CloseIndexDisableCloseAllTests
+        if ("_all".equals(indices[0])) {
+          ClusterStateResponse clusterStateResponse = client().admin().cluster().prepareState().execute().actionGet();
+          ObjectArrayList<String> concreteIndices = new ObjectArrayList<>();
+          for (IndexMetaData indexMetaData : clusterStateResponse.getState().metaData()) {
+            concreteIndices.add(indexMetaData.getIndex().getName());
+          }
+          if (!concreteIndices.isEmpty()) {
+            assertAcked(client().admin().indices().prepareDelete(concreteIndices.toArray(String.class)));
+          }
+        }
+      }
+    }
+  }
+
+  public void assertAcked(DeleteIndexRequestBuilder builder) {
+    DeleteIndexResponse response = builder.get();
+    MatcherAssert.assertThat("Delete Index failed - not acked", response.isAcknowledged(), CoreMatchers.equalTo(true));
+  }
+
+  /**
+   * Removes all templates, except the templates defined in the exclude
+   */
+  public void wipeAllTemplates(Set<String> exclude) {
+    if (size() > 0) {
+      GetIndexTemplatesResponse response = client().admin().indices().prepareGetTemplates().get();
+      for (IndexTemplateMetaData indexTemplate : response.getIndexTemplates()) {
+        if (exclude.contains(indexTemplate.getName())) {
+          continue;
+        }
+        try {
+          client().admin().indices().prepareDeleteTemplate(indexTemplate.getName()).execute().actionGet();
+        } catch (IndexTemplateMissingException e) {
+          // ignore
+        }
+      }
+    }
+  }
+
+  /**
+   * Deletes index templates, support wildcard notation.
+   * If no template name is passed to this method all templates are removed.
+   */
+  public void wipeTemplates(String... templates) {
+    if (size() > 0) {
+      // if nothing is provided, delete all
+      if (templates.length == 0) {
+        templates = new String[] {"*"};
+      }
+      for (String template : templates) {
+        try {
+          client().admin().indices().prepareDeleteTemplate(template).execute().actionGet();
+        } catch (IndexTemplateMissingException e) {
+          // ignore
+        }
+      }
+    }
+  }
+
+  /**
+   * Deletes repositories, supports wildcard notation.
+   */
+  public void wipeRepositories(String... repositories) {
+    if (size() > 0) {
+      // if nothing is provided, delete all
+      if (repositories.length == 0) {
+        repositories = new String[] {"*"};
+      }
+      for (String repository : repositories) {
+        try {
+          client().admin().cluster().prepareDeleteRepository(repository).execute().actionGet();
+        } catch (RepositoryMissingException ex) {
+          // ignore
+        }
+      }
+    }
+  }
+
+  /**
+   * Runs the code block for 10 seconds waiting for no assertion to trip.
+   */
+  public static void assertBusy(Runnable codeBlock) throws Exception {
+    assertBusy(codeBlock, 10, TimeUnit.SECONDS);
+  }
+
+  /**
+   * Runs the code block for the provided interval, waiting for no assertions to trip.
+   */
+  private static void assertBusy(Runnable codeBlock, long maxWaitTime, TimeUnit unit) throws Exception {
+    long maxTimeInMillis = TimeUnit.MILLISECONDS.convert(maxWaitTime, unit);
+    long iterations = Math.max(Math.round(Math.log10(maxTimeInMillis) / Math.log10(2)), 1);
+    long timeInMillis = 1;
+    long sum = 0;
+    List<AssertionError> failures = new ArrayList<>();
+    for (int i = 0; i < iterations; i++) {
+      try {
+        codeBlock.run();
+        return;
+      } catch (AssertionError e) {
+        failures.add(e);
+      }
+      sum += timeInMillis;
+      Thread.sleep(timeInMillis);
+      timeInMillis *= 2;
+    }
+    timeInMillis = maxTimeInMillis - sum;
+    Thread.sleep(Math.max(timeInMillis, 0));
+    try {
+      codeBlock.run();
+    } catch (AssertionError e) {
+      for (AssertionError failure : failures) {
+        e.addSuppressed(failure);
+      }
+      throw e;
+    }
   }
 
 }

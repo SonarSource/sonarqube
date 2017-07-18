@@ -27,28 +27,8 @@ import org.sonar.server.es.EsTester;
 
 public class NewTest {
 
-  static {
-    System.setProperty("log4j.shutdownHookEnabled", "false");
-    // we can not shutdown logging when tests are running or the next test that runs within the
-    // same JVM will try to initialize logging after a security manager has been installed and
-    // this will fail
-    System.setProperty("es.log4j.shutdownEnabled", "false");
-    System.setProperty("log4j2.disable.jmx", "true");
-    System.setProperty("log4j.skipJansi", "true"); // jython has this crazy shaded Jansi version that log4j2 tries to load
-  }
-
   @Rule
   public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings().asConfig()));
-
-//  @AfterClass
-//  public static void afterClass() throws Exception {
-//    try {
-//      es.after();
-//    } catch (Exception e) {
-//      e.printStackTrace();
-//    }
-//    es = null;
-//  }
 
   @Test
   public void name() throws Exception {
