@@ -108,7 +108,7 @@ public class JavaProcessLauncherImplTest {
   @Test
   public void throw_ISE_if_command_fails() throws IOException {
     File tempDir = temp.newFolder();
-    JavaProcessLauncher.SystemProcessBuilder processBuilder = mock(JavaProcessLauncher.SystemProcessBuilder.class, RETURNS_MOCKS);
+    JavaProcessLauncherImpl.ProcessBuilder processBuilder = mock(JavaProcessLauncherImpl.ProcessBuilder.class, RETURNS_MOCKS);
     when(processBuilder.start()).thenThrow(new IOException("error"));
     JavaProcessLauncher underTest = new JavaProcessLauncherImpl(tempDir, commands, () -> processBuilder);
 
@@ -118,7 +118,7 @@ public class JavaProcessLauncherImplTest {
     underTest.launch(new JavaCommand(ProcessId.ELASTICSEARCH));
   }
 
-  private static class TestProcessBuilder extends JavaProcessLauncher.SystemProcessBuilder {
+  private static class TestProcessBuilder implements JavaProcessLauncherImpl.ProcessBuilder {
     private List<String> commands = null;
     private File dir = null;
     private Boolean redirectErrorStream = null;
