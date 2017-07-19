@@ -355,13 +355,10 @@ export default class App extends React.PureComponent {
       s: 'FILE_LINE',
       ...serializeQuery(query),
       ps: 100,
+      organization: organization && organization.key,
       facets,
       ...additional
     };
-
-    if (organization) {
-      parameters.organization = organization.key;
-    }
 
     // only sorting by CREATION_DATE is allowed, so let's sort DESC
     if (query.sort) {
@@ -696,6 +693,7 @@ export default class App extends React.PureComponent {
           onFacetToggle={this.handleFacetToggle}
           onFilterChange={this.handleFilterChange}
           openFacets={this.state.openFacets}
+          organization={this.props.organization}
           query={query}
           referencedComponents={this.state.referencedComponents}
           referencedLanguages={this.state.referencedLanguages}

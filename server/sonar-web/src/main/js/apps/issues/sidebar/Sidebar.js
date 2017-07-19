@@ -50,6 +50,7 @@ type Props = {|
   onFacetToggle: (property: string) => void,
   onFilterChange: (changes: { [string]: Array<string> }) => void,
   openFacets: { [string]: boolean },
+  organization?: { key: string },
   query: Query,
   referencedComponents: { [string]: ReferencedComponent },
   referencedLanguages: { [string]: ReferencedLanguage },
@@ -130,10 +131,12 @@ export default class Sidebar extends React.PureComponent {
           rules={query.rules}
         />
         <TagFacet
+          component={component}
           facetMode={query.facetMode}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.tags}
+          organization={this.props.organization}
           stats={facets.tags}
           tags={query.tags}
         />
@@ -144,6 +147,7 @@ export default class Sidebar extends React.PureComponent {
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.projects}
+            organization={this.props.organization}
             projects={query.projects}
             referencedComponents={this.props.referencedComponents}
             stats={facets.projects}
@@ -185,6 +189,7 @@ export default class Sidebar extends React.PureComponent {
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.assignees}
+            organization={this.props.organization}
             assigned={query.assigned}
             assignees={query.assignees}
             referencedUsers={this.props.referencedUsers}

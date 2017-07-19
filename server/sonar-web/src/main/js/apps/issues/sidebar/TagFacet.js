@@ -27,12 +27,15 @@ import FacetItemsList from './components/FacetItemsList';
 import FacetFooter from './components/FacetFooter';
 import { searchIssueTags } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
+import type { Component } from '../utils';
 
 type Props = {|
+  component?: Component,
   facetMode: string,
   onChange: (changes: { [string]: Array<string> }) => void,
   onToggle: (property: string) => void,
   open: boolean,
+  organization?: { key: string },
   stats?: { [string]: number },
   tags: Array<string>
 |};
@@ -63,7 +66,11 @@ export default class TagFacet extends React.PureComponent {
   };
 
   handleSearch = (query: string) => {
-    return searchIssueTags({ ps: 50, q: query }).then(tags =>
+    let organization = this.props.component && this.props.component.organization;
+    if (this.props.organization && !organization) {
+      organization = this.props.organization.key;
+    }
+    return searchIssueTags({ organization, ps: 50, q: query }).then(tags =>
       tags.map(tag => ({ label: tag, value: tag }))
     );
   };
