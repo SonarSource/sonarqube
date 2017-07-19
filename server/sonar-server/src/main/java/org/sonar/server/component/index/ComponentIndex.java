@@ -32,6 +32,8 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregator;
+import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregator.KeyedFilter;
 import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters;
 import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters.InternalBucket;
 import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
@@ -107,7 +109,7 @@ public class ComponentIndex {
   private static FiltersAggregationBuilder createAggregation(ComponentIndexQuery query) {
     return AggregationBuilders.filters(
       FILTERS_AGGREGATION_NAME,
-      query.getQualifiers().stream().map(q -> termQuery(FIELD_QUALIFIER, q)).toArray(QueryBuilder[]::new))
+      query.getQualifiers().stream().map(q -> new KeyedFilter(q, termQuery(FIELD_QUALIFIER, q))).toArray(KeyedFilter[]::new))
       .subAggregation(createSubAggregation(query));
   }
 
