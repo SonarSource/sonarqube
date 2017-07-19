@@ -37,18 +37,12 @@ import static java.util.Objects.requireNonNull;
 public class ViewsComponent implements Component {
   private final Type type;
   private final String key;
-  @CheckForNull
   private final String uuid;
-  @CheckForNull
   private final String name;
-  @CheckForNull
   private final String description;
   private final List<Component> children;
-  @CheckForNull
   private final ProjectViewAttributes projectViewAttributes;
-  @CheckForNull
   private final SubViewAttributes subViewAttributes;
-  @CheckForNull
   private final ViewAttributes viewAttributes;
 
   private ViewsComponent(Type type, String key, @Nullable String uuid, @Nullable String name, @Nullable String description,
@@ -77,18 +71,12 @@ public class ViewsComponent implements Component {
   public static final class Builder {
     private final Type type;
     private final String key;
-    @CheckForNull
     private String uuid;
-    @CheckForNull
     private String name;
-    @CheckForNull
     private String description;
     private List<Component> children = new ArrayList<>();
-    @CheckForNull
     private ProjectViewAttributes projectViewAttributes;
-    @CheckForNull
     private SubViewAttributes subViewAttributes;
-    @CheckForNull
     private ViewAttributes viewAttributes;
 
     private Builder(Type type, String key) {
