@@ -38,11 +38,15 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class IndexCreatorTest {
 
+  private static final NewIndex.SettingsConfiguration settingsConfiguration = newBuilder(new MapSettings().asConfig()).build();
+
   @Rule
   public EsTester es = new EsTester();
+
   private MetadataIndexDefinition metadataIndexDefinition = new MetadataIndexDefinition(new MapSettings().asConfig());
   private MetadataIndex metadataIndex = new MetadataIndex(es.client());
 
@@ -72,7 +76,8 @@ public class IndexCreatorTest {
   public void mark_all_non_existing_index_types_as_uninitialized() throws Exception {
     MetadataIndex metadataIndexMock = mock(MetadataIndex.class);
     IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {context -> {
-      NewIndex i = context.create("i");
+
+      NewIndex i = context.create("i", settingsConfiguration);
       i.createType("t1");
       i.createType("t2");
     }}, new MapSettings().asConfig());
@@ -160,7 +165,7 @@ public class IndexCreatorTest {
   public static class FakeIndexDefinition implements IndexDefinition {
     @Override
     public void define(IndexDefinitionContext context) {
-      NewIndex index = context.create("fakes");
+      NewIndex index = context.create("fakes", settingsConfiguration);
       NewIndex.NewIndexType mapping = index.createType("fake");
       mapping.keywordFieldBuilder("key").build();
       mapping.createDateTimeField("updatedAt");
@@ -170,7 +175,7 @@ public class IndexCreatorTest {
   public static class FakeIndexDefinitionV2 implements IndexDefinition {
     @Override
     public void define(IndexDefinitionContext context) {
-      NewIndex index = context.create("fakes");
+      NewIndex index = context.create("fakes", settingsConfiguration);
       NewIndex.NewIndexType mapping = index.createType("fake");
       mapping.keywordFieldBuilder("key").build();
       mapping.createDateTimeField("updatedAt");

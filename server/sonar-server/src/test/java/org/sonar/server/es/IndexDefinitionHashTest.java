@@ -22,8 +22,10 @@ package org.sonar.server.es;
 import org.junit.Test;
 
 import java.util.Arrays;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class IndexDefinitionHashTest {
 
@@ -42,7 +44,7 @@ public class IndexDefinitionHashTest {
   }
 
   private NewIndex createIndex() {
-    NewIndex newIndex = new NewIndex("fakes");
+    NewIndex newIndex = new NewIndex("fakes", newBuilder(new MapSettings().asConfig()).build());
     NewIndex.NewIndexType mapping = newIndex.createType("fake");
     mapping.setAttribute("list_attr", Arrays.asList("foo", "bar"));
     mapping.keywordFieldBuilder("key").build();

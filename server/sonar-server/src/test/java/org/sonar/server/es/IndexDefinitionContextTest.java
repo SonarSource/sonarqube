@@ -20,18 +20,21 @@
 package org.sonar.server.es;
 
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class IndexDefinitionContextTest {
+  private NewIndex.SettingsConfiguration emptySettingsConfiguration = newBuilder(new MapSettings().asConfig()).build();
 
   @Test
   public void create_indices() {
     IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
 
-    context.create("issues");
-    context.create("measures");
+    context.create("issues", emptySettingsConfiguration);
+    context.create("measures", emptySettingsConfiguration);
     assertThat(context.getIndices().keySet()).containsOnly("issues", "measures");
   }
 
@@ -39,9 +42,9 @@ public class IndexDefinitionContextTest {
   public void fail_to_create_twice_the_same_index() {
     IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
 
-    context.create("issues");
+    context.create("issues", emptySettingsConfiguration);
     try {
-      context.create("issues");
+      context.create("issues", emptySettingsConfiguration);
       fail();
     } catch (IllegalArgumentException ok) {
       assertThat(ok).hasMessage("Index already exists: issues");

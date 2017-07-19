@@ -20,6 +20,9 @@
 package org.sonar.server.es;
 
 import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.sonar.api.config.internal.MapSettings;
+
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class FakeIndexDefinition implements IndexDefinition {
 
@@ -37,7 +40,7 @@ public class FakeIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX);
+    NewIndex index = context.create(INDEX, newBuilder(new MapSettings().asConfig()).build());
     index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
     index.getSettings().put("index.refresh_interval", "-1");
     NewIndex.NewIndexType type = index.createType(INDEX_TYPE_FAKE.getType());

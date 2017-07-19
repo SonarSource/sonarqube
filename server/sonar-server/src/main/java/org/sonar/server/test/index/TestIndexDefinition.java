@@ -27,6 +27,8 @@ import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_KEYWORD;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class TestIndexDefinition implements IndexDefinition {
 
@@ -52,10 +54,12 @@ public class TestIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_TYPE_TEST.getIndex());
-
-    index.refreshHandledByIndexer();
-    index.configureShards(config, 5);
+    NewIndex index = context.create(
+      INDEX_TYPE_TEST.getIndex(),
+      newBuilder(config)
+        .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
+        .setDefaultNbOfShards(5)
+        .build());
 
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_TEST.getType());
     mapping.setAttribute("_routing", ImmutableMap.of("required", true));

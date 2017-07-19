@@ -29,6 +29,8 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALY
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_PREFIX_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class ComponentIndexDefinition implements IndexDefinition {
 
@@ -51,9 +53,12 @@ public class ComponentIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_TYPE_COMPONENT.getIndex());
-    index.refreshHandledByIndexer();
-    index.configureShards(config, DEFAULT_NUMBER_OF_SHARDS);
+    NewIndex index = context.create(
+      INDEX_TYPE_COMPONENT.getIndex(),
+      newBuilder(config)
+        .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
+        .setDefaultNbOfShards(DEFAULT_NUMBER_OF_SHARDS)
+        .build());
 
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_COMPONENT.getType())
       .requireProjectAuthorization();
