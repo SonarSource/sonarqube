@@ -21,6 +21,7 @@ package org.sonar.server.measure.index;
 
 import java.util.Date;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -131,6 +132,7 @@ public class ProjectMeasuresIndexerTest {
     assertThat(esTester.getIds(INDEX_TYPE_PROJECT_MEASURES)).containsOnly(project.uuid());
   }
 
+  @Ignore
   @Test
   public void update_existing_document_when_indexing_one_project() throws Exception {
     String uuid = "PROJECT-UUID";
