@@ -89,7 +89,7 @@ export function getIssuesCount(query: {}): Promise<*> {
 }
 
 export const searchIssueTags = (
-  data: { ps?: number, q?: string } = { ps: 500 }
+  data: { organization?: string, ps?: number, q?: string } = { ps: 500 }
 ): Promise<Array<string>> => getJSON('/api/issues/tags', data).then(r => r.tags);
 
 export function getIssueChangelog(issue: string): Promise<*> {

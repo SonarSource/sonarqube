@@ -41,7 +41,8 @@ type Props = {|
   fetchIssues: ({}) => Promise<*>,
   onClose: () => void,
   onDone: () => void,
-  onRequestFail: Error => void
+  onRequestFail: Error => void,
+  organization?: { key: string }
 |};
 
 type State = {|
@@ -58,6 +59,7 @@ type State = {|
   assignee?: string,
   comment?: string,
   notifications?: boolean,
+  organization?: string,
   removeTags?: Array<string>,
   severity?: string,
   transition?: string,
@@ -74,12 +76,20 @@ export default class BulkChangeModal extends React.PureComponent {
 
   constructor(props: Props) {
     super(props);
-    this.state = { issues: [], loading: true, submitting: false };
+    let organization = props.component && props.component.organization;
+    if (props.organization && !organization) {
+      organization = props.organization.key;
+    }
+    this.state = { issues: [], loading: true, submitting: false, organization };
   }
 
   componentDidMount() {
     this.mounted = true;
-    Promise.all([this.loadIssues(), searchIssueTags()]).then(([issues, tags]) => {
+
+    Promise.all([
+      this.loadIssues(),
+      searchIssueTags({ organization: this.state.organization, ps: 500 })
+    ]).then(([issues, tags]) => {
       if (this.mounted) {
         this.setState({
           issues: issues.issues,
@@ -107,7 +117,7 @@ export default class BulkChangeModal extends React.PureComponent {
 
   handleAssigneeSearch = (query: string) => {
     if (query.length > 1) {
-      return searchAssignees(query, this.props.component);
+      return searchAssignees(query, this.state.organization);
     } else {
       const { currentUser } = this.props;
       const { issues } = this.state;
