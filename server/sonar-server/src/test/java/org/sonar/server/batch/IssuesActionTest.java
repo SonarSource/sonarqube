@@ -202,7 +202,7 @@ public class IssuesActionTest {
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src/main/java"));
     addPermissionTo(project);
 
-    expectedException.expect(IllegalStateException.class);
+    expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component of scope 'DIR' is not allowed");
 
     call(directory.key());
