@@ -261,9 +261,11 @@ public class RuleIndex {
       filters.put(FIELD_RULE_EXTENSION_TAGS, q);
     }
 
-    if (isNotEmpty(query.getTypes())) {
+    Collection<RuleType> types = query.getTypes();
+    if (isNotEmpty(types)) {
+      List<String> typeNames = types.stream().map(RuleType::toString).collect(MoreCollectors.toList());
       filters.put(FIELD_RULE_TYPE,
-        QueryBuilders.termsQuery(FIELD_RULE_TYPE, query.getTypes()));
+        QueryBuilders.termsQuery(FIELD_RULE_TYPE, typeNames));
     }
 
     if (query.getAvailableSinceLong() != null) {
