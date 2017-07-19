@@ -36,12 +36,14 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.ProjectIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_TYPE_COMPONENT;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public class ComponentIndexerTest {
 
@@ -197,7 +199,7 @@ public class ComponentIndexerTest {
     assertThat(
       esTester.client()
         .prepareSearch(INDEX_TYPE_COMPONENT)
-        .setQuery(termQuery(FIELD_NAME, nameQuery))
+        .setQuery(matchQuery(SORTABLE_ANALYZER.subField(FIELD_NAME), nameQuery))
         .get()
         .getHits()
         .getTotalHits()).isEqualTo(numberOfMatches);
