@@ -28,7 +28,7 @@ export default function ListHeader({ canEdit, onAdd }) {
   }
 
   return (
-    <div>
+    <header className="page-header">
       <h1 className="page-title">
         {translate('quality_gates.page')}
       </h1>
@@ -40,6 +40,6 @@ export default function ListHeader({ canEdit, onAdd }) {
             </button>
           </div>
         </div>}
-    </div>
+    </header>
   );
 }

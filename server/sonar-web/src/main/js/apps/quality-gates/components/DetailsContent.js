@@ -33,7 +33,7 @@ export default class DetailsContent extends Component {
       : translate('quality_gates.projects_for_default');
 
     return (
-      <div ref="container" className="search-navigator-workspace-details">
+      <div className="layout-page-main-inner">
         <Conditions
           qualityGate={gate}
           conditions={conditions}

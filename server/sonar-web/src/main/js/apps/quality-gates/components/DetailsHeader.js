@@ -49,27 +49,33 @@ export default function DetailsHeader({
   }
 
   return (
-    <div className="search-navigator-workspace-header" style={{ top: 30 }}>
-      <h2 className="search-navigator-header-component">
-        {qualityGate.name}
-      </h2>
-      {edit &&
-        <div className="search-navigator-header-actions">
-          <div className="button-group">
-            <button id="quality-gate-rename" onClick={handleRenameClick}>
-              {translate('rename')}
-            </button>
-            <button id="quality-gate-copy" onClick={handleCopyClick}>
-              {translate('copy')}
-            </button>
-            <button id="quality-gate-toggle-default" onClick={handleSetAsDefaultClick}>
-              {qualityGate.isDefault ? translate('unset_as_default') : translate('set_as_default')}
-            </button>
-            <button id="quality-gate-delete" className="button-red" onClick={handleDeleteClick}>
-              {translate('delete')}
-            </button>
-          </div>
-        </div>}
+    <div className="layout-page-header-panel layout-page-main-header issues-main-header">
+      <div className="layout-page-header-panel-inner layout-page-main-header-inner">
+        <div className="layout-page-main-inner">
+          <h2 className="pull-left">
+            {qualityGate.name}
+          </h2>
+          {edit &&
+            <div className="pull-right">
+              <div className="button-group">
+                <button id="quality-gate-rename" onClick={handleRenameClick}>
+                  {translate('rename')}
+                </button>
+                <button id="quality-gate-copy" onClick={handleCopyClick}>
+                  {translate('copy')}
+                </button>
+                <button id="quality-gate-toggle-default" onClick={handleSetAsDefaultClick}>
+                  {qualityGate.isDefault
+                    ? translate('unset_as_default')
+                    : translate('set_as_default')}
+                </button>
+                <button id="quality-gate-delete" className="button-red" onClick={handleDeleteClick}>
+                  {translate('delete')}
+                </button>
+              </div>
+            </div>}
+        </div>
+      </div>
     </div>
   );
 }
