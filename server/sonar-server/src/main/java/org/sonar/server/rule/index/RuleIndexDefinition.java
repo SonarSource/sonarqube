@@ -33,6 +33,8 @@ import org.sonar.server.es.NewIndex;
 import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 /**
  * Definition of ES index "rules", including settings and fields.
@@ -102,13 +104,15 @@ public class RuleIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_TYPE_RULE.getIndex());
-
-    index.refreshHandledByIndexer();
-    // Default nb of shards should be greater than 1 in order to
-    // easily detect routing misconfiguration.
-    // See https://jira.sonarsource.com/browse/SONAR-9489
-    index.configureShards(config, 2);
+    NewIndex index = context.create(
+      INDEX_TYPE_RULE.getIndex(),
+      newBuilder(config)
+        .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
+        // Default nb of shards should be greater than 1 in order to
+        // easily detect routing misconfiguration.
+        // See https://jira.sonarsource.com/browse/SONAR-9489
+        .setDefaultNbOfShards(2)
+        .build());
 
     // Active rule type
     NewIndex.NewIndexType activeRuleMapping = index.createType(INDEX_TYPE_ACTIVE_RULE.getType());

@@ -26,6 +26,8 @@ import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 /**
  * Definition of ES index "issues", including settings and fields.
@@ -89,10 +91,12 @@ public class IssueIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_TYPE_ISSUE.getIndex());
-
-    index.refreshHandledByIndexer();
-    index.configureShards(config, 5);
+    NewIndex index = context.create(
+      INDEX_TYPE_ISSUE.getIndex(),
+      newBuilder(config)
+        .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
+        .setDefaultNbOfShards(5)
+        .build());
 
     NewIndex.NewIndexType type = index.createType(INDEX_TYPE_ISSUE.getType());
     type.requireProjectAuthorization();

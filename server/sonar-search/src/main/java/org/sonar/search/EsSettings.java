@@ -77,7 +77,6 @@ public class EsSettings implements EsSettingsMBean {
   Map<String, String> build() {
     Map<String, String> builder = new HashMap<>();
     configureFileSystem(builder);
-    configureIndexDefaults(builder);
     configureNetwork(builder);
     configureCluster(builder);
     configureMarvel(builder);
@@ -144,13 +143,6 @@ public class EsSettings implements EsSettingsMBean {
     } catch (UnknownHostException e) {
       throw new IllegalStateException("Can not resolve host [" + hostProperty + "]. Please check network settings and property " + ProcessProperties.SEARCH_HOST, e);
     }
-  }
-
-  void configureIndexDefaults(Map<String, String> builder) {
-    builder.put("index.number_of_shards", "1");
-    builder.put("index.refresh_interval", "30s");
-    builder.put("action.auto_create_index", String.valueOf(false));
-    builder.put("index.mapper.dynamic", String.valueOf(false));
   }
 
   private void configureCluster(Map<String, String> builder) {

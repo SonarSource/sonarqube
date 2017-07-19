@@ -19,7 +19,6 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
@@ -38,6 +37,8 @@ import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettings.FIELDDATA_ENABLED;
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_FIELDDATA;
@@ -56,13 +57,90 @@ public class NewIndex {
   private final Settings.Builder settings = DefaultIndexSettings.defaults();
   private final Map<String, NewIndexType> types = new LinkedHashMap<>();
 
-  NewIndex(String indexName) {
-    Preconditions.checkArgument(StringUtils.isAllLowerCase(indexName), "Index name must be lower-case: " + indexName);
+  NewIndex(String indexName, SettingsConfiguration settingsConfiguration) {
+    checkArgument(StringUtils.isAllLowerCase(indexName), "Index name must be lower-case: " + indexName);
     this.indexName = indexName;
+    applySettingsConfiguration(settingsConfiguration);
   }
 
-  public void refreshHandledByIndexer() {
-    getSettings().put("index.refresh_interval", "-1");
+  private void applySettingsConfiguration(SettingsConfiguration settingsConfiguration) {
+    settings.put("index.mapper.dynamic", valueOf(false));
+    settings.put("index.refresh_interval", refreshInterval(settingsConfiguration));
+
+    Configuration config = settingsConfiguration.getConfiguration();
+    boolean clusterMode = config.getBoolean(ProcessProperties.CLUSTER_ENABLED).orElse(false);
+    int shards = config.getInt(format("sonar.search.%s.shards", indexName))
+      .orElse(settingsConfiguration.getDefaultNbOfShards());
+    int replicas = clusterMode ? config.getInt(ProcessProperties.SEARCH_REPLICAS).orElse(1) : 0;
+
+    settings.put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, shards);
+    settings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
+  }
+
+  private static String refreshInterval(SettingsConfiguration settingsConfiguration) {
+    int refreshInterval = settingsConfiguration.getRefreshInterval();
+    if (refreshInterval == -1) {
+      return "-1";
+    }
+    return refreshInterval + "s";
+  }
+
+  public static class SettingsConfiguration {
+    public static final int MANUAL_REFRESH_INTERVAL = -1;
+
+    private final Configuration configuration;
+    private final int defaultNbOfShards;
+    private final int refreshInterval;
+
+    private SettingsConfiguration(Builder builder) {
+      this.configuration = builder.configuration;
+      this.defaultNbOfShards = builder.defaultNbOfShards;
+      this.refreshInterval = builder.refreshInterval;
+    }
+
+    public static Builder newBuilder(Configuration configuration) {
+      return new Builder(configuration);
+    }
+
+    public Configuration getConfiguration() {
+      return configuration;
+    }
+
+    public int getDefaultNbOfShards() {
+      return defaultNbOfShards;
+    }
+
+    public int getRefreshInterval() {
+      return refreshInterval;
+    }
+
+    public static class Builder {
+      private final Configuration configuration;
+      private int defaultNbOfShards = 1;
+      private int refreshInterval = 30;
+
+      public Builder(Configuration configuration) {
+        this.configuration = requireNonNull(configuration, "configuration can't be null");
+      }
+
+      public Builder setDefaultNbOfShards(int defaultNbOfShards) {
+        checkArgument(defaultNbOfShards >= 1, "defaultNbOfShards must be >= 1");
+        this.defaultNbOfShards = defaultNbOfShards;
+        return this;
+      }
+
+      public Builder setRefreshInterval(int refreshInterval) {
+        checkArgument(refreshInterval == -1 || refreshInterval > 0,
+          "refreshInterval must be either -1 or strictly positive");
+        this.refreshInterval = refreshInterval;
+        return this;
+      }
+
+      public SettingsConfiguration build() {
+        return new SettingsConfiguration(this);
+      }
+    }
+
   }
 
   public String getName() {
@@ -81,16 +159,6 @@ public class NewIndex {
 
   public Map<String, NewIndexType> getTypes() {
     return types;
-  }
-
-  public void configureShards(Configuration config, int defaultNbOfShards) {
-    boolean clusterMode = config.getBoolean(ProcessProperties.CLUSTER_ENABLED).orElse(false);
-    int shards = config.getInt(format("sonar.search.%s.shards", indexName)).orElse(defaultNbOfShards);
-
-    int replicas = config.getInt(ProcessProperties.SEARCH_REPLICAS).orElse(clusterMode ? 1 : 0);
-
-    getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, shards);
-    getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
   }
 
   public static class NewIndexType {
@@ -275,8 +343,8 @@ public class NewIndex {
         hash.putAll(ImmutableMap.of(
           "type", getFieldType(),
           "index", disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE,
-          "norms", String.valueOf(!disableNorms),
-          "store", String.valueOf(store)));
+          "norms", valueOf(!disableNorms),
+          "store", valueOf(store)));
         if (getFieldData()) {
           hash.put(FIELD_FIELDDATA, FIELDDATA_ENABLED);
         }
@@ -314,7 +382,7 @@ public class NewIndex {
           "type", getFieldType(),
           "index", INDEX_SEARCHABLE,
           "norms", "false",
-          "store", String.valueOf(store)));
+          "store", valueOf(store)));
 
         hash.put("fields", multiFields);
       }
