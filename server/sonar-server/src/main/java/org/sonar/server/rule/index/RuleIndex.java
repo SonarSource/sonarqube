@@ -459,7 +459,7 @@ public class RuleIndex {
   }
 
   private static StickyFacetBuilder stickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters) {
-    return new StickyFacetBuilder(query, filters);
+    return new StickyFacetBuilder(query, filters, null, Terms.Order.compound(Terms.Order.count(false), Terms.Order.term(true)));
   }
 
   private static void setSorting(RuleQuery query, SearchRequestBuilder esSearch) {
