@@ -57,15 +57,15 @@ public class AuthorizationTypeSupportTest {
       "  \"has_parent\" : {" +
       "    \"query\" : {" +
       "      \"bool\" : {" +
-      "        \"filter\" : {" +
+      "        \"filter\" : [{" +
       "          \"bool\" : {" +
-      "            \"should\" : {" +
+      "            \"should\" : [{" +
       "              \"term\" : {" +
-      "                \"allowAnyone\" : true" +
+      "                \"allowAnyone\" : {\"value\": true}" +
       "              }" +
-      "            }" +
+      "            }]" +
       "          }" +
-      "        }" +
+      "        }]" +
       "      }" +
       "    }," +
       "    \"parent_type\" : \"authorization\"" +
@@ -83,22 +83,22 @@ public class AuthorizationTypeSupportTest {
       "  \"has_parent\": {" +
       "    \"query\": {" +
       "      \"bool\": {" +
-      "        \"filter\": {" +
+      "        \"filter\": [{" +
       "          \"bool\": {" +
       "            \"should\": [" +
       "              {" +
       "                \"term\": {" +
-      "                  \"allowAnyone\": true" +
+      "                  \"allowAnyone\": {\"value\": true}" +
       "                }" +
       "              }," +
       "              {" +
       "                \"term\": {" +
-      "                  \"userIds\": 1234" +
+      "                  \"userIds\": {\"value\": 1234}" +
       "                }" +
       "              }" +
       "            ]" +
       "          }" +
-      "        }" +
+      "        }]" +
       "      }" +
       "    }," +
       "    \"parent_type\": \"authorization\"" +
@@ -118,32 +118,32 @@ public class AuthorizationTypeSupportTest {
       "  \"has_parent\": {" +
       "    \"query\": {" +
       "      \"bool\": {" +
-      "        \"filter\": {" +
+      "        \"filter\": [{" +
       "          \"bool\": {" +
       "            \"should\": [" +
       "              {" +
       "                \"term\": {" +
-      "                  \"allowAnyone\": true" +
+      "                  \"allowAnyone\": {\"value\": true}" +
       "                }" +
       "              }," +
       "              {" +
       "                \"term\": {" +
-      "                  \"userIds\": 1234" +
+      "                  \"userIds\": {\"value\": 1234}" +
       "                }" +
       "              }," +
       "              {" +
       "                \"term\": {" +
-      "                  \"groupIds\": 10" +
+      "                  \"groupIds\": {\"value\": 10}" +
       "                }" +
       "              }," +
       "              {" +
       "                \"term\": {" +
-      "                  \"groupIds\": 11" +
+      "                  \"groupIds\": {\"value\": 11}" +
       "                }" +
       "              }" +
       "            ]" +
       "          }" +
-      "        }" +
+      "        }]" +
       "      }" +
       "    }," +
       "    \"parent_type\": \"authorization\"" +
