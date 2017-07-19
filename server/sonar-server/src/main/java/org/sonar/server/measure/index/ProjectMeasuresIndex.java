@@ -37,7 +37,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
-import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregator;
+import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregator.KeyedFilter;
 import org.elasticsearch.search.aggregations.bucket.range.RangeAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
@@ -264,19 +264,19 @@ public class ProjectMeasuresIndex {
       .subAggregation(
               AggregationBuilders.filter("filter_" + metricKey, termsQuery(FIELD_MEASURES_KEY, metricKey))
                       .subAggregation(filters(metricKey,
-                              new FiltersAggregator.KeyedFilter("1", termQuery(FIELD_MEASURES_VALUE, 1d)),
-                              new FiltersAggregator.KeyedFilter("2", termQuery(FIELD_MEASURES_VALUE, 2d)),
-                              new FiltersAggregator.KeyedFilter("3", termQuery(FIELD_MEASURES_VALUE, 3d)),
-                              new FiltersAggregator.KeyedFilter("4", termQuery(FIELD_MEASURES_VALUE, 4d)),
-                              new FiltersAggregator.KeyedFilter("5", termQuery(FIELD_MEASURES_VALUE, 5d)))));
+                              new KeyedFilter("1", termQuery(FIELD_MEASURES_VALUE, 1d)),
+                              new KeyedFilter("2", termQuery(FIELD_MEASURES_VALUE, 2d)),
+                              new KeyedFilter("3", termQuery(FIELD_MEASURES_VALUE, 3d)),
+                              new KeyedFilter("4", termQuery(FIELD_MEASURES_VALUE, 4d)),
+                              new KeyedFilter("5", termQuery(FIELD_MEASURES_VALUE, 5d)))));
   }
 
   private static AbstractAggregationBuilder createQualityGateFacet() {
     return AggregationBuilders.filters(
       ALERT_STATUS_KEY,
       QUALITY_GATE_STATUS.entrySet().stream()
-        .map(entry -> termQuery(FIELD_QUALITY_GATE_STATUS, entry.getValue()))
-        .toArray(QueryBuilder[]::new));
+        .map(entry -> new KeyedFilter(entry.getKey(), termQuery(FIELD_QUALITY_GATE_STATUS, entry.getValue())))
+        .toArray(KeyedFilter[]::new));
   }
 
   private Map<String, QueryBuilder> createFilters(ProjectMeasuresQuery query) {
