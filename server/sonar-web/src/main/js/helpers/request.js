@@ -19,6 +19,7 @@
  */
 // @flow
 import { stringify } from 'querystring';
+import { omitBy, isNil } from 'lodash';
 import { getCookie } from './cookies';
 
 type Response = {
@@ -48,6 +49,10 @@ export function getCSRFToken(): Object {
   // so we ensure non-empty value
   const value = getCSRFTokenValue();
   return value ? { [getCSRFTokenName()]: value } : {};
+}
+
+export function omitNil(obj: Object): Object {
+  return omitBy(obj, isNil);
 }
 
 /**
@@ -96,12 +101,14 @@ class Request {
     if (this.data) {
       if (this.data instanceof FormData) {
         options.body = this.data;
-      } else if (options.method === 'GET') {
-        url += '?' + stringify(this.data);
       } else {
-        customHeaders['Content-Type'] = 'application/x-www-form-urlencoded';
-        // $FlowFixMe complains that `data` is nullable
-        options.body = stringify(this.data);
+        const strData = stringify(omitNil(this.data));
+        if (options.method === 'GET') {
+          url += '?' + strData;
+        } else {
+          customHeaders['Content-Type'] = 'application/x-www-form-urlencoded';
+          options.body = strData;
+        }
       }
     }
 
