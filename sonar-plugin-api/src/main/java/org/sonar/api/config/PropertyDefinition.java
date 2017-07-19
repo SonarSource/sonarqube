@@ -93,7 +93,8 @@ import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
 @ExtensionPoint
 public final class PropertyDefinition {
 
-  private static final Set<String> SUPPORTED_QUALIFIERS = unmodifiableSet(new LinkedHashSet<>(asList(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.MODULE, Qualifiers.SUBVIEW)));
+  private static final Set<String> SUPPORTED_QUALIFIERS = unmodifiableSet(new LinkedHashSet<>(
+    asList(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.MODULE, Qualifiers.SUBVIEW, Qualifiers.APP)));
 
   private String key;
   private String defaultValue;
@@ -437,7 +438,7 @@ public final class PropertyDefinition {
      * See supported constant values in {@link Qualifiers}. By default property is available
      * only in General Settings.
      *
-     * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
+     * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE}, {@link Qualifiers#APP APP},
      *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */
     public Builder onQualifiers(String first, String... rest) {
@@ -456,7 +457,7 @@ public final class PropertyDefinition {
      * See supported constant values in {@link Qualifiers}. By default property is available
      * only in General Settings.
      *
-     * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
+     * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE}, {@link Qualifiers#APP APP},
      *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */
     public Builder onQualifiers(List<String> qualifiers) {
@@ -475,7 +476,7 @@ public final class PropertyDefinition {
      * See supported constant values in {@link Qualifiers}. By default property is available
      * only in General Settings.
      *
-     * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
+     * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE}, {@link Qualifiers#APP APP},
      *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */
     public Builder onlyOnQualifiers(String first, String... rest) {
@@ -494,7 +495,7 @@ public final class PropertyDefinition {
      * See supported constant values in {@link Qualifiers}. By default property is available
      * only in General Settings.
      *
-     * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
+     * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE}, {@link Qualifiers#APP APP},
      *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */
     public Builder onlyOnQualifiers(List<String> qualifiers) {

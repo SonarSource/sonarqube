@@ -317,7 +317,7 @@ public class PropertyDefinitionTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Cannot be hidden and defining qualifiers on which to display");
 
-    PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.VIEW).hidden().build();
+    PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.PROJECT).hidden().build();
   }
 
   @Test
@@ -414,7 +414,7 @@ public class PropertyDefinitionTest {
         biConsumer.accept(builder, qualifier);
         fail("A IllegalArgumentException should have been thrown for qualifier " + qualifier);
       } catch (IllegalArgumentException e) {
-        assertThat(e).hasMessage("Qualifier must be one of [TRK, VW, BRC, SVW]");
+        assertThat(e).hasMessage("Qualifier must be one of [TRK, VW, BRC, SVW, APP]");
       }
     });
   }

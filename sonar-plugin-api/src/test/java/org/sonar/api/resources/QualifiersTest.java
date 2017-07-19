@@ -36,6 +36,15 @@ public class QualifiersTest {
   }
 
   @Test
+  public void application() {
+    View root = View.createRootApp();
+    assertThat(Qualifiers.isView(root, true)).isFalse();
+    assertThat(Qualifiers.isView(root, false)).isFalse();
+    assertThat(Qualifiers.isProject(root, true)).isFalse();
+    assertThat(Qualifiers.isProject(root, false)).isFalse();
+  }
+
+  @Test
   public void testSubView() {
     View subview = View.createSubView();
     assertThat(Qualifiers.isView(subview, true)).isTrue();
@@ -78,6 +87,10 @@ public class QualifiersTest {
 
     static View createRootView() {
       return new View(Qualifiers.VIEW);
+    }
+
+    static View createRootApp() {
+      return new View(Qualifiers.APP);
     }
 
     static View createSubView() {
