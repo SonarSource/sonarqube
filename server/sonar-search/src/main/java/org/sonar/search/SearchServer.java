@@ -57,14 +57,21 @@ public class SearchServer implements Monitored {
 
   @Override
   public void start() {
-    Path path = Paths.get(getExecutable());
+    String executable = getExecutable();
+    Path path = Paths.get(executable);
     if (!path.toFile().exists()) {
-      throw new IllegalStateException("Cannot find elasticsearch binary");
+      String assembly = "sonar-application/src/main/assembly/";
+      Path idePath = Paths.get(assembly + executable);
+      if (!idePath.toFile().exists()) {
+        throw new IllegalStateException(String.format("Cannot find elasticsearch binary %s in either %s or %s",
+                executable, Paths.get(".").toAbsolutePath().getParent(), Paths.get(assembly).toAbsolutePath()));
+      }
+      path = idePath;
     }
-    String absolutePath = path.toAbsolutePath().toString();
+    Path absolutePath = path.toAbsolutePath();
 
     List<String> command = new ArrayList<>();
-    command.add(absolutePath);
+    command.add(absolutePath.toString());
     Map<String, String> settingsMap = settings.build();
     settingsMap.entrySet().stream()
       .filter(entry -> !"path.home".equals(entry.getKey()))
@@ -72,7 +79,7 @@ public class SearchServer implements Monitored {
     url = "http://"+settingsMap.get("http.host") + ":" + settingsMap.get("http.port");
     System.out.println(command.stream().collect(Collectors.joining(" ")));
     ProcessBuilder builder = new ProcessBuilder(command)
-      .directory(new File(path.getParent().toAbsolutePath().toString()));
+      .directory(new File(absolutePath.getParent().toString()));
     builder.redirectOutput(ProcessBuilder.Redirect.PIPE);
     builder.redirectErrorStream(true);
     try {
