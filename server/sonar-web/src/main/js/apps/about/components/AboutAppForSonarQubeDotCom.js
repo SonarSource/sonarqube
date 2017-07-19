@@ -28,6 +28,7 @@ import AboutQualityGates from './AboutQualityGates';
 import AboutLeakPeriod from './AboutLeakPeriod';
 import AboutStandards from './AboutStandards';
 import AboutScanners from './AboutScanners';
+import SonarCloudGetStarted from './SonarCloudGetStarted';
 import '../sonarqube-dot-com-styles.css';
 
 type Props = {
@@ -55,11 +56,7 @@ export default function AboutAppForSonarQubeDotCom(props: Props) {
             <h1 className="big-spacer-bottom">
               Continuous Code Quality<br />as a Service
             </h1>
-            {!props.currentUser.isLoggedIn &&
-              <a className="sonarcloud-about-github-button" href="/sessions/init/github">
-                <img alt="GitHub" width="20" height="20" src="/static/authgithub/github.svg" />
-                Connect With GitHub to Get Started
-              </a>}
+            {!props.currentUser.isLoggedIn && <SonarCloudGetStarted />}
           </div>
 
           <div className="sqcom-about-page-instance">

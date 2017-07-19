@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import OAuthProviders from './OAuthProviders';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { translate } from '../../../helpers/l10n';
 
@@ -69,28 +70,7 @@ export default class LoginForm extends React.PureComponent {
         </h1>
 
         {this.props.identityProviders.length > 0 &&
-          <section className="oauth-providers">
-            <ul>
-              {this.props.identityProviders.map(identityProvider =>
-                <li key={identityProvider.key}>
-                  <a
-                    href={`${window.baseUrl}/sessions/init/${identityProvider.key}`}
-                    style={{ backgroundColor: identityProvider.backgroundColor }}
-                    title={`Log in with ${identityProvider.name}`}>
-                    <img
-                      alt={identityProvider.name}
-                      width="20"
-                      height="20"
-                      src={window.baseUrl + identityProvider.iconPath}
-                    />
-                    <span>
-                      Log in with {identityProvider.name}
-                    </span>
-                  </a>
-                </li>
-              )}
-            </ul>
-          </section>}
+          <OAuthProviders identityProviders={this.props.identityProviders} />}
 
         {this.state.collapsed
           ? <div className="text-center">

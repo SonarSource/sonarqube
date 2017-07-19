@@ -9,34 +9,19 @@ exports[`expands more options 1`] = `
   >
     login.login_to_sonarqube
   </h1>
-  <section
-    className="oauth-providers"
-  >
-    <ul>
-      <li>
-        <a
-          href="/sessions/init/foo"
-          style={
-            Object {
-              "backgroundColor": "#000",
-            }
-          }
-          title="Log in with foo"
-        >
-          <img
-            alt="foo"
-            height="20"
-            src="/some/path"
-            width="20"
-          />
-          <span>
-            Log in with 
-            foo
-          </span>
-        </a>
-      </li>
-    </ul>
-  </section>
+  <OAuthProviders
+    formatLabel={[Function]}
+    identityProviders={
+      Array [
+        Object {
+          "backgroundColor": "#000",
+          "iconPath": "/some/path",
+          "key": "foo",
+          "name": "foo",
+        },
+      ]
+    }
+  />
   <div
     className="text-center"
   >
@@ -60,34 +45,19 @@ exports[`expands more options 2`] = `
   >
     login.login_to_sonarqube
   </h1>
-  <section
-    className="oauth-providers"
-  >
-    <ul>
-      <li>
-        <a
-          href="/sessions/init/foo"
-          style={
-            Object {
-              "backgroundColor": "#000",
-            }
-          }
-          title="Log in with foo"
-        >
-          <img
-            alt="foo"
-            height="20"
-            src="/some/path"
-            width="20"
-          />
-          <span>
-            Log in with 
-            foo
-          </span>
-        </a>
-      </li>
-    </ul>
-  </section>
+  <OAuthProviders
+    formatLabel={[Function]}
+    identityProviders={
+      Array [
+        Object {
+          "backgroundColor": "#000",
+          "iconPath": "/some/path",
+          "key": "foo",
+          "name": "foo",
+        },
+      ]
+    }
+  />
   <form
     onSubmit={[Function]}
   >
@@ -165,34 +135,19 @@ exports[`logs in with identity provider 1`] = `
   >
     login.login_to_sonarqube
   </h1>
-  <section
-    className="oauth-providers"
-  >
-    <ul>
-      <li>
-        <a
-          href="/sessions/init/foo"
-          style={
-            Object {
-              "backgroundColor": "#000",
-            }
-          }
-          title="Log in with foo"
-        >
-          <img
-            alt="foo"
-            height="20"
-            src="/some/path"
-            width="20"
-          />
-          <span>
-            Log in with 
-            foo
-          </span>
-        </a>
-      </li>
-    </ul>
-  </section>
+  <OAuthProviders
+    formatLabel={[Function]}
+    identityProviders={
+      Array [
+        Object {
+          "backgroundColor": "#000",
+          "iconPath": "/some/path",
+          "key": "foo",
+          "name": "foo",
+        },
+      ]
+    }
+  />
   <div
     className="text-center"
   >
