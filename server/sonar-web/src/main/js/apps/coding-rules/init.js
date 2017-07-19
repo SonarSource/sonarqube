@@ -32,7 +32,6 @@ import Router from '../../components/navigator/router';
 import WorkspaceListView from './workspace-list-view';
 import WorkspaceHeaderView from './workspace-header-view';
 import FacetsView from './facets-view';
-import FiltersView from './filters-view';
 import { areThereCustomOrganizations } from '../../store/organizations/utils';
 
 const App = new Marionette.Application();
@@ -102,11 +101,6 @@ App.on('start', function(options: {
         collection: this.facets
       });
       this.layout.facetsRegion.show(this.facetsView);
-
-      this.filtersView = new FiltersView({
-        app: this
-      });
-      this.layout.filtersRegion.show(this.filtersView);
 
       key.setScope('list');
       this.router = new Router({

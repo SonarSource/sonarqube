@@ -25,33 +25,31 @@ export default Marionette.LayoutView.extend({
   template: Template,
 
   regions: {
-    filtersRegion: '.search-navigator-filters',
-    facetsRegion: '.search-navigator-facets',
-    workspaceHeaderRegion: '.search-navigator-workspace-header',
-    workspaceListRegion: '.search-navigator-workspace-list',
-    workspaceDetailsRegion: '.search-navigator-workspace-details'
+    facetsRegion: '.layout-page-filters',
+    workspaceHeaderRegion: '.coding-rules-header',
+    workspaceListRegion: '.coding-rules-list',
+    workspaceDetailsRegion: '.coding-rules-details'
   },
 
   onRender() {
-    const navigator = this.$('.search-navigator');
+    const navigator = this.$('.layout-page');
     const top = navigator.offset().top;
-    this.$('.search-navigator-workspace-header').css({ top });
-    this.$('.search-navigator-side').css({ top }).isolatedScroll();
+    this.$('.layout-page-side').css({ top });
   },
 
   showDetails() {
     this.scroll = $(window).scrollTop();
-    this.$('.search-navigator').addClass('search-navigator-extended-view');
+    this.$('.coding-rules').addClass('coding-rules-extended-view');
   },
 
   hideDetails() {
-    this.$('.search-navigator').removeClass('search-navigator-extended-view');
+    this.$('.coding-rules').removeClass('coding-rules-extended-view');
     if (this.scroll != null) {
       $(window).scrollTop(this.scroll);
     }
   },
 
   detailsShow() {
-    return this.$('.search-navigator').is('.search-navigator-extended-view');
+    return this.$('.coding-rules').is('.coding-rules-extended-view');
   }
 });
