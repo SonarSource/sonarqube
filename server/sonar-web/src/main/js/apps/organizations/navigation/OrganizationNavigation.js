@@ -20,8 +20,11 @@
 // @flow
 import React from 'react';
 import { Link } from 'react-router';
+import classNames from 'classnames';
 import { translate } from '../../../helpers/l10n';
-import OrganizationIcon from '../../../components/ui/OrganizationIcon';
+import ContextNavBar from '../../../components/nav/ContextNavBar';
+import NavBarTabs from '../../../components/nav/NavBarTabs';
+import OrganizationIcon from '../../../components/icons-components/OrganizationIcon';
 import type { Organization } from '../../../store/organizations/duck';
 
 const ADMIN_PATHS = [
@@ -43,8 +46,11 @@ export default class OrganizationNavigation extends React.PureComponent {
     const { organization } = this.props;
 
     return (
-      <li className={adminActive ? 'active' : ''}>
-        <a className="dropdown-toggle navbar-admin-link" data-toggle="dropdown" href="#">
+      <li className="dropdown">
+        <a
+          className={classNames('dropdown-toggle', 'is-admin', { active: adminActive })}
+          data-toggle="dropdown"
+          href="#">
           {translate('layout.settings')}&nbsp;<i className="icon-dropdown" />
         </a>
         <ul className="dropdown-menu">
@@ -145,75 +151,72 @@ export default class OrganizationNavigation extends React.PureComponent {
     const moreActive = !adminActive && location.pathname.includes('/extension/');
 
     return (
-      <nav className="navbar navbar-context page-container" id="context-navigation">
-        <div className="navbar-context-inner">
-          <div className="container">
-            <h2 className="navbar-context-title">
-              <span className="navbar-context-title-qualifier little-spacer-right">
-                <OrganizationIcon />
-              </span>
-              <Link to={`/organizations/${organization.key}`} className="link-base-color">
-                <strong>
-                  {organization.name}
-                </strong>
-              </Link>
-            </h2>
-
-            {organization.description != null &&
-              <div className="navbar-context-description">
-                <p className="text-limited text-top" title={organization.description}>
-                  {organization.description}
-                </p>
-              </div>}
-
-            <div className="navbar-context-meta">
-              {!!organization.avatar &&
-                <img src={organization.avatar} height={30} alt={organization.name} />}
-              {organization.url != null &&
-                <div>
-                  <p className="text-limited text-top">
-                    <a
-                      className="link-underline"
-                      href={organization.url}
-                      title={organization.url}
-                      rel="nofollow">
-                      {organization.url}
-                    </a>
-                  </p>
-                </div>}
-            </div>
-
-            <ul className="nav navbar-nav nav-tabs">
-              <li>
-                <Link
-                  to={`/organizations/${organization.key}/projects`}
-                  className={isHomeActive ? 'active' : ''}>
-                  {translate('projects.page')}
-                </Link>
-              </li>
-              <li>
-                <Link to={`/organizations/${organization.key}/members`} activeClassName="active">
-                  {translate('organization.members.page')}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to={`/organizations/${organization.key}/quality_profiles`}
-                  activeClassName="active">
-                  {translate('quality_profiles.page')}
-                </Link>
-              </li>
-              <li>
-                <Link to={`/organizations/${organization.key}/rules`} activeClassName="active">
-                  {translate('coding_rules.page')}
-                </Link>
-              </li>
-              {this.renderExtensions(moreActive)}
-              {organization.canAdmin && this.renderAdministration(adminActive)}
-            </ul>
-          </div>
+      <ContextNavBar id="context-navigation" height={65}>
+        <div className="navbar-context-header">
+          <h1 className="display-inline-block">
+            <OrganizationIcon className="little-spacer-right" />
+            <Link
+              to={`/organizations/${organization.key}`}
+              className="link-base-color link-no-underline">
+              <strong>
+                {organization.name}
+              </strong>
+            </Link>
+          </h1>
+          {organization.description != null &&
+            <div className="navbar-context-description">
+              <p className="text-limited text-top" title={organization.description}>
+                {organization.description}
+              </p>
+            </div>}
         </div>
-      </nav>
+
+        <div className="navbar-context-meta">
+          {!!organization.avatar &&
+            <img src={organization.avatar} height={30} alt={organization.name} />}
+          {organization.url != null &&
+            <div>
+              <p className="text-limited text-top">
+                <a
+                  className="link-underline"
+                  href={organization.url}
+                  title={organization.url}
+                  rel="nofollow">
+                  {organization.url}
+                </a>
+              </p>
+            </div>}
+        </div>
+
+        <NavBarTabs>
+          <li>
+            <Link
+              to={`/organizations/${organization.key}/projects`}
+              className={isHomeActive ? 'active' : ''}>
+              {translate('projects.page')}
+            </Link>
+          </li>
+          <li>
+            <Link to={`/organizations/${organization.key}/members`} activeClassName="active">
+              {translate('organization.members.page')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to={`/organizations/${organization.key}/quality_profiles`}
+              activeClassName="active">
+              {translate('quality_profiles.page')}
+            </Link>
+          </li>
+          <li>
+            <Link to={`/organizations/${organization.key}/rules`} activeClassName="active">
+              {translate('coding_rules.page')}
+            </Link>
+          </li>
+          {this.renderExtensions(moreActive)}
+          {organization.canAdmin && this.renderAdministration(adminActive)}
+        </NavBarTabs>
+      </ContextNavBar>
     );
   }
 }

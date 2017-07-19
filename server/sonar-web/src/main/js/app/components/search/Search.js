@@ -33,6 +33,7 @@ import { getSuggestions } from '../../../api/components';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { getProjectUrl } from '../../../helpers/urls';
+import './Search.css';
 
 type Props = {|
   appState: { organizationsEnabled: boolean },

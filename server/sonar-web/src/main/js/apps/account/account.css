@@ -16,16 +16,6 @@
   padding-top: 11px;
 }
 
-.account-nav .nav-tabs {
-  width: 100%;
-  border-bottom: none;
-}
-
-.account-nav .navbar-nav > li > a {
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
 .account-user {
   float: left;
 }

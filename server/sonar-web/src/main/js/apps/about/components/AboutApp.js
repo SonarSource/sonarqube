@@ -132,67 +132,65 @@ class AboutApp extends React.PureComponent {
     }
 
     return (
-      <div id="about-page" className="about-page">
-        <div className="about-page-container">
-          <div className="about-page-entry">
-            <div className="about-page-intro">
-              <h1 className="big-spacer-bottom">
-                {translate('layout.sonar.slogan')}
-              </h1>
-              {!this.props.currentUser.isLoggedIn &&
-                <Link to="/sessions/new" className="button button-active big-spacer-right">
-                  {translate('layout.login')}
-                </Link>}
-              <a
-                className="button"
-                href="https://redirect.sonarsource.com/doc/home.html"
-                target="_blank">
-                {translate('about_page.read_documentation')}
-              </a>
-            </div>
-
-            <div className="about-page-instance">
-              <AboutProjects count={projectsCount} loading={loading} />
-              <EntryIssueTypes
-                bugs={bugs}
-                codeSmells={codeSmells}
-                loading={loading}
-                vulnerabilities={vulnerabilities}
-              />
-            </div>
+      <div id="about-page" className="page page-limited about-page">
+        <div className="about-page-entry">
+          <div className="about-page-intro">
+            <h1 className="big-spacer-bottom">
+              {translate('layout.sonar.slogan')}
+            </h1>
+            {!this.props.currentUser.isLoggedIn &&
+              <Link to="/sessions/new" className="button button-active big-spacer-right">
+                {translate('layout.login')}
+              </Link>}
+            <a
+              className="button"
+              href="https://redirect.sonarsource.com/doc/home.html"
+              target="_blank">
+              {translate('about_page.read_documentation')}
+            </a>
           </div>
 
-          {customText != null &&
-            customText.value &&
-            <div
-              className="about-page-section"
-              dangerouslySetInnerHTML={{ __html: customText.value }}
-            />}
-
-          <AboutLanguages />
-
-          <AboutQualityModel />
-
-          <div className="flex-columns">
-            <div className="flex-column flex-column-half about-page-group-boxes">
-              <AboutCleanCode />
-            </div>
-            <div className="flex-column flex-column-half about-page-group-boxes">
-              <AboutLeakPeriod />
-            </div>
+          <div className="about-page-instance">
+            <AboutProjects count={projectsCount} loading={loading} />
+            <EntryIssueTypes
+              bugs={bugs}
+              codeSmells={codeSmells}
+              loading={loading}
+              vulnerabilities={vulnerabilities}
+            />
           </div>
-
-          <div className="flex-columns">
-            <div className="flex-column flex-column-half about-page-group-boxes">
-              <AboutQualityGates />
-            </div>
-            <div className="flex-column flex-column-half about-page-group-boxes">
-              <AboutStandards appState={this.props.appState} />
-            </div>
-          </div>
-
-          <AboutScanners />
         </div>
+
+        {customText != null &&
+          customText.value &&
+          <div
+            className="about-page-section"
+            dangerouslySetInnerHTML={{ __html: customText.value }}
+          />}
+
+        <AboutLanguages />
+
+        <AboutQualityModel />
+
+        <div className="flex-columns">
+          <div className="flex-column flex-column-half about-page-group-boxes">
+            <AboutCleanCode />
+          </div>
+          <div className="flex-column flex-column-half about-page-group-boxes">
+            <AboutLeakPeriod />
+          </div>
+        </div>
+
+        <div className="flex-columns">
+          <div className="flex-column flex-column-half about-page-group-boxes">
+            <AboutQualityGates />
+          </div>
+          <div className="flex-column flex-column-half about-page-group-boxes">
+            <AboutStandards appState={this.props.appState} />
+          </div>
+        </div>
+
+        <AboutScanners />
       </div>
     );
   }

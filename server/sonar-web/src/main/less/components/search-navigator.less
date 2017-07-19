@@ -78,11 +78,6 @@
   }
 }
 
-.search-navigator-facet-box:not(.hidden):not(.leak-facet-box)
-  + .search-navigator-facet-box:not(.leak-facet-box) {
-  border-top: 1px solid @barBorderColor;
-}
-
 .leak-facet-box:not(.hidden) + .leak-facet-box {
   border-top: none;
 }
@@ -361,7 +356,7 @@
 
 .search-navigator-facet-header {
   display: block;
-  padding: 6px 10px;
+  padding: 8px 0;
   border-bottom: none;
   color: @baseFontColor;
   font-weight: 600;
@@ -377,8 +372,7 @@
 }
 
 .search-navigator-facet-list {
-  margin: 0 0 0 0;
-  padding: 0 10px 10px;
+  padding-bottom: 10px;
   font-size: 0;
 }
 

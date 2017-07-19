@@ -23,9 +23,11 @@ import ComponentNavBreadcrumbs from './ComponentNavBreadcrumbs';
 import ComponentNavMeta from './ComponentNavMeta';
 import ComponentNavMenu from './ComponentNavMenu';
 import RecentHistory from '../../RecentHistory';
+import ContextNavBar from '../../../../components/nav/ContextNavBar';
 import { TooltipsContainer } from '../../../../components/mixins/tooltips-mixin';
 import { getTasksForComponent } from '../../../../api/ce';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
+import './ComponentNav.css';
 
 export default class ComponentNav extends React.PureComponent {
   componentDidMount() {
@@ -66,36 +68,32 @@ export default class ComponentNav extends React.PureComponent {
 
   render() {
     return (
-      <nav className="navbar navbar-context page-container" id="context-navigation">
-        <div className="navbar-context-inner">
-          <div className="container">
-            <ComponentNavFavorite
-              component={this.props.component.key}
-              favorite={this.props.component.isFavorite}
-            />
+      <ContextNavBar id="context-navigation" height={65}>
+        <ComponentNavFavorite
+          component={this.props.component.key}
+          favorite={this.props.component.isFavorite}
+        />
 
-            <ComponentNavBreadcrumbs
-              component={this.props.component}
-              breadcrumbs={this.props.component.breadcrumbs}
-            />
+        <ComponentNavBreadcrumbs
+          component={this.props.component}
+          breadcrumbs={this.props.component.breadcrumbs}
+        />
 
-            <TooltipsContainer options={{ delay: { show: 0, hide: 2000 } }}>
-              <ComponentNavMeta
-                {...this.props}
-                {...this.state}
-                version={this.props.component.version}
-                analysisDate={this.props.component.analysisDate}
-              />
-            </TooltipsContainer>
+        <TooltipsContainer options={{ delay: { show: 0, hide: 2000 } }}>
+          <ComponentNavMeta
+            {...this.props}
+            {...this.state}
+            version={this.props.component.version}
+            analysisDate={this.props.component.analysisDate}
+          />
+        </TooltipsContainer>
 
-            <ComponentNavMenu
-              component={this.props.component}
-              conf={this.props.conf}
-              location={this.props.location}
-            />
-          </div>
-        </div>
-      </nav>
+        <ComponentNavMenu
+          component={this.props.component}
+          conf={this.props.conf}
+          location={this.props.location}
+        />
+      </ContextNavBar>
     );
   }
 }

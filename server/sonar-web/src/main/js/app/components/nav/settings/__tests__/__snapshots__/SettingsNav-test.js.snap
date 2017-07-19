@@ -1,223 +1,209 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should work with extensions 1`] = `
-<nav
-  className="navbar navbar-context page-container"
+<ContextNavBar
+  height={65}
   id="context-navigation"
 >
-  <div
-    className="navbar-context-inner"
+  <h1
+    className="navbar-context-header"
   >
-    <div
-      className="container"
+    <strong>
+      layout.settings
+    </strong>
+  </h1>
+  <NavBarTabs>
+    <li
+      className="dropdown"
     >
+      <a
+        className="dropdown-toggle active"
+        data-toggle="dropdown"
+        href="#"
+        id="settings-navigation-configuration"
+      >
+        sidebar.project_settings
+         
+        <i
+          className="icon-dropdown"
+        />
+      </a>
       <ul
-        className="nav navbar-nav nav-crumbs"
+        className="dropdown-menu"
       >
         <li>
           <IndexLink
+            activeClassName="active"
             to="/settings"
           >
-            layout.settings
+            settings.page
+          </IndexLink>
+        </li>
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/settings/licenses"
+          >
+            property.category.licenses
+          </IndexLink>
+        </li>
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/settings/encryption"
+          >
+            property.category.security.encryption
+          </IndexLink>
+        </li>
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/settings/server_id"
+          >
+            property.category.server_id
+          </IndexLink>
+        </li>
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/metrics"
+          >
+            Custom Metrics
+          </IndexLink>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/admin/extension/foo"
+          >
+            Foo
+          </Link>
+        </li>
+      </ul>
+    </li>
+    <li
+      className="dropdown"
+    >
+      <a
+        className="dropdown-toggle"
+        data-toggle="dropdown"
+        href="#"
+      >
+        sidebar.security
+         
+        <i
+          className="icon-dropdown"
+        />
+      </a>
+      <ul
+        className="dropdown-menu"
+      >
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/users"
+          >
+            users.page
+          </IndexLink>
+        </li>
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/groups"
+          >
+            user_groups.page
+          </IndexLink>
+        </li>
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/roles/global"
+          >
+            global_permissions.page
+          </IndexLink>
+        </li>
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/permission_templates"
+          >
+            permission_templates
           </IndexLink>
         </li>
       </ul>
-      <ul
-        className="nav navbar-nav nav-tabs"
+    </li>
+    <li
+      className="dropdown"
+    >
+      <a
+        className="dropdown-toggle"
+        data-toggle="dropdown"
+        href="#"
       >
-        <li
-          className="dropdown active"
-        >
-          <a
-            className="dropdown-toggle"
-            data-toggle="dropdown"
-            href="#"
-            id="settings-navigation-configuration"
+        sidebar.projects
+         
+        <i
+          className="icon-dropdown"
+        />
+      </a>
+      <ul
+        className="dropdown-menu"
+      >
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/projects_admin"
           >
-            sidebar.project_settings
-             
-            <i
-              className="icon-dropdown"
-            />
-          </a>
-          <ul
-            className="dropdown-menu"
-          >
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/settings"
-              >
-                settings.page
-              </IndexLink>
-            </li>
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/settings/licenses"
-              >
-                property.category.licenses
-              </IndexLink>
-            </li>
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/settings/encryption"
-              >
-                property.category.security.encryption
-              </IndexLink>
-            </li>
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/settings/server_id"
-              >
-                property.category.server_id
-              </IndexLink>
-            </li>
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/metrics"
-              >
-                Custom Metrics
-              </IndexLink>
-            </li>
-            <li>
-              <Link
-                activeClassName="active"
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/admin/extension/foo"
-              >
-                Foo
-              </Link>
-            </li>
-          </ul>
+            Management
+          </IndexLink>
         </li>
-        <li
-          className="dropdown"
-        >
-          <a
-            className="dropdown-toggle"
-            data-toggle="dropdown"
-            href="#"
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/background_tasks"
           >
-            sidebar.security
-             
-            <i
-              className="icon-dropdown"
-            />
-          </a>
-          <ul
-            className="dropdown-menu"
-          >
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/users"
-              >
-                users.page
-              </IndexLink>
-            </li>
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/groups"
-              >
-                user_groups.page
-              </IndexLink>
-            </li>
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/roles/global"
-              >
-                global_permissions.page
-              </IndexLink>
-            </li>
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/permission_templates"
-              >
-                permission_templates
-              </IndexLink>
-            </li>
-          </ul>
-        </li>
-        <li
-          className="dropdown"
-        >
-          <a
-            className="dropdown-toggle"
-            data-toggle="dropdown"
-            href="#"
-          >
-            sidebar.projects
-             
-            <i
-              className="icon-dropdown"
-            />
-          </a>
-          <ul
-            className="dropdown-menu"
-          >
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/projects_admin"
-              >
-                Management
-              </IndexLink>
-            </li>
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/background_tasks"
-              >
-                background_tasks.page
-              </IndexLink>
-            </li>
-          </ul>
-        </li>
-        <li
-          className="dropdown"
-        >
-          <a
-            className="dropdown-toggle"
-            data-toggle="dropdown"
-            href="#"
-          >
-            sidebar.system
-             
-            <i
-              className="icon-dropdown"
-            />
-          </a>
-          <ul
-            className="dropdown-menu"
-          >
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/updatecenter"
-              >
-                update_center.page
-              </IndexLink>
-            </li>
-            <li>
-              <IndexLink
-                activeClassName="active"
-                to="/system"
-              >
-                system_info.page
-              </IndexLink>
-            </li>
-          </ul>
+            background_tasks.page
+          </IndexLink>
         </li>
       </ul>
-    </div>
-  </div>
-</nav>
+    </li>
+    <li
+      className="dropdown"
+    >
+      <a
+        className="dropdown-toggle"
+        data-toggle="dropdown"
+        href="#"
+      >
+        sidebar.system
+         
+        <i
+          className="icon-dropdown"
+        />
+      </a>
+      <ul
+        className="dropdown-menu"
+      >
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/updatecenter"
+          >
+            update_center.page
+          </IndexLink>
+        </li>
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/system"
+          >
+            system_info.page
+          </IndexLink>
+        </li>
+      </ul>
+    </li>
+  </NavBarTabs>
+</ContextNavBar>
 `;

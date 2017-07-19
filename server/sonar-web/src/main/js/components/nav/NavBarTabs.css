@@ -1,0 +1,28 @@
+.navbar-tabs {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-tabs > li + li {
+  margin-left: 20px;
+}
+
+.navbar-tabs > li > a {
+  display: block;
+  padding: 7px 0 4px;
+  border-bottom: 3px solid transparent;
+  color: #444;
+  transition: none;
+}
+
+.navbar-tabs > li > a.active,
+.navbar-tabs > li > a:hover,
+.navbar-tabs > li > a:focus {
+  border-bottom-color: #4b9fd5;
+}
+
+.navbar-tabs > li > a.is-admin.active,
+.navbar-tabs > li > a.is-admin:hover,
+.navbar-tabs > li > a.is-admin:focus {
+  border-bottom-color: #ed7d20;
+}

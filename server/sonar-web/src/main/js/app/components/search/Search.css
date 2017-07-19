@@ -1,0 +1,97 @@
+.navbar-search {
+  position: relative;
+  padding-right: 3px;
+}
+
+.navbar-search-input {
+  vertical-align: middle;
+  width: 310px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  padding-left: 26px !important;
+}
+
+.navbar-search-input-hint {
+  position: absolute;
+  top: 4px;
+  right: 30px;
+  line-height: 24px;
+  font-size: 12px;
+  color: #777;
+}
+.navbar-search-input-hint.is-shifted {
+  z-index: 7501;
+  top: 32px;
+}
+
+.navbar-search-icon {
+  position: relative;
+  vertical-align: middle;
+  width: 16px;
+  margin-right: -20px;
+  color: #777;
+}
+
+.navbar-search-icon:before {
+  font-size: 14px;
+}
+
+.navbar-search-item-link {
+  display: flex !important;
+}
+
+.navbar-search-item-match {
+  flex-grow: 5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar-search-item-right {
+  flex-grow: 1;
+  padding-left: 10px;
+  text-align: right;
+}
+
+.navbar-search-item-icons {
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+.navbar-search-item-icons > * {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 0;
+}
+
+.navbar-search-item-icons > .icon-star,
+.navbar-search-item-icons > .icon-clock {
+  z-index: 6;
+  top: -4px;
+  left: -5px;
+}
+
+.navbar-search-shortcut-hint {
+  line-height: 16px;
+  margin-top: 5px;
+  padding: 5px 10px;
+  border-top: 1px solid #e6e6e6;
+  background-color: #f3f3f3;
+  color: #777;
+  font-size: 11px;
+}
+
+.navbar-search-no-results {
+  margin-top: 4px;
+  padding: 5px 10px;
+}
+
+.global-navbar-search-dropdown {
+  max-height: 80vh;
+  width: 440px;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+}

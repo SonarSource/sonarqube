@@ -1,0 +1,67 @@
+.navbar-global,
+.navbar-global .navbar-inner {
+  background-color: #262626;
+  z-index: 421;
+}
+
+.navbar-brand {
+  display: block;
+  margin-left: -10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border: none;
+}
+
+.navbar-brand:hover,
+.navbar-brand:focus {
+  background-color: #000;
+}
+
+.navbar-login {
+  margin-right: -10px;
+}
+
+.navbar-avatar {
+  margin-right: -3px !important;
+  padding: 3px !important;
+}
+
+.navbar-help {
+  line-height: 16px !important;
+  padding: 7px !important;
+}
+
+.global-navbar-menu {
+  display: flex;
+  align-items: center;
+}
+
+.global-navbar-menu > li > a {
+  display: block;
+  padding: 8px 10px;
+  line-height: 14px;
+  border: none;
+  color: #ccc;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  transition: none;
+}
+
+.global-navbar-menu > li > a.active,
+.global-navbar-menu > li > a:hover,
+.global-navbar-menu > li > a:focus {
+  background-color: #4b9fd5;
+  color: #fff;
+}
+
+.global-navbar-menu > li > a.is-admin.active,
+.global-navbar-menu > li > a.is-admin:hover,
+.global-navbar-menu > li > a.is-admin:focus {
+  background-color: #ed7d20;
+}
+
+@media print {
+  .navbar-global {
+    display: none !important;
+  }
+}

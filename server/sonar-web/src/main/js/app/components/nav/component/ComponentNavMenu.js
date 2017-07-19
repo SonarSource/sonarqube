@@ -19,6 +19,8 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
+import classNames from 'classnames';
+import NavBarTabs from '../../../../components/nav/NavBarTabs';
 import { translate } from '../../../../helpers/l10n';
 
 const SETTINGS_URLS = [
@@ -59,7 +61,7 @@ export default class ComponentNavMenu extends React.PureComponent {
     return (
       <li>
         <Link to={{ pathname, query: { id: this.props.component.key } }} activeClassName="active">
-          <i className="icon-home" />
+          {translate('overview.page')}
         </Link>
       </li>
     );
@@ -131,11 +133,10 @@ export default class ComponentNavMenu extends React.PureComponent {
     }
 
     const isSettingsActive = SETTINGS_URLS.some(url => window.location.href.indexOf(url) !== -1);
-    const className = 'dropdown' + (isSettingsActive ? ' active' : '');
     return (
-      <li className={className}>
+      <li className="dropdown">
         <a
-          className="dropdown-toggle navbar-admin-link"
+          className={classNames('dropdown-toggle', 'is-admin', { active: isSettingsActive })}
           id="component-navigation-admin"
           data-toggle="dropdown"
           href="#">
@@ -348,7 +349,7 @@ export default class ComponentNavMenu extends React.PureComponent {
 
   render() {
     return (
-      <ul className="nav navbar-nav nav-tabs">
+      <NavBarTabs>
         {this.renderDashboardLink()}
         {this.renderIssuesLink()}
         {this.renderComponentMeasuresLink()}
@@ -356,7 +357,7 @@ export default class ComponentNavMenu extends React.PureComponent {
         {this.renderActivityLink()}
         {this.renderAdministration()}
         {this.renderExtensions()}
-      </ul>
+      </NavBarTabs>
     );
   }
 }

@@ -1,0 +1,24 @@
+.navbar,
+[class^="navbar-"],
+[class*=" navbar-"] {
+  box-sizing: border-box;
+}
+
+.navbar {
+}
+
+.navbar-inner {
+  position: fixed;
+  left: 0;
+  right: 0;
+}
+
+.navbar-limited {
+  position: relative;
+  min-width: 1100px;
+  max-width: 1320px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}

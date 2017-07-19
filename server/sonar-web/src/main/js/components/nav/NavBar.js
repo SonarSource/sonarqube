@@ -19,23 +19,23 @@
  */
 // @flow
 import React from 'react';
-import GlobalNav from './nav/global/GlobalNav';
-import GlobalFooterContainer from './GlobalFooterContainer';
-import GlobalMessagesContainer from './GlobalMessagesContainer';
+import classNames from 'classnames';
+import './NavBar.css';
 
-export default function GlobalContainer(props: Object) {
-  // it is important to pass `location` down to `GlobalNav` to trigger render on url change
+type Props = {
+  children?: React.Element<*>,
+  className?: string,
+  height: number
+};
 
+export default function NavBar({ children, className, height, ...other }: Props) {
   return (
-    <div className="global-container">
-      <div className="page-wrapper" id="container">
-        <div className="page-container">
-          <GlobalNav location={props.location} />
-          <GlobalMessagesContainer />
-          {props.children}
+    <nav {...other} className={classNames('navbar', className)} style={{ height }}>
+      <div className="navbar-inner" style={{ height }}>
+        <div className="navbar-limited clearfix">
+          {children}
         </div>
       </div>
-      <GlobalFooterContainer />
-    </div>
+    </nav>
   );
 }

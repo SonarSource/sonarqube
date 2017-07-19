@@ -66,9 +66,8 @@ public class UiExtensionsTest {
     User administrator = tester.users().generateAdministrator();
     tester.openBrowser()
       .logIn().submitCredentials(administrator.getLogin())
-      .open("/about");
+      .open("/settings");
 
-    $(".navbar-admin-link").click();
     $("#settings-navigation-configuration").click();
     $(By.linkText("Global Admin Page")).click();
 

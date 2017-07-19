@@ -1,49 +1,100 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`admin 1`] = `
-<nav
-  className="navbar navbar-context page-container"
+<ContextNavBar
+  height={65}
   id="context-navigation"
 >
   <div
-    className="navbar-context-inner"
+    className="navbar-context-header"
   >
-    <div
-      className="container"
+    <h1
+      className="display-inline-block"
     >
-      <h2
-        className="navbar-context-title"
-      >
-        <span
-          className="navbar-context-title-qualifier little-spacer-right"
-        >
-          <OrganizationIcon />
-        </span>
-        <Link
-          className="link-base-color"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to="/organizations/foo"
-        >
-          <strong>
-            Foo
-          </strong>
-        </Link>
-      </h2>
-      <div
-        className="navbar-context-meta"
+      <OrganizationIcon
+        className="little-spacer-right"
       />
+      <Link
+        className="link-base-color link-no-underline"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo"
+      >
+        <strong>
+          Foo
+        </strong>
+      </Link>
+    </h1>
+  </div>
+  <div
+    className="navbar-context-meta"
+  />
+  <NavBarTabs>
+    <li>
+      <Link
+        className=""
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/projects"
+      >
+        projects.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/members"
+      >
+        organization.members.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/quality_profiles"
+      >
+        quality_profiles.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/rules"
+      >
+        coding_rules.page
+      </Link>
+    </li>
+    <li
+      className="dropdown"
+    >
+      <a
+        className="dropdown-toggle is-admin"
+        data-toggle="dropdown"
+        href="#"
+      >
+        layout.settings
+         
+        <i
+          className="icon-dropdown"
+        />
+      </a>
       <ul
-        className="nav navbar-nav nav-tabs"
+        className="dropdown-menu"
       >
         <li>
           <Link
-            className=""
+            activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/projects"
+            to="/organizations/foo/groups"
           >
-            projects.page
+            user_groups.page
           </Link>
         </li>
         <li>
@@ -51,9 +102,9 @@ exports[`admin 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/members"
+            to="/organizations/foo/permissions"
           >
-            organization.members.page
+            permissions.page
           </Link>
         </li>
         <li>
@@ -61,9 +112,9 @@ exports[`admin 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/quality_profiles"
+            to="/organizations/foo/permission_templates"
           >
-            quality_profiles.page
+            permission_templates
           </Link>
         </li>
         <li>
@@ -71,222 +122,206 @@ exports[`admin 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/rules"
+            to="/organizations/foo/projects_management"
           >
-            coding_rules.page
+            projects_management
           </Link>
         </li>
-        <li
-          className=""
-        >
-          <a
-            className="dropdown-toggle navbar-admin-link"
-            data-toggle="dropdown"
-            href="#"
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/organizations/foo/edit"
           >
-            layout.settings
-             
-            <i
-              className="icon-dropdown"
-            />
-          </a>
-          <ul
-            className="dropdown-menu"
+            edit
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/organizations/foo/delete"
           >
-            <li>
-              <Link
-                activeClassName="active"
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/organizations/foo/groups"
-              >
-                user_groups.page
-              </Link>
-            </li>
-            <li>
-              <Link
-                activeClassName="active"
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/organizations/foo/permissions"
-              >
-                permissions.page
-              </Link>
-            </li>
-            <li>
-              <Link
-                activeClassName="active"
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/organizations/foo/permission_templates"
-              >
-                permission_templates
-              </Link>
-            </li>
-            <li>
-              <Link
-                activeClassName="active"
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/organizations/foo/projects_management"
-              >
-                projects_management
-              </Link>
-            </li>
-            <li>
-              <Link
-                activeClassName="active"
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/organizations/foo/edit"
-              >
-                edit
-              </Link>
-            </li>
-            <li>
-              <Link
-                activeClassName="active"
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/organizations/foo/delete"
-              >
-                delete
-              </Link>
-            </li>
-          </ul>
+            delete
+          </Link>
         </li>
       </ul>
-    </div>
-  </div>
-</nav>
+    </li>
+  </NavBarTabs>
+</ContextNavBar>
 `;
 
 exports[`regular user 1`] = `
-<nav
-  className="navbar navbar-context page-container"
+<ContextNavBar
+  height={65}
   id="context-navigation"
 >
   <div
-    className="navbar-context-inner"
+    className="navbar-context-header"
   >
-    <div
-      className="container"
+    <h1
+      className="display-inline-block"
     >
-      <h2
-        className="navbar-context-title"
-      >
-        <span
-          className="navbar-context-title-qualifier little-spacer-right"
-        >
-          <OrganizationIcon />
-        </span>
-        <Link
-          className="link-base-color"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to="/organizations/foo"
-        >
-          <strong>
-            Foo
-          </strong>
-        </Link>
-      </h2>
-      <div
-        className="navbar-context-meta"
+      <OrganizationIcon
+        className="little-spacer-right"
       />
-      <ul
-        className="nav navbar-nav nav-tabs"
+      <Link
+        className="link-base-color link-no-underline"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo"
       >
-        <li>
-          <Link
-            className=""
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to="/organizations/foo/projects"
-          >
-            projects.page
-          </Link>
-        </li>
-        <li>
-          <Link
-            activeClassName="active"
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to="/organizations/foo/members"
-          >
-            organization.members.page
-          </Link>
-        </li>
-        <li>
-          <Link
-            activeClassName="active"
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to="/organizations/foo/quality_profiles"
-          >
-            quality_profiles.page
-          </Link>
-        </li>
-        <li>
-          <Link
-            activeClassName="active"
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to="/organizations/foo/rules"
-          >
-            coding_rules.page
-          </Link>
-        </li>
-      </ul>
-    </div>
+        <strong>
+          Foo
+        </strong>
+      </Link>
+    </h1>
   </div>
-</nav>
+  <div
+    className="navbar-context-meta"
+  />
+  <NavBarTabs>
+    <li>
+      <Link
+        className=""
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/projects"
+      >
+        projects.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/members"
+      >
+        organization.members.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/quality_profiles"
+      >
+        quality_profiles.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/rules"
+      >
+        coding_rules.page
+      </Link>
+    </li>
+  </NavBarTabs>
+</ContextNavBar>
 `;
 
 exports[`undeletable org 1`] = `
-<nav
-  className="navbar navbar-context page-container"
+<ContextNavBar
+  height={65}
   id="context-navigation"
 >
   <div
-    className="navbar-context-inner"
+    className="navbar-context-header"
   >
-    <div
-      className="container"
+    <h1
+      className="display-inline-block"
     >
-      <h2
-        className="navbar-context-title"
-      >
-        <span
-          className="navbar-context-title-qualifier little-spacer-right"
-        >
-          <OrganizationIcon />
-        </span>
-        <Link
-          className="link-base-color"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to="/organizations/foo"
-        >
-          <strong>
-            Foo
-          </strong>
-        </Link>
-      </h2>
-      <div
-        className="navbar-context-meta"
+      <OrganizationIcon
+        className="little-spacer-right"
       />
+      <Link
+        className="link-base-color link-no-underline"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo"
+      >
+        <strong>
+          Foo
+        </strong>
+      </Link>
+    </h1>
+  </div>
+  <div
+    className="navbar-context-meta"
+  />
+  <NavBarTabs>
+    <li>
+      <Link
+        className=""
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/projects"
+      >
+        projects.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/members"
+      >
+        organization.members.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/quality_profiles"
+      >
+        quality_profiles.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/rules"
+      >
+        coding_rules.page
+      </Link>
+    </li>
+    <li
+      className="dropdown"
+    >
+      <a
+        className="dropdown-toggle is-admin"
+        data-toggle="dropdown"
+        href="#"
+      >
+        layout.settings
+         
+        <i
+          className="icon-dropdown"
+        />
+      </a>
       <ul
-        className="nav navbar-nav nav-tabs"
+        className="dropdown-menu"
       >
         <li>
           <Link
-            className=""
+            activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/projects"
+            to="/organizations/foo/groups"
           >
-            projects.page
+            user_groups.page
           </Link>
         </li>
         <li>
@@ -294,9 +329,9 @@ exports[`undeletable org 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/members"
+            to="/organizations/foo/permissions"
           >
-            organization.members.page
+            permissions.page
           </Link>
         </li>
         <li>
@@ -304,9 +339,9 @@ exports[`undeletable org 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/quality_profiles"
+            to="/organizations/foo/permission_templates"
           >
-            quality_profiles.page
+            permission_templates
           </Link>
         </li>
         <li>
@@ -314,82 +349,23 @@ exports[`undeletable org 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/rules"
+            to="/organizations/foo/projects_management"
           >
-            coding_rules.page
+            projects_management
           </Link>
         </li>
-        <li
-          className=""
-        >
-          <a
-            className="dropdown-toggle navbar-admin-link"
-            data-toggle="dropdown"
-            href="#"
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/organizations/foo/edit"
           >
-            layout.settings
-             
-            <i
-              className="icon-dropdown"
-            />
-          </a>
-          <ul
-            className="dropdown-menu"
-          >
-            <li>
-              <Link
-                activeClassName="active"
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/organizations/foo/groups"
-              >
-                user_groups.page
-              </Link>
-            </li>
-            <li>
-              <Link
-                activeClassName="active"
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/organizations/foo/permissions"
-              >
-                permissions.page
-              </Link>
-            </li>
-            <li>
-              <Link
-                activeClassName="active"
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/organizations/foo/permission_templates"
-              >
-                permission_templates
-              </Link>
-            </li>
-            <li>
-              <Link
-                activeClassName="active"
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/organizations/foo/projects_management"
-              >
-                projects_management
-              </Link>
-            </li>
-            <li>
-              <Link
-                activeClassName="active"
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/organizations/foo/edit"
-              >
-                edit
-              </Link>
-            </li>
-          </ul>
+            edit
+          </Link>
         </li>
       </ul>
-    </div>
-  </div>
-</nav>
+    </li>
+  </NavBarTabs>
+</ContextNavBar>
 `;

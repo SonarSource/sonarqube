@@ -31,7 +31,7 @@ class GlobalNavBranding extends React.PureComponent {
 
   renderLogo() {
     const url = this.props.customLogoUrl || `${window.baseUrl}/images/logo.svg`;
-    const width = this.props.customLogoWidth || 100;
+    const width = this.props.customLogoUrl ? this.props.customLogoWidth || 100 : 83;
     const height = 30;
     const title = translate('layout.sonar.slogan');
     return <img src={url} width={width} height={height} alt={title} title={title} />;
@@ -39,11 +39,9 @@ class GlobalNavBranding extends React.PureComponent {
 
   render() {
     const homeController = this.props.currentUser.isLoggedIn ? '/projects' : '/about';
-    const homeLinkClassName =
-      'navbar-brand' + (this.props.customLogoUrl ? ' navbar-brand-custom' : '');
     return (
-      <div className="navbar-header">
-        <Link to={homeController} className={homeLinkClassName}>
+      <div className="pull-left">
+        <Link to={homeController} className="navbar-brand">
           {this.renderLogo()}
         </Link>
       </div>
