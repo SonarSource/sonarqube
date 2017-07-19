@@ -28,6 +28,7 @@ import org.junit.runners.Suite;
 import org.sonarqube.tests.authorisation.PermissionTemplateTest;
 import org.sonarqube.tests.issue.IssueTagsTest;
 import org.sonarqube.tests.issue.OrganizationIssueAssignTest;
+import org.sonarqube.tests.issue.OrganizationIssuesPageTest;
 import org.sonarqube.tests.organization.BillingTest;
 import org.sonarqube.tests.organization.OrganizationMembershipTest;
 import org.sonarqube.tests.organization.OrganizationMembershipUiTest;
@@ -57,6 +58,7 @@ import static util.ItUtils.xooPlugin;
 @Suite.SuiteClasses({
   OrganizationIdentityProviderTest.class,
   OrganizationIssueAssignTest.class,
+  OrganizationIssuesPageTest.class,
   OrganizationMembershipTest.class,
   OrganizationMembershipUiTest.class,
   OrganizationQualityProfilesUiTest.class,
