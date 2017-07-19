@@ -26,6 +26,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.page.Page.Qualifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.page.Page.Qualifier.APP;
 import static org.sonar.api.web.page.Page.Qualifier.MODULE;
 import static org.sonar.api.web.page.Page.Qualifier.PROJECT;
 import static org.sonar.api.web.page.Page.Qualifier.SUB_VIEW;
@@ -59,6 +60,7 @@ public class PageTest {
     assertThat(Qualifier.PROJECT.getKey()).isEqualTo(org.sonar.api.resources.Qualifiers.PROJECT);
     assertThat(Qualifier.MODULE.getKey()).isEqualTo(org.sonar.api.resources.Qualifiers.MODULE);
     assertThat(Qualifier.VIEW.getKey()).isEqualTo(org.sonar.api.resources.Qualifiers.VIEW);
+    assertThat(Qualifier.APP.getKey()).isEqualTo(org.sonar.api.resources.Qualifiers.APP);
     assertThat(Qualifier.SUB_VIEW.getKey()).isEqualTo(org.sonar.api.resources.Qualifiers.SUBVIEW);
   }
 
@@ -66,7 +68,7 @@ public class PageTest {
   public void authorized_qualifiers() {
     Qualifier[] qualifiers = Qualifier.values();
 
-    assertThat(qualifiers).hasSize(4).containsOnly(PROJECT, MODULE, VIEW, SUB_VIEW);
+    assertThat(qualifiers).containsExactlyInAnyOrder(PROJECT, MODULE, VIEW, SUB_VIEW, APP);
   }
 
   @Test
