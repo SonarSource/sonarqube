@@ -57,18 +57,7 @@ public class SearchServer implements Monitored {
 
   @Override
   public void start() {
-    String executable = getExecutable();
-    Path path = Paths.get(executable);
-    if (!path.toFile().exists()) {
-      String assembly = "sonar-application/src/main/assembly/";
-      Path idePath = Paths.get(assembly + executable);
-      if (!idePath.toFile().exists()) {
-        throw new IllegalStateException(String.format("Cannot find elasticsearch binary %s in either %s or %s",
-                executable, Paths.get(".").toAbsolutePath().getParent(), Paths.get(assembly).toAbsolutePath()));
-      }
-      path = idePath;
-    }
-    Path absolutePath = path.toAbsolutePath();
+    Path absolutePath = findExecutable();
 
     List<String> command = new ArrayList<>();
     command.add(absolutePath.toString());
@@ -125,6 +114,40 @@ public class SearchServer implements Monitored {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  private Path findExecutable() {
+    String executable = getExecutable();
+    Path path = Paths.get(executable);
+    if (path.toFile().exists()) {
+      return path.toAbsolutePath();
+    }
+
+    String assembly = "sonar-application/src/main/assembly/";
+    Path idePath = Paths.get(assembly + executable);
+    if (idePath.toFile().exists()) {
+      return idePath.toAbsolutePath();
+    }
+
+    String parentAssembly = "../" + assembly;
+    Path buildServerPath = Paths.get(parentAssembly + executable);
+    if (buildServerPath.toFile().exists()) {
+      return buildServerPath.toAbsolutePath();
+    }
+
+    String grandParentAssembly = "../" + parentAssembly;
+    Path buildServerPath2 = Paths.get(grandParentAssembly + executable);
+    if (buildServerPath2.toFile().exists()) {
+      return buildServerPath2.toAbsolutePath();
+    }
+
+    throw new IllegalStateException(String.format("Cannot find elasticsearch binary %s in either %s or %s or %s or %s",
+            executable,
+            Paths.get(".").toAbsolutePath().getParent(),
+            Paths.get(assembly).toAbsolutePath(),
+            Paths.get(parentAssembly).toAbsolutePath(),
+            Paths.get(grandParentAssembly).toAbsolutePath()
+    ));
   }
 
   private static String getExecutable() {
