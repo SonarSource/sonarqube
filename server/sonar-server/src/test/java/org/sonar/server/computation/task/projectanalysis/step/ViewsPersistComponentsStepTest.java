@@ -42,6 +42,7 @@ import org.sonar.server.computation.task.projectanalysis.component.MutableDisabl
 import org.sonar.server.computation.task.projectanalysis.component.ProjectViewAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.SubViewAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.server.computation.task.projectanalysis.component.ViewAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.step.ComputationStep;
 
@@ -55,6 +56,8 @@ import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.VIEW;
+import static org.sonar.server.computation.task.projectanalysis.component.ViewAttributes.Type.APPLICATION;
+import static org.sonar.server.computation.task.projectanalysis.component.ViewAttributes.Type.PORTFOLIO;
 import static org.sonar.server.computation.task.projectanalysis.component.ViewsComponent.builder;
 
 public class ViewsPersistComponentsStepTest extends BaseStepTest {
@@ -107,7 +110,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_empty_view() {
-    treeRootHolder.setRoot(createViewBuilder().build());
+    treeRootHolder.setRoot(createViewBuilder(PORTFOLIO).build());
 
     underTest.execute();
 
@@ -122,7 +125,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     // most of the time view already exists since its supposed to be created when config is uploaded
     persistComponents(newViewDto(dbTester.organizations().insert()));
 
-    treeRootHolder.setRoot(createViewBuilder().build());
+    treeRootHolder.setRoot(createViewBuilder(PORTFOLIO).build());
 
     underTest.execute();
 
@@ -137,7 +140,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     persistComponents(project);
 
     treeRootHolder.setRoot(
-      createViewBuilder()
+      createViewBuilder(PORTFOLIO)
         .addChildren(createProjectView1Builder(project, null).build())
         .build());
 
@@ -153,9 +156,30 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   }
 
   @Test
+  public void persist_application_with_projectView() {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert());
+    persistComponents(project);
+
+    treeRootHolder.setRoot(
+      createViewBuilder(APPLICATION)
+        .addChildren(createProjectView1Builder(project, null).build())
+        .build());
+
+    underTest.execute();
+
+    assertRowsCountInTableProjects(3);
+
+    ComponentDto applicationDto = getComponentFromDb(VIEW_KEY);
+    assertDtoIsApplication(applicationDto);
+
+    ComponentDto pv1Dto = getComponentFromDb(PROJECT_VIEW_1_KEY);
+    assertDtoIsProjectView1(pv1Dto, applicationDto, applicationDto, project);
+  }
+
+  @Test
   public void persist_empty_subview() {
     treeRootHolder.setRoot(
-      createViewBuilder()
+      createViewBuilder(PORTFOLIO)
         .addChildren(
           createSubView1Builder(null).build())
         .build());
@@ -174,7 +198,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   @Test
   public void persist_empty_subview_having_original_view_uuid() {
     treeRootHolder.setRoot(
-      createViewBuilder()
+      createViewBuilder(PORTFOLIO)
         .addChildren(
           createSubView1Builder("ORIGINAL_UUID").build())
         .build());
@@ -194,7 +218,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     persistComponents(ComponentTesting.newSubView(viewDto, SUBVIEW_1_UUID, SUBVIEW_1_KEY).setName(SUBVIEW_1_NAME));
 
     treeRootHolder.setRoot(
-      createViewBuilder()
+      createViewBuilder(PORTFOLIO)
         .addChildren(
           createSubView1Builder(null).build())
         .build());
@@ -212,7 +236,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     persistComponents(newViewDto(dbTester.organizations().insert()));
 
     treeRootHolder.setRoot(
-      createViewBuilder()
+      createViewBuilder(PORTFOLIO)
         .addChildren(
           createSubView1Builder(null).build())
         .build());
@@ -231,7 +255,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     persistComponents(project);
 
     treeRootHolder.setRoot(
-      createViewBuilder()
+      createViewBuilder(PORTFOLIO)
         .addChildren(
           createSubView1Builder(null)
             .addChildren(
@@ -256,7 +280,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     ComponentDto viewDto = newViewDto(dbTester.organizations().insert()).setLongName("another long name").setCreatedAt(now);
     persistComponents(viewDto);
 
-    treeRootHolder.setRoot(createViewBuilder().build());
+    treeRootHolder.setRoot(createViewBuilder(PORTFOLIO).build());
 
     underTest.execute();
 
@@ -283,7 +307,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     persistComponents(projectView);
 
     treeRootHolder.setRoot(
-      createViewBuilder()
+      createViewBuilder(PORTFOLIO)
         .addChildren(createProjectView1Builder(project, null).build())
         .build());
 
@@ -313,7 +337,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     persistComponents(projectView);
 
     treeRootHolder.setRoot(
-      createViewBuilder()
+      createViewBuilder(PORTFOLIO)
         // Project view in the View is linked to the first project2
         .addChildren(createProjectView1Builder(project2, null).build())
         .build());
@@ -337,7 +361,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     persistComponents(view, subView);
 
     treeRootHolder.setRoot(
-      createViewBuilder()
+      createViewBuilder(PORTFOLIO)
         .addChildren(
           createSubView1Builder("NEW_COPY").build())
         .build());
@@ -356,7 +380,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   public void persists_new_components_as_public_if_root_does_not_exist_yet_out_of_functional_transaction() {
     ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
     treeRootHolder.setRoot(
-      createViewBuilder()
+      createViewBuilder(PORTFOLIO)
         .addChildren(
           createSubView1Builder(null)
             .addChildren(
@@ -378,7 +402,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     ComponentDto view = newViewDto(organization).setUuid(VIEW_UUID).setKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
     dbTester.components().insertComponent(view);
     treeRootHolder.setRoot(
-      createViewBuilder()
+      createViewBuilder(PORTFOLIO)
         .addChildren(
           createSubView1Builder(null)
             .addChildren(
@@ -405,7 +429,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     dbTester.components().insertComponent(subView);
     dbTester.components().insertComponent(newProjectCopy("DEFG", project, view).setKey("DIR").setPrivate(isRootPrivate));
     treeRootHolder.setRoot(
-      createViewBuilder()
+      createViewBuilder(PORTFOLIO)
         .addChildren(
           createSubView1Builder(null)
             .addChildren(
@@ -421,11 +445,12 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
         .isEqualTo(isRootPrivate));
   }
 
-  private static ViewsComponent.Builder createViewBuilder() {
+  private static ViewsComponent.Builder createViewBuilder(ViewAttributes.Type viewType) {
     return builder(VIEW, VIEW_KEY)
       .setUuid(VIEW_UUID)
       .setName(VIEW_NAME)
-      .setDescription(VIEW_DESCRIPTION);
+      .setDescription(VIEW_DESCRIPTION)
+      .setViewAttributes(new ViewAttributes(viewType));
   }
 
   private ViewsComponent.Builder createSubView1Builder(@Nullable String originalViewUuid) {
@@ -473,23 +498,43 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   }
 
   /**
-   * Assertions to verify the DTO created from {@link #createViewBuilder()}
+   * Assertions to verify the DTO created from {@link #createViewBuilder(ViewAttributes.Type)} ()}
    */
-  private void assertDtoIsView(ComponentDto projectDto) {
-    assertThat(projectDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
-    assertThat(projectDto.name()).isEqualTo(VIEW_NAME);
-    assertThat(projectDto.longName()).isEqualTo(VIEW_NAME);
-    assertThat(projectDto.description()).isEqualTo(VIEW_DESCRIPTION);
-    assertThat(projectDto.path()).isNull();
-    assertThat(projectDto.uuid()).isEqualTo(VIEW_UUID);
-    assertThat(projectDto.projectUuid()).isEqualTo(VIEW_UUID);
-    assertThat(projectDto.getRootUuid()).isEqualTo(VIEW_UUID);
-    assertThat(projectDto.moduleUuid()).isNull();
-    assertThat(projectDto.moduleUuidPath()).isEqualTo("." + projectDto.uuid() + ".");
-    assertThat(projectDto.qualifier()).isEqualTo(Qualifiers.VIEW);
-    assertThat(projectDto.scope()).isEqualTo(Scopes.PROJECT);
-    assertThat(projectDto.getCopyResourceUuid()).isNull();
-    assertThat(projectDto.getCreatedAt()).isEqualTo(now);
+  private void assertDtoIsView(ComponentDto dto) {
+    assertThat(dto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
+    assertThat(dto.name()).isEqualTo(VIEW_NAME);
+    assertThat(dto.longName()).isEqualTo(VIEW_NAME);
+    assertThat(dto.description()).isEqualTo(VIEW_DESCRIPTION);
+    assertThat(dto.path()).isNull();
+    assertThat(dto.uuid()).isEqualTo(VIEW_UUID);
+    assertThat(dto.projectUuid()).isEqualTo(VIEW_UUID);
+    assertThat(dto.getRootUuid()).isEqualTo(VIEW_UUID);
+    assertThat(dto.moduleUuid()).isNull();
+    assertThat(dto.moduleUuidPath()).isEqualTo("." + dto.uuid() + ".");
+    assertThat(dto.qualifier()).isEqualTo(Qualifiers.VIEW);
+    assertThat(dto.scope()).isEqualTo(Scopes.PROJECT);
+    assertThat(dto.getCopyResourceUuid()).isNull();
+    assertThat(dto.getCreatedAt()).isEqualTo(now);
+  }
+
+  /**
+   * Assertions to verify the DTO created from {@link #createViewBuilder(ViewAttributes.Type)} ()}
+   */
+  private void assertDtoIsApplication(ComponentDto dto) {
+    assertThat(dto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
+    assertThat(dto.name()).isEqualTo(VIEW_NAME);
+    assertThat(dto.longName()).isEqualTo(VIEW_NAME);
+    assertThat(dto.description()).isEqualTo(VIEW_DESCRIPTION);
+    assertThat(dto.path()).isNull();
+    assertThat(dto.uuid()).isEqualTo(VIEW_UUID);
+    assertThat(dto.projectUuid()).isEqualTo(VIEW_UUID);
+    assertThat(dto.getRootUuid()).isEqualTo(VIEW_UUID);
+    assertThat(dto.moduleUuid()).isNull();
+    assertThat(dto.moduleUuidPath()).isEqualTo("." + dto.uuid() + ".");
+    assertThat(dto.qualifier()).isEqualTo(Qualifiers.APP);
+    assertThat(dto.scope()).isEqualTo(Scopes.PROJECT);
+    assertThat(dto.getCopyResourceUuid()).isNull();
+    assertThat(dto.getCreatedAt()).isEqualTo(now);
   }
 
   /**
