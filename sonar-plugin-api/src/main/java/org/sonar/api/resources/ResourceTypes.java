@@ -28,8 +28,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
@@ -77,27 +79,18 @@ public class ResourceTypes {
     treeByQualifier = unmodifiableMap(new LinkedHashMap<>(treeMap));
     typeByQualifier = unmodifiableMap(new LinkedHashMap<>(typeMap));
     rootTypes = unmodifiableList(new ArrayList<>(rootsSet));
+    orderedTypes = unmodifiableSet(orderedTypes(typeMap));
+  }
 
-    List<ResourceType> mutableOrderedTypes = new ArrayList<>();
-    ResourceType view = null;
-    ResourceType subView = null;
-    for (ResourceType resourceType : typeByQualifier.values()) {
-      if (Qualifiers.VIEW.equals(resourceType.getQualifier())) {
-        view = resourceType;
-      } else if (Qualifiers.SUBVIEW.equals(resourceType.getQualifier())) {
-        subView = resourceType;
-      } else {
-        mutableOrderedTypes.add(resourceType);
-      }
-    }
-    if (subView != null) {
-      mutableOrderedTypes.add(0, subView);
-    }
-    if (view != null) {
-      mutableOrderedTypes.add(0, view);
-    }
+  private static Set<ResourceType> orderedTypes(Map<String, ResourceType> typeByQualifier) {
+    Map<String, ResourceType> mutableTypesByQualifier = new LinkedHashMap<>(typeByQualifier);
+    ResourceType view = mutableTypesByQualifier.remove(Qualifiers.VIEW);
+    ResourceType subView = mutableTypesByQualifier.remove(Qualifiers.SUBVIEW);
+    ResourceType application = mutableTypesByQualifier.remove(Qualifiers.APP);
 
-    orderedTypes = unmodifiableSet(new LinkedHashSet<>(mutableOrderedTypes));
+    return Stream.concat(Stream.of(view, subView, application), mutableTypesByQualifier.values().stream())
+      .filter(Objects::nonNull)
+      .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   public ResourceType get(String qualifier) {
