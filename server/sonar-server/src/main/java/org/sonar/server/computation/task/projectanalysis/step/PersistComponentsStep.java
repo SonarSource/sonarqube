@@ -317,7 +317,7 @@ public class PersistComponentsStep implements ComputationStep {
     ComponentDto res = createBase(view);
 
     res.setScope(Scopes.PROJECT);
-    res.setQualifier(Qualifiers.VIEW);
+    res.setQualifier(view.getViewAttributes().getType().getQualifier());
     res.setName(view.getName());
     res.setDescription(view.getDescription());
     res.setLongName(res.name());
