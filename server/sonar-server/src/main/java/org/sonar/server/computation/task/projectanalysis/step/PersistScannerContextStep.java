@@ -53,6 +53,7 @@ public class PersistScannerContextStep implements ComputationStep {
           // for total reliability, we rather delete the existing row as we don't want to assume the content
           // consistent with the report
           dbClient.ceScannerContextDao().deleteByUuids(dbSession, singleton(ceTask.getUuid()));
+          dbSession.commit();
           dbClient.ceScannerContextDao().insert(dbSession, ceTask.getUuid(), logsIterator);
           dbSession.commit();
         }
