@@ -22,6 +22,7 @@ package org.sonar.scanner.bootstrap;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,8 +33,6 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-
-import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * Filters the plugins to be enabled during analysis
@@ -46,8 +45,8 @@ public class ScannerPluginPredicate implements Predicate<String> {
   private static final String BUILDBREAKER_PLUGIN_KEY = "buildbreaker";
   private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
-  private final Set<String> whites = newHashSet();
-  private final Set<String> blacks = newHashSet();
+  private final Set<String> whites = new HashSet<>();
+  private final Set<String> blacks = new HashSet<>();
   private final GlobalMode mode;
 
   public ScannerPluginPredicate(Configuration settings, GlobalMode mode) {

@@ -21,11 +21,12 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -171,15 +172,15 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   private static List<RuleActivation> parseRuleActivations(SMInputCursor rulesCursor) throws XMLStreamException {
-    List<RuleActivation> activations = Lists.newArrayList();
-    Set<RuleKey> activatedKeys = Sets.newHashSet();
-    List<RuleKey> duplicatedKeys = Lists.newArrayList();
+    List<RuleActivation> activations = new ArrayList<>();
+    Set<RuleKey> activatedKeys = new HashSet<>();
+    List<RuleKey> duplicatedKeys = new ArrayList<>();
     while (rulesCursor.getNext() != null) {
       SMInputCursor ruleCursor = rulesCursor.childElementCursor();
       String repositoryKey = null;
       String key = null;
       String severity = null;
-      Map<String, String> parameters = Maps.newHashMap();
+      Map<String, String> parameters = new HashMap<>();
       while (ruleCursor.getNext() != null) {
         String nodeName = ruleCursor.getLocalName();
         if (StringUtils.equals(ATTRIBUTE_REPOSITORY_KEY, nodeName)) {

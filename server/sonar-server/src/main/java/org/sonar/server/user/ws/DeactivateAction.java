@@ -19,8 +19,8 @@
  */
 package org.sonar.server.user.ws;
 
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -118,7 +118,7 @@ public class DeactivateAction implements UsersWsAction {
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
         json.name("user");
-        Set<String> groups = Sets.newHashSet();
+        Set<String> groups = new HashSet<>();
         groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
         userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
         json.endObject();

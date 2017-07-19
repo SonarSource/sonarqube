@@ -19,13 +19,13 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -97,10 +97,10 @@ public class TagsAction implements IssuesWsAction {
     Collection<String> issueTags = issueIndex.listTags(organization, textQuery, pageSize);
     Collection<String> ruleTags = ruleIndex.listTags(organization, textQuery, pageSize);
 
-    SortedSet<String> result = Sets.newTreeSet();
+    SortedSet<String> result = new TreeSet<>();
     result.addAll(issueTags);
     result.addAll(ruleTags);
-    List<String> resultAsList = Lists.newArrayList(result);
+    List<String> resultAsList = new ArrayList<>(result);
     return resultAsList.size() > pageSize && pageSize > 0 ? resultAsList.subList(0, pageSize) : resultAsList;
   }
 

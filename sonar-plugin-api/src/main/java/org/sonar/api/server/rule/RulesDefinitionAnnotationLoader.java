@@ -19,12 +19,11 @@
  */
 package org.sonar.api.server.rule;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.collect.ImmutableMap;
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleStatus;
@@ -45,16 +44,18 @@ public class RulesDefinitionAnnotationLoader {
 
   private static final Logger LOG = Loggers.get(RulesDefinitionAnnotationLoader.class);
 
-  private static final Function<Class<?>, RuleParamType> TYPE_FOR_CLASS = Functions.forMap(
-    ImmutableMap.<Class<?>, RuleParamType>builder()
-      .put(Integer.class, RuleParamType.INTEGER)
-      .put(int.class, RuleParamType.INTEGER)
-      .put(Float.class, RuleParamType.FLOAT)
-      .put(float.class, RuleParamType.FLOAT)
-      .put(Boolean.class, RuleParamType.BOOLEAN)
-      .put(boolean.class, RuleParamType.BOOLEAN)
-      .build(),
-    RuleParamType.STRING);
+  private static final Map<Class<?>, RuleParamType> TYPE_FOR_CLASS;
+
+  static {
+    Map<Class<?>, RuleParamType> map = new HashMap<>();
+    map.put(Integer.class, RuleParamType.INTEGER);
+    map.put(int.class, RuleParamType.INTEGER);
+    map.put(Float.class, RuleParamType.FLOAT);
+    map.put(float.class, RuleParamType.FLOAT);
+    map.put(Boolean.class, RuleParamType.BOOLEAN);
+    map.put(boolean.class, RuleParamType.BOOLEAN);
+    TYPE_FOR_CLASS = Collections.unmodifiableMap(map);
+  }
 
   public void load(RulesDefinition.NewExtendedRepository repo, Class... annotatedClasses) {
     for (Class annotatedClass : annotatedClasses) {
@@ -113,8 +114,8 @@ public class RulesDefinitionAnnotationLoader {
     }
   }
 
-  @VisibleForTesting
   static RuleParamType guessType(Class<?> type) {
-    return TYPE_FOR_CLASS.apply(type);
+    RuleParamType result = TYPE_FOR_CLASS.get(type);
+    return result != null ? result : RuleParamType.STRING;
   }
 }

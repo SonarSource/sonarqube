@@ -19,7 +19,6 @@
  */
 package org.sonar.api.rules;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import java.io.File;
 import java.io.IOException;
@@ -208,7 +207,6 @@ public final class XMLRuleParser {
     return map;
   }
 
-  @VisibleForTesting
   static String type(String type) {
     String validType = TYPE_MAP.get(type);
     if (null != validType) {

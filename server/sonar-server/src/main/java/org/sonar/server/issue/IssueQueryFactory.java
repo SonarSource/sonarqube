@@ -25,11 +25,11 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -110,7 +110,7 @@ public class IssueQueryFactory {
         .facetMode(request.getFacetMode())
         .organizationUuid(convertOrganizationKeyToUuid(dbSession, request.getOrganization()));
 
-      Set<String> allComponentUuids = Sets.newHashSet();
+      Set<String> allComponentUuids = new HashSet<>();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession,
         request.getOnComponentOnly(),
         request.getComponents(),
@@ -203,12 +203,12 @@ public class IssueQueryFactory {
   }
 
   private boolean mergeDeprecatedComponentParameters(DbSession session, @Nullable Boolean onComponentOnly,
-    @Nullable Collection<String> components,
-    @Nullable Collection<String> componentUuids,
-    @Nullable Collection<String> componentKeys,
-    @Nullable Collection<String> componentRootUuids,
-    @Nullable Collection<String> componentRoots,
-    Set<String> allComponentUuids) {
+                                                     @Nullable Collection<String> components,
+                                                     @Nullable Collection<String> componentUuids,
+                                                     @Nullable Collection<String> componentKeys,
+                                                     @Nullable Collection<String> componentRootUuids,
+                                                     @Nullable Collection<String> componentRoots,
+                                                     Set<String> allComponentUuids) {
     boolean effectiveOnComponentOnly = false;
 
     checkArgument(atMostOneNonNullElement(components, componentUuids, componentKeys, componentRootUuids, componentRoots),
@@ -241,13 +241,13 @@ public class IssueQueryFactory {
   }
 
   private void addComponentParameters(IssueQuery.Builder builder, DbSession session,
-    boolean onComponentOnly,
-    Collection<String> componentUuids,
-    @Nullable Collection<String> projectUuids, @Nullable Collection<String> projectKeys,
-    @Nullable Collection<String> moduleUuids,
-    @Nullable Collection<String> directories,
-    @Nullable Collection<String> fileUuids,
-    @Nullable Collection<String> authors) {
+                                      boolean onComponentOnly,
+                                      Collection<String> componentUuids,
+                                      @Nullable Collection<String> projectUuids, @Nullable Collection<String> projectKeys,
+                                      @Nullable Collection<String> moduleUuids,
+                                      @Nullable Collection<String> directories,
+                                      @Nullable Collection<String> fileUuids,
+                                      @Nullable Collection<String> authors) {
 
     builder.onComponentOnly(onComponentOnly);
     if (onComponentOnly) {
@@ -326,8 +326,8 @@ public class IssueQueryFactory {
   }
 
   private static void addDirectories(IssueQuery.Builder builder, List<ComponentDto> directories) {
-    Collection<String> directoryModuleUuids = Sets.newHashSet();
-    Collection<String> directoryPaths = Sets.newHashSet();
+    Collection<String> directoryModuleUuids = new HashSet<>();
+    Collection<String> directoryPaths = new HashSet<>();
     for (ComponentDto directory : directories) {
       directoryModuleUuids.add(directory.moduleUuid());
       directoryPaths.add(directory.path());

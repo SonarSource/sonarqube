@@ -19,8 +19,8 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.collect.Sets;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import org.sonar.api.server.ServerSide;
 
@@ -35,7 +35,7 @@ public class AddTagsAction extends AbstractChangeTagsAction {
 
   @Override
   protected Collection<String> getTagsToSet(Context context, Collection<String> tagsFromParams) {
-    Set<String> allTags = Sets.newHashSet(context.issue().tags());
+    Set<String> allTags = new HashSet<>(context.issue().tags());
     allTags.addAll(tagsFromParams);
     return allTags;
   }

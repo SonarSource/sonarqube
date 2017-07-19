@@ -19,9 +19,9 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.api.rule.RuleKey;
@@ -54,7 +54,7 @@ public class QProfileResetImpl implements QProfileReset {
     requireNonNull(profile.getId(), "Quality profile must be persisted");
     checkArgument(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s'", profile.getKee());
     BulkChangeResult result = new BulkChangeResult();
-    Set<RuleKey> ruleToBeDeactivated = Sets.newHashSet();
+    Set<RuleKey> ruleToBeDeactivated = new HashSet<>();
     // Keep reference to all the activated rules before backup restore
     for (ActiveRuleDto activeRuleDto : db.activeRuleDao().selectByProfile(dbSession, profile)) {
       if (activeRuleDto.getInheritance() == null) {

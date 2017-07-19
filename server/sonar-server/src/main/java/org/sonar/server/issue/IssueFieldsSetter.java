@@ -20,10 +20,10 @@
 package org.sonar.server.issue;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Sets;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -318,7 +318,7 @@ public class IssueFieldsSetter {
       .map(tag -> RuleTagFormat.validate(tag.toLowerCase(Locale.ENGLISH)))
       .collect(MoreCollectors.toSet());
 
-    Set<String> oldTags = Sets.newHashSet(issue.tags());
+    Set<String> oldTags = new HashSet<>(issue.tags());
     if (!oldTags.equals(newTags)) {
       issue.setFieldChange(context, TAGS,
         oldTags.isEmpty() ? null : CHANGELOG_TAG_JOINER.join(oldTags),

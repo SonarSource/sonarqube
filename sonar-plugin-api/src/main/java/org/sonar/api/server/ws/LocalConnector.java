@@ -19,7 +19,6 @@
  */
 package org.sonar.api.server.ws;
 
-import com.google.common.annotations.Beta;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -42,7 +41,7 @@ import javax.annotation.CheckForNull;
  *   }
  * }
  * </pre>
- *
+ * <p>
  * It requires to use the sonar-ws library which Maven ids are:
  * <pre>
  *   &lt;dependency&gt;
@@ -50,10 +49,9 @@ import javax.annotation.CheckForNull;
  *     &lt;artifactId&gt;sonar-ws&lt;/artifactId&gt;
  *   &lt;/dependency&gt;
  * </pre>
- * 
+ *
  * @since 5.5
  */
-@Beta
 public interface LocalConnector {
 
   LocalResponse call(LocalRequest request);
@@ -61,6 +59,7 @@ public interface LocalConnector {
   interface LocalRequest {
     /**
      * URL path, which is the concatenation of controller path and action key, for example "api/issues/search"
+     *
      * @see org.sonar.api.server.ws.WebService.Controller#path
      * @see org.sonar.api.server.ws.WebService.Action#key
      */
@@ -73,6 +72,7 @@ public interface LocalConnector {
 
     /**
      * HTTP method. Possible values are "GET" and "POST"
+     *
      * @see Request#method()
      */
     String getMethod();
@@ -112,6 +112,7 @@ public interface LocalConnector {
 
     /**
      * HTTP headers
+     *
      * @see Response#setHeader(String, String)
      */
     Collection<String> getHeaderNames();

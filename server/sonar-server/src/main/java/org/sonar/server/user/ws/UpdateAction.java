@@ -19,8 +19,8 @@
  */
 package org.sonar.server.user.ws;
 
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.api.server.ws.Change;
@@ -125,7 +125,7 @@ public class UpdateAction implements UsersWsAction {
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
       json.name("user");
-      Set<String> groups = Sets.newHashSet();
+      Set<String> groups = new HashSet<>();
       UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' doesn't exist", login);
       groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
       userWriter.write(json, user, groups, UserJsonWriter.FIELDS);

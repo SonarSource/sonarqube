@@ -19,11 +19,11 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
+import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Objects.requireNonNull;
 
 public class ComponentsWithUnprocessedIssues {
@@ -34,7 +34,7 @@ public class ComponentsWithUnprocessedIssues {
   public void setUuids(Set<String> uuids) {
     requireNonNull(uuids, "Uuids cannot be null");
     checkState(this.uuids == null, "Uuids have already been initialized");
-    this.uuids = newHashSet(uuids);
+    this.uuids = new HashSet<>(uuids);
   }
 
   public void remove(String uuid) {

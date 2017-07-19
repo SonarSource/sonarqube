@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,7 +40,6 @@ import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolde
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
@@ -105,7 +105,7 @@ public class PersistProjectLinksStep implements ComputationStep {
     }
 
     private void mergeLinks(DbSession session, String componentUuid, List<ScannerReport.ComponentLink> links, List<ComponentLinkDto> previousLinks) {
-      Set<String> linkType = newHashSet();
+      Set<String> linkType = new HashSet<>();
       for (final ScannerReport.ComponentLink link : links) {
         String type = convertType(link.getType());
         if (!linkType.contains(type)) {

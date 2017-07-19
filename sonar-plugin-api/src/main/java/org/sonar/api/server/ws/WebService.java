@@ -20,9 +20,6 @@
 package org.sonar.api.server.ws;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -89,7 +87,7 @@ import static java.util.Objects.requireNonNull;
  *   }
  * }
  * </pre>
- *
+ * <p>
  * Since version 5.5, a web service can call another web service to get some data. See {@link Request#localConnector()}
  * provided by {@link RequestHandler#handle(Request, Response)}.
  *
@@ -130,7 +128,7 @@ public interface WebService extends Definable<WebService.Context> {
     }
 
     public List<Controller> controllers() {
-      return ImmutableList.copyOf(controllers.values());
+      return Collections.unmodifiableList(new ArrayList<>(controllers.values()));
     }
   }
 
@@ -199,11 +197,11 @@ public interface WebService extends Definable<WebService.Context> {
       this.path = newController.path;
       this.description = newController.description;
       this.since = newController.since;
-      ImmutableMap.Builder<String, Action> mapBuilder = ImmutableMap.builder();
+      Map<String, Action> mapBuilder = new HashMap<>();
       for (NewAction newAction : newController.actions.values()) {
         mapBuilder.put(newAction.key, new Action(this, newAction));
       }
-      this.actions = mapBuilder.build();
+      this.actions = Collections.unmodifiableMap(mapBuilder);
     }
 
     public String path() {
@@ -411,7 +409,6 @@ public interface WebService extends Definable<WebService.Context> {
     }
 
     /**
-     *
      * Creates the parameter {@link org.sonar.api.server.ws.WebService.Param#TEXT_QUERY}, which is
      * used to search for a subset of fields containing the supplied string.
      * <p>
@@ -424,7 +421,6 @@ public interface WebService extends Definable<WebService.Context> {
     }
 
     /**
-     *
      * Creates the parameter {@link org.sonar.api.server.ws.WebService.Param#TEXT_QUERY}, which is
      * used to search for a subset of fields containing the supplied string.
      * <p>
@@ -511,11 +507,11 @@ public interface WebService extends Definable<WebService.Context> {
       logWarningIf(isNullOrEmpty(this.since), "Since is not set on action " + path);
       logWarningIf(!this.post && this.responseExample == null, "The response example is not set on action " + path);
 
-      ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
+      Map<String, Param> paramsBuilder = new HashMap<>();
       for (NewParam newParam : newAction.newParams.values()) {
         paramsBuilder.put(newParam.key, new Param(this, newParam));
       }
-      this.params = paramsBuilder.build();
+      this.params = Collections.unmodifiableMap(paramsBuilder);
     }
 
     private static void logWarningIf(boolean condition, String message) {
@@ -661,9 +657,9 @@ public interface WebService extends Definable<WebService.Context> {
     }
 
     /**
+     * @see #setDeprecatedKey(String, String)
      * @since 5.0
      * @deprecated since 6.4
-     * @see #setDeprecatedKey(String, String) 
      */
     @Deprecated
     public NewParam setDeprecatedKey(@Nullable String s) {
@@ -672,7 +668,6 @@ public interface WebService extends Definable<WebService.Context> {
     }
 
     /**
-     *
      * @param deprecatedSince Version when the old key was replaced/deprecated. Ex: 5.6
      * @since 6.4
      */
@@ -752,7 +747,7 @@ public interface WebService extends Definable<WebService.Context> {
       if (values == null || values.isEmpty()) {
         this.possibleValues = null;
       } else {
-        this.possibleValues = Sets.newLinkedHashSet();
+        this.possibleValues = new LinkedHashSet<>();
         for (Object value : values) {
           this.possibleValues.add(value.toString());
         }
@@ -909,8 +904,8 @@ public interface WebService extends Definable<WebService.Context> {
     /**
      * Is the parameter internal ?
      *
-     * @since 6.2
      * @see NewParam#setInternal(boolean)
+     * @since 6.2
      */
     public boolean isInternal() {
       return internal;

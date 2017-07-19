@@ -23,8 +23,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -132,7 +132,7 @@ public class ComponentKeyUpdaterDao implements Dao {
 
   private static Set<ResourceDto> collectAllModules(String projectUuid, String stringToReplace, ComponentKeyUpdaterMapper mapper) {
     ResourceDto project = mapper.selectProject(projectUuid);
-    Set<ResourceDto> modules = Sets.newHashSet();
+    Set<ResourceDto> modules = new HashSet<>();
     if (project.getKey().contains(stringToReplace)) {
       modules.add(project);
     }

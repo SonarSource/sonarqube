@@ -19,7 +19,6 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -97,7 +96,6 @@ public final class License {
     return isExpired(new Date());
   }
 
-  @VisibleForTesting
   boolean isExpired(Date now) {
     Date date = getExpirationDate();
     if (date == null) {
@@ -125,7 +123,6 @@ public final class License {
     return readPlainText(new String(Base64.decodeBase64(base64.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
   }
 
-  @VisibleForTesting
   static License readPlainText(String data) {
     Map<String, String> props = new HashMap<>();
     try {

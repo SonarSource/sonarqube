@@ -22,9 +22,9 @@ package org.sonar.server.qualityprofile;
 import com.google.common.base.Function;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +53,7 @@ public class QProfileComparison {
     Map<RuleKey, OrgActiveRuleDto> leftActiveRulesByRuleKey = loadActiveRules(dbSession, left);
     Map<RuleKey, OrgActiveRuleDto> rightActiveRulesByRuleKey = loadActiveRules(dbSession, right);
 
-    Set<RuleKey> allRules = Sets.newHashSet();
+    Set<RuleKey> allRules = new HashSet<>();
     allRules.addAll(leftActiveRulesByRuleKey.keySet());
     allRules.addAll(rightActiveRulesByRuleKey.keySet());
 
@@ -130,7 +130,7 @@ public class QProfileComparison {
     }
 
     public Collection<RuleKey> collectRuleKeys() {
-      Set<RuleKey> keys = Sets.newHashSet();
+      Set<RuleKey> keys = new HashSet<>();
       keys.addAll(inLeft.keySet());
       keys.addAll(inRight.keySet());
       keys.addAll(modified.keySet());

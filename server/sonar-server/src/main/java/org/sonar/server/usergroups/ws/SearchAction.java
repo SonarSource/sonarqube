@@ -19,8 +19,8 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import com.google.common.collect.Sets;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,7 +115,7 @@ public class SearchAction implements UserGroupsWsAction {
   }
 
   private static Set<String> neededFields(Request request) {
-    Set<String> fields = Sets.newHashSet();
+    Set<String> fields = new HashSet<>();
     List<String> fieldsFromRequest = request.paramAsStrings(Param.FIELDS);
     if (fieldsFromRequest == null || fieldsFromRequest.isEmpty()) {
       fields.addAll(ALL_FIELDS);

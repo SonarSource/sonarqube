@@ -19,19 +19,18 @@
  */
 package org.sonar.api.utils;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -49,12 +48,11 @@ public class UriReader {
   private final Map<String, SchemeProcessor> processorsByScheme = new HashMap<>();
 
   public UriReader(SchemeProcessor[] processors) {
-    List<SchemeProcessor> allProcessors = Lists.asList(new FileProcessor(), processors);
-    for (SchemeProcessor processor : allProcessors) {
+    Stream.concat(Stream.of(new FileProcessor()), Arrays.stream(processors)).forEach(processor -> {
       for (String scheme : processor.getSupportedSchemes()) {
         processorsByScheme.put(scheme.toLowerCase(Locale.ENGLISH), processor);
       }
-    }
+    });
   }
 
   /**
@@ -82,7 +80,6 @@ public class UriReader {
     return reader.description(uri);
   }
 
-  @VisibleForTesting
   SchemeProcessor searchForSupportedProcessor(URI uri) {
     SchemeProcessor processor = processorsByScheme.get(uri.getScheme().toLowerCase(Locale.ENGLISH));
     Preconditions.checkArgument(processor != null, "URI schema is not supported: " + uri.getScheme());
@@ -106,7 +103,7 @@ public class UriReader {
 
     @Override
     public String[] getSupportedSchemes() {
-      return new String[] {"file"};
+      return new String[]{"file"};
     }
 
     @Override

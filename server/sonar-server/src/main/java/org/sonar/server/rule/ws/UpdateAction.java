@@ -20,7 +20,6 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +47,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Rules.UpdateResponse;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
@@ -241,7 +241,7 @@ public class UpdateAction implements RulesWsAction {
       if (StringUtils.isBlank(value)) {
         update.setTags(null);
       } else {
-        update.setTags(Sets.newHashSet(Splitter.on(',').omitEmptyStrings().trimResults().split(value)));
+        update.setTags(newHashSet(Splitter.on(',').omitEmptyStrings().trimResults().split(value)));
       }
     }
     // else do not touch this field

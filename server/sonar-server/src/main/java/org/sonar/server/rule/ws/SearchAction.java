@@ -25,10 +25,10 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -407,7 +407,7 @@ public class SearchAction implements RulesWsAction {
       facet.clear().setProperty(facetName);
       Map<String, Long> facets = results.facets.get(facetName);
       if (facets != null) {
-        Set<String> itemsFromFacets = Sets.newHashSet();
+        Set<String> itemsFromFacets = new HashSet<>();
         for (Map.Entry<String, Long> facetValue : facets.entrySet()) {
           itemsFromFacets.add(facetValue.getKey());
           facet.addValues(value

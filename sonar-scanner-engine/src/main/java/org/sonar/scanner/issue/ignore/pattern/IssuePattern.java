@@ -19,13 +19,11 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
@@ -76,7 +74,7 @@ public class IssuePattern {
   }
 
   Set<Integer> getAllLines() {
-    Set<Integer> allLines = Sets.newLinkedHashSet(lines);
+    Set<Integer> allLines = new LinkedHashSet<>(lines);
     for (LineRange lineRange : lineRanges) {
       allLines.addAll(lineRange.toLines());
     }

@@ -19,10 +19,10 @@
  */
 package org.sonar.api.user;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.security.DefaultGroups;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class UserGroupValidation {
 
@@ -33,7 +33,7 @@ public class UserGroupValidation {
   }
 
   public static void validateGroupName(String groupName) {
-    checkArgument(!isNullOrEmpty(groupName) && groupName.trim().length() > 0, "Group name cannot be empty");
+    checkArgument(!StringUtils.isEmpty(groupName) && groupName.trim().length() > 0, "Group name cannot be empty");
     checkArgument(groupName.length() <= GROUP_NAME_MAX_LENGTH, "Group name cannot be longer than %s characters", GROUP_NAME_MAX_LENGTH);
     checkArgument(!DefaultGroups.isAnyone(groupName), "Anyone group cannot be used");
   }

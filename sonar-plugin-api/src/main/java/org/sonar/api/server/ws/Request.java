@@ -19,7 +19,6 @@
  */
 package org.sonar.api.server.ws;
 
-import com.google.common.annotations.Beta;
 import com.google.common.base.Splitter;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -277,7 +276,6 @@ public abstract class Request {
     }
   }
 
-  @Beta
   public <T> Param<T> getParam(String key, BiFunction<Request, String, T> retrieveAndValidate) {
     String param = this.param(key);
     if (param != null) {
@@ -286,7 +284,6 @@ public abstract class Request {
     return AbsentParam.absent();
   }
 
-  @Beta
   public StringParam getParam(String key, Consumer<String> validate) {
     String value = this.param(key);
     if (value != null) {
@@ -296,7 +293,6 @@ public abstract class Request {
     return AbsentStringParam.absent();
   }
 
-  @Beta
   public StringParam getParam(String key) {
     String value = this.param(key);
     if (value != null) {
@@ -310,7 +306,6 @@ public abstract class Request {
    * @see LocalConnector
    * @since 5.5
    */
-  @Beta
   public abstract LocalConnector localConnector();
 
   /**
@@ -332,7 +327,6 @@ public abstract class Request {
    * Represents a Request parameter, provides information whether is was specified or not (check {@link #isPresent()})
    * and utility method to nicely handles cases where the parameter is not present.
    */
-  @Beta
   public interface Param<T> {
     boolean isPresent();
 

@@ -19,7 +19,6 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashSet;
@@ -177,15 +176,15 @@ public final class PropertyDefinition {
   }
 
   private static EnumMap<PropertyType, Function<String, Result>> createValidations(List<String> options) {
-    return new EnumMap<>(ImmutableMap.<PropertyType, Function<String, Result>>builder()
-      .put(BOOLEAN, validateBoolean())
-      .put(INTEGER, validateInteger())
-      .put(LONG, validateInteger())
-      .put(FLOAT, validateFloat())
-      .put(REGULAR_EXPRESSION, validateRegexp())
-      .put(SINGLE_SELECT_LIST,
-        aValue -> options.contains(aValue) ? Result.SUCCESS : Result.newError("notInOptions"))
-      .build());
+    EnumMap<PropertyType, Function<String, Result>> map = new EnumMap<>(PropertyType.class);
+    map.put(BOOLEAN, validateBoolean());
+    map.put(INTEGER, validateInteger());
+    map.put(LONG, validateInteger());
+    map.put(FLOAT, validateFloat());
+    map.put(REGULAR_EXPRESSION, validateRegexp());
+    map.put(SINGLE_SELECT_LIST,
+      aValue -> options.contains(aValue) ? Result.SUCCESS : Result.newError("notInOptions"));
+    return map;
   }
 
   private static Function<String, Result> validateBoolean() {
@@ -438,7 +437,7 @@ public final class PropertyDefinition {
      * only in General Settings.
      *
      * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
-     *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
+     *                                  {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */
     public Builder onQualifiers(String first, String... rest) {
       addQualifiers(this.onQualifiers, first, rest);
@@ -457,7 +456,7 @@ public final class PropertyDefinition {
      * only in General Settings.
      *
      * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
-     *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
+     *                                  {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */
     public Builder onQualifiers(List<String> qualifiers) {
       addQualifiers(this.onQualifiers, qualifiers);
@@ -476,7 +475,7 @@ public final class PropertyDefinition {
      * only in General Settings.
      *
      * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
-     *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
+     *                                  {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */
     public Builder onlyOnQualifiers(String first, String... rest) {
       addQualifiers(this.onlyOnQualifiers, first, rest);
@@ -495,7 +494,7 @@ public final class PropertyDefinition {
      * only in General Settings.
      *
      * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
-     *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
+     *                                  {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */
     public Builder onlyOnQualifiers(List<String> qualifiers) {
       addQualifiers(this.onlyOnQualifiers, qualifiers);

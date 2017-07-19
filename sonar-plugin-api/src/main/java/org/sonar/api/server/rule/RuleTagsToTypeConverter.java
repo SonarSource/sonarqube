@@ -19,10 +19,13 @@
  */
 package org.sonar.api.server.rule;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import org.sonar.api.rules.RuleType;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableSet;
 
 /**
  * @see org.sonar.api.server.rule.RulesDefinition.NewRule#setType(RuleType)
@@ -32,7 +35,7 @@ class RuleTagsToTypeConverter {
 
   public static final String TAG_BUG = "bug";
   public static final String TAG_SECURITY = "security";
-  static final Set<String> RESERVED_TAGS = ImmutableSet.of(TAG_BUG, TAG_SECURITY);
+  static final Set<String> RESERVED_TAGS = unmodifiableSet(new HashSet<>(asList(TAG_BUG, TAG_SECURITY)));
 
 
   private RuleTagsToTypeConverter() {

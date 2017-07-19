@@ -19,11 +19,10 @@
  */
 package org.sonar.core.util;
 
-import com.google.common.collect.Sets;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Test;
 import org.sonar.test.TestUtils;
-
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +30,7 @@ public class UuidsTest {
 
   @Test
   public void create_unique() {
-    Set<String> all = Sets.newHashSet();
+    Set<String> all = new HashSet<>();
     for (int i = 0; i < 50; i++) {
       String uuid = Uuids.create();
       assertThat(uuid).isNotEmpty();
