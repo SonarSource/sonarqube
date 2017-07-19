@@ -67,6 +67,7 @@ export default class IssueTags extends React.PureComponent {
           popup={
             <SetIssueTagsPopup
               onFail={this.props.onFail}
+              organization={issue.projectOrganization}
               selectedTags={issue.tags}
               setTags={this.setTags}
             />
