@@ -63,7 +63,7 @@
       )
       or (
         uuid=#{rootUuid,jdbcType=VARCHAR}
-        and p.scope = 'PRJ' and p.qualifier in ('VW','TRK')
+        and p.scope = 'PRJ' and p.qualifier in ('APP', 'VW','TRK')
       )
   </select>
 
