@@ -39,10 +39,12 @@ import org.sonar.server.es.ProjectIndexer;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_TYPE_COMPONENT;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
 
@@ -250,7 +252,7 @@ public class ComponentIndexerTest {
   private void assertThatComponentHasName(ComponentDto component, String expectedName) {
     SearchHit[] hits = es.client()
       .prepareSearch(INDEX_TYPE_COMPONENT)
-      .setQuery(termQuery(FIELD_NAME, expectedName))
+      .setQuery(matchQuery(SORTABLE_ANALYZER.subField(FIELD_NAME), expectedName))
       .get()
       .getHits()
       .getHits();
