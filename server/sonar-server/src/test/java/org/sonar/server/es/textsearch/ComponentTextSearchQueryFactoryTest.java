@@ -41,19 +41,18 @@ public class ComponentTextSearchQueryFactoryTest {
 
     assertJson(result.toString()).isSimilarTo("{" +
       "  \"bool\" : {" +
-      "    \"must\" : {" +
+      "    \"must\" : [{" +
       "      \"bool\" : {" +
-      "        \"should\" : {" +
+      "        \"should\" : [{" +
       "          \"match\" : {" +
       "            \"key.sortable_analyzer\" : {" +
       "              \"query\" : \"SonarQube\"," +
-      "              \"type\" : \"boolean\"," +
       "              \"boost\" : 50.0\n" +
       "            }" +
       "          }" +
-      "        }" +
+      "        }]" +
       "      }" +
-      "    }" +
+      "    }]" +
       "  }" +
       "}");
   }
