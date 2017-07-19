@@ -56,15 +56,17 @@ export default class QualityGatesApp extends Component {
     const { children, qualityGates, edit } = this.props;
     const defaultTitle = translate('quality_gates.page');
     return (
-      <div className="search-navigator sticky search-navigator-extended-view">
+      <div className="layout-page">
         <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
 
-        <div className="search-navigator-side search-navigator-side-light" style={{ top: 30 }}>
-          <div className="search-navigator-filters">
-            <ListHeader canEdit={edit} onAdd={this.handleAdd.bind(this)} />
-          </div>
-          <div className="quality-gates-results panel">
-            {qualityGates && <List qualityGates={qualityGates} />}
+        <div className="layout-page-side-outer">
+          <div className="layout-page-side" style={{ top: 30 }}>
+            <div className="layout-page-side-inner">
+              <div className="layout-page-filters">
+                <ListHeader canEdit={edit} onAdd={this.handleAdd.bind(this)} />
+                {qualityGates && <List qualityGates={qualityGates} />}
+              </div>
+            </div>
           </div>
         </div>
 

@@ -102,18 +102,11 @@ export default class Details extends Component {
     const { onAddCondition, onDeleteCondition, onSaveCondition } = this.props;
 
     if (!qualityGate) {
-      return (
-        <div className="search-navigator-workspace">
-          <div className="search-navigator-workspace-header" style={{ top: 30 }}>
-            <h2 className="search-navigator-header-component">&nbsp;</h2>
-          </div>
-          <div className="search-navigator-workspace-details" />
-        </div>
-      );
+      return null;
     }
 
     return (
-      <div className="search-navigator-workspace">
+      <div className="layout-page-main">
         <Helmet title={qualityGate.name} />
         <DetailsHeader
           qualityGate={qualityGate}
