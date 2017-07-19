@@ -24,6 +24,7 @@ exports[`should open the popup when the button is clicked 2`] = `
   popup={
     <SetIssueTagsPopup
       onFail={[Function]}
+      organization="foo"
       selectedTags={
         Array [
           "mytag",
@@ -59,6 +60,7 @@ exports[`should render with the action 1`] = `
   popup={
     <SetIssueTagsPopup
       onFail={[Function]}
+      organization="foo"
       selectedTags={
         Array [
           "mytag",

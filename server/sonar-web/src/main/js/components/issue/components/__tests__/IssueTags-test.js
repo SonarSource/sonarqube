@@ -24,6 +24,7 @@ import { click } from '../../../../helpers/testUtils';
 
 const issue = {
   key: 'issuekey',
+  projectOrganization: 'foo',
   tags: ['mytag', 'test']
 };
 
