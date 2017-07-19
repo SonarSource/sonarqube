@@ -111,7 +111,7 @@ export default class GlobalNavMenu extends React.PureComponent {
     }
     return (
       <li>
-        <Link to="/settings" className="navbar-admin-link" activeClassName="active">
+        <Link to="/settings" className="is-admin" activeClassName="active">
           {translate('layout.settings')}
         </Link>
       </li>
@@ -152,7 +152,7 @@ export default class GlobalNavMenu extends React.PureComponent {
     const { organizationsEnabled } = this.props.appState;
 
     return (
-      <ul className="nav navbar-nav">
+      <ul className="global-navbar-menu pull-left">
         {this.renderProjects()}
         {governanceInstalled && this.renderPortfolios()}
         {this.renderIssuesLink()}

@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import { Link, IndexLink } from 'react-router';
+import NavBarTabs from '../../../components/nav/NavBarTabs';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {
@@ -28,8 +29,8 @@ type Props = {
 
 export default function Nav({ customOrganizations }: Props) {
   return (
-    <nav className="account-nav clearfix">
-      <ul className="nav navbar-nav nav-tabs">
+    <nav className="account-nav">
+      <NavBarTabs>
         <li>
           <IndexLink to="/account/" activeClassName="active">
             {translate('my_account.profile')}
@@ -57,7 +58,7 @@ export default function Nav({ customOrganizations }: Props) {
               {translate('my_account.organizations')}
             </Link>
           </li>}
-      </ul>
+      </NavBarTabs>
     </nav>
   );
 }

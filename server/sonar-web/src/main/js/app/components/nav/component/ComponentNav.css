@@ -1,0 +1,11 @@
+.navbar-context-favorite {
+  float: left;
+  padding: 7px 10px 0 0;
+}
+
+.navbar-context-title-qualifier {
+  display: inline-block;
+  line-height: 16px;
+  padding-top: 5px;
+  box-sizing: border-box;
+}

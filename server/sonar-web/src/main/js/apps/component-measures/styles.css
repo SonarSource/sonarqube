@@ -377,3 +377,28 @@
   border: 1px solid #e6e6e6;
   background-color: #fff;
 }
+
+.nav-pills > ul {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.nav-pills > ul > li > a {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 3px 10px;
+  border: 1px solid transparent;
+  border-radius: 24px;
+  color: #236a97;
+  transition: none;
+}
+
+.nav-pills > ul > li > a:hover {
+  border-color: #236a97;
+}
+
+.nav-pills > ul > li.active > a,
+.nav-pills > ul > li > a.active {
+  background-color: #236a97;
+  color: #fff;
+}

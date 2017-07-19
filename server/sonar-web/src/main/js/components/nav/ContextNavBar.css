@@ -1,0 +1,36 @@
+.navbar-context,
+.navbar-context .navbar-inner {
+  background-color: #f3f3f3;
+  z-index: 420;
+}
+
+.navbar-context .navbar-inner {
+  padding-top: 5px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.navbar-context-header {
+  line-height: 30px;
+  font-size: 15px;
+}
+
+.navbar-context-meta {
+  position: absolute;
+  top: 0;
+  right: 0;
+  line-height: 30px;
+  padding: 0 10px;
+  color: #777;
+  font-size: 12px;
+  text-align: right;
+}
+
+.navbar-context-description {
+  display: inline-block;
+  line-height: 24px;
+  margin-left: 16px;
+  padding-top: 4px;
+  padding-left: 4px;
+  color: #777;
+  font-size: 12px;
+}

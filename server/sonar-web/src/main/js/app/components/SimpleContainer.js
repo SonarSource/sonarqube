@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import GlobalFooterContainer from './GlobalFooterContainer';
+import NavBar from '../../components/nav/NavBar';
 
 type Props = {
   children?: React.Element<*> | Array<React.Element<*>>,
@@ -46,10 +47,8 @@ export default class SimpleContainer extends React.PureComponent {
   render() {
     return (
       <div className="global-container">
-        <div className="page-wrapper page-wrapper-global" id="container">
-          <nav className="navbar navbar-global page-container" id="global-navigation">
-            <div className="navbar-header" />
-          </nav>
+        <div className="page-wrapper" id="container">
+          <NavBar className="navbar-global" id="global-navigation" height={30} />
 
           <div id="bd" className="page-wrapper-simple">
             <div id="nonav" className="page-simple">

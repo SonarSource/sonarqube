@@ -51,7 +51,7 @@ export default function AboutAppForSonarQubeDotCom(props: Props) {
   return (
     <div id="about-page" className="about-page sqcom-about-page">
       <div className="sqcom-about-page-entry">
-        <div className="about-page-container">
+        <div className="page-limited">
           <div className="sqcom-about-page-intro">
             <h1 className="big-spacer-bottom">
               Continuous Code Quality<br />as a Service
@@ -73,7 +73,7 @@ export default function AboutAppForSonarQubeDotCom(props: Props) {
 
       <AboutRulesForSonarQubeDotCom appState={props.appState} />
 
-      <div className="about-page-container">
+      <div className="page-limited">
         {customText != null &&
           customText.value &&
           <div

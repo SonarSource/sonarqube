@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should work with extensions 1`] = `
-<ul
-  className="nav navbar-nav nav-tabs"
->
+<NavBarTabs>
   <li>
     <Link
       activeClassName="active"
@@ -18,9 +16,7 @@ exports[`should work with extensions 1`] = `
         }
       }
     >
-      <i
-        className="icon-home"
-      />
+      overview.page
     </Link>
   </li>
   <li>
@@ -96,7 +92,7 @@ exports[`should work with extensions 1`] = `
     className="dropdown"
   >
     <a
-      className="dropdown-toggle navbar-admin-link"
+      className="dropdown-toggle is-admin"
       data-toggle="dropdown"
       href="#"
       id="component-navigation-admin"
@@ -200,13 +196,11 @@ exports[`should work with extensions 1`] = `
       </li>
     </ul>
   </li>
-</ul>
+</NavBarTabs>
 `;
 
 exports[`should work with multiple extensions 1`] = `
-<ul
-  className="nav navbar-nav nav-tabs"
->
+<NavBarTabs>
   <li>
     <Link
       activeClassName="active"
@@ -221,9 +215,7 @@ exports[`should work with multiple extensions 1`] = `
         }
       }
     >
-      <i
-        className="icon-home"
-      />
+      overview.page
     </Link>
   </li>
   <li>
@@ -299,7 +291,7 @@ exports[`should work with multiple extensions 1`] = `
     className="dropdown"
   >
     <a
-      className="dropdown-toggle navbar-admin-link"
+      className="dropdown-toggle is-admin"
       data-toggle="dropdown"
       href="#"
       id="component-navigation-admin"
@@ -437,5 +429,5 @@ exports[`should work with multiple extensions 1`] = `
       </li>
     </ul>
   </li>
-</ul>
+</NavBarTabs>
 `;

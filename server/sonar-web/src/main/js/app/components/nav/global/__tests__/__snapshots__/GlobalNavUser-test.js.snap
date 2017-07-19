@@ -64,6 +64,7 @@ exports[`should not render the users organizations when they are not activated 1
 exports[`should render the right interface for anonymous user 1`] = `
 <li>
   <a
+    className="navbar-login"
     href="#"
     onClick={[Function]}
   >
@@ -322,6 +323,7 @@ exports[`should update the component correctly when the user changes to anonymou
 exports[`should update the component correctly when the user changes to anonymous 2`] = `
 <li>
   <a
+    className="navbar-login"
     href="#"
     onClick={[Function]}
   >

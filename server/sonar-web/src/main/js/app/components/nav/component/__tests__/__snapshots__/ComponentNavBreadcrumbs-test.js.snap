@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should not render breadcrumbs with one element 1`] = `
-<h2
-  className="navbar-context-title"
+<h1
+  className="navbar-context-header"
 >
   <OrganizationHelmet
     organization={null}
@@ -17,7 +17,7 @@ exports[`should not render breadcrumbs with one element 1`] = `
       />
     </span>
     <Link
-      className="link-base-color"
+      className="link-base-color link-no-underline"
       onlyActiveOnIndex={false}
       style={Object {}}
       title="My Project"
@@ -35,12 +35,12 @@ exports[`should not render breadcrumbs with one element 1`] = `
       </strong>
     </Link>
   </span>
-</h2>
+</h1>
 `;
 
 exports[`should render organization 1`] = `
-<h2
-  className="navbar-context-title"
+<h1
+  className="navbar-context-header"
 >
   <OrganizationHelmet
     organization={
@@ -60,7 +60,7 @@ exports[`should render organization 1`] = `
       />
     </span>
     <OrganizationLink
-      className="link-base-color"
+      className="link-base-color link-no-underline"
       organization={
         Object {
           "key": "foo",
@@ -76,7 +76,7 @@ exports[`should render organization 1`] = `
   </span>
   <span>
     <Link
-      className="link-base-color"
+      className="link-base-color link-no-underline"
       onlyActiveOnIndex={false}
       style={Object {}}
       title="My Project"
@@ -94,5 +94,5 @@ exports[`should render organization 1`] = `
       </strong>
     </Link>
   </span>
-</h2>
+</h1>
 `;

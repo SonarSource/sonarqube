@@ -29,7 +29,6 @@ import GlobalContainer from '../components/GlobalContainer';
 import SimpleContainer from '../components/SimpleContainer';
 import SimpleSessionsContainer from '../../apps/sessions/components/SimpleSessionsContainer';
 import Landing from '../components/Landing';
-import ProjectContainer from '../components/ProjectContainer';
 import ProjectAdminContainer from '../components/ProjectAdminContainer';
 import ProjectPageExtension from '../components/extensions/ProjectPageExtension';
 import ProjectAdminPageExtension from '../components/extensions/ProjectAdminPageExtension';
@@ -165,7 +164,9 @@ const startReactApp = () => {
                   <Route path="profiles" childRoutes={qualityProfilesRoutes} />
                   <Route path="web_api" childRoutes={webAPIRoutes} />
 
-                  <Route component={ProjectContainer}>
+                  <Route
+                    getComponent={() =>
+                      import('../components/ProjectContainer').then(i => i.default)}>
                     <Route path="code" childRoutes={codeRoutes} />
                     <Route path="component_measures" childRoutes={componentMeasuresRoutes} />
                     <Route path="custom_measures" childRoutes={customMeasuresRoutes} />

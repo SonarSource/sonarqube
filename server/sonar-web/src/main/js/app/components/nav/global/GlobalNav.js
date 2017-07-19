@@ -25,11 +25,13 @@ import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
 import GlobalHelp from '../../help/GlobalHelp';
+import NavBar from '../../../../components/nav/NavBar';
 import Tooltip from '../../../../components/controls/Tooltip';
 import HelpIcon from '../../../../components/icons-components/HelpIcon';
 import OnboardingModal from '../../../../apps/tutorials/onboarding/OnboardingModal';
 import { getCurrentUser, getAppState, getSettingValue } from '../../../../store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
+import './GlobalNav.css';
 
 type Props = {
   appState: { organizationsEnabled: boolean },
@@ -96,29 +98,27 @@ class GlobalNav extends React.PureComponent {
 
   render() {
     return (
-      <nav className="navbar navbar-global page-container" id="global-navigation">
-        <div className="container">
-          <GlobalNavBranding />
+      <NavBar className="navbar-global" id="global-navigation" height={30}>
+        <GlobalNavBranding />
 
-          <GlobalNavMenu {...this.props} />
+        <GlobalNavMenu {...this.props} />
 
-          <ul className="nav navbar-nav navbar-right">
-            <Search appState={this.props.appState} currentUser={this.props.currentUser} />
-            <li>
-              <a className="navbar-help" onClick={this.handleHelpClick} href="#">
-                {this.state.onboardingTutorialTooltip
-                  ? <Tooltip
-                      defaultVisible={true}
-                      overlay={translate('tutorials.follow_later')}
-                      trigger="manual">
-                      <HelpIcon />
-                    </Tooltip>
-                  : <HelpIcon />}
-              </a>
-            </li>
-            <GlobalNavUserContainer {...this.props} />
-          </ul>
-        </div>
+        <ul className="global-navbar-menu pull-right">
+          <Search appState={this.props.appState} currentUser={this.props.currentUser} />
+          <li>
+            <a className="navbar-help" onClick={this.handleHelpClick} href="#">
+              {this.state.onboardingTutorialTooltip
+                ? <Tooltip
+                    defaultVisible={true}
+                    overlay={translate('tutorials.follow_later')}
+                    trigger="manual">
+                    <HelpIcon />
+                  </Tooltip>
+                : <HelpIcon />}
+            </a>
+          </li>
+          <GlobalNavUserContainer {...this.props} />
+        </ul>
 
         {this.state.helpOpen &&
           <GlobalHelp
@@ -130,7 +130,7 @@ class GlobalNav extends React.PureComponent {
 
         {this.state.onboardingTutorialOpen &&
           <OnboardingModal onFinish={this.closeOnboardingTutorial} />}
-      </nav>
+      </NavBar>
     );
   }
 }

@@ -230,7 +230,7 @@
         <dependency>
           <groupId>com.sonarsource</groupId>
           <artifactId>sonarsource-branding</artifactId>
-          <version>1.3.0.304</version>
+          <version>1.3.0.307</version>
           <type>war</type>
           <scope>runtime</scope>
         </dependency>

@@ -115,22 +115,6 @@
   text-align: right;
 }
 
-.issues .search-navigator-facet-header,
-.issues .search-navigator-facet-list {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.issues .search-navigator-facet-header {
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
-.issues .search-navigator-facet-box:not(.hidden):not(.leak-facet-box)
-  + .search-navigator-facet-box:not(.leak-facet-box) {
-  border-top: none;
-}
-
 .issues .search-navigator-facet-footer {
   padding: 0 0 10px 0;
 }

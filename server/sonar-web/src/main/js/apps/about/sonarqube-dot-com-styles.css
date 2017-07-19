@@ -16,10 +16,12 @@
   color: #4b9fd5;
 }
 
-.sqcom-about-page-entry .about-page-container {
+.sqcom-about-page-entry .page-limited {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .sqcom-about-page-intro {
@@ -89,10 +91,12 @@
   background-color: #4193c8;
 }
 
-.sqcom-about-rules .about-page-container {
+.sqcom-about-rules .page-limited {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .sqcom-about-rules .button {

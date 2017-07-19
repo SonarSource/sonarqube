@@ -32,7 +32,7 @@ import static com.codeborne.selenide.Selenide.$$;
 public class MembersPage {
 
   public MembersPage() {
-    $(".nav-tabs a.active").shouldBe(visible).shouldHave(text("Members"));
+    $(".navbar-tabs a.active").shouldBe(visible).shouldHave(text("Members"));
   }
 
   public ElementsCollection getMembers() {
