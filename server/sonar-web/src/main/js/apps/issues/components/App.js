@@ -669,6 +669,7 @@ export default class App extends React.PureComponent {
             onClose={this.closeBulkChange}
             onDone={this.handleBulkChangeDone}
             onRequestFail={this.props.onRequestFail}
+            organization={this.props.organization}
           />}
       </div>
     );
