@@ -26,6 +26,7 @@ import { searchIssueTags } from '../../../api/issues';
 type Props = {
   popupPosition?: {},
   onFail: Error => void,
+  organization: string,
   selectedTags: Array<string>,
   setTags: (Array<string>) => void
 };
@@ -59,7 +60,8 @@ export default class SetIssueTagsPopup extends React.PureComponent {
   onSearch = (query: string) => {
     searchIssueTags({
       q: query || '',
-      ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, 100)
+      ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, 100),
+      organization: this.props.organization
     }).then((tags: Array<string>) => {
       if (this.mounted) {
         this.setState({ searchResult: tags });
