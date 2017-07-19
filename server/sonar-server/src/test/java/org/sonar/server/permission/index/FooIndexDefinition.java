@@ -19,9 +19,13 @@
  */
 package org.sonar.server.permission.index;
 
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
+
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class FooIndexDefinition implements IndexDefinition {
 
@@ -33,8 +37,7 @@ public class FooIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(FOO_INDEX);
-    index.refreshHandledByIndexer();
+    NewIndex index = context.create(FOO_INDEX, newBuilder(new MapSettings().asConfig()).setRefreshInterval(MANUAL_REFRESH_INTERVAL).build());
 
     NewIndex.NewIndexType type = index.createType(FOO_TYPE)
       .requireProjectAuthorization();

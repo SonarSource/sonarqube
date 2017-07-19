@@ -24,6 +24,9 @@ import org.sonar.server.es.IndexDefinition.IndexDefinitionContext;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+
 public class MetadataIndexDefinition {
 
   public static final IndexType INDEX_TYPE_METADATA = new IndexType("metadatas", "metadata");
@@ -38,9 +41,12 @@ public class MetadataIndexDefinition {
   }
 
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_TYPE_METADATA.getIndex());
-    index.refreshHandledByIndexer();
-    index.configureShards(configuration, DEFAULT_NUMBER_OF_SHARDS);
+    NewIndex index = context.create(
+      INDEX_TYPE_METADATA.getIndex(),
+      newBuilder(configuration)
+        .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
+        .setDefaultNbOfShards(DEFAULT_NUMBER_OF_SHARDS)
+        .build());
 
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_METADATA.getType());
 

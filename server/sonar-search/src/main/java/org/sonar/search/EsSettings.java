@@ -29,8 +29,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessProperties;
@@ -79,7 +77,6 @@ public class EsSettings implements EsSettingsMBean {
   Map<String, String> build() {
     Map<String, String> builder = new HashMap<>();
     configureFileSystem(builder);
-    configureIndexDefaults(builder);
     configureNetwork(builder);
     configureCluster(builder);
     configureMarvel(builder);
@@ -146,15 +143,6 @@ public class EsSettings implements EsSettingsMBean {
     } catch (UnknownHostException e) {
       throw new IllegalStateException("Can not resolve host [" + hostProperty + "]. Please check network settings and property " + ProcessProperties.SEARCH_HOST, e);
     }
-  }
-
-  private static void configureIndexDefaults(Settings.Builder builder) {
-    builder
-      .put("index.number_of_shards", "1")
-      .put("index.refresh_interval", "30s")
-      .put("action.auto_create_index", false)
-      .put("index.mapper.dynamic", false)
-      .put("action.auto_create_index", false);
   }
 
   private void configureCluster(Map<String, String> builder) {

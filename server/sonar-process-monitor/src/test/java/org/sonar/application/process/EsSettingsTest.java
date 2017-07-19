@@ -34,6 +34,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class EsSettingsTest {
 
+  private static final boolean CLUSTER_ENABLED = true;
+  private static final boolean CLUSTER_DISABLED = false;
+  
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -66,10 +69,11 @@ public class EsSettingsTest {
     // http is disabled for security reasons
     assertThat(generated.get("http.enabled")).isEqualTo("false");
 
-    assertThat(generated.get("index.number_of_replicas")).isEqualTo("0");
     assertThat(generated.get("discovery.zen.ping.unicast.hosts")).isNull();
     assertThat(generated.get("discovery.zen.minimum_master_nodes")).isEqualTo("1");
     assertThat(generated.get("discovery.initial_state_timeout")).isEqualTo("30s");
+
+    assertThat(generated.get("action.auto_create_index")).isEqualTo("false");
   }
 
   @Test
@@ -77,7 +81,7 @@ public class EsSettingsTest {
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
     File tempDir = temp.newFolder();
-    Props props = minProps(false);
+    Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
@@ -90,12 +94,11 @@ public class EsSettingsTest {
   }
 
   @Test
-  public void cluster_is_enabled() throws Exception {
-    Props props = minProps(true);
+  public void set_discovery_settings_if_cluster_is_enabled() throws Exception {
+    Props props = minProps(CLUSTER_ENABLED);
     props.set(ProcessProperties.CLUSTER_SEARCH_HOSTS, "1.2.3.4:9000,1.2.3.5:8080");
     Map<String, String> settings = new EsSettings(props).build();
 
-    assertThat(settings.get("index.number_of_replicas")).isEqualTo("1");
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("1.2.3.4:9000,1.2.3.5:8080");
     assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("2");
     assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("120s");
@@ -103,7 +106,7 @@ public class EsSettingsTest {
 
   @Test
   public void incorrect_values_of_minimum_master_nodes() throws Exception {
-    Props props = minProps(true);
+    Props props = minProps(CLUSTER_ENABLED);
     props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "ꝱꝲꝳପ");
 
     EsSettings underTest = new EsSettings(props);
@@ -115,7 +118,7 @@ public class EsSettingsTest {
 
   @Test
   public void cluster_is_enabled_with_defined_minimum_master_nodes() throws Exception {
-    Props props = minProps(true);
+    Props props = minProps(CLUSTER_ENABLED);
     props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "5");
     Map<String, String> settings = new EsSettings(props).build();
 
@@ -124,7 +127,7 @@ public class EsSettingsTest {
 
   @Test
   public void cluster_is_enabled_with_defined_initialTimeout() throws Exception {
-    Props props = minProps(true);
+    Props props = minProps(CLUSTER_ENABLED);
     props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "10s");
     Map<String, String> settings = new EsSettings(props).build();
 
@@ -133,7 +136,7 @@ public class EsSettingsTest {
 
   @Test
   public void in_standalone_initialTimeout_is_not_overridable() throws Exception {
-    Props props = minProps(false);
+    Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "10s");
     Map<String, String> settings = new EsSettings(props).build();
 
@@ -142,7 +145,7 @@ public class EsSettingsTest {
 
   @Test
   public void in_standalone_minimumMasterNodes_is_not_overridable() throws Exception {
-    Props props = minProps(false);
+    Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "5");
     Map<String, String> settings = new EsSettings(props).build();
 
@@ -150,40 +153,10 @@ public class EsSettingsTest {
   }
 
 
-  @Test
-  public void in_standalone_searchReplicas_is_not_overridable() throws Exception {
-    Props props = minProps(false);
-    props.set(ProcessProperties.SEARCH_REPLICAS, "5");
-    Map<String, String> settings = new EsSettings(props).build();
-
-    assertThat(settings.get("index.number_of_replicas")).isEqualTo("0");
-  }
-
-  @Test
-  public void cluster_is_enabled_with_defined_replicas() throws Exception {
-    Props props = minProps(true);
-    props.set(ProcessProperties.SEARCH_REPLICAS, "5");
-    Map<String, String> settings = new EsSettings(props).build();
-
-    assertThat(settings.get("index.number_of_replicas")).isEqualTo("5");
-  }
-
-  @Test
-  public void incorrect_values_of_replicas() throws Exception {
-    Props props = minProps(true);
-
-    props.set(ProcessProperties.SEARCH_REPLICAS, "ꝱꝲꝳପ");
-
-    EsSettings underTest = new EsSettings(props);
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Value of property sonar.search.replicas is not an integer:");
-    underTest.build();
-  }
 
   @Test
   public void enable_marvel() throws Exception {
-    Props props = minProps(false);
+    Props props = minProps(CLUSTER_DISABLED);
     props.set("sonar.search.marvelHosts", "127.0.0.2,127.0.0.3");
     Map<String, String> settings = new EsSettings(props).build();
 
@@ -192,7 +165,7 @@ public class EsSettingsTest {
 
   @Test
   public void enable_http_connector() throws Exception {
-    Props props = minProps(false);
+    Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
     Map<String, String> settings = new EsSettings(props).build();
 
@@ -203,7 +176,7 @@ public class EsSettingsTest {
 
   @Test
   public void enable_http_connector_different_host() throws Exception {
-    Props props = minProps(false);
+    Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.2");
     Map<String, String> settings = new EsSettings(props).build();

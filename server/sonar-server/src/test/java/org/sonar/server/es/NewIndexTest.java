@@ -32,26 +32,54 @@ import org.sonar.process.ProcessProperties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.fail;
+import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class NewIndexTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private MapSettings settings = new MapSettings();
+  private NewIndex.SettingsConfiguration defaultSettingsConfiguration = newBuilder(settings.asConfig()).build();
+
   @Test
-  public void most_basic_index() {
-    NewIndex index = new NewIndex("issues");
-    assertThat(index.getName()).isEqualTo("issues");
-    assertThat(index.getTypes()).isEmpty();
-    Settings settings = index.getSettings().build();
-    // test some basic settings
-    assertThat(settings.get("index.number_of_shards")).isNotEmpty();
+  public void getName_returns_constructor_argument() {
+    assertThat(new NewIndex("foo", defaultSettingsConfiguration).getName()).isEqualTo("foo");
+  }
+
+  @Test
+  public void no_types_of_none_are_specified() {
+    assertThat(new NewIndex("foo", defaultSettingsConfiguration).getTypes()).isEmpty();
+  }
+
+  @Test
+  public void verify_default_index_settings_in_standalone() {
+    Settings underTest = new NewIndex("issues", defaultSettingsConfiguration).getSettings().build();
+
+    assertThat(underTest.get("index.number_of_shards")).isNotEmpty();
+    assertThat(underTest.get("index.mapper.dynamic")).isEqualTo("false");
+    assertThat(underTest.get("index.refresh_interval")).isEqualTo("30s");
+    assertThat(underTest.get("index.number_of_shards")).isEqualTo("1");
+    assertThat(underTest.get("index.number_of_replicas")).isEqualTo("0");
+  }
+
+  @Test
+  public void verify_default_index_settings_in_cluster() {
+    settings.setProperty(CLUSTER_ENABLED, "true");
+    Settings underTest = new NewIndex("issues", defaultSettingsConfiguration).getSettings().build();
+
+    assertThat(underTest.get("index.number_of_shards")).isNotEmpty();
+    assertThat(underTest.get("index.mapper.dynamic")).isEqualTo("false");
+    assertThat(underTest.get("index.refresh_interval")).isEqualTo("30s");
+    assertThat(underTest.get("index.number_of_shards")).isEqualTo("1");
+    assertThat(underTest.get("index.number_of_replicas")).isEqualTo("1");
   }
 
   @Test
   public void index_name_is_lower_case() {
     try {
-      new NewIndex("Issues");
+      new NewIndex("Issues", defaultSettingsConfiguration);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Index name must be lower-case: Issues");
@@ -60,7 +88,7 @@ public class NewIndexTest {
 
   @Test
   public void define_fields() {
-    NewIndex index = new NewIndex("issues");
+    NewIndex index = new NewIndex("issues", defaultSettingsConfiguration);
     NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.setAttribute("dynamic", "true");
     mapping.setProperty("foo_field", ImmutableMap.of("type", "keyword"));
@@ -90,7 +118,7 @@ public class NewIndexTest {
 
   @Test
   public void define_string_field() {
-    NewIndex index = new NewIndex("issues");
+    NewIndex index = new NewIndex("issues", defaultSettingsConfiguration);
     NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.keywordFieldBuilder("basic_field").build();
     mapping.keywordFieldBuilder("not_searchable_field").disableSearch().build();
@@ -119,7 +147,7 @@ public class NewIndexTest {
 
   @Test
   public void define_nested_field() {
-    NewIndex index = new NewIndex("projectmeasures");
+    NewIndex index = new NewIndex("projectmeasures", defaultSettingsConfiguration);
     NewIndex.NewIndexType mapping = index.createType("projectmeasures");
 
     mapping.nestedFieldBuilder("measures")
@@ -139,7 +167,7 @@ public class NewIndexTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("At least one sub-field must be declared in nested property 'measures'");
 
-    NewIndex index = new NewIndex("projectmeasures");
+    NewIndex index = new NewIndex("projectmeasures", defaultSettingsConfiguration);
     NewIndex.NewIndexType mapping = index.createType("project_measures");
 
     mapping.nestedFieldBuilder("measures").build();
@@ -147,7 +175,7 @@ public class NewIndexTest {
 
   @Test
   public void use_default_doc_values() {
-    NewIndex index = new NewIndex("issues");
+    NewIndex index = new NewIndex("issues", defaultSettingsConfiguration);
     NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.keywordFieldBuilder("the_doc_value").build();
 
@@ -158,28 +186,26 @@ public class NewIndexTest {
 
   @Test
   public void default_shards_and_replicas() {
-    NewIndex index = new NewIndex("issues");
-    index.configureShards(new MapSettings().asConfig(), 5);
+    NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
+
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
   @Test
   public void five_shards_and_one_replica_by_default_on_cluster() {
-    NewIndex index = new NewIndex("issues");
-    MapSettings settings = new MapSettings();
-    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
-    index.configureShards(settings.asConfig(), 5);
+    settings.setProperty(CLUSTER_ENABLED, "true");
+    NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
+
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
   }
 
   @Test
   public void customize_number_of_shards() {
-    NewIndex index = new NewIndex("issues");
-    MapSettings settings = new MapSettings();
     settings.setProperty("sonar.search.issues.shards", "3");
-    index.configureShards(settings.asConfig(), 5);
+    NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
+
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("3");
     // keep default value
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
@@ -187,52 +213,68 @@ public class NewIndexTest {
 
   @Test
   public void default_number_of_replicas_on_standalone_instance_must_be_0() {
-    NewIndex index = new NewIndex("issues");
-    MapSettings settings = new MapSettings();
-    index.configureShards(settings.asConfig(), 5);
+    NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
+
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
   @Test
   public void default_number_of_replicas_on_non_enabled_cluster_must_be_0() {
-    NewIndex index = new NewIndex("issues");
-    MapSettings settings = new MapSettings();
-    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "false");
-    index.configureShards(settings.asConfig(), 5);
+    settings.setProperty(CLUSTER_ENABLED, "false");
+    NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
+
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
   @Test
   public void default_number_of_replicas_on_cluster_instance_must_be_1() {
-    NewIndex index = new NewIndex("issues");
-    MapSettings settings = new MapSettings();
-    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
-    index.configureShards(settings.asConfig(), 5);
+    settings.setProperty(CLUSTER_ENABLED, "true");
+    NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
+
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
   }
 
   @Test
   public void when_number_of_replicas_on_cluster_is_specified_to_zero_default_value_must_not_be_used() {
-    NewIndex index = new NewIndex("issues");
-    MapSettings settings = new MapSettings();
-    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.setProperty(CLUSTER_ENABLED, "true");
     settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "0");
-    index.configureShards(settings.asConfig(), 5);
+    NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
+
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
   @Test
-  public void customize_number_of_replicas() {
-    NewIndex index = new NewIndex("issues");
-    MapSettings settings = new MapSettings();
+  public void index_defined_with_specified_number_of_replicas_when_cluster_enabled() {
+    settings.setProperty(CLUSTER_ENABLED, "true");
     settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "3");
-    index.configureShards(settings.asConfig(), 5);
+    NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
+
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("3");
   }
 
   @Test
+  public void fail_when_replica_customization_cant_be_parsed() throws Exception {
+    settings.setProperty(CLUSTER_ENABLED, "true");
+    settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "ꝱꝲꝳପ");
+    NewIndex.SettingsConfiguration settingsConfiguration = newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("The property 'sonar.search.replicas' is not an int value: For input string: \"ꝱꝲꝳପ\"");
+
+    new NewIndex("issues", settingsConfiguration);
+  }
+
+  @Test
+  public void in_standalone_searchReplicas_is_not_overridable() throws Exception {
+    settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "5");
+    NewIndex index = new NewIndex("issues", defaultSettingsConfiguration);
+
+    assertThat(index.getSettings().get("index.number_of_replicas")).isEqualTo("0");
+  }
+
+  @Test
   public void index_with_source() {
-    NewIndex index = new NewIndex("issues");
+    NewIndex index = new NewIndex("issues", defaultSettingsConfiguration);
     NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.setEnableSource(true);
 
@@ -243,7 +285,7 @@ public class NewIndexTest {
 
   @Test
   public void index_without_source() {
-    NewIndex index = new NewIndex("issues");
+    NewIndex index = new NewIndex("issues", defaultSettingsConfiguration);
     NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.setEnableSource(false);
 
@@ -254,7 +296,7 @@ public class NewIndexTest {
 
   @Test
   public void index_requires_project_authorization() {
-    NewIndex index = new NewIndex("issues");
+    NewIndex index = new NewIndex("issues", defaultSettingsConfiguration);
     index.createType("issue")
       // creates a second type "authorization" and configures _parent and _routing fields
       .requireProjectAuthorization();

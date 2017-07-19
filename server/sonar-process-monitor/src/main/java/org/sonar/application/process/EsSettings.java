@@ -67,6 +67,7 @@ public class EsSettings {
     configureNetwork(builder);
     configureCluster(builder);
     configureMarvel(builder);
+    configureAction(builder);
     return builder;
   }
 
@@ -133,25 +134,6 @@ public class EsSettings {
     }
   }
 
-  void configureIndexDefaults(Map<String, String> builder) {
-    configureIndexDefaultsForCluster(builder);
-    builder.put("index.number_of_shards", "1");
-    builder.put("index.refresh_interval", "30s");
-    builder.put("action.auto_create_index", String.valueOf(false));
-    builder.put("index.mapper.dynamic", String.valueOf(false));
-  }
-
-  private void configureIndexDefaultsForCluster(Map<String, String> builder) {
-    builder.put("index.number_of_replicas", String.valueOf(computeReplicationFactor()));
-  }
-
-  private int computeReplicationFactor() {
-    if (clusterEnabled) {
-      return props.valueAsInt(ProcessProperties.SEARCH_REPLICAS, 1);
-    }
-    return 0;
-  }
-
   private void configureCluster(Map<String, String> builder) {
     // Default value in a standalone mode, not overridable
 
@@ -189,4 +171,7 @@ public class EsSettings {
     }
   }
 
+  private void configureAction(Map<String, String> builder) {
+    builder.put("action.auto_create_index", String.valueOf(false));
+  }
 }

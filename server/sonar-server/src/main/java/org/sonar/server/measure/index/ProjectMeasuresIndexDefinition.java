@@ -26,6 +26,8 @@ import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
@@ -50,9 +52,12 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_TYPE_PROJECT_MEASURES.getIndex());
-    index.refreshHandledByIndexer();
-    index.configureShards(config, 5);
+    NewIndex index = context.create(
+      INDEX_TYPE_PROJECT_MEASURES.getIndex(),
+      newBuilder(config)
+        .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
+        .setDefaultNbOfShards(5)
+        .build());
 
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_PROJECT_MEASURES.getType())
       .requireProjectAuthorization();

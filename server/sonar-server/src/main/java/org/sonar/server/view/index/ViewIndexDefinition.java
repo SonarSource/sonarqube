@@ -24,6 +24,8 @@ import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+
 /**
  * Definition of ES index "views", including settings and fields.
  */
@@ -41,9 +43,11 @@ public class ViewIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_TYPE_VIEW.getIndex());
-
-    index.configureShards(config, 5);
+    NewIndex index = context.create(
+      INDEX_TYPE_VIEW.getIndex(),
+      newBuilder(config)
+        .setDefaultNbOfShards(5)
+        .build());
 
     // type "view"
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_VIEW.getType());
