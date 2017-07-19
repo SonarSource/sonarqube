@@ -213,7 +213,7 @@
     from projects p
     where
       p.scope='PRJ'
-      and (p.qualifier='TRK' or p.qualifier='VW')
+    and (p.qualifier='TRK' or p.qualifier='VW' or p.qualifier='APP')
       and p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
   </select>
 

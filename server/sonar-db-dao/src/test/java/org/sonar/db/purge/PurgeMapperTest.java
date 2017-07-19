@@ -93,6 +93,15 @@ public class PurgeMapperTest {
   }
 
   @Test
+  public void selectRootAndModulesOrSubviewsByProjectUuid_returns_application_with_specified_uuid() {
+    ComponentDto view = db.components().insertApplication(db.getDefaultOrganization());
+
+    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
+      .extracting(IdUuidPair::getUuid)
+      .containsOnly(view.uuid());
+  }
+
+  @Test
   public void selectRootAndModulesOrSubviewsByProjectUuid_returns_subviews_with_specified_project_uuid_and_view() {
     ComponentDto view = db.components().insertView();
     ComponentDto subview1 = db.components().insertComponent(ComponentTesting.newSubView(view));

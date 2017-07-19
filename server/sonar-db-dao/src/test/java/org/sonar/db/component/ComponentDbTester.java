@@ -32,6 +32,7 @@ import static java.util.Arrays.asList;
 import static org.sonar.db.component.ComponentTesting.newApplication;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
+import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
@@ -138,8 +139,12 @@ public class ComponentDbTester {
     return insertComponentImpl(newApplication(organizationDto), false, noExtraConfiguration());
   }
 
-  public ComponentDto insertApplication(OrganizationDto organizationDto, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(newApplication(organizationDto), false, dtoPopulator);
+  public ComponentDto insertApplication(OrganizationDto organizationDto, Consumer<ComponentDto>... dtoPopulators) {
+    return insertComponentImpl(newApplication(organizationDto), false, dtoPopulators);
+  }
+
+  public ComponentDto insertSubView(ComponentDto view, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(newSubView(view), false, dtoPopulator);
   }
 
   private static <T> Consumer<T> noExtraConfiguration() {

@@ -28,7 +28,7 @@ public interface PurgeMapper {
   List<IdUuidPair> selectAnalysisIdsAndUuids(PurgeSnapshotQuery query);
 
   /**
-   * Returns the list of modules/subviews and the view/project for the specified project_uuid.
+   * Returns the list of modules/subviews and the application/view/project for the specified project_uuid.
    */
   List<IdUuidPair> selectRootAndModulesOrSubviewsByProjectUuid(@Param("rootUuid") String rootUuid);
 
