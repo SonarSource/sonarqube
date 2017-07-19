@@ -192,9 +192,9 @@ export type CurrentUser =
   | { isLoggedIn: false }
   | { isLoggedIn: true, email?: string, login: string, name: string };
 
-export const searchAssignees = (query: string, component?: Component) => {
-  return component
-    ? searchMembers({ organization: component.organization, ps: 50, q: query }).then(response =>
+export const searchAssignees = (query: string, organization?: string) => {
+  return organization
+    ? searchMembers({ organization, ps: 50, q: query }).then(response =>
         response.users.map(user => ({
           avatar: user.avatar,
           label: user.name,

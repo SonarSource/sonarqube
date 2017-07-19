@@ -20,15 +20,15 @@
 // @flow
 import React from 'react';
 import { sortBy, uniq, without } from 'lodash';
+import Avatar from '../../../components/ui/Avatar';
 import FacetBox from './components/FacetBox';
 import FacetHeader from './components/FacetHeader';
 import FacetItem from './components/FacetItem';
 import FacetItemsList from './components/FacetItemsList';
 import FacetFooter from './components/FacetFooter';
 import { searchAssignees } from '../utils';
-import type { ReferencedUser, Component } from '../utils';
-import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
+import type { ReferencedUser, Component } from '../utils';
 
 type Props = {|
   assigned: boolean,
@@ -38,6 +38,7 @@ type Props = {|
   onChange: (changes: {}) => void,
   onToggle: (property: string) => void,
   open: boolean,
+  organization?: { key: string },
   stats?: { [string]: number },
   referencedUsers: { [string]: ReferencedUser }
 |};
@@ -73,7 +74,13 @@ export default class AssigneeFacet extends React.PureComponent {
     this.props.onChange({ assigned: true, assignees: [] });
   };
 
-  handleSearch = (query: string) => searchAssignees(query, this.props.component);
+  handleSearch = (query: string) => {
+    let organization = this.props.component && this.props.component.organization;
+    if (this.props.organization && !organization) {
+      organization = this.props.organization.key;
+    }
+    return searchAssignees(query, organization);
+  };
 
   handleSelect = (assignee: string) => {
     const { assignees } = this.props;
