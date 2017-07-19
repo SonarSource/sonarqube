@@ -51,6 +51,23 @@ exports[`admin 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
+            to={
+              Object {
+                "pathname": "/organizations/foo/issues",
+                "query": Object {
+                  "resolved": "false",
+                },
+              }
+            }
+          >
+            issues.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
             to="/organizations/foo/members"
           >
             organization.members.page
@@ -212,6 +229,23 @@ exports[`regular user 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
+            to={
+              Object {
+                "pathname": "/organizations/foo/issues",
+                "query": Object {
+                  "resolved": "false",
+                },
+              }
+            }
+          >
+            issues.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
             to="/organizations/foo/members"
           >
             organization.members.page
@@ -287,6 +321,23 @@ exports[`undeletable org 1`] = `
             to="/organizations/foo/projects"
           >
             projects.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/organizations/foo/issues",
+                "query": Object {
+                  "resolved": "false",
+                },
+              }
+            }
+          >
+            issues.page
           </Link>
         </li>
         <li>

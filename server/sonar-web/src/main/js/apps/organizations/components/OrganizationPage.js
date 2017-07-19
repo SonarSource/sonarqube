@@ -22,10 +22,10 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import OrganizationNavigation from '../navigation/OrganizationNavigation';
-import { fetchOrganization } from '../actions';
-import { getOrganizationByKey } from '../../../store/rootReducer';
-import type { Organization } from '../../../store/organizations/duck';
 import NotFound from '../../../app/components/NotFound';
+import { fetchOrganization } from '../actions';
+import { getCurrentUser, getOrganizationByKey } from '../../../store/rootReducer';
+import type { Organization } from '../../../store/organizations/duck';
 
 type OwnProps = {
   params: { organizationKey: string }
@@ -33,6 +33,7 @@ type OwnProps = {
 
 type Props = {
   children?: React.Element<*>,
+  currentUser: { isLoggedIn: boolean, showOnboardingTutorial: true },
   location: Object,
   organization: null | Organization,
   params: { organizationKey: string },
@@ -88,7 +89,11 @@ class OrganizationPage extends React.PureComponent {
     return (
       <div>
         <Helmet defaultTitle={organization.name} titleTemplate={'%s - ' + organization.name} />
-        <OrganizationNavigation organization={organization} location={this.props.location} />
+        <OrganizationNavigation
+          currentUser={this.props.currentUser}
+          organization={organization}
+          location={this.props.location}
+        />
         {this.props.children}
       </div>
     );
@@ -96,6 +101,7 @@ class OrganizationPage extends React.PureComponent {
 }
 
 const mapStateToProps = (state, ownProps: OwnProps) => ({
+  currentUser: getCurrentUser(state),
   organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
 

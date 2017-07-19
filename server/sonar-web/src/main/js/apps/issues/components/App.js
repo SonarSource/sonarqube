@@ -67,6 +67,7 @@ export type Props = {
   fetchIssues: (query: RawQuery) => Promise<*>,
   location: { pathname: string, query: RawQuery },
   onRequestFail: Error => void,
+  organization?: { key: string },
   router: {
     push: ({ pathname: string, query?: RawQuery }) => void,
     replace: ({ pathname: string, query?: RawQuery }) => void
@@ -342,7 +343,7 @@ export default class App extends React.PureComponent {
   };
 
   fetchIssues = (additional?: {}, requestFacets?: boolean = false): Promise<*> => {
-    const { component } = this.props;
+    const { component, organization } = this.props;
     const { myIssues, openFacets, query } = this.state;
 
     const facets = requestFacets
@@ -357,6 +358,10 @@ export default class App extends React.PureComponent {
       facets,
       ...additional
     };
+
+    if (organization) {
+      parameters.organization = organization.key;
+    }
 
     // only sorting by CREATION_DATE is allowed, so let's sort DESC
     if (query.sort) {
@@ -730,7 +735,7 @@ export default class App extends React.PureComponent {
   }
 
   renderSide(openIssue: ?Issue) {
-    const top = this.props.component ? 95 : 30;
+    const top = this.props.component || this.props.organization ? 95 : 30;
 
     return (
       <div className="layout-page-side-outer">
