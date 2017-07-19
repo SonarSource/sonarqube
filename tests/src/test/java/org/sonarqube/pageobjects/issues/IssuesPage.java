@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;
 import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
@@ -39,6 +40,10 @@ public class IssuesPage {
     return $$(".issues .issue");
   }
 
+  private ElementsCollection getIssuesPathComponents() {
+    return $$(".issues-workspace-list-component");
+  }
+
   public List<Issue> getIssues() {
     return getIssuesElements()
       .stream()
@@ -46,9 +51,19 @@ public class IssuesPage {
       .collect(Collectors.toList());
   }
 
+  public IssuesPage issuesCount(Integer count) {
+    this.getIssuesElements().shouldHaveSize(count);
+    return this;
+  }
+
   public Issue getFirstIssue() {
     getIssuesElements().shouldHave(sizeGreaterThan(0));
     return new Issue(getIssuesElements().first());
+  }
+
+  public IssuesPage componentsShouldContain(String path) {
+    this.getIssuesPathComponents().forEach(element -> element.shouldHave(text(path)));
+    return this;
   }
 
   public IssuesPage bulkChangeOpen() {
