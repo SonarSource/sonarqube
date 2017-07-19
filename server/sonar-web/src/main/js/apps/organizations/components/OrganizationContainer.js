@@ -21,9 +21,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { getCurrentUser, getOrganizationByKey } from '../../../store/rootReducer';
-import { updateOrganization } from '../actions';
 
-class OrganizationProjectsContainer extends React.PureComponent {
+class OrganizationContainer extends React.PureComponent {
   render() {
     return React.cloneElement(this.props.children, {
       currentUser: this.props.currentUser,
@@ -37,6 +36,4 @@ const mapStateToProps = (state, ownProps) => ({
   currentUser: getCurrentUser(state)
 });
 
-const mapDispatchToProps = { updateOrganization };
-
-export default connect(mapStateToProps, mapDispatchToProps)(OrganizationProjectsContainer);
+export default connect(mapStateToProps)(OrganizationContainer);

@@ -25,6 +25,7 @@ import { translate } from '../../../helpers/l10n';
 import ContextNavBar from '../../../components/nav/ContextNavBar';
 import NavBarTabs from '../../../components/nav/NavBarTabs';
 import OrganizationIcon from '../../../components/icons-components/OrganizationIcon';
+import { isMySet } from '../../issues/utils';
 import type { Organization } from '../../../store/organizations/duck';
 
 const ADMIN_PATHS = [
@@ -38,6 +39,7 @@ const ADMIN_PATHS = [
 
 export default class OrganizationNavigation extends React.PureComponent {
   props: {
+    currentUser: { isLoggedIn: boolean, showOnboardingTutorial: true },
     location: { pathname: string },
     organization: Organization
   };
@@ -135,7 +137,7 @@ export default class OrganizationNavigation extends React.PureComponent {
   }
 
   render() {
-    const { organization, location } = this.props;
+    const { currentUser, organization, location } = this.props;
 
     const isHomeActive =
       location.pathname === `organizations/${organization.key}/projects` ||
@@ -194,6 +196,19 @@ export default class OrganizationNavigation extends React.PureComponent {
               to={`/organizations/${organization.key}/projects`}
               className={isHomeActive ? 'active' : ''}>
               {translate('projects.page')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to={{
+                pathname: `/organizations/${organization.key}/issues`,
+                query:
+                  currentUser.isLoggedIn && isMySet()
+                    ? { resolved: 'false', myIssues: 'true' }
+                    : { resolved: 'false' }
+              }}
+              activeClassName="active">
+              {translate('issues.page')}
             </Link>
           </li>
           <li>
