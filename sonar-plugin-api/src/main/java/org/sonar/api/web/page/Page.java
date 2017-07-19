@@ -81,6 +81,7 @@ public final class Page {
   public enum Qualifier {
     PROJECT(org.sonar.api.resources.Qualifiers.PROJECT),
     MODULE(org.sonar.api.resources.Qualifiers.MODULE),
+    APP(org.sonar.api.resources.Qualifiers.APP),
     VIEW(org.sonar.api.resources.Qualifiers.VIEW),
     SUB_VIEW(org.sonar.api.resources.Qualifiers.SUBVIEW);
 
