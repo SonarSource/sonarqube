@@ -19,13 +19,12 @@
  */
 package org.sonar.api.config;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.resources.Qualifiers;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -125,13 +124,15 @@ public class PropertyDefinitionsTest {
       PropertyDefinition.builder("global3").name("Global3").category("catGlobal2").build(),
       PropertyDefinition.builder("project").name("Project").category("catProject").onlyOnQualifiers(Qualifiers.PROJECT).build(),
       PropertyDefinition.builder("module").name("Module").category("catModule").onlyOnQualifiers(Qualifiers.MODULE).build(),
-      PropertyDefinition.builder("view").name("View").category("catView").onlyOnQualifiers(Qualifiers.VIEW).build()
+      PropertyDefinition.builder("view").name("View").category("catView").onlyOnQualifiers(Qualifiers.VIEW).build(),
+      PropertyDefinition.builder("app").name("Application").category("catApp").onlyOnQualifiers(Qualifiers.APP).build()
     );
 
     assertThat(def.propertiesByCategory(null).keySet()).contains(new Category("catGlobal1"), new Category("catGlobal2"));
     assertThat(def.propertiesByCategory(Qualifiers.PROJECT).keySet()).containsOnly(new Category("catProject"));
     assertThat(def.propertiesByCategory(Qualifiers.MODULE).keySet()).containsOnly(new Category("catModule"));
     assertThat(def.propertiesByCategory(Qualifiers.VIEW).keySet()).containsOnly(new Category("catView"));
+    assertThat(def.propertiesByCategory(Qualifiers.APP).keySet()).containsOnly(new Category("catApp"));
     assertThat(def.propertiesByCategory("Unkown").keySet()).isEmpty();
   }
 
