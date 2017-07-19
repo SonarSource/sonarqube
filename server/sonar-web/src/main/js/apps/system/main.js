@@ -75,7 +75,7 @@ export default class Main extends React.PureComponent {
     }
 
     return (
-      <div className="page">
+      <div className="page page-limited">
         <Helmet title={translate('system_info.page')} />
         <header className="page-header">
           <h1 className="page-title">
