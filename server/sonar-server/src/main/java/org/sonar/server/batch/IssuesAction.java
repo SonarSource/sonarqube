@@ -102,7 +102,7 @@ public class IssuesAction implements BatchWsAction {
           break;
         default:
           // only projects, modules and files are supported. Other types of components are not allowed.
-          throw new IllegalStateException(format("Component of scope '%s' is not allowed", component.scope()));
+          throw new IllegalArgumentException(format("Component of scope '%s' is not allowed", component.scope()));
       }
     }
   }
