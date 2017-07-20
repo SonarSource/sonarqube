@@ -107,7 +107,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private void tryToStartEs() {
     SQProcess process = processesById.get(ProcessId.ELASTICSEARCH);
     if (process != null) {
-      tryToStartEsProcess(process, commandFactory::createEsCommand);
+      tryToStartEsProcess(process, () -> commandFactory.createEsCommand(settings));
     }
   }
 

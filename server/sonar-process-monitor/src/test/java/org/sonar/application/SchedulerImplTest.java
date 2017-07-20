@@ -34,6 +34,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
+import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.application.process.AbstractCommand;
 import org.sonar.application.process.CommandFactory;
@@ -309,7 +310,7 @@ public class SchedulerImplTest {
 
   private static class TestCommandFactory implements CommandFactory {
     @Override
-    public EsCommand createEsCommand() {
+    public EsCommand createEsCommand(AppSettings settings) {
       return ES_COMMAND;
     }
 

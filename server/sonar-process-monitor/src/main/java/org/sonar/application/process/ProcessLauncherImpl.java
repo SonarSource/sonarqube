@@ -71,7 +71,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
       process = processBuilder.start();
 
-      return new EsProcessMonitor(process, esCommand.getUrl());
+      return new EsProcessMonitor(process, esCommand);
     } catch (Exception e) {
       // just in case
       if (process != null) {
