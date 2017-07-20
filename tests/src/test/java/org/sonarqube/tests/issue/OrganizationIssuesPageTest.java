@@ -73,10 +73,11 @@ public class OrganizationIssuesPageTest {
 
     nav.openIssues(org1.getKey())
       .issuesCount(2)
-      .componentsShouldContain(org1.getName());
+      .componentsShouldNotContain(org1.getName());
 
     nav.openIssues()
-      .issuesCount(4);
+      .issuesCount(4)
+      .componentsShouldContain("Org ");
   }
 
   private String provisionProject(Organizations.Organization organization) {
