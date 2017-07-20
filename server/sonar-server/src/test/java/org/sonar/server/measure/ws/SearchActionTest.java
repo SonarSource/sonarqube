@@ -58,6 +58,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.db.component.ComponentTesting.newApplication;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -184,6 +185,24 @@ public class SearchActionTest {
     db.commit();
 
     SearchWsResponse result = call(singletonList(view.key()), singletonList("coverage"));
+
+    List<Measure> measures = result.getMeasuresList();
+    assertThat(measures).hasSize(1);
+    Measure measure = measures.get(0);
+    assertThat(measure.getMetric()).isEqualTo("coverage");
+    assertThat(measure.getValue()).isEqualTo("15.5");
+  }
+
+
+  @Test
+  public void return_measures_on_application() throws Exception {
+    ComponentDto application = newApplication(db.getDefaultOrganization());
+    SnapshotDto viewSnapshot = db.components().insertProjectAndSnapshot(application);
+    MetricDto coverage = insertCoverageMetric();
+    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, application, viewSnapshot).setValue(15.5d));
+    db.commit();
+
+    SearchWsResponse result = call(singletonList(application.key()), singletonList("coverage"));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
@@ -332,7 +351,7 @@ public class SearchActionTest {
     insertComplexityMetric();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only component of qualifiers [TRK, VW, SVW] are allowed");
+    expectedException.expectMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
 
     call(singletonList(module.key()), singletonList("complexity"));
   }
@@ -345,7 +364,7 @@ public class SearchActionTest {
     insertComplexityMetric();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only component of qualifiers [TRK, VW, SVW] are allowed");
+    expectedException.expectMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
 
     call(singletonList(dir.key()), singletonList("complexity"));
   }
@@ -358,7 +377,7 @@ public class SearchActionTest {
     insertComplexityMetric();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only component of qualifiers [TRK, VW, SVW] are allowed");
+    expectedException.expectMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
 
     call(singletonList(file.key()), singletonList("complexity"));
   }

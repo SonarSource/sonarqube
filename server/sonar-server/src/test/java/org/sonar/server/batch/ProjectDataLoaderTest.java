@@ -94,6 +94,7 @@ public class ProjectDataLoaderTest {
     String[][] allScopesAndQualifierButProjectAndModule = {
       {Scopes.PROJECT, Qualifiers.VIEW},
       {Scopes.PROJECT, Qualifiers.SUBVIEW},
+      {Scopes.PROJECT, Qualifiers.APP},
       {Scopes.FILE, Qualifiers.PROJECT},
       {Scopes.DIRECTORY, Qualifiers.DIRECTORY},
       {Scopes.FILE, Qualifiers.UNIT_TEST_FILE},
