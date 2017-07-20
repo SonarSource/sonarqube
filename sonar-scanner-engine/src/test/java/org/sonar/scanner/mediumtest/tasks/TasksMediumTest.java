@@ -32,7 +32,6 @@ import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.scanner.bootstrap.MockHttpServer;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,15 +47,6 @@ public class TasksMediumTest {
   public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("faketask", new FakeTaskPlugin())
     .build();
-
-  private MockHttpServer server = null;
-
-  @After
-  public void stopServer() {
-    if (server != null) {
-      server.stop();
-    }
-  }
 
   @After
   public void stop() {

@@ -67,6 +67,7 @@ public abstract class AbstractAnalysisMode implements AnalysisMode {
     if (!Arrays.asList(VALID_MODES).contains(mode)) {
       throw new IllegalStateException("Invalid analysis mode: " + mode + ". Valid modes are: " + Arrays.toString(VALID_MODES));
     }
+
   }
 
 }
