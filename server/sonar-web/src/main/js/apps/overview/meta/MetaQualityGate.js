@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 
-const MetaQualityGate = ({ gate }) => {
+const MetaQualityGate = ({ gate, organization }) => {
   return (
     <div className="overview-meta-card">
       <h4 className="overview-meta-header">
@@ -35,7 +35,7 @@ const MetaQualityGate = ({ gate }) => {
             <span className="note spacer-right">
               {'(' + translate('default') + ')'}
             </span>}
-          <Link to={getQualityGateUrl(gate.key)}>
+          <Link to={getQualityGateUrl(gate.key, organization)}>
             {gate.name}
           </Link>
         </li>

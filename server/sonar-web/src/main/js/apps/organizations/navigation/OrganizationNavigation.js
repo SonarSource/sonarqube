@@ -26,6 +26,7 @@ import ContextNavBar from '../../../components/nav/ContextNavBar';
 import NavBarTabs from '../../../components/nav/NavBarTabs';
 import OrganizationIcon from '../../../components/icons-components/OrganizationIcon';
 import { isMySet } from '../../issues/utils';
+import { getQualityGatesUrl } from '../../../helpers/urls';
 import type { Organization } from '../../../store/organizations/duck';
 
 const ADMIN_PATHS = [
@@ -226,6 +227,11 @@ export default class OrganizationNavigation extends React.PureComponent {
           <li>
             <Link to={`/organizations/${organization.key}/rules`} activeClassName="active">
               {translate('coding_rules.page')}
+            </Link>
+          </li>
+          <li>
+            <Link to={getQualityGatesUrl(organization.key)} activeClassName="active">
+              {translate('quality_gates.page')}
             </Link>
           </li>
           {this.renderExtensions(moreActive)}

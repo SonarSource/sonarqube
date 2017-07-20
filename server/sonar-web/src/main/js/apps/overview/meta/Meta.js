@@ -43,7 +43,7 @@ const Meta = ({ component, history, measures, areThereCustomOrganizations, route
 
   const shouldShowQualityProfiles = !isView && !isDeveloper && hasQualityProfiles;
   const shouldShowQualityGate = !isView && !isDeveloper && hasQualityGate;
-  const shouldShowOrganizationKey = component.organization != null && areThereCustomOrganizations;
+  const hasOrganization = component.organization != null && areThereCustomOrganizations;
 
   return (
     <div className="overview-meta">
@@ -58,7 +58,11 @@ const Meta = ({ component, history, measures, areThereCustomOrganizations, route
 
       {isProject && <AnalysesList project={component.key} history={history} router={router} />}
 
-      {shouldShowQualityGate && <MetaQualityGate gate={qualityGate} />}
+      {shouldShowQualityGate &&
+        <MetaQualityGate
+          gate={qualityGate}
+          organization={hasOrganization && component.organization}
+        />}
 
       {shouldShowQualityProfiles &&
         <MetaQualityProfiles
@@ -71,7 +75,7 @@ const Meta = ({ component, history, measures, areThereCustomOrganizations, route
 
       <MetaKey component={component} />
 
-      {shouldShowOrganizationKey && <MetaOrganizationKey component={component} />}
+      {hasOrganization && <MetaOrganizationKey component={component} />}
     </div>
   );
 };

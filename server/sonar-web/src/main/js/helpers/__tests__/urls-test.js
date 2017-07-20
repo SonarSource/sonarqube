@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getComponentUrl, getComponentIssuesUrl, getComponentDrilldownUrl } from '../urls';
+import {
+  getComponentUrl,
+  getComponentIssuesUrl,
+  getComponentDrilldownUrl,
+  getQualityGatesUrl,
+  getQualityGateUrl
+} from '../urls';
 
 const SIMPLE_COMPONENT_KEY = 'sonarqube';
 const COMPLEX_COMPONENT_KEY = 'org.sonarsource.sonarqube:sonarqube';
@@ -77,10 +83,30 @@ describe('#getComponentDrilldownUrl', () => {
     });
   });
 
-  it('should encode component key', () => {
+  it('should not encode component key', () => {
     expect(getComponentDrilldownUrl(COMPLEX_COMPONENT_KEY, METRIC)).toEqual({
       pathname: '/component_measures/metric/' + METRIC,
       query: { id: COMPLEX_COMPONENT_KEY }
+    });
+  });
+});
+
+describe('#getQualityGate(s)Url', () => {
+  it('should take organization key into account', () => {
+    expect(getQualityGatesUrl()).toEqual({ pathname: '/quality_gates' });
+    expect(getQualityGatesUrl('foo')).toEqual({ pathname: '/organizations/foo/quality_gates' });
+    expect(getQualityGateUrl('bar')).toEqual({ pathname: '/quality_gates/show/bar' });
+    expect(getQualityGateUrl('bar', 'foo')).toEqual({
+      pathname: '/organizations/foo/quality_gates/show/bar'
+    });
+  });
+
+  it('should encode keys', () => {
+    expect(getQualityGatesUrl(COMPLEX_COMPONENT_KEY)).toEqual({
+      pathname: '/organizations/' + COMPLEX_COMPONENT_KEY_ENCODED + '/quality_gates'
+    });
+    expect(getQualityGateUrl(COMPLEX_COMPONENT_KEY)).toEqual({
+      pathname: '/quality_gates/show/' + COMPLEX_COMPONENT_KEY_ENCODED
     });
   });
 });

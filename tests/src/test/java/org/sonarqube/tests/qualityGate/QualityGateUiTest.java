@@ -19,8 +19,12 @@
  */
 package org.sonarqube.tests.qualityGate;
 
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.SelenideElement;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import org.junit.Rule;
+import org.openqa.selenium.By;
 import org.sonarqube.tests.Category1Suite;
 import java.util.Date;
 import javax.annotation.Nullable;
@@ -37,8 +41,11 @@ import org.sonar.wsclient.qualitygate.QualityGateCondition;
 import org.sonar.wsclient.qualitygate.UpdateCondition;
 import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.pageobjects.ProjectActivityPage;
+import org.sonarqube.tests.Tester;
 
+import static com.codeborne.selenide.Selenide.$;
 import static org.apache.commons.lang.time.DateUtils.addDays;
+import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.resetPeriod;
 import static util.ItUtils.setServerProperty;
@@ -48,6 +55,9 @@ public class QualityGateUiTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+
+  @Rule
+  public Tester tester = new Tester(orchestrator);
 
   private static long DEFAULT_QUALITY_GATE;
 
@@ -100,6 +110,32 @@ public class QualityGateUiTest {
   @Test
   public void should_display_quality_gates_page() {
     runSelenese(orchestrator, "/qualityGate/QualityGateUiTest/should_display_quality_gates_page.html");
+  }
+
+  @Test
+  public void should_have_a_global_link_to_quality_gates() {
+    String login = tester.users().generate().getLogin();
+    tester.openBrowser()
+      .logIn().submitCredentials(login)
+      .openQualityGates();
+
+    SelenideElement element = $(".navbar-global .navbar-nav")
+      .find(By.linkText("Quality Gates"))
+      .should(Condition.exist);
+    assertThat(element.attr("href")).endsWith("/quality_gates");
+  }
+
+  @Test
+  public void should_not_allow_random_user_to_create() {
+    String login = tester.users().generate().getLogin();
+    tester.openBrowser()
+      .logIn().submitCredentials(login)
+      .openQualityGates()
+      .canNotCreateQG();
+    tester.openBrowser()
+      .logIn().submitCredentials("admin")
+      .openQualityGates()
+      .canCreateQG();
   }
 
   private void scanSampleWithDate(String date) {

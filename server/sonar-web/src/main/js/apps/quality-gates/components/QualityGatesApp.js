@@ -26,9 +26,14 @@ import {
   fetchQualityGates as fetchQualityGatesAPI
 } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
+import { getQualityGateUrl } from '../../../helpers/urls';
 import '../styles.css';
 
 export default class QualityGatesApp extends Component {
+  static contextTypes = {
+    router: React.PropTypes.object.isRequired
+  };
+
   state = {};
 
   componentDidMount() {
@@ -45,37 +50,35 @@ export default class QualityGatesApp extends Component {
   }
 
   handleAdd(qualityGate) {
-    const { addQualityGate } = this.props;
+    const { addQualityGate, organization } = this.props;
     const { router } = this.context;
 
     addQualityGate(qualityGate);
-    router.push(`/quality_gates/show/${qualityGate.id}`);
+    router.push(getQualityGateUrl(qualityGate.id, organization && organization.key));
   }
 
   render() {
-    const { children, qualityGates, edit } = this.props;
+    const { children, qualityGates, edit, organization } = this.props;
     const defaultTitle = translate('quality_gates.page');
+    const top = organization ? 95 : 30;
     return (
       <div className="layout-page">
         <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
 
         <div className="layout-page-side-outer">
-          <div className="layout-page-side" style={{ top: 30 }}>
+          <div className="layout-page-side" style={{ top }}>
             <div className="layout-page-side-inner">
               <div className="layout-page-filters">
                 <ListHeader canEdit={edit} onAdd={this.handleAdd.bind(this)} />
-                {qualityGates && <List qualityGates={qualityGates} />}
+                {qualityGates && <List organization={organization} qualityGates={qualityGates} />}
               </div>
             </div>
           </div>
         </div>
 
-        {!!qualityGates && children}
+        {qualityGates != null &&
+          React.Children.map(children, child => React.cloneElement(child, { organization }))}
       </div>
     );
   }
 }
-
-QualityGatesApp.contextTypes = {
-  router: React.PropTypes.object.isRequired
-};
