@@ -31,10 +31,13 @@ public class MockAnalysisModeTest {
     assertThat(mode.isIssues()).isFalse();
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isPublish()).isTrue();
+    assertThat(mode.isIncremental()).isFalse();
     mode.setPreviewOrIssue(true);
+    mode.setIncremental(true);
     assertThat(mode.isIssues()).isTrue();
     assertThat(mode.isPreview()).isTrue();
     assertThat(mode.isPublish()).isFalse();
+    assertThat(mode.isIncremental()).isTrue();
   }
 
 }

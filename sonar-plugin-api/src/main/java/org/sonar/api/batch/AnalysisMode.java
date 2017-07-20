@@ -19,11 +19,14 @@
  */
 package org.sonar.api.batch;
 
+import org.sonarsource.api.sonarlint.SonarLintSide;
+
 /**
  * Use this component to find the current running mode.
  * @since 5.1
  */
 @ScannerSide
+@SonarLintSide
 public interface AnalysisMode {
   boolean isPreview();
 
@@ -33,4 +36,10 @@ public interface AnalysisMode {
   boolean isIssues();
 
   boolean isPublish();
+
+  /**
+   * When incremental analysis is enabled (means not all files of a project are analyzed)
+   * @since 6.6
+   */
+  boolean isIncremental();
 }

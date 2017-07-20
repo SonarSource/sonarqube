@@ -20,6 +20,7 @@
 package org.sonar.scanner.report;
 
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -38,14 +39,16 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final ProjectAnalysisInfo projectAnalysisInfo;
   private final InputModuleHierarchy moduleHierarchy;
   private final CpdSettings cpdSettings;
+  private final AnalysisMode mode;
 
   public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings,
-    ModuleQProfiles qProfiles, CpdSettings cpdSettings) {
+    ModuleQProfiles qProfiles, CpdSettings cpdSettings, AnalysisMode mode) {
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
     this.qProfiles = qProfiles;
     this.cpdSettings = cpdSettings;
+    this.mode = mode;
   }
 
   @Override
@@ -57,7 +60,8 @@ public class MetadataPublisher implements ReportPublisherStep {
       // Here we want key without branch
       .setProjectKey(rootDef.getKey())
       .setCrossProjectDuplicationActivated(cpdSettings.isCrossProjectDuplicationEnabled())
-      .setRootComponentRef(rootProject.batchId());
+      .setRootComponentRef(rootProject.batchId())
+      .setIncremental(mode.isIncremental());
 
     settings.get(CoreProperties.PROJECT_ORGANIZATION_PROPERTY).ifPresent(builder::setOrganizationKey);
 
