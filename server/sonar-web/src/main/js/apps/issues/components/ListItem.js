@@ -32,6 +32,7 @@ type Props = {|
   onCheck?: string => void,
   onClick: string => void,
   onFilterChange: (changes: {}) => void,
+  organization?: { key: string },
   previousIssue: ?Object,
   selected: boolean
 |};
@@ -89,7 +90,11 @@ export default class ListItem extends React.PureComponent {
       <div className="issues-workspace-list-item">
         {displayComponent &&
           <div className="issues-workspace-list-component">
-            <ComponentBreadcrumbs component={component} issue={this.props.issue} />
+            <ComponentBreadcrumbs
+              component={component}
+              issue={this.props.issue}
+              organization={this.props.organization}
+            />
           </div>}
         <Issue
           checked={this.props.checked}

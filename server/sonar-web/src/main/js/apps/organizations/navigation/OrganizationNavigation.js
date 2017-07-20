@@ -39,7 +39,7 @@ const ADMIN_PATHS = [
 
 export default class OrganizationNavigation extends React.PureComponent {
   props: {
-    currentUser: { isLoggedIn: boolean, showOnboardingTutorial: true },
+    currentUser: { isLoggedIn: boolean },
     location: { pathname: string },
     organization: Organization
   };

@@ -748,7 +748,7 @@ export default class App extends React.PureComponent {
   }
 
   renderList() {
-    const { component, currentUser } = this.props;
+    const { component, currentUser, organization } = this.props;
     const { issues, openIssue, paging } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex != null ? issues[selectedIndex] : null;
@@ -768,6 +768,7 @@ export default class App extends React.PureComponent {
             onIssueChange={this.handleIssueChange}
             onIssueCheck={currentUser.isLoggedIn ? this.handleIssueCheck : undefined}
             onIssueClick={this.openIssue}
+            organization={organization}
             selectedIssue={selectedIssue}
           />}
 
@@ -819,7 +820,11 @@ export default class App extends React.PureComponent {
                 {this.renderBulkChange(openIssue)}
                 {openIssue != null
                   ? <div className="pull-left width-60">
-                      <ComponentBreadcrumbs component={component} issue={openIssue} />
+                      <ComponentBreadcrumbs
+                        component={component}
+                        issue={openIssue}
+                        organization={this.props.organization}
+                      />
                     </div>
                   : <PageActions
                       loading={this.state.loading}
