@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.scan;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -92,8 +93,6 @@ import org.sonar.scanner.scan.measure.DeprecatedMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.storage.Storages;
 
-import com.google.common.annotations.VisibleForTesting;
-
 public class ProjectScanContainer extends ComponentContainer {
 
   private static final Logger LOG = Loggers.get(ProjectScanContainer.class);
@@ -124,7 +123,6 @@ public class ProjectScanContainer extends ComponentContainer {
   private void addBatchComponents() {
     add(
       props,
-      DefaultAnalysisMode.class,
       ProjectReactorBuilder.class,
       WorkDirectoryCleaner.class,
       new MutableProjectReactorProvider(),
