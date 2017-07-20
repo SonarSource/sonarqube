@@ -117,7 +117,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setSince("4.2")
       .setInternal(true)
       .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "components-example-suggestions.json"))
+      .setResponseExample(Resources.getResource(this.getClass(), "suggestions-example.json"))
       .setChangelog(new Change("6.4", "Parameter 's' is optional"));
 
     action.createParam(PARAM_QUERY)

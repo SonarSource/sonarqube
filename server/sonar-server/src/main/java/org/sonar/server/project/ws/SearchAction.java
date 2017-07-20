@@ -40,6 +40,7 @@ import org.sonarqube.ws.client.project.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -84,7 +85,7 @@ public class SearchAction implements ProjectsWsAction {
 
     action.createParam(PARAM_QUALIFIERS)
       .setDescription("Comma-separated list of component qualifiers. Filter the results with the specified qualifiers")
-      .setPossibleValues(PROJECT, VIEW)
+      .setPossibleValues(PROJECT, VIEW, APP)
       .setDefaultValue(PROJECT);
     support.addOrganizationParam(action);
 

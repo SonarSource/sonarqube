@@ -39,8 +39,8 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobal
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
-import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createDefaultTemplateQualifierParameter;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
@@ -81,7 +81,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
       .setHandler(this);
 
     createTemplateParameters(action);
-    createRootQualifierParameter(action, newQualifierParameterContext(i18n, resourceTypes))
+    createDefaultTemplateQualifierParameter(action, newQualifierParameterContext(i18n, resourceTypes))
       .setDefaultValue(Qualifiers.PROJECT);
   }
 

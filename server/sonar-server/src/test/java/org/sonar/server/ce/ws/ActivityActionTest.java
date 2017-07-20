@@ -47,12 +47,14 @@ import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsCe.ActivityResponse;
+import org.sonarqube.ws.WsCe.Task;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.db.component.ComponentTesting.newApplication;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
@@ -91,7 +93,7 @@ public class ActivityActionTest {
 
     assertThat(activityResponse.getTasksCount()).isEqualTo(2);
     // chronological order, from newest to oldest
-    WsCe.Task task = activityResponse.getTasks(0);
+    Task task = activityResponse.getTasks(0);
     assertThat(task.getOrganization()).isEqualTo(org2.getKey());
     assertThat(task.getId()).isEqualTo("T2");
     assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
@@ -265,6 +267,19 @@ public class ActivityActionTest {
     ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
 
     assertThat(activityResponse.getTasksList()).extracting("id").containsOnly("T2");
+  }
+
+  @Test
+  public void search_activity_returns_application() {
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto apacheApp = newApplication(organizationDto).setName("Apache App");
+    dbTester.components().insertViewAndSnapshot(apacheApp);
+    logInAsSystemAdministrator();
+    insertActivity("T2", apacheApp.uuid(), CeActivityDto.Status.SUCCESS);
+
+    ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
+
+    assertThat(activityResponse.getTasksList()).extracting(Task::getId).containsOnly("T2");
   }
 
   @Test
