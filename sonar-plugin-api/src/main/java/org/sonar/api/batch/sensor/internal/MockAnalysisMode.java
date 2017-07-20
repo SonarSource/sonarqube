@@ -23,6 +23,7 @@ import org.sonar.api.batch.AnalysisMode;
 
 public class MockAnalysisMode implements AnalysisMode {
   private boolean previewOrIssue = false;
+  private boolean incremental = false;
 
   @Override
   public boolean isPreview() {
@@ -41,5 +42,14 @@ public class MockAnalysisMode implements AnalysisMode {
   @Override
   public boolean isPublish() {
     return !previewOrIssue;
+  }
+
+  @Override
+  public boolean isIncremental() {
+    return incremental;
+  }
+
+  public void setIncremental(boolean incremental) {
+    this.incremental = incremental;
   }
 }

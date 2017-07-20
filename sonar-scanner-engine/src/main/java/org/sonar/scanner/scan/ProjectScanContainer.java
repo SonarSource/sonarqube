@@ -122,7 +122,6 @@ public class ProjectScanContainer extends ComponentContainer {
   private void addBatchComponents() {
     add(
       props,
-      DefaultAnalysisMode.class,
       ProjectReactorBuilder.class,
       WorkDirectoryCleaner.class,
       new MutableProjectReactorProvider(),
