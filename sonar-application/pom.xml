@@ -30,15 +30,16 @@
       <artifactId>sonar-process-monitor</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!--must declare this dependency of sonar-process-monitor here, again,-->
+    <!--to allow copying it and its dependencies into lib/common-->
+    <dependency>
+      <groupId>org.elasticsearch.client</groupId>
+      <artifactId>transport</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -206,6 +207,23 @@
             </goals>
             <configuration>
               <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
+              <artifactSet>
+                <!--excluding some transitive dependencies which are not necessary to the main process to create-->
+                <!--a smaller jar and use less memory-->
+                <excludes>
+                  <exclude>org.apache.lucene:lucene-analyzers-common</exclude>
+                  <exclude>org.apache.lucene:lucene-backward-codecs</exclude>
+                  <exclude>org.apache.lucene:lucene-grouping</exclude>
+                  <exclude>org.apache.lucene:lucene-memory</exclude>
+                  <exclude>org.apache.lucene:lucene-misc</exclude>
+                  <exclude>org.apache.lucene:lucene-spatial-extras</exclude>
+                  <exclude>org.apache.lucene:lucene-spatial3d</exclude>
+                  <exclude>org.elasticsearch.plugin:reindex-client</exclude>
+                  <exclude>org.elasticsearch.plugin:lang-mustache-client</exclude>
+                  <exclude>org.elasticsearch.plugin:percolator-client</exclude>
+                  <exclude>org.elasticsearch.plugin:transport-netty3-client</exclude>
+                </excludes>
+              </artifactSet>
             </configuration>
           </execution>
         </executions>
@@ -242,8 +260,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>178000000</minsize>
-                  <maxsize>186000000</maxsize>
+                  <minsize>202000000</minsize>
+                  <maxsize>210000000</maxsize>
                   <files>
                     <file>${project.build.directory}/sonarqube-${project.version}.zip</file>
                   </files>

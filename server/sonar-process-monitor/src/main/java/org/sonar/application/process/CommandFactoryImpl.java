@@ -52,22 +52,24 @@ public class CommandFactoryImpl implements CommandFactory {
   }
 
   @Override
-  public EsCommand createEsCommand() {
-    File homeDir = settings.getProps().nonNullValueAsFile(ProcessProperties.PATH_HOME);
+  public EsCommand createEsCommand(AppSettings settings) {
+    File homeDir = this.settings.getProps().nonNullValueAsFile(ProcessProperties.PATH_HOME);
     File executable = new File(homeDir, getExecutable());
     if (!executable.exists()) {
       throw new IllegalStateException("Cannot find elasticsearch binary");
     }
 
-    Map<String, String> settingsMap = new EsSettings(settings.getProps()).build();
+    Map<String, String> settingsMap = new EsSettings(this.settings.getProps()).build();
 
     EsCommand res = new EsCommand(ProcessId.ELASTICSEARCH)
       .setWorkDir(executable.getParentFile().getParentFile())
       .setExecutable(executable)
-      .setArguments(settings.getProps().rawProperties())
+      .setArguments(this.settings.getProps().rawProperties())
+      .setClusterName(settingsMap.get("cluster.name"))
+      .setHost(settingsMap.get("network.host"))
       // TODO add argument to specify log4j configuration file
       // TODO add argument to specify yaml configuration file
-      .setUrl("http://" + settingsMap.get("http.host") + ":" + settingsMap.get("http.port"));
+      .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")));
 
     settingsMap.entrySet().stream()
       .filter(entry -> !"path.home".equals(entry.getKey()))
