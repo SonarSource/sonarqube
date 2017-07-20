@@ -66,6 +66,33 @@ public class SearchTemplatesAction implements PermissionsWsAction {
     this.dataLoader = dataLoader;
   }
 
+  @Override
+  public void define(WebService.NewController context) {
+    WebService.NewAction action = context.createAction("search_templates")
+      .setDescription("List permission templates.<br />" +
+        "Requires the following permission: 'Administer System'.")
+      .setResponseExample(getClass().getResource("search_templates-example.json"))
+      .setSince("5.2")
+      .addSearchQuery("defau", "permission template names")
+      .setHandler(this);
+
+    createOrganizationParameter(action).setSince("6.2");
+  }
+
+  @Override
+  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION));
+      SearchTemplatesWsRequest request = new SearchTemplatesWsRequest()
+        .setOrganizationUuid(org.getUuid())
+        .setQuery(wsRequest.param(Param.TEXT_QUERY));
+      checkGlobalAdmin(userSession, request.getOrganizationUuid());
+
+      SearchTemplatesWsResponse searchTemplatesWsResponse = buildResponse(dataLoader.load(dbSession, request));
+      writeProtobuf(searchTemplatesWsResponse, wsRequest, wsResponse);
+    }
+  }
+
   private static void buildDefaultTemplatesResponse(SearchTemplatesWsResponse.Builder response, SearchTemplatesData data) {
     TemplateIdQualifier.Builder templateUuidQualifierBuilder = TemplateIdQualifier.newBuilder();
 
@@ -105,33 +132,6 @@ public class SearchTemplatesAction implements PermissionsWsAction {
             .setWithProjectCreator(data.withProjectCreator(templateDto.getId(), permission)));
       }
       response.addPermissionTemplates(templateBuilder);
-    }
-  }
-
-  @Override
-  public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("search_templates")
-      .setDescription("List permission templates.<br />" +
-        "Requires the following permission: 'Administer System'.")
-      .setResponseExample(getClass().getResource("search_templates-example.json"))
-      .setSince("5.2")
-      .addSearchQuery("defau", "permission template names")
-      .setHandler(this);
-
-    createOrganizationParameter(action).setSince("6.2");
-  }
-
-  @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION));
-      SearchTemplatesWsRequest request = new SearchTemplatesWsRequest()
-        .setOrganizationUuid(org.getUuid())
-        .setQuery(wsRequest.param(Param.TEXT_QUERY));
-      checkGlobalAdmin(userSession, request.getOrganizationUuid());
-
-      SearchTemplatesWsResponse searchTemplatesWsResponse = buildResponse(dataLoader.load(dbSession, request));
-      writeProtobuf(searchTemplatesWsResponse, wsRequest, wsResponse);
     }
   }
 

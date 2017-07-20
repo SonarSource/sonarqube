@@ -26,7 +26,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -35,6 +34,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
@@ -292,6 +292,7 @@ public class IssueQueryFactory {
     switch (qualifier) {
       case Qualifiers.VIEW:
       case Qualifiers.SUBVIEW:
+      case Qualifiers.APP:
         addViewsOrSubViews(builder, componentUuids);
         break;
       case Qualifiers.PROJECT:
@@ -313,12 +314,10 @@ public class IssueQueryFactory {
   }
 
   private void addViewsOrSubViews(IssueQuery.Builder builder, Collection<String> viewOrSubViewUuids) {
-    List<String> filteredViewUuids = new ArrayList<>();
-    for (String viewUuid : viewOrSubViewUuids) {
-      if (userSession.hasComponentUuidPermission(UserRole.USER, viewUuid)) {
-        filteredViewUuids.add(viewUuid);
-      }
-    }
+    List<String> filteredViewUuids = viewOrSubViewUuids.stream()
+      .filter(uuid -> userSession.hasComponentUuidPermission(UserRole.USER, uuid))
+      .collect(Collectors.toList());
+
     if (filteredViewUuids.isEmpty()) {
       filteredViewUuids.add(UNKNOWN);
     }

@@ -237,7 +237,7 @@ public class SearchActionTest {
   public void fail_on_invalid_qualifier() throws Exception {
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of parameter 'qualifiers' (BRC) must be one of: [TRK, VW]");
+    expectedException.expectMessage("Value of parameter 'qualifiers' (BRC) must be one of: [TRK, VW, APP]");
 
     call(SearchWsRequest.builder().setQualifiers(singletonList("BRC")).build());
   }
@@ -267,7 +267,7 @@ public class SearchActionTest {
     WebService.Param qualifierParam = action.param("qualifiers");
     assertThat(qualifierParam.isRequired()).isFalse();
     assertThat(qualifierParam.description()).isEqualTo("Comma-separated list of component qualifiers. Filter the results with the specified qualifiers");
-    assertThat(qualifierParam.possibleValues()).containsOnly("TRK", "VW");
+    assertThat(qualifierParam.possibleValues()).containsOnly("TRK", "VW", "APP");
     assertThat(qualifierParam.defaultValue()).isEqualTo("TRK");
 
     WebService.Param pParam = action.param("p");

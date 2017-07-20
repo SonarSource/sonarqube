@@ -66,6 +66,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class UpdateVisibilityActionTest {
@@ -184,10 +185,10 @@ public class UpdateVisibilityActionTest {
     dbTester.components().insertComponents(module, dir, file);
     ComponentDto view = dbTester.components().insertView(organization);
     ComponentDto subView = ComponentTesting.newSubView(view);
-    ComponentDto projectCopy = ComponentTesting.newProjectCopy("foo", project, subView);
+    ComponentDto projectCopy = newProjectCopy("foo", project, subView);
     dbTester.components().insertComponents(subView, projectCopy);
 
-    Stream.of(module, dir, file, subView, projectCopy)
+    Stream.of(module, dir, file, view, subView, projectCopy)
       .forEach(nonRootComponent -> {
         request.setParam(PARAM_PROJECT, nonRootComponent.key())
           .setParam(PARAM_VISIBILITY, randomVisibility);
@@ -196,7 +197,7 @@ public class UpdateVisibilityActionTest {
           request.execute();
           fail("a BadRequestException should have been raised");
         } catch (BadRequestException e) {
-          assertThat(e.getMessage()).isEqualTo("Component must either be a project or a view");
+          assertThat(e.getMessage()).isEqualTo("Component must be a project");
         }
       });
   }
@@ -296,43 +297,6 @@ public class UpdateVisibilityActionTest {
   }
 
   @Test
-  public void execute_has_no_effect_when_changing_a_view_to_public() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = randomPublicOrPrivateProject();
-    ComponentDto view = dbTester.components().insertView(organization);
-    ComponentDto subView = ComponentTesting.newSubView(view);
-    ComponentDto projectCopy = ComponentTesting.newProjectCopy("foo", project, subView);
-    dbTester.components().insertComponents(subView, projectCopy);
-    userSessionRule.addProjectPermission(UserRole.ADMIN, view);
-
-    request.setParam(PARAM_PROJECT, view.key())
-      .setParam(PARAM_VISIBILITY, PUBLIC)
-      .execute();
-
-    assertThat(isPrivateInDb(view)).isEqualTo(false);
-    assertThat(isPrivateInDb(subView)).isEqualTo(false);
-    assertThat(isPrivateInDb(projectCopy)).isEqualTo(false);
-  }
-
-  @Test
-  public void execute_fails_with_BadRequestException_when_changing_a_view_to_private() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = randomPublicOrPrivateProject();
-    ComponentDto view = dbTester.components().insertView(organization);
-    ComponentDto subView = ComponentTesting.newSubView(view);
-    ComponentDto projectCopy = ComponentTesting.newProjectCopy("foo", project, subView);
-    dbTester.components().insertComponents(subView, projectCopy);
-    userSessionRule.addProjectPermission(UserRole.ADMIN, view);
-    TestRequest request = this.request.setParam(PARAM_PROJECT, view.key())
-      .setParam(PARAM_VISIBILITY, PRIVATE);
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Views can't be made private");
-
-    request.execute();
-  }
-
-  @Test
   public void execute_has_no_effect_if_specified_project_already_has_specified_visibility() {
     ComponentDto project = randomPublicOrPrivateProject();
     boolean initiallyPrivate = project.isPrivate();
@@ -421,22 +385,6 @@ public class UpdateVisibilityActionTest {
   }
 
   @Test
-  public void execute_does_not_delete_permissions_USER_and_BROWSE_of_specified_view_when_making_it_public() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto view = dbTester.components().insertView(organization);
-    UserDto user = dbTester.users().insertUser();
-    GroupDto group = dbTester.users().insertGroup(organization);
-    unsafeGiveAllPermissionsToRootComponent(view, user, group, organization);
-    userSessionRule.addProjectPermission(UserRole.ADMIN, view);
-
-    request.setParam(PARAM_PROJECT, view.key())
-      .setParam(PARAM_VISIBILITY, PUBLIC)
-      .execute();
-
-    verifyStillHasAllPermissions(view, user, group);
-  }
-
-  @Test
   public void execute_updates_permission_of_specified_project_in_indexes_when_changing_visibility() {
     ComponentDto project = randomPublicOrPrivateProject();
     boolean initiallyPrivate = project.isPrivate();
@@ -460,19 +408,6 @@ public class UpdateVisibilityActionTest {
       .execute();
 
     assertThat(projectIndexers.hasBeenCalled(project.uuid())).isFalse();
-  }
-
-  @Test
-  public void execute_does_not_update_permission_of_specified_view_in_indexes_when_making_it_public() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto view = dbTester.components().insertView(organization);
-    userSessionRule.addProjectPermission(UserRole.ADMIN, view);
-
-    request.setParam(PARAM_PROJECT, view.key())
-      .setParam(PARAM_VISIBILITY, PUBLIC)
-      .execute();
-
-    assertThat(projectIndexers.hasBeenCalled(view.uuid())).isFalse();
   }
 
   @Test
