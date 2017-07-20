@@ -19,20 +19,14 @@
  */
 package org.sonar.scanner.report;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.util.Date;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -46,6 +40,12 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
 
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class MetadataPublisherTest {
 
   @Rule
@@ -58,6 +58,7 @@ public class MetadataPublisherTest {
   private ProjectAnalysisInfo projectAnalysisInfo;
   private CpdSettings cpdSettings;
   private InputModuleHierarchy inputModuleHierarchy;
+  private AnalysisMode analysisMode;
 
   @Before
   public void prepare() {
@@ -73,7 +74,8 @@ public class MetadataPublisherTest {
     rootModule = new DefaultInputModule(def, TestInputFileBuilder.nextBatchId());
     inputModuleHierarchy = mock(InputModuleHierarchy.class);
     when(inputModuleHierarchy.root()).thenReturn(rootModule);
-    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings);
+    analysisMode = mock(AnalysisMode.class);
+    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings, analysisMode);
   }
 
   @Test
@@ -91,6 +93,7 @@ public class MetadataPublisherTest {
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
+    assertThat(metadata.getIncremental()).isFalse();
     assertThat(metadata.getQprofilesPerLanguage()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile.newBuilder()
       .setKey("q1")
       .setName("Q1")
