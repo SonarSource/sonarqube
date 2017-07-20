@@ -19,15 +19,37 @@
  */
 package org.sonar.application.process;
 
-import java.io.IOException;
-import java.net.ConnectException;
+import com.google.common.net.HostAndPort;
+import io.netty.util.ThreadDeathWatcher;
+import io.netty.util.concurrent.GlobalEventExecutor;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.UnknownHostException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.commons.io.IOUtils;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.common.network.NetworkModule;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.transport.Netty4Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Collections.singletonList;
+import static java.util.Collections.unmodifiableList;
+import static org.elasticsearch.common.unit.TimeValue.timeValueSeconds;
+import static org.sonar.application.process.EsProcessMonitor.Status.CONNECTION_REFUSED;
+import static org.sonar.application.process.EsProcessMonitor.Status.GREEN;
+import static org.sonar.application.process.EsProcessMonitor.Status.KO;
+import static org.sonar.application.process.EsProcessMonitor.Status.RED;
+import static org.sonar.application.process.EsProcessMonitor.Status.YELLOW;
 
 public class EsProcessMonitor extends AbstractProcessMonitor {
   private static final Logger LOG = LoggerFactory.getLogger(EsProcessMonitor.class);
@@ -36,11 +58,12 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
 
   private final AtomicBoolean nodeUp = new AtomicBoolean(false);
   private final AtomicBoolean nodeOperational = new AtomicBoolean(false);
-  private final URL healthCheckURL;
+  private final EsCommand esCommand;
+  private AtomicReference<TransportClient> transportClient = new AtomicReference<>(null);
 
-  public EsProcessMonitor(Process process, String url) throws MalformedURLException {
+  public EsProcessMonitor(Process process, EsCommand esCommand) throws MalformedURLException {
     super(process);
-    this.healthCheckURL = new URL(url + "/_cluster/health?wait_for_status=yellow&timeout=30s");
+    this.esCommand = esCommand;
   }
 
   @Override
@@ -49,14 +72,17 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
       return true;
     }
 
+    boolean flag = false;
     try {
-      boolean flag = checkOperational();
-      if (flag) {
-        nodeOperational.set(true);
-      }
+      flag = checkOperational();
     } catch (InterruptedException e) {
       LOG.trace("Interrupted while checking ES node is operational", e);
       Thread.currentThread().interrupt();
+    } finally {
+      if (flag) {
+        transportClient.set(null);
+        nodeOperational.set(true);
+      }
     }
     return nodeOperational.get();
   }
@@ -73,28 +99,95 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
         status = checkStatus();
       }
     } while (!nodeUp.get() && i < WAIT_FOR_UP_TIMEOUT);
-    return status == Status.YELLOW || status == Status.GREEN;
+    return status == YELLOW || status == GREEN;
+  }
+
+  static class MinimalTransportClient extends TransportClient {
+
+    MinimalTransportClient(Settings settings) {
+      super(settings, Settings.EMPTY, unmodifiableList(singletonList(Netty4Plugin.class)));
+    }
+
+    @Override
+    public void close() {
+      super.close();
+      if (NetworkModule.TRANSPORT_TYPE_SETTING.exists(settings) == false
+          || NetworkModule.TRANSPORT_TYPE_SETTING.get(settings).equals(Netty4Plugin.NETTY_TRANSPORT_NAME)) {
+        try {
+          GlobalEventExecutor.INSTANCE.awaitInactivity(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+        try {
+          ThreadDeathWatcher.awaitInactivity(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+      }
+    }
+
   }
 
   private Status checkStatus() {
     try {
-      URLConnection urlConnection = healthCheckURL.openConnection();
-      urlConnection.connect();
-      String response = IOUtils.toString(urlConnection.getInputStream());
-      if (response.contains("\"status\":\"green\"")) {
-        return Status.GREEN;
-      } else if (response.contains("\"status\":\"yellow\"")) {
-        return Status.YELLOW;
-      } else if (response.contains("\"status\":\"red\"")) {
-        return Status.RED;
+      ClusterHealthResponse response = getTransportClient().admin().cluster()
+        .health(new ClusterHealthRequest().waitForStatus(ClusterHealthStatus.YELLOW).timeout(timeValueSeconds(30)))
+        .actionGet();
+      if (response.getStatus() == ClusterHealthStatus.GREEN) {
+        return GREEN;
       }
-      return Status.KO;
-    } catch (ConnectException e) {
-      return Status.CONNECTION_REFUSED;
-    } catch (IOException e) {
-      LOG.error("Unexpected error occurred while checking ES node status using WebService API", e);
-      return Status.KO;
+      if (response.getStatus() == ClusterHealthStatus.YELLOW) {
+        return YELLOW;
+      }
+      if (response.getStatus() == ClusterHealthStatus.RED) {
+        return RED;
+      }
+      return KO;
+    } catch (NoNodeAvailableException e) {
+      return CONNECTION_REFUSED;
+    } catch (Exception e) {
+      LOG.error("Failed to check status", e);
+      return KO;
     }
+  }
+
+  private TransportClient getTransportClient() {
+    TransportClient res = this.transportClient.get();
+    if (res == null) {
+      res = buildTransportClient();
+      if (this.transportClient.compareAndSet(null, res)) {
+        return res;
+      }
+      return this.transportClient.get();
+    }
+    return res;
+  }
+
+  private TransportClient buildTransportClient() {
+    org.elasticsearch.common.settings.Settings.Builder esSettings = org.elasticsearch.common.settings.Settings.builder();
+
+    // mandatory property defined by bootstrap process
+    esSettings.put("cluster.name", esCommand.getClusterName());
+
+    TransportClient nativeClient = new MinimalTransportClient(esSettings.build());
+    HostAndPort host = HostAndPort.fromParts(esCommand.getHost(), esCommand.getPort());
+    addHostToClient(host, nativeClient);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Connected to Elasticsearch node: [{}]", displayedAddresses(nativeClient));
+    }
+    return nativeClient;
+  }
+
+  private static void addHostToClient(HostAndPort host, TransportClient client) {
+    try {
+      client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host.getHostText()), host.getPortOrDefault(9001)));
+    } catch (UnknownHostException e) {
+      throw new IllegalStateException("Can not resolve host [" + host + "]", e);
+    }
+  }
+
+  private static String displayedAddresses(TransportClient nativeClient) {
+    return nativeClient.transportAddresses().stream().map(TransportAddress::toString).collect(Collectors.joining(", "));
   }
 
   enum Status {

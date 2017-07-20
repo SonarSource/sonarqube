@@ -26,7 +26,9 @@ import org.sonar.process.ProcessId;
 
 public class EsCommand extends AbstractCommand<EsCommand> {
   private File executable;
-  private String url;
+  private String clusterName;
+  private String host;
+  private int port;
   private List<String> esOptions = new ArrayList<>();
 
   public EsCommand(ProcessId id) {
@@ -42,12 +44,30 @@ public class EsCommand extends AbstractCommand<EsCommand> {
     return this;
   }
 
-  public String getUrl() {
-    return url;
+  public String getClusterName() {
+    return clusterName;
   }
 
-  public EsCommand setUrl(String url) {
-    this.url = url;
+  public EsCommand setClusterName(String clusterName) {
+    this.clusterName = clusterName;
+    return this;
+  }
+
+  public String getHost() {
+    return host;
+  }
+
+  public EsCommand setHost(String host) {
+    this.host = host;
+    return this;
+  }
+
+  public int getPort() {
+    return port;
+  }
+
+  public EsCommand setPort(int port) {
+    this.port = port;
     return this;
   }
 

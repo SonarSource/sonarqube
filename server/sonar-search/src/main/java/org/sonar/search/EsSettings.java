@@ -61,7 +61,7 @@ public class EsSettings implements EsSettingsMBean {
 
   @Override
   public int getHttpPort() {
-    return props.valueAsInt(ProcessProperties.SEARCH_HTTP_PORT, 9010);
+    return props.valueAsInt(ProcessProperties.SEARCH_HTTP_PORT, -1);
   }
 
   @Override
@@ -125,15 +125,16 @@ public class EsSettings implements EsSettingsMBean {
     int httpPort = getHttpPort();
     if (httpPort < 0) {
       // standard configuration
-      httpPort = 9010;
+      builder.put("http.enabled", String.valueOf(false));
+    } else {
+      LOGGER.warn("Elasticsearch HTTP connector is enabled on port {}. MUST NOT BE USED FOR PRODUCTION", httpPort);
+      // see https://github.com/lmenezes/elasticsearch-kopf/issues/195
+      builder.put("http.cors.enabled", String.valueOf(true));
+      builder.put("http.cors.allow-origin", "*");
+      builder.put("http.enabled", String.valueOf(true));
+      builder.put("http.host", host.getHostAddress());
+      builder.put("http.port", String.valueOf(httpPort));
     }
-
-    // see https://github.com/lmenezes/elasticsearch-kopf/issues/195
-    builder.put("http.cors.enabled", String.valueOf(true));
-    builder.put("http.cors.allow-origin", "*");
-    builder.put("http.enabled", String.valueOf(true));
-    builder.put("http.host", host.getHostAddress());
-    builder.put("http.port", String.valueOf(httpPort));
   }
 
   private InetAddress readHost() {

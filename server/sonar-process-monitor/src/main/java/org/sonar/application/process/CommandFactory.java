@@ -19,9 +19,11 @@
  */
 package org.sonar.application.process;
 
+import org.sonar.application.config.AppSettings;
+
 public interface CommandFactory {
 
-  EsCommand createEsCommand();
+  EsCommand createEsCommand(AppSettings settings);
 
   JavaCommand createWebCommand(boolean leader);
 
