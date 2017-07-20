@@ -156,6 +156,24 @@ public class ComponentUpdaterTest {
   }
 
   @Test
+  public void persist_and_index_when_creating_application() {
+    NewComponent view = NewComponent.newComponentBuilder()
+      .setKey("app-key")
+      .setName("app-name")
+      .setQualifier(APP)
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .build();
+
+    ComponentDto returned = underTest.create(db.getSession(), view, null);
+
+    ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
+    assertThat(loaded.getKey()).isEqualTo("app-key");
+    assertThat(loaded.name()).isEqualTo("app-name");
+    assertThat(loaded.qualifier()).isEqualTo("APP");
+    verify(projectIndexer).indexProject(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+  }
+
+  @Test
   public void create_application() {
     NewComponent view = NewComponent.newComponentBuilder()
       .setKey("app-key")

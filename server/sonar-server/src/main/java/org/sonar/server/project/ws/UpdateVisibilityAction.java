@@ -19,10 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -48,8 +45,6 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class UpdateVisibilityAction implements ProjectsWsAction {
-  private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW);
-
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
@@ -67,19 +62,19 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ProjectsWsParameters.ACTION_UPDATE_VISIBILITY)
-      .setDescription("Updates visibility of a project or a view.<br/>" +
-        "Requires 'Project administer' permission on the specified project or view")
+      .setDescription("Updates visibility of a project.<br>" +
+        "Requires 'Project administer' permission on the specified project")
       .setSince("6.4")
       .setPost(true)
       .setHandler(this);
 
     action.createParam(PARAM_PROJECT)
-      .setDescription("Project or view key")
+      .setDescription("Project key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setRequired(true);
 
     action.createParam(PARAM_VISIBILITY)
-      .setDescription("new visibility of the project or view")
+      .setDescription("New visibility")
       .setPossibleValues(Visibility.getLabels())
       .setRequired(true);
   }
@@ -93,8 +88,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByKey(dbSession, projectKey);
-      checkRequest(isRoot(component), "Component must either be a project or a view");
-      checkRequest(!changeToPrivate || !Qualifiers.VIEW.equals(component.qualifier()), "Views can't be made private");
+      checkRequest(component.isRootProject() && Qualifiers.PROJECT.equals(component.qualifier()), "Component must be a project");
       userSession.checkComponentPermission(UserRole.ADMIN, component);
       checkRequest(noPendingTask(dbSession, component), "Component visibility can't be changed as long as it has background task(s) pending or in progress");
 
@@ -112,10 +106,6 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
         permissionIndexer.indexProjectsByUuids(dbSession, singletonList(component.uuid()));
       }
     }
-  }
-
-  private static boolean isRoot(ComponentDto component) {
-    return Scopes.PROJECT.equals(component.scope()) && ALLOWED_QUALIFIERS.contains(component.qualifier());
   }
 
   private boolean noPendingTask(DbSession dbSession, ComponentDto rootComponent) {

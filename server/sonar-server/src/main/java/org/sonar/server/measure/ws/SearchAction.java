@@ -45,6 +45,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Comparator.comparing;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.SUBVIEW;
 import static org.sonar.api.resources.Qualifiers.VIEW;
@@ -60,7 +61,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_PROJECT
 
 public class SearchAction implements MeasuresWsAction {
 
-  private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(PROJECT, VIEW, SUBVIEW);
+  private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(PROJECT, APP, VIEW, SUBVIEW);
 
   private final UserSession userSession;
   private final DbClient dbClient;

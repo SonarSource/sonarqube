@@ -117,7 +117,9 @@ public class PermissionIndexerDao {
     "      FROM projects " +
     "      INNER JOIN user_roles ON user_roles.resource_id = projects.id AND user_roles.role = 'user' " +
     "      WHERE " +
-    "        (projects.qualifier = 'TRK' or  projects.qualifier = 'VW') " +
+    "        (projects.qualifier = 'TRK' " +
+    "         or  projects.qualifier = 'VW' " +
+    "         or  projects.qualifier = 'APP') " +
     "        AND projects.copy_component_uuid is NULL " +
     "        {projectsCondition} " +
     "      UNION " +
@@ -134,7 +136,9 @@ public class PermissionIndexerDao {
     "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = 'user' " +
     "      INNER JOIN groups ON groups.id = group_roles.group_id " +
     "      WHERE " +
-    "        (projects.qualifier = 'TRK' or  projects.qualifier = 'VW') " +
+    "        (projects.qualifier = 'TRK' " +
+    "         or  projects.qualifier = 'VW' " +
+    "         or  projects.qualifier = 'APP') " +
     "        AND projects.copy_component_uuid is NULL " +
     "        {projectsCondition} " +
     "        AND group_id IS NOT NULL " +
@@ -150,7 +154,9 @@ public class PermissionIndexerDao {
     "      NULL     AS group_id " +
     "      FROM projects " +
     "      WHERE " +
-    "        (projects.qualifier = 'TRK' or  projects.qualifier = 'VW') " +
+    "        (projects.qualifier = 'TRK' " +
+    "         or  projects.qualifier = 'VW' " +
+    "         or  projects.qualifier = 'APP') " +
     "        AND projects.copy_component_uuid is NULL " +
     "        AND projects.private = ? " +
     "        {projectsCondition} " +
@@ -165,7 +171,9 @@ public class PermissionIndexerDao {
     "      NULL  AS group_id " +
     "      FROM projects " +
     "      WHERE " +
-    "        (projects.qualifier = 'TRK' or  projects.qualifier = 'VW') " +
+    "        (projects.qualifier = 'TRK' " +
+    "         or  projects.qualifier = 'VW' " +
+    "         or  projects.qualifier = 'APP') " +
     "        AND projects.copy_component_uuid is NULL " +
     "        AND projects.private = ? " +
     "        {projectsCondition} " +

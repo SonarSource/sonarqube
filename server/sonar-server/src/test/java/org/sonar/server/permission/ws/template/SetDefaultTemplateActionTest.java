@@ -37,6 +37,7 @@ import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
@@ -109,6 +110,20 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
     newRequest(template.getUuid(), VIEW);
 
     assertDefaultTemplates(organization, projectDefaultTemplate.getUuid(), template.getUuid());
+  }
+
+  @Test
+  public void fail_if_update_default_template_with_app_qualifier() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto projectDefaultTemplate = db.permissionTemplates().insertTemplate(organization);
+    db.organizations().setDefaultTemplates(projectDefaultTemplate, null);
+    PermissionTemplateDto template = insertTemplate(organization);
+    loginAsAdmin(organization);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value of parameter 'qualifier' (APP) must be one of: [TRK, VW]");
+
+    newRequest(template.getUuid(), APP);
   }
 
   @Test

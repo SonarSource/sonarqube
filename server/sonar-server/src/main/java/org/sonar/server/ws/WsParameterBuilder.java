@@ -19,26 +19,21 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Set;
-import javax.annotation.Nullable;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 
-import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Ordering.natural;
 import static java.lang.String.format;
 
 public class WsParameterBuilder {
   private static final String PARAM_QUALIFIER = "qualifier";
   private static final String PARAM_QUALIFIERS = "qualifiers";
-  private static final Set<String> DEPRECATED_QUALIFIERS = ImmutableSet.of(Qualifiers.LIBRARY);
 
   private WsParameterBuilder() {
     // static methods only
@@ -50,6 +45,12 @@ public class WsParameterBuilder {
       .setPossibleValues(getRootQualifiers(context.getResourceTypes()));
   }
 
+  public static WebService.NewParam createDefaultTemplateQualifierParameter(WebService.NewAction action, QualifierParameterContext context) {
+    return action.createParam(PARAM_QUALIFIER)
+      .setDescription("Project qualifier. Filter the results with the specified qualifier. Possible values are:" + buildDefaultTemplateQualifiersDescription(context))
+      .setPossibleValues(getDefaultTemplateQualifiers(context.getResourceTypes()));
+  }
+
   public static WebService.NewParam createQualifiersParameter(WebService.NewAction action, QualifierParameterContext context) {
     return action.createParam(PARAM_QUALIFIERS)
       .setDescription(
@@ -58,17 +59,26 @@ public class WsParameterBuilder {
   }
 
   private static Set<String> getRootQualifiers(ResourceTypes resourceTypes) {
-    return from(resourceTypes.getRoots())
-      .transform(ResourceType::getQualifier)
-      .filter(not(IsDeprecatedQualifier.INSTANCE))
-      .toSortedSet(natural());
+    return resourceTypes.getRoots().stream()
+      .map(ResourceType::getQualifier)
+      .collect(Collectors.toCollection(TreeSet::new));
+  }
+
+  private static Set<String> getDefaultTemplateQualifiers(ResourceTypes resourceTypes) {
+    return resourceTypes.getRoots().stream()
+      .map(ResourceType::getQualifier)
+      .filter(q -> !Qualifiers.APP.equals(q))
+      .collect(Collectors.toCollection(TreeSet::new));
   }
 
   private static Set<String> getAllQualifiers(ResourceTypes resourceTypes) {
-    return from(resourceTypes.getAll())
-      .transform(ResourceType::getQualifier)
-      .filter(not(IsDeprecatedQualifier.INSTANCE))
-      .toSortedSet(natural());
+    return resourceTypes.getAll().stream()
+      .map(ResourceType::getQualifier)
+      .collect(Collectors.toCollection(TreeSet::new));
+  }
+
+  private static String buildDefaultTemplateQualifiersDescription(QualifierParameterContext context) {
+    return buildQualifiersDescription(context, getDefaultTemplateQualifiers(context.getResourceTypes()));
   }
 
   private static String buildRootQualifiersDescription(QualifierParameterContext context) {
@@ -94,15 +104,6 @@ public class WsParameterBuilder {
   private static String qualifierLabel(QualifierParameterContext context, String qualifier) {
     String qualifiersPropertyPrefix = "qualifiers.";
     return context.getI18n().message(Locale.ENGLISH, qualifiersPropertyPrefix + qualifier, "no description available");
-  }
-
-  private enum IsDeprecatedQualifier implements Predicate<String> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nullable String input) {
-      return DEPRECATED_QUALIFIERS.contains(input);
-    }
   }
 
   public static class QualifierParameterContext {

@@ -50,7 +50,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Category;
@@ -69,6 +68,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -82,6 +82,7 @@ import static org.sonar.server.component.ws.SuggestionsAction.PARAM_MORE;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_RECENTLY_BROWSED;
 import static org.sonar.server.component.ws.SuggestionsAction.SHORT_INPUT_WARNING;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class SuggestionsActionTest {
   private static final String[] SUGGESTION_QUALIFIERS = Stream.of(SuggestionCategory.values())
@@ -153,7 +154,7 @@ public class SuggestionsActionTest {
       .setMediaType(MediaTypes.JSON)
       .execute();
 
-    JsonAssert.assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(wsResponse.getInput());
+    assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(wsResponse.getInput());
   }
 
   @Test
@@ -349,7 +350,7 @@ public class SuggestionsActionTest {
 
     assertThat(response.getResultsList())
       .extracting(Category::getQ, Category::getItemsCount)
-      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("SVW", 0), tuple("TRK", 1), tuple("BRC", 0), tuple("FIL", 0), tuple("UTS", 0));
+      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("APP", 0), tuple("SVW", 0), tuple("TRK", 1), tuple("BRC", 0), tuple("FIL", 0), tuple("UTS", 0));
   }
 
   @Test
@@ -565,13 +566,14 @@ public class SuggestionsActionTest {
 
     assertThat(response.getResultsList())
       .extracting(Category::getQ, Category::getItemsCount)
-      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("SVW", 0), tuple("TRK", 1), tuple("BRC", 0), tuple("FIL", 0), tuple("UTS", 0));
+      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("SVW", 0), tuple("APP", 0), tuple("TRK", 1), tuple("BRC", 0), tuple("FIL", 0), tuple("UTS", 0));
   }
 
   @Test
   public void should_only_provide_project_for_certain_qualifiers() throws Exception {
     String query = randomAlphabetic(10);
 
+    ComponentDto app = db.components().insertApplication(organization, v -> v.setName(query));
     ComponentDto view = db.components().insertView(organization, v -> v.setName(query));
     ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubView(view).setName(query));
     ComponentDto project = db.components().insertPrivateProject(organization, p -> p.setName(query));
@@ -581,6 +583,7 @@ public class SuggestionsActionTest {
     componentIndexer.indexOnStartup(null);
     authorizationIndexerTester.allowOnlyAnyone(project);
     authorizationIndexerTester.allowOnlyAnyone(view);
+    authorizationIndexerTester.allowOnlyAnyone(app);
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
@@ -590,6 +593,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .extracting(Category::getQ, c -> c.getItemsList().stream().map(Suggestion::hasProject).findFirst().orElse(null))
       .containsExactlyInAnyOrder(
+        tuple(SuggestionCategory.APP.getName(), false),
         tuple(SuggestionCategory.VIEW.getName(), false),
         tuple(SuggestionCategory.SUBVIEW.getName(), false),
         tuple(SuggestionCategory.PROJECT.getName(), false),
@@ -690,7 +694,7 @@ public class SuggestionsActionTest {
 
   @Test
   public void show_more_results_filter_out_if_non_allowed_qualifiers() {
-    resourceTypes.setAllQualifiers(VIEW, SUBVIEW);
+    resourceTypes.setAllQualifiers(APP, VIEW, SUBVIEW);
 
     check_proposal_to_show_more_results(10, 0, 0L, SuggestionCategory.PROJECT, true);
   }
