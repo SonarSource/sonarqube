@@ -149,7 +149,7 @@ export default class Search extends React.PureComponent {
                     onChange={this.search}
                     value={this.props.query}
                     ref="input"
-                    className="search-box-input"
+                    className="search-box-input input-medium"
                     type="search"
                     placeholder="Search"
                   />

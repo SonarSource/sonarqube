@@ -84,7 +84,7 @@ export default class Search extends React.PureComponent {
           onChange={e => this.handleQueryChange(e.target.value)}
           value={query}
           ref="searchInput"
-          className="js-search input-large"
+          className="js-search input-medium"
           type="search"
           placeholder="Search"
         />
@@ -136,7 +136,7 @@ export default class Search extends React.PureComponent {
 
           {this.renderSearchBox()}
 
-          <li className="bt-search-form-right">
+          <li className="bt-search-form-right nowrap">
             <button className="js-reload" onClick={this.handleReload.bind(this)} disabled={loading}>
               {translate('reload')}
             </button>{' '}

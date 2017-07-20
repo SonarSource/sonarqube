@@ -227,7 +227,7 @@ export default class Condition extends Component {
     const { condition, edit, metric } = this.props;
     return (
       <tr>
-        <td className="text-middle nowrap">
+        <td className="text-middle">
           {getLocalizedMetricName(metric)}
           {metric.hidden &&
             <span className="text-danger little-spacer-left">

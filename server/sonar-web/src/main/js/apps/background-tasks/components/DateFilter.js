@@ -67,7 +67,7 @@ export default class DateFilter extends Component {
     const { minSubmittedAt, maxExecutedAt } = this.props;
 
     return (
-      <div>
+      <div className="nowrap">
         <input
           className="input-small"
           value={minSubmittedAt}
