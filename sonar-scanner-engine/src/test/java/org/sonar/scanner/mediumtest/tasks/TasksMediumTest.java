@@ -94,6 +94,20 @@ public class TasksMediumTest {
       .execute();
   }
 
+  @Test
+  public void incrementalNotFound() throws Exception {
+    tester.start();
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage(
+      "Incremental mode is not available. Please contact your administrator.");
+
+    tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.incremental", "true").build())
+      .start();
+  }
+
   private static class FakeTaskPlugin extends SonarPlugin {
 
     @Override
