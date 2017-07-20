@@ -22,20 +22,16 @@ package org.sonar.scanner.analysis;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.AbstractAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 
-/**
- * @since 4.0
- */
 @Immutable
 public class DefaultAnalysisMode extends AbstractAnalysisMode {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultAnalysisMode.class);
+  private static final Logger LOG = Loggers.get(DefaultAnalysisMode.class);
   private static final String KEY_SCAN_ALL = "sonar.scanAllFiles";
 
   private boolean scanAllFiles;
@@ -54,7 +50,7 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode {
     boolean analysisPreview = isIssues(analysisProps);
 
     if (!globalPreview && analysisPreview) {
-      throw new IllegalStateException("Inconsistent properties:  global properties doesn't enable issues mode while analysis properties enables it");
+      throw new IllegalStateException("Inconsistent properties: global properties doesn't enable issues mode while analysis properties enables it");
     }
 
     load(globalProps, analysisProps);
@@ -83,6 +79,11 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode {
     if (!scanAllFiles) {
       LOG.info("Scanning only changed files");
     }
+  }
+
+  @Override
+  public boolean isIncremental() {
+    return false;
   }
 
   @CheckForNull
