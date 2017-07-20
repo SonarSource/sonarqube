@@ -229,11 +229,12 @@ public class DeleteActionTest {
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(module, "a/b"));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(module, directory));
-    ComponentDto view = db.components().insertView(organization, (dto) -> {
-    });
+    ComponentDto view = db.components().insertView(organization);
     ComponentDto subview1 = db.components().insertComponent(ComponentTesting.newSubView(view, "v1", "ksv1"));
     ComponentDto subview2 = db.components().insertComponent(ComponentTesting.newSubView(subview1, "v2", "ksv2"));
+    ComponentDto application = db.components().insertApplication(organization);
     ComponentDto projectCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("pc1", project, subview1));
+    ComponentDto projectCopyForApplication = db.components().insertComponent(ComponentTesting.newProjectCopy("pc2", project, application));
     logInAsAdministrator(organization);
 
     sendRequest(organization);
@@ -241,7 +242,7 @@ public class DeleteActionTest {
     verifyOrganizationDoesNotExist(organization);
     ArgumentCaptor<List<ComponentDto>> arg = (ArgumentCaptor<List<ComponentDto>>) ((ArgumentCaptor) ArgumentCaptor.forClass(List.class));
     verify(componentCleanerService).delete(any(DbSession.class), arg.capture());
-    assertThat(arg.getValue()).containsOnly(project, view);
+    assertThat(arg.getValue()).containsOnly(project, view, application);
   }
 
   @Test

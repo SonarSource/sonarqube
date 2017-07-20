@@ -27,6 +27,7 @@ import static java.util.Arrays.stream;
 public enum SuggestionCategory {
   VIEW(Qualifiers.VIEW),
   SUBVIEW(Qualifiers.SUBVIEW),
+  APP(Qualifiers.APP),
   PROJECT(Qualifiers.PROJECT),
   MODULE(Qualifiers.MODULE),
   FILE(Qualifiers.FILE),

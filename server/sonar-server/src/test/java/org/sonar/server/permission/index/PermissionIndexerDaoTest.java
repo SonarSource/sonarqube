@@ -35,6 +35,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDbTester;
@@ -43,6 +44,7 @@ import org.sonar.db.user.UserDto;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -59,11 +61,13 @@ public class PermissionIndexerDaoTest {
   private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   private UserDbTester userDbTester = new UserDbTester(dbTester);
 
+  private OrganizationDto organization;
   private ComponentDto publicProject;
   private ComponentDto privateProject1;
   private ComponentDto privateProject2;
   private ComponentDto view1;
   private ComponentDto view2;
+  private ComponentDto application;
   private UserDto user1;
   private UserDto user2;
   private GroupDto group;
@@ -71,15 +75,17 @@ public class PermissionIndexerDaoTest {
   private PermissionIndexerDao underTest = new PermissionIndexerDao();
 
   @Before
-  public void setUp() throws Exception {
-    publicProject = componentDbTester.insertPublicProject();
-    privateProject1 = componentDbTester.insertPrivateProject();
-    privateProject2 = componentDbTester.insertPrivateProject();
-    view1 = componentDbTester.insertView();
-    view2 = componentDbTester.insertView();
+  public void setUp() {
+    organization = dbTester.organizations().insert();
+    publicProject = componentDbTester.insertPublicProject(organization);
+    privateProject1 = componentDbTester.insertPrivateProject(organization);
+    privateProject2 = componentDbTester.insertPrivateProject(organization);
+    view1 = componentDbTester.insertView(organization);
+    view2 = componentDbTester.insertView(organization);
+    application = componentDbTester.insertApplication(organization);
     user1 = userDbTester.insertUser();
     user2 = userDbTester.insertUser();
-    group = userDbTester.insertGroup();
+    group = userDbTester.insertGroup(organization);
   }
 
   @Test
@@ -87,13 +93,16 @@ public class PermissionIndexerDaoTest {
     insertTestDataForProjectsAndViews();
 
     Collection<PermissionIndexerDao.Dto> dtos = underTest.selectAll(dbClient, dbSession);
-    assertThat(dtos).hasSize(5);
+    assertThat(dtos).hasSize(6);
 
     PermissionIndexerDao.Dto publicProjectAuthorization = getByProjectUuid(publicProject.uuid(), dtos);
     isPublic(publicProjectAuthorization, PROJECT);
 
     PermissionIndexerDao.Dto view1Authorization = getByProjectUuid(view1.uuid(), dtos);
     isPublic(view1Authorization, VIEW);
+
+    PermissionIndexerDao.Dto applicationAuthorization = getByProjectUuid(application.uuid(), dtos);
+    isPublic(applicationAuthorization, APP);
 
     PermissionIndexerDao.Dto privateProject1Authorization = getByProjectUuid(privateProject1.uuid(), dtos);
     assertThat(privateProject1Authorization.getGroupIds()).containsOnly(group.getId());
@@ -118,16 +127,19 @@ public class PermissionIndexerDaoTest {
     insertTestDataForProjectsAndViews();
 
     Map<String, PermissionIndexerDao.Dto> dtos = underTest
-      .selectByUuids(dbClient, dbSession, asList(publicProject.uuid(), privateProject1.uuid(), privateProject2.uuid(), view1.uuid(), view2.uuid()))
+      .selectByUuids(dbClient, dbSession, asList(publicProject.uuid(), privateProject1.uuid(), privateProject2.uuid(), view1.uuid(), view2.uuid(), application.uuid()))
       .stream()
       .collect(MoreCollectors.uniqueIndex(PermissionIndexerDao.Dto::getProjectUuid, Function.identity()));
-    assertThat(dtos).hasSize(5);
+    assertThat(dtos).hasSize(6);
 
     PermissionIndexerDao.Dto publicProjectAuthorization = dtos.get(publicProject.uuid());
     isPublic(publicProjectAuthorization, PROJECT);
 
     PermissionIndexerDao.Dto view1Authorization = dtos.get(view1.uuid());
     isPublic(view1Authorization, VIEW);
+
+    PermissionIndexerDao.Dto applicationAuthorization = dtos.get(application.uuid());
+    isPublic(applicationAuthorization, APP);
 
     PermissionIndexerDao.Dto privateProject1Authorization = dtos.get(privateProject1.uuid());
     assertThat(privateProject1Authorization.getGroupIds()).containsOnly(group.getId());
@@ -159,7 +171,7 @@ public class PermissionIndexerDaoTest {
   public void select_by_projects_with_high_number_of_projects() throws Exception {
     List<String> projectUuids = new ArrayList<>();
     for (int i = 0; i < 350; i++) {
-      ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), Integer.toString(i));
+      ComponentDto project = ComponentTesting.newPrivateProjectDto(organization, Integer.toString(i));
       dbClient.componentDao().insert(dbSession, project);
       projectUuids.add(project.uuid());
       GroupPermissionDto dto = new GroupPermissionDto()
@@ -251,6 +263,7 @@ public class PermissionIndexerDaoTest {
     userDbTester.insertProjectPermissionOnUser(user1, USER, privateProject1);
     userDbTester.insertProjectPermissionOnUser(user1, USER, privateProject2);
     userDbTester.insertProjectPermissionOnUser(user1, ADMIN, view1);
+    userDbTester.insertProjectPermissionOnUser(user1, ADMIN, application);
 
     // user2 has USER access on privateProject1 only
     userDbTester.insertProjectPermissionOnUser(user2, USER, privateProject1);
@@ -260,5 +273,6 @@ public class PermissionIndexerDaoTest {
     userDbTester.insertProjectPermissionOnGroup(group, USER, privateProject1);
     userDbTester.insertProjectPermissionOnGroup(group, ADMIN, privateProject1);
     userDbTester.insertProjectPermissionOnGroup(group, ADMIN, view1);
+    userDbTester.insertProjectPermissionOnGroup(group, ADMIN, application);
   }
 }

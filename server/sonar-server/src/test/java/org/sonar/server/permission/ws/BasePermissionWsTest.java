@@ -78,7 +78,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   }
 
   protected ResourceTypesRule newRootResourceTypes() {
-    return new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW);
+    return new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
   }
 
   protected PermissionUpdater newPermissionUpdater() {
