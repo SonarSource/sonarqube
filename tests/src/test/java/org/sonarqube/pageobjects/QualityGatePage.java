@@ -17,44 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import ProjectsView from '../views/gate-projects-view';
+package org.sonarqube.pageobjects;
 
-export default class Projects extends React.PureComponent {
-  componentDidMount() {
-    this.renderView();
+import com.codeborne.selenide.Condition;
+
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
+
+public class QualityGatePage {
+  public QualityGatePage() {
+    $(".quality-gates-results").shouldBe(Condition.visible);
   }
 
-  componentWillUpdate() {
-    this.destroyView();
+  public QualityGatePage countQualityGates(Integer count) {
+    $$(".quality-gates-results .list-group-item").shouldHaveSize(count);
+    return this;
   }
 
-  componentDidUpdate() {
-    this.renderView();
+  public QualityGatePage canCreateQG() {
+    $("#quality-gate-add").should(Condition.exist).shouldBe(Condition.visible);
+    return this;
   }
 
-  componentWillUnmount() {
-    this.destroyView();
-  }
-
-  destroyView() {
-    if (this.projectsView) {
-      this.projectsView.destroy();
-    }
-  }
-
-  renderView() {
-    const { qualityGate, edit } = this.props;
-
-    this.projectsView = new ProjectsView({
-      qualityGate,
-      edit,
-      container: this.refs.container
-    });
-    this.projectsView.render();
-  }
-
-  render() {
-    return <div ref="container" />;
+  public QualityGatePage canNotCreateQG() {
+    $("#quality-gate-add").shouldNot(Condition.exist);
+    return this;
   }
 }

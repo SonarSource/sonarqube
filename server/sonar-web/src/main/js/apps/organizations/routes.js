@@ -31,6 +31,7 @@ import OrganizationPermissions from './components/OrganizationPermissions';
 import OrganizationPermissionTemplates from './components/OrganizationPermissionTemplates';
 import OrganizationProjectsManagement from './components/OrganizationProjectsManagement';
 import OrganizationDelete from './components/OrganizationDelete';
+import qualityGatesRoutes from '../quality-gates/routes';
 import qualityProfilesRoutes from '../quality-profiles/routes';
 import issuesRoutes from '../issues/routes';
 
@@ -78,6 +79,11 @@ const routes = [
       {
         path: 'quality_profiles',
         childRoutes: qualityProfilesRoutes
+      },
+      {
+        path: 'quality_gates',
+        component: OrganizationContainer,
+        childRoutes: qualityGatesRoutes
       },
       {
         path: 'extension/:pluginKey/:extensionKey',

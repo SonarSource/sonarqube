@@ -55,7 +55,11 @@ exports[`should show administration menu if the user has the rights 1`] = `
       activeClassName="active"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/quality_gates"
+      to={
+        Object {
+          "pathname": "/quality_gates",
+        }
+      }
     >
       quality_gates.page
     </Link>
@@ -129,7 +133,11 @@ exports[`should work with extensions 1`] = `
       activeClassName="active"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/quality_gates"
+      to={
+        Object {
+          "pathname": "/quality_gates",
+        }
+      }
     >
       quality_gates.page
     </Link>

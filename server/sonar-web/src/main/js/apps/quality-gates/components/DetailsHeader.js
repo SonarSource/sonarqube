@@ -20,56 +20,58 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default function DetailsHeader({
-  qualityGate,
-  edit,
-  onRename,
-  onCopy,
-  onSetAsDefault,
-  onDelete
-}) {
-  function handleRenameClick(e) {
+export default class DetailsHeader extends React.PureComponent {
+  handleRenameClick = e => {
     e.preventDefault();
-    onRename();
-  }
+    this.props.onRename();
+  };
 
-  function handleCopyClick(e) {
+  handleCopyClick = e => {
     e.preventDefault();
-    onCopy();
-  }
+    this.props.onCopy();
+  };
 
-  function handleSetAsDefaultClick(e) {
+  handleSetAsDefaultClick = e => {
     e.preventDefault();
-    onSetAsDefault();
-  }
+    this.props.onSetAsDefault();
+  };
 
-  function handleDeleteClick(e) {
+  handleDeleteClick = e => {
     e.preventDefault();
-    onDelete();
-  }
+    this.props.onDelete();
+  };
 
-  return (
-    <div className="search-navigator-workspace-header" style={{ top: 30 }}>
-      <h2 className="search-navigator-header-component">
-        {qualityGate.name}
-      </h2>
-      {edit &&
-        <div className="search-navigator-header-actions">
-          <div className="button-group">
-            <button id="quality-gate-rename" onClick={handleRenameClick}>
-              {translate('rename')}
-            </button>
-            <button id="quality-gate-copy" onClick={handleCopyClick}>
-              {translate('copy')}
-            </button>
-            <button id="quality-gate-toggle-default" onClick={handleSetAsDefaultClick}>
-              {qualityGate.isDefault ? translate('unset_as_default') : translate('set_as_default')}
-            </button>
-            <button id="quality-gate-delete" className="button-red" onClick={handleDeleteClick}>
-              {translate('delete')}
-            </button>
-          </div>
-        </div>}
-    </div>
-  );
+  render() {
+    const { qualityGate, edit, organization } = this.props;
+    const top = organization ? 95 : 30;
+    return (
+      <div className="search-navigator-workspace-header" style={{ top }}>
+        <h2 className="search-navigator-header-component">
+          {qualityGate.name}
+        </h2>
+        {edit &&
+          <div className="search-navigator-header-actions">
+            <div className="button-group">
+              <button id="quality-gate-rename" onClick={this.handleRenameClick}>
+                {translate('rename')}
+              </button>
+              <button id="quality-gate-copy" onClick={this.handleCopyClick}>
+                {translate('copy')}
+              </button>
+              <button id="quality-gate-toggle-default" onClick={this.handleSetAsDefaultClick}>
+                {qualityGate.isDefault
+                  ? translate('unset_as_default')
+                  : translate('set_as_default')}
+              </button>
+              <button
+                id="quality-gate-delete"
+                className="button-red"
+                onClick={this.handleDeleteClick}>
+                {translate('delete')}
+              </button>
+            </div>
+          </div>}
+      </div>
+    );
+  }
 }

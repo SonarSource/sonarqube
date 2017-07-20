@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import OrganizationIcon from '../../../components/ui/OrganizationIcon';
 import { isMySet } from '../../issues/utils';
 import { translate } from '../../../helpers/l10n';
+import { getQualityGatesUrl } from '../../../helpers/urls';
 import type { Organization } from '../../../store/organizations/duck';
 
 const ADMIN_PATHS = [
@@ -221,6 +222,11 @@ export default class OrganizationNavigation extends React.PureComponent {
               <li>
                 <Link to={`/organizations/${organization.key}/rules`} activeClassName="active">
                   {translate('coding_rules.page')}
+                </Link>
+              </li>
+              <li>
+                <Link to={getQualityGatesUrl(organization.key)} activeClassName="active">
+                  {translate('quality_gates.page')}
                 </Link>
               </li>
               {this.renderExtensions(moreActive)}

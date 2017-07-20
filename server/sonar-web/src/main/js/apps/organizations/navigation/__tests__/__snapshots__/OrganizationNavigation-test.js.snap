@@ -93,6 +93,20 @@ exports[`admin 1`] = `
             coding_rules.page
           </Link>
         </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/organizations/foo/quality_gates",
+              }
+            }
+          >
+            quality_gates.page
+          </Link>
+        </li>
         <li
           className=""
         >
@@ -271,6 +285,20 @@ exports[`regular user 1`] = `
             coding_rules.page
           </Link>
         </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/organizations/foo/quality_gates",
+              }
+            }
+          >
+            quality_gates.page
+          </Link>
+        </li>
       </ul>
     </div>
   </div>
@@ -368,6 +396,20 @@ exports[`undeletable org 1`] = `
             to="/organizations/foo/rules"
           >
             coding_rules.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/organizations/foo/quality_gates",
+              }
+            }
+          >
+            quality_gates.page
           </Link>
         </li>
         <li

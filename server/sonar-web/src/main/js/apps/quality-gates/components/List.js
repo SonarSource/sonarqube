@@ -20,14 +20,15 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
+import { getQualityGateUrl } from '../../../helpers/urls';
 
-export default function List({ qualityGates }) {
+export default function List({ organization, qualityGates }) {
   return (
     <div className="list-group">
       {qualityGates.map(qualityGate =>
         <Link
           key={qualityGate.id}
-          to={`/quality_gates/show/${qualityGate.id}`}
+          to={getQualityGateUrl(qualityGate.id, organization && organization.key)}
           activeClassName="active"
           className="list-group-item"
           data-id={qualityGate.id}>

@@ -22,6 +22,7 @@ package org.sonarqube.pageobjects;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import java.util.Arrays;
+import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.hasText;
@@ -29,6 +30,7 @@ import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectDashboardPage {
 
@@ -95,6 +97,13 @@ public class ProjectDashboardPage {
   public ProjectDashboardPage sendKeysToTagsInput(CharSequence... charSequences) {
     SelenideElement tagsInput = this.getTagsMeta().find("input");
     tagsInput.sendKeys(charSequences);
+    return this;
+  }
+
+  public ProjectDashboardPage hasQualityGateLink(String name, String link) {
+    SelenideElement elem = $(".overview-meta-header").should(exist)
+      .parent().find(By.linkText(name)).should(exist);
+    assertThat(elem.attr("href")).endsWith(link);
     return this;
   }
 }

@@ -20,6 +20,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
+import { getQualityGatesUrl } from '../../../../helpers/urls';
 import { isMySet } from '../../../../apps/issues/utils';
 
 export default class GlobalNavMenu extends React.PureComponent {
@@ -98,7 +99,7 @@ export default class GlobalNavMenu extends React.PureComponent {
   renderQualityGatesLink() {
     return (
       <li>
-        <Link to="/quality_gates" activeClassName="active">
+        <Link to={getQualityGatesUrl()} activeClassName="active">
           {translate('quality_gates.page')}
         </Link>
       </li>
@@ -158,7 +159,7 @@ export default class GlobalNavMenu extends React.PureComponent {
         {this.renderIssuesLink()}
         {!organizationsEnabled && this.renderRulesLink()}
         {!organizationsEnabled && this.renderProfilesLink()}
-        {this.renderQualityGatesLink()}
+        {!organizationsEnabled && this.renderQualityGatesLink()}
         {this.renderAdministrationLink()}
         {this.renderMore()}
       </ul>

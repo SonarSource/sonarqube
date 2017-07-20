@@ -31,7 +31,6 @@ import javax.annotation.Nullable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.html5.WebStorage;
-import org.sonarqube.pageobjects.issues.Issue;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.pageobjects.issues.IssuesPage;
 import org.sonarqube.pageobjects.licenses.LicensesPage;
@@ -107,6 +106,16 @@ public class Navigation {
     // TODO encode projectKey
     String url = "/project/links?id=" + projectKey;
     return open(url, ProjectLinksPage.class);
+  }
+
+  public QualityGatePage openQualityGates() {
+    String url = "/quality_gates";
+    return open(url, QualityGatePage.class);
+  }
+
+  public QualityGatePage openQualityGates(String organization) {
+    String url = "/organizations/" + organization + "/quality_gates";
+    return open(url, QualityGatePage.class);
   }
 
   public ProjectQualityGatePage openProjectQualityGate(String projectKey) {
