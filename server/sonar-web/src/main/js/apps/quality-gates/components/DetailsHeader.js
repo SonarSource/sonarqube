@@ -20,62 +20,62 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default function DetailsHeader({
-  qualityGate,
-  edit,
-  onRename,
-  onCopy,
-  onSetAsDefault,
-  onDelete
-}) {
-  function handleRenameClick(e) {
+export default class DetailsHeader extends React.PureComponent {
+  handleRenameClick = e => {
     e.preventDefault();
-    onRename();
-  }
+    this.props.onRename();
+  };
 
-  function handleCopyClick(e) {
+  handleCopyClick = e => {
     e.preventDefault();
-    onCopy();
-  }
+    this.props.onCopy();
+  };
 
-  function handleSetAsDefaultClick(e) {
+  handleSetAsDefaultClick = e => {
     e.preventDefault();
-    onSetAsDefault();
-  }
+    this.props.onSetAsDefault();
+  };
 
-  function handleDeleteClick(e) {
+  handleDeleteClick = e => {
     e.preventDefault();
-    onDelete();
-  }
+    this.props.onDelete();
+  };
 
-  return (
-    <div className="layout-page-header-panel layout-page-main-header issues-main-header">
-      <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-        <div className="layout-page-main-inner">
-          <h2 className="pull-left">
-            {qualityGate.name}
-          </h2>
-          {edit &&
-            <div className="pull-right">
-              <div className="button-group">
-                <button id="quality-gate-rename" onClick={handleRenameClick}>
-                  {translate('rename')}
-                </button>
-                <button id="quality-gate-copy" onClick={handleCopyClick}>
-                  {translate('copy')}
-                </button>
-                <button id="quality-gate-toggle-default" onClick={handleSetAsDefaultClick}>
-                  {qualityGate.isDefault
-                    ? translate('unset_as_default')
-                    : translate('set_as_default')}
-                </button>
-                <button id="quality-gate-delete" className="button-red" onClick={handleDeleteClick}>
-                  {translate('delete')}
-                </button>
-              </div>
-            </div>}
+  render() {
+    const { qualityGate, edit } = this.props;
+
+    return (
+      <div className="layout-page-header-panel layout-page-main-header issues-main-header">
+        <div className="layout-page-header-panel-inner layout-page-main-header-inner">
+          <div className="layout-page-main-inner">
+            <h2 className="pull-left">
+              {qualityGate.name}
+            </h2>
+            {edit &&
+              <div className="pull-right">
+                <div className="button-group">
+                  <button id="quality-gate-rename" onClick={this.handleRenameClick}>
+                    {translate('rename')}
+                  </button>
+                  <button id="quality-gate-copy" onClick={this.handleCopyClick}>
+                    {translate('copy')}
+                  </button>
+                  <button id="quality-gate-toggle-default" onClick={this.handleSetAsDefaultClick}>
+                    {qualityGate.isDefault
+                      ? translate('unset_as_default')
+                      : translate('set_as_default')}
+                  </button>
+                  <button
+                    id="quality-gate-delete"
+                    className="button-red"
+                    onClick={this.handleDeleteClick}>
+                    {translate('delete')}
+                  </button>
+                </div>
+              </div>}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 }

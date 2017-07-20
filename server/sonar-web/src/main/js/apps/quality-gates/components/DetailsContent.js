@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React, { Component } from 'react';
+import React from 'react';
 import Conditions from './Conditions';
 import Projects from './Projects';
 import { translate } from '../../../helpers/l10n';
 
-export default class DetailsContent extends Component {
+export default class DetailsContent extends React.PureComponent {
   render() {
     const { gate, canEdit, metrics } = this.props;
     const { onAddCondition, onDeleteCondition, onSaveCondition } = this.props;

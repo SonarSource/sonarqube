@@ -100,16 +100,14 @@ export function getQualityProfileUrl(name, language, organization) {
   return getProfilePath(name, language, organization);
 }
 
-/**
- * Generate URL for a quality gate
- * @param {string} key
- * @returns {Object}
- */
-export function getQualityGateUrl(key) {
-  return {
-    pathname: '/quality_gates/show/' + encodeURIComponent(key)
-  };
-}
+export const getQualityGateUrl = (key: string, organization?: string) => ({
+  pathname: getQualityGatesUrl(organization).pathname + '/show/' + encodeURIComponent(key)
+});
+
+export const getQualityGatesUrl = (organization?: string) => ({
+  pathname:
+    (organization ? '/organizations/' + encodeURIComponent(organization) : '') + '/quality_gates'
+});
 
 /**
  * Generate URL for the rules page
