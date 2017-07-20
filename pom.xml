@@ -74,6 +74,7 @@
     <jetty.version>8.1.12.v20130726</jetty.version>
     <logback.version>1.1.7</logback.version>
     <slf4j.version>1.7.21</slf4j.version>
+    <log4j.version>2.7</log4j.version>
     <tomcat.version>8.5.16</tomcat.version>
     <elasticsearch.version>5.0.0</elasticsearch.version>
     <orchestrator.version>3.15.0.1090</orchestrator.version>
@@ -839,8 +840,18 @@
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-to-slf4j</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-api</artifactId>
-        <version>2.7</version>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j.version}</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
