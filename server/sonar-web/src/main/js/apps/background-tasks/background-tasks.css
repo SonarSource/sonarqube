@@ -1,6 +1,6 @@
 .bt-search-form {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
 }
 
 .bt-search-form > li + li {
