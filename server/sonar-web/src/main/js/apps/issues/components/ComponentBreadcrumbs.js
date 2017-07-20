@@ -27,16 +27,18 @@ import type { Component } from '../utils';
 
 type Props = {
   component?: Component,
-  issue: Object
+  issue: Object,
+  organization?: { key: string }
 };
 
 export default class ComponentBreadcrumbs extends React.PureComponent {
   props: Props;
 
   render() {
-    const { component, issue } = this.props;
+    const { component, issue, organization } = this.props;
 
-    const displayOrganization = component == null || ['VW', 'SVW'].includes(component.qualifier);
+    const displayOrganization =
+      !organization && (component == null || ['VW', 'SVW'].includes(component.qualifier));
     const displayProject =
       component == null || !['TRK', 'BRC', 'DIR'].includes(component.qualifier);
     const displaySubProject = component == null || !['BRC', 'DIR'].includes(component.qualifier);

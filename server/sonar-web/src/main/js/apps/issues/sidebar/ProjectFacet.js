@@ -104,11 +104,15 @@ export default class ProjectFacet extends React.PureComponent {
   }
 
   renderName(project: string): React.Element<*> | string {
-    const { referencedComponents } = this.props;
+    const { organization, referencedComponents } = this.props;
     return referencedComponents[project]
       ? <span>
           <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-          <Organization link={false} organizationKey={referencedComponents[project].organization} />
+          {!organization &&
+            <Organization
+              link={false}
+              organizationKey={referencedComponents[project].organization}
+            />}
           {referencedComponents[project].name}
         </span>
       : <span>

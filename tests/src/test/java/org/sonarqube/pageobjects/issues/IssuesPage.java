@@ -66,6 +66,11 @@ public class IssuesPage {
     return this;
   }
 
+  public IssuesPage componentsShouldNotContain(String path) {
+    this.getIssuesPathComponents().forEach(element -> element.shouldNotHave(text(path)));
+    return this;
+  }
+
   public IssuesPage bulkChangeOpen() {
     $("#issues-bulk-change").shouldBe(visible).click();
     $("#bulk-change-form").shouldBe(visible);
