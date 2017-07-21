@@ -41,6 +41,7 @@ public final class MediaTypes {
 
   private static final Map<String, String> MAP = new ImmutableMap.Builder<String, String>()
     .put("js", JAVASCRIPT)
+    .put("map", JAVASCRIPT)
     .put("json", JSON)
     .put("zip", "application/zip")
     .put("tgz", "application/tgz")
