@@ -38,10 +38,13 @@ import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.server.es.DefaultIndexSettings.ANALYZED;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_KEYWORD;
+import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_TEXT;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX;
-import static org.sonar.server.es.DefaultIndexSettings.STRING;
+import static org.sonar.server.es.DefaultIndexSettings.INDEX_NOT_SEARCHABLE;
+import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE_FOR_KEYWORD;
+import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE_FOR_TEXT;
 import static org.sonar.server.es.DefaultIndexSettings.TYPE;
 import static org.sonar.server.es.DefaultIndexSettingsElement.UUID_MODULE_ANALYZER;
 
@@ -138,8 +141,8 @@ public class NewIndex {
       return this;
     }
 
-    public StringFieldBuilder stringFieldBuilder(String fieldName) {
-      return new StringFieldBuilder(this, fieldName);
+    public KeywordFieldBuilder keywordFieldBuilder(String fieldName) {
+      return new KeywordFieldBuilder(this, fieldName);
     }
 
     public NestedFieldBuilder nestedFieldBuilder(String fieldName) {
@@ -176,8 +179,8 @@ public class NewIndex {
 
     public NewIndexType createUuidPathField(String fieldName) {
       return setProperty(fieldName, ImmutableSortedMap.of(
-        TYPE, STRING,
-        INDEX, ANALYZED,
+        TYPE, FIELD_TYPE_TEXT,
+        INDEX, INDEX_SEARCHABLE_FOR_TEXT,
         ANALYZER, UUID_MODULE_ANALYZER.getName()));
     }
 
@@ -194,7 +197,7 @@ public class NewIndex {
   /**
    * Helper to define a string field in mapping of index type
    */
-  public static class StringFieldBuilder {
+  public static class KeywordFieldBuilder {
     private final NewIndexType indexType;
     private final String fieldName;
     private boolean disableSearch = false;
@@ -202,7 +205,7 @@ public class NewIndex {
     private boolean termVectorWithPositionOffsets = false;
     private SortedMap<String, Object> subFields = Maps.newTreeMap();
 
-    private StringFieldBuilder(NewIndexType indexType, String fieldName) {
+    private KeywordFieldBuilder(NewIndexType indexType, String fieldName) {
       this.indexType = indexType;
       this.fieldName = fieldName;
     }
@@ -211,7 +214,7 @@ public class NewIndex {
      * Add a sub-field. A {@code SortedMap} is required for consistency of the index settings hash.
      * @see IndexDefinitionHash
      */
-    private StringFieldBuilder addSubField(String fieldName, SortedMap<String, String> fieldDefinition) {
+    private KeywordFieldBuilder addSubField(String fieldName, SortedMap<String, String> fieldDefinition) {
       subFields.put(fieldName, fieldDefinition);
       return this;
     }
@@ -219,9 +222,9 @@ public class NewIndex {
     /**
      * Add subfields, one for each analyzer.
      */
-    public StringFieldBuilder addSubFields(DefaultIndexSettingsElement... analyzers) {
+    public KeywordFieldBuilder addSubFields(DefaultIndexSettingsElement... analyzers) {
       Arrays.stream(analyzers)
-        .forEach(analyzer -> addSubField(analyzer.getSubFieldSuffix(), analyzer.fieldMapping()));
+          .forEach(analyzer -> addSubField(analyzer.getSubFieldSuffix(), analyzer.fieldMapping()));
       return this;
     }
 
@@ -231,7 +234,7 @@ public class NewIndex {
      * https://www.elastic.co/guide/en/elasticsearch/reference/2.3/norms.html
      * https://www.elastic.co/guide/en/elasticsearch/guide/current/scoring-theory.html#field-norm
      */
-    public StringFieldBuilder disableNorms() {
+    public KeywordFieldBuilder disableNorms() {
       this.disableNorms = true;
       return this;
     }
@@ -239,7 +242,7 @@ public class NewIndex {
     /**
      * Position offset term vectors are required for the fast_vector_highlighter (fvh).
      */
-    public StringFieldBuilder termVectorWithPositionOffsets() {
+    public KeywordFieldBuilder termVectorWithPositionOffsets() {
       this.termVectorWithPositionOffsets = true;
       return this;
     }
@@ -249,7 +252,13 @@ public class NewIndex {
      * By default field is "not_analyzed": it is searchable, but index the value exactly
      * as specified.
      */
-    public StringFieldBuilder disableSearch() {
+    // ES 5: update javadoc to:
+    /*
+     * "index: false" -> Make this field not searchable.
+     * By default field is "true": it is searchable, but index the value exactly
+     * as specified.
+     */
+    public KeywordFieldBuilder disableSearch() {
       this.disableSearch = true;
       return this;
     }
@@ -258,9 +267,11 @@ public class NewIndex {
       Map<String, Object> hash = new TreeMap<>();
       if (subFields.isEmpty()) {
         hash.putAll(ImmutableMap.of(
-          "type", "string",
-          "index", disableSearch ? "no" : "not_analyzed",
-          "norms", ImmutableMap.of("enabled", String.valueOf(!disableNorms))));
+            "type", FIELD_TYPE_KEYWORD,
+            "index", disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE_FOR_KEYWORD,
+            "norms",
+            ImmutableMap.of("enabled", String.valueOf(!disableNorms)) // ES 5: replace with String.valueOf(!disableNorms)
+        ));
       } else {
         hash.put("type", "multi_field");
 
@@ -271,18 +282,20 @@ public class NewIndex {
             Object subFieldMapping = entry.getValue();
             if (subFieldMapping instanceof Map) {
               entry.setValue(
-                addFieldToMapping(
-                  (Map<String, String>) subFieldMapping,
-                  "term_vector", "with_positions_offsets"));
+                  addFieldToMapping(
+                      (Map<String, String>) subFieldMapping,
+                      "term_vector", "with_positions_offsets"));
             }
           });
         }
 
         multiFields.put(fieldName, ImmutableMap.of(
-          "type", "string",
-          "index", "not_analyzed",
-          "term_vector", termVectorWithPositionOffsets ? "with_positions_offsets" : "no",
-          "norms", ImmutableMap.of("enabled", "false")));
+            "type", FIELD_TYPE_KEYWORD,
+            "index", INDEX_SEARCHABLE_FOR_KEYWORD,
+            "term_vector", termVectorWithPositionOffsets ? "with_positions_offsets" : "no",
+            "norms",
+            ImmutableMap.of("enabled", "false") // ES 5: replace with "false"
+        ));
 
         hash.put("fields", multiFields);
       }
@@ -313,10 +326,10 @@ public class NewIndex {
       return this;
     }
 
-    public NestedFieldBuilder addStringField(String fieldName) {
+    public NestedFieldBuilder addKeywordField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of(
-        "type", "string",
-        "index", "not_analyzed"));
+        "type", FIELD_TYPE_KEYWORD,
+        "index", INDEX_SEARCHABLE_FOR_KEYWORD));
     }
 
     public NestedFieldBuilder addDoubleField(String fieldName) {

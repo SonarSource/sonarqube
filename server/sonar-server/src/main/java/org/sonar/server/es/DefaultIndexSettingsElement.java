@@ -27,12 +27,13 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.Settings.Builder;
 
 import static org.sonar.server.es.DefaultIndexSettings.ANALYSIS;
-import static org.sonar.server.es.DefaultIndexSettings.ANALYZED;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettings.ASCIIFOLDING;
 import static org.sonar.server.es.DefaultIndexSettings.DELIMITER;
+import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_TEXT;
 import static org.sonar.server.es.DefaultIndexSettings.FILTER;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX;
+import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE_FOR_TEXT;
 import static org.sonar.server.es.DefaultIndexSettings.KEYWORD;
 import static org.sonar.server.es.DefaultIndexSettings.LOWERCASE;
 import static org.sonar.server.es.DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH;
@@ -44,7 +45,6 @@ import static org.sonar.server.es.DefaultIndexSettings.PORTER_STEM;
 import static org.sonar.server.es.DefaultIndexSettings.SEARCH_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettings.STANDARD;
 import static org.sonar.server.es.DefaultIndexSettings.STOP;
-import static org.sonar.server.es.DefaultIndexSettings.STRING;
 import static org.sonar.server.es.DefaultIndexSettings.SUB_FIELD_DELIMITER;
 import static org.sonar.server.es.DefaultIndexSettings.TOKENIZER;
 import static org.sonar.server.es.DefaultIndexSettings.TRIM;
@@ -124,8 +124,8 @@ public enum DefaultIndexSettingsElement {
     @Override
     public SortedMap<String, String> fieldMapping() {
       return ImmutableSortedMap.of(
-        TYPE, STRING,
-        INDEX, ANALYZED,
+        TYPE, FIELD_TYPE_TEXT,
+        INDEX, INDEX_SEARCHABLE_FOR_TEXT,
         ANALYZER, getName());
     }
   },
@@ -148,8 +148,8 @@ public enum DefaultIndexSettingsElement {
     @Override
     public SortedMap<String, String> fieldMapping() {
       return ImmutableSortedMap.of(
-        TYPE, STRING,
-        INDEX, ANALYZED,
+        TYPE, FIELD_TYPE_TEXT,
+        INDEX, INDEX_SEARCHABLE_FOR_TEXT,
         ANALYZER, INDEX_GRAMS_ANALYZER.getName(),
         SEARCH_ANALYZER, getName());
     }
@@ -173,8 +173,8 @@ public enum DefaultIndexSettingsElement {
     @Override
     public SortedMap<String, String> fieldMapping() {
       return ImmutableSortedMap.of(
-        TYPE, STRING,
-        INDEX, ANALYZED,
+        TYPE, FIELD_TYPE_TEXT,
+        INDEX, INDEX_SEARCHABLE_FOR_TEXT,
         ANALYZER, INDEX_PREFIX_ANALYZER.getName(),
         SEARCH_ANALYZER, getName());
     }
@@ -198,8 +198,8 @@ public enum DefaultIndexSettingsElement {
     @Override
     public SortedMap<String, String> fieldMapping() {
       return ImmutableSortedMap.of(
-        TYPE, STRING,
-        INDEX, ANALYZED,
+        TYPE, FIELD_TYPE_TEXT,
+        INDEX, INDEX_SEARCHABLE_FOR_TEXT,
         ANALYZER, INDEX_PREFIX_CASE_INSENSITIVE_ANALYZER.getName(),
         SEARCH_ANALYZER, getName());
     }
@@ -223,8 +223,8 @@ public enum DefaultIndexSettingsElement {
     @Override
     public SortedMap<String, String> fieldMapping() {
       return ImmutableSortedMap.of(
-        TYPE, STRING,
-        INDEX, ANALYZED,
+        TYPE, FIELD_TYPE_TEXT,
+        INDEX, INDEX_SEARCHABLE_FOR_TEXT,
         ANALYZER, USER_INDEX_GRAMS_ANALYZER.getName(),
         SEARCH_ANALYZER, getName());
     }
@@ -248,8 +248,8 @@ public enum DefaultIndexSettingsElement {
     @Override
     public SortedMap<String, String> fieldMapping() {
       return ImmutableSortedMap.of(
-        TYPE, STRING,
-        INDEX, ANALYZED,
+        TYPE, FIELD_TYPE_TEXT,
+        INDEX, INDEX_SEARCHABLE_FOR_TEXT,
         ANALYZER, INDEX_WORDS_ANALYZER.getName(),
         SEARCH_ANALYZER, getName());
     }

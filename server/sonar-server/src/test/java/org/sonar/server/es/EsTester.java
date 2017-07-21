@@ -36,7 +36,6 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.unit.TimeValue;
@@ -48,10 +47,13 @@ import org.junit.rules.ExternalResource;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.config.ConfigurationProvider;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.es.metadata.MetadataIndex;
+import org.sonar.server.es.metadata.MetadataIndexDefinition;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
+import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
 public class EsTester extends ExternalResource {
 
@@ -75,6 +77,8 @@ public class EsTester extends ExternalResource {
       container.addSingleton(client);
       container.addSingleton(IndexDefinitions.class);
       container.addSingleton(IndexCreator.class);
+      container.addSingleton(MetadataIndex.class);
+      container.addSingleton(MetadataIndexDefinition.class);
       container.startComponents();
     }
   }
@@ -103,7 +107,8 @@ public class EsTester extends ExternalResource {
 
   public void putDocuments(IndexType indexType, BaseDoc... docs) {
     try {
-      BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
+      BulkRequestBuilder bulk = client.prepareBulk()
+        .setRefresh(REFRESH_IMMEDIATE); // ES 5: change to setRefreshPolicy
       for (BaseDoc doc : docs) {
         bulk.add(new IndexRequest(indexType.getIndex(), indexType.getType(), doc.getId())
           .parent(doc.getParent())
@@ -144,8 +149,8 @@ public class EsTester extends ExternalResource {
    */
   public List<SearchHit> getDocuments(IndexType indexType) {
     SearchRequestBuilder req = client.nativeClient().prepareSearch(indexType.getIndex()).setTypes(indexType.getType()).setQuery(QueryBuilders.matchAllQuery());
-    req.setSearchType(SearchType.SCAN)
-      .setScroll(new TimeValue(60000))
+    EsUtils.optimizeScrollRequest(req);
+    req.setScroll(new TimeValue(60000))
       .setSize(100);
 
     SearchResponse response = req.get();

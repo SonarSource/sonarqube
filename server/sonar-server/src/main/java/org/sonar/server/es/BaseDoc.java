@@ -19,6 +19,7 @@
  */
 package org.sonar.server.es;
 
+import com.google.common.base.Preconditions;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -101,6 +102,8 @@ public abstract class BaseDoc {
   }
 
   public Map<String, Object> getFields() {
+    Preconditions.checkState(!fields.containsKey("_id"), "\"_id\" spotted!");
     return fields;
   }
+
 }

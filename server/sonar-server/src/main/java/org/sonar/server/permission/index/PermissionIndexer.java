@@ -42,6 +42,7 @@ import org.sonar.server.permission.index.PermissionIndexerDao.Dto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
 /**
  * Manages the synchronization of indexes with authorization settings defined in database:
@@ -127,7 +128,7 @@ public class PermissionIndexer implements ProjectIndexer, StartupIndexer {
     authorizationScopes.forEach(scope -> esClient
       .prepareDelete(scope.getIndexType(), projectUuid)
       .setRouting(projectUuid)
-      .setRefresh(true)
+      .setRefresh(REFRESH_IMMEDIATE) // ES 5: change to setRefreshPolicy
       .get());
   }
 

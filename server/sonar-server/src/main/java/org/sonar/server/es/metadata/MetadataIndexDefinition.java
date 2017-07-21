@@ -17,37 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.view.index;
+package org.sonar.server.es.metadata;
 
 import org.sonar.api.config.Configuration;
-import org.sonar.server.es.IndexDefinition;
+import org.sonar.server.es.IndexDefinition.IndexDefinitionContext;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
-/**
- * Definition of ES index "views", including settings and fields.
- */
-public class ViewIndexDefinition implements IndexDefinition {
+public class MetadataIndexDefinition {
 
-  public static final IndexType INDEX_TYPE_VIEW = new IndexType("views", "view");
-  public static final String FIELD_UUID = "uuid";
-  public static final String FIELD_PROJECTS = "projects";
+  public static final IndexType INDEX_TYPE_METADATA = new IndexType("metadatas", "metadata");
+  public static final String FIELD_VALUE = "value";
 
-  private final Configuration config;
+  private static final int DEFAULT_NUMBER_OF_SHARDS = 1;
 
-  public ViewIndexDefinition(Configuration config) {
-    this.config = config;
+  private final Configuration configuration;
+
+  public MetadataIndexDefinition(Configuration configuration) {
+    this.configuration = configuration;
   }
 
-  @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_TYPE_VIEW.getIndex());
+    NewIndex index = context.create(INDEX_TYPE_METADATA.getIndex());
+    index.refreshHandledByIndexer();
+    index.configureShards(configuration, DEFAULT_NUMBER_OF_SHARDS);
 
-    index.configureShards(config, 5);
+    NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_METADATA.getType());
 
-    // type "view"
-    NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_VIEW.getType());
-    mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();
-    mapping.keywordFieldBuilder(FIELD_PROJECTS).disableNorms().build();
+    mapping.keywordFieldBuilder(FIELD_VALUE).disableSearch().build();
   }
 }
