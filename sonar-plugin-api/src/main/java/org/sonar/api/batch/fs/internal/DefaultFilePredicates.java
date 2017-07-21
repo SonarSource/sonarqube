@@ -29,6 +29,7 @@ import java.util.List;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Status;
 
 /**
  * Factory of {@link org.sonar.api.batch.fs.FilePredicate}
@@ -42,7 +43,7 @@ public class DefaultFilePredicates implements FilePredicates {
   /**
    * Client code should use {@link org.sonar.api.batch.fs.FileSystem#predicates()} to get an instance
    */
-  DefaultFilePredicates(Path baseDir) {
+  public DefaultFilePredicates(Path baseDir) {
     this.baseDir = baseDir;
   }
 
@@ -198,5 +199,10 @@ public class DefaultFilePredicates implements FilePredicates {
   @Override
   public FilePredicate and(FilePredicate first, FilePredicate second) {
     return AndPredicate.create(Arrays.asList(first, second));
+  }
+
+  @Override
+  public FilePredicate hasStatus(Status status) {
+    return new StatusPredicate(status);
   }
 }

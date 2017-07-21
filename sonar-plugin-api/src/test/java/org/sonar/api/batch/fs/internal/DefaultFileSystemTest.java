@@ -120,7 +120,7 @@ public class DefaultFileSystemTest {
     fs.add(new TestInputFileBuilder("foo", "src/Bar.java").setLanguage("java").build());
     fs.add(new TestInputFileBuilder("foo", "src/Baz.java").setLanguage("java").build());
 
-    fs.setDefaultPredicate(f -> f.relativePath().endsWith("Foo.php"));
+    fs.setDefaultPredicate(p -> f -> f.relativePath().endsWith("Foo.php"));
     Iterator<File> iterator = fs.files(fs.predicates().all()).iterator();
     assertThat(iterator.hasNext()).isTrue();
     assertThat(iterator.next()).isEqualTo(file1.file());
