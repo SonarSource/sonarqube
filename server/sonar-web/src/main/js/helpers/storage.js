@@ -66,8 +66,10 @@ export const getSort = () => window.localStorage.getItem(PROJECTS_SORT);
 
 export const saveCustomGraph = (metrics: ?Array<string>) =>
   save(PROJECT_ACTIVITY_GRAPH_CUSTOM, metrics ? metrics.join(',') : '');
-export const getCustomGraph = (): Array<string> =>
-  (window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH_CUSTOM) || '').split(',');
+export const getCustomGraph = (): Array<string> => {
+  const customGraphs = window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH_CUSTOM);
+  return customGraphs ? customGraphs.split(',') : [];
+};
 
 export const saveGraph = (graph: ?string) => save(PROJECT_ACTIVITY_GRAPH, graph);
 export const getGraph = (): string =>
