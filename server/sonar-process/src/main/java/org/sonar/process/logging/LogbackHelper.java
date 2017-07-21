@@ -129,7 +129,7 @@ public class LogbackHelper {
    *
    * @throws IllegalArgumentException if the value of the specified property is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
    */
-  private static Level resolveLevel(Props props, String... propertyKeys) {
+  public static Level resolveLevel(Props props, String... propertyKeys) {
     Level newLevel = Level.INFO;
     for (String propertyKey : propertyKeys) {
       Level level = getPropertyValueAsLevel(props, propertyKey);

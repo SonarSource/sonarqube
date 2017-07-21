@@ -22,9 +22,11 @@ package org.sonar.application.process;
 import java.io.File;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import org.sonar.application.config.AppSettings;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
+import org.sonar.process.logging.LogbackHelper;
 
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_PORT;
@@ -61,14 +63,15 @@ public class CommandFactoryImpl implements CommandFactory {
 
     Map<String, String> settingsMap = new EsSettings(this.settings.getProps()).build();
 
+    File logDir = new File(settingsMap.get("path.logs"));
     EsCommand res = new EsCommand(ProcessId.ELASTICSEARCH)
       .setWorkDir(executable.getParentFile().getParentFile())
       .setExecutable(executable)
+      .setConfDir(new File(settingsMap.get("path.conf")))
+      .setLog4j2Properties(buildLog4j2Properties(logDir))
       .setArguments(this.settings.getProps().rawProperties())
       .setClusterName(settingsMap.get("cluster.name"))
       .setHost(settingsMap.get("network.host"))
-      // TODO add argument to specify log4j configuration file
-      // TODO add argument to specify yaml configuration file
       .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")));
 
     settingsMap.forEach((key, value) -> res.addEsOption("-E" + key + "=" + value));
@@ -82,6 +85,26 @@ public class CommandFactoryImpl implements CommandFactory {
     // command
     // .addJavaOptions(settings.getProps().nonNullValue(ProcessProperties.SEARCH_JAVA_OPTS))
     // .addJavaOptions(settings.getProps().nonNullValue(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS));
+  }
+
+  private Properties buildLog4j2Properties(File logDir) {
+    // FIXME create a Log4jHelper which shares code with LogbackHelper to build this Properties object + not make LogbackHelper.resolveLevel public + provide correct log format, rolling policy, ...
+    String logLevel = LogbackHelper.resolveLevel(settings.getProps(), "sonar.log.level", "sonar.log.level.es").toString();
+    Properties log4j2Properties = new Properties();
+    log4j2Properties.put("status", "error");
+    log4j2Properties.put("appender.rolling.type", "RollingFile");
+    log4j2Properties.put("appender.rolling.name", "rolling");
+    log4j2Properties.put("appender.rolling.fileName", new File(logDir, "es.log").getAbsolutePath());
+    log4j2Properties.put("appender.rolling.layout.type", "PatternLayout");
+    log4j2Properties.put("appender.rolling.layout.pattern", "[%d{ISO8601}][%-5p][%-25c{1.}] %marker%.-10000m%n");
+    log4j2Properties.put("appender.rolling.filePattern", "${sys:es.logs}-%d{yyyy-MM-dd}.log");
+    log4j2Properties.put("appender.rolling.policies.type", "Policies");
+    log4j2Properties.put("appender.rolling.policies.time.type", "TimeBasedTriggeringPolicy");
+    log4j2Properties.put("appender.rolling.policies.time.interval", "1");
+    log4j2Properties.put("appender.rolling.policies.time.modulate", "true");
+    log4j2Properties.put("rootLogger.level", logLevel);
+    log4j2Properties.put("rootLogger.appenderRef.rolling.ref", "rolling");
+    return log4j2Properties;
   }
 
   private static String getExecutable() {

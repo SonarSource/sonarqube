@@ -65,6 +65,7 @@ public class EsSettingsTest {
     assertThat(generated.get("path.data")).isNotNull();
     assertThat(generated.get("path.logs")).isNotNull();
     assertThat(generated.get("path.home")).isNull();
+    assertThat(generated.get("path.conf")).isNotNull();
 
     // http is disabled for security reasons
     assertThat(generated.get("http.enabled")).isEqualTo("false");
@@ -91,6 +92,7 @@ public class EsSettingsTest {
     assertThat(settings.get("path.data")).isEqualTo(new File(dataDir, "es").getAbsolutePath());
     assertThat(settings.get("path.logs")).isEqualTo(logDir.getAbsolutePath());
     assertThat(settings.get("path.home")).isNull();
+    assertThat(settings.get("path.conf")).isEqualTo(new File(tempDir, "conf/es").getAbsolutePath());
   }
 
   @Test
