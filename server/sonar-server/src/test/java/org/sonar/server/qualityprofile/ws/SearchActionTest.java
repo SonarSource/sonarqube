@@ -122,6 +122,23 @@ public class SearchActionTest {
   }
 
   @Test
+  public void no_profile() {
+    SearchWsResponse result = call(ws.newRequest());
+
+    assertThat(result.getProfilesList()).isEmpty();
+  }
+
+  @Test
+  public void empty_when_no_language_installed() {
+    WsActionTester ws = new WsActionTester(new SearchAction(new Languages(), dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null)));
+    db.qualityProfiles().insert(db.getDefaultOrganization());
+
+    SearchWsResponse result = call(ws.newRequest());
+
+    assertThat(result.getProfilesList()).isEmpty();
+  }
+
+  @Test
   public void default_organization() {
     OrganizationDto defaultOrganization = db.getDefaultOrganization();
     OrganizationDto anotherOrganization = db.organizations().insert();
@@ -289,6 +306,21 @@ public class SearchActionTest {
   }
 
   @Test
+  public void empty_when_filtering_on_project_and_no_language_installed() {
+    WsActionTester ws = new WsActionTester(new SearchAction(new Languages(), dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null)));
+    db.qualityProfiles().insert(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject();
+    QProfileDto profileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
+    db.qualityProfiles().associateWithProject(project, profileOnXoo1);
+
+    SearchWsResponse result = call(ws.newRequest()
+      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_DEFAULTS, "true"));
+
+    assertThat(result.getProfilesList()).isEmpty();
+  }
+
+  @Test
   public void fail_if_project_does_not_exist() {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'unknown-project' not found");
@@ -354,13 +386,6 @@ public class SearchActionTest {
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::hasProjectCount, QualityProfile::getProjectCount)
       .containsExactlyInAnyOrder(tuple(true, 2L), tuple(false, 0L));
-  }
-
-  @Test
-  public void no_profile() {
-    SearchWsResponse result = call(ws.newRequest());
-
-    assertThat(result.getProfilesList()).isEmpty();
   }
 
   @Test
