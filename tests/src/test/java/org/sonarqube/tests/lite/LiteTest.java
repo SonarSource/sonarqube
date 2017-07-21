@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.rules.RuleChain;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Issues;
@@ -41,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.xooPlugin;
 
+@Ignore
 public class LiteTest {
 
   private static final String PROJECT_KEY = "com.sonarsource.it.samples:multi-modules-sample";

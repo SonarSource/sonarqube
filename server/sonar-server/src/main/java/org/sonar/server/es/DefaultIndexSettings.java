@@ -20,6 +20,7 @@
 package org.sonar.server.es;
 
 import java.util.Arrays;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 
@@ -43,17 +44,24 @@ public class DefaultIndexSettings {
 
   public static final String TYPE = "type";
   public static final String INDEX = "index";
-  public static final String ANALYZED = "analyzed";
-  public static final String STRING = "string";
+  public static final String INDEX_SEARCHABLE = "true";
+  public static final String INDEX_NOT_SEARCHABLE = "false";
+  public static final String FIELD_TYPE_TEXT = "text";
+  public static final String FIELD_TYPE_KEYWORD = "keyword";
+  public static final String FIELD_FIELDDATA = "fielddata";
+  public static final String FIELDDATA_ENABLED = "true";
+  public static final String FIELD_TERM_VECTOR = "term_vector";
   public static final String STANDARD = "standard";
   public static final String PATTERN = "pattern";
   public static final String CUSTOM = "custom";
   public static final String KEYWORD = "keyword";
   public static final String CLASSIC = "classic";
+  public static final RefreshPolicy REFRESH_IMMEDIATE = RefreshPolicy.IMMEDIATE;
+  public static final RefreshPolicy REFRESH_NONE = RefreshPolicy.NONE;
+
   public static final String TRUNCATE = "truncate";
 
   public static final String SUB_FIELD_DELIMITER = ".";
-
   public static final String TRIM = "trim";
   public static final String LOWERCASE = "lowercase";
   public static final String WHITESPACE = "whitespace";

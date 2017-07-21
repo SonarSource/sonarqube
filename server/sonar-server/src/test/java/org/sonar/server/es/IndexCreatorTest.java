@@ -22,19 +22,33 @@ package org.sonar.server.es;
 import java.io.IOException;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.metadata.MetadataIndex;
+import org.sonar.server.es.metadata.MetadataIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.action.support.WriteRequest.RefreshPolicy.IMMEDIATE;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class IndexCreatorTest {
 
+  private static final NewIndex.SettingsConfiguration settingsConfiguration = newBuilder(new MapSettings().asConfig()).build();
+
   @Rule
   public EsTester es = new EsTester();
+
+  private MetadataIndexDefinition metadataIndexDefinition = new MetadataIndexDefinition(new MapSettings().asConfig());
+  private MetadataIndex metadataIndex = new MetadataIndex(es.client());
 
   @Test
   public void create_index() throws Exception {
@@ -42,7 +56,7 @@ public class IndexCreatorTest {
 
     IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()}, new MapSettings().asConfig());
     registry.start();
-    IndexCreator creator = new IndexCreator(es.client(), registry);
+    IndexCreator creator = new IndexCreator(es.client(), registry, metadataIndexDefinition, metadataIndex);
     creator.start();
 
     // check that index is created with related mapping
@@ -53,11 +67,28 @@ public class IndexCreatorTest {
     assertThat(countMappingFields(mapping)).isEqualTo(2);
     assertThat(field(mapping, "updatedAt").get("type")).isEqualTo("date");
 
-    assertThat(setting("fakes", "index.sonar_hash")).isNotEmpty();
-
     // of course do not delete indices on stop
     creator.stop();
     assertThat(mappings()).isNotEmpty();
+  }
+
+  @Test
+  public void mark_all_non_existing_index_types_as_uninitialized() throws Exception {
+    MetadataIndex metadataIndexMock = mock(MetadataIndex.class);
+    IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {context -> {
+
+      NewIndex i = context.create("i", settingsConfiguration);
+      i.createType("t1");
+      i.createType("t2");
+    }}, new MapSettings().asConfig());
+    registry.start();
+    IndexCreator creator = new IndexCreator(es.client(), registry, metadataIndexDefinition, metadataIndexMock);
+    creator.start();
+
+    verify(metadataIndexMock).setHash(eq("i"), anyString());
+    verify(metadataIndexMock).setInitialized(eq(new IndexType("i", "t1")), eq(false));
+    verify(metadataIndexMock).setInitialized(eq(new IndexType("i", "t2")), eq(false));
+    verifyNoMoreInteractions(metadataIndexMock);
   }
 
   @Test
@@ -67,30 +98,54 @@ public class IndexCreatorTest {
     // v1
     IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()}, new MapSettings().asConfig());
     registry.start();
-    IndexCreator creator = new IndexCreator(es.client(), registry);
+    IndexCreator creator = new IndexCreator(es.client(), registry, metadataIndexDefinition, metadataIndex);
     creator.start();
     creator.stop();
-    String hashV1 = setting("fakes", "index.sonar_hash");
-    assertThat(hashV1).isNotEmpty();
+
+    IndexType fakeIndexType = new IndexType("fakes", "fake");
+    String id = "1";
+    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
+    assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
 
     // v2
     registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinitionV2()}, new MapSettings().asConfig());
     registry.start();
-    creator = new IndexCreator(es.client(), registry);
+    creator = new IndexCreator(es.client(), registry, metadataIndexDefinition, metadataIndex);
     creator.start();
     ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = mappings();
     MappingMetaData mapping = mappings.get("fakes").get("fake");
     assertThat(countMappingFields(mapping)).isEqualTo(3);
     assertThat(field(mapping, "updatedAt").get("type")).isEqualTo("date");
     assertThat(field(mapping, "newField").get("type")).isEqualTo("integer");
-    String hashV2 = setting("fakes", "index.sonar_hash");
-    assertThat(hashV2).isNotEqualTo(hashV1);
     creator.stop();
+
+    assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isFalse();
   }
 
-  private String setting(String indexName, String settingKey) {
-    GetSettingsResponse indexSettings = es.client().nativeClient().admin().indices().prepareGetSettings(indexName).get();
-    return indexSettings.getSetting(indexName, settingKey);
+  @Test
+  public void do_not_recreate_index_on_unchanged_definition() throws Exception {
+    assertThat(mappings()).isEmpty();
+
+    // v1
+    IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()}, new MapSettings().asConfig());
+    registry.start();
+    IndexCreator creator = new IndexCreator(es.client(), registry, metadataIndexDefinition, metadataIndex);
+    creator.start();
+    creator.stop();
+
+    IndexType fakeIndexType = new IndexType("fakes", "fake");
+    String id = "1";
+    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefreshPolicy(IMMEDIATE).get();
+    assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
+
+    // v1
+    registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()}, new MapSettings().asConfig());
+    registry.start();
+    creator = new IndexCreator(es.client(), registry, metadataIndexDefinition, metadataIndex);
+    creator.start();
+    creator.stop();
+
+    assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
   }
 
   private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings() {
@@ -110,9 +165,9 @@ public class IndexCreatorTest {
   public static class FakeIndexDefinition implements IndexDefinition {
     @Override
     public void define(IndexDefinitionContext context) {
-      NewIndex index = context.create("fakes");
+      NewIndex index = context.create("fakes", settingsConfiguration);
       NewIndex.NewIndexType mapping = index.createType("fake");
-      mapping.stringFieldBuilder("key").build();
+      mapping.keywordFieldBuilder("key").build();
       mapping.createDateTimeField("updatedAt");
     }
   }
@@ -120,9 +175,9 @@ public class IndexCreatorTest {
   public static class FakeIndexDefinitionV2 implements IndexDefinition {
     @Override
     public void define(IndexDefinitionContext context) {
-      NewIndex index = context.create("fakes");
+      NewIndex index = context.create("fakes", settingsConfiguration);
       NewIndex.NewIndexType mapping = index.createType("fake");
-      mapping.stringFieldBuilder("key").build();
+      mapping.keywordFieldBuilder("key").build();
       mapping.createDateTimeField("updatedAt");
       mapping.createIntegerField("newField");
     }

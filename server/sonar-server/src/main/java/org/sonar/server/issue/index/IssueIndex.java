@@ -41,15 +41,20 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.indices.TermsLookup;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
-import org.elasticsearch.search.aggregations.metrics.sum.SumBuilder;
+import org.elasticsearch.search.aggregations.metrics.sum.SumAggregationBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -127,7 +132,7 @@ public class IssueIndex {
 
   private static final String IS_ASSIGNED_FILTER = "__isAssigned";
 
-  private static final SumBuilder EFFORT_AGGREGATION = AggregationBuilders.sum(FACET_MODE_EFFORT).field(IssueIndexDefinition.FIELD_ISSUE_EFFORT);
+  private static final SumAggregationBuilder EFFORT_AGGREGATION = AggregationBuilders.sum(FACET_MODE_EFFORT).field(IssueIndexDefinition.FIELD_ISSUE_EFFORT);
   private static final Order EFFORT_AGGREGATION_ORDER = Order.aggregation(FACET_MODE_EFFORT, false);
 
   private static final int DEFAULT_FACET_SIZE = 15;
@@ -211,13 +216,16 @@ public class IssueIndex {
   }
 
   private void configureSorting(IssueQuery query, SearchRequestBuilder esRequest) {
+    createSortBuilders(query).forEach(esRequest::addSort);
+  }
+
+  private List<FieldSortBuilder> createSortBuilders(IssueQuery query) {
     String sortField = query.sort();
     if (sortField != null) {
       boolean asc = BooleanUtils.isTrue(query.asc());
-      sorting.fill(esRequest, sortField, asc);
-    } else {
-      sorting.fillDefault(esRequest);
+      return sorting.fill(sortField, asc);
     }
+    return sorting.fillDefault();
   }
 
   private static void configurePagination(SearchOptions options, SearchRequestBuilder esSearch) {
@@ -297,11 +305,14 @@ public class IssueIndex {
 
     BoolQueryBuilder viewsFilter = boolQuery();
     for (String viewUuid : viewUuids) {
-      viewsFilter.should(QueryBuilders.termsLookupQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID)
-        .lookupIndex(ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex())
-        .lookupType(ViewIndexDefinition.INDEX_TYPE_VIEW.getType())
-        .lookupId(viewUuid)
-        .lookupPath(ViewIndexDefinition.FIELD_PROJECTS));
+      viewsFilter.should(
+        QueryBuilders.termsLookupQuery(
+          IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID,
+          new TermsLookup(
+            ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex(),
+            ViewIndexDefinition.INDEX_TYPE_VIEW.getType(),
+            viewUuid,
+            ViewIndexDefinition.FIELD_PROJECTS)));
     }
     return viewsFilter;
   }
@@ -444,13 +455,13 @@ public class IssueIndex {
 
     AggregationBuilder dateHistogram = AggregationBuilders.dateHistogram(PARAM_CREATED_AT)
       .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-      .interval(bucketSize)
+      .dateHistogramInterval(bucketSize)
       .minDocCount(0L)
       .format(DateUtils.DATETIME_FORMAT)
-      .timeZone(TimeZone.getTimeZone("GMT").getID())
+      .timeZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT")))
       .offset(offsetInSeconds + "s")
       // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
-      .extendedBounds(startTime, endTime - 1_000L);
+      .extendedBounds(new ExtendedBounds(startTime, endTime - 1_000L));
     dateHistogram = addEffortAggregationIfNeeded(query, dateHistogram);
     return Optional.of(dateHistogram);
   }
@@ -527,11 +538,10 @@ public class IssueIndex {
     BoolQueryBuilder facetFilter = assignedToMeFacetBuilder.getStickyFacetFilter(IS_ASSIGNED_FILTER, fieldName);
 
     FilterAggregationBuilder facetTopAggregation = AggregationBuilders
-      .filter(facetName + "__filter")
-      .filter(facetFilter)
+      .filter(facetName + "__filter", facetFilter)
       .subAggregation(addEffortAggregationIfNeeded(query, AggregationBuilders.terms(facetName + "__terms")
         .field(fieldName)
-        .include(escapeSpecialRegexChars(login))));
+        .includeExclude(new IncludeExclude(escapeSpecialRegexChars(login), null))));
 
     builder.addAggregation(
       AggregationBuilders.global(facetName)
@@ -580,14 +590,14 @@ public class IssueIndex {
         .filter(termQuery(FIELD_ISSUE_ORGANIZATION_UUID, organization.getUuid())))
       .setSize(0);
 
-    TermsBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)
+    TermsAggregationBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)
       .field(IssueIndexDefinition.FIELD_ISSUE_TAGS)
       .size(maxNumberOfTags)
       .order(Terms.Order.term(true))
       .minDocCount(1L);
     if (textQuery != null) {
       String escapedTextQuery = escapeSpecialRegexChars(textQuery);
-      termsAggregation.include(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery));
+      termsAggregation.includeExclude(new IncludeExclude(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery), null));
     }
     requestBuilder.addAggregation(termsAggregation);
 
@@ -614,13 +624,13 @@ public class IssueIndex {
 
     requestBuilder.setQuery(boolQuery().must(QueryBuilders.matchAllQuery()).filter(createBoolFilter(query)));
 
-    TermsBuilder aggreg = AggregationBuilders.terms("_ref")
+    TermsAggregationBuilder aggreg = AggregationBuilders.terms("_ref")
       .field(fieldName)
       .size(maxNumberOfTags)
       .order(termsOrder)
       .minDocCount(1L);
     if (textQuery != null) {
-      aggreg.include(format(SUBSTRING_MATCH_REGEXP, escapeSpecialRegexChars(textQuery)));
+      aggreg.includeExclude(new IncludeExclude(format(SUBSTRING_MATCH_REGEXP, escapeSpecialRegexChars(textQuery)), null));
     }
 
     SearchResponse searchResponse = requestBuilder.addAggregation(aggreg).get();

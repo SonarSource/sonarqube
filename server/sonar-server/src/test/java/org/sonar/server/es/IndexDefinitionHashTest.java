@@ -22,30 +22,32 @@ package org.sonar.server.es;
 import org.junit.Test;
 
 import java.util.Arrays;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class IndexDefinitionHashTest {
 
   @Test
   public void of() {
     IndexDefinitions.Index indexV1 = new IndexDefinitions.Index(createIndex());
-    String hashV1 = new IndexDefinitionHash().of(indexV1);
+    String hashV1 = IndexDefinitionHash.of(indexV1);
     assertThat(hashV1).isNotEmpty();
     // always the same
-    assertThat(hashV1).isEqualTo(new IndexDefinitionHash().of(indexV1));
+    assertThat(hashV1).isEqualTo(IndexDefinitionHash.of(indexV1));
 
     NewIndex newIndexV2 = createIndex();
     newIndexV2.getTypes().get("fake").createIntegerField("max");
-    String hashV2 = new IndexDefinitionHash().of(new IndexDefinitions.Index(newIndexV2));
+    String hashV2 = IndexDefinitionHash.of(new IndexDefinitions.Index(newIndexV2));
     assertThat(hashV2).isNotEmpty().isNotEqualTo(hashV1);
   }
 
   private NewIndex createIndex() {
-    NewIndex newIndex = new NewIndex("fakes");
+    NewIndex newIndex = new NewIndex("fakes", newBuilder(new MapSettings().asConfig()).build());
     NewIndex.NewIndexType mapping = newIndex.createType("fake");
     mapping.setAttribute("list_attr", Arrays.asList("foo", "bar"));
-    mapping.stringFieldBuilder("key").build();
+    mapping.keywordFieldBuilder("key").build();
     mapping.createDateTimeField("updatedAt");
     return newIndex;
   }

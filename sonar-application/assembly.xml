@@ -37,17 +37,6 @@
     </dependencySet>
 
     <dependencySet>
-      <outputDirectory>lib/common</outputDirectory>
-      <useTransitiveFiltering>true</useTransitiveFiltering>
-      <useProjectArtifact>false</useProjectArtifact>
-      <includes>
-        <include>org.elasticsearch:elasticsearch</include>
-        <include>net.java.dev.jna:jna</include>
-      </includes>
-      <scope>provided</scope>
-    </dependencySet>
-
-    <dependencySet>
       <outputDirectory>lib/search</outputDirectory>
       <useProjectArtifact>false</useProjectArtifact>
       <useTransitiveDependencies>true</useTransitiveDependencies>
@@ -154,6 +143,8 @@
         <include>bin/*/lib/*.dll</include>
         <include>bin/*/wrapper</include>
         <include>bin/*/wrapper.exe</include>
+        <include>elasticsearch/bin/elasticsearch</include>
+        <include>elasticsearch/bin/elasticsearch.bat</include>
       </includes>
       <fileMode>0755</fileMode>
     </fileSet>

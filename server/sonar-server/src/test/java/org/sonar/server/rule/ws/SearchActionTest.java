@@ -267,9 +267,26 @@ public class SearchActionTest {
       .setParam("facets", "tags")
       .setParam("organization", organization.getKey())
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount()))
-      .containsExactly(entry("tag1", 1L), entry("tag2", 1L), entry("tag3", 1L), entry("tag4", 1L), entry("tag5", 1L), entry("tag6", 1L), entry("tag7", 1L), entry("tag8", 1L),
-        entry("tag9", 1L), entry("tagA", 1L));
+    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> v.getVal(), v -> v.getCount())
+      .containsExactly(tuple("tag1", 1L), tuple("tag2", 1L), tuple("tag3", 1L), tuple("tag4", 1L), tuple("tag5", 1L), tuple("tag6", 1L), tuple("tag7", 1L), tuple("tag8", 1L),
+              tuple("tag9", 1L), tuple("tagA", 1L));
+  }
+
+  @Test
+  public void should_list_tags_ordered_by_count_then_by_name_in_tags_facet() throws IOException {
+    OrganizationDto organization = db.organizations().insert();
+    RuleDefinitionDto rule = db.rules().insert(setSystemTags("tag7", "tag5", "tag3", "tag1", "tag9", "x"));
+    RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag2", "tag4", "tag6", "tag8", "tagA"));
+    RuleDefinitionDto rule2 = db.rules().insert(setSystemTags("tag2"));
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam("facets", "tags")
+      .setParam("organization", organization.getKey())
+      .executeProtobuf(SearchResponse.class);
+    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> v.getVal(), v -> v.getCount())
+      .containsExactly(tuple("tag2", 2L), tuple("tag1", 1L), tuple("tag3", 1L), tuple("tag4", 1L), tuple("tag5", 1L), tuple("tag6", 1L), tuple("tag7", 1L), tuple("tag8", 1L),
+              tuple("tag9", 1L), tuple("tagA", 1L));
   }
 
   @Test

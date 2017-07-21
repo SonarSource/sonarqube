@@ -35,11 +35,14 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.sort.SortOrder;
 import org.joda.time.format.ISODateTimeFormat;
 import org.sonar.core.util.stream.MoreCollectors;
 
@@ -108,8 +111,16 @@ public class EsUtils {
     return bulkResponse;
   }
 
-  public static <D extends BaseDoc> Iterator<D> scroll(EsClient esClient, String scrollId, Function<Map<String, Object>, D> docConverter) {
-    return new DocScrollIterator<>(esClient, scrollId, docConverter);
+  /**
+   * Optimize scolling, by specifying document sorting.
+   * See https://www.elastic.co/guide/en/elasticsearch/reference/2.4/search-request-scroll.html#search-request-scroll
+   */
+  public static void optimizeScrollRequest(SearchRequestBuilder esSearch) {
+    esSearch.addSort("_doc", SortOrder.ASC);
+  }
+
+  public static <D extends BaseDoc> Iterator<D> scroll(EsClient esClient, SearchResponse scrollResponse, Function<Map<String, Object>, D> docConverter) {
+    return new DocScrollIterator<>(esClient, scrollResponse, docConverter);
   }
 
   /**
@@ -129,10 +140,11 @@ public class EsUtils {
 
     private final Queue<SearchHit> hits = new ArrayDeque<>();
 
-    private DocScrollIterator(EsClient esClient, String scrollId, Function<Map<String, Object>, D> docConverter) {
+    private DocScrollIterator(EsClient esClient, SearchResponse scrollResponse, Function<Map<String, Object>, D> docConverter) {
       this.esClient = esClient;
-      this.scrollId = scrollId;
+      this.scrollId = scrollResponse.getScrollId();
       this.docConverter = docConverter;
+      Collections.addAll(hits, scrollResponse.getHits().getHits());
     }
 
     @Override
@@ -159,8 +171,8 @@ public class EsUtils {
     }
   }
 
-  public static <ID> Iterator<ID> scrollIds(EsClient esClient, String scrollId, Function<String, ID> idConverter) {
-    return new IdScrollIterator<>(esClient, scrollId, idConverter);
+  public static <ID> Iterator<ID> scrollIds(EsClient esClient, SearchResponse scrollResponse, Function<String, ID> idConverter) {
+    return new IdScrollIterator<>(esClient, scrollResponse, idConverter);
   }
 
   private static class IdScrollIterator<ID> implements Iterator<ID> {
@@ -171,10 +183,11 @@ public class EsUtils {
 
     private final Queue<SearchHit> hits = new ArrayDeque<>();
 
-    private IdScrollIterator(EsClient esClient, String scrollId, Function<String, ID> idConverter) {
+    private IdScrollIterator(EsClient esClient, SearchResponse scrollResponse, Function<String, ID> idConverter) {
       this.esClient = esClient;
-      this.scrollId = scrollId;
+      this.scrollId = scrollResponse.getScrollId();
       this.idConverter = idConverter;
+      Collections.addAll(hits, scrollResponse.getHits().getHits());
     }
 
     @Override

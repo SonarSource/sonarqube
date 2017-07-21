@@ -29,6 +29,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
+
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -1183,6 +1185,7 @@ public class ProjectMeasuresIndexTest {
       entry("500000.0-*", 0L));
   }
 
+  @Ignore
   @Test
   public void facet_languages_returns_more_than_10_languages_when_languages_filter_contains_value_not_in_top_10() {
     index(

@@ -29,10 +29,13 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALY
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_PREFIX_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class ComponentIndexDefinition implements IndexDefinition {
 
   public static final IndexType INDEX_TYPE_COMPONENT = new IndexType("components", "component");
+  public static final String FIELD_UUID = "uuid";
   public static final String FIELD_PROJECT_UUID = "project_uuid";
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
@@ -50,20 +53,25 @@ public class ComponentIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_TYPE_COMPONENT.getIndex());
-    index.refreshHandledByIndexer();
-    index.configureShards(config, DEFAULT_NUMBER_OF_SHARDS);
+    NewIndex index = context.create(
+      INDEX_TYPE_COMPONENT.getIndex(),
+      newBuilder(config)
+        .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
+        .setDefaultNbOfShards(DEFAULT_NUMBER_OF_SHARDS)
+        .build());
 
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_COMPONENT.getType())
       .requireProjectAuthorization();
 
-    mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
-    mapping.stringFieldBuilder(FIELD_KEY).addSubFields(SORTABLE_ANALYZER).build();
-    mapping.stringFieldBuilder(FIELD_NAME)
+    mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();
+    mapping.keywordFieldBuilder(FIELD_PROJECT_UUID).disableNorms().build();
+    mapping.keywordFieldBuilder(FIELD_KEY).addSubFields(SORTABLE_ANALYZER).build();
+    mapping.textFieldBuilder(FIELD_NAME)
+      .withFieldData()
       .termVectorWithPositionOffsets()
       .addSubFields(NAME_ANALYZERS)
       .build();
 
-    mapping.stringFieldBuilder(FIELD_QUALIFIER).build();
+    mapping.keywordFieldBuilder(FIELD_QUALIFIER).build();
   }
 }

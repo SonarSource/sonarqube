@@ -32,11 +32,13 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregator;
+import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregator.KeyedFilter;
 import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters;
-import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters.Bucket;
+import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters.InternalBucket;
 import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
-import org.elasticsearch.search.highlight.HighlightBuilder;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.ScoreSortBuilder;
 import org.sonar.server.es.EsClient;
@@ -67,7 +69,7 @@ public class ComponentIndex {
     this.authorizationTypeSupport = authorizationTypeSupport;
   }
 
-  private static HighlightBuilder.Field createHighlighter() {
+  private static HighlightBuilder.Field createHighlighterField() {
     HighlightBuilder.Field field = new HighlightBuilder.Field(FIELD_NAME);
     field.highlighterType("fvh");
     field.matchedFields(
@@ -105,23 +107,25 @@ public class ComponentIndex {
   }
 
   private static FiltersAggregationBuilder createAggregation(ComponentIndexQuery query) {
-    FiltersAggregationBuilder filtersAggregation = AggregationBuilders.filters(FILTERS_AGGREGATION_NAME)
+    return AggregationBuilders.filters(
+      FILTERS_AGGREGATION_NAME,
+      query.getQualifiers().stream().map(q -> new KeyedFilter(q, termQuery(FIELD_QUALIFIER, q))).toArray(KeyedFilter[]::new))
       .subAggregation(createSubAggregation(query));
-    query.getQualifiers().forEach(q -> filtersAggregation.filter(q, termQuery(FIELD_QUALIFIER, q)));
-    return filtersAggregation;
   }
 
-  private static TopHitsBuilder createSubAggregation(ComponentIndexQuery query) {
-    TopHitsBuilder sub = AggregationBuilders.topHits(DOCS_AGGREGATION_NAME)
-      .setHighlighterEncoder("html")
-      .setHighlighterPreTags("<mark>")
-      .setHighlighterPostTags("</mark>")
-      .addHighlightedField(createHighlighter())
-      .setFrom(query.getSkip())
-      .setSize(query.getLimit())
-      .addSort(new ScoreSortBuilder())
-      .addSort(new FieldSortBuilder(ComponentIndexDefinition.FIELD_NAME));
-    return sub.setFetchSource(false);
+  private static TopHitsAggregationBuilder createSubAggregation(ComponentIndexQuery query) {
+    return AggregationBuilders.topHits(DOCS_AGGREGATION_NAME)
+      .highlighter(new HighlightBuilder()
+        .encoder("html")
+        .preTags("<mark>")
+        .postTags("</mark>")
+        .field(createHighlighterField())
+      )
+      .from(query.getSkip())
+      .size(query.getLimit())
+      .sort(new ScoreSortBuilder())
+      .sort(new FieldSortBuilder(ComponentIndexDefinition.FIELD_NAME))
+      .fetchSource(false);
   }
 
   private QueryBuilder createQuery(ComponentIndexQuery query, ComponentTextSearchFeature... features) {
@@ -139,14 +143,14 @@ public class ComponentIndex {
 
   private static ComponentIndexResults aggregationsToQualifiers(SearchResponse response) {
     InternalFilters filtersAgg = response.getAggregations().get(FILTERS_AGGREGATION_NAME);
-    List<Bucket> buckets = filtersAgg.getBuckets();
+    List<InternalBucket> buckets = filtersAgg.getBuckets();
     return ComponentIndexResults.newBuilder()
       .setQualifiers(
         buckets.stream().map(ComponentIndex::bucketToQualifier))
       .build();
   }
 
-  private static ComponentHitsPerQualifier bucketToQualifier(Bucket bucket) {
+  private static ComponentHitsPerQualifier bucketToQualifier(InternalBucket bucket) {
     InternalTopHits docs = bucket.getAggregations().get(DOCS_AGGREGATION_NAME);
 
     SearchHits hitList = docs.getHits();

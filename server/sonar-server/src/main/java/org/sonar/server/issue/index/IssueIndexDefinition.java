@@ -26,6 +26,8 @@ import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 /**
  * Definition of ES index "issues", including settings and fields.
@@ -89,37 +91,39 @@ public class IssueIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_TYPE_ISSUE.getIndex());
-
-    index.refreshHandledByIndexer();
-    index.configureShards(config, 5);
+    NewIndex index = context.create(
+      INDEX_TYPE_ISSUE.getIndex(),
+      newBuilder(config)
+        .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
+        .setDefaultNbOfShards(5)
+        .build());
 
     NewIndex.NewIndexType type = index.createType(INDEX_TYPE_ISSUE.getType());
     type.requireProjectAuthorization();
     type.setEnableSource(enableSource);
 
-    type.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
-    type.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).disableNorms().build();
-    type.stringFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_ASSIGNEE).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    type.keywordFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).disableNorms().build();
     type.createLongField(FIELD_ISSUE_EFFORT);
-    type.stringFieldBuilder(FIELD_ISSUE_FILE_PATH).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    type.keywordFieldBuilder(FIELD_ISSUE_FILE_PATH).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
     type.createDateTimeField(FIELD_ISSUE_FUNC_CREATED_AT);
     type.createDateTimeField(FIELD_ISSUE_FUNC_UPDATED_AT);
     type.createDateTimeField(FIELD_ISSUE_FUNC_CLOSED_AT);
-    type.stringFieldBuilder(FIELD_ISSUE_KEY).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
-    type.stringFieldBuilder(FIELD_ISSUE_LANGUAGE).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_KEY).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    type.keywordFieldBuilder(FIELD_ISSUE_LANGUAGE).disableNorms().build();
     type.createIntegerField(FIELD_ISSUE_LINE);
-    type.stringFieldBuilder(FIELD_ISSUE_MODULE_UUID).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_MODULE_UUID).disableNorms().build();
     type.createUuidPathField(FIELD_ISSUE_MODULE_PATH);
-    type.stringFieldBuilder(FIELD_ISSUE_ORGANIZATION_UUID).disableNorms().build();
-    type.stringFieldBuilder(FIELD_ISSUE_PROJECT_UUID).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
-    type.stringFieldBuilder(FIELD_ISSUE_DIRECTORY_PATH).disableNorms().build();
-    type.stringFieldBuilder(FIELD_ISSUE_RESOLUTION).disableNorms().build();
-    type.stringFieldBuilder(FIELD_ISSUE_RULE_KEY).disableNorms().build();
-    type.stringFieldBuilder(FIELD_ISSUE_SEVERITY).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_ORGANIZATION_UUID).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_PROJECT_UUID).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    type.keywordFieldBuilder(FIELD_ISSUE_DIRECTORY_PATH).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_RESOLUTION).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_RULE_KEY).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_SEVERITY).disableNorms().build();
     type.createByteField(FIELD_ISSUE_SEVERITY_VALUE);
-    type.stringFieldBuilder(FIELD_ISSUE_STATUS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
-    type.stringFieldBuilder(FIELD_ISSUE_TAGS).disableNorms().build();
-    type.stringFieldBuilder(FIELD_ISSUE_TYPE).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_STATUS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    type.keywordFieldBuilder(FIELD_ISSUE_TAGS).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_TYPE).disableNorms().build();
   }
 }

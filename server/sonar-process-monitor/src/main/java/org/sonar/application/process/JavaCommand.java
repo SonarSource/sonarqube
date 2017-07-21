@@ -19,52 +19,20 @@
  */
 package org.sonar.application.process;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import javax.annotation.Nullable;
 import org.sonar.process.ProcessId;
 
-public class JavaCommand {
-
-  // unique key among the group of commands to launch
-  private final ProcessId id;
-
-  private File workDir;
-
-  // for example -Xmx1G
-  private final List<String> javaOptions = new ArrayList<>();
-
+public class JavaCommand extends AbstractCommand<JavaCommand> {
   // entry point
   private String className;
-
+  // for example -Xmx1G
+  private final List<String> javaOptions = new ArrayList<>();
   // relative path to JAR files
   private final List<String> classpath = new ArrayList<>();
 
-  // program arguments (parameters of main(String[])
-  private final Map<String, String> arguments = new LinkedHashMap<>();
-
-  private final Map<String, String> envVariables = new HashMap<>(System.getenv());
-
   public JavaCommand(ProcessId id) {
-    this.id = id;
-  }
-
-  public ProcessId getProcessId() {
-    return id;
-  }
-
-  public File getWorkDir() {
-    return workDir;
-  }
-
-  public JavaCommand setWorkDir(File workDir) {
-    this.workDir = workDir;
-    return this;
+    super(id);
   }
 
   public List<String> getJavaOptions() {
@@ -103,48 +71,15 @@ public class JavaCommand {
     return this;
   }
 
-  public Map<String, String> getArguments() {
-    return arguments;
-  }
-
-  public JavaCommand setArgument(String key, @Nullable String value) {
-    if (value == null) {
-      arguments.remove(key);
-    } else {
-      arguments.put(key, value);
-    }
-    return this;
-  }
-
-  public JavaCommand setArguments(Properties args) {
-    for (Map.Entry<Object, Object> entry : args.entrySet()) {
-      setArgument(entry.getKey().toString(), entry.getValue() != null ? entry.getValue().toString() : null);
-    }
-    return this;
-  }
-
-  public Map<String, String> getEnvVariables() {
-    return envVariables;
-  }
-
-  public JavaCommand setEnvVariable(String key, @Nullable String value) {
-    if (value == null) {
-      envVariables.remove(key);
-    } else {
-      envVariables.put(key, value);
-    }
-    return this;
-  }
-
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("JavaCommand{");
-    sb.append("workDir=").append(workDir);
+    sb.append("workDir=").append(getWorkDir());
     sb.append(", javaOptions=").append(javaOptions);
     sb.append(", className='").append(className).append('\'');
     sb.append(", classpath=").append(classpath);
-    sb.append(", arguments=").append(arguments);
-    sb.append(", envVariables=").append(envVariables);
+    sb.append(", arguments=").append(getArguments());
+    sb.append(", envVariables=").append(getEnvVariables());
     sb.append('}');
     return sb.toString();
   }

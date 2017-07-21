@@ -23,11 +23,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.Properties;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessProperties;
@@ -72,10 +74,10 @@ public class EsServerHolder {
   }
 
   private void reset() {
-    TransportClient client = TransportClient.builder().settings(Settings.builder()
+    TransportClient client = new PreBuiltTransportClient(Settings.builder()
       .put("network.bind_host", "localhost")
       .put("cluster.name", clusterName)
-      .build()).build();
+      .build(), Collections.emptyList()) {};
     client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getLoopbackAddress(), port));
 
     // wait for node to be ready

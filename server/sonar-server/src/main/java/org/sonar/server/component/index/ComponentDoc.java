@@ -22,15 +22,21 @@ package org.sonar.server.component.index;
 import java.util.HashMap;
 import org.sonar.server.es.BaseDoc;
 
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_PROJECT_UUID;
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_UUID;
+
 public class ComponentDoc extends BaseDoc {
 
   public ComponentDoc() {
-    super(new HashMap<>(5));
+    super(new HashMap<>(6));
   }
 
   @Override
   public String getId() {
-    return getField("_id");
+    return getField(FIELD_UUID);
   }
 
   @Override
@@ -44,43 +50,43 @@ public class ComponentDoc extends BaseDoc {
   }
 
   public ComponentDoc setId(String s) {
-    setField("_id", s);
+    setField(FIELD_UUID, s);
     return this;
   }
 
   public String getProjectUuid() {
-    return getField(ComponentIndexDefinition.FIELD_PROJECT_UUID);
+    return getField(FIELD_PROJECT_UUID);
   }
 
   public ComponentDoc setProjectUuid(String s) {
-    setField(ComponentIndexDefinition.FIELD_PROJECT_UUID, s);
+    setField(FIELD_PROJECT_UUID, s);
     return this;
   }
 
   public String getKey() {
-    return getField(ComponentIndexDefinition.FIELD_KEY);
+    return getField(FIELD_KEY);
   }
 
   public ComponentDoc setKey(String s) {
-    setField(ComponentIndexDefinition.FIELD_KEY, s);
+    setField(FIELD_KEY, s);
     return this;
   }
 
   public String getName() {
-    return getField(ComponentIndexDefinition.FIELD_NAME);
+    return getField(FIELD_NAME);
   }
 
   public ComponentDoc setName(String s) {
-    setField(ComponentIndexDefinition.FIELD_NAME, s);
+    setField(FIELD_NAME, s);
     return this;
   }
 
   public String getQualifier() {
-    return getField(ComponentIndexDefinition.FIELD_QUALIFIER);
+    return getField(FIELD_QUALIFIER);
   }
 
   public ComponentDoc setQualifier(String s) {
-    setField(ComponentIndexDefinition.FIELD_QUALIFIER, s);
+    setField(FIELD_QUALIFIER, s);
     return this;
   }
 }

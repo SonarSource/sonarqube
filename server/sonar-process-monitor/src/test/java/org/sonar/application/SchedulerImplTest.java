@@ -34,10 +34,13 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
+import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.TestAppSettings;
+import org.sonar.application.process.AbstractCommand;
+import org.sonar.application.process.CommandFactory;
+import org.sonar.application.process.EsCommand;
 import org.sonar.application.process.JavaCommand;
-import org.sonar.application.process.JavaCommandFactory;
-import org.sonar.application.process.JavaProcessLauncher;
+import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.ProcessMonitor;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
@@ -54,7 +57,7 @@ import static org.sonar.process.ProcessId.WEB_SERVER;
 
 public class SchedulerImplTest {
 
-  private static final JavaCommand ES_COMMAND = new JavaCommand(ELASTICSEARCH);
+  private static final EsCommand ES_COMMAND = new EsCommand(ELASTICSEARCH);
   private static final JavaCommand WEB_LEADER_COMMAND = new JavaCommand(WEB_SERVER);
   private static final JavaCommand WEB_FOLLOWER_COMMAND = new JavaCommand(WEB_SERVER);
   private static final JavaCommand CE_COMMAND = new JavaCommand(COMPUTE_ENGINE);
@@ -66,8 +69,8 @@ public class SchedulerImplTest {
 
   private AppReloader appReloader = mock(AppReloader.class);
   private TestAppSettings settings = new TestAppSettings();
-  private TestJavaCommandFactory javaCommandFactory = new TestJavaCommandFactory();
-  private TestJavaProcessLauncher processLauncher = new TestJavaProcessLauncher();
+  private TestCommandFactory javaCommandFactory = new TestCommandFactory();
+  private TestProcessLauncher processLauncher = new TestProcessLauncher();
   private TestAppState appState = new TestAppState();
   private List<ProcessId> orderedStops = synchronizedList(new ArrayList<>());
 
@@ -305,9 +308,9 @@ public class SchedulerImplTest {
     }
   }
 
-  private static class TestJavaCommandFactory implements JavaCommandFactory {
+  private static class TestCommandFactory implements CommandFactory {
     @Override
-    public JavaCommand createEsCommand() {
+    public EsCommand createEsCommand(AppSettings settings) {
       return ES_COMMAND;
     }
 
@@ -322,13 +325,22 @@ public class SchedulerImplTest {
     }
   }
 
-  private class TestJavaProcessLauncher implements JavaProcessLauncher {
+  private class TestProcessLauncher implements ProcessLauncher {
     private final EnumMap<ProcessId, TestProcess> processes = new EnumMap<>(ProcessId.class);
-    private final List<JavaCommand> commands = synchronizedList(new ArrayList<>());
+    private final List<AbstractCommand<?>> commands = synchronizedList(new ArrayList<>());
     private ProcessId makeStartupFail = null;
 
     @Override
+    public ProcessMonitor launch(EsCommand esCommand) {
+      return launchImpl(esCommand);
+    }
+
+    @Override
     public ProcessMonitor launch(JavaCommand javaCommand) {
+      return launchImpl(javaCommand);
+    }
+
+    private ProcessMonitor launchImpl(AbstractCommand<?> javaCommand) {
       commands.add(javaCommand);
       if (makeStartupFail == javaCommand.getProcessId()) {
         throw new IllegalStateException("cannot start " + javaCommand.getProcessId());

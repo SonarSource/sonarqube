@@ -238,7 +238,7 @@ public class IssueIndexerTest {
   public void index_issue_without_parent_should_work() {
     IssueDoc issueDoc = new IssueDoc();
     issueDoc.setKey("key");
-    issueDoc.setProjectUuid("non-exitsing-parent");
+    issueDoc.setProjectUuid("non-existing-parent");
     new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbTester.getDbClient()))
       .index(asList(issueDoc).iterator());
 

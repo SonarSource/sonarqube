@@ -26,6 +26,7 @@ import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.USER_SEARCH_GRAMS_ANALYZER;
+import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 /**
  * Definition of ES index "users", including settings and fields.
@@ -48,17 +49,18 @@ public class UserIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_TYPE_USER.getIndex());
-
-    index.configureShards(config, 1);
+    NewIndex index = context.create(INDEX_TYPE_USER.getIndex(),
+      newBuilder(config)
+        .setDefaultNbOfShards(1)
+        .build());
 
     // type "user"
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_USER.getType());
-    mapping.stringFieldBuilder(FIELD_LOGIN).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
-    mapping.stringFieldBuilder(FIELD_NAME).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
-    mapping.stringFieldBuilder(FIELD_EMAIL).addSubFields(USER_SEARCH_GRAMS_ANALYZER, SORTABLE_ANALYZER).build();
+    mapping.keywordFieldBuilder(FIELD_LOGIN).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
+    mapping.keywordFieldBuilder(FIELD_NAME).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
+    mapping.keywordFieldBuilder(FIELD_EMAIL).addSubFields(USER_SEARCH_GRAMS_ANALYZER, SORTABLE_ANALYZER).build();
     mapping.createBooleanField(FIELD_ACTIVE);
-    mapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
-    mapping.stringFieldBuilder(FIELD_ORGANIZATION_UUIDS).disableNorms().build();
+    mapping.keywordFieldBuilder(FIELD_SCM_ACCOUNTS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    mapping.keywordFieldBuilder(FIELD_ORGANIZATION_UUIDS).disableNorms().build();
   }
 }

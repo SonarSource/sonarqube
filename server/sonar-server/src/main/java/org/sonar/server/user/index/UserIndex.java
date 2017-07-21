@@ -28,7 +28,7 @@ import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -118,7 +118,7 @@ public class UserIndex {
         USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_NAME),
         FIELD_EMAIL,
         USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_EMAIL))
-        .operator(MatchQueryBuilder.Operator.AND);
+        .operator(Operator.AND);
     }
 
     request.setQuery(boolQuery().must(esQuery).filter(filter));
