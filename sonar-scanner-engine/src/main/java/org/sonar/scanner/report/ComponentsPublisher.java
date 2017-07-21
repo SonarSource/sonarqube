@@ -22,13 +22,13 @@ package org.sonar.scanner.report;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
@@ -39,6 +39,7 @@ import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
+import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
@@ -109,6 +110,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
       DefaultInputFile file = (DefaultInputFile) component;
       builder.setIsTest(file.type() == InputFile.Type.TEST);
       builder.setLines(file.lines());
+      builder.setStatus(convert(file.status()));
 
       String lang = getLanguageKey(file);
       if (lang != null) {
@@ -127,6 +129,19 @@ public class ComponentsPublisher implements ReportPublisherStep {
     writeLinks(component, builder);
     writer.writeComponent(builder.build());
     return true;
+  }
+
+  private FileStatus convert(Status status) {
+    switch (status) {
+      case ADDED:
+        return FileStatus.ADDED;
+      case CHANGED:
+        return FileStatus.CHANGED;
+      case SAME:
+        return FileStatus.SAME;
+      default:
+        throw new IllegalArgumentException("Unexpected status: " + status);
+    }
   }
 
   private boolean shouldSkipComponent(DefaultInputComponent component, Collection<InputComponent> children) {
