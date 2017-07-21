@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Supplier;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.AllProcessesCommands;
@@ -66,6 +67,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   public ProcessMonitor launch(EsCommand esCommand) {
     Process process = null;
     try {
+      writeConfFiles(esCommand);
       ProcessBuilder processBuilder = create(esCommand);
       LOG.info("Launch process[{}]: {}", esCommand.getProcessId().getKey(), String.join(" ", processBuilder.command()));
 
@@ -78,6 +80,24 @@ public class ProcessLauncherImpl implements ProcessLauncher {
         process.destroyForcibly();
       }
       throw new IllegalStateException(format("Fail to launch process [%s]", esCommand.getProcessId().getKey()), e);
+    }
+  }
+
+  private void writeConfFiles(EsCommand esCommand) {
+    File confDir = esCommand.getConfDir();
+    if (!confDir.exists() && !confDir.mkdirs()) {
+      String error = format("Failed to create temporary configuration directory [%s]", confDir.getAbsolutePath());
+      LOG.error(error);
+      throw new IllegalStateException(error);
+    }
+
+    try {
+      IOUtils.copy(getClass().getResourceAsStream("elasticsearch.yml"), new FileOutputStream(new File(confDir, "elasticsearch.yml")));
+      IOUtils.copy(getClass().getResourceAsStream("jvm.options"), new FileOutputStream(new File(confDir, "jvm.options")));
+      esCommand.getLog4j2Properties().store(new FileOutputStream(new File(confDir, "log4j2.properties")), "log42 properties file for ES bundled in SonarQube");
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new IllegalStateException("Failed to write ES configuration files", e);
     }
   }
 

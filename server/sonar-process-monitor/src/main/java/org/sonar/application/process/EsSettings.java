@@ -73,26 +73,31 @@ public class EsSettings {
 
   private void configureFileSystem(Map<String, String> builder) {
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
-    File dataDir;
-    File logDir;
 
-    // data dir
+    builder.put("path.data", buildDataPath(homeDir).getAbsolutePath());
+    builder.put("path.conf", buildConfDir().getAbsolutePath());
+    builder.put("path.logs", buildLogPath(homeDir).getAbsolutePath());
+  }
+
+  private File buildDataPath(File homeDir) {
     String dataPath = props.value(ProcessProperties.PATH_DATA);
     if (StringUtils.isNotEmpty(dataPath)) {
-      dataDir = new File(dataPath, "es");
-    } else {
-      dataDir = new File(homeDir, "data/es");
+      return new File(dataPath, "es");
     }
-    builder.put("path.data", dataDir.getAbsolutePath());
+    return new File(homeDir, "data/es");
+  }
 
-    // log dir
+  private File buildLogPath(File homeDir) {
     String logPath = props.value(ProcessProperties.PATH_LOGS);
     if (StringUtils.isNotEmpty(logPath)) {
-      logDir = new File(logPath);
-    } else {
-      logDir = new File(homeDir, "log");
+      return new File(logPath);
     }
-    builder.put("path.logs", logDir.getAbsolutePath());
+    return new File(homeDir, "log");
+  }
+
+  private File buildConfDir() {
+    String tempPath = props.value(ProcessProperties.PATH_TEMP);
+    return new File(new File(tempPath, "conf"), "es");
   }
 
   private void configureNetwork(Map<String, String> builder) {
