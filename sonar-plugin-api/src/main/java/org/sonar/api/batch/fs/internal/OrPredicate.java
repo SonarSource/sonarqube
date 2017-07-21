@@ -20,18 +20,18 @@
 package org.sonar.api.batch.fs.internal;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.InputFile;
-
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile;
 
 /**
  * @since 4.2
  */
-class OrPredicate extends AbstractFilePredicate {
+class OrPredicate extends AbstractFilePredicate implements OperatorPredicate {
 
-  private final Collection<FilePredicate> predicates = new ArrayList<>();
+  private final List<FilePredicate> predicates = new ArrayList<>();
 
   private OrPredicate() {
   }
@@ -67,6 +67,11 @@ class OrPredicate extends AbstractFilePredicate {
 
   @VisibleForTesting
   Collection<FilePredicate> predicates() {
+    return predicates;
+  }
+
+  @Override
+  public List<FilePredicate> operands() {
     return predicates;
   }
 
