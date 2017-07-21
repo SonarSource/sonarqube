@@ -22,7 +22,6 @@ import React from 'react';
 import { sortBy } from 'lodash';
 import Event from './Event';
 import FormattedDate from '../../../components/ui/FormattedDate';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
 import type { Analysis as AnalysisType, Event as EventType } from '../../projectActivity/types';
 
@@ -37,20 +36,20 @@ export default function Analysis(props: { analysis: AnalysisType }) {
   );
 
   return (
-    <TooltipsContainer>
-      <li className="overview-analysis">
-        <div className="small little-spacer-bottom">
-          <strong>
-            <FormattedDate date={analysis.date} format="LL" />
-          </strong>
-        </div>
+    <li className="overview-analysis">
+      <div className="small little-spacer-bottom">
+        <strong>
+          <FormattedDate date={analysis.date} format="LL" />
+        </strong>
+      </div>
 
-        {sortedEvents.length > 0
-          ? <div className="project-activity-events">
-              {sortedEvents.map(event => <Event event={event} key={event.key} />)}
-            </div>
-          : <span className="note">{translate('project_activity.project_analyzed')}</span>}
-      </li>
-    </TooltipsContainer>
+      {sortedEvents.length > 0
+        ? <div className="project-activity-events">
+            {sortedEvents.map(event => <Event event={event} key={event.key} />)}
+          </div>
+        : <span className="note">
+            {translate('project_activity.project_analyzed')}
+          </span>}
+    </li>
   );
 }

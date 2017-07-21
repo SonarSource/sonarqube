@@ -12,21 +12,19 @@ exports[`should render an event correctly 1`] = `
 <div
   className="overview-analysis-event"
 >
-  <TooltipsContainer>
-    <span>
-      <span
-        className="note"
-      >
-        event.category.OTHER
-        :
-      </span>
-       
-      <strong
-        data-toggle="tooltip"
-      >
-        test
-      </strong>
-    </span>
-  </TooltipsContainer>
+  <span
+    className="note"
+  >
+    event.category.OTHER
+    :
+  </span>
+   
+  <Tooltip
+    placement="bottom"
+  >
+    <strong>
+      test
+    </strong>
+  </Tooltip>
 </div>
 `;
