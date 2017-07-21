@@ -31,7 +31,7 @@ exports[`should correctly render a graph 1`] = `
 >
   <GraphHistory
     events={Array []}
-    graph="overview"
+    graph="issues"
     graphEndDate={null}
     graphStartDate={null}
     isCustom={false}
@@ -75,7 +75,7 @@ exports[`should correctly render multiple graphs 1`] = `
 >
   <GraphHistory
     events={Array []}
-    graph="overview"
+    graph="issues"
     graphEndDate={null}
     graphStartDate={null}
     isCustom={false}
@@ -112,7 +112,7 @@ exports[`should correctly render multiple graphs 1`] = `
   />
   <GraphHistory
     events={Array []}
-    graph="overview"
+    graph="issues"
     graphEndDate={null}
     graphStartDate={null}
     isCustom={false}

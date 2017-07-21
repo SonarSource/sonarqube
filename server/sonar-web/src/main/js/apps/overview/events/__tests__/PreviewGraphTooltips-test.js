@@ -20,6 +20,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import PreviewGraphTooltips from '../PreviewGraphTooltips';
+import { DEFAULT_GRAPH } from '../../../projectActivity/utils';
 
 const SERIES_OVERVIEW = [
   {
@@ -74,7 +75,7 @@ const METRICS = [
 
 const DEFAULT_PROPS = {
   formatValue: val => 'Formated.' + val,
-  graph: 'overview',
+  graph: DEFAULT_GRAPH,
   graphWidth: 150,
   metrics: METRICS,
   selectedDate: new Date('2011-10-01T22:01:00.000Z'),

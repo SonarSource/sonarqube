@@ -20,8 +20,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import GraphsTooltips from '../GraphsTooltips';
+import { DEFAULT_GRAPH } from '../../utils';
 
-const SERIES_OVERVIEW = [
+const SERIES_ISSUES = [
   {
     name: 'bugs',
     translatedName: 'Bugs',
@@ -68,16 +69,16 @@ const SERIES_OVERVIEW = [
 
 const DEFAULT_PROPS = {
   formatValue: val => 'Formated.' + val,
-  graph: 'overview',
+  graph: DEFAULT_GRAPH,
   graphWidth: 500,
   measuresHistory: [],
   selectedDate: new Date('2011-10-01T22:01:00.000Z'),
-  series: SERIES_OVERVIEW,
+  series: SERIES_ISSUES,
   tooltipIdx: 0,
   tooltipPos: 666
 };
 
-it('should render correctly for overview graphs', () => {
+it('should render correctly for issues graphs', () => {
   expect(shallow(<GraphsTooltips {...DEFAULT_PROPS} />)).toMatchSnapshot();
 });
 

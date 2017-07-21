@@ -22,6 +22,7 @@ import React from 'react';
 import { minBy } from 'lodash';
 import { AutoSizer } from 'react-virtualized';
 import {
+  DEFAULT_GRAPH,
   getDisplayedHistoryMetrics,
   generateSeries,
   getSeriesMetricType,
@@ -100,7 +101,7 @@ export default class PreviewGraph extends React.PureComponent {
   getDisplayedMetrics = (graph: string, customMetrics: Array<string>): Array<string> => {
     const metrics: Array<string> = getDisplayedHistoryMetrics(graph, customMetrics);
     if (!metrics || metrics.length <= 0) {
-      return getDisplayedHistoryMetrics('overview', customMetrics);
+      return getDisplayedHistoryMetrics(DEFAULT_GRAPH, customMetrics);
     }
     return metrics;
   };

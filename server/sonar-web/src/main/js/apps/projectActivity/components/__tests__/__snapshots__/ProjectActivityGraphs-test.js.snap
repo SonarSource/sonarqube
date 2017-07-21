@@ -6,7 +6,7 @@ exports[`should render correctly the graph and legends 1`] = `
 >
   <ProjectActivityGraphsHeader
     addCustomMetric={[Function]}
-    graph="overview"
+    graph="issues"
     metrics={
       Array [
         Object {
@@ -57,7 +57,7 @@ exports[`should render correctly the graph and legends 1`] = `
       ]
     }
     eventFilter=""
-    graph="overview"
+    graph="issues"
     graphEndDate={null}
     graphStartDate={null}
     graphs={

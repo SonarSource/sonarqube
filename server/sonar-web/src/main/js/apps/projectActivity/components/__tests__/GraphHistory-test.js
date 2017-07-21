@@ -20,6 +20,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import GraphHistory from '../GraphHistory';
+import { DEFAULT_GRAPH } from '../../utils';
 
 const SERIES = [
   {
@@ -35,7 +36,7 @@ const SERIES = [
 
 const DEFAULT_PROPS = {
   events: [],
-  graph: 'overview',
+  graph: DEFAULT_GRAPH,
   graphEndDate: null,
   graphStartDate: null,
   leakPeriodDate: '2017-05-16T13:50:02+0200',

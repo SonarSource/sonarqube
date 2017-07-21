@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly for overview graphs 1`] = `
+exports[`should render correctly for issues graphs 1`] = `
 <BubblePopup
   customClass="bubble-popup-right"
   position={
@@ -26,7 +26,7 @@ exports[`should render correctly for overview graphs 1`] = `
       className="width-100"
     >
       <tbody>
-        <GraphsTooltipsContentOverview
+        <GraphsTooltipsContentIssues
           measuresHistory={Array []}
           name="bugs"
           style="0"
@@ -34,7 +34,7 @@ exports[`should render correctly for overview graphs 1`] = `
           translatedName="Bugs"
           value="Formated.3"
         />
-        <GraphsTooltipsContentOverview
+        <GraphsTooltipsContentIssues
           measuresHistory={Array []}
           name="code_smells"
           style="1"
@@ -42,7 +42,7 @@ exports[`should render correctly for overview graphs 1`] = `
           translatedName="Code Smells"
           value="Formated.18"
         />
-        <GraphsTooltipsContentOverview
+        <GraphsTooltipsContentIssues
           measuresHistory={Array []}
           name="vulnerabilities"
           style="2"
