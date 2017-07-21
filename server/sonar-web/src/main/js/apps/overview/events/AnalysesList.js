@@ -40,7 +40,7 @@ type State = {
   metrics: Array<Metric>
 };
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 3;
 
 export default class AnalysesList extends React.PureComponent {
   mounted: boolean;
