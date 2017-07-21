@@ -156,7 +156,9 @@ export default class Search extends React.PureComponent {
                 </form>
               </td>
               <td className="thin nowrap text-middle">
-                <button className="spacer-right" onClick={this.bulkApplyTemplate}>
+                <button
+                  className="spacer-right js-bulk-apply-permission-template"
+                  onClick={this.bulkApplyTemplate}>
                   {translate('permission_templates.bulk_apply_permission_template')}
                 </button>
                 <button

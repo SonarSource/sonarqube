@@ -21,6 +21,7 @@ package org.sonarqube.tests.projectAdministration;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import org.sonarqube.pageobjects.ProjectsManagementPage;
 import org.sonarqube.tests.Category1Suite;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
@@ -40,7 +41,10 @@ import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.pageobjects.settings.SettingsPage;
-import util.user.UserRule;
+import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
+import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
+import org.sonarqube.ws.client.permission.UsersWsRequest;
 
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +65,7 @@ public class ProjectAdministrationTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public UserRule userRule = UserRule.from(orchestrator);
+  public Tester tester = new Tester(orchestrator);
 
   private Navigation nav = Navigation.create(orchestrator);
 
@@ -72,7 +76,7 @@ public class ProjectAdministrationTest {
   @Before
   public void deleteAnalysisData() throws SQLException {
     orchestrator.resetData();
-    adminUser = userRule.createAdminUser();
+    adminUser = tester.users().generateAdministrator().getLogin();
   }
 
   @Test
@@ -197,6 +201,25 @@ public class ProjectAdministrationTest {
       .assertSettingDisplayed("sonar.coverage.exclusions");
   }
 
+  @Test
+  public void bulk_apply_permission_template() {
+    String project = tester.projects().generate(null).getKey();
+    String user = tester.users().generate().getLogin();
+    tester.wsClient().permissions().createTemplate(new CreateTemplateWsRequest().setName("foo-template"));
+    tester.wsClient().permissions().addUserToTemplate(
+      new AddUserToTemplateWsRequest()
+        .setPermission("admin")
+        .setTemplateName("foo-template")
+        .setLogin(user));
+    ProjectsManagementPage page = nav.logIn().submitCredentials(adminUser).openProjectsManagement();
+    page.shouldHaveProject(project);
+    page.bulkApplyPermissionTemplate("foo-template");
+    assertThat(tester.wsClient().permissions().users(new UsersWsRequest()
+      .setProjectKey(project)
+      .setPermission("admin")
+    ).getUsers(0).getLogin()).isEqualTo(user);
+  }
+
   private void scanSampleWithDate(String date) {
     scanSample(date, null);
   }
@@ -216,5 +239,4 @@ public class ProjectAdministrationTest {
   private int count(String condition) {
     return orchestrator.getDatabase().countSql("select count(1) from " + condition);
   }
-
 }
