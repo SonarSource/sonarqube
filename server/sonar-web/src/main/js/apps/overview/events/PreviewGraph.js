@@ -23,7 +23,11 @@ import { minBy } from 'lodash';
 import { AutoSizer } from 'react-virtualized';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import PreviewGraphTooltips from './PreviewGraphTooltips';
-import { generateSeries, getDisplayedHistoryMetrics } from '../../projectActivity/utils';
+import {
+  DEFAULT_GRAPH,
+  generateSeries,
+  getDisplayedHistoryMetrics
+} from '../../projectActivity/utils';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
@@ -88,7 +92,7 @@ export default class PreviewGraph extends React.PureComponent {
   getDisplayedMetrics = (graph: string, customMetrics: Array<string>): Array<string> => {
     const metrics: Array<string> = getDisplayedHistoryMetrics(graph, customMetrics);
     if (!metrics || metrics.length <= 0) {
-      return getDisplayedHistoryMetrics('overview', customMetrics);
+      return getDisplayedHistoryMetrics(DEFAULT_GRAPH, customMetrics);
     }
     return metrics;
   };
@@ -139,7 +143,7 @@ export default class PreviewGraph extends React.PureComponent {
         tabIndex={0}
         role="link">
         <AutoSizer disableHeight={true}>
-          {({ width }) => (
+          {({ width }) =>
             <div>
               <AdvancedTimeline
                 endDate={null}
@@ -168,8 +172,7 @@ export default class PreviewGraph extends React.PureComponent {
                   tooltipIdx={tooltipIdx}
                   tooltipPos={tooltipXPos}
                 />}
-            </div>
-          )}
+            </div>}
         </AutoSizer>
       </div>
     );

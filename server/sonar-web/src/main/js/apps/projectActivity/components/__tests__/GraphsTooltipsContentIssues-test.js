@@ -19,9 +19,9 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import GraphsTooltipsContentOverview from '../GraphsTooltipsContentOverview';
+import GraphsTooltipsContentIssues from '../GraphsTooltipsContentIssues';
 
-const MEASURES_OVERVIEW = [
+const MEASURES_ISSUES = [
   {
     metric: 'bugs',
     history: [
@@ -50,7 +50,7 @@ const MEASURES_OVERVIEW = [
 ];
 
 const DEFAULT_PROPS = {
-  measuresHistory: MEASURES_OVERVIEW,
+  measuresHistory: MEASURES_ISSUES,
   serie: {
     name: 'bugs',
     translatedName: 'Bugs',
@@ -61,11 +61,11 @@ const DEFAULT_PROPS = {
 };
 
 it('should render correctly', () => {
-  expect(shallow(<GraphsTooltipsContentOverview {...DEFAULT_PROPS} />)).toMatchSnapshot();
+  expect(shallow(<GraphsTooltipsContentIssues {...DEFAULT_PROPS} />)).toMatchSnapshot();
 });
 
 it('should render correctly when rating data is missing', () => {
   expect(
-    shallow(<GraphsTooltipsContentOverview {...DEFAULT_PROPS} tooltipIdx={0} value="500" />)
+    shallow(<GraphsTooltipsContentIssues {...DEFAULT_PROPS} tooltipIdx={0} value="500" />)
   ).toMatchSnapshot();
 });
