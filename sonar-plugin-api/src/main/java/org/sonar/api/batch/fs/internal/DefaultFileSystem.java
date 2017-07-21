@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -53,7 +54,7 @@ public class DefaultFileSystem implements FileSystem {
   private Path workDir;
   private Charset encoding;
   protected final FilePredicates predicates;
-  private Predicate<InputFile> defaultPredicate;
+  private Function<FilePredicate, Predicate<InputFile>> defaultPredicateFactory;
 
   /**
    * Only for testing
@@ -99,8 +100,8 @@ public class DefaultFileSystem implements FileSystem {
     return this;
   }
 
-  public DefaultFileSystem setDefaultPredicate(@Nullable Predicate<InputFile> predicate) {
-    this.defaultPredicate = predicate;
+  public DefaultFileSystem setDefaultPredicate(@Nullable Function<FilePredicate, Predicate<InputFile>> defaultPredicateFactory) {
+    this.defaultPredicateFactory = defaultPredicateFactory;
     return this;
   }
 
@@ -146,9 +147,9 @@ public class DefaultFileSystem implements FileSystem {
   @Override
   public Iterable<InputFile> inputFiles(FilePredicate predicate) {
     Iterable<InputFile> iterable = OptimizedFilePredicateAdapter.create(predicate).get(cache);
-    if (defaultPredicate != null) {
+    if (defaultPredicateFactory != null) {
       return StreamSupport.stream(iterable.spliterator(), false)
-        .filter(defaultPredicate::test).collect(Collectors.toList());
+        .filter(defaultPredicateFactory.apply(predicate)).collect(Collectors.toList());
     }
     return iterable;
   }
