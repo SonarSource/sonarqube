@@ -273,9 +273,12 @@ class ProjectActivityAppContainer extends React.PureComponent {
         key => key !== 'id' && locationQuery[key] !== ''
       );
 
-      // if there is no filter, but there are saved preferences in the localStorage
       const graph = getGraph();
-      return !filtered && graph != null && graph !== DEFAULT_GRAPH;
+      const emptyCustomGraph = isCustomGraph(graph) && getCustomGraph().length <= 0;
+
+      // if there is no filter, but there are saved preferences in the localStorage
+      // also don't redirect to custom if there is no metrics selected for it
+      return !filtered && graph != null && graph !== DEFAULT_GRAPH && !emptyCustomGraph;
     }
   };
 
