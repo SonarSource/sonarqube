@@ -19,13 +19,15 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.util.Arrays;
+import java.util.List;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
  * @since 4.2
  */
-class NotPredicate extends AbstractFilePredicate {
+class NotPredicate extends AbstractFilePredicate implements OperatorPredicate {
 
   private final FilePredicate predicate;
 
@@ -36,6 +38,11 @@ class NotPredicate extends AbstractFilePredicate {
   @Override
   public boolean apply(InputFile f) {
     return !predicate.apply(f);
+  }
+
+  @Override
+  public List<FilePredicate> operands() {
+    return Arrays.asList(predicate);
   }
 
 }

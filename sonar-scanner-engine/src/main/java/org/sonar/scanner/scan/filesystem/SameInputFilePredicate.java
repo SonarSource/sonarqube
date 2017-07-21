@@ -21,25 +21,31 @@ package org.sonar.scanner.scan.filesystem;
 
 import java.util.function.Predicate;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.OperatorPredicate;
+import org.sonar.api.batch.fs.internal.StatusPredicate;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
 
 public class SameInputFilePredicate implements Predicate<InputFile> {
-  private static final Logger LOG = LoggerFactory.getLogger(SameInputFilePredicate.class);
   private final ProjectRepositories projectRepositories;
   private final String moduleKeyWithBranch;
+  private final FilePredicate currentPredicate;
 
-  public SameInputFilePredicate(ProjectRepositories projectRepositories, String moduleKeyWithBranch) {
+  public SameInputFilePredicate(FilePredicate currentPredicate, ProjectRepositories projectRepositories, String moduleKeyWithBranch) {
+    this.currentPredicate = currentPredicate;
     this.projectRepositories = projectRepositories;
     this.moduleKeyWithBranch = moduleKeyWithBranch;
   }
 
   @Override
   public boolean test(InputFile inputFile) {
+    if (hasExplicitFilterOnStatus(currentPredicate)) {
+      // If user explicitely requested a given status, don't change the result
+      return true;
+    }
+    // Try to avoid initializing metadata
     FileData fileDataPerPath = projectRepositories.fileData(moduleKeyWithBranch, inputFile.relativePath());
     if (fileDataPerPath == null) {
       // ADDED
@@ -52,15 +58,17 @@ public class SameInputFilePredicate implements Predicate<InputFile> {
     }
 
     // this will trigger computation of metadata
-    String hash = ((DefaultInputFile) inputFile).hash();
-    if (StringUtils.equals(hash, previousHash)) {
-      // SAME
-      LOG.debug("'{}' filtering unmodified file", inputFile.relativePath());
-      return false;
-    }
+    return inputFile.status() != InputFile.Status.SAME;
+  }
 
-    // CHANGED
-    return true;
+  static boolean hasExplicitFilterOnStatus(FilePredicate predicate) {
+    if (predicate instanceof StatusPredicate) {
+      return true;
+    }
+    if (predicate instanceof OperatorPredicate) {
+      return ((OperatorPredicate) predicate).operands().stream().anyMatch(SameInputFilePredicate::hasExplicitFilterOnStatus);
+    }
+    return false;
   }
 
 }
