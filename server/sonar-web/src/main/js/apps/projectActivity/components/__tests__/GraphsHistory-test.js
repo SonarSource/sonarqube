@@ -20,6 +20,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import GraphsHistory from '../GraphsHistory';
+import { DEFAULT_GRAPH } from '../../utils';
 
 const ANALYSES = [
   {
@@ -71,7 +72,7 @@ const SERIES = [
 const DEFAULT_PROPS = {
   analyses: ANALYSES,
   eventFilter: '',
-  graph: 'overview',
+  graph: DEFAULT_GRAPH,
   graphs: [SERIES],
   graphEndDate: null,
   graphStartDate: null,

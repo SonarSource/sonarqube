@@ -77,7 +77,7 @@ const DEFAULT_PROPS = {
   deleteAnalysis: () => {},
   deleteEvent: () => {},
   loading: false,
-  query: { category: '', graph: 'overview', project: 'org.sonarsource.sonarqube:sonarqube' },
+  query: { category: '', graph: 'issues', project: 'org.sonarsource.sonarqube:sonarqube' },
   updateQuery: () => {}
 };
 

@@ -35,7 +35,7 @@ import { getLeakPeriod } from '../../../helpers/periods';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { METRICS, HISTORY_METRICS_LIST } from '../utils';
-import { getDisplayedHistoryMetrics } from '../../projectActivity/utils';
+import { DEFAULT_GRAPH, getDisplayedHistoryMetrics } from '../../projectActivity/utils';
 import type { Component, History, MeasuresList, Period } from '../types';
 import '../styles.css';
 
@@ -103,7 +103,7 @@ export default class OverviewApp extends React.PureComponent {
   loadHistory(component: Component) {
     let graphMetrics = getDisplayedHistoryMetrics(getGraph(), getCustomGraph());
     if (!graphMetrics || graphMetrics.length <= 0) {
-      graphMetrics = getDisplayedHistoryMetrics('overview', []);
+      graphMetrics = getDisplayedHistoryMetrics(DEFAULT_GRAPH, []);
     }
 
     const metrics = uniq(HISTORY_METRICS_LIST.concat(graphMetrics));

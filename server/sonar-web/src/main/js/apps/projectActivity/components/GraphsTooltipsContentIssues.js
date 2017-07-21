@@ -39,7 +39,7 @@ const METRIC_RATING = {
   code_smells: 'sqale_rating'
 };
 
-export default function GraphsTooltipsContentOverview(props: Props) {
+export default function GraphsTooltipsContentIssues(props: Props) {
   const rating = props.measuresHistory.find(
     measure => measure.metric === METRIC_RATING[props.name]
   );
@@ -48,7 +48,7 @@ export default function GraphsTooltipsContentOverview(props: Props) {
   }
   const ratingValue = rating.history[props.tooltipIdx].value;
   return (
-    <tr key={props.name} className="project-activity-graph-tooltip-overview-line">
+    <tr key={props.name} className="project-activity-graph-tooltip-issues-line">
       <td className="thin">
         <ChartLegendIcon
           className={classNames(

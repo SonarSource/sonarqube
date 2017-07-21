@@ -32,6 +32,7 @@ import * as actions from '../actions';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import {
   customMetricsChanged,
+  DEFAULT_GRAPH,
   getHistoryMetrics,
   isCustomGraph,
   parseQuery,
@@ -271,7 +272,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
 
       // if there is no filter, but there are saved preferences in the localStorage
       const graph = getGraph();
-      return !filtered && graph != null && graph !== 'overview';
+      return !filtered && graph != null && graph !== DEFAULT_GRAPH;
     }
   };
 
