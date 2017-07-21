@@ -85,9 +85,6 @@ public class EsSettings {
     }
     builder.put("path.data", dataDir.getAbsolutePath());
 
-    String tempPath = props.value(ProcessProperties.PATH_TEMP);
-    builder.put("path.home", new File(tempPath, "es").getAbsolutePath());
-
     // log dir
     String logPath = props.value(ProcessProperties.PATH_LOGS);
     if (StringUtils.isNotEmpty(logPath)) {
