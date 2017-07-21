@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
 
-/**
- * Determines if a file must be kept in search results. See {@link org.sonar.api.batch.fs.FileSystem}
- * and {@link org.sonar.api.batch.fs.FilePredicates}.
- * @since 4.2
- */
-public interface FilePredicate {
-  /**
-   * Test if provided file is valid for this predicate
-   */
-  boolean apply(InputFile inputFile);
+import org.sonar.api.batch.fs.InputFile;
+
+public class StatusPredicate extends AbstractFilePredicate {
+
+  private final InputFile.Status status;
+
+  StatusPredicate(InputFile.Status status) {
+    this.status = status;
+  }
+
+  @Override
+  public boolean apply(InputFile f) {
+    return status == f.status();
+  }
 
 }

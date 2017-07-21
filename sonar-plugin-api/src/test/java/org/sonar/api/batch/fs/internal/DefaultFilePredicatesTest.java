@@ -19,6 +19,11 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,12 +31,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
+import org.sonar.api.batch.fs.InputFile.Status;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,6 +56,7 @@ public class DefaultFilePredicatesTest {
     javaFile = new TestInputFileBuilder("foo", "src/main/java/struts/Action.java")
       .setModuleBaseDir(moduleBasePath)
       .setLanguage("java")
+      .setStatus(Status.SAME)
       .build();
   }
 
@@ -161,6 +162,12 @@ public class DefaultFilePredicatesTest {
   public void has_type() {
     assertThat(predicates.hasType(InputFile.Type.MAIN).apply(javaFile)).isTrue();
     assertThat(predicates.hasType(InputFile.Type.TEST).apply(javaFile)).isFalse();
+  }
+
+  @Test
+  public void has_status() {
+    assertThat(predicates.hasStatus(InputFile.Status.SAME).apply(javaFile)).isTrue();
+    assertThat(predicates.hasStatus(InputFile.Status.ADDED).apply(javaFile)).isFalse();
   }
 
   @Test
