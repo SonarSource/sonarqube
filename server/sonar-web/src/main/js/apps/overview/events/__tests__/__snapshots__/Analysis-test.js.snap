@@ -1,42 +1,40 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should sort the events with version first 1`] = `
-<TooltipsContainer>
-  <li
-    className="overview-analysis"
+<li
+  className="overview-analysis"
+>
+  <div
+    className="small little-spacer-bottom"
   >
-    <div
-      className="small little-spacer-bottom"
-    >
-      <strong>
-        <FormattedDate
-          date="2017-06-10T16:10:59+0200"
-          format="LL"
-        />
-      </strong>
-    </div>
-    <div
-      className="project-activity-events"
-    >
-      <Event
-        event={
-          Object {
-            "category": "VERSION",
-            "key": "2",
-            "name": "6.5-SNAPSHOT",
-          }
-        }
+    <strong>
+      <FormattedDate
+        date="2017-06-10T16:10:59+0200"
+        format="LL"
       />
-      <Event
-        event={
-          Object {
-            "category": "OTHER",
-            "key": "1",
-            "name": "test",
-          }
+    </strong>
+  </div>
+  <div
+    className="project-activity-events"
+  >
+    <Event
+      event={
+        Object {
+          "category": "VERSION",
+          "key": "2",
+          "name": "6.5-SNAPSHOT",
         }
-      />
-    </div>
-  </li>
-</TooltipsContainer>
+      }
+    />
+    <Event
+      event={
+        Object {
+          "category": "OTHER",
+          "key": "1",
+          "name": "test",
+        }
+      }
+    />
+  </div>
+</li>
 `;

@@ -81,11 +81,13 @@ export default function LeakPeriodLegend({ period }: { period: Period }) {
     : translateWithParameters('overview.started_on_x', momentDate.format('LL'));
 
   return (
-    <Tooltip overlay={tooltip} placement="bottom">
+    <Tooltip overlay={tooltip} placement="top">
       <div className="overview-legend">
         {translateWithParameters('overview.leak_period_x', leakPeriodLabel)}
         <br />
-        <span className="note">{note}</span>
+        <span className="note">
+          {note}
+        </span>
       </div>
     </Tooltip>
   );

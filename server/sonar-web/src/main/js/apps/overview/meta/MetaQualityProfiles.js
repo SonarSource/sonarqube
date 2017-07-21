@@ -21,7 +21,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import { searchRules } from '../../../api/rules';
@@ -105,13 +105,11 @@ class MetaQualityProfiles extends React.PureComponent {
     if (count > 0) {
       const tooltip = translateWithParameters('overview.deprecated_profile', count);
       return (
-        <li
-          key={profile.key}
-          className="overview-deprecated-rules"
-          title={tooltip}
-          data-toggle="tooltip">
-          {inner}
-        </li>
+        <Tooltip key={profile.key} overlay={tooltip}>
+          <li className="overview-deprecated-rules">
+            {inner}
+          </li>
+        </Tooltip>
       );
     }
 
@@ -126,17 +124,15 @@ class MetaQualityProfiles extends React.PureComponent {
     const { profiles } = this.props;
 
     return (
-      <TooltipsContainer>
-        <div className="overview-meta-card">
-          <h4 className="overview-meta-header">
-            {translate('overview.quality_profiles')}
-          </h4>
+      <div className="overview-meta-card">
+        <h4 className="overview-meta-header">
+          {translate('overview.quality_profiles')}
+        </h4>
 
-          <ul className="overview-meta-list">
-            {profiles.map(profile => this.renderProfile(profile))}
-          </ul>
-        </div>
-      </TooltipsContainer>
+        <ul className="overview-meta-list">
+          {profiles.map(profile => this.renderProfile(profile))}
+        </ul>
+      </div>
     );
   }
 }
