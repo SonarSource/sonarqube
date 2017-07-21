@@ -312,7 +312,7 @@ public class QualityProfileDaoTest {
 
   @Test
   public void selectDefaultProfiles() {
-    List<QProfileDto> sharedData = createSharedData();
+    createSharedData();
 
     List<QProfileDto> java = underTest.selectDefaultProfiles(dbSession, organization, singletonList("java"));
     assertThat(java).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
@@ -320,6 +320,7 @@ public class QualityProfileDaoTest {
     assertThat(underTest.selectDefaultProfiles(dbSession, organization, singletonList("js"))).isEmpty();
     assertThat(underTest.selectDefaultProfiles(dbSession, organization, of("java", "js"))).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
     assertThat(underTest.selectDefaultProfiles(dbSession, organization, of("js", "java"))).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
+    assertThat(underTest.selectDefaultProfiles(dbSession, organization, Collections.emptyList())).isEmpty();
   }
 
   @Test
@@ -539,6 +540,8 @@ public class QualityProfileDaoTest {
     assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project1, of("java", "js")))
       .extracting(QProfileDto::getKee).containsExactlyInAnyOrder(javaProfile.getKee(), jsProfile.getKee());
     assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project2, singletonList("java")))
+      .isEmpty();
+    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project2, Collections.emptyList()))
       .isEmpty();
   }
 
