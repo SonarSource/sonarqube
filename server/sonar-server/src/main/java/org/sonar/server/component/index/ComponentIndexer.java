@@ -42,14 +42,13 @@ import org.sonar.server.es.IndexType;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToManyResilientIndexingListener;
 import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_TYPE_COMPONENT;
 
-public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
+public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_COMPONENT, project -> true);
   private static final ImmutableSet<IndexType> INDEX_TYPES = ImmutableSet.of(INDEX_TYPE_COMPONENT);

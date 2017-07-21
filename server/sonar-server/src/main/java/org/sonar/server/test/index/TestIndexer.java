@@ -39,7 +39,6 @@ import org.sonar.server.es.IndexingListener;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToManyResilientIndexingListener;
 import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 
 import static java.util.Collections.emptyList;
@@ -49,10 +48,10 @@ import static org.sonar.server.test.index.TestIndexDefinition.INDEX_TYPE_TEST;
 /**
  * Add to Elasticsearch index {@link TestIndexDefinition} the rows of
  * db table FILE_SOURCES of type TEST that are not indexed yet
- *
+ * <p>
  * This indexer is not resilient by itself since it's called by Compute Engine
  */
-public class TestIndexer implements ProjectIndexer, StartupIndexer {
+public class TestIndexer implements ProjectIndexer {
 
   private final DbClient dbClient;
   private final EsClient esClient;
@@ -70,7 +69,7 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
     try (DbSession dbSession = dbClient.openSession(false);
-      TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, null)) {
+         TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, null)) {
 
       BulkIndexer bulkIndexer = new BulkIndexer(esClient, TestIndexDefinition.INDEX_TYPE_TEST, Size.LARGE);
       bulkIndexer.start();
@@ -85,7 +84,7 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
     bulkIndexer.start();
     addProjectDeletionToBulkIndexer(bulkIndexer, projectUuid);
     try (DbSession dbSession = dbClient.openSession(false);
-      TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, projectUuid)) {
+         TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, projectUuid)) {
       addTestsToBulkIndexer(rowIt, bulkIndexer);
     }
     bulkIndexer.stop();
@@ -159,7 +158,7 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
     bulkIndexer.addDeletion(searchRequest);
   }
 
-  private void addTestsToBulkIndexer(TestResultSetIterator rowIt, BulkIndexer bulkIndexer) {
+  private static void addTestsToBulkIndexer(TestResultSetIterator rowIt, BulkIndexer bulkIndexer) {
     while (rowIt.hasNext()) {
       FileSourcesUpdaterHelper.Row row = rowIt.next();
       row.getUpdateRequests().forEach(bulkIndexer::add);

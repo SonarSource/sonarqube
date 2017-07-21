@@ -30,12 +30,12 @@ public interface IndexingListener {
   IndexingListener NOOP = new IndexingListener() {
     @Override
     public void onSuccess(List<DocId> docIds) {
-
+      // nothing to do
     }
 
     @Override
     public void onFinish(IndexingResult result) {
-
+      // nothing to do
     }
   };
 }

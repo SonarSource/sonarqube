@@ -96,7 +96,7 @@ public class BackendCleanup {
       esClient.prepareClearCache().get();
 
       for (String index : esClient.prepareState().get().getState().getMetaData().concreteAllIndices()) {
-        clearIndex(new IndexType(index, index)); // FIXME this is incorrect
+        clearIndex(new IndexType(index, index));
       }
     } catch (Exception e) {
       throw new IllegalStateException("Unable to clear indexes", e);

@@ -61,7 +61,7 @@ public class IndexingResult {
   }
 
   public double getSuccessRatio() {
-    return total.get() == 0 ? 1.0 : (1.0 * successes) / total.get();
+    return total.get() == 0 ? 1.0 : ((1.0 * successes) / total.get());
   }
 
   public boolean isSuccess() {

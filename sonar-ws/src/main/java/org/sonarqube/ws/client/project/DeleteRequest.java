@@ -42,7 +42,6 @@ public class DeleteRequest {
   }
 
   public static class Builder {
-    private String id;
     private String key;
 
     private Builder() {

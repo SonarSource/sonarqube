@@ -43,13 +43,12 @@ import org.sonar.server.es.IndexingListener;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 
-public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
+public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_PROJECT_MEASURES, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
   private static final ImmutableSet<IndexType> INDEX_TYPES = ImmutableSet.of(INDEX_TYPE_PROJECT_MEASURES);
