@@ -71,9 +71,7 @@ public class CommandFactoryImpl implements CommandFactory {
       // TODO add argument to specify yaml configuration file
       .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")));
 
-    settingsMap.entrySet().stream()
-      .filter(entry -> !"path.home".equals(entry.getKey()))
-      .forEach(entry -> res.addEsOption("-E" + entry.getKey() + "=" + entry.getValue()));
+    settingsMap.forEach((key, value) -> res.addEsOption("-E" + key + "=" + value));
 
     return res;
 
