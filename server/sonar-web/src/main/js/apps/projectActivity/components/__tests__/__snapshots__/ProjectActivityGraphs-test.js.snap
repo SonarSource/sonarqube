@@ -6,7 +6,7 @@ exports[`should render correctly the graph and legends 1`] = `
 >
   <ProjectActivityGraphsHeader
     addCustomMetric={[Function]}
-    graph="overview"
+    graph="issues"
     updateGraph={[Function]}
   />
   <GraphsHistory
@@ -47,7 +47,7 @@ exports[`should render correctly the graph and legends 1`] = `
       ]
     }
     eventFilter=""
-    graph="overview"
+    graph="issues"
     graphEndDate={null}
     graphStartDate={null}
     leakPeriodDate="2017-05-16T13:50:02+0200"

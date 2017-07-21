@@ -67,7 +67,7 @@ exports[`should render correctly 1`] = `
         query={
           Object {
             "category": "",
-            "graph": "overview",
+            "graph": "issues",
             "project": "org.sonarsource.sonarqube:sonarqube",
           }
         }
@@ -146,7 +146,7 @@ exports[`should render correctly 1`] = `
         query={
           Object {
             "category": "",
-            "graph": "overview",
+            "graph": "issues",
             "project": "org.sonarsource.sonarqube:sonarqube",
           }
         }

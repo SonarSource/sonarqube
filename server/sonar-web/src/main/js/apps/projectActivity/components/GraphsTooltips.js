@@ -25,7 +25,8 @@ import GraphsTooltipsContent from './GraphsTooltipsContent';
 import GraphsTooltipsContentEvents from './GraphsTooltipsContentEvents';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
 import GraphsTooltipsContentDuplication from './GraphsTooltipsContentDuplication';
-import GraphsTooltipsContentOverview from './GraphsTooltipsContentOverview';
+import GraphsTooltipsContentIssues from './GraphsTooltipsContentIssues';
+import { DEFAULT_GRAPH } from '../utils';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 import type { Event, MeasureHistory, Metric } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
@@ -70,9 +71,9 @@ export default class GraphsTooltips extends React.PureComponent {
                 if (!point || (!point.y && point.y !== 0)) {
                   return null;
                 }
-                if (this.props.graph === 'overview') {
+                if (this.props.graph === DEFAULT_GRAPH) {
                   return (
-                    <GraphsTooltipsContentOverview
+                    <GraphsTooltipsContentIssues
                       key={serie.name}
                       measuresHistory={measuresHistory}
                       serie={serie}

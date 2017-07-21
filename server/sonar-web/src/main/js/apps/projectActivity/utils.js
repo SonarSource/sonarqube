@@ -35,14 +35,15 @@ import type { RawQuery } from '../../helpers/query';
 import type { Serie } from '../../components/charts/AdvancedTimeline';
 
 export const EVENT_TYPES = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'];
-export const GRAPH_TYPES = ['overview', 'coverage', 'duplications', 'custom'];
+export const DEFAULT_GRAPH = 'issues';
+export const GRAPH_TYPES = ['issues', 'coverage', 'duplications', 'custom'];
 export const GRAPHS_METRICS_DISPLAYED = {
-  overview: ['bugs', 'code_smells', 'vulnerabilities'],
+  issues: ['bugs', 'code_smells', 'vulnerabilities'],
   coverage: ['uncovered_lines', 'lines_to_cover'],
   duplications: ['duplicated_lines', 'ncloc']
 };
 export const GRAPHS_METRICS = {
-  overview: GRAPHS_METRICS_DISPLAYED['overview'].concat([
+  issues: GRAPHS_METRICS_DISPLAYED['issues'].concat([
     'reliability_rating',
     'security_rating',
     'sqale_rating'
@@ -183,10 +184,10 @@ export const getHistoryMetrics = (graph: string, customMetrics: Array<string>): 
 
 const parseGraph = (value?: string): string => {
   const graph = parseAsString(value);
-  return GRAPH_TYPES.includes(graph) ? graph : 'overview';
+  return GRAPH_TYPES.includes(graph) ? graph : DEFAULT_GRAPH;
 };
 
-const serializeGraph = (value: string): ?string => (value === 'overview' ? undefined : value);
+const serializeGraph = (value: string): ?string => (value === DEFAULT_GRAPH ? undefined : value);
 
 export const parseQuery = (urlQuery: RawQuery): Query => ({
   category: parseAsString(urlQuery['category']),

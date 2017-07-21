@@ -21,7 +21,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import GraphsTooltips from '../GraphsTooltips';
 
-const SERIES_OVERVIEW = [
+const SERIES_ISSUES = [
   {
     name: 'code_smells',
     translatedName: 'metric.code_smells.name',
@@ -76,17 +76,17 @@ const METRICS = [
 
 const DEFAULT_PROPS = {
   formatValue: val => 'Formated.' + val,
-  graph: 'overview',
+  graph: 'issues',
   graphWidth: 500,
   measuresHistory: [],
   metrics: METRICS,
   selectedDate: new Date('2011-10-01T22:01:00.000Z'),
-  series: SERIES_OVERVIEW,
+  series: SERIES_ISSUES,
   tooltipIdx: 0,
   tooltipPos: 666
 };
 
-it('should render correctly for overview graphs', () => {
+it('should render correctly for issues graphs', () => {
   expect(shallow(<GraphsTooltips {...DEFAULT_PROPS} />)).toMatchSnapshot();
 });
 

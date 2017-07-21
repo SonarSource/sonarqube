@@ -71,4 +71,4 @@ export const getCustomGraph = (): Array<string> =>
 
 export const saveGraph = (graph: ?string) => save(PROJECT_ACTIVITY_GRAPH, graph);
 export const getGraph = (): string =>
-  window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH) || 'overview';
+  window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH) || 'issues';

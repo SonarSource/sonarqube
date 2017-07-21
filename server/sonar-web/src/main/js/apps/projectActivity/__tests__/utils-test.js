@@ -35,7 +35,7 @@ const ANALYSES = [
       {
         key: 'AVxZtC-N7841nF4RNEMJ',
         category: 'QUALITY_PROFILE',
-        name: 'Changes in \'Default - SonarSource conventions\' (Java)'
+        name: 'Changes in "Default - SonarSource conventions" (Java)'
       }
     ]
   },
@@ -48,7 +48,7 @@ const ANALYSES = [
       {
         key: 'AVwQF7zXl-nNFgFWOJ3W',
         category: 'QUALITY_PROFILE',
-        name: 'Changes in \'Default - SonarSource conventions\' (Java)'
+        name: 'Changes in "Default - SonarSource conventions" (Java)'
       }
     ]
   },
@@ -75,7 +75,7 @@ const HISTORY = [
 const QUERY = {
   category: '',
   from: new Date('2017-04-27T08:21:32+0200'),
-  graph: 'overview',
+  graph: utils.DEFAULT_GRAPH,
   project: 'foo',
   to: undefined,
   selectedDate: undefined,
@@ -112,7 +112,7 @@ describe('getAnalysesByVersionByDay', () => {
       utils.getAnalysesByVersionByDay(ANALYSES, {
         category: '',
         customMetrics: [],
-        graph: 'overview',
+        graph: utils.DEFAULT_GRAPH,
         project: 'foo'
       })
     ).toMatchSnapshot();
@@ -122,7 +122,7 @@ describe('getAnalysesByVersionByDay', () => {
       utils.getAnalysesByVersionByDay(ANALYSES, {
         category: 'QUALITY_PROFILE',
         customMetrics: [],
-        graph: 'overview',
+        graph: utils.DEFAULT_GRAPH,
         project: 'foo'
       })
     ).toMatchSnapshot();
@@ -130,7 +130,7 @@ describe('getAnalysesByVersionByDay', () => {
       utils.getAnalysesByVersionByDay(ANALYSES, {
         category: '',
         customMetrics: [],
-        graph: 'overview',
+        graph: utils.DEFAULT_GRAPH,
         project: 'foo',
         to: new Date('2017-06-09T11:12:27+0200'),
         from: new Date('2017-05-18T14:13:07+0200')
@@ -142,7 +142,7 @@ describe('getAnalysesByVersionByDay', () => {
 describe('getDisplayedHistoryMetrics', () => {
   const customMetrics = ['foo', 'bar'];
   it('should return only displayed metrics on the graph', () => {
-    expect(utils.getDisplayedHistoryMetrics('overview', [])).toEqual([
+    expect(utils.getDisplayedHistoryMetrics(utils.DEFAULT_GRAPH, [])).toEqual([
       'bugs',
       'code_smells',
       'vulnerabilities'
@@ -160,7 +160,7 @@ describe('getDisplayedHistoryMetrics', () => {
 describe('getHistoryMetrics', () => {
   const customMetrics = ['foo', 'bar'];
   it('should return all metrics', () => {
-    expect(utils.getHistoryMetrics('overview', [])).toEqual([
+    expect(utils.getHistoryMetrics(utils.DEFAULT_GRAPH, [])).toEqual([
       'bugs',
       'code_smells',
       'vulnerabilities',
