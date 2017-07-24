@@ -24,6 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
@@ -64,8 +66,10 @@ public class LoadDuplicationsFromReportStepTest {
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  private LoadDuplicationsFromReportStep underTest = new LoadDuplicationsFromReportStep(treeRootHolder, reportReader, duplicationRepository);
+  private LoadDuplicationsFromReportStep underTest = new LoadDuplicationsFromReportStep(treeRootHolder, reportReader, duplicationRepository, analysisMetadataHolder);
 
   @Test
   public void verify_description() {
@@ -74,6 +78,7 @@ public class LoadDuplicationsFromReportStepTest {
 
   @Test
   public void loads_no_duplications_if_reader_has_no_duplication() {
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     underTest.execute();
 
     assertNoDuplication(FILE_1_REF);
@@ -81,6 +86,7 @@ public class LoadDuplicationsFromReportStepTest {
 
   @Test
   public void loads_duplication_without_otherFileRef_as_inner_duplication() {
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     reportReader.putDuplications(FILE_2_REF, createDuplication(singleLineTextRange(LINE), createInnerDuplicate(LINE + 1)));
 
     underTest.execute();
@@ -91,6 +97,7 @@ public class LoadDuplicationsFromReportStepTest {
 
   @Test
   public void loads_duplication_with_otherFileRef_as_inProject_duplication() {
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(LINE), createInProjectDuplicate(FILE_2_REF, LINE + 1)));
 
     underTest.execute();
@@ -101,6 +108,7 @@ public class LoadDuplicationsFromReportStepTest {
 
   @Test
   public void loads_multiple_duplications_with_multiple_duplicates() {
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     reportReader.putDuplications(
       FILE_2_REF,
       createDuplication(
@@ -135,6 +143,7 @@ public class LoadDuplicationsFromReportStepTest {
 
   @Test
   public void loads_never_consider_originals_from_batch_on_same_lines_as_the_equals() {
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     reportReader.putDuplications(
       FILE_2_REF,
       createDuplication(
@@ -164,6 +173,7 @@ public class LoadDuplicationsFromReportStepTest {
 
   @Test
   public void loads_duplication_with_otherFileRef_throws_IAE_if_component_does_not_exist() {
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     int line = 2;
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(line), createInProjectDuplicate(666, line + 1)));
 
@@ -175,6 +185,7 @@ public class LoadDuplicationsFromReportStepTest {
 
   @Test
   public void loads_duplication_with_otherFileRef_throws_IAE_if_references_itself() {
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     int line = 2;
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(line), createInProjectDuplicate(FILE_1_REF, line + 1)));
 
