@@ -30,7 +30,6 @@ it('regular user', () => {
   expect(
     shallow(
       <OrganizationNavigation
-        currentUser={{ isLoggedIn: true }}
         location={{ pathname: '/organizations/foo' }}
         organization={organization}
       />
@@ -43,7 +42,6 @@ it('admin', () => {
   expect(
     shallow(
       <OrganizationNavigation
-        currentUser={{ isLoggedIn: true }}
         location={{ pathname: '/organizations/foo' }}
         organization={organization}
       />
@@ -56,7 +54,6 @@ it('undeletable org', () => {
   expect(
     shallow(
       <OrganizationNavigation
-        currentUser={{ isLoggedIn: true }}
         location={{ pathname: '/organizations/foo' }}
         organization={organization}
       />
