@@ -17,12 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const PAGE_SIZE = 50;
+// @flow
+import React from 'react';
+import { shallow } from 'enzyme';
+import ApplicationQualityGate from '../ApplicationQualityGate';
 
-export const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP', 'DEV'];
-
-export const TYPE = {
-  ALL: 'ALL',
-  PROVISIONED: 'PROVISIONED',
-  GHOSTS: 'GHOSTS'
-};
+it('renders', () => {
+  const wrapper = shallow(<ApplicationQualityGate component={{ key: 'foo' }} />);
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setState({
+    loading: false,
+    metrics: {},
+    status: 'ERROR',
+    projects: [
+      { conditions: [], key: 'project1', name: 'project1', status: 'ERROR' },
+      { conditions: [], key: 'project2', name: 'project2', status: 'OK' },
+      { conditions: [], key: 'project3', name: 'project3', status: 'WARN' }
+    ]
+  });
+  expect(wrapper).toMatchSnapshot();
+});

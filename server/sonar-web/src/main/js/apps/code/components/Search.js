@@ -131,8 +131,8 @@ export default class Search extends React.PureComponent {
       const { component, onError } = this.props;
       this.setState({ loading: true });
 
-      const isView = component.qualifier === 'VW' || component.qualifier === 'SVW';
-      const qualifiers = isView ? 'SVW,TRK' : 'BRC,UTS,FIL';
+      const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
+      const qualifiers = isPortfolio ? 'SVW,TRK' : 'BRC,UTS,FIL';
 
       getTree(component.key, { q: query, s: 'qualifier,name', qualifiers })
         .then(r => {

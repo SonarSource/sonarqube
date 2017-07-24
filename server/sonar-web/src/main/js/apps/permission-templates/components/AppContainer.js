@@ -23,7 +23,8 @@ import { getAppState } from '../../../store/rootReducer';
 import { getRootQualifiers } from '../../../store/appState/duck';
 
 const mapStateToProps = state => ({
-  topQualifiers: getRootQualifiers(getAppState(state))
+  // treat applications as portfolios
+  topQualifiers: getRootQualifiers(getAppState(state)).filter(q => q !== 'APP')
 });
 
 export default connect(mapStateToProps)(App);

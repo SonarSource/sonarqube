@@ -21,6 +21,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import enhance from './enhance';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
+import ApplicationLeakPeriodLegend from '../components/ApplicationLeakPeriodLegend';
 import { getMetricName } from '../helpers/metrics';
 import { translate } from '../../../helpers/l10n';
 import BugIcon from '../../../components/icons-components/BugIcon';
@@ -54,7 +55,7 @@ class BugsAndVulnerabilities extends React.PureComponent {
   }
 
   renderLeak() {
-    const { leakPeriod } = this.props;
+    const { component, leakPeriod } = this.props;
 
     if (leakPeriod == null) {
       return null;
@@ -62,7 +63,9 @@ class BugsAndVulnerabilities extends React.PureComponent {
 
     return (
       <div className="overview-domain-leak">
-        <LeakPeriodLegend period={leakPeriod} />
+        {component.qualifier === 'APP'
+          ? <ApplicationLeakPeriodLegend component={component} />
+          : <LeakPeriodLegend period={leakPeriod} />}
 
         <div className="overview-domain-measures">
           <div className="overview-domain-measure">

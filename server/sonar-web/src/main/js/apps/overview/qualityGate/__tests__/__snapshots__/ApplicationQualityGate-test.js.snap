@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="overview-quality-gate"
+  id="overview-quality-gate"
+>
+  <h2
+    className="overview-title"
+  >
+    overview.quality_gate
+    <i
+      className="spinner spacer-left"
+    />
+  </h2>
+</div>
+`;
+
+exports[`renders 2`] = `
+<div
+  className="overview-quality-gate"
+  id="overview-quality-gate"
+>
+  <h2
+    className="overview-title"
+  >
+    overview.quality_gate
+    <Level
+      level="ERROR"
+      muted={false}
+      small={false}
+    />
+  </h2>
+  <div
+    className="overview-quality-gate-conditions-list clearfix"
+    id="overview-quality-gate-conditions-list"
+  >
+    <ApplicationQualityGateProject
+      metrics={Object {}}
+      project={
+        Object {
+          "conditions": Array [],
+          "key": "project1",
+          "name": "project1",
+          "status": "ERROR",
+        }
+      }
+    />
+    <ApplicationQualityGateProject
+      metrics={Object {}}
+      project={
+        Object {
+          "conditions": Array [],
+          "key": "project3",
+          "name": "project3",
+          "status": "WARN",
+        }
+      }
+    />
+  </div>
+</div>
+`;

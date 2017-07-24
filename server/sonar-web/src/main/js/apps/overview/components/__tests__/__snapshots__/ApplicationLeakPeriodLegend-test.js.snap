@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Tooltip
+  onVisibleChange={[Function]}
+  overlay={
+    <i
+      className="spinner spinner-margin"
+    />
+  }
+  placement="bottom"
+>
+  <div
+    className="overview-legend  overview-legend-spaced-line"
+  >
+    issues.leak_period
+  </div>
+</Tooltip>
+`;
+
+exports[`renders 2`] = `
+<Tooltip
+  onVisibleChange={[Function]}
+  overlay={
+    <ul
+      className="text-left"
+    >
+      <li>
+        Foo
+        : 
+        <FormattedDate
+          date="2017-01-01T11:39:03+0100"
+          format="LL"
+        />
+      </li>
+      <li>
+        Bar
+        : 
+        <FormattedDate
+          date="2017-02-01T11:39:03+0100"
+          format="LL"
+        />
+      </li>
+    </ul>
+  }
+  placement="bottom"
+>
+  <div
+    className="overview-legend  overview-legend-spaced-line"
+  >
+    issues.leak_period
+  </div>
+</Tooltip>
+`;
