@@ -36,6 +36,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
+import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
@@ -339,6 +340,7 @@ public class BuildComponentTreeStepTest {
     ScannerReport.Component.Builder builder = ScannerReport.Component.newBuilder()
       .setType(componentType)
       .setRef(componentRef)
+      .setStatus(FileStatus.UNAVAILABLE)
       .setLines(1);
     if (key != null) {
       builder.setKey(key);

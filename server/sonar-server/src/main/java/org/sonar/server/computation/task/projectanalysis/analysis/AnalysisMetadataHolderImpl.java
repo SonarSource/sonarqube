@@ -34,6 +34,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   private final InitializedProperty<Organization> organization = new InitializedProperty<>();
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
+  private final InitializedProperty<Boolean> incrementalAnalysis = new InitializedProperty<>();
   private final InitializedProperty<Analysis> baseProjectSnapshot = new InitializedProperty<>();
   private final InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
   private final InitializedProperty<String> branch = new InitializedProperty<>();
@@ -89,6 +90,19 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   @Override
   public boolean isFirstAnalysis() {
     return getBaseAnalysis() == null;
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolder setIncrementalAnalysis(boolean isIncrementalAnalysis) {
+    checkState(!incrementalAnalysis.isInitialized(), "Incremental analysis flag has already been set");
+    this.incrementalAnalysis.setProperty(isIncrementalAnalysis);
+    return this;
+  }
+
+  @Override
+  public boolean isIncrementalAnalysis() {
+    checkState(incrementalAnalysis.isInitialized(), "Incremental analysis flag has not been set");
+    return this.incrementalAnalysis.getProperty();
   }
 
   @Override

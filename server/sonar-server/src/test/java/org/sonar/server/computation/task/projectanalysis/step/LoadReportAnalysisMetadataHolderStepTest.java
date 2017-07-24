@@ -147,6 +147,31 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isEqualTo(false);
   }
+  
+  @Test
+  public void set_incremental_analysis_to_true() {
+    reportReader.setMetadata(
+      newBatchReportBuilder()
+        .setIncremental(true)
+        .build());
+
+    underTest.execute();
+
+    assertThat(analysisMetadataHolder.isIncrementalAnalysis()).isTrue();
+  }
+  
+  @Test
+  public void set_incremental_analysis_to_false() {
+    reportReader.setMetadata(
+      newBatchReportBuilder()
+      .setIncremental(false)
+        .build());
+
+    underTest.execute();
+
+    assertThat(analysisMetadataHolder.isIncrementalAnalysis()).isFalse();
+  }
+
 
   @Test
   public void set_cross_project_duplication_to_false_when_nothing_in_the_report() {

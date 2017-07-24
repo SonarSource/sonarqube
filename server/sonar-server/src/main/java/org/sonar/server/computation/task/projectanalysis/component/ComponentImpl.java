@@ -35,6 +35,7 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 @Immutable
 public class ComponentImpl implements Component {
   private final Type type;
+  private final Status status;
   private final String name;
   private final String key;
   private final String uuid;
@@ -49,6 +50,7 @@ public class ComponentImpl implements Component {
 
   private ComponentImpl(Builder builder) {
     this.type = builder.type;
+    this.status = builder.status;
     this.key = builder.key;
     this.name = builder.name;
     this.description = builder.description;
@@ -61,6 +63,11 @@ public class ComponentImpl implements Component {
   @Override
   public Type getType() {
     return type;
+  }
+  
+  @Override
+  public Status getStatus() {
+    return status;
   }
 
   @Override
@@ -125,8 +132,10 @@ public class ComponentImpl implements Component {
     private static final String UUID_CANNOT_BE_NULL = "uuid can't be null";
     private static final String REPORT_ATTRIBUTES_CANNOT_BE_NULL = "reportAttributes can't be null";
     private static final String NAME_CANNOT_BE_NULL = "name can't be null";
-
+    private static final String STATUS_CANNOT_BE_NULL = "status can't be null";
+    
     private final Type type;
+    private Status status;
     private ReportAttributes reportAttributes;
     private String uuid;
     private String key;
@@ -152,6 +161,11 @@ public class ComponentImpl implements Component {
     @CheckForNull
     public String getUuid() {
       return uuid;
+    }
+    
+    public Builder setStatus(Status status) {
+      this.status = requireNonNull(status, STATUS_CANNOT_BE_NULL);
+      return this;
     }
 
     public Builder setKey(String s) {
@@ -187,6 +201,7 @@ public class ComponentImpl implements Component {
       requireNonNull(uuid, UUID_CANNOT_BE_NULL);
       requireNonNull(key, KEY_CANNOT_BE_NULL);
       requireNonNull(name, NAME_CANNOT_BE_NULL);
+      requireNonNull(status, STATUS_CANNOT_BE_NULL);
       return new ComponentImpl(this);
     }
   }
