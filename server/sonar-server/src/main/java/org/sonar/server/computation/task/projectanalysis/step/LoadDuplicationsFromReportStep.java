@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import javax.annotation.Nonnull;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
@@ -49,11 +50,14 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader batchReportReader;
   private final DuplicationRepository duplicationRepository;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public LoadDuplicationsFromReportStep(TreeRootHolder treeRootHolder, BatchReportReader batchReportReader, DuplicationRepository duplicationRepository) {
+  public LoadDuplicationsFromReportStep(TreeRootHolder treeRootHolder, BatchReportReader batchReportReader,
+    DuplicationRepository duplicationRepository, AnalysisMetadataHolder analysisMetadataHolder) {
     this.treeRootHolder = treeRootHolder;
     this.batchReportReader = batchReportReader;
     this.duplicationRepository = duplicationRepository;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
@@ -63,22 +67,24 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
-        @Override
-        public void visitFile(Component file) {
-          CloseableIterator<ScannerReport.Duplication> duplications = batchReportReader.readComponentDuplications(file.getReportAttributes().getRef());
-          try {
-            int idGenerator = 1;
-            while (duplications.hasNext()) {
-              loadDuplications(file, duplications.next(), idGenerator);
-              idGenerator++;
+    if (!analysisMetadataHolder.isIncrementalAnalysis()) {
+      new DepthTraversalTypeAwareCrawler(
+        new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
+          @Override
+          public void visitFile(Component file) {
+            CloseableIterator<ScannerReport.Duplication> duplications = batchReportReader.readComponentDuplications(file.getReportAttributes().getRef());
+            try {
+              int idGenerator = 1;
+              while (duplications.hasNext()) {
+                loadDuplications(file, duplications.next(), idGenerator);
+                idGenerator++;
+              }
+            } finally {
+              duplications.close();
             }
-          } finally {
-            duplications.close();
           }
-        }
-      }).visit(treeRootHolder.getRoot());
+        }).visit(treeRootHolder.getRoot());
+    }
   }
 
   private void loadDuplications(Component file, ScannerReport.Duplication duplication, int id) {

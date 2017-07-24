@@ -17,14 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.step;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.server.computation.task.step.ComputationStep;
+package org.sonar.server.computation.task.projectanalysis.duplication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -48,7 +41,13 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.component.ViewsComponent.builder;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
-public class ViewsDuplicationMeasuresStepTest {
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
+import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
+
+public class ViewsDuplicationMeasuresTest {
 
   private static final int ROOT_REF = 1;
   private static final int SUBVIEW_REF = 12;
@@ -83,7 +82,7 @@ public class ViewsDuplicationMeasuresStepTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  ComputationStep underTest = new DuplicationMeasuresStep(treeRootHolder, metricRepository, measureRepository);
+  DuplicationMeasures underTest = new DuplicationMeasures(treeRootHolder, metricRepository, measureRepository);
 
   @Test
   public void aggregate_duplicated_blocks() {
