@@ -62,16 +62,6 @@ exports[`admin 1`] = `
         activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
-        to="/organizations/foo/members"
-      >
-        organization.members.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to="/organizations/foo/quality_profiles"
       >
         quality_profiles.page
@@ -99,6 +89,16 @@ exports[`admin 1`] = `
         }
       >
         quality_gates.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/members"
+      >
+        organization.members.page
       </Link>
     </li>
     <li
@@ -246,16 +246,6 @@ exports[`regular user 1`] = `
         activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
-        to="/organizations/foo/members"
-      >
-        organization.members.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to="/organizations/foo/quality_profiles"
       >
         quality_profiles.page
@@ -283,6 +273,16 @@ exports[`regular user 1`] = `
         }
       >
         quality_gates.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/members"
+      >
+        organization.members.page
       </Link>
     </li>
   </NavBarTabs>
@@ -351,16 +351,6 @@ exports[`undeletable org 1`] = `
         activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
-        to="/organizations/foo/members"
-      >
-        organization.members.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to="/organizations/foo/quality_profiles"
       >
         quality_profiles.page
@@ -388,6 +378,16 @@ exports[`undeletable org 1`] = `
         }
       >
         quality_gates.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/members"
+      >
+        organization.members.page
       </Link>
     </li>
     <li
