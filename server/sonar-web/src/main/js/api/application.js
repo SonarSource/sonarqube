@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const PAGE_SIZE = 50;
+// @flow
+import { getJSON } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
-export const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP', 'DEV'];
+type GetApplicationLeakResponse = Array<{
+  date: string,
+  project: string,
+  projectName: string
+}>;
 
-export const TYPE = {
-  ALL: 'ALL',
-  PROVISIONED: 'PROVISIONED',
-  GHOSTS: 'GHOSTS'
-};
+export const getApplicationLeak = (application: string): Promise<GetApplicationLeakResponse> =>
+  getJSON('/api/views/show_leak', { application }).then(r => r.leaks, throwGlobalError);

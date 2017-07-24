@@ -22,6 +22,7 @@ import React from 'react';
 import { uniq } from 'lodash';
 import moment from 'moment';
 import QualityGate from '../qualityGate/QualityGate';
+import ApplicationQualityGate from '../qualityGate/ApplicationQualityGate';
 import BugsAndVulnerabilities from '../main/BugsAndVulnerabilities';
 import CodeSmells from '../main/CodeSmells';
 import Coverage from '../main/Coverage';
@@ -122,6 +123,9 @@ export default class OverviewApp extends React.PureComponent {
     }, throwGlobalError);
   }
 
+  getApplicationLeakPeriod = () =>
+    this.state.measures.find(measure => measure.metric.key === 'new_bugs') ? { index: 1 } : null;
+
   renderLoading() {
     return (
       <div className="text-center">
@@ -138,14 +142,17 @@ export default class OverviewApp extends React.PureComponent {
       return this.renderLoading();
     }
 
-    const leakPeriod = getLeakPeriod(periods);
+    const leakPeriod =
+      component.qualifier === 'APP' ? this.getApplicationLeakPeriod() : getLeakPeriod(periods);
     const domainProps = { component, measures, leakPeriod, history, historyStartDate };
 
     return (
       <div className="page page-limited">
         <div className="overview page-with-sidebar">
           <div className="overview-main page-main">
-            <QualityGate component={component} measures={measures} />
+            {component.qualifier === 'APP'
+              ? <ApplicationQualityGate component={component} />
+              : <QualityGate component={component} measures={measures} />}
 
             <div className="overview-domains-list">
               <BugsAndVulnerabilities {...domainProps} />

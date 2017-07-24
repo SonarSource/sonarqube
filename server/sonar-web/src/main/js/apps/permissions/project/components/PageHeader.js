@@ -55,7 +55,7 @@ export default class PageHeader extends React.PureComponent {
     const canApplyPermissionTemplate =
       configuration != null && configuration.canApplyPermissionTemplate;
 
-    const description = ['VW', 'SVW'].includes(component.qualifier)
+    const description = ['VW', 'SVW', 'APP'].includes(component.qualifier)
       ? translate('roles.page.description_portfolio')
       : translate('roles.page.description2');
 

@@ -39,7 +39,7 @@ const METRICS = [
   'alert_status'
 ];
 
-const VIEW_METRICS = [
+const PORTFOLIO_METRICS = [
   'releasability_rating',
   'alert_status',
   'reliability_rating',
@@ -111,22 +111,22 @@ function storeChildrenBreadcrumbs(parentComponentKey, children) {
   }
 }
 
-function getMetrics(isView) {
-  return isView ? VIEW_METRICS : METRICS;
+function getMetrics(isPortfolio) {
+  return isPortfolio ? PORTFOLIO_METRICS : METRICS;
 }
 
 /**
  * @param {string} componentKey
- * @param {boolean} isView
+ * @param {boolean} isPortfolio
  * @returns {Promise}
  */
-function retrieveComponentBase(componentKey, isView) {
+function retrieveComponentBase(componentKey, isPortfolio) {
   const existing = getComponentFromBucket(componentKey);
   if (existing) {
     return Promise.resolve(existing);
   }
 
-  const metrics = getMetrics(isView);
+  const metrics = getMetrics(isPortfolio);
 
   return getComponent(componentKey, metrics).then(component => {
     addComponent(component);
@@ -136,10 +136,10 @@ function retrieveComponentBase(componentKey, isView) {
 
 /**
  * @param {string} componentKey
- * @param {boolean} isView
+ * @param {boolean} isPortfolio
  * @returns {Promise}
  */
-export function retrieveComponentChildren(componentKey, isView) {
+export function retrieveComponentChildren(componentKey, isPortfolio) {
   const existing = getComponentChildren(componentKey);
   if (existing) {
     return Promise.resolve({
@@ -149,7 +149,7 @@ export function retrieveComponentChildren(componentKey, isView) {
     });
   }
 
-  const metrics = getMetrics(isView);
+  const metrics = getMetrics(isPortfolio);
 
   return getChildren(componentKey, metrics, { ps: PAGE_SIZE, s: 'qualifier,name' })
     .then(prepareChildren)
@@ -176,13 +176,13 @@ function retrieveComponentBreadcrumbs(componentKey) {
 
 /**
  * @param {string} componentKey
- * @param {boolean} isView
+ * @param {boolean} isPortfolio
  * @returns {Promise}
  */
-export function retrieveComponent(componentKey, isView) {
+export function retrieveComponent(componentKey, isPortfolio) {
   return Promise.all([
-    retrieveComponentBase(componentKey, isView),
-    retrieveComponentChildren(componentKey, isView),
+    retrieveComponentBase(componentKey, isPortfolio),
+    retrieveComponentChildren(componentKey, isPortfolio),
     retrieveComponentBreadcrumbs(componentKey)
   ]).then(r => {
     return {
@@ -195,8 +195,8 @@ export function retrieveComponent(componentKey, isView) {
   });
 }
 
-export function loadMoreChildren(componentKey, page, isView) {
-  const metrics = getMetrics(isView);
+export function loadMoreChildren(componentKey, page, isPortfolio) {
+  const metrics = getMetrics(isPortfolio);
 
   return getChildren(componentKey, metrics, { ps: PAGE_SIZE, p: page })
     .then(prepareChildren)

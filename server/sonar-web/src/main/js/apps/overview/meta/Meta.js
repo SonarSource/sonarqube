@@ -34,15 +34,14 @@ const Meta = ({ component, history, measures, areThereCustomOrganizations, route
   const { qualifier, description, qualityProfiles, qualityGate } = component;
 
   const isProject = qualifier === 'TRK';
-  const isView = qualifier === 'VW' || qualifier === 'SVW';
-  const isDeveloper = qualifier === 'DEV';
+  const isApplication = qualifier === 'APP';
 
   const hasDescription = !!description;
   const hasQualityProfiles = Array.isArray(qualityProfiles) && qualityProfiles.length > 0;
   const hasQualityGate = !!qualityGate;
 
-  const shouldShowQualityProfiles = !isView && !isDeveloper && hasQualityProfiles;
-  const shouldShowQualityGate = !isView && !isDeveloper && hasQualityGate;
+  const shouldShowQualityProfiles = isProject && hasQualityProfiles;
+  const shouldShowQualityGate = isProject && hasQualityGate;
   const hasOrganization = component.organization != null && areThereCustomOrganizations;
 
   return (
@@ -56,7 +55,8 @@ const Meta = ({ component, history, measures, areThereCustomOrganizations, route
 
       {isProject && <MetaTags component={component} />}
 
-      {isProject && <AnalysesList project={component.key} history={history} router={router} />}
+      {(isProject || isApplication) &&
+        <AnalysesList project={component.key} history={history} router={router} />}
 
       {shouldShowQualityGate &&
         <MetaQualityGate
@@ -71,7 +71,7 @@ const Meta = ({ component, history, measures, areThereCustomOrganizations, route
           profiles={qualityProfiles}
         />}
 
-      <MetaLinks component={component} />
+      {isProject && <MetaLinks component={component} />}
 
       <MetaKey component={component} />
 
