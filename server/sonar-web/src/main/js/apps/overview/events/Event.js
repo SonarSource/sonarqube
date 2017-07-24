@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import Tooltip from '../../../components/controls/Tooltip';
 import type { Event as EventType } from '../../projectActivity/types';
 import { translate } from '../../../helpers/l10n';
 
@@ -36,14 +36,12 @@ export default function Event(props: { event: EventType }) {
 
   return (
     <div className="overview-analysis-event">
-      <TooltipsContainer>
-        <span>
-          <span className="note">{translate('event.category', event.category)}:</span>{' '}
-          <strong title={event.description} data-toggle="tooltip">
-            {event.name}
-          </strong>
-        </span>
-      </TooltipsContainer>
+      <span className="note">{translate('event.category', event.category)}:</span>{' '}
+      <Tooltip overlay={event.description}>
+        <strong>
+          {event.name}
+        </strong>
+      </Tooltip>
     </div>
   );
 }

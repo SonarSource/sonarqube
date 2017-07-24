@@ -24,6 +24,7 @@ import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import Rating from './../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
+import Tooltip from '../../../components/controls/Tooltip';
 import {
   formatMeasure,
   formatMeasureVariation,
@@ -126,11 +127,16 @@ export default function enhance(ComposedComponent) {
       const value = this.getValue(measure);
       const title = getRatingTooltip(metricKey, value);
       return (
-        <div className="overview-domain-measure-sup" title={title} data-toggle="tooltip">
-          <DrilldownLink className="link-no-underline" component={component.key} metric={metricKey}>
-            <Rating value={value} />
-          </DrilldownLink>
-        </div>
+        <Tooltip overlay={title} placement="top">
+          <div className="overview-domain-measure-sup">
+            <DrilldownLink
+              className="link-no-underline"
+              component={component.key}
+              metric={metricKey}>
+              <Rating value={value} />
+            </DrilldownLink>
+          </div>
+        </Tooltip>
       );
     };
     renderIssues = (metric, type) => {
@@ -147,11 +153,11 @@ export default function enhance(ComposedComponent) {
       const formattedAnalysisDate = moment(component.analysisDate).format('LLL');
       const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate);
       return (
-        <Link to={getComponentIssuesUrl(component.key, params)}>
-          <span title={tooltip} data-toggle="tooltip">
+        <Tooltip overlay={tooltip} placement="top">
+          <Link to={getComponentIssuesUrl(component.key, params)}>
             {formatMeasure(value, 'SHORT_INT')}
-          </span>
-        </Link>
+          </Link>
+        </Tooltip>
       );
     };
     renderHistoryLink = metricKey => {

@@ -20,6 +20,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
+import { DEFAULT_GRAPH } from '../../utils';
 
 const ANALYSES = [
   {
@@ -77,7 +78,7 @@ const DEFAULT_PROPS = {
   deleteAnalysis: () => {},
   deleteEvent: () => {},
   loading: false,
-  query: { category: '', graph: 'issues', project: 'org.sonarsource.sonarqube:sonarqube' },
+  query: { category: '', graph: DEFAULT_GRAPH, project: 'org.sonarsource.sonarqube:sonarqube' },
   updateQuery: () => {}
 };
 

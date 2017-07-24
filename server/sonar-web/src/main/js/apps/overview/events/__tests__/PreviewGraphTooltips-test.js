@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import PreviewGraphTooltips from '../PreviewGraphTooltips';
 import { DEFAULT_GRAPH } from '../../../projectActivity/utils';
 
-const SERIES_OVERVIEW = [
+const SERIES_ISSUES = [
   {
     name: 'code_smells',
     data: [
@@ -79,7 +79,7 @@ const DEFAULT_PROPS = {
   graphWidth: 150,
   metrics: METRICS,
   selectedDate: new Date('2011-10-01T22:01:00.000Z'),
-  series: SERIES_OVERVIEW,
+  series: SERIES_ISSUES,
   tooltipIdx: 0,
   tooltipPos: 25
 };

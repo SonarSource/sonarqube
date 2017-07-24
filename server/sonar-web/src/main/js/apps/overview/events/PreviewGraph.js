@@ -21,6 +21,8 @@
 import React from 'react';
 import { minBy } from 'lodash';
 import { AutoSizer } from 'react-virtualized';
+import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
+import PreviewGraphTooltips from './PreviewGraphTooltips';
 import {
   DEFAULT_GRAPH,
   getDisplayedHistoryMetrics,
@@ -29,8 +31,6 @@ import {
   splitSeriesInGraphs
 } from '../../projectActivity/utils';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
-import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
-import PreviewGraphTooltips from './PreviewGraphTooltips';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 import type { History, Metric } from '../types';

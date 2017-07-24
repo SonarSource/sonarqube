@@ -20,6 +20,7 @@
 import moment from 'moment';
 import React from 'react';
 import { Link } from 'react-router';
+import Tooltip from '../../../components/controls/Tooltip';
 import enhance from './enhance';
 import { getMetricName } from '../helpers/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -46,11 +47,11 @@ class CodeSmells extends React.PureComponent {
     const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate);
 
     return (
-      <Link to={getComponentIssuesUrl(component.key, params)}>
-        <span title={tooltip} data-toggle="tooltip">
+      <Tooltip overlay={tooltip} placement="top">
+        <Link to={getComponentIssuesUrl(component.key, params)}>
           {formatMeasure(value, 'SHORT_WORK_DUR')}
-        </span>
-      </Link>
+        </Link>
+      </Tooltip>
     );
   }
 
@@ -122,7 +123,7 @@ class CodeSmells extends React.PureComponent {
               </div>
               <div className="overview-domain-measure-label">
                 {getMetricName('effort')}
-                {this.props.renderHistoryLink('sqale_rating')}
+                {this.props.renderHistoryLink('sqale_index')}
               </div>
             </div>
           </div>

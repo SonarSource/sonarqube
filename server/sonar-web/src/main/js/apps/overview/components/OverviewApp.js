@@ -32,7 +32,6 @@ import { getMeasuresAndMeta } from '../../../api/measures';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { METRICS, HISTORY_METRICS_LIST } from '../utils';
 import { DEFAULT_GRAPH, getDisplayedHistoryMetrics } from '../../projectActivity/utils';
@@ -148,14 +147,12 @@ export default class OverviewApp extends React.PureComponent {
           <div className="overview-main page-main">
             <QualityGate component={component} measures={measures} />
 
-            <TooltipsContainer>
-              <div className="overview-domains-list">
-                <BugsAndVulnerabilities {...domainProps} />
-                <CodeSmells {...domainProps} />
-                <Coverage {...domainProps} />
-                <Duplications {...domainProps} />
-              </div>
-            </TooltipsContainer>
+            <div className="overview-domains-list">
+              <BugsAndVulnerabilities {...domainProps} />
+              <CodeSmells {...domainProps} />
+              <Coverage {...domainProps} />
+              <Duplications {...domainProps} />
+            </div>
           </div>
 
           <div className="page-sidebar-fixed">
