@@ -129,4 +129,15 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   public Map<String, QualityProfile> getQProfilesByLanguage() {
     return delegate.getQProfilesByLanguage();
   }
+
+  @Override
+  public boolean isIncrementalAnalysis() {
+    return delegate.isIncrementalAnalysis();
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolder setIncrementalAnalysis(boolean isIncrementalAnalysis) {
+    delegate.setIncrementalAnalysis(isIncrementalAnalysis);
+    return this;
+  }
 }
