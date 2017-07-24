@@ -17,16 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.step;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.duplication.TextBlock;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.server.computation.task.step.ComputationStep;
+package org.sonar.server.computation.task.projectanalysis.duplication;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,8 +43,13 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
-public class ReportDuplicationMeasuresStepTest {
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
+import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 
+public class ReportDuplicationMeasuresTest {
   private static final int ROOT_REF = 1;
   private static final int MODULE_REF = 12;
   private static final int SUB_MODULE_1_REF = 123;
@@ -68,26 +64,25 @@ public class ReportDuplicationMeasuresStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
     .setRoot(
-    builder(PROJECT, ROOT_REF)
-      .addChildren(
-        builder(MODULE, MODULE_REF)
-          .addChildren(
-            builder(MODULE, SUB_MODULE_1_REF)
-              .addChildren(
-                builder(DIRECTORY, DIRECTORY_REF)
-                  .addChildren(
-                    builder(FILE, FILE_1_REF).build(),
-                    builder(FILE, FILE_2_REF).build())
-                  .build())
-              .build(),
-            builder(MODULE, SUB_MODULE_2_REF)
-              .addChildren(
-                builder(FILE, FILE_3_REF).build(),
-                builder(FILE, FILE_4_REF).build()
-              )
-              .build())
-          .build())
-      .build());
+      builder(PROJECT, ROOT_REF)
+        .addChildren(
+          builder(MODULE, MODULE_REF)
+            .addChildren(
+              builder(MODULE, SUB_MODULE_1_REF)
+                .addChildren(
+                  builder(DIRECTORY, DIRECTORY_REF)
+                    .addChildren(
+                      builder(FILE, FILE_1_REF).build(),
+                      builder(FILE, FILE_2_REF).build())
+                    .build())
+                .build(),
+              builder(MODULE, SUB_MODULE_2_REF)
+                .addChildren(
+                  builder(FILE, FILE_3_REF).build(),
+                  builder(FILE, FILE_4_REF).build())
+                .build())
+            .build())
+        .build());
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(LINES)
@@ -102,7 +97,7 @@ public class ReportDuplicationMeasuresStepTest {
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
 
-  ComputationStep underTest = new DuplicationMeasuresStep(treeRootHolder, metricRepository, measureRepository, duplicationRepository);
+  DuplicationMeasures underTest = new DuplicationMeasures(treeRootHolder, metricRepository, measureRepository, duplicationRepository);
 
   @Test
   public void compute_duplicated_blocks_one_for_original_one_for_each_InnerDuplicate() {
