@@ -42,6 +42,8 @@ import org.sonar.wsclient.qualitygate.UpdateCondition;
 import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.pageobjects.ProjectActivityPage;
 import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.WsUsers;
 
 import static com.codeborne.selenide.Selenide.$;
 import static org.apache.commons.lang.time.DateUtils.addDays;
@@ -119,7 +121,7 @@ public class QualityGateUiTest {
       .logIn().submitCredentials(login)
       .openQualityGates();
 
-    SelenideElement element = $(".navbar-global .navbar-nav")
+    SelenideElement element = $(".navbar-global .global-navbar-menu")
       .find(By.linkText("Quality Gates"))
       .should(Condition.exist);
     assertThat(element.attr("href")).endsWith("/quality_gates");
@@ -128,14 +130,17 @@ public class QualityGateUiTest {
   @Test
   public void should_not_allow_random_user_to_create() {
     String login = tester.users().generate().getLogin();
+    String admin = tester.users().generateAdministrator().getLogin();
     tester.openBrowser()
       .logIn().submitCredentials(login)
       .openQualityGates()
-      .canNotCreateQG();
+      .canNotCreateQG()
+      .displayQualityGateDetail("SonarQube way");
     tester.openBrowser()
-      .logIn().submitCredentials("admin")
+      .logIn().submitCredentials(admin)
       .openQualityGates()
-      .canCreateQG();
+      .canCreateQG()
+      .displayIntro();
   }
 
   private void scanSampleWithDate(String date) {

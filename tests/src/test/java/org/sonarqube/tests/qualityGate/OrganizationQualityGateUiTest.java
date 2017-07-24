@@ -52,10 +52,14 @@ public class OrganizationQualityGateUiTest {
 
   private Organizations.Organization organization;
   private WsUsers.CreateWsResponse.User user;
+  private WsUsers.CreateWsResponse.User gateAdmin;
 
   @Before
   public void setUp() throws Exception {
     organization = tester.organizations().generate();
+    gateAdmin = tester.users().generate();
+    tester.organizations().addMember(tester.organizations().getDefaultOrganization(), gateAdmin);
+    tester.wsClient().permissions().addUser(new org.sonarqube.ws.client.permission.AddUserWsRequest().setLogin(gateAdmin.getLogin()).setPermission("gateadmin"));
     user = tester.users().generate();
     tester.organizations().addMember(organization, user);
     restoreProfile(orchestrator, getClass().getResource("/issue/with-many-rules.xml"), organization.getKey());
@@ -67,7 +71,7 @@ public class OrganizationQualityGateUiTest {
       .logIn().submitCredentials(user.getLogin())
       .openQualityGates(organization.getKey());
 
-    SelenideElement element = $(".navbar-context .navbar-nav")
+    SelenideElement element = $(".navbar-context .navbar-tabs")
       .find(By.linkText("Quality Gates"))
       .should(Condition.exist);
     assertThat(element.attr("href")).endsWith("/organizations/" + organization.getKey() + "/quality_gates");
@@ -76,9 +80,9 @@ public class OrganizationQualityGateUiTest {
   @Test
   public void should_display_available_quality_gates() {
     QualityGatePage page = tester.openBrowser()
-      .logIn().submitCredentials(user.getLogin())
+      .logIn().submitCredentials(gateAdmin.getLogin())
       .openQualityGates(organization.getKey());
-    page.countQualityGates(1);
+    page.countQualityGates(1).displayIntro();
   }
 
   @Test
@@ -88,7 +92,7 @@ public class OrganizationQualityGateUiTest {
       .openQualityGates(organization.getKey())
       .canNotCreateQG();
     tester.openBrowser()
-      .logIn().submitCredentials("admin")
+      .logIn().submitCredentials(gateAdmin.getLogin())
       .openQualityGates(organization.getKey())
       .canCreateQG();
   }
@@ -109,5 +113,13 @@ public class OrganizationQualityGateUiTest {
       .logIn().submitCredentials(user.getLogin())
       .openProjectDashboard(project);
     page.hasQualityGateLink("SonarQube way", link);
+  }
+
+  @Test
+  public void should_redirect_to_display_quality_gate_detail() {
+    QualityGatePage page = tester.openBrowser()
+      .logIn().submitCredentials(user.getLogin())
+      .openQualityGates(organization.getKey());
+    page.countQualityGates(1).displayQualityGateDetail("SonarQube way");
   }
 }

@@ -101,8 +101,9 @@ public class ProjectDashboardPage {
   }
 
   public ProjectDashboardPage hasQualityGateLink(String name, String link) {
-    SelenideElement elem = $(".overview-meta-header").should(exist)
-      .parent().find(By.linkText(name)).should(exist);
+    SelenideElement elem = $$(".overview-meta-card")
+      .findBy(text("Quality Gate")).should(exist)
+      .find(By.linkText(name)).should(exist);
     assertThat(elem.attr("href")).endsWith(link);
     return this;
   }

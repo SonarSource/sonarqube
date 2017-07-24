@@ -26,11 +26,11 @@ import static com.codeborne.selenide.Selenide.$$;
 
 public class QualityGatePage {
   public QualityGatePage() {
-    $(".quality-gates-results").shouldBe(Condition.visible);
+    $("#quality-gates-page").shouldBe(Condition.visible);
   }
 
   public QualityGatePage countQualityGates(Integer count) {
-    $$(".quality-gates-results .list-group-item").shouldHaveSize(count);
+    $$("#quality-gates-page .list-group-item").shouldHaveSize(count);
     return this;
   }
 
@@ -41,6 +41,16 @@ public class QualityGatePage {
 
   public QualityGatePage canNotCreateQG() {
     $("#quality-gate-add").shouldNot(Condition.exist);
+    return this;
+  }
+
+  public QualityGatePage displayIntro() {
+    $(".search-navigator-intro").should(Condition.exist).shouldBe(Condition.visible);
+    return this;
+  }
+
+  public QualityGatePage displayQualityGateDetail(String qualityGateName) {
+    $(".layout-page-main-header").shouldHave(Condition.text(qualityGateName));
     return this;
   }
 }
