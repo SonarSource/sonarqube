@@ -213,11 +213,6 @@ export default class OrganizationNavigation extends React.PureComponent {
             </Link>
           </li>
           <li>
-            <Link to={`/organizations/${organization.key}/members`} activeClassName="active">
-              {translate('organization.members.page')}
-            </Link>
-          </li>
-          <li>
             <Link
               to={`/organizations/${organization.key}/quality_profiles`}
               activeClassName="active">
@@ -232,6 +227,11 @@ export default class OrganizationNavigation extends React.PureComponent {
           <li>
             <Link to={getQualityGatesUrl(organization.key)} activeClassName="active">
               {translate('quality_gates.page')}
+            </Link>
+          </li>
+          <li>
+            <Link to={`/organizations/${organization.key}/members`} activeClassName="active">
+              {translate('organization.members.page')}
             </Link>
           </li>
           {this.renderExtensions(moreActive)}
