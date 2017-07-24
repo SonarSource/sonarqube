@@ -74,6 +74,13 @@ public class OrganizationTester {
     return this;
   }
 
+  public Organizations.Organization getDefaultOrganization() {
+    return service().search(SearchWsRequest.builder().build()).getOrganizationsList()
+      .stream()
+      .filter(o -> o.getKey().equals("default-organization"))
+      .findFirst().orElseThrow(() -> new IllegalStateException("Can't find default organization"));
+  }
+
   public OrganizationTester assertThatOrganizationDoesNotExist(String organizationKey) {
     SearchWsRequest request = new SearchWsRequest.Builder().setOrganizations(organizationKey).build();
     Organizations.SearchWsResponse searchWsResponse = service().search(request);

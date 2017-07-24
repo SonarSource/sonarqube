@@ -41,11 +41,17 @@ export default class QualityGatesApp extends Component {
   }
 
   fetchQualityGates() {
-    Promise.all([fetchQualityGatesAppDetails(), fetchQualityGatesAPI()]).then(responses => {
-      const [details, qualityGates] = responses;
-      const { updateStore } = this.props;
-
+    Promise.all([
+      fetchQualityGatesAppDetails(),
+      fetchQualityGatesAPI()
+    ]).then(([details, qualityGates]) => {
+      const { organization, updateStore } = this.props;
       updateStore({ ...details, qualityGates });
+      if (qualityGates && qualityGates.length === 1 && !details.edit) {
+        this.context.router.replace(
+          getQualityGateUrl(qualityGates[0].id, organization && organization.key)
+        );
+      }
     });
   }
 
@@ -62,7 +68,7 @@ export default class QualityGatesApp extends Component {
     const defaultTitle = translate('quality_gates.page');
     const top = organization ? 95 : 30;
     return (
-      <div className="layout-page">
+      <div id="quality-gates-page" className="layout-page">
         <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
 
         <div className="layout-page-side-outer">
