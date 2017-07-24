@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import { extent, max } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
@@ -25,7 +26,9 @@ import { area as d3Area, line as d3Line, curveBasis } from 'd3-shape';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
-export const LineChart = React.createClass({
+export const LineChart = createReactClass({
+  displayName: 'LineChart',
+
   propTypes: {
     data: PropTypes.arrayOf(PropTypes.object).isRequired,
     xTicks: PropTypes.arrayOf(PropTypes.any),

@@ -18,13 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import { max } from 'd3-array';
 import { scaleLinear, scaleBand } from 'd3-scale';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsContainer } from './../mixins/tooltips-mixin';
 
-export const BarChart = React.createClass({
+export const BarChart = createReactClass({
+  displayName: 'BarChart',
+
   propTypes: {
     data: PropTypes.arrayOf(PropTypes.object).isRequired,
     xTicks: PropTypes.arrayOf(PropTypes.any),

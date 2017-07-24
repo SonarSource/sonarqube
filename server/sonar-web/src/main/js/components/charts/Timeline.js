@@ -21,13 +21,16 @@ import $ from 'jquery';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React from 'react';
+import createReactClass from 'create-react-class';
 import { extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { line as d3Line, curveBasis } from 'd3-shape';
 import { ResizeMixin } from '../mixins/resize-mixin';
 import { TooltipsMixin } from '../mixins/tooltips-mixin';
 
-const Timeline = React.createClass({
+const Timeline = createReactClass({
+  displayName: 'Timeline',
+
   propTypes: {
     data: PropTypes.arrayOf(PropTypes.object).isRequired,
     padding: PropTypes.arrayOf(PropTypes.number),
@@ -206,6 +209,7 @@ const Timeline = React.createClass({
       </g>
     );
   },
+
   render() {
     if (!this.state.width || !this.state.height) {
       return <div />;
