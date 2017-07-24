@@ -19,24 +19,18 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import { UnconnectedApp } from '../App';
+import App from '../App';
 import OverviewApp from '../OverviewApp';
 import EmptyOverview from '../EmptyOverview';
 
 it('should render OverviewApp', () => {
   const component = { id: 'id', analysisDate: '2016-01-01' };
-  const output = shallow(<UnconnectedApp component={component} />);
+  const output = shallow(<App component={component} />);
   expect(output.type()).toBe(OverviewApp);
 });
 
 it('should render EmptyOverview', () => {
   const component = { id: 'id' };
-  const output = shallow(<UnconnectedApp component={component} />);
+  const output = shallow(<App component={component} />);
   expect(output.type()).toBe(EmptyOverview);
-});
-
-it('should pass leakPeriodIndex', () => {
-  const component = { id: 'id', analysisDate: '2016-01-01' };
-  const output = shallow(<UnconnectedApp component={component} />);
-  expect(output.prop('leakPeriodIndex')).toBe('1');
 });

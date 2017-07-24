@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/dashboard",
+      "query": Object {
+        "id": "foo",
+      },
+    }
+  }
+>
+  <div
+    className="application-quality-gate-project"
+  >
+    <h4>
+      Foo
+    </h4>
+    <ul
+      className="application-quality-gate-project-conditions"
+    >
+      <li>
+        <span
+          className="text-limited"
+        >
+          <strong>
+            82.5%
+          </strong>
+           
+          Coverage on New Code
+        </span>
+        <span
+          className="pull-right big-spacer-left text-danger"
+        >
+          quality_gates.operator.LT.short
+           
+          85.0%
+        </span>
+      </li>
+      <li>
+        <span
+          className="text-limited"
+        >
+          <strong>
+            17
+          </strong>
+           
+          Bugs
+        </span>
+        <span
+          className="pull-right big-spacer-left text-warning"
+        >
+          quality_gates.operator.GT.short
+           
+          0
+        </span>
+      </li>
+      <li>
+        <span
+          className="text-limited"
+        >
+          <strong>
+            3
+          </strong>
+           
+          Bugs
+           quality_gates.conditions.leak
+        </span>
+        <span
+          className="pull-right big-spacer-left text-danger"
+        >
+          quality_gates.operator.GT.short
+           
+          0
+        </span>
+      </li>
+    </ul>
+  </div>
+</Link>
+`;

@@ -56,7 +56,7 @@ export default class ComponentNav extends React.PureComponent {
   populateRecentHistory = () => {
     const { breadcrumbs } = this.props.component;
     const { qualifier } = breadcrumbs[breadcrumbs.length - 1];
-    if (['TRK', 'VW', 'DEV'].indexOf(qualifier) !== -1) {
+    if (['TRK', 'VW', 'APP', 'DEV'].indexOf(qualifier) !== -1) {
       RecentHistory.add(
         this.props.component.key,
         this.props.component.name,

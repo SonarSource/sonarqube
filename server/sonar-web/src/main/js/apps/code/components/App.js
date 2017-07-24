@@ -74,8 +74,8 @@ class App extends React.PureComponent {
     addComponentBreadcrumbs(component.key, component.breadcrumbs);
 
     this.setState({ loading: true });
-    const isView = component.qualifier === 'VW' || component.qualifier === 'SVW';
-    retrieveComponentChildren(component.key, isView)
+    const isPortfolio = ['VW', 'SVW'].includes(component.qualifier);
+    retrieveComponentChildren(component.key, isPortfolio)
       .then(r => {
         addComponent(r.baseComponent);
         this.handleUpdate();
@@ -91,9 +91,8 @@ class App extends React.PureComponent {
   loadComponent(componentKey) {
     this.setState({ loading: true });
 
-    const isView =
-      this.props.component.qualifier === 'VW' || this.props.component.qualifier === 'SVW';
-    retrieveComponent(componentKey, isView)
+    const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
+    retrieveComponent(componentKey, isPortfolio)
       .then(r => {
         if (this.mounted) {
           if (['FIL', 'UTS'].includes(r.component.qualifier)) {
@@ -135,9 +134,8 @@ class App extends React.PureComponent {
 
   handleLoadMore() {
     const { baseComponent, page } = this.state;
-    const isView =
-      this.props.component.qualifier === 'VW' || this.props.component.qualifier === 'SVW';
-    loadMoreChildren(baseComponent.key, page + 1, isView)
+    const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
+    loadMoreChildren(baseComponent.key, page + 1, isPortfolio)
       .then(r => {
         if (this.mounted) {
           this.setState({

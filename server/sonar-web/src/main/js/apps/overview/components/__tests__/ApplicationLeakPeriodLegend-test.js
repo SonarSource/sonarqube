@@ -17,12 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const PAGE_SIZE = 50;
+// @flow
+import React from 'react';
+import { shallow } from 'enzyme';
+import ApplicationLeakPeriodLegend from '../ApplicationLeakPeriodLegend';
 
-export const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP', 'DEV'];
-
-export const TYPE = {
-  ALL: 'ALL',
-  PROVISIONED: 'PROVISIONED',
-  GHOSTS: 'GHOSTS'
-};
+it('renders', () => {
+  const wrapper = shallow(<ApplicationLeakPeriodLegend component={{ key: 'foo' }} />);
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setState({
+    leaks: [
+      { date: '2017-01-01T11:39:03+0100', project: 'foo', projectName: 'Foo' },
+      { date: '2017-02-01T11:39:03+0100', project: 'bar', projectName: 'Bar' }
+    ]
+  });
+  expect(wrapper).toMatchSnapshot();
+});

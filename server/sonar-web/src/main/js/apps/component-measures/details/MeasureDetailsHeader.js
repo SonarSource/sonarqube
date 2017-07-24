@@ -56,7 +56,7 @@ export default function MeasureDetailsHeader({
 
       {isDiff &&
         <div className="pull-right">
-          <LeakPeriodLegend period={leakPeriod} />
+          <LeakPeriodLegend component={component} period={leakPeriod} />
         </div>}
 
       <TooltipsContainer options={{ html: false }}>

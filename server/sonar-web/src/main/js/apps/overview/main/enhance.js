@@ -118,6 +118,7 @@ export default function enhance(ComposedComponent) {
         </div>
       );
     };
+
     renderRating = metricKey => {
       const { component, measures } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
@@ -139,6 +140,7 @@ export default function enhance(ComposedComponent) {
         </Tooltip>
       );
     };
+
     renderIssues = (metric, type) => {
       const { measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metric);
@@ -160,6 +162,7 @@ export default function enhance(ComposedComponent) {
         </Tooltip>
       );
     };
+
     renderHistoryLink = metricKey => {
       const linkClass =
         'button button-small button-compact spacer-left overview-domain-measure-history-link';
@@ -171,6 +174,7 @@ export default function enhance(ComposedComponent) {
         </Link>
       );
     };
+
     renderTimeline = (metricKey, range, children) => {
       if (!this.props.history) {
         return null;
@@ -190,6 +194,7 @@ export default function enhance(ComposedComponent) {
         </div>
       );
     };
+
     render() {
       return (
         <ComposedComponent
