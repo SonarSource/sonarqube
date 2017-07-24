@@ -46,7 +46,7 @@ if ! ls sonarqube-*/bin/$OS/sonar.sh &> /dev/null; then
   echo "Unzipping SQ..."
   unzip -qq sonarqube-*.zip
 fi
-cd sonarqube-*
+cd $(find sonarqube-* -type d | head -1)
 
 SQ_HOME=$(pwd)
 cd "$ROOT"
