@@ -103,11 +103,7 @@ public class InputComponentStoreTest {
 
   static class InputComponentStoreTester extends InputComponentStore {
     InputComponentStoreTester() throws IOException {
-<<<<<<< HEAD
-      super(TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()));
-=======
-      super(new PathResolver(), TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()), mock(AnalysisMode.class));
->>>>>>> SONAR-9607 Do not copy unchanged source files in scanner report
+      super(TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()), mock(AnalysisMode.class));
     }
 
     InputFile addFile(String moduleKey, String relpath, String language) {
