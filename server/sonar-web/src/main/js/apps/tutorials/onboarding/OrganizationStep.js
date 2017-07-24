@@ -41,6 +41,7 @@ type State = {
   newOrganization?: string,
   existingOrganization?: string,
   existingOrganizations: Array<string>,
+  personalOrganization?: string,
   selection: 'personal' | 'existing' | 'new'
 };
 
@@ -66,11 +67,18 @@ export default class OrganizationStep extends React.PureComponent {
     getMyOrganizations().then(
       organizations => {
         if (this.mounted) {
+          // best guess: if there is only one organization, then it is personal
+          // otherwise, we can't guess, let's display them all as just "existing organizations"
+          const personalOrganization = organizations.length === 1 ? organizations[0] : undefined;
+          const existingOrganizations = organizations.length > 1 ? sortBy(organizations) : [];
+          const selection = personalOrganization
+            ? 'personal'
+            : existingOrganizations.length > 0 ? 'existing' : 'new';
           this.setState({
             loading: false,
-            existingOrganizations: sortBy(
-              organizations.filter(organization => organization !== this.props.currentUser.login)
-            )
+            existingOrganizations,
+            personalOrganization,
+            selection
           });
         }
       },
@@ -85,7 +93,7 @@ export default class OrganizationStep extends React.PureComponent {
   getSelectedOrganization = () => {
     switch (this.state.selection) {
       case 'personal':
-        return this.props.currentUser.login;
+        return this.state.personalOrganization;
       case 'existing':
         return this.state.existingOrganization;
       case 'new':
@@ -140,7 +148,7 @@ export default class OrganizationStep extends React.PureComponent {
         />
         {translate('onboarding.organization.my_personal_organization')}
         <span className="note spacer-left">
-          {this.props.currentUser.login}
+          {this.state.personalOrganization}
         </span>
       </a>
     </div>;
@@ -203,11 +211,17 @@ export default class OrganizationStep extends React.PureComponent {
           {translate('onboarding.organization.text')}
         </div>
 
-        {this.renderPersonalOrganizationOption()}
-        {this.state.existingOrganizations.length > 0 && this.renderExistingOrganizationOption()}
-        {this.renderNewOrganizationOption()}
+        {this.state.loading
+          ? <i className="spinner" />
+          : <div>
+              {this.state.personalOrganization && this.renderPersonalOrganizationOption()}
+              {this.state.existingOrganizations.length > 0 &&
+                this.renderExistingOrganizationOption()}
+              {this.renderNewOrganizationOption()}
+            </div>}
 
         {this.getSelectedOrganization() != null &&
+          !this.state.loading &&
           <div className="big-spacer-top">
             <button className="js-continue" onClick={this.handleContinueClick}>
               {translate('continue')}
