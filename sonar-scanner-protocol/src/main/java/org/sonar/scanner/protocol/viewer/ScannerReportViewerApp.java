@@ -97,6 +97,8 @@ public class ScannerReportViewerApp {
   private JEditorPane scmEditor;
   private JScrollPane activeRuleTab;
   private JEditorPane activeRuleEditor;
+  private JScrollPane cpdTextBlocksTab;
+  private JEditorPane cpdTextBlocksEditor;
 
   /**
    * Create the application.
@@ -245,8 +247,23 @@ public class ScannerReportViewerApp {
     updateIssues(component);
     updateMeasures(component);
     updateScm(component);
+    updateCpdTextBlocks(component);
   }
 
+  private void updateCpdTextBlocks(Component component) {
+    cpdTextBlocksEditor.setText("");
+    if (reader.hasCoverage(component.getRef())) {
+      try (CloseableIterator<ScannerReport.CpdTextBlock> it = reader.readCpdTextBlocks(component.getRef())) {
+        while (it.hasNext()) {
+          ScannerReport.CpdTextBlock textBlock = it.next();
+          cpdTextBlocksEditor.getDocument().insertString(cpdTextBlocksEditor.getDocument().getEndPosition().getOffset(), textBlock + "\n", null);
+        }
+      } catch (Exception e) {
+        throw new IllegalStateException("Can't read CPD text blocks for " + getNodeName(component), e);
+      }
+    }
+  }
+  
   private void updateDuplications(Component component) {
     duplicationEditor.setText("");
     if (reader.hasCoverage(component.getRef())) {
@@ -484,11 +501,17 @@ public class ScannerReportViewerApp {
     scmTab.setViewportView(scmEditor);
 
     activeRuleTab = new JScrollPane();
-    tabbedPane.addTab("ActiveRules", null, activeRuleTab, null);
+    tabbedPane.addTab("Active Rules", null, activeRuleTab, null);
 
     activeRuleEditor = new JEditorPane();
     activeRuleTab.setViewportView(activeRuleEditor);
 
+    cpdTextBlocksTab = new JScrollPane();
+    tabbedPane.addTab("CPD Text Blocks", null, cpdTextBlocksTab, null);
+    
+    cpdTextBlocksEditor = new JEditorPane();
+    cpdTextBlocksTab.setViewportView(cpdTextBlocksEditor);
+    
     treeScrollPane = new JScrollPane();
     treeScrollPane.setPreferredSize(new Dimension(200, 400));
     splitPane.setLeftComponent(treeScrollPane);
