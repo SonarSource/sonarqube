@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Rating from '../../../components/ui/Rating';
 import Level from '../../../components/ui/Level';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
@@ -26,10 +27,10 @@ import { formatLeak, getRatingTooltip } from '../utils';
 
 export default class Measure extends React.PureComponent {
   static propTypes = {
-    className: React.PropTypes.string,
-    measure: React.PropTypes.object,
-    metric: React.PropTypes.object,
-    decimals: React.PropTypes.number
+    className: PropTypes.string,
+    measure: PropTypes.object,
+    metric: PropTypes.object,
+    decimals: PropTypes.number
   };
 
   renderRating(measure, metric) {

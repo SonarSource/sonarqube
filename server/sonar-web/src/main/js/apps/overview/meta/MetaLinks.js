@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import MetaLink from './MetaLink';
 import { getProjectLinks } from '../../../api/projectLinks';
 import { orderLinks } from '../../project-admin/links/utils';
 
 export default class MetaLinks extends React.PureComponent {
   static propTypes = {
-    component: React.PropTypes.object.isRequired
+    component: PropTypes.object.isRequired
   };
 
   state = {};

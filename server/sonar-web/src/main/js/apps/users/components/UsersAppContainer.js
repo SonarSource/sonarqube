@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import init from '../init';
@@ -26,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 
 class UsersAppContainer extends React.PureComponent {
   static propTypes = {
-    currentUser: React.PropTypes.object.isRequired
+    currentUser: PropTypes.object.isRequired
   };
 
   componentDidMount() {

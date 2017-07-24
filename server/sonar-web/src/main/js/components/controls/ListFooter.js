@@ -19,15 +19,16 @@
  */
 import classNames from 'classnames';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
 export default class ListFooter extends React.PureComponent {
   static propTypes = {
-    count: React.PropTypes.number.isRequired,
-    total: React.PropTypes.number.isRequired,
-    loadMore: React.PropTypes.func,
-    ready: React.PropTypes.bool
+    count: PropTypes.number.isRequired,
+    total: PropTypes.number.isRequired,
+    loadMore: PropTypes.func,
+    ready: PropTypes.bool
   };
 
   static defaultProps = {

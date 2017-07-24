@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import GroupIcon from './GroupIcon';
 
 export default class GroupHolder extends React.PureComponent {
   static propTypes = {
-    group: React.PropTypes.object.isRequired,
-    permissions: React.PropTypes.array.isRequired,
-    selectedPermission: React.PropTypes.string,
-    permissionsOrder: React.PropTypes.array.isRequired,
-    onToggle: React.PropTypes.func.isRequired
+    group: PropTypes.object.isRequired,
+    permissions: PropTypes.array.isRequired,
+    selectedPermission: PropTypes.string,
+    permissionsOrder: PropTypes.array.isRequired,
+    onToggle: PropTypes.func.isRequired
   };
 
   handleClick(permission, e) {

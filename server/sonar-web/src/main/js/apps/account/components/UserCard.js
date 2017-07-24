@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Avatar from '../../../components/ui/Avatar';
 
 export default class UserCard extends React.PureComponent {
   static propTypes = {
-    user: React.PropTypes.object.isRequired
+    user: PropTypes.object.isRequired
   };
 
   render() {

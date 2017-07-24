@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
 import SizeRating from '../../../components/ui/SizeRating';
@@ -26,11 +27,11 @@ import { getSizeRatingLabel, getSizeRatingAverageValue } from '../../../helpers/
 
 export default class SizeFilter extends React.PureComponent {
   static propTypes = {
-    className: React.PropTypes.string,
-    query: React.PropTypes.object.isRequired,
-    isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object,
-    property: React.PropTypes.string
+    className: PropTypes.string,
+    query: PropTypes.object.isRequired,
+    isFavorite: PropTypes.bool,
+    organization: PropTypes.object,
+    property: PropTypes.string
   };
 
   static defaultProps = {

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { sortBy } from 'lodash';
 import { TYPE, QUALIFIERS_ORDER } from './constants';
 import DeleteView from './delete-view';
@@ -28,7 +29,7 @@ import { translate } from '../../helpers/l10n';
 
 export default class Search extends React.PureComponent {
   static propTypes = {
-    onSearch: React.PropTypes.func.isRequired
+    onSearch: PropTypes.func.isRequired
   };
 
   onSubmit = e => {

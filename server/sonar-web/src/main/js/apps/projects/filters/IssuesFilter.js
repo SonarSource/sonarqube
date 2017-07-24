@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
 import Rating from '../../../components/ui/Rating';
@@ -25,13 +26,13 @@ import { translate } from '../../../helpers/l10n';
 
 export default class IssuesFilter extends React.PureComponent {
   static propTypes = {
-    className: React.PropTypes.string,
-    headerDetail: React.PropTypes.element,
-    isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object,
-    name: React.PropTypes.string.isRequired,
-    property: React.PropTypes.string.isRequired,
-    query: React.PropTypes.object.isRequired
+    className: PropTypes.string,
+    headerDetail: PropTypes.element,
+    isFavorite: PropTypes.bool,
+    organization: PropTypes.object,
+    name: PropTypes.string.isRequired,
+    property: PropTypes.string.isRequired,
+    query: PropTypes.object.isRequired
   };
 
   getFacetValueForOption(facet, option) {

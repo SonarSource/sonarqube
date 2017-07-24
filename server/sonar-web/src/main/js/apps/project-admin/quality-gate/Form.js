@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { some } from 'lodash';
 import { translate } from '../../../helpers/l10n';
 
 export default class Form extends React.PureComponent {
   static propTypes = {
-    allGates: React.PropTypes.array.isRequired,
-    gate: React.PropTypes.object,
-    onChange: React.PropTypes.func.isRequired
+    allGates: PropTypes.array.isRequired,
+    gate: PropTypes.object,
+    onChange: PropTypes.func.isRequired
   };
 
   state = {

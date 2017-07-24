@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { scaleLinear } from 'd3-scale';
 import { treemap as d3Treemap, hierarchy as d3Hierarchy } from 'd3-hierarchy';
 import { TreemapBreadcrumbs } from './treemap-breadcrumbs';
@@ -44,13 +45,13 @@ function mostCommitPrefix(strings) {
 
 export const TreemapRect = React.createClass({
   propTypes: {
-    x: React.PropTypes.number.isRequired,
-    y: React.PropTypes.number.isRequired,
-    width: React.PropTypes.number.isRequired,
-    height: React.PropTypes.number.isRequired,
-    fill: React.PropTypes.string.isRequired,
-    label: React.PropTypes.string.isRequired,
-    onClick: React.PropTypes.func
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    fill: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    onClick: PropTypes.func
   },
 
   renderLink() {
@@ -112,9 +113,9 @@ export const TreemapRect = React.createClass({
 
 export const Treemap = React.createClass({
   propTypes: {
-    items: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    height: React.PropTypes.number,
-    onRectangleClick: React.PropTypes.func
+    items: PropTypes.arrayOf(PropTypes.object).isRequired,
+    height: PropTypes.number,
+    onRectangleClick: PropTypes.func
   },
 
   mixins: [ResizeMixin, TooltipsMixin],

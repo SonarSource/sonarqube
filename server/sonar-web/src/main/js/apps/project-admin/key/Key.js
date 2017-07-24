@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import Header from './Header';
@@ -38,12 +39,12 @@ import { getProjectAdminProjectModules, getComponent } from '../../../store/root
 
 class Key extends React.PureComponent {
   static propTypes = {
-    component: React.PropTypes.object.isRequired,
-    fetchProjectModules: React.PropTypes.func.isRequired,
-    changeKey: React.PropTypes.func.isRequired,
-    addGlobalErrorMessage: React.PropTypes.func.isRequired,
-    addGlobalSuccessMessage: React.PropTypes.func.isRequired,
-    closeAllGlobalMessages: React.PropTypes.func.isRequired
+    component: PropTypes.object.isRequired,
+    fetchProjectModules: PropTypes.func.isRequired,
+    changeKey: PropTypes.func.isRequired,
+    addGlobalErrorMessage: PropTypes.func.isRequired,
+    addGlobalSuccessMessage: PropTypes.func.isRequired,
+    closeAllGlobalMessages: PropTypes.func.isRequired
   };
 
   state = {

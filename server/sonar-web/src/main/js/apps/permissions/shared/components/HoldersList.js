@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import UserHolder from './UserHolder';
 import GroupHolder from './GroupHolder';
 import Tooltip from '../../../../components/controls/Tooltip';
@@ -25,14 +26,14 @@ import { translate } from '../../../../helpers/l10n';
 
 export default class HoldersList extends React.PureComponent {
   static propTypes = {
-    permissions: React.PropTypes.array.isRequired,
-    users: React.PropTypes.array.isRequired,
-    groups: React.PropTypes.array.isRequired,
-    selectedPermission: React.PropTypes.string,
-    showPublicProjectsWarning: React.PropTypes.bool,
-    onSelectPermission: React.PropTypes.func.isRequired,
-    onToggleUser: React.PropTypes.func.isRequired,
-    onToggleGroup: React.PropTypes.func.isRequired
+    permissions: PropTypes.array.isRequired,
+    users: PropTypes.array.isRequired,
+    groups: PropTypes.array.isRequired,
+    selectedPermission: PropTypes.string,
+    showPublicProjectsWarning: PropTypes.bool,
+    onSelectPermission: PropTypes.func.isRequired,
+    onToggleUser: PropTypes.func.isRequired,
+    onToggleGroup: PropTypes.func.isRequired
   };
 
   static defaultProps = {

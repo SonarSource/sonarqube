@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import GlobalLoading from './GlobalLoading';
 import { fetchCurrentUser } from '../../store/users/actions';
@@ -28,10 +29,10 @@ class App extends React.PureComponent {
   mounted: boolean;
 
   static propTypes = {
-    fetchAppState: React.PropTypes.func.isRequired,
-    fetchCurrentUser: React.PropTypes.func.isRequired,
-    fetchLanguages: React.PropTypes.func.isRequired,
-    children: React.PropTypes.element.isRequired
+    fetchAppState: PropTypes.func.isRequired,
+    fetchCurrentUser: PropTypes.func.isRequired,
+    fetchLanguages: PropTypes.func.isRequired,
+    children: PropTypes.element.isRequired
   };
 
   state = {

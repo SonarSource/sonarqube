@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import { formatMeasure } from '../../../helpers/measures';
@@ -26,8 +27,8 @@ import SizeRating from '../../../components/ui/SizeRating';
 
 export default class MetaSize extends React.PureComponent {
   static propTypes = {
-    component: React.PropTypes.object.isRequired,
-    measures: React.PropTypes.array.isRequired
+    component: PropTypes.object.isRequired,
+    measures: PropTypes.array.isRequired
   };
 
   render() {

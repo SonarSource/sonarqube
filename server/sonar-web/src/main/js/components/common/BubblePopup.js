@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 export default class BubblePopup extends React.PureComponent {
   static propsType = {
-    children: React.PropTypes.object.isRequired,
-    position: React.PropTypes.object.isRequired,
-    customClass: React.PropTypes.string
+    children: PropTypes.object.isRequired,
+    position: PropTypes.object.isRequired,
+    customClass: PropTypes.string
   };
 
   static defaultProps = {

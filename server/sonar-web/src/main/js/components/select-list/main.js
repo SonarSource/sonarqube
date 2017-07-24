@@ -18,17 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Controls from './controls';
 import List from './list';
 import Footer from './footer';
 
 export default class Main extends React.PureComponent {
   static propTypes = {
-    loadItems: React.PropTypes.func.isRequired,
-    renderItem: React.PropTypes.func.isRequired,
-    getItemKey: React.PropTypes.func.isRequired,
-    selectItem: React.PropTypes.func.isRequired,
-    deselectItem: React.PropTypes.func.isRequired
+    loadItems: PropTypes.func.isRequired,
+    renderItem: PropTypes.func.isRequired,
+    getItemKey: PropTypes.func.isRequired,
+    selectItem: PropTypes.func.isRequired,
+    deselectItem: PropTypes.func.isRequired
   };
 
   state = {

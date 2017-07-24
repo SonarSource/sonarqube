@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export default class EncryptionForm extends React.PureComponent {
   static propTypes = {
-    encryptedValue: React.PropTypes.string,
-    encryptValue: React.PropTypes.func.isRequired,
-    generateSecretKey: React.PropTypes.func.isRequired
+    encryptedValue: PropTypes.string,
+    encryptValue: PropTypes.func.isRequired,
+    generateSecretKey: PropTypes.func.isRequired
   };
 
   state = { value: '' };

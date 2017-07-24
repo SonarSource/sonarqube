@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { difference } from 'lodash';
 import Backbone from 'backbone';
@@ -30,11 +31,11 @@ import { setDefaultPermissionTemplate } from '../../../api/permissions';
 
 export default class ActionsCell extends React.PureComponent {
   static propTypes = {
-    organization: React.PropTypes.object,
+    organization: PropTypes.object,
     permissionTemplate: PermissionTemplateType.isRequired,
-    topQualifiers: React.PropTypes.array.isRequired,
+    topQualifiers: PropTypes.array.isRequired,
     refresh: CallbackType,
-    fromDetails: React.PropTypes.bool
+    fromDetails: PropTypes.bool
   };
 
   static defaultProps = {
@@ -42,7 +43,7 @@ export default class ActionsCell extends React.PureComponent {
   };
 
   static contextTypes = {
-    router: React.PropTypes.object
+    router: PropTypes.object
   };
 
   handleUpdateClick(e) {

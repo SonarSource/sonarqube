@@ -19,18 +19,19 @@
  */
 import $ from 'jquery';
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { pick } from 'lodash';
 import './styles.css';
 
 export default class DateInput extends React.PureComponent {
   static propTypes = {
-    className: React.PropTypes.string,
-    value: React.PropTypes.string,
-    format: React.PropTypes.string,
-    name: React.PropTypes.string,
-    placeholder: React.PropTypes.string,
-    onChange: React.PropTypes.func.isRequired
+    className: PropTypes.string,
+    value: PropTypes.string,
+    format: PropTypes.string,
+    name: PropTypes.string,
+    placeholder: PropTypes.string,
+    onChange: PropTypes.func.isRequired
   };
 
   static defaultProps = {

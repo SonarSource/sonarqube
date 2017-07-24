@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import Header from './Header';
 import List from './List';
@@ -25,12 +26,12 @@ import { translate } from '../../../helpers/l10n';
 
 export default class Home extends React.PureComponent {
   static propTypes = {
-    organization: React.PropTypes.object,
-    topQualifiers: React.PropTypes.array.isRequired,
-    permissions: React.PropTypes.array.isRequired,
-    permissionTemplates: React.PropTypes.array.isRequired,
-    ready: React.PropTypes.bool.isRequired,
-    refresh: React.PropTypes.func.isRequired
+    organization: PropTypes.object,
+    topQualifiers: PropTypes.array.isRequired,
+    permissions: PropTypes.array.isRequired,
+    permissionTemplates: PropTypes.array.isRequired,
+    ready: PropTypes.bool.isRequired,
+    refresh: PropTypes.func.isRequired
   };
 
   render() {

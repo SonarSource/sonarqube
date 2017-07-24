@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import QualifierIcon from '../../../../components/shared/QualifierIcon';
@@ -29,9 +30,9 @@ import { collapsePath, limitComponentName } from '../../../../helpers/path';
 
 class ComponentNavBreadcrumbs extends React.PureComponent {
   static propTypes = {
-    breadcrumbs: React.PropTypes.array,
-    component: React.PropTypes.shape({
-      visibility: React.PropTypes.string
+    breadcrumbs: PropTypes.array,
+    component: PropTypes.shape({
+      visibility: PropTypes.string
     }).isRequired
   };
 

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
 import Level from '../../../components/ui/Level';
@@ -25,9 +26,9 @@ import { translate } from '../../../helpers/l10n';
 
 export default class QualityGateFilter extends React.PureComponent {
   static propTypes = {
-    query: React.PropTypes.object.isRequired,
-    isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object
+    query: PropTypes.object.isRequired,
+    isFavorite: PropTypes.bool,
+    organization: PropTypes.object
   };
 
   getFacetValueForOption(facet, option) {

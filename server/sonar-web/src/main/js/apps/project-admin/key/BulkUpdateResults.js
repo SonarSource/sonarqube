@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { some } from 'lodash';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 
 export default class BulkUpdateResults extends React.PureComponent {
   static propTypes = {
-    results: React.PropTypes.array.isRequired,
-    onConfirm: React.PropTypes.func.isRequired
+    results: PropTypes.array.isRequired,
+    onConfirm: PropTypes.func.isRequired
   };
 
   handleConfirm(e) {

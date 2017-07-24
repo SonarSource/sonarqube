@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Select from 'react-select';
 
 export default class ThresholdInput extends React.PureComponent {
   static propTypes = {
-    name: React.PropTypes.string.isRequired,
-    value: React.PropTypes.any,
-    metric: React.PropTypes.object.isRequired,
-    onChange: React.PropTypes.func.isRequired
+    name: PropTypes.string.isRequired,
+    value: PropTypes.any,
+    metric: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired
   };
 
   handleChange = e => {

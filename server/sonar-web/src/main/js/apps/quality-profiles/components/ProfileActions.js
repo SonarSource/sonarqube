@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import RenameProfileForm from './RenameProfileForm';
 import CopyProfileForm from './CopyProfileForm';
@@ -53,7 +54,7 @@ export default class ProfileActions extends React.PureComponent {
   };
 
   static contextTypes = {
-    router: React.PropTypes.object
+    router: PropTypes.object
   };
 
   constructor(props: Props) {

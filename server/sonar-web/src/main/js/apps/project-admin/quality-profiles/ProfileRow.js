@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { translate } from '../../../helpers/l10n';
 
 export default class ProfileRow extends React.PureComponent {
   static propTypes = {
-    profile: React.PropTypes.object.isRequired,
-    possibleProfiles: React.PropTypes.array.isRequired,
-    onChangeProfile: React.PropTypes.func.isRequired
+    profile: PropTypes.object.isRequired,
+    possibleProfiles: PropTypes.array.isRequired,
+    onChangeProfile: PropTypes.func.isRequired
   };
 
   state = {

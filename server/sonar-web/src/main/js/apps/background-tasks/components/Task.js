@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import TaskStatus from './TaskStatus';
 import TaskComponent from './TaskComponent';
 import TaskId from './TaskId';
@@ -28,13 +29,13 @@ import TaskActions from './TaskActions';
 
 export default class Task extends React.PureComponent {
   static propTypes = {
-    task: React.PropTypes.object.isRequired,
-    index: React.PropTypes.number.isRequired,
-    tasks: React.PropTypes.array.isRequired,
-    component: React.PropTypes.object,
-    types: React.PropTypes.array.isRequired,
-    onCancelTask: React.PropTypes.func.isRequired,
-    onFilterTask: React.PropTypes.func.isRequired
+    task: PropTypes.object.isRequired,
+    index: PropTypes.number.isRequired,
+    tasks: PropTypes.array.isRequired,
+    component: PropTypes.object,
+    types: PropTypes.array.isRequired,
+    onCancelTask: PropTypes.func.isRequired,
+    onFilterTask: PropTypes.func.isRequired
   };
 
   render() {

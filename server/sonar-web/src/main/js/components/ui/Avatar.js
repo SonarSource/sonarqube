@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import md5 from 'blueimp-md5';
 import classNames from 'classnames';
@@ -47,13 +48,13 @@ function getTextColor(background) {
 
 class Avatar extends React.PureComponent {
   static propTypes = {
-    enableGravatar: React.PropTypes.bool.isRequired,
-    gravatarServerUrl: React.PropTypes.string.isRequired,
-    email: React.PropTypes.string,
-    hash: React.PropTypes.string,
-    name: React.PropTypes.string.isRequired,
-    size: React.PropTypes.number.isRequired,
-    className: React.PropTypes.string
+    enableGravatar: PropTypes.bool.isRequired,
+    gravatarServerUrl: PropTypes.string.isRequired,
+    email: PropTypes.string,
+    hash: PropTypes.string,
+    name: PropTypes.string.isRequired,
+    size: PropTypes.number.isRequired,
+    className: PropTypes.string
   };
 
   renderFallback() {

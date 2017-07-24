@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import ComparisonForm from './ComparisonForm';
 import ComparisonResults from './ComparisonResults';
 import { compareProfiles } from '../../../api/quality-profiles';
@@ -47,7 +48,7 @@ export default class ComparisonContainer extends React.PureComponent {
   state: State;
 
   static contextTypes = {
-    router: React.PropTypes.object
+    router: PropTypes.object
   };
 
   constructor(props: Props) {

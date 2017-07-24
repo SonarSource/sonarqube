@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import BulkUpdateForm from './BulkUpdateForm';
 import BulkUpdateResults from './BulkUpdateResults';
@@ -34,10 +35,10 @@ import RecentHistory from '../../../app/components/RecentHistory';
 
 class BulkUpdate extends React.PureComponent {
   static propTypes = {
-    component: React.PropTypes.object.isRequired,
-    addGlobalErrorMessage: React.PropTypes.func.isRequired,
-    addGlobalSuccessMessage: React.PropTypes.func.isRequired,
-    closeAllGlobalMessages: React.PropTypes.func.isRequired
+    component: PropTypes.object.isRequired,
+    addGlobalErrorMessage: PropTypes.func.isRequired,
+    addGlobalSuccessMessage: PropTypes.func.isRequired,
+    closeAllGlobalMessages: PropTypes.func.isRequired
   };
 
   state = {

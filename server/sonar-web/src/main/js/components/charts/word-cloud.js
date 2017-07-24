@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { max } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { sortBy } from 'lodash';
@@ -25,10 +26,10 @@ import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 export const Word = React.createClass({
   propTypes: {
-    size: React.PropTypes.number.isRequired,
-    text: React.PropTypes.string.isRequired,
-    tooltip: React.PropTypes.string,
-    link: React.PropTypes.string.isRequired
+    size: PropTypes.number.isRequired,
+    text: PropTypes.string.isRequired,
+    tooltip: PropTypes.string,
+    link: PropTypes.string.isRequired
   },
 
   render() {
@@ -49,8 +50,8 @@ export const Word = React.createClass({
 
 export const WordCloud = React.createClass({
   propTypes: {
-    items: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    sizeRange: React.PropTypes.arrayOf(React.PropTypes.number)
+    items: PropTypes.arrayOf(PropTypes.object).isRequired,
+    sizeRange: PropTypes.arrayOf(PropTypes.number)
   },
 
   mixins: [TooltipsMixin],

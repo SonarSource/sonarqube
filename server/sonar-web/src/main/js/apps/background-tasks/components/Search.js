@@ -19,6 +19,7 @@
  */
 /* @flow */
 import React from 'react';
+import PropTypes from 'prop-types';
 import StatusFilter from './StatusFilter';
 import TypesFilter from './TypesFilter';
 import CurrentsFilter from './CurrentsFilter';
@@ -28,13 +29,13 @@ import { translate } from '../../../helpers/l10n';
 
 export default class Search extends React.PureComponent {
   static propTypes = {
-    loading: React.PropTypes.bool.isRequired,
-    status: React.PropTypes.any.isRequired,
-    taskType: React.PropTypes.any.isRequired,
-    currents: React.PropTypes.any.isRequired,
-    query: React.PropTypes.string.isRequired,
-    onFilterUpdate: React.PropTypes.func.isRequired,
-    onReload: React.PropTypes.func.isRequired
+    loading: PropTypes.bool.isRequired,
+    status: PropTypes.any.isRequired,
+    taskType: PropTypes.any.isRequired,
+    currents: PropTypes.any.isRequired,
+    query: PropTypes.string.isRequired,
+    onFilterUpdate: PropTypes.func.isRequired,
+    onReload: PropTypes.func.isRequired
   };
 
   handleStatusChange(status: string) {

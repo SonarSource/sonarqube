@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Favorite from '../../../../components/controls/Favorite';
 import { getCurrentUser } from '../../../../store/rootReducer';
 
 class ComponentNavFavorite extends React.PureComponent {
   static propTypes = {
-    currentUser: React.PropTypes.object.isRequired
+    currentUser: PropTypes.object.isRequired
   };
 
   render() {

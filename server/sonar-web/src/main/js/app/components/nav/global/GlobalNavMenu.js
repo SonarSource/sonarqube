@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../../helpers/urls';
@@ -25,10 +26,10 @@ import { isMySet } from '../../../../apps/issues/utils';
 
 export default class GlobalNavMenu extends React.PureComponent {
   static propTypes = {
-    appState: React.PropTypes.object.isRequired,
-    currentUser: React.PropTypes.object.isRequired,
-    location: React.PropTypes.shape({
-      pathname: React.PropTypes.string.isRequired
+    appState: PropTypes.object.isRequired,
+    currentUser: PropTypes.object.isRequired,
+    location: PropTypes.shape({
+      pathname: PropTypes.string.isRequired
     }).isRequired
   };
 

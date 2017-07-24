@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { arc as d3Arc, pie as d3Pie } from 'd3-shape';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
@@ -33,7 +34,7 @@ const Sector = React.createClass({
 
 export const DonutChart = React.createClass({
   propTypes: {
-    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
+    data: PropTypes.arrayOf(PropTypes.object).isRequired
   },
 
   mixins: [ResizeMixin, TooltipsMixin],

@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export default class Footer extends React.PureComponent {
   static propTypes = {
-    count: React.PropTypes.number.isRequired,
-    total: React.PropTypes.number.isRequired,
-    loadMore: React.PropTypes.func.isRequired
+    count: PropTypes.number.isRequired,
+    total: PropTypes.number.isRequired,
+    loadMore: PropTypes.func.isRequired
   };
 
   loadMore = e => {

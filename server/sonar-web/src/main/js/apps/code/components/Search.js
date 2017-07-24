@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
 import Components from './Components';
@@ -28,13 +29,13 @@ import { getComponentUrl } from '../../../helpers/urls';
 
 export default class Search extends React.PureComponent {
   static contextTypes = {
-    router: React.PropTypes.object.isRequired
+    router: PropTypes.object.isRequired
   };
 
   static propTypes = {
-    component: React.PropTypes.object.isRequired,
-    location: React.PropTypes.object.isRequired,
-    onError: React.PropTypes.func.isRequired
+    component: PropTypes.object.isRequired,
+    location: PropTypes.object.isRequired,
+    onError: PropTypes.func.isRequired
   };
 
   state = {

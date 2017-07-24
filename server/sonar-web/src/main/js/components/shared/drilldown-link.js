@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { getComponentDrilldownUrl, getComponentIssuesUrl } from '../../helpers/urls';
 
@@ -48,14 +49,11 @@ const ISSUE_MEASURES = [
 
 export class DrilldownLink extends React.PureComponent {
   static propTypes = {
-    children: React.PropTypes.oneOfType([
-      React.PropTypes.node,
-      React.PropTypes.arrayOf(React.PropTypes.node)
-    ]),
-    className: React.PropTypes.string,
-    component: React.PropTypes.string.isRequired,
-    metric: React.PropTypes.string.isRequired,
-    sinceLeakPeriod: React.PropTypes.bool
+    children: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf(PropTypes.node)]),
+    className: PropTypes.string,
+    component: PropTypes.string.isRequired,
+    metric: PropTypes.string.isRequired,
+    sinceLeakPeriod: PropTypes.bool
   };
   isIssueMeasure = () => {
     return ISSUE_MEASURES.indexOf(this.props.metric) !== -1;

@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { translate } from '../../../helpers/l10n';
 
 export default class UserScmAccounts extends React.PureComponent {
   static propTypes = {
-    user: React.PropTypes.object.isRequired,
-    scmAccounts: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+    user: PropTypes.object.isRequired,
+    scmAccounts: PropTypes.arrayOf(PropTypes.string).isRequired
   };
 
   render() {

@@ -19,6 +19,7 @@
  */
 import $ from 'jquery';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
@@ -28,10 +29,10 @@ import { TooltipsMixin } from '../mixins/tooltips-mixin';
 
 const Timeline = React.createClass({
   propTypes: {
-    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    padding: React.PropTypes.arrayOf(React.PropTypes.number),
-    height: React.PropTypes.number,
-    basisCurve: React.PropTypes.bool
+    data: PropTypes.arrayOf(PropTypes.object).isRequired,
+    padding: PropTypes.arrayOf(PropTypes.number),
+    height: PropTypes.number,
+    basisCurve: PropTypes.bool
   },
 
   mixins: [ResizeMixin, TooltipsMixin],

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Home from './Home';
 import Template from './Template';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
@@ -28,9 +29,9 @@ import '../../permissions/styles.css';
 
 export default class App extends React.PureComponent {
   static propTypes = {
-    location: React.PropTypes.object.isRequired,
-    organization: React.PropTypes.object,
-    topQualifiers: React.PropTypes.array.isRequired
+    location: PropTypes.object.isRequired,
+    organization: PropTypes.object,
+    topQualifiers: PropTypes.array.isRequired
   };
 
   state = {

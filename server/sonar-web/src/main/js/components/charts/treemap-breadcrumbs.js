@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import QualifierIcon from '../shared/QualifierIcon';
 
 export class TreemapBreadcrumbs extends React.PureComponent {
   static propTypes = {
-    breadcrumbs: React.PropTypes.arrayOf(
-      React.PropTypes.shape({
-        key: React.PropTypes.string.isRequired,
-        name: React.PropTypes.string.isRequired,
-        qualifier: React.PropTypes.string.isRequired
+    breadcrumbs: PropTypes.arrayOf(
+      PropTypes.shape({
+        key: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        qualifier: PropTypes.string.isRequired
       }).isRequired
     ).isRequired
   };

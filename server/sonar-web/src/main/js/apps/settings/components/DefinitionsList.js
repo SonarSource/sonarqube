@@ -19,12 +19,13 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import Definition from './Definition';
 
 export default class DefinitionsList extends React.PureComponent {
   static propTypes = {
-    component: React.PropTypes.object,
-    settings: React.PropTypes.array.isRequired
+    component: PropTypes.object,
+    settings: PropTypes.array.isRequired
   };
 
   render() {

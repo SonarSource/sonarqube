@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import key from 'keymaster';
 import IssueView from './IssueView';
 import { updateIssue } from './actions';
@@ -46,7 +47,7 @@ export default class BaseIssue extends React.PureComponent {
   state: State;
 
   static contextTypes = {
-    store: React.PropTypes.object
+    store: PropTypes.object
   };
 
   static defaultProps = {

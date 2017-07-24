@@ -19,14 +19,14 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../store/rootReducer';
 
 class Landing extends React.PureComponent {
   static propTypes = {
-    currentUser: React.PropTypes.oneOfType([React.PropTypes.bool, React.PropTypes.object])
-      .isRequired
+    currentUser: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]).isRequired
   };
 
   componentDidMount() {
