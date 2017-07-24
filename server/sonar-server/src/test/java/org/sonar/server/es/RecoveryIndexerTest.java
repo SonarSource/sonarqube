@@ -85,6 +85,7 @@ public class RecoveryIndexerTest {
     underTest = newRecoveryIndexer(emptySettings.asConfig());
 
     underTest.start();
+    underTest.stop();
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(
       "Elasticsearch recovery - sonar.search.recovery.delayInMs=300000",
@@ -186,6 +187,8 @@ public class RecoveryIndexerTest {
       Thread.sleep(1L);
     }
 
+    underTest.stop();
+
     // No rows treated
     assertThatQueueHasSize(1);
     assertThatLogsContain(ERROR, "Elasticsearch recovery - fail to recover documents");
@@ -206,6 +209,8 @@ public class RecoveryIndexerTest {
     while (indexer.called.size() < 2) {
       Thread.sleep(1L);
     }
+
+    underTest.stop();
 
     // No rows treated
     assertThatQueueHasSize(1);
