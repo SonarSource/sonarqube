@@ -50,6 +50,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     
     // copy data in the incremental mode
     IncrementalMeasureTransitionStep.class,
+    IncrementalDuplicationsStep.class,
 
     // load project related stuffs
     LoadQualityGateStep.class,
