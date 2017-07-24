@@ -78,7 +78,7 @@ public class ProjectRepositoriesProviderTest {
     assertThat(repo.exists()).isEqualTo(true);
     assertThat(repo.lastAnalysisDate()).isNotNull();
 
-    verify(mode, times(2)).isIssues();
+    verify(mode, times(1)).isIssues();
     verify(projectKey).get();
     verify(loader).load(eq("key"), eq(false));
     verifyNoMoreInteractions(loader, projectKey, mode);
