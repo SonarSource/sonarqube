@@ -199,7 +199,7 @@ public class AnalysisMetadataHolderImplTest {
 
     new AnalysisMetadataHolderImpl().isCrossProjectDuplicationEnabled();
   }
-
+  
   @Test
   public void setIsCrossProjectDuplicationEnabled_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
@@ -208,6 +208,52 @@ public class AnalysisMetadataHolderImplTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cross project duplication flag has already been set");
     underTest.setCrossProjectDuplicationEnabled(false);
+  }
+
+  @Test
+  public void setIsIncrementalAnalysis_throws_ISE_when_called_twice() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setIncrementalAnalysis(true);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Incremental analysis flag has already been set");
+    underTest.setIncrementalAnalysis(false);
+  }
+  
+  @Test
+  public void isIncrementalAnalysis_return_true() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    underTest.setIncrementalAnalysis(true);
+
+    assertThat(underTest.isIncrementalAnalysis()).isEqualTo(true);
+  }
+
+  @Test
+  public void isIncrementalAnalysis_return_false() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    underTest.setIncrementalAnalysis(false);
+
+    assertThat(underTest.isIncrementalAnalysis()).isEqualTo(false);
+  }
+
+  @Test
+  public void isIncrementalAnalysisEnabled_throws_ISE_when_holder_is_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Incremental analysis flag has not been set");
+
+    new AnalysisMetadataHolderImpl().isIncrementalAnalysis();
+  }
+
+  @Test
+  public void setIsIncrementalAnalys_throws_ISE_when_called_twice() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setIncrementalAnalysis(true);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Incremental analysis flag has already been set");
+    underTest.setIncrementalAnalysis(false);
   }
 
   @Test
