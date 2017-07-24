@@ -53,6 +53,11 @@ public interface AnalysisMetadataHolder {
    * @throws IllegalStateException if baseProjectSnapshot has not been set
    */
   boolean isFirstAnalysis();
+  
+  /**
+   * Whether this is an incremental analysis or a full analysis.
+   */
+  boolean isIncrementalAnalysis();
 
   /**
    * Return the last analysis of the project.

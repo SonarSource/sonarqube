@@ -95,6 +95,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     mutableAnalysisMetadataHolder.setRootComponentRef(reportMetadata.getRootComponentRef());
     mutableAnalysisMetadataHolder.setBranch(isNotEmpty(reportMetadata.getBranch()) ? reportMetadata.getBranch() : null);
     mutableAnalysisMetadataHolder.setCrossProjectDuplicationEnabled(reportMetadata.getCrossProjectDuplicationActivated());
+    mutableAnalysisMetadataHolder.setIncrementalAnalysis(reportMetadata.getIncremental());
     mutableAnalysisMetadataHolder.setQProfilesByLanguage(transformValues(reportMetadata.getQprofilesPerLanguage(), TO_COMPUTE_QPROFILE));
     mutableAnalysisMetadataHolder.setOrganization(organization);
   }

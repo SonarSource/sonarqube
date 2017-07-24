@@ -62,6 +62,7 @@ public class ValidateProjectStepTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
     .setAnalysisDate(new Date(DEFAULT_ANALYSIS_TIME))
+    .setIncrementalAnalysis(false)
     .setBranch(DEFAULT_BRANCH);
 
   DbClient dbClient = dbTester.getDbClient();
@@ -287,6 +288,31 @@ public class ValidateProjectStepTest {
     thrown.expectMessage("Validation of project failed:");
     thrown.expectMessage("Date of analysis cannot be older than the date of the last known analysis on this project. Value: ");
     thrown.expectMessage("Latest analysis: ");
+
+    underTest.execute();
+  }
+  
+  @Test
+  public void fail_if_incremental_and_first_analysis() {
+    analysisMetadataHolder.setBaseAnalysis(null);
+    //setAnalysisDate(DateUtils.parseDate("2015-01-01"));
+
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
+      .setRef(1)
+      .setType(ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .addChildRef(2)
+      .build());
+
+    analysisMetadataHolder.setIncrementalAnalysis(true);
+    
+    //dbTester.getSession().commit();
+
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Validation of project failed:");
+    thrown.expectMessage("hasn't been analysed before and the first analysis can't be incremental. Please launch a full analysis of the project.");
 
     underTest.execute();
   }
