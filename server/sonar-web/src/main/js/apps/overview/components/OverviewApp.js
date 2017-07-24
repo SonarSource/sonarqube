@@ -32,10 +32,9 @@ import { getMeasuresAndMeta } from '../../../api/measures';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { METRICS, HISTORY_METRICS_LIST } from '../utils';
-import { getDisplayedHistoryMetrics } from '../../projectActivity/utils';
+import { DEFAULT_GRAPH, getDisplayedHistoryMetrics } from '../../projectActivity/utils';
 import type { Component, History, MeasuresList, Period } from '../types';
 import '../styles.css';
 
