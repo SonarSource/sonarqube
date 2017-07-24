@@ -42,6 +42,7 @@ import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.pageobjects.settings.SettingsPage;
 import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
 import org.sonarqube.ws.client.permission.UsersWsRequest;
@@ -214,10 +215,12 @@ public class ProjectAdministrationTest {
     ProjectsManagementPage page = nav.logIn().submitCredentials(adminUser).openProjectsManagement();
     page.shouldHaveProject(project);
     page.bulkApplyPermissionTemplate("foo-template");
-    assertThat(tester.wsClient().permissions().users(new UsersWsRequest()
+    WsPermissions.UsersWsResponse usersResponse = tester.wsClient().permissions().users(new UsersWsRequest()
       .setProjectKey(project)
       .setPermission("admin")
-    ).getUsers(0).getLogin()).isEqualTo(user);
+    );
+    assertThat(usersResponse.getUsersCount()).isEqualTo(1);
+    assertThat(usersResponse.getUsers(0).getLogin()).isEqualTo(user);
   }
 
   private void scanSampleWithDate(String date) {
