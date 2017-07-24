@@ -58,6 +58,7 @@ public class ProjectsManagementPage {
       .shouldHave(CollectionCondition.sizeGreaterThan(0))
       .findBy(text("foo-template")).should(exist).click();
     $(".modal .js-apply").should(exist).click();
+    $(".modal-body .alert-success").should(exist);
     return this;
   }
 }
