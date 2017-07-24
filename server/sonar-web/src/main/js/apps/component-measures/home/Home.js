@@ -70,7 +70,7 @@ export default class Home extends React.PureComponent {
             </ul>
           </nav>
 
-          {leakPeriod != null && <LeakPeriodLegend period={leakPeriod} />}
+          {leakPeriod != null && <LeakPeriodLegend component={component} period={leakPeriod} />}
         </header>
 
         <main id="component-measures-home-main">

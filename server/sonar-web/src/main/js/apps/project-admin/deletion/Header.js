@@ -22,9 +22,12 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default function Header(props: { component: { qualifier: string } }) {
-  const description = ['VW', 'SVW'].includes(props.component.qualifier)
+  const { qualifier } = props.component;
+  const description = ['VW', 'SVW'].includes(qualifier)
     ? translate('portfolio_deletion.page.description')
-    : translate('project_deletion.page.description');
+    : qualifier === 'APP'
+      ? translate('application_deletion.page.description')
+      : translate('project_deletion.page.description');
 
   return (
     <header className="page-header">

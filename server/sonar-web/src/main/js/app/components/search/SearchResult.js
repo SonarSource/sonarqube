@@ -87,7 +87,10 @@ export default class SearchResult extends React.PureComponent {
       return null;
     }
 
-    if (!['VW', 'SVW', 'TRK'].includes(component.qualifier) || component.organization == null) {
+    if (
+      !['VW', 'SVW', 'APP', 'TRK'].includes(component.qualifier) ||
+      component.organization == null
+    ) {
       return null;
     }
 

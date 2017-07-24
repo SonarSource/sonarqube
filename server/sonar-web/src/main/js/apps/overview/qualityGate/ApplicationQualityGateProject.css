@@ -1,0 +1,15 @@
+.application-quality-gate-project {
+  padding: 10px;
+}
+
+.overview-quality-gate-condition:hover .application-quality-gate-project {
+  padding: 9px;
+}
+
+.application-quality-gate-project-conditions {
+  margin-top: 4px;
+}
+
+.application-quality-gate-project-conditions > li {
+  margin-top: 4px;
+}

@@ -61,7 +61,8 @@ export default class Component extends React.PureComponent {
 
   render() {
     const { component, rootComponent, selected, previous, canBrowse } = this.props;
-    const isView = ['VW', 'SVW'].includes(rootComponent.qualifier);
+    const isPortfolio = ['VW', 'SVW'].includes(rootComponent.qualifier);
+    const isApplication = rootComponent.qualifier === 'APP';
 
     let componentAction = null;
 
@@ -76,7 +77,7 @@ export default class Component extends React.PureComponent {
       }
     }
 
-    const columns = isView
+    const columns = isPortfolio
       ? [
           { metric: 'releasability_rating', type: 'RATING' },
           { metric: 'reliability_rating', type: 'RATING' },
@@ -85,13 +86,14 @@ export default class Component extends React.PureComponent {
           { metric: 'ncloc', type: 'SHORT_INT' }
         ]
       : [
+          isApplication && { metric: 'alert_status', type: 'LEVEL' },
           { metric: 'ncloc', type: 'SHORT_INT' },
           { metric: 'bugs', type: 'SHORT_INT' },
           { metric: 'vulnerabilities', type: 'SHORT_INT' },
           { metric: 'code_smells', type: 'SHORT_INT' },
           { metric: 'coverage', type: 'PERCENT' },
           { metric: 'duplicated_lines_density', type: 'PERCENT' }
-        ];
+        ].filter(Boolean);
 
     return (
       <tr className={classNames({ selected })}>

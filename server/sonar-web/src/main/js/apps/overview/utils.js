@@ -58,6 +58,7 @@ export const METRICS = [
   // size
   'ncloc',
   'ncloc_language_distribution',
+  'projects',
   'new_lines'
 ];
 

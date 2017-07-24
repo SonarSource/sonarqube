@@ -21,9 +21,17 @@ import React from 'react';
 import moment from 'moment';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-export default function LeakPeriodLegend({ period }) {
+export default function LeakPeriodLegend({ component, period }) {
+  if (component.qualifier === 'APP') {
+    return (
+      <div className="measures-domains-leak-header">
+        {translate('issues.leak_period')}
+      </div>
+    );
+  }
+
   const label = (
     <div className="measures-domains-leak-header">
       {translateWithParameters('overview.leak_period_x', getPeriodLabel(period))}

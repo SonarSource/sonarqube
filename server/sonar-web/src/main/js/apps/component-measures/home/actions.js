@@ -19,7 +19,6 @@
  */
 import { startFetching, stopFetching } from '../store/statusActions';
 import { getMeasuresAndMeta } from '../../../api/measures';
-import { getLeakPeriod } from '../../../helpers/periods';
 import { getLeakValue } from '../utils';
 import { getMeasuresAppComponent, getMeasuresAppAllMetrics } from '../../../store/rootReducer';
 
@@ -30,10 +29,20 @@ export function receiveMeasures(measures, periods) {
 }
 
 function banQualityGate(component, measures) {
-  if (['VW', 'SVW'].includes(component.qualifier)) {
-    return measures;
+  let newMeasures = [...measures];
+
+  if (!['VW', 'SVW', 'APP'].includes(component.qualifier)) {
+    newMeasures = newMeasures.filter(measure => measure.metric !== 'alert_status');
   }
-  return measures.filter(measure => measure.metric !== 'alert_status');
+
+  if (component.qualifier === 'APP') {
+    newMeasures = newMeasures.filter(
+      measure =>
+        measure.metric !== 'releasability_rating' && measure.metric !== 'releasability_effort'
+    );
+  }
+
+  return newMeasures;
 }
 
 export function fetchMeasures() {
@@ -50,7 +59,6 @@ export function fetchMeasures() {
       .map(metric => metric.key);
 
     getMeasuresAndMeta(component.key, metricKeys, { additionalFields: 'periods' }).then(r => {
-      const leakPeriod = getLeakPeriod(r.periods);
       const measures = banQualityGate(component, r.component.measures)
         .map(measure => {
           const metric = metrics.find(metric => metric.key === measure.metric);
@@ -59,11 +67,16 @@ export function fetchMeasures() {
         })
         .filter(measure => {
           const hasValue = measure.value != null;
-          const hasLeakValue = !!leakPeriod && measure.leak != null;
+          const hasLeakValue = measure.leak != null;
           return hasValue || hasLeakValue;
         });
 
-      dispatch(receiveMeasures(measures, r.periods));
+      const newBugs = measures.find(measure => measure.metric.key === 'new_bugs');
+
+      const applicationPeriods = newBugs ? [{ index: 1 }] : [];
+      const periods = component.qualifier === 'APP' ? applicationPeriods : r.periods;
+
+      dispatch(receiveMeasures(measures, periods));
       dispatch(stopFetching());
     });
   };

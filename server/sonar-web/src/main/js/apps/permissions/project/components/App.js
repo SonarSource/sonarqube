@@ -349,20 +349,22 @@ export default class App extends React.PureComponent {
         />
         <PageError />
         {this.props.component.qualifier === 'TRK' &&
-          <VisibilitySelector
-            canTurnToPrivate={canTurnToPrivate}
-            className="big-spacer-top big-spacer-bottom"
-            onChange={this.handleVisibilityChange}
-            visibility={this.props.component.visibility}
-          />}
-        {!canTurnToPrivate &&
-          <UpgradeOrganizationBox organization={this.props.component.organization} />}
-        {this.state.disclaimer &&
-          <PublicProjectDisclaimer
-            component={this.props.component}
-            onClose={this.closeDisclaimer}
-            onConfirm={this.turnProjectToPublic}
-          />}
+          <div>
+            <VisibilitySelector
+              canTurnToPrivate={canTurnToPrivate}
+              className="big-spacer-top big-spacer-bottom"
+              onChange={this.handleVisibilityChange}
+              visibility={this.props.component.visibility}
+            />
+            {!canTurnToPrivate &&
+              <UpgradeOrganizationBox organization={this.props.component.organization} />}
+            {this.state.disclaimer &&
+              <PublicProjectDisclaimer
+                component={this.props.component}
+                onClose={this.closeDisclaimer}
+                onConfirm={this.turnProjectToPublic}
+              />}
+          </div>}
         <AllHoldersList
           component={this.props.component}
           filter={this.state.filter}

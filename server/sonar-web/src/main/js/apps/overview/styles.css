@@ -339,6 +339,11 @@
   text-align: center;
 }
 
+.overview-meta-size-ncloc.is-half-width {
+  width: 50%;
+  box-sizing: border-box;
+}
+
 .overview-meta-size-ncloc a {
   line-height: 24px;
   font-size: 18px;

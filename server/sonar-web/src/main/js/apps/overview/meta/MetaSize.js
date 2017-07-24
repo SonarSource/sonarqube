@@ -19,11 +19,13 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
+import SizeRating from '../../../components/ui/SizeRating';
 import { formatMeasure } from '../../../helpers/measures';
 import { getMetricName } from '../helpers/metrics';
-import SizeRating from '../../../components/ui/SizeRating';
+import { translate } from '../../../helpers/l10n';
 
 export default class MetaSize extends React.PureComponent {
   static propTypes = {
@@ -31,32 +33,65 @@ export default class MetaSize extends React.PureComponent {
     measures: PropTypes.array.isRequired
   };
 
-  render() {
-    const ncloc = this.props.measures.find(measure => measure.metric.key === 'ncloc');
+  renderLoC = ncloc =>
+    <div
+      id="overview-ncloc"
+      className={classNames('overview-meta-size-ncloc', {
+        'is-half-width': this.props.component.qualifier === 'APP'
+      })}>
+      <span className="spacer-right">
+        <SizeRating value={ncloc.value} />
+      </span>
+      <DrilldownLink component={this.props.component.key} metric="ncloc">
+        {formatMeasure(ncloc.value, 'SHORT_INT')}
+      </DrilldownLink>
+      <div className="overview-domain-measure-label text-muted">
+        {getMetricName('ncloc')}
+      </div>
+    </div>;
+
+  renderLoCDistribution = () => {
     const languageDistribution = this.props.measures.find(
       measure => measure.metric.key === 'ncloc_language_distribution'
     );
 
-    if (ncloc == null || languageDistribution == null) {
+    return languageDistribution
+      ? <div id="overview-language-distribution" className="overview-meta-size-lang-dist">
+          <LanguageDistribution distribution={languageDistribution.value} />
+        </div>
+      : null;
+  };
+
+  renderProjects = () => {
+    const projects = this.props.measures.find(measure => measure.metric.key === 'projects');
+
+    return projects
+      ? <div
+          id="overview-projects"
+          className="overview-meta-size-ncloc is-half-width bordered-left">
+          <DrilldownLink component={this.props.component.key} metric="projects">
+            {formatMeasure(projects.value, 'SHORT_INT')}
+          </DrilldownLink>
+          <div className="overview-domain-measure-label text-muted">
+            {translate('metric.projects.name')}
+          </div>
+        </div>
+      : null;
+  };
+
+  render() {
+    const ncloc = this.props.measures.find(measure => measure.metric.key === 'ncloc');
+
+    if (ncloc == null) {
       return null;
     }
 
     return (
       <div id="overview-size" className="overview-meta-card">
-        <div id="overview-ncloc" className="overview-meta-size-ncloc">
-          <span className="spacer-right">
-            <SizeRating value={ncloc.value} />
-          </span>
-          <DrilldownLink component={this.props.component.key} metric="ncloc">
-            {formatMeasure(ncloc.value, 'SHORT_INT')}
-          </DrilldownLink>
-          <div className="overview-domain-measure-label text-muted">
-            {getMetricName('ncloc')}
-          </div>
-        </div>
-        <div id="overview-language-distribution" className="overview-meta-size-lang-dist">
-          <LanguageDistribution distribution={languageDistribution.value} />
-        </div>
+        {this.renderLoC(ncloc)}
+        {this.props.component.qualifier === 'APP'
+          ? this.renderProjects()
+          : this.renderLoCDistribution()}
       </div>
     );
   }

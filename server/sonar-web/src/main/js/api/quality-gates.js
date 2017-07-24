@@ -105,3 +105,7 @@ export function dissociateGateWithProject(gateId, projectKey) {
   const data = { gateId, projectKey };
   return post(url, data);
 }
+
+export function getApplicationQualityGate(application) {
+  return getJSON('/api/qualitygates/application_status', { application });
+}

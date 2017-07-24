@@ -20,7 +20,7 @@
 // @flow
 import { sortBy } from 'lodash';
 
-const ORDER = ['DEV', 'VW', 'SVW', 'TRK', 'BRC', 'FIL', 'UTS'];
+const ORDER = ['DEV', 'VW', 'SVW', 'APP', 'TRK', 'BRC', 'FIL', 'UTS'];
 
 export function sortQualifiers(qualifiers: Array<string>) {
   return sortBy(qualifiers, qualifier => ORDER.indexOf(qualifier));
