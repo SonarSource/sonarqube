@@ -42,6 +42,8 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
@@ -98,6 +100,8 @@ public class IntegrateIssuesVisitorTest {
   public ComponentIssuesRepositoryRule componentIssuesRepository = new ComponentIssuesRepositoryRule(treeRootHolder);
   @Rule
   public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
+  @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
 
@@ -120,11 +124,13 @@ public class IntegrateIssuesVisitorTest {
 
   @Before
   public void setUp() throws Exception {
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.<MovedFilesRepository.OriginalFile>absent());
-    underTest = new IntegrateIssuesVisitor(tracker, issueCache, issueLifecycle, issueVisitors, componentsWithUnprocessedIssues, componentIssuesRepository, movedFilesRepository);
+    underTest = new IntegrateIssuesVisitor(tracker, issueCache, issueLifecycle, issueVisitors, componentsWithUnprocessedIssues, 
+      componentIssuesRepository, movedFilesRepository, baseIssuesLoader, analysisMetadataHolder);
   }
 
   @Test
