@@ -19,12 +19,6 @@
  */
 package org.sonar.scanner.scan.report;
 
-import static net.javacrumbs.jsonunit.assertj.JsonAssert.assertThatJson;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -32,12 +26,12 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.TimeZone;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -57,6 +51,12 @@ import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.scan.DefaultComponentTree;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
+
+import static net.javacrumbs.jsonunit.assertj.JsonAssert.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class JSONReportTest {
 
@@ -84,7 +84,7 @@ public class JSONReportTest {
     DefaultComponentTree inputComponentTree = new DefaultComponentTree();
     ProjectDefinition def = ProjectDefinition.create().setBaseDir(projectBaseDir).setKey("struts");
     DefaultInputModule rootModule = new DefaultInputModule(def, 1);
-    InputComponentStore inputComponentStore = new InputComponentStore(new PathResolver(), rootModule);
+    InputComponentStore inputComponentStore = new InputComponentStore(new PathResolver(), rootModule, mock(AnalysisMode.class));
 
     DefaultInputModule moduleA = new DefaultInputModule("struts-core");
     inputComponentTree.index(moduleA, rootModule);
