@@ -17,18 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.server.platform.db.migration.version.v66;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-public class DaoModuleTest {
+public class DbVersion66Test {
+
+  private DbVersion66 underTest = new DbVersion66();
+
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 47);
+  public void migrationNumber_starts_at_1800() {
+    verifyMinimumMigrationNumber(underTest, 1800);
   }
+
+  @Test
+  public void verify_migration_count() {
+    verifyMigrationCount(underTest, 3);
+  }
+
 }

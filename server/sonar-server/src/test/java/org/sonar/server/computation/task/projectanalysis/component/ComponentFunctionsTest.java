@@ -23,17 +23,13 @@ import java.util.Random;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.VIEW;
-import static org.sonar.server.computation.task.projectanalysis.component.ComponentFunctions.toKey;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentFunctions.toReportRef;
 
 public class ComponentFunctionsTest {
 
   public static final int SOME_INT = new Random().nextInt();
-  public static final String SOME_KEY = "some key";
 
   @Test(expected = NullPointerException.class)
   public void toReportRef_throws_NPE_if_Component_is_null() {
@@ -48,16 +44,5 @@ public class ComponentFunctionsTest {
   @Test
   public void toReportRef_returns_the_ref_of_the_Component() {
     assertThat(toReportRef().apply(ReportComponent.builder(PROJECT, SOME_INT).build())).isEqualTo(SOME_INT);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void toKey_if_Component_is_null() {
-    toKey().apply(null);
-  }
-
-  @Test
-  public void toKey_returns_the_key_of_the_Component() {
-    assertThat(toKey().apply(ReportComponent.builder(MODULE, -63).setKey(SOME_KEY).build())).isEqualTo(SOME_KEY);
-    assertThat(toKey().apply(ViewsComponent.builder(SUBVIEW, SOME_INT).build())).isEqualTo(String.valueOf(SOME_INT));
   }
 }

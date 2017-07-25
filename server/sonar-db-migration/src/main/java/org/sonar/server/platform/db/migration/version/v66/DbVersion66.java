@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+package org.sonar.server.platform.db.migration.version.v66;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 47);
+public class DbVersion66 implements DbVersion {
+  @Override
+  public void addSteps(MigrationStepRegistry registry) {
+    registry
+      .add(1800, "Create table project_branches", CreateTableProjectBranches.class)
+      .add(1801, "Add on project_branches key", AddIndexOnProjectBranchesKey.class)
+      .add(1802, "Add branch column to projects table", AddBranchColumnToProjectsTable.class)
+    ;
   }
 }

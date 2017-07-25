@@ -8,6 +8,7 @@
             project_uuid="ABCD"
             module_uuid="[null]"
             module_uuid_path="."
+            main_branch_project_uuid="[null]"
             scope="PRJ"
             qualifier="TRK"
             kee="old key"
