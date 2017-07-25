@@ -85,6 +85,7 @@ exports[`should render and open the modal 2`] = `
   organization.members.manage_groups
   <Modal
     ariaHideApp={true}
+    bodyOpenClassName="ReactModal__Body--open"
     className="modal"
     closeTimeoutMS={0}
     contentLabel="modal form"

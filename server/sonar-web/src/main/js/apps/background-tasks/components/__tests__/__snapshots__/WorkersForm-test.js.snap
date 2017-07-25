@@ -3,6 +3,7 @@
 exports[`changes select 1`] = `
 <Modal
   ariaHideApp={true}
+  bodyOpenClassName="ReactModal__Body--open"
   className="modal"
   closeTimeoutMS={0}
   contentLabel="background_tasks.change_number_of_workers"
@@ -34,8 +35,10 @@ exports[`changes select 1`] = `
         backspaceToRemoveMessage="Press backspace to remove {label}"
         className="input-tiny spacer-top"
         clearAllText="Clear all"
+        clearRenderer={[Function]}
         clearValueText="Clear value"
         clearable={false}
+        deleteRemoves={true}
         delimiter=","
         disabled={false}
         escapeClearsValue={true}
@@ -55,7 +58,6 @@ exports[`changes select 1`] = `
         onBlurResetsInput={true}
         onChange={[Function]}
         onCloseResetsInput={true}
-        openAfterFocus={false}
         optionComponent={[Function]}
         options={
           Array [
@@ -144,6 +146,7 @@ exports[`changes select 1`] = `
 exports[`changes select 2`] = `
 <Modal
   ariaHideApp={true}
+  bodyOpenClassName="ReactModal__Body--open"
   className="modal"
   closeTimeoutMS={0}
   contentLabel="background_tasks.change_number_of_workers"
@@ -175,8 +178,10 @@ exports[`changes select 2`] = `
         backspaceToRemoveMessage="Press backspace to remove {label}"
         className="input-tiny spacer-top"
         clearAllText="Clear all"
+        clearRenderer={[Function]}
         clearValueText="Clear value"
         clearable={false}
+        deleteRemoves={true}
         delimiter=","
         disabled={false}
         escapeClearsValue={true}
@@ -196,7 +201,6 @@ exports[`changes select 2`] = `
         onBlurResetsInput={true}
         onChange={[Function]}
         onCloseResetsInput={true}
-        openAfterFocus={false}
         optionComponent={[Function]}
         options={
           Array [

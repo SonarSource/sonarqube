@@ -5,6 +5,7 @@ exports[`smoke test 1`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    encodeSpecialCharacters={true}
     title="organization.delete"
   />
   <header
@@ -38,6 +39,7 @@ exports[`smoke test 2`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    encodeSpecialCharacters={true}
     title="organization.delete"
   />
   <header
@@ -64,6 +66,7 @@ exports[`smoke test 2`] = `
     </button>
     <Modal
       ariaHideApp={true}
+      bodyOpenClassName="ReactModal__Body--open"
       className="modal"
       closeTimeoutMS={0}
       contentLabel="modal form"
@@ -119,6 +122,7 @@ exports[`smoke test 3`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    encodeSpecialCharacters={true}
     title="organization.delete"
   />
   <header
@@ -145,6 +149,7 @@ exports[`smoke test 3`] = `
     </button>
     <Modal
       ariaHideApp={true}
+      bodyOpenClassName="ReactModal__Body--open"
       className="modal"
       closeTimeoutMS={0}
       contentLabel="modal form"
