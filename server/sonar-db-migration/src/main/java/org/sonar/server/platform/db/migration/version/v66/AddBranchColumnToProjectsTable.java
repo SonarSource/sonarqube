@@ -17,30 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.step;
 
-import org.sonar.server.computation.task.projectanalysis.api.developer.PersistDevelopersDelegate;
-import org.sonar.server.computation.task.step.ComputationStep;
+package org.sonar.server.platform.db.migration.version.v66;
 
-/**
- * Persist developers, should only be execute when the Dev Cockpit plugin is installed.
- */
-public class PersistDevelopersStep implements ComputationStep {
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-  private final PersistDevelopersDelegate persistDevelopersDelegate;
+public class AddBranchColumnToProjectsTable extends DdlChange {
 
-  public PersistDevelopersStep(PersistDevelopersDelegate persistDevelopersDelegate) {
-    this.persistDevelopersDelegate = persistDevelopersDelegate;
+  public AddBranchColumnToProjectsTable(Database db) {
+    super(db);
   }
 
   @Override
-  public String getDescription() {
-    return "Persist developers";
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "projects")
+      .addColumn(VarcharColumnDef.newVarcharColumnDefBuilder()
+        .setColumnName("main_branch_project_uuid")
+        .setLimit(50)
+        .setIsNullable(true)
+        .build())
+      .build());
   }
-
-  @Override
-  public void execute() {
-    persistDevelopersDelegate.execute();
-  }
-
 }

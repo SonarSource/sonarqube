@@ -9,6 +9,7 @@
             uuid="GHIJ"
             uuid_path="ABCD.EFGH.GHIJ."
             project_uuid="ABCD"
+            main_branch_project_uuid="U1"
             module_uuid="EFGH"
             module_uuid_path=".ABCD.EFGH."
             qualifier="FIL"
