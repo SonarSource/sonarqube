@@ -103,25 +103,6 @@ public class ComponentAction implements NavigationWsAction {
     this.billingValidations = billingValidations;
   }
 
-  private static Consumer<QualityProfile> writeToJson(JsonWriter json) {
-    return profile -> json.beginObject()
-      .prop("key", profile.getQpKey())
-      .prop("name", profile.getQpName())
-      .prop("language", profile.getLanguageKey())
-      .endObject();
-  }
-
-  private static Function<MeasureDto, Stream<QualityProfile>> toQualityProfiles() {
-    return dbMeasure -> QPMeasureData.fromJson(dbMeasure.getData()).getProfiles().stream();
-  }
-
-  private static void writePage(JsonWriter json, Page page) {
-    json.beginObject()
-      .prop("key", page.getKey())
-      .prop("name", page.getName())
-      .endObject();
-  }
-
   @Override
   public void define(NewController context) {
     NewAction projectNavigation = context.createAction("component")
@@ -166,6 +147,25 @@ public class ComponentAction implements NavigationWsAction {
       writeBreadCrumbs(json, session, component);
       json.endObject().close();
     }
+  }
+
+  private static Consumer<QualityProfile> writeToJson(JsonWriter json) {
+    return profile -> json.beginObject()
+      .prop("key", profile.getQpKey())
+      .prop("name", profile.getQpName())
+      .prop("language", profile.getLanguageKey())
+      .endObject();
+  }
+
+  private static Function<MeasureDto, Stream<QualityProfile>> toQualityProfiles() {
+    return dbMeasure -> QPMeasureData.fromJson(dbMeasure.getData()).getProfiles().stream();
+  }
+
+  private static void writePage(JsonWriter json, Page page) {
+    json.beginObject()
+      .prop("key", page.getKey())
+      .prop("name", page.getName())
+      .endObject();
   }
 
   private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, OrganizationDto organizationDto, @Nullable SnapshotDto analysis) {
