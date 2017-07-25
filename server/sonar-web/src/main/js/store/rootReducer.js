@@ -24,6 +24,7 @@ import users, * as fromUsers from './users/reducer';
 import favorites, * as fromFavorites from './favorites/duck';
 import languages, * as fromLanguages from './languages/reducer';
 import measures, * as fromMeasures from './measures/reducer';
+import metrics, * as fromMetrics from './metrics/reducer';
 import notifications, * as fromNotifications from './notifications/duck';
 import organizations, * as fromOrganizations from './organizations/duck';
 import organizationsMembers, * as fromOrganizationsMembers from './organizationsMembers/reducer';
@@ -42,6 +43,7 @@ export default combineReducers({
   favorites,
   languages,
   measures,
+  metrics,
   notifications,
   organizations,
   organizationsMembers,
@@ -86,6 +88,10 @@ export const getComponentMeasure = (state, componentKey, metricKey) =>
 
 export const getComponentMeasures = (state, componentKey) =>
   fromMeasures.getComponentMeasures(state.measures, componentKey);
+
+export const getMetrics = state => fromMetrics.getMetrics(state.metrics);
+
+export const getMetricByKey = (state, key) => fromMetrics.getMetricByKey(state.metrics, key);
 
 export const getGlobalNotifications = state => fromNotifications.getGlobal(state.notifications);
 
