@@ -19,8 +19,10 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Request;
@@ -56,6 +58,8 @@ import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameter
 import static org.sonarqube.ws.client.projectanalysis.SearchRequest.DEFAULT_PAGE_SIZE;
 
 public class SearchAction implements ProjectAnalysesWsAction {
+  private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP);
+
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
@@ -149,7 +153,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
 
   private void addProject(SearchData.Builder data) {
     ComponentDto project = componentFinder.getByKey(data.getDbSession(), data.getRequest().getProject());
-    checkArgument(Scopes.PROJECT.equals(project.scope()) && Qualifiers.PROJECT.equals(project.qualifier()), "A project is required");
+    checkArgument(Scopes.PROJECT.equals(project.scope()) && ALLOWED_QUALIFIERS.contains(project.qualifier()), "A project or application is required");
     data.setProject(project);
   }
 
