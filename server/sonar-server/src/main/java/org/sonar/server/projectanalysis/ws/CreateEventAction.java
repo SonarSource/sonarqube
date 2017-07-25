@@ -19,7 +19,9 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.sonar.api.resources.Qualifiers;
@@ -57,6 +59,8 @@ import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameter
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_NAME;
 
 public class CreateEventAction implements ProjectAnalysesWsAction {
+  private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP);
+
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
   private final System2 system;
@@ -112,6 +116,8 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   private CreateEventResponse doHandle(CreateEventRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       SnapshotDto analysis = getAnalysis(dbSession, request);
+      ComponentDto project = getProjectOrApplication(dbSession, analysis);
+      checkRequest(request, project);
       checkExistingDbEvents(dbSession, request, analysis);
       EventDto dbEvent = insertDbEvent(dbSession, request, analysis);
       return toCreateEventResponse(dbEvent);
@@ -129,14 +135,21 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   }
 
   private SnapshotDto getAnalysis(DbSession dbSession, CreateEventRequest request) {
-    SnapshotDto analysis = dbClient.snapshotDao().selectByUuid(dbSession, request.getAnalysis())
+    return dbClient.snapshotDao().selectByUuid(dbSession, request.getAnalysis())
       .orElseThrow(() -> new NotFoundException(format("Analysis '%s' is not found", request.getAnalysis())));
+  }
+
+  private ComponentDto getProjectOrApplication(DbSession dbSession, SnapshotDto analysis) {
     ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, analysis.getComponentUuid()).orNull();
     checkState(project != null, "Project of analysis '%s' is not found", analysis.getUuid());
-    userSession.checkComponentPermission(UserRole.ADMIN, project);
-    checkArgument(Qualifiers.PROJECT.equals(project.qualifier()) && Scopes.PROJECT.equals(project.scope()),
-      "An event must be created on a project");
-    return analysis;
+    checkArgument(ALLOWED_QUALIFIERS.contains(project.qualifier()) && Scopes.PROJECT.equals(project.scope()),
+      "An event must be created on a project or an application");
+    return project;
+  }
+
+  private void checkRequest(CreateEventRequest request, ComponentDto component) {
+    userSession.checkComponentPermission(UserRole.ADMIN, component);
+    checkArgument(EventCategory.VERSION != request.getCategory() || Qualifiers.PROJECT.equals(component.qualifier()), "A version event must be created on a project");
   }
 
   private static CreateEventRequest toAddEventRequest(Request request) {
