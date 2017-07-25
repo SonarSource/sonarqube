@@ -27,6 +27,7 @@ import java.util.List;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
@@ -37,6 +38,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class InputComponentStoreTest {
   @ClassRule
@@ -57,7 +59,7 @@ public class InputComponentStoreTest {
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(rootDef);
     DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(moduleDef);
 
-    InputComponentStore cache = new InputComponentStore(rootModule);
+    InputComponentStore cache = new InputComponentStore(rootModule, mock(AnalysisMode.class));
     cache.put(subModule);
 
     DefaultInputFile fooFile = new TestInputFileBuilder(rootModuleKey, "src/main/java/Foo.java")
@@ -101,7 +103,11 @@ public class InputComponentStoreTest {
 
   static class InputComponentStoreTester extends InputComponentStore {
     InputComponentStoreTester() throws IOException {
+<<<<<<< HEAD
       super(TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()));
+=======
+      super(new PathResolver(), TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()), mock(AnalysisMode.class));
+>>>>>>> SONAR-9607 Do not copy unchanged source files in scanner report
     }
 
     InputFile addFile(String moduleKey, String relpath, String language) {

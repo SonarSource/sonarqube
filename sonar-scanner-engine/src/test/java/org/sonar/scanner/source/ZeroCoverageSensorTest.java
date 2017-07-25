@@ -38,7 +38,7 @@ public class ZeroCoverageSensorTest {
   public void dontForceCoverageInIncrementalMode() {
     AnalysisMode analysisMode = mock(AnalysisMode.class);
     when(analysisMode.isIncremental()).thenReturn(true);
-    ZeroCoverageSensor zeroCoverageSensor = new ZeroCoverageSensor(null, null, analysisMode);
+    ZeroCoverageSensor zeroCoverageSensor = new ZeroCoverageSensor(null, analysisMode);
     zeroCoverageSensor.execute(null);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Incremental mode: not forcing coverage to zero");
   }

@@ -54,7 +54,7 @@ public class DefaultPostJobContextTest {
   public void setUp() throws IOException {
     issueCache = mock(IssueCache.class);
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule("foo", temp.newFolder());
-    componentStore = new InputComponentStore(rootModule);
+    componentStore = new InputComponentStore(rootModule, mock(AnalysisMode.class));
     settings = new MapSettings();
     analysisMode = mock(AnalysisMode.class);
     context = new DefaultPostJobContext(settings.asConfig(), settings, issueCache, componentStore, analysisMode);
