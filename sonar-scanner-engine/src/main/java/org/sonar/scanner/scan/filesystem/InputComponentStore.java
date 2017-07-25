@@ -32,10 +32,12 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.annotation.CheckForNull;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -62,9 +64,11 @@ public class InputComponentStore {
   private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
   private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
   private final InputModule root;
+  private final AnalysisMode mode;
 
-  public InputComponentStore(DefaultInputModule root) {
+  public InputComponentStore(DefaultInputModule root, AnalysisMode mode) {
     this.root = root;
+    this.mode = mode;
     this.put(root);
   }
 
@@ -75,7 +79,8 @@ public class InputComponentStore {
   public Iterable<DefaultInputFile> allFilesToPublish() {
     return inputFileCache.values().stream()
       .map(f -> (DefaultInputFile) f)
-      .filter(DefaultInputFile::isPublished)::iterator;
+      .filter(DefaultInputFile::isPublished)
+      .filter(f -> !mode.isIncremental() || f.status() != Status.SAME)::iterator;
   }
 
   public Iterable<InputFile> allFiles() {
