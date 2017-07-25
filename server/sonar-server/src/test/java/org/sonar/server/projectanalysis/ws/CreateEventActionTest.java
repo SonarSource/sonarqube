@@ -50,6 +50,7 @@ import org.sonarqube.ws.client.projectanalysis.CreateEventRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newApplication;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -198,6 +199,22 @@ public class CreateEventActionTest {
   }
 
   @Test
+  public void create_event_on_application() {
+    ComponentDto application = ComponentTesting.newApplication(db.getDefaultOrganization());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(application);
+    CreateEventRequest.Builder request = CreateEventRequest.builder()
+      .setAnalysis(analysis.getUuid())
+      .setCategory(OTHER)
+      .setName("Application Event");
+    logInAsProjectAdministrator(application);
+
+    CreateEventResponse result = call(request);
+
+    ProjectAnalyses.Event event = result.getEvent();
+    assertThat(event.getName()).isEqualTo("Application Event");
+  }
+
+  @Test
   public void create_2_version_events_on_same_project() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto firstAnalysis = db.components().insertProjectAndSnapshot(project);
@@ -297,18 +314,33 @@ public class CreateEventActionTest {
   }
 
   @Test
-  public void fail_if_create_on_other_than_a_project() {
+  public void fail_if_create_on_view() {
     ComponentDto view = newView(db.organizations().insert());
     SnapshotDto analysis = db.components().insertViewAndSnapshot(view);
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
-      .setCategory(VERSION)
-      .setName("5.6.3");
+      .setCategory(OTHER)
+      .setName("View Event");
     logInAsProjectAdministrator(view);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("An event must be created on a project");
+    expectedException.expectMessage("An event must be created on a project or an application");
 
+    call(request);
+  }
+
+  @Test
+  public void fail_if_create_version_event_on_application() {
+    ComponentDto application = newApplication(db.organizations().insert());
+    SnapshotDto analysis = db.components().insertViewAndSnapshot(application);
+    CreateEventRequest.Builder request = CreateEventRequest.builder()
+      .setAnalysis(analysis.getUuid())
+      .setCategory(VERSION)
+      .setName("5.6.3");
+    logInAsProjectAdministrator(application);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("A version event must be created on a project");
 
     call(request);
   }
