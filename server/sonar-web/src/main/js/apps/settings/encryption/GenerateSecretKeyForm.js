@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export default class GenerateSecretKeyForm extends React.PureComponent {
   static propTypes = {
-    secretKey: React.PropTypes.string,
-    generateSecretKey: React.PropTypes.func.isRequired
+    secretKey: PropTypes.string,
+    generateSecretKey: PropTypes.func.isRequired
   };
 
   handleSubmit(e) {

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { debounce } from 'lodash';
 import TemplateHeader from './TemplateHeader';
@@ -30,10 +31,10 @@ import { translate } from '../../../helpers/l10n';
 
 export default class Template extends React.PureComponent {
   static propTypes = {
-    organization: React.PropTypes.object,
-    template: React.PropTypes.object.isRequired,
-    refresh: React.PropTypes.func.isRequired,
-    topQualifiers: React.PropTypes.array.isRequired
+    organization: PropTypes.object,
+    template: PropTypes.object.isRequired,
+    refresh: PropTypes.func.isRequired,
+    topQualifiers: PropTypes.array.isRequired
   };
 
   constructor(props) {

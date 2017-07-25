@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { find, sortBy } from 'lodash';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Histogram } from './histogram';
 import { formatMeasure } from '../../helpers/measures';
@@ -26,7 +27,7 @@ import { translate } from '../../helpers/l10n';
 
 export default class LanguageDistribution extends React.PureComponent {
   static propTypes = {
-    distribution: React.PropTypes.string.isRequired
+    distribution: PropTypes.string.isRequired
   };
 
   state = {};

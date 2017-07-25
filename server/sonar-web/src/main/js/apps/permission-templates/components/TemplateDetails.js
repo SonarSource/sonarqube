@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Defaults from './Defaults';
 
 export default class TemplateDetails extends React.PureComponent {
   static propTypes = {
-    organization: React.PropTypes.object,
-    template: React.PropTypes.object.isRequired
+    organization: PropTypes.object,
+    template: PropTypes.object.isRequired
   };
 
   render() {

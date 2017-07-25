@@ -18,17 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import ActionsCell from './ActionsCell';
 import { translate } from '../../../helpers/l10n';
 
 export default class TemplateHeader extends React.PureComponent {
   static propTypes = {
-    organization: React.PropTypes.object,
-    template: React.PropTypes.object.isRequired,
-    loading: React.PropTypes.bool.isRequired,
-    refresh: React.PropTypes.func.isRequired,
-    topQualifiers: React.PropTypes.array.isRequired
+    organization: PropTypes.object,
+    template: PropTypes.object.isRequired,
+    loading: PropTypes.bool.isRequired,
+    refresh: PropTypes.func.isRequired,
+    topQualifiers: PropTypes.array.isRequired
   };
 
   render() {

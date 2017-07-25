@@ -18,39 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import createReactClass from 'create-react-class';
+import PropTypes from 'prop-types';
 import { max } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { sortBy } from 'lodash';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
-export const Word = React.createClass({
-  propTypes: {
-    size: React.PropTypes.number.isRequired,
-    text: React.PropTypes.string.isRequired,
-    tooltip: React.PropTypes.string,
-    link: React.PropTypes.string.isRequired
-  },
-
-  render() {
-    let tooltipAttrs = {};
-    if (this.props.tooltip) {
-      tooltipAttrs = {
-        'data-toggle': 'tooltip',
-        title: this.props.tooltip
-      };
-    }
-    return (
-      <a {...tooltipAttrs} style={{ fontSize: this.props.size }} href={this.props.link}>
-        {this.props.text}
-      </a>
-    );
+export function Word(props) {
+  let tooltipAttrs = {};
+  if (props.tooltip) {
+    tooltipAttrs = {
+      'data-toggle': 'tooltip',
+      title: props.tooltip
+    };
   }
-});
+  return (
+    <a {...tooltipAttrs} style={{ fontSize: props.size }} href={props.link}>
+      {props.text}
+    </a>
+  );
+}
 
-export const WordCloud = React.createClass({
+Word.propTypes = {
+  size: PropTypes.number.isRequired,
+  text: PropTypes.string.isRequired,
+  tooltip: PropTypes.string,
+  link: PropTypes.string.isRequired
+};
+
+export const WordCloud = createReactClass({
+  displayName: 'WordCloud',
+
   propTypes: {
-    items: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    sizeRange: React.PropTypes.arrayOf(React.PropTypes.number)
+    items: PropTypes.arrayOf(PropTypes.object).isRequired,
+    sizeRange: PropTypes.arrayOf(PropTypes.number)
   },
 
   mixins: [TooltipsMixin],

@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { defaultInputPropTypes } from '../../propTypes';
 
 export default class InputForSingleSelectList extends React.PureComponent {
   static propTypes = {
     ...defaultInputPropTypes,
-    options: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+    options: PropTypes.arrayOf(PropTypes.string).isRequired
   };
 
   handleInputChange(option) {

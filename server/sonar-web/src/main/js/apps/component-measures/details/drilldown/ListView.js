@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
 import ComponentsList from './ComponentsList';
@@ -28,7 +29,7 @@ import ListFooter from '../../../../components/controls/ListFooter';
 
 export default class ListView extends React.PureComponent {
   static contextTypes = {
-    router: React.PropTypes.object.isRequired
+    router: PropTypes.object.isRequired
   };
 
   componentDidMount() {

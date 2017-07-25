@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Modal from 'react-modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class LicenseChangeForm extends React.PureComponent {
   static propTypes = {
-    license: React.PropTypes.object.isRequired,
-    onChange: React.PropTypes.func.isRequired
+    license: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired
   };
 
   state = {

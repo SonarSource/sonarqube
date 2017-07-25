@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import TokenStep from './TokenStep';
 import OrganizationStep from './OrganizationStep';
@@ -52,7 +53,7 @@ export default class Onboarding extends React.PureComponent {
   state: State;
 
   static contextTypes = {
-    router: React.PropTypes.object
+    router: PropTypes.object
   };
 
   constructor(props: Props) {

@@ -19,12 +19,13 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import { translate } from '../../../helpers/l10n';
 
 export default class DefinitionChanges extends React.PureComponent {
   static propTypes = {
-    onSave: React.PropTypes.func.isRequired,
-    onCancel: React.PropTypes.func.isRequired
+    onSave: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired
   };
 
   handleSaveClick(e: Object) {

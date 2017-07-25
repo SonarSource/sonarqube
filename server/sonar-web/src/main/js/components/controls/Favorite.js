@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import FavoriteBase from './FavoriteBase';
 import { addFavorite, removeFavorite } from '../../api/favorites';
 
 export default class Favorite extends React.PureComponent {
   static propTypes = {
-    favorite: React.PropTypes.bool.isRequired,
-    component: React.PropTypes.string.isRequired,
-    className: React.PropTypes.string
+    favorite: PropTypes.bool.isRequired,
+    component: PropTypes.string.isRequired,
+    className: PropTypes.string
   };
 
   render() {

@@ -18,16 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Avatar from '../../../../components/ui/Avatar';
 import { translate } from '../../../../helpers/l10n';
 
 export default class UserHolder extends React.PureComponent {
   static propTypes = {
-    user: React.PropTypes.object.isRequired,
-    permissions: React.PropTypes.array.isRequired,
-    selectedPermission: React.PropTypes.string,
-    permissionsOrder: React.PropTypes.array.isRequired,
-    onToggle: React.PropTypes.func.isRequired
+    user: PropTypes.object.isRequired,
+    permissions: PropTypes.array.isRequired,
+    selectedPermission: PropTypes.string,
+    permissionsOrder: PropTypes.array.isRequired,
+    onToggle: PropTypes.func.isRequired
   };
 
   handleClick(permission, e) {

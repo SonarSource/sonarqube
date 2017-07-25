@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { formatMeasure } from '../../helpers/measures';
 import './Rating.css';
 
 export default class Rating extends React.PureComponent {
   static propTypes = {
-    className: React.PropTypes.string,
+    className: PropTypes.string,
     value: (props, propName, componentName) => {
       // allow both numbers and strings
       const numberValue = Number(props[propName]);
@@ -32,8 +33,8 @@ export default class Rating extends React.PureComponent {
         throw new Error(`Invalid prop "${propName}" passed to "${componentName}".`);
       }
     },
-    small: React.PropTypes.bool,
-    muted: React.PropTypes.bool
+    small: PropTypes.bool,
+    muted: PropTypes.bool
   };
 
   static defaultProps = {

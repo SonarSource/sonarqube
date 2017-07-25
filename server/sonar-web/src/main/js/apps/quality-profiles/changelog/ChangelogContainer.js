@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import Changelog from './Changelog';
 import ChangelogSearch from './ChangelogSearch';
 import ChangelogEmpty from './ChangelogEmpty';
@@ -50,7 +51,7 @@ export default class ChangelogContainer extends React.PureComponent {
   props: Props;
 
   static contextTypes = {
-    router: React.PropTypes.object
+    router: PropTypes.object
   };
 
   state: State = {

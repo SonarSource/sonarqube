@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import createReactClass from 'create-react-class';
+import PropTypes from 'prop-types';
 import { scaleLinear } from 'd3-scale';
 import { treemap as d3Treemap, hierarchy as d3Hierarchy } from 'd3-hierarchy';
 import { TreemapBreadcrumbs } from './treemap-breadcrumbs';
@@ -42,18 +44,18 @@ function mostCommitPrefix(strings) {
   return prefix.substr(0, prefix.length - lastPrefixPart.length);
 }
 
-export const TreemapRect = React.createClass({
-  propTypes: {
-    x: React.PropTypes.number.isRequired,
-    y: React.PropTypes.number.isRequired,
-    width: React.PropTypes.number.isRequired,
-    height: React.PropTypes.number.isRequired,
-    fill: React.PropTypes.string.isRequired,
-    label: React.PropTypes.string.isRequired,
-    onClick: React.PropTypes.func
-  },
+export class TreemapRect extends React.PureComponent {
+  static propTypes = {
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    fill: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    onClick: PropTypes.func
+  };
 
-  renderLink() {
+  renderLink = () => {
     if (!this.props.link) {
       return null;
     }
@@ -71,7 +73,7 @@ export const TreemapRect = React.createClass({
         <span className="icon-link" />
       </a>
     );
-  },
+  };
 
   render() {
     let tooltipAttrs = {};
@@ -108,13 +110,15 @@ export const TreemapRect = React.createClass({
       </div>
     );
   }
-});
+}
 
-export const Treemap = React.createClass({
+export const Treemap = createReactClass({
+  displayName: 'Treemap',
+
   propTypes: {
-    items: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    height: React.PropTypes.number,
-    onRectangleClick: React.PropTypes.func
+    items: PropTypes.arrayOf(PropTypes.object).isRequired,
+    height: PropTypes.number,
+    onRectangleClick: PropTypes.func
   },
 
   mixins: [ResizeMixin, TooltipsMixin],

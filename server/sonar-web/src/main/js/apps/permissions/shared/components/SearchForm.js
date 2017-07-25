@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import RadioToggle from '../../../../components/controls/RadioToggle';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 export default class SearchForm extends React.PureComponent {
   static propTypes = {
-    query: React.PropTypes.string,
-    filter: React.PropTypes.oneOf(['all', 'users', 'groups']),
-    onSearch: React.PropTypes.func,
-    onFilter: React.PropTypes.func
+    query: PropTypes.string,
+    filter: PropTypes.oneOf(['all', 'users', 'groups']),
+    onSearch: PropTypes.func,
+    onFilter: PropTypes.func
   };
 
   componentWillMount() {

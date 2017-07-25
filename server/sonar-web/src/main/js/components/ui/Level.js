@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { formatMeasure } from '../../helpers/measures';
 import './Level.css';
 
 export default class Level extends React.PureComponent {
   static propTypes = {
-    level: React.PropTypes.oneOf(['ERROR', 'WARN', 'OK']).isRequired,
-    small: React.PropTypes.bool,
-    muted: React.PropTypes.bool
+    level: PropTypes.oneOf(['ERROR', 'WARN', 'OK']).isRequired,
+    small: PropTypes.bool,
+    muted: PropTypes.bool
   };
 
   static defaultProps = {

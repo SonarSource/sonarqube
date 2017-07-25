@@ -19,11 +19,12 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import { translate } from '../../../helpers/l10n';
 
 export default class PageHeader extends React.PureComponent {
   static propTypes = {
-    component: React.PropTypes.object
+    component: PropTypes.object
   };
 
   render() {

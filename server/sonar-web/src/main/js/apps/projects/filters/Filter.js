@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Link } from 'react-router';
 import { getFilterUrl } from './utils';
@@ -26,27 +27,27 @@ import { translate } from '../../../helpers/l10n';
 
 export default class Filter extends React.PureComponent {
   static propTypes = {
-    property: React.PropTypes.string.isRequired,
-    className: React.PropTypes.string,
-    options: React.PropTypes.array.isRequired,
-    query: React.PropTypes.object.isRequired,
-    renderOption: React.PropTypes.func.isRequired,
+    property: PropTypes.string.isRequired,
+    className: PropTypes.string,
+    options: PropTypes.array.isRequired,
+    query: PropTypes.object.isRequired,
+    renderOption: PropTypes.func.isRequired,
 
-    value: React.PropTypes.any,
-    facet: React.PropTypes.object,
-    maxFacetValue: React.PropTypes.number,
-    optionClassName: React.PropTypes.string,
-    isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object,
+    value: PropTypes.any,
+    facet: PropTypes.object,
+    maxFacetValue: PropTypes.number,
+    optionClassName: PropTypes.string,
+    isFavorite: PropTypes.bool,
+    organization: PropTypes.object,
 
-    getFacetValueForOption: React.PropTypes.func,
+    getFacetValueForOption: PropTypes.func,
 
-    halfWidth: React.PropTypes.bool,
-    highlightUnder: React.PropTypes.number,
-    highlightUnderMax: React.PropTypes.number,
+    halfWidth: PropTypes.bool,
+    highlightUnder: PropTypes.number,
+    highlightUnderMax: PropTypes.number,
 
-    header: React.PropTypes.object,
-    footer: React.PropTypes.object
+    header: PropTypes.object,
+    footer: PropTypes.object
   };
 
   static defaultProps = {

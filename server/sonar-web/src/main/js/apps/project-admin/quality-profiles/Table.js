@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { groupBy, orderBy } from 'lodash';
 import ProfileRow from './ProfileRow';
 import { translate } from '../../../helpers/l10n';
 
 export default class Table extends React.PureComponent {
   static propTypes = {
-    allProfiles: React.PropTypes.array.isRequired,
-    profiles: React.PropTypes.array.isRequired,
-    onChangeProfile: React.PropTypes.func.isRequired
+    allProfiles: PropTypes.array.isRequired,
+    profiles: PropTypes.array.isRequired,
+    onChangeProfile: PropTypes.func.isRequired
   };
 
   renderHeader() {

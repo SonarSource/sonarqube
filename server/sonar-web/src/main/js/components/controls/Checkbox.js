@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 export default class Checkbox extends React.PureComponent {
   static propTypes = {
-    id: React.PropTypes.string,
-    onCheck: React.PropTypes.func.isRequired,
-    checked: React.PropTypes.bool.isRequired,
-    thirdState: React.PropTypes.bool,
-    className: React.PropTypes.any
+    id: PropTypes.string,
+    onCheck: PropTypes.func.isRequired,
+    checked: PropTypes.bool.isRequired,
+    thirdState: PropTypes.bool,
+    className: PropTypes.any
   };
 
   static defaultProps = {

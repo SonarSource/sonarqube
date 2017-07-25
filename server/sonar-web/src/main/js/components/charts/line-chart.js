@@ -18,23 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import createReactClass from 'create-react-class';
+import PropTypes from 'prop-types';
 import { extent, max } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { area as d3Area, line as d3Line, curveBasis } from 'd3-shape';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
-export const LineChart = React.createClass({
+export const LineChart = createReactClass({
+  displayName: 'LineChart',
+
   propTypes: {
-    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    xTicks: React.PropTypes.arrayOf(React.PropTypes.any),
-    xValues: React.PropTypes.arrayOf(React.PropTypes.any),
-    padding: React.PropTypes.arrayOf(React.PropTypes.number),
-    backdropConstraints: React.PropTypes.arrayOf(React.PropTypes.number),
-    displayBackdrop: React.PropTypes.bool,
-    displayPoints: React.PropTypes.bool,
-    displayVerticalGrid: React.PropTypes.bool,
-    height: React.PropTypes.number
+    data: PropTypes.arrayOf(PropTypes.object).isRequired,
+    xTicks: PropTypes.arrayOf(PropTypes.any),
+    xValues: PropTypes.arrayOf(PropTypes.any),
+    padding: PropTypes.arrayOf(PropTypes.number),
+    backdropConstraints: PropTypes.arrayOf(PropTypes.number),
+    displayBackdrop: PropTypes.bool,
+    displayPoints: PropTypes.bool,
+    displayVerticalGrid: PropTypes.bool,
+    height: PropTypes.number
   },
 
   mixins: [ResizeMixin, TooltipsMixin],

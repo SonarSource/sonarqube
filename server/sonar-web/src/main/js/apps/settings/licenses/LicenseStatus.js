@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { isLicenseInvalid } from './licenseUtils';
 
 export default class LicenseStatus extends React.PureComponent {
   static propTypes = {
-    license: React.PropTypes.object.isRequired
+    license: PropTypes.object.isRequired
   };
 
   render() {

@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import Input from './inputs/Input';
@@ -46,17 +47,17 @@ class Definition extends React.PureComponent {
   timeout: number;
 
   static propTypes = {
-    component: React.PropTypes.object,
-    setting: React.PropTypes.object.isRequired,
-    changedValue: React.PropTypes.any,
-    loading: React.PropTypes.bool.isRequired,
-    validationMessage: React.PropTypes.string,
+    component: PropTypes.object,
+    setting: PropTypes.object.isRequired,
+    changedValue: PropTypes.any,
+    loading: PropTypes.bool.isRequired,
+    validationMessage: PropTypes.string,
 
-    changeValue: React.PropTypes.func.isRequired,
-    cancelChange: React.PropTypes.func.isRequired,
-    saveValue: React.PropTypes.func.isRequired,
-    resetValue: React.PropTypes.func.isRequired,
-    passValidation: React.PropTypes.func.isRequired
+    changeValue: PropTypes.func.isRequired,
+    cancelChange: PropTypes.func.isRequired,
+    saveValue: PropTypes.func.isRequired,
+    resetValue: PropTypes.func.isRequired,
+    passValidation: PropTypes.func.isRequired
   };
 
   state = {

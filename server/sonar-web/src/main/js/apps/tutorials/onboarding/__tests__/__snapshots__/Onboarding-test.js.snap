@@ -5,6 +5,7 @@ exports[`guides for on-premise 1`] = `
   className="modal-container"
 >
   <HelmetWrapper
+    encodeSpecialCharacters={true}
     title="onboarding.header"
     titleTemplate="%s"
   />
@@ -59,6 +60,7 @@ exports[`guides for on-premise 2`] = `
   className="modal-container"
 >
   <HelmetWrapper
+    encodeSpecialCharacters={true}
     title="onboarding.header"
     titleTemplate="%s"
   />
@@ -114,6 +116,7 @@ exports[`guides for sonarcloud 1`] = `
   className="modal-container"
 >
   <HelmetWrapper
+    encodeSpecialCharacters={true}
     title="onboarding.header.sonarcloud"
     titleTemplate="%s"
   />
@@ -181,6 +184,7 @@ exports[`guides for sonarcloud 2`] = `
   className="modal-container"
 >
   <HelmetWrapper
+    encodeSpecialCharacters={true}
     title="onboarding.header.sonarcloud"
     titleTemplate="%s"
   />
@@ -249,6 +253,7 @@ exports[`guides for sonarcloud 3`] = `
   className="modal-container"
 >
   <HelmetWrapper
+    encodeSpecialCharacters={true}
     title="onboarding.header.sonarcloud"
     titleTemplate="%s"
   />

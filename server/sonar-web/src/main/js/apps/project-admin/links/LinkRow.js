@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { isProvided, isClickable } from './utils';
 import { translate } from '../../../helpers/l10n';
 import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
 
 export default class LinkRow extends React.PureComponent {
   static propTypes = {
-    link: React.PropTypes.object.isRequired,
-    onDelete: React.PropTypes.func.isRequired
+    link: PropTypes.object.isRequired,
+    onDelete: PropTypes.func.isRequired
   };
 
   handleDeleteClick(e) {

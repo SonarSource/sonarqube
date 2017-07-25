@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import classNames from 'classnames';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
@@ -39,8 +40,8 @@ const SETTINGS_URLS = [
 
 export default class ComponentNavMenu extends React.PureComponent {
   static propTypes = {
-    component: React.PropTypes.object.isRequired,
-    conf: React.PropTypes.object.isRequired
+    component: PropTypes.object.isRequired,
+    conf: PropTypes.object.isRequired
   };
 
   isProject() {

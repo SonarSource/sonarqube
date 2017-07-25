@@ -18,18 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export default class RadioToggle extends React.PureComponent {
   static propTypes = {
-    value: React.PropTypes.string,
-    options: React.PropTypes.arrayOf(
-      React.PropTypes.shape({
-        value: React.PropTypes.string.isRequired,
-        label: React.PropTypes.string.isRequired
+    value: PropTypes.string,
+    options: PropTypes.arrayOf(
+      PropTypes.shape({
+        value: PropTypes.string.isRequired,
+        label: PropTypes.string.isRequired
       })
     ).isRequired,
-    name: React.PropTypes.string.isRequired,
-    onCheck: React.PropTypes.func.isRequired
+    name: PropTypes.string.isRequired,
+    onCheck: PropTypes.func.isRequired
   };
 
   static defaultProps = {

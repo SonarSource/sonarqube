@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getPermissionsAppError } from '../../../../store/rootReducer';
 
 class PageError extends React.PureComponent {
   static propTypes = {
-    message: React.PropTypes.string
+    message: PropTypes.string
   };
 
   render() {

@@ -19,6 +19,7 @@
  */
 import classNames from 'classnames';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
 import ApplyTemplateView from '../permissions/project/views/ApplyTemplateView';
@@ -29,9 +30,9 @@ import { translate } from '../../helpers/l10n';
 
 export default class Projects extends React.PureComponent {
   static propTypes = {
-    projects: React.PropTypes.array.isRequired,
-    selection: React.PropTypes.array.isRequired,
-    organization: React.PropTypes.object.isRequired
+    projects: PropTypes.array.isRequired,
+    selection: PropTypes.array.isRequired,
+    organization: PropTypes.object.isRequired
   };
 
   componentWillMount() {

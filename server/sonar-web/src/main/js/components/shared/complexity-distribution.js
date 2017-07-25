@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { BarChart } from '../charts/bar-chart';
 import { formatMeasure } from '../../helpers/measures';
 import { translateWithParameters } from '../../helpers/l10n';
@@ -26,8 +27,8 @@ const HEIGHT = 80;
 
 export class ComplexityDistribution extends React.PureComponent {
   static propTypes = {
-    distribution: React.PropTypes.string.isRequired,
-    of: React.PropTypes.string.isRequired
+    distribution: PropTypes.string.isRequired,
+    of: PropTypes.string.isRequired
   };
 
   renderBarChart = () => {

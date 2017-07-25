@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import FavoriteBase from './FavoriteBase';
 import { toggleIssueFilter } from '../../api/issue-filters';
 
 export default class FavoriteIssueFilter extends React.PureComponent {
   static propTypes = {
-    favorite: React.PropTypes.bool.isRequired,
-    filter: React.PropTypes.shape({
-      id: React.PropTypes.string.isRequired
+    favorite: PropTypes.bool.isRequired,
+    filter: PropTypes.shape({
+      id: PropTypes.string.isRequired
     }).isRequired
   };
 

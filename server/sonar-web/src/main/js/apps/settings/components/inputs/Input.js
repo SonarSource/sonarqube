@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import PropertySetInput from './PropertySetInput';
 import MultiValueInput from './MultiValueInput';
 import PrimitiveInput from './PrimitiveInput';
@@ -25,9 +26,9 @@ import { TYPE_PROPERTY_SET } from '../../constants';
 
 export default class Input extends React.PureComponent {
   static propTypes = {
-    setting: React.PropTypes.object.isRequired,
-    value: React.PropTypes.any,
-    onChange: React.PropTypes.func.isRequired
+    setting: PropTypes.object.isRequired,
+    value: PropTypes.any,
+    onChange: PropTypes.func.isRequired
   };
 
   render() {

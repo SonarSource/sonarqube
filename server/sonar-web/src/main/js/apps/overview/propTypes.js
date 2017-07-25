@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { PropTypes } from 'react';
-
-const { shape, arrayOf, array, string, number, object } = PropTypes;
+import { shape, arrayOf, array, string, number, object } from 'prop-types';
 
 export const ComponentType = shape({
   id: string.isRequired

@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import getStore from '../../app/utils/getStore';
 
 type Props = {
@@ -30,7 +31,7 @@ export default class WithStore extends React.PureComponent {
   store: {};
 
   static childContextTypes = {
-    store: React.PropTypes.object
+    store: PropTypes.object
   };
 
   constructor(props: Props) {

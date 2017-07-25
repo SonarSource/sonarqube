@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import { groupBy, sortBy } from 'lodash';
 import DefinitionsList from './DefinitionsList';
 import EmailForm from './EmailForm';
@@ -26,8 +27,8 @@ import { getSubCategoryName, getSubCategoryDescription } from '../utils';
 
 export default class SubCategoryDefinitionsList extends React.PureComponent {
   static propTypes = {
-    component: React.PropTypes.object,
-    settings: React.PropTypes.array.isRequired
+    component: PropTypes.object,
+    settings: PropTypes.array.isRequired
   };
 
   renderEmailForm(subCategoryKey: string) {

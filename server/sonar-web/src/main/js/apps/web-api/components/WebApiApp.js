@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
 import { fetchWebApi } from '../../../api/web-api';
@@ -187,5 +188,5 @@ export default class WebApiApp extends React.PureComponent {
 }
 
 WebApiApp.contextTypes = {
-  router: React.PropTypes.object.isRequired
+  router: PropTypes.object.isRequired
 };

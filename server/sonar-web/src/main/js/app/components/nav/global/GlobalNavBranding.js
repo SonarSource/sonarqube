@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { getSettingValue, getCurrentUser } from '../../../../store/rootReducer';
@@ -25,8 +26,8 @@ import { translate } from '../../../../helpers/l10n';
 
 class GlobalNavBranding extends React.PureComponent {
   static propTypes = {
-    customLogoUrl: React.PropTypes.string,
-    customLogoWidth: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number])
+    customLogoUrl: PropTypes.string,
+    customLogoWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
   };
 
   renderLogo() {

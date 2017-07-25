@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import Header from './Header';
@@ -27,7 +28,7 @@ import { translate } from '../../../helpers/l10n';
 
 class Deletion extends React.PureComponent {
   static propTypes = {
-    component: React.PropTypes.object
+    component: PropTypes.object
   };
 
   render() {

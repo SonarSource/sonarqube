@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import LicenseRowContainer from './LicenseRowContainer';
 import { translate } from '../../../helpers/l10n';
 
 export default class LicensesList extends React.PureComponent {
   static propTypes = {
-    licenses: React.PropTypes.array.isRequired,
-    fetchLicenses: React.PropTypes.func.isRequired
+    licenses: PropTypes.array.isRequired,
+    fetchLicenses: PropTypes.func.isRequired
   };
 
   componentDidMount() {

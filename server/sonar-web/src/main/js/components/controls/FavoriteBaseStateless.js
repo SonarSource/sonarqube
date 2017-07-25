@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import FavoriteIcon from '../common/FavoriteIcon';
 
 export default class FavoriteBaseStateless extends React.PureComponent {
   static propTypes = {
-    favorite: React.PropTypes.bool.isRequired,
-    addFavorite: React.PropTypes.func.isRequired,
-    removeFavorite: React.PropTypes.func.isRequired,
-    className: React.PropTypes.string
+    favorite: PropTypes.bool.isRequired,
+    addFavorite: PropTypes.func.isRequired,
+    removeFavorite: PropTypes.func.isRequired,
+    className: PropTypes.string
   };
 
   toggleFavorite = e => {

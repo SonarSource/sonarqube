@@ -5,6 +5,7 @@ exports[`smoke test 1`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    encodeSpecialCharacters={true}
     title="organization.edit"
   />
   <header
@@ -136,6 +137,7 @@ exports[`smoke test 2`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    encodeSpecialCharacters={true}
     title="organization.edit"
   />
   <header
@@ -282,6 +284,7 @@ exports[`smoke test 3`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    encodeSpecialCharacters={true}
     title="organization.edit"
   />
   <header

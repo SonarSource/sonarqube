@@ -6,6 +6,7 @@ exports[`should render correctly 1`] = `
   id="project-activity"
 >
   <HelmetWrapper
+    encodeSpecialCharacters={true}
     title="project_activity.page"
   />
   <ProjectActivityPageHeader

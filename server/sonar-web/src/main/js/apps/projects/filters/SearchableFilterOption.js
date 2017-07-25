@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { translate } from '../../../helpers/l10n';
 
 export default class SearchableFilterOption extends React.PureComponent {
   static propTypes = {
-    optionKey: React.PropTypes.string.isRequired,
-    option: React.PropTypes.object
+    optionKey: PropTypes.string.isRequired,
+    option: PropTypes.object
   };
 
   render() {

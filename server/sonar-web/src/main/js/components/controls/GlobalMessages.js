@@ -18,19 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { ERROR, SUCCESS } from '../../store/globalMessages/duck';
 
 export default class GlobalMessages extends React.PureComponent {
   static propTypes = {
-    messages: React.PropTypes.arrayOf(
-      React.PropTypes.shape({
-        id: React.PropTypes.string.isRequired,
-        message: React.PropTypes.string.isRequired,
-        level: React.PropTypes.oneOf([ERROR, SUCCESS])
+    messages: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        message: PropTypes.string.isRequired,
+        level: PropTypes.oneOf([ERROR, SUCCESS])
       })
     ),
-    closeGlobalMessage: React.PropTypes.func.isRequired
+    closeGlobalMessage: PropTypes.func.isRequired
   };
 
   renderMessage = message => {

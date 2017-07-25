@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import UpdateKeyConfirmation from './views/UpdateKeyConfirmation';
 import { translate } from '../../../helpers/l10n';
 
 export default class UpdateKeyForm extends React.PureComponent {
   static propTypes = {
-    component: React.PropTypes.object.isRequired
+    component: PropTypes.object.isRequired
   };
 
   state = {};

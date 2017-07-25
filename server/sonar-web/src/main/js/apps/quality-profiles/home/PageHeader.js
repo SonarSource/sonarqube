@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import CreateProfileForm from './CreateProfileForm';
 import RestoreProfileForm from './RestoreProfileForm';
 import type { Profile } from '../propTypes';
@@ -42,7 +43,7 @@ export default class PageHeader extends React.PureComponent {
   props: Props;
 
   static contextTypes = {
-    router: React.PropTypes.object
+    router: PropTypes.object
   };
 
   state: State = {

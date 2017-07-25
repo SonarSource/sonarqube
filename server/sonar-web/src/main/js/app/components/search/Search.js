@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import key from 'keymaster';
 import { debounce, keyBy, uniqBy } from 'lodash';
@@ -62,7 +63,7 @@ export default class Search extends React.PureComponent {
   state: State;
 
   static contextTypes = {
-    router: React.PropTypes.object
+    router: PropTypes.object
   };
 
   constructor(props: Props) {

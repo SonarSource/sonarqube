@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import LoginForm from './LoginForm';
 import { doLogin } from '../../../store/rootActions';
@@ -29,7 +30,7 @@ class LoginFormContainer extends React.PureComponent {
   mounted: boolean;
 
   static propTypes = {
-    location: React.PropTypes.object.isRequired
+    location: PropTypes.object.isRequired
   };
 
   state = {};

@@ -18,19 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import CreateView from '../views/CreateView';
 import { translate } from '../../../helpers/l10n';
 import { CallbackType } from '../propTypes';
 
 export default class Header extends React.PureComponent {
   static propTypes = {
-    organization: React.PropTypes.object,
-    ready: React.PropTypes.bool.isRequired,
+    organization: PropTypes.object,
+    ready: PropTypes.bool.isRequired,
     refresh: CallbackType
   };
 
   static contextTypes = {
-    router: React.PropTypes.object
+    router: PropTypes.object
   };
 
   componentWillMount() {

@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 
 export default class ListHeader extends React.PureComponent {
   static propTypes = {
-    organization: React.PropTypes.object,
-    permissions: React.PropTypes.array.isRequired
+    organization: PropTypes.object,
+    permissions: PropTypes.array.isRequired
   };
 
   renderTooltip = permission =>

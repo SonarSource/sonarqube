@@ -18,9 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { PropTypes } from 'react';
-
-const { shape, string, number, bool, arrayOf } = PropTypes;
+import { shape, string, number, bool, arrayOf } from 'prop-types';
 
 export type Profile = {
   key: string,
