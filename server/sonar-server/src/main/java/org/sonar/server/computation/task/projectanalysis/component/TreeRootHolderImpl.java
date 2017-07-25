@@ -34,8 +34,6 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 public class TreeRootHolderImpl implements MutableTreeRootHolder {
   @CheckForNull
   private Map<Integer, Component> componentsByRef;
-  @CheckForNull
-  private Map<String, Component> componentsByKey;
 
   private Component root;
 
@@ -77,46 +75,7 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
     this.componentsByRef = builder.build();
   }
 
-  @Override
-  public Component getComponentByKey(String key) {
-    checkKeyArgument(key);
-    checkInitialized();
-    ensureComponentByKeyIsPopulated();
-    Component component = componentsByKey.get(key);
-    checkArgument(component != null, "Component with key '%s' can't be found", key);
-    return component;
-  }
-
-  @Override
-  public boolean hasComponentWithKey(String key) {
-    checkKeyArgument(key);
-    checkInitialized();
-    ensureComponentByKeyIsPopulated();
-
-    return componentsByKey.containsKey(key);
-  }
-
   private void checkInitialized() {
     checkState(this.root != null, "Holder has not been initialized yet");
-  }
-
-  private static void checkKeyArgument(String key) {
-    requireNonNull(key, "key can not be null");
-  }
-
-  private void ensureComponentByKeyIsPopulated() {
-    if (componentsByKey != null) {
-      return;
-    }
-
-    final ImmutableMap.Builder<String, Component> builder = ImmutableMap.builder();
-    new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(CrawlerDepthLimit.LEAVES, POST_ORDER) {
-        @Override
-        public void visitAny(Component component) {
-          builder.put(component.getKey(), component);
-        }
-      }).visit(this.root);
-    this.componentsByKey = builder.build();
   }
 }
