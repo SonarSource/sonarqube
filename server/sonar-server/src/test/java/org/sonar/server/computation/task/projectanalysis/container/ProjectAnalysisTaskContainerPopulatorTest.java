@@ -37,7 +37,6 @@ import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
 import org.sonar.server.computation.task.container.TaskContainer;
 import org.sonar.server.computation.task.step.StepsExplorer;
 import org.sonar.server.computation.task.projectanalysis.step.PersistComponentsStep;
-import org.sonar.server.computation.task.projectanalysis.step.PersistDevelopersStep;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.base.Predicates.notNull;
@@ -84,8 +83,7 @@ public class ProjectAnalysisTaskContainerPopulatorTest {
       .transform(StepsExplorer.toCanonicalName())
       .toSet();
 
-    // PersistDevelopersStep is the only step that is not in the report container (it's only added when Dev Cockpit plugin is installed)
-    assertThat(difference(StepsExplorer.retrieveStepPackageStepsCanonicalNames(PROJECTANALYSIS_STEP_PACKAGE), computationStepClassNames)).containsOnly(PersistDevelopersStep.class.getCanonicalName());
+    assertThat(difference(StepsExplorer.retrieveStepPackageStepsCanonicalNames(PROJECTANALYSIS_STEP_PACKAGE), computationStepClassNames)).isEmpty();
   }
 
   @Test
@@ -95,15 +93,6 @@ public class ProjectAnalysisTaskContainerPopulatorTest {
     underTest.populateContainer(container);
 
     assertThat(container.added).contains(PersistComponentsStep.class);
-  }
-
-  @Test
-  public void PersistDevelopersStep_is_not_added_to_the_container_when_DevCockpitBridge_is_null() {
-    underTest = new ProjectAnalysisTaskContainerPopulator(task, null);
-    AddedObjectsRecorderTaskContainer container = new AddedObjectsRecorderTaskContainer();
-    underTest.populateContainer(container);
-
-    assertThat(container.added).doesNotContain(PersistDevelopersStep.class);
   }
 
   @Test
