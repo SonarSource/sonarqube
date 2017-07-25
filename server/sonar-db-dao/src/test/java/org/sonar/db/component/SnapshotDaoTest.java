@@ -133,7 +133,7 @@ public class SnapshotDaoTest {
     SnapshotDto lastSnapshotOfFirstProject = dbClient.snapshotDao().insert(dbSession, newAnalysis(firstProject).setLast(true));
     ComponentDto secondProject = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "PROJECT_UUID_2"));
     SnapshotDto lastSnapshotOfSecondProject = dbClient.snapshotDao().insert(dbSession, newAnalysis(secondProject).setLast(true));
-    db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
+    db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization()));
 
     List<SnapshotDto> result = underTest.selectLastAnalysesByRootComponentUuids(dbSession, newArrayList(firstProject.uuid(), secondProject.uuid()));
 
@@ -188,7 +188,7 @@ public class SnapshotDaoTest {
 
   @Test
   public void select_first_snapshots() throws Exception {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization());
     db.getDbClient().componentDao().insert(dbSession, project);
 
     db.getDbClient().snapshotDao().insert(dbSession,
@@ -231,7 +231,26 @@ public class SnapshotDaoTest {
       Arrays.asList(from, otherFrom, otherFrom));
 
     assertThat(result).extracting(SnapshotDto::getUuid)
-    .containsExactlyInAnyOrder(finishedAnalysis.getUuid(), otherFinishedAnalysis.getUuid(), analysisOnSecondProject.getUuid());
+      .containsExactlyInAnyOrder(finishedAnalysis.getUuid(), otherFinishedAnalysis.getUuid(), analysisOnSecondProject.getUuid());
+  }
+
+  @Test
+  public void selectSnapshotBefore() {
+    ComponentDto project = db.components().insertPrivateProject();
+    SnapshotDto analysis1 = newAnalysis(project).setCreatedAt(50L).setPeriodDate(20L);
+    SnapshotDto analysis2 = newAnalysis(project).setCreatedAt(20L).setPeriodDate(10L);
+    SnapshotDto analysis3 = newAnalysis(project).setCreatedAt(10L).setPeriodDate(null);
+    db.components().insertSnapshots(analysis1, analysis2, analysis3);
+
+    assertThat(underTest.selectSnapshotBefore(project.uuid(), 50L, dbSession))
+      .extracting(ViewsSnapshotDto::getUuid, ViewsSnapshotDto::getCreatedAt, ViewsSnapshotDto::getLeakDate)
+      .containsExactlyInAnyOrder(analysis2.getUuid(), analysis2.getCreatedAt(), analysis2.getPeriodDate());
+
+    assertThat(underTest.selectSnapshotBefore(project.uuid(), 20L, dbSession))
+      .extracting(ViewsSnapshotDto::getUuid, ViewsSnapshotDto::getLeakDate)
+      .containsExactlyInAnyOrder(analysis3.getUuid(), null);
+
+    assertThat(underTest.selectSnapshotBefore(project.uuid(), 5L, dbSession)).isNull();
   }
 
   @Test
@@ -343,7 +362,7 @@ public class SnapshotDaoTest {
   }
 
   private SnapshotDto insertAnalysis(String projectUuid, String uuid, String status, boolean isLastFlag) {
-    SnapshotDto snapshot = newAnalysis(ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), projectUuid))
+    SnapshotDto snapshot = newAnalysis(newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), projectUuid))
       .setLast(isLastFlag)
       .setStatus(status)
       .setUuid(uuid);

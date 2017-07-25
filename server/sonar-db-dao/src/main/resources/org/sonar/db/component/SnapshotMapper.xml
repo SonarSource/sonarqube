@@ -19,7 +19,8 @@
 
   <sql id="viewsSnapshotColumns">
     s.uuid,
-    s.created_at as createdAt
+    s.created_at as createdAt,
+    s.period1_date as leakDate
   </sql>
 
   <select id="selectByUuids" parameterType="List" resultType="Snapshot">

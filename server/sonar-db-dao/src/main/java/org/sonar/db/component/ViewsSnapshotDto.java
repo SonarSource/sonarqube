@@ -19,9 +19,13 @@
  */
 package org.sonar.db.component;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class ViewsSnapshotDto {
   private String uuid;
   private Long createdAt;
+  private Long leakDate;
 
   public String getUuid() {
     return uuid;
@@ -37,5 +41,15 @@ public class ViewsSnapshotDto {
 
   public void setCreatedAt(Long createdAt) {
     this.createdAt = createdAt;
+  }
+
+  @CheckForNull
+  public Long getLeakDate() {
+    return leakDate;
+  }
+
+  public ViewsSnapshotDto setLeakDate(@Nullable Long leakDate) {
+    this.leakDate = leakDate;
+    return this;
   }
 }
