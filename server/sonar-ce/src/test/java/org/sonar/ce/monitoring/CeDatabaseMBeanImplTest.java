@@ -37,7 +37,7 @@ public class CeDatabaseMBeanImplTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  CeDatabaseMBeanImpl underTest = new CeDatabaseMBeanImpl(dbTester.getDbClient());
+  private CeDatabaseMBeanImpl underTest = new CeDatabaseMBeanImpl(dbTester.getDbClient());
 
   @Test
   public void register_and_unregister() throws Exception {

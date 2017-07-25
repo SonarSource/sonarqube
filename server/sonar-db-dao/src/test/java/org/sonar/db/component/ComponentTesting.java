@@ -184,6 +184,7 @@ public class ComponentTesting {
       .setRootUuid(moduleOrProject.uuid())
       .setModuleUuid(moduleOrProject.uuid())
       .setModuleUuidPath(moduleOrProject.moduleUuidPath())
+      .setMainBranchProjectUuid(moduleOrProject.getMainBranchProjectUuid())
       .setCreatedAt(new Date())
       .setEnabled(true)
       .setPrivate(moduleOrProject.isPrivate());
