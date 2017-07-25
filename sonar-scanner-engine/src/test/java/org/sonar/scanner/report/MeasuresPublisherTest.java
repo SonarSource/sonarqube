@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -69,7 +70,7 @@ public class MeasuresPublisherTest {
     String moduleKey = "foo";
     inputModule = TestInputFileBuilder.newDefaultInputModule(moduleKey, temp.newFolder());
     inputFile = new TestInputFileBuilder(moduleKey, "src/Foo.php").setPublish(true).build();
-    InputComponentStore componentCache = new InputComponentStore(new PathResolver(), inputModule);
+    InputComponentStore componentCache = new InputComponentStore(new PathResolver(), inputModule, mock(AnalysisMode.class));
     componentCache.put(inputFile);
     measureCache = mock(MeasureCache.class);
     when(measureCache.byComponentKey(anyString())).thenReturn(Collections.<DefaultMeasure<?>>emptyList());
