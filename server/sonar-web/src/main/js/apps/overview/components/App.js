@@ -53,7 +53,7 @@ class App extends React.PureComponent {
 
     if (['FIL', 'UTS'].includes(component.qualifier)) {
       return (
-        <div className="page">
+        <div className="page page-limited">
           <SourceViewer component={component.key} />
         </div>
       );

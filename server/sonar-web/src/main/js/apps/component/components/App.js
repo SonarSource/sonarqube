@@ -49,7 +49,7 @@ export default class App extends React.PureComponent {
     const finalLine = line != null ? Number(line) : null;
 
     return (
-      <div className="page">
+      <div className="page page-limited">
         <SourceViewer
           aroundLine={finalLine}
           component={id}

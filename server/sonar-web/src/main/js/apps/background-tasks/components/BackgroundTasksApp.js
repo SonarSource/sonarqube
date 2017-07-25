@@ -198,7 +198,7 @@ class BackgroundTasksApp extends React.PureComponent {
 
     if (!types) {
       return (
-        <div className="page">
+        <div className="page page-limited">
           <i className="spinner" />
         </div>
       );
