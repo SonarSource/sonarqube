@@ -23,7 +23,7 @@ import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 
 public class TestWebhookPayloadFactory implements WebhookPayloadFactory {
 
-  public static final String FAKE_JSON = "{\"payload\": true}";
+  private static final String FAKE_JSON = "{\"payload\": true}";
 
   @Override
   public WebhookPayload create(PostProjectAnalysisTask.ProjectAnalysis analysis) {
