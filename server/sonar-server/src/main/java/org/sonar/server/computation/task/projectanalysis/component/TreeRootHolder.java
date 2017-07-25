@@ -19,6 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
+/**
+ * The tree of components defined in the scanner report.
+ */
 public interface TreeRootHolder {
   /**
    * The root of the tree of Component representing the component in the current ScannerReport.
@@ -35,20 +38,4 @@ public interface TreeRootHolder {
    */
   Component getComponentByRef(int ref);
 
-  /**
-   * Retrieves the component with the specified key in the {@link Component} tree in the holder.
-   *
-   * @throws NullPointerException if {@code key} is {@code null}
-   * @throws IllegalStateException if the holder is empty (ie. there is not root  yet)
-   * @throws IllegalArgumentException if there is no {@link Component} with the specified key in the tree
-   */
-  Component getComponentByKey(String key);
-
-  /**
-   * Checks whether the {@link Component} with the specified key exists in the tree.
-   * 
-   * @throws NullPointerException if {@code key} is {@code null}
-   * @throws IllegalStateException if the holder is empty (ie. there is not root  yet)
-   */
-  boolean hasComponentWithKey(String key);
 }

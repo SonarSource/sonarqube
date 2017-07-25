@@ -44,14 +44,4 @@ public class TreeRootHolderRule extends ExternalResource implements TreeRootHold
   public Component getComponentByRef(int ref) {
     return delegate.getComponentByRef(ref);
   }
-
-  @Override
-  public Component getComponentByKey(String key) {
-    return delegate.getComponentByKey(key);
-  }
-
-  @Override
-  public boolean hasComponentWithKey(String key) {
-    return delegate.hasComponentWithKey(key);
-  }
 }

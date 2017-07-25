@@ -106,6 +106,26 @@ public class ComponentDto {
    */
   private String rootUuid;
 
+  /**
+   * On non-main branches only, {@link #uuid} of the main branch that represents
+   * the project ({@link #qualifier}="TRK").
+   * It is propagated to all the components of the branch.
+   *
+   * Value is null on the main-branch components and on other kinds of components
+   * (applications, portfolios).
+   *
+   * Value must be used for loading settings, checking permissions, running webhooks,
+   * selecting Quality profiles/gates and any other project-related operations.
+   *
+   * Example:
+   * - project P : kee=P, uuid=U1, qualifier=TRK, project_uuid=U1, main_branch_project_uuid=NULL
+   * - file F of project P : kee=P:F, uuid=U2, qualifier=FIL, project_uuid=U1, main_branch_project_uuid=NULL
+   * - branch B of project P : kee=P:BRANCH:B, uuid=U3, qualifier=TRK, project_uuid=U3, main_branch_project_uuid=U1
+   * - file F in branch B of project P : kee=P:F:BRANCH:B, uuid=U4, qualifier=FIL, project_uuid=U3, main_branch_project_uuid=U1
+   */
+  @Nullable
+  private String mainBranchProjectUuid;
+
   private String moduleUuid;
   private String moduleUuidPath;
   private String copyComponentUuid;
@@ -317,12 +337,26 @@ public class ComponentDto {
     return this;
   }
 
+  /**
+   * Use {@link #projectUuid()}, {@link #moduleUuid()} or {@link #moduleUuidPath()}
+   */
+  @Deprecated
   public String getRootUuid() {
     return rootUuid;
   }
 
   public ComponentDto setRootUuid(String rootUuid) {
     this.rootUuid = rootUuid;
+    return this;
+  }
+
+  @Nullable
+  public String getMainBranchProjectUuid() {
+    return mainBranchProjectUuid;
+  }
+
+  public ComponentDto setMainBranchProjectUuid(@Nullable String s) {
+    this.mainBranchProjectUuid = s;
     return this;
   }
 
@@ -430,6 +464,7 @@ public class ComponentDto {
       .append("moduleUuid", moduleUuid)
       .append("moduleUuidPath", moduleUuidPath)
       .append("rootUuid", rootUuid)
+      .append("mainBranchProjectUuid", mainBranchProjectUuid)
       .append("copyComponentUuid", copyComponentUuid)
       .append("developerUuid", developerUuid)
       .append("path", path)
