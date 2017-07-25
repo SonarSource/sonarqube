@@ -39,7 +39,7 @@ export default function MeasureDrilldown(props) {
             <Link
               activeClassName="active"
               to={{
-                pathname: `/component_measures/metric/${metric.key}/list`,
+                pathname: `/component_measures_old/metric/${metric.key}/list`,
                 query: { id: component.key }
               }}>
               <IconList />
@@ -51,7 +51,7 @@ export default function MeasureDrilldown(props) {
           <Link
             activeClassName="active"
             to={{
-              pathname: `/component_measures/metric/${metric.key}/tree`,
+              pathname: `/component_measures_old/metric/${metric.key}/tree`,
               query: { id: component.key }
             }}>
             <IconTree />
@@ -64,7 +64,7 @@ export default function MeasureDrilldown(props) {
             <Link
               activeClassName="active"
               to={{
-                pathname: `/component_measures/metric/${metric.key}/bubbles`,
+                pathname: `/component_measures_old/metric/${metric.key}/bubbles`,
                 query: { id: component.key }
               }}>
               <IconBubbles />
@@ -77,7 +77,7 @@ export default function MeasureDrilldown(props) {
             <Link
               activeClassName="active"
               to={{
-                pathname: `/component_measures/metric/${metric.key}/treemap`,
+                pathname: `/component_measures_old/metric/${metric.key}/treemap`,
                 query: { id: component.key }
               }}>
               <IconTreemap />

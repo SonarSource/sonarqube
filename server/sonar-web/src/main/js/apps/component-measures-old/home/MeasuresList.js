@@ -30,7 +30,7 @@ const MeasuresList = ({ measures, component, className = 'domain-measures' }) =>
         <li key={measure.metric.key} id={`measure-${measure.metric.key}`}>
           <Link
             to={{
-              pathname: `/component_measures/metric/${measure.metric.key}`,
+              pathname: `/component_measures_old/metric/${measure.metric.key}`,
               query: { id: component.key }
             }}>
             <div className="domain-measures-name">
