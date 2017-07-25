@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.component.BranchMapper">
+
+  <sql id="columns">
+    pb.uuid as uuid,
+    pb.project_uuid as projectUuid,
+    pb.kee_type as keeType,
+    pb.kee as kee,
+    pb.branch_type as branchType,
+    pb.merge_branch_uuid as mergeBranchUuid,
+    pb.pull_request_title as pullRequestTitle
+  </sql>
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    insert into project_branches (
+      uuid,
+      project_uuid,
+      kee_type,
+      kee,
+      branch_type,
+      merge_branch_uuid,
+      pull_request_title,
+      created_at
+    ) values (
+      #{dto.uuid, jdbcType=VARCHAR},
+      #{dto.projectUuid, jdbcType=VARCHAR},
+      #{dto.keeType, jdbcType=VARCHAR},
+      #{dto.kee, jdbcType=VARCHAR},
+      #{dto.branchType, jdbcType=VARCHAR},
+      #{dto.mergeBranchUuid, jdbcType=VARCHAR},
+      #{dto.pullRequestTitle, jdbcType=VARCHAR},
+      #{now, jdbcType=BIGINT}
+    )
+  </insert>
+
+</mapper>
