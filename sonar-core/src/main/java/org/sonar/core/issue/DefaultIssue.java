@@ -179,7 +179,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   /**
-   * Can be null on Views or Devs
+   * Can be null on Views
    */
   @Override
   @CheckForNull
