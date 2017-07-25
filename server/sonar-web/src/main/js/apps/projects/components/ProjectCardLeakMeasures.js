@@ -19,7 +19,7 @@
  */
 //@flow
 import React from 'react';
-import Measure from '../../component-measures/components/Measure';
+import Measure from '../../component-measures-old/components/Measure';
 import BugIcon from '../../../components/icons-components/BugIcon';
 import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 import Rating from '../../../components/ui/Rating';
