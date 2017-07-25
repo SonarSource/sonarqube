@@ -17,24 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.step;
+package org.sonar.db.component;
 
-import org.junit.Test;
-import org.sonar.server.computation.task.projectanalysis.api.developer.PersistDevelopersDelegate;
+import org.apache.ibatis.annotations.Param;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+public interface BranchMapper {
 
-public class PersistDevelopersStepTest {
+  void insert(@Param("dto") BranchDto dto, @Param("now") long now);
 
-  PersistDevelopersDelegate persistDevelopersDelegate = mock(PersistDevelopersDelegate.class);
-
-  PersistDevelopersStep underTest = new PersistDevelopersStep(persistDevelopersDelegate);
-
-  @Test
-  public void execute_calls_delegate_execute() throws Exception {
-    underTest.execute();
-
-    verify(persistDevelopersDelegate).execute();
-  }
 }
