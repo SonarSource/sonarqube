@@ -50,7 +50,7 @@ export default class Home extends React.PureComponent {
             <ul>
               <li>
                 <IndexLink
-                  to={{ pathname: '/component_measures', query: { id: component.key } }}
+                  to={{ pathname: '/component_measures_old', query: { id: component.key } }}
                   activeClassName="active">
                   {translate('all')}
                 </IndexLink>
@@ -59,7 +59,7 @@ export default class Home extends React.PureComponent {
                 <li key={domain.name}>
                   <Link
                     to={{
-                      pathname: `/component_measures/domain/${domain.name}`,
+                      pathname: `/component_measures_old/domain/${domain.name}`,
                       query: { id: component.key }
                     }}
                     activeClassName="active">

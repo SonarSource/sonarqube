@@ -44,7 +44,7 @@ exports[`should work with extensions 1`] = `
       style={Object {}}
       to={
         Object {
-          "pathname": "/component_measures",
+          "pathname": "/component_measures_old",
           "query": Object {
             "id": "foo",
           },
@@ -243,7 +243,7 @@ exports[`should work with multiple extensions 1`] = `
       style={Object {}}
       to={
         Object {
-          "pathname": "/component_measures",
+          "pathname": "/component_measures_old",
           "query": Object {
             "id": "foo",
           },

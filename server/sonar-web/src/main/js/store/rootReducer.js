@@ -28,7 +28,7 @@ import notifications, * as fromNotifications from './notifications/duck';
 import organizations, * as fromOrganizations from './organizations/duck';
 import organizationsMembers, * as fromOrganizationsMembers from './organizationsMembers/reducer';
 import globalMessages, * as fromGlobalMessages from './globalMessages/duck';
-import measuresApp, * as fromMeasuresApp from '../apps/component-measures/store/rootReducer';
+import measuresApp, * as fromMeasuresApp from '../apps/component-measures-old/store/rootReducer';
 import permissionsApp, * as fromPermissionsApp from '../apps/permissions/shared/store/rootReducer';
 import projectAdminApp, * as fromProjectAdminApp from '../apps/project-admin/store/rootReducer';
 import projectsApp, * as fromProjectsApp from '../apps/projects/store/reducer';

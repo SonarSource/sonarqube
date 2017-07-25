@@ -90,7 +90,7 @@ export default class MeasureDetails extends React.PureComponent {
       <section id="component-measures-details" className="page page-container page-limited">
         <div className="note">
           <IndexLink
-            to={{ pathname: '/component_measures', query: { id: component.key } }}
+            to={{ pathname: '/component_measures_old', query: { id: component.key } }}
             id="component-measures-back-to-all-measures"
             className="text-muted">
             {translate('component_measures.all_measures')}
@@ -100,7 +100,7 @@ export default class MeasureDetails extends React.PureComponent {
               {' / '}
               <Link
                 to={{
-                  pathname: `/component_measures/domain/${metric.domain}`,
+                  pathname: `/component_measures_old/domain/${metric.domain}`,
                   query: { id: component.key }
                 }}
                 className="text-muted">
