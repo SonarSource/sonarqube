@@ -160,6 +160,21 @@ public class SearchActionTest {
   }
 
   @Test
+  public void return_analyses_of_application() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application = db.components().insertApplication(organization);
+    userSession.registerComponents(application);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(2_000_000L));
+    SnapshotDto thirdAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(3_000_000L));
+
+    List<Analysis> result = call(application.key()).getAnalysesList();
+
+    assertThat(result).hasSize(3);
+    assertThat(result).extracting(Analysis::getKey).containsExactly(thirdAnalysis.getUuid(), secondAnalysis.getUuid(), firstAnalysis.getUuid());
+  }
+
+  @Test
   public void paginate_analyses() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
@@ -306,6 +321,18 @@ public class SearchActionTest {
   }
 
   @Test
+  public void empty_response() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    SearchResponse result = call(project.key());
+
+    assertThat(result.hasPaging()).isTrue();
+    assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsExactly(1, 100, 0);
+    assertThat(result.getAnalysesCount()).isEqualTo(0);
+  }
+
+  @Test
   public void definition() {
     WebService.Action definition = ws.getDef();
 
@@ -337,6 +364,18 @@ public class SearchActionTest {
     expectedException.expect(NotFoundException.class);
 
     call("P1");
+  }
+
+  @Test
+  public void fail_if_not_a_project_or_application() {
+    ComponentDto view = db.components().insertView();
+    db.components().insertSnapshot(newAnalysis(view));
+    userSession.registerComponents(view);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("A project or application is required");
+
+    call(view.key());
   }
 
   private static Function<Event, String> wsToDbCategory() {
