@@ -281,6 +281,25 @@ public class ComponentActionTest {
   }
 
   @Test
+  public void return_extensions_for_application() throws Exception {
+    Page page = Page.builder("my_plugin/app_page")
+      .setName("App Page")
+      .setScope(COMPONENT)
+      .setComponentQualifiers(Qualifier.VIEW, Qualifier.APP)
+      .build();
+
+    init(page);
+    ComponentDto application = componentDbTester.insertApplication(dbTester.getDefaultOrganization());
+    userSession.registerComponents(application);
+
+    String result = ws.newRequest()
+      .setParam(PARAM_COMPONENT, application.key())
+      .execute().getInput();
+
+    assertThat(result).contains("my_plugin/app_page");
+  }
+
+  @Test
   public void return_extensions_for_admin() throws Exception {
     init(createPages());
     componentDbTester.insertComponent(project);

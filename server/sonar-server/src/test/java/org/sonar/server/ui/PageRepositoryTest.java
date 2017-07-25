@@ -82,7 +82,8 @@ public class PageRepositoryTest {
       .addPage(Page.builder("my_plugin/K2").setName("K2").setScope(COMPONENT).setComponentQualifiers(Qualifier.PROJECT).build())
       .addPage(Page.builder("my_plugin/K3").setName("K3").setScope(COMPONENT).setComponentQualifiers(Qualifier.MODULE).build())
       .addPage(Page.builder("my_plugin/K4").setName("K4").setScope(GLOBAL).build())
-      .addPage(Page.builder("my_plugin/K5").setName("K5").setScope(COMPONENT).setComponentQualifiers(Qualifier.VIEW).build());
+      .addPage(Page.builder("my_plugin/K5").setName("K5").setScope(COMPONENT).setComponentQualifiers(Qualifier.VIEW).build())
+      .addPage(Page.builder("my_plugin/K6").setName("K6").setScope(COMPONENT).setComponentQualifiers(Qualifier.APP).build());
     underTest = new PageRepository(pluginRepository, new PageDefinition[] {plugin});
     underTest.start();
 
