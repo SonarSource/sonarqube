@@ -50,7 +50,8 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   private MeasureDtoToMeasure underTest = new MeasureDtoToMeasure();
   private final Set<Integer> loadedComponents = new HashSet<>();
 
-  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MetricRepository metricRepository, ReportMetricValidator reportMetricValidator) {
+  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MetricRepository metricRepository, 
+    ReportMetricValidator reportMetricValidator) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.reportMetricValidator = reportMetricValidator;
