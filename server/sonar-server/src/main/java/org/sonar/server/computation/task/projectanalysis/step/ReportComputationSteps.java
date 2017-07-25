@@ -47,6 +47,10 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     ValidateProjectStep.class,
 
     LoadQualityProfilesStep.class,
+    
+    // copy data in the incremental mode
+    IncrementalMeasureTransitionStep.class,
+    IncrementalDuplicationsStep.class,
 
     // load project related stuffs
     LoadQualityGateStep.class,

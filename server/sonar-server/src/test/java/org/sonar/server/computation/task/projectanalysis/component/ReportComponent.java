@@ -40,6 +40,7 @@ public class ReportComponent implements Component {
   public static final Component DUMB_PROJECT = builder(Type.PROJECT, 1).setKey("PROJECT_KEY").setUuid("PROJECT_UUID").setName("Project Name").setVersion("1.0-SNAPSHOT").build();
 
   private final Type type;
+  private final Status status;
   private final String name;
   @CheckForNull
   private final String description;
@@ -51,6 +52,7 @@ public class ReportComponent implements Component {
 
   private ReportComponent(Builder builder) {
     this.type = builder.type;
+    this.status = builder.status;
     this.key = builder.key;
     this.name = builder.name == null ? String.valueOf(builder.key) : builder.name;
     this.description = builder.description;
@@ -66,6 +68,11 @@ public class ReportComponent implements Component {
   @Override
   public Type getType() {
     return type;
+  }
+  
+  @Override
+  public Status getStatus() {
+    return status;
   }
 
   @Override
@@ -154,6 +161,7 @@ public class ReportComponent implements Component {
   public static final class Builder {
     private final Type type;
     private final int ref;
+    private Status status;
     private String uuid;
     private String key;
     private String name;
@@ -167,6 +175,11 @@ public class ReportComponent implements Component {
       checkArgument(type.isReportType(), "Component type must not be a report type");
       this.type = type;
       this.ref = ref;
+    }
+
+    public Builder setStatus(Status s) {
+      this.status = Objects.requireNonNull(s);
+      return this;
     }
 
     public Builder setUuid(String s) {
@@ -217,4 +230,5 @@ public class ReportComponent implements Component {
       return new ReportComponent(this);
     }
   }
+
 }

@@ -138,6 +138,11 @@ public class ViewsComponent implements Component {
   public Type getType() {
     return type;
   }
+  
+  @Override
+  public Status getStatus() {
+    return Status.UNAVAILABLE;
+  }
 
   @Override
   public String getUuid() {

@@ -115,6 +115,7 @@ public class ValidateProjectStep implements ComputationStep {
       this.rawProject = rawProject;
       String rawProjectKey = rawProject.getKey();
       validateBranch();
+      validateNotIncrementalAndFirstAnalysis(rawProjectKey);
       validateBatchKey(rawProject);
 
       Optional<ComponentDto> baseProject = loadBaseComponent(rawProjectKey);
@@ -129,6 +130,13 @@ public class ValidateProjectStep implements ComputationStep {
         if (!Qualifiers.PROJECT.equals(componentDto.qualifier()) || !Scopes.PROJECT.equals(componentDto.scope())) {
           validationMessages.add(format("Component (uuid=%s, key=%s) is not a project", rawProject.getUuid(), rawProject.getKey()));
         }
+      }
+    }
+
+    private void validateNotIncrementalAndFirstAnalysis(String rawProjectKey) {
+      if (analysisMetadataHolder.isIncrementalAnalysis() && analysisMetadataHolder.isFirstAnalysis()) {
+        validationMessages.add(format("The project \"%s\" hasn't been analysed before and the first analysis can't be incremental."
+          + " Please launch a full analysis of the project.", rawProjectKey));
       }
     }
 
