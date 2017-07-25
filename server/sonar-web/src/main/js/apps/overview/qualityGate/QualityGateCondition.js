@@ -22,7 +22,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
-import Measure from '../../component-measures/components/Measure';
+import Measure from '../../component-measures-old/components/Measure';
 import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { getComponentIssuesUrl } from '../../../helpers/urls';

@@ -56,7 +56,7 @@ export default function enhance(ComposedComponent) {
     renderHeader = (domain, label) => {
       const { component } = this.props;
       const domainUrl = {
-        pathname: `/component_measures/domain/${domain}`,
+        pathname: `/component_measures_old/domain/${domain}`,
         query: { id: component.key }
       };
 

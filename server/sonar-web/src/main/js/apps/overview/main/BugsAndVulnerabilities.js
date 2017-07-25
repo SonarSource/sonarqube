@@ -31,11 +31,11 @@ class BugsAndVulnerabilities extends React.PureComponent {
   renderHeader() {
     const { component } = this.props;
     const bugsDomainUrl = {
-      pathname: '/component_measures/domain/Reliability',
+      pathname: '/component_measures_old/domain/Reliability',
       query: { id: component.key }
     };
     const vulnerabilitiesDomainUrl = {
-      pathname: '/component_measures/domain/Security',
+      pathname: '/component_measures_old/domain/Security',
       query: { id: component.key }
     };
 

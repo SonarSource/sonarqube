@@ -20,7 +20,7 @@
 //@flow
 import React from 'react';
 import ProjectCardLanguages from './ProjectCardLanguages';
-import Measure from '../../component-measures/components/Measure';
+import Measure from '../../component-measures-old/components/Measure';
 import Rating from '../../../components/ui/Rating';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import DuplicationsRating from '../../../components/ui/DuplicationsRating';

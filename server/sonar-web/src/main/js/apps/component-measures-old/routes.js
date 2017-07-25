@@ -54,7 +54,7 @@ const routes = [
               onEnter(nextState, replace) {
                 const { params, location } = nextState;
                 replace({
-                  pathname: `/component_measures/metric/${params.metricKey}/list`,
+                  pathname: `/component_measures_old/metric/${params.metricKey}/list`,
                   query: location.query
                 });
               }
