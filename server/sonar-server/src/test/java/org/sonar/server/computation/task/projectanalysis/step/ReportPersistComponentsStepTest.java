@@ -130,6 +130,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(moduleDto.getUuidPath()).isEqualTo(projectDto.getUuidPath() + projectDto.uuid() + UUID_PATH_SEPARATOR);
     assertThat(moduleDto.moduleUuid()).isEqualTo(projectDto.uuid());
     assertThat(moduleDto.moduleUuidPath()).isEqualTo(projectDto.moduleUuidPath() + moduleDto.uuid() + ".");
+    assertThat(moduleDto.getMainBranchProjectUuid()).isNull();
     assertThat(moduleDto.projectUuid()).isEqualTo(projectDto.uuid());
     assertThat(moduleDto.qualifier()).isEqualTo("BRC");
     assertThat(moduleDto.scope()).isEqualTo("PRJ");
@@ -145,6 +146,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryDto.getUuidPath()).isEqualTo(moduleDto.getUuidPath() + moduleDto.uuid() + UUID_PATH_SEPARATOR);
     assertThat(directoryDto.moduleUuid()).isEqualTo(moduleDto.uuid());
     assertThat(directoryDto.moduleUuidPath()).isEqualTo(moduleDto.moduleUuidPath());
+    assertThat(directoryDto.getMainBranchProjectUuid()).isNull();
     assertThat(directoryDto.projectUuid()).isEqualTo(projectDto.uuid());
     assertThat(directoryDto.qualifier()).isEqualTo("DIR");
     assertThat(directoryDto.scope()).isEqualTo("DIR");
@@ -161,6 +163,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(fileDto.getUuidPath()).isEqualTo(directoryDto.getUuidPath() + directoryDto.uuid() + UUID_PATH_SEPARATOR);
     assertThat(fileDto.moduleUuid()).isEqualTo(moduleDto.uuid());
     assertThat(fileDto.moduleUuidPath()).isEqualTo(moduleDto.moduleUuidPath());
+    assertThat(fileDto.getMainBranchProjectUuid()).isNull();
     assertThat(fileDto.projectUuid()).isEqualTo(projectDto.uuid());
     assertThat(fileDto.qualifier()).isEqualTo("FIL");
     assertThat(fileDto.scope()).isEqualTo("FIL");
@@ -255,6 +258,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(projectReloaded.getId()).isEqualTo(project.getId());
     assertThat(projectReloaded.uuid()).isEqualTo(project.uuid());
     assertThat(projectReloaded.getUuidPath()).isEqualTo(UUID_PATH_OF_ROOT);
+    assertThat(projectReloaded.getMainBranchProjectUuid()).isNull();
 
     ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), MODULE_KEY).get();
     assertThat(moduleReloaded.getId()).isEqualTo(module.getId());
@@ -264,6 +268,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(moduleReloaded.moduleUuidPath()).isEqualTo(module.moduleUuidPath());
     assertThat(moduleReloaded.projectUuid()).isEqualTo(module.projectUuid());
     assertThat(moduleReloaded.getRootUuid()).isEqualTo(module.getRootUuid());
+    assertThat(moduleReloaded.getMainBranchProjectUuid()).isNull();
 
     ComponentDto directory = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir").get();
     assertThat(directory.getUuidPath()).isEqualTo(directory.getUuidPath());
@@ -271,6 +276,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directory.moduleUuidPath()).isEqualTo(module.moduleUuidPath());
     assertThat(directory.projectUuid()).isEqualTo(project.uuid());
     assertThat(directory.getRootUuid()).isEqualTo(module.uuid());
+    assertThat(directory.getMainBranchProjectUuid()).isNull();
 
     ComponentDto file = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
     assertThat(file.getUuidPath()).isEqualTo(file.getUuidPath());
@@ -278,6 +284,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(file.moduleUuidPath()).isEqualTo(module.moduleUuidPath());
     assertThat(file.projectUuid()).isEqualTo(project.uuid());
     assertThat(file.getRootUuid()).isEqualTo(module.uuid());
+    assertThat(file.getMainBranchProjectUuid()).isNull();
   }
 
   @Test
