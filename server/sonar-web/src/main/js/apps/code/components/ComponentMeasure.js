@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import Measure from '../../component-measures/components/Measure';
+import Measure from '../../component-measures-old/components/Measure';
 
 const ComponentMeasure = ({ component, metricKey, metricType }) => {
   const isProject = component.qualifier === 'TRK';

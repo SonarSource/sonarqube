@@ -78,14 +78,14 @@ describe('#getComponentIssuesUrl', () => {
 describe('#getComponentDrilldownUrl', () => {
   it('should return component drilldown url', () => {
     expect(getComponentDrilldownUrl(SIMPLE_COMPONENT_KEY, METRIC)).toEqual({
-      pathname: '/component_measures/metric/' + METRIC,
+      pathname: '/component_measures_old/metric/' + METRIC,
       query: { id: SIMPLE_COMPONENT_KEY }
     });
   });
 
   it('should not encode component key', () => {
     expect(getComponentDrilldownUrl(COMPLEX_COMPONENT_KEY, METRIC)).toEqual({
-      pathname: '/component_measures/metric/' + METRIC,
+      pathname: '/component_measures_old/metric/' + METRIC,
       query: { id: COMPLEX_COMPONENT_KEY }
     });
   });
