@@ -17,21 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.db.component;
 
-package org.sonar.server.platform.db.migration.version.v66;
+/**
+ * Supported values in column project_branches.kee_type
+ */
+public enum BranchKeyType {
+  /**
+   * Branch, whatever long or short, main or not.
+   */
+  BRANCH,
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
-
-public class DbVersion66 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(1800, "Create table project_branches", CreateTableProjectBranches.class)
-      .add(1801, "Add on project_branches key", AddIndexOnProjectBranchesKey.class)
-      .add(1802, "Add branch column to projects table", AddBranchColumnToProjectsTable.class)
-      .add(1800, "Add incremental column to snapthots table", AddIncrementalColumnToSnapshotsTable.class)
-      .add(1801, "Create table CE task characteristics", CreateTableCeTaskCharacteristics.class)
-    ;
-  }
+  /**
+   * Pull request
+   */
+  PR
 }
