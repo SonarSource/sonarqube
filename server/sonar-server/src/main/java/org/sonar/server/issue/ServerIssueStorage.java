@@ -67,10 +67,10 @@ public class ServerIssueStorage extends IssueStorage {
   }
 
   protected ComponentDto component(DbSession session, DefaultIssue issue) {
-    return getDbClient().componentDao().selectOrFailByKey(session, issue.componentKey());
+    return getDbClient().componentDao().selectOrFailByUuid(session, issue.componentUuid());
   }
 
   protected ComponentDto project(DbSession session, DefaultIssue issue) {
-    return getDbClient().componentDao().selectOrFailByKey(session, issue.projectKey());
+    return getDbClient().componentDao().selectOrFailByUuid(session, issue.projectUuid());
   }
 }
