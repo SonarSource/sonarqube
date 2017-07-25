@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.api.developer;
+package org.sonar.db.component;
 
-import org.sonar.server.computation.task.step.ComputationStep;
-
-/**
- * This interface is used to delegate the persistence of developers to the Developer Cockpit plugin
- */
-public interface PersistDevelopersDelegate {
+public enum BranchType {
 
   /**
-   * The delegate's implementation of {@link ComputationStep#execute()}.
+   * Long-lived branch
    */
-  void execute();
+  LONG,
 
+  /**
+   * Short-lived branch
+   */
+  SHORT
 }

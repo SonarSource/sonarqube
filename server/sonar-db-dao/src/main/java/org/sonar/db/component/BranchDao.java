@@ -17,7 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.computation.task.projectanalysis.api.developer;
+package org.sonar.db.component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
+
+public class BranchDao implements Dao {
+
+  private final System2 system2;
+
+  public BranchDao(System2 system2) {
+    this.system2 = system2;
+  }
+
+  public void insert(DbSession dbSession, BranchDto dto) {
+    mapper(dbSession).insert(dto, system2.now());
+  }
+
+  private static BranchMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(BranchMapper.class);
+  }
+}

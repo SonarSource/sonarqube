@@ -32,20 +32,6 @@ public final class ComponentFunctions {
     return ToReportRef.INSTANCE;
   }
 
-  public static Function<Component, String> toKey() {
-    return ToKey.INSTANCE;
-  }
-
-  private enum ToKey implements Function<Component, String> {
-    INSTANCE;
-
-    @Override
-    @Nonnull
-    public String apply(@Nonnull Component input) {
-      return input.getKey();
-    }
-  }
-
   private enum ToReportRef implements Function<Component, Integer> {
     INSTANCE;
     @Override
