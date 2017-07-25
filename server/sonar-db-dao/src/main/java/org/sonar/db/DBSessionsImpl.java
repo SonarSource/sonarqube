@@ -45,21 +45,17 @@ public class DBSessionsImpl implements DBSessions {
   }
 
   private DelegatingDbSessionSupplier buildRegularDbSessionSupplier() {
-    LOG.trace("{} called buildRegularDbSessionSupplier", currentThread());
     return new DelegatingDbSessionSupplier(() -> {
       DbSession res = myBatis.openSession(false);
       ensureAutoCommitFalse(res);
-      LOG.trace("{} created regular DbSession {}", currentThread(), res);
       return res;
     });
   }
 
   private DelegatingDbSessionSupplier buildBatchDbSessionSupplier() {
-    LOG.trace("{} called buildBatchDbSessionSupplier", currentThread());
     return new DelegatingDbSessionSupplier(() -> {
       DbSession res = myBatis.openSession(true);
       ensureAutoCommitFalse(res);
-      LOG.trace("{} created batch DbSession {}", currentThread(), res);
       return res;
     });
   }
@@ -79,17 +75,13 @@ public class DBSessionsImpl implements DBSessions {
 
   @Override
   public void enableCaching() {
-    LOG.trace("{} enabled caching", currentThread());
     CACHING_ENABLED.set(Boolean.TRUE);
   }
 
   @Override
   public DbSession openSession(boolean batch) {
-    LOG.trace("{} called openSession({}) (caching={})", currentThread(), batch, CACHING_ENABLED.get());
     if (!CACHING_ENABLED.get()) {
-      DbSession res = myBatis.openSession(batch);
-      LOG.trace("{} created non cached {} session (batch={})", currentThread(), res, batch);
-      return res;
+      return myBatis.openSession(batch);
     }
     if (batch) {
       return new NonClosingDbSession(batchDbSession.get().get());
@@ -99,7 +91,6 @@ public class DBSessionsImpl implements DBSessions {
 
   @Override
   public void disableCaching() {
-    LOG.trace("{} disabled caching", currentThread());
     close(regularDbSession, "regular");
     close(batchDbSession, "batch");
     regularDbSession.remove();
@@ -110,11 +101,9 @@ public class DBSessionsImpl implements DBSessions {
   public void close(ThreadLocal<DelegatingDbSessionSupplier> dbSessionThreadLocal, String label) {
     DelegatingDbSessionSupplier delegatingDbSessionSupplier = dbSessionThreadLocal.get();
     boolean getCalled = delegatingDbSessionSupplier.isPopulated();
-    LOG.trace("{} attempts closing on {} session (getCalled={})", currentThread(), label, getCalled);
     if (getCalled) {
       try {
         DbSession res = delegatingDbSessionSupplier.get();
-        LOG.trace("{} closes {}", currentThread(), res);
         res.close();
       } catch (Exception e) {
         LOG.error(format("Failed to close %s connection in %s", label, currentThread()), e);
