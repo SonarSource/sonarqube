@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.collect.Iterables;
+import java.util.stream.Collectors;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.computation.task.step.ComputationSteps;
@@ -37,14 +37,12 @@ public abstract class AbstractComputationSteps implements ComputationSteps {
 
   @Override
   public Iterable<ComputationStep> instances() {
-    return Iterables.transform(
-      orderedStepClasses(),
-      input -> {
-        ComputationStep computationStepType = container.getComponentByType(input);
-        if (computationStepType == null) {
-          throw new IllegalStateException(String.format("Component not found: %s", input));
-        }
-        return computationStepType;
-      });
+    return orderedStepClasses().stream().map(input -> {
+      ComputationStep computationStepType = container.getComponentByType(input);
+      if (computationStepType == null) {
+        throw new IllegalStateException(String.format("Component not found: %s", input));
+      }
+      return computationStepType;
+    }).collect(Collectors.toList());
   }
 }

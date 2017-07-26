@@ -44,8 +44,8 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
     }
   });
 
-  public ConfigurationRepositoryImpl(ProjectConfigurationFactory projectSettingsFactory) {
-    this.projectConfigurationFactory = projectSettingsFactory;
+  public ConfigurationRepositoryImpl(ProjectConfigurationFactory f) {
+    this.projectConfigurationFactory = f;
   }
 
   @Override

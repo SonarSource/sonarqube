@@ -71,12 +71,11 @@ public class LoadQualityGateStep implements ComputationStep {
   }
 
   private void executeForProject(Component project) {
-    String projectKey = project.getKey();
     Configuration config = configRepository.getConfiguration(project);
     String qualityGateSetting = config.get(PROPERTY_QUALITY_GATE).orElse(null);
 
     if (StringUtils.isBlank(qualityGateSetting)) {
-      LOGGER.debug("No quality gate is configured for project " + projectKey);
+      LOGGER.debug("No quality gate is configured for project " + project.getKey());
       qualityGateHolder.setNoQualityGate();
       return;
     }
