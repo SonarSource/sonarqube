@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -69,6 +70,7 @@ public class IssueQuery {
   private final Collection<String> languages;
   private final Collection<String> tags;
   private final Collection<String> types;
+  private final Map<String, Date> createdAfterByProjectUuids;
   private final Boolean onComponentOnly;
   private final Boolean assigned;
   private final Boolean resolved;
@@ -99,6 +101,7 @@ public class IssueQuery {
     this.languages = defaultCollection(builder.languages);
     this.tags = defaultCollection(builder.tags);
     this.types = defaultCollection(builder.types);
+    this.createdAfterByProjectUuids = defaultMap(builder.createdAfterByProjectUuids);
     this.onComponentOnly = builder.onComponentOnly;
     this.assigned = builder.assigned;
     this.resolved = builder.resolved;
@@ -178,6 +181,10 @@ public class IssueQuery {
 
   public Collection<String> types() {
     return types;
+  }
+
+  public Map<String, Date> createdAfterByProjectUuids() {
+    return createdAfterByProjectUuids;
   }
 
   @CheckForNull
@@ -260,6 +267,7 @@ public class IssueQuery {
     private Collection<String> languages;
     private Collection<String> tags;
     private Collection<String> types;
+    private Map<String, Date> createdAfterByProjectUuids;
     private Boolean onComponentOnly = false;
     private Boolean assigned = null;
     private Boolean resolved = null;
@@ -361,6 +369,11 @@ public class IssueQuery {
       return this;
     }
 
+    public Builder createdAfterByProjectUuids(@Nullable Map<String, Date> createdAfterByProjectUuids) {
+      this.createdAfterByProjectUuids = createdAfterByProjectUuids;
+      return this;
+    }
+
     /**
      * If true, it will return only issues on the passed component(s)
      * If false, it will return all issues on the passed component(s) and their descendants
@@ -442,4 +455,9 @@ public class IssueQuery {
   private static <T> Collection<T> defaultCollection(@Nullable Collection<T> c) {
     return c == null ? Collections.emptyList() : Collections.unmodifiableCollection(c);
   }
+
+  private static <K,V> Map<K,V> defaultMap(@Nullable Map<K,V> map) {
+    return map == null ? Collections.emptyMap() : Collections.unmodifiableMap(map);
+  }
+
 }
