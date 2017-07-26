@@ -79,6 +79,7 @@ export default function ProjectActivityApp(props: Props) {
             deleteAnalysis={props.deleteAnalysis}
             deleteEvent={props.deleteEvent}
             loading={props.loading}
+            project={props.project}
             query={props.query}
             updateQuery={props.updateQuery}
           />

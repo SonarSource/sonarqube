@@ -4,6 +4,11 @@ exports[`should correctly filter analyses by category 1`] = `
 <ul
   className="project-activity-versions-list"
   onScroll={[Function]}
+  style={
+    Object {
+      "paddingTop": 52,
+    }
+  }
 >
   <li>
     <div
@@ -68,6 +73,11 @@ exports[`should correctly filter analyses by date range 1`] = `
 <ul
   className="project-activity-versions-list"
   onScroll={[Function]}
+  style={
+    Object {
+      "paddingTop": 52,
+    }
+  }
 >
   <li>
     <div
@@ -132,6 +142,11 @@ exports[`should render correctly 1`] = `
 <ul
   className="project-activity-versions-list"
   onScroll={[Function]}
+  style={
+    Object {
+      "paddingTop": 52,
+    }
+  }
 >
   <li>
     <div

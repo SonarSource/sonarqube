@@ -71,6 +71,12 @@ exports[`should render correctly 1`] = `
         deleteAnalysis={[Function]}
         deleteEvent={[Function]}
         loading={false}
+        project={
+          Object {
+            "key": "org.sonarsource.sonarqube:sonarqube",
+            "leakPeriodDate": "2017-05-16T13:50:02+0200",
+          }
+        }
         query={
           Object {
             "category": "",
