@@ -64,7 +64,7 @@ export const datesQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =
 export const hasDataValues = (serie: Serie) => serie.data.some(point => point.y || point.y === 0);
 
 export const hasHistoryData = (series: Array<Serie>) =>
-  series.some(serie => serie.data && serie.data.length > 2);
+  series.some(serie => serie.data && serie.data.length > 1);
 
 export const historyQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
   prevQuery.graph !== nextQuery.graph;
