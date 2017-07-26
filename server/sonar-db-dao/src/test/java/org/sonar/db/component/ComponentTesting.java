@@ -189,4 +189,27 @@ public class ComponentTesting {
       .setEnabled(true)
       .setPrivate(moduleOrProject.isPrivate());
   }
+
+  public static ComponentDto newProjectBranch(ComponentDto project, String branchName) {
+    checkArgument(project.qualifier().equals(Qualifiers.PROJECT));
+    String uuid = Uuids.createFast();
+    return new ComponentDto()
+      .setUuid(uuid)
+      .setOrganizationUuid(project.getOrganizationUuid())
+      .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
+      .setProjectUuid(uuid)
+      .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
+      .setRootUuid(uuid)
+      .setDbKey(project.getDbKey() + ":BRANCH:" + branchName)
+      .setMainBranchProjectUuid(project.uuid())
+      .setName(project.name())
+      .setLongName(project.longName())
+      .setDescription(project.description())
+      .setScope(project.scope())
+      .setQualifier(project.qualifier())
+      .setPath(null)
+      .setLanguage(null)
+      .setEnabled(true)
+      .setPrivate(project.isPrivate());
+  }
 }

@@ -43,6 +43,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
 /**
  * Implementation of {@link UserSession} used in web server
@@ -143,7 +144,9 @@ public class ServerUserSession extends AbstractUserSession {
       if (!component.isPresent()) {
         return Optional.empty();
       }
-      projectUuid = component.get().projectUuid();
+      // if component is part of a branch, then permissions must be
+      // checked on the project (represented by its main branch)
+      projectUuid = defaultIfEmpty(component.get().getMainBranchProjectUuid(), component.get().projectUuid());
       projectUuidByComponentUuid.put(componentUuid, projectUuid);
       return Optional.of(projectUuid);
     }
