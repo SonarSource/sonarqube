@@ -27,9 +27,11 @@ import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.db.permission.OrganizationPermission;
+
+import static org.apache.commons.lang.StringUtils.defaultString;
 
 public abstract class AbstractUserSession implements UserSession {
   private static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
@@ -71,7 +73,11 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public final boolean hasComponentPermission(String permission, ComponentDto component) {
-    return isRoot() || hasProjectUuidPermission(permission, component.projectUuid());
+    if (isRoot()) {
+      return true;
+    }
+    String projectUuid = defaultString(component.getMainBranchProjectUuid(), component.projectUuid());
+    return hasProjectUuidPermission(permission, projectUuid);
   }
 
   @Override
