@@ -217,6 +217,7 @@ public class UserDbTester {
     checkArgument(!project.isPrivate(), "No permission to group AnyOne can be granted on a private project");
     checkArgument(!ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
       "permission %s can't be granted on a public project", permission);
+    checkArgument(project.getMainBranchProjectUuid()==null, "Permissions can't be granted on branches");
     GroupPermissionDto dto = new GroupPermissionDto()
       .setOrganizationUuid(project.getOrganizationUuid())
       .setGroupId(null)
@@ -236,6 +237,7 @@ public class UserDbTester {
     checkArgument(group.getOrganizationUuid().equals(project.getOrganizationUuid()), "Different organizations");
     checkArgument(project.isPrivate() || !ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
+    checkArgument(project.getMainBranchProjectUuid()==null, "Permissions can't be granted on branches");
     GroupPermissionDto dto = new GroupPermissionDto()
       .setOrganizationUuid(group.getOrganizationUuid())
       .setGroupId(group.getId())
@@ -308,6 +310,7 @@ public class UserDbTester {
   public UserPermissionDto insertProjectPermissionOnUser(UserDto user, String permission, ComponentDto project) {
     checkArgument(project.isPrivate() || !ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
+    checkArgument(project.getMainBranchProjectUuid()==null, "Permissions can't be granted on branches");
     UserPermissionDto dto = new UserPermissionDto(project.getOrganizationUuid(), permission, user.getId(), project.getId());
     db.getDbClient().userPermissionDao().insert(db.getSession(), dto);
     db.commit();
