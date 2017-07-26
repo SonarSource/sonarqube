@@ -1,0 +1,28 @@
+.measures-domains-leak-header {
+  float: right;
+  background-color: #fbf3d5;
+  border: 1px solid #eae3c7;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.domain-measures-leak {
+  background-color: #fbf3d5;
+  border: 1px solid #eae3c7;
+  padding: 4px 4px;
+  margin: -5px -5px;
+}
+
+.domain-measures-value .rating {
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  margin-top: -2px;
+  margin-bottom: -2px;
+  font-size: 12px;
+}
+
+.domain-measures-leak .rating {
+  margin-top: -3px;
+  margin-bottom: -3px;
+}
