@@ -20,7 +20,9 @@
 package org.sonar.server.component.ws;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
@@ -43,11 +45,13 @@ import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
 import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
@@ -120,9 +124,18 @@ public class SearchAction implements ComponentsWsAction {
       OrganizationDto organization = getOrganization(dbSession, request);
       Paging paging = buildPaging(dbSession, request, organization, query);
       List<ComponentDto> components = searchComponents(dbSession, organization, query, paging);
+      Map<String, String> projectKeysByUuids = searchProjectsKeysByUuids(dbSession, components);
 
-      return buildResponse(components, organization, paging);
+      return buildResponse(components, organization, projectKeysByUuids, paging);
     }
+  }
+
+  private Map<String, String> searchProjectsKeysByUuids(DbSession dbSession, List<ComponentDto> components) {
+    Set<String> projectUuidsToSearch = components.stream()
+      .map(ComponentDto::projectUuid)
+      .collect(toHashSet());
+    List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuidsToSearch);
+    return projects.stream().collect(toMap(ComponentDto::uuid, ComponentDto::key));
   }
 
   private static ComponentQuery buildQuery(SearchWsRequest request) {
@@ -154,7 +167,7 @@ public class SearchAction implements ComponentsWsAction {
     return userSession.keepAuthorizedComponents(UserRole.USER, componentDtos);
   }
 
-  private static SearchWsResponse buildResponse(List<ComponentDto> components, OrganizationDto organization, Paging paging) {
+  private static SearchWsResponse buildResponse(List<ComponentDto> components, OrganizationDto organization, Map<String, String> projectKeysByUuids, Paging paging) {
     SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -163,13 +176,13 @@ public class SearchAction implements ComponentsWsAction {
       .build();
 
     components.stream()
-      .map(dto -> dtoToComponent(organization, dto))
+      .map(dto -> dtoToComponent(organization, dto, projectKeysByUuids.get(dto.projectUuid())))
       .forEach(responseBuilder::addComponents);
 
     return responseBuilder.build();
   }
 
-  private static WsComponents.Component dtoToComponent(OrganizationDto organization, ComponentDto dto) {
+  private static WsComponents.Component dtoToComponent(OrganizationDto organization, ComponentDto dto, String projectKey) {
     checkArgument(
       organization.getUuid().equals(dto.getOrganizationUuid()),
       "No Organization found for uuid '%s'",
@@ -179,6 +192,7 @@ public class SearchAction implements ComponentsWsAction {
       .setOrganization(organization.getKey())
       .setId(dto.uuid())
       .setKey(dto.key())
+      .setProject(projectKey)
       .setName(dto.name())
       .setQualifier(dto.qualifier());
     setNullable(dto.language(), builder::setLanguage);

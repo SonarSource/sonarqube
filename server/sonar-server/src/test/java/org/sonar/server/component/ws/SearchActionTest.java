@@ -45,11 +45,14 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.DIRECTORY;
@@ -66,7 +69,6 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.WsComponents.Component;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
@@ -183,6 +185,25 @@ public class SearchActionTest {
     SearchWsResponse response = call(new SearchWsRequest().setQualifiers(singletonList(FILE)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(file1.getKey(), file2.getKey());
+  }
+
+  @Test
+  public void return_project_key() throws IOException {
+    ComponentDto project = ComponentTesting.newPublicProjectDto(db.getDefaultOrganization());
+    ComponentDto module = ComponentTesting.newModuleDto(project);
+    ComponentDto file1 = newFileDto(module).setKey("file1");
+    ComponentDto file2 = newFileDto(module).setKey("file2");
+    ComponentDto file3 = newFileDto(project).setKey("file3");
+    db.components().insertComponents(project, module, file1, file2, file3);
+
+    SearchWsResponse response = call(new SearchWsRequest().setQualifiers(asList(PROJECT, MODULE, FILE)));
+
+    assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getProject)
+      .containsOnly(tuple(project.getKey(), project.getKey()),
+        tuple(module.getKey(), project.getKey()),
+        tuple(file1.getKey(), project.getKey()),
+        tuple(file2.getKey(), project.getKey()),
+        tuple(file3.getKey(), project.getKey()));
   }
 
   @Test

@@ -10,7 +10,8 @@
       "id": "directory-uuid",
       "key": "directory-key",
       "qualifier": "DIR",
-      "name": "Directory Name"
+      "name": "Directory Name",
+      "project": "project-key"
     },
     {
       "organization": "my-org-1",
@@ -18,21 +19,24 @@
       "key": "file-key",
       "qualifier": "FIL",
       "name": "File Name",
-      "language": "java"
+      "language": "java",
+      "project": "project-key"
     },
     {
       "organization": "my-org-1",
       "id": "module-uuid",
       "key": "module-key",
       "qualifier": "BRC",
-      "name": "Module Name"
+      "name": "Module Name",
+      "project": "project-key"
     },
     {
       "organization": "my-org-1",
       "id": "project-uuid",
       "key": "project-key",
       "qualifier": "TRK",
-      "name": "Project Name"
+      "name": "Project Name",
+      "project": "project-key"
     }
   ]
 }
