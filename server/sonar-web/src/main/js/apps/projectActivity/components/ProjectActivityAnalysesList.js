@@ -199,6 +199,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
                             addVersion={this.props.addVersion}
                             analysis={analysis}
                             canAdmin={this.props.canAdmin}
+                            canCreateVersion={this.props.project.qualifier !== 'APP'}
                             changeEvent={this.props.changeEvent}
                             deleteAnalysis={this.props.deleteAnalysis}
                             deleteEvent={this.props.deleteEvent}

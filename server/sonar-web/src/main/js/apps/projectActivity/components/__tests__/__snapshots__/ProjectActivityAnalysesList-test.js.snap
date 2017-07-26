@@ -55,6 +55,7 @@ exports[`should correctly filter analyses by category 1`] = `
               }
             }
             canAdmin={false}
+            canCreateVersion={true}
             changeEvent={[Function]}
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
@@ -124,6 +125,7 @@ exports[`should correctly filter analyses by date range 1`] = `
               }
             }
             canAdmin={false}
+            canCreateVersion={true}
             changeEvent={[Function]}
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
@@ -193,6 +195,7 @@ exports[`should render correctly 1`] = `
               }
             }
             canAdmin={false}
+            canCreateVersion={true}
             changeEvent={[Function]}
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
@@ -243,6 +246,7 @@ exports[`should render correctly 1`] = `
               }
             }
             canAdmin={false}
+            canCreateVersion={true}
             changeEvent={[Function]}
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
@@ -289,6 +293,7 @@ exports[`should render correctly 1`] = `
               }
             }
             canAdmin={false}
+            canCreateVersion={true}
             changeEvent={[Function]}
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
@@ -336,6 +341,7 @@ exports[`should render correctly 1`] = `
               }
             }
             canAdmin={false}
+            canCreateVersion={true}
             changeEvent={[Function]}
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
