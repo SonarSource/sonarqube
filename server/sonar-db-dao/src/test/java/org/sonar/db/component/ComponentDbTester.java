@@ -191,4 +191,11 @@ public class ComponentDbTester {
     db.commit();
   }
 
+  public ComponentDto insertProjectBranch(ComponentDto project, String branchName) {
+    ComponentDto branch = ComponentTesting.newProjectBranch(project, branchName);
+    insertComponent(branch);
+    db.commit();
+    return branch;
+  }
+
 }
