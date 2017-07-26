@@ -30,6 +30,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
@@ -37,10 +38,14 @@ import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.entry;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.addDays;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 
 public class IssueQueryFactoryTest {
 
@@ -197,6 +202,44 @@ public class IssueQueryFactoryTest {
 
     assertThat(query.viewUuids()).containsOnly(view.uuid());
     assertThat(query.onComponentOnly()).isFalse();
+  }
+
+  @Test
+  public void application_search_project_issues() {
+    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    db.components().insertComponents(newProjectCopy("PC1", project1, application));
+    db.components().insertComponents(newProjectCopy("PC2", project2, application));
+    userSession.registerComponents(application, project1, project2);
+
+    IssueQuery result = underTest.create(new SearchWsRequest().setComponentUuids(singletonList(application.uuid())));
+
+    assertThat(result.viewUuids()).containsExactlyInAnyOrder(application.uuid());
+  }
+
+  @Test
+  public void application_search_project_issues_on_leak() {
+    Date now = new Date();
+    ComponentDto project1 = db.components().insertPublicProject();
+    SnapshotDto analysis1 = db.components().insertSnapshot(project1, s -> s.setPeriodDate(addDays(now, -14).getTime()));
+    ComponentDto project2 = db.components().insertPublicProject();
+    SnapshotDto analysis2 = db.components().insertSnapshot(project2, s -> s.setPeriodDate(null));
+    ComponentDto project3 = db.components().insertPublicProject();
+    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    db.components().insertComponents(newProjectCopy("PC1", project1, application));
+    db.components().insertComponents(newProjectCopy("PC2", project2, application));
+    db.components().insertComponents(newProjectCopy("PC3", project3, application));
+    userSession.registerComponents(application, project1, project2, project3);
+
+    IssueQuery result = underTest.create(new SearchWsRequest()
+      .setComponentUuids(singletonList(application.uuid()))
+      .setSinceLeakPeriod(true)
+    );
+
+    assertThat(result.createdAfterByProjectUuids()).containsOnly(
+        entry(project1.uuid(), new Date(analysis1.getPeriodDate())));
+    assertThat(result.viewUuids()).containsExactlyInAnyOrder(application.uuid());
   }
 
   @Test
