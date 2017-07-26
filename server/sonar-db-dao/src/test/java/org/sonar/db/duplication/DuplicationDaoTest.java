@@ -29,7 +29,6 @@ import org.sonar.db.DbTester;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class DuplicationDaoTest {
 
   @Rule
@@ -58,6 +57,25 @@ public class DuplicationDaoTest {
     // check null for lastSnapshotId
     blocks = dao.selectCandidates(dbSession, null, "java", singletonList("aa"));
     assertThat(blocks).hasSize(2);
+  }
+
+  @Test
+  public void select_component() {
+    db.prepareDbUnit(getClass(), "select_component.xml");
+    dbSession.commit();
+
+    List<DuplicationUnitDto> blocks = dao.selectComponent(dbSession, "uuid_3", "u5");
+    assertThat(blocks).hasSize(1);
+
+    DuplicationUnitDto block = blocks.get(0);
+    assertThat(block.getComponentKey()).isNull();
+    assertThat(block.getComponentUuid()).isEqualTo("uuid_3");
+    assertThat(block.getHash()).isEqualTo("bb");
+    assertThat(block.getAnalysisUuid()).isEqualTo("u5");
+    assertThat(block.getIndexInFile()).isEqualTo(0);
+    assertThat(block.getStartLine()).isEqualTo(0);
+    assertThat(block.getEndLine()).isEqualTo(0);
+
   }
 
   @Test
