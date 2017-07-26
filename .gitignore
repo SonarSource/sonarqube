@@ -27,6 +27,9 @@ dependency-reduced-pom.xml
 .settings
 .externalToolBuilders
 
+# ---- VSCode
+.vscode
+
 # ---- Mac OS X
 .DS_Store
 Icon?
