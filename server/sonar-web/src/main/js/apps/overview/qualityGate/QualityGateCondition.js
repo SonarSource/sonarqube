@@ -22,26 +22,20 @@ import React from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
-import Measure from '../../component-measures-old/components/Measure';
+import Measure from '../../../components/measure/Measure';
+import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import type { Component } from '../types';
+import type { MeasureEnhanced } from '../../../components/measure/types';
 
 export default class QualityGateCondition extends React.PureComponent {
   props: {
     component: Component,
     condition: {
       level: string,
-      measure: {
-        metric: {
-          key: string,
-          name: string,
-          type: string
-        },
-        value: string
-      },
+      measure: MeasureEnhanced,
       op: string,
       period: number,
       error: string,
@@ -49,10 +43,10 @@ export default class QualityGateCondition extends React.PureComponent {
     }
   };
 
-  getDecimalsNumber(threshold: number, value: number) {
+  getDecimalsNumber(threshold: number, value: number): ?number {
     const delta = Math.abs(threshold - value);
     if (delta < 0.1 && delta > 0) {
-      //$FlowFixMe The matching result can't null because of the previous check
+      //$FlowFixMe The matching result can't be null because of the previous check
       return delta.toFixed(20).match('[^0.]').index - 1;
     }
   }
@@ -130,7 +124,6 @@ export default class QualityGateCondition extends React.PureComponent {
 
   render() {
     const { condition } = this.props;
-
     const { measure } = condition;
     const { metric } = measure;
 
@@ -151,7 +144,7 @@ export default class QualityGateCondition extends React.PureComponent {
     return this.wrapWithLink(
       <div className="overview-quality-gate-condition-container">
         <div className="overview-quality-gate-condition-value">
-          <Measure measure={{ value: actual, leak: actual }} metric={metric} decimals={decimals} />
+          <Measure measure={{ ...measure, value: actual, leak: actual }} decimals={decimals} />
         </div>
 
         <div>

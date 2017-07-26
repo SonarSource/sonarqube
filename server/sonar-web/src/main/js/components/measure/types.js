@@ -17,27 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Measure from '../../../components/measure/Measure';
+// @flow
+import type { Metric } from '../../store/metrics/actions';
 
-const ComponentMeasure = ({ component, metricKey, metricType }) => {
-  const isProject = component.qualifier === 'TRK';
-  const isReleasability = metricKey === 'releasability_rating';
-
-  const finalMetricKey = isProject && isReleasability ? 'alert_status' : metricKey;
-  const finalMetricType = isProject && isReleasability ? 'LEVEL' : metricType;
-
-  const measure =
-    Array.isArray(component.measures) &&
-    component.measures.find(measure => measure.metric === finalMetricKey);
-
-  if (!measure) {
-    return <span />;
-  }
-
-  return (
-    <Measure measure={{ ...measure, metric: { key: finalMetricKey, type: finalMetricType } }} />
-  );
+type MeasureIntern = {
+  value?: string,
+  periods?: Array<{
+    index: number,
+    value: string
+  }>
 };
 
-export default ComponentMeasure;
+export type Measure = MeasureIntern & { metric: string };
+
+export type MeasureEnhanced = MeasureIntern & { metric: Metric, leak?: ?string };

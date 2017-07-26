@@ -17,27 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Measure from '../../../components/measure/Measure';
+// @flow
+import {
+  formatMeasure,
+  formatMeasureVariation,
+  getRatingTooltip as nextGetRatingTooltip,
+  isDiffMetric
+} from '../../helpers/measures';
+import type { Metric } from '../../store/metrics/actions';
 
-const ComponentMeasure = ({ component, metricKey, metricType }) => {
-  const isProject = component.qualifier === 'TRK';
-  const isReleasability = metricKey === 'releasability_rating';
+const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
 
-  const finalMetricKey = isProject && isReleasability ? 'alert_status' : metricKey;
-  const finalMetricType = isProject && isReleasability ? 'LEVEL' : metricType;
-
-  const measure =
-    Array.isArray(component.measures) &&
-    component.measures.find(measure => measure.metric === finalMetricKey);
-
-  if (!measure) {
-    return <span />;
+export function formatLeak(value: ?string, metric: Metric, options: Object) {
+  if (isDiffMetric(metric.key)) {
+    return formatMeasure(value, metric.type, options);
+  } else {
+    return formatMeasureVariation(value, metric.type, options);
   }
+}
 
-  return (
-    <Measure measure={{ ...measure, metric: { key: finalMetricKey, type: finalMetricType } }} />
-  );
-};
-
-export default ComponentMeasure;
+export function getRatingTooltip(metricKey: string, value: ?string) {
+  const finalMetricKey = isDiffMetric(metricKey) ? metricKey.substr(4) : metricKey;
+  if (KNOWN_RATINGS.includes(finalMetricKey)) {
+    return nextGetRatingTooltip(finalMetricKey, value);
+  }
+  return null;
+}
