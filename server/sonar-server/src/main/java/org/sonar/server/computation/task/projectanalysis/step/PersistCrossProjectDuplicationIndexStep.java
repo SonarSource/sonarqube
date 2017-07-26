@@ -31,10 +31,13 @@ import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthL
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
+import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+
+import java.util.List;
 
 /**
  * Persist cross project duplications text blocks into DUPLICATIONS_INDEX table
@@ -87,6 +90,14 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
     }
 
     private void visitComponent(Component component) {
+      if (component.getStatus() == Status.SAME) {
+        readFromDb(component);
+      } else {
+        readFromReport(component);
+      }
+    }
+
+    private void readFromReport(Component component) {
       int indexInFile = 0;
       CloseableIterator<ScannerReport.CpdTextBlock> blocks = reportReader.readCpdTextBlocks(component.getReportAttributes().getRef());
       try {
@@ -105,6 +116,17 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
         }
       } finally {
         blocks.close();
+      }
+    }
+
+    private void readFromDb(Component component) {
+      int indexInFile = 0;
+      List<DuplicationUnitDto> units = dbClient.duplicationDao().selectComponent(session, component.getUuid());
+      for (DuplicationUnitDto unit : units) {
+        unit.setAnalysisUuid(analysisUuid);
+        unit.setIndexInFile(indexInFile);
+        dbClient.duplicationDao().insert(session, unit);
+        indexInFile++;
       }
     }
   }
