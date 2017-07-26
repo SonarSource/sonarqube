@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display leak measure value 1`] = `
+<div
+  className="domain-measures-value domain-measures-leak"
+  id="measure-new_bugs-leak"
+>
+  <Measure
+    measure={
+      Object {
+        "leak": "5",
+        "metric": Object {
+          "domain": "Reliability",
+          "key": "new_bugs",
+          "name": "New Bugs",
+          "type": "INT",
+        },
+        "periods": Array [
+          Object {
+            "index": 1,
+            "value": "5",
+          },
+        ],
+      }
+    }
+  />
+</div>
+`;
+
+exports[`should display measure value 1`] = `
+<div
+  className="domain-measures-value"
+  id="measure-bugs-value"
+>
+  <Measure
+    measure={
+      Object {
+        "leak": "5",
+        "metric": Object {
+          "domain": "Reliability",
+          "key": "bugs",
+          "name": "Bugs",
+          "type": "INT",
+        },
+        "periods": Array [
+          Object {
+            "index": 1,
+            "value": "5",
+          },
+        ],
+        "value": "5",
+      }
+    }
+  />
+</div>
+`;

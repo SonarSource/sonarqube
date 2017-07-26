@@ -1,0 +1,209 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display facet item list 1`] = `
+<FacetBox>
+  <FacetHeader
+    name="Reliability"
+    onClick={[Function]}
+    open={true}
+    values={0}
+  />
+  <FacetItemsList>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      name={
+        <Tooltip
+          mouseEnterDelay={1}
+          overlay="Bugs"
+          placement="bottom"
+        >
+          <span
+            id="measure-bugs-name"
+          >
+            <IssueTypeIcon
+              className="little-spacer-right"
+              query="bugs"
+            />
+            Bugs
+          </span>
+        </Tooltip>
+      }
+      onClick={[Function]}
+      stat={
+        <FacetItemMeasureValue
+          measure={
+            Object {
+              "leak": "5",
+              "metric": Object {
+                "domain": "Reliability",
+                "key": "bugs",
+                "name": "Bugs",
+                "type": "INT",
+              },
+              "periods": Array [
+                Object {
+                  "index": 1,
+                  "value": "5",
+                },
+              ],
+              "value": "5",
+            }
+          }
+        />
+      }
+      value="bugs"
+    />
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      name={
+        <Tooltip
+          mouseEnterDelay={1}
+          overlay="New Bugs"
+          placement="bottom"
+        >
+          <span
+            id="measure-new_bugs-name"
+          >
+            <IssueTypeIcon
+              className="little-spacer-right"
+              query="new_bugs"
+            />
+            New Bugs
+          </span>
+        </Tooltip>
+      }
+      onClick={[Function]}
+      stat={
+        <FacetItemMeasureValue
+          measure={
+            Object {
+              "leak": "5",
+              "metric": Object {
+                "domain": "Reliability",
+                "key": "new_bugs",
+                "name": "New Bugs",
+                "type": "INT",
+              },
+              "periods": Array [
+                Object {
+                  "index": 1,
+                  "value": "5",
+                },
+              ],
+            }
+          }
+        />
+      }
+      value="new_bugs"
+    />
+  </FacetItemsList>
+</FacetBox>
+`;
+
+exports[`should display facet item list with bugs selected 1`] = `
+<FacetBox>
+  <FacetHeader
+    name="Reliability"
+    onClick={[Function]}
+    open={true}
+    values={1}
+  />
+  <FacetItemsList>
+    <FacetItem
+      active={true}
+      disabled={false}
+      halfWidth={false}
+      name={
+        <Tooltip
+          mouseEnterDelay={1}
+          overlay="Bugs"
+          placement="bottom"
+        >
+          <span
+            id="measure-bugs-name"
+          >
+            <IssueTypeIcon
+              className="little-spacer-right"
+              query="bugs"
+            />
+            Bugs
+          </span>
+        </Tooltip>
+      }
+      onClick={[Function]}
+      stat={
+        <FacetItemMeasureValue
+          measure={
+            Object {
+              "leak": "5",
+              "metric": Object {
+                "domain": "Reliability",
+                "key": "bugs",
+                "name": "Bugs",
+                "type": "INT",
+              },
+              "periods": Array [
+                Object {
+                  "index": 1,
+                  "value": "5",
+                },
+              ],
+              "value": "5",
+            }
+          }
+        />
+      }
+      value="bugs"
+    />
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      name={
+        <Tooltip
+          mouseEnterDelay={1}
+          overlay="New Bugs"
+          placement="bottom"
+        >
+          <span
+            id="measure-new_bugs-name"
+          >
+            <IssueTypeIcon
+              className="little-spacer-right"
+              query="new_bugs"
+            />
+            New Bugs
+          </span>
+        </Tooltip>
+      }
+      onClick={[Function]}
+      stat={
+        <FacetItemMeasureValue
+          measure={
+            Object {
+              "leak": "5",
+              "metric": Object {
+                "domain": "Reliability",
+                "key": "new_bugs",
+                "name": "New Bugs",
+                "type": "INT",
+              },
+              "periods": Array [
+                Object {
+                  "index": 1,
+                  "value": "5",
+                },
+              ],
+            }
+          }
+        />
+      }
+      value="new_bugs"
+    />
+  </FacetItemsList>
+</FacetBox>
+`;

@@ -1,0 +1,82 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display two facets 1`] = `
+<div
+  className="search-navigator-facets-list"
+>
+  <DomainFacet
+    domain={
+      Object {
+        "measures": Array [
+          Object {
+            "leak": "0.0999999999999943",
+            "metric": Object {
+              "domain": "Coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "periods": Array [
+              Object {
+                "index": 1,
+                "value": "0.0999999999999943",
+              },
+            ],
+            "value": "99.3",
+          },
+          Object {
+            "leak": "70",
+            "metric": Object {
+              "domain": "Coverage",
+              "key": "lines_to_cover",
+              "name": "Lines to Cover",
+              "type": "INT",
+            },
+            "periods": Array [
+              Object {
+                "index": 1,
+                "value": "70",
+              },
+            ],
+            "value": "431",
+          },
+        ],
+        "name": "Coverage",
+      }
+    }
+    onChange={[Function]}
+    onToggle={[Function]}
+    open={true}
+    selected="foo"
+  />
+  <DomainFacet
+    domain={
+      Object {
+        "measures": Array [
+          Object {
+            "leak": "0.0",
+            "metric": Object {
+              "domain": "Duplications",
+              "key": "duplicated_lines_density",
+              "name": "Duplicated Lines (%)",
+              "type": "PERCENT",
+            },
+            "periods": Array [
+              Object {
+                "index": 1,
+                "value": "0.0",
+              },
+            ],
+            "value": "3.2",
+          },
+        ],
+        "name": "Duplications",
+      }
+    }
+    onChange={[Function]}
+    onToggle={[Function]}
+    open={true}
+    selected="foo"
+  />
+</div>
+`;
