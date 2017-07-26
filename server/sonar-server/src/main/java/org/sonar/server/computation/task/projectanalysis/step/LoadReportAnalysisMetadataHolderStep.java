@@ -47,6 +47,7 @@ import org.sonar.server.qualityprofile.QualityProfile;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.transformValues;
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
@@ -72,7 +73,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   private final BillingValidations billingValidations;
 
   public LoadReportAnalysisMetadataHolderStep(CeTask ceTask, BatchReportReader reportReader, MutableAnalysisMetadataHolder mutableAnalysisMetadataHolder,
-    DefaultOrganizationProvider defaultOrganizationProvider, DbClient dbClient, BillingValidationsProxy billingValidations) {
+                                              DefaultOrganizationProvider defaultOrganizationProvider, DbClient dbClient, BillingValidationsProxy billingValidations) {
     this.ceTask = ceTask;
     this.reportReader = reportReader;
     this.mutableAnalysisMetadataHolder = mutableAnalysisMetadataHolder;
@@ -93,7 +94,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     checkQualityProfilesConsistency(reportMetadata, organization);
 
     mutableAnalysisMetadataHolder.setRootComponentRef(reportMetadata.getRootComponentRef());
-    mutableAnalysisMetadataHolder.setBranch(isNotEmpty(reportMetadata.getBranch()) ? reportMetadata.getBranch() : null);
+    mutableAnalysisMetadataHolder.setBranch(defaultIfBlank(reportMetadata.getBranch(), null));
     mutableAnalysisMetadataHolder.setCrossProjectDuplicationEnabled(reportMetadata.getCrossProjectDuplicationActivated());
     mutableAnalysisMetadataHolder.setQProfilesByLanguage(transformValues(reportMetadata.getQprofilesPerLanguage(), TO_COMPUTE_QPROFILE));
     mutableAnalysisMetadataHolder.setOrganization(organization);

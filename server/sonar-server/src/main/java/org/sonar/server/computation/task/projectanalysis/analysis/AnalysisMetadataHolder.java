@@ -75,6 +75,7 @@ public interface AnalysisMetadataHolder {
   String getBranch();
 
   /**
+   * Reference of the root component in the scanner report
    * @throws IllegalStateException if root component ref has not been set
    */
   int getRootComponentRef();
