@@ -121,6 +121,18 @@ export default class ComponentNavMenu extends React.PureComponent {
     );
   }
 
+  renderComponentMeasuresLink() {
+    return (
+      <li>
+        <Link
+          to={{ pathname: '/component_measures', query: { id: this.props.component.key } }}
+          activeClassName="active">
+          {translate('layout.measures')}
+        </Link>
+      </li>
+    );
+  }
+
   renderComponentMeasuresOldLink() {
     return (
       <li>
@@ -359,6 +371,7 @@ export default class ComponentNavMenu extends React.PureComponent {
       <NavBarTabs>
         {this.renderDashboardLink()}
         {this.renderIssuesLink()}
+        {this.renderComponentMeasuresLink()}
         {this.renderComponentMeasuresOldLink()}
         {this.renderCodeLink()}
         {this.renderActivityLink()}

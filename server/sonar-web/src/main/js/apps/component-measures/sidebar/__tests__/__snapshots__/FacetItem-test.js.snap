@@ -3,7 +3,6 @@
 exports[`should render active 1`] = `
 <a
   className="facet search-navigator-facet active"
-  data-value="bar"
   href="#"
   onClick={[Function]}
 >
@@ -12,6 +11,9 @@ exports[`should render active 1`] = `
   >
     foo
   </span>
+  <span
+    className="facet-stat"
+  />
 </a>
 `;
 
@@ -24,13 +26,15 @@ exports[`should render disabled 1`] = `
   >
     foo
   </span>
+  <span
+    className="facet-stat"
+  />
 </span>
 `;
 
 exports[`should render effort stat 1`] = `
 <a
   className="facet search-navigator-facet"
-  data-value="bar"
   href="#"
   onClick={[Function]}
 >
@@ -42,7 +46,7 @@ exports[`should render effort stat 1`] = `
   <span
     className="facet-stat"
   >
-    work_duration.x_days.3
+    1234
   </span>
 </a>
 `;
@@ -50,7 +54,6 @@ exports[`should render effort stat 1`] = `
 exports[`should render half width 1`] = `
 <a
   className="facet search-navigator-facet search-navigator-facet-half"
-  data-value="bar"
   href="#"
   onClick={[Function]}
 >
@@ -59,13 +62,15 @@ exports[`should render half width 1`] = `
   >
     foo
   </span>
+  <span
+    className="facet-stat"
+  />
 </a>
 `;
 
 exports[`should render inactive 1`] = `
 <a
   className="facet search-navigator-facet"
-  data-value="bar"
   href="#"
   onClick={[Function]}
 >
@@ -74,13 +79,15 @@ exports[`should render inactive 1`] = `
   >
     foo
   </span>
+  <span
+    className="facet-stat"
+  />
 </a>
 `;
 
 exports[`should render stat 1`] = `
 <a
   className="facet search-navigator-facet"
-  data-value="bar"
   href="#"
   onClick={[Function]}
 >
