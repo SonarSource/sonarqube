@@ -26,7 +26,7 @@ import './Level.css';
 export default class Level extends React.PureComponent {
   static propTypes = {
     className: PropTypes.string,
-    level: PropTypes.oneOf(['ERROR', 'WARN', 'OK']).isRequired,
+    level: PropTypes.oneOf(['ERROR', 'WARN', 'OK', 'NONE']).isRequired,
     small: PropTypes.bool,
     muted: PropTypes.bool
   };
