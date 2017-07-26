@@ -28,45 +28,18 @@ import type { MeasureEnhanced } from './types';
 
 type Props = {
   className?: string,
-  measure: MeasureEnhanced,
-  decimals?: ?number
+  decimals?: ?number,
+  measure: MeasureEnhanced
 };
 
-export default class Measure extends React.PureComponent {
-  props: Props;
+export default function Measure({ className, decimals, measure }: Props) {
+  const metric = measure.metric;
 
-  renderRating() {
-    const { measure } = this.props;
-    const metric = measure.metric;
-    const value = isDiffMetric(metric.key) ? measure.leak : measure.value;
-    const tooltip = getRatingTooltip(metric.key, value);
-    const rating = <Rating value={value} />;
-
-    if (tooltip) {
-      return (
-        <Tooltips overlay={tooltip}>
-          <span className={this.props.className}>
-            {rating}
-          </span>
-        </Tooltips>
-      );
-    }
-
-    return rating;
+  if (metric.type === 'LEVEL') {
+    return <Level className={className} level={measure.value} />;
   }
 
-  render() {
-    const { className, decimals, measure } = this.props;
-    const metric = measure.metric;
-
-    if (metric.type === 'RATING') {
-      return this.renderRating();
-    }
-
-    if (metric.type === 'LEVEL') {
-      return <Level className={className} level={measure.value} />;
-    }
-
+  if (metric.type !== 'RATING') {
     const formattedValue = isDiffMetric(metric.key)
       ? formatLeak(measure.leak, metric, { decimals })
       : formatMeasure(measure.value, metric.type, { decimals });
@@ -76,4 +49,18 @@ export default class Measure extends React.PureComponent {
       </span>
     );
   }
+
+  const value = isDiffMetric(metric.key) ? measure.leak : measure.value;
+  const tooltip = getRatingTooltip(metric.key, value);
+  const rating = <Rating value={value} />;
+  if (tooltip) {
+    return (
+      <Tooltips overlay={tooltip}>
+        <span className={className}>
+          {rating}
+        </span>
+      </Tooltips>
+    );
+  }
+  return rating;
 }

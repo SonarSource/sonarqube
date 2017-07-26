@@ -20,16 +20,14 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import { formatMeasure } from '../../../../helpers/measures';
 
 type Props = {|
   active: boolean,
   disabled: boolean,
-  facetMode: string,
   halfWidth: boolean,
   name: string | React.Element<*>,
   onClick: string => void,
-  stat: ?number,
+  stat: string | React.Element<*>,
   value: string
 |};
 
@@ -43,40 +41,31 @@ export default class FacetItem extends React.PureComponent {
 
   handleClick = (event: Event & { currentTarget: HTMLElement }) => {
     event.preventDefault();
-    const value = event.currentTarget.dataset.value;
-    this.props.onClick(value);
+    this.props.onClick(this.props.value);
   };
 
   render() {
-    const { stat } = this.props;
-
     const className = classNames('facet', 'search-navigator-facet', {
       active: this.props.active,
       'search-navigator-facet-half': this.props.halfWidth
     });
-
-    const formattedStat =
-      stat &&
-      formatMeasure(stat, this.props.facetMode === 'effort' ? 'SHORT_WORK_DUR' : 'SHORT_INT');
 
     return this.props.disabled
       ? <span className={className}>
           <span className="facet-name">
             {this.props.name}
           </span>
-          {formattedStat != null &&
-            <span className="facet-stat">
-              {formattedStat}
-            </span>}
+          <span className="facet-stat">
+            {this.props.stat}
+          </span>
         </span>
-      : <a className={className} data-value={this.props.value} href="#" onClick={this.handleClick}>
+      : <a className={className} href="#" onClick={this.handleClick}>
           <span className="facet-name">
             {this.props.name}
           </span>
-          {formattedStat != null &&
-            <span className="facet-stat">
-              {formattedStat}
-            </span>}
+          <span className="facet-stat">
+            {this.props.stat}
+          </span>
         </a>;
   }
 }
