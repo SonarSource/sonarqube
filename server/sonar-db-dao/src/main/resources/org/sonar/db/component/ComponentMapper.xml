@@ -238,18 +238,21 @@
 
   <select id="selectByQuery" resultType="Component">
     select
-      <include refid="componentColumns"/>
+      <include refid="componentColumns"/>,
+      root.kee as projectKey
+    from projects p
+    inner join projects root on p.project_uuid=root.uuid and p.organization_uuid=root.organization_uuid
     <include refid="sqlSelectByQuery"/>
     ORDER BY LOWER(p.name), p.name, p.id
   </select>
 
   <select id="countByQuery" resultType="int">
     select count(p.id)
+    from projects p
     <include refid="sqlSelectByQuery"/>
   </select>
 
   <sql id="sqlSelectByQuery">
-    from projects p
     where
       p.enabled=${_true}
       AND p.copy_component_uuid is null
