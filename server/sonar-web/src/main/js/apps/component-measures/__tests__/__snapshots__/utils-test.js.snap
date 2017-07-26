@@ -1,0 +1,97 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`groupByDomains should correctly group by domains 1`] = `
+Array [
+  Object {
+    "measures": Array [
+      Object {
+        "leak": "0.0999999999999943",
+        "metric": Object {
+          "domain": "Coverage",
+          "key": "coverage",
+          "name": "Coverage",
+          "type": "PERCENT",
+        },
+        "periods": Array [
+          Object {
+            "index": 1,
+            "value": "0.0999999999999943",
+          },
+        ],
+        "value": "99.3",
+      },
+      Object {
+        "leak": "70",
+        "metric": Object {
+          "domain": "Coverage",
+          "key": "lines_to_cover",
+          "name": "Lines to Cover",
+          "type": "INT",
+        },
+        "periods": Array [
+          Object {
+            "index": 1,
+            "value": "70",
+          },
+        ],
+        "value": "431",
+      },
+    ],
+    "name": "Coverage",
+  },
+  Object {
+    "measures": Array [
+      Object {
+        "leak": "0.0",
+        "metric": Object {
+          "domain": "Duplications",
+          "key": "duplicated_lines_density",
+          "name": "Duplicated Lines (%)",
+          "type": "PERCENT",
+        },
+        "periods": Array [
+          Object {
+            "index": 1,
+            "value": "0.0",
+          },
+        ],
+        "value": "3.2",
+      },
+    ],
+    "name": "Duplications",
+  },
+]
+`;
+
+exports[`sortMeasures should sort based on the config 1`] = `
+Array [
+  Object {
+    "metric": Object {
+      "key": "bugs",
+      "name": "bugs",
+      "type": "INT",
+    },
+  },
+  Object {
+    "metric": Object {
+      "key": "new_bugs",
+      "name": "new_bugs",
+      "type": "INT",
+    },
+  },
+  Object {
+    "metric": Object {
+      "key": "reliability_remediation_effort",
+      "name": "new_bugs",
+      "type": "INT",
+    },
+  },
+  Object {
+    "metric": Object {
+      "key": "new_reliability_remediation_effort",
+      "name": "bugs",
+      "type": "INT",
+    },
+  },
+]
+`;

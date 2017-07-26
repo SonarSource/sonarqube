@@ -44,7 +44,7 @@ exports[`should work with extensions 1`] = `
       style={Object {}}
       to={
         Object {
-          "pathname": "/component_measures_old",
+          "pathname": "/component_measures",
           "query": Object {
             "id": "foo",
           },
@@ -52,6 +52,23 @@ exports[`should work with extensions 1`] = `
       }
     >
       layout.measures
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures_old",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      Old Measures
     </Link>
   </li>
   <li>
@@ -243,7 +260,7 @@ exports[`should work with multiple extensions 1`] = `
       style={Object {}}
       to={
         Object {
-          "pathname": "/component_measures_old",
+          "pathname": "/component_measures",
           "query": Object {
             "id": "foo",
           },
@@ -251,6 +268,23 @@ exports[`should work with multiple extensions 1`] = `
       }
     >
       layout.measures
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures_old",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      Old Measures
     </Link>
   </li>
   <li>

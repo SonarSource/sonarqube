@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="layout-page"
+  id="component-measures"
+>
+  <HelmetWrapper
+    encodeSpecialCharacters={true}
+    title="layout.measures"
+  />
+  <div
+    className="layout-page-side-outer"
+  >
+    <div
+      className="layout-page-side"
+      style={
+        Object {
+          "top": 95,
+        }
+      }
+    >
+      <div
+        className="layout-page-side-inner"
+      >
+        <div
+          className="layout-page-filters"
+        >
+          <Sidebar
+            measures={Array []}
+            selectedMetric=""
+            updateQuery={[Function]}
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    className="layout-page-main"
+  >
+    <div
+      className="layout-page-header-panel layout-page-main-header issues-main-header"
+    >
+      <div
+        className="layout-page-header-panel-inner layout-page-main-header-inner"
+      >
+        <div
+          className="layout-page-main-inner"
+        >
+          Page Actions
+        </div>
+      </div>
+    </div>
+    <div
+      className="layout-page-main-inner"
+    >
+      Main
+    </div>
+  </div>
+</div>
+`;
