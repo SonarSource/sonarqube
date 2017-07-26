@@ -50,7 +50,7 @@ export default function QualityGate({ component, measures }: Props) {
 
   let conditions = [];
   if (detailsMeasure && detailsMeasure.value) {
-    conditions = parseQualityGateDetails(detailsMeasure.value).conditions;
+    conditions = parseQualityGateDetails(detailsMeasure.value).conditions || [];
   }
 
   return (
