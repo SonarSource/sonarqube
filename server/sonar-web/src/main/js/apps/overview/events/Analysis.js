@@ -25,7 +25,12 @@ import FormattedDate from '../../../components/ui/FormattedDate';
 import { translate } from '../../../helpers/l10n';
 import type { Analysis as AnalysisType, Event as EventType } from '../../projectActivity/types';
 
-export default function Analysis(props: { analysis: AnalysisType }) {
+type Props = {
+  analysis: AnalysisType,
+  qualifier: string
+};
+
+export default function Analysis(props: Props) {
   const { analysis } = props;
   const sortedEvents: Array<EventType> = sortBy(
     analysis.events,
@@ -48,7 +53,7 @@ export default function Analysis(props: { analysis: AnalysisType }) {
             {sortedEvents.map(event => <Event event={event} key={event.key} />)}
           </div>
         : <span className="note">
-            {translate('project_activity.project_analyzed')}
+            {translate('project_activity.analyzed', props.qualifier)}
           </span>}
     </li>
   );

@@ -56,7 +56,12 @@ const Meta = ({ component, history, measures, areThereCustomOrganizations, route
       {isProject && <MetaTags component={component} />}
 
       {(isProject || isApplication) &&
-        <AnalysesList project={component.key} history={history} router={router} />}
+        <AnalysesList
+          project={component.key}
+          qualifier={component.qualifier}
+          history={history}
+          router={router}
+        />}
 
       {shouldShowQualityGate &&
         <MetaQualityGate
