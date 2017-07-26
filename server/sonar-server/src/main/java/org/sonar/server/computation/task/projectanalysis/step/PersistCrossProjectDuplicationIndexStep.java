@@ -24,6 +24,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
@@ -31,10 +32,15 @@ import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthL
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
+import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+
+import java.util.List;
+
+import javax.annotation.Nullable;
 
 /**
  * Persist cross project duplications text blocks into DUPLICATIONS_INDEX table
@@ -65,7 +71,9 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
 
     try (DbSession dbSession = dbClient.openSession(true)) {
       Component project = treeRootHolder.getRoot();
-      new DepthTraversalTypeAwareCrawler(new DuplicationVisitor(dbSession, analysisMetadataHolder.getUuid())).visit(project);
+      Analysis baseAnalysis = analysisMetadataHolder.getBaseAnalysis();
+      String lastAnalysysUuid = (baseAnalysis != null) ? baseAnalysis.getUuid() : null;
+      new DepthTraversalTypeAwareCrawler(new DuplicationVisitor(dbSession, analysisMetadataHolder.getUuid(), lastAnalysysUuid)).visit(project);
       dbSession.commit();
     }
   }
@@ -74,11 +82,13 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
 
     private final DbSession session;
     private final String analysisUuid;
+    private final String lastAnalysisUuid;
 
-    private DuplicationVisitor(DbSession session, String analysisUuid) {
+    private DuplicationVisitor(DbSession session, String analysisUuid, @Nullable String lastAnalysisUuid) {
       super(CrawlerDepthLimit.FILE, PRE_ORDER);
       this.session = session;
       this.analysisUuid = analysisUuid;
+      this.lastAnalysisUuid = lastAnalysisUuid;
     }
 
     @Override
@@ -87,6 +97,14 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
     }
 
     private void visitComponent(Component component) {
+      if (component.getStatus() == Status.SAME) {
+        readFromDb(component);
+      } else {
+        readFromReport(component);
+      }
+    }
+
+    private void readFromReport(Component component) {
       int indexInFile = 0;
       CloseableIterator<ScannerReport.CpdTextBlock> blocks = reportReader.readCpdTextBlocks(component.getReportAttributes().getRef());
       try {
@@ -105,6 +123,17 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
         }
       } finally {
         blocks.close();
+      }
+    }
+
+    private void readFromDb(Component component) {
+      int indexInFile = 0;
+      List<DuplicationUnitDto> units = dbClient.duplicationDao().selectComponent(session, component.getUuid(), lastAnalysisUuid);
+      for (DuplicationUnitDto unit : units) {
+        unit.setAnalysisUuid(analysisUuid);
+        unit.setIndexInFile(indexInFile);
+        dbClient.duplicationDao().insert(session, unit);
+        indexInFile++;
       }
     }
   }
