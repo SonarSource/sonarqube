@@ -218,7 +218,7 @@ public class Version implements Comparable<Version> {
         c = patch - other.patch;
         if (c == 0) {
           long diff = buildNumber - other.buildNumber;
-          c = diff > 0 ? 1 : (diff < 0 ? -1 : 0);
+          c = (diff > 0) ? 1 : ((diff < 0) ? -1 : 0);
         }
       }
     }
