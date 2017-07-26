@@ -33,4 +33,5 @@ public interface DuplicationMapper {
 
   void batchInsert(DuplicationUnitDto unit);
 
+  List<DuplicationUnitDto> selectComponent(@Param("componentUuid") String componentUuid, @Param("analysisUuid") String analysisUuid);
 }
