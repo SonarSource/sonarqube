@@ -127,6 +127,13 @@ BUILD)
         -Dsource.skip=true \
         -Pdeploy-sonarsource,skipSanityChecks
 
+  echo 'Clone sonar-governance master'
+    mkdir sonar-governance
+    cd sonar-governance
+    git init
+    git pull https://$GITHUB_TOKEN:x-oauth-basic@github.com/SonarSource/sonar-governance.git
+  echo 'Build sonar-governance master'    
+    regular_mvn_build_deploy_analyze
   ;;
 
 
