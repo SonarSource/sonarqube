@@ -19,7 +19,7 @@
  */
 //@flow
 import React from 'react';
-import Measure from '../../component-measures-old/components/Measure';
+import Measure from '../../../components/measure/Measure';
 import BugIcon from '../../../components/icons-components/BugIcon';
 import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 import Rating from '../../../components/ui/Rating';
@@ -42,8 +42,10 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
           <div className="project-card-measure-number">
             <Measure
               className="spacer-right"
-              measure={{ leak: measures['new_bugs'] }}
-              metric={{ key: 'new_bugs', type: 'SHORT_INT' }}
+              measure={{
+                metric: { key: 'new_bugs', name: 'new_bugs', type: 'SHORT_INT' },
+                leak: measures['new_bugs']
+              }}
             />
             <Rating value={measures['new_reliability_rating']} />
           </div>
@@ -59,8 +61,14 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
           <div className="project-card-measure-number">
             <Measure
               className="spacer-right"
-              measure={{ leak: measures['new_vulnerabilities'] }}
-              metric={{ key: 'new_vulnerabilities', type: 'SHORT_INT' }}
+              measure={{
+                metric: {
+                  key: 'new_vulnerabilities',
+                  name: 'new_vulnerabilities',
+                  type: 'SHORT_INT'
+                },
+                leak: measures['new_vulnerabilities']
+              }}
             />
             <Rating value={measures['new_security_rating']} />
           </div>
@@ -76,8 +84,10 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
           <div className="project-card-measure-number">
             <Measure
               className="spacer-right"
-              measure={{ leak: measures['new_code_smells'] }}
-              metric={{ key: 'new_code_smells', type: 'SHORT_INT' }}
+              measure={{
+                metric: { key: 'new_code_smells', name: 'new_code_smells', type: 'SHORT_INT' },
+                leak: measures['new_code_smells']
+              }}
             />
             <Rating value={measures['new_maintainability_rating']} />
           </div>
@@ -92,8 +102,10 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
         <div className="project-card-measure-inner">
           <div className="project-card-measure-number">
             <Measure
-              measure={{ leak: measures['new_coverage'] }}
-              metric={{ key: 'new_coverage', type: 'PERCENT' }}
+              measure={{
+                metric: { key: 'new_coverage', name: 'new_coverage', type: 'PERCENT' },
+                leak: measures['new_coverage']
+              }}
             />
           </div>
           <div className="project-card-measure-label">
@@ -106,8 +118,14 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
         <div className="project-card-measure-inner">
           <div className="project-card-measure-number">
             <Measure
-              measure={{ leak: measures['new_duplicated_lines_density'] }}
-              metric={{ key: 'new_duplicated_lines_density', type: 'PERCENT' }}
+              measure={{
+                metric: {
+                  key: 'new_duplicated_lines_density',
+                  name: 'new_duplicated_lines_density',
+                  type: 'PERCENT'
+                },
+                leak: measures['new_duplicated_lines_density']
+              }}
             />
           </div>
           <div className="project-card-measure-label">
@@ -120,8 +138,10 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
         <div className="project-card-measure-inner">
           <div className="project-card-measure-number">
             <Measure
-              measure={{ leak: measures['new_lines'] }}
-              metric={{ key: 'new_lines', type: 'SHORT_INT' }}
+              measure={{
+                metric: { key: 'new_lines', name: 'new_lines', type: 'SHORT_INT' },
+                leak: measures['new_lines']
+              }}
             />
           </div>
           <div className="project-card-measure-label">
