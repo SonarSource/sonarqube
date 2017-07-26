@@ -118,8 +118,6 @@ message Component {
   optional Tags tags = 14;
   optional string visibility = 15;
   optional string leakPeriodDate = 16;
-  // Root project key
-  optional string projectKey = 17;
 
   message Tags {
     repeated string tags = 1;

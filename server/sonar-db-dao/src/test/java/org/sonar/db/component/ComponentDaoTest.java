@@ -47,7 +47,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -548,8 +547,7 @@ public class ComponentDaoTest {
   @Test
   public void select_provisioned() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto provisionedProject = db.components()
-      .insertComponent(ComponentTesting.newPrivateProjectDto(organization).setKey("provisioned.project").setName("Provisioned Project"));
+    ComponentDto provisionedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organization).setKey("provisioned.project").setName("Provisioned Project"));
     ComponentDto provisionedView = db.components().insertView(organization);
     String projectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization)).getComponentUuid();
     String disabledProjectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization).setEnabled(false)).getComponentUuid();
@@ -966,23 +964,6 @@ public class ComponentDaoTest {
     assertThat(underTest.selectByQuery(dbSession, privateProjectsQuery, 0, 10)).extracting(ComponentDto::getKey).containsExactly("private-key");
     assertThat(underTest.selectByQuery(dbSession, publicProjectsQuery, 0, 10)).extracting(ComponentDto::getKey).containsExactly("public-key");
     assertThat(underTest.selectByQuery(dbSession, allProjectsQuery, 0, 10)).extracting(ComponentDto::getKey).containsOnly("public-key", "private-key");
-  }
-
-  @Test
-  public void selectByQuery_returns_projectKey() {
-    ComponentDto project = ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()).setKey("project-key");
-    db.components().insertComponent(project);
-    ComponentDto module = ComponentTesting.newModuleDto(project).setKey("module-key");
-    db.components().insertComponent(module);
-    ComponentDto file = ComponentTesting.newFileDto(module).setKey("file-key");
-    db.components().insertComponent(file);
-
-    ComponentQuery allQuery = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.FILE).build();
-
-    assertThat(underTest.selectByQuery(dbSession, allQuery, 0, 10)).extracting(ComponentDto::getKey, ComponentDto::projectKey)
-      .containsOnly(tuple("project-key", "project-key"),
-        tuple("module-key", "project-key"),
-        tuple("file-key", "project-key"));
   }
 
   @Test

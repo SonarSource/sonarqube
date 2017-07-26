@@ -46,8 +46,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
 import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
@@ -179,7 +179,6 @@ public class SearchAction implements ComponentsWsAction {
       .setOrganization(organization.getKey())
       .setId(dto.uuid())
       .setKey(dto.key())
-      .setProjectKey(dto.projectKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier());
     setNullable(dto.language(), builder::setLanguage);
