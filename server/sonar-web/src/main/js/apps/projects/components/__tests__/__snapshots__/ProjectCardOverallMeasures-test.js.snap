@@ -14,13 +14,12 @@ exports[`should not render coverage 1`] = `
       <Measure
         measure={
           Object {
+            "metric": Object {
+              "key": "coverage",
+              "name": "coverage",
+              "type": "PERCENT",
+            },
             "value": undefined,
-          }
-        }
-        metric={
-          Object {
-            "key": "coverage",
-            "type": "PERCENT",
           }
         }
       />
@@ -48,13 +47,12 @@ exports[`should not render duplications 1`] = `
       <Measure
         measure={
           Object {
+            "metric": Object {
+              "key": "duplicated_lines_density",
+              "name": "duplicated_lines_density",
+              "type": "PERCENT",
+            },
             "value": undefined,
-          }
-        }
-        metric={
-          Object {
-            "key": "duplicated_lines_density",
-            "type": "PERCENT",
           }
         }
       />
@@ -163,13 +161,12 @@ exports[`should render correctly with all data 1`] = `
         <Measure
           measure={
             Object {
+              "metric": Object {
+                "key": "coverage",
+                "name": "coverage",
+                "type": "PERCENT",
+              },
               "value": "88.3",
-            }
-          }
-          metric={
-            Object {
-              "key": "coverage",
-              "type": "PERCENT",
             }
           }
         />
@@ -203,13 +200,12 @@ exports[`should render correctly with all data 1`] = `
         <Measure
           measure={
             Object {
+              "metric": Object {
+                "key": "duplicated_lines_density",
+                "name": "duplicated_lines_density",
+                "type": "PERCENT",
+              },
               "value": "9.8",
-            }
-          }
-          metric={
-            Object {
-              "key": "duplicated_lines_density",
-              "type": "PERCENT",
             }
           }
         />
@@ -243,13 +239,12 @@ exports[`should render correctly with all data 1`] = `
         <Measure
           measure={
             Object {
+              "metric": Object {
+                "key": "ncloc",
+                "name": "ncloc",
+                "type": "SHORT_INT",
+              },
               "value": "2053",
-            }
-          }
-          metric={
-            Object {
-              "key": "ncloc",
-              "type": "SHORT_INT",
             }
           }
         />
@@ -287,13 +282,12 @@ exports[`should render ncloc correctly 1`] = `
       <Measure
         measure={
           Object {
+            "metric": Object {
+              "key": "ncloc",
+              "name": "ncloc",
+              "type": "SHORT_INT",
+            },
             "value": "16549887",
-          }
-        }
-        metric={
-          Object {
-            "key": "ncloc",
-            "type": "SHORT_INT",
           }
         }
       />
