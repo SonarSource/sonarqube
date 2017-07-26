@@ -25,14 +25,13 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -59,11 +58,13 @@ import org.sonarqube.ws.client.issue.SearchWsRequest;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
@@ -125,12 +126,7 @@ public class IssueQueryFactory {
       addComponentParameters(builder, dbSession,
         effectiveOnComponentOnly,
         allComponentUuids,
-        request.getProjectUuids(),
-        request.getProjectKeys(),
-        request.getModuleUuids(),
-        request.getDirectories(),
-        request.getFileUuids(),
-        request.getAuthors());
+        request);
 
       builder.createdAfter(buildCreatedAfterFromRequest(dbSession, request, allComponentUuids));
 
@@ -205,12 +201,12 @@ public class IssueQueryFactory {
   }
 
   private boolean mergeDeprecatedComponentParameters(DbSession session, @Nullable Boolean onComponentOnly,
-                                                     @Nullable Collection<String> components,
-                                                     @Nullable Collection<String> componentUuids,
-                                                     @Nullable Collection<String> componentKeys,
-                                                     @Nullable Collection<String> componentRootUuids,
-                                                     @Nullable Collection<String> componentRoots,
-                                                     Set<String> allComponentUuids) {
+    @Nullable Collection<String> components,
+    @Nullable Collection<String> componentUuids,
+    @Nullable Collection<String> componentKeys,
+    @Nullable Collection<String> componentRootUuids,
+    @Nullable Collection<String> componentRoots,
+    Set<String> allComponentUuids) {
     boolean effectiveOnComponentOnly = false;
 
     checkArgument(atMostOneNonNullElement(components, componentUuids, componentKeys, componentRootUuids, componentRoots),
@@ -243,13 +239,9 @@ public class IssueQueryFactory {
   }
 
   private void addComponentParameters(IssueQuery.Builder builder, DbSession session,
-                                      boolean onComponentOnly,
-                                      Collection<String> componentUuids,
-                                      @Nullable Collection<String> projectUuids, @Nullable Collection<String> projectKeys,
-                                      @Nullable Collection<String> moduleUuids,
-                                      @Nullable Collection<String> directories,
-                                      @Nullable Collection<String> fileUuids,
-                                      @Nullable Collection<String> authors) {
+    boolean onComponentOnly,
+    Collection<String> componentUuids,
+    SearchWsRequest request) {
 
     builder.onComponentOnly(onComponentOnly);
     if (onComponentOnly) {
@@ -257,45 +249,47 @@ public class IssueQueryFactory {
       return;
     }
 
-    builder.authors(authors);
+    builder.authors(request.getAuthors());
+    List<String> projectUuids = request.getProjectUuids();
+    List<String> projectKeys = request.getProjectKeys();
     checkArgument(projectUuids == null || projectKeys == null, "Parameters projects and projectUuids cannot be set simultaneously");
     if (projectUuids != null) {
       builder.projectUuids(projectUuids);
     } else if (projectKeys != null) {
       builder.projectUuids(convertComponentKeysToUuids(session, projectKeys));
     }
-    builder.moduleUuids(moduleUuids);
-    builder.directories(directories);
-    builder.fileUuids(fileUuids);
+    builder.moduleUuids(request.getModuleUuids());
+    builder.directories(request.getDirectories());
+    builder.fileUuids(request.getFileUuids());
 
     if (!componentUuids.isEmpty()) {
-      addComponentsBasedOnQualifier(builder, session, componentUuids);
+      addComponentsBasedOnQualifier(builder, session, componentUuids, request);
     }
   }
 
-  private void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids) {
+  private void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession dbSession, Collection<String> componentUuids, SearchWsRequest request) {
     if (componentUuids.isEmpty()) {
       builder.componentUuids(componentUuids);
       return;
     }
 
-    List<ComponentDto> components = dbClient.componentDao().selectByUuids(session, componentUuids);
+    List<ComponentDto> components = dbClient.componentDao().selectByUuids(dbSession, componentUuids);
     if (components.isEmpty()) {
       builder.componentUuids(componentUuids);
       return;
     }
 
     Set<String> qualifiers = components.stream().map(ComponentDto::qualifier).collect(MoreCollectors.toHashSet());
-    if (qualifiers.size() > 1) {
-      throw new IllegalArgumentException("All components must have the same qualifier, found " + Joiner.on(',').join(qualifiers));
-    }
+    checkArgument(qualifiers.size() == 1, "All components must have the same qualifier, found %s", String.join(",", qualifiers));
 
     String qualifier = qualifiers.iterator().next();
     switch (qualifier) {
       case Qualifiers.VIEW:
       case Qualifiers.SUBVIEW:
-      case Qualifiers.APP:
         addViewsOrSubViews(builder, componentUuids);
+        break;
+      case Qualifiers.APP:
+        addApplications(builder, dbSession, components, request);
         break;
       case Qualifiers.PROJECT:
         builder.projectUuids(componentUuids);
@@ -324,6 +318,32 @@ public class IssueQueryFactory {
       filteredViewUuids.add(UNKNOWN);
     }
     builder.viewUuids(filteredViewUuids);
+  }
+
+  private void addApplications(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> applications, SearchWsRequest request) {
+    Set<String> authorizedApplicationUuids = applications.stream()
+      .filter(app -> userSession.hasComponentPermission(UserRole.USER, app))
+      .map(ComponentDto::uuid)
+      .collect(MoreCollectors.toSet());
+
+    builder.viewUuids(authorizedApplicationUuids.isEmpty() ? singleton(UNKNOWN) : authorizedApplicationUuids);
+    addCreatedAfterByProjects(builder, dbSession, request, authorizedApplicationUuids);
+  }
+
+  private void addCreatedAfterByProjects(IssueQuery.Builder builder, DbSession dbSession, SearchWsRequest request, Set<String> applicationUuids) {
+    if (request.getSinceLeakPeriod() == null || !request.getSinceLeakPeriod()) {
+      return;
+    }
+
+    Set<String> projectUuids = applicationUuids.stream()
+      .flatMap(app -> dbClient.componentDao().selectProjectsFromView(dbSession, app, app).stream())
+      .collect(MoreCollectors.toSet());
+
+    Map<String, Date> leakByProjects = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
+      .stream()
+      .filter(s -> s.getPeriodDate() != null)
+      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> longToDate(s.getPeriodDate())));
+    builder.createdAfterByProjectUuids(leakByProjects);
   }
 
   private static void addDirectories(IssueQuery.Builder builder, List<ComponentDto> directories) {
