@@ -29,7 +29,7 @@ import './ApplicationQualityGateProject.css';
 type Condition = {
   comparator: string,
   errorThreshold?: string,
-  metricKey: string,
+  metric: string,
   onLeak: boolean,
   status: string,
   value: string,
@@ -56,13 +56,13 @@ export default class ApplicationQualityGateProject extends React.PureComponent {
   props: Props;
 
   renderCondition = (condition: Condition) => {
-    const metric = this.props.metrics[condition.metricKey];
+    const metric = this.props.metrics[condition.metric];
     const metricName = getLocalizedMetricName(metric);
     const threshold = condition.errorThreshold || condition.warningThreshold;
-    const isDiff = isDiffMetric(condition.metricKey);
+    const isDiff = isDiffMetric(condition.metric);
 
     return (
-      <li key={condition.metricKey}>
+      <li key={condition.metric}>
         <span className="text-limited">
           <strong>{formatMeasure(condition.value, metric.type)}</strong> {metricName}
           {!isDiff && condition.onLeak && ' ' + translate('quality_gates.conditions.leak')}

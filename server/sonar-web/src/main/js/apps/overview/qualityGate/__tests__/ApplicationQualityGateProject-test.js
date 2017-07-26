@@ -36,7 +36,7 @@ it('renders', () => {
     conditions: [
       {
         status: 'ERROR',
-        metricKey: 'new_coverage',
+        metric: 'new_coverage',
         comparator: 'LT',
         onLeak: true,
         errorThreshold: '85',
@@ -44,7 +44,7 @@ it('renders', () => {
       },
       {
         status: 'WARN',
-        metricKey: 'bugs',
+        metric: 'bugs',
         comparator: 'GT',
         onLeak: false,
         warningThreshold: '0',
@@ -52,7 +52,7 @@ it('renders', () => {
       },
       {
         status: 'ERROR',
-        metricKey: 'bugs',
+        metric: 'bugs',
         comparator: 'GT',
         onLeak: true,
         warningThreshold: '0',
@@ -60,7 +60,7 @@ it('renders', () => {
       },
       {
         status: 'OK',
-        metricKey: 'skipped_tests',
+        metric: 'skipped_tests',
         comparator: 'GT',
         onLeak: false,
         warningThreshold: '0',
