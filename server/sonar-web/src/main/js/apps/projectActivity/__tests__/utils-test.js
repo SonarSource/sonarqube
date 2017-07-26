@@ -225,3 +225,46 @@ describe('serializeUrlQuery', () => {
     });
   });
 });
+
+describe('hasHistoryData', () => {
+  it('should correctly detect if there is history data', () => {
+    expect(
+      utils.hasHistoryData([
+        {
+          name: 'foo',
+          type: 'INT',
+          data: [
+            { x: new Date('2017-04-27T08:21:32+0200'), y: 2 },
+            { x: new Date('2017-04-30T23:06:24+0200'), y: 2 }
+          ]
+        }
+      ])
+    ).toBeTruthy();
+    expect(
+      utils.hasHistoryData([
+        {
+          name: 'foo',
+          type: 'INT',
+          data: []
+        },
+        {
+          name: 'bar',
+          type: 'INT',
+          data: [
+            { x: new Date('2017-04-27T08:21:32+0200'), y: 2 },
+            { x: new Date('2017-04-30T23:06:24+0200'), y: 2 }
+          ]
+        }
+      ])
+    ).toBeTruthy();
+    expect(
+      utils.hasHistoryData([
+        {
+          name: 'bar',
+          type: 'INT',
+          data: [{ x: new Date('2017-04-27T08:21:32+0200'), y: 2 }]
+        }
+      ])
+    ).toBeFalsy();
+  });
+});
