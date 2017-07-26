@@ -20,38 +20,43 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.Maps;
-import org.sonar.api.issue.Issue;
+import java.util.Date;
+import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.DateUtils;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.issue.index.IssueDoc;
+
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
 
 public class IssueDocTesting {
 
   public static IssueDoc newDoc() {
     IssueDoc doc = new IssueDoc(Maps.<String, Object>newHashMap());
-    doc.setKey("ABC");
+    doc.setKey(Uuids.createFast());
     doc.setRuleKey(RuleTesting.XOO_X1.toString());
     doc.setType(RuleType.CODE_SMELL);
-    doc.setAssignee("steve");
-    doc.setAuthorLogin("roger");
-    doc.setLanguage("xoo");
-    doc.setComponentUuid("FILE_1");
-    doc.setFilePath("src/Foo.xoo");
-    doc.setDirectoryPath("/src");
-    doc.setModuleUuid("MODULE_1");
-    doc.setModuleUuidPath("MODULE_1");
-    doc.setProjectUuid("PROJECT_1");
-    doc.setLine(42);
-    doc.setStatus(Issue.STATUS_OPEN);
+    doc.setAssignee("assignee_" + randomAlphabetic(5));
+    doc.setAuthorLogin("author_" + randomAlphabetic(5));
+    doc.setLanguage("language_" + randomAlphabetic(5));
+    doc.setComponentUuid(Uuids.createFast());
+    doc.setFilePath("filePath_" + randomAlphabetic(5));
+    doc.setDirectoryPath("directory_" + randomAlphabetic(5));
+    doc.setModuleUuid(Uuids.createFast());
+    doc.setModuleUuidPath(Uuids.createFast());
+    doc.setProjectUuid(Uuids.createFast());
+    doc.setLine(nextInt(1_000) + 1);
+    doc.setStatus(STATUS_OPEN);
     doc.setResolution(null);
-    doc.setSeverity(Severity.MAJOR);
-    doc.setEffort(10L);
-    doc.setFuncCreationDate(DateUtils.parseDate("2014-09-04"));
-    doc.setFuncUpdateDate(DateUtils.parseDate("2014-12-04"));
+    doc.setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())));
+    doc.setEffort((long) RandomUtils.nextInt(10));
+    doc.setFuncCreationDate(new Date(System.currentTimeMillis() - 2_000));
+    doc.setFuncUpdateDate(new Date(System.currentTimeMillis() - 1_000));
     doc.setFuncCloseDate(null);
     return doc;
   }
