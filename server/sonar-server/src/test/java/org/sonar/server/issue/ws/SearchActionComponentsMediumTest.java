@@ -67,6 +67,10 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.CONTROLLER_ISSUES;
 
+/**
+ * @deprecated use {@link SearchActionComponentsTest} instead
+ */
+@Deprecated
 public class SearchActionComponentsMediumTest {
 
   @ClassRule
