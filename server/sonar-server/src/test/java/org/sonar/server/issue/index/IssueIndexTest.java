@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,6 +67,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -294,6 +296,46 @@ public class IssueIndexTest {
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(view2)), "I3");
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(view1, view2)), "I1", "I2", "I3");
     assertThatSearchReturnsEmpty(IssueQuery.builder().viewUuids(asList("unknown")));
+  }
+
+  @Test
+  public void filter_by_created_after_by_projects() {
+    Date now = new Date();
+    OrganizationDto organizationDto = newOrganizationDto();
+    ComponentDto project1 = newPrivateProjectDto(organizationDto);
+    IssueDoc project1Issue1 = newDoc().setProjectUuid(project1.uuid()).setFuncCreationDate(addDays(now, -10));
+    IssueDoc project1Issue2 = newDoc().setProjectUuid(project1.uuid()).setFuncCreationDate(addDays(now, -20));
+    ComponentDto project2 = newPrivateProjectDto(organizationDto);
+    IssueDoc project2Issue1 = newDoc().setProjectUuid(project2.uuid()).setFuncCreationDate(addDays(now, -15));
+    IssueDoc project2Issue2 = newDoc().setProjectUuid(project2.uuid()).setFuncCreationDate(addDays(now, -30));
+    indexIssues(project1Issue1, project1Issue2, project2Issue1, project2Issue2);
+
+    // Search for issues of project 1 having less than 15 days
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+        .createdAfterByProjectUuids(ImmutableMap.of(project1.uuid(), addDays(now, -15))),
+      project1Issue1.key());
+
+    // Search for issues of project 1 having less than 14 days and project 2 having less then 25 days
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+      .createdAfterByProjectUuids(ImmutableMap.of(
+        project1.uuid(), addDays(now, -14),
+        project2.uuid(), addDays(now, -25)
+      )),
+      project1Issue1.key(), project2Issue1.key());
+
+    // Search for issues of project 1 having less than 30 days
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+        .createdAfterByProjectUuids(ImmutableMap.of(
+          project1.uuid(), addDays(now, -30)
+        )),
+      project1Issue1.key(), project1Issue2.key());
+
+    // Search for issues of project 1 and project 2 having less than 5 days
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+        .createdAfterByProjectUuids(ImmutableMap.of(
+          project1.uuid(), addDays(now, -5),
+          project2.uuid(), addDays(now, -5)
+        )));
   }
 
   @Test
@@ -668,8 +710,8 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-        .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-        .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
       SearchOptions);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -684,8 +726,8 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-        .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-        .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
       SearchOptions);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -702,8 +744,8 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-        .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
-        .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
+      .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       SearchOptions);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -721,8 +763,8 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-        .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
-        .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
+      .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
+      .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
       SearchOptions);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -754,7 +796,7 @@ public class IssueIndexTest {
     SearchOptions searchOptions = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-        .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       searchOptions);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -823,7 +865,7 @@ public class IssueIndexTest {
       String key = "I" + i;
       issues.add(newDoc(key, file));
     }
-    indexIssues(issues.toArray(new IssueDoc[]{}));
+    indexIssues(issues.toArray(new IssueDoc[] {}));
 
     IssueQuery.Builder query = IssueQuery.builder();
     SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(Integer.MAX_VALUE));

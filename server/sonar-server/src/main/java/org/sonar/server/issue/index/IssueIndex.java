@@ -253,7 +253,7 @@ public class IssueIndex {
     filters.put(IssueIndexDefinition.FIELD_ISSUE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_KEY, query.issueKeys()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, query.assignees()));
 
-    addComponentRelatedFilters(query, filters);
+    addComponentRelatedFilters(filters, query);
 
     filters.put(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_TAGS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TAGS, query.tags()));
@@ -266,11 +266,11 @@ public class IssueIndex {
     filters.put(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
 
     addDatesFilter(filters, query);
-
+    addCreatedAfterByProjectsFilter(filters, query);
     return filters;
   }
 
-  private static void addComponentRelatedFilters(IssueQuery query, Map<String, QueryBuilder> filters) {
+  private static void addComponentRelatedFilters(Map<String, QueryBuilder> filters, IssueQuery query) {
     QueryBuilder viewFilter = createViewFilter(query.viewUuids());
     QueryBuilder componentFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
     QueryBuilder projectFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids());
@@ -339,6 +339,15 @@ public class IssueIndex {
     if (createdAt != null) {
       filters.put("__createdAt", termQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, createdAt));
     }
+  }
+
+  private static void addCreatedAfterByProjectsFilter(Map<String, QueryBuilder> filters, IssueQuery query) {
+    Map<String, Date> createdAfterByProjectUuids = query.createdAfterByProjectUuids();
+    BoolQueryBuilder boolQueryBuilder = boolQuery();
+    createdAfterByProjectUuids.forEach((projectUuid, createdAfterDate) -> boolQueryBuilder.should(boolQuery()
+      .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectUuid))
+      .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(createdAfterDate))));
+    filters.put("createdAfterByProjectUuids", boolQueryBuilder);
   }
 
   private void validateCreationDateBounds(@Nullable Date createdBefore, @Nullable Date createdAfter) {
@@ -653,8 +662,7 @@ public class IssueIndex {
       .setQuery(
         boolQuery()
           .mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION))
-          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, assignee))
-      )
+          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, assignee)))
       .setSize(0);
     IntStream.range(0, projectUuids.size()).forEach(i -> {
       String projectUuid = projectUuids.get(i);
@@ -664,11 +672,9 @@ public class IssueIndex {
           .filter(projectUuid)
           .filter(boolQuery()
             .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectUuid))
-            .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(new Date(from)))
-          )
+            .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(new Date(from))))
           .subAggregation(AggregationBuilders.count(projectUuid + "_count").field(IssueIndexDefinition.FIELD_ISSUE_KEY))
-          .subAggregation(AggregationBuilders.max(projectUuid + "_maxFuncCreatedAt").field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT))
-        );
+          .subAggregation(AggregationBuilders.max(projectUuid + "_maxFuncCreatedAt").field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)));
     });
     SearchResponse response = request.get();
     return response.getAggregations().asList().stream().flatMap(projectBucket -> {
