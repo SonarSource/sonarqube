@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.util.Date;
 import org.junit.Test;
@@ -28,6 +29,7 @@ import org.sonar.api.rule.Severity;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public class IssueQueryTest {
 
@@ -38,6 +40,7 @@ public class IssueQueryTest {
       .severities(newArrayList(Severity.BLOCKER))
       .statuses(Lists.newArrayList(Issue.STATUS_RESOLVED))
       .resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE))
+      .projectUuids(newArrayList("PROJECT"))
       .componentUuids(newArrayList("org/struts/Action.java"))
       .moduleUuids(newArrayList("org.struts:core"))
       .rules(newArrayList(RuleKey.of("squid", "AvoidCycle")))
@@ -45,6 +48,7 @@ public class IssueQueryTest {
       .languages(newArrayList("xoo"))
       .tags(newArrayList("tag1", "tag2"))
       .types(newArrayList("RELIABILITY", "SECURITY"))
+      .createdAfterByProjectUuids(ImmutableMap.of("PROJECT", new Date(10_000_000_000L)))
       .assigned(true)
       .createdAfter(new Date())
       .createdBefore(new Date())
@@ -57,12 +61,14 @@ public class IssueQueryTest {
     assertThat(query.severities()).containsOnly(Severity.BLOCKER);
     assertThat(query.statuses()).containsOnly(Issue.STATUS_RESOLVED);
     assertThat(query.resolutions()).containsOnly(Issue.RESOLUTION_FALSE_POSITIVE);
+    assertThat(query.projectUuids()).containsOnly("PROJECT");
     assertThat(query.componentUuids()).containsOnly("org/struts/Action.java");
     assertThat(query.moduleUuids()).containsOnly("org.struts:core");
     assertThat(query.assignees()).containsOnly("gargantua");
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
     assertThat(query.types()).containsOnly("RELIABILITY", "SECURITY");
+    assertThat(query.createdAfterByProjectUuids()).containsOnly(entry("PROJECT", new Date(10_000_000_000L)));
     assertThat(query.assigned()).isTrue();
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
     assertThat(query.createdAfter()).isNotNull();
@@ -103,6 +109,7 @@ public class IssueQueryTest {
   public void collection_params_should_not_be_null_but_empty() {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(null)
+      .projectUuids(null)
       .componentUuids(null)
       .moduleUuids(null)
       .statuses(null)
@@ -113,8 +120,10 @@ public class IssueQueryTest {
       .languages(null)
       .tags(null)
       .types(null)
+      .createdAfterByProjectUuids(null)
       .build();
     assertThat(query.issueKeys()).isEmpty();
+    assertThat(query.projectUuids()).isEmpty();
     assertThat(query.componentUuids()).isEmpty();
     assertThat(query.moduleUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
@@ -125,12 +134,14 @@ public class IssueQueryTest {
     assertThat(query.languages()).isEmpty();
     assertThat(query.tags()).isEmpty();
     assertThat(query.types()).isEmpty();
+    assertThat(query.createdAfterByProjectUuids()).isEmpty();
   }
 
   @Test
   public void test_default_query() throws Exception {
     IssueQuery query = IssueQuery.builder().build();
     assertThat(query.issueKeys()).isEmpty();
+    assertThat(query.projectUuids()).isEmpty();
     assertThat(query.componentUuids()).isEmpty();
     assertThat(query.moduleUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
@@ -145,7 +156,7 @@ public class IssueQueryTest {
     assertThat(query.createdBefore()).isNull();
     assertThat(query.resolved()).isNull();
     assertThat(query.sort()).isNull();
-
+    assertThat(query.createdAfterByProjectUuids()).isEmpty();
   }
 
   @Test

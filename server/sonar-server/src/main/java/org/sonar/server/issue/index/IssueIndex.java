@@ -239,7 +239,7 @@ public class IssueIndex {
   }
 
   private static void addSimpleStickyFacetIfNeeded(SearchOptions options, StickyFacetBuilder stickyFacetBuilder, SearchRequestBuilder esSearch,
-    String facetName, String fieldName, Object... selectedValues) {
+                                                   String facetName, String fieldName, Object... selectedValues) {
     if (options.getFacets().contains(facetName)) {
       esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(fieldName, facetName, DEFAULT_FACET_SIZE, selectedValues));
     }
@@ -397,7 +397,7 @@ public class IssueIndex {
     filters.put(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
 
     addDatesFilter(filters, query);
-
+    addCreatedAfterByProjectsFilter(filters, query);
     return filters;
   }
 
@@ -428,6 +428,15 @@ public class IssueIndex {
     if (createdAt != null) {
       filters.put("__createdAt", termQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, createdAt));
     }
+  }
+
+  private static void addCreatedAfterByProjectsFilter(Map<String, QueryBuilder> filters, IssueQuery query) {
+    Map<String, Date> createdAfterByProjectUuids = query.createdAfterByProjectUuids();
+    BoolQueryBuilder boolQueryBuilder = boolQuery();
+    createdAfterByProjectUuids.forEach((projectUuid, createdAfterDate) -> boolQueryBuilder.should(boolQuery()
+      .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectUuid))
+      .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(createdAfterDate))));
+    filters.put("createdAfterByProjectUuids", boolQueryBuilder);
   }
 
   private void validateCreationDateBounds(@Nullable Date createdBefore, @Nullable Date createdAfter) {
