@@ -31,6 +31,7 @@ import type { History, Metric } from '../types';
 type Props = {
   history: ?History,
   project: string,
+  qualifier: string,
   router: { replace: ({ pathname: string, query?: {} }) => void }
 };
 
@@ -85,7 +86,9 @@ export default class AnalysesList extends React.PureComponent {
 
     return (
       <ul className="spacer-top">
-        {analyses.map(analysis => <Analysis key={analysis.key} analysis={analysis} />)}
+        {analyses.map(analysis =>
+          <Analysis key={analysis.key} analysis={analysis} qualifier={this.props.qualifier} />
+        )}
       </ul>
     );
   }
