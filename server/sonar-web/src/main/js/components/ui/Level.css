@@ -47,3 +47,7 @@ a > .level:hover {
 .level-ERROR {
   background-color: #d4333f;
 }
+
+.level-NONE {
+  background-color: #b4b4b4;
+}
