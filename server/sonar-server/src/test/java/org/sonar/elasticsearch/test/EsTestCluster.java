@@ -200,6 +200,7 @@ public final class EsTestCluster {
     if (Strings.hasLength(System.getProperty("es.logger.prefix"))) {
       builder.put("logger.prefix", System.getProperty("es.logger.prefix"));
     }
+    builder.put("action.auto_create_index", false);
     // Default the watermarks to absurdly low to prevent the tests
     // from failing on nodes without enough disk space
     builder.put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_LOW_DISK_WATERMARK_SETTING.getKey(), "1b");
