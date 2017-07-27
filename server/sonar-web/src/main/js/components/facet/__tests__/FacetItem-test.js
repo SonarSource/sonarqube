@@ -20,36 +20,41 @@
 // @flow
 import React from 'react';
 import { shallow } from 'enzyme';
-import { click } from '../../../../helpers/testUtils';
-import FacetHeader from '../FacetHeader';
+import { click } from '../../../helpers/testUtils';
+import FacetItem from '../FacetItem';
 
-it('should render open facet with value', () => {
-  expect(
-    shallow(<FacetHeader name="foo" onClick={jest.fn()} open={true} values={1} />)
-  ).toMatchSnapshot();
+const renderFacetItem = (props: {}) =>
+  shallow(
+    <FacetItem active={false} name="foo" onClick={jest.fn()} stat={null} value="bar" {...props} />
+  );
+
+it('should render active', () => {
+  expect(renderFacetItem({ active: true })).toMatchSnapshot();
 });
 
-it('should render open facet without value', () => {
-  expect(shallow(<FacetHeader name="foo" onClick={jest.fn()} open={true} />)).toMatchSnapshot();
+it('should render inactive', () => {
+  expect(renderFacetItem({ active: false })).toMatchSnapshot();
 });
 
-it('should render closed facet with value', () => {
-  expect(
-    shallow(<FacetHeader name="foo" onClick={jest.fn()} open={false} values={1} />)
-  ).toMatchSnapshot();
+it('should render stat', () => {
+  expect(renderFacetItem({ stat: '13' })).toMatchSnapshot();
 });
 
-it('should render closed facet without value', () => {
-  expect(shallow(<FacetHeader name="foo" onClick={jest.fn()} open={false} />)).toMatchSnapshot();
+it('should render disabled', () => {
+  expect(renderFacetItem({ disabled: true })).toMatchSnapshot();
 });
 
-it('should render without link', () => {
-  expect(shallow(<FacetHeader name="foo" open={false} />)).toMatchSnapshot();
+it('should render half width', () => {
+  expect(renderFacetItem({ halfWidth: true })).toMatchSnapshot();
+});
+
+it('should render effort stat', () => {
+  expect(renderFacetItem({ facetMode: 'effort', stat: '1234' })).toMatchSnapshot();
 });
 
 it('should call onClick', () => {
   const onClick = jest.fn();
-  const wrapper = shallow(<FacetHeader name="foo" onClick={onClick} open={false} />);
-  click(wrapper.find('a'));
+  const wrapper = renderFacetItem({ onClick });
+  click(wrapper, { currentTarget: { dataset: { value: 'bar' } } });
   expect(onClick).toHaveBeenCalled();
 });

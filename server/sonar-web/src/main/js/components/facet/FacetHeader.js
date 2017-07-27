@@ -20,9 +20,11 @@
 // @flow
 /* eslint-disable max-len */
 import React from 'react';
+import { translate } from '../../helpers/l10n';
 
 type Props = {|
   name: string,
+  onClear?: () => void,
   onClick?: () => void,
   open: boolean,
   values?: number
@@ -33,6 +35,14 @@ export default class FacetHeader extends React.PureComponent {
 
   static defaultProps = {
     open: true
+  };
+
+  handleClearClick = (event: Event & { currentTarget: HTMLElement }) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    if (this.props.onClear) {
+      this.props.onClear();
+    }
   };
 
   handleClick = (event: Event & { currentTarget: HTMLElement }) => {
@@ -71,8 +81,17 @@ export default class FacetHeader extends React.PureComponent {
   }
 
   render() {
+    const showClearButton: boolean = !!this.props.values && this.props.onClear != null;
+
     return (
       <div>
+        {showClearButton &&
+          <button
+            className="search-navigator-facet-header-button button-small button-red"
+            onClick={this.handleClearClick}>
+            {translate('clear')}
+          </button>}
+
         {this.props.onClick
           ? <a className="search-navigator-facet-header" href="#" onClick={this.handleClick}>
               {this.renderCheckbox()} {this.props.name} {this.renderValueIndicator()}

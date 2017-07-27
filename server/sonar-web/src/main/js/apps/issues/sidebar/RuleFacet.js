@@ -20,13 +20,14 @@
 // @flow
 import React from 'react';
 import { sortBy, uniq, without } from 'lodash';
-import FacetBox from './components/FacetBox';
-import FacetHeader from './components/FacetHeader';
-import FacetItem from './components/FacetItem';
-import FacetItemsList from './components/FacetItemsList';
-import FacetFooter from './components/FacetFooter';
+import FacetBox from '../../../components/facet/FacetBox';
+import FacetHeader from '../../../components/facet/FacetHeader';
+import FacetItem from '../../../components/facet/FacetItem';
+import FacetItemsList from '../../../components/facet/FacetItemsList';
+import FacetFooter from '../../../components/facet/FacetFooter';
 import { searchRules } from '../../../api/rules';
 import { translate } from '../../../helpers/l10n';
+import { formatFacetStat } from '../utils';
 
 type Props = {|
   facetMode: string,
@@ -104,11 +105,10 @@ export default class RuleFacet extends React.PureComponent {
         {rules.map(rule =>
           <FacetItem
             active={this.props.rules.includes(rule)}
-            facetMode={this.props.facetMode}
             key={rule}
             name={this.getRuleName(rule)}
             onClick={this.handleItemClick}
-            stat={this.getStat(rule)}
+            stat={formatFacetStat(this.getStat(rule), this.props.facetMode)}
             value={rule}
           />
         )}
@@ -126,7 +126,7 @@ export default class RuleFacet extends React.PureComponent {
 
   render() {
     return (
-      <FacetBox property={this.property}>
+      <FacetBox>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
