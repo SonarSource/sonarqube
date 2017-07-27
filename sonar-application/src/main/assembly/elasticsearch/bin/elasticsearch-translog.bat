@@ -15,7 +15,7 @@ IF NOT EXIST "%JAVA%" (
 set SCRIPT_DIR=%~dp0
 for %%I in ("%SCRIPT_DIR%..") do set ES_HOME=%%~dpfI
 
-TITLE Elasticsearch Plugin Manager 5.0.2
+TITLE Elasticsearch Plugin Manager 5.5.1
 
 SET properties=
 SET args=

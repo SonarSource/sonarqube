@@ -211,5 +211,12 @@
         <exclude>**/*</exclude>
       </excludes>
     </fileSet>
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>elasticsearch/plugins</outputDirectory>
+      <excludes>
+        <exclude>*/**</exclude>
+      </excludes>
+    </fileSet>
   </fileSets>
 </assembly>
