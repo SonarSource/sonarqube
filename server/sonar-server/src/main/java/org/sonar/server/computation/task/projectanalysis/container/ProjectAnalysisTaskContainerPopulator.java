@@ -33,9 +33,10 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.api.posttask.PostProjectAnalysisTasksExecutor;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderImpl;
+import org.sonar.server.computation.task.projectanalysis.component.BranchLoader;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DisabledComponentsHolderImpl;
-import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationMeasures;
@@ -161,7 +162,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       ActiveRulesHolderImpl.class,
       MeasureComputersHolderImpl.class,
       MutableTaskResultHolderImpl.class,
-
       BatchReportReaderImpl.class,
 
       // repositories
@@ -243,6 +243,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       // views
       ViewIndex.class,
 
+      BranchLoader.class,
       MeasureToMeasureDto.class,
 
       // webhooks

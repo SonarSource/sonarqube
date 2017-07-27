@@ -127,11 +127,6 @@ public interface CoreProperties {
   String PROJECT_VERSION_PROPERTY = "sonar.projectVersion";
 
   /**
-   * @since 6.3
-   */
-  String PROJECT_ORGANIZATION_PROPERTY = "sonar.organization";
-
-  /**
    * @since 2.6
    */
   String PROJECT_KEY_PROPERTY = "sonar.projectKey";

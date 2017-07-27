@@ -30,7 +30,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -49,8 +48,8 @@ public class IssueFilter {
   private final List<IssuePattern> exclusionPatterns;
   private final List<IssuePattern> inclusionPatterns;
 
-  public IssueFilter(TreeRootHolder treeRootHolder, ConfigurationRepository configRepository) {
-    Configuration config = configRepository.getConfiguration(treeRootHolder.getRoot());
+  public IssueFilter(ConfigurationRepository configRepository) {
+    Configuration config = configRepository.getConfiguration();
     this.exclusionPatterns = loadPatterns(PATTERNS_MULTICRITERIA_EXCLUSION_KEY, config);
     this.inclusionPatterns = loadPatterns(PATTERNS_MULTICRITERIA_INCLUSION_KEY, config);
   }

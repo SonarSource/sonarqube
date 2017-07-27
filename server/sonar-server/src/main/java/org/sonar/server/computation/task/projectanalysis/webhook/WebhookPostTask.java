@@ -30,7 +30,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.config.WebhookProperties;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 
 import static java.lang.String.format;
 import static org.sonar.core.config.WebhookProperties.MAX_WEBHOOKS_PER_TYPE;
@@ -39,16 +38,14 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
 
   private static final Logger LOGGER = Loggers.get(WebhookPostTask.class);
 
-  private final TreeRootHolder rootHolder;
   private final ConfigurationRepository configRepository;
   private final WebhookPayloadFactory payloadFactory;
   private final WebhookCaller caller;
   private final WebhookDeliveryStorage deliveryStorage;
 
-  public WebhookPostTask(TreeRootHolder rootHolder, ConfigurationRepository settingsRepository, WebhookPayloadFactory payloadFactory,
+  public WebhookPostTask(ConfigurationRepository configRepository, WebhookPayloadFactory payloadFactory,
     WebhookCaller caller, WebhookDeliveryStorage deliveryStorage) {
-    this.rootHolder = rootHolder;
-    this.configRepository = settingsRepository;
+    this.configRepository = configRepository;
     this.payloadFactory = payloadFactory;
     this.caller = caller;
     this.deliveryStorage = deliveryStorage;
@@ -56,7 +53,7 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
 
   @Override
   public void finished(ProjectAnalysis analysis) {
-    Configuration config = configRepository.getConfiguration(rootHolder.getRoot());
+    Configuration config = configRepository.getConfiguration();
 
     Iterable<String> webhookProps = Iterables.concat(
       getWebhookProperties(config, WebhookProperties.GLOBAL_KEY),
