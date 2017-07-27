@@ -25,12 +25,13 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CrossProjectDuplicationStatusHolderImplTest {
-
-  private static String BRANCH = "origin/master";
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -45,7 +46,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
   public void cross_project_duplication_is_enabled_when_enabled_in_report_and_no_branch() throws Exception {
     analysisMetadataHolder
       .setCrossProjectDuplicationEnabled(true)
-      .setBranch(null);
+      .setBranch(newBranch(true));
     underTest.start();
 
     assertThat(underTest.isEnabled()).isTrue();
@@ -56,7 +57,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
   public void cross_project_duplication_is_disabled_when_not_enabled_in_report() throws Exception {
     analysisMetadataHolder
       .setCrossProjectDuplicationEnabled(false)
-      .setBranch(null);
+      .setBranch(newBranch(true));
     underTest.start();
 
     assertThat(underTest.isEnabled()).isFalse();
@@ -67,7 +68,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
   public void cross_project_duplication_is_disabled_when_branch_is_used() throws Exception {
     analysisMetadataHolder
       .setCrossProjectDuplicationEnabled(true)
-      .setBranch(BRANCH);
+      .setBranch(newBranch(false));
     underTest.start();
 
     assertThat(underTest.isEnabled()).isFalse();
@@ -78,7 +79,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
   public void cross_project_duplication_is_disabled_when_not_enabled_in_report_and_when_branch_is_used() throws Exception {
     analysisMetadataHolder
       .setCrossProjectDuplicationEnabled(false)
-      .setBranch(BRANCH);
+      .setBranch(newBranch(false));
     underTest.start();
 
     assertThat(underTest.isEnabled()).isFalse();
@@ -89,7 +90,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
   public void flag_is_build_in_start() throws Exception {
     analysisMetadataHolder
       .setCrossProjectDuplicationEnabled(true)
-      .setBranch(null);
+      .setBranch(newBranch(true));
     underTest.start();
     assertThat(underTest.isEnabled()).isTrue();
 
@@ -104,5 +105,11 @@ public class CrossProjectDuplicationStatusHolderImplTest {
     thrown.expectMessage("Flag hasn't been initialized, the start() should have been called before");
 
     underTest.isEnabled();
+  }
+
+  private static Branch newBranch(boolean supportsCrossProjectCpd) {
+    Branch branch = mock(Branch.class);
+    when(branch.supportsCrossProjectCpd()).thenReturn(supportsCrossProjectCpd);
+    return branch;
   }
 }

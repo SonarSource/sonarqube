@@ -34,7 +34,7 @@ public class TestSettingsRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Configuration getConfiguration(Component component) {
+  public Configuration getConfiguration() {
     return config;
   }
 }

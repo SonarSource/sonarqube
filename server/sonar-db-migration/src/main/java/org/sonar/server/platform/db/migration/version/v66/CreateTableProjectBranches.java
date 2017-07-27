@@ -76,6 +76,10 @@ public class CreateTableProjectBranches extends DdlChange {
         .setColumnName("created_at")
         .setIsNullable(false)
         .build())
+      .addColumn(BigIntegerColumnDef.newBigIntegerColumnDefBuilder()
+        .setColumnName("updated_at")
+        .setIsNullable(false)
+        .build())
       .build()
     );
   }
