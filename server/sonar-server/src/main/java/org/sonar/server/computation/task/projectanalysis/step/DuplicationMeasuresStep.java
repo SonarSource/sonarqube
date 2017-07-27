@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import javax.annotation.Nullable;
+
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationMeasures;
@@ -36,7 +38,7 @@ public class DuplicationMeasuresStep implements ComputationStep {
   private final IncrementalDuplicationMeasures incrementalDuplicationsMeasures;
 
   public DuplicationMeasuresStep(AnalysisMetadataHolder analysisMetadataHolder, DuplicationMeasures defaultDuplicationMeasures,
-    IncrementalDuplicationMeasures incrementalDuplicationMeasures) {
+    @Nullable IncrementalDuplicationMeasures incrementalDuplicationMeasures) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.defaultDuplicationMeasures = defaultDuplicationMeasures;
     this.incrementalDuplicationsMeasures = incrementalDuplicationMeasures;
