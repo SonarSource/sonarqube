@@ -19,31 +19,12 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.sonar.core.util.Uuids;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
-public class UuidFactory {
-  private final Map<String, String> uuidsByKey = new HashMap<>();
+@ComputeEngineSide
+public interface BranchLoaderDelegate {
 
-  public UuidFactory(DbClient dbClient, String rootKey) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<ComponentDto> components = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, rootKey);
-      for (ComponentDto componentDto : components) {
-        uuidsByKey.put(componentDto.getDbKey(), componentDto.uuid());
-      }
-    }
-  }
+  void load(ScannerReport.Metadata metadata);
 
-  /**
-   * Get UUID from database if it exists, else generate a new one
-   */
-  public String getOrCreateForKey(String key) {
-    String uuid = uuidsByKey.get(key);
-    return (uuid == null) ? Uuids.create() : uuid;
-  }
 }

@@ -100,7 +100,7 @@ public class LoadPeriodsStep implements ComputationStep {
     PeriodResolver periodResolver = new PeriodResolver(dbClient, session, projectDto.get().uuid(), analysisMetadataHolder.getAnalysisDate(),
       isReportType ? projectOrView.getReportAttributes().getVersion() : null);
 
-    Configuration config = configRepository.getConfiguration(projectOrView);
+    Configuration config = configRepository.getConfiguration();
     Period period = periodResolver.resolve(config);
     // SONAR-4700 Add a past snapshot only if it exists
     if (period != null) {

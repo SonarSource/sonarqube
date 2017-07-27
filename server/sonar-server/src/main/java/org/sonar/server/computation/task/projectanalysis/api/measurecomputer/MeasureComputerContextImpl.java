@@ -35,7 +35,6 @@ import org.sonar.api.ce.measure.Measure;
 import org.sonar.api.ce.measure.MeasureComputer.MeasureComputerContext;
 import org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
 import org.sonar.api.ce.measure.Settings;
-import org.sonar.api.config.Configuration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRepository;
@@ -97,18 +96,14 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
       @Override
       @CheckForNull
       public String getString(String key) {
-        return getComponentSettings().get(key).orElse(null);
+        return config.getConfiguration().get(key).orElse(null);
       }
 
       @Override
       public String[] getStringArray(String key) {
-        return getComponentSettings().getStringArray(key);
+        return config.getConfiguration().getStringArray(key);
       }
     };
-  }
-
-  private Configuration getComponentSettings() {
-    return config.getConfiguration(internalComponent);
   }
 
   @Override
