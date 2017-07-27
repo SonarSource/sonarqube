@@ -32,11 +32,9 @@ export type Metric = {
   type: string
 };
 
-export type Metrics = Array<Metric>;
-
 export const RECEIVE_METRICS = 'RECEIVE_METRICS';
 
-export const receiveMetrics = (metrics: Metrics) => ({
+export const receiveMetrics = (metrics: Array<Metric>) => ({
   type: RECEIVE_METRICS,
   metrics
 });

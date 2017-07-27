@@ -17,42 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import type { Measure, MeasureEnhanced } from '../../components/measure/types';
+// @flow
+import React from 'react';
+import Measure from '../../../../components/measure/Measure';
+import type { Component } from '../../types';
+import type { Metric } from '../../../../store/metrics/actions';
 
-type ComponentIntern = {
-  isFavorite?: boolean,
-  isRecentlyBrowsed?: boolean,
-  key: string,
-  match?: string,
-  name: string,
-  organization?: string,
-  project?: string,
-  qualifier: string
+type Props = {
+  component: Component,
+  metric: Metric
 };
 
-export type Component = ComponentIntern & { measures?: Array<Measure> };
-
-export type ComponentEnhanced = ComponentIntern & {
-  value?: ?string,
-  leak?: ?string,
-  measures: Array<MeasureEnhanced>
-};
-
-export type Paging = {
-  pageIndex: number,
-  pageSize: number,
-  total: number
-};
-
-export type Period = {
-  index: number,
-  date: string,
-  mode: string,
-  parameter?: string
-};
-
-export type Query = {
-  metric: ?string,
-  selected: ?string,
-  view: string
-};
+export default function MeasureCell({ component, metric }: Props) {
+  return (
+    <td className="thin nowrap text-right">
+      <span id={'component-measures-component-measure-' + component.key + '-' + metric.key}>
+        <Measure measure={{ metric, value: component.value, leak: component.leak }} />
+      </span>
+    </td>
+  );
+}

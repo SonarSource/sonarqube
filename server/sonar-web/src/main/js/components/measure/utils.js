@@ -24,9 +24,17 @@ import {
   getRatingTooltip as nextGetRatingTooltip,
   isDiffMetric
 } from '../../helpers/measures';
+import type { Measure, MeasureEnhanced } from './types';
 import type { Metric } from '../../store/metrics/actions';
 
 const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
+
+export const enhanceMeasure = (measure: Measure, metric: Metric): MeasureEnhanced => ({
+  value: measure.value,
+  periods: measure.periods,
+  metric,
+  leak: getLeakValue(measure)
+});
 
 export function formatLeak(value: ?string, metric: Metric, options: Object) {
   if (isDiffMetric(metric.key)) {
@@ -34,6 +42,14 @@ export function formatLeak(value: ?string, metric: Metric, options: Object) {
   } else {
     return formatMeasureVariation(value, metric.type, options);
   }
+}
+
+export function getLeakValue(measure: ?Measure): ?string {
+  if (!measure || !measure.periods) {
+    return null;
+  }
+  const period = measure.periods.find(period => period.index === 1);
+  return period ? period.value : null;
 }
 
 export function getRatingTooltip(metricKey: string, value: ?string) {
