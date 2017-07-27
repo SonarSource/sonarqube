@@ -134,7 +134,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
 
   private void verify_call_purge_method_of_the_purge_task(Component project) {
     treeRootHolder.setRoot(project);
-    when(settingsRepository.getConfiguration(project)).thenReturn(new MapSettings().asConfig());
+    when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().asConfig());
     dbIdsRepository.setComponentId(project, PROJECT_ID);
 
     underTest.execute();
