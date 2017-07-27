@@ -519,11 +519,9 @@ public class ComponentDaoTest {
     ComponentDto application = db.components().insertApplication(organization);
 
     assertThat(underTest.selectAllViewsAndSubViews(dbSession)).extracting(UuidWithProjectUuidDto::getUuid)
-      .containsExactlyInAnyOrder("ABCD", "EFGH", "FGHI", "IJKL")
-      .doesNotContain(application.uuid());
+      .containsExactlyInAnyOrder("ABCD", "EFGH", "FGHI", "IJKL", application.uuid());
     assertThat(underTest.selectAllViewsAndSubViews(dbSession)).extracting(UuidWithProjectUuidDto::getProjectUuid)
-      .containsOnly("ABCD", "EFGH", "IJKL")
-      .doesNotContain(application.projectUuid());
+      .containsOnly("ABCD", "EFGH", "IJKL", application.projectUuid());
   }
 
   @Test
