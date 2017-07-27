@@ -23,8 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
@@ -40,23 +39,13 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class GenericTestExecutionMediumTest {
 
-  @org.junit.Rule
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
-    .addDefaultQProfile("xoo", "Sonar Way")
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
+    .addDefaultQProfile("xoo", "Sonar Way");
 
   @Test
   public void unitTests() throws IOException {
@@ -90,7 +79,7 @@ public class GenericTestExecutionMediumTest {
         .put("sonar.sources", "src")
         .put("sonar.tests", "test")
         .build())
-      .start();
+      .execute();
 
     InputFile file = result.inputFile("test/sampleTest.xoo");
     org.sonar.scanner.protocol.output.ScannerReport.Test success = result.firstTestExecutionForName(file, "success");
@@ -112,7 +101,7 @@ public class GenericTestExecutionMediumTest {
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.testExecutionReportPaths", "unittest.xml")
-      .start();
+      .execute();
 
     InputFile testFile = result.inputFile("testx/ClassOneTest.xoo");
     ScannerReport.Test success = result.firstTestExecutionForName(testFile, "test1");
@@ -154,7 +143,7 @@ public class GenericTestExecutionMediumTest {
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.testExecutionReportPaths", "unittest.xml,unittest2.xml")
-      .start();
+      .execute();
 
     InputFile testFile = result.inputFile("testx/ClassOneTest.xoo");
     ScannerReport.Test success = result.firstTestExecutionForName(testFile, "test1");

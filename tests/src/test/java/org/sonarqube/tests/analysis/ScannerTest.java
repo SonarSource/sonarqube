@@ -22,7 +22,6 @@ package org.sonarqube.tests.analysis;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category3Suite;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -34,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonarqube.tests.Category3Suite;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 import util.ItUtils;
 
@@ -247,7 +247,7 @@ public class ScannerTest {
    * SONAR-2291
    */
   @Test
-  public void batch_should_cache_plugin_jars() throws IOException {
+  public void scanner_should_cache_plugin_jars() throws IOException {
     File userHome = temp.newFolder();
 
     BuildResult result = scan("shared/xoo-sample",
@@ -268,12 +268,12 @@ public class ScannerTest {
   }
 
   @Test
-  public void batch_should_keep_report_verbose() {
+  public void scanner_should_keep_report_verbose() {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
     scanQuietly("shared/xoo-sample", "sonar.verbose", "true");
-    File reportDir = new File(new File(ItUtils.projectDir("shared/xoo-sample"), ".sonar"), "batch-report");
+    File reportDir = new File(new File(ItUtils.projectDir("shared/xoo-sample"), ".sonar"), "scanner-report");
     assertThat(reportDir).isDirectory();
     assertThat(reportDir.list()).isNotEmpty();
   }

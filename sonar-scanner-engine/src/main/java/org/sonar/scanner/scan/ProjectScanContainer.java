@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.scan;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -47,7 +48,6 @@ import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.deprecated.test.TestableBuilder;
 import org.sonar.scanner.events.EventBus;
 import org.sonar.scanner.index.DefaultIndex;
-import org.sonar.scanner.issue.DefaultIssueCallback;
 import org.sonar.scanner.issue.DefaultProjectIssues;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.DefaultServerLineHashesLoader;
@@ -91,8 +91,6 @@ import org.sonar.scanner.scan.measure.DefaultMetricFinder;
 import org.sonar.scanner.scan.measure.DeprecatedMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.storage.Storages;
-
-import com.google.common.annotations.VisibleForTesting;
 
 public class ProjectScanContainer extends ComponentContainer {
 
@@ -157,7 +155,6 @@ public class ProjectScanContainer extends ComponentContainer {
       new QualityProfileProvider(),
 
       // issues
-      DefaultIssueCallback.class,
       IssueCache.class,
       DefaultProjectIssues.class,
       IssueTransition.class,

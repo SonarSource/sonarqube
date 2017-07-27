@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,14 +64,14 @@ public class CpdMediumTest {
 
   private LogOutputRecorder logRecorder = new LogOutputRecorder();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
     // active a rule just to be sure that xoo files are published
     .addActiveRule("xoo", "xoo:OneIssuePerFile", null, "One Issue Per File", null, null, null)
-    .setLogOutput(logRecorder)
-    .build();
+    .setLogOutput(logRecorder);
 
   private File baseDir;
 
@@ -89,7 +88,6 @@ public class CpdMediumTest {
   @Before
   public void prepare() throws IOException {
     logRecorder.getAll().clear();
-    tester.start();
 
     baseDir = temp.getRoot();
 
@@ -103,11 +101,6 @@ public class CpdMediumTest {
     if (useNewSensorApi) {
       builder.put(CpdTokenizerSensor.ENABLE_PROP + (useDeprecatedProperty ? ".deprecated" : ""), "true");
     }
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
   }
 
   @Test
@@ -145,7 +138,7 @@ public class CpdMediumTest {
     File xooFile2 = new File(module2Dir, "sample2.xoo");
     FileUtils.write(xooFile2, duplicatedStuff);
 
-    TaskResult result = tester.newTask().properties(builder.build()).start();
+    TaskResult result = tester.newTask().properties(builder.build()).execute();
 
     assertThat(result.inputFiles()).hasSize(2);
 
@@ -197,7 +190,7 @@ public class CpdMediumTest {
         .put("sonar.cpd.xoo.minimumTokens", "10")
         .put("sonar.verbose", "true")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(2);
 
@@ -251,7 +244,7 @@ public class CpdMediumTest {
         .put("sonar.cpd.xoo.minimumTokens", "10")
         .put("sonar.verbose", "true")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(2);
 
@@ -283,7 +276,7 @@ public class CpdMediumTest {
         .put("sonar.cpd.xoo.minimumTokens", "10")
         .put("sonar.cpd.exclusions", "src/sample1.xoo")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(2);
 
@@ -315,7 +308,7 @@ public class CpdMediumTest {
         .put("sonar.verbose", "true")
         .put("sonar.cpd.cross_project", "true")
         .build())
-      .start();
+      .execute();
 
     InputFile inputFile1 = result.inputFile("src/sample1.xoo");
 
@@ -357,7 +350,7 @@ public class CpdMediumTest {
         .put("sonar.cpd.xoo.minimumLines", "2")
         .put("sonar.verbose", "true")
         .build())
-      .start();
+      .execute();
 
     InputFile inputFile = result.inputFile("src/sample.xoo");
     // One clone group

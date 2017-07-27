@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,13 +47,13 @@ public class BranchMediumTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addRules(new XooRulesDefinition())
     // active a rule just to be sure that xoo files are published
     .addActiveRule("xoo", "xoo:OneIssuePerFile", null, "One Issue Per File", null, null, null)
-    .addDefaultQProfile("xoo", "Sonar Way")
-    .build();
+    .addDefaultQProfile("xoo", "Sonar Way");
 
   private File baseDir;
 
@@ -62,8 +61,6 @@ public class BranchMediumTest {
 
   @Before
   public void prepare() throws IOException {
-    tester.start();
-
     baseDir = temp.getRoot();
 
     commonProps = ImmutableMap.<String, String>builder()
@@ -75,11 +72,6 @@ public class BranchMediumTest {
       .put("sonar.projectDescription", "Description of Foo Project")
       .put("sonar.sources", "src")
       .build();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
   }
 
   @Test
@@ -95,7 +87,7 @@ public class BranchMediumTest {
         .putAll(commonProps)
         .put("sonar.branch", "branch")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
     assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:src/sample.xoo");
@@ -110,7 +102,7 @@ public class BranchMediumTest {
         .putAll(commonProps)
         .put("sonar.branch", "")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
     assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:src/sample.xoo");
@@ -130,7 +122,7 @@ public class BranchMediumTest {
         .put("sonar.branch", "branch")
         .put("sonar.modules", "moduleA")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
     assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA:src/sample.xoo");
@@ -150,7 +142,7 @@ public class BranchMediumTest {
         .put("sonar.branch", "")
         .put("sonar.modules", "moduleA")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
     assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA:src/sample.xoo");

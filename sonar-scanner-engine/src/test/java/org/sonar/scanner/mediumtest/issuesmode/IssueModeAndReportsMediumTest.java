@@ -25,21 +25,17 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang.StringUtils;
 import org.assertj.core.api.Condition;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
@@ -69,7 +65,8 @@ public class IssueModeAndReportsMediumTest {
     }
   }
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES))
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
@@ -110,18 +107,7 @@ public class IssueModeAndReportsMediumTest {
       .setSeverity(Severity.CRITICAL)
       .setCreationDate(date("14/03/2004"))
       .setStatus("OPEN")
-      .build())
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
+      .build());
 
   private File copyProject(String path) throws Exception {
     File projectDir = temp.newFolder();
@@ -136,7 +122,7 @@ public class IssueModeAndReportsMediumTest {
 
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .start();
+      .execute();
 
     int newIssues = 0;
     int openIssues = 0;
@@ -157,10 +143,10 @@ public class IssueModeAndReportsMediumTest {
     assertThat(newIssues).isEqualTo(16);
     assertThat(openIssues).isEqualTo(2);
     assertThat(resolvedIssue).isEqualTo(1);
-    
+
     // progress report
     String logs = StringUtils.join(logTester.logs(LoggerLevel.INFO), "\n");
-    
+
     assertThat(logs).contains("Performing issue tracking");
     assertThat(logs).contains("6/6 components tracked");
 
@@ -183,7 +169,7 @@ public class IssueModeAndReportsMediumTest {
     tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.issuesReport.console.enable", "true")
-      .start();
+      .execute();
 
     assertThat(getReportLog()).contains("+16 issues", "+16 major");
   }
@@ -195,7 +181,7 @@ public class IssueModeAndReportsMediumTest {
     tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.xoo.enablePostJob", "true")
-      .start();
+      .execute();
 
     assertThat(logTester.logs()).contains("Resolved issues: 1", "Open issues: 18");
   }
@@ -216,7 +202,7 @@ public class IssueModeAndReportsMediumTest {
     tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.issuesReport.html.enable", "true")
-      .start();
+      .execute();
 
     assertThat(new File(projectDir, ".sonar/issues-report/issues-report.html")).exists();
     assertThat(new File(projectDir, ".sonar/issues-report/issues-report-light.html")).exists();
@@ -239,34 +225,10 @@ public class IssueModeAndReportsMediumTest {
         .put("sonar.sources", "src")
         .put("sonar.issuesReport.html.enable", "true")
         .build())
-      .start();
+      .execute();
 
     assertThat(FileUtils.readFileToString(new File(baseDir, ".sonar/issues-report/issues-report.html"))).contains("No file analyzed");
     assertThat(FileUtils.readFileToString(new File(baseDir, ".sonar/issues-report/issues-report-light.html"))).contains("No file analyzed");
-  }
-
-  @Test
-  public void testIssueCallback() throws Exception {
-    File projectDir = copyProject("/mediumtest/xoo/sample");
-    IssueRecorder issueListener = new IssueRecorder();
-
-    TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .setIssueListener(issueListener)
-      .property("sonar.verbose", "true")
-      .start();
-
-    assertThat(result.trackedIssues()).hasSize(19);
-    assertThat(issueListener.issueList).hasSize(19);
-  }
-
-  private class IssueRecorder implements IssueListener {
-    List<Issue> issueList = new LinkedList<>();
-
-    @Override
-    public void handle(Issue issue) {
-      issueList.add(issue);
-    }
   }
 
   @Test
@@ -290,7 +252,7 @@ public class IssueModeAndReportsMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.getReportReader().hasSyntaxHighlighting(1)).isFalse();
     assertThat(result.getReportReader().hasSyntaxHighlighting(2)).isFalse();

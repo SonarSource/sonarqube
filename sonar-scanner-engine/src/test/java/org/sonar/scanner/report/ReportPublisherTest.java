@@ -19,21 +19,12 @@
  */
 package org.sonar.scanner.report;
 
-import static org.apache.commons.io.FileUtils.readFileToString;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,6 +50,14 @@ import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
+
+import static org.apache.commons.io.FileUtils.readFileToString;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ReportPublisherTest {
 
@@ -176,8 +175,8 @@ public class ReportPublisherTest {
 
   @Test
   public void should_not_delete_report_if_property_is_set() throws IOException {
-    settings.setProperty("sonar.batch.keepReport", true);
-    Path reportDir = temp.getRoot().toPath().resolve("batch-report");
+    settings.setProperty("sonar.scanner.keepReport", true);
+    Path reportDir = temp.getRoot().toPath().resolve("scanner-report");
     Files.createDirectory(reportDir);
     ReportPublisher underTest = new ReportPublisher(settings.asConfig(), wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
       new ReportPublisherStep[0]);
@@ -189,7 +188,7 @@ public class ReportPublisherTest {
 
   @Test
   public void should_delete_report_by_default() throws IOException {
-    Path reportDir = temp.getRoot().toPath().resolve("batch-report");
+    Path reportDir = temp.getRoot().toPath().resolve("scanner-report");
     Files.createDirectory(reportDir);
     ReportPublisher job = new ReportPublisher(settings.asConfig(), wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
 

@@ -27,8 +27,6 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -57,18 +55,13 @@ public class ProjectBuilderMediumTest {
 
   private ProjectBuilder projectBuilder = mock(ProjectBuilder.class);
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPluginWithBuilder(projectBuilder))
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
     .setPreviousAnalysisDate(new Date())
-    .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo")
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
+    .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo");
 
   private class XooPluginWithBuilder extends XooPlugin {
     private ProjectBuilder builder;
@@ -82,11 +75,6 @@ public class ProjectBuilderMediumTest {
       super.define(context);
       context.addExtension(builder);
     }
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
   }
 
   @Test
@@ -123,7 +111,7 @@ public class ProjectBuilderMediumTest {
         .put("sonar.sources", ".")
         .put("sonar.xoo.enableProjectBuilder", "true")
         .build())
-      .start();
+      .execute();
 
   }
 
@@ -143,7 +131,7 @@ public class ProjectBuilderMediumTest {
         .put("sonar.verbose", "true")
         .put("sonar.xoo.enableProjectBuilder", "true")
         .build())
-      .start();
+      .execute();
     List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
     assertThat(issues).hasSize(10);
 
@@ -172,7 +160,7 @@ public class ProjectBuilderMediumTest {
         .put("sonar.sources", ".")
         .put("sonar.xoo.enableProjectBuilder", "true")
         .build())
-      .start();
+      .execute();
   }
 
   @Test
@@ -191,7 +179,7 @@ public class ProjectBuilderMediumTest {
         .put("sonar.sources", ".")
         .put("sonar.xoo.enableProjectBuilder", "true")
         .build())
-      .start();
+      .execute();
 
     List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
     assertThat(issues).hasSize(10);

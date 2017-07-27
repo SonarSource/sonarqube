@@ -25,8 +25,6 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -47,20 +45,10 @@ public class HighlightingMediumTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
-    .addDefaultQProfile("xoo", "Sonar Way")
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
+    .addDefaultQProfile("xoo", "Sonar Way");
 
   @Test
   public void computeSyntaxHighlightingOnTempProject() throws IOException {
@@ -83,7 +71,7 @@ public class HighlightingMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     InputFile file = result.inputFile("src/sample.xoo");
     assertThat(result.highlightingTypeFor(file, 1, 0)).containsExactly(TypeOfText.STRING);
@@ -113,7 +101,7 @@ public class HighlightingMediumTest {
         .put("sonar.sources", "src")
         .put("sonar.it.savedatatwice", "true")
         .build())
-      .start();
+      .execute();
 
   }
 
@@ -152,7 +140,7 @@ public class HighlightingMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
   }
 
 }

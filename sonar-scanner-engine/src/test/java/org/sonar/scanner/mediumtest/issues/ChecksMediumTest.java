@@ -27,8 +27,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.rule.RuleKey;
@@ -47,25 +46,15 @@ public class ChecksMediumTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRule("TemplateRule_1234", "xoo", "TemplateRule_1234", "A template rule")
     .addRule("TemplateRule_1235", "xoo", "TemplateRule_1235", "Another template rule")
     .activateRule(createActiveRuleWithParam("xoo", "TemplateRule_1234", "TemplateRule", "A template rule", "MAJOR", null, "xoo", "line", "1"))
-    .activateRule(createActiveRuleWithParam("xoo", "TemplateRule_1235", "TemplateRule", "Another template rule", "MAJOR", null, "xoo", "line", "2"))
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
+    .activateRule(createActiveRuleWithParam("xoo", "TemplateRule_1235", "TemplateRule", "Another template rule", "MAJOR", null, "xoo", "line", "2"));
 
   @Test
   public void testCheckWithTemplate() throws IOException {
@@ -87,7 +76,7 @@ public class ChecksMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
     assertThat(issues)

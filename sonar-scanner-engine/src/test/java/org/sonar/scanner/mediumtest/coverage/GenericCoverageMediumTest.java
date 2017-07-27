@@ -21,8 +21,7 @@ package org.sonar.scanner.mediumtest.coverage;
 
 import java.io.File;
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
@@ -35,20 +34,10 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class GenericCoverageMediumTest {
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
-    .addDefaultQProfile("xoo", "Sonar Way")
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
+    .addDefaultQProfile("xoo", "Sonar Way");
 
   @Test
   public void singleReport() throws IOException {
@@ -58,7 +47,7 @@ public class GenericCoverageMediumTest {
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.coverageReportPaths", "coverage.xml")
-      .start();
+      .execute();
 
     InputFile noConditions = result.inputFile("xources/hello/NoConditions.xoo");
     assertThat(result.coverageFor(noConditions, 6).getHits()).isTrue();
@@ -99,7 +88,7 @@ public class GenericCoverageMediumTest {
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.coverageReportPaths", "coverage.xml,coverage2.xml")
-      .start();
+      .execute();
 
     InputFile noConditions = result.inputFile("xources/hello/NoConditions.xoo");
     assertThat(result.coverageFor(noConditions, 6).getHits()).isTrue();

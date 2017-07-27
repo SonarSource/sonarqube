@@ -22,14 +22,11 @@ package org.sonar.scanner.mediumtest.issues;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
@@ -44,38 +41,12 @@ public class IssuesMediumTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
-    .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo")
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
-
-  @Test
-  public void testNoIssueCallbackInNonPreview() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
-    File tmpDir = temp.getRoot();
-    FileUtils.copyDirectory(projectDir, tmpDir);
-    IssueRecorder issueListener = new IssueRecorder();
-
-    TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
-      .setIssueListener(issueListener)
-      .start();
-
-    assertThat(result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"))).hasSize(8);
-    assertThat(issueListener.issueList).hasSize(0);
-  }
+    .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo");
 
   @Test
   public void testOneIssuePerLine() throws Exception {
@@ -85,7 +56,7 @@ public class IssuesMediumTest {
 
     TaskResult result = tester
       .newScanTask(new File(tmpDir, "sonar-project.properties"))
-      .start();
+      .execute();
 
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
     assertThat(issues).hasSize(8 /* lines */);
@@ -103,7 +74,7 @@ public class IssuesMediumTest {
     TaskResult result = tester
       .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .property("sonar.xoo.internalKey", "OneIssuePerLine.internal")
-      .start();
+      .execute();
 
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
     assertThat(issues).hasSize(8 /* lines */ + 1 /* file */);
@@ -118,7 +89,7 @@ public class IssuesMediumTest {
     TaskResult result = tester
       .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .property("sonar.oneIssuePerLine.forceSeverity", "CRITICAL")
-      .start();
+      .execute();
 
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
     assertThat(issues.get(0).getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
@@ -134,7 +105,7 @@ public class IssuesMediumTest {
       .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .property("sonar.issue.ignore.allfile", "1")
       .property("sonar.issue.ignore.allfile.1.fileRegexp", "object")
-      .start();
+      .execute();
 
     assertThat(result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"))).hasSize(8 /* lines */);
     assertThat(result.issuesFor(result.inputFile("xources/hello/helloscala.xoo"))).isEmpty();
@@ -160,7 +131,7 @@ public class IssuesMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
     assertThat(issues).hasSize(10);
@@ -169,12 +140,4 @@ public class IssuesMediumTest {
       .contains(tuple("This issue is generated on each line", 1, 0.0));
   }
 
-  private class IssueRecorder implements IssueListener {
-    List<Issue> issueList = new LinkedList<>();
-
-    @Override
-    public void handle(Issue issue) {
-      issueList.add(issue);
-    }
-  }
 }

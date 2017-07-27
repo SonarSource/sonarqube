@@ -23,8 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
@@ -37,23 +36,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SymbolMediumTest {
 
-  @org.junit.Rule
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
-    .addDefaultQProfile("xoo", "Sonar Way")
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
+    .addDefaultQProfile("xoo", "Sonar Way");
 
   @Test
   public void computeSymbolReferencesOnTempProject() throws IOException {
@@ -78,7 +67,7 @@ public class SymbolMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     InputFile file = result.inputFile("src/sample.xoo");
     assertThat(result.symbolReferencesFor(file, 1, 7)).containsOnly(ScannerReport.TextRange.newBuilder().setStartLine(3).setStartOffset(8).setEndLine(3).setEndOffset(11).build());
@@ -107,7 +96,7 @@ public class SymbolMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     InputFile file = result.inputFile("src/sample.xoo");
     assertThat(result.symbolReferencesFor(file, 1, 7)).containsOnly(ScannerReport.TextRange.newBuilder().setStartLine(3).setStartOffset(8).setEndLine(4).setEndOffset(1).build());

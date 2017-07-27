@@ -25,8 +25,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
@@ -43,20 +42,10 @@ public class CoverageMediumTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
-    .addDefaultQProfile("xoo", "Sonar Way")
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
+    .addDefaultQProfile("xoo", "Sonar Way");
 
   @Test
   public void singleReport() throws IOException {
@@ -80,7 +69,7 @@ public class CoverageMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     InputFile file = result.inputFile("src/sample.xoo");
     assertThat(result.coverageFor(file, 2).getHits()).isTrue();
@@ -119,7 +108,7 @@ public class CoverageMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     InputFile file = result.inputFile("src/sample.xoo");
     assertThat(result.coverageFor(file, 2).getHits()).isTrue();
@@ -161,7 +150,7 @@ public class CoverageMediumTest {
         .put("sonar.sources", "src")
         .put("sonar.coverage.exclusions", "**/sample.xoo")
         .build())
-      .start();
+      .execute();
 
     InputFile file = result.inputFile("src/sample.xoo");
     assertThat(result.coverageFor(file, 2)).isNull();
@@ -194,7 +183,7 @@ public class CoverageMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     InputFile file = result.inputFile("src/sample.xoo");
     assertThat(result.coverageFor(file, 1)).isNull();

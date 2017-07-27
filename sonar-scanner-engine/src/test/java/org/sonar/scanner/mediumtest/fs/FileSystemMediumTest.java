@@ -29,7 +29,6 @@ import java.nio.file.Paths;
 import java.util.Random;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,20 +56,18 @@ public class FileSystemMediumTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private LogOutputRecorder logs = new LogOutputRecorder();
-  private ScannerMediumTester tester;
+
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
+    .registerPlugin("xoo", new XooPlugin())
+    .addDefaultQProfile("xoo", "Sonar Way")
+    .setLogOutput(logs);
 
   private File baseDir;
   private ImmutableMap.Builder<String, String> builder;
 
   @Before
   public void prepare() throws IOException {
-    tester = ScannerMediumTester.builder()
-      .registerPlugin("xoo", new XooPlugin())
-      .addDefaultQProfile("xoo", "Sonar Way")
-      .setLogOutput(logs)
-      .build();
-    tester.start();
-
     baseDir = temp.getRoot();
 
     builder = ImmutableMap.<String, String>builder()
@@ -80,15 +77,6 @@ public class FileSystemMediumTest {
       .put("sonar.projectName", "Foo Project")
       .put("sonar.projectVersion", "1.0-SNAPSHOT")
       .put("sonar.projectDescription", "Description of Foo Project");
-  }
-
-  @After
-  public void stop() {
-    if (tester != null) {
-      tester.stop();
-      tester = null;
-    }
-    logs = new LogOutputRecorder();
   }
 
   private ImmutableMap.Builder<String, String> createBuilder() {
@@ -115,7 +103,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     int ref = result.getReportReader().readMetadata().getRootComponentRef();
     assertThat(result.getReportReader().readComponent(ref).getName()).isEmpty();
@@ -150,7 +138,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
     assertThat(logs.getAllAsString()).contains("Organization key: my org");
@@ -171,7 +159,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
     assertThat(logs.getAllAsString()).contains("Branch key: my-branch");
@@ -190,7 +178,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
     assertThat(logs.getAllAsString()).doesNotContain("Organization key");
@@ -214,7 +202,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(logs.getAllAsString()).contains("2 files indexed");
     assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
@@ -240,7 +228,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(logs.getAllAsString()).contains("2 files indexed");
     assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
@@ -271,7 +259,7 @@ public class FileSystemMediumTest {
         .put("sonar.sources", "src/main")
         .put("sonar.tests", "src/test")
         .build())
-      .start();
+      .execute();
 
     assertThat(logs.getAllAsString()).contains("3 files indexed");
     assertThat(logs.getAllAsString()).contains("'src/main/sample.xoo' generated metadata");
@@ -283,16 +271,9 @@ public class FileSystemMediumTest {
 
   @Test
   public void createIssueOnAnyFile() throws IOException {
-    LogOutputRecorder logs = new LogOutputRecorder();
-    stop();
-    tester = ScannerMediumTester.builder()
-      .registerPlugin("xoo", new XooPlugin())
-      .addDefaultQProfile("xoo", "Sonar Way")
+    tester
       .addRules(new XooRulesDefinition())
-      .setLogOutput(logs)
-      .addActiveRule("xoo", "OneIssuePerUnknownFile", null, "OneIssuePerUnknownFile", "MAJOR", null, "xoo")
-      .build();
-    tester.start();
+      .addActiveRule("xoo", "OneIssuePerUnknownFile", null, "OneIssuePerUnknownFile", "MAJOR", null, "xoo");
 
     builder = createBuilder();
 
@@ -306,7 +287,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(logs.getAllAsString()).contains("1 file indexed");
     assertThat(logs.getAllAsString()).contains("'src/sample.unknown' indexed with language 'null'");
@@ -317,16 +298,9 @@ public class FileSystemMediumTest {
 
   @Test
   public void lazyIssueExclusion() throws IOException {
-    tester.stop();
-    LogOutputRecorder logs = new LogOutputRecorder();
-    tester = ScannerMediumTester.builder()
-      .registerPlugin("xoo", new XooPlugin())
-      .addDefaultQProfile("xoo", "Sonar Way")
+    tester
       .addRules(new XooRulesDefinition())
-      .setLogOutput(logs)
-      .addActiveRule("xoo", "OneIssuePerFile", null, "OneIssuePerFile", "MAJOR", null, "xoo")
-      .build();
-    tester.start();
+      .addActiveRule("xoo", "OneIssuePerFile", null, "OneIssuePerFile", "MAJOR", null, "xoo");
 
     builder = createBuilder();
     builder.put("sonar.issue.ignore.allfile", "1")
@@ -346,7 +320,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(logs.getAllAsString()).containsOnlyOnce("'src/myfile.binary' indexed with language 'null'");
     assertThat(logs.getAllAsString()).doesNotContain("'src/myfile.binary' generating issue exclusions");
@@ -372,7 +346,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(logs.getAllAsString()).containsOnlyOnce("- Exclusion pattern 'pattern'");
     assertThat(logs.getAllAsString()).containsOnlyOnce("'src/myfile.binary' generating issue exclusions");
@@ -380,14 +354,9 @@ public class FileSystemMediumTest {
 
   @Test
   public void publishFilesWithIssues() throws IOException {
-    stop();
-    tester = ScannerMediumTester.builder()
-      .registerPlugin("xoo", new XooPlugin())
-      .addDefaultQProfile("xoo", "Sonar Way")
+    tester
       .addRules(new XooRulesDefinition())
-      .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo")
-      .build();
-    tester.start();
+      .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo");
 
     builder = createBuilder();
 
@@ -401,7 +370,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     DefaultInputFile file = (DefaultInputFile) result.inputFile("src/sample.xoo");
     InputDir dir = result.inputDir("src");
@@ -413,14 +382,9 @@ public class FileSystemMediumTest {
 
   @Test
   public void publishDirsWithIssues() throws IOException {
-    stop();
-    tester = ScannerMediumTester.builder()
-      .registerPlugin("xoo", new XooPlugin())
-      .addDefaultQProfile("xoo", "Sonar Way")
+    tester
       .addRules(new XooRulesDefinition())
-      .addActiveRule("xoo", "OneIssuePerDirectory", null, "OneIssuePerDirectory", "MAJOR", null, "xoo")
-      .build();
-    tester.start();
+      .addActiveRule("xoo", "OneIssuePerDirectory", null, "OneIssuePerDirectory", "MAJOR", null, "xoo");
 
     builder = ImmutableMap.<String, String>builder()
       .put("sonar.task", "scan")
@@ -442,7 +406,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     DefaultInputFile unknownInputFile = (DefaultInputFile) result.inputFile("src/unknown/file.notanalyzed");
     InputDir unknownInputDir = result.inputDir("src/unknown");
@@ -470,7 +434,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
     assertThat(result.inputDirs()).hasSize(1);
@@ -495,7 +459,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(100);
     assertThat(result.inputDirs()).hasSize(1);
@@ -514,7 +478,7 @@ public class FileSystemMediumTest {
         .put("sonar.sources", "")
         .put("sonar.tests", "test")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
     assertThat(result.inputFile("test/sampleTest.xoo").type()).isEqualTo(InputFile.Type.TEST);
@@ -548,7 +512,7 @@ public class FileSystemMediumTest {
         .put("sonar.sources", "src,another.xoo")
         .put("sonar.tests", "test,sampleTest2.xoo")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(4);
     assertThat(result.inputDirs()).hasSize(3);
@@ -583,7 +547,7 @@ public class FileSystemMediumTest {
         .put("sonar.test.inclusions", "**/sampleTest*.*")
         .put("sonar.test.exclusions", "**/sampleTest2.xoo")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(2);
   }
@@ -602,7 +566,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src,src/sample.xoo")
         .build())
-      .start();
+      .execute();
 
   }
 
@@ -613,7 +577,7 @@ public class FileSystemMediumTest {
       File projectDir = new File("src/test/resources/mediumtest/xoo/sample-with-symlink");
       TaskResult result = tester
         .newScanTask(new File(projectDir, "sonar-project.properties"))
-        .start();
+        .execute();
 
       assertThat(result.inputFiles()).hasSize(3);
       // check that symlink was not resolved to target
@@ -630,7 +594,7 @@ public class FileSystemMediumTest {
         .newScanTask(new File(projectDir, "sonar-project.properties"))
         .property("sonar.sources", "XOURCES")
         .property("sonar.tests", "TESTX")
-        .start();
+        .execute();
 
       assertThat(result.inputFiles()).hasSize(3);
       assertThat(result.inputFiles()).extractingResultOf("relativePath").containsOnly(
@@ -655,7 +619,7 @@ public class FileSystemMediumTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(2);
     assertThat(result.inputFile("src/sample.other").type()).isEqualTo(InputFile.Type.MAIN);
@@ -668,7 +632,7 @@ public class FileSystemMediumTest {
     File projectDir = new File("src/test/resources/mediumtest/xoo/multi-modules-sample");
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .start();
+      .execute();
 
     System.out.println(logs.getAsString());
     assertThat(result.inputFiles()).hasSize(4);
@@ -700,7 +664,7 @@ public class FileSystemMediumTest {
         .put("sonar.sources", "src,\"another,2.xoo\"")
         .put("sonar.tests", "\"test\",\"sampleTest,2.xoo\"")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.inputFiles()).hasSize(4);
     assertThat(result.inputDirs()).hasSize(3);

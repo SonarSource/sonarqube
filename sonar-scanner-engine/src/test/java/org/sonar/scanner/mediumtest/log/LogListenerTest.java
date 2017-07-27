@@ -60,11 +60,11 @@ public class LogListenerTest {
   private static PrintStream savedStdOut;
   private static PrintStream savedStdErr;
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .setLogOutput(new SimpleLogListener())
-    .build();
+    .setLogOutput(new SimpleLogListener());
 
   private File baseDir;
 
@@ -95,7 +95,6 @@ public class LogListenerTest {
     // logger from the batch might write to it asynchronously
     logOutput = Collections.synchronizedList(new LinkedList<LogEvent>());
     logOutputStr = new StringBuilder();
-    tester.start();
 
     baseDir = temp.getRoot();
 
@@ -143,9 +142,8 @@ public class LogListenerTest {
         .put("sonar.sources", "src")
         .put("sonar.verbose", "true")
         .build())
-      .start();
+      .execute();
 
-    tester.stop();
     for (LogEvent e : logOutput) {
       savedStdOut.println("[captured]" + e.level + " " + e.msg);
     }
@@ -166,8 +164,7 @@ public class LogListenerTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
-    tester.stop();
+      .execute();
 
     assertNoStdOutput();
     assertThat(logOutput).isNotEmpty();
@@ -191,8 +188,7 @@ public class LogListenerTest {
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .start();
-    tester.stop();
+      .execute();
 
     assertNoStdOutput();
 
@@ -220,12 +216,11 @@ public class LogListenerTest {
         .properties(builder
           .put("sonar.sources", "src")
           .build())
-        .start();
+        .execute();
       fail("Expected exception");
     } catch (Exception e) {
       assertThat(e.getMessage()).contains("Error processing line 1");
     }
-    tester.stop();
 
     assertNoStdOutput();
 

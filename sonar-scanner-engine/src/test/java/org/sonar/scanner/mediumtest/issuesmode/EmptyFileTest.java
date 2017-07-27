@@ -24,8 +24,6 @@ import java.io.File;
 import java.util.Date;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -47,24 +45,14 @@ public class EmptyFileTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES))
     .registerPlugin("xoo", new XooPlugin())
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "my/internal/key", "xoo")
-    .setPreviousAnalysisDate(new Date())
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
+    .setPreviousAnalysisDate(new Date());
 
   @Test
   public void testIssueTrackingWithIssueOnEmptyFile() throws Exception {
@@ -73,12 +61,12 @@ public class EmptyFileTest {
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.xoo.internalKey", "my/internal/key")
-      .start();
+      .execute();
 
-    for(TrackedIssue i : result.trackedIssues()) {
+    for (TrackedIssue i : result.trackedIssues()) {
       System.out.println(i.startLine() + " " + i.getMessage());
     }
-    
+
     assertThat(result.trackedIssues()).hasSize(11);
   }
 

@@ -22,8 +22,8 @@ package org.sonar.scanner.mediumtest.issues;
 import java.io.File;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
@@ -38,34 +38,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MultilineIssuesMediumTest {
 
-  @org.junit.Rule
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .addActiveRule("xoo", "MultilineIssue", null, "Multinile Issue", "MAJOR", null, "xoo")
-    .build();
+    .addActiveRule("xoo", "MultilineIssue", null, "Multinile Issue", "MAJOR", null, "xoo");
 
   private TaskResult result;
 
   @Before
   public void prepare() throws Exception {
-    tester.start();
-
     File projectDir = new File(MultilineIssuesMediumTest.class.getResource("/mediumtest/xoo/sample-multiline").toURI());
     File tmpDir = temp.getRoot();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
     result = tester
       .newScanTask(new File(tmpDir, "sonar-project.properties"))
-      .start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
+      .execute();
   }
 
   @Test
