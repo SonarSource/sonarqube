@@ -107,7 +107,7 @@ public class MeasureComputerContextImplTest {
   public void get_string_settings() throws Exception {
     MapSettings serverSettings = new MapSettings();
     serverSettings.setProperty("prop", "value");
-    when(settingsRepository.getConfiguration(FILE_1)).thenReturn(serverSettings.asConfig());
+    when(settingsRepository.getConfiguration()).thenReturn(serverSettings.asConfig());
 
     MeasureComputerContextImpl underTest = newContext(FILE_1_REF);
     assertThat(underTest.getSettings().getString("prop")).isEqualTo("value");
@@ -118,7 +118,7 @@ public class MeasureComputerContextImplTest {
   public void get_string_array_settings() throws Exception {
     MapSettings serverSettings = new MapSettings();
     serverSettings.setProperty("prop", "1,3.4,8,50");
-    when(settingsRepository.getConfiguration(FILE_1)).thenReturn(serverSettings.asConfig());
+    when(settingsRepository.getConfiguration()).thenReturn(serverSettings.asConfig());
 
     MeasureComputerContextImpl underTest = newContext(FILE_1_REF);
     assertThat(underTest.getSettings().getStringArray("prop")).containsExactly("1", "3.4", "8", "50");

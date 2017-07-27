@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
@@ -35,8 +36,9 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public MutableAnalysisMetadataHolder setOrganization(Organization organization) {
-    return delegate.setOrganization(organization);
+  public MutableAnalysisMetadataHolderRule setOrganization(Organization organization) {
+    delegate.setOrganization(organization);
+    return this;
   }
 
   @Override
@@ -98,14 +100,25 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public String getBranch() {
+  public Optional<Branch> getBranch() {
     return delegate.getBranch();
   }
 
   @Override
-  public MutableAnalysisMetadataHolderRule setBranch(@Nullable String branch) {
+  public MutableAnalysisMetadataHolderRule setBranch(Branch branch) {
     delegate.setBranch(branch);
     return this;
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolderRule setProject(@Nullable Project project) {
+    delegate.setProject(project);
+    return this;
+  }
+
+  @Override
+  public Project getProject() {
+    return delegate.getProject();
   }
 
   @Override
