@@ -403,27 +403,6 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void select_component_properties_by_keys() throws Exception {
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    UserDto user = dbTester.users().insertUser();
-
-    String key = "key";
-    String anotherKey = "anotherKey";
-    insertProperties(
-      newGlobalPropertyDto().setKey(key),
-      newComponentPropertyDto(project).setKey(key),
-      newUserPropertyDto(user).setKey(key),
-      newComponentPropertyDto(project).setKey(anotherKey));
-
-    assertThat(underTest.selectPropertiesByKeysAndComponentId(session, newHashSet(key), project.getId())).extracting("key").containsOnly(key);
-    assertThat(underTest.selectPropertiesByKeysAndComponentId(session, newHashSet(key, anotherKey), project.getId())).extracting("key").containsOnly(key, anotherKey);
-    assertThat(underTest.selectPropertiesByKeysAndComponentId(session, newHashSet(key, anotherKey, "unknown"), project.getId())).extracting("key").containsOnly(key, anotherKey);
-
-    assertThat(underTest.selectPropertiesByKeysAndComponentId(session, newHashSet("unknown"), project.getId())).isEmpty();
-    assertThat(underTest.selectPropertiesByKeysAndComponentId(session, newHashSet(key), 123456789L)).isEmpty();
-  }
-
-  @Test
   public void select_component_properties_by_ids() throws Exception {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto project2 = dbTester.components().insertPrivateProject();

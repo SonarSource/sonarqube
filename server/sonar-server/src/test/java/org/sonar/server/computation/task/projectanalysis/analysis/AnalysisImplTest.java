@@ -30,9 +30,9 @@ public class AnalysisImplTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  static final long ID = 10;
-  static final String UUID = "uuid ";
-  static final long CREATED_AT = 123456789L;
+  private static final long ID = 10;
+  private static final String UUID = "uuid ";
+  private static final long CREATED_AT = 123456789L;
 
   @Test
   public void build_snapshot() throws Exception {

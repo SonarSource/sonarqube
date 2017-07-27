@@ -71,8 +71,8 @@ public class ReportSubmitter {
    */
   public CeTask submit(String organizationKey, String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String effectiveProjectKey = ComponentKeys.createKey(projectKey, projectBranch);
       OrganizationDto organizationDto = getOrganizationDtoOrFail(dbSession, organizationKey);
+      String effectiveProjectKey = ComponentKeys.createKey(projectKey, projectBranch);
       Optional<ComponentDto> opt = dbClient.componentDao().selectByKey(dbSession, effectiveProjectKey);
       ensureOrganizationIsConsistent(opt, organizationDto);
       ComponentDto project = opt.or(() -> createProject(dbSession, organizationDto, projectKey, projectBranch, projectName));
@@ -106,12 +106,13 @@ public class ReportSubmitter {
     }
   }
 
-  private ComponentDto createProject(DbSession dbSession, OrganizationDto organization, String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
+  private ComponentDto createProject(DbSession dbSession, OrganizationDto organization, String projectKey, @Nullable String deprecatedBranch, @Nullable String projectName) {
     userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization);
     Integer userId = userSession.getUserId();
 
+    String effectiveProjectKey = ComponentKeys.createEffectiveKey(projectKey, deprecatedBranch);
     boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(
-      dbSession, organization.getUuid(), userId, projectBranch, projectKey, Qualifiers.PROJECT);
+      dbSession, organization.getUuid(), userId, effectiveProjectKey, Qualifiers.PROJECT);
     if (!wouldCurrentUserHaveScanPermission) {
       throw insufficientPrivilegesException();
     }
@@ -122,7 +123,7 @@ public class ReportSubmitter {
       .setOrganizationUuid(organization.getUuid())
       .setKey(projectKey)
       .setName(StringUtils.defaultIfBlank(projectName, projectKey))
-      .setBranch(projectBranch)
+      .setBranch(deprecatedBranch)
       .setQualifier(Qualifiers.PROJECT)
       .setPrivate(newProjectPrivate)
       .build();

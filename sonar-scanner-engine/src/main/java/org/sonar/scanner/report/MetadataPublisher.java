@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.report;
 
-import org.sonar.api.CoreProperties;
+import java.util.Optional;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -30,6 +30,9 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
+
+import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
+import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 
 public class MetadataPublisher implements ReportPublisherStep {
 
@@ -59,12 +62,10 @@ public class MetadataPublisher implements ReportPublisherStep {
       .setCrossProjectDuplicationActivated(cpdSettings.isCrossProjectDuplicationEnabled())
       .setRootComponentRef(rootProject.batchId());
 
-    settings.get(CoreProperties.PROJECT_ORGANIZATION_PROPERTY).ifPresent(builder::setOrganizationKey);
+    settings.get(ORGANIZATION).ifPresent(builder::setOrganizationKey);
+    settings.get(BRANCH_NAME).ifPresent(builder::setBranchName);
+    Optional.ofNullable(rootDef.getBranch()).ifPresent(builder::setDeprecatedBranch);
 
-    String branch = rootDef.getBranch();
-    if (branch != null) {
-      builder.setBranch(branch);
-    }
     for (QProfile qp : qProfiles.findAll()) {
       builder.getMutableQprofilesPerLanguage().put(qp.getLanguage(), ScannerReport.Metadata.QProfile.newBuilder()
         .setKey(qp.getKey())
