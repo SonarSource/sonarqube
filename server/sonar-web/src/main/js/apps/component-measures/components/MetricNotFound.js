@@ -17,42 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import type { Measure, MeasureEnhanced } from '../../components/measure/types';
+// @flow
+import React from 'react';
+import { translate } from '../../../helpers/l10n';
 
-type ComponentIntern = {
-  isFavorite?: boolean,
-  isRecentlyBrowsed?: boolean,
-  key: string,
-  match?: string,
-  name: string,
-  organization?: string,
-  project?: string,
-  qualifier: string
-};
-
-export type Component = ComponentIntern & { measures?: Array<Measure> };
-
-export type ComponentEnhanced = ComponentIntern & {
-  value?: ?string,
-  leak?: ?string,
-  measures: Array<MeasureEnhanced>
-};
-
-export type Paging = {
-  pageIndex: number,
-  pageSize: number,
-  total: number
-};
-
-export type Period = {
-  index: number,
-  date: string,
-  mode: string,
-  parameter?: string
-};
-
-export type Query = {
-  metric: ?string,
-  selected: ?string,
-  view: string
-};
+export default function MetricNotFound({ className }: { className?: string }) {
+  return (
+    <div className={className}>
+      <div className="alert alert-danger">
+        {translate('component_measures.not_found')}
+      </div>
+    </div>
+  );
+}

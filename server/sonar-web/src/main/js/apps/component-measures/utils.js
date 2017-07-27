@@ -22,9 +22,12 @@ import { groupBy, memoize, sortBy, toPairs } from 'lodash';
 import { getLocalizedMetricName } from '../../helpers/l10n';
 import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
 import { domains } from './config/domains';
-import type { Query } from './types';
+import { bubbles } from './config/bubbles';
+import { enhanceMeasure } from '../../components/measure/utils';
+import type { Component, ComponentEnhanced, Query } from './types';
 import type { RawQuery } from '../../helpers/query';
-import type { Measure, MeasureEnhanced } from '../../components/measure/types';
+import type { Metric } from '../../store/metrics/actions';
+import type { MeasureEnhanced } from '../../components/measure/types';
 
 export const DEFAULT_VIEW = 'list';
 const KNOWN_DOMAINS = [
@@ -69,13 +72,13 @@ export function sortMeasures(
   ]);
 }
 
-export function getLeakValue(measure: ?Measure): ?string {
-  if (!measure || !measure.periods) {
-    return null;
-  }
-  const period = measure.periods.find(period => period.index === 1);
-  return period ? period.value : null;
-}
+export const enhanceComponent = (component: Component, metric: Metric): ComponentEnhanced => {
+  const enhancedMeasures = component.measures.map(measure => enhanceMeasure(measure, metric));
+  const measure = enhancedMeasures.find(measure => measure.metric.key === metric.key);
+  const value = measure ? measure.value : null;
+  const leak = measure ? measure.leak : null;
+  return { ...component, value, leak, measures: enhancedMeasures };
+};
 
 export const groupByDomains = memoize((measures: Array<MeasureEnhanced>): Array<{
   name: string,
@@ -96,14 +99,18 @@ export const groupByDomains = memoize((measures: Array<MeasureEnhanced>): Array<
   ]);
 });
 
+export const hasBubbleChart = (domainName: string): boolean => bubbles[domainName] != null;
+
 export const parseQuery = memoize((urlQuery: RawQuery): Query => ({
   metric: parseAsString(urlQuery['metric']),
+  selected: parseAsString(urlQuery['selected']),
   view: parseAsString(urlQuery['view']) || DEFAULT_VIEW
 }));
 
 export const serializeQuery = memoize((query: Query): RawQuery => {
   return cleanQuery({
     metric: serializeString(query.metric),
+    selected: serializeString(query.selected),
     view: query.view === DEFAULT_VIEW ? null : serializeString(query.view)
   });
 });

@@ -28,34 +28,60 @@ exports[`should render correctly 1`] = `
         >
           <Sidebar
             measures={Array []}
-            selectedMetric=""
+            selectedMetric="coverage"
             updateQuery={[Function]}
           />
         </div>
       </div>
     </div>
   </div>
-  <div
-    className="layout-page-main"
-  >
-    <div
-      className="layout-page-header-panel layout-page-main-header issues-main-header"
-    >
-      <div
-        className="layout-page-header-panel-inner layout-page-main-header-inner"
-      >
-        <div
-          className="layout-page-main-inner"
-        >
-          Page Actions
-        </div>
-      </div>
-    </div>
-    <div
-      className="layout-page-main-inner"
-    >
-      Main
-    </div>
-  </div>
+  <MeasureContent
+    className="layout-page-main-inner"
+    fetchMeasures={[Function]}
+    leakPeriod={null}
+    metric={
+      Object {
+        "domain": "Coverage",
+        "key": "coverage",
+        "name": "Coverage",
+        "type": "PERCENT",
+      }
+    }
+    metrics={
+      Object {
+        "coverage": Object {
+          "domain": "Coverage",
+          "key": "coverage",
+          "name": "Coverage",
+          "type": "PERCENT",
+        },
+        "duplicated_lines_density": Object {
+          "domain": "Duplications",
+          "key": "duplicated_lines_density",
+          "name": "Duplicated Lines (%)",
+          "type": "PERCENT",
+        },
+        "lines_to_cover": Object {
+          "domain": "Coverage",
+          "key": "lines_to_cover",
+          "name": "Lines to Cover",
+          "type": "INT",
+        },
+        "new_bugs": Object {
+          "domain": "Reliability",
+          "key": "new_bugs",
+          "name": "New Bugs",
+          "type": "INT",
+        },
+      }
+    }
+    rootComponent={
+      Object {
+        "key": "foo",
+      }
+    }
+    selected=""
+    updateQuery={[Function]}
+  />
 </div>
 `;

@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Tooltip
+  overlay="a month ago, March 1, 2017 9:36 AM"
+  placement="left"
+>
+  <div
+    className="domain-measures-leak-header"
+  >
+    overview.leak_period_x.overview.period.previous_version.6,4
+  </div>
+</Tooltip>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="domain-measures-leak-header"
+>
+  overview.leak_period_x.overview.period.days.18
+</div>
+`;
+
+exports[`should render correctly for APP 1`] = `
+<div
+  className="domain-measures-leak-header"
+>
+  issues.leak_period
+</div>
+`;
