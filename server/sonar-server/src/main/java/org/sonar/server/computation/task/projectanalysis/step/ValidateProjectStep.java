@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nullable;
+
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.MessageException;
@@ -42,6 +45,7 @@ import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthL
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
+import org.sonar.server.computation.task.projectanalysis.validation.ValidateIncremental;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -66,12 +70,19 @@ public class ValidateProjectStep implements ComputationStep {
   private final BatchReportReader reportReader;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final ValidateIncremental validateIncremental;
 
   public ValidateProjectStep(DbClient dbClient, BatchReportReader reportReader, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder) {
+    this(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, null);
+  }
+
+  public ValidateProjectStep(DbClient dbClient, BatchReportReader reportReader, TreeRootHolder treeRootHolder,
+    AnalysisMetadataHolder analysisMetadataHolder, @Nullable ValidateIncremental validateIncremental) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.validateIncremental = validateIncremental;
   }
 
   @Override
@@ -115,6 +126,7 @@ public class ValidateProjectStep implements ComputationStep {
       this.rawProject = rawProject;
       String rawProjectKey = rawProject.getKey();
       validateBranch();
+      validateIncremental(rawProjectKey);
       validateNotIncrementalAndFirstAnalysis(rawProjectKey);
       validateBatchKey(rawProject);
 
@@ -129,6 +141,18 @@ public class ValidateProjectStep implements ComputationStep {
         ComponentDto componentDto = baseProject.get();
         if (!Qualifiers.PROJECT.equals(componentDto.qualifier()) || !Scopes.PROJECT.equals(componentDto.scope())) {
           validationMessages.add(format("Component (uuid=%s, key=%s) is not a project", rawProject.getUuid(), rawProject.getKey()));
+        }
+      }
+    }
+
+    private void validateIncremental(String rawProjectKey) {
+      if (analysisMetadataHolder.isIncrementalAnalysis()) {
+        if (validateIncremental == null) {
+          validationMessages.add(format("Can't process an incremental analysis of the project \"%s\" because the incremental plugin is not loaded."
+            + " Please install the plugin or launch a full analysis of the project.", rawProjectKey));
+        } else if (!validateIncremental.execute()) {
+          validationMessages.add(format("The installation of the incremental plugin is invalid. Can't process the incremental analysis "
+            + "of the project \"%s\".", rawProjectKey));
         }
       }
     }
