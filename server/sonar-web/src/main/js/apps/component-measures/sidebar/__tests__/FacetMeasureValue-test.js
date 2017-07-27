@@ -19,15 +19,35 @@
  */
 // @flow
 import React from 'react';
+import { shallow } from 'enzyme';
+import FacetMeasureValue from '../FacetMeasureValue';
 
-type Props = {|
-  children?: Array<React.Element<*>>
-|};
+const MEASURE = {
+  metric: {
+    key: 'bugs',
+    type: 'INT',
+    name: 'Bugs',
+    domain: 'Reliability'
+  },
+  value: '5',
+  periods: [{ index: 1, value: '5' }],
+  leak: '5'
+};
+const LEAK_MEASURE = {
+  metric: {
+    key: 'new_bugs',
+    type: 'INT',
+    name: 'New Bugs',
+    domain: 'Reliability'
+  },
+  periods: [{ index: 1, value: '5' }],
+  leak: '5'
+};
 
-export default function FacetItemsList(props: Props) {
-  return (
-    <div className="search-navigator-facet-list">
-      {props.children}
-    </div>
-  );
-}
+it('should display measure value', () => {
+  expect(shallow(<FacetMeasureValue measure={MEASURE} />)).toMatchSnapshot();
+});
+
+it('should display leak measure value', () => {
+  expect(shallow(<FacetMeasureValue measure={LEAK_MEASURE} />)).toMatchSnapshot();
+});

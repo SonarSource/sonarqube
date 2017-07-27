@@ -19,11 +19,11 @@
  */
 // @flow
 import React from 'react';
-import FacetBox from './FacetBox';
-import FacetHeader from './FacetHeader';
-import FacetItem from './FacetItem';
-import FacetItemsList from './FacetItemsList';
-import FacetItemMeasureValue from './FacetItemMeasureValue';
+import FacetBox from '../../../components/facet/FacetBox';
+import FacetHeader from '../../../components/facet/FacetHeader';
+import FacetItem from '../../../components/facet/FacetItem';
+import FacetItemsList from '../../../components/facet/FacetItemsList';
+import FacetMeasureValue from './FacetMeasureValue';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import Tooltip from '../../../components/controls/Tooltip';
 import { filterMeasures, sortMeasures } from '../utils';
@@ -71,7 +71,7 @@ export default class DomainFacet extends React.PureComponent {
                   </Tooltip>
                 }
                 onClick={this.props.onChange}
-                stat={<FacetItemMeasureValue measure={measure} />}
+                stat={<FacetMeasureValue measure={measure} />}
                 value={measure.metric.key}
               />
             )}

@@ -22,7 +22,7 @@ import React from 'react';
 import Modal from 'react-modal';
 import Select from 'react-select';
 import { pickBy, sortBy } from 'lodash';
-import SearchSelect from './SearchSelect';
+import SearchSelect from '../../../components/controls/SearchSelect';
 import Checkbox from '../../../components/controls/Checkbox';
 import Tooltip from '../../../components/controls/Tooltip';
 import MarkdownTips from '../../../components/common/MarkdownTips';

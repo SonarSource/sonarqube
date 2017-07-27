@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render 1`] = `
-<FacetBox
-  property="assignees"
->
+<FacetBox>
   <FacetHeader
     name="issues.facet.assignees"
     onClear={[Function]}
@@ -15,17 +13,15 @@ exports[`should render 1`] = `
     <FacetItem
       active={false}
       disabled={false}
-      facetMode="count"
       halfWidth={false}
       name="unassigned"
       onClick={[Function]}
-      stat={5}
+      stat="5"
       value=""
     />
     <FacetItem
       active={false}
       disabled={false}
-      facetMode="count"
       halfWidth={false}
       name={
         <span>
@@ -39,17 +35,16 @@ exports[`should render 1`] = `
         </span>
       }
       onClick={[Function]}
-      stat={13}
+      stat="13"
       value="foo"
     />
     <FacetItem
       active={false}
       disabled={false}
-      facetMode="count"
       halfWidth={false}
       name="bar"
       onClick={[Function]}
-      stat={7}
+      stat="7"
       value="bar"
     />
   </FacetItemsList>
@@ -74,9 +69,7 @@ exports[`should render footer select option 1`] = `
 `;
 
 exports[`should render without stats 1`] = `
-<FacetBox
-  property="assignees"
->
+<FacetBox>
   <FacetHeader
     name="issues.facet.assignees"
     onClear={[Function]}
@@ -88,9 +81,7 @@ exports[`should render without stats 1`] = `
 `;
 
 exports[`should select unassigned 1`] = `
-<FacetBox
-  property="assignees"
->
+<FacetBox>
   <FacetHeader
     name="issues.facet.assignees"
     onClear={[Function]}
@@ -102,17 +93,15 @@ exports[`should select unassigned 1`] = `
     <FacetItem
       active={true}
       disabled={false}
-      facetMode="count"
       halfWidth={false}
       name="unassigned"
       onClick={[Function]}
-      stat={5}
+      stat="5"
       value=""
     />
     <FacetItem
       active={false}
       disabled={false}
-      facetMode="count"
       halfWidth={false}
       name={
         <span>
@@ -126,17 +115,16 @@ exports[`should select unassigned 1`] = `
         </span>
       }
       onClick={[Function]}
-      stat={13}
+      stat="13"
       value="foo"
     />
     <FacetItem
       active={false}
       disabled={false}
-      facetMode="count"
       halfWidth={false}
       name="bar"
       onClick={[Function]}
-      stat={7}
+      stat="7"
       value="bar"
     />
   </FacetItemsList>
@@ -149,9 +137,7 @@ exports[`should select unassigned 1`] = `
 `;
 
 exports[`should select user 1`] = `
-<FacetBox
-  property="assignees"
->
+<FacetBox>
   <FacetHeader
     name="issues.facet.assignees"
     onClear={[Function]}
@@ -163,17 +149,15 @@ exports[`should select user 1`] = `
     <FacetItem
       active={false}
       disabled={false}
-      facetMode="count"
       halfWidth={false}
       name="unassigned"
       onClick={[Function]}
-      stat={5}
+      stat="5"
       value=""
     />
     <FacetItem
       active={true}
       disabled={false}
-      facetMode="count"
       halfWidth={false}
       name={
         <span>
@@ -187,17 +171,16 @@ exports[`should select user 1`] = `
         </span>
       }
       onClick={[Function]}
-      stat={13}
+      stat="13"
       value="foo"
     />
     <FacetItem
       active={false}
       disabled={false}
-      facetMode="count"
       halfWidth={false}
       name="bar"
       onClick={[Function]}
-      stat={7}
+      stat="7"
       value="bar"
     />
   </FacetItemsList>

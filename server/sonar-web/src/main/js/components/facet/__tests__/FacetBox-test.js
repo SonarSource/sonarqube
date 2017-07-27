@@ -25,7 +25,7 @@ import FacetBox from '../FacetBox';
 it('should render', () => {
   expect(
     shallow(
-      <FacetBox property="foo">
+      <FacetBox>
         <div />
       </FacetBox>
     )

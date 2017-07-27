@@ -3,7 +3,6 @@
 exports[`should render 1`] = `
 <div
   className="search-navigator-facet-box"
-  data-property="foo"
 >
   <div />
 </div>
