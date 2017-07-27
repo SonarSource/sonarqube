@@ -33,6 +33,7 @@ import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -69,6 +70,7 @@ public class OkHttpClientBuilder {
   private long readTimeoutMs = -1;
   private SSLSocketFactory sslSocketFactory = null;
   private X509TrustManager sslTrustManager = null;
+  private HostnameVerifier hostnameVerifier = null;
 
   /**
    * Optional User-Agent. If set, then all the requests sent by the
@@ -149,6 +151,18 @@ public class OkHttpClientBuilder {
     return this;
   }
 
+  /**
+   * Optional SSL trust manager used to validate certificates.
+   * If not set, a default system trust manager will be used, based on the JVM's default truststore.
+   */
+  public OkHttpClientBuilder set( HostnameVerifier hostnameVerifier) {
+    if (hostnameVerifier == null){
+      throw new IllegalArgumentException("HostnameVerifier cannot be null");
+    }
+    this.hostnameVerifier = hostnameVerifier;
+    return this;
+  }
+
   public OkHttpClient build() {
     OkHttpClient.Builder builder = new OkHttpClient.Builder();
     builder.proxy(proxy);
@@ -183,6 +197,9 @@ public class OkHttpClientBuilder {
     X509TrustManager trustManager = sslTrustManager != null ? sslTrustManager : systemDefaultTrustManager();
     SSLSocketFactory sslFactory = sslSocketFactory != null ? sslSocketFactory : systemDefaultSslSocketFactory(trustManager);
     builder.sslSocketFactory(sslFactory, trustManager);
+    if(this.hostnameVerifier!=null) {
+      builder.hostnameVerifier( this.hostnameVerifier );
+    }
 
     return builder.build();
   }

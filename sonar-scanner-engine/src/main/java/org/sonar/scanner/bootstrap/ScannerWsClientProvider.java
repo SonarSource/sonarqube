@@ -26,6 +26,16 @@ import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClientFactories;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
@@ -58,7 +68,44 @@ public class ScannerWsClientProvider extends ProviderAdapter {
       if (!proxyUser.isEmpty()) {
         connectorBuilder.proxyCredentials(proxyUser, System.getProperty("http.proxyPassword"));
       }
+      if(Boolean.valueOf( System.getProperty( "sonar.http.ssl.insecure", "false" ) )) {
+        try {
+          // Create a trust manager that does not validate certificate chains
+          X509TrustManager easyTrust =
+              new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(X509Certificate[] chain, String authType)
+                    throws CertificateException
+                {
+                  // no op
+                }
 
+                @Override
+                public void checkServerTrusted(X509Certificate[] chain, String authType)
+                    throws CertificateException {
+                  // no op
+                }
+
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                  return new X509Certificate[0];
+                }
+              };
+
+          // Init the ezy trusting trust manager
+          SSLContext sslContext = SSLContext.getInstance( "SSL");
+          sslContext.init( new KeyManager[0], new TrustManager[]{easyTrust}, new java.security.SecureRandom());
+          // get an ssl socket factory with our all trusting manager
+          SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+          connectorBuilder.setSSLSocketFactory( sslSocketFactory ).setTrustManager( easyTrust );
+        } catch ( NoSuchAlgorithmException | KeyManagementException e ) {
+          // should not happen but just in case log it
+          throw new RuntimeException( e.getMessage(), e );
+        }
+      }
+      if(Boolean.valueOf( System.getProperty( "sonar.http.ssl.allowall", "false" ) )) {
+        connectorBuilder.hostnameVerifier( ( s, sslSession ) -> true );
+      }
       wsClient = new ScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null, globalMode);
     }
     return wsClient;
