@@ -403,7 +403,8 @@ public class IssueIndex {
     filters.put(IssueIndexDefinition.FIELD_ISSUE_TYPE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TYPE, query.types()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, query.resolutions()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY,
+      query.rules().stream().map(String::valueOf).collect(MoreCollectors.toList(query.rules().size()))));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, query.severities()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_STATUS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, query.statuses()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));

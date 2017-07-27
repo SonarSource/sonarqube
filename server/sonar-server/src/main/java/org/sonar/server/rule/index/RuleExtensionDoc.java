@@ -54,11 +54,11 @@ public class RuleExtensionDoc extends BaseDoc {
   }
 
   public RuleKey getRuleKey() {
-    return getField(RuleIndexDefinition.FIELD_RULE_EXTENSION_RULE_KEY);
+    return RuleKey.parse(getField(RuleIndexDefinition.FIELD_RULE_EXTENSION_RULE_KEY));
   }
 
   public RuleExtensionDoc setRuleKey(RuleKey ruleKey) {
-    setField(RuleIndexDefinition.FIELD_RULE_EXTENSION_RULE_KEY, ruleKey);
+    setField(RuleIndexDefinition.FIELD_RULE_EXTENSION_RULE_KEY, String.valueOf(ruleKey));
     return this;
   }
 
