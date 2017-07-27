@@ -183,8 +183,7 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = newPrivateProjectDto(organization, PROJECT_UUID).setDbKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyInt(), anyString(),
-      eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyInt(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(organization.getUuid()), any(ComponentDto.class))).thenReturn(true);
 
@@ -214,7 +213,7 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(), anyString(),
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(defaultOrganizationUuid), any(ComponentDto.class))).thenReturn(false);
@@ -233,7 +232,7 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(project);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(), anyString(),
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
 

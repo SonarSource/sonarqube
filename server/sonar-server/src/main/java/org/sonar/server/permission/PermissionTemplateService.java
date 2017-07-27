@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -73,14 +72,12 @@ public class PermissionTemplateService {
 
   public boolean wouldUserHaveScanPermissionWithDefaultTemplate(DbSession dbSession,
     String organizationUuid, @Nullable Integer userId,
-    @Nullable String branch, String projectKey,
-    String qualifier) {
+    String projectKey, String qualifier) {
     if (userSession.hasPermission(OrganizationPermission.SCAN, organizationUuid)) {
       return true;
     }
 
-    String effectiveKey = ComponentKeys.createKey(projectKey, branch);
-    ComponentDto dto = new ComponentDto().setOrganizationUuid(organizationUuid).setDbKey(effectiveKey).setQualifier(qualifier);
+    ComponentDto dto = new ComponentDto().setOrganizationUuid(organizationUuid).setDbKey(projectKey).setQualifier(qualifier);
     PermissionTemplateDto template = findTemplate(dbSession, organizationUuid, dto);
     if (template == null) {
       return false;

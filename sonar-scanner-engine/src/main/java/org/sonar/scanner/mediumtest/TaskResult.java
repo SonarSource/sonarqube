@@ -77,14 +77,14 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
     if (!container.getComponentByType(AnalysisMode.class).isIssues()) {
       Metadata readMetadata = getReportReader().readMetadata();
       int rootComponentRef = readMetadata.getRootComponentRef();
-      storeReportComponents(rootComponentRef, null, readMetadata.getBranch());
+      storeReportComponents(rootComponentRef, null);
     }
 
     storeFs(container);
 
   }
 
-  private void storeReportComponents(int componentRef, String parentModuleKey, String branch) {
+  private void storeReportComponents(int componentRef, String parentModuleKey) {
     Component component = getReportReader().readComponent(componentRef);
     if (isNotEmpty(component.getKey())) {
       reportComponents.put(component.getKey(), component);
@@ -92,7 +92,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
       reportComponents.put(parentModuleKey + ":" + component.getPath(), component);
     }
     for (int childId : component.getChildRefList()) {
-      storeReportComponents(childId, isNotEmpty(component.getKey()) ? component.getKey() : parentModuleKey, branch);
+      storeReportComponents(childId, isNotEmpty(component.getKey()) ? component.getKey() : parentModuleKey);
     }
 
   }
@@ -174,7 +174,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
    * @param lineOffset 0-based offset in file
    */
   public List<TypeOfText> highlightingTypeFor(InputFile file, int line, int lineOffset) {
-    int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
+    int ref = reportComponents.get(file.key()).getRef();
     if (!reader.hasSyntaxHighlighting(ref)) {
       return Collections.emptyList();
     }
@@ -205,7 +205,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
    */
   @CheckForNull
   public List<ScannerReport.TextRange> symbolReferencesFor(InputFile file, int symbolStartLine, int symbolStartLineOffset) {
-    int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
+    int ref = reportComponents.get(file.key()).getRef();
     try (CloseableIterator<Symbol> symbols = getReportReader().readComponentSymbols(ref)) {
       while (symbols.hasNext()) {
         Symbol symbol = symbols.next();
@@ -219,7 +219,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
 
   public List<ScannerReport.Duplication> duplicationsFor(InputFile file) {
     List<ScannerReport.Duplication> result = new ArrayList<>();
-    int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
+    int ref = reportComponents.get(file.key()).getRef();
     try (CloseableIterator<ScannerReport.Duplication> it = getReportReader().readComponentDuplications(ref)) {
       while (it.hasNext()) {
         result.add(it.next());
@@ -232,7 +232,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
 
   public List<ScannerReport.CpdTextBlock> duplicationBlocksFor(InputFile file) {
     List<ScannerReport.CpdTextBlock> result = new ArrayList<>();
-    int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
+    int ref = reportComponents.get(file.key()).getRef();
     try (CloseableIterator<ScannerReport.CpdTextBlock> it = getReportReader().readCpdTextBlocks(ref)) {
       while (it.hasNext()) {
         result.add(it.next());
@@ -245,7 +245,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
 
   @CheckForNull
   public ScannerReport.LineCoverage coverageFor(InputFile file, int line) {
-    int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
+    int ref = reportComponents.get(file.key()).getRef();
     try (CloseableIterator<ScannerReport.LineCoverage> it = getReportReader().readComponentCoverage(ref)) {
       while (it.hasNext()) {
         ScannerReport.LineCoverage coverage = it.next();
@@ -260,7 +260,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
   }
 
   public ScannerReport.Test firstTestExecutionForName(InputFile testFile, String testName) {
-    int ref = reportComponents.get(((DefaultInputFile) testFile).key()).getRef();
+    int ref = reportComponents.get(testFile.key()).getRef();
     try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readTests(ref))) {
       ScannerReport.Test test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
       while (test != null) {
@@ -276,7 +276,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
   }
 
   public ScannerReport.CoverageDetail coveragePerTestFor(InputFile testFile, String testName) {
-    int ref = reportComponents.get(((DefaultInputFile) testFile).key()).getRef();
+    int ref = reportComponents.get(testFile.key()).getRef();
     try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readCoverageDetails(ref))) {
       ScannerReport.CoverageDetail details = ScannerReport.CoverageDetail.parser().parseDelimitedFrom(inputStream);
       while (details != null) {
