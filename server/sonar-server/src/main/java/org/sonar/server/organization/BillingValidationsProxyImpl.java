@@ -20,12 +20,15 @@
 
 package org.sonar.server.organization;
 
+import javax.annotation.Nullable;
+
 public class BillingValidationsProxyImpl implements BillingValidationsProxy {
 
+  @Nullable
   private final BillingValidationsExtension billingValidationsExtension;
 
-  public BillingValidationsProxyImpl(BillingValidationsExtension billingValidationsExtension) {
-    this.billingValidationsExtension = billingValidationsExtension;
+  public BillingValidationsProxyImpl(BillingValidationsExtension e) {
+    this.billingValidationsExtension = e;
   }
 
   // Used when no plugin is providing the extension
