@@ -37,7 +37,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.assertj.core.api.Condition;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -87,7 +86,15 @@ public class ScanOnlyChangedTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private ScannerMediumTester tester;
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
+    .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES))
+    .registerPlugin("xoo", new XooPlugin())
+    .addDefaultQProfile("xoo", "Sonar Way")
+    .addRules(new XooRulesDefinition())
+    .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo")
+    .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo")
+    .addActiveRule("xoo", "OneIssuePerModule", null, "OneIssuePerModule", "MAJOR", null, "xoo");
 
   @Before
   public void prepare() throws IOException, URISyntaxException {
@@ -97,14 +104,7 @@ public class ScanOnlyChangedTest {
       .readMetadata(Files.newInputStream(path), StandardCharsets.UTF_8, filePath)
       .hash();
 
-    tester = ScannerMediumTester.builder()
-      .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES))
-      .registerPlugin("xoo", new XooPlugin())
-      .addDefaultQProfile("xoo", "Sonar Way")
-      .addRules(new XooRulesDefinition())
-      .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo")
-      .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo")
-      .addActiveRule("xoo", "OneIssuePerModule", null, "OneIssuePerModule", "MAJOR", null, "xoo")
+    tester
       // this will cause the file to have status==SAME
       .addFileData(projectKey, filePath, new FileData(md5sum, null))
       .setPreviousAnalysisDate(new Date())
@@ -129,14 +129,7 @@ public class ScanOnlyChangedTest {
         .setSeverity(Severity.CRITICAL)
         .setCreationDate(date("14/03/2004"))
         .setStatus("OPEN")
-        .build())
-      .build();
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
+        .build());
   }
 
   private File copyProject(String path) throws Exception {
@@ -159,7 +152,7 @@ public class ScanOnlyChangedTest {
       taskBuilder.property("sonar.projectKey", projectKey);
     }
 
-    TaskResult result = taskBuilder.start();
+    TaskResult result = taskBuilder.execute();
     /*
      * We have:
      * 6 new issues per line (open) in helloscala.xoo
@@ -187,7 +180,7 @@ public class ScanOnlyChangedTest {
       taskBuilder.property("sonar.projectKey", projectKey);
     }
 
-    TaskResult result = taskBuilder.start();
+    TaskResult result = taskBuilder.execute();
 
     assertNumberIssues(result, 16, 2, 0);
 

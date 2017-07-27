@@ -25,7 +25,6 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.scanner.events.BatchStepEvent;
 import org.sonar.scanner.events.EventBus;
-import org.sonar.scanner.issue.IssueCallback;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.issue.tracking.IssueTransition;
 import org.sonar.scanner.rule.QProfileVerifier;
@@ -40,22 +39,19 @@ public final class IssuesPhaseExecutor extends AbstractPhaseExecutor {
   private final EventBus eventBus;
   private final IssuesReports issuesReport;
   private final IssueTransition localIssueTracking;
-  private final IssueCallback issueCallback;
 
   public IssuesPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, SensorContext sensorContext,
     EventBus eventBus, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, IssueTransition localIssueTracking, IssueCallback issueCallback, InputModuleHierarchy moduleHierarchy) {
+    IssueExclusionsLoader issueExclusionsLoader, IssueTransition localIssueTracking, InputModuleHierarchy moduleHierarchy) {
     super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, moduleHierarchy, eventBus, fsLogger, fs, profileVerifier, issueExclusionsLoader);
     this.eventBus = eventBus;
     this.issuesReport = jsonReport;
     this.localIssueTracking = localIssueTracking;
-    this.issueCallback = issueCallback;
   }
 
   @Override
   protected void executeOnRoot() {
     localIssueTracking();
-    issuesCallback();
     issuesReport();
     LOG.info("ANALYSIS SUCCESSFUL");
   }
@@ -64,13 +60,6 @@ public final class IssuesPhaseExecutor extends AbstractPhaseExecutor {
     String stepName = "Local Issue Tracking";
     eventBus.fireEvent(new BatchStepEvent(stepName, true));
     localIssueTracking.execute();
-    eventBus.fireEvent(new BatchStepEvent(stepName, false));
-  }
-
-  private void issuesCallback() {
-    String stepName = "Issues Callback";
-    eventBus.fireEvent(new BatchStepEvent(stepName, true));
-    issueCallback.execute();
     eventBus.fireEvent(new BatchStepEvent(stepName, false));
   }
 

@@ -19,8 +19,8 @@
  */
 package org.sonar.scanner.report;
 
-import static org.sonar.core.util.FileUtils.deleteQuietly;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Throwables;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,9 +31,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import javax.annotation.Nullable;
-
+import okhttp3.HttpUrl;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
@@ -55,17 +54,14 @@ import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Throwables;
-
-import okhttp3.HttpUrl;
+import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 @ScannerSide
 public class ReportPublisher implements Startable {
 
   private static final Logger LOG = Loggers.get(ReportPublisher.class);
 
-  public static final String KEEP_REPORT_PROP_KEY = "sonar.batch.keepReport";
+  public static final String KEEP_REPORT_PROP_KEY = "sonar.scanner.keepReport";
   public static final String VERBOSE_KEY = "sonar.verbose";
   public static final String METADATA_DUMP_FILENAME = "report-task.txt";
 
@@ -95,7 +91,7 @@ public class ReportPublisher implements Startable {
 
   @Override
   public void start() {
-    reportDir = new File(moduleHierarchy.root().getWorkDir(), "batch-report");
+    reportDir = new File(moduleHierarchy.root().getWorkDir(), "scanner-report");
     writer = new ScannerReportWriter(reportDir);
     contextPublisher.init(writer);
 

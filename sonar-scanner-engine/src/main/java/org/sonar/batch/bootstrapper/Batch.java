@@ -39,7 +39,7 @@ public final class Batch {
   private boolean started = false;
   private LoggingConfiguration loggingConfig;
   private List<Object> components;
-  private Map<String, String> bootstrapProperties = new HashMap<>();
+  private Map<String, String> globalProperties = new HashMap<>();
   private GlobalContainer bootstrapContainer;
 
   private Batch(Builder builder) {
@@ -48,11 +48,11 @@ public final class Batch {
     if (builder.environment != null) {
       components.add(builder.environment);
     }
-    if (builder.bootstrapProperties != null) {
-      bootstrapProperties.putAll(builder.bootstrapProperties);
+    if (builder.globalProperties != null) {
+      globalProperties.putAll(builder.globalProperties);
     }
     if (builder.isEnableLoggingConfiguration()) {
-      loggingConfig = new LoggingConfiguration(builder.environment).setProperties(bootstrapProperties);
+      loggingConfig = new LoggingConfiguration(builder.environment).setProperties(globalProperties);
 
       if (builder.logOutput != null) {
         loggingConfig.setLogOutput(builder.logOutput);
@@ -64,39 +64,35 @@ public final class Batch {
     return loggingConfig;
   }
 
-  /**
-   * @deprecated since 4.4 use {@link #start()}, {@link #executeTask(Map)} and then {@link #stop()}
-   */
-  @Deprecated
   public synchronized Batch execute() {
     configureLogging();
-    start();
+    doStart();
     boolean threw = true;
     try {
-      executeTask(bootstrapProperties);
+      doExecuteTask(globalProperties);
       threw = false;
     } finally {
       doStop(threw);
     }
-
     return this;
   }
 
   /**
    * @since 4.4
+   * @deprecated since 6.6 use {@link #execute()}
    */
+  @Deprecated
   public synchronized Batch start() {
-    return start(false);
+    if (started) {
+      throw new IllegalStateException("Scanner Engine is already started");
+    }
+    configureLogging();
+    return doStart();
   }
 
-  public synchronized Batch start(boolean preferCache) {
-    if (started) {
-      throw new IllegalStateException("Batch is already started");
-    }
-
-    configureLogging();
+  private Batch doStart() {
     try {
-      bootstrapContainer = GlobalContainer.create(bootstrapProperties, components);
+      bootstrapContainer = GlobalContainer.create(globalProperties, components);
       bootstrapContainer.startComponents();
     } catch (RuntimeException e) {
       throw handleException(e);
@@ -108,26 +104,18 @@ public final class Batch {
 
   /**
    * @since 4.4
+   * @deprecated since 6.6 use {@link #execute()}
    */
+  @Deprecated
   public Batch executeTask(Map<String, String> analysisProperties, Object... components) {
     checkStarted();
     configureTaskLogging(analysisProperties);
-    try {
-      bootstrapContainer.executeTask(analysisProperties, components);
-    } catch (RuntimeException e) {
-      throw handleException(e);
-    }
-    return this;
+    return doExecuteTask(analysisProperties, components);
   }
 
-  /**
-   * @since 5.2
-   */
-  public Batch executeTask(Map<String, String> analysisProperties, IssueListener issueListener) {
-    checkStarted();
-    configureTaskLogging(analysisProperties);
+  private Batch doExecuteTask(Map<String, String> analysisProperties, Object... components) {
     try {
-      bootstrapContainer.executeTask(analysisProperties, components, issueListener);
+      bootstrapContainer.executeTask(analysisProperties, components);
     } catch (RuntimeException e) {
       throw handleException(e);
     }
@@ -155,25 +143,17 @@ public final class Batch {
   }
 
   /**
-   * @since 5.2
-   * @deprecated since 5.6
+   * @since 4.4
+   * @deprecated since 6.6 use {@link #execute()}
    */
   @Deprecated
-  public Batch syncProject(String projectKey) {
-    checkStarted();
-    return this;
-  }
-
-  /**
-   * @since 4.4
-   */
   public synchronized void stop() {
+    checkStarted();
+    configureLogging();
     doStop(false);
   }
 
   private void doStop(boolean swallowException) {
-    checkStarted();
-    configureLogging();
     try {
       bootstrapContainer.stopComponents(swallowException);
     } catch (RuntimeException e) {
@@ -184,14 +164,14 @@ public final class Batch {
 
   private void configureLogging() {
     if (loggingConfig != null) {
-      loggingConfig.setProperties(bootstrapProperties);
+      loggingConfig.setProperties(globalProperties);
       LoggingConfigurator.apply(loggingConfig);
     }
   }
 
   private void configureTaskLogging(Map<String, String> taskProperties) {
     if (loggingConfig != null) {
-      loggingConfig.setProperties(taskProperties, bootstrapProperties);
+      loggingConfig.setProperties(taskProperties, globalProperties);
       LoggingConfigurator.apply(loggingConfig);
     }
   }
@@ -201,7 +181,7 @@ public final class Batch {
   }
 
   public static final class Builder {
-    private Map<String, String> bootstrapProperties;
+    private Map<String, String> globalProperties;
     private EnvironmentInformation environment;
     private List<Object> components = new ArrayList<>();
     private boolean enableLoggingConfiguration = true;
@@ -225,17 +205,17 @@ public final class Batch {
       return this;
     }
 
-    /**
-     * @deprecated since 3.7 use {@link #setBootstrapProperties(Map)}
-     */
-    @Deprecated
     public Builder setGlobalProperties(Map<String, String> globalProperties) {
-      this.bootstrapProperties = globalProperties;
+      this.globalProperties = globalProperties;
       return this;
     }
 
+    /**
+     * @deprecated since 6.6 use {@link #setGlobalProperties(Map)}
+     */
+    @Deprecated
     public Builder setBootstrapProperties(Map<String, String> bootstrapProperties) {
-      this.bootstrapProperties = bootstrapProperties;
+      this.globalProperties = bootstrapProperties;
       return this;
     }
 

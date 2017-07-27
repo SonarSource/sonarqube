@@ -23,8 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
@@ -40,20 +39,10 @@ public class TestExecutionMediumTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
-    .addDefaultQProfile("xoo", "Sonar Way")
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
+    .addDefaultQProfile("xoo", "Sonar Way");
 
   @Test
   public void unitTests() throws IOException {
@@ -87,7 +76,7 @@ public class TestExecutionMediumTest {
         .put("sonar.sources", "src")
         .put("sonar.tests", "test")
         .build())
-      .start();
+      .execute();
 
     InputFile file = result.inputFile("test/sampleTest.xoo");
     org.sonar.scanner.protocol.output.ScannerReport.Test success = result.firstTestExecutionForName(file, "success");

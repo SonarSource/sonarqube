@@ -45,9 +45,9 @@ public class TasksMediumTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
-    .registerPlugin("faketask", new FakeTaskPlugin())
-    .build();
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
+    .registerPlugin("faketask", new FakeTaskPlugin());
 
   private MockHttpServer server = null;
 
@@ -58,18 +58,12 @@ public class TasksMediumTest {
     }
   }
 
-  @After
-  public void stop() {
-    tester.stop();
-  }
-
   @Test
   public void listTasksIncludingBroken() throws Exception {
-    tester.start();
     tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "list").build())
-      .start();
+      .execute();
 
     assertThat(logTester.logs()).haveExactly(1, new Condition<String>() {
 
@@ -82,8 +76,6 @@ public class TasksMediumTest {
 
   @Test
   public void runBroken() throws Exception {
-    tester.start();
-
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage(
       "Unable to load component class org.sonar.scanner.mediumtest.tasks.TasksMediumTest$BrokenTask");
@@ -91,18 +83,15 @@ public class TasksMediumTest {
     tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "broken").build())
-      .start();
+      .execute();
   }
 
   @Test(expected = MessageException.class)
   public void unsupportedTask() throws Exception {
-    tester = ScannerMediumTester.builder()
-      .build();
-    tester.start();
     tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "foo").build())
-      .start();
+      .execute();
   }
 
   private static class FakeTaskPlugin extends SonarPlugin {

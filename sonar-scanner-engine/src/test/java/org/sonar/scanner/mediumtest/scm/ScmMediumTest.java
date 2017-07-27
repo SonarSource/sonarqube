@@ -27,8 +27,6 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.util.Files;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -56,7 +54,7 @@ public class ScmMediumTest {
   private static final String SAME_CONTENT_NO_SCM_ON_SERVER_XOO = "src/same_content_no_scm_on_server.xoo";
   private static final String SAMPLE_XOO_CONTENT = "Sample xoo\ncontent";
 
-  @org.junit.Rule
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
@@ -65,7 +63,8 @@ public class ScmMediumTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
@@ -74,18 +73,7 @@ public class ScmMediumTest {
     .addFileData("com.foo.project", CHANGED_CONTENT_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), null))
     .addFileData("com.foo.project", SAME_CONTENT_NO_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), null))
     .addFileData("com.foo.project", SAME_CONTENT_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), "1.1"))
-    .addFileData("com.foo.project", NO_BLAME_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), "1.1"))
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
+    .addFileData("com.foo.project", NO_BLAME_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), "1.1"));
 
   @Test
   public void testScmMeasure() throws IOException, URISyntaxException {
@@ -102,7 +90,7 @@ public class ScmMediumTest {
         .put("sonar.sources", "src")
         .put("sonar.scm.provider", "xoo")
         .build())
-      .start();
+      .execute();
 
     ScannerReport.Changesets fileScm = getChangesets(baseDir, "src/sample.xoo");
 
@@ -125,7 +113,7 @@ public class ScmMediumTest {
   }
 
   private ScannerReport.Changesets getChangesets(File baseDir, String path) {
-    File reportDir = new File(baseDir, ".sonar/batch-report");
+    File reportDir = new File(baseDir, ".sonar/scanner-report");
     ScannerReportReader reader = new ScannerReportReader(reportDir);
 
     Component project = reader.readComponent(reader.readMetadata().getRootComponentRef());
@@ -158,7 +146,7 @@ public class ScmMediumTest {
         .put("sonar.sources", "src")
         .put("sonar.scm.provider", "xoo")
         .build())
-      .start();
+      .execute();
 
     ScannerReport.Changesets changesets = getChangesets(baseDir, "src/sample.xoo");
 
@@ -183,7 +171,7 @@ public class ScmMediumTest {
         .put("sonar.sources", "src")
         .put("sonar.scm.provider", "xoo")
         .build())
-      .start();
+      .execute();
 
     ScannerReport.Changesets file1Scm = getChangesets(baseDir, "src/sample.xoo");
     assertThat(file1Scm).isNotNull();
@@ -236,7 +224,7 @@ public class ScmMediumTest {
         .put("sonar.sources", "src")
         .put("sonar.scm.provider", "xoo")
         .build())
-      .start();
+      .execute();
 
     assertThat(getChangesets(baseDir, "src/sample.xoo")).isNotNull();
 
@@ -280,7 +268,7 @@ public class ScmMediumTest {
         .put("sonar.scm.forceReloadAll", "true")
         .build());
 
-    taskBuilder.start();
+    taskBuilder.execute();
 
     ScannerReport.Changesets file1Scm = getChangesets(baseDir, "src/sample.xoo");
     assertThat(file1Scm).isNotNull();
@@ -305,7 +293,7 @@ public class ScmMediumTest {
         .put("sonar.sources", "src")
         .put("sonar.links.scm_dev", "scm:xoo:foobar")
         .build())
-      .start();
+      .execute();
 
     ScannerReport.Changesets file1Scm = getChangesets(baseDir, "src/sample.xoo");
     assertThat(file1Scm).isNotNull();
@@ -327,7 +315,7 @@ public class ScmMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     ScannerReport.Changesets file1Scm = getChangesets(baseDir, "src/sample.xoo");
     assertThat(file1Scm).isNotNull();
@@ -376,7 +364,7 @@ public class ScmMediumTest {
         .put("sonar.scm.provider", "xoo")
         .put("sonar.cpd.xoo.skip", "true")
         .build())
-      .start();
+      .execute();
 
     ScannerReport.Changesets changesets = getChangesets(baseDir, "src/sample.xoo");
     assertThat(changesets).isNull();

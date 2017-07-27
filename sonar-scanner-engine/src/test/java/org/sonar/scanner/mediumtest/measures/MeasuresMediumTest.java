@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,20 +51,10 @@ public class MeasuresMediumTest {
   private File baseDir;
   private File srcDir;
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
-    .addDefaultQProfile("xoo", "Sonar Way")
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
+    .addDefaultQProfile("xoo", "Sonar Way");
 
   @Before
   public void setUp() throws Exception {
@@ -92,7 +81,7 @@ public class MeasuresMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     Map<String, List<Measure>> allMeasures = result.allMeasures();
 
@@ -110,7 +99,7 @@ public class MeasuresMediumTest {
         .put("sonar.sources", "src")
         .put("sonar.coverage.exclusions", "src/sample.xoo")
         .build())
-      .start();
+      .execute();
 
     allMeasures = result.allMeasures();
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
@@ -135,7 +124,7 @@ public class MeasuresMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     Map<String, List<Measure>> allMeasures = result.allMeasures();
 
@@ -165,7 +154,7 @@ public class MeasuresMediumTest {
           .put("sonar.projectDescription", "Description of Foo Project")
           .put("sonar.sources", "src")
           .build())
-        .start();
+        .execute();
       fail("Expected exception");
     } catch (Exception e) {
       assertThat(e)
@@ -192,7 +181,7 @@ public class MeasuresMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     Map<String, List<Measure>> allMeasures = result.allMeasures();
 
@@ -218,7 +207,7 @@ public class MeasuresMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     Map<String, List<Measure>> allMeasures = result.allMeasures();
 

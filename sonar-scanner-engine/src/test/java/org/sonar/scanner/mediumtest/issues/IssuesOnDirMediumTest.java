@@ -23,8 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
@@ -36,25 +35,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssuesOnDirMediumTest {
 
-  @org.junit.Rule
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public ScannerMediumTester tester = ScannerMediumTester.builder()
+  @Rule
+  public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
-    .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "One issue per line", "MINOR", "xoo", "xoo")
-    .build();
-
-  @Before
-  public void prepare() {
-    tester.start();
-  }
-
-  @After
-  public void stop() {
-    tester.stop();
-  }
+    .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "One issue per line", "MINOR", "xoo", "xoo");
 
   @Test
   public void scanTempProject() throws IOException {
@@ -79,7 +68,7 @@ public class IssuesOnDirMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.issuesFor(result.inputDir("src"))).hasSize(2);
   }
@@ -105,7 +94,7 @@ public class IssuesOnDirMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", ".")
         .build())
-      .start();
+      .execute();
 
     assertThat(result.issuesFor(result.inputDir(""))).hasSize(2);
   }
