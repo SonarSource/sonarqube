@@ -32,7 +32,7 @@ exports[`should display facet item list 1`] = `
       }
       onClick={[Function]}
       stat={
-        <FacetItemMeasureValue
+        <FacetMeasureValue
           measure={
             Object {
               "leak": "5",
@@ -78,7 +78,7 @@ exports[`should display facet item list 1`] = `
       }
       onClick={[Function]}
       stat={
-        <FacetItemMeasureValue
+        <FacetMeasureValue
           measure={
             Object {
               "leak": "5",
@@ -136,7 +136,7 @@ exports[`should display facet item list with bugs selected 1`] = `
       }
       onClick={[Function]}
       stat={
-        <FacetItemMeasureValue
+        <FacetMeasureValue
           measure={
             Object {
               "leak": "5",
@@ -182,7 +182,7 @@ exports[`should display facet item list with bugs selected 1`] = `
       }
       onClick={[Function]}
       stat={
-        <FacetItemMeasureValue
+        <FacetMeasureValue
           measure={
             Object {
               "leak": "5",

@@ -21,12 +21,12 @@
 import React from 'react';
 import { sortBy, uniq, without } from 'lodash';
 import Avatar from '../../../components/ui/Avatar';
-import FacetBox from './components/FacetBox';
-import FacetHeader from './components/FacetHeader';
-import FacetItem from './components/FacetItem';
-import FacetItemsList from './components/FacetItemsList';
-import FacetFooter from './components/FacetFooter';
-import { searchAssignees } from '../utils';
+import FacetBox from '../../../components/facet/FacetBox';
+import FacetHeader from '../../../components/facet/FacetHeader';
+import FacetItem from '../../../components/facet/FacetItem';
+import FacetItemsList from '../../../components/facet/FacetItemsList';
+import FacetFooter from '../../../components/facet/FacetFooter';
+import { searchAssignees, formatFacetStat } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import type { ReferencedUser, Component } from '../utils';
 
@@ -154,11 +154,10 @@ export default class AssigneeFacet extends React.PureComponent {
         {assignees.map(assignee =>
           <FacetItem
             active={this.isAssigneeActive(assignee)}
-            facetMode={this.props.facetMode}
             key={assignee}
             name={this.getAssigneeName(assignee)}
             onClick={this.handleItemClick}
-            stat={this.getStat(assignee)}
+            stat={formatFacetStat(this.getStat(assignee), this.props.facetMode)}
             value={assignee}
           />
         )}
@@ -182,7 +181,7 @@ export default class AssigneeFacet extends React.PureComponent {
 
   render() {
     return (
-      <FacetBox property={this.property}>
+      <FacetBox>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}

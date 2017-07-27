@@ -20,13 +20,14 @@
 // @flow
 import React from 'react';
 import { sortBy, without } from 'lodash';
-import FacetBox from './components/FacetBox';
-import FacetHeader from './components/FacetHeader';
-import FacetItem from './components/FacetItem';
-import FacetItemsList from './components/FacetItemsList';
-import type { ReferencedComponent } from '../utils';
+import FacetBox from '../../../components/facet/FacetBox';
+import FacetHeader from '../../../components/facet/FacetHeader';
+import FacetItem from '../../../components/facet/FacetItem';
+import FacetItemsList from '../../../components/facet/FacetItemsList';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
+import { formatFacetStat } from '../utils';
+import type { ReferencedComponent } from '../utils';
 
 type Props = {|
   facetMode: string,
@@ -100,11 +101,10 @@ export default class DirectoryFacet extends React.PureComponent {
         {directories.map(directory =>
           <FacetItem
             active={this.props.directories.includes(directory)}
-            facetMode={this.props.facetMode}
             key={directory}
             name={this.renderName(directory)}
             onClick={this.handleItemClick}
-            stat={this.getStat(directory)}
+            stat={formatFacetStat(this.getStat(directory), this.props.facetMode)}
             value={directory}
           />
         )}
@@ -114,7 +114,7 @@ export default class DirectoryFacet extends React.PureComponent {
 
   render() {
     return (
-      <FacetBox property={this.property}>
+      <FacetBox>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}

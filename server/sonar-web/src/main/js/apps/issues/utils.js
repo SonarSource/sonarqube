@@ -20,6 +20,7 @@
 // @flow
 import { searchMembers } from '../../api/organizations';
 import { searchUsers } from '../../api/users';
+import { formatMeasure } from '../../helpers/measures';
 import {
   queriesEqual,
   cleanQuery,
@@ -163,6 +164,12 @@ export const parseFacets = (facets: Array<RawFacet>): { [string]: Facet } => {
     result[finalProperty] = values;
   });
   return result;
+};
+
+export const formatFacetStat = (stat: ?number, mode: string): ?string => {
+  if (stat != null) {
+    return formatMeasure(stat, mode === 'effort' ? 'SHORT_WORK_DUR' : 'SHORT_INT');
+  }
 };
 
 export type ReferencedComponent = {

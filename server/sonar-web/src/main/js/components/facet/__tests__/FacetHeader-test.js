@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { shallow } from 'enzyme';
-import { click } from '../../../../../helpers/testUtils';
+import { click } from '../../../helpers/testUtils';
 import FacetHeader from '../FacetHeader';
 
 it('should render open facet with value', () => {
