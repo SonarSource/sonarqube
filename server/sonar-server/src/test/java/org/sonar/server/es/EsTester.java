@@ -114,7 +114,7 @@ public class EsTester extends ExternalResource {
       public Settings nodeSettings(int nodeOrdinal) {
         return Settings.builder()
           .put(NetworkModule.HTTP_ENABLED.getKey(), false)
-          .put(DiscoveryModule.DISCOVERY_TYPE_SETTING.getKey(), "local")
+          .put(DiscoveryModule.DISCOVERY_TYPE_SETTING.getKey(), "single-node")
           .put(networkSettings.build())
           .build();
       }
@@ -207,17 +207,11 @@ public class EsTester extends ExternalResource {
   private void ensureClusterStateConsistency() throws IOException {
     if (cluster != null) {
       ClusterState masterClusterState = cluster.client().admin().cluster().prepareState().all().get().getState();
-      byte[] masterClusterStateBytes = ClusterState.Builder.toBytes(masterClusterState);
-      // remove local node reference
-      masterClusterState = ClusterState.Builder.fromBytes(masterClusterStateBytes, null);
       Map<String, Object> masterStateMap = convertToMap(masterClusterState);
       int masterClusterStateSize = ClusterState.Builder.toBytes(masterClusterState).length;
       String masterId = masterClusterState.nodes().getMasterNodeId();
       for (Client client : cluster.getClients()) {
         ClusterState localClusterState = client.admin().cluster().prepareState().all().setLocal(true).get().getState();
-        byte[] localClusterStateBytes = ClusterState.Builder.toBytes(localClusterState);
-        // remove local node reference
-        localClusterState = ClusterState.Builder.fromBytes(localClusterStateBytes, null);
         final Map<String, Object> localStateMap = convertToMap(localClusterState);
         final int localClusterStateSize = ClusterState.Builder.toBytes(localClusterState).length;
         // Check that the non-master node has the same version of the cluster state as the master and

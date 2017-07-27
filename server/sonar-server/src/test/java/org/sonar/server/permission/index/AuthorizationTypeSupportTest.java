@@ -19,9 +19,9 @@
  */
 package org.sonar.server.permission.index;
 
-import org.elasticsearch.index.query.HasParentQueryBuilder;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.join.query.HasParentQueryBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.user.GroupDto;

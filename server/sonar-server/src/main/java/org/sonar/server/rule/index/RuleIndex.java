@@ -35,11 +35,13 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.HasParentQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermsQueryBuilder;
+import org.elasticsearch.join.aggregations.JoinAggregationBuilders;
+import org.elasticsearch.join.query.HasParentQueryBuilder;
+import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
@@ -258,7 +260,7 @@ public class RuleIndex {
         .map(tag -> boolQuery()
           .filter(QueryBuilders.termQuery(FIELD_RULE_EXTENSION_TAGS, tag))
           .filter(termsQuery(FIELD_RULE_EXTENSION_SCOPE, RuleExtensionScope.system().getScope(), RuleExtensionScope.organization(query.getOrganization()).getScope())))
-        .map(childQuery -> QueryBuilders.hasChildQuery(INDEX_TYPE_RULE_EXTENSION.getType(), childQuery, ScoreMode.None))
+        .map(childQuery -> JoinQueryBuilders.hasChildQuery(INDEX_TYPE_RULE_EXTENSION.getType(), childQuery, ScoreMode.None))
         .forEach(q::should);
       filters.put(FIELD_RULE_EXTENSION_TAGS, q);
     }
@@ -316,18 +318,18 @@ public class RuleIndex {
 
       if (TRUE.equals(query.getActivation())) {
         filters.put("activation",
-          QueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
+          JoinQueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
             childQuery, ScoreMode.None));
       } else if (FALSE.equals(query.getActivation())) {
         filters.put("activation",
           boolQuery().mustNot(
-            QueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
+            JoinQueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
               childQuery, ScoreMode.None)));
       }
       QProfileDto compareToQProfile = query.getCompareToQProfile();
       if (compareToQProfile != null) {
         filters.put("comparison",
-          QueryBuilders.hasChildQuery(
+          JoinQueryBuilders.hasChildQuery(
             INDEX_TYPE_ACTIVE_RULE.getType(),
             boolQuery().must(QueryBuilders.termQuery(FIELD_ACTIVE_RULE_PROFILE_UUID, compareToQProfile.getRulesProfileUuid())),
             ScoreMode.None));
@@ -393,7 +395,7 @@ public class RuleIndex {
             RuleExtensionScope.organization(query.getOrganization()).getScope()))
           .subAggregation(termsAggregation);
 
-        return AggregationBuilders.children("children_for_" + termsAggregation.getName(), INDEX_TYPE_RULE_EXTENSION.getType())
+        return JoinAggregationBuilders.children("children_for_" + termsAggregation.getName(), INDEX_TYPE_RULE_EXTENSION.getType())
           .subAggregation(scopeAggregation);
       };
 
@@ -437,7 +439,7 @@ public class RuleIndex {
       // We are building a children aggregation on active rules
       // so the rule filter has to be used as parent filter for active rules
       // from which we remove filters that concern active rules ("activation")
-      HasParentQueryBuilder ruleFilter = QueryBuilders.hasParentQuery(
+      HasParentQueryBuilder ruleFilter = JoinQueryBuilders.hasParentQuery(
         INDEX_TYPE_RULE.getType(),
         stickyFacetBuilder.getStickyFacetFilter("activation"),
         false);
@@ -448,7 +450,7 @@ public class RuleIndex {
       RuleIndex.addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
       QueryBuilder activeRuleFilter = childrenFilter.must(ruleFilter);
 
-      AggregationBuilder activeSeverities = AggregationBuilders.children(FACET_ACTIVE_SEVERITIES + "_children", INDEX_TYPE_ACTIVE_RULE.getType())
+      AggregationBuilder activeSeverities = JoinAggregationBuilders.children(FACET_ACTIVE_SEVERITIES + "_children", INDEX_TYPE_ACTIVE_RULE.getType())
         .subAggregation(
           AggregationBuilders.filter(FACET_ACTIVE_SEVERITIES + "_filter", activeRuleFilter)
             .subAggregation(

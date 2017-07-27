@@ -105,7 +105,7 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
   static class MinimalTransportClient extends TransportClient {
 
     MinimalTransportClient(Settings settings) {
-      super(settings, Settings.EMPTY, unmodifiableList(singletonList(Netty4Plugin.class)));
+      super(settings, unmodifiableList(singletonList(Netty4Plugin.class)));
     }
 
     @Override
