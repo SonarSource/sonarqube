@@ -44,7 +44,12 @@ import type { Analysis, MeasureHistory, Metric, Paging, Query } from '../types';
 
 type Props = {
   location: { pathname: string, query: RawQuery },
-  project: { configuration?: { showHistory: boolean }, key: string, leakPeriodDate: string },
+  project: {
+    configuration?: { showHistory: boolean },
+    key: string,
+    leakPeriodDate: string,
+    qualifier: string
+  },
   router: {
     push: ({ pathname: string, query?: RawQuery }) => void,
     replace: ({ pathname: string, query?: RawQuery }) => void
