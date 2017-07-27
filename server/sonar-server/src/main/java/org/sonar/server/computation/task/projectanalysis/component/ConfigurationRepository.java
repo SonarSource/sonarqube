@@ -21,12 +21,8 @@ package org.sonar.server.computation.task.projectanalysis.component;
 
 import org.sonar.api.config.Configuration;
 
-/**
- * Repository of component settings.
- */
 public interface ConfigurationRepository {
-  /**
-   * Returns the configuration for the specified Component.
-   */
-  Configuration getConfiguration(Component component);
+
+  Configuration getConfiguration();
+  
 }

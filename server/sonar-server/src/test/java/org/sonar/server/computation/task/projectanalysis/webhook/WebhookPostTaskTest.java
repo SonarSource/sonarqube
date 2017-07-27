@@ -32,7 +32,6 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TestSettingsRepository;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -43,7 +42,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newCeTaskBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newProjectBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newScannerContextBuilder;
-import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.DUMB_PROJECT;
 
 public class WebhookPostTaskTest {
 
@@ -52,9 +50,6 @@ public class WebhookPostTaskTest {
 
   @Rule
   public LogTester logTester = new LogTester().setLevel(LoggerLevel.DEBUG);
-
-  @Rule
-  public TreeRootHolderRule rootHolder = new TreeRootHolderRule().setRoot(DUMB_PROJECT);
 
   private final MapSettings settings = new MapSettings();
   private final TestWebhookCaller caller = new TestWebhookCaller();
@@ -131,7 +126,7 @@ public class WebhookPostTaskTest {
 
   private void execute() {
     ConfigurationRepository settingsRepository = new TestSettingsRepository(settings.asConfig());
-    WebhookPostTask task = new WebhookPostTask(rootHolder, settingsRepository, payloadFactory, caller, deliveryStorage);
+    WebhookPostTask task = new WebhookPostTask(settingsRepository, payloadFactory, caller, deliveryStorage);
 
     PostProjectAnalysisTaskTester.of(task)
       .at(new Date())
