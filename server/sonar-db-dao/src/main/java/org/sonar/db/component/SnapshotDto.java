@@ -42,6 +42,7 @@ public final class SnapshotDto {
   private String periodMode;
   private String periodParam;
   private Long periodDate;
+  private Boolean incremental;
 
   public Long getId() {
     return id;
@@ -152,6 +153,16 @@ public final class SnapshotDto {
 
   public SnapshotDto setCreatedAt(Long createdAt) {
     this.createdAt = createdAt;
+    return this;
+  }
+  
+  @CheckForNull
+  public Boolean getIncremental() {
+    return incremental;
+  }
+  
+  public SnapshotDto setIncremental(@Nullable Boolean incremental) {
+    this.incremental = incremental;
     return this;
   }
 

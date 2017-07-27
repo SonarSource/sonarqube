@@ -14,7 +14,8 @@
     s.version as version,
     s.period1_mode as periodMode,
     s.period1_param as periodParam,
-    s.period1_date as periodDate
+    s.period1_date as periodDate,
+    s.incremental as incremental
   </sql>
 
   <sql id="viewsSnapshotColumns">
@@ -179,7 +180,8 @@
     version,
     period1_mode,
     period1_param,
-    period1_date)
+    period1_date,
+    incremental)
     values (
     #{uuid, jdbcType=VARCHAR},
     #{componentUuid, jdbcType=VARCHAR},
@@ -191,7 +193,8 @@
     #{version, jdbcType=VARCHAR},
     #{periodMode, jdbcType=VARCHAR},
     #{periodParam, jdbcType=VARCHAR},
-    #{periodDate, jdbcType=BIGINT})
+    #{periodDate, jdbcType=BIGINT},
+    #{incremental, jdbcType=BOOLEAN})
   </insert>
 </mapper>
 

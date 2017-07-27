@@ -32,6 +32,7 @@ Note that measures, events and reviews are not deleted.
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
   <!--switched_off="[null]" permanent_id="[null]" FAILURE_LEVEL="2"-->
@@ -96,6 +97,7 @@ Note that measures, events and reviews are not deleted.
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
 
