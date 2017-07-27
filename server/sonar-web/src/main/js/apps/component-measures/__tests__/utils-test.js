@@ -92,30 +92,32 @@ describe('groupByDomains', () => {
 
 describe('parseQuery', () => {
   it('should correctly parse the url query', () => {
-    expect(utils.parseQuery({})).toEqual({ metric: '', view: utils.DEFAULT_VIEW });
-    expect(utils.parseQuery({ metric: 'foo', view: 'tree' })).toEqual({
+    expect(utils.parseQuery({})).toEqual({ metric: '', selected: '', view: utils.DEFAULT_VIEW });
+    expect(utils.parseQuery({ metric: 'foo', selected: 'bar', view: 'tree' })).toEqual({
       metric: 'foo',
+      selected: 'bar',
       view: 'tree'
     });
   });
 
   it('should be memoized', () => {
-    const query = { metric: 'foo', view: 'tree' };
+    const query = { metric: 'foo', selected: 'bar', view: 'tree' };
     expect(utils.parseQuery(query)).toBe(utils.parseQuery(query));
   });
 });
 
 describe('serializeQuery', () => {
   it('should correctly serialize the query', () => {
-    expect(utils.serializeQuery({ metric: '', view: 'list' })).toEqual({});
-    expect(utils.serializeQuery({ metric: 'foo', view: 'tree' })).toEqual({
+    expect(utils.serializeQuery({ metric: '', selected: '', view: 'list' })).toEqual({});
+    expect(utils.serializeQuery({ metric: 'foo', selected: 'bar', view: 'tree' })).toEqual({
       metric: 'foo',
+      selected: 'bar',
       view: 'tree'
     });
   });
 
   it('should be memoized', () => {
-    const query = { metric: 'foo', view: 'tree' };
+    const query = { metric: 'foo', selected: 'bar', view: 'tree' };
     expect(utils.serializeQuery(query)).toBe(utils.serializeQuery(query));
   });
 });
