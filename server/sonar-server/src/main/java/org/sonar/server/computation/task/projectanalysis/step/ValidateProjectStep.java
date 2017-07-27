@@ -19,8 +19,10 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
+import static com.google.common.collect.FluentIterable.from;
+import static java.lang.String.format;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -48,9 +50,8 @@ import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisi
 import org.sonar.server.computation.task.projectanalysis.validation.ValidateIncremental;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static com.google.common.collect.FluentIterable.from;
-import static java.lang.String.format;
-import static org.sonar.api.utils.DateUtils.formatDateTime;
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 
 /**
  * Validate project and modules. It will fail in the following cases :
