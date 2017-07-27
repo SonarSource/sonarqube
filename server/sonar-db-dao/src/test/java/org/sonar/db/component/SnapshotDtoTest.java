@@ -36,6 +36,7 @@ public class SnapshotDtoTest {
       .setVersion("1.0")
       .setPeriodMode("mode1")
       .setPeriodParam("param1")
+      .setIncremental(true)
       .setPeriodDate(parseDate("2014-06-01").getTime());
 
     assertThat(snapshotDto.getId()).isEqualTo(10L);
@@ -45,6 +46,7 @@ public class SnapshotDtoTest {
     assertThat(snapshotDto.getVersion()).isEqualTo("1.0");
     assertThat(snapshotDto.getPeriodMode()).isEqualTo("mode1");
     assertThat(snapshotDto.getPeriodModeParameter()).isEqualTo("param1");
+    assertThat(snapshotDto.getIncremental()).isTrue();
     assertThat(snapshotDto.getPeriodDate()).isEqualTo(parseDate("2014-06-01").getTime());
   }
 
