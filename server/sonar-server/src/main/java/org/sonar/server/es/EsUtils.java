@@ -67,7 +67,7 @@ public class EsUtils {
 
   public static LinkedHashMap<String, Long> termsToMap(Terms terms) {
     LinkedHashMap<String, Long> map = new LinkedHashMap<>();
-    List<Terms.Bucket> buckets = terms.getBuckets();
+    List<? extends Terms.Bucket> buckets = terms.getBuckets();
     for (Terms.Bucket bucket : buckets) {
       map.put(bucket.getKeyAsString(), bucket.getDocCount());
     }

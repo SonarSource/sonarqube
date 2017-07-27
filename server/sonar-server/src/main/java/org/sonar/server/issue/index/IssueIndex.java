@@ -47,6 +47,7 @@ import org.elasticsearch.indices.TermsLookup;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -56,9 +57,9 @@ import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude
 import org.elasticsearch.search.aggregations.metrics.max.InternalMax;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.aggregations.metrics.sum.SumAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.joda.time.DateTimeZone;
-import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
 import org.joda.time.Duration;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -688,12 +689,14 @@ public class IssueIndex {
         );
     });
     SearchResponse response = request.get();
-    return response.getAggregations().asList().stream().flatMap(projectBucket -> {
-      long count = ((InternalValueCount) projectBucket.getProperty(projectBucket.getName() + "_count")).getValue();
+    return response.getAggregations().asList().stream()
+      .map(x -> (InternalFilter) x)
+      .flatMap(projectBucket -> {
+      long count = ((InternalValueCount) projectBucket.getAggregations().get(projectBucket.getName() + "_count")).getValue();
       if (count < 1L) {
         return Stream.empty();
       }
-      long lastIssueDate = (long) ((InternalMax) projectBucket.getProperty(projectBucket.getName() + "_maxFuncCreatedAt")).getValue();
+      long lastIssueDate = (long) ((InternalMax) projectBucket.getAggregations().get(projectBucket.getName() + "_maxFuncCreatedAt")).getValue();
       return Stream.of(new ProjectStatistics(projectBucket.getName(), count, lastIssueDate));
     }).collect(MoreCollectors.toList(projectUuids.size()));
   }

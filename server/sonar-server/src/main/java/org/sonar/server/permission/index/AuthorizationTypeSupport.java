@@ -24,6 +24,7 @@ import java.util.Optional;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.user.GroupDto;
@@ -117,7 +118,7 @@ public class AuthorizationTypeSupport {
       .map(GroupDto::getId)
       .forEach(groupId -> filter.should(termQuery(FIELD_GROUP_IDS, groupId)));
 
-    return QueryBuilders.hasParentQuery(
+    return JoinQueryBuilders.hasParentQuery(
       TYPE_AUTHORIZATION,
       QueryBuilders.boolQuery().filter(filter),
       false);

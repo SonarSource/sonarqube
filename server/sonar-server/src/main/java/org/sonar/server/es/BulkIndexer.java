@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
-import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequestBuilder;
 import org.elasticsearch.action.bulk.BackoffPolicy;
@@ -35,7 +35,9 @@ import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkProcessor.Listener;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
@@ -116,7 +118,17 @@ public class BulkIndexer {
     return result;
   }
 
-  public void add(ActionRequest request) {
+  public void add(IndexRequest request) {
+    result.incrementRequests();
+    bulkProcessor.add(request);
+  }
+
+  public void add(DeleteRequest request) {
+    result.incrementRequests();
+    bulkProcessor.add(request);
+  }
+
+  public void add(DocWriteRequest request) {
     result.incrementRequests();
     bulkProcessor.add(request);
   }
