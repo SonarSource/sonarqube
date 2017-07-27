@@ -38,6 +38,7 @@ import org.sonar.server.computation.task.projectanalysis.component.DisabledCompo
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
+import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationMeasures;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.IntegrateCrossProjectDuplications;
 import org.sonar.server.computation.task.projectanalysis.event.EventRepositoryImpl;
@@ -235,6 +236,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
 
       // duplication
       IntegrateCrossProjectDuplications.class,
+      DuplicationMeasures.class,
 
       // views
       ViewIndex.class,
