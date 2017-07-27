@@ -19,6 +19,9 @@
  */
 package org.sonar.db.component;
 
+import java.util.Collection;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -33,6 +36,27 @@ public class BranchDao implements Dao {
 
   public void insert(DbSession dbSession, BranchDto dto) {
     mapper(dbSession).insert(dto, system2.now());
+  }
+
+  public void upsert(DbSession dbSession, BranchDto dto) {
+    BranchMapper mapper = mapper(dbSession);
+    long now = system2.now();
+    if (mapper.update(dto, now) == 0) {
+      mapper.insert(dto, now);
+    }
+  }
+
+  public Optional<BranchDto> selectByKey(DbSession dbSession, String projectUuid, BranchKeyType keyType, @Nullable String key) {
+    String keyInDb = BranchDto.convertKeyToDb(key);
+    return Optional.ofNullable(mapper(dbSession).selectByKey(projectUuid, keyType, keyInDb));
+  }
+
+  public Collection<BranchDto> selectByComponent(DbSession dbSession, ComponentDto component) {
+    String projectUuid = component.getMainBranchProjectUuid();
+    if (projectUuid == null) {
+      projectUuid = component.projectUuid();
+    }
+    return mapper(dbSession).selectByProjectUuid(projectUuid);
   }
 
   private static BranchMapper mapper(DbSession dbSession) {

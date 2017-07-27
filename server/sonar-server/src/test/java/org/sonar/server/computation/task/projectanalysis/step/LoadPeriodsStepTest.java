@@ -86,7 +86,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   private void setupRoot(Component root) {
     treeRootHolder.setRoot(root);
-    when(settingsRepository.getConfiguration(root)).thenReturn(settings.asConfig());
+    when(settingsRepository.getConfiguration()).thenReturn(settings.asConfig());
   }
 
   @Test

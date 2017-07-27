@@ -21,7 +21,8 @@
       branch_type,
       merge_branch_uuid,
       pull_request_title,
-      created_at
+      created_at,
+      updated_at
     ) values (
       #{dto.uuid, jdbcType=VARCHAR},
       #{dto.projectUuid, jdbcType=VARCHAR},
@@ -30,8 +31,34 @@
       #{dto.branchType, jdbcType=VARCHAR},
       #{dto.mergeBranchUuid, jdbcType=VARCHAR},
       #{dto.pullRequestTitle, jdbcType=VARCHAR},
+      #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
     )
   </insert>
 
+  <update id="update" parameterType="map" useGeneratedKeys="false">
+    update project_branches
+    set
+    merge_branch_uuid = #{dto.mergeBranchUuid, jdbcType=VARCHAR},
+    pull_request_title = #{dto.pullRequestTitle, jdbcType=VARCHAR},
+    updated_at = #{now, jdbcType=BIGINT}
+    where
+    uuid = #{dto.uuid, jdbcType=VARCHAR}
+  </update>
+
+  <select id="selectByKey" resultType="org.sonar.db.component.BranchDto">
+    select <include refid="columns" />
+    from project_branches pb
+    where
+    pb.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
+    pb.kee_type = #{keyType, jdbcType=VARCHAR} and
+    pb.kee = #{key, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByProjectUuid" parameterType="string" resultType="org.sonar.db.component.BranchDto">
+    select <include refid="columns" />
+    from project_branches pb
+    where
+    pb.project_uuid = #{projectUuid, jdbcType=VARCHAR}
+  </select>
 </mapper>

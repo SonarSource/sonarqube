@@ -232,7 +232,7 @@ public class ScannerReportViewerApp {
   }
 
   private void updateTitle() {
-    frame.setTitle(metadata.getProjectKey() + (StringUtils.isNotEmpty(metadata.getBranch()) ? (" (" + metadata.getBranch() + ")") : "") + " "
+    frame.setTitle(metadata.getProjectKey() + (StringUtils.isNotEmpty(metadata.getBranchName()) ? (" (" + metadata.getBranchName() + ")") : "") + " "
       + sdf.format(new Date(metadata.getAnalysisDate())));
   }
 
