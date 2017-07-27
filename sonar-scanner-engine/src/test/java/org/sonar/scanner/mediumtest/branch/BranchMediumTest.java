@@ -95,7 +95,7 @@ public class BranchMediumTest {
     DefaultInputFile inputfile = (DefaultInputFile) result.inputFile("src/sample.xoo");
     assertThat(result.getReportReader().readComponent(inputfile.batchId()).getPath()).isEqualTo("src/sample.xoo");
 
-    assertThat(result.getReportReader().readMetadata().getBranch()).isEqualTo("branch");
+    assertThat(result.getReportReader().readMetadata().getDeprecatedBranch()).isEqualTo("branch");
 
     result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -134,7 +134,7 @@ public class BranchMediumTest {
     // no branch in InputModule's key or in report
     assertThat(result.getReportComponent("com.foo.project:moduleA").getKey()).isEqualTo("com.foo.project:moduleA");
 
-    assertThat(result.getReportReader().readMetadata().getBranch()).isEqualTo("branch");
+    assertThat(result.getReportReader().readMetadata().getDeprecatedBranch()).isEqualTo("branch");
 
     result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()

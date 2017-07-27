@@ -19,38 +19,28 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
-import java.util.Collection;
-import java.util.Map;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import org.sonar.api.config.Configuration;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.settings.ProjectConfigurationFactory;
-import org.sonar.server.util.cache.CacheLoader;
-import org.sonar.server.util.cache.MemoryCache;
 
 /**
  * Repository of component settings implementation based on a memory cache.
  */
 public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
-  private final ProjectConfigurationFactory projectConfigurationFactory;
-  private final MemoryCache<String, Configuration> cache = new MemoryCache<>(new CacheLoader<String, Configuration>() {
-    @Override
-    public Configuration load(String key) {
-      return projectConfigurationFactory.newProjectConfiguration(key);
-    }
+  private final Supplier<Configuration> configuration;
 
-    @Override
-    public Map<String, Configuration> loadAll(Collection<? extends String> keys) {
-      throw new UnsupportedOperationException("loadAll is not supported");
-    }
-  });
-
-  public ConfigurationRepositoryImpl(ProjectConfigurationFactory projectSettingsFactory) {
-    this.projectConfigurationFactory = projectSettingsFactory;
+  public ConfigurationRepositoryImpl(CeTask ceTask, ProjectConfigurationFactory f) {
+    // project key is loaded from task because
+    // analysisMetadataHolder.getProject() may be not set yet
+    // when the first ComputationSteps are executed.
+    this.configuration = Suppliers.memoize(() -> f.newProjectConfiguration(ceTask.getComponentKey()));
   }
 
   @Override
-  public Configuration getConfiguration(Component component) {
-    return cache.get(component.getKey());
+  public Configuration getConfiguration() {
+    return configuration.get();
   }
-
 }
