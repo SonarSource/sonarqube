@@ -44,6 +44,6 @@ const keys = (state: StateKeys = [], action = {}) => {
 
 export default combineReducers({ byKey, keys });
 
-export const getMetrics = (state: State) => state.keys;
-
+export const getMetrics = (state: State) => state.byKey;
 export const getMetricByKey = (state: State, key: string) => state.byKey[key];
+export const getMetricsKey = (state: State) => state.keys;

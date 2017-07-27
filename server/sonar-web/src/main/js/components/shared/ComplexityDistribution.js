@@ -25,7 +25,7 @@ import { translateWithParameters } from '../../helpers/l10n';
 
 const HEIGHT = 80;
 
-export class ComplexityDistribution extends React.PureComponent {
+export default class ComplexityDistribution extends React.PureComponent {
   static propTypes = {
     distribution: PropTypes.string.isRequired,
     of: PropTypes.string.isRequired
@@ -61,11 +61,8 @@ export class ComplexityDistribution extends React.PureComponent {
   };
 
   render() {
-    // TODO remove inline styling
     return (
-      <div
-        className="overview-bar-chart"
-        style={{ height: HEIGHT, paddingTop: 10, paddingBottom: 15 }}>
+      <div className="overview-bar-chart" style={{ height: HEIGHT }}>
         {this.renderBarChart()}
       </div>
     );

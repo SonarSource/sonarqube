@@ -93,6 +93,8 @@ export const getMetrics = state => fromMetrics.getMetrics(state.metrics);
 
 export const getMetricByKey = (state, key) => fromMetrics.getMetricByKey(state.metrics, key);
 
+export const getMetricsKey = state => fromMetrics.getMetricsKey(state.metrics);
+
 export const getGlobalNotifications = state => fromNotifications.getGlobal(state.notifications);
 
 export const getProjectsWithNotifications = state =>

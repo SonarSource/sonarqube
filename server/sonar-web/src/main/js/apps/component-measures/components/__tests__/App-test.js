@@ -21,24 +21,30 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import App from '../App';
 
-const METRICS = [
-  { key: 'lines_to_cover', type: 'INT', name: 'Lines to Cover', domain: 'Coverage' },
-  { key: 'coverage', type: 'PERCENT', name: 'Coverage', domain: 'Coverage' },
-  {
+const METRICS = {
+  lines_to_cover: {
+    key: 'lines_to_cover',
+    type: 'INT',
+    name: 'Lines to Cover',
+    domain: 'Coverage'
+  },
+  coverage: { key: 'coverage', type: 'PERCENT', name: 'Coverage', domain: 'Coverage' },
+  duplicated_lines_density: {
     key: 'duplicated_lines_density',
     type: 'PERCENT',
     name: 'Duplicated Lines (%)',
     domain: 'Duplications'
   },
-  { key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' }
-];
+  new_bugs: { key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' }
+};
 
 const PROPS = {
   component: { key: 'foo' },
-  location: { pathname: '/component_measures', query: {} },
+  location: { pathname: '/component_measures', query: { metric: 'coverage' } },
   fetchMeasures: () => {},
   fetchMetrics: () => {},
   metrics: METRICS,
+  metricsKey: ['lines_to_cover', 'coverage', 'duplicated_lines_density', 'new_bugs'],
   router: { push: () => {} }
 };
 

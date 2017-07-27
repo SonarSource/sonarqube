@@ -25,7 +25,7 @@ import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import Tooltip from '../../../components/controls/Tooltip';
-import { ComplexityDistribution } from '../../../components/shared/complexity-distribution';
+import ComplexityDistribution from '../../../components/shared/ComplexityDistribution';
 import { isDiffMetric } from '../../../helpers/measures';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getComponentMeasureHistory } from '../../../helpers/urls';
