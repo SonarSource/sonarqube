@@ -136,6 +136,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
   <!-- snapshots to be purged -->
@@ -163,6 +164,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
 </dataset>
