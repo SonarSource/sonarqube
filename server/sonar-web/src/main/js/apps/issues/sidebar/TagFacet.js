@@ -20,14 +20,15 @@
 // @flow
 import React from 'react';
 import { sortBy, uniq, without } from 'lodash';
-import FacetBox from './components/FacetBox';
-import FacetHeader from './components/FacetHeader';
-import FacetItem from './components/FacetItem';
-import FacetItemsList from './components/FacetItemsList';
-import FacetFooter from './components/FacetFooter';
+import FacetBox from '../../../components/facet/FacetBox';
+import FacetHeader from '../../../components/facet/FacetHeader';
+import FacetItem from '../../../components/facet/FacetItem';
+import FacetItemsList from '../../../components/facet/FacetItemsList';
+import FacetFooter from '../../../components/facet/FacetFooter';
 import { searchIssueTags } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
 import type { Component } from '../utils';
+import { formatFacetStat } from '../utils';
 
 type Props = {|
   component?: Component,
@@ -108,11 +109,10 @@ export default class TagFacet extends React.PureComponent {
         {tags.map(tag =>
           <FacetItem
             active={this.props.tags.includes(tag)}
-            facetMode={this.props.facetMode}
             key={tag}
             name={this.renderTag(tag)}
             onClick={this.handleItemClick}
-            stat={this.getStat(tag)}
+            stat={formatFacetStat(this.getStat(tag), this.props.facetMode)}
             value={tag}
           />
         )}
@@ -130,7 +130,7 @@ export default class TagFacet extends React.PureComponent {
 
   render() {
     return (
-      <FacetBox property={this.property}>
+      <FacetBox>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}

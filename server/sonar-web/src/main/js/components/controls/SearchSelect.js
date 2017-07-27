@@ -21,7 +21,7 @@
 import React from 'react';
 import Select from 'react-select';
 import { debounce } from 'lodash';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 
 type Option = { label: string, value: string };
 

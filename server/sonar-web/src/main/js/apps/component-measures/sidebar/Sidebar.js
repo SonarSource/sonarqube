@@ -31,8 +31,7 @@ type Props = {|
 |};
 
 type State = {|
-  closedFacets: { [string]: boolean },
-  measuresByDomains: Array<{ name: string, measures: Array<MeasureEnhanced> }>
+  closedFacets: { [string]: boolean }
 |};
 
 export default class Sidebar extends React.PureComponent {
@@ -41,16 +40,7 @@ export default class Sidebar extends React.PureComponent {
 
   constructor(props: Props) {
     super(props);
-    this.state = {
-      closedFacets: {},
-      measuresByDomains: groupByDomains(props.measures)
-    };
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.measures !== this.props.measures) {
-      this.setState({ measuresByDomains: groupByDomains(nextProps.measures) });
-    }
+    this.state = { closedFacets: {} };
   }
 
   toggleFacet = (name: string) => {
@@ -62,10 +52,9 @@ export default class Sidebar extends React.PureComponent {
   changeMetric = (metric: string) => this.props.updateQuery({ metric });
 
   render() {
-    const { measuresByDomains } = this.state;
     return (
       <div className="search-navigator-facets-list">
-        {measuresByDomains.map(domain =>
+        {groupByDomains(this.props.measures).map(domain =>
           <DomainFacet
             key={domain.name}
             domain={domain}
