@@ -28,6 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.component.BranchPersisterDelegate;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepository;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDisabledComponentsHolder;
@@ -67,6 +68,7 @@ public class PersistComponentsStepTest {
       mock(MutableDbIdsRepository.class),
       System2.INSTANCE,
       mock(MutableDisabledComponentsHolder.class),
-      mock(AnalysisMetadataHolder.class)).execute();
+      mock(AnalysisMetadataHolder.class),
+      mock(BranchPersisterDelegate.class)).execute();
   }
 }
