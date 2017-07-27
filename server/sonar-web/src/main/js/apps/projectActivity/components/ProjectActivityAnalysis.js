@@ -32,6 +32,7 @@ type Props = {
   addVersion: (analysis: string, version: string) => Promise<*>,
   analysis: Analysis,
   canAdmin: boolean,
+  canCreateVersion: boolean,
   changeEvent: (event: string, name: string) => Promise<*>,
   deleteAnalysis: (analysis: string) => Promise<*>,
   deleteEvent: (analysis: string, event: string) => Promise<*>,
@@ -77,6 +78,7 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
               </button>
               <ul className="dropdown-menu dropdown-menu-right">
                 {!hasVersion &&
+                  this.props.canCreateVersion &&
                   <li>
                     <AddEventForm
                       addEvent={this.props.addVersion}

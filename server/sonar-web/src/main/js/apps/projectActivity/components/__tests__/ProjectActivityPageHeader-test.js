@@ -27,6 +27,7 @@ it('should render correctly the list of series', () => {
       <ProjectActivityPageHeader
         category=""
         from={new Date('2016-10-27T12:21:15+0200')}
+        project={{}}
         updateQuery={() => {}}
       />
     )
