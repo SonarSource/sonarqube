@@ -21,6 +21,7 @@ package org.sonar.server.issue.index;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -121,7 +122,7 @@ public class IssueIndexerTest {
     assertThat(doc.authorLogin()).isEqualTo(issue.getAuthorLogin());
     assertThat(doc.componentUuid()).isEqualTo(issue.getComponentUuid());
     assertThat(doc.closeDate()).isEqualTo(issue.getIssueCloseDate());
-    assertThat(doc.creationDate()).isEqualTo(issue.getIssueCreationDate());
+    assertThat(doc.creationDate()).isEqualToIgnoringMillis(issue.getIssueCreationDate());
     assertThat(doc.directoryPath()).isEqualTo(dir.path());
     assertThat(doc.filePath()).isEqualTo(file.path());
     assertThat(doc.getParent()).isEqualTo(project.uuid());
@@ -129,7 +130,7 @@ public class IssueIndexerTest {
     assertThat(doc.language()).isEqualTo(issue.getLanguage());
     assertThat(doc.line()).isEqualTo(issue.getLine());
     // functional date
-    assertThat(doc.updateDate().getTime()).isEqualTo(issue.getIssueUpdateTime());
+    assertThat(doc.updateDate()).isEqualToIgnoringMillis(new Date(issue.getIssueUpdateTime()));
   }
 
   @Test

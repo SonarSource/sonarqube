@@ -721,12 +721,12 @@ public class IssueIndexTest {
 
   @Test
   public void facet_on_created_at_with_less_than_20_weeks() {
-    SearchOptions SearchOptions = fixtureForCreatedAtFacet();
+    SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
       .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
-      SearchOptions);
+      options);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-08-25T01:00:00+0000", 0L),
@@ -737,12 +737,12 @@ public class IssueIndexTest {
 
   @Test
   public void facet_on_created_at_with_less_than_20_months() {
-    SearchOptions SearchOptions = fixtureForCreatedAtFacet();
+    SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
       .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
-      SearchOptions);
+      options);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-08-01T01:00:00+0000", 0L),
@@ -755,12 +755,12 @@ public class IssueIndexTest {
 
   @Test
   public void facet_on_created_at_with_more_than_20_months() {
-    SearchOptions SearchOptions = fixtureForCreatedAtFacet();
+    SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
       .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
-      SearchOptions);
+      options);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2010-01-01T01:00:00+0000", 0L),
@@ -774,12 +774,12 @@ public class IssueIndexTest {
 
   @Test
   public void facet_on_created_at_with_one_day() {
-    SearchOptions SearchOptions = fixtureForCreatedAtFacet();
+    SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
       .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
       .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
-      SearchOptions);
+      options);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-09-01T01:00:00+0000", 2L));
