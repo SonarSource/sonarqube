@@ -73,6 +73,7 @@ public class SnapshotDaoTest {
       .setPeriodParam("30")
       .setPeriodDate(1500000000001L)
       .setVersion("2.1-SNAPSHOT")
+      .setIncremental(false)
       .setBuildDate(1500000000006L)
       .setCreatedAt(1403042400000L));
 
@@ -90,6 +91,8 @@ public class SnapshotDaoTest {
     assertThat(result.getBuildDate()).isEqualTo(1500000000006L);
     assertThat(result.getCreatedAt()).isEqualTo(1403042400000L);
     assertThat(result.getVersion()).isEqualTo("2.1-SNAPSHOT");
+    assertThat(result.getIncremental()).isFalse();
+
 
     assertThat(underTest.selectByUuid(db.getSession(), "DOES_NOT_EXIST").isPresent()).isFalse();
   }
@@ -266,6 +269,7 @@ public class SnapshotDaoTest {
       .setPeriodDate(1500000000001L)
       .setVersion("2.1-SNAPSHOT")
       .setBuildDate(1500000000006L)
+      .setIncremental(true)
       .setCreatedAt(1403042400000L));
 
     assertThat(dto.getId()).isNotNull();
@@ -280,6 +284,8 @@ public class SnapshotDaoTest {
     assertThat(dto.getBuildDate()).isEqualTo(1500000000006L);
     assertThat(dto.getCreatedAt()).isEqualTo(1403042400000L);
     assertThat(dto.getVersion()).isEqualTo("2.1-SNAPSHOT");
+    assertThat(dto.getIncremental()).isTrue();
+
   }
 
   @Test
@@ -387,7 +393,8 @@ public class SnapshotDaoTest {
       .setPeriodMode("days1")
       .setPeriodParam("30")
       .setPeriodDate(1_500_000_000_001L)
-      .setBuildDate(1_500_000_000_006L);
+      .setBuildDate(1_500_000_000_006L)
+      .setIncremental(false);
   }
 
   private CeActivityDto insertActivity(SnapshotDto analysis, CeActivityDto.Status status) {
