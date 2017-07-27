@@ -19,19 +19,17 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.settings.ProjectConfigurationFactory;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.property.PropertyDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,47 +38,36 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 public class ConfigurationRepositoryTest {
 
   private static final Component ROOT = ReportComponent.builder(PROJECT, 1).setKey("ROOT").build();
+  private static final CeTask TASK = new CeTask.Builder()
+    .setOrganizationUuid("foo")
+    .setUuid("bar")
+    .setType(CeTaskTypes.REPORT)
+    .setComponentUuid(ROOT.getUuid())
+    .setComponentKey(ROOT.getKey())
+    .build();
 
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
-
-  DbSession session;
-
-  MapSettings globalSettings;
-
-  ConfigurationRepository underTest;
-
-  @Before
-  public void createDao() {
-    globalSettings = new MapSettings();
-    session = dbClient.openSession(false);
-    underTest = new ConfigurationRepositoryImpl(new ProjectConfigurationFactory(globalSettings, dbClient));
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
-  }
+  private DbClient dbClient = db.getDbClient();
+  private MapSettings globalSettings = new MapSettings();
+  private ConfigurationRepository underTest = new ConfigurationRepositoryImpl(TASK, new ProjectConfigurationFactory(globalSettings, dbClient));
 
   @Test
   public void get_project_settings_from_global_settings() {
     globalSettings.setProperty("key", "value");
 
-    Configuration config = underTest.getConfiguration(ROOT);
+    Configuration config = underTest.getConfiguration();
 
     assertThat(config.get("key")).hasValue("value");
   }
 
   @Test
   public void get_project_settings_from_db() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()).setDbKey(ROOT.getKey());
-    dbClient.componentDao().insert(session, project);
-    dbClient.propertiesDao().saveProperty(session, new PropertyDto().setResourceId(project.getId()).setKey("key").setValue("value"));
-    session.commit();
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(ROOT.getKey()));
+    insertProjectProperty(project, "key", "value");
 
-    Configuration config = underTest.getConfiguration(ROOT);
+    Configuration config = underTest.getConfiguration();
 
     assertThat(config.get("key")).hasValue("value");
   }
@@ -89,10 +76,38 @@ public class ConfigurationRepositoryTest {
   public void call_twice_get_project_settings() {
     globalSettings.setProperty("key", "value");
 
-    Configuration config = underTest.getConfiguration(ROOT);
+    Configuration config = underTest.getConfiguration();
     assertThat(config.get("key")).hasValue("value");
 
-    config = underTest.getConfiguration(ROOT);
+    config = underTest.getConfiguration();
     assertThat(config.get("key")).hasValue("value");
+  }
+
+  @Test
+  public void project_settings_override_global_settings() {
+    globalSettings.setProperty("key", "value1");
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(ROOT.getKey()));
+    insertProjectProperty(project, "key", "value2");
+
+    Configuration config = underTest.getConfiguration();
+    assertThat(config.get("key")).hasValue("value2");
+  }
+
+  @Test
+  public void project_settings_are_cached_to_avoid_db_access() {
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(ROOT.getKey()));
+    insertProjectProperty(project, "key", "value");
+
+    Configuration config = underTest.getConfiguration();
+    assertThat(config.get("key")).hasValue("value");
+
+    db.executeUpdateSql("delete from properties");
+    db.commit();
+
+    assertThat(config.get("key")).hasValue("value");
+  }
+
+  private void insertProjectProperty(ComponentDto project, String propertyKey, String propertyValue) {
+    db.properties().insertProperties(new PropertyDto().setKey(propertyKey).setValue(propertyValue).setResourceId(project.getId()));
   }
 }

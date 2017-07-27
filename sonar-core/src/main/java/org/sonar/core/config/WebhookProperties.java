@@ -19,12 +19,13 @@
  */
 package org.sonar.core.config;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.resources.Qualifiers;
+
+import static java.util.Arrays.asList;
 
 public class WebhookProperties {
 
@@ -56,7 +57,7 @@ public class WebhookProperties {
   }
 
   static List<PropertyDefinition> all() {
-    return ImmutableList.of(
+    return asList(
       PropertyDefinition.builder(GLOBAL_KEY)
         .category(CATEGORY)
         .name("Webhooks")

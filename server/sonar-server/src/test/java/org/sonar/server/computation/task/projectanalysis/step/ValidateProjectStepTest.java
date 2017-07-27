@@ -40,6 +40,8 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
+import org.sonar.server.computation.task.projectanalysis.component.MainBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
@@ -51,7 +53,7 @@ public class ValidateProjectStepTest {
   static long DEFAULT_ANALYSIS_TIME = 1433131200000L; // 2015-06-01
   static final String PROJECT_KEY = "PROJECT_KEY";
   static final String MODULE_KEY = "MODULE_KEY";
-  static final String DEFAULT_BRANCH = "origin/master";
+  static final Branch DEFAULT_BRANCH = new MainBranchImpl(null);
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -93,36 +95,6 @@ public class ValidateProjectStepTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("Validation of project failed:\n" +
       "  o Component (uuid=ABCD, key=PROJECT_KEY) is not a project");
-
-    underTest.execute();
-  }
-
-  @Test
-  public void not_fail_on_valid_branch() {
-    analysisMetadataHolder.setBranch(DEFAULT_BRANCH);
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(1)
-      .setType(ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .build());
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":origin/master").build());
-
-    underTest.execute();
-  }
-
-  @Test
-  public void fail_on_invalid_branch() {
-    analysisMetadataHolder.setBranch("bran#ch");
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(1)
-      .setType(ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .build());
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":bran#ch").build());
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:\n" +
-      "  o \"bran#ch\" is not a valid branch name. Allowed characters are alphanumeric, '-', '_', '.' and '/'.");
 
     underTest.execute();
   }
