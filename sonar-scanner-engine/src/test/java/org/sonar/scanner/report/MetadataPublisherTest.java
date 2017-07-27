@@ -33,6 +33,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -123,13 +124,13 @@ public class MetadataPublisherTest {
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
-    assertThat(metadata.getBranch()).isEqualTo("myBranch");
+    assertThat(metadata.getDeprecatedBranch()).isEqualTo("myBranch");
     assertThat(metadata.getCrossProjectDuplicationActivated()).isFalse();
   }
 
   @Test
   public void write_project_organization() throws Exception {
-    settings.setProperty(CoreProperties.PROJECT_ORGANIZATION_PROPERTY, "SonarSource");
+    settings.setProperty(ScannerProperties.ORGANIZATION, "SonarSource");
 
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);

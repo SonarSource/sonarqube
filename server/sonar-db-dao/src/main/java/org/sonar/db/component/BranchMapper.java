@@ -19,10 +19,17 @@
  */
 package org.sonar.db.component;
 
+import java.util.Collection;
 import org.apache.ibatis.annotations.Param;
 
 public interface BranchMapper {
 
   void insert(@Param("dto") BranchDto dto, @Param("now") long now);
 
+  int update(@Param("dto") BranchDto dto, @Param("now") long now);
+
+  BranchDto selectByKey(@Param("projectUuid") String projectUuid,
+    @Param("keyType") BranchKeyType keyType, @Param("key") String key);
+
+  Collection<BranchDto> selectByProjectUuid(@Param("projectUuid") String projectUuid);
 }

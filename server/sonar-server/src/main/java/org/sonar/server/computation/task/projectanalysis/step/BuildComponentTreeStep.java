@@ -19,10 +19,11 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
-import java.util.Objects;
-import java.util.function.Function;
+import java.util.Optional;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
@@ -32,13 +33,14 @@ import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.ComponentRootBuilder;
+import org.sonar.server.computation.task.projectanalysis.component.ComponentKeyGenerator;
+import org.sonar.server.computation.task.projectanalysis.component.ComponentTreeBuilder;
+import org.sonar.server.computation.task.projectanalysis.component.ComponentUuidFactory;
 import org.sonar.server.computation.task.projectanalysis.component.MutableTreeRootHolder;
-import org.sonar.server.computation.task.projectanalysis.component.UuidFactory;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.core.component.ComponentKeys.createKey;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.trimToNull;
 
 /**
  * Populates the {@link MutableTreeRootHolder} and {@link MutableAnalysisMetadataHolder} from the {@link BatchReportReader}
@@ -50,7 +52,8 @@ public class BuildComponentTreeStep implements ComputationStep {
   private final MutableTreeRootHolder treeRootHolder;
   private final MutableAnalysisMetadataHolder analysisMetadataHolder;
 
-  public BuildComponentTreeStep(DbClient dbClient, BatchReportReader reportReader, MutableTreeRootHolder treeRootHolder, MutableAnalysisMetadataHolder analysisMetadataHolder) {
+  public BuildComponentTreeStep(DbClient dbClient, BatchReportReader reportReader,
+    MutableTreeRootHolder treeRootHolder, MutableAnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.treeRootHolder = treeRootHolder;
@@ -64,64 +67,52 @@ public class BuildComponentTreeStep implements ComputationStep {
 
   @Override
   public void execute() {
-    String branch = analysisMetadataHolder.getBranch();
-    ScannerReport.Component reportProject = reportReader.readComponent(analysisMetadataHolder.getRootComponentRef());
-    String projectKey = createKey(reportProject.getKey(), branch);
-    UuidFactory uuidFactory = new UuidFactory(dbClient, projectKey);
-
     try (DbSession dbSession = dbClient.openSession(false)) {
-      BaseAnalysisSupplier baseAnalysisSupplier = new BaseAnalysisSupplier(dbClient, dbSession);
-      ComponentRootBuilder rootBuilder = new ComponentRootBuilder(branch,
-        uuidFactory::getOrCreateForKey,
+      ScannerReport.Component reportProject = reportReader.readComponent(analysisMetadataHolder.getRootComponentRef());
+      ComponentKeyGenerator keyGenerator = loadKeyGenerator();
+
+      // root key of branch, not necessarily of project
+      String rootKey = keyGenerator.generateKey(reportProject, null);
+
+      // loads the UUIDs from database. If they don't exist, then generate new ones
+      ComponentUuidFactory componentUuidFactory = new ComponentUuidFactory(dbClient, dbSession, rootKey);
+
+      String rootUuid = componentUuidFactory.getOrCreateForKey(rootKey);
+      SnapshotDto baseAnalysis = loadBaseAnalysis(dbSession, rootUuid);
+
+      ComponentTreeBuilder builder = new ComponentTreeBuilder(keyGenerator,
+        componentUuidFactory::getOrCreateForKey,
         reportReader::readComponent,
-        () -> dbClient.componentDao().selectByKey(dbSession, projectKey),
-        baseAnalysisSupplier);
-      Component project = rootBuilder.build(reportProject, projectKey);
+        analysisMetadataHolder.getProject(),
+        baseAnalysis);
+      Component project = builder.buildProject(reportProject);
+
       treeRootHolder.setRoot(project);
-      analysisMetadataHolder.setBaseAnalysis(toAnalysis(baseAnalysisSupplier.apply(project.getUuid())));
+      analysisMetadataHolder.setBaseAnalysis(toAnalysis(baseAnalysis));
     }
   }
 
-  /**
-   * A supplier of the base analysis of the project (if it exists) that will cache the retrieved SnapshotDto and
-   * implement a sanity check to ensure it is always call with the same UUID value (since it's the project's UUID, it
-   * is unique for a whole task).
-   */
-  private static final class BaseAnalysisSupplier implements Function<String, Optional<SnapshotDto>> {
-    private final DbClient dbClient;
-    private final DbSession dbSession;
-    private String projectUuid = null;
-    private Optional<SnapshotDto> cache = null;
-
-    private BaseAnalysisSupplier(DbClient dbClient, DbSession dbSession) {
-      this.dbClient = dbClient;
-      this.dbSession = dbSession;
-    }
-
-    @Override
-    public Optional<SnapshotDto> apply(String projectUuid) {
-      if (this.cache == null) {
-        this.cache = Optional.fromNullable(
-          dbClient.snapshotDao().selectAnalysisByQuery(
-            dbSession,
-            new SnapshotQuery()
-              .setComponentUuid(projectUuid)
-              .setIsLast(true)));
-        this.projectUuid = projectUuid;
-      } else {
-        checkState(
-          Objects.equals(this.projectUuid, projectUuid),
-          "BaseAnalysisSupplier called with different project uuid values. First one was %s but current one is %s",
-          this.projectUuid, projectUuid);
-      }
-      return this.cache;
-    }
+  private ComponentKeyGenerator loadKeyGenerator() {
+    return Stream.of(analysisMetadataHolder.getBranch(), Optional.of(new DefaultKeyGenerator()))
+      // TODO pull request generator will be added here
+      .filter(Optional::isPresent)
+      .flatMap(x -> x.map(Stream::of).orElseGet(Stream::empty))
+      .findFirst()
+      .get();
   }
 
   @CheckForNull
-  private static Analysis toAnalysis(Optional<SnapshotDto> snapshotDto) {
-    if (snapshotDto.isPresent()) {
-      SnapshotDto dto = snapshotDto.get();
+  private SnapshotDto loadBaseAnalysis(DbSession dbSession, String rootUuid) {
+    return dbClient.snapshotDao().selectAnalysisByQuery(
+      dbSession,
+      new SnapshotQuery()
+        .setComponentUuid(rootUuid)
+        .setIsLast(true));
+  }
+
+  @CheckForNull
+  private static Analysis toAnalysis(@Nullable SnapshotDto dto) {
+    if (dto != null) {
       return new Analysis.Builder()
         .setId(dto.getId())
         .setUuid(dto.getUuid())
@@ -131,4 +122,14 @@ public class BuildComponentTreeStep implements ComputationStep {
     return null;
   }
 
+  private static class DefaultKeyGenerator implements ComponentKeyGenerator {
+    @Override
+    public String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir) {
+      String moduleKey =  module.getKey();
+      if (fileOrDir == null || isEmpty(fileOrDir.getPath())) {
+        return moduleKey;
+      }
+      return ComponentKeys.createEffectiveKey(moduleKey, trimToNull(fileOrDir.getPath()));
+    }
+  }
 }
