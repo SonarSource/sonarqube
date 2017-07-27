@@ -63,6 +63,8 @@ import org.sonar.server.view.index.ViewIndexer;
 
 import static com.google.common.collect.ImmutableSortedSet.of;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
@@ -296,6 +298,18 @@ public class IssueIndexTest {
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(view2)), "I3");
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(view1, view2)), "I1", "I2", "I3");
     assertThatSearchReturnsEmpty(IssueQuery.builder().viewUuids(asList("unknown")));
+  }
+
+  @Test
+  public void filter_by_views_not_having_projects() {
+    OrganizationDto organizationDto = newOrganizationDto();
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organizationDto);
+    ComponentDto file1 = newFileDto(project1, null);
+    indexIssues(newDoc("I2", file1));
+    String view1 = "ABCD";
+    indexView(view1, emptyList());
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(view1)));
   }
 
   @Test
