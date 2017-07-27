@@ -424,7 +424,10 @@ public final class EsTestCluster {
          * no sniff client for now - doesn't work will all tests since it might throw NoNodeAvailableException if nodes are shut down.
          * we first need support of transportClientRatio as annotations or so
          */
-        transportClient = new TransportClientFactory(false, nodeConfigurationSource.transportClientSettings(), baseDir, nodeConfigurationSource.transportClientPlugins())
+        Collection<Class<? extends Plugin>> plugins = new ArrayList<>();
+        plugins.addAll(nodeConfigurationSource.transportClientPlugins());
+        plugins.addAll(mockPlugins);
+        transportClient = new TransportClientFactory(false, nodeConfigurationSource.transportClientSettings(), baseDir, plugins)
           .client(node, clusterName);
       }
       return clientWrapper.apply(transportClient);
