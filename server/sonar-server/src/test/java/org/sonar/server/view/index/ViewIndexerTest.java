@@ -51,6 +51,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 
 public class ViewIndexerTest {
 
@@ -78,7 +79,7 @@ public class ViewIndexerTest {
   }
 
   @Test
-  public void index() {
+  public void index_on_startup() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
     underTest.indexOnStartup(emptySet());
@@ -113,12 +114,42 @@ public class ViewIndexerTest {
   public void index_view_doc() {
     underTest.index(new ViewDoc().setUuid("EFGH").setProjects(newArrayList("KLMN", "JKLM")));
 
-    List<ViewDoc> docs = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
-    assertThat(docs).hasSize(1);
+    List<ViewDoc> result = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
 
-    ViewDoc view = docs.get(0);
+    assertThat(result).hasSize(1);
+    ViewDoc view = result.get(0);
     assertThat(view.uuid()).isEqualTo("EFGH");
     assertThat(view.projects()).containsOnly("KLMN", "JKLM");
+  }
+
+  @Test
+  public void index_application() {
+    ComponentDto application = dbTester.components().insertApplication(dbTester.getDefaultOrganization());
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    dbTester.components().insertComponent(newProjectCopy("PC1", project, application));
+
+    underTest.index(application.uuid());
+    List<ViewDoc> result = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+
+    assertThat(result).hasSize(1);
+    ViewDoc resultApp = result.get(0);
+    assertThat(resultApp.uuid()).isEqualTo(application.uuid());
+    assertThat(resultApp.projects()).containsExactlyInAnyOrder(project.uuid());
+  }
+
+  @Test
+  public void index_application_on_startup() {
+    ComponentDto application = dbTester.components().insertApplication(dbTester.getDefaultOrganization());
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    dbTester.components().insertComponent(newProjectCopy("PC1", project, application));
+
+    underTest.indexOnStartup(emptySet());
+    List<ViewDoc> result = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+
+    assertThat(result).hasSize(1);
+    ViewDoc resultApp = result.get(0);
+    assertThat(resultApp.uuid()).isEqualTo(application.uuid());
+    assertThat(resultApp.projects()).containsExactlyInAnyOrder(project.uuid());
   }
 
   @Test
@@ -136,7 +167,7 @@ public class ViewIndexerTest {
 
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto view = ComponentTesting.newView(organizationDto, "ABCD");
-    ComponentDto techProject1 = ComponentTesting.newProjectCopy("CDEF", project1, view);
+    ComponentDto techProject1 = newProjectCopy("CDEF", project1, view);
     dbClient.componentDao().insert(dbSession, view, techProject1);
     dbSession.commit();
 
@@ -152,7 +183,7 @@ public class ViewIndexerTest {
     issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
     permissionIndexer.indexOnStartup(permissionIndexer.getIndexTypes());
 
-    ComponentDto techProject2 = ComponentTesting.newProjectCopy("EFGH", project2, view);
+    ComponentDto techProject2 = newProjectCopy("EFGH", project2, view);
     dbClient.componentDao().insert(dbSession, techProject2);
     dbSession.commit();
     underTest.index(viewUuid);
