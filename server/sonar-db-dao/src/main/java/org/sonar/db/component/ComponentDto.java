@@ -216,9 +216,6 @@ public class ComponentDto {
     return this;
   }
 
-  public String getKey() {
-    return getDbKey();
-  }
 
   public String scope() {
     return scope;
@@ -475,5 +472,35 @@ public class ComponentDto {
       .append("enabled", enabled)
       .append("private", isPrivate)
       .toString();
+  }
+
+  public ComponentDto copy() {
+    ComponentDto copy = new ComponentDto();
+    copy.projectUuid = projectUuid;
+    copy.id = id;
+    copy.organizationUuid = organizationUuid;
+    copy.kee = kee;
+    copy.uuid = uuid;
+    copy.uuidPath = uuidPath;
+    copy.projectUuid = projectUuid;
+    copy.rootUuid = rootUuid;
+    copy.mainBranchProjectUuid = mainBranchProjectUuid;
+    copy.moduleUuid = moduleUuid;
+    copy.moduleUuidPath = moduleUuidPath;
+    copy.copyComponentUuid = copyComponentUuid;
+    copy.developerUuid = developerUuid;
+    copy.scope = scope;
+    copy.qualifier = qualifier;
+    copy.path = path;
+    copy.deprecatedKey = deprecatedKey;
+    copy.name = name;
+    copy.longName = longName;
+    copy.language = language;
+    copy.description = description;
+    copy.tags = tags;
+    copy.enabled = enabled;
+    copy.isPrivate = isPrivate;
+    copy.createdAt = createdAt;
+    return copy;
   }
 }

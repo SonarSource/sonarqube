@@ -26,6 +26,7 @@ import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
 import org.sonar.db.ce.CeTaskCharacteristicDao;
 import org.sonar.db.ce.CeTaskInputDao;
+import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ComponentLinkDao;
@@ -74,6 +75,7 @@ public class DbClient {
   private final Database database;
   private final MyBatis myBatis;
   private final DBSessions dbSessions;
+
   private final SchemaMigrationDao schemaMigrationDao;
   private final AuthorizationDao authorizationDao;
   private final OrganizationDao organizationDao;
@@ -121,6 +123,7 @@ public class DbClient {
   private final WebhookDeliveryDao webhookDeliveryDao;
   private final DefaultQProfileDao defaultQProfileDao;
   private final EsQueueDao esQueueDao;
+  private final BranchDao branchDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -178,6 +181,7 @@ public class DbClient {
     webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
     defaultQProfileDao = getDao(map, DefaultQProfileDao.class);
     esQueueDao = getDao(map, EsQueueDao.class);
+    branchDao = getDao(map, BranchDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -374,6 +378,10 @@ public class DbClient {
 
   public EsQueueDao esQueueDao() {
     return esQueueDao;
+  }
+
+  public BranchDao branchDao() {
+    return branchDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

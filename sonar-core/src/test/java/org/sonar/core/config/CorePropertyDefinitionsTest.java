@@ -33,7 +33,7 @@ public class CorePropertyDefinitionsTest {
   @Test
   public void all() {
     List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-    assertThat(defs).hasSize(58);
+    assertThat(defs).hasSize(60);
   }
 
   @Test
@@ -44,4 +44,12 @@ public class CorePropertyDefinitionsTest {
     assertThat(prop.get().type()).isEqualTo(PropertyType.PASSWORD);
   }
 
+  @Test
+  public void all_includes_scanner_properties() {
+    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
+
+    assertThat(defs.stream()
+      .filter(def -> def.key().equals(ScannerProperties.BRANCH_NAME))
+      .findFirst()).isPresent();
+  }
 }
