@@ -19,16 +19,25 @@
  */
 // @flow
 import React from 'react';
+import SearchSelect from '../controls/SearchSelect';
+
+type Option = { label: string, value: string };
 
 type Props = {|
-  children?: React.Element<*>,
-  property: string
+  minimumQueryLength?: number,
+  onSearch: (query: string) => Promise<Array<Option>>,
+  onSelect: (value: string) => void,
+  renderOption?: (option: Object) => React.Element<*>
 |};
 
-export default function FacetBox(props: Props) {
-  return (
-    <div className="search-navigator-facet-box" data-property={props.property}>
-      {props.children}
-    </div>
-  );
+export default class FacetFooter extends React.PureComponent {
+  props: Props;
+
+  render() {
+    return (
+      <div className="search-navigator-facet-footer">
+        <SearchSelect autofocus={false} {...this.props} />
+      </div>
+    );
+  }
 }

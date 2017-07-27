@@ -11,9 +11,6 @@ exports[`should render active 1`] = `
   >
     foo
   </span>
-  <span
-    className="facet-stat"
-  />
 </a>
 `;
 
@@ -26,9 +23,6 @@ exports[`should render disabled 1`] = `
   >
     foo
   </span>
-  <span
-    className="facet-stat"
-  />
 </span>
 `;
 
@@ -62,9 +56,6 @@ exports[`should render half width 1`] = `
   >
     foo
   </span>
-  <span
-    className="facet-stat"
-  />
 </a>
 `;
 
@@ -79,9 +70,6 @@ exports[`should render inactive 1`] = `
   >
     foo
   </span>
-  <span
-    className="facet-stat"
-  />
 </a>
 `;
 

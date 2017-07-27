@@ -19,25 +19,24 @@
  */
 // @flow
 import React from 'react';
-import SearchSelect from '../../components/SearchSelect';
+import Measure from '../../../components/measure/Measure';
+import { isDiffMetric } from '../../../helpers/measures';
+import type { MeasureEnhanced } from '../../../components/measure/types';
 
-type Option = { label: string, value: string };
-
-type Props = {|
-  minimumQueryLength?: number,
-  onSearch: (query: string) => Promise<Array<Option>>,
-  onSelect: (value: string) => void,
-  renderOption?: (option: Object) => React.Element<*>
-|};
-
-export default class FacetFooter extends React.PureComponent {
-  props: Props;
-
-  render() {
+export default function FacetMeasureValue({ measure }: { measure: MeasureEnhanced }) {
+  if (isDiffMetric(measure.metric.key)) {
     return (
-      <div className="search-navigator-facet-footer">
-        <SearchSelect autofocus={false} {...this.props} />
+      <div
+        id={`measure-${measure.metric.key}-leak`}
+        className="domain-measures-value domain-measures-leak">
+        <Measure measure={measure} />
       </div>
     );
   }
+
+  return (
+    <div id={`measure-${measure.metric.key}-value`} className="domain-measures-value">
+      <Measure measure={measure} />
+    </div>
+  );
 }

@@ -21,9 +21,9 @@
 import React from 'react';
 import moment from 'moment';
 import { max } from 'lodash';
-import FacetBox from './components/FacetBox';
-import FacetHeader from './components/FacetHeader';
-import FacetItem from './components/FacetItem';
+import FacetBox from '../../../components/facet/FacetBox';
+import FacetHeader from '../../../components/facet/FacetHeader';
+import FacetItem from '../../../components/facet/FacetItem';
 import { BarChart } from '../../../components/charts/bar-chart';
 import DateInput from '../../../components/controls/DateInput';
 import { translate } from '../../../helpers/l10n';
@@ -212,46 +212,36 @@ export default class CreationDateFacet extends React.PureComponent {
       <div className="spacer-top issues-predefined-periods">
         <FacetItem
           active={!this.hasValue()}
-          facetMode=""
           name={translate('issues.facet.createdAt.all')}
           onClick={this.handlePeriodClick}
-          stat={null}
           value=""
         />
         {component == null &&
           <FacetItem
             active={createdInLast === '1w'}
-            facetMode=""
             name={translate('issues.facet.createdAt.last_week')}
             onClick={this.handlePeriodClick}
-            stat={null}
             value="1w"
           />}
         {component == null &&
           <FacetItem
             active={createdInLast === '1m'}
-            facetMode=""
             name={translate('issues.facet.createdAt.last_month')}
             onClick={this.handlePeriodClick}
-            stat={null}
             value="1m"
           />}
         {component == null &&
           <FacetItem
             active={createdInLast === '1y'}
-            facetMode=""
             name={translate('issues.facet.createdAt.last_year')}
             onClick={this.handlePeriodClick}
-            stat={null}
             value="1y"
           />}
         {component != null &&
           <FacetItem
             active={sinceLeakPeriod}
-            facetMode=""
             name={translate('issues.leak_period')}
             onClick={this.handleLeakPeriodClick}
-            stat={null}
             value=""
           />}
       </div>
@@ -271,7 +261,7 @@ export default class CreationDateFacet extends React.PureComponent {
 
   render() {
     return (
-      <FacetBox property={this.property}>
+      <FacetBox>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
