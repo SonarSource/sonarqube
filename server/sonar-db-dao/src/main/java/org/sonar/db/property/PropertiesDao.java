@@ -153,11 +153,7 @@ public class PropertiesDao implements Dao {
   }
 
   public List<PropertyDto> selectGlobalPropertiesByKeys(DbSession session, Set<String> keys) {
-    return selectByKeys(session, keys, null);
-  }
-
-  public List<PropertyDto> selectPropertiesByKeysAndComponentId(DbSession session, Set<String> keys, long componentId) {
-    return selectByKeys(session, keys, componentId);
+    return executeLargeInputs(keys, partitionKeys -> getMapper(session).selectByKeys(partitionKeys));
   }
 
   public List<PropertyDto> selectPropertiesByKeysAndComponentIds(DbSession session, Set<String> keys, Set<Long> componentIds) {
@@ -167,10 +163,6 @@ public class PropertiesDao implements Dao {
 
   public List<PropertyDto> selectPropertiesByComponentIds(DbSession session, Set<Long> componentIds) {
     return executeLargeInputs(componentIds, getMapper(session)::selectByComponentIds);
-  }
-
-  private List<PropertyDto> selectByKeys(DbSession session, Set<String> keys, @Nullable Long componentId) {
-    return executeLargeInputs(keys, partitionKeys -> getMapper(session).selectByKeys(partitionKeys, componentId));
   }
 
   public List<PropertyDto> selectGlobalPropertiesByKeyQuery(DbSession session, String keyQuery) {

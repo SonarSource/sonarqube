@@ -72,7 +72,9 @@ public interface Component {
   String getUuid();
 
   /**
-   * Returns the component key
+   * Returns the component key <b>as defined in database</b>
+   * It may differ from keys listed in scanner report
+   * when analyzing a branch.
    */
   String getKey();
 

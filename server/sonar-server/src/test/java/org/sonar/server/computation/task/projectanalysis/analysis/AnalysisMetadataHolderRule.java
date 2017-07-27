@@ -21,6 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
@@ -46,7 +47,9 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
 
   private final InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
 
-  private final InitializedProperty<String> branch = new InitializedProperty<>();
+  private final InitializedProperty<Branch> branch = new InitializedProperty<>();
+
+  private final InitializedProperty<Project> project = new InitializedProperty<>();
 
   private final InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
 
@@ -139,15 +142,27 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   }
 
   @Override
-  public AnalysisMetadataHolderRule setBranch(@Nullable String branch) {
+  public AnalysisMetadataHolderRule setBranch(@Nullable Branch branch) {
     this.branch.setProperty(branch);
     return this;
   }
 
   @Override
-  public String getBranch() {
+  public Optional<Branch> getBranch() {
     checkState(branch.isInitialized(), "Branch has not been set");
-    return branch.getProperty();
+    return Optional.ofNullable(branch.getProperty());
+  }
+
+  @Override
+  public AnalysisMetadataHolderRule setProject(Project p) {
+    this.project.setProperty(p);
+    return this;
+  }
+
+  @Override
+  public Project getProject() {
+    checkState(project.isInitialized(), "Project has not been set");
+    return project.getProperty();
   }
 
   @Override
