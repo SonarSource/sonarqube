@@ -53,6 +53,7 @@ public class CreateTableProjectBranchesTest {
     db.assertColumnDefinition(TABLE, "merge_branch_uuid", Types.VARCHAR, 50, true);
     db.assertColumnDefinition(TABLE, "pull_request_title", Types.VARCHAR, 4000, true);
     db.assertColumnDefinition(TABLE, "created_at", Types.BIGINT, null, false);
+    db.assertColumnDefinition(TABLE, "updated_at", Types.BIGINT, null, false);
     db.assertPrimaryKey(TABLE, "pk_" + TABLE, "uuid");
   }
 
