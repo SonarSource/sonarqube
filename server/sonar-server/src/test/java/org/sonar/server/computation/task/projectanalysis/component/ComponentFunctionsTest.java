@@ -29,12 +29,7 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 
 public class ComponentFunctionsTest {
 
-  public static final int SOME_INT = new Random().nextInt();
-
-  @Test(expected = NullPointerException.class)
-  public void toReportRef_throws_NPE_if_Component_is_null() {
-    toReportRef().apply(null);
-  }
+  private static final int SOME_INT = new Random().nextInt();
 
   @Test(expected = IllegalStateException.class)
   public void toReportRef_throws_ISE_if_Component_has_no_ReportAttributes() {

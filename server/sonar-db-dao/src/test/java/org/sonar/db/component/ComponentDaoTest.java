@@ -202,7 +202,7 @@ public class ComponentDaoTest {
   public void get_by_key_on_disabled_component() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setEnabled(false));
 
-    ComponentDto result = underTest.selectOrFailByKey(dbSession, project.getKey());
+    ComponentDto result = underTest.selectOrFailByKey(dbSession, project.getDbKey());
 
     assertThat(result.isEnabled()).isFalse();
   }
@@ -211,7 +211,7 @@ public class ComponentDaoTest {
   public void get_by_key_on_a_root_project() {
     ComponentDto project = db.components().insertPrivateProject();
 
-    ComponentDto result = underTest.selectOrFailByKey(dbSession, project.getKey());
+    ComponentDto result = underTest.selectOrFailByKey(dbSession, project.getDbKey());
 
     assertThat(result.getDbKey()).isEqualTo(project.getDbKey());
     assertThat(result.uuid()).isEqualTo(project.uuid());
@@ -225,13 +225,13 @@ public class ComponentDaoTest {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
 
-    List<ComponentDto> results = underTest.selectByKeys(dbSession, asList(project1.getKey(), project2.getKey()));
+    List<ComponentDto> results = underTest.selectByKeys(dbSession, asList(project1.getDbKey(), project2.getDbKey()));
 
     assertThat(results)
-      .extracting(ComponentDto::uuid, ComponentDto::getKey)
+      .extracting(ComponentDto::uuid, ComponentDto::getDbKey)
       .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), project1.getKey()),
-        tuple(project2.uuid(), project2.getKey()));
+        tuple(project1.uuid(), project1.getDbKey()),
+        tuple(project2.uuid(), project2.getDbKey()));
 
     assertThat(underTest.selectByKeys(dbSession, singletonList("unknown"))).isEmpty();
   }
@@ -244,10 +244,10 @@ public class ComponentDaoTest {
     List<ComponentDto> results = underTest.selectByIds(dbSession, asList(project1.getId(), project2.getId()));
 
     assertThat(results)
-      .extracting(ComponentDto::uuid, ComponentDto::getKey)
+      .extracting(ComponentDto::uuid, ComponentDto::getDbKey)
       .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), project1.getKey()),
-        tuple(project2.uuid(), project2.getKey()));
+        tuple(project1.uuid(), project1.getDbKey()),
+        tuple(project2.uuid(), project2.getDbKey()));
 
     assertThat(underTest.selectByIds(dbSession, singletonList(0L))).isEmpty();
   }
@@ -260,10 +260,10 @@ public class ComponentDaoTest {
     List<ComponentDto> results = underTest.selectByUuids(dbSession, asList(project1.uuid(), project2.uuid()));
 
     assertThat(results)
-      .extracting(ComponentDto::uuid, ComponentDto::getKey)
+      .extracting(ComponentDto::uuid, ComponentDto::getDbKey)
       .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), project1.getKey()),
-        tuple(project2.uuid(), project2.getKey()));
+        tuple(project1.uuid(), project1.getDbKey()),
+        tuple(project2.uuid(), project2.getDbKey()));
 
     assertThat(underTest.selectByUuids(dbSession, singletonList("unknown"))).isEmpty();
   }
@@ -276,7 +276,7 @@ public class ComponentDaoTest {
     List<ComponentDto> results = underTest.selectByUuids(dbSession, asList(project1.uuid(), project2.uuid()));
 
     assertThat(results)
-      .extracting(ComponentDto::getKey, ComponentDto::isEnabled)
+      .extracting(ComponentDto::getDbKey, ComponentDto::isEnabled)
       .containsExactlyInAnyOrder(
         tuple(project1.getDbKey(), true),
         tuple(project2.getDbKey(), false));
