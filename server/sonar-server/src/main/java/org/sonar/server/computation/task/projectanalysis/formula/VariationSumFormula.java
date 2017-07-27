@@ -20,8 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.formula;
 
 import com.google.common.base.Optional;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.formula.counter.DoubleValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
@@ -35,21 +33,14 @@ import static org.sonar.server.computation.task.projectanalysis.measure.Measure.
  */
 public class VariationSumFormula implements Formula<VariationSumFormula.VariationSumCounter> {
   private final String metricKey;
-  @CheckForNull
-  private final Double defaultInputValue;
 
   public VariationSumFormula(String metricKey) {
-    this(metricKey, null);
-  }
-
-  public VariationSumFormula(String metricKey, @Nullable Double defaultInputValue) {
     this.metricKey = requireNonNull(metricKey, "Metric key cannot be null");
-    this.defaultInputValue = defaultInputValue;
   }
 
   @Override
   public VariationSumCounter createNewCounter() {
-    return new VariationSumCounter(metricKey, defaultInputValue);
+    return new VariationSumCounter(metricKey);
   }
 
   @Override
@@ -66,14 +57,11 @@ public class VariationSumFormula implements Formula<VariationSumFormula.Variatio
   }
 
   public static final class VariationSumCounter implements Counter<VariationSumCounter> {
-    @CheckForNull
-    private final Double defaultInputValue;
     private final DoubleValue doubleValue = new DoubleValue();
     private final String metricKey;
 
-    private VariationSumCounter(String metricKey, @Nullable Double defaultInputValue) {
+    private VariationSumCounter(String metricKey) {
       this.metricKey = metricKey;
-      this.defaultInputValue = defaultInputValue;
     }
 
     @Override
@@ -85,22 +73,11 @@ public class VariationSumFormula implements Formula<VariationSumFormula.Variatio
     public void initialize(CounterInitializationContext context) {
       Optional<Measure> measure = context.getMeasure(metricKey);
       if (!measure.isPresent() || !measure.get().hasVariation()) {
-        initializeWithDefaultInputValue();
         return;
       }
       double variation = measure.get().getVariation();
-      if (variation > 0) {
-        doubleValue.increment(variation);
-      } else if (defaultInputValue != null) {
-        doubleValue.increment(defaultInputValue);
-      }
+      doubleValue.increment(variation);
     }
 
-    private void initializeWithDefaultInputValue() {
-      if (defaultInputValue == null) {
-        return;
-      }
-      doubleValue.increment(defaultInputValue);
-    }
   }
 }
