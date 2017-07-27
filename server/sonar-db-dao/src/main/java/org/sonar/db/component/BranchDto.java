@@ -19,19 +19,26 @@
  */
 package org.sonar.db.component;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang.StringUtils.repeat;
 
 public class BranchDto {
 
   /**
+   * Maximum length of column "kee"
+   */
+  public static final int KEE_MAX_LENGTH = 255;
+
+  /**
    * Value of {@link #kee} when the name of main branch is not known.
    * Used only if {@link #keeType} is {@link BranchKeyType#BRANCH}.
-   * It does not conflict with names of real branches because the character ':'
+   * It does not conflict with names of real branches because the term ':BRANCH:'
    * is not accepted.
    */
-  public static final String DEFAULT_KEY_OF_MAIN_BRANCH = ":main:";
+  public static final String NULL_KEY = repeat("_", KEE_MAX_LENGTH);
 
   /**
    * Branch UUID is the projects.uuid that reference projects, branches or pull requests
@@ -56,7 +63,7 @@ public class BranchDto {
 
   /**
    * If {@link #keeType} is {@link BranchKeyType#BRANCH}, then name of branch, for example
-   * "feature/foo". Can be {@link #DEFAULT_KEY_OF_MAIN_BRANCH} is the name is not known.
+   * "feature/foo". Can be {@link #NULL_KEY} is the name is not known.
    *
    * If {@link #keeType} is {@link BranchKeyType#PR}, then id of the pull request, for
    * example "1204".
@@ -102,6 +109,10 @@ public class BranchDto {
     this.projectUuid = s;
   }
 
+  public boolean isMain() {
+    return projectUuid.equals(uuid);
+  }
+
   public BranchKeyType getKeeType() {
     return keeType;
   }
@@ -110,13 +121,31 @@ public class BranchDto {
     this.keeType = t;
   }
 
-  public String getKee() {
+  /**
+   * This is the getter used by MyBatis mapper. It does
+   * not handle the special value used to map null field.
+   */
+  private String getKee() {
     return kee;
   }
 
-  public void setKee(String s) {
-    checkArgument(s.length() <= 255, "Maximum length of branch name or pull request id is 255: %s", s);
+  @CheckForNull
+  public String getKey() {
+    return convertKeyFromDb(getKee());
+  }
+
+  /**
+   * This is the setter used by MyBatis mapper. It does
+   * not handle the special value used to map null field.
+   */
+  private void setKee(String s) {
     this.kee = s;
+  }
+
+  public void setKey(@Nullable String s) {
+    checkArgument(s == null || s.length() <= KEE_MAX_LENGTH, "Maximum length of branch name or pull request id is %s: %s", KEE_MAX_LENGTH, s);
+    checkArgument(!NULL_KEY.equals(s), "Branch name is not allowed: %s", s);
+    setKee(convertKeyToDb(s));
   }
 
   @Nullable
@@ -151,9 +180,22 @@ public class BranchDto {
   public String toString() {
     StringBuilder sb = new StringBuilder("BranchDto{");
     sb.append("uuid='").append(uuid).append('\'');
+    sb.append(", projectUuid='").append(projectUuid).append('\'');
+    sb.append(", keeType=").append(keeType);
+    sb.append(", kee='").append(kee).append('\'');
+    sb.append(", branchType=").append(branchType);
     sb.append(", mergeBranchUuid='").append(mergeBranchUuid).append('\'');
     sb.append(", pullRequestTitle='").append(pullRequestTitle).append('\'');
     sb.append('}');
     return sb.toString();
+  }
+
+  static String convertKeyToDb(@Nullable String s) {
+    return s == null ? NULL_KEY : s;
+  }
+
+  @CheckForNull
+  static String convertKeyFromDb(String s) {
+    return NULL_KEY.equals(s) ? null : s;
   }
 }

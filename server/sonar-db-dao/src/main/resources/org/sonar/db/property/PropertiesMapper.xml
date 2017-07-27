@@ -123,12 +123,7 @@
         <foreach collection="keys" open="(" close=")" item="key" separator=",">
           #{key}
         </foreach>
-      <if test="componentId == null">
-        and p.resource_id is null
-      </if>
-      <if test="componentId != null">
-        and p.resource_id=#{componentId}
-      </if>
+      and p.resource_id is null
       and p.user_id is null
     order by p.id
   </select>
