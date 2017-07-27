@@ -49,6 +49,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.discovery.DiscoveryModule;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.join.ParentJoinPlugin;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.test.NodeConfigurationSource;
@@ -96,7 +97,7 @@ public class EsTester extends ExternalResource {
       tempDirectory = Files.createTempDirectory("es-unit-test");
       tempDirectory.toFile().deleteOnExit();
       cluster = new EsTestCluster(new Random().nextLong(), tempDirectory, 1, "test cluster", getNodeConfigSource(), "node-",
-        Collections.emptyList(), i -> i);
+        Collections.singletonList(ParentJoinPlugin.class), i -> i);
       Random random = new Random();
       cluster.beforeTest(random, random.nextDouble());
       cluster.wipe(NO_TEMPLATES_SURVIVING_WIPE);
