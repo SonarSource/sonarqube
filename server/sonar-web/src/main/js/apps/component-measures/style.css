@@ -1,28 +1,49 @@
-.measures-domains-leak-header {
-  float: right;
+.domain-measures-leak {
+  background-color: #fbf3d5;
+  border: 1px solid #eae3c7;
+  padding: 4px 6px;
+}
+
+.facet .domain-measures-leak {
+  padding: 4px 4px;
+  margin: -5px -5px;
+}
+
+.domain-measures-leak-header {
   background-color: #fbf3d5;
   border: 1px solid #eae3c7;
   padding: 4px 10px;
   white-space: nowrap;
 }
 
-.domain-measures-leak {
-  background-color: #fbf3d5;
-  border: 1px solid #eae3c7;
-  padding: 4px 4px;
-  margin: -5px -5px;
+.measure-details-header {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.domain-measures-value .rating {
+.measure-details-metric {
+  display: flex;
+  align-items: center;
+}
+
+.measure-details-secondary {
+  display: inline-block;
+  width: 260px;
+  margin-left: 4px;
+}
+
+.measure-details-secondary .bar-chart {
+  margin-top: -10px;
+}
+
+.domain-measures-value .rating,
+.measure-details-value .rating {
   width: 18px;
   height: 18px;
   line-height: 18px;
   margin-top: -2px;
   margin-bottom: -2px;
   font-size: 12px;
-}
-
-.domain-measures-leak .rating {
-  margin-top: -3px;
-  margin-bottom: -3px;
 }
