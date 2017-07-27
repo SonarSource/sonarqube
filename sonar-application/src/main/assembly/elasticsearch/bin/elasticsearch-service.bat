@@ -1,7 +1,7 @@
 @echo off
 SETLOCAL enabledelayedexpansion
 
-TITLE Elasticsearch Service 5.0.2
+TITLE Elasticsearch Service 5.5.1
 
 rem TODO: remove for Elasticsearch 6.x
 set bad_env_var=0
@@ -29,20 +29,20 @@ if %bad_env_var% == 1 (
 rem end TODO: remove for Elasticsearch 6.x
 
 IF DEFINED JAVA_HOME (
-  SET JAVA=%JAVA_HOME%\bin\java.exe
+  SET JAVA="%JAVA_HOME%\bin\java.exe"
 ) ELSE (
   FOR %%I IN (java.exe) DO set JAVA=%%~$PATH:I
 )
-IF NOT EXIST "%JAVA%" (
+IF NOT EXIST %JAVA% (
   ECHO Could not find any executable java binary. Please install java in your PATH or set JAVA_HOME 1>&2
   EXIT /B 1
 )
 IF DEFINED JAVA_HOME GOTO :cont
 
-IF NOT "%JAVA:~-13%" == "\bin\java.exe" (
+IF NOT %JAVA:~-13% == "\bin\java.exe" (
   FOR /f "tokens=2 delims=[]" %%I IN ('dir %JAVA%') DO @set JAVA=%%I
 )
-IF "%JAVA:~-13%" == "\bin\java.exe" (
+IF %JAVA:~-13% == "\bin\java.exe" (
   SET JAVA_HOME=%JAVA:~0,-13%
 )
 
@@ -52,14 +52,14 @@ if not "%CONF_FILE%" == "" goto conffileset
 set SCRIPT_DIR=%~dp0
 for %%I in ("%SCRIPT_DIR%..") do set ES_HOME=%%~dpfI
 
-"%JAVA%" -Xmx50M -version > nul 2>&1
+%JAVA% -Xmx50M -version > nul 2>&1
 
 if errorlevel 1 (
 	echo Warning: Could not start JVM to detect version, defaulting to x86:
 	goto x86
 )
 
-"%JAVA%" -Xmx50M -version 2>&1 | "%windir%\System32\find" "64-Bit" >nul:
+%JAVA% -Xmx50M -version 2>&1 | "%windir%\System32\find" "64-Bit" >nul:
 
 if errorlevel 1 goto x86
 set EXECUTABLE=%ES_HOME%\bin\elasticsearch-service-x64.exe
@@ -77,7 +77,7 @@ if EXIST "%EXECUTABLE%" goto okExe
 echo elasticsearch-service-(x86|x64).exe was not found...
 
 :okExe
-set ES_VERSION=5.0.2
+set ES_VERSION=5.5.1
 
 if "%LOG_DIR%" == "" set LOG_DIR=%ES_HOME%\logs
 
@@ -146,19 +146,19 @@ echo Installing service      :  "%SERVICE_ID%"
 echo Using JAVA_HOME (%ARCH%):  "%JAVA_HOME%"
 
 rem Check JVM server dll first
-if exist "%JAVA_HOME%"\jre\bin\server\jvm.dll (
+if exist "%JAVA_HOME%\jre\bin\server\jvm.dll" (
 	set JVM_DLL=\jre\bin\server\jvm.dll
 	goto foundJVM
 )
 
 rem Check 'server' JRE (JRE installed on Windows Server)
-if exist "%JAVA_HOME%"\bin\server\jvm.dll (
+if exist "%JAVA_HOME%\bin\server\jvm.dll" (
 	set JVM_DLL=\bin\server\jvm.dll
 	goto foundJVM
 )
 
 rem Fallback to 'client' JRE
-if exist "%JAVA_HOME%"\bin\client\jvm.dll (
+if exist "%JAVA_HOME%\bin\client\jvm.dll" (
 	set JVM_DLL=\bin\client\jvm.dll
 	echo Warning: JAVA_HOME points to a JRE and not JDK installation; a client (not a server^) JVM will be used...
 ) else (

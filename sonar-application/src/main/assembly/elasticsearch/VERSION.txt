@@ -1,2 +1,2 @@
-Elasticsearch 5.0.2
-https://www.elastic.co/downloads/past-releases/elasticsearch-5-0-2
+Elasticsearch 5.5.1
+https://www.elastic.co/downloads/past-releases/elasticsearch-5-5-1
