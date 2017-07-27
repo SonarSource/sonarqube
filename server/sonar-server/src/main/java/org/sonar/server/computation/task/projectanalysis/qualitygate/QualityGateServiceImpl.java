@@ -34,7 +34,7 @@ public class QualityGateServiceImpl implements QualityGateService {
   private final DbClient dbClient;
   private final MetricRepository metricRepository;
 
-  public QualityGateServiceImpl(DbClient dbClient, final MetricRepository metricRepository) {
+  public QualityGateServiceImpl(DbClient dbClient, MetricRepository metricRepository) {
     this.dbClient = dbClient;
     this.metricRepository = metricRepository;
   }

@@ -37,6 +37,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     // Builds Component tree
     LoadReportAnalysisMetadataHolderStep.class,
+    VerifyBillingStep.class,
     BuildComponentTreeStep.class,
     ValidateProjectStep.class,
 
