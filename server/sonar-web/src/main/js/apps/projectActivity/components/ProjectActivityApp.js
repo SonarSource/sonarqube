@@ -38,7 +38,12 @@ type Props = {
   deleteEvent: (analysis: string, event: string) => Promise<*>,
   graphLoading: boolean,
   loading: boolean,
-  project: { configuration?: { showHistory: boolean }, key: string, leakPeriodDate: string },
+  project: {
+    configuration?: { showHistory: boolean },
+    key: string,
+    leakPeriodDate: string,
+    qualifier: string
+  },
   metrics: Array<Metric>,
   measuresHistory: Array<MeasureHistory>,
   query: Query,
@@ -56,6 +61,7 @@ export default function ProjectActivityApp(props: Props) {
       <ProjectActivityPageHeader
         category={query.category}
         from={query.from}
+        project={props.project}
         to={query.to}
         updateQuery={props.updateQuery}
       />
@@ -73,6 +79,7 @@ export default function ProjectActivityApp(props: Props) {
             deleteAnalysis={props.deleteAnalysis}
             deleteEvent={props.deleteEvent}
             loading={props.loading}
+            project={props.project}
             query={props.query}
             updateQuery={props.updateQuery}
           />
