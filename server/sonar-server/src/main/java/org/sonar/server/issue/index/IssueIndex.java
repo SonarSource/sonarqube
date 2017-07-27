@@ -65,6 +65,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
@@ -85,6 +86,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.sonar.server.es.BaseDoc.epochMillisToEpochSeconds;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
@@ -427,16 +429,16 @@ public class IssueIndex {
     if (createdAfter != null) {
       filters.put("__createdAfter", QueryBuilders
         .rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-        .gte(createdAfter));
+        .gte(BaseDoc.dateToEpochSeconds(createdAfter)));
     }
     if (createdBefore != null) {
       filters.put("__createdBefore", QueryBuilders
         .rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-        .lt(createdBefore));
+        .lt(BaseDoc.dateToEpochSeconds(createdBefore)));
     }
     Date createdAt = query.createdAt();
     if (createdAt != null) {
-      filters.put("__createdAt", termQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, createdAt));
+      filters.put("__createdAt", termQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, BaseDoc.dateToEpochSeconds(createdAt)));
     }
   }
 
@@ -445,7 +447,7 @@ public class IssueIndex {
     BoolQueryBuilder boolQueryBuilder = boolQuery();
     createdAfterByProjectUuids.forEach((projectUuid, createdAfterDate) -> boolQueryBuilder.should(boolQuery()
       .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectUuid))
-      .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(createdAfterDate))));
+      .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(BaseDoc.dateToEpochSeconds(createdAfterDate)))));
     filters.put("createdAfterByProjectUuids", boolQueryBuilder);
   }
 
@@ -682,7 +684,7 @@ public class IssueIndex {
         .addAggregation(AggregationBuilders
           .filter(projectUuid, boolQuery()
             .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectUuid))
-            .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(new Date(from)))
+            .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(epochMillisToEpochSeconds(from)))
           )
           .subAggregation(AggregationBuilders.count(projectUuid + "_count").field(IssueIndexDefinition.FIELD_ISSUE_KEY))
           .subAggregation(AggregationBuilders.max(projectUuid + "_maxFuncCreatedAt").field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT))

@@ -161,7 +161,7 @@ public class IssueIndexProjectStatisticsTest {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from-1L)));
+    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from-1000L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin1);
 
@@ -222,14 +222,14 @@ public class IssueIndexProjectStatisticsTest {
     ComponentDto project2 = ComponentTesting.newPrivateProjectDto(org1);
     ComponentDto project3 = ComponentTesting.newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
-    long from = 1_111_234_567_890L;
+    long from = 1_111_234_567_000L;
     indexIssues(
-      newDoc("issue1", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)),
-      newDoc("issue2", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from+2L)),
-      newDoc("issue3", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from+3L)),
+      newDoc("issue1", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1_000L)),
+      newDoc("issue2", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from+2_000L)),
+      newDoc("issue3", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from+3_000L)),
       
-      newDoc("issue4", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from+4L)),
-      newDoc("issue5", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from+5L))
+      newDoc("issue4", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from+4_000L)),
+      newDoc("issue5", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from+5_000L))
     );
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(
@@ -240,8 +240,8 @@ public class IssueIndexProjectStatisticsTest {
     assertThat(result)
       .extracting(ProjectStatistics::getProjectUuid, ProjectStatistics::getLastIssueDate)
       .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), from+3L),
-        tuple(project3.uuid(), from+5L)
+        tuple(project1.uuid(), from+3_000L),
+        tuple(project3.uuid(), from+5_000L)
       );
   }
 

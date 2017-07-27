@@ -232,7 +232,7 @@ public class NewIndex {
     }
 
     public NewIndexType createDateTimeField(String fieldName) {
-      return setProperty(fieldName, ImmutableMap.of("type", "date", "format", "date_time"));
+      return setProperty(fieldName, ImmutableMap.of("type", "date", "format", "date_time||epoch_second"));
     }
 
     public NewIndexType createDoubleField(String fieldName) {

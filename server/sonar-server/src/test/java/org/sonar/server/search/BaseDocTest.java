@@ -106,12 +106,12 @@ public class BaseDocTest {
         return null;
       }
     };
-    long now = System.currentTimeMillis();
-    doc.setField("javaDate", new Date(now));
-    assertThat(doc.getFieldAsDate("javaDate").getTime()).isEqualTo(now);
+    Date now = new Date();
+    doc.setField("javaDate", now);
+    assertThat(doc.getFieldAsDate("javaDate")).isEqualToIgnoringMillis(now);
 
-    doc.setField("stringDate", EsUtils.formatDateTime(new Date(now)));
-    assertThat(doc.getFieldAsDate("stringDate").getTime()).isEqualTo(now);
+    doc.setField("stringDate", EsUtils.formatDateTime(now));
+    assertThat(doc.getFieldAsDate("stringDate")).isEqualToIgnoringMillis(now);
   }
 
   @Test
@@ -132,12 +132,12 @@ public class BaseDocTest {
         return null;
       }
     };
-    long now = System.currentTimeMillis();
-    doc.setField("javaDate", new Date(now));
-    assertThat(doc.getNullableFieldAsDate("javaDate").getTime()).isEqualTo(now);
+    Date now = new Date();
+    doc.setField("javaDate", now);
+    assertThat(doc.getNullableFieldAsDate("javaDate")).isEqualToIgnoringMillis(now);
 
-    doc.setField("stringDate", EsUtils.formatDateTime(new Date(now)));
-    assertThat(doc.getNullableFieldAsDate("stringDate").getTime()).isEqualTo(now);
+    doc.setField("stringDate", EsUtils.formatDateTime(now));
+    assertThat(doc.getNullableFieldAsDate("stringDate")).isEqualToIgnoringMillis(now);
 
     doc.setField("noValue", null);
     assertThat(doc.getNullableFieldAsDate("noValue")).isNull();
