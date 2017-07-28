@@ -44,6 +44,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.metadata.MetaData;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
@@ -81,6 +82,10 @@ public class EsTester extends ExternalResource {
     System.setProperty("es.log4j.shutdownEnabled", "false");
     System.setProperty("log4j2.disable.jmx", "true");
     System.setProperty("log4j.skipJansi", "true"); // jython has this crazy shaded Jansi version that log4j2 tries to load
+
+    if (!Strings.hasLength(System.getProperty("tests.es.logger.level"))) {
+      System.setProperty("tests.es.logger.level", "WARN");
+    }
   }
 
   private static final Set<String> NO_TEMPLATES_SURVIVING_WIPE = Collections.emptySet();
