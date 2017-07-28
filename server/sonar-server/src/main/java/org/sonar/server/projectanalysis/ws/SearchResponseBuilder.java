@@ -55,9 +55,11 @@ class SearchResponseBuilder {
   }
 
   private Analysis.Builder dbToWsAnalysis(SnapshotDto dbAnalysis) {
-    return wsAnalysis.clear()
+    wsAnalysis.clear()
       .setKey(dbAnalysis.getUuid())
       .setDate(formatDateTime(dbAnalysis.getCreatedAt()));
+    setNullable(dbAnalysis.getVersion(), wsAnalysis::setVersion);
+    return wsAnalysis;
   }
 
   private Analysis.Builder attachEvents(Analysis.Builder analysis) {

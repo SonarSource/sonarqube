@@ -54,4 +54,5 @@ message Analysis {
   optional string key = 1;
   optional string date = 2;
   repeated Event events = 3;
+  optional string version = 4;
 }

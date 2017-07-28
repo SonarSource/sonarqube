@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.List;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -96,6 +97,8 @@ public class SearchAction implements ProjectAnalysesWsAction {
       .setDescription("Filter analyses created before the given date (inclusive). Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01T13:00:00+0100")
       .setSince("6.5");
+
+    action.setChangelog(new Change("6.5", "Added optional field 'version' to 'analyses' objects in response"));
   }
 
   @Override
