@@ -30,12 +30,14 @@ const ANALYSES = [
         category: 'VERSION',
         name: '6.5-SNAPSHOT'
       }
-    ]
+    ],
+    version: '6.5-SNAPSHOT'
   },
   {
     key: 'A2',
     date: new Date('2016-10-27T12:21:15+0200'),
-    events: []
+    events: [],
+    version: '6.5-SNAPSHOT'
   },
   {
     key: 'A3',
@@ -51,7 +53,8 @@ const ANALYSES = [
         category: 'OTHER',
         name: 'foo'
       }
-    ]
+    ],
+    version: '6.5-SNAPSHOT'
   }
 ];
 

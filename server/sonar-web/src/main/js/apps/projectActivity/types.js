@@ -29,7 +29,8 @@ export type Event = {
 export type Analysis = {
   key: string,
   date: Date,
-  events: Array<Event>
+  events: Array<Event>,
+  version: string
 };
 
 export type HistoryItem = { date: Date, value: string };

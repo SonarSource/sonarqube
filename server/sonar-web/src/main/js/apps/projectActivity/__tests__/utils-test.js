@@ -21,13 +21,24 @@
 import * as utils from '../utils';
 
 const ANALYSES = [
-  { key: 'AVyMjlK1HjR_PLDzRbB9', date: new Date('2017-06-09T13:06:10+0200'), events: [] },
+  {
+    key: 'AVyMjlK1HjR_PLDzRbB9',
+    date: new Date('2017-06-09T13:06:10+0200'),
+    events: [],
+    version: '1.2-SNAPSHOT'
+  },
   {
     key: 'AVyM9n3cHjR_PLDzRciT',
     date: new Date('2017-06-09T11:12:27+0200'),
-    events: [{ key: 'AVyM9oI1HjR_PLDzRciU', category: 'VERSION', name: '1.1-SNAPSHOT' }]
+    events: [{ key: 'AVyM9oI1HjR_PLDzRciU', category: 'VERSION', name: '1.1' }],
+    version: '1.1'
   },
-  { key: 'AVyMjlK1HjR_PLDzRbB9', date: new Date('2017-06-09T11:12:27+0200'), events: [] },
+  {
+    key: 'AVyMjlK1HjR_PLDzRbB9',
+    date: new Date('2017-06-09T11:12:27+0200'),
+    events: [],
+    version: '1.1-SNAPSHOT'
+  },
   {
     key: 'AVxZtCpH7841nF4RNEMI',
     date: new Date('2017-05-18T14:13:07+0200'),
@@ -37,9 +48,15 @@ const ANALYSES = [
         category: 'QUALITY_PROFILE',
         name: 'Changes in "Default - SonarSource conventions" (Java)'
       }
-    ]
+    ],
+    version: '1.1-SNAPSHOT'
   },
-  { key: 'AVwaa1qkpbBde8B6UhYI', date: new Date('2017-05-18T07:17:32+0200'), events: [] },
+  {
+    key: 'AVwaa1qkpbBde8B6UhYI',
+    date: new Date('2017-05-18T07:17:32+0200'),
+    events: [],
+    version: '1.1-SNAPSHOT'
+  },
   {
     key: 'AVwQF7kwl-nNFgFWOJ3V',
     date: new Date('2017-05-16T07:09:59+0200'),
@@ -50,9 +67,15 @@ const ANALYSES = [
         category: 'QUALITY_PROFILE',
         name: 'Changes in "Default - SonarSource conventions" (Java)'
       }
-    ]
+    ],
+    version: '1.0'
   },
-  { key: 'AVvtGF3IY6vCuQNDdwxI', date: new Date('2017-05-09T12:03:59+0200'), events: [] }
+  {
+    key: 'AVvtGF3IY6vCuQNDdwxI',
+    date: new Date('2017-05-09T12:03:59+0200'),
+    events: [],
+    version: '1.0'
+  }
 ];
 
 const HISTORY = [
