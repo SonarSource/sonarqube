@@ -24,7 +24,6 @@ import org.sonar.server.issue.ActionFinder;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueQueryFactory;
-import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.TransitionService;
@@ -44,7 +43,6 @@ public class IssueWsModule extends Module {
       IssueFieldsSetter.class,
       FunctionExecutor.class,
       IssueWorkflow.class,
-      IssueService.class,
       IssueQueryFactory.class,
       IssuesWs.class,
       AvatarResolverImpl.class,

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import java.util.ArrayList;
@@ -1158,6 +1159,42 @@ public class IssueIndexTest {
   }
 
   @Test
+  public void test_listAuthors() {
+    OrganizationDto org = newOrganizationDto();
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(org);
+    indexIssues(
+      newDoc("issue1", project).setAuthorLogin("luke.skywalker"),
+      newDoc("issue2", project).setAuthorLogin("luke@skywalker.name"),
+      newDoc("issue3", project).setAuthorLogin(null),
+      newDoc("issue4", project).setAuthorLogin("anakin@skywalker.name"));
+    IssueQuery query = IssueQuery.builder()
+      .checkAuthorization(false)
+      .build();
+
+    assertThat(underTest.listAuthors(query, null, 5)).containsExactly("anakin@skywalker.name", "luke.skywalker", "luke@skywalker.name");
+    assertThat(underTest.listAuthors(query, null, 2)).containsExactly("anakin@skywalker.name", "luke.skywalker");
+    assertThat(underTest.listAuthors(query, "uke", 5)).containsExactly("luke.skywalker", "luke@skywalker.name");
+    assertThat(underTest.listAuthors(query, null, 1)).containsExactly("anakin@skywalker.name");
+    assertThat(underTest.listAuthors(query, null, Integer.MAX_VALUE)).containsExactly("anakin@skywalker.name", "luke.skywalker", "luke@skywalker.name");
+  }
+
+  @Test
+  public void listAuthors_escapes_regexp_special_characters() {
+    OrganizationDto org = newOrganizationDto();
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(org);
+    indexIssues(
+      newDoc("issue1", project).setAuthorLogin("name++"));
+    IssueQuery query = IssueQuery.builder()
+      .checkAuthorization(false)
+      .build();
+
+    assertThat(underTest.listAuthors(query, "invalidRegexp[", 5)).isEmpty();
+    assertThat(underTest.listAuthors(query, "nam+", 5)).isEmpty();
+    assertThat(underTest.listAuthors(query, "name+", 5)).containsExactly("name++");
+    assertThat(underTest.listAuthors(query, ".*", 5)).isEmpty();
+  }
+
+  @Test
   public void filter_by_organization() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto projectInOrg1 = ComponentTesting.newPrivateProjectDto(org1);
@@ -1187,6 +1224,27 @@ public class IssueIndexTest {
     // conflict
     query = IssueQuery.builder().organizationUuid(org1.getUuid()).projectUuids(asList(projectInOrg2.uuid()));
     assertThatSearchReturnsEmpty(query);
+  }
+
+  @Test
+  public void countTags() {
+    OrganizationDto org = newOrganizationDto();
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(org);
+    indexIssues(
+      newDoc("issue1", project).setTags(ImmutableSet.of("convention", "java8", "bug")),
+      newDoc("issue2", project).setTags(ImmutableSet.of("convention", "bug")),
+      newDoc("issue3", project).setTags(emptyList()),
+      newDoc("issue4", project).setTags(ImmutableSet.of("convention", "java8", "bug")).setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("issue5", project).setTags(ImmutableSet.of("convention"))
+    );
+
+    assertThat(underTest.countTags(projectQuery(project.uuid()), 5)).containsOnly(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
+    assertThat(underTest.countTags(projectQuery(project.uuid()), 2)).contains(entry("convention", 3L), entry("bug", 2L)).doesNotContainEntry("java8", 1L);
+    assertThat(underTest.countTags(projectQuery("other"), 10)).isEmpty();
+  }
+
+  private IssueQuery projectQuery(String projectUuid) {
+    return IssueQuery.builder().projectUuids(singletonList(projectUuid)).resolved(false).build();
   }
 
   private void verifyOrganizationFilter(String organizationUuid, String... expectedIssueKeys) {
