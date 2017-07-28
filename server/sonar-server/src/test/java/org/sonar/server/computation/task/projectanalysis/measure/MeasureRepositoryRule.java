@@ -19,18 +19,23 @@
  */
 package org.sonar.server.computation.task.projectanalysis.measure;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.SetMultimap;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Maps.filterKeys;
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentProvider;
@@ -43,12 +48,11 @@ import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolde
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Maps.filterKeys;
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.SetMultimap;
 
 /**
  * An implementation of MeasureRepository as a JUnit rule which provides add methods for raw measures and extra add
@@ -62,6 +66,8 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   private final Map<InternalKey, Measure> baseMeasures = new HashMap<>();
   private final Map<InternalKey, Measure> rawMeasures = new HashMap<>();
   private final Map<InternalKey, Measure> initialRawMeasures = new HashMap<>();
+  private Collection<Component> loadedAsRawComponents;
+  private Collection<Metric> loadedAsRawMetrics;
   private final Predicate<Map.Entry<InternalKey, Measure>> isAddedMeasure = new Predicate<Map.Entry<InternalKey, Measure>>() {
     @Override
     public boolean apply(@Nonnull Map.Entry<InternalKey, Measure> input) {
@@ -181,10 +187,24 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
     return this;
   }
-
   @Override
   public Optional<Measure> getBaseMeasure(Component component, Metric metric) {
     return Optional.fromNullable(baseMeasures.get(new InternalKey(component, metric)));
+  }
+
+  @Override
+  public int loadAsRawMeasures(Collection<Component> components, Collection<Metric> metrics) {
+    this.loadedAsRawComponents = components;
+    this.loadedAsRawMetrics = metrics;
+    return 0;
+  }
+  
+  public Collection<Component> getComponentsLoadedAsRaw() {
+    return loadedAsRawComponents;
+  }
+  
+  public Collection<Metric> getMetricsLoadedAsRaw() {
+    return loadedAsRawMetrics;
   }
 
   @Override
