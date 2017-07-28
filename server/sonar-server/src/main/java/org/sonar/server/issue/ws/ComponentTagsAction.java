@@ -28,7 +28,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryFactory;
-import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.index.IssueIndex;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 import static java.util.Collections.singletonList;
@@ -42,11 +42,11 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFT
  */
 public class ComponentTagsAction implements IssuesWsAction {
 
-  private final IssueService service;
+  private final IssueIndex issueIndex;
   private final IssueQueryFactory queryService;
 
-  public ComponentTagsAction(IssueService service, IssueQueryFactory queryService) {
-    this.service = service;
+  public ComponentTagsAction(IssueIndex issueIndex, IssueQueryFactory queryService) {
+    this.issueIndex = issueIndex;
     this.queryService = queryService;
   }
 
@@ -82,7 +82,7 @@ public class ComponentTagsAction implements IssuesWsAction {
     int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject().name("tags").beginArray();
-      for (Map.Entry<String, Long> tag : service.listTagsForComponent(query, pageSize).entrySet()) {
+      for (Map.Entry<String, Long> tag : issueIndex.countTags(query, pageSize).entrySet()) {
         json.beginObject()
           .prop("key", tag.getKey())
           .prop("value", tag.getValue())

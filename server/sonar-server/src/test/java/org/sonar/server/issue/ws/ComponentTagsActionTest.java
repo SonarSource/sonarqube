@@ -28,7 +28,7 @@ import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryFactory;
-import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
@@ -42,7 +42,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentTagsActionTest {
 
-  private IssueService service = mock(IssueService.class);
+  private IssueIndex service = mock(IssueIndex.class);
   private IssueQueryFactory issueQueryFactory = mock(IssueQueryFactory.class, Mockito.RETURNS_DEEP_STUBS);
   private ComponentTagsAction underTest = new ComponentTagsAction(service, issueQueryFactory);
   private WsActionTester tester = new WsActionTester(underTest);
@@ -91,7 +91,7 @@ public class ComponentTagsActionTest {
       .build();
     ArgumentCaptor<SearchWsRequest> captor = ArgumentCaptor.forClass(SearchWsRequest.class);
     when(issueQueryFactory.create(captor.capture())).thenReturn(mock(IssueQuery.class));
-    when(service.listTagsForComponent(any(IssueQuery.class), eq(5))).thenReturn(tags);
+    when(service.countTags(any(IssueQuery.class), eq(5))).thenReturn(tags);
 
     TestResponse response = tester.newRequest()
       .setParam("componentUuid", "polop")
@@ -115,7 +115,7 @@ public class ComponentTagsActionTest {
       .build();
     ArgumentCaptor<SearchWsRequest> captor = ArgumentCaptor.forClass(SearchWsRequest.class);
     when(issueQueryFactory.create(captor.capture())).thenReturn(mock(IssueQuery.class));
-    when(service.listTagsForComponent(any(IssueQuery.class), eq(5))).thenReturn(tags);
+    when(service.countTags(any(IssueQuery.class), eq(5))).thenReturn(tags);
 
     String componentUuid = "polop";
     String createdAfter = "2011-04-25";

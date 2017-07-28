@@ -20,22 +20,25 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.issue.index.IssueIndex;
 
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_AUTHORS;
 
 public class AuthorsAction implements IssuesWsAction {
 
-  private final IssueService service;
+  private final IssueIndex issueIndex;
 
-  public AuthorsAction(IssueService service) {
-    this.service = service;
+  public AuthorsAction(IssueIndex issueIndex) {
+    this.issueIndex = issueIndex;
   }
 
   @Override
@@ -65,11 +68,17 @@ public class AuthorsAction implements IssuesWsAction {
         .name("authors")
         .beginArray();
 
-      for (String login : service.listAuthors(query, pageSize)) {
+      for (String login : listAuthors(query, pageSize)) {
         json.value(login);
       }
 
       json.endArray().endObject();
     }
+  }
+
+  public List<String> listAuthors(@Nullable String textQuery, int pageSize) {
+    return issueIndex.listAuthors(IssueQuery.builder()
+      .checkAuthorization(false)
+      .build(), textQuery, pageSize);
   }
 }
