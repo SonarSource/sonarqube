@@ -21,6 +21,7 @@
 package org.sonar.server.rule.ws;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 import org.junit.Before;
@@ -30,29 +31,47 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleType;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleMetadataDto;
+import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.NewCustomRule;
+import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.text.MacroInterpreter;
+import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsAction;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Rule;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,12 +79,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonar.server.rule.ws.ShowAction.PARAM_KEY;
 import static org.sonar.server.rule.ws.ShowAction.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class ShowActionTest {
+
+  public static final String INTERPRETED = "interpreted";
 
   @org.junit.Rule
   public DbTester dbTester = DbTester.create();
@@ -80,7 +102,7 @@ public class ShowActionTest {
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
-  private Languages languages = new Languages();
+  private Languages languages = new Languages(LanguageTesting.newLanguage("xoo", "Xoo"));
   private RuleMapper mapper = new RuleMapper(languages, macroInterpreter);
   private ActiveRuleCompleter activeRuleCompleter = mock(ActiveRuleCompleter.class);
   private WsAction underTest = new ShowAction(dbClient, mapper, activeRuleCompleter, defaultOrganizationProvider);
@@ -90,7 +112,7 @@ public class ShowActionTest {
 
   @Before
   public void before() {
-    doReturn("interpreted").when(macroInterpreter).interpret(anyString());
+    doReturn(INTERPRETED).when(macroInterpreter).interpret(anyString());
   }
 
   @Test
@@ -211,6 +233,250 @@ public class ShowActionTest {
       .setParam("key", rule.getKey().toString())
       .setParam("organization", "foo")
       .execute();
+  }
+
+  @Test
+  public void show_rule() throws Exception {
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
+      .setName("Rule S001")
+      .setDescription("Rule S001 <b>description</b>")
+      .setDescriptionFormat(Format.HTML)
+      .setSeverity(MINOR)
+      .setStatus(RuleStatus.BETA)
+      .setConfigKey("InternalKeyS001")
+      .setLanguage("xoo")
+      .setTags(newHashSet("tag1", "tag2"))
+      .setSystemTags(newHashSet("systag1", "systag2"))
+      .setType(RuleType.BUG);
+    RuleDefinitionDto definition = ruleDto.getDefinition();
+    RuleDao ruleDao = dbClient.ruleDao();
+    DbSession session = dbTester.getSession();
+    ruleDao.insert(session, definition);
+    ruleDao.insertOrUpdate(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    RuleParamDto param = RuleParamDto.createFor(definition).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
+    ruleDao.insertRuleParam(session, definition, param);
+    session.commit();
+    session.clearCache();
+
+    actionTester.newRequest()
+      .setParam("key", ruleDto.getKey().toString())
+      .execute().assertJson(getClass(), "show_rule.json");
+  }
+
+  @Test
+  public void show_rule_with_default_debt_infos() throws Exception {
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
+      .setName("Rule S001")
+      .setDescription("Rule S001 <b>description</b>")
+      .setSeverity(MINOR)
+      .setStatus(RuleStatus.BETA)
+      .setConfigKey("InternalKeyS001")
+      .setLanguage("xoo")
+      .setDefRemediationFunction("LINEAR_OFFSET")
+      .setDefRemediationGapMultiplier("5d")
+      .setDefRemediationBaseEffort("10h")
+      .setRemediationFunction(null)
+      .setRemediationGapMultiplier(null)
+      .setRemediationBaseEffort(null);
+    RuleDao ruleDao = dbClient.ruleDao();
+    DbSession session = dbTester.getSession();
+    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.insertOrUpdate(session, ruleDto.getMetadata());
+    session.commit();
+    session.clearCache();
+
+    actionTester.newRequest()
+      .setParam("key", ruleDto.getKey().toString())
+      .execute()
+      .assertJson(getClass(), "show_rule_with_default_debt_infos.json");
+  }
+
+  @Test
+  public void show_rule_with_overridden_debt() throws Exception {
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
+      .setName("Rule S001")
+      .setDescription("Rule S001 <b>description</b>")
+      .setSeverity(MINOR)
+      .setStatus(RuleStatus.BETA)
+      .setConfigKey("InternalKeyS001")
+      .setLanguage("xoo")
+      .setDefRemediationFunction(null)
+      .setDefRemediationGapMultiplier(null)
+      .setDefRemediationBaseEffort(null)
+      .setRemediationFunction("LINEAR_OFFSET")
+      .setRemediationGapMultiplier("5d")
+      .setRemediationBaseEffort("10h");
+    RuleDao ruleDao = dbClient.ruleDao();
+    DbSession session = dbTester.getSession();
+    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.insertOrUpdate(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    session.commit();
+    session.clearCache();
+
+    actionTester.newRequest()
+      .setParam("key", ruleDto.getKey().toString())
+      .execute().assertJson(getClass(), "show_rule_with_overridden_debt_infos.json");
+  }
+
+  @Test
+  public void show_rule_with_default_and_overridden_debt_infos() throws Exception {
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
+      .setName("Rule S001")
+      .setDescription("Rule S001 <b>description</b>")
+      .setSeverity(MINOR)
+      .setStatus(RuleStatus.BETA)
+      .setConfigKey("InternalKeyS001")
+      .setLanguage("xoo")
+      .setDefRemediationFunction("LINEAR")
+      .setDefRemediationGapMultiplier("5min")
+      .setDefRemediationBaseEffort(null)
+      .setRemediationFunction("LINEAR_OFFSET")
+      .setRemediationGapMultiplier("5d")
+      .setRemediationBaseEffort("10h");
+    RuleDao ruleDao = dbClient.ruleDao();
+    DbSession session = dbTester.getSession();
+    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.insertOrUpdate(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    session.commit();
+    session.clearCache();
+
+    actionTester.newRequest()
+      .setParam("key", ruleDto.getKey().toString())
+      .execute().assertJson(getClass(), "show_rule_with_default_and_overridden_debt_infos.json");
+  }
+
+  @Test
+  public void show_rule_with_no_default_and_no_overridden_debt() throws Exception {
+    RuleDefinitionDto ruleDto = RuleTesting.newRule(RuleKey.of("java", "S001"))
+      .setName("Rule S001")
+      .setDescription("Rule S001 <b>description</b>")
+      .setDescriptionFormat(Format.HTML)
+      .setSeverity(MINOR)
+      .setStatus(RuleStatus.BETA)
+      .setConfigKey("InternalKeyS001")
+      .setLanguage("xoo")
+      .setDefRemediationFunction(null)
+      .setDefRemediationGapMultiplier(null)
+      .setDefRemediationBaseEffort(null);
+    RuleDao ruleDao = dbClient.ruleDao();
+    DbSession session = dbTester.getSession();
+    ruleDao.insert(session, ruleDto);
+    session.commit();
+    session.clearCache();
+
+    actionTester.newRequest()
+      .setParam("key", ruleDto.getKey().toString())
+      .execute().assertJson(getClass(), "show_rule_with_no_default_and_no_overridden_debt.json");
+  }
+
+  @Test
+  public void encode_html_description_of_custom_rule() throws Exception {
+    // Template rule
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    RuleDao ruleDao = dbClient.ruleDao();
+    DbSession session = dbTester.getSession();
+    ruleDao.insert(session, templateRule.getDefinition());
+    session.commit();
+
+    // Custom rule
+    NewCustomRule customRule = NewCustomRule.createForCustomRule("MY_CUSTOM", templateRule.getKey())
+      .setName("My custom")
+      .setSeverity(MINOR)
+      .setStatus(RuleStatus.READY)
+      .setMarkdownDescription("<div>line1\nline2</div>");
+    RuleKey customRuleKey = new RuleCreator(System2.INSTANCE, ruleIndexer, dbClient, new TypeValidations(asList()), TestDefaultOrganizationProvider.from(dbTester)).create(session, customRule);
+    session.clearCache();
+
+    doReturn("&lt;div&gt;line1<br/>line2&lt;/div&gt;").when(macroInterpreter).interpret("<div>line1\nline2</div>");
+
+    Rules.ShowResponse result = actionTester.newRequest()
+      .setParam("key", customRuleKey.toString())
+      .executeProtobuf(Rules.ShowResponse.class);
+
+    Mockito.verify(macroInterpreter).interpret("&lt;div&gt;line1<br/>line2&lt;/div&gt;");
+
+    assertThat(result.getRule().getKey()).isEqualTo("java:MY_CUSTOM");
+    assertThat(result.getRule().getHtmlDesc()).isEqualTo(INTERPRETED);
+    assertThat(result.getRule().getTemplateKey()).isEqualTo("java:S001");
+  }
+
+  @Test
+  public void show_deprecated_rule_rem_function_fields() throws Exception {
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
+      .setName("Rule S001")
+      .setDescription("Rule S001 <b>description</b>")
+      .setSeverity(MINOR)
+      .setStatus(RuleStatus.BETA)
+      .setConfigKey("InternalKeyS001")
+      .setLanguage("xoo")
+      .setDefRemediationFunction("LINEAR_OFFSET")
+      .setDefRemediationGapMultiplier("6d")
+      .setDefRemediationBaseEffort("11h")
+      .setRemediationFunction("LINEAR_OFFSET")
+      .setRemediationGapMultiplier("5d")
+      .setRemediationBaseEffort("10h");
+    RuleDao ruleDao = dbClient.ruleDao();
+    DbSession session = dbTester.getSession();
+    ruleDao.insert(session, ruleDto.getDefinition());
+    ruleDao.insertOrUpdate(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    session.commit();
+
+    actionTester.newRequest()
+      .setParam("key", ruleDto.getKey().toString())
+      .execute().assertJson(getClass(), "show_deprecated_rule_rem_function_fields.json");
+  }
+
+  @Test
+  public void show_rule_when_activated() throws Exception {
+    RuleDefinitionDto ruleDto = RuleTesting.newRule(RuleKey.of("java", "S001"))
+      .setName("Rule S001")
+      .setDescription("Rule S001 <b>description</b>")
+      .setDescriptionFormat(Format.HTML)
+      .setSeverity(MINOR)
+      .setStatus(RuleStatus.BETA)
+      .setLanguage("xoo")
+      .setType(RuleType.BUG)
+      .setCreatedAt(new Date().getTime())
+      .setUpdatedAt(new Date().getTime());
+    RuleDao ruleDao = dbClient.ruleDao();
+    DbSession session = dbTester.getSession();
+    ruleDao.insert(session, ruleDto);
+    session.commit();
+    ruleIndexer.commitAndIndex(session, ruleDto.getKey());
+    RuleParamDto regexParam = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
+    ruleDao.insertRuleParam(session, ruleDto, regexParam);
+
+    QProfileDto profile = new QProfileDto()
+      .setRulesProfileUuid("profile")
+      .setKee("profile")
+      .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
+      .setName("Profile")
+      .setLanguage("xoo");
+    dbClient.qualityProfileDao().insert(session, profile);
+    ActiveRuleDto activeRuleDto = new ActiveRuleDto()
+      .setProfileId(profile.getId())
+      .setRuleId(ruleDto.getId())
+      .setSeverity(MINOR)
+      .setCreatedAt(new Date().getTime())
+      .setUpdatedAt(new Date().getTime());
+    dbClient.activeRuleDao().insert(session, activeRuleDto);
+    dbClient.activeRuleDao().insertParam(session, activeRuleDto, new ActiveRuleParamDto()
+      .setRulesParameterId(regexParam.getId())
+      .setKey(regexParam.getName())
+      .setValue(".*?"));
+    session.commit();
+
+    StartupIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
+    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+
+    ActiveRuleCompleter activeRuleCompleter = new ActiveRuleCompleter(dbClient, languages);
+    WsAction underTest = new ShowAction(dbClient, mapper, activeRuleCompleter, defaultOrganizationProvider);
+    WsActionTester actionTester = new WsActionTester(underTest);
+
+    actionTester.newRequest()
+      .setParam("key", ruleDto.getKey().toString())
+      .setParam("actives", "true")
+      .execute().assertJson(getClass(), "show_rule_when_activated.json");
   }
 
   private void assertEqual(RuleDefinitionDto rule, RuleMetadataDto ruleMetadata, Rule resultRule) {

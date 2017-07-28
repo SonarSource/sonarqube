@@ -1,0 +1,19 @@
+{
+  "rule": {
+    "key": "java:S001",
+    "repo": "java",
+    "name": "Rule S001",
+    "htmlDesc": "interpreted",
+    "severity": "MINOR",
+    "status": "BETA",
+    "isTemplate": false,
+    "remFnType": "LINEAR_OFFSET",
+    "remFnGapMultiplier": "5d",
+    "remFnBaseEffort": "10h",
+    "defaultRemFnType": "LINEAR",
+    "defaultRemFnGapMultiplier": "5min",
+    "debtOverloaded": true,
+    "lang": "xoo"
+  }
+}
+

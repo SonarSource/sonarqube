@@ -24,49 +24,63 @@ import com.google.common.collect.MapDifference.ValueDifference;
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
 import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
-import org.sonar.server.tester.ServerTester;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.util.IntegerTypeValidation;
+import org.sonar.server.util.TypeValidations;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class QProfileComparisonMediumTest {
-
-  @ClassRule
-  public static ServerTester tester = new ServerTester().withEsIndexes().addXoo();
+public class QProfileComparisonTest {
 
   @Rule
-  public UserSessionRule userSession = UserSessionRule.forServerTester(tester).anonymous();
+  public UserSessionRule userSession = UserSessionRule.standalone().anonymous();
+  @Rule
+  public DbTester dbTester = DbTester.create();
+  @Rule
+  public EsTester esTester = new EsTester();
 
-  DbClient db;
-  DbSession dbSession;
-  RuleActivator ruleActivator;
-  QProfileComparison comparison;
+  private DbClient db;
+  private DbSession dbSession;
+  private RuleActivator ruleActivator;
+  private QProfileComparison comparison;
 
-  RuleDto xooRule1;
-  RuleDto xooRule2;
-  QProfileDto left;
-  QProfileDto right;
+  private RuleDto xooRule1;
+  private RuleDto xooRule2;
+  private QProfileDto left;
+  private QProfileDto right;
 
   @Before
   public void before() {
-    tester.clearDbAndIndexes();
-    db = tester.get(DbClient.class);
+    db = dbTester.getDbClient();
     dbSession = db.openSession(false);
-    ruleActivator = tester.get(RuleActivator.class);
-    comparison = tester.get(QProfileComparison.class);
+    ruleActivator = new RuleActivator(
+      System2.INSTANCE,
+      db,
+      new RuleIndex(esTester.client()),
+      new RuleActivatorContextFactory(db),
+      new TypeValidations(singletonList(new IntegerTypeValidation())),
+      new ActiveRuleIndexer(db, esTester.client()),
+      userSession
+    );
+    comparison = new QProfileComparison(db);
 
     xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
     xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR");

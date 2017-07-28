@@ -75,7 +75,7 @@ public class RegisterRulesMediumTest {
     .addComponents(RULE_DEFS);
 
   @org.junit.Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(TESTER);
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private DbClient db = TESTER.get(DbClient.class);
   private DbSession dbSession = TESTER.get(DbClient.class).openSession(false);

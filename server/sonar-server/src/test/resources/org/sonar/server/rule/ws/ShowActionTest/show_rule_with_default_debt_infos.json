@@ -8,7 +8,7 @@
     "defaultRemFnBaseEffort": "10h",
     "debtOverloaded": false,
     "gapDescription": "java.S001.effortToFix",
-    "htmlDesc": "Rule S001 <b>description</b>",
+    "htmlDesc": "interpreted",
     "internalKey": "InternalKeyS001",
     "isTemplate": false,
     "key": "java:S001",

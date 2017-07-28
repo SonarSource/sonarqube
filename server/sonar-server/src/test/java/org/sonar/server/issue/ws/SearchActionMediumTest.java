@@ -19,48 +19,57 @@
  */
 package org.sonar.server.issue.ws;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.Durations;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueChangeDto;
-import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.organization.OrganizationDao;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.StartupIndexer;
+import org.sonar.server.issue.ActionFinder;
+import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.issue.IssueQueryFactory;
+import org.sonar.server.issue.TransitionService;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.organization.DefaultOrganization;
-import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.workflow.FunctionExecutor;
+import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexer;
-import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
+import org.sonar.server.ws.WsResponseCommonFormat;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.CONTROLLER_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
@@ -72,46 +81,47 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PAGE_SIZE;
 
 public class SearchActionMediumTest {
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester().withStartupTasks().withEsIndexes();
-
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public DbTester dbTester = DbTester.create();
+  @Rule
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient db;
-  private DbSession session;
-  private WsTester wsTester;
+  private DbClient db = dbTester.getDbClient();
+  private DbSession session = dbTester.getSession();
+  private IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
+  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), db, new IssueIteratorFactory(db));
+  private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(db, System2.INSTANCE, userSessionRule);
+  private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
+  private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
+  private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSessionRule, db, new ActionFinder(userSessionRule), new TransitionService(userSessionRule, issueWorkflow));
+  private Languages languages = new Languages();
+  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), new WsResponseCommonFormat(languages), languages, new AvatarResolverImpl());
+  private WsActionTester wsTester = new WsActionTester(new SearchAction(userSessionRule, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat));
   private OrganizationDto defaultOrganization;
   private OrganizationDto otherOrganization1;
   private OrganizationDto otherOrganization2;
+  private StartupIndexer permissionIndexer = new PermissionIndexer(db, esTester.client(), issueIndexer);
 
   @Before
   public void setUp() {
-    tester.clearDbAndIndexes();
-    db = tester.get(DbClient.class);
-    wsTester = tester.get(WsTester.class);
-    session = db.openSession(false);
     OrganizationDao organizationDao = db.organizationDao();
-    DefaultOrganization defaultOrganization = tester.get(DefaultOrganizationProvider.class).get();
-    this.defaultOrganization = organizationDao.selectByUuid(session, defaultOrganization.getUuid()).get();
+    this.defaultOrganization = dbTester.getDefaultOrganization();
     this.otherOrganization1 = OrganizationTesting.newOrganizationDto().setKey("my-org-1");
     this.otherOrganization2 = OrganizationTesting.newOrganizationDto().setKey("my-org-2");
     organizationDao.insert(session, this.otherOrganization1, false);
     organizationDao.insert(session, this.otherOrganization2, false);
     session.commit();
-  }
-
-  @After
-  public void after() {
-    session.close();
+    issueWorkflow.start();
   }
 
   @Test
   public void empty_search() throws Exception {
-    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
-    WsTester.Result result = request.execute();
+    TestResponse result = wsTester.newRequest()
+      .execute();
 
     assertThat(result).isNotNull();
     result.assertJson(this.getClass(), "empty_result.json");
@@ -139,11 +149,10 @@ public class SearchActionMediumTest {
       .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
     db.issueDao().insert(session, issue);
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
 
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).execute();
-    result.assertJson(this.getClass(), "response_contains_all_fields_except_additional_fields.json");
+    wsTester.newRequest().execute()
+      .assertJson(this.getClass(), "response_contains_all_fields_except_additional_fields.json");
   }
 
   @Test
@@ -158,14 +167,14 @@ public class SearchActionMediumTest {
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue);
 
-    tester.get(IssueChangeDao.class).insert(session,
+    db.issueChangeDao().insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCD")
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserLogin("john")
         .setCreatedAt(DateUtils.parseDateTime("2014-09-09T12:00:00+0000").getTime()));
-    tester.get(IssueChangeDao.class).insert(session,
+    db.issueChangeDao().insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCE")
         .setChangeData("Another comment")
@@ -173,14 +182,13 @@ public class SearchActionMediumTest {
         .setUserLogin("fabrice")
         .setCreatedAt(DateUtils.parseDateTime("2014-09-10T12:00:00+0000").getTime()));
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
     userSessionRule.logIn("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+    wsTester.newRequest()
       .setParam("additionalFields", "comments,users")
-      .execute();
-    result.assertJson(this.getClass(), "issue_with_comments.json");
+      .execute()
+      .assertJson(this.getClass(), "issue_with_comments.json");
   }
 
   @Test
@@ -195,14 +203,14 @@ public class SearchActionMediumTest {
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue);
 
-    tester.get(IssueChangeDao.class).insert(session,
+    db.issueChangeDao().insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCD")
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserLogin("john")
         .setCreatedAt(DateUtils.parseDateTime("2014-09-09T12:00:00+0000").getTime()));
-    tester.get(IssueChangeDao.class).insert(session,
+    db.issueChangeDao().insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCE")
         .setChangeData("Another comment")
@@ -210,13 +218,12 @@ public class SearchActionMediumTest {
         .setUserLogin("fabrice")
         .setCreatedAt(DateUtils.parseDateTime("2014-09-10T19:10:03+0000").getTime()));
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
     userSessionRule.logIn("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).setParam(PARAM_HIDE_COMMENTS, "true").execute();
+    TestResponse result = wsTester.newRequest().setParam(PARAM_HIDE_COMMENTS, "true").execute();
     result.assertJson(this.getClass(), "issue_with_comment_hidden.json");
-    assertThat(result.outputAsString()).doesNotContain("fabrice");
+    assertThat(result.getInput()).doesNotContain("fabrice");
   }
 
   @Test
@@ -233,13 +240,12 @@ public class SearchActionMediumTest {
       .setAssignee("simon");
     db.issueDao().insert(session, issue);
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
     userSessionRule.logIn("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
-      .setParam("additionalFields", "_all").execute();
-    result.assertJson(this.getClass(), "load_additional_fields.json");
+    wsTester.newRequest()
+      .setParam("additionalFields", "_all").execute()
+      .assertJson(this.getClass(), "load_additional_fields.json");
   }
 
   @Test
@@ -257,14 +263,13 @@ public class SearchActionMediumTest {
       .setAssignee("simon");
     db.issueDao().insert(session, issue);
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
     userSessionRule.logIn("john")
       .addProjectPermission(ISSUE_ADMIN, project); // granted by Anyone
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
-      .setParam("additionalFields", "_all").execute();
-    result.assertJson(this.getClass(), "load_additional_fields_with_issue_admin_permission.json");
+    wsTester.newRequest()
+      .setParam("additionalFields", "_all").execute()
+      .assertJson(this.getClass(), "load_additional_fields_with_issue_admin_permission.json");
   }
 
   @Test
@@ -285,12 +290,11 @@ public class SearchActionMediumTest {
       .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
     db.issueDao().insert(session, issue);
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
-      .execute();
-    result.assertJson(this.getClass(), "issue_on_removed_file.json");
+    wsTester.newRequest()
+      .execute()
+      .assertJson(this.getClass(), "issue_on_removed_file.json");
   }
 
   @Test
@@ -301,14 +305,13 @@ public class SearchActionMediumTest {
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     for (int i = 0; i < SearchOptions.MAX_LIMIT + 1; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
-      tester.get(IssueDao.class).insert(session, issue);
+      db.issueDao().insert(session, issue);
     }
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).setParam(PARAM_COMPONENTS, file.getDbKey()).execute();
-    result.assertJson(this.getClass(), "apply_paging_with_one_component.json");
+    wsTester.newRequest().setParam(PARAM_COMPONENTS, file.getDbKey()).execute()
+      .assertJson(this.getClass(), "apply_paging_with_one_component.json");
   }
 
   @Test
@@ -320,11 +323,10 @@ public class SearchActionMediumTest {
     IssueDto issue = IssueTesting.newDto(newRule(), file, project);
     db.issueDao().insert(session, issue);
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).setParam(PARAM_ADDITIONAL_FIELDS, "_all").execute();
-    result.assertJson(this.getClass(), "components_contains_sub_projects.json");
+    wsTester.newRequest().setParam(PARAM_ADDITIONAL_FIELDS, "_all").execute()
+      .assertJson(this.getClass(), "components_contains_sub_projects.json");
   }
 
   @Test
@@ -341,15 +343,14 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
     userSessionRule.logIn("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+    wsTester.newRequest()
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans,types")
-      .execute();
-    result.assertJson(this.getClass(), "display_facets.json");
+      .execute()
+      .assertJson(this.getClass(), "display_facets.json");
   }
 
   @Test
@@ -366,16 +367,15 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
     userSessionRule.logIn("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+    wsTester.newRequest()
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
       .setParam("facetMode", FACET_MODE_EFFORT)
-      .execute();
-    result.assertJson(this.getClass(), "display_facets_effort.json");
+      .execute()
+      .assertJson(this.getClass(), "display_facets_effort.json");
   }
 
   @Test
@@ -392,17 +392,16 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
     userSessionRule.logIn("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+    wsTester.newRequest()
       .setParam("resolved", "false")
       .setParam("severities", "MAJOR,MINOR")
       .setParam("languages", "xoo,polop,palap")
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,assigned_to_me,languages,actionPlans")
-      .execute();
-    result.assertJson(this.getClass(), "display_zero_facets.json");
+      .execute()
+      .assertJson(this.getClass(), "display_zero_facets.json");
   }
 
   @Test
@@ -411,7 +410,7 @@ public class SearchActionMediumTest {
     userSessionRule.logIn("foo[");
 
     // should not fail
-    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+    wsTester.newRequest()
       .setParam(WebService.Param.FACETS, "assigned_to_me")
       .execute()
       .assertJson(this.getClass(), "assignedToMe_facet_must_escape_login_of_authenticated_user.json");
@@ -451,11 +450,10 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue1, issue2, issue3);
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
     userSessionRule.logIn("john");
-    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+    wsTester.newRequest()
       .setParam("resolved", "false")
       .setParam("assignees", "__me__")
       .setParam(WebService.Param.FACETS, "assignees,assigned_to_me")
@@ -484,10 +482,9 @@ public class SearchActionMediumTest {
       .setKee("82fd47d4-4037-b650-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue1, issue2, issue3);
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+    wsTester.newRequest()
       .setParam("resolved", "false")
       .setParam("assignees", "__me__")
       .execute()
@@ -527,11 +524,10 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue1, issue2, issue3);
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
     userSessionRule.logIn("john-bob.polop");
-    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+    wsTester.newRequest()
       .setParam("resolved", "false")
       .setParam("assignees", "alice")
       .setParam(WebService.Param.FACETS, "assignees,assigned_to_me")
@@ -555,14 +551,13 @@ public class SearchActionMediumTest {
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3")
       .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-03T00:00:00+0100")));
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+    wsTester.newRequest()
       .setParam("sort", IssueQuery.SORT_BY_UPDATE_DATE)
       .setParam("asc", "false")
-      .execute();
-    result.assertJson(this.getClass(), "sort_by_updated_at.json");
+      .execute()
+      .assertJson(this.getClass(), "sort_by_updated_at.json");
   }
 
   @Test
@@ -573,18 +568,16 @@ public class SearchActionMediumTest {
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     for (int i = 0; i < 12; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
-      tester.get(IssueDao.class).insert(session, issue);
+      db.issueDao().insert(session, issue);
     }
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
-    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
-    request.setParam(WebService.Param.PAGE, "2");
-    request.setParam(WebService.Param.PAGE_SIZE, "9");
-
-    WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "paging.json");
+    wsTester.newRequest()
+      .setParam(WebService.Param.PAGE, "2")
+      .setParam(WebService.Param.PAGE_SIZE, "9")
+      .execute()
+      .assertJson(this.getClass(), "paging.json");
   }
 
   @Test
@@ -595,18 +588,16 @@ public class SearchActionMediumTest {
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     for (int i = 0; i < 12; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
-      tester.get(IssueDao.class).insert(session, issue);
+      db.issueDao().insert(session, issue);
     }
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
-    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
-    request.setParam(WebService.Param.PAGE, "1");
-    request.setParam(WebService.Param.PAGE_SIZE, "-1");
-
-    WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "paging_with_page_size_to_minus_one.json");
+    wsTester.newRequest()
+      .setParam(WebService.Param.PAGE, "1")
+      .setParam(WebService.Param.PAGE_SIZE, "-1")
+      .execute()
+      .assertJson(this.getClass(), "paging_with_page_size_to_minus_one.json");
   }
 
   @Test
@@ -617,26 +608,23 @@ public class SearchActionMediumTest {
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     for (int i = 0; i < 12; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
-      tester.get(IssueDao.class).insert(session, issue);
+      db.issueDao().insert(session, issue);
     }
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
-    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
-    request.setParam(PARAM_PAGE_INDEX, "2");
-    request.setParam(PARAM_PAGE_SIZE, "9");
-
-    WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "deprecated_paging.json");
+    wsTester.newRequest()
+      .setParam(PARAM_PAGE_INDEX, "2")
+      .setParam(PARAM_PAGE_SIZE, "9")
+      .execute()
+      .assertJson(this.getClass(), "deprecated_paging.json");
   }
 
   @Test
   public void default_page_size_is_100() throws Exception {
-    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
-
-    WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "default_page_size_is_100.json");
+    wsTester.newRequest()
+      .execute()
+      .assertJson(this.getClass(), "default_page_size_is_100.json");
   }
 
   @Test
@@ -653,16 +641,15 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
     session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
+    indexIssues();
 
     userSessionRule.logIn("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+    wsTester.newRequest()
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "severities")
       .setParam("facetMode", DEPRECATED_FACET_MODE_DEBT)
-      .execute();
-    result.assertJson(this.getClass(), "display_deprecated_debt_fields.json");
+      .execute()
+      .assertJson(this.getClass(), "display_deprecated_debt_fields.json");
   }
 
   @Test
@@ -670,7 +657,7 @@ public class SearchActionMediumTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Date 'wrong-date-input' cannot be parsed as either a date or date+time");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+    wsTester.newRequest()
       .setParam(PARAM_CREATED_AFTER, "wrong-date-input")
       .execute();
   }
@@ -680,14 +667,16 @@ public class SearchActionMediumTest {
       .setName("Rule name")
       .setDescription("Rule desc")
       .setStatus(RuleStatus.READY);
-    tester.get(RuleDao.class).insert(session, rule.getDefinition());
-    session.commit();
+    dbTester.rules().insert(rule.getDefinition());
     return rule;
   }
 
   private void indexPermissions() {
-    PermissionIndexer permissionIndexer = tester.get(PermissionIndexer.class);
     permissionIndexer.indexOnStartup(permissionIndexer.getIndexTypes());
+  }
+
+  private void indexIssues() {
+    issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
   }
 
   private void grantPermissionToAnyone(ComponentDto project, String permission) {
@@ -706,5 +695,4 @@ public class SearchActionMediumTest {
     session.commit();
     return component;
   }
-
 }
