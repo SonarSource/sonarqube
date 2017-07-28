@@ -121,7 +121,7 @@ public class PersistFileSourcesStep implements ComputationStep {
       if (analysisMetadataHolder.isIncrementalAnalysis() && file.getStatus() == Status.SAME) {
         return;
       }
-      
+
       CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
       LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, duplicationRepository, file);
       try {
@@ -178,7 +178,7 @@ public class PersistFileSourcesStep implements ComputationStep {
         }
       }
     }
-    
+
     @CheckForNull
     private String computeRevision(@Nullable Changeset latestChange) {
       if (latestChange == null) {
@@ -216,7 +216,6 @@ public class PersistFileSourcesStep implements ComputationStep {
       CloseableIterator<ScannerReport.Symbol> symbolsIt = reportReader.readComponentSymbols(componentRef);
       closeables.add(symbolsIt);
       readers.add(new SymbolsLineReader(component, symbolsIt, rangeOffsetConverter));
-
       readers.add(new DuplicationLineReader(duplicationRepository.getDuplications(component)));
     }
 
