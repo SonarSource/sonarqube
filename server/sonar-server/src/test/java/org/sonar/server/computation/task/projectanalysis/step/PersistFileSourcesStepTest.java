@@ -131,12 +131,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   @Test
   public void dont_persist_unchanged_sources_if_incremental() {
     analysisMetadataHolder.setIncrementalAnalysis(true);
-    initReportWithUnchangedFile(2);
+    initIncrementalReport(2);
 
     underTest.execute();
-
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
-
   }
 
   @Test
@@ -475,14 +473,30 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getRevision()).isNull();
   }
 
-  private void initReportWithUnchangedFile(int numberOfLines) {
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE").setKey("MODULE_KEY").addChildren(
-        ReportComponent.builder(Component.Type.FILE, FILE1_REF).setUuid(FILE1_UUID).setKey("MODULE_KEY:src/Foo.java")
-          .setFileAttributes(new FileAttributes(false, null, numberOfLines)).setStatus(Status.CHANGED).build())
-        .build(),
-      ReportComponent.builder(Component.Type.FILE, FILE2_REF).setUuid(FILE2_UUID).setKey("MODULE_KEY:src/Foo2.java")
-        .setStatus(Status.SAME).build())
+  private void initIncrementalReport(int numberOfLines) {
+    treeRootHolder.setRoot(ReportComponent
+      .builder(Component.Type.PROJECT, 1)
+      .setUuid(PROJECT_UUID)
+      .setKey(PROJECT_KEY)
+      .addChildren(
+        ReportComponent
+          .builder(Component.Type.MODULE, 2)
+          .setUuid("MODULE")
+          .setKey("MODULE_KEY")
+          .addChildren(
+            ReportComponent
+              .builder(Component.Type.FILE, FILE1_REF)
+              .setUuid(FILE1_UUID)
+              .setKey("MODULE_KEY:src/Foo.java")
+              .setFileAttributes(new FileAttributes(false, null, numberOfLines))
+              .setStatus(Status.CHANGED)
+              .build())
+          .build(),
+        ReportComponent
+          .builder(Component.Type.FILE, FILE2_REF)
+          .setUuid(FILE2_UUID)
+          .setKey("MODULE_KEY:src/Foo2.java")
+          .setStatus(Status.SAME).build())
       .build());
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()

@@ -60,6 +60,7 @@ import org.sonar.server.computation.task.projectanalysis.issue.IssueCounter;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCreationDateCalculator;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueLifecycle;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueVisitors;
+import org.sonar.server.computation.task.projectanalysis.issue.IssuesRepositoryVisitor;
 import org.sonar.server.computation.task.projectanalysis.issue.LoadComponentUuidsHavingOpenIssuesVisitor;
 import org.sonar.server.computation.task.projectanalysis.issue.MovedIssueVisitor;
 import org.sonar.server.computation.task.projectanalysis.issue.NewEffortAggregator;
@@ -210,6 +211,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       IssueAssigner.class,
       IssueCounter.class,
       MovedIssueVisitor.class,
+      IssuesRepositoryVisitor.class,
 
       // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
       LoadComponentUuidsHavingOpenIssuesVisitor.class,
