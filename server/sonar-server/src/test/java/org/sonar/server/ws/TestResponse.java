@@ -23,8 +23,10 @@ import com.google.protobuf.GeneratedMessage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.CheckForNull;
+import org.sonar.test.JsonAssert;
 
 public class TestResponse {
 
@@ -64,5 +66,26 @@ public class TestResponse {
   @CheckForNull
   public String getHeader(String headerKey) {
     return dumbResponse.getHeader(headerKey);
+  }
+
+  public void assertJson(String expectedJson) throws Exception {
+    JsonAssert.assertJson(getInput()).isSimilarTo(expectedJson);
+  }
+
+  /**
+   * Compares JSON response with JSON file available in classpath. For example if class
+   * is org.foo.BarTest and filename is index.json, then file must be located
+   * at src/test/resources/org/foo/BarTest/index.json.
+   *
+   * @param clazz                the test class
+   * @param expectedJsonFilename name of the file containing the expected JSON
+   */
+  public void assertJson(Class clazz, String expectedJsonFilename) throws Exception {
+    String path = clazz.getSimpleName() + "/" + expectedJsonFilename;
+    URL url = clazz.getResource(path);
+    if (url == null) {
+      throw new IllegalStateException("Cannot find " + path);
+    }
+    JsonAssert.assertJson(getInput()).isSimilarTo(url);
   }
 }

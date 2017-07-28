@@ -32,7 +32,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -46,12 +45,7 @@ import static com.google.common.base.Preconditions.checkState;
  * unless you purposely want to have side effects between each tests.
  * </p>
  * <p>
- * {@code UserSessionRule} is intended to be used either standalone (in which case use the static factory method
- * {@link #standalone()} or with {@link ServerTester} (in which case use static factory method
- * {@link #forServerTester(ServerTester)}).
- * </p>
- * <p>
- * In both cases, one can define user session behavior which should apply on all tests directly on the property, eg.:
+ * One can define user session behavior which should apply on all tests directly on the property, eg.:
  * <pre>
  * {@literal @}Rule
  * public UserSessionRule userSession = UserSessionRule.standalone().login("admin").setOrganizationPermissions(OrganizationPermissions.SYSTEM_ADMIN);
@@ -70,7 +64,7 @@ import static com.google.common.base.Preconditions.checkState;
  * </pre>
  * </p>
  * <p>
- * {@code UserSessionRule}, being standalone or associated to a {@link ServerTester}, emulates by default an anonymous
+ * {@code UserSessionRule}, emulates by default an anonymous
  * session. Therefore, call {@code UserSessionRule.standalone()} is equivalent to calling
  * {@code UserSessionRule.standalone().anonymous()}.
  * </p>
@@ -83,21 +77,14 @@ import static com.google.common.base.Preconditions.checkState;
 public class UserSessionRule implements TestRule, UserSession {
   private static final String DEFAULT_LOGIN = "default_login";
 
-  @CheckForNull
-  private final ServerTester serverTester;
   private UserSession currentUserSession;
 
-  private UserSessionRule(@Nullable ServerTester serverTester) {
-    this.serverTester = serverTester;
+  private UserSessionRule() {
     anonymous();
   }
 
   public static UserSessionRule standalone() {
-    return new UserSessionRule(null);
-  }
-
-  public static UserSessionRule forServerTester(ServerTester serverTester) {
-    return new UserSessionRule(Preconditions.checkNotNull(serverTester));
+    return new UserSessionRule();
   }
 
   /**
@@ -177,13 +164,9 @@ public class UserSessionRule implements TestRule, UserSession {
 
   protected void after() {
     this.currentUserSession = null;
-    if (serverTester != null) {
-      serverTester.get(ThreadLocalUserSession.class).unload();
-    }
   }
 
   public void set(UserSession userSession) {
-    checkState(serverTester == null, "Can set a specific session and use ServerTester at the same time");
     checkNotNull(userSession);
     setCurrentUserSession(userSession);
   }
@@ -239,9 +222,6 @@ public class UserSessionRule implements TestRule, UserSession {
 
   private void setCurrentUserSession(UserSession userSession) {
     this.currentUserSession = Preconditions.checkNotNull(userSession);
-    if (serverTester != null) {
-      serverTester.get(ThreadLocalUserSession.class).set(currentUserSession);
-    }
   }
 
   @Override

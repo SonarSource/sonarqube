@@ -3,7 +3,7 @@
     "key": "java:S001",
     "repo": "java",
     "name": "Rule S001",
-    "htmlDesc": "Rule S001 <b>description</b>",
+    "htmlDesc": "interpreted",
     "severity": "MINOR",
     "status": "BETA",
     "isTemplate": false,

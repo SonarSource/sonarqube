@@ -91,7 +91,6 @@ class CoreTestDb {
           ((H2Database) db).executeScript(schemaPath);
         } else {
           db.stop();
-
         }
       }
       isDefault = (schemaPath == null);
@@ -153,6 +152,7 @@ class CoreTestDb {
     InputStream input = null;
     try {
       URI uri = new URI(url);
+
       if (url.startsWith("file:")) {
         File file = new File(uri);
         input = FileUtils.openInputStream(file);
@@ -164,8 +164,8 @@ class CoreTestDb {
         }
 
         input = connection.getInputStream();
-
       }
+
       Properties props = new Properties();
       props.load(input);
       settings.addProperties(props);
@@ -179,6 +179,4 @@ class CoreTestDb {
       IOUtils.closeQuietly(input);
     }
   }
-
-
 }
