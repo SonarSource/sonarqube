@@ -31,6 +31,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepository;
 
 import static java.util.Objects.requireNonNull;
@@ -100,11 +101,18 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     LOGGER.trace("Reading SCM info from db for file '{}'", file.getKey());
     try (DbSession dbSession = dbClient.openSession(false)) {
       FileSourceDto dto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, file.getUuid());
-      if (dto == null || !sourceHashRepository.getRawSourceHash(file).equals(dto.getSrcHash())) {
+      if (dto == null || !isDtoValid(file, dto)) {
         return NoScmInfo.INSTANCE;
       }
       return DbScmInfo.create(file, dto.getSourceData().getLinesList()).or(NoScmInfo.INSTANCE);
     }
+  }
+
+  private boolean isDtoValid(Component file, FileSourceDto dto) {
+    if (analysisMetadataHolder.isIncrementalAnalysis() && file.getStatus() == Status.SAME) {
+      return true;
+    }
+    return sourceHashRepository.getRawSourceHash(file).equals(dto.getSrcHash());
   }
 
   private static ScmInfo getScmInfoFromReport(Component file, ScannerReport.Changesets changesets) {
