@@ -32,12 +32,14 @@ const ANALYSES = [
         category: 'VERSION',
         name: '6.5-SNAPSHOT'
       }
-    ]
+    ],
+    version: '6.5-SNAPSHOT'
   },
   {
     key: 'A2',
     date: new Date('2016-10-27T12:21:15+0000'),
-    events: []
+    events: [],
+    version: '6.5-SNAPSHOT'
   },
   {
     key: 'A3',
@@ -53,7 +55,8 @@ const ANALYSES = [
         category: 'OTHER',
         name: 'foo'
       }
-    ]
+    ],
+    version: '6.4'
   },
   {
     key: 'A4',
@@ -64,7 +67,8 @@ const ANALYSES = [
         category: 'QUALITY_GATE',
         name: 'Quality gate changed to red...'
       }
-    ]
+    ],
+    version: '6.4'
   }
 ];
 

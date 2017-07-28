@@ -141,10 +141,17 @@ export const getAnalysesByVersionByDay = (
   byDay: { [string]: Array<Analysis> }
 }> =>
   analyses.reduce((acc, analysis) => {
-    if (acc.length === 0) {
-      acc.push({ version: undefined, key: undefined, byDay: {} });
+    let currentVersion = acc[acc.length - 1];
+    if (!currentVersion || currentVersion.version !== analysis.version) {
+      const newVersion = { version: analysis.version, key: analysis.key, byDay: {} };
+      if (!currentVersion || Object.keys(currentVersion.byDay).length > 0) {
+        acc.push(newVersion);
+      } else {
+        acc[acc.length - 1] = newVersion;
+      }
+      currentVersion = newVersion;
     }
-    const currentVersion = acc[acc.length - 1];
+
     const day = moment(analysis.date).startOf('day').valueOf().toString();
 
     let matchFilters = true;
@@ -162,15 +169,6 @@ export const getAnalysesByVersionByDay = (
       }
       currentVersion.byDay[day].push(analysis);
     }
-
-    const versionEvent = analysis.events.find(event => event.category === 'VERSION');
-    if (versionEvent && versionEvent.category === 'VERSION') {
-      currentVersion.version = versionEvent.name;
-      currentVersion.key = versionEvent.key;
-      if (Object.keys(currentVersion.byDay).length > 0) {
-        acc.push({ version: undefined, key: undefined, byDay: {} });
-      }
-    }
     return acc;
   }, []);
 
@@ -180,7 +178,7 @@ export const getDisplayedHistoryMetrics = (
 ): Array<string> => (isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS_DISPLAYED[graph]);
 
 export const getHistoryMetrics = (graph: string, customMetrics: Array<string>): Array<string> =>
-  (isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS[graph]);
+  isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS[graph];
 
 const parseGraph = (value?: string): string => {
   const graph = parseAsString(value);

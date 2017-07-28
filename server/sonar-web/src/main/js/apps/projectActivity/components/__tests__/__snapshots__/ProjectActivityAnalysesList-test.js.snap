@@ -47,6 +47,7 @@ exports[`should correctly filter analyses by category 1`] = `
                   },
                 ],
                 "key": "A4",
+                "version": "6.4",
               }
             }
             canAdmin={false}
@@ -111,6 +112,7 @@ exports[`should correctly filter analyses by date range 1`] = `
                   },
                 ],
                 "key": "A1",
+                "version": "6.5-SNAPSHOT",
               }
             }
             canAdmin={false}
@@ -175,6 +177,7 @@ exports[`should render correctly 1`] = `
                   },
                 ],
                 "key": "A1",
+                "version": "6.5-SNAPSHOT",
               }
             }
             canAdmin={false}
@@ -182,6 +185,25 @@ exports[`should render correctly 1`] = `
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
             isFirst={true}
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+          <ProjectActivityAnalysis
+            addCustomEvent={[Function]}
+            addVersion={[Function]}
+            analysis={
+              Object {
+                "date": 2016-10-27T12:21:15.000Z,
+                "events": Array [],
+                "key": "A2",
+                "version": "6.5-SNAPSHOT",
+              }
+            }
+            canAdmin={false}
+            changeEvent={[Function]}
+            deleteAnalysis={[Function]}
+            deleteEvent={[Function]}
+            isFirst={false}
             selected={false}
             updateSelectedDate={[Function]}
           />
@@ -202,41 +224,6 @@ exports[`should render correctly 1`] = `
     <ul
       className="project-activity-days-list"
     >
-      <li
-        className="project-activity-day"
-        data-day="Formated.YYYY-MM-DD:2016-9-27"
-      >
-        <div
-          className="project-activity-date"
-        >
-          <FormattedDate
-            date="2016-9-27"
-            format="LL"
-          />
-        </div>
-        <ul
-          className="project-activity-analyses-list"
-        >
-          <ProjectActivityAnalysis
-            addCustomEvent={[Function]}
-            addVersion={[Function]}
-            analysis={
-              Object {
-                "date": 2016-10-27T12:21:15.000Z,
-                "events": Array [],
-                "key": "A2",
-              }
-            }
-            canAdmin={false}
-            changeEvent={[Function]}
-            deleteAnalysis={[Function]}
-            deleteEvent={[Function]}
-            isFirst={false}
-            selected={false}
-            updateSelectedDate={[Function]}
-          />
-        </ul>
-      </li>
       <li
         className="project-activity-day"
         data-day="Formated.YYYY-MM-DD:2016-9-26"
@@ -271,6 +258,7 @@ exports[`should render correctly 1`] = `
                   },
                 ],
                 "key": "A3",
+                "version": "6.4",
               }
             }
             canAdmin={false}
@@ -283,12 +271,6 @@ exports[`should render correctly 1`] = `
           />
         </ul>
       </li>
-    </ul>
-  </li>
-  <li>
-    <ul
-      className="project-activity-days-list"
-    >
       <li
         className="project-activity-day"
         data-day="Formated.YYYY-MM-DD:2016-9-24"
@@ -318,6 +300,7 @@ exports[`should render correctly 1`] = `
                   },
                 ],
                 "key": "A4",
+                "version": "6.4",
               }
             }
             canAdmin={false}
