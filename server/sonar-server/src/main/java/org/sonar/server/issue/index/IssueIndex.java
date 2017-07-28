@@ -542,7 +542,7 @@ public class IssueIndex {
       .timeZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT")))
       .offset(offsetInSeconds + "s")
       // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
-      .extendedBounds(new ExtendedBounds(startTime, endTime - 1_000L));
+      .extendedBounds(new ExtendedBounds(startTime, endTime - (offsetInSeconds*1_000L) -1L));
     dateHistogram = addEffortAggregationIfNeeded(query, dateHistogram);
     return Optional.of(dateHistogram);
   }
