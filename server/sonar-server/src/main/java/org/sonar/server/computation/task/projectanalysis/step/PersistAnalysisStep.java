@@ -19,8 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import javax.annotation.Nullable;
-
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -85,7 +83,7 @@ public class PersistAnalysisStep implements ComputationStep {
 
     @Override
     public void visitView(Component view) {
-      SnapshotDto snapshot = createAnalysis(analysisMetadataHolder.getUuid(), view, false, null);
+      SnapshotDto snapshot = createAnalysis(analysisMetadataHolder.getUuid(), view, false, false);
       updateSnapshotPeriods(snapshot);
       persist(snapshot, dbSession);
     }
@@ -100,7 +98,7 @@ public class PersistAnalysisStep implements ComputationStep {
       snapshotDto.setPeriodDate(period.getSnapshotDate());
     }
 
-    private SnapshotDto createAnalysis(String snapshotUuid, Component component, boolean setVersion, @Nullable Boolean incremental) {
+    private SnapshotDto createAnalysis(String snapshotUuid, Component component, boolean setVersion, boolean incremental) {
       String componentUuid = component.getUuid();
       return new SnapshotDto()
         .setUuid(snapshotUuid)

@@ -24,6 +24,7 @@ import java.util.Map;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
+import org.sonar.db.ce.CeTaskCharacteristicDao;
 import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
@@ -98,6 +99,7 @@ public class DbClient {
   private final CeActivityDao ceActivityDao;
   private final CeQueueDao ceQueueDao;
   private final CeTaskInputDao ceTaskInputDao;
+  private final CeTaskCharacteristicDao ceTaskCharacteristicsDao;
   private final CeScannerContextDao ceScannerContextDao;
   private final FileSourceDao fileSourceDao;
   private final ComponentLinkDao componentLinkDao;
@@ -154,6 +156,7 @@ public class DbClient {
     ceActivityDao = getDao(map, CeActivityDao.class);
     ceQueueDao = getDao(map, CeQueueDao.class);
     ceTaskInputDao = getDao(map, CeTaskInputDao.class);
+    ceTaskCharacteristicsDao = getDao(map, CeTaskCharacteristicDao.class);
     ceScannerContextDao = getDao(map, CeScannerContextDao.class);
     fileSourceDao = getDao(map, FileSourceDao.class);
     componentLinkDao = getDao(map, ComponentLinkDao.class);
@@ -283,6 +286,10 @@ public class DbClient {
 
   public CeTaskInputDao ceTaskInputDao() {
     return ceTaskInputDao;
+  }
+
+  public CeTaskCharacteristicDao ceTaskCharacteristicsDao() {
+    return ceTaskCharacteristicsDao;
   }
 
   public CeScannerContextDao ceScannerContextDao() {

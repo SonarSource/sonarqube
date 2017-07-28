@@ -19,6 +19,25 @@
  */
 package org.sonar.server.computation.queue;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -26,12 +45,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
@@ -46,21 +68,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
-import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
 public class ReportSubmitterTest {
 
@@ -82,8 +89,9 @@ public class ReportSubmitterTest {
   private ComponentUpdater componentUpdater = mock(ComponentUpdater.class);
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private FavoriteUpdater favoriteUpdater = mock(FavoriteUpdater.class);
+  private UuidFactory uuidFactory = new SequenceUuidFactory();
 
-  private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient());
+  private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, uuidFactory, db.getDbClient());
 
   @Before
   public void setUp() throws Exception {
@@ -107,6 +115,33 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
 
     underTest.submit(organization.getKey(), project.getDbKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
+  }
+
+  @Test
+  public void submit_inserts_characteristics() {
+    userSession
+      .addPermission(OrganizationPermission.SCAN, db.getDefaultOrganization().getUuid())
+      .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+
+    mockSuccessfulPrepareSubmitCall();
+    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(project);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(), anyString(),
+      eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+        .thenReturn(true);
+
+    Map<String, String> taskCharacteristics = new HashMap<>();
+    taskCharacteristics.put("incremental", "true");
+    taskCharacteristics.put("pr", "mypr");
+
+    underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, taskCharacteristics, IOUtils.toInputStream("{binary}"));
+
+    ArgumentCaptor<CeTaskSubmit> submittedTask = ArgumentCaptor.forClass(CeTaskSubmit.class);
+    verify(queue).submit(submittedTask.capture());
+    String taskUuid = submittedTask.getValue().getUuid();
+
+    Map<String, String> insertedCharacteristics = db.getDbClient().ceTaskCharacteristicsDao().getTaskCharacteristics(db.getSession(), taskUuid);
+    assertThat(insertedCharacteristics).containsOnly(entry("incremental", "true"), entry("pr", "mypr"));
   }
 
   @Test

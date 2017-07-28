@@ -225,5 +225,36 @@ public class ReportPublisherTest {
       entry("organization", "MyOrg"),
       entry("projectKey", "struts"));
   }
+  
+  @Test
+  public void test_send_characteristics() throws Exception {
+    ReportPublisher underTest = new ReportPublisher(settings.asConfig(), wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
+      new ReportPublisherStep[0]);
+    
+    when(mode.isIncremental()).thenReturn(true);
+    settings.setProperty(CoreProperties.PROJECT_ORGANIZATION_PROPERTY, "MyOrg");
+    
+    WsResponse response = mock(WsResponse.class);
+
+    PipedOutputStream out = new PipedOutputStream();
+    PipedInputStream in = new PipedInputStream(out);
+    WsCe.SubmitResponse.newBuilder().build().writeTo(out);
+    out.close();
+
+    when(response.failIfNotSuccessful()).thenReturn(response);
+    when(response.contentStream()).thenReturn(in);
+
+    when(wsClient.call(any(WsRequest.class))).thenReturn(response);
+    underTest.upload(temp.newFile());
+
+    ArgumentCaptor<WsRequest> capture = ArgumentCaptor.forClass(WsRequest.class);
+    verify(wsClient).call(capture.capture());
+
+    WsRequest wsRequest = capture.getValue();
+    assertThat(wsRequest.getParams()).containsOnly(
+      entry("organization", "MyOrg"),
+      entry("projectKey", "struts"),
+      entry("characteristic", "incremental=true"));
+  }
 
 }
