@@ -17,18 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.ce;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+public class CeTaskCharacteristicDto {
+  private String uuid;
+  private String taskUuid;
+  private String key;
+  private String value;
 
-import static org.assertj.core.api.Assertions.assertThat;
+  public String getUuid() {
+    return uuid;
+  }
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 47);
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
+
+  public String getTaskUuid() {
+    return taskUuid;
+  }
+
+  public void setTaskUuid(String taskUuid) {
+    this.taskUuid = taskUuid;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
   }
 }

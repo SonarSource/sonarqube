@@ -26,6 +26,8 @@ import org.sonar.server.platform.db.migration.version.DbVersion;
 public class DbVersion66 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
-    registry.add(1800, "Add incremental column to snapthots table", AddIncrementalColumnToSnapshotsTable.class);
+    registry
+      .add(1800, "Add incremental column to snapthots table", AddIncrementalColumnToSnapshotsTable.class)
+      .add(1801, "Create table CE task characteristics", CreateTableCeTaskCharacteristics.class);
   }
 }
