@@ -50,6 +50,7 @@ public final class SqTables {
     "active_rule_parameters",
     "ce_activity",
     "ce_queue",
+    "ce_task_characteristics",
     "ce_task_input",
     "ce_scanner_context",
     "default_qprofiles",

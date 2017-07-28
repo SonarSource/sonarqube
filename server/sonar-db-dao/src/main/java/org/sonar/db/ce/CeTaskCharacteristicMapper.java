@@ -17,18 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.ce;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.ibatis.annotations.Param;
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 47);
-  }
+public interface CeTaskCharacteristicMapper {
+  List<CeTaskCharacteristicDto> selectTaskCharacteristics(@Param("taskUuid") String taskUuid);
+
+  void insert(CeTaskCharacteristicDto taskCharacteristic);
+
 }
