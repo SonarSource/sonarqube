@@ -61,10 +61,6 @@ public class PermissionUpdater {
         projectOrViewUuids.add(projectId.get().getUuid());
       }
     }
-    for (Long projectId : projectIds) {
-      dbClient.resourceDao().updateAuthorizationDate(projectId, dbSession);
-    }
-
     projectIndexers.commitAndIndexByProjectUuids(dbSession, projectOrViewUuids, ProjectIndexer.Cause.PERMISSION_CHANGE);
   }
 

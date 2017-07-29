@@ -30,7 +30,7 @@
             copy_component_uuid="[null]"
             developer_uuid="[null]"
             path="path_of_U1"
-            authorization_updated_at="123456789"/>
+            authorization_updated_at="[null]"/>
 
   <!-- module -->
   <projects organization_uuid="org1"
@@ -122,7 +122,7 @@
             copy_component_uuid="[null]"
             developer_uuid="[null]"
             path="path_of_U5"
-            authorization_updated_at="123456789"/>
+            authorization_updated_at="[null]"/>
 
   <!-- module -->
   <projects organization_uuid="org1"

@@ -290,7 +290,7 @@ public class ProjectMeasuresIndexTextSearchTest {
   private void index(ProjectMeasuresDoc... docs) {
     es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
     stream(docs).forEach(doc -> {
-      PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), System.currentTimeMillis(), Qualifiers.PROJECT);
+      PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), Qualifiers.PROJECT);
       access.allowAnyone();
       authorizationIndexerTester.allow(access);
     });

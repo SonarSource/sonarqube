@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.elasticsearch.action.index.IndexRequest;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -182,7 +181,6 @@ public class PermissionIndexer implements ProjectIndexer {
 
   private static IndexRequest newIndexRequest(PermissionIndexerDao.Dto dto, IndexType indexType) {
     Map<String, Object> doc = new HashMap<>();
-    doc.put(AuthorizationTypeSupport.FIELD_UPDATED_AT, DateUtils.longToDate(dto.getUpdatedAt()));
     if (dto.isAllowAnyone()) {
       doc.put(AuthorizationTypeSupport.FIELD_ALLOW_ANYONE, true);
       // no need to feed users and groups

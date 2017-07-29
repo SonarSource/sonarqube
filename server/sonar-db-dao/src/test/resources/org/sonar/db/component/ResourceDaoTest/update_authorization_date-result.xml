@@ -23,7 +23,7 @@
             created_at="[null]"
             path="/old/foo/bar"
             deprecated_kee="old deprecated key"
-            authorization_updated_at="987654321"
+            authorization_updated_at="[null]"
             b_changed="[false]"
             b_copy_component_uuid="[null]"
             b_description="[null]"

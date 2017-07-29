@@ -99,14 +99,12 @@ public class PermissionIndexerDaoTest {
     assertThat(privateProject1Authorization.getGroupIds()).containsOnly(group.getId());
     assertThat(privateProject1Authorization.isAllowAnyone()).isFalse();
     assertThat(privateProject1Authorization.getUserIds()).containsOnly(user1.getId(), user2.getId());
-    assertThat(privateProject1Authorization.getUpdatedAt()).isNotNull();
     assertThat(privateProject1Authorization.getQualifier()).isEqualTo(PROJECT);
 
     PermissionIndexerDao.Dto privateProject2Authorization = getByProjectUuid(privateProject2.uuid(), dtos);
     assertThat(privateProject2Authorization.getGroupIds()).isEmpty();
     assertThat(privateProject2Authorization.isAllowAnyone()).isFalse();
     assertThat(privateProject2Authorization.getUserIds()).containsOnly(user1.getId());
-    assertThat(privateProject2Authorization.getUpdatedAt()).isNotNull();
     assertThat(privateProject2Authorization.getQualifier()).isEqualTo(PROJECT);
 
     PermissionIndexerDao.Dto view2Authorization = getByProjectUuid(view2.uuid(), dtos);
@@ -133,14 +131,12 @@ public class PermissionIndexerDaoTest {
     assertThat(privateProject1Authorization.getGroupIds()).containsOnly(group.getId());
     assertThat(privateProject1Authorization.isAllowAnyone()).isFalse();
     assertThat(privateProject1Authorization.getUserIds()).containsOnly(user1.getId(), user2.getId());
-    assertThat(privateProject1Authorization.getUpdatedAt()).isNotNull();
     assertThat(privateProject1Authorization.getQualifier()).isEqualTo(PROJECT);
 
     PermissionIndexerDao.Dto privateProject2Authorization = dtos.get(privateProject2.uuid());
     assertThat(privateProject2Authorization.getGroupIds()).isEmpty();
     assertThat(privateProject2Authorization.isAllowAnyone()).isFalse();
     assertThat(privateProject2Authorization.getUserIds()).containsOnly(user1.getId());
-    assertThat(privateProject2Authorization.getUpdatedAt()).isNotNull();
     assertThat(privateProject2Authorization.getQualifier()).isEqualTo(PROJECT);
 
     PermissionIndexerDao.Dto view2Authorization = dtos.get(view2.uuid());
@@ -237,7 +233,6 @@ public class PermissionIndexerDaoTest {
     assertThat(view1Authorization.getGroupIds()).isEmpty();
     assertThat(view1Authorization.isAllowAnyone()).isTrue();
     assertThat(view1Authorization.getUserIds()).isEmpty();
-    assertThat(view1Authorization.getUpdatedAt()).isNotNull();
     assertThat(view1Authorization.getQualifier()).isEqualTo(qualifier);
   }
 

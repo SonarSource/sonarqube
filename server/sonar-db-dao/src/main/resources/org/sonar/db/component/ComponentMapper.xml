@@ -25,7 +25,6 @@
     p.copy_component_uuid as copyComponentUuid,
     p.developer_uuid as developerUuid,
     p.private as isPrivate,
-    p.authorization_updated_at as authorizationUpdatedAt,
     p.created_at as createdAt
   </sql>
 
@@ -473,7 +472,6 @@
     developer_uuid,
     enabled,
     created_at,
-    authorization_updated_at,
     b_changed,
     b_copy_component_uuid,
     b_description,
@@ -509,7 +507,6 @@
     #{developerUuid,jdbcType=VARCHAR},
     #{enabled,jdbcType=BOOLEAN},
     #{createdAt,jdbcType=TIMESTAMP},
-    #{authorizationUpdatedAt,jdbcType=BIGINT},
     ${_false},
     null,
     null,

@@ -37,7 +37,7 @@
             copy_component_uuid="[null]"
             developer_uuid="[null]"
             path="path_of_U1"
-            authorization_updated_at="123456789"/>
+            authorization_updated_at="[null]"/>
   <snapshots id="1"
              uuid="u1"
              component_uuid="ABCD"
@@ -254,7 +254,7 @@
             copy_component_uuid="[null]"
             developer_uuid="[null]"
             path="[null]"
-            authorization_updated_at="123456789"/>
+            authorization_updated_at="[null]"/>
 
   <!-- Developer and technical project copy -->
   <projects organization_uuid="org1"
@@ -277,7 +277,7 @@
             copy_component_uuid="[null]"
             developer_uuid="[null]"
             path="[null]"
-            authorization_updated_at="123456789"/>
+            authorization_updated_at="[null]"/>
   <projects organization_uuid="org1"
             id="12"
             scope="PRJ"
@@ -298,6 +298,6 @@
             copy_component_uuid="U1"
             developer_uuid="developer_uuid_of_U7"
             path="[null]"
-            authorization_updated_at="123456789"/>
+            authorization_updated_at="[null]"/>
 
 </dataset>

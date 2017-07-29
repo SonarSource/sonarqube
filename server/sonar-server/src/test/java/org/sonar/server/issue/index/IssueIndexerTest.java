@@ -19,11 +19,8 @@
  */
 package org.sonar.server.issue.index;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -91,8 +88,8 @@ public class IssueIndexerTest {
     assertThat(scope.getIndexType().getType()).isEqualTo(TYPE_AUTHORIZATION);
 
     Predicate<PermissionIndexerDao.Dto> projectPredicate = scope.getProjectPredicate();
-    PermissionIndexerDao.Dto project = new PermissionIndexerDao.Dto("P1", 1_000, Qualifiers.PROJECT);
-    PermissionIndexerDao.Dto file = new PermissionIndexerDao.Dto("F1", 1_000, Qualifiers.FILE);
+    PermissionIndexerDao.Dto project = new PermissionIndexerDao.Dto("P1", Qualifiers.PROJECT);
+    PermissionIndexerDao.Dto file = new PermissionIndexerDao.Dto("F1", Qualifiers.FILE);
     assertThat(projectPredicate.test(project)).isTrue();
     assertThat(projectPredicate.test(file)).isFalse();
   }

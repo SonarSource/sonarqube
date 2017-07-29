@@ -28,13 +28,12 @@ import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ComponentLinkDao;
-import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.duplication.DuplicationDao;
+import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
-import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
@@ -84,7 +83,6 @@ public class DbClient {
   private final InternalPropertiesDao internalPropertiesDao;
   private final SnapshotDao snapshotDao;
   private final ComponentDao componentDao;
-  private final ResourceDao resourceDao;
   private final ComponentKeyUpdaterDao componentKeyUpdaterDao;
   private final MeasureDao measureDao;
   private final UserDao userDao;
@@ -141,7 +139,6 @@ public class DbClient {
     internalPropertiesDao = getDao(map, InternalPropertiesDao.class);
     snapshotDao = getDao(map, SnapshotDao.class);
     componentDao = getDao(map, ComponentDao.class);
-    resourceDao = getDao(map, ResourceDao.class);
     componentKeyUpdaterDao = getDao(map, ComponentKeyUpdaterDao.class);
     measureDao = getDao(map, MeasureDao.class);
     userDao = getDao(map, UserDao.class);
@@ -234,10 +231,6 @@ public class DbClient {
 
   public ComponentDao componentDao() {
     return componentDao;
-  }
-
-  public ResourceDao resourceDao() {
-    return resourceDao;
   }
 
   public ComponentKeyUpdaterDao componentKeyUpdaterDao() {

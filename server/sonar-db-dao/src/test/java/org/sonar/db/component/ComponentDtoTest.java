@@ -43,9 +43,7 @@ public class ComponentDtoTest {
       .setPath("src/org/struts/RequestContext.java")
       .setCopyComponentUuid("uuid_5")
       .setRootUuid("uuid_3")
-      .setDeveloperUuid("uuid_6")
-      .setAuthorizationUpdatedAt(123456789L)
-      ;
+      .setDeveloperUuid("uuid_6");
 
     assertThat(componentDto.getId()).isEqualTo(1L);
     assertThat(componentDto.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
@@ -60,7 +58,6 @@ public class ComponentDtoTest {
     assertThat(componentDto.getRootUuid()).isEqualTo("uuid_3");
     assertThat(componentDto.getCopyResourceUuid()).isEqualTo("uuid_5");
     assertThat(componentDto.getDeveloperUuid()).isEqualTo("uuid_6");
-    assertThat(componentDto.getAuthorizationUpdatedAt()).isEqualTo(123456789L);
     assertThat(componentDto.isPrivate()).isFalse();
   }
 

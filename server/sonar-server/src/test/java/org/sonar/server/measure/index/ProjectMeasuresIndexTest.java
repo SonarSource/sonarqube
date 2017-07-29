@@ -1381,7 +1381,7 @@ public class ProjectMeasuresIndexTest {
   private void index(ProjectMeasuresDoc... docs) {
     es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
     for (ProjectMeasuresDoc doc : docs) {
-      PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), System.currentTimeMillis(), Qualifiers.PROJECT);
+      PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), Qualifiers.PROJECT);
       access.allowAnyone();
       authorizationIndexerTester.allow(access);
     }
@@ -1390,7 +1390,7 @@ public class ProjectMeasuresIndexTest {
   private void indexForUser(UserDto user, ProjectMeasuresDoc... docs) {
     es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
     for (ProjectMeasuresDoc doc : docs) {
-      PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), System.currentTimeMillis(), Qualifiers.PROJECT);
+      PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), Qualifiers.PROJECT);
       access.addUserId(user.getId());
       authorizationIndexerTester.allow(access);
     }
@@ -1399,7 +1399,7 @@ public class ProjectMeasuresIndexTest {
   private void indexForGroup(GroupDto group, ProjectMeasuresDoc... docs) {
     es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
     for (ProjectMeasuresDoc doc : docs) {
-      PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), System.currentTimeMillis(), Qualifiers.PROJECT);
+      PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), Qualifiers.PROJECT);
       access.addGroupId(group.getId());
       authorizationIndexerTester.allow(access);
     }

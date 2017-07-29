@@ -29,13 +29,12 @@ import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ComponentLinkDao;
-import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.duplication.DuplicationDao;
+import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
-import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
@@ -111,7 +110,6 @@ public class DaoModule extends Module {
     QualityGateConditionDao.class,
     QualityGateDao.class,
     QualityProfileDao.class,
-    ResourceDao.class,
     RoleDao.class,
     RuleDao.class,
     RuleRepositoryDao.class,

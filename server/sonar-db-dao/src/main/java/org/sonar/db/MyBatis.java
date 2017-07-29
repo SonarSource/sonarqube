@@ -41,7 +41,6 @@ import org.sonar.db.component.ComponentLinkMapper;
 import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.ResourceDto;
-import org.sonar.db.component.ResourceMapper;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotMapper;
 import org.sonar.db.component.UuidWithProjectUuidDto;
@@ -49,13 +48,13 @@ import org.sonar.db.component.ViewsSnapshotDto;
 import org.sonar.db.debt.RequirementMigrationDto;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
+import org.sonar.db.es.EsQueueMapper;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventMapper;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
-import org.sonar.db.es.EsQueueMapper;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.loadedtemplate.LoadedTemplateMapper;
 import org.sonar.db.measure.MeasureDto;
@@ -180,9 +179,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("User", UserDto.class);
     confBuilder.loadAlias("UuidWithProjectUuid", UuidWithProjectUuidDto.class);
     confBuilder.loadAlias("ViewsSnapshot", ViewsSnapshotDto.class);
-
-    // ResourceMapper has to be loaded before IssueMapper because this last one used it
-    confBuilder.loadMapper(ResourceMapper.class);
 
     // keep them sorted alphabetically
     Class<?>[] mappers = {

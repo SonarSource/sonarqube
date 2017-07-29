@@ -128,7 +128,6 @@ public class PermissionTemplateService {
   }
 
   private void copyPermissions(DbSession dbSession, PermissionTemplateDto template, ComponentDto project, @Nullable Integer projectCreatorUserId) {
-    dbClient.resourceDao().updateAuthorizationDate(project.getId(), dbSession);
     dbClient.groupPermissionDao().deleteByRootComponentId(dbSession, project.getId());
     dbClient.userPermissionDao().deleteProjectPermissions(dbSession, project.getId());
 

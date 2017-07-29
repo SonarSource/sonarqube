@@ -290,7 +290,7 @@ public class IssueIndexDebtTest {
   }
 
   private void addIssueAuthorization(String projectUuid) {
-    PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(projectUuid, system2.now(), Qualifiers.PROJECT);
+    PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(projectUuid, Qualifiers.PROJECT);
     access.allowAnyone();
     authorizationIndexerTester.allow(access);
   }

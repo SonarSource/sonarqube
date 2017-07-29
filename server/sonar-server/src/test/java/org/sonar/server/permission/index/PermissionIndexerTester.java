@@ -38,21 +38,21 @@ public class PermissionIndexerTester {
   }
 
   public PermissionIndexerTester allowOnlyAnyone(ComponentDto project) {
-    PermissionIndexerDao.Dto dto = new PermissionIndexerDao.Dto(project.uuid(), System.currentTimeMillis(), project.qualifier());
+    PermissionIndexerDao.Dto dto = new PermissionIndexerDao.Dto(project.uuid(), project.qualifier());
     dto.allowAnyone();
     permissionIndexer.index(asList(dto));
     return this;
   }
 
   public PermissionIndexerTester allowOnlyUser(ComponentDto project, UserDto user) {
-    PermissionIndexerDao.Dto dto = new PermissionIndexerDao.Dto(project.uuid(), System.currentTimeMillis(), project.qualifier())
+    PermissionIndexerDao.Dto dto = new PermissionIndexerDao.Dto(project.uuid(), project.qualifier())
       .addUserId(user.getId());
     permissionIndexer.index(asList(dto));
     return this;
   }
 
   public PermissionIndexerTester allowOnlyGroup(ComponentDto project, GroupDto group) {
-    PermissionIndexerDao.Dto dto = new PermissionIndexerDao.Dto(project.uuid(), System.currentTimeMillis(), project.qualifier())
+    PermissionIndexerDao.Dto dto = new PermissionIndexerDao.Dto(project.uuid(), project.qualifier())
       .addGroupId(group.getId());
     permissionIndexer.index(asList(dto));
     return this;

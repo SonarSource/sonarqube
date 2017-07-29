@@ -22,7 +22,7 @@
             copy_resource_id="[null]"
             person_id="[null]"
             path="[null]"
-            authorization_updated_at="123456789"/>
+            authorization_updated_at="[null]"/>
 
   <!-- module -->
   <projects organization_uuid="org1"

@@ -237,7 +237,7 @@ public class TagsActionTest {
   }
 
   private void grantAccess(IssueDto issue) {
-    PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(issue.getProjectUuid(), System2.INSTANCE.now(), "TRK");
+    PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(issue.getProjectUuid(), "TRK");
     access.addUserId(userSession.getUserId());
     permissionIndexerTester.allow(access);
   }

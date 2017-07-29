@@ -1141,7 +1141,7 @@ public class IssueIndexTest {
   private void indexIssues(IssueDoc... issues) {
     issueIndexer.index(asList(issues).iterator());
     for (IssueDoc issue : issues) {
-      PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(issue.projectUuid(), system2.now(), "TRK");
+      PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(issue.projectUuid(), "TRK");
       access.allowAnyone();
       authorizationIndexerTester.allow(access);
     }

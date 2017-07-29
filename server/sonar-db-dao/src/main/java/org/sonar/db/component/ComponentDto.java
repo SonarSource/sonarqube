@@ -124,7 +124,6 @@ public class ComponentDto implements Component {
   private boolean isPrivate = false;
 
   private Date createdAt;
-  private Long authorizationUpdatedAt;
 
   public static String formatUuidPathFromParent(ComponentDto parent) {
     checkArgument(!Strings.isNullOrEmpty(parent.getUuidPath()));
@@ -348,19 +347,6 @@ public class ComponentDto implements Component {
     return this;
   }
 
-  /**
-   * Only available on projects
-   */
-  @CheckForNull
-  public Long getAuthorizationUpdatedAt() {
-    return authorizationUpdatedAt;
-  }
-
-  public ComponentDto setAuthorizationUpdatedAt(@Nullable Long authorizationUpdatedAt) {
-    this.authorizationUpdatedAt = authorizationUpdatedAt;
-    return this;
-  }
-
   public String getKey() {
     return key();
   }
@@ -444,7 +430,6 @@ public class ComponentDto implements Component {
       .append("longName", longName)
       .append("language", language)
       .append("enabled", enabled)
-      .append("authorizationUpdatedAt", authorizationUpdatedAt)
       .append("private", isPrivate)
       .toString();
   }

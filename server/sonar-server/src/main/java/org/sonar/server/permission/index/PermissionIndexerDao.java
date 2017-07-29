@@ -43,24 +43,18 @@ public class PermissionIndexerDao {
 
   public static final class Dto {
     private final String projectUuid;
-    private final long updatedAt;
     private final String qualifier;
     private final List<Integer> userIds = new ArrayList<>();
     private final List<Integer> groupIds = new ArrayList<>();
     private boolean allowAnyone = false;
 
-    public Dto(String projectUuid, long updatedAt, String qualifier) {
+    public Dto(String projectUuid, String qualifier) {
       this.projectUuid = projectUuid;
-      this.updatedAt = updatedAt;
       this.qualifier = qualifier;
     }
 
     public String getProjectUuid() {
       return projectUuid;
-    }
-
-    public long getUpdatedAt() {
-      return updatedAt;
     }
 
     public String getQualifier() {
@@ -103,7 +97,6 @@ public class PermissionIndexerDao {
     "  project_authorization.project as project, " +
     "  project_authorization.user_id as user_id, " +
     "  project_authorization.group_id as group_id, " +
-    "  project_authorization.updated_at as updated_at, " +
     "  project_authorization.qualifier as qualifier " +
     "FROM ( " +
 
@@ -111,7 +104,6 @@ public class PermissionIndexerDao {
 
     "      SELECT '" + RowKind.USER + "' as kind," +
     "      projects.uuid AS project, " +
-    "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
     "      user_roles.user_id  AS user_id, " +
     "      NULL  AS group_id " +
@@ -127,7 +119,6 @@ public class PermissionIndexerDao {
 
     "      SELECT '" + RowKind.GROUP + "' as kind," +
     "      projects.uuid AS project, " +
-    "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
     "      NULL  AS user_id, " +
     "      groups.id  AS group_id " +
@@ -145,7 +136,6 @@ public class PermissionIndexerDao {
 
     "      SELECT '" + RowKind.ANYONE + "' as kind," +
     "      projects.uuid AS project, " +
-    "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
     "      NULL         AS user_id, " +
     "      NULL     AS group_id " +
@@ -160,7 +150,6 @@ public class PermissionIndexerDao {
     // private project is returned when no authorization
     "      SELECT '" + RowKind.NONE + "' as kind," +
     "      projects.uuid AS project, " +
-    "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
     "      NULL AS user_id, " +
     "      NULL  AS group_id " +
@@ -240,9 +229,8 @@ public class PermissionIndexerDao {
 
     Dto dto = dtosByProjectUuid.get(projectUuid);
     if (dto == null) {
-      long updatedAt = rs.getLong(5);
-      String qualifier = rs.getString(6);
-      dto = new Dto(projectUuid, updatedAt, qualifier);
+      String qualifier = rs.getString(5);
+      dto = new Dto(projectUuid, qualifier);
       dtosByProjectUuid.put(projectUuid, dto);
     }
     switch (rowKind) {

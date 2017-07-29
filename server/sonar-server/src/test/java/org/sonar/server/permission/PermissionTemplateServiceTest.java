@@ -292,8 +292,6 @@ public class PermissionTemplateServiceTest {
     assertThat(selectProjectPermissionsOfGroup(organization, userGroup, project)).containsOnly("user", "codeviewer");
     assertThat(selectProjectPermissionsOfGroup(organization, null, project)).isEmpty();
     assertThat(selectProjectPermissionsOfUser(user, project)).containsOnly("admin");
-
-    checkAuthorizationUpdatedAtIsUpdated(project);
   }
 
   private List<String> selectProjectPermissionsOfGroup(OrganizationDto organizationDto, @Nullable GroupDto groupDto, ComponentDto project) {
@@ -341,11 +339,6 @@ public class PermissionTemplateServiceTest {
   private void checkWouldUserHaveScanPermission(OrganizationDto organization, @Nullable Integer userId, boolean expectedResult) {
     assertThat(underTest.wouldUserHaveScanPermissionWithDefaultTemplate(session, organization.getUuid(), userId, null, "PROJECT_KEY", Qualifiers.PROJECT))
       .isEqualTo(expectedResult);
-  }
-
-  private void checkAuthorizationUpdatedAtIsUpdated(ComponentDto project) {
-    assertThat(dbTester.getDbClient().componentDao().selectOrFailById(session, project.getId()).getAuthorizationUpdatedAt())
-      .isNotNull();
   }
 
 }

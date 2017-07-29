@@ -47,7 +47,6 @@ public class ResourceDto {
   private String copyComponentUuid;
   private String developerUuid;
   private Date createdAt;
-  private Long authorizationUpdatedAt;
 
   public Long getId() {
     return id;
@@ -219,15 +218,6 @@ public class ResourceDto {
 
   public ResourceDto setCreatedAt(Date date) {
     this.createdAt = date;
-    return this;
-  }
-
-  public Long getAuthorizationUpdatedAt() {
-    return authorizationUpdatedAt;
-  }
-
-  public ResourceDto setAuthorizationUpdatedAt(Long authorizationUpdatedAt) {
-    this.authorizationUpdatedAt = authorizationUpdatedAt;
     return this;
   }
 }

@@ -43,7 +43,6 @@ public class AuthorizationTypeSupport {
   public static final String TYPE_AUTHORIZATION = "authorization";
   public static final String FIELD_GROUP_IDS = "groupIds";
   public static final String FIELD_USER_IDS = "userIds";
-  public static final String FIELD_UPDATED_AT = "updatedAt";
 
   /**
    * When true, then anybody can access to the project. In that case
@@ -85,7 +84,6 @@ public class AuthorizationTypeSupport {
 
     NewIndex.NewIndexType authType = type.getIndex().createType(TYPE_AUTHORIZATION);
     authType.setAttribute("_routing", ImmutableMap.of("required", true));
-    authType.createDateTimeField(FIELD_UPDATED_AT);
     authType.createLongField(FIELD_GROUP_IDS);
     authType.createLongField(FIELD_USER_IDS);
     authType.createBooleanField(FIELD_ALLOW_ANYONE);

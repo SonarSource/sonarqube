@@ -215,7 +215,6 @@ public class ComponentDaoTest {
     assertThat(result.scope()).isEqualTo("PRJ");
     assertThat(result.getRootUuid()).isEqualTo("U1");
     assertThat(result.projectUuid()).isEqualTo("U1");
-    assertThat(result.getAuthorizationUpdatedAt()).isEqualTo(123_456_789L);
   }
 
   @Test
@@ -697,7 +696,6 @@ public class ComponentDaoTest {
       .setDeveloperUuid("uuid_7")
       .setEnabled(true)
       .setCreatedAt(DateUtils.parseDate("2014-06-18"))
-      .setAuthorizationUpdatedAt(123456789L)
       .setTags(newArrayList("platform", "analyzers"));
 
     underTest.insert(dbSession, componentDto);
@@ -728,8 +726,7 @@ public class ComponentDaoTest {
       .setPath("src/org/struts/RequestContext.java")
       .setRootUuid("uuid_3")
       .setEnabled(false)
-      .setCreatedAt(DateUtils.parseDate("2014-06-18"))
-      .setAuthorizationUpdatedAt(123456789L);
+      .setCreatedAt(DateUtils.parseDate("2014-06-18"));
 
     underTest.insert(dbSession, componentDto);
     dbSession.commit();
