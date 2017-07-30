@@ -54,6 +54,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   @Rule
   public EsTester esTester = new EsTester(new FooIndexDefinition());
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -82,7 +83,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   }
 
   protected PermissionUpdater newPermissionUpdater() {
-    return new PermissionUpdater(db.getDbClient(),
+    return new PermissionUpdater(
       new ProjectIndexersImpl(new PermissionIndexer(db.getDbClient(), esTester.client())),
       new UserPermissionChanger(db.getDbClient()),
       new GroupPermissionChanger(db.getDbClient()));

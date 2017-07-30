@@ -21,11 +21,8 @@ package org.sonar.server.permission;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
@@ -37,27 +34,23 @@ import org.sonar.server.es.ProjectIndexers;
  */
 public class PermissionUpdater {
 
-  private final DbClient dbClient;
   private final ProjectIndexers projectIndexers;
   private final UserPermissionChanger userPermissionChanger;
   private final GroupPermissionChanger groupPermissionChanger;
 
-  public PermissionUpdater(DbClient dbClient, ProjectIndexers projectIndexers,
+  public PermissionUpdater(ProjectIndexers projectIndexers,
     UserPermissionChanger userPermissionChanger, GroupPermissionChanger groupPermissionChanger) {
-    this.dbClient = dbClient;
     this.projectIndexers = projectIndexers;
     this.userPermissionChanger = userPermissionChanger;
     this.groupPermissionChanger = groupPermissionChanger;
   }
 
   public void apply(DbSession dbSession, Collection<PermissionChange> changes) {
-    Set<Long> projectIds = new HashSet<>();
     List<String> projectOrViewUuids = new ArrayList<>();
     for (PermissionChange change : changes) {
       boolean changed = doApply(dbSession, change);
       Optional<ProjectId> projectId = change.getProjectId();
       if (changed && projectId.isPresent()) {
-        projectIds.add(projectId.get().getId());
         projectOrViewUuids.add(projectId.get().getUuid());
       }
     }
