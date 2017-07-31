@@ -28,9 +28,11 @@ import org.sonar.api.resources.Project;
  * Initializer are executed at the very beginning of each module analysis, prior the core listing files to be analyzed. It means {@link FileSystem} should not be accessed.
  * <p>
  * @since 2.6
+ * @deprecated since 6.6 no known valid use case
  */
 @ScannerSide
 @ExtensionPoint
+@Deprecated
 public abstract class Initializer implements CheckProject {
 
   /**

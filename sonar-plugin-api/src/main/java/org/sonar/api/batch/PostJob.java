@@ -29,7 +29,7 @@ import org.sonar.api.resources.Project;
  * it is an asynchronous processing on server side.
  *
  * @since 1.10
- * @deprecated since 5.6 use org.sonar.api.batch.postjob.PostJob
+ * @deprecated since 5.6 use {@link org.sonar.api.batch.postjob.PostJob}
  */
 @Deprecated
 @ScannerSide
