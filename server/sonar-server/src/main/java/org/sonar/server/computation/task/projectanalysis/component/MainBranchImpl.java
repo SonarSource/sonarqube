@@ -61,6 +61,11 @@ public class MainBranchImpl implements Branch {
   }
 
   @Override
+  public boolean isLegacyFeature() {
+    return true;
+  }
+
+  @Override
   public Optional<String> getName() {
     return Optional.ofNullable(branchName);
   }
