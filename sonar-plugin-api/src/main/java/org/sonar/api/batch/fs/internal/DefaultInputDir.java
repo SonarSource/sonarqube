@@ -20,6 +20,7 @@
 package org.sonar.api.batch.fs.internal;
 
 import java.io.File;
+import java.net.URI;
 import java.nio.file.Path;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputDir;
@@ -116,5 +117,10 @@ public class DefaultInputDir extends DefaultInputComponent implements InputDir {
   @Override
   public String toString() {
     return "[moduleKey=" + moduleKey + ", relative=" + relativePath + ", basedir=" + moduleBaseDir + "]";
+  }
+
+  @Override
+  public URI uri() {
+    return path().toUri();
   }
 }

@@ -63,7 +63,9 @@ public interface InputFile extends IndexedFile {
    * <code>/path/to/module/src/main/java/com/Foo.java</code>.
    * <br>
    * Relative path is not null and is normalized ('foo/../foo' is replaced by 'foo').
+   * @deprecated since 6.6 use {@link #inputStream()}, {@link #filename()} or {@link #uri()}
    */
+  @Deprecated
   @Override
   String relativePath();
 
@@ -73,7 +75,9 @@ public interface InputFile extends IndexedFile {
    * This is not canonical path. Symbolic links are not resolved. For example if /project/src links
    * to /tmp/src and basedir is /project, then this method returns /project/src/index.php. Use
    * {@code file().getCanonicalPath()} to resolve symbolic link.
+   * @deprecated since 6.6 use {@link #inputStream()}, {@link #filename()} or {@link #uri()}
    */
+  @Deprecated
   @Override
   String absolutePath();
 
@@ -81,7 +85,9 @@ public interface InputFile extends IndexedFile {
    * The underlying absolute {@link java.io.File}. It should not be used to read the file in the filesystem.
    * @see #contents()
    * @see #inputStream()
+   * @deprecated since 6.6 use {@link #inputStream()}, {@link #filename()} or {@link #uri()}
    */
+  @Deprecated
   @Override
   File file();
 
@@ -91,7 +97,9 @@ public interface InputFile extends IndexedFile {
    * @see #contents()
    * @see #inputStream()
    * @since 5.1
+   * @deprecated since 6.6 use {@link #inputStream()}, {@link #filename()} or {@link #uri()}
    */
+  @Deprecated
   @Override
   Path path();
 

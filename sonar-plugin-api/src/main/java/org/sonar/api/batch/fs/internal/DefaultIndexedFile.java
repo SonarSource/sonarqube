@@ -22,13 +22,12 @@ package org.sonar.api.batch.fs.internal;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
 import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.utils.PathUtils;
@@ -141,5 +140,15 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   @Override
   public boolean isFile() {
     return true;
+  }
+
+  @Override
+  public String filename() {
+    return path().getFileName().toString();
+  }
+
+  @Override
+  public URI uri() {
+    return path().toUri();
   }
 }
