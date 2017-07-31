@@ -23,6 +23,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.ce.posttask.Branch;
 import org.sonar.api.ce.posttask.CeTask;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
@@ -51,6 +52,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       writeTask(writer, analysis.getCeTask());
       analysis.getAnalysisDate().ifPresent(date -> writer.propDateTime("analysedAt", date));
       writeProject(analysis, writer, analysis.getProject());
+      analysis.getBranch().ifPresent(b -> writeBranch(writer, b));
       writeQualityGate(writer, analysis.getQualityGate());
       writeAnalysisProperties(writer, analysis.getScannerContext());
       writer.endObject().close();
@@ -85,6 +87,16 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       .beginObject()
       .prop("key", project.getKey())
       .prop("name", analysis.getProject().getName())
+      .endObject();
+  }
+
+  private static void writeBranch(JsonWriter writer, Branch branch) {
+    writer
+      .name("branch")
+      .beginObject()
+      .prop("name", branch.getName().orElse(null))
+      .prop("type", branch.getType().name())
+      .prop("isMain", branch.isMain())
       .endObject();
   }
 
