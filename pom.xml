@@ -47,19 +47,26 @@
 
   <properties>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/dotnet/sonar-csharp-plugin/ -->
+    <!-- Do not forget to exclude any new transitive dependencies -->
     <sonarCSharp.version>5.10.1.1411</sonarCSharp.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/java/sonar-java-plugin/ -->
-    <sonarJava.version>4.9.0.9858</sonarJava.version>
+    <!-- Do not forget to exclude any new transitive dependencies -->
+    <sonarJava.version>4.12.0.11033</sonarJava.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/javascript/sonar-javascript-plugin/ -->
-    <sonarJavaScript.version>3.0.0.4962</sonarJavaScript.version>
+    <!-- Do not forget to exclude any new transitive dependencies -->
+    <sonarJavaScript.version>3.1.1.5128</sonarJavaScript.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/php/sonar-php-plugin/ -->
+    <!-- Do not forget to exclude any new transitive dependencies -->
     <sonarPhp.version>2.10.0.2087</sonarPhp.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/python/sonar-python-plugin/ -->
-    <sonarPython.version>1.7.0.1195</sonarPython.version>
+    <!-- Do not forget to exclude any new transitive dependencies -->
+    <sonarPython.version>1.8.0.1496</sonarPython.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/flex/sonar-flex-plugin/ -->
+    <!-- Do not forget to exclude any new transitive dependencies -->
     <sonarFlex.version>2.3</sonarFlex.version>
-    <!-- see http://http://repo1.maven.org/maven2/org/sonarsource/xml/sonar-xml-plugin/ -->
-    <sonarXml.version>1.4.2.885</sonarXml.version>
+    <!-- see http://repo1.maven.org/maven2/org/sonarsource/xml/sonar-xml-plugin/ -->
+    <!-- Do not forget to exclude any new transitive dependencies -->
+    <sonarXml.version>1.4.3.1027</sonarXml.version>
     <sonarGit.version>1.2</sonarGit.version>
     <sonarSvn.version>1.4.0.522</sonarSvn.version>
     <sonarUpdateCenter.version>1.18.0.487</sonarUpdateCenter.version>
@@ -643,6 +650,10 @@
           <exclusion>
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>woodstox-core-lgpl</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.codehaus.staxmate</groupId>
+            <artifactId>staxmate</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
