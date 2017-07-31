@@ -57,6 +57,25 @@ exports[`getAnalysesByVersionByDay should also filter analysis based on the quer
 Array [
   Object {
     "byDay": Object {
+      "2017-4-18": Array [
+        Object {
+          "date": 2017-05-18T12:13:07.000Z,
+          "events": Array [
+            Object {
+              "category": "QUALITY_PROFILE",
+              "key": "AVxZtC-N7841nF4RNEMJ",
+              "name": "Changes in \\"Default - SonarSource conventions\\" (Java)",
+            },
+          ],
+          "key": "AVxZtCpH7841nF4RNEMI",
+        },
+      ],
+    },
+    "key": "AVyM9oI1HjR_PLDzRciU",
+    "version": "1.1",
+  },
+  Object {
+    "byDay": Object {
       "2017-4-16": Array [
         Object {
           "date": 2017-05-16T05:09:59.000Z,
@@ -75,27 +94,9 @@ Array [
           "key": "AVwQF7kwl-nNFgFWOJ3V",
         },
       ],
-      "2017-4-18": Array [
-        Object {
-          "date": 2017-05-18T12:13:07.000Z,
-          "events": Array [
-            Object {
-              "category": "QUALITY_PROFILE",
-              "key": "AVxZtC-N7841nF4RNEMJ",
-              "name": "Changes in \\"Default - SonarSource conventions\\" (Java)",
-            },
-          ],
-          "key": "AVxZtCpH7841nF4RNEMI",
-        },
-      ],
     },
     "key": "AVyM9oI1HjR_PLDzRciU",
     "version": "1.0",
-  },
-  Object {
-    "byDay": Object {},
-    "key": undefined,
-    "version": undefined,
   },
 ]
 `;
@@ -107,13 +108,7 @@ Array [
       "2017-5-9": Array [
         Object {
           "date": 2017-06-09T09:12:27.000Z,
-          "events": Array [
-            Object {
-              "category": "VERSION",
-              "key": "AVyM9oI1HjR_PLDzRciU",
-              "name": "1.1-SNAPSHOT",
-            },
-          ],
+          "events": Array [],
           "key": "AVyM9n3cHjR_PLDzRciT",
         },
       ],
@@ -139,18 +134,24 @@ Array [
       "2017-5-9": Array [
         Object {
           "date": 2017-06-09T09:12:27.000Z,
-          "events": Array [],
+          "events": Array [
+            Object {
+              "category": "VERSION",
+              "key": "AVyM9oI1HjR_PLDzRciU",
+              "name": "1.1",
+            },
+          ],
           "key": "AVyMjlK1HjR_PLDzRbB9",
         },
       ],
     },
     "key": "AVyM9oI1HjR_PLDzRciU",
-    "version": "1.0",
+    "version": "1.1",
   },
   Object {
     "byDay": Object {},
-    "key": undefined,
-    "version": undefined,
+    "key": "AVyM9oI1HjR_PLDzRciU",
+    "version": "1.0",
   },
 ]
 `;
@@ -162,11 +163,6 @@ Array [
       "2017-5-9": Array [
         Object {
           "date": 2017-06-09T11:06:10.000Z,
-          "events": Array [],
-          "key": "AVyMjlK1HjR_PLDzRbB9",
-        },
-        Object {
-          "date": 2017-06-09T09:12:27.000Z,
           "events": Array [
             Object {
               "category": "VERSION",
@@ -174,6 +170,11 @@ Array [
               "name": "1.1-SNAPSHOT",
             },
           ],
+          "key": "AVyMjlK1HjR_PLDzRbB9",
+        },
+        Object {
+          "date": 2017-06-09T09:12:27.000Z,
+          "events": Array [],
           "key": "AVyM9n3cHjR_PLDzRciT",
         },
       ],
@@ -183,24 +184,6 @@ Array [
   },
   Object {
     "byDay": Object {
-      "2017-4-16": Array [
-        Object {
-          "date": 2017-05-16T05:09:59.000Z,
-          "events": Array [
-            Object {
-              "category": "VERSION",
-              "key": "AVyM9oI1HjR_PLDzRciU",
-              "name": "1.0",
-            },
-            Object {
-              "category": "QUALITY_PROFILE",
-              "key": "AVwQF7zXl-nNFgFWOJ3W",
-              "name": "Changes in \\"Default - SonarSource conventions\\" (Java)",
-            },
-          ],
-          "key": "AVwQF7kwl-nNFgFWOJ3V",
-        },
-      ],
       "2017-4-18": Array [
         Object {
           "date": 2017-05-18T12:13:07.000Z,
@@ -222,16 +205,40 @@ Array [
       "2017-5-9": Array [
         Object {
           "date": 2017-06-09T09:12:27.000Z,
-          "events": Array [],
+          "events": Array [
+            Object {
+              "category": "VERSION",
+              "key": "AVyM9oI1HjR_PLDzRciU",
+              "name": "1.1",
+            },
+          ],
           "key": "AVyMjlK1HjR_PLDzRbB9",
         },
       ],
     },
     "key": "AVyM9oI1HjR_PLDzRciU",
-    "version": "1.0",
+    "version": "1.1",
   },
   Object {
     "byDay": Object {
+      "2017-4-16": Array [
+        Object {
+          "date": 2017-05-16T05:09:59.000Z,
+          "events": Array [
+            Object {
+              "category": "VERSION",
+              "key": "AVyM9oI1HjR_PLDzRciU",
+              "name": "1.0",
+            },
+            Object {
+              "category": "QUALITY_PROFILE",
+              "key": "AVwQF7zXl-nNFgFWOJ3W",
+              "name": "Changes in \\"Default - SonarSource conventions\\" (Java)",
+            },
+          ],
+          "key": "AVwQF7kwl-nNFgFWOJ3V",
+        },
+      ],
       "2017-4-9": Array [
         Object {
           "date": 2017-05-09T10:03:59.000Z,
@@ -240,8 +247,8 @@ Array [
         },
       ],
     },
-    "key": undefined,
-    "version": undefined,
+    "key": "AVyM9oI1HjR_PLDzRciU",
+    "version": "1.0",
   },
 ]
 `;
