@@ -25,6 +25,8 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,9 +37,12 @@ import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeTask;
+import org.sonar.db.component.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.server.computation.task.projectanalysis.component.MainBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.Condition;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.ConditionStatus;
@@ -95,6 +100,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     qualityGateStatusHolder.setStatus(QualityGateStatus.OK, ImmutableMap.of(
       CONDITION_1, ConditionStatus.create(ConditionStatus.EvaluationStatus.OK, "value"),
       CONDITION_2, ConditionStatus.NO_VALUE_STATUS));
+    analysisMetadataHolder.setBranch(null);
   }
 
   @Test
@@ -161,7 +167,7 @@ public class PostProjectAnalysisTasksExecutorTest {
 
   @Test
   public void date_comes_from_AnalysisMetadataHolder() {
-    analysisMetadataHolder.setAnalysisDate(8465132498L);
+    analysisMetadataHolder.setAnalysisDate(8_465_132_498L);
 
     underTest.finished(true);
 
@@ -202,6 +208,70 @@ public class PostProjectAnalysisTasksExecutorTest {
     verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
 
     assertThat(projectAnalysisArgumentCaptor.getValue().getAnalysisDate()).isEmpty();
+  }
+
+  @Test
+  public void branch_is_empty_when_not_set_in_AnalysisMetadataHolder() {
+    underTest.finished(false);
+
+    verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
+
+    assertThat(projectAnalysisArgumentCaptor.getValue().getBranch()).isEmpty();
+  }
+
+  @Test
+  public void branch_is_empty_when_legacy_branch_implementation_is_used() {
+    analysisMetadataHolder.setBranch(new MainBranchImpl("feature/foo"));
+
+    underTest.finished(true);
+
+    verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
+
+    assertThat(projectAnalysisArgumentCaptor.getValue().getBranch()).isEmpty();
+  }
+
+  @Test
+  public void branch_comes_from_AnalysisMetadataHolder_when_set() {
+    analysisMetadataHolder.setBranch(new Branch() {
+      @Override
+      public BranchType getType() {
+        return BranchType.SHORT;
+      }
+
+      @Override
+      public boolean isMain() {
+        return false;
+      }
+
+      @Override
+      public boolean isLegacyFeature() {
+        return false;
+      }
+
+      @Override
+      public Optional<String> getName() {
+        return Optional.of("feature/foo");
+      }
+
+      @Override
+      public boolean supportsCrossProjectCpd() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir) {
+        throw new UnsupportedOperationException();
+      }
+    });
+
+    underTest.finished(true);
+
+    verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
+
+    org.sonar.api.ce.posttask.Branch branch = projectAnalysisArgumentCaptor.getValue().getBranch().get();
+    assertThat(branch.isMain()).isFalse();
+    assertThat(branch.getName()).hasValue("feature/foo");
+    assertThat(branch.getType()).isEqualTo(BranchImpl.Type.SHORT);
   }
 
   @Test
