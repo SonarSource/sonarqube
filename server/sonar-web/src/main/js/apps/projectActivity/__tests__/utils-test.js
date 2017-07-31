@@ -21,13 +21,17 @@
 import * as utils from '../utils';
 
 const ANALYSES = [
-  { key: 'AVyMjlK1HjR_PLDzRbB9', date: new Date('2017-06-09T13:06:10+0200'), events: [] },
   {
-    key: 'AVyM9n3cHjR_PLDzRciT',
-    date: new Date('2017-06-09T11:12:27+0200'),
+    key: 'AVyMjlK1HjR_PLDzRbB9',
+    date: new Date('2017-06-09T13:06:10+0200'),
     events: [{ key: 'AVyM9oI1HjR_PLDzRciU', category: 'VERSION', name: '1.1-SNAPSHOT' }]
   },
-  { key: 'AVyMjlK1HjR_PLDzRbB9', date: new Date('2017-06-09T11:12:27+0200'), events: [] },
+  { key: 'AVyM9n3cHjR_PLDzRciT', date: new Date('2017-06-09T11:12:27+0200'), events: [] },
+  {
+    key: 'AVyMjlK1HjR_PLDzRbB9',
+    date: new Date('2017-06-09T11:12:27+0200'),
+    events: [{ key: 'AVyM9oI1HjR_PLDzRciU', category: 'VERSION', name: '1.1' }]
+  },
   {
     key: 'AVxZtCpH7841nF4RNEMI',
     date: new Date('2017-05-18T14:13:07+0200'),
