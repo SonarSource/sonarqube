@@ -63,6 +63,13 @@ public interface PostProjectAnalysisTask {
     Project getProject();
 
     /**
+     * The branch that is being analyzed.
+     *
+     * @since 6.6
+     */
+    Optional<Branch> getBranch();
+
+    /**
      * Status and details of the Quality Gate of the project (if any was configured on the project).
      */
     @CheckForNull
