@@ -19,13 +19,9 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import static junit.framework.Assert.fail;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
-
 import java.io.File;
 import java.io.IOException;
-
+import java.nio.file.Paths;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,6 +34,10 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
 import org.sonar.scanner.repository.language.LanguagesRepository;
+
+import static junit.framework.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
 
 public class LanguageDetectionTest {
 
@@ -183,7 +183,7 @@ public class LanguageDetectionTest {
   }
 
   private String detectLanguage(LanguageDetection detection, String path) {
-    return detection.language(new File(temp.getRoot(), path).getAbsolutePath(), path);
+    return detection.language(new File(temp.getRoot(), path).toPath(), Paths.get(path));
   }
 
   static class MockLanguage implements Language {

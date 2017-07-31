@@ -61,6 +61,7 @@ public class FileSystemMediumTest {
   public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
+    .addDefaultQProfile("xoo2", "Sonar Way")
     .setLogOutput(logs);
 
   private File baseDir;
@@ -670,4 +671,45 @@ public class FileSystemMediumTest {
     assertThat(result.inputDirs()).hasSize(3);
   }
 
+  @Test
+  public void twoLanguagesWithSameExtension() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    File xooFile2 = new File(srcDir, "sample.xoo2");
+    FileUtils.write(xooFile2, "Sample xoo 2\ncontent");
+
+    TaskResult result = tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(2);
+
+    try {
+      result = tester.newTask()
+        .properties(builder
+          .put("sonar.lang.patterns.xoo2", "**/*.xoo")
+          .build())
+        .execute();
+    } catch (Exception e) {
+      assertThat(e)
+        .isInstanceOf(MessageException.class)
+        .hasMessage(
+          "Language of file 'src/sample.xoo' can not be decided as the file matches patterns of both sonar.lang.patterns.xoo : **/*.xoo and sonar.lang.patterns.xoo2 : **/*.xoo");
+    }
+
+    // SONAR-9561
+    result = tester.newTask()
+      .properties(builder
+        .put("sonar.exclusions", "**/sample.xoo")
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(1);
+  }
 }

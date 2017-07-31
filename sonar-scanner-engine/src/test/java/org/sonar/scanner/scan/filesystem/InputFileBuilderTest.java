@@ -53,19 +53,18 @@ public class InputFileBuilderTest {
       .setWorkDir(workDir.toFile())
       .setKey("module1"), 0);
 
-    LanguageDetection langDetection = mock(LanguageDetection.class);
     MetadataGenerator metadataGenerator = mock(MetadataGenerator.class);
     BatchIdGenerator idGenerator = new BatchIdGenerator();
     MapSettings settings = new MapSettings();
     ModuleFileSystemInitializer moduleFileSystemInitializer = mock(ModuleFileSystemInitializer.class);
     when(moduleFileSystemInitializer.defaultEncoding()).thenReturn(StandardCharsets.UTF_8);
-    builder = new InputFileBuilder(module, langDetection, metadataGenerator, idGenerator, settings.asConfig(), moduleFileSystemInitializer);
+    builder = new InputFileBuilder(module, metadataGenerator, idGenerator, settings.asConfig(), moduleFileSystemInitializer);
   }
 
   @Test
   public void testBuild() {
     Path filePath = baseDir.resolve("src/File1.xoo");
-    DefaultInputFile inputFile = builder.create(filePath, Type.MAIN);
+    DefaultInputFile inputFile = builder.create(Type.MAIN, "src/File1.xoo", null);
 
     assertThat(inputFile.moduleKey()).isEqualTo("module1");
     assertThat(inputFile.absolutePath()).isEqualTo(filePath.toString().replaceAll("\\\\", "/"));
