@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -77,8 +78,9 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
 
   @Override
   public InputStream inputStream() throws IOException {
-    return contents != null ? new ByteArrayInputStream(contents.getBytes(charset())) : new BOMInputStream(Files.newInputStream(path()),
-      ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
+    return contents != null ? new ByteArrayInputStream(contents.getBytes(charset()))
+      : new BOMInputStream(Files.newInputStream(path()),
+        ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
   }
 
   @Override
@@ -335,6 +337,16 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   @Override
   public boolean isFile() {
     return true;
+  }
+
+  @Override
+  public String filename() {
+    return indexedFile.filename();
+  }
+
+  @Override
+  public URI uri() {
+    return indexedFile.uri();
   }
 
 }
