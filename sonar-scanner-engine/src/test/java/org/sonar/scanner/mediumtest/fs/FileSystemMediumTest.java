@@ -118,7 +118,7 @@ public class FileSystemMediumTest {
     assertThat(dir.relativePath()).isEqualTo("src");
 
     // file and dirs were published, since language matched xoo
-    assertThat(file.publish()).isTrue();
+    assertThat(file.isPublished()).isTrue();
     assertThat(result.getReportComponent(dir.key())).isNotNull();
     assertThat(result.getReportComponent(file.key())).isNotNull();
   }
@@ -375,7 +375,7 @@ public class FileSystemMediumTest {
     DefaultInputFile file = (DefaultInputFile) result.inputFile("src/sample.xoo");
     InputDir dir = result.inputDir("src");
 
-    assertThat(file.publish()).isTrue();
+    assertThat(file.isPublished()).isTrue();
     assertThat(result.getReportComponent(dir.key())).isNotNull();
     assertThat(result.getReportComponent(file.key())).isNotNull();
   }
@@ -410,7 +410,7 @@ public class FileSystemMediumTest {
 
     DefaultInputFile unknownInputFile = (DefaultInputFile) result.inputFile("src/unknown/file.notanalyzed");
     InputDir unknownInputDir = result.inputDir("src/unknown");
-    assertThat(unknownInputFile.publish()).isFalse();
+    assertThat(unknownInputFile.isPublished()).isFalse();
     assertThat(result.getReportComponent(unknownInputDir.key())).isNotNull();
 
     // no issues on empty dir

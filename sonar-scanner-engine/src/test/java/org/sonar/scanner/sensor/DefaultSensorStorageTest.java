@@ -46,11 +46,9 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.scan.measure.MeasureCache;
-import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -77,12 +75,10 @@ public class DefaultSensorStorageTest {
     settings = new MapSettings();
     moduleIssues = mock(ModuleIssues.class);
     measureCache = mock(MeasureCache.class);
-    CoverageExclusions coverageExclusions = mock(CoverageExclusions.class);
-    when(coverageExclusions.isExcluded(any(InputFile.class))).thenReturn(false);
     ReportPublisher reportPublisher = mock(ReportPublisher.class);
     when(reportPublisher.getWriter()).thenReturn(new ScannerReportWriter(temp.newFolder()));
     underTest = new DefaultSensorStorage(metricFinder,
-      moduleIssues, settings.asConfig(), coverageExclusions, reportPublisher, measureCache,
+      moduleIssues, settings.asConfig(), reportPublisher, measureCache,
       mock(SonarCpdBlockIndex.class), contextPropertiesCache, new ScannerMetrics());
   }
 

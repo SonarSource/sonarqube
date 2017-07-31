@@ -24,6 +24,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
@@ -74,6 +75,9 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
   @Override
   public NewCoverage lineHits(int line, int hits) {
     validateFile();
+    if (isExcluded()) {
+      return this;
+    }
     validateLine(line);
 
     if (!hitsByLine.containsKey(line)) {
@@ -97,6 +101,9 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
   @Override
   public NewCoverage conditions(int line, int conditions, int coveredConditions) {
     validateFile();
+    if (isExcluded()) {
+      return this;
+    }
     validateLine(line);
 
     if (conditions > 0 && !conditionsByLine.containsKey(line)) {
@@ -139,7 +146,13 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
   @Override
   public void doSave() {
     validateFile();
-    storage.store(this);
+    if (!isExcluded()) {
+      storage.store(this);
+    }
+  }
+
+  private boolean isExcluded() {
+    return ((DefaultInputFile) inputFile).isExcludedForCoverage();
   }
 
 }

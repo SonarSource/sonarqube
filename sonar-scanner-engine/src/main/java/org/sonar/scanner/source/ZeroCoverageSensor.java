@@ -28,6 +28,7 @@ import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -39,7 +40,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.scanner.scan.measure.MeasureCache;
-import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 
 @Phase(name = Phase.Name.POST)
 public final class ZeroCoverageSensor implements Sensor {
@@ -59,11 +59,9 @@ public final class ZeroCoverageSensor implements Sensor {
   }
 
   private final MeasureCache measureCache;
-  private final CoverageExclusions coverageExclusions;
 
-  public ZeroCoverageSensor(MeasureCache measureCache, CoverageExclusions exclusions) {
+  public ZeroCoverageSensor(MeasureCache measureCache) {
     this.measureCache = measureCache;
-    this.coverageExclusions = exclusions;
   }
 
   @Override
@@ -76,7 +74,7 @@ public final class ZeroCoverageSensor implements Sensor {
   public void execute(final SensorContext context) {
     FileSystem fs = context.fileSystem();
     for (InputFile f : fs.inputFiles(fs.predicates().hasType(Type.MAIN))) {
-      if (coverageExclusions.isExcluded(f)) {
+      if (((DefaultInputFile) f).isExcludedForCoverage()) {
         continue;
       }
       if (!isCoverageMeasuresAlreadyDefined(f)) {

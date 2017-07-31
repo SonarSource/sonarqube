@@ -47,6 +47,7 @@ import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.phases.AbstractPhaseExecutor;
+import org.sonar.scanner.phases.CoverageExclusions;
 import org.sonar.scanner.phases.InitializersExecutor;
 import org.sonar.scanner.phases.IssuesPhaseExecutor;
 import org.sonar.scanner.phases.PostJobsExecutor;
@@ -70,7 +71,6 @@ import org.sonar.scanner.scan.report.IssuesReports;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.sensor.SensorOptimizer;
 import org.sonar.scanner.sensor.SensorStrategy;
-import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 import org.sonar.scanner.source.HighlightableBuilder;
 import org.sonar.scanner.source.SymbolizableBuilder;
 
