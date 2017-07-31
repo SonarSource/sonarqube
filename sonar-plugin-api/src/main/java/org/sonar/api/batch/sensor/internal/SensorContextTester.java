@@ -352,6 +352,6 @@ public class SensorContextTester implements SensorContext {
   @Override
   public void markForPublishing(InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
-    file.setPublish(true);
+    file.setPublished(true);
   }
 }

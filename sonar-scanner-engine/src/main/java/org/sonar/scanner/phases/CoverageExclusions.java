@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.sensor.coverage;
+package org.sonar.scanner.phases;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import java.util.Collection;
 import java.util.Iterator;
-
 import javax.annotation.concurrent.Immutable;
-
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -32,11 +31,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
-
 @Immutable
-public class CoverageExclusions implements Startable {
+public class CoverageExclusions {
   private static final Logger LOG = LoggerFactory.getLogger(CoverageExclusions.class);
 
   private Collection<WildcardPattern> exclusionPatterns;
@@ -49,17 +45,11 @@ public class CoverageExclusions implements Startable {
     exclusionPatterns = builder.build();
   }
 
-  @Override
-  public void start() {
+  void log() {
     log("Excluded sources for coverage: ", exclusionPatterns);
   }
 
-  @Override
-  public void stop() {
-    // Nothing to do
-  }
-
-  public boolean isExcluded(InputFile file) {
+  boolean isExcluded(InputFile file) {
     boolean found = false;
     Iterator<WildcardPattern> iterator = exclusionPatterns.iterator();
     while (!found && iterator.hasNext()) {
@@ -75,5 +65,9 @@ public class CoverageExclusions implements Startable {
         LOG.info("  " + pattern);
       }
     }
+  }
+
+  public boolean shouldExecute() {
+    return !exclusionPatterns.isEmpty();
   }
 }

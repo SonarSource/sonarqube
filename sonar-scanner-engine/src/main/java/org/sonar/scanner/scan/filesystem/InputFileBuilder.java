@@ -68,7 +68,7 @@ public class InputFileBuilder {
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, language, idGenerator.get());
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, moduleFileSystemInitializer.defaultEncoding()));
     if (language != null) {
-      inputFile.setPublish(true);
+      inputFile.setPublished(true);
     }
 
     return inputFile;

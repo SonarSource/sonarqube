@@ -78,7 +78,7 @@ public class InputComponentStore {
   public Iterable<DefaultInputFile> allFilesToPublish() {
     return inputFileCache.values().stream()
       .map(f -> (DefaultInputFile) f)
-      .filter(DefaultInputFile::publish)::iterator;
+      .filter(DefaultInputFile::isPublished)::iterator;
   }
 
   public Iterable<InputFile> allFiles() {

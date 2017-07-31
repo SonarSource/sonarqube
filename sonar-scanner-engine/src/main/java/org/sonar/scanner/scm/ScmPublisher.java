@@ -95,7 +95,7 @@ public final class ScmPublisher {
     List<InputFile> filesToBlame = new LinkedList<>();
     for (InputFile f : componentStore.inputFiles()) {
       DefaultInputFile inputFile = (DefaultInputFile) f;
-      if (!inputFile.publish()) {
+      if (!inputFile.isPublished()) {
         continue;
       }
       if (configuration.forceReloadAll() || f.status() != Status.SAME) {

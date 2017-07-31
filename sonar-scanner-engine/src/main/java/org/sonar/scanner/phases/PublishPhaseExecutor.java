@@ -40,8 +40,9 @@ public final class PublishPhaseExecutor extends AbstractPhaseExecutor {
 
   public PublishPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, SensorContext sensorContext,
     EventBus eventBus, ReportPublisher reportPublisher, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, CpdExecutor cpdExecutor, ScmPublisher scm, InputModuleHierarchy hierarchy, FileIndexer fileIndexer) {
-    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, hierarchy, eventBus, fs, profileVerifier, issueExclusionsLoader, fileIndexer);
+    IssueExclusionsLoader issueExclusionsLoader, CpdExecutor cpdExecutor, ScmPublisher scm, InputModuleHierarchy hierarchy, FileIndexer fileIndexer,
+    CoverageExclusions coverageExclusions) {
+    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, hierarchy, eventBus, fs, profileVerifier, issueExclusionsLoader, fileIndexer, coverageExclusions);
     this.eventBus = eventBus;
     this.reportPublisher = reportPublisher;
     this.cpdExecutor = cpdExecutor;

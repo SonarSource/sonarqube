@@ -203,4 +203,63 @@ public class CoverageMediumTest {
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey").doesNotContain(CoreMetrics.CONDITIONS_TO_COVER_KEY, CoreMetrics.UNCOVERED_CONDITIONS_KEY);
   }
 
+  // SONAR-9557
+  @Test
+  public void exclusionsAndForceToZeroOnModules() throws IOException {
+
+    File baseDir = temp.getRoot();
+    File srcDir = new File(baseDir, "module1/src");
+    srcDir.mkdir();
+
+    File xooFile1 = new File(srcDir, "sample1.xoo");
+    File measuresFile1 = new File(srcDir, "sample1.xoo.measures");
+    FileUtils.write(xooFile1, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
+    FileUtils.write(measuresFile1, "executable_lines_data:2=1;3=1;4=0");
+
+    File xooFile2 = new File(srcDir, "sample2.xoo");
+    File measuresFile2 = new File(srcDir, "sample2.xoo.measures");
+    FileUtils.write(xooFile2, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
+    FileUtils.write(measuresFile2, "executable_lines_data:2=1;3=1;4=0");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.modules", "module1")
+        .put("sonar.sources", "src")
+        .put("sonar.coverage.exclusions", "**/sample2.xoo")
+        .build())
+      .execute();
+
+    InputFile file1 = result.inputFile("src/sample1.xoo");
+    assertThat(result.coverageFor(file1, 1)).isNull();
+
+    assertThat(result.coverageFor(file1, 2).getHits()).isFalse();
+    assertThat(result.coverageFor(file1, 2).getConditions()).isEqualTo(0);
+    assertThat(result.coverageFor(file1, 2).getCoveredConditions()).isEqualTo(0);
+
+    assertThat(result.coverageFor(file1, 3).getHits()).isFalse();
+    assertThat(result.coverageFor(file1, 4)).isNull();
+
+    InputFile file2 = result.inputFile("src/sample2.xoo");
+    assertThat(result.coverageFor(file2, 1)).isNull();
+    assertThat(result.coverageFor(file2, 2)).isNull();
+    assertThat(result.coverageFor(file2, 3)).isNull();
+    assertThat(result.coverageFor(file2, 4)).isNull();
+
+    Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();
+
+    assertThat(allMeasures.get("com.foo.project:module1:src/sample1.xoo")).extracting("metricKey", "intValue.value")
+      .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 2),
+        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 2));
+
+    assertThat(allMeasures.get("com.foo.project:module1:src/sample1.xoo")).extracting("metricKey").doesNotContain(CoreMetrics.CONDITIONS_TO_COVER_KEY,
+      CoreMetrics.UNCOVERED_CONDITIONS_KEY);
+
+    assertThat(allMeasures.get("com.foo.project:module1:src/sample2.xoo")).extracting("metricKey").doesNotContain(CoreMetrics.LINES_TO_COVER_KEY,
+      CoreMetrics.CONDITIONS_TO_COVER_KEY,
+      CoreMetrics.UNCOVERED_CONDITIONS_KEY, CoreMetrics.UNCOVERED_LINES_KEY);
+  }
+
 }

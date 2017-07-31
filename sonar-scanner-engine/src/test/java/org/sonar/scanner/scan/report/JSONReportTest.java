@@ -95,7 +95,7 @@ public class JSONReportTest {
     DefaultInputFile inputFile = new TestInputFileBuilder("struts", "src/main/java/org/apache/struts/Action.java")
       .setModuleBaseDir(projectBaseDir.toPath()).build();
     inputFile.setStatus(InputFile.Status.CHANGED);
-    inputFile.setPublish(true);
+    inputFile.setPublished(true);
     inputComponentStore.put(inputFile);
     inputComponentStore.put(inputDir);
 

@@ -42,8 +42,10 @@ public final class IssuesPhaseExecutor extends AbstractPhaseExecutor {
 
   public IssuesPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, SensorContext sensorContext,
     EventBus eventBus, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, IssueTransition localIssueTracking, InputModuleHierarchy moduleHierarchy, FileIndexer fileIndexer) {
-    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, moduleHierarchy, eventBus, fs, profileVerifier, issueExclusionsLoader, fileIndexer);
+    IssueExclusionsLoader issueExclusionsLoader, IssueTransition localIssueTracking, InputModuleHierarchy moduleHierarchy, FileIndexer fileIndexer,
+    CoverageExclusions coverageExclusions) {
+    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, moduleHierarchy, eventBus, fs, profileVerifier, issueExclusionsLoader, fileIndexer,
+      coverageExclusions);
     this.eventBus = eventBus;
     this.issuesReport = jsonReport;
     this.localIssueTracking = localIssueTracking;

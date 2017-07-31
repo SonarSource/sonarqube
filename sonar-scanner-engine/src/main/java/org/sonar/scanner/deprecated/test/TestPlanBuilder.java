@@ -43,7 +43,7 @@ public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
     if (component.isFile()) {
       DefaultInputFile inputFile = (DefaultInputFile) component;
       if (inputFile.type() == Type.TEST) {
-        inputFile.setPublish(true);
+        inputFile.setPublished(true);
         if (!testPlanByFile.containsKey(inputFile)) {
           testPlanByFile.put(inputFile, new DefaultTestPlan());
         }

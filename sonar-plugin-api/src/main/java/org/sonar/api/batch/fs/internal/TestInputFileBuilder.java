@@ -198,7 +198,7 @@ public class TestInputFileBuilder {
       contents);
     inputFile.setStatus(status);
     inputFile.setCharset(charset);
-    inputFile.setPublish(publish);
+    inputFile.setPublished(publish);
     return inputFile;
   }
 

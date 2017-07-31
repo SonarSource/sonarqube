@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.sensor.coverage;
+package org.sonar.scanner.phases;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +26,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.config.ExclusionProperties;
+import org.sonar.scanner.phases.CoverageExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

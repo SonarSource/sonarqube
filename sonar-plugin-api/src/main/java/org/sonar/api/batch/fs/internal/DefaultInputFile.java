@@ -54,7 +54,8 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private Status status;
   private Charset charset;
   private Metadata metadata;
-  private boolean publish;
+  private boolean published;
+  private boolean excludedForCoverage;
 
   public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator) {
     this(indexedFile, metadataGenerator, null);
@@ -66,7 +67,8 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     this.indexedFile = indexedFile;
     this.metadataGenerator = metadataGenerator;
     this.metadata = null;
-    this.publish = false;
+    this.published = false;
+    this.excludedForCoverage = false;
     this.contents = contents;
   }
 
@@ -100,19 +102,22 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     }
   }
 
-  /**
-   * @since 6.3
-   */
-  public DefaultInputFile setPublish(boolean publish) {
-    this.publish = publish;
+  public DefaultInputFile setPublished(boolean published) {
+    this.published = published;
     return this;
   }
 
-  /**
-   * @since 6.3
-   */
-  public boolean publish() {
-    return publish;
+  public boolean isPublished() {
+    return published;
+  }
+
+  public DefaultInputFile setExcludedForCoverage(boolean excludedForCoverage) {
+    this.excludedForCoverage = excludedForCoverage;
+    return this;
+  }
+
+  public boolean isExcludedForCoverage() {
+    return excludedForCoverage;
   }
 
   @Override

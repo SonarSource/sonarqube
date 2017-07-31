@@ -140,7 +140,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     } else if (component instanceof DefaultInputFile) {
       // skip files not marked for publishing
       DefaultInputFile inputFile = (DefaultInputFile) component;
-      return !inputFile.publish();
+      return !inputFile.isPublished();
     }
     return false;
   }
