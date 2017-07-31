@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.ce.posttask.Branch;
 import org.sonar.api.ce.posttask.CeTask;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
@@ -111,13 +112,15 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
   private ProjectAnalysis createProjectAnalysis(CeTask.Status status) {
     Long analysisDate = getAnalysisDate();
+
     return new ProjectAnalysis(
       new CeTaskImpl(this.ceTask.getUuid(), status),
       createProject(this.ceTask),
       analysisDate,
       analysisDate == null ? system2.now() : analysisDate,
       ScannerContextImpl.from(reportReader.readContextProperties()),
-      status == SUCCESS ? createQualityGate(this.qualityGateHolder) : null);
+      status == SUCCESS ? createQualityGate() : null,
+      createBranch());
   }
 
   private static Project createProject(org.sonar.ce.queue.CeTask ceTask) {
@@ -136,8 +139,8 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   }
 
   @CheckForNull
-  private QualityGateImpl createQualityGate(QualityGateHolder qualityGateHolder) {
-    Optional<org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGate> qualityGateOptional = qualityGateHolder.getQualityGate();
+  private QualityGateImpl createQualityGate() {
+    Optional<org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGate> qualityGateOptional = this.qualityGateHolder.getQualityGate();
     if (qualityGateOptional.isPresent()) {
       org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGate qualityGate = qualityGateOptional.get();
 
@@ -146,6 +149,16 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
         qualityGate.getName(),
         convert(qualityGateStatusHolder.getStatus()),
         convert(qualityGate.getConditions(), qualityGateStatusHolder.getStatusPerConditions()));
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private BranchImpl createBranch() {
+    java.util.Optional<org.sonar.server.computation.task.projectanalysis.analysis.Branch> analysisBranchOpt = analysisMetadataHolder.getBranch();
+    if (analysisBranchOpt.isPresent() && !analysisBranchOpt.get().isLegacyFeature()) {
+      org.sonar.server.computation.task.projectanalysis.analysis.Branch branch = analysisBranchOpt.get();
+      return new BranchImpl(branch.isMain(), branch.getName().orElse(null), Branch.Type.valueOf(branch.getType().name()));
     }
     return null;
   }
@@ -174,22 +187,25 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   private static class ProjectAnalysis implements PostProjectAnalysisTask.ProjectAnalysis {
     private final CeTask ceTask;
     private final Project project;
-    @CheckForNull
+    @Nullable
     private final Long analysisDate;
     private final long date;
     private final ScannerContext scannerContext;
-    @CheckForNull
+    @Nullable
     private final QualityGate qualityGate;
+    @Nullable
+    private final Branch branch;
 
     private ProjectAnalysis(CeTask ceTask, Project project,
       @Nullable Long analysisDate, long date,
-      ScannerContext scannerContext, @Nullable QualityGate qualityGate) {
+      ScannerContext scannerContext, @Nullable QualityGate qualityGate, @Nullable Branch branch) {
       this.ceTask = requireNonNull(ceTask, "ceTask can not be null");
       this.project = requireNonNull(project, "project can not be null");
       this.analysisDate = analysisDate;
       this.date = date;
       this.scannerContext = requireNonNull(scannerContext, "scannerContext can not be null");
       this.qualityGate = qualityGate;
+      this.branch = branch;
     }
 
     @Override
@@ -200,6 +216,11 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     @Override
     public Project getProject() {
       return project;
+    }
+
+    @Override
+    public java.util.Optional<Branch> getBranch() {
+      return java.util.Optional.ofNullable(branch);
     }
 
     @Override

@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -107,6 +108,8 @@ public class PostProjectAnalysisTaskTester {
   private Date date;
   @CheckForNull
   private QualityGate qualityGate;
+  @CheckForNull
+  private Branch branch;
   private ScannerContext scannerContext;
 
   private PostProjectAnalysisTaskTester(PostProjectAnalysisTask underTest) {
@@ -123,6 +126,10 @@ public class PostProjectAnalysisTaskTester {
 
   public static ProjectBuilder newProjectBuilder() {
     return new ProjectBuilder();
+  }
+
+  public static BranchBuilder newBranchBuilder() {
+    return new BranchBuilder();
   }
 
   public static QualityGateBuilder newQualityGateBuilder() {
@@ -165,6 +172,11 @@ public class PostProjectAnalysisTaskTester {
     return this;
   }
 
+  public PostProjectAnalysisTaskTester withBranch(@Nullable Branch b) {
+    this.branch = b;
+    return this;
+  }
+
   public void execute() {
     this.ceTask = requireNonNull(ceTask, CE_TASK_CAN_NOT_BE_NULL);
     this.project = requireNonNull(project, PROJECT_CAN_NOT_BE_NULL);
@@ -185,6 +197,11 @@ public class PostProjectAnalysisTaskTester {
         @Override
         public Project getProject() {
           return project;
+        }
+
+        @Override
+        public Optional<Branch> getBranch() {
+          return Optional.ofNullable(branch);
         }
 
         @Override
@@ -319,6 +336,52 @@ public class PostProjectAnalysisTaskTester {
             '}';
         }
 
+      };
+    }
+  }
+
+  public static final class BranchBuilder {
+    private boolean isMain = true;
+    private String name = null;
+    private Branch.Type type = Branch.Type.LONG;
+
+    private BranchBuilder() {
+      // prevents instantiation outside PostProjectAnalysisTaskTester
+    }
+
+    public BranchBuilder setName(@Nullable String s) {
+      this.name = s;
+      return this;
+    }
+
+    public BranchBuilder setType(Branch.Type t) {
+      this.type = Objects.requireNonNull(t);
+      return this;
+    }
+
+    public BranchBuilder setIsMain(boolean b) {
+      this.isMain = b;
+      return this;
+    }
+
+    public Branch build() {
+      return new Branch() {
+
+
+        @Override
+        public boolean isMain() {
+          return isMain;
+        }
+
+        @Override
+        public Optional<String> getName() {
+          return Optional.ofNullable(name);
+        }
+
+        @Override
+        public Type getType() {
+          return type;
+        }
       };
     }
   }
