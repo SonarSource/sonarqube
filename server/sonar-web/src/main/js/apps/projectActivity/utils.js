@@ -143,10 +143,18 @@ export const getAnalysesByVersionByDay = (
   byDay: { [string]: Array<Analysis> }
 }> =>
   analyses.reduce((acc, analysis) => {
-    if (acc.length === 0) {
-      acc.push({ version: undefined, key: undefined, byDay: {} });
+    let currentVersion = acc[acc.length - 1];
+    const versionEvent = analysis.events.find(event => event.category === 'VERSION');
+    if (versionEvent) {
+      const newVersion = { version: versionEvent.name, key: versionEvent.key, byDay: {} };
+      if (!currentVersion || Object.keys(currentVersion.byDay).length > 0) {
+        acc.push(newVersion);
+      } else {
+        acc[acc.length - 1] = newVersion;
+      }
+      currentVersion = newVersion;
     }
-    const currentVersion = acc[acc.length - 1];
+
     const day = moment(analysis.date).startOf('day').valueOf().toString();
 
     let matchFilters = true;
@@ -163,15 +171,6 @@ export const getAnalysesByVersionByDay = (
         currentVersion.byDay[day] = [];
       }
       currentVersion.byDay[day].push(analysis);
-    }
-
-    const versionEvent = analysis.events.find(event => event.category === 'VERSION');
-    if (versionEvent && versionEvent.category === 'VERSION') {
-      currentVersion.version = versionEvent.name;
-      currentVersion.key = versionEvent.key;
-      if (Object.keys(currentVersion.byDay).length > 0) {
-        acc.push({ version: undefined, key: undefined, byDay: {} });
-      }
     }
     return acc;
   }, []);

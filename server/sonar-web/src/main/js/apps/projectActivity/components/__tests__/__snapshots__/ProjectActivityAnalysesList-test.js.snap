@@ -203,38 +203,6 @@ exports[`should render correctly 1`] = `
             selected={false}
             updateSelectedDate={[Function]}
           />
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li>
-    <div
-      className="project-activity-version-badge"
-    >
-      <span
-        className="badge"
-      >
-        6.4
-      </span>
-    </div>
-    <ul
-      className="project-activity-days-list"
-    >
-      <li
-        className="project-activity-day"
-        data-day="Formated.YYYY-MM-DD:2016-9-27"
-      >
-        <div
-          className="project-activity-date"
-        >
-          <FormattedDate
-            date="2016-9-27"
-            format="LL"
-          />
-        </div>
-        <ul
-          className="project-activity-analyses-list"
-        >
           <ProjectActivityAnalysis
             addCustomEvent={[Function]}
             addVersion={[Function]}
@@ -256,6 +224,21 @@ exports[`should render correctly 1`] = `
           />
         </ul>
       </li>
+    </ul>
+  </li>
+  <li>
+    <div
+      className="project-activity-version-badge"
+    >
+      <span
+        className="badge"
+      >
+        6.4
+      </span>
+    </div>
+    <ul
+      className="project-activity-days-list"
+    >
       <li
         className="project-activity-day"
         data-day="Formated.YYYY-MM-DD:2016-9-26"
@@ -303,12 +286,6 @@ exports[`should render correctly 1`] = `
           />
         </ul>
       </li>
-    </ul>
-  </li>
-  <li>
-    <ul
-      className="project-activity-days-list"
-    >
       <li
         className="project-activity-day"
         data-day="Formated.YYYY-MM-DD:2016-9-24"
