@@ -73,7 +73,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
     }
 
     ReportPublisher reportPublisher = container.getComponentByType(ReportPublisher.class);
-    reader = new ScannerReportReader(reportPublisher.getReportDir());
+    reader = new ScannerReportReader(reportPublisher.getReportDir().toFile());
     if (!container.getComponentByType(AnalysisMode.class).isIssues()) {
       Metadata readMetadata = getReportReader().readMetadata();
       int rootComponentRef = readMetadata.getRootComponentRef();

@@ -55,8 +55,18 @@ public final class FileUtils {
    */
   public static void deleteDirectory(File directory) throws IOException {
     requireNonNull(directory, DIRECTORY_CAN_NOT_BE_NULL);
-
     deleteDirectoryImpl(directory.toPath());
+  }
+
+  /**
+   * Deletes a directory recursively.
+   *
+   * @param directory  directory to delete
+   * @throws IOException in case deletion is unsuccessful
+   */
+  public static void deleteDirectory(Path directory) throws IOException {
+    requireNonNull(directory, DIRECTORY_CAN_NOT_BE_NULL);
+    deleteDirectoryImpl(directory);
   }
 
   /**
@@ -92,12 +102,31 @@ public final class FileUtils {
     if (file == null) {
       return false;
     }
+    return deleteQuietly(file.toPath());
+  }
+
+  /**
+   * Deletes a file, never throwing an exception. If file is a directory, delete it and all sub-directories.
+   * <p>
+   * The difference between File.delete() and this method are:
+   * <ul>
+   * <li>A directory to be deleted does not have to be empty.</li>
+   * <li>No exceptions are thrown when a file or directory cannot be deleted.</li>
+   * </ul>
+   *
+   * @param file  file or directory to delete, can be {@code null}
+   * @return {@code true} if the file or directory was deleted, otherwise {@code false}
+   */
+  public static boolean deleteQuietly(@Nullable Path path) {
+    if (path == null) {
+      return false;
+    }
 
     try {
-      if (file.isDirectory()) {
-        deleteDirectory(file);
+      if (Files.isDirectory(path)) {
+        deleteDirectory(path);
       } else {
-        Files.delete(file.toPath());
+        Files.delete(path);
       }
       return true;
     } catch (IOException | SecurityException ignored) {

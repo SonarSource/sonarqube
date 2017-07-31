@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-
 import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.utils.PathUtils;
@@ -40,7 +39,10 @@ import static java.util.stream.Collectors.joining;
 @Immutable
 public class PathResolver {
 
-  public File relativeFile(File dir, String path) {
+  /**
+   * Static since 6.6
+   */
+  public static File relativeFile(File dir, String path) {
     return dir.toPath().resolve(path).normalize().toFile();
   }
 
@@ -77,10 +79,11 @@ public class PathResolver {
    *   <li>null is returned if file is not a child of dir
    *   <li>the resulting path is converted to use Unix separators
    *   </ul> 
+   *   Static since 6.6
    * @since 6.0
    */
   @CheckForNull
-  public String relativePath(Path dir, Path file) {
+  public static String relativePath(Path dir, Path file) {
     Path baseDir = dir.normalize();
     Path path = file.normalize();
     if (!path.startsWith(baseDir)) {

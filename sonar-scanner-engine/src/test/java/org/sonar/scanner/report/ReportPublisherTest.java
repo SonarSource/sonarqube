@@ -79,9 +79,9 @@ public class ReportPublisherTest {
   AnalysisContextReportPublisher contextPublisher = mock(AnalysisContextReportPublisher.class);
 
   @Before
-  public void setUp() {
+  public void setUp() throws IOException {
     wsClient = mock(ScannerWsClient.class, Mockito.RETURNS_DEEP_STUBS);
-    root = new DefaultInputModule(ProjectDefinition.create().setKey("struts").setWorkDir(temp.getRoot()));
+    root = new DefaultInputModule(ProjectDefinition.create().setKey("struts").setBaseDir(temp.newFolder()).setWorkDir(temp.getRoot()));
     when(moduleHierarchy.root()).thenReturn(root);
     when(server.getPublicRootUrl()).thenReturn("https://localhost");
     when(server.getVersion()).thenReturn("6.4");

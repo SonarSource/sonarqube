@@ -19,9 +19,9 @@
  */
 package org.sonar.scanner.scm;
 
+import com.google.common.base.Joiner;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
@@ -36,8 +36,6 @@ import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-
-import com.google.common.base.Joiner;
 
 @Properties({
   @Property(
@@ -123,7 +121,7 @@ public final class ScmConfiguration implements Startable {
 
   private void autodetection() {
     for (ScmProvider installedProvider : providerPerKey.values()) {
-      if (installedProvider.supports(moduleHierarchy.root().getBaseDir())) {
+      if (installedProvider.supports(moduleHierarchy.root().getBaseDir().toFile())) {
         if (this.provider == null) {
           this.provider = installedProvider;
         } else {

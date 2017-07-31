@@ -23,9 +23,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-
 import javax.annotation.concurrent.Immutable;
-
 import org.sonar.core.util.ContextException;
 import org.sonar.core.util.Protobuf;
 

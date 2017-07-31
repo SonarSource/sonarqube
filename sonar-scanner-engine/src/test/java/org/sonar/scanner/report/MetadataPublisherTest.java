@@ -19,15 +19,9 @@
  */
 package org.sonar.scanner.report;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,6 +40,12 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
 
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class MetadataPublisherTest {
 
   @Rule
@@ -60,7 +60,7 @@ public class MetadataPublisherTest {
   private InputModuleHierarchy inputModuleHierarchy;
 
   @Before
-  public void prepare() {
+  public void prepare() throws IOException {
     projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     cpdSettings = mock(CpdSettings.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(new Date(1234567L));
@@ -69,8 +69,8 @@ public class MetadataPublisherTest {
     createPublisher(ProjectDefinition.create().setKey("foo"));
   }
 
-  private void createPublisher(ProjectDefinition def) {
-    rootModule = new DefaultInputModule(def, TestInputFileBuilder.nextBatchId());
+  private void createPublisher(ProjectDefinition def) throws IOException {
+    rootModule = new DefaultInputModule(def.setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()), TestInputFileBuilder.nextBatchId());
     inputModuleHierarchy = mock(InputModuleHierarchy.class);
     when(inputModuleHierarchy.root()).thenReturn(rootModule);
     underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings);

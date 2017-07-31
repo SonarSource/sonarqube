@@ -19,17 +19,9 @@
  */
 package org.sonar.scanner.issue.tracking;
 
-import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Collections;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,6 +33,12 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+
+import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SourceHashHolderTest {
 
@@ -57,7 +55,7 @@ public class SourceHashHolderTest {
 
   @Before
   public void setUp() throws Exception {
-    def = mock(ProjectDefinition.class);
+    def = ProjectDefinition.create().setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder());
     lastSnapshots = mock(ServerLineHashesLoader.class);
     file = mock(DefaultInputFile.class);
     ioFile = temp.newFile();
@@ -86,7 +84,7 @@ public class SourceHashHolderTest {
   public void should_lazy_load_reference_hashes_when_status_changed() throws Exception {
     final String source = "source";
     FileUtils.write(ioFile, source, StandardCharsets.UTF_8);
-    when(def.getKeyWithBranch()).thenReturn("foo");
+    def.setKey("foo");
     when(file.relativePath()).thenReturn("src/Foo.java");
     String key = "foo:src/Foo.java";
     when(file.status()).thenReturn(InputFile.Status.CHANGED);
@@ -103,8 +101,8 @@ public class SourceHashHolderTest {
   public void should_lazy_load_reference_hashes_when_status_changed_on_branch() throws Exception {
     final String source = "source";
     FileUtils.write(ioFile, source, StandardCharsets.UTF_8);
-    when(def.getKeyWithBranch()).thenReturn("foo:myBranch");
-    when(def.properties()).thenReturn(Collections.singletonMap(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch"));
+    def.setKey("foo");
+    def.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
     when(file.relativePath()).thenReturn("src/Foo.java");
     String key = "foo:myBranch:src/Foo.java";
     when(file.status()).thenReturn(InputFile.Status.CHANGED);

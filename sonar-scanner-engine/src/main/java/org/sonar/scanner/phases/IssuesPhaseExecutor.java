@@ -29,7 +29,7 @@ import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.issue.tracking.IssueTransition;
 import org.sonar.scanner.rule.QProfileVerifier;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.scanner.scan.filesystem.FileSystemLogger;
+import org.sonar.scanner.scan.filesystem.FileIndexer;
 import org.sonar.scanner.scan.report.IssuesReports;
 
 public final class IssuesPhaseExecutor extends AbstractPhaseExecutor {
@@ -41,9 +41,9 @@ public final class IssuesPhaseExecutor extends AbstractPhaseExecutor {
   private final IssueTransition localIssueTracking;
 
   public IssuesPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, SensorContext sensorContext,
-    EventBus eventBus, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, IssueTransition localIssueTracking, InputModuleHierarchy moduleHierarchy) {
-    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, moduleHierarchy, eventBus, fsLogger, fs, profileVerifier, issueExclusionsLoader);
+    EventBus eventBus, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
+    IssueExclusionsLoader issueExclusionsLoader, IssueTransition localIssueTracking, InputModuleHierarchy moduleHierarchy, FileIndexer fileIndexer) {
+    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, moduleHierarchy, eventBus, fs, profileVerifier, issueExclusionsLoader, fileIndexer);
     this.eventBus = eventBus;
     this.issuesReport = jsonReport;
     this.localIssueTracking = localIssueTracking;

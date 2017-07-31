@@ -19,10 +19,6 @@
  */
 package org.sonar.scanner.index;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 import java.util.Collections;
 import org.junit.Before;
@@ -47,6 +43,10 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultIndexTest {
 
@@ -74,10 +74,16 @@ public class DefaultIndexTest {
 
     baseDir = temp.newFolder();
 
-    ProjectDefinition rootDef = ProjectDefinition.create().setKey("project").setBaseDir(baseDir);
-    ProjectDefinition moduleADef = ProjectDefinition.create().setKey("moduleA").setBaseDir(new java.io.File(baseDir, "moduleA"));
-    ProjectDefinition moduleBDef = ProjectDefinition.create().setKey("moduleB").setBaseDir(new java.io.File(baseDir, "moduleB"));
-    ProjectDefinition moduleB1Def = ProjectDefinition.create().setKey("moduleB1").setBaseDir(new java.io.File(baseDir, "moduleB/moduleB1"));
+    ProjectDefinition rootDef = ProjectDefinition.create().setKey("project").setBaseDir(baseDir).setWorkDir(temp.newFolder());
+    java.io.File moduleABaseDir = new java.io.File(baseDir, "moduleA");
+    moduleABaseDir.mkdir();
+    ProjectDefinition moduleADef = ProjectDefinition.create().setKey("moduleA").setBaseDir(moduleABaseDir).setWorkDir(temp.newFolder());
+    java.io.File moduleBBaseDir = new java.io.File(baseDir, "moduleB");
+    moduleBBaseDir.mkdir();
+    ProjectDefinition moduleBDef = ProjectDefinition.create().setKey("moduleB").setBaseDir(moduleBBaseDir).setWorkDir(temp.newFolder());
+    java.io.File moduleB1BaseDir = new java.io.File(baseDir, "moduleB/moduleB1");
+    moduleB1BaseDir.mkdir();
+    ProjectDefinition moduleB1Def = ProjectDefinition.create().setKey("moduleB1").setBaseDir(moduleB1BaseDir).setWorkDir(temp.newFolder());
 
     rootDef.addSubProject(moduleADef);
     rootDef.addSubProject(moduleBDef);
@@ -96,8 +102,8 @@ public class DefaultIndexTest {
   }
 
   @Test
-  public void shouldGetHierarchy() {
-    InputComponent component = new DefaultInputModule("module1");
+  public void shouldGetHierarchy() throws IOException {
+    InputComponent component = new DefaultInputModule(ProjectDefinition.create().setKey("module1").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
     InputFile file1 = new TestInputFileBuilder("module1", "src/org/foo/Bar.java").build();
 
     when(componentStore.getByKey("module1")).thenReturn(component);
@@ -113,10 +119,12 @@ public class DefaultIndexTest {
   }
 
   @Test
-  public void shouldTransformToResource() {
+  public void shouldTransformToResource() throws IOException {
     DefaultInputModule component = new DefaultInputModule(ProjectDefinition.create()
       .setKey("module1")
-      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "branch1"), 1);
+      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "branch1")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder()), 1);
     InputFile file1 = new TestInputFileBuilder("module1", "src/org/foo/Bar.java").build();
     InputDir dir = new DefaultInputDir("module1", "src");
 

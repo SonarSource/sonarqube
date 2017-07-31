@@ -19,7 +19,11 @@
  */
 package org.sonar.scanner.issue;
 
+import java.io.IOException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.issue.Issuable;
@@ -30,7 +34,8 @@ import static org.mockito.Mockito.mock;
 
 public class IssuableFactoryTest {
 
-  ModuleIssues moduleIssues = mock(ModuleIssues.class);
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void file_should_be_issuable() {
@@ -42,9 +47,10 @@ public class IssuableFactoryTest {
   }
 
   @Test
-  public void project_should_be_issuable() {
+  public void project_should_be_issuable() throws IOException {
     IssuableFactory factory = new IssuableFactory(mock(DefaultSensorContext.class));
-    Issuable issuable = factory.loadPerspective(Issuable.class, new DefaultInputModule("foo"));
+    Issuable issuable = factory.loadPerspective(Issuable.class,
+      new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())));
 
     assertThat(issuable).isNotNull();
     assertThat(issuable.issues()).isEmpty();

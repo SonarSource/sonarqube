@@ -19,8 +19,12 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import java.io.IOException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
@@ -31,12 +35,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class MetadataGeneratorProviderTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
-  public void create_builder() {
+  public void create_builder() throws IOException {
     StatusDetectionFactory statusDetectionFactory = mock(StatusDetectionFactory.class, Mockito.RETURNS_MOCKS);
     IssueExclusionsLoader issueExclusionsLoader = new IssueExclusionsLoader(mock(IssueExclusionPatternInitializer.class), mock(PatternMatcher.class));
 
     MetadataGeneratorProvider factory = new MetadataGeneratorProvider();
-    assertThat(factory.provide(new DefaultInputModule("module"), statusDetectionFactory, new FileMetadata(), issueExclusionsLoader)).isNotNull();
+    assertThat(factory.provide(new DefaultInputModule(ProjectDefinition.create().setKey("module").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())),
+      statusDetectionFactory, new FileMetadata(), issueExclusionsLoader)).isNotNull();
   }
 }

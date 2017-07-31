@@ -24,7 +24,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
-
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.core.util.FileUtils;
 import org.sonar.home.cache.DirectoryLock;
@@ -33,7 +32,7 @@ public class WorkDirectoryCleaner {
   private final Path workDir;
 
   public WorkDirectoryCleaner(InputModuleHierarchy moduleHierarchy) {
-    workDir = moduleHierarchy.root().getWorkDir().toPath();
+    workDir = moduleHierarchy.root().getWorkDir();
   }
 
   public void execute() {

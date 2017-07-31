@@ -19,8 +19,12 @@
  */
 package org.sonar.scanner.source;
 
+import java.io.IOException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -31,6 +35,9 @@ import static org.mockito.Mockito.mock;
 
 public class HighlightableBuilderTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
   public void should_load_default_perspective() {
     HighlightableBuilder builder = new HighlightableBuilder(mock(SensorStorage.class), mock(AnalysisMode.class));
@@ -40,9 +47,10 @@ public class HighlightableBuilderTest {
   }
 
   @Test
-  public void project_should_not_be_highlightable() {
+  public void project_should_not_be_highlightable() throws IOException {
     HighlightableBuilder builder = new HighlightableBuilder(mock(SensorStorage.class), mock(AnalysisMode.class));
-    Highlightable perspective = builder.loadPerspective(Highlightable.class, new DefaultInputModule("struts"));
+    Highlightable perspective = builder.loadPerspective(Highlightable.class,
+      new DefaultInputModule(ProjectDefinition.create().setKey("struts").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())));
 
     assertThat(perspective).isNull();
   }

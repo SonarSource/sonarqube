@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import org.picocontainer.Startable;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.home.cache.DirectoryLock;
@@ -33,7 +32,7 @@ public class ProjectLock implements Startable {
   private final DirectoryLock lock;
 
   public ProjectLock(InputModuleHierarchy moduleHierarchy) {
-    Path directory = moduleHierarchy.root().getWorkDir().toPath();
+    Path directory = moduleHierarchy.root().getWorkDir();
     try {
       if (!directory.toFile().exists()) {
         Files.createDirectories(directory);
@@ -43,7 +42,7 @@ public class ProjectLock implements Startable {
     }
     this.lock = new DirectoryLock(directory.toAbsolutePath(), new Slf4jLogger());
   }
-  
+
   public void tryLock() {
     try {
       if (!lock.tryLock()) {

@@ -19,22 +19,20 @@
  */
 package org.sonar.xoo.lang;
 
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -43,8 +41,7 @@ import static org.mockito.Mockito.when;
 public class SymbolReferencesSensorTest {
 
   private SymbolReferencesSensor sensor;
-  private SensorContext context = mock(SensorContext.class);
-  private DefaultFileSystem fileSystem;
+  private SensorContextTester context;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -56,8 +53,7 @@ public class SymbolReferencesSensorTest {
     baseDir = temp.newFolder();
     perspectives = mock(ResourcePerspectives.class);
     sensor = new SymbolReferencesSensor(perspectives);
-    fileSystem = new DefaultFileSystem(baseDir.toPath());
-    when(context.fileSystem()).thenReturn(fileSystem);
+    context = SensorContextTester.create(baseDir);
   }
 
   @Test
@@ -68,7 +64,7 @@ public class SymbolReferencesSensorTest {
   @Test
   public void testNoExecutionIfNoSymbolFile() {
     InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").setModuleBaseDir(baseDir.toPath()).build();
-    fileSystem.add(inputFile);
+    context.fileSystem().add(inputFile);
     sensor.execute(context);
   }
 
@@ -77,7 +73,7 @@ public class SymbolReferencesSensorTest {
     File symbol = new File(baseDir, "src/foo.xoo.symbol");
     FileUtils.write(symbol, "1:4,7\n12:15,23:33\n\n#comment");
     InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").setModuleBaseDir(baseDir.toPath()).build();
-    fileSystem.add(inputFile);
+    context.fileSystem().add(inputFile);
     Symbolizable symbolizable = mock(Symbolizable.class);
     when(perspectives.as(Symbolizable.class, inputFile)).thenReturn(symbolizable);
     Symbolizable.SymbolTableBuilder symbolTableBuilder = mock(Symbolizable.SymbolTableBuilder.class);

@@ -159,7 +159,7 @@ public class InputComponentStore {
   }
 
   private Path getProjectBaseDir() {
-    return ((DefaultInputModule) root).getBaseDir().toPath();
+    return ((DefaultInputModule) root).getBaseDir();
   }
 
   @CheckForNull

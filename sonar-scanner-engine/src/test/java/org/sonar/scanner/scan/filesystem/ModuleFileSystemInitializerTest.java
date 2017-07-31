@@ -19,27 +19,28 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 import java.io.File;
 import java.io.IOException;
-
+import java.nio.file.Path;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.TempFolder;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ModuleFileSystemInitializerTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  PathResolver pathResolver = new PathResolver();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void test_default_directories() throws Exception {
@@ -47,10 +48,10 @@ public class ModuleFileSystemInitializerTest {
     File workDir = temp.newFolder("work");
     ProjectDefinition module = ProjectDefinition.create().setBaseDir(baseDir).setWorkDir(workDir);
 
-    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(module, mock(TempFolder.class), pathResolver);
+    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(new DefaultInputModule(module), module);
 
-    assertThat(initializer.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
-    assertThat(initializer.workingDir().getCanonicalPath()).isEqualTo(workDir.getCanonicalPath());
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Base dir: " + baseDir.toPath().toAbsolutePath().toString());
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Working dir: " + workDir.toPath().toAbsolutePath().toString());
     assertThat(initializer.sources()).isEmpty();
     assertThat(initializer.tests()).isEmpty();
   }
@@ -58,6 +59,7 @@ public class ModuleFileSystemInitializerTest {
   @Test
   public void should_init_directories() throws IOException {
     File baseDir = temp.newFolder("base");
+    File workDir = temp.newFolder("work");
     File sourceDir = new File(baseDir, "src/main/java");
     FileUtils.forceMkdir(sourceDir);
     File testDir = new File(baseDir, "src/test/java");
@@ -67,12 +69,12 @@ public class ModuleFileSystemInitializerTest {
 
     ProjectDefinition project = ProjectDefinition.create()
       .setBaseDir(baseDir)
+      .setWorkDir(workDir)
       .addSources("src/main/java", "src/main/unknown")
       .addTests("src/test/java", "src/test/unknown");
 
-    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(project, mock(TempFolder.class), pathResolver);
+    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(new DefaultInputModule(project), project);
 
-    assertThat(initializer.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
     assertThat(initializer.sources()).hasSize(1);
     assertThat(path(initializer.sources().get(0))).endsWith("src/main/java");
     assertThat(initializer.tests()).hasSize(1);
@@ -82,6 +84,7 @@ public class ModuleFileSystemInitializerTest {
   @Test
   public void supportFilenamesWithComma() throws IOException {
     File baseDir = temp.newFolder("base");
+    File workDir = temp.newFolder("work");
     File sourceFile = new File(baseDir, "my,File.cs");
     sourceFile.createNewFile();
     File testFile = new File(baseDir, "my,TestFile.cs");
@@ -89,20 +92,20 @@ public class ModuleFileSystemInitializerTest {
 
     ProjectDefinition project = ProjectDefinition.create()
       .setBaseDir(baseDir)
+      .setWorkDir(workDir)
       .addSources("\"my,File.cs\"")
       .addTests("\"my,TestFile.cs\"");
 
-    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(project, mock(TempFolder.class), pathResolver);
+    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(new DefaultInputModule(project), project);
 
-    assertThat(initializer.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
     assertThat(initializer.sources()).hasSize(1);
-    assertThat(initializer.sources().get(0)).isEqualTo(sourceFile);
+    assertThat(initializer.sources().get(0)).isEqualTo(sourceFile.toPath());
     assertThat(initializer.tests()).hasSize(1);
-    assertThat(initializer.tests().get(0)).isEqualTo(testFile);
+    assertThat(initializer.tests().get(0)).isEqualTo(testFile.toPath());
   }
 
-  private String path(File f) throws IOException {
-    return FilenameUtils.separatorsToUnix(f.getCanonicalPath());
+  private String path(Path f) throws IOException {
+    return FilenameUtils.separatorsToUnix(f.toString());
   }
 
 }
