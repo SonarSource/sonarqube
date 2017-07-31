@@ -922,6 +922,11 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     }
 
     @Override
+    public boolean isLegacyFeature() {
+      return false;
+    }
+
+    @Override
     public java.util.Optional<String> getName() {
       return java.util.Optional.ofNullable(name);
     }
