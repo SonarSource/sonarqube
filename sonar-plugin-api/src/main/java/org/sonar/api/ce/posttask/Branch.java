@@ -17,35 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.analysis;
+package org.sonar.api.ce.posttask;
 
 import java.util.Optional;
-import javax.annotation.concurrent.Immutable;
-import org.sonar.db.component.BranchType;
-import org.sonar.server.computation.task.projectanalysis.component.ComponentKeyGenerator;
 
-@Immutable
-public interface Branch extends ComponentKeyGenerator {
+/**
+ * @since 6.6
+ */
+public interface Branch {
 
-  BranchType getType();
+  enum Type {
+    LONG, SHORT
+  }
 
   boolean isMain();
 
-  /**
-   * Whether branch has been created through the legacy configuration
-   * (scanner parameter sonar.branch) or not
-   */
-  boolean isLegacyFeature();
-
-  /**
-   * Name can be empty when it's not known on the main branch
-   * (regular analysis without the branch parameters)
-   */
   Optional<String> getName();
 
-  /**
-   * Whether the cross-project duplication tracker must be enabled
-   * or not.
-   */
-  boolean supportsCrossProjectCpd();
+  Type getType();
+
 }
