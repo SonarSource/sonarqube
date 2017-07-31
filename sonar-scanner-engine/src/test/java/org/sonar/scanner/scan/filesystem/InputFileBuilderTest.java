@@ -31,37 +31,41 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.scan.filesystem.PathResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class InputFileBuilderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   private Path baseDir;
+  private Path workDir;
   private InputFileBuilder builder;
 
   @Before
   public void setUp() throws IOException {
     baseDir = temp.newFolder().toPath();
+    workDir = temp.newFolder().toPath();
     DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create()
-      .setKey("module1")
-      .setBaseDir(baseDir.toFile()), 0);
+      .setBaseDir(baseDir.toFile())
+      .setWorkDir(workDir.toFile())
+      .setKey("module1"), 0);
 
-    PathResolver pathResolver = new PathResolver();
     LanguageDetection langDetection = mock(LanguageDetection.class);
     MetadataGenerator metadataGenerator = mock(MetadataGenerator.class);
     BatchIdGenerator idGenerator = new BatchIdGenerator();
     MapSettings settings = new MapSettings();
-    builder = new InputFileBuilder(module, pathResolver, langDetection, metadataGenerator, idGenerator, settings.asConfig());
+    ModuleFileSystemInitializer moduleFileSystemInitializer = mock(ModuleFileSystemInitializer.class);
+    when(moduleFileSystemInitializer.defaultEncoding()).thenReturn(StandardCharsets.UTF_8);
+    builder = new InputFileBuilder(module, langDetection, metadataGenerator, idGenerator, settings.asConfig(), moduleFileSystemInitializer);
   }
 
   @Test
   public void testBuild() {
     Path filePath = baseDir.resolve("src/File1.xoo");
-    DefaultInputFile inputFile = builder.create(filePath, Type.MAIN, StandardCharsets.UTF_8);
+    DefaultInputFile inputFile = builder.create(filePath, Type.MAIN);
 
     assertThat(inputFile.moduleKey()).isEqualTo("module1");
     assertThat(inputFile.absolutePath()).isEqualTo(filePath.toString().replaceAll("\\\\", "/"));

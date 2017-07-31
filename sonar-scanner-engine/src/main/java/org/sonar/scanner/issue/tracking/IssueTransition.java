@@ -65,7 +65,7 @@ public class IssueTransition {
       localIssueTracking.init();
     }
 
-    ScannerReportReader reader = new ScannerReportReader(reportPublisher.getReportDir());
+    ScannerReportReader reader = new ScannerReportReader(reportPublisher.getReportDir().toFile());
     int nbComponents = inputComponentStore.all().size();
 
     if (nbComponents == 0) {

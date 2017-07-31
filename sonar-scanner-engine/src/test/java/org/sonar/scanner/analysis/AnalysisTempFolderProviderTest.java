@@ -19,13 +19,8 @@
  */
 package org.sonar.scanner.analysis;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.io.IOException;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,6 +28,10 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.utils.TempFolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AnalysisTempFolderProviderTest {
 
@@ -48,7 +47,7 @@ public class AnalysisTempFolderProviderTest {
     moduleHierarchy = mock(InputModuleHierarchy.class);
     DefaultInputModule module = mock(DefaultInputModule.class);
     when(moduleHierarchy.root()).thenReturn(module);
-    when(module.getWorkDir()).thenReturn(temp.getRoot());
+    when(module.getWorkDir()).thenReturn(temp.getRoot().toPath());
   }
 
   @Test

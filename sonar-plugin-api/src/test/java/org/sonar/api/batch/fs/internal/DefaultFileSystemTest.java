@@ -19,15 +19,14 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.Iterator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,19 +54,15 @@ public class DefaultFileSystemTest {
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(basedir.getCanonicalPath());
 
     File workdir = temp.newFolder();
-    fs.setWorkDir(workdir);
+    fs.setWorkDir(workdir.toPath());
     assertThat(fs.workDir()).isAbsolute().isDirectory().exists();
     assertThat(fs.workDir().getCanonicalPath()).isEqualTo(workdir.getCanonicalPath());
   }
 
   @Test
   public void test_encoding() throws Exception {
-    assertThat(fs.isDefaultJvmEncoding()).isTrue();
-    assertThat(fs.encoding()).isEqualTo(Charset.defaultCharset());
-
     fs.setEncoding(Charset.forName("ISO-8859-1"));
     assertThat(fs.encoding()).isEqualTo(Charset.forName("ISO-8859-1"));
-    assertThat(fs.isDefaultJvmEncoding()).isFalse();
   }
 
   @Test

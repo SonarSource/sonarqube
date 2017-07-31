@@ -19,8 +19,12 @@
  */
 package org.sonar.scanner.source;
 
+import java.io.IOException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.component.Perspective;
@@ -32,6 +36,9 @@ import static org.mockito.Mockito.mock;
 
 public class SymbolizableBuilderTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
   public void should_load_perspective() {
     SymbolizableBuilder perspectiveBuilder = new SymbolizableBuilder(mock(DefaultSensorStorage.class), mock(AnalysisMode.class));
@@ -41,9 +48,10 @@ public class SymbolizableBuilderTest {
   }
 
   @Test
-  public void project_should_not_be_highlightable() {
+  public void project_should_not_be_highlightable() throws IOException {
     SymbolizableBuilder builder = new SymbolizableBuilder(mock(DefaultSensorStorage.class), mock(AnalysisMode.class));
-    Perspective perspective = builder.loadPerspective(Symbolizable.class, new DefaultInputModule("struts"));
+    Perspective perspective = builder.loadPerspective(Symbolizable.class,
+      new DefaultInputModule(ProjectDefinition.create().setKey("struts").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())));
 
     assertThat(perspective).isNull();
   }

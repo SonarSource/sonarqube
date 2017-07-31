@@ -74,7 +74,7 @@ public class ReportPublisher implements Startable {
   private final ReportPublisherStep[] publishers;
   private final Server server;
 
-  private File reportDir;
+  private Path reportDir;
   private ScannerReportWriter writer;
 
   public ReportPublisher(Configuration settings, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
@@ -91,8 +91,8 @@ public class ReportPublisher implements Startable {
 
   @Override
   public void start() {
-    reportDir = new File(moduleHierarchy.root().getWorkDir(), "scanner-report");
-    writer = new ScannerReportWriter(reportDir);
+    reportDir = moduleHierarchy.root().getWorkDir().resolve("scanner-report");
+    writer = new ScannerReportWriter(reportDir.toFile());
     contextPublisher.init(writer);
 
     if (!analysisMode.isIssues() && !analysisMode.isMediumTest()) {
@@ -110,7 +110,7 @@ public class ReportPublisher implements Startable {
     }
   }
 
-  public File getReportDir() {
+  public Path getReportDir() {
     return reportDir;
   }
 
@@ -144,11 +144,11 @@ public class ReportPublisher implements Startable {
         publisher.publish(writer);
       }
       long stopTime = System.currentTimeMillis();
-      LOG.info("Analysis report generated in {}ms, dir size={}", stopTime - startTime, FileUtils.byteCountToDisplaySize(FileUtils.sizeOfDirectory(reportDir)));
+      LOG.info("Analysis report generated in {}ms, dir size={}", stopTime - startTime, FileUtils.byteCountToDisplaySize(FileUtils.sizeOfDirectory(reportDir.toFile())));
 
       startTime = System.currentTimeMillis();
-      File reportZip = temp.newFile("batch-report", ".zip");
-      ZipUtils.zipDir(reportDir, reportZip);
+      File reportZip = temp.newFile("scanner-report", ".zip");
+      ZipUtils.zipDir(reportDir.toFile(), reportZip);
       stopTime = System.currentTimeMillis();
       LOG.info("Analysis reports compressed in {}ms, zip size={}", stopTime - startTime, FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(reportZip)));
       return reportZip;
@@ -228,7 +228,7 @@ public class ReportPublisher implements Startable {
   }
 
   private void dumpMetadata(Map<String, String> metadata) {
-    Path file = moduleHierarchy.root().getWorkDir().toPath().resolve(METADATA_DUMP_FILENAME);
+    Path file = moduleHierarchy.root().getWorkDir().resolve(METADATA_DUMP_FILENAME);
     try (Writer output = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
       for (Map.Entry<String, String> entry : metadata.entrySet()) {
         output.write(entry.getKey());

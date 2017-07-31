@@ -20,11 +20,13 @@
 package org.sonar.api.batch.sensor.internal;
 
 import java.io.File;
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -124,7 +126,7 @@ public class SensorContextTesterTest {
   }
 
   @Test
-  public void testMeasures() {
+  public void testMeasures() throws IOException {
     assertThat(tester.measures("foo:src/Foo.java")).isEmpty();
     assertThat(tester.measure("foo:src/Foo.java", "ncloc")).isNull();
     tester.<Integer>newMeasure()
@@ -143,7 +145,7 @@ public class SensorContextTesterTest {
     assertThat(tester.measure("foo:src/Foo.java", "ncloc")).isNotNull();
     assertThat(tester.measure("foo:src/Foo.java", "lines")).isNotNull();
     tester.<Integer>newMeasure()
-      .on(new DefaultInputModule("foo"))
+      .on(new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())))
       .forMetric(CoreMetrics.DIRECTORIES)
       .withValue(4)
       .save();

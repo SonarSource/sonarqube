@@ -19,18 +19,22 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
 import org.apache.commons.io.IOUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputFile.Type;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestInputFileBuilderTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void setContent() throws IOException {
@@ -59,9 +63,10 @@ public class TestInputFileBuilderTest {
   }
 
   @Test
-  public void testCreateInputModule() {
-    DefaultInputModule module = TestInputFileBuilder.newDefaultInputModule("key", new File("baseDir"));
+  public void testCreateInputModule() throws IOException {
+    File baseDir = temp.newFolder();
+    DefaultInputModule module = TestInputFileBuilder.newDefaultInputModule("key", baseDir);
     assertThat(module.key()).isEqualTo("key");
-    assertThat(module.getBaseDir()).isEqualTo(new File("baseDir"));
+    assertThat(module.getBaseDir()).isEqualTo(baseDir.toPath());
   }
 }

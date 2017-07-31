@@ -19,21 +19,18 @@
  */
 package org.sonar.scanner.scan;
 
+import com.google.common.collect.ImmutableMultimap;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.scan.filesystem.PathResolver;
-
-import com.google.common.collect.ImmutableMultimap;
 
 @Immutable
 public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
@@ -111,8 +108,8 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
       return null;
     }
     DefaultInputModule inputModule = (DefaultInputModule) module;
-    Path parentBaseDir = parent.getBaseDir().toPath();
-    Path moduleBaseDir = inputModule.getBaseDir().toPath();
+    Path parentBaseDir = parent.getBaseDir();
+    Path moduleBaseDir = inputModule.getBaseDir();
 
     return pathResolver.relativePath(parentBaseDir, moduleBaseDir);
   }

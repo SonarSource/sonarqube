@@ -20,10 +20,13 @@
 package org.sonar.scanner.bootstrap;
 
 import com.google.common.collect.Lists;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.BuildBreaker;
 import org.sonar.api.batch.CheckProject;
@@ -34,6 +37,7 @@ import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -48,6 +52,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 public class ScannerExtensionDictionnaryTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private ScannerExtensionDictionnary newSelector(Object... extensions) {
     ComponentContainer iocContainer = new ComponentContainer();
@@ -232,12 +239,13 @@ public class ScannerExtensionDictionnaryTest {
   }
 
   @Test
-  public void checkProject() {
+  public void checkProject() throws IOException {
     BatchExtension ok = new CheckProjectOK();
     BatchExtension ko = new CheckProjectKO();
 
     ScannerExtensionDictionnary selector = newSelector(ok, ko);
-    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, new DefaultInputModule("foo"), true, null));
+    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class,
+      new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())), true, null));
 
     assertThat(extensions).hasSize(1);
     assertThat(extensions.get(0)).isInstanceOf(CheckProjectOK.class);

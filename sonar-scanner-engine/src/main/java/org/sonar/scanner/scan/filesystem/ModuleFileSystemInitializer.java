@@ -20,86 +20,108 @@
 package org.sonar.scanner.scan.filesystem;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.io.FileUtils;
+import java.util.Locale;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static org.sonar.scanner.config.DefaultConfiguration.parseAsCsv;
 
-/**
- * @since 3.5
- */
 @ScannerSide
+@Immutable
 public class ModuleFileSystemInitializer {
 
-  private File baseDir;
-  private File workingDir;
-  private List<File> sourceDirsOrFiles = new ArrayList<>();
-  private List<File> testDirsOrFiles = new ArrayList<>();
+  private static final Logger LOG = Loggers.get(ModuleFileSystemInitializer.class);
 
-  public ModuleFileSystemInitializer(ProjectDefinition module, TempFolder tempUtils, PathResolver pathResolver) {
-    baseDir = module.getBaseDir();
-    initWorkingDir(module, tempUtils);
-    initSources(module, pathResolver);
-    initTests(module, pathResolver);
+  private final List<Path> sourceDirsOrFiles;
+  private final List<Path> testDirsOrFiles;
+  private final Charset encoding;
+
+  public ModuleFileSystemInitializer(DefaultInputModule inputModule, ProjectDefinition module) {
+    logDir("Base dir: ", inputModule.getBaseDir());
+    logDir("Working dir: ", inputModule.getWorkDir());
+    sourceDirsOrFiles = initSources(module, inputModule.getBaseDir(), ProjectDefinition.SOURCES_PROPERTY, "Source paths: ");
+    testDirsOrFiles = initSources(module, inputModule.getBaseDir(), ProjectDefinition.TESTS_PROPERTY, "Test paths: ");
+    encoding = initEncoding(module);
   }
 
-  private void initWorkingDir(ProjectDefinition module, TempFolder tempUtils) {
-    workingDir = module.getWorkDir();
-    if (workingDir == null) {
-      workingDir = tempUtils.newDir("work");
-    } else {
-      try {
-        FileUtils.forceMkdir(workingDir);
-      } catch (Exception e) {
-        throw new IllegalStateException("Fail to create working dir: " + workingDir.getAbsolutePath(), e);
-      }
-    }
-  }
-
-  private void initSources(ProjectDefinition module, PathResolver pathResolver) {
-    String srcPropValue = module.properties().get(ProjectDefinition.SOURCES_PROPERTY);
+  private static List<Path> initSources(ProjectDefinition module, Path baseDir, String propertyKey, String logLabel) {
+    List<Path> result = new ArrayList<>();
+    String srcPropValue = module.properties().get(propertyKey);
     if (srcPropValue != null) {
-      for (String sourcePath : parseAsCsv(ProjectDefinition.SOURCES_PROPERTY, srcPropValue)) {
-        File dirOrFile = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
+      for (String sourcePath : parseAsCsv(propertyKey, srcPropValue)) {
+        File dirOrFile = PathResolver.relativeFile(module.getBaseDir(), sourcePath);
         if (dirOrFile.exists()) {
-          sourceDirsOrFiles.add(dirOrFile);
+          result.add(dirOrFile.toPath());
         }
       }
     }
+    logPaths(logLabel, baseDir, result);
+    return result;
   }
 
-  private void initTests(ProjectDefinition module, PathResolver pathResolver) {
-    String testPropValue = module.properties().get(ProjectDefinition.TESTS_PROPERTY);
-    if (testPropValue != null) {
-      for (String testPath : parseAsCsv(ProjectDefinition.TESTS_PROPERTY, testPropValue)) {
-        File dirOrFile = pathResolver.relativeFile(module.getBaseDir(), testPath);
-        if (dirOrFile.exists()) {
-          testDirsOrFiles.add(dirOrFile);
-        }
-      }
+  private static Charset initEncoding(ProjectDefinition module) {
+    String encodingStr = module.properties().get(CoreProperties.ENCODING_PROPERTY);
+    Charset result;
+    if (StringUtils.isNotEmpty(encodingStr)) {
+      result = Charset.forName(StringUtils.trim(encodingStr));
+      LOG.info("Source encoding: {}, default locale: {}", result.displayName(), Locale.getDefault());
+    } else {
+      result = Charset.defaultCharset();
+      LOG.warn("Source encoding is platform dependent ({}), default locale: {}", result.displayName(), Locale.getDefault());
     }
+    return result;
   }
 
-  File baseDir() {
-    return baseDir;
-  }
-
-  File workingDir() {
-    return workingDir;
-  }
-
-  List<File> sources() {
+  List<Path> sources() {
     return sourceDirsOrFiles;
   }
 
-  List<File> tests() {
+  List<Path> tests() {
     return testDirsOrFiles;
+  }
+
+  public Charset defaultEncoding() {
+    return encoding;
+  }
+
+  private static void logPaths(String label, Path baseDir, List<Path> paths) {
+    if (!paths.isEmpty()) {
+      StringBuilder sb = new StringBuilder(label);
+      for (Iterator<Path> it = paths.iterator(); it.hasNext();) {
+        Path file = it.next();
+        String relativePathToBaseDir = PathResolver.relativePath(baseDir, file);
+        if (relativePathToBaseDir == null) {
+          sb.append(file);
+        } else if (StringUtils.isBlank(relativePathToBaseDir)) {
+          sb.append(".");
+        } else {
+          sb.append(relativePathToBaseDir);
+        }
+        if (it.hasNext()) {
+          sb.append(", ");
+        }
+      }
+      LOG.info(sb.toString());
+    }
+  }
+
+  private static void logDir(String label, @Nullable Path dir) {
+    if (dir != null) {
+      LOG.info(label + dir.toAbsolutePath().toString());
+    }
   }
 
 }

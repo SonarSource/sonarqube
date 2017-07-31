@@ -60,7 +60,6 @@ import org.sonar.scanner.rule.RulesProfileProvider;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ExclusionFilters;
 import org.sonar.scanner.scan.filesystem.FileIndexer;
-import org.sonar.scanner.scan.filesystem.FileSystemLogger;
 import org.sonar.scanner.scan.filesystem.InputFileBuilder;
 import org.sonar.scanner.scan.filesystem.LanguageDetection;
 import org.sonar.scanner.scan.filesystem.MetadataGeneratorProvider;
@@ -124,7 +123,6 @@ public class ModuleScanContainer extends ComponentContainer {
       LanguageDetection.class,
       FileIndexer.class,
       InputFileBuilder.class,
-      FileSystemLogger.class,
       DefaultModuleFileSystem.class,
       ModuleFileSystemInitializer.class,
       QProfileVerifier.class,

@@ -99,7 +99,7 @@ public class AnalysisContextReportPublisherTest {
 
     ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     publisher.init(writer);
-    publisher.dumpModuleSettings(new DefaultInputModule("foo"));
+    publisher.dumpModuleSettings(new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())));
 
     assertThat(writer.getFileStructure().analysisLog()).doesNotExist();
   }
@@ -126,7 +126,7 @@ public class AnalysisContextReportPublisherTest {
     when(projectRepos.moduleExists("foo")).thenReturn(true);
     when(projectRepos.settings("foo")).thenReturn(ImmutableMap.of(COM_FOO, "bar", SONAR_SKIP, "true"));
 
-    publisher.dumpModuleSettings(new DefaultInputModule("foo"));
+    publisher.dumpModuleSettings(new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())));
 
     String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
     assertThat(content).doesNotContain(COM_FOO);
@@ -148,6 +148,8 @@ public class AnalysisContextReportPublisherTest {
     assertThat(content).doesNotContain(SONAR_SKIP);
 
     publisher.dumpModuleSettings(new DefaultInputModule(ProjectDefinition.create()
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder())
       .setProperty("sonar.projectKey", "foo")
       .setProperty(COM_FOO, "bar")
       .setProperty(SONAR_SKIP, "true")));
@@ -174,6 +176,8 @@ public class AnalysisContextReportPublisherTest {
     assertThat(content).containsSequence(BIZ, FOO);
 
     publisher.dumpModuleSettings(new DefaultInputModule(ProjectDefinition.create()
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder())
       .setProperty("sonar.projectKey", "foo")
       .setProperty("env." + FOO, "BAR")));
 
@@ -191,6 +195,8 @@ public class AnalysisContextReportPublisherTest {
     assertThat(writer.getFileStructure().analysisLog()).exists();
 
     publisher.dumpModuleSettings(new DefaultInputModule(ProjectDefinition.create()
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder())
       .setProperty("sonar.projectKey", "foo")
       .setProperty("sonar.projectKey", "foo")
       .setProperty("sonar.login", "my_token")
@@ -226,10 +232,14 @@ public class AnalysisContextReportPublisherTest {
     publisher.init(writer);
 
     DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create()
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder())
       .setProperty("sonar.projectKey", "foo")
       .setProperty(SONAR_SKIP, "true"));
 
     DefaultInputModule parent = new DefaultInputModule(ProjectDefinition.create()
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder())
       .setProperty("sonar.projectKey", "parent")
       .setProperty(SONAR_SKIP, "true"));
 

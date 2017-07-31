@@ -22,7 +22,6 @@ package org.sonar.scanner.analysis;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import org.picocontainer.ComponentLifecycle;
 import org.picocontainer.PicoContainer;
 import org.picocontainer.injectors.ProviderAdapter;
@@ -37,7 +36,7 @@ public class AnalysisTempFolderProvider extends ProviderAdapter implements Compo
 
   public TempFolder provide(InputModuleHierarchy moduleHierarchy) {
     if (projectTempFolder == null) {
-      Path workingDir = moduleHierarchy.root().getWorkDir().toPath();
+      Path workingDir = moduleHierarchy.root().getWorkDir();
       Path tempDir = workingDir.normalize().resolve(TMP_NAME);
       try {
         Files.deleteIfExists(tempDir);

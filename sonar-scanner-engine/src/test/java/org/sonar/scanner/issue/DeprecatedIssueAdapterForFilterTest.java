@@ -19,8 +19,12 @@
  */
 package org.sonar.scanner.issue;
 
+import java.io.IOException;
 import java.util.Date;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
@@ -35,13 +39,16 @@ import static org.mockito.Mockito.when;
 
 public class DeprecatedIssueAdapterForFilterTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   private static final String PROJECT_KEY = "foo";
   private static final Date ANALYSIS_DATE = new Date();
   private static final String COMPONENT_KEY = "foo:src/Foo.java";
 
   @Test
-  public void improve_coverage() {
-    DefaultInputModule module = new DefaultInputModule(PROJECT_KEY);
+  public void improve_coverage() throws IOException {
+    DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create().setKey(PROJECT_KEY).setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
     ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(ANALYSIS_DATE);
 

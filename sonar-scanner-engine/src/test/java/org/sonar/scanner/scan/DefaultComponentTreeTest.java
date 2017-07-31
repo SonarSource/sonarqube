@@ -19,14 +19,22 @@
  */
 package org.sonar.scanner.scan;
 
+import java.io.IOException;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultComponentTreeTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   private DefaultComponentTree tree;
 
   @Before
@@ -35,12 +43,12 @@ public class DefaultComponentTreeTest {
   }
 
   @Test
-  public void test() {
-    DefaultInputComponent root = new DefaultInputModule("root");
-    DefaultInputComponent mod1 = new DefaultInputModule("mod1");
-    DefaultInputComponent mod2 = new DefaultInputModule("mod2");
-    DefaultInputComponent mod3 = new DefaultInputModule("mod3");
-    DefaultInputComponent mod4 = new DefaultInputModule("mod4");
+  public void test() throws IOException {
+    DefaultInputComponent root = new DefaultInputModule(ProjectDefinition.create().setKey("root").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
+    DefaultInputComponent mod1 = new DefaultInputModule(ProjectDefinition.create().setKey("mod1").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
+    DefaultInputComponent mod2 = new DefaultInputModule(ProjectDefinition.create().setKey("mod2").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
+    DefaultInputComponent mod3 = new DefaultInputModule(ProjectDefinition.create().setKey("mod3").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
+    DefaultInputComponent mod4 = new DefaultInputModule(ProjectDefinition.create().setKey("mod4").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
 
     tree.index(mod1, root);
     tree.index(mod2, mod1);

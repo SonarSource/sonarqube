@@ -77,13 +77,17 @@ public class ComponentsPublisherTest {
       .setKey("foo")
       .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
       .setName("Root project")
-      .setDescription("Root description");
+      .setDescription("Root description")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder());
     DefaultInputModule root = new DefaultInputModule(rootDef, 1);
 
     ProjectDefinition module1Def = ProjectDefinition.create()
       .setKey("module1")
       .setName("Module1")
-      .setDescription("Module description");
+      .setDescription("Module description")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder());
     rootDef.addSubProject(module1Def);
 
     DefaultInputModule module1 = new DefaultInputModule(module1Def, 2);
@@ -137,7 +141,7 @@ public class ComponentsPublisherTest {
   }
 
   @Test
-  public void should_skip_dir_without_published_files() {
+  public void should_skip_dir_without_published_files() throws IOException {
     ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
@@ -145,7 +149,9 @@ public class ComponentsPublisherTest {
       .setKey("foo")
       .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
       .setName("Root project")
-      .setDescription("Root description");
+      .setDescription("Root description")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder());
     DefaultInputModule root = new DefaultInputModule(rootDef, 1);
 
     moduleHierarchy = mock(InputModuleHierarchy.class);
@@ -196,12 +202,16 @@ public class ComponentsPublisherTest {
 
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")
-      .setDescription("Root description");
+      .setDescription("Root description")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder());
     DefaultInputModule root = new DefaultInputModule(rootDef, 1);
 
     ProjectDefinition module1Def = ProjectDefinition.create()
       .setKey("module1")
-      .setDescription("Module description");
+      .setDescription("Module description")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder());
     rootDef.addSubProject(module1Def);
     DefaultInputModule module1 = new DefaultInputModule(module1Def, 2);
 
@@ -261,14 +271,18 @@ public class ComponentsPublisherTest {
       .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "my_branch")
       .setName("Root project")
       .setProperty(CoreProperties.LINKS_HOME_PAGE, "http://home")
-      .setDescription("Root description");
+      .setDescription("Root description")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder());
     DefaultInputModule root = new DefaultInputModule(rootDef, 1);
 
     ProjectDefinition module1Def = ProjectDefinition.create()
       .setKey("module1")
       .setName("Module1")
       .setProperty(CoreProperties.LINKS_CI, "http://ci")
-      .setDescription("Module description");
+      .setDescription("Module description")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder());
     rootDef.addSubProject(module1Def);
     DefaultInputModule module1 = new DefaultInputModule(module1Def, 2);
 

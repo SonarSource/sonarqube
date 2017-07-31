@@ -20,57 +20,28 @@
 package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.repository.ProjectRepositories;
 
-/**
- * @since 3.5
- */
 public class DefaultModuleFileSystem extends DefaultFileSystem {
 
-  private String moduleKey;
-  private FileIndexer indexer;
-  private Configuration settings;
-
-  private List<File> sourceDirsOrFiles = new ArrayList<>();
-  private List<File> testDirsOrFiles = new ArrayList<>();
-  private boolean initialized;
-  private Charset charset = null;
-
-  public DefaultModuleFileSystem(ModuleInputComponentStore moduleInputFileCache, DefaultInputModule module,
-    Configuration settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
+  public DefaultModuleFileSystem(ModuleInputComponentStore moduleInputFileCache, DefaultInputModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
     ProjectRepositories projectRepositories) {
-    super(initializer.baseDir(), moduleInputFileCache);
-    setFields(module, settings, indexer, initializer, mode, projectRepositories);
+    super(module.getBaseDir(), moduleInputFileCache);
+    setFields(module, initializer, mode, projectRepositories);
   }
 
   @VisibleForTesting
-  public DefaultModuleFileSystem(DefaultInputModule module,
-    Configuration settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
-    ProjectRepositories projectRepositories) {
-    super(initializer.baseDir().toPath());
-    setFields(module, settings, indexer, initializer, mode, projectRepositories);
+  public DefaultModuleFileSystem(DefaultInputModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode, ProjectRepositories projectRepositories) {
+    super(module.getBaseDir());
+    setFields(module, initializer, mode, projectRepositories);
   }
 
-  private void setFields(DefaultInputModule module,
-    Configuration settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
-    ProjectRepositories projectRepositories) {
-    this.moduleKey = module.key();
-    this.settings = settings;
-    this.indexer = indexer;
-    setWorkDir(initializer.workingDir());
-    this.sourceDirsOrFiles = initializer.sources();
-    this.testDirsOrFiles = initializer.tests();
+  private void setFields(DefaultInputModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode, ProjectRepositories projectRepositories) {
+    setWorkDir(module.getWorkDir());
+    setEncoding(initializer.defaultEncoding());
 
     // filter the files sensors have access to
     if (!mode.scanAllFiles()) {
@@ -78,69 +49,4 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
     }
   }
 
-  public boolean isInitialized() {
-    return initialized;
-  }
-
-  public String moduleKey() {
-    return moduleKey;
-  }
-
-  public List<File> sources() {
-    return sourceDirsOrFiles;
-  }
-
-  public List<File> tests() {
-    return testDirsOrFiles;
-  }
-
-  @Override
-  public Charset encoding() {
-    if (charset == null) {
-      String encoding = settings.get(CoreProperties.ENCODING_PROPERTY).orElse(null);
-      if (StringUtils.isNotEmpty(encoding)) {
-        charset = Charset.forName(StringUtils.trim(encoding));
-      } else {
-        charset = Charset.defaultCharset();
-      }
-    }
-    return charset;
-  }
-
-  @Override
-  public boolean isDefaultJvmEncoding() {
-    return !settings.hasKey(CoreProperties.ENCODING_PROPERTY);
-  }
-
-  @Override
-  protected void doPreloadFiles() {
-    if (!initialized) {
-      throw MessageException.of("Accessing the filesystem before the Sensor phase is not supported. Please update your plugin.");
-    }
-  }
-
-  public void index() {
-    if (initialized) {
-      throw MessageException.of("Module filesystem can only be indexed once");
-    }
-    initialized = true;
-    indexer.index(this);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    DefaultModuleFileSystem that = (DefaultModuleFileSystem) o;
-    return moduleKey.equals(that.moduleKey);
-  }
-
-  @Override
-  public int hashCode() {
-    return moduleKey.hashCode();
-  }
 }

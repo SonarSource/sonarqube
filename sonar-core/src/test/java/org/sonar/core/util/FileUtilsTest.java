@@ -124,7 +124,8 @@ public class FileUtilsTest {
 
   @Test
   public void deleteQuietly_does_not_fail_if_argument_is_null() {
-    FileUtils.deleteQuietly(null);
+    FileUtils.deleteQuietly((File) null);
+    FileUtils.deleteQuietly((Path) null);
   }
 
   @Test
@@ -178,7 +179,7 @@ public class FileUtilsTest {
   public void deleteDirectory_throws_NPE_if_argument_is_null() throws IOException {
     expectDirectoryCanNotBeNullNPE();
 
-    FileUtils.deleteDirectory(null);
+    FileUtils.deleteDirectory((File) null);
   }
 
   @Test

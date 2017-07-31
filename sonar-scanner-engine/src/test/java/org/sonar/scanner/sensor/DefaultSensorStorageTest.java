@@ -20,6 +20,7 @@
 package org.sonar.scanner.sensor;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -114,9 +116,9 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void shouldSaveProjectMeasureToSensorContext() {
+  public void shouldSaveProjectMeasureToSensorContext() throws IOException {
     String projectKey = "myProject";
-    DefaultInputModule module = new DefaultInputModule(projectKey);
+    DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create().setKey(projectKey).setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
 
     ArgumentCaptor<DefaultMeasure> argumentCaptor = ArgumentCaptor.forClass(DefaultMeasure.class);
     when(measureCache.put(eq(module.key()), eq(CoreMetrics.NCLOC_KEY), argumentCaptor.capture())).thenReturn(null);

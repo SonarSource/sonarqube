@@ -19,25 +19,32 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
-
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultInputModuleTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
-  public void testGetters() {
+  public void testGetters() throws IOException {
     ProjectDefinition def = ProjectDefinition.create();
     def.setKey("projectKey");
     def.setName("projectName");
-    def.setBaseDir(new File("baseDir"));
+    File baseDir = temp.newFolder();
+    def.setBaseDir(baseDir);
     def.setVersion("version");
     def.setDescription("desc");
-    def.setWorkDir(new File("workDir"));
+    File workDir = temp.newFolder();
+    def.setWorkDir(workDir);
     def.setSources("file1");
     def.setTests("test1");
     DefaultInputModule module = new DefaultInputModule(def);
@@ -47,12 +54,12 @@ public class DefaultInputModuleTest {
     assertThat(module.getOriginalName()).isEqualTo("projectName");
     assertThat(module.definition()).isEqualTo(def);
     assertThat(module.getBranch()).isNull();
-    assertThat(module.getBaseDir()).isEqualTo(new File("baseDir"));
+    assertThat(module.getBaseDir()).isEqualTo(baseDir.toPath());
     assertThat(module.getKeyWithBranch()).isEqualTo("projectKey");
     assertThat(module.getVersion()).isEqualTo("version");
     assertThat(module.getOriginalVersion()).isEqualTo("version");
     assertThat(module.getDescription()).isEqualTo("desc");
-    assertThat(module.getWorkDir()).isEqualTo(new File("workDir"));
+    assertThat(module.getWorkDir()).isEqualTo(workDir.toPath());
     assertThat(module.sources()).isEqualTo(Collections.singletonList("file1"));
     assertThat(module.tests()).isEqualTo(Collections.singletonList("test1"));
 

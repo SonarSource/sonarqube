@@ -51,9 +51,9 @@ public class InputComponentStoreTest {
     File rootBaseDir = temp.newFolder();
 
     ProjectDefinition moduleDef = ProjectDefinition.create()
-      .setKey(subModuleKey).setBaseDir(rootBaseDir);
+      .setKey(subModuleKey).setBaseDir(rootBaseDir).setWorkDir(temp.newFolder());
     ProjectDefinition rootDef = ProjectDefinition.create()
-      .setKey(rootModuleKey).setBaseDir(rootBaseDir).addSubProject(moduleDef);
+      .setKey(rootModuleKey).setBaseDir(rootBaseDir).setWorkDir(temp.newFolder()).addSubProject(moduleDef);
 
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(rootDef);
     DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(moduleDef);

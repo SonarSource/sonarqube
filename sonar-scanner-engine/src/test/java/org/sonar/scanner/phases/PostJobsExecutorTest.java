@@ -19,11 +19,15 @@
  */
 package org.sonar.scanner.phases;
 
+import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.resources.Project;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
@@ -36,16 +40,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class PostJobsExecutorTest {
-  PostJobsExecutor executor;
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
-  DefaultInputModule module = new DefaultInputModule("project");
-  ScannerExtensionDictionnary selector = mock(ScannerExtensionDictionnary.class);
-  PostJob job1 = mock(PostJob.class);
-  PostJob job2 = mock(PostJob.class);
-  SensorContext context = mock(SensorContext.class);
+  private PostJobsExecutor executor;
+
+  private DefaultInputModule module;
+  private ScannerExtensionDictionnary selector = mock(ScannerExtensionDictionnary.class);
+  private PostJob job1 = mock(PostJob.class);
+  private PostJob job2 = mock(PostJob.class);
+  private SensorContext context = mock(SensorContext.class);
 
   @Before
-  public void setUp() {
+  public void setUp() throws IOException {
+    module = new DefaultInputModule(ProjectDefinition.create().setKey("project").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
     executor = new PostJobsExecutor(selector, module, mock(EventBus.class));
   }
 

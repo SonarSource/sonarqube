@@ -26,9 +26,7 @@ import java.nio.charset.Charset;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import javax.annotation.Nullable;
-
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
@@ -205,7 +203,7 @@ public class TestInputFileBuilder {
   }
 
   public static DefaultInputModule newDefaultInputModule(String moduleKey, File baseDir) {
-    ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey).setBaseDir(baseDir);
+    ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey).setBaseDir(baseDir).setWorkDir(new File(baseDir, ".sonar"));
     return newDefaultInputModule(definition);
   }
 

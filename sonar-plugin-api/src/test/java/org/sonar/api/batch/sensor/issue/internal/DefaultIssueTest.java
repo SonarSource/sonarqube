@@ -19,7 +19,11 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import java.io.IOException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -33,6 +37,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class DefaultIssueTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
     .initMetadata("Foo\nBar\n")
@@ -82,16 +89,17 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void build_project_issue() {
+  public void build_project_issue() throws IOException {
     SensorStorage storage = mock(SensorStorage.class);
+    DefaultInputModule inputModule = new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
     DefaultIssue issue = new DefaultIssue(storage)
       .at(new DefaultIssueLocation()
-        .on(new DefaultInputModule("foo"))
+        .on(inputModule)
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
       .effortToFix(10.0);
 
-    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(new DefaultInputModule("foo"));
+    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputModule);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(issue.primaryLocation().textRange()).isNull();
     assertThat(issue.effortToFix()).isEqualTo(10.0);
