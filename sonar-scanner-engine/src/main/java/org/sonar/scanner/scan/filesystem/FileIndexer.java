@@ -73,11 +73,13 @@ public class FileIndexer {
   private ExecutorService executorService;
   private final List<Future<Void>> tasks;
   private final DefaultModuleFileSystem defaultModuleFileSystem;
+  private final LanguageDetection langDetection;
 
   private ProgressReport progressReport;
 
   public FileIndexer(BatchIdGenerator batchIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
     DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ModuleFileSystemInitializer initializer, DefaultModuleFileSystem defaultModuleFileSystem,
+    LanguageDetection languageDetection,
     InputFileFilter[] filters) {
     this.batchIdGenerator = batchIdGenerator;
     this.componentStore = componentStore;
@@ -86,14 +88,17 @@ public class FileIndexer {
     this.inputFileBuilder = inputFileBuilder;
     this.moduleFileSystemInitializer = initializer;
     this.defaultModuleFileSystem = defaultModuleFileSystem;
+    this.langDetection = languageDetection;
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
     this.tasks = new ArrayList<>();
   }
 
   public FileIndexer(BatchIdGenerator batchIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
-    DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ModuleFileSystemInitializer initializer, DefaultModuleFileSystem defaultModuleFileSystem) {
-    this(batchIdGenerator, componentStore, module, exclusionFilters, componentTree, inputFileBuilder, initializer, defaultModuleFileSystem, new InputFileFilter[0]);
+    DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ModuleFileSystemInitializer initializer, DefaultModuleFileSystem defaultModuleFileSystem,
+    LanguageDetection languageDetection) {
+    this(batchIdGenerator, componentStore, module, exclusionFilters, componentTree, inputFileBuilder, initializer, defaultModuleFileSystem, languageDetection,
+      new InputFileFilter[0]);
   }
 
   public void index() {
@@ -157,21 +162,34 @@ public class FileIndexer {
 
   private Void indexFile(Path sourceFile, InputFile.Type type, Progress progress) throws IOException {
     // get case of real file without resolving link
-    Path realFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS);
-    DefaultInputFile inputFile = inputFileBuilder.create(realFile, type);
-    if (inputFile != null) {
-      if (exclusionFilters.accept(inputFile, type) && accept(inputFile)) {
-        String parentRelativePath = getParentRelativePath(inputFile);
-        synchronized (this) {
-          indexParentDir(inputFile, parentRelativePath);
-          progress.markAsIndexed(inputFile);
-        }
-        LOG.debug("'{}' indexed {}with language '{}'", inputFile.relativePath(), type == Type.TEST ? "as test " : "", inputFile.language());
-        inputFileBuilder.checkMetadata(inputFile);
-      } else {
-        progress.increaseExcludedByPatternsCount();
-      }
+    Path realAbsoluteFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS).toAbsolutePath().normalize();
+    String relativePathStr = PathResolver.relativePath(module.getBaseDir(), realAbsoluteFile);
+    if (relativePathStr == null) {
+      LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", realAbsoluteFile.toAbsolutePath(), module.getBaseDir());
+      return null;
     }
+    Path relativePath = module.getBaseDir().relativize(realAbsoluteFile);
+    if (!exclusionFilters.accept(realAbsoluteFile, relativePath, type)) {
+      progress.increaseExcludedByPatternsCount();
+      return null;
+    }
+    String language = langDetection.language(realAbsoluteFile, relativePath);
+    if (language == null && langDetection.forcedLanguage() != null) {
+      LOG.warn("File '{}' is ignored because it doesn't belong to the forced language '{}'", realAbsoluteFile.toAbsolutePath(), langDetection.forcedLanguage());
+      return null;
+    }
+    DefaultInputFile inputFile = inputFileBuilder.create(type, relativePathStr, language);
+    if (!accept(inputFile)) {
+      progress.increaseExcludedByPatternsCount();
+      return null;
+    }
+    String parentRelativePath = getParentRelativePath(inputFile);
+    synchronized (this) {
+      indexParentDir(inputFile, parentRelativePath);
+      progress.markAsIndexed(inputFile);
+    }
+    LOG.debug("'{}' indexed {}with language '{}'", relativePathStr, type == Type.TEST ? "as test " : "", inputFile.language());
+    inputFileBuilder.checkMetadata(inputFile);
     return null;
   }
 

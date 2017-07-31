@@ -19,16 +19,16 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import com.google.common.base.Joiner;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +39,6 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.repository.language.Language;
 import org.sonar.scanner.repository.language.LanguagesRepository;
-
-import com.google.common.base.Joiner;
 
 /**
  * Detect language of a source file based on its suffix and configured patterns.
@@ -103,7 +101,7 @@ public class LanguageDetection {
   }
 
   @CheckForNull
-  String language(String absolutePath, String relativePath) {
+  String language(Path absolutePath, Path relativePath) {
     String detectedLanguage = null;
     for (String languageKey : languagesToConsider) {
       if (isCandidateForLanguage(absolutePath, relativePath, languageKey)) {
@@ -128,7 +126,7 @@ public class LanguageDetection {
     return null;
   }
 
-  private boolean isCandidateForLanguage(String absolutePath, String relativePath, String languageKey) {
+  private boolean isCandidateForLanguage(Path absolutePath, Path relativePath, String languageKey) {
     PathPattern[] patterns = patternsByLanguage.get(languageKey);
     if (patterns != null) {
       for (PathPattern pathPattern : patterns) {

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.cpd.internal;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.CoreProperties;
@@ -57,7 +58,7 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
     this.inputFile = requireNonNull(inputFile, "file can't be null");
     String[] cpdExclusions = config.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     for (PathPattern cpdExclusion : PathPattern.create(cpdExclusions)) {
-      if (cpdExclusion.match(inputFile.absolutePath(), inputFile.relativePath())) {
+      if (cpdExclusion.match(inputFile.path(), Paths.get(inputFile.relativePath()))) {
         this.excluded = true;
       }
     }

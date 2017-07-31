@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.nio.file.Paths;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
@@ -34,7 +35,7 @@ class PathPatternPredicate extends AbstractFilePredicate {
 
   @Override
   public boolean apply(InputFile f) {
-    return pattern.match(f.absolutePath(), f.relativePath());
+    return pattern.match(f.path(), Paths.get(f.relativePath()));
   }
 
 }
