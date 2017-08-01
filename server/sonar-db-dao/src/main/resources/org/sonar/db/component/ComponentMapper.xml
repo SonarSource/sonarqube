@@ -424,6 +424,7 @@
     where
       p.enabled=${_true}
       and p.copy_component_uuid is null
+      and p.main_branch_project_uuid is null
       <if test="projectUuid != null">
         and p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
       </if>

@@ -39,10 +39,10 @@ public class IndexAnalysisStep implements ComputationStep {
 
   @Override
   public void execute() {
-    String projectUuid = treeRootHolder.getRoot().getUuid();
+    String branchUuid = treeRootHolder.getRoot().getUuid();
     for (ProjectIndexer indexer : indexers) {
       LOGGER.debug("Call {}", indexer);
-      indexer.indexOnAnalysis(projectUuid);
+      indexer.indexOnAnalysis(branchUuid);
     }
   }
 
