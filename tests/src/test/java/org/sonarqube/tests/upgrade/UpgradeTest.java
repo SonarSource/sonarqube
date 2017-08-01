@@ -205,7 +205,7 @@ public class UpgradeTest {
 
   private void scanProject() {
     MavenBuild build = MavenBuild.create(new File("projects/struts-1.3.9-diet/pom.xml"))
-      .setCleanSonarGoals()
+      .setCleanPackageSonarGoals()
       // exclude pom.xml, otherwise it will be published in SQ 6.3+ and not in previous versions, resulting in a different number of
       // components
       .setProperty("sonar.exclusions", "**/pom.xml")
