@@ -83,24 +83,3 @@ message BulkUpdateKeyWsResponse {
     optional bool duplicate = 3;
   }
 }
-
-// WS api/projects/branches
-message BranchesWsResponse {
-  repeated Branch branches = 1;
-
-  message Branch {
-    optional string name = 1;
-    optional bool isMain = 2;
-    optional BranchType type = 3;
-  }
-
-  enum BranchType {
-    // Zero is required in order to not get MAINTAINABILITY as default value
-    // See http://androiddevblog.com/protocol-buffers-pitfall-adding-enum-values/
-    UNKNOWN = 0;
-
-    LONG = 1;
-    SHORT = 2;
-  }
-
-}
