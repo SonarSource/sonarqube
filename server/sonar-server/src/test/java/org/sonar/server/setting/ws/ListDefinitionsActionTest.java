@@ -256,7 +256,7 @@ public class ListDefinitionsActionTest {
       .onQualifiers(PROJECT)
       .build());
 
-    ListDefinitionsWsResponse result = executeRequest(project.key());
+    ListDefinitionsWsResponse result = executeRequest(project.getDbKey());
 
     assertThat(result.getDefinitionsList()).hasSize(1);
   }
@@ -284,7 +284,7 @@ public class ListDefinitionsActionTest {
       PropertyDefinition.builder("only-on-project").onlyOnQualifiers(PROJECT).build(),
       PropertyDefinition.builder("only-on-module").onlyOnQualifiers(MODULE).build()));
 
-    ListDefinitionsWsResponse result = executeRequest(project.key());
+    ListDefinitionsWsResponse result = executeRequest(project.getDbKey());
 
     assertThat(result.getDefinitionsList()).extracting("key").containsOnly("global-and-project", "only-on-project");
   }
@@ -374,7 +374,7 @@ public class ListDefinitionsActionTest {
       PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("plugin.license.secured").onQualifiers(PROJECT).type(PropertyType.LICENSE).build()));
 
-    ListDefinitionsWsResponse result = executeRequest(project.key());
+    ListDefinitionsWsResponse result = executeRequest(project.getDbKey());
 
     assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured");
   }
@@ -386,7 +386,7 @@ public class ListDefinitionsActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    executeRequest(project.key());
+    executeRequest(project.getDbKey());
   }
 
   @Test

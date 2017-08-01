@@ -89,7 +89,6 @@ import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.DATA;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.PERCENT;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.RATING;
-import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
@@ -198,14 +197,14 @@ public class SearchProjectsActionTest {
     OrganizationDto organization1Dto = db.organizations().insertForKey("my-org-key-1");
     OrganizationDto organization2Dto = db.organizations().insertForKey("my-org-key-2");
     ComponentDto project1 = insertProject(organization1Dto, c -> c
-      .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
+      .setDbKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
       .setName("My Project 1")
       .setTagsString("finance, java"));
     insertProject(organization1Dto, c -> c
-      .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_002)
+      .setDbKey(KeyExamples.KEY_PROJECT_EXAMPLE_002)
       .setName("My Project 2"));
     insertProject(organization2Dto, c -> c
-      .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_003)
+      .setDbKey(KeyExamples.KEY_PROJECT_EXAMPLE_003)
       .setName("My Project 3")
       .setTagsString("sales, offshore, java"));
     addFavourite(project1);
@@ -277,7 +276,7 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setFilter("coverage <= 80 and ncloc <= 10000"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(project2.key());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(project2.getDbKey());
   }
 
   @Test
@@ -293,13 +292,13 @@ public class SearchProjectsActionTest {
 
     assertThat(call(request.setOrganization(null)).getComponentsList())
       .extracting(Component::getKey)
-      .containsOnly(project1.getKey(), project2.getKey(), project3.getKey());
+      .containsOnly(project1.getDbKey(), project2.getDbKey(), project3.getDbKey());
     assertThat(call(request.setOrganization(organization1.getKey())).getComponentsList())
       .extracting(Component::getKey)
-      .containsOnly(project1.getKey(), project2.getKey());
+      .containsOnly(project1.getDbKey(), project2.getDbKey());
     assertThat(call(request.setOrganization(organization2.getKey())).getComponentsList())
       .extracting(Component::getKey)
-      .containsOnly(project3.getKey());
+      .containsOnly(project3.getDbKey());
   }
 
   @Test
@@ -315,7 +314,7 @@ public class SearchProjectsActionTest {
 
     assertThat(result.getComponentsList())
       .extracting(Component::getKey)
-      .containsExactlyInAnyOrder(project1.getKey(), project2.getKey());
+      .containsExactlyInAnyOrder(project1.getDbKey(), project2.getDbKey());
   }
 
   @Test
@@ -330,7 +329,7 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setFilter("languages IN (java, js, <null>)"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project2.getKey(), project4.getKey());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getDbKey(), project2.getDbKey(), project4.getDbKey());
   }
 
   @Test
@@ -345,7 +344,7 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setFilter(metricKey + " = 2"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(project2.getKey());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(project2.getDbKey());
   }
 
   @Test
@@ -360,7 +359,7 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setFilter(newMetricKey + " = 2"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(project2.getKey());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(project2.getDbKey());
   }
 
   @Test
@@ -373,7 +372,7 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setFilter("tags in (finance, offshore)"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.getKey());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getDbKey(), project3.getDbKey());
   }
 
   @Test
@@ -387,7 +386,7 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setFilter("coverage <= 80"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.key());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getDbKey(), project3.getDbKey());
   }
 
   @Test
@@ -401,7 +400,7 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setFilter("new_coverage <= 80"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.key());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getDbKey(), project3.getDbKey());
   }
 
   @Test
@@ -415,7 +414,7 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setFilter("duplicated_lines_density <= 80"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.key());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getDbKey(), project3.getDbKey());
   }
 
   @Test
@@ -430,7 +429,7 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setFilter("duplicated_lines_density = NO_DATA"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getDbKey());
   }
 
   @Test
@@ -457,7 +456,7 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setFilter("new_duplicated_lines_density <= 80"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.key());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getDbKey(), project3.getDbKey());
   }
 
   @Test
@@ -471,7 +470,7 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setFilter("ncloc <= 80"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.key());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getDbKey(), project3.getDbKey());
   }
 
   @Test
@@ -485,17 +484,17 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setFilter("new_lines <= 80"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.key());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getDbKey(), project3.getDbKey());
   }
 
   @Test
   public void filter_projects_by_text_query() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    insertProject(organizationDto, c -> c.setKey("sonar-java").setName("Sonar Java"));
-    insertProject(organizationDto, c -> c.setKey("sonar-groovy").setName("Sonar Groovy"));
-    insertProject(organizationDto, c -> c.setKey("sonar-markdown").setName("Sonar Markdown"));
-    insertProject(organizationDto, c -> c.setKey("sonarqube").setName("Sonar Qube"));
+    insertProject(organizationDto, c -> c.setDbKey("sonar-java").setName("Sonar Java"));
+    insertProject(organizationDto, c -> c.setDbKey("sonar-groovy").setName("Sonar Groovy"));
+    insertProject(organizationDto, c -> c.setDbKey("sonar-markdown").setName("Sonar Markdown"));
+    insertProject(organizationDto, c -> c.setDbKey("sonarqube").setName("Sonar Qube"));
 
     assertThat(call(request.setFilter("query = \"Groovy\"")).getComponentsList()).extracting(Component::getName).containsOnly("Sonar Groovy");
     assertThat(call(request.setFilter("query = \"oNar\"")).getComponentsList()).extracting(Component::getName).containsOnly("Sonar Java", "Sonar Groovy", "Sonar Markdown",
@@ -561,7 +560,7 @@ public class SearchProjectsActionTest {
     SearchProjectsWsResponse result = call(request.setFilter("isFavorite"));
 
     assertThat(result.getComponentsCount()).isEqualTo(2);
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(javaProject.getKey(), markDownProject.getKey());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(javaProject.getDbKey(), markDownProject.getDbKey());
   }
 
   @Test
@@ -945,9 +944,9 @@ public class SearchProjectsActionTest {
     ComponentDto project4 = insertProject(organizationDto, c -> c.setName("Sonar Qube"), new Measure(coverage, c -> c.setValue(80d)));
 
     assertThat(call(request.setSort(COVERAGE).setAsc(true)).getComponentsList()).extracting(Component::getKey)
-      .containsExactly(project3.getKey(), project4.getKey(), project2.getKey(), project1.getKey());
+      .containsExactly(project3.getDbKey(), project4.getDbKey(), project2.getDbKey(), project1.getDbKey());
     assertThat(call(request.setSort(COVERAGE).setAsc(false)).getComponentsList()).extracting(Component::getKey)
-      .containsExactly(project2.getKey(), project1.getKey(), project3.getKey(), project4.getKey());
+      .containsExactly(project2.getDbKey(), project1.getDbKey(), project3.getDbKey(), project4.getDbKey());
   }
 
   @Test
@@ -961,34 +960,34 @@ public class SearchProjectsActionTest {
     ComponentDto project4 = insertProject(organization, c -> c.setName("Sonar Qube"), new Measure(qualityGateStatus, c -> c.setData("OK")));
 
     assertThat(call(request.setSort(QUALITY_GATE_STATUS).setAsc(true)).getComponentsList()).extracting(Component::getKey)
-      .containsExactly(project3.getKey(), project4.getKey(), project2.getKey(), project1.getKey());
+      .containsExactly(project3.getDbKey(), project4.getDbKey(), project2.getDbKey(), project1.getDbKey());
     assertThat(call(request.setSort(QUALITY_GATE_STATUS).setAsc(false)).getComponentsList()).extracting(Component::getKey)
-      .containsExactly(project1.getKey(), project2.getKey(), project3.getKey(), project4.getKey());
+      .containsExactly(project1.getDbKey(), project2.getDbKey(), project3.getDbKey(), project4.getDbKey());
   }
 
   @Test
   public void sort_by_last_analysis_date() throws Exception {
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPublicProject(organization, p -> p.setKey("project1"));
+    ComponentDto project1 = db.components().insertPublicProject(organization, p -> p.setDbKey("project1"));
     authorizationIndexerTester.allowOnlyAnyone(project1);
-    ComponentDto project2 = db.components().insertPublicProject(organization, p -> p.setKey("project2"));
+    ComponentDto project2 = db.components().insertPublicProject(organization, p -> p.setDbKey("project2"));
     db.components().insertSnapshot(project2, snapshot -> snapshot.setCreatedAt(40_000_000_000L).setLast(true));
     authorizationIndexerTester.allowOnlyAnyone(project2);
-    ComponentDto project3 = db.components().insertPublicProject(organization, p -> p.setKey("project3"));
+    ComponentDto project3 = db.components().insertPublicProject(organization, p -> p.setDbKey("project3"));
     db.components().insertSnapshot(project3, snapshot -> snapshot.setCreatedAt(20_000_000_000L).setLast(true));
     authorizationIndexerTester.allowOnlyAnyone(project3);
-    ComponentDto project4 = db.components().insertPublicProject(organization, p -> p.setKey("project4"));
+    ComponentDto project4 = db.components().insertPublicProject(organization, p -> p.setDbKey("project4"));
     db.components().insertSnapshot(project4, snapshot -> snapshot.setCreatedAt(10_000_000_000L).setLast(false));
     db.components().insertSnapshot(project4, snapshot -> snapshot.setCreatedAt(30_000_000_000L).setLast(true));
     authorizationIndexerTester.allowOnlyAnyone(project4);
     projectMeasuresIndexer.indexOnStartup(null);
 
     assertThat(call(request.setSort(ANALYSIS_DATE).setAsc(true)).getComponentsList()).extracting(Component::getKey)
-      .containsExactly(project3.getKey(), project4.getKey(), project2.getKey(), project1.getKey());
+      .containsExactly(project3.getDbKey(), project4.getDbKey(), project2.getDbKey(), project1.getDbKey());
 
     assertThat(call(request.setSort(ANALYSIS_DATE).setAsc(false)).getComponentsList()).extracting(Component::getKey)
-      .containsExactly(project2.getKey(), project4.getKey(), project3.getKey(), project1.getKey());
+      .containsExactly(project2.getDbKey(), project4.getDbKey(), project3.getDbKey(), project1.getDbKey());
   }
 
   @Test
@@ -1011,9 +1010,9 @@ public class SearchProjectsActionTest {
 
     assertThat(result.getComponentsList()).extracting(Component::getKey, Component::hasAnalysisDate, Component::getAnalysisDate)
       .containsOnly(
-        tuple(project1.getKey(), true, formatDateTime(new Date(20_000_000_000L))),
-        tuple(project2.getKey(), true, formatDateTime(new Date(30_000_000_000L))),
-        tuple(project3.getKey(), false, ""));
+        tuple(project1.getDbKey(), true, formatDateTime(new Date(20_000_000_000L))),
+        tuple(project2.getDbKey(), true, formatDateTime(new Date(30_000_000_000L))),
+        tuple(project3.getDbKey(), false, ""));
   }
 
   @Test
@@ -1036,9 +1035,9 @@ public class SearchProjectsActionTest {
 
     assertThat(result.getComponentsList()).extracting(Component::getKey, Component::hasLeakPeriodDate, Component::getLeakPeriodDate)
       .containsOnly(
-        tuple(project1.getKey(), true, formatDateTime(new Date(10_000_000_000L))),
-        tuple(project2.getKey(), false, ""),
-        tuple(project3.getKey(), false, ""));
+        tuple(project1.getDbKey(), true, formatDateTime(new Date(10_000_000_000L))),
+        tuple(project2.getDbKey(), false, ""),
+        tuple(project3.getDbKey(), false, ""));
   }
 
   @Test
@@ -1055,8 +1054,8 @@ public class SearchProjectsActionTest {
 
     assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getVisibility)
       .containsExactly(
-        tuple(privateProject.getKey(), privateProject.isPrivate() ? "private" : "public"),
-        tuple(publicProject.getKey(), publicProject.isPrivate() ? "private" : "public"));
+        tuple(privateProject.getDbKey(), privateProject.isPrivate() ? "private" : "public"),
+        tuple(publicProject.getDbKey(), publicProject.isPrivate() ? "private" : "public"));
   }
 
   @Test

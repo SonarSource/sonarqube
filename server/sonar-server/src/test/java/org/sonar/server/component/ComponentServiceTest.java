@@ -54,19 +54,19 @@ public class ComponentServiceTest {
 
   @Test
   public void bulk_update() {
-    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()).setKey("my_project"));
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:module"));
-    ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:inactive_module").setEnabled(false));
-    ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/File.xoo"));
-    ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()).setDbKey("my_project"));
+    ComponentDto module = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:module"));
+    ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:inactive_module").setEnabled(false));
+    ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
+    ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
 
     underTest.bulkUpdateKey(dbSession, project, "my_", "your_");
 
-    assertComponentKeyUpdated(project.key(), "your_project");
-    assertComponentKeyUpdated(module.key(), "your_project:root:module");
-    assertComponentKeyUpdated(file.key(), "your_project:root:module:src/File.xoo");
-    assertComponentKeyNotUpdated(inactiveModule.key());
-    assertComponentKeyNotUpdated(inactiveFile.key());
+    assertComponentKeyUpdated(project.getDbKey(), "your_project");
+    assertComponentKeyUpdated(module.getDbKey(), "your_project:root:module");
+    assertComponentKeyUpdated(file.getDbKey(), "your_project:root:module:src/File.xoo");
+    assertComponentKeyNotUpdated(inactiveModule.getDbKey());
+    assertComponentKeyNotUpdated(inactiveFile.getDbKey());
   }
 
   private void assertComponentKeyUpdated(String oldKey, String newKey) {

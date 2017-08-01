@@ -123,7 +123,7 @@ public class GhostsAction implements ProjectsWsAction {
     for (ComponentDto project : projects) {
       json.beginObject();
       json.prop("uuid", project.uuid());
-      writeIfWished(json, "key", project.key(), fieldsToReturn);
+      writeIfWished(json, "key", project.getDbKey(), fieldsToReturn);
       writeIfWished(json, "name", project.name(), fieldsToReturn);
       writeIfWished(json, "creationDate", project.getCreatedAt(), fieldsToReturn);
       writeIfWished(json, "visibility", project.isPrivate() ? PRIVATE.getLabel() : PUBLIC.getLabel(), fieldsToReturn);

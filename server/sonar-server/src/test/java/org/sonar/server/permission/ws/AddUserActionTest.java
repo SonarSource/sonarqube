@@ -115,7 +115,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
@@ -125,7 +125,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void add_permission_to_view() throws Exception {
-    ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization(), "view-uuid").setKey("view-key"));
+    ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization(), "view-uuid").setDbKey("view-key"));
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
@@ -183,7 +183,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component '" + file.key() + "' (id: " + file.uuid() + ") must be a project or a view.");
+    expectedException.expectMessage("Component '" + file.getDbKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
@@ -291,7 +291,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .execute();
   }
 
@@ -306,7 +306,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
 
@@ -323,7 +323,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .setParam(PARAM_ORGANIZATION, "an_org")
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();

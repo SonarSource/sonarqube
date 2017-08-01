@@ -69,21 +69,21 @@ public class DuplicationsParserTest {
     project1 = ComponentTesting.newPrivateProjectDto(organizationDto)
       .setName("SonarQube")
       .setLongName("SonarQube")
-      .setKey("org.codehaus.sonar:sonar");
+      .setDbKey("org.codehaus.sonar:sonar");
     project2 = ComponentTesting.newPrivateProjectDto(organizationDto);
     componentDao.insert(dbSession, project1, project2);
 
     // Current file
     String key1 = "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/utils/command/CommandExecutor.java";
-    currentFile = newFileDto(project1, null).setKey(key1).setLongName("CommandExecutor");
+    currentFile = newFileDto(project1, null).setDbKey(key1).setLongName("CommandExecutor");
 
     // File on same project
     String key2 = "org.codehaus.sonar:sonar-plugin-api:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java";
-    fileOnSameProject = newFileDto(project1, null).setKey(key2).setLongName("CommandExecutor");
+    fileOnSameProject = newFileDto(project1, null).setDbKey(key2).setLongName("CommandExecutor");
 
     // File on different project
     String key3 = "com.sonarsource.orchestrator:sonar-orchestrator:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java";
-    fileOnDifferentProject = newFileDto(project2, null).setKey(key3).setLongName("CommandExecutor");
+    fileOnDifferentProject = newFileDto(project2, null).setDbKey(key3).setLongName("CommandExecutor");
 
     componentDao.insert(dbSession, currentFile, fileOnSameProject, fileOnDifferentProject);
     dbSession.commit();
@@ -190,7 +190,7 @@ public class DuplicationsParserTest {
     assertThat(duplication1.from()).isEqualTo(31);
     assertThat(duplication1.size()).isEqualTo(5);
 
-    DuplicationsParser.Duplication duplication2 = duplication(duplications, fileOnSameProject.key());
+    DuplicationsParser.Duplication duplication2 = duplication(duplications, fileOnSameProject.getDbKey());
     assertThat(duplication2.file()).isEqualTo(fileOnSameProject);
     assertThat(duplication2.from()).isEqualTo(20);
     assertThat(duplication2.size()).isEqualTo(5);
@@ -235,7 +235,7 @@ public class DuplicationsParserTest {
     return Iterables.find(duplications, new Predicate<DuplicationsParser.Duplication>() {
       @Override
       public boolean apply(@Nullable DuplicationsParser.Duplication input) {
-        return input != null && (componentKey == null ? input.file() == null : input.file() != null && componentKey.equals(input.file().key()));
+        return input != null && (componentKey == null ? input.file() == null : input.file() != null && componentKey.equals(input.file().getDbKey()));
       }
     });
   }

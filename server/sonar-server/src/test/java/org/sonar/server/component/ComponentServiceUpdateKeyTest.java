@@ -60,8 +60,8 @@ public class ComponentServiceUpdateKeyTest {
   @Test
   public void update_project_key() {
     ComponentDto project = insertSampleRootProject();
-    ComponentDto file = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setKey("sample:root:src/File.xoo"));
-    ComponentDto inactiveFile = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setKey("sample:root:src/InactiveFile.xoo").setEnabled(false));
+    ComponentDto file = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setDbKey("sample:root:src/File.xoo"));
+    ComponentDto inactiveFile = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setDbKey("sample:root:src/InactiveFile.xoo").setEnabled(false));
 
     dbSession.commit();
 
@@ -70,14 +70,14 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     // Check project key has been updated
-    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, project.key())).isAbsent();
+    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, project.getDbKey())).isAbsent();
     assertThat(db.getDbClient().componentDao().selectByKey(dbSession, "sample2:root")).isNotNull();
 
     // Check file key has been updated
-    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, file.key())).isAbsent();
+    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, file.getDbKey())).isAbsent();
     assertThat(db.getDbClient().componentDao().selectByKey(dbSession, "sample2:root:src/File.xoo")).isNotNull();
 
-    assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getKey())).isPresent();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getDbKey())).isPresent();
 
     org.assertj.core.api.Assertions.assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
   }
@@ -85,18 +85,18 @@ public class ComponentServiceUpdateKeyTest {
   @Test
   public void update_module_key() {
     ComponentDto project = insertSampleRootProject();
-    ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
+    ComponentDto module = ComponentTesting.newModuleDto(project).setDbKey("sample:root:module");
     db.components().insertComponent(module);
-    ComponentDto file = ComponentTesting.newFileDto(module, null).setKey("sample:root:module:src/File.xoo");
+    ComponentDto file = ComponentTesting.newFileDto(module, null).setDbKey("sample:root:module:src/File.xoo");
     db.components().insertComponent(file);
     logInAsProjectAdministrator(project);
 
     underTest.updateKey(dbSession, module, "sample:root2:module");
     dbSession.commit();
 
-    assertThat(dbClient.componentDao().selectByKey(dbSession, project.key())).isPresent();
-    assertComponentKeyHasBeenUpdated(module.key(), "sample:root2:module");
-    assertComponentKeyHasBeenUpdated(file.key(), "sample:root2:module:src/File.xoo");
+    assertThat(dbClient.componentDao().selectByKey(dbSession, project.getDbKey())).isPresent();
+    assertComponentKeyHasBeenUpdated(module.getDbKey(), "sample:root2:module");
+    assertComponentKeyHasBeenUpdated(file.getDbKey(), "sample:root2:module:src/File.xoo");
 
     // do not index the module but the project
     org.assertj.core.api.Assertions.assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
@@ -112,7 +112,7 @@ public class ComponentServiceUpdateKeyTest {
     underTest.updateKey(dbSession, provisionedProject, "provisionedProject2");
     dbSession.commit();
 
-    assertComponentKeyHasBeenUpdated(provisionedProject.key(), "provisionedProject2");
+    assertComponentKeyHasBeenUpdated(provisionedProject.getDbKey(), "provisionedProject2");
     org.assertj.core.api.Assertions.assertThat(projectIndexers.hasBeenCalled(provisionedProject.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
   }
 
@@ -133,9 +133,9 @@ public class ComponentServiceUpdateKeyTest {
     logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Impossible to update key: a component with key \"" + anotherProject.key() + "\" already exists.");
+    expectedException.expectMessage("Impossible to update key: a component with key \"" + anotherProject.getDbKey() + "\" already exists.");
 
-    underTest.updateKey(dbSession, project, anotherProject.key());
+    underTest.updateKey(dbSession, project, anotherProject.getDbKey());
   }
 
   @Test
@@ -174,19 +174,19 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void bulk_update_key() {
-    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("my_project"));
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:module"));
-    ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:inactive_module").setEnabled(false));
-    ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/File.xoo"));
-    ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("my_project"));
+    ComponentDto module = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:module"));
+    ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:inactive_module").setEnabled(false));
+    ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
+    ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
 
     underTest.bulkUpdateKey(dbSession, project, "my_", "your_");
 
-    assertComponentKeyUpdated(project.key(), "your_project");
-    assertComponentKeyUpdated(module.key(), "your_project:root:module");
-    assertComponentKeyUpdated(file.key(), "your_project:root:module:src/File.xoo");
-    assertComponentKeyNotUpdated(inactiveModule.key());
-    assertComponentKeyNotUpdated(inactiveFile.key());
+    assertComponentKeyUpdated(project.getDbKey(), "your_project");
+    assertComponentKeyUpdated(module.getDbKey(), "your_project:root:module");
+    assertComponentKeyUpdated(file.getDbKey(), "your_project:root:module:src/File.xoo");
+    assertComponentKeyNotUpdated(inactiveModule.getDbKey());
+    assertComponentKeyNotUpdated(inactiveFile.getDbKey());
   }
 
   private void assertComponentKeyUpdated(String oldKey, String newKey) {
@@ -203,7 +203,7 @@ public class ComponentServiceUpdateKeyTest {
   }
 
   private ComponentDto insertProject(String key) {
-    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey(key));
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey(key));
     return project;
   }
 

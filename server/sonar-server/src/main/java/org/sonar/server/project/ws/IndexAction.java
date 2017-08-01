@@ -134,7 +134,7 @@ public class IndexAction implements ProjectsWsAction {
   private static void addProject(JsonWriter json, ComponentDto project) {
     json.beginObject()
       .prop("id", project.getId())
-      .prop("k", project.getKey())
+      .prop("k", project.getDbKey())
       .prop("nm", project.name())
       .prop("sc", project.scope())
       .prop("qu", project.qualifier())

@@ -147,7 +147,7 @@ public class CreateAction implements ProjectsWsAction {
   private static CreateWsResponse toCreateResponse(ComponentDto componentDto) {
     return CreateWsResponse.newBuilder()
       .setProject(CreateWsResponse.Project.newBuilder()
-        .setKey(componentDto.key())
+        .setKey(componentDto.getDbKey())
         .setName(componentDto.name())
         .setQualifier(componentDto.qualifier())
         .setVisibility(Visibility.getLabel(componentDto.isPrivate())))

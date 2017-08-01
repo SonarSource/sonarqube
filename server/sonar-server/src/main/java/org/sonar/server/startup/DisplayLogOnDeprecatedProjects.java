@@ -66,7 +66,7 @@ public class DisplayLogOnDeprecatedProjects implements Startable {
           LOG.warn("We detected that the following projects have not been analysed on a SonarQube version greater than 4.2 (included):");
           hasDetectDeprecatedProjects = true;
         }
-        LOG.warn(" - {}", project.getKey());
+        LOG.warn(" - {}", project.getDbKey());
       }
     }
     if (hasDetectDeprecatedProjects) {

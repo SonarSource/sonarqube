@@ -138,7 +138,7 @@ public class TaskFormatter {
 
   private static void buildComponent(WsCe.Task.Builder builder, @Nullable ComponentDto componentDto) {
     if (componentDto != null) {
-      builder.setComponentKey(componentDto.getKey());
+      builder.setComponentKey(componentDto.getDbKey());
       builder.setComponentName(componentDto.name());
       builder.setComponentQualifier(componentDto.qualifier());
     }

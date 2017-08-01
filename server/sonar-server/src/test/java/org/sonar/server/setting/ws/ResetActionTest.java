@@ -359,11 +359,11 @@ public class ResetActionTest {
   }
 
   private void executeRequestOnProjectSetting(String key) {
-    executeRequest(key, project.key());
+    executeRequest(key, project.getDbKey());
   }
 
   private void executeRequestOnComponentSetting(String key, ComponentDto componentDto) {
-    executeRequest(key, componentDto.key());
+    executeRequest(key, componentDto.getDbKey());
   }
 
   private void executeRequest(String key, @Nullable String componentKey) {

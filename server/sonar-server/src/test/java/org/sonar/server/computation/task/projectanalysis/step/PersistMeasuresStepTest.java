@@ -382,7 +382,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   private ComponentDto addComponent(String key, String uuid) {
     ComponentDto componentDto = new ComponentDto()
       .setOrganizationUuid("org1")
-      .setKey(key)
+      .setDbKey(key)
       .setUuid(uuid)
       .setUuidPath(uuid + ".")
       .setRootUuid(uuid)

@@ -92,7 +92,7 @@ public class IssueChangeNotificationTest {
 
   @Test
   public void set_component() {
-    IssueChangeNotification result = notification.setComponent(new ComponentDto().setKey("MyService").setLongName("My Service"));
+    IssueChangeNotification result = notification.setComponent(new ComponentDto().setDbKey("MyService").setLongName("My Service"));
     assertThat(result.getFieldValue("componentName")).isEqualTo("My Service");
   }
 

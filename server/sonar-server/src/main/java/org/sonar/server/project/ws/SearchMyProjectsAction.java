@@ -121,7 +121,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
       Project.Builder project = Project.newBuilder();
       project
         .setId(dto.uuid())
-        .setKey(dto.key())
+        .setKey(dto.getDbKey())
         .setName(dto.name());
       data.lastAnalysisDateFor(dto.uuid()).ifPresent(project::setLastAnalysisDate);
       data.qualityGateStatusFor(dto.uuid()).ifPresent(project::setQualityGate);

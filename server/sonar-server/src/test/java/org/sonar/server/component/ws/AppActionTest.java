@@ -140,12 +140,12 @@ public class AppActionTest {
   private ComponentDto[] insertComponentsAndAnalysis() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), PROJECT_UUID)
       .setLongName("SonarQube")
-      .setKey(PROJECT_KEY);
+      .setDbKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project)
       .setLongName("SonarQube :: Plugin API")
-      .setKey(MODULE_KEY);
+      .setDbKey(MODULE_KEY);
     ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID)
-      .setKey(FILE_KEY)
+      .setDbKey(FILE_KEY)
       .setName("Plugin.java")
       .setLongName("src/main/java/org/sonar/api/Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java");

@@ -174,12 +174,12 @@ public class ProvisionedActionTest {
   public void provisioned_projects_as_defined_in_the_example() throws Exception {
     OrganizationDto org = db.organizations().insert();
     ComponentDto hBaseProject = ComponentTesting.newPrivateProjectDto(org, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
-      .setKey("org.apache.hbas:hbase")
+      .setDbKey("org.apache.hbas:hbase")
       .setName("HBase")
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"))
       .setPrivate(false);
     ComponentDto roslynProject = ComponentTesting.newPrivateProjectDto(org, "c526ef20-131b-4486-9357-063fa64b5079")
-      .setKey("com.microsoft.roslyn:roslyn")
+      .setDbKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
     db.components().insertComponents(hBaseProject, roslynProject);
@@ -220,6 +220,6 @@ public class ProvisionedActionTest {
     return ComponentTesting
       .newPrivateProjectDto(organizationDto, "provisioned-uuid-" + uuid)
       .setName("provisioned-name-" + uuid)
-      .setKey("provisioned-key-" + uuid);
+      .setDbKey("provisioned-key-" + uuid);
   }
 }

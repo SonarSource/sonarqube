@@ -52,7 +52,7 @@ public class FavoriteUpdater {
       .setUserId(userId)
       .setComponentId(componentDto.getId())
       .build(), dbSession);
-    checkRequest(existingFavoriteOnComponent.isEmpty(), "Component '%s' is already a favorite", componentDto.getKey());
+    checkRequest(existingFavoriteOnComponent.isEmpty(), "Component '%s' is already a favorite", componentDto.getDbKey());
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey(PROP_FAVORITE_KEY)
       .setResourceId(componentDto.getId())
@@ -72,6 +72,6 @@ public class FavoriteUpdater {
       .setKey(PROP_FAVORITE_KEY)
       .setResourceId(component.getId())
       .setUserId(userId));
-    checkRequest(result == 1, "Component '%s' is not a favorite", component.key());
+    checkRequest(result == 1, "Component '%s' is not a favorite", component.getDbKey());
   }
 }

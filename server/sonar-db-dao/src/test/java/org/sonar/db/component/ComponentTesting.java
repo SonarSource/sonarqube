@@ -44,7 +44,7 @@ public class ComponentTesting {
     String filename = "NAME_" + fileUuid;
     String path = directory != null ? directory.path() + "/" + filename : module.path() + "/" + filename;
     return newChildComponent(fileUuid, module, directory == null ? module : directory)
-      .setKey("KEY_" + fileUuid)
+      .setDbKey("KEY_" + fileUuid)
       .setName(filename)
       .setLongName(path)
       .setScope(Scopes.FILE)
@@ -60,7 +60,7 @@ public class ComponentTesting {
 
   public static ComponentDto newDirectory(ComponentDto module, String uuid, String path) {
     return newChildComponent(uuid, module, module)
-      .setKey(!path.equals("/") ? module.getKey() + ":" + path : module.getKey() + ":/")
+      .setDbKey(!path.equals("/") ? module.getDbKey() + ":" + path : module.getDbKey() + ":/")
       .setName(path)
       .setLongName(path)
       .setPath(path)
@@ -70,7 +70,7 @@ public class ComponentTesting {
 
   public static ComponentDto newSubView(ComponentDto viewOrSubView, String uuid, String key) {
     return newChildComponent(uuid, viewOrSubView, viewOrSubView)
-      .setKey(key)
+      .setDbKey(key)
       .setName(key)
       .setLongName(key)
       .setScope(Scopes.PROJECT)
@@ -85,7 +85,7 @@ public class ComponentTesting {
   public static ComponentDto newModuleDto(String uuid, ComponentDto parentModuleOrProject) {
     return newChildComponent(uuid, parentModuleOrProject, parentModuleOrProject)
       .setModuleUuidPath(parentModuleOrProject.moduleUuidPath() + uuid + UUID_PATH_SEPARATOR)
-      .setKey("KEY_" + uuid)
+      .setDbKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
       .setPath("module")
@@ -122,7 +122,7 @@ public class ComponentTesting {
       .setProjectUuid(uuid)
       .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
       .setRootUuid(uuid)
-      .setKey("KEY_" + uuid)
+      .setDbKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
       .setDescription("DESCRIPTION_" + uuid)
@@ -162,7 +162,7 @@ public class ComponentTesting {
     checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
     return newChildComponent(uuid, view, view)
       .setUuid(uuid)
-      .setKey(view.key() + project.key())
+      .setDbKey(view.getDbKey() + project.getDbKey())
       .setName(project.name())
       .setLongName(project.longName())
       .setCopyComponentUuid(project.uuid())

@@ -119,7 +119,7 @@ public class LinesAction implements SourcesWsAction {
       int from = request.mandatoryParamAsInt(PARAM_FROM);
       int to = MoreObjects.firstNonNull(request.paramAsInt(PARAM_TO), Integer.MAX_VALUE);
 
-      Iterable<DbFileSources.Line> lines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "No source found for file '%s'", file.key());
+      Iterable<DbFileSources.Line> lines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "No source found for file '%s'", file.getDbKey());
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
         writeSource(lines, json);

@@ -128,7 +128,7 @@ public class AppAction implements ComponentsWsAction {
       session);
     boolean isFavourite = propertyDtos.size() == 1;
 
-    json.prop("key", component.key());
+    json.prop("key", component.getDbKey());
     json.prop("uuid", component.uuid());
     json.prop("path", component.path());
     json.prop("name", component.name());
@@ -140,9 +140,9 @@ public class AppAction implements ComponentsWsAction {
 
     // Do not display parent project if parent project and project are the same
     boolean displayParentProject = parentProject != null && !parentProject.uuid().equals(project.uuid());
-    json.prop("subProject", displayParentProject ? parentProject.key() : null);
+    json.prop("subProject", displayParentProject ? parentProject.getDbKey() : null);
     json.prop("subProjectName", displayParentProject ? parentProject.longName() : null);
-    json.prop("project", project.key());
+    json.prop("project", project.getDbKey());
     json.prop("projectName", project.longName());
 
     json.prop("fav", isFavourite);

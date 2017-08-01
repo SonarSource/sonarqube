@@ -49,7 +49,7 @@ public class ActionFinderTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn("arthur");
 
-  private ComponentDto project = newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setKey(PROJECT_KEY);
+  private ComponentDto project = newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setDbKey(PROJECT_KEY);
   private IssueDto issue = newDto(newXooX1().setId(10), newFileDto(project, null), project).setKee(ISSUE_KEY);
 
   private ActionFinder underTest = new ActionFinder(userSession);

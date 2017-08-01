@@ -72,7 +72,7 @@ public class IssueQueryFactoryTest {
       .setStatuses(asList("CLOSED"))
       .setResolutions(asList("FALSE-POSITIVE"))
       .setResolved(true)
-      .setProjectKeys(asList(project.key()))
+      .setProjectKeys(asList(project.getDbKey()))
       .setModuleUuids(asList(module.uuid()))
       .setDirectories(asList("aDirPath"))
       .setFileUuids(asList(file.uuid()))
@@ -183,7 +183,7 @@ public class IssueQueryFactoryTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     SearchWsRequest request = new SearchWsRequest()
-      .setComponentRoots(asList(project.key(), file.key()));
+      .setComponentRoots(asList(project.getDbKey(), file.getDbKey()));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("All components must have the same qualifier, found FIL,TRK");
@@ -269,7 +269,7 @@ public class IssueQueryFactoryTest {
   public void onComponentOnly_restricts_search_to_specified_componentKeys() {
     ComponentDto project = db.components().insertPrivateProject();
     SearchWsRequest request = new SearchWsRequest()
-      .setComponentKeys(asList(project.key()))
+      .setComponentKeys(asList(project.getDbKey()))
       .setOnComponentOnly(true);
 
     IssueQuery query = underTest.create(request);

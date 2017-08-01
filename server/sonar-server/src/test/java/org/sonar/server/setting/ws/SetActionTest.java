@@ -135,7 +135,7 @@ public class SetActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     logInAsProjectAdministrator(project);
 
-    callForProjectSettingByKey("my.key", "my project value", project.key());
+    callForProjectSettingByKey("my.key", "my project value", project.getDbKey());
 
     assertGlobalSetting("my.key", "my global value");
     assertComponentSetting("my.key", "my project value", project.getId());
@@ -147,7 +147,7 @@ public class SetActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     logInAsProjectAdministrator(project);
 
-    callForProjectSettingByKey("my.key", "my value", project.key());
+    callForProjectSettingByKey("my.key", "my value", project.getDbKey());
 
     assertComponentSetting("my.key", "my value", project.getId());
   }
@@ -160,7 +160,7 @@ public class SetActionTest {
     assertComponentSetting("my.key", "my project value", project.getId());
     logInAsProjectAdministrator(project);
 
-    callForProjectSettingByKey("my.key", "my new project value", project.key());
+    callForProjectSettingByKey("my.key", "my new project value", project.getDbKey());
 
     assertComponentSetting("my.key", "my new project value", project.getId());
   }
@@ -299,10 +299,10 @@ public class SetActionTest {
     callForComponentPropertySet("my.key", newArrayList(
       GSON.toJson(ImmutableMap.of("firstField", "firstValue", "secondField", "secondValue")),
       GSON.toJson(ImmutableMap.of("firstField", "anotherFirstValue", "secondField", "anotherSecondValue"))),
-      project.key());
+      project.getDbKey());
 
     assertThat(dbClient.propertiesDao().selectGlobalProperties(dbSession)).hasSize(3);
-    assertThat(dbClient.propertiesDao().selectProjectProperties(dbSession, project.key())).hasSize(5);
+    assertThat(dbClient.propertiesDao().selectProjectProperties(dbSession, project.getDbKey())).hasSize(5);
     assertGlobalSetting("my.key", "1");
     assertGlobalSetting("my.key.1.firstField", "oldFirstValue");
     assertGlobalSetting("my.key.1.secondField", "oldSecondValue");
@@ -557,7 +557,7 @@ public class SetActionTest {
     expectedException.expectMessage("Setting 'my.key' cannot be set on a View");
     logInAsProjectAdministrator(view);
 
-    callForProjectSettingByKey("my.key", "My Value", view.key());
+    callForProjectSettingByKey("my.key", "My Value", view.getDbKey());
   }
 
   @Test
@@ -580,7 +580,7 @@ public class SetActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Setting 'my.key' cannot be set on a CptLabel");
 
-    callForProjectSettingByKey("my.key", "My Value", file.key());
+    callForProjectSettingByKey("my.key", "My Value", file.getDbKey());
   }
 
   @Test
@@ -634,7 +634,7 @@ public class SetActionTest {
   private void succeedForPropertyWithoutDefinitionAndValidComponent(ComponentDto project, ComponentDto module) {
     logInAsProjectAdministrator(project);
 
-    callForProjectSettingByKey("my.key", "My Value", module.key());
+    callForProjectSettingByKey("my.key", "My Value", module.getDbKey());
 
     assertComponentSetting("my.key", "My Value", module.getId());
   }
@@ -646,7 +646,7 @@ public class SetActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Setting 'my.key' cannot be set on a QualifierLabel");
 
-    callForProjectSettingByKey("my.key", "My Value", component.key());
+    callForProjectSettingByKey("my.key", "My Value", component.getDbKey());
   }
 
   @Test
@@ -895,7 +895,7 @@ public class SetActionTest {
     expectedException.expectMessage("Setting 'my.key' cannot be set on a Project");
 
     callForComponentPropertySet("my.key", newArrayList(
-      GSON.toJson(ImmutableMap.of("firstField", "firstValue"))), project.key());
+      GSON.toJson(ImmutableMap.of("firstField", "firstValue"))), project.getDbKey());
   }
 
   @Test

@@ -120,7 +120,7 @@ public class ListActionTest {
 
   @Test
   public void filter_unauthorized_projects() {
-    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("K1"));
+    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("K1"));
     ComponentDto anotherProject = db.components().insertPrivateProject();
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, anotherProject);
@@ -155,7 +155,7 @@ public class ListActionTest {
 
   @Test
   public void filter_per_project_dispatchers() {
-    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("K1"));
+    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("K1"));
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
     notificationUpdater.add(dbSession, emailChannel.getKey(), "Unknown Notification", user, project);
     dbSession.commit();
@@ -170,7 +170,7 @@ public class ListActionTest {
   @Test
   public void order_with_global_then_by_channel_and_dispatcher() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(organization).setKey("K1"));
+    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(organization).setDbKey("K1"));
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_ISSUES, user, null);
@@ -231,7 +231,7 @@ public class ListActionTest {
   @Test
   public void json_example() {
     OrganizationDto organization = db.organizations().insertForKey("my-org-1");
-    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(organization).setKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
+    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(organization).setDbKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_ISSUES, user, null);

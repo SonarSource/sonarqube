@@ -126,13 +126,13 @@ public abstract class ComponentIndexTest {
   protected ComponentDto indexProject(String key, String name) {
     return index(
       ComponentTesting.newPrivateProjectDto(organization, "UUID_" + key)
-        .setKey(key)
+        .setDbKey(key)
         .setName(name));
   }
 
   protected ComponentDto newProject(String key, String name) {
     return ComponentTesting.newPrivateProjectDto(organization, "UUID_" + key)
-      .setKey(key)
+      .setDbKey(key)
       .setName(name);
   }
 
@@ -144,7 +144,7 @@ public abstract class ComponentIndexTest {
   protected ComponentDto indexFile(ComponentDto project, String fileKey, String fileName) {
     return index(
       ComponentTesting.newFileDto(project)
-        .setKey(fileKey)
+        .setDbKey(fileKey)
         .setName(fileName));
   }
 

@@ -144,7 +144,7 @@ public class UpdateActionTest {
       .setKey("metric-key");
     dbClient.metricDao().insert(dbSession, metric);
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto component = ComponentTesting.newPrivateProjectDto(organizationDto, "project-uuid").setKey("project-key");
+    ComponentDto component = ComponentTesting.newPrivateProjectDto(organizationDto, "project-uuid").setDbKey("project-key");
     dbClient.componentDao().insert(dbSession, component);
     CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
       .setCreatedAt(100_000_000L)

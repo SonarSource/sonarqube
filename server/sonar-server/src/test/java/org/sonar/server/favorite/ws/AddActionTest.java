@@ -91,7 +91,7 @@ public class AddActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     userSession.addProjectPermission(UserRole.USER, project, file);
 
-    call(file.key());
+    call(file.getDbKey());
 
     List<PropertyDto> favorites = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setUserId(USER_ID)
@@ -143,7 +143,7 @@ public class AddActionTest {
   }
 
   private ComponentDto insertProject() {
-    return db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), PROJECT_UUID).setKey(PROJECT_KEY));
+    return db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), PROJECT_UUID).setDbKey(PROJECT_KEY));
   }
 
   private ComponentDto insertProjectAndPermissions() {

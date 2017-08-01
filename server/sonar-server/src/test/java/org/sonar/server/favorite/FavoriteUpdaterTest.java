@@ -39,7 +39,7 @@ public class FavoriteUpdaterTest {
   private static final String COMPONENT_KEY = "K1";
   private static final ComponentDto COMPONENT = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto())
     .setId(COMPONENT_ID)
-    .setKey(COMPONENT_KEY);
+    .setDbKey(COMPONENT_KEY);
   private static final int USER_ID = 42;
 
   @Rule

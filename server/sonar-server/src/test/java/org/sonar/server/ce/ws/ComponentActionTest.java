@@ -102,7 +102,7 @@ public class ComponentActionTest {
     insertActivity("T1", project.uuid(), CeActivityDto.Status.SUCCESS);
 
     WsCe.ProjectResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEY, project.key())
+      .setParam(PARAM_COMPONENT_KEY, project.getDbKey())
       .executeProtobuf(WsCe.ProjectResponse.class);
     assertThat(response.hasCurrent()).isTrue();
   }

@@ -112,7 +112,7 @@ public class SearchActionTest {
     insertHomepageLink(project.uuid());
     logInAsProjectAdministrator(project);
 
-    SearchWsResponse response = callByKey(project.key());
+    SearchWsResponse response = callByKey(project.getDbKey());
 
     assertThat(response.getLinksCount()).isEqualTo(1);
     assertThat(response.getLinks(0).getName()).isEqualTo("Homepage");
@@ -125,7 +125,7 @@ public class SearchActionTest {
     ComponentLinkDto customLink = insertCustomLink(project.uuid());
     logInAsProjectAdministrator(project);
 
-    SearchWsResponse response = callByKey(project.key());
+    SearchWsResponse response = callByKey(project.getDbKey());
 
     assertThat(response.getLinksCount()).isEqualTo(2);
     assertThat(response.getLinksList()).extracting(Link::getId, Link::getName, Link::getType, Link::getUrl)
@@ -142,7 +142,7 @@ public class SearchActionTest {
     insertCustomLink(project2.uuid());
     userSession.logIn().setRoot();
 
-    SearchWsResponse response = callByKey(project1.key());
+    SearchWsResponse response = callByKey(project1.getDbKey());
 
     assertThat(response.getLinksCount()).isEqualTo(1);
     assertThat(response.getLinks(0).getId()).isEqualTo(customLink1.getIdAsString());
@@ -155,7 +155,7 @@ public class SearchActionTest {
     insertLink(foo);
     logInAsProjectAdministrator(project);
 
-    callByKey(project.key());
+    callByKey(project.getDbKey());
   }
 
   @Test
@@ -165,7 +165,7 @@ public class SearchActionTest {
     insertLink(foo);
     logInAsProjectAdministrator(project);
 
-    callByKey(project.key());
+    callByKey(project.getDbKey());
   }
 
   @Test
@@ -222,11 +222,11 @@ public class SearchActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component '" + component.key() + "' (id: " + component.uuid() + ") must be a project");
+    expectedException.expectMessage("Component '" + component.getDbKey() + "' (id: " + component.uuid() + ") must be a project");
 
     TestRequest testRequest = ws.newRequest();
     if (new Random().nextBoolean()) {
-      testRequest.setParam(PARAM_PROJECT_KEY, component.key());
+      testRequest.setParam(PARAM_PROJECT_KEY, component.getDbKey());
     } else {
       testRequest.setParam(PARAM_PROJECT_ID, component.uuid());
     }
@@ -249,7 +249,7 @@ public class SearchActionTest {
 
     expectedException.expect(IllegalArgumentException.class);
     ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute();
   }
@@ -266,7 +266,7 @@ public class SearchActionTest {
   }
 
   private ComponentDto insertProject(String projectKey, String projectUuid) {
-    return componentDb.insertComponent(newPrivateProjectDto(db.organizations().insert(), projectUuid).setKey(projectKey));
+    return componentDb.insertComponent(newPrivateProjectDto(db.organizations().insert(), projectUuid).setDbKey(projectKey));
   }
 
   private ComponentDto insertProject() {
@@ -312,7 +312,7 @@ public class SearchActionTest {
 
   private void checkItWorks(ComponentDto project) throws IOException {
     insertHomepageLink(project.uuid());
-    SearchWsResponse response = callByKey(project.key());
+    SearchWsResponse response = callByKey(project.getDbKey());
     assertThat(response.getLinksCount()).isEqualTo(1);
     assertThat(response.getLinks(0).getName()).isEqualTo("Homepage");
   }

@@ -81,10 +81,10 @@ public class IssuesActionTest {
         .setAssignee(null));
     addPermissionTo(project);
 
-    ServerIssue serverIssue = call(project.key());
+    ServerIssue serverIssue = call(project.getDbKey());
 
     assertThat(serverIssue.getKey()).isEqualTo(issue.getKey());
-    assertThat(serverIssue.getModuleKey()).isEqualTo(module.getKey());
+    assertThat(serverIssue.getModuleKey()).isEqualTo(module.getDbKey());
     assertThat(serverIssue.getRuleRepository()).isEqualTo(rule.getRepositoryKey());
     assertThat(serverIssue.getRuleKey()).isEqualTo(rule.getRuleKey());
     assertThat(serverIssue.getStatus()).isEqualTo("OPEN");
@@ -118,10 +118,10 @@ public class IssuesActionTest {
         .setAssignee("foo"));
     addPermissionTo(project);
 
-    ServerIssue serverIssue = call(project.key());
+    ServerIssue serverIssue = call(project.getDbKey());
 
     assertThat(serverIssue.getKey()).isEqualTo(issue.getKey());
-    assertThat(serverIssue.getModuleKey()).isEqualTo(module.getKey());
+    assertThat(serverIssue.getModuleKey()).isEqualTo(module.getDbKey());
     assertThat(serverIssue.getRuleRepository()).isEqualTo(rule.getRepositoryKey());
     assertThat(serverIssue.getRuleKey()).isEqualTo(rule.getRuleKey());
     assertThat(serverIssue.getStatus()).isEqualTo("OPEN");
@@ -147,13 +147,13 @@ public class IssuesActionTest {
     IssueDto issueOnProject = db.issues().insert(rule, project, project, i -> i.setKee("ON_PROJECT"));
 
     addPermissionTo(project);
-    try (CloseableIterator<ServerIssue> result = callStream(project.key())) {
+    try (CloseableIterator<ServerIssue> result = callStream(project.getDbKey())) {
       assertThat(result)
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
         .containsExactlyInAnyOrder(
-          tuple(issueOnFile.getKey(), module.key()),
-          tuple(issueOnModule.getKey(), module.key()),
-          tuple(issueOnProject.getKey(), project.key()));
+          tuple(issueOnFile.getKey(), module.getDbKey()),
+          tuple(issueOnModule.getKey(), module.getDbKey()),
+          tuple(issueOnProject.getKey(), project.getDbKey()));
     }
   }
 
@@ -168,12 +168,12 @@ public class IssuesActionTest {
     IssueDto issueOnProject = db.issues().insert(rule, project, project, i -> i.setKee("ON_PROJECT"));
 
     addPermissionTo(project);
-    try (CloseableIterator<ServerIssue> result = callStream(module.key())) {
+    try (CloseableIterator<ServerIssue> result = callStream(module.getDbKey())) {
       assertThat(result)
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
         .containsExactlyInAnyOrder(
-          tuple(issueOnFile.getKey(), module.key()),
-          tuple(issueOnModule.getKey(), module.key()));
+          tuple(issueOnFile.getKey(), module.getDbKey()),
+          tuple(issueOnModule.getKey(), module.getDbKey()));
     }
   }
 
@@ -188,11 +188,11 @@ public class IssuesActionTest {
     IssueDto issueOnProject = db.issues().insert(rule, project, project);
 
     addPermissionTo(project);
-    try (CloseableIterator<ServerIssue> result = callStream(file.key())) {
+    try (CloseableIterator<ServerIssue> result = callStream(file.getDbKey())) {
       assertThat(result)
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
         .containsExactlyInAnyOrder(
-          tuple(issueOnFile.getKey(), module.key()));
+          tuple(issueOnFile.getKey(), module.getDbKey()));
     }
   }
 
@@ -205,7 +205,7 @@ public class IssuesActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component of scope 'DIR' is not allowed");
 
-    call(directory.key());
+    call(directory.getDbKey());
   }
 
   @Test
@@ -217,11 +217,11 @@ public class IssuesActionTest {
     IssueDto issue = db.issues().insert(rule, project, file);
 
     addPermissionTo(project);
-    try (CloseableIterator<ServerIssue> result = callStream(project.key())) {
+    try (CloseableIterator<ServerIssue> result = callStream(project.getDbKey())) {
       // Module key of removed file should be returned
       assertThat(result)
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
-        .containsExactly(tuple(issue.getKey(), module.key()));
+        .containsExactly(tuple(issue.getKey(), module.getDbKey()));
     }
   }
 
@@ -232,7 +232,7 @@ public class IssuesActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    tester.newRequest().setParam("key", file.key()).execute();
+    tester.newRequest().setParam("key", file.getDbKey()).execute();
   }
 
   @Test

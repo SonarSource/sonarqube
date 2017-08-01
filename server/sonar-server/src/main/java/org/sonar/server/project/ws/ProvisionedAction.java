@@ -124,7 +124,7 @@ public class ProvisionedAction implements ProjectsWsAction {
   private static List<Component> writeProjects(List<ComponentDto> projects, Set<String> desiredFields) {
     return projects.stream().map(project -> {
       Component.Builder compBuilder = Component.newBuilder().setUuid(project.uuid());
-      writeIfNeeded("key", project.key(), compBuilder::setKey, desiredFields);
+      writeIfNeeded("key", project.getDbKey(), compBuilder::setKey, desiredFields);
       writeIfNeeded("name", project.name(), compBuilder::setName, desiredFields);
       writeIfNeeded("creationDate", project.getCreatedAt(), compBuilder::setCreationDate, desiredFields);
       writeIfNeeded("visibility", project.isPrivate() ? PRIVATE.getLabel() : PUBLIC.getLabel(), compBuilder::setVisibility, desiredFields);

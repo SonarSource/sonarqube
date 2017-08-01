@@ -101,7 +101,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void remove_permission_from_project() throws Exception {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), A_PROJECT_UUID).setKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
     db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
     loginAsAdmin(db.getDefaultOrganization());
@@ -117,14 +117,14 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void remove_with_project_key() throws Exception {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), A_PROJECT_UUID).setKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
     db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();
 
@@ -133,14 +133,14 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void remove_with_view_uuid() throws Exception {
-    ComponentDto view = db.components().insertComponent(newView(db.organizations().insert(), "view-uuid").setKey("view-key"));
+    ComponentDto view = db.components().insertComponent(newView(db.organizations().insert(), "view-uuid").setDbKey("view-key"));
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, view);
     db.users().insertProjectPermissionOnUser(user, ADMIN, view);
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_KEY, view.getKey())
+      .setParam(PARAM_PROJECT_KEY, view.getDbKey())
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();
 
@@ -204,7 +204,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component '" + file.key() + "' (id: " + file.uuid() + ") must be a project or a view.");
+    expectedException.expectMessage("Component '" + file.getDbKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
@@ -250,7 +250,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void fail_when_project_uuid_and_project_key_are_provided() throws Exception {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), A_PROJECT_UUID).setKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -260,7 +260,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .execute();
   }
 
@@ -286,7 +286,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .execute();
   }
 

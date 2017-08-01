@@ -94,7 +94,7 @@ public class SetAction implements ProjectTagsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-      checkRequest(PROJECT.equals(project.qualifier()), "Component '%s' is not a project", project.key());
+      checkRequest(PROJECT.equals(project.qualifier()), "Component '%s' is not a project", project.getDbKey());
       userSession.checkComponentPermission(UserRole.ADMIN, project);
 
       project.setTags(tags);

@@ -276,8 +276,8 @@ public class IntegrateIssuesVisitorTest {
   }
 
   private void addBaseIssue(RuleKey ruleKey) {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID).setKey(PROJECT_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID).setDbKey(PROJECT_KEY);
+    ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setDbKey(FILE_KEY);
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project, file);
 
     RuleDto ruleDto = RuleTesting.newDto(ruleKey);

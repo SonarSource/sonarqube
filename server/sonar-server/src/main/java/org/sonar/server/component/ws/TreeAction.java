@@ -65,8 +65,8 @@ import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
@@ -223,7 +223,7 @@ public class TreeAction implements ComponentsWsAction {
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
     if (referenceComponent != null) {
       wsComponent.setRefId(referenceComponent.uuid());
-      wsComponent.setRefKey(referenceComponent.key());
+      wsComponent.setRefKey(referenceComponent.getDbKey());
     }
 
     return wsComponent;

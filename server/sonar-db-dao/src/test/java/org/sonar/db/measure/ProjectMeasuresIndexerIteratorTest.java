@@ -66,7 +66,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   public void return_project_measure() {
     MetricDto metric1 = insertIntMetric("ncloc");
     MetricDto metric2 = insertIntMetric("coverage");
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization()).setKey("Project-Key").setName("Project Name").setTagsString("platform,java");
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization()).setDbKey("Project-Key").setName("Project Name").setTagsString("platform,java");
     SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
     insertMeasure(project, analysis, metric1, 10d);
     insertMeasure(project, analysis, metric2, 20d);
@@ -242,7 +242,7 @@ public class ProjectMeasuresIndexerIteratorTest {
     ProjectMeasures doc = docsById.get(project.uuid());
     assertThat(doc).isNotNull();
     assertThat(doc.getProject().getUuid()).isEqualTo(project.uuid());
-    assertThat(doc.getProject().getKey()).isNotNull().isEqualTo(project.getKey());
+    assertThat(doc.getProject().getKey()).isNotNull().isEqualTo(project.getDbKey());
     assertThat(doc.getProject().getName()).isNotNull().isEqualTo(project.name());
     assertThat(doc.getProject().getAnalysisDate()).isNotNull().isEqualTo(analysis.getCreatedAt());
   }

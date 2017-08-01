@@ -69,7 +69,7 @@ public class ShowActionTest {
   @Test
   public void get_duplications_by_file_key() throws Exception {
     TestRequest request = newBaseRequest();
-    verifyCallToFileWithDuplications(file -> request.setParam("key", file.key()));
+    verifyCallToFileWithDuplications(file -> request.setParam("key", file.getDbKey()));
   }
 
   @Test
@@ -81,12 +81,12 @@ public class ShowActionTest {
   @Test
   public void return_file_with_missing_duplication_data() throws Exception {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project).setDbKey("foo.js"));
     db.components().insertSnapshot(newAnalysis(project));
 
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
 
-    TestResponse result = newBaseRequest().setParam("key", file.key()).execute();
+    TestResponse result = newBaseRequest().setParam("key", file.getDbKey()).execute();
 
     assertJson(result.getInput()).isSimilarTo("{\n" +
       "  \"duplications\": [],\n" +
@@ -108,7 +108,7 @@ public class ShowActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    newBaseRequest().setParam("key", file.key()).execute();
+    newBaseRequest().setParam("key", file.getDbKey()).execute();
   }
 
   @Test
@@ -125,7 +125,7 @@ public class ShowActionTest {
 
   private void verifyCallToFileWithDuplications(Function<ComponentDto, TestRequest> requestFactory) throws Exception {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project).setDbKey("foo.js"));
     SnapshotDto snapshot = db.components().insertSnapshot(newAnalysis(project));
     String xml = "<duplications>\n" +
       "  <g>\n" +

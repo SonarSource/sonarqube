@@ -114,9 +114,9 @@ public class IssueUpdaterTest {
     assertThat(issueChangeNotification.getFieldValue("key")).isEqualTo(issue.key());
     assertThat(issueChangeNotification.getFieldValue("old.severity")).isEqualTo(MAJOR);
     assertThat(issueChangeNotification.getFieldValue("new.severity")).isEqualTo(BLOCKER);
-    assertThat(issueChangeNotification.getFieldValue("componentKey")).isEqualTo(file.key());
+    assertThat(issueChangeNotification.getFieldValue("componentKey")).isEqualTo(file.getDbKey());
     assertThat(issueChangeNotification.getFieldValue("componentName")).isEqualTo(file.longName());
-    assertThat(issueChangeNotification.getFieldValue("projectKey")).isEqualTo(project.key());
+    assertThat(issueChangeNotification.getFieldValue("projectKey")).isEqualTo(project.getDbKey());
     assertThat(issueChangeNotification.getFieldValue("projectName")).isEqualTo(project.name());
     assertThat(issueChangeNotification.getFieldValue("ruleName")).isEqualTo(rule.getName());
     assertThat(issueChangeNotification.getFieldValue("changeAuthor")).isEqualTo("john");

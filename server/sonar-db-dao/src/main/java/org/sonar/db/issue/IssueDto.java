@@ -211,7 +211,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setComponent(ComponentDto component) {
-    this.componentKey = component.getKey();
+    this.componentKey = component.getDbKey();
     this.componentUuid = component.uuid();
     this.moduleUuid = component.moduleUuid();
     this.moduleUuidPath = component.moduleUuidPath();
@@ -220,7 +220,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setProject(ComponentDto project) {
-    this.projectKey = project.getKey();
+    this.projectKey = project.getDbKey();
     this.projectUuid = project.uuid();
     return this;
   }

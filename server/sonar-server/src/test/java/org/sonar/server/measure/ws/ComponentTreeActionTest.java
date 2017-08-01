@@ -622,7 +622,7 @@ public class ComponentTreeActionTest {
   @Test
   public void fail_when_component_is_removed() {
     ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
-    componentDb.insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
+    componentDb.insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
     userSession.anonymous().addProjectPermission(UserRole.USER, project);
     insertNclocMetric();
 
@@ -645,7 +645,7 @@ public class ComponentTreeActionTest {
 
   private void insertJsonExampleData() {
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "project-id")
-      .setKey("MY_PROJECT")
+      .setDbKey("MY_PROJECT")
       .setName("My Project")
       .setQualifier(Qualifiers.PROJECT);
     componentDb.insertComponent(project);
@@ -656,21 +656,21 @@ public class ComponentTreeActionTest {
 
     ComponentDto file1 = componentDb.insertComponent(newFileDto(project, null)
       .setUuid("AVIwDXE-bJbJqrw6wFv5")
-      .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java")
+      .setDbKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java")
       .setName("ElementImpl.java")
       .setLanguage("java")
       .setQualifier(Qualifiers.FILE)
       .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"));
     ComponentDto file2 = componentDb.insertComponent(newFileDto(project, null)
       .setUuid("AVIwDXE_bJbJqrw6wFwJ")
-      .setKey("com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java")
+      .setDbKey("com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java")
       .setName("ElementImplTest.java")
       .setLanguage("java")
       .setQualifier(Qualifiers.UNIT_TEST_FILE)
       .setPath("src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java"));
     ComponentDto dir = componentDb.insertComponent(newDirectory(project, "src/main/java/com/sonarsource/markdown/impl")
       .setUuid("AVIwDXE-bJbJqrw6wFv8")
-      .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
+      .setDbKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
       .setQualifier(Qualifiers.DIRECTORY));
 
     MetricDto complexity = insertComplexityMetric();

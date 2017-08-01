@@ -34,7 +34,7 @@ public class UuidFactory {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<ComponentDto> components = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, rootKey);
       for (ComponentDto componentDto : components) {
-        uuidsByKey.put(componentDto.getKey(), componentDto.uuid());
+        uuidsByKey.put(componentDto.getDbKey(), componentDto.uuid());
       }
     }
   }

@@ -120,7 +120,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   public void apply_template_with_project_key() throws Exception {
     loginAsAdmin(db.getDefaultOrganization());
 
-    newRequest(template1.getUuid(), null, project.key());
+    newRequest(template1.getUuid(), null, project.getDbKey());
 
     assertTemplate1AppliedToProject();
   }

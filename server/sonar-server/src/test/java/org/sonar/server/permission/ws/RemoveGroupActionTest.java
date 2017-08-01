@@ -140,7 +140,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, aGroup.getName())
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .setParam(PARAM_PERMISSION, ADMIN)
       .execute();
 
@@ -216,7 +216,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component '" + file.key() + "' (id: " + file.uuid() + ") must be a project or a view.");
+    expectedException.expectMessage("Component '" + file.getDbKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
 
     newRequest()
         .setParam(PARAM_GROUP_NAME, aGroup.getName())
@@ -274,7 +274,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
       .setParam(PARAM_GROUP_NAME, aGroup.getName())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .execute();
   }
 
@@ -315,7 +315,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     newRequest()
       .setParam(PARAM_GROUP_NAME, aGroup.getName())
       .setParam(PARAM_PERMISSION, PROVISIONING)
-      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .execute();
   }
 

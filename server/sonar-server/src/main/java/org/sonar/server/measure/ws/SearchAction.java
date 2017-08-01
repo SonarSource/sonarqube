@@ -176,7 +176,7 @@ public class SearchAction implements MeasuresWsAction {
 
     private List<Measure> buildWsMeasures() {
       Map<String, ComponentDto> componentsByUuid = projects.stream().collect(toMap(ComponentDto::uuid, Function.identity()));
-      Map<String, String> componentNamesByKey = projects.stream().collect(toMap(ComponentDto::key, ComponentDto::name));
+      Map<String, String> componentNamesByKey = projects.stream().collect(toMap(ComponentDto::getDbKey, ComponentDto::name));
       Map<Integer, MetricDto> metricsById = metrics.stream().collect(toMap(MetricDto::getId, identity()));
 
       Function<MeasureDto, MetricDto> dbMeasureToDbMetric = dbMeasure -> metricsById.get(dbMeasure.getMetricId());
@@ -187,7 +187,7 @@ public class SearchAction implements MeasuresWsAction {
       return measures.stream()
         .map(dbMeasure -> {
           updateMeasureBuilder(measureBuilder, dbMeasureToDbMetric.apply(dbMeasure), dbMeasure);
-          measureBuilder.setComponent(componentsByUuid.get(dbMeasure.getComponentUuid()).getKey());
+          measureBuilder.setComponent(componentsByUuid.get(dbMeasure.getComponentUuid()).getDbKey());
           Measure measure = measureBuilder.build();
           measureBuilder.clear();
           return measure;

@@ -159,12 +159,12 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void apply_template_by_query_on_name_and_key_public_project() throws Exception {
-    ComponentDto publicProjectFoundByKey = ComponentTesting.newPublicProjectDto(organization).setKey("sonar");
+    ComponentDto publicProjectFoundByKey = ComponentTesting.newPublicProjectDto(organization).setDbKey("sonar");
     db.components().insertProjectAndSnapshot(publicProjectFoundByKey);
     ComponentDto publicProjectFoundByName = ComponentTesting.newPublicProjectDto(organization).setName("name-sonar-name");
     db.components().insertProjectAndSnapshot(publicProjectFoundByName);
     // match must be exact on key
-    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto(organization).setKey("new-sonar").setName("project-name");
+    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto(organization).setDbKey("new-sonar").setName("project-name");
     db.components().insertProjectAndSnapshot(projectUntouched);
     loginAsAdmin(organization);
 
@@ -180,12 +180,12 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void apply_template_by_query_on_name_and_key() throws Exception {
-    ComponentDto privateProjectFoundByKey = ComponentTesting.newPrivateProjectDto(organization).setKey("sonar");
+    ComponentDto privateProjectFoundByKey = ComponentTesting.newPrivateProjectDto(organization).setDbKey("sonar");
     db.components().insertProjectAndSnapshot(privateProjectFoundByKey);
     ComponentDto privateProjectFoundByName = ComponentTesting.newPrivateProjectDto(organization).setName("name-sonar-name");
     db.components().insertProjectAndSnapshot(privateProjectFoundByName);
     // match must be exact on key
-    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto(organization).setKey("new-sonar").setName("project-name");
+    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto(organization).setDbKey("new-sonar").setName("project-name");
     db.components().insertProjectAndSnapshot(projectUntouched);
     loginAsAdmin(organization);
 

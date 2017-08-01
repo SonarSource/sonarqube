@@ -91,7 +91,7 @@ public class SelectActionTest {
     logInAsRoot();
     String gateId = String.valueOf(gate.getId());
 
-    callByKey(gateId, project.getKey());
+    callByKey(gateId, project.getDbKey());
 
     assertSelected(gateId, project.getId());
   }
@@ -101,7 +101,7 @@ public class SelectActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     String gateId = String.valueOf(gate.getId());
 
-    callByKey(gateId, project.getKey());
+    callByKey(gateId, project.getDbKey());
 
     assertSelected(gateId, project.getId());
   }
@@ -111,7 +111,7 @@ public class SelectActionTest {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, project.getOrganizationUuid());
     String gateId = String.valueOf(gate.getId());
 
-    callByKey(gateId, project.getKey());
+    callByKey(gateId, project.getDbKey());
 
     assertSelected(gateId, project.getId());
   }
@@ -119,7 +119,7 @@ public class SelectActionTest {
   @Test
   public void fail_when_no_quality_gate() throws Exception {
     expectedException.expect(NotFoundException.class);
-    callByKey("1", project.getKey());
+    callByKey("1", project.getDbKey());
   }
 
   @Test
@@ -145,7 +145,7 @@ public class SelectActionTest {
     userSession.anonymous();
 
     expectedException.expect(ForbiddenException.class);
-    callByKey(gateId, project.getKey());
+    callByKey(gateId, project.getDbKey());
   }
 
   @Test
@@ -155,7 +155,7 @@ public class SelectActionTest {
     userSession.logIn().addProjectPermission(UserRole.ISSUE_ADMIN, project);
 
     expectedException.expect(ForbiddenException.class);
-    callByKey(gateId, project.getKey());
+    callByKey(gateId, project.getDbKey());
   }
 
   @Test
@@ -165,7 +165,7 @@ public class SelectActionTest {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
-    callByKey(gateId, project.getKey());
+    callByKey(gateId, project.getDbKey());
   }
 
   private QualityGateDto insertQualityGate() {

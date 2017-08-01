@@ -85,7 +85,7 @@ public class SearchActionTest {
   @Test
   public void json_example() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setKey(KEY_PROJECT_EXAMPLE_001));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey(KEY_PROJECT_EXAMPLE_001));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setCreatedAt(parseDateTime("2016-12-11T17:12:45+0100").getTime()));
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setCreatedAt(parseDateTime("2016-12-12T17:12:45+0100").getTime()));
@@ -110,7 +110,7 @@ public class SearchActionTest {
 
   @Test
   public void return_analyses_ordered_by_analysis_date() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setCreatedAt(1_000_000L));
     db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setCreatedAt(2_000_000L));
@@ -127,7 +127,7 @@ public class SearchActionTest {
 
   @Test
   public void return_only_processed_analyses() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
     db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setStatus(SnapshotDto.STATUS_UNPROCESSED));
@@ -141,7 +141,7 @@ public class SearchActionTest {
   @Test
   public void return_events() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
     SnapshotDto a42 = db.components().insertSnapshot(newAnalysis(ComponentTesting.newPrivateProjectDto(organizationDto)).setUuid("A42"));
@@ -168,7 +168,7 @@ public class SearchActionTest {
     SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(2_000_000L));
     SnapshotDto thirdAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(3_000_000L));
 
-    List<Analysis> result = call(application.key()).getAnalysesList();
+    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
 
     assertThat(result).hasSize(3);
     assertThat(result).extracting(Analysis::getKey).containsExactly(thirdAnalysis.getUuid(), secondAnalysis.getUuid(), firstAnalysis.getUuid());
@@ -181,7 +181,7 @@ public class SearchActionTest {
     IntStream.rangeClosed(1, 9).forEach(i -> db.components().insertSnapshot(newAnalysis(project).setCreatedAt(1_000_000L * i).setUuid("A" + i)));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.key())
+      .setProject(project.getDbKey())
       .setPage(2)
       .setPageSize(3)
       .build());
@@ -192,7 +192,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_category() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2"));
@@ -213,7 +213,7 @@ public class SearchActionTest {
 
   @Test
   public void paginate_with_filter_on_category() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setCreatedAt(1_000_000L));
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setCreatedAt(2_000_000L));
@@ -248,7 +248,7 @@ public class SearchActionTest {
     SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(project).setUuid("a4").setCreatedAt(4_000_000_000L));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.key())
+      .setProject(project.getDbKey())
       .setFrom(formatDateTime(2_000_000_000L))
       .build());
 
@@ -268,7 +268,7 @@ public class SearchActionTest {
     SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(project).setUuid("a4").setCreatedAt(4_000_000_000L));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.key())
+      .setProject(project.getDbKey())
       .setTo(formatDateTime(2_000_000_000L))
       .build());
 
@@ -288,7 +288,7 @@ public class SearchActionTest {
     SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(project).setUuid("a4").setCreatedAt(4_000_000_000L));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.key())
+      .setProject(project.getDbKey())
       .setFrom(formatDateTime(2_000_000_000L))
       .setTo(formatDateTime(3_000_000_000L))
       .build());
@@ -309,7 +309,7 @@ public class SearchActionTest {
     SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(project).setUuid("a4").setCreatedAt(4_000_000_000L));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.key())
+      .setProject(project.getDbKey())
       .setFrom(formatDate(new Date(2_000_000_000L)))
       .setTo(formatDate(new Date(3_000_000_000L)))
       .build());
@@ -325,7 +325,7 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
 
-    SearchResponse result = call(project.key());
+    SearchResponse result = call(project.getDbKey());
 
     assertThat(result.hasPaging()).isTrue();
     assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsExactly(1, 100, 0);
@@ -356,7 +356,7 @@ public class SearchActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    call(project.key());
+    call(project.getDbKey());
   }
 
   @Test
@@ -375,7 +375,7 @@ public class SearchActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("A project or application is required");
 
-    call(view.key());
+    call(view.getDbKey());
   }
 
   private static Function<Event, String> wsToDbCategory() {

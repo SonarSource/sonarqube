@@ -123,7 +123,7 @@ public class SearchActionTest {
     return new ProjectMeasuresDoc()
       .setOrganizationUuid(project.getOrganizationUuid())
       .setId(project.uuid())
-      .setKey(project.key())
+      .setKey(project.getDbKey())
       .setName(project.name());
   }
 

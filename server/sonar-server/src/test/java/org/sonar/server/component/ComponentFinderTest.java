@@ -106,7 +106,7 @@ public class ComponentFinderTest {
   @Test
   public void fail_when_component_key_is_removed() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
-    db.components().insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
+    db.components().insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
 
 
     expectedException.expect(NotFoundException.class);
@@ -126,10 +126,10 @@ public class ComponentFinderTest {
 
   @Test
   public void get_component_by_key() {
-    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()).setKey("project-key"));
+    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("project-key"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
 
-    assertThat(component.key()).isEqualTo("project-key");
+    assertThat(component.getDbKey()).isEqualTo("project-key");
   }
 }

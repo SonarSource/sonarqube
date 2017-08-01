@@ -125,8 +125,8 @@ public class SearchActionTest {
   @Test
   public void search_by_key_query() throws IOException {
     insertProjectsAuthorizedForUser(
-      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("project-_%-key"),
-      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("project-key-without-escaped-characters"));
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("project-_%-key"),
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("project-key-without-escaped-characters"));
 
     SearchWsResponse response = call(new SearchWsRequest().setQuery("project-_%-key").setQualifiers(singletonList(PROJECT)));
 
@@ -136,14 +136,14 @@ public class SearchActionTest {
   @Test
   public void search_for_files() throws IOException {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto file1 = newFileDto(project).setKey("file1");
-    ComponentDto file2 = newFileDto(project).setKey("file2");
+    ComponentDto file1 = newFileDto(project).setDbKey("file1");
+    ComponentDto file2 = newFileDto(project).setDbKey("file2");
     db.components().insertComponents(project, file1, file2);
     setBrowsePermissionOnUser(project);
 
-    SearchWsResponse response = call(new SearchWsRequest().setQuery(file1.key()).setQualifiers(singletonList(FILE)));
+    SearchWsResponse response = call(new SearchWsRequest().setQuery(file1.getDbKey()).setQualifiers(singletonList(FILE)));
 
-    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(file1.getKey());
+    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(file1.getDbKey());
   }
 
   @Test
@@ -151,7 +151,7 @@ public class SearchActionTest {
     OrganizationDto organizationDto = db.organizations().insert();
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
-      componentDtoList.add(newPrivateProjectDto(organizationDto, "project-uuid-" + i).setKey("project-key-" + i).setName("Project Name " + i));
+      componentDtoList.add(newPrivateProjectDto(organizationDto, "project-uuid-" + i).setDbKey("project-key-" + i).setName("Project Name " + i));
     }
     insertProjectsAuthorizedForUser(componentDtoList.toArray(new ComponentDto[] {}));
 
@@ -164,8 +164,8 @@ public class SearchActionTest {
   public void search_with_language() throws IOException {
     OrganizationDto organizationDto = db.organizations().insert();
     insertProjectsAuthorizedForUser(
-      ComponentTesting.newPrivateProjectDto(organizationDto).setKey("java-project").setLanguage("java"),
-      ComponentTesting.newPrivateProjectDto(organizationDto).setKey("cpp-project").setLanguage("cpp"));
+      ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("java-project").setLanguage("java"),
+      ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("cpp-project").setLanguage("cpp"));
 
     SearchWsResponse response = call(new SearchWsRequest().setOrganization(organizationDto.getKey()).setLanguage("java").setQualifiers(singletonList(PROJECT)));
 
@@ -175,35 +175,35 @@ public class SearchActionTest {
   @Test
   public void return_only_components_from_projects_on_which_user_has_browse_permission() throws IOException {
     ComponentDto project1 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto file1 = newFileDto(project1).setKey("file1");
-    ComponentDto file2 = newFileDto(project1).setKey("file2");
+    ComponentDto file1 = newFileDto(project1).setDbKey("file1");
+    ComponentDto file2 = newFileDto(project1).setDbKey("file2");
     ComponentDto project2 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto file3 = newFileDto(project2).setKey("file3");
+    ComponentDto file3 = newFileDto(project2).setDbKey("file3");
     db.components().insertComponents(project1, file1, file2, project2, file3);
     setBrowsePermissionOnUser(project1);
 
     SearchWsResponse response = call(new SearchWsRequest().setQualifiers(singletonList(FILE)));
 
-    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(file1.getKey(), file2.getKey());
+    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(file1.getDbKey(), file2.getDbKey());
   }
 
   @Test
   public void return_project_key() throws IOException {
     ComponentDto project = ComponentTesting.newPublicProjectDto(db.getDefaultOrganization());
     ComponentDto module = ComponentTesting.newModuleDto(project);
-    ComponentDto file1 = newFileDto(module).setKey("file1");
-    ComponentDto file2 = newFileDto(module).setKey("file2");
-    ComponentDto file3 = newFileDto(project).setKey("file3");
+    ComponentDto file1 = newFileDto(module).setDbKey("file1");
+    ComponentDto file2 = newFileDto(module).setDbKey("file2");
+    ComponentDto file3 = newFileDto(project).setDbKey("file3");
     db.components().insertComponents(project, module, file1, file2, file3);
 
     SearchWsResponse response = call(new SearchWsRequest().setQualifiers(asList(PROJECT, MODULE, FILE)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getProject)
-      .containsOnly(tuple(project.getKey(), project.getKey()),
-        tuple(module.getKey(), project.getKey()),
-        tuple(file1.getKey(), project.getKey()),
-        tuple(file2.getKey(), project.getKey()),
-        tuple(file3.getKey(), project.getKey()));
+      .containsOnly(tuple(project.getDbKey(), project.getDbKey()),
+        tuple(module.getDbKey(), project.getDbKey()),
+        tuple(file1.getDbKey(), project.getDbKey()),
+        tuple(file2.getDbKey(), project.getDbKey()),
+        tuple(file3.getDbKey(), project.getDbKey()));
   }
 
   @Test
@@ -221,7 +221,7 @@ public class SearchActionTest {
     assertThat(call(request).getComponentsCount()).isZero();
 
     userSession.logIn().setRoot();
-    assertThat(call(request).getComponentsList()).extracting(Component::getKey).containsOnly(file1.getKey(), file2.getKey());
+    assertThat(call(request).getComponentsList()).extracting(Component::getKey).containsOnly(file1.getDbKey(), file2.getDbKey());
   }
 
   @Test
@@ -244,11 +244,11 @@ public class SearchActionTest {
   public void test_json_example() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
     db.components().insertComponent(newView(organizationDto));
-    ComponentDto project = newPrivateProjectDto(organizationDto, "project-uuid").setName("Project Name").setKey("project-key");
-    ComponentDto module = newModuleDto("module-uuid", project).setName("Module Name").setKey("module-key");
-    ComponentDto directory = newDirectory(module, "path/to/directoy").setUuid("directory-uuid").setKey("directory-key").setName("Directory Name");
+    ComponentDto project = newPrivateProjectDto(organizationDto, "project-uuid").setName("Project Name").setDbKey("project-key");
+    ComponentDto module = newModuleDto("module-uuid", project).setName("Module Name").setDbKey("module-key");
+    ComponentDto directory = newDirectory(module, "path/to/directoy").setUuid("directory-uuid").setDbKey("directory-key").setName("Directory Name");
     db.components().insertComponents(project, module, directory,
-      newFileDto(module, directory, "file-uuid").setKey("file-key").setLanguage("java").setName("File Name"));
+      newFileDto(module, directory, "file-uuid").setDbKey("file-key").setLanguage("java").setName("File Name"));
     userSession.addProjectPermission(UserRole.USER, project);
 
     String response = ws.newRequest()

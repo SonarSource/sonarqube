@@ -158,7 +158,7 @@ public class ListAction implements TestsWsAction {
       testBuilder.setFileId(testDoc.fileUuid());
       ComponentDto component = componentsByTestFileUuid.get(testDoc.fileUuid());
       if (component != null) {
-        testBuilder.setFileKey(component.getKey());
+        testBuilder.setFileKey(component.getDbKey());
         testBuilder.setFileName(component.longName());
       }
       testBuilder.setStatus(WsTests.TestStatus.valueOf(testDoc.status()));

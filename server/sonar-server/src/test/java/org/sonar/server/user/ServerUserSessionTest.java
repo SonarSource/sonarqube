@@ -84,7 +84,7 @@ public class ServerUserSessionTest {
     organization = db.organizations().insert();
     publicProject = db.components().insertPublicProject(organization, PUBLIC_PROJECT_UUID);
     privateProject = db.components().insertPrivateProject(organization, dto -> dto.setUuid(PRIVATE_PROJECT_UUID).setProjectUuid(PRIVATE_PROJECT_UUID).setPrivate(true));
-    db.components().insertComponent(ComponentTesting.newFileDto(publicProject, null, FILE_UUID).setKey(FILE_KEY));
+    db.components().insertComponent(ComponentTesting.newFileDto(publicProject, null, FILE_UUID).setDbKey(FILE_KEY));
     user = db.users().insertUser(LOGIN);
     groupOfUser = db.users().insertGroup(organization);
   }

@@ -324,7 +324,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
   @Test
   public void fail_if_project_uuid_and_project_key_are_provided() throws Exception {
-    db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid").setKey("project-key"));
+    db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid").setDbKey("project-key"));
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);

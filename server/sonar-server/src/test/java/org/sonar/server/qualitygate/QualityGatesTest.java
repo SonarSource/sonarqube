@@ -91,7 +91,7 @@ public class QualityGatesTest {
     when(dbClient.componentDao()).thenReturn(componentDao);
 
     when(componentDao.selectOrFailById(eq(dbSession), anyLong())).thenReturn(
-      newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setId(1L).setKey(PROJECT_KEY));
+      newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setId(1L).setDbKey(PROJECT_KEY));
 
     underTest = new QualityGates(dbClient, metricFinder, userSession);
 

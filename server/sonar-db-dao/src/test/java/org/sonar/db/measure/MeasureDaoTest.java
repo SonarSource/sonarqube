@@ -420,7 +420,7 @@ public class MeasureDaoTest {
       .setProjectUuid("don't care")
       .setRootUuid("don't care")
       .setUuidPath("don't care")
-      .setKey("kee_" + uuid)
+      .setDbKey("kee_" + uuid)
       .setEnabled(enabled);
     db.getDbClient().componentDao().insert(db.getSession(), componentDto);
     return uuid;

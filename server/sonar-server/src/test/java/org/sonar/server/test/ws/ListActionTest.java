@@ -101,7 +101,7 @@ public class ListActionTest {
     assertThat(result.getName()).isEqualTo(test.getName());
     assertThat(result.getStatus()).isEqualTo(WsTests.TestStatus.OK);
     assertThat(result.getFileId()).isEqualTo(testFile.uuid());
-    assertThat(result.getFileKey()).isEqualTo(testFile.key());
+    assertThat(result.getFileKey()).isEqualTo(testFile.getDbKey());
     assertThat(result.getFileName()).isEqualTo(testFile.path());
     assertThat(result.getDurationInMs()).isEqualTo(test.getExecutionTimeMs());
     assertThat(result.getMessage()).isEqualTo(test.getMsg());
@@ -146,7 +146,7 @@ public class ListActionTest {
     insertTests(testFile, test1, test2);
     insertTests(anotherTestFile, test3);
 
-    ListResponse request = call(ws.newRequest().setParam(TEST_FILE_KEY, testFile.key()));
+    ListResponse request = call(ws.newRequest().setParam(TEST_FILE_KEY, testFile.getDbKey()));
 
     assertThat(request.getTestsList()).extracting(WsTests.Test::getId).containsOnly(test1.getUuid(), test2.getUuid());
   }
@@ -176,7 +176,7 @@ public class ListActionTest {
     DbFileSources.Test test4 = newTest(anotherMainFile, 11).build();
     insertTests(testFile, test1, test2, test3, test4);
 
-    ListResponse request = call(ws.newRequest().setParam(SOURCE_FILE_KEY, mainFile.key()).setParam(SOURCE_FILE_LINE_NUMBER, "10"));
+    ListResponse request = call(ws.newRequest().setParam(SOURCE_FILE_KEY, mainFile.getDbKey()).setParam(SOURCE_FILE_LINE_NUMBER, "10"));
 
     assertThat(request.getTestsList()).extracting(WsTests.Test::getId).containsOnly(test1.getUuid(), test3.getUuid());
   }
@@ -234,7 +234,7 @@ public class ListActionTest {
     insertTests(testFile, newTest(mainFile, 10).build());
 
     expectedException.expect(ForbiddenException.class);
-    call(ws.newRequest().setParam(TEST_FILE_KEY, testFile.key()));
+    call(ws.newRequest().setParam(TEST_FILE_KEY, testFile.getDbKey()));
   }
 
   @Test

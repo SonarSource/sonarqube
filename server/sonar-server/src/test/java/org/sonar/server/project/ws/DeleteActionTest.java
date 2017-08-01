@@ -83,7 +83,7 @@ public class DeleteActionTest {
     WsTester.TestRequest request = newRequest().setParam(PARAM_PROJECT_ID, project.uuid());
     call(request);
 
-    assertThat(verifyDeletedKey()).isEqualTo(project.key());
+    assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
   }
 
   @Test
@@ -91,15 +91,15 @@ public class DeleteActionTest {
     ComponentDto project = componentDbTester.insertPrivateProject();
     userSessionRule.logIn().addPermission(ADMINISTER, project.getOrganizationUuid());
 
-    call(newRequest().setParam(PARAM_PROJECT, project.key()));
+    call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
 
-    assertThat(verifyDeletedKey()).isEqualTo(project.key());
+    assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
   }
 
   private String verifyDeletedKey() {
     ArgumentCaptor<ComponentDto> argument = ArgumentCaptor.forClass(ComponentDto.class);
     verify(componentCleanerService).delete(any(DbSession.class), argument.capture());
-    return argument.getValue().key();
+    return argument.getValue().getDbKey();
   }
 
   @Test
@@ -109,7 +109,7 @@ public class DeleteActionTest {
 
     call(newRequest().setParam(PARAM_PROJECT_ID, project.uuid()));
 
-    assertThat(verifyDeletedKey()).isEqualTo(project.key());
+    assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
   }
 
   @Test
@@ -117,9 +117,9 @@ public class DeleteActionTest {
     ComponentDto project = componentDbTester.insertPrivateProject();
     userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    call(newRequest().setParam(PARAM_PROJECT, project.key()));
+    call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
 
-    assertThat(verifyDeletedKey()).isEqualTo(project.key());
+    assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
   }
 
   @Test

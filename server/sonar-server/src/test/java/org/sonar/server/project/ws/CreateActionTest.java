@@ -104,7 +104,7 @@ public class CreateActionTest {
       .extracting(Project::getKey, Project::getName, Project::getQualifier, Project::getVisibility)
       .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "public");
     assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get())
-      .extracting(ComponentDto::getKey, ComponentDto::name, ComponentDto::qualifier, ComponentDto::scope, ComponentDto::isPrivate)
+      .extracting(ComponentDto::getDbKey, ComponentDto::name, ComponentDto::qualifier, ComponentDto::scope, ComponentDto::isPrivate)
       .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "PRJ", false);
   }
 
@@ -238,7 +238,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_project_already_exists() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    db.components().insertPublicProject(project -> project.setKey(DEFAULT_PROJECT_KEY));
+    db.components().insertPublicProject(project -> project.setDbKey(DEFAULT_PROJECT_KEY));
     userSession.addPermission(PROVISION_PROJECTS, organization);
 
     expectedException.expect(BadRequestException.class);

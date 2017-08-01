@@ -263,7 +263,7 @@ public class SearchActionTest {
 
   private ComponentDto insertProject(String projectUuid, String projectKey) {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert(), projectUuid)
-      .setKey(projectKey);
+      .setDbKey(projectKey);
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 

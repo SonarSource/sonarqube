@@ -130,7 +130,7 @@ public class ComponentCleanerServiceTest {
   private DbData insertData(int id) {
     String suffix = String.valueOf(id);
     ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid-" + suffix)
-      .setKey("project-key-" + suffix);
+      .setDbKey("project-key-" + suffix);
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("sonarqube", "rule-" + suffix));
     dbClient.ruleDao().insert(dbSession, rule);
     IssueDto issue = IssueTesting.newIssue(rule, project, project).setKee("issue-key-" + suffix).setUpdatedAt(new Date().getTime());

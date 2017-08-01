@@ -157,7 +157,7 @@ public class IndexActionTest {
       // The property is overriding global value
       newComponentPropertyDto(project).setKey("property").setValue("two"));
 
-    executeAndVerify(project.key(), null, "return_project_values.json");
+    executeAndVerify(project.getDbKey(), null, "return_project_values.json");
   }
 
   @Test
@@ -205,7 +205,7 @@ public class IndexActionTest {
       // The property is overriding global value
       newComponentPropertyDto(module).setKey("property").setValue("two"));
 
-    executeAndVerify(module.key(), "property", "return_module_values.json");
+    executeAndVerify(module.getDbKey(), "property", "return_module_values.json");
   }
 
   @Test
@@ -222,7 +222,7 @@ public class IndexActionTest {
       newComponentPropertyDto(project).setKey("projectProperty").setValue("project"),
       newComponentPropertyDto(module).setKey("moduleProperty").setValue("module"));
 
-    executeAndVerify(module.key(), null, "return_inherited_values_on_module.json");
+    executeAndVerify(module.getDbKey(), null, "return_inherited_values_on_module.json");
   }
 
   @Test
@@ -323,7 +323,7 @@ public class IndexActionTest {
       newComponentPropertyDto(project).setKey("plugin.license.secured").setValue("ABCD"),
       newComponentPropertyDto(project).setKey("plugin.licenseHash.secured").setValue("987654321"));
 
-    executeAndVerify(project.key(), null, "return_secured_and_license_settings_when_project_admin.json");
+    executeAndVerify(project.getDbKey(), null, "return_secured_and_license_settings_when_project_admin.json");
   }
 
   @Test
@@ -373,7 +373,7 @@ public class IndexActionTest {
       newComponentPropertyDto(project).setKey("not_defined").setValue("ABCD"),
       newGlobalPropertyDto().setKey("global_not_defined").setValue("ABCD"));
 
-    executeAndVerify(project.key(), null, "return_all_project_settings_when_component_and_no_key.json");
+    executeAndVerify(project.getDbKey(), null, "return_all_project_settings_when_component_and_no_key.json");
   }
 
   @Test
@@ -385,8 +385,8 @@ public class IndexActionTest {
       newGlobalPropertyDto().setKey("foo").setValue("one"),
       newGlobalPropertyDto().setKey("bar").setValue("two"));
 
-    executeAndVerify(project.key(), "foo", "return_only_one_setting_when_key_is_provided.json");
-    executeAndVerify(project.key(), "unknown", "empty.json");
+    executeAndVerify(project.getDbKey(), "foo", "return_only_one_setting_when_key_is_provided.json");
+    executeAndVerify(project.getDbKey(), "unknown", "empty.json");
   }
 
   @Test
@@ -395,7 +395,7 @@ public class IndexActionTest {
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("one"));
 
-    executeAndVerify(project.key(), null, "does_not_fail_when_user_has_not_project_browse_permission.json");
+    executeAndVerify(project.getDbKey(), null, "does_not_fail_when_user_has_not_project_browse_permission.json");
   }
 
   @Test

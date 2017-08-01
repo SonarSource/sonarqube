@@ -91,7 +91,7 @@ public class CoveredFilesAction implements TestsWsAction {
         fileBuilder.setCoveredLines(doc.coveredLines().size());
         ComponentDto component = componentsByUuid.get(doc.fileUuid());
         if (component != null) {
-          fileBuilder.setKey(component.key());
+          fileBuilder.setKey(component.getDbKey());
           fileBuilder.setLongName(component.longName());
         }
 

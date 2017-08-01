@@ -731,7 +731,7 @@ public class ValuesActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    executeRequest(project.key(), "foo");
+    executeRequest(project.getDbKey(), "foo");
   }
 
   @Test
@@ -789,11 +789,11 @@ public class ValuesActionTest {
   }
 
   private ValuesWsResponse executeRequestForComponentProperties(ComponentDto componentDto, String... keys) {
-    return executeRequest(componentDto.key(), keys);
+    return executeRequest(componentDto.getDbKey(), keys);
   }
 
   private ValuesWsResponse executeRequestForProjectProperties(String... keys) {
-    return executeRequest(project.key(), keys);
+    return executeRequest(project.getDbKey(), keys);
   }
 
   private ValuesWsResponse executeRequestForGlobalProperties(String... keys) {

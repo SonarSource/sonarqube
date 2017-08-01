@@ -50,8 +50,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.SUBVIEW;
@@ -301,7 +301,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     persistComponents(view, project);
     ComponentDto projectView = ComponentTesting.newProjectCopy(PROJECT_VIEW_1_UUID, project, view)
       .setOrganizationUuid(ORGANIZATION_UUID)
-      .setKey(PROJECT_VIEW_1_KEY)
+      .setDbKey(PROJECT_VIEW_1_KEY)
       .setName("Old name")
       .setCreatedAt(now);
     persistComponents(projectView);
@@ -332,7 +332,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
     // Project view in DB is associated to project1
     ComponentDto projectView = ComponentTesting.newProjectCopy(PROJECT_VIEW_1_UUID, project1, view)
-      .setKey(PROJECT_VIEW_1_KEY)
+      .setDbKey(PROJECT_VIEW_1_KEY)
       .setCreatedAt(now);
     persistComponents(projectView);
 
@@ -399,7 +399,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     boolean isRootPrivate = new Random().nextBoolean();
     ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto view = newViewDto(organization).setUuid(VIEW_UUID).setKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
+    ComponentDto view = newViewDto(organization).setUuid(VIEW_UUID).setDbKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
     dbTester.components().insertComponent(view);
     treeRootHolder.setRoot(
       createViewBuilder(PORTFOLIO)
@@ -423,11 +423,11 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     boolean isRootPrivate = new Random().nextBoolean();
     ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto view = newViewDto(organization).setUuid(VIEW_UUID).setKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
+    ComponentDto view = newViewDto(organization).setUuid(VIEW_UUID).setDbKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
     dbTester.components().insertComponent(view);
-    ComponentDto subView = newSubView(view).setUuid("BCDE").setKey("MODULE").setPrivate(!isRootPrivate);
+    ComponentDto subView = newSubView(view).setUuid("BCDE").setDbKey("MODULE").setPrivate(!isRootPrivate);
     dbTester.components().insertComponent(subView);
-    dbTester.components().insertComponent(newProjectCopy("DEFG", project, view).setKey("DIR").setPrivate(isRootPrivate));
+    dbTester.components().insertComponent(newProjectCopy("DEFG", project, view).setDbKey("DIR").setPrivate(isRootPrivate));
     treeRootHolder.setRoot(
       createViewBuilder(PORTFOLIO)
         .addChildren(
@@ -488,7 +488,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   private ComponentDto newViewDto(OrganizationDto organizationDto) {
     return ComponentTesting.newView(organizationDto, VIEW_UUID)
       .setOrganizationUuid(ORGANIZATION_UUID)
-      .setKey(VIEW_KEY)
+      .setDbKey(VIEW_KEY)
       .setName(VIEW_NAME);
   }
 

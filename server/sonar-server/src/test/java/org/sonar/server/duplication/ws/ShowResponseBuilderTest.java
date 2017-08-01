@@ -61,17 +61,17 @@ public class ShowResponseBuilderTest {
     project = newPrivateProjectDto(organization)
       .setName("SonarQube")
       .setLongName("SonarQube")
-      .setKey("org.codehaus.sonar:sonar");
+      .setDbKey("org.codehaus.sonar:sonar");
     db.components().insertComponent(project);
   }
 
   @Test
   public void write_duplications() {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setKey(key1).setLongName("PropertyDeleteQuery").setRootUuid("uuid_5");
+    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setDbKey(key1).setLongName("PropertyDeleteQuery").setRootUuid("uuid_5");
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
-    ComponentDto file2 = ComponentTesting.newFileDto(project, null).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setRootUuid("uuid_5");
-    ComponentDto project2 = db.components().insertPrivateProject(organization, p -> p.setUuid("uuid_5").setKey("org.codehaus.sonar:sonar-ws-client")
+    ComponentDto file2 = ComponentTesting.newFileDto(project, null).setQualifier("FIL").setDbKey(key2).setLongName("PropertyUpdateQuery").setRootUuid("uuid_5");
+    ComponentDto project2 = db.components().insertPrivateProject(organization, p -> p.setUuid("uuid_5").setDbKey("org.codehaus.sonar:sonar-ws-client")
       .setLongName("SonarQube :: Web Service Client"));
 
     db.components().insertComponent(file1);
@@ -126,9 +126,9 @@ public class ShowResponseBuilderTest {
   @Test
   public void write_duplications_without_sub_project() {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
+    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setId(10L).setDbKey(key1).setLongName("PropertyDeleteQuery");
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
-    ComponentDto file2 = ComponentTesting.newFileDto(project, null).setId(11L).setKey(key2).setLongName("PropertyUpdateQuery");
+    ComponentDto file2 = ComponentTesting.newFileDto(project, null).setId(11L).setDbKey(key2).setLongName("PropertyUpdateQuery");
 
     db.components().insertComponent(file1);
     db.components().insertComponent(file2);
@@ -173,7 +173,7 @@ public class ShowResponseBuilderTest {
   @Test
   public void write_duplications_with_a_removed_component() {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
+    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setId(10L).setDbKey(key1).setLongName("PropertyDeleteQuery");
     db.components().insertComponent(file1);
 
     List<DuplicationsParser.Block> blocks = newArrayList();

@@ -128,7 +128,7 @@ public class GetByProjectActionTest {
     associateProjectToQualityGate(project.getId(), dbQualityGate.getId());
     logInAsProjectUser(project);
 
-    GetByProjectWsResponse result = callByKey(project.key());
+    GetByProjectWsResponse result = callByKey(project.getDbKey());
 
     assertThat(result.getQualityGate().getName()).isEqualTo(dbQualityGate.getName());
   }
