@@ -559,10 +559,6 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  /**
-   * Can be null on Views or Devs
-   */
-  @CheckForNull
   public String getProjectUuid() {
     return projectUuid;
   }
@@ -572,8 +568,8 @@ public final class IssueDto implements Serializable {
    * <p/>
    * Please use {@link #setProject(ComponentDto)} instead
    */
-  public IssueDto setProjectUuid(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 50, "Value is too long for column ISSUES.PROJECT_UUID: %s", s);
+  public IssueDto setProjectUuid(String s) {
+    checkArgument(s.length() <= 50, "Value is too long for column ISSUES.PROJECT_UUID: %s", s);
     this.projectUuid = s;
     return this;
   }

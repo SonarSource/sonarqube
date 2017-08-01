@@ -43,7 +43,8 @@ public class UpdateConflictResolverTest {
       .setKey("ABCDE")
       .setType(RuleType.CODE_SMELL)
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
-      .setComponentKey("struts:org.apache.struts.Action")
+      .setProjectUuid("U1")
+      .setComponentUuid("U2")
       .setNew(false)
       .setStatus(Issue.STATUS_OPEN);
 
@@ -55,7 +56,8 @@ public class UpdateConflictResolverTest {
         .setType(RuleType.CODE_SMELL)
         .setRuleId(10)
         .setRuleKey("squid", "AvoidCycles")
-        .setComponentKey("struts:org.apache.struts.Action")
+        .setProjectUuid("U1")
+        .setComponentUuid("U2")
         .setLine(10)
         .setStatus(Issue.STATUS_OPEN)
 
