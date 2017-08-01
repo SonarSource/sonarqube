@@ -83,6 +83,15 @@ public class ComponentIndexerTest {
     assertThatIndexContainsOnly(project1, project2);
   }
 
+  @Test
+  public void indexOnStartup_does_not_index_non_main_branches() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, "feature/foo");
+
+    underTest.indexOnStartup(emptySet());
+
+    assertThatIndexContainsOnly(project);
+  }
 
   @Test
   public void indexOnAnalysis_indexes_project() {
@@ -119,6 +128,16 @@ public class ComponentIndexerTest {
     underTest.indexOnAnalysis(project.uuid());
     assertThatIndexContainsOnly(project);
     assertThatComponentHasName(project, "NewName");
+  }
+
+  @Test
+  public void indexOnAnalysis_does_not_index_non_main_branches() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, "feature/foo");
+
+    underTest.indexOnAnalysis(branch.uuid());
+
+    assertThatIndexHasSize(0);
   }
 
   @Test
