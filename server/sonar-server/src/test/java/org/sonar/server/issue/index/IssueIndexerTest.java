@@ -120,7 +120,10 @@ public class IssueIndexerTest {
     assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
     assertThat(doc.assignee()).isEqualTo(issue.getAssignee());
     assertThat(doc.authorLogin()).isEqualTo(issue.getAuthorLogin());
-    assertThat(doc.componentUuid()).isEqualTo(issue.getComponentUuid());
+    assertThat(doc.componentUuid()).isEqualTo(file.uuid());
+    assertThat(doc.projectUuid()).isEqualTo(project.uuid());
+    assertThat(doc.branchUuid()).isEqualTo(project.uuid());
+    assertThat(doc.isMainBranch()).isTrue();
     assertThat(doc.closeDate()).isEqualTo(issue.getIssueCloseDate());
     assertThat(doc.creationDate()).isEqualToIgnoringMillis(issue.getIssueCreationDate());
     assertThat(doc.directoryPath()).isEqualTo(dir.path());
@@ -443,6 +446,26 @@ public class IssueIndexerTest {
       .index(asList(issueDoc).iterator());
 
     assertThat(es.countDocuments(INDEX_TYPE_ISSUE)).isEqualTo(1L);
+  }
+
+  @Test
+  public void index_issue_in_non_main_branch() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto branch = db.components().insertProjectBranch(project, "feature/foo");
+    ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(branch, "src/main/java/foo"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, dir, "F1"));
+    IssueDto issue = db.issues().insertIssue(IssueTesting.newIssue(rule, branch, file));
+
+    underTest.indexOnStartup(emptySet());
+
+    IssueDoc doc = es.getDocuments(INDEX_TYPE_ISSUE, IssueDoc.class).get(0);
+    assertThat(doc.getId()).isEqualTo(issue.getKey());
+    assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
+    assertThat(doc.componentUuid()).isEqualTo(file.uuid());
+    assertThat(doc.projectUuid()).isEqualTo(project.uuid());
+    assertThat(doc.branchUuid()).isEqualTo(branch.uuid());
+    assertThat(doc.isMainBranch()).isFalse();
   }
 
   private void addIssueToIndex(String projectUuid, String issueKey) {
