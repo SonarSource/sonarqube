@@ -24,10 +24,10 @@ import java.io.Serializable;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.component.Component;
 import org.sonar.api.notifications.Notification;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.db.component.ComponentDto;
 
 public class IssueChangeNotification extends Notification {
 
@@ -54,7 +54,7 @@ public class IssueChangeNotification extends Notification {
     return this;
   }
 
-  public IssueChangeNotification setProject(Component project) {
+  public IssueChangeNotification setProject(ComponentDto project) {
     setFieldValue("projectName", project.longName());
     setFieldValue("projectKey", project.key());
     return this;
@@ -66,7 +66,7 @@ public class IssueChangeNotification extends Notification {
     return this;
   }
 
-  public IssueChangeNotification setComponent(Component component) {
+  public IssueChangeNotification setComponent(ComponentDto component) {
     setFieldValue("componentName", component.longName());
     return this;
   }

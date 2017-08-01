@@ -28,7 +28,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sonar.api.component.Component;
 import org.sonar.api.resources.Scopes;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -36,7 +35,7 @@ import static org.sonar.db.component.ComponentValidator.checkComponentKey;
 import static org.sonar.db.component.ComponentValidator.checkComponentName;
 import static org.sonar.db.component.DbTagsReader.readDbTags;
 
-public class ComponentDto implements Component {
+public class ComponentDto {
 
   public static final String UUID_PATH_SEPARATOR = ".";
   public static final String UUID_PATH_OF_ROOT = UUID_PATH_SEPARATOR;
@@ -174,7 +173,6 @@ public class ComponentDto implements Component {
     return UUID_PATH_SPLITTER.splitToList(uuidPath);
   }
 
-  @Override
   public String key() {
     return kee;
   }
@@ -188,7 +186,6 @@ public class ComponentDto implements Component {
     return this;
   }
 
-  @Override
   public String qualifier() {
     return qualifier;
   }
@@ -250,7 +247,6 @@ public class ComponentDto implements Component {
   }
 
   @CheckForNull
-  @Override
   public String path() {
     return path;
   }
@@ -260,7 +256,6 @@ public class ComponentDto implements Component {
     return this;
   }
 
-  @Override
   public String name() {
     return name;
   }
@@ -270,7 +265,6 @@ public class ComponentDto implements Component {
     return this;
   }
 
-  @Override
   public String longName() {
     return longName;
   }
