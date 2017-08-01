@@ -38,7 +38,7 @@ public class IssueDoc extends BaseDoc {
   }
 
   public IssueDoc() {
-    super(Maps.newHashMapWithExpectedSize(30));
+    super(Maps.newHashMapWithExpectedSize(32));
   }
 
   @Override
@@ -75,6 +75,14 @@ public class IssueDoc extends BaseDoc {
 
   public String projectUuid() {
     return getField(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID);
+  }
+
+  public String branchUuid() {
+    return getField(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID);
+  }
+
+  public boolean isMainBranch() {
+    return getField(IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH);
   }
 
   public RuleKey ruleKey() {
@@ -172,8 +180,18 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
-  public IssueDoc setProjectUuid(@Nullable String s) {
+  public IssueDoc setProjectUuid(String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, s);
+    return this;
+  }
+
+  public IssueDoc setBranchUuid(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, s);
+    return this;
+  }
+
+  public IssueDoc setIsMainBranch(boolean b) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH, b);
     return this;
   }
 
