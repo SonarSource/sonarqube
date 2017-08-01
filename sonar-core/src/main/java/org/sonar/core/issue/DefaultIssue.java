@@ -178,17 +178,13 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
-  /**
-   * Can be null on Views
-   */
   @Override
-  @CheckForNull
   public String projectUuid() {
     return projectUuid;
   }
 
-  public DefaultIssue setProjectUuid(@Nullable String projectUuid) {
-    this.projectUuid = projectUuid;
+  public DefaultIssue setProjectUuid(String s) {
+    this.projectUuid = s;
     return this;
   }
 
