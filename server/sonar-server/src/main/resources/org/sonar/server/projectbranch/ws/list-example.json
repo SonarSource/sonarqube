@@ -1,0 +1,14 @@
+{
+  "branches": [
+    {
+      "name": "feature/bar",
+      "isMain": false,
+      "type": "LONG"
+    },
+    {
+      "name": "feature/foo",
+      "isMain": false,
+      "type": "LONG"
+    }
+  ]
+}
