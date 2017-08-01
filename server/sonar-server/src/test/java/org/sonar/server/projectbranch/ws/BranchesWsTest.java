@@ -17,27 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project.ws;
+package org.sonar.server.projectbranch.ws;
 
-import org.sonar.core.platform.Module;
+import org.junit.Test;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 
-public class ProjectsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      ProjectsWsSupport.class,
-      ProjectsWs.class,
-      CreateAction.class,
-      IndexAction.class,
-      BulkDeleteAction.class,
-      DeleteAction.class,
-      UpdateKeyAction.class,
-      BulkUpdateKeyAction.class,
-      GhostsAction.class,
-      ProvisionedAction.class,
-      SearchMyProjectsAction.class,
-      SearchMyProjectsDataLoader.class,
-      SearchAction.class,
-      UpdateVisibilityAction.class);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class BranchesWsTest {
+
+  @Test
+  public void define_ws() {
+    BranchesWs underTest = new BranchesWs(new BranchWsAction() {
+      @Override
+      public void define(WebService.NewController context) {
+        context.createAction("foo").setHandler(this);
+      }
+
+      @Override
+      public void handle(Request request, Response response) throws Exception {
+
+      }
+    });
+
+    WebService.Context context = new WebService.Context();
+    underTest.define(context);
+
+    assertThat(context.controller("api/project_branches").action("foo")).isNotNull();
   }
+
 }
