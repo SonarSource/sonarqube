@@ -256,6 +256,23 @@ public class ProjectMeasuresIndexerIteratorTest {
     assertThat(docsById).isEmpty();
   }
 
+  @Test
+  public void non_main_branches_are_not_indexed() {
+    MetricDto metric = insertIntMetric("ncloc");
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
+    SnapshotDto projectAnalysis = dbTester.components().insertProjectAndSnapshot(project);
+    insertMeasure(project, projectAnalysis, metric, 10d);
+
+    ComponentDto branch = ComponentTesting.newProjectBranch(project, "feature/foo");
+    SnapshotDto branchAnalysis = dbTester.components().insertProjectAndSnapshot(branch);
+    insertMeasure(branch, branchAnalysis, metric, 20d);
+
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
+
+    assertThat(docsById).hasSize(1).containsOnlyKeys(project.uuid());
+    assertThat(docsById.get(project.uuid()).getMeasures().getNumericMeasures().get(metric.getKey())).isEqualTo(10d);
+  }
+
   private Map<String, ProjectMeasures> createResultSetAndReturnDocsById() {
     return createResultSetAndReturnDocsById(null);
   }
