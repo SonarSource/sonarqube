@@ -35,7 +35,6 @@ import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.scan.filesystem.PathResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,7 +57,7 @@ public class InputComponentStoreTest {
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(rootDef);
     DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(moduleDef);
 
-    InputComponentStore cache = new InputComponentStore(new PathResolver(), rootModule);
+    InputComponentStore cache = new InputComponentStore(rootModule);
     cache.put(subModule);
 
     DefaultInputFile fooFile = new TestInputFileBuilder(rootModuleKey, "src/main/java/Foo.java")
@@ -102,7 +101,7 @@ public class InputComponentStoreTest {
 
   static class InputComponentStoreTester extends InputComponentStore {
     InputComponentStoreTester() throws IOException {
-      super(new PathResolver(), TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()));
+      super(TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()));
     }
 
     InputFile addFile(String moduleKey, String relpath, String language) {

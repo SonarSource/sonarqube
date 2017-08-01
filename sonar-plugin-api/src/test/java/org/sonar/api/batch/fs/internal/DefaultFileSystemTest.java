@@ -89,6 +89,14 @@ public class DefaultFileSystemTest {
     assertThat(fs.inputFile(fs.predicates().hasRelativePath("src/Bar.java"))).isNotNull();
     assertThat(fs.inputFile(fs.predicates().hasRelativePath("does/not/exist"))).isNull();
 
+    assertThat(fs.inputFile(fs.predicates().hasAbsolutePath(new File(basedir, "src/Bar.java").getAbsolutePath()))).isNotNull();
+    assertThat(fs.inputFile(fs.predicates().hasAbsolutePath(new File(basedir, "does/not/exist").getAbsolutePath()))).isNull();
+    assertThat(fs.inputFile(fs.predicates().hasAbsolutePath(new File(basedir, "../src/Bar.java").getAbsolutePath()))).isNull();
+
+    assertThat(fs.inputFile(fs.predicates().hasURI(new File(basedir, "src/Bar.java").toURI()))).isNotNull();
+    assertThat(fs.inputFile(fs.predicates().hasURI(new File(basedir, "does/not/exist").toURI()))).isNull();
+    assertThat(fs.inputFile(fs.predicates().hasURI(new File(basedir, "../src/Bar.java").toURI()))).isNull();
+
     assertThat(fs.files(fs.predicates().all())).hasSize(4);
     assertThat(fs.files(fs.predicates().hasLanguage("java"))).hasSize(2);
     assertThat(fs.files(fs.predicates().hasLanguage("cobol"))).isEmpty();

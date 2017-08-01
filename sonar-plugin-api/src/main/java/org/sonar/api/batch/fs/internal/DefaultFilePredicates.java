@@ -19,16 +19,16 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FilePredicates;
-import org.sonar.api.batch.fs.InputFile;
-
 import java.io.File;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.InputFile;
 
 /**
  * Factory of {@link org.sonar.api.batch.fs.FilePredicate}
@@ -80,8 +80,14 @@ public class DefaultFilePredicates implements FilePredicates {
     return new FilenamePredicate(s);
   }
 
-  @Override public FilePredicate hasExtension(String s) {
+  @Override
+  public FilePredicate hasExtension(String s) {
     return new FileExtensionPredicate(s);
+  }
+
+  @Override
+  public FilePredicate hasURI(URI uri) {
+    return new URIPredicate(uri, baseDir);
   }
 
   @Override

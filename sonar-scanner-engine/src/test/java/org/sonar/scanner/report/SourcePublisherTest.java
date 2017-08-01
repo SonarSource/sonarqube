@@ -30,7 +30,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
@@ -57,7 +56,7 @@ public class SourcePublisherTest {
       .build();
 
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(moduleKey, baseDir);
-    InputComponentStore componentStore = new InputComponentStore(new PathResolver(), rootModule);
+    InputComponentStore componentStore = new InputComponentStore(rootModule);
     componentStore.put(inputFile);
 
     publisher = new SourcePublisher(componentStore);

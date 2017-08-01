@@ -19,13 +19,13 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import java.io.File;
 import java.io.IOException;
-import org.junit.*;
+import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.batch.fs.internal.FileExtensionPredicate.getExtension;
 
 public class FileExtensionPredicateTest {
@@ -66,7 +66,7 @@ public class FileExtensionPredicateTest {
 
   private InputFile mockWithName(String filename) throws IOException {
     InputFile inputFile = mock(InputFile.class);
-    when(inputFile.file()).thenReturn(new File("dummy parent", filename));
+    when(inputFile.filename()).thenReturn(filename);
     return inputFile;
   }
 }
