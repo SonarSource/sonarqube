@@ -192,6 +192,7 @@ public class ComponentTesting {
 
   public static ComponentDto newProjectBranch(ComponentDto project, String branchName) {
     checkArgument(project.qualifier().equals(Qualifiers.PROJECT));
+    checkArgument(project.getMainBranchProjectUuid() == null);
     String uuid = Uuids.createFast();
     return new ComponentDto()
       .setUuid(uuid)
