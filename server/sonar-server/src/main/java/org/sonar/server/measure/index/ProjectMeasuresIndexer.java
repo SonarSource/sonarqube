@@ -78,8 +78,8 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
   }
 
   @Override
-  public void indexOnAnalysis(String projectUuid) {
-    doIndex(Size.REGULAR, projectUuid);
+  public void indexOnAnalysis(String branchUuid) {
+    doIndex(Size.REGULAR, branchUuid);
   }
 
   @Override
@@ -127,7 +127,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       }
     }
 
-    // the remaining uuids reference issues that don't exist in db. They must
+    // the remaining uuids reference projects that don't exist in db. They must
     // be deleted from index.
     projectUuids.forEach(projectUuid -> bulkIndexer.addDeletion(INDEX_TYPE_PROJECT_MEASURES, projectUuid, projectUuid));
 
@@ -136,7 +136,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
 
   private void doIndex(Size size, @Nullable String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false);
-         ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, projectUuid)) {
+      ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, projectUuid)) {
 
       BulkIndexer bulkIndexer = createBulkIndexer(size, IndexingListener.NOOP);
       bulkIndexer.start();
