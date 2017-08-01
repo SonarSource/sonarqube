@@ -94,6 +94,16 @@ public class ProjectMeasuresIndexerTest {
   }
 
   @Test
+  public void indexOnStartup_ignores_non_main_branches() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, "feature/foo");
+
+    underTest.indexOnStartup(emptySet());
+
+    assertThatIndexContainsOnly(project);
+  }
+
+  @Test
   public void indexOnAnalysis_indexes_provisioned_project() {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
@@ -187,6 +197,16 @@ public class ProjectMeasuresIndexerTest {
     assertThat(result.getFailures()).isEqualTo(0L);
     assertThatEsQueueTableHasSize(0);
     assertThatIndexContainsOnly(project);
+  }
+
+  @Test
+  public void non_main_branches_are_not_indexed_during_analysis() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, "feature/foo");
+
+    underTest.indexOnAnalysis(branch.uuid());
+
+    assertThat(es.countDocuments(INDEX_TYPE_PROJECT_MEASURES)).isEqualTo(0);
   }
 
   private IndexingResult indexProject(ComponentDto project, ProjectIndexer.Cause cause) {

@@ -93,7 +93,7 @@ public class PermissionIndexer implements ProjectIndexer {
   }
 
   @Override
-  public void indexOnAnalysis(String projectUuid) {
+  public void indexOnAnalysis(String branchUuid) {
     // nothing to do, permissions don't change during an analysis
   }
 
