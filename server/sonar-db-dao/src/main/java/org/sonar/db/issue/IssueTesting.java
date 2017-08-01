@@ -22,6 +22,7 @@ package org.sonar.db.issue;
 import java.util.Date;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
@@ -30,6 +31,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -42,6 +44,9 @@ public class IssueTesting {
   }
 
   public static IssueDto newIssue(RuleDefinitionDto rule, ComponentDto project, ComponentDto file) {
+    checkArgument(project.qualifier().equals(Qualifiers.PROJECT));
+    checkArgument(file.projectUuid().equals(project.uuid()));
+
     return new IssueDto()
       .setKee("uuid_" + randomAlphabetic(5))
       .setRule(rule)
