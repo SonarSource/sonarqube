@@ -164,7 +164,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   public boolean isTemplate() {
-    return (Boolean) getField(RuleIndexDefinition.FIELD_RULE_IS_TEMPLATE);
+    return getField(RuleIndexDefinition.FIELD_RULE_IS_TEMPLATE);
   }
 
   public RuleDoc setIsTemplate(@Nullable Boolean b) {

@@ -58,7 +58,32 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_MODULE_UUID = "module";
   public static final String FIELD_ISSUE_MODULE_PATH = "modulePath";
   public static final String FIELD_ISSUE_ORGANIZATION_UUID = "organization";
+
+  /**
+   * The (real) project, equivalent of projects.main_branch_project_uuid | projects.project_uuid, so
+   * it's never empty.
+   * On main branches, it is the UUID of the project.
+   * On non-main branches, it is the UUID of the main branch (which represents the project).
+   * This field maps the parent association with issues/authorization.
+   */
   public static final String FIELD_ISSUE_PROJECT_UUID = "project";
+
+  /**
+   * The branch, as represented by the component with TRK qualifier. It's never
+   * empty. It maps the DB column projects.project_uuid:
+   * - on main branches, it is the UUID of the project. It equals {@link #FIELD_ISSUE_PROJECT_UUID}.
+   * - on non-main branches, it is the UUID of the project representing the branch and it
+   * is different than {@link #FIELD_ISSUE_PROJECT_UUID}.
+   */
+  public static final String FIELD_ISSUE_BRANCH_UUID = "branch";
+
+  /**
+   * Whether component is in a main branch or not.
+   * If true, then {@link #FIELD_ISSUE_BRANCH_UUID} equals {@link #FIELD_ISSUE_PROJECT_UUID}.
+   * If false, then {@link #FIELD_ISSUE_BRANCH_UUID} is different than {@link #FIELD_ISSUE_PROJECT_UUID}.
+   */
+  public static final String FIELD_ISSUE_IS_MAIN_BRANCH = "isMainBranch";
+
   public static final String FIELD_ISSUE_DIRECTORY_PATH = "dirPath";
   public static final String FIELD_ISSUE_RESOLUTION = "resolution";
   public static final String FIELD_ISSUE_RULE_KEY = "ruleKey";
@@ -117,6 +142,8 @@ public class IssueIndexDefinition implements IndexDefinition {
     type.createUuidPathField(FIELD_ISSUE_MODULE_PATH);
     type.keywordFieldBuilder(FIELD_ISSUE_ORGANIZATION_UUID).disableNorms().build();
     type.keywordFieldBuilder(FIELD_ISSUE_PROJECT_UUID).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    type.keywordFieldBuilder(FIELD_ISSUE_BRANCH_UUID).disableNorms().build();
+    type.createBooleanField(FIELD_ISSUE_IS_MAIN_BRANCH);
     type.keywordFieldBuilder(FIELD_ISSUE_DIRECTORY_PATH).disableNorms().build();
     type.keywordFieldBuilder(FIELD_ISSUE_RESOLUTION).disableNorms().build();
     type.keywordFieldBuilder(FIELD_ISSUE_RULE_KEY).disableNorms().build();

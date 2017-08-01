@@ -236,7 +236,7 @@ public class SetTagsActionTest {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    return IssueTesting.newIssue(rule, file, project);
+    return IssueTesting.newIssue(rule, project, file);
   }
 
   private void logIn(IssueDto issueDto) {
