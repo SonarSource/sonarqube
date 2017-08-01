@@ -44,12 +44,12 @@ public interface ProjectIndexer extends ResilientIndexer {
   }
 
   /**
-   * This method is called when a project must be (re-)indexed,
-   * for example when project is created or when a new analysis
-   * is being processed.
-   * @param projectUuid non-null UUID of project
+   * This method is called when an analysis must be indexed.
+   *
+   * @param branchUuid non-null UUID of branch in table "projects". It can reference
+   *                   a non-main branch
    */
-  void indexOnAnalysis(String projectUuid);
+  void indexOnAnalysis(String branchUuid);
 
   Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause);
 }
