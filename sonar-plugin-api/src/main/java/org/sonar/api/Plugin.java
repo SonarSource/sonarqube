@@ -69,13 +69,11 @@ import static java.util.Objects.requireNonNull;
  *
  * <p>Example of test
  * <pre>
- * MyPlugin underTest = new MyPlugin();
- *
  *{@literal @}Test
  * public void test_plugin_extensions_compatible_with_5_6() {
- *   SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(5, 6));
+ *   SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(5, 6), SonarQubeSide.SCANNER);
  *   Plugin.Context context = new Plugin.Context(runtime);
- *   underTest.define(context);
+ *   new MyPlugin().define(context);
  *   assertThat(context.getExtensions()).hasSize(4);
  * }
  * </pre>
