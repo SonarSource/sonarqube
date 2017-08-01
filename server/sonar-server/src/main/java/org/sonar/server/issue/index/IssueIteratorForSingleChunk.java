@@ -69,23 +69,24 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "r.plugin_name",
     "r.plugin_rule_key",
     "r.language",
-    "p.uuid",
-    "p.module_uuid_path",
-    "p.path",
-    "p.scope",
-    "p.organization_uuid",
-    "p.project_uuid",
+    "c.uuid",
+    "c.module_uuid_path",
+    "c.path",
+    "c.scope",
+    "c.organization_uuid",
+    "c.project_uuid",
 
     // column 21
+    "c.main_branch_project_uuid",
     "i.tags",
     "i.issue_type"
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
     "inner join rules r on r.id = i.rule_id " +
-    "inner join projects p on p.uuid = i.component_uuid ";
+    "inner join projects c on c.uuid = i.component_uuid ";
 
-  private static final String PROJECT_FILTER = " and p.project_uuid=?";
+  private static final String PROJECT_FILTER = " and c.project_uuid = ?";
   private static final String ISSUE_KEY_FILTER_PREFIX = " and i.kee in (";
   private static final String ISSUE_KEY_FILTER_SUFFIX = ")";
 
@@ -212,11 +213,19 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setFilePath(filePath);
       doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
       doc.setOrganizationUuid(rs.getString(19));
-      String projectUuid = rs.getString(20);
-      doc.setProjectUuid(projectUuid);
-      String tags = rs.getString(21);
+      String branchUuid = rs.getString(20);
+      String mainBranchProjectUuid = DatabaseUtils.getString(rs, 21);
+      doc.setBranchUuid(branchUuid);
+      if (mainBranchProjectUuid == null) {
+        doc.setProjectUuid(branchUuid);
+        doc.setIsMainBranch(true);
+      } else {
+        doc.setProjectUuid(mainBranchProjectUuid);
+        doc.setIsMainBranch(false);
+      }
+      String tags = rs.getString(22);
       doc.setTags(ImmutableList.copyOf(IssueIteratorForSingleChunk.TAGS_SPLITTER.split(tags == null ? "" : tags)));
-      doc.setType(RuleType.valueOf(rs.getInt(22)));
+      doc.setType(RuleType.valueOf(rs.getInt(23)));
       return doc;
     }
 
