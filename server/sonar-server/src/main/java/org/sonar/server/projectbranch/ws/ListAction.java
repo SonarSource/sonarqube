@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project.ws;
+package org.sonar.server.projectbranch.ws;
 
+import com.google.common.io.Resources;
 import java.util.Collection;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -31,30 +33,35 @@ import org.sonar.db.component.BranchKeyType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.WsProjects;
+import org.sonarqube.ws.WsBranches;
 
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
-public class BranchesAction implements ProjectsWsAction {
+public class ListAction implements BranchWsAction {
 
   private static final String PROJECT_PARAM = "project";
 
   private final DbClient dbClient;
   private final UserSession userSession;
 
-  public BranchesAction(DbClient dbClient, UserSession userSession) {
+  public ListAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
   }
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("branches")
+    WebService.NewAction action = context.createAction("list")
       .setSince("6.6")
+      .setDescription("List the branches of a project")
+      .setResponseExample(Resources.getResource(getClass(), "list-example.json"))
       .setHandler(this);
 
     action
       .createParam(PROJECT_PARAM)
+      .setDescription("Project key")
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setRequired(true);
   }
 
@@ -65,9 +72,12 @@ public class BranchesAction implements ProjectsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = dbClient.componentDao().selectOrFailByKey(dbSession, projectKey);
       userSession.checkComponentPermission(UserRole.USER, project);
-      Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project);
+      if (!project.isEnabled() || !Qualifiers.PROJECT.equals(project.qualifier())) {
+        throw new IllegalArgumentException("Invalid project key");
+      }
 
-      WsProjects.BranchesWsResponse.Builder protobufResponse = WsProjects.BranchesWsResponse.newBuilder();
+      Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project);
+      WsBranches.ListWsResponse.Builder protobufResponse = WsBranches.ListWsResponse.newBuilder();
       branches.stream()
         .filter(b -> b.getKeeType().equals(BranchKeyType.BRANCH))
         .forEach(b -> addToProtobuf(protobufResponse, b));
@@ -75,11 +85,11 @@ public class BranchesAction implements ProjectsWsAction {
     }
   }
 
-  private static void addToProtobuf(WsProjects.BranchesWsResponse.Builder response, BranchDto branch) {
-    WsProjects.BranchesWsResponse.Branch.Builder builder = response.addBranchesBuilder();
+  private static void addToProtobuf(WsBranches.ListWsResponse.Builder response, BranchDto branch) {
+    WsBranches.ListWsResponse.Branch.Builder builder = response.addBranchesBuilder();
     setNullable(branch.getKey(), builder::setName);
     builder.setIsMain(branch.isMain());
-    builder.setType(WsProjects.BranchesWsResponse.BranchType.valueOf(branch.getBranchType().name()));
+    builder.setType(WsBranches.ListWsResponse.BranchType.valueOf(branch.getBranchType().name()));
     builder.build();
   }
 }
