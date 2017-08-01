@@ -190,7 +190,7 @@ public class ProjectBuilderMediumTest {
   }
 
   private File prepareProject() throws IOException {
-    File baseDir = temp.getRoot();
+    File baseDir = temp.newFolder();
     File module1Dir = new File(baseDir, "module1");
     module1Dir.mkdir();
 

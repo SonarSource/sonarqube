@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,7 +145,7 @@ public class DefaultCpdTokensTest {
       tokens.addToken(INPUT_FILE.newRange(1, 2, 1, 5), "foo");
       fail("Expected exception");
     } catch (Exception e) {
-      assertThat(e).hasMessage("Tokens of file [moduleKey=foo, relative=src/Foo.java, basedir=foo] should be provided in order.\n" +
+      assertThat(e).hasMessage("Tokens of file src/Foo.java should be provided in order.\n" +
         "Previous token: Range[from [line=1, lineOffset=6] to [line=1, lineOffset=10]]\n" +
         "Last token: Range[from [line=1, lineOffset=2] to [line=1, lineOffset=5]]");
     }

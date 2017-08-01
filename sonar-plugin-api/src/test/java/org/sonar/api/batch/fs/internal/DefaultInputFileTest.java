@@ -74,8 +74,6 @@ public class DefaultInputFileTest {
       .setStatus(InputFile.Status.ADDED)
       .setCharset(StandardCharsets.ISO_8859_1);
 
-    assertThat(inputFile.relativePath()).isEqualTo(MODULE_RELATIVE_PATH);
-    assertThat(new File(inputFile.relativePath())).isRelative();
     assertThat(inputFile.absolutePath()).endsWith("Foo.php");
     assertThat(inputFile.filename()).isEqualTo("Foo.php");
     assertThat(inputFile.uri()).hasPath(baseDir.resolve(PROJECT_RELATIVE_PATH).toUri().getPath());
@@ -86,8 +84,14 @@ public class DefaultInputFileTest {
     assertThat(inputFile.lines()).isEqualTo(42);
     assertThat(inputFile.charset()).isEqualTo(StandardCharsets.ISO_8859_1);
 
+    assertThat(inputFile.getModuleRelativePath()).isEqualTo(MODULE_RELATIVE_PATH);
+    assertThat(inputFile.getProjectRelativePath()).isEqualTo(PROJECT_RELATIVE_PATH);
+
+    assertThat(inputFile.relativePath()).isEqualTo(MODULE_RELATIVE_PATH);
+    assertThat(new File(inputFile.relativePath())).isRelative();
     sensorStrategy.setGlobal(true);
     assertThat(inputFile.relativePath()).isEqualTo(PROJECT_RELATIVE_PATH);
+    assertThat(new File(inputFile.relativePath())).isRelative();
   }
 
   @Test

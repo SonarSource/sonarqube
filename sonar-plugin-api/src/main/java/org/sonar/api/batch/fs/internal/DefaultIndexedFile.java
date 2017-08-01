@@ -70,6 +70,14 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
     return sensorStrategy.isGlobal() ? projectRelativePath : moduleRelativePath;
   }
 
+  public String getModuleRelativePath() {
+    return moduleRelativePath;
+  }
+
+  public String getProjectRelativePath() {
+    return projectRelativePath;
+  }
+
   @Override
   public String absolutePath() {
     return PathUtils.sanitize(path().toString());

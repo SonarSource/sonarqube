@@ -19,11 +19,10 @@
  */
 package org.sonar.xoo.extensions;
 
+import java.io.File;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
-
-import java.io.File;
 
 public class XooProjectBuilder extends ProjectBuilder {
 
@@ -39,6 +38,7 @@ public class XooProjectBuilder extends ProjectBuilder {
       return;
     }
     ProjectDefinition root = context.projectReactor().getRoot();
+    root.resetSources();
 
     ProjectDefinition module = ProjectDefinition.create()
       .setKey(root.getKey() + ":module1")
