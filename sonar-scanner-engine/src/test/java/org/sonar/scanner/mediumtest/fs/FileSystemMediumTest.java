@@ -562,10 +562,30 @@ public class FileSystemMediumTest {
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
     thrown.expect(MessageException.class);
-    thrown.expectMessage("can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
+    thrown.expectMessage("File src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
     tester.newTask()
       .properties(builder
         .put("sonar.sources", "src,src/sample.xoo")
+        .build())
+      .execute();
+  }
+
+  // SONAR-9574
+  @Test
+  public void failForDuplicateInputFileInDifferentModules() throws IOException {
+    File srcDir = new File(baseDir, "module1/src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("File module1/src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
+    tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "module1/src")
+        .put("sonar.modules", "module1")
+        .put("module1.sonar.sources", "src")
         .build())
       .execute();
 
@@ -713,22 +733,4 @@ public class FileSystemMediumTest {
     assertThat(result.inputFiles()).hasSize(1);
   }
 
-  @Test
-  public void detectDuplicatedFilesInDifferentModules() throws IOException {
-    File srcDir = new File(baseDir, "module1/src");
-    srcDir.mkdir();
-
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
-
-    TaskResult result = tester.newTask()
-      .properties(builder
-        .put("sonar.sources", "module1/src")
-        .put("sonar.modules", "module1")
-        .put("module1.sonar.sources", "src")
-        .build())
-      .execute();
-
-    assertThat(result.inputFiles()).hasSize(1);
-  }
 }

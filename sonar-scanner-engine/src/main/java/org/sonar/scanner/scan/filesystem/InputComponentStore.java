@@ -110,7 +110,7 @@ public class InputComponentStore {
 
   public InputComponentStore remove(InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
-    inputFileCache.remove(file.moduleKey(), inputFile.relativePath());
+    inputFileCache.remove(file.moduleKey(), file.getModuleRelativePath());
     return this;
   }
 
@@ -123,8 +123,8 @@ public class InputComponentStore {
   public InputComponentStore put(InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     addToLanguageCache(file);
-    inputFileCache.put(file.moduleKey(), inputFile.relativePath(), inputFile);
-    globalInputFileCache.put(getProjectRelativePath(file), inputFile);
+    inputFileCache.put(file.moduleKey(), file.getModuleRelativePath(), inputFile);
+    globalInputFileCache.put(file.getProjectRelativePath(), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
     filesByNameCache.put(inputFile.filename(), inputFile);
     filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
@@ -142,13 +142,10 @@ public class InputComponentStore {
   public InputComponentStore put(InputDir inputDir) {
     DefaultInputDir dir = (DefaultInputDir) inputDir;
     inputDirCache.put(dir.moduleKey(), inputDir.relativePath(), inputDir);
+    // FIXME an InputDir can be already indexed by another module
     globalInputDirCache.put(getProjectRelativePath(dir), inputDir);
     inputComponents.put(inputDir.key(), inputDir);
     return this;
-  }
-
-  private String getProjectRelativePath(DefaultInputFile file) {
-    return PathResolver.relativePath(getProjectBaseDir(), file.path());
   }
 
   private String getProjectRelativePath(DefaultInputDir dir) {

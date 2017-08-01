@@ -125,6 +125,14 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return indexedFile.relativePath();
   }
 
+  public String getModuleRelativePath() {
+    return indexedFile.getModuleRelativePath();
+  }
+
+  public String getProjectRelativePath() {
+    return indexedFile.getProjectRelativePath();
+  }
+
   @Override
   public String absolutePath() {
     return indexedFile.absolutePath();

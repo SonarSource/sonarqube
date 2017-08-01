@@ -21,6 +21,7 @@ package org.sonar.scanner.scan.filesystem;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Before;
 import org.junit.Rule;
@@ -56,8 +57,10 @@ public class InputFileBuilderTest {
       .setBaseDir(baseDir.toFile())
       .setWorkDir(workDir.toFile())
       .setKey("root"), 0);
+    Path moduleBaseDir = baseDir.resolve("module1");
+    Files.createDirectories(moduleBaseDir);
     DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create()
-      .setBaseDir(baseDir.resolve("module1").toFile())
+      .setBaseDir(moduleBaseDir.toFile())
       .setWorkDir(workDir.toFile())
       .setKey("module1"), 0);
 

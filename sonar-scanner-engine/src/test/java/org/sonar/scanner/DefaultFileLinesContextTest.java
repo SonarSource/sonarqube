@@ -95,13 +95,13 @@ public class DefaultFileLinesContextTest {
 
   @Test
   public void validateLineGreaterThanZero() {
-    thrown.expectMessage("Line number should be positive for file [moduleKey=foo, relative=src/foo.php, basedir=foo].");
+    thrown.expectMessage("Line number should be positive for file src/foo.php.");
     fileLineMeasures.setIntValue(HITS_METRIC_KEY, 0, 2);
   }
 
   @Test
   public void validateLineLowerThanLineCount() {
-    thrown.expectMessage("Line 4 is out of range for file [moduleKey=foo, relative=src/foo.php, basedir=foo]. File has 3 lines");
+    thrown.expectMessage("Line 4 is out of range for file src/foo.php. File has 3 lines");
     fileLineMeasures.setIntValue(HITS_METRIC_KEY, 4, 2);
   }
 

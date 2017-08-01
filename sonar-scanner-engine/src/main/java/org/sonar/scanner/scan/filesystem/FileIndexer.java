@@ -31,9 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,7 +41,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputFileFilter;
@@ -184,8 +181,8 @@ public class FileIndexer {
     }
     String parentRelativePath = getParentRelativePath(inputFile);
     synchronized (this) {
-      indexFileAndParentDir(inputFile, parentRelativePath);
       progress.markAsIndexed(inputFile);
+      indexFileAndParentDir(inputFile, parentRelativePath);
     }
     LOG.debug("'{}' indexed {}with language '{}'", relativePath, type == Type.TEST ? "as test " : "", inputFile.language());
     inputFileBuilder.checkMetadata(inputFile);
@@ -271,16 +268,16 @@ public class FileIndexer {
   }
 
   private class Progress {
-    private final Set<Path> indexed = new HashSet<>();
+    private AtomicInteger indexedCount = new AtomicInteger(0);
     private AtomicInteger excludedByPatternsCount = new AtomicInteger(0);
 
-    void markAsIndexed(IndexedFile inputFile) {
-      if (indexed.contains(inputFile.path())) {
+    void markAsIndexed(DefaultInputFile inputFile) {
+      if (componentStore.getFile(inputFile.getProjectRelativePath()) != null) {
         throw MessageException.of("File " + inputFile + " can't be indexed twice. Please check that inclusion/exclusion patterns produce "
           + "disjoint sets for main and test files");
       }
-      indexed.add(inputFile.path());
-      progressReport.message(indexed.size() + " " + pluralizeFiles(indexed.size()) + " indexed...  (last one was " + inputFile.relativePath() + ")");
+      int count = indexedCount.incrementAndGet();
+      progressReport.message(count + " " + pluralizeFiles(count) + " indexed...  (last one was " + inputFile.relativePath() + ")");
     }
 
     void increaseExcludedByPatternsCount() {
@@ -292,7 +289,7 @@ public class FileIndexer {
     }
 
     int count() {
-      return indexed.size();
+      return indexedCount.get();
     }
   }
 
