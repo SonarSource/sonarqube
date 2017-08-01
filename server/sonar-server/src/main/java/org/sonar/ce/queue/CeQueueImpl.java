@@ -205,7 +205,7 @@ public class CeQueueImpl implements CeQueue {
         ComponentDto component = componentDtoByUuid.get(componentUuid);
         if (component != null) {
           builder.setOrganizationUuid(component.getOrganizationUuid());
-          builder.setComponentKey(component.getKey());
+          builder.setComponentKey(component.getDbKey());
           builder.setComponentName(component.name());
         }
       }

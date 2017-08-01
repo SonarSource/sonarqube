@@ -160,13 +160,13 @@ public class SearchResponseFormat {
 
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setOrganization(data.getOrganizationKey(component.getOrganizationUuid()));
-    issueBuilder.setComponent(component.key());
+    issueBuilder.setComponent(component.getDbKey());
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
     if (project != null) {
-      issueBuilder.setProject(project.getKey());
+      issueBuilder.setProject(project.getDbKey());
       ComponentDto subProject = data.getComponentByUuid(dto.getModuleUuid());
-      if (subProject != null && !subProject.getKey().equals(project.getKey())) {
-        issueBuilder.setSubProject(subProject.getKey());
+      if (subProject != null && !subProject.getDbKey().equals(project.getDbKey())) {
+        issueBuilder.setSubProject(subProject.getDbKey());
       }
     }
     issueBuilder.setRule(dto.getRuleKey().toString());
@@ -300,7 +300,7 @@ public class SearchResponseFormat {
       String uuid = dto.uuid();
       Component.Builder builder = Component.newBuilder()
         .setOrganization(data.getOrganizationKey(dto.getOrganizationUuid()))
-        .setKey(dto.key())
+        .setKey(dto.getDbKey())
         .setUuid(uuid)
         .setQualifier(dto.qualifier())
         .setName(nullToEmpty(dto.name()))

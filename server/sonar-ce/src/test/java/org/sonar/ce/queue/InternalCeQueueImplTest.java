@@ -696,7 +696,7 @@ public class InternalCeQueueImplTest {
       assertThat(task.getComponentKey()).isNull();
       assertThat(task.getComponentName()).isNull();
     } else {
-      assertThat(task.getComponentKey()).isEqualTo(componentDto.key());
+      assertThat(task.getComponentKey()).isEqualTo(componentDto.getDbKey());
       assertThat(task.getComponentName()).isEqualTo(componentDto.name());
     }
     assertThat(task.getSubmitterLogin()).isEqualTo(taskSubmit.getSubmitterLogin());
@@ -713,7 +713,7 @@ public class InternalCeQueueImplTest {
   }
 
   private ComponentDto newComponentDto(String uuid) {
-    return ComponentTesting.newPublicProjectDto(dbTester.getDefaultOrganization(), uuid).setName("name_" + uuid).setKey("key_" + uuid);
+    return ComponentTesting.newPublicProjectDto(dbTester.getDefaultOrganization(), uuid).setName("name_" + uuid).setDbKey("key_" + uuid);
   }
 
   private CeTask submit(String reportType, String componentUuid) {

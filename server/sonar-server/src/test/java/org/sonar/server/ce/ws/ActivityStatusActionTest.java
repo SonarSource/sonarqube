@@ -120,7 +120,7 @@ public class ActivityStatusActionTest {
     db.components().insertComponent(project);
     expectedException.expect(IllegalArgumentException.class);
 
-    callByComponentUuidOrComponentKey(project.uuid(), project.key());
+    callByComponentUuidOrComponentKey(project.uuid(), project.getDbKey());
   }
 
   @Test
@@ -155,7 +155,7 @@ public class ActivityStatusActionTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    callByComponentKey(project.key());
+    callByComponentKey(project.getDbKey());
   }
 
   private void insertInQueue(CeQueueDto.Status status, @Nullable String componentUuid) {

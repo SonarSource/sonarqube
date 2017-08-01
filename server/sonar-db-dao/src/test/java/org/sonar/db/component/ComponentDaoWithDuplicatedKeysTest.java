@@ -49,10 +49,10 @@ public class ComponentDaoWithDuplicatedKeysTest {
   @Test
   public void select_components_having_same_key() {
     OrganizationDto organizationDto = db.organizations().insert();
-    insertProject(ComponentTesting.newPrivateProjectDto(organizationDto).setKey(PROJECT_KEY));
-    insertProject(ComponentTesting.newPrivateProjectDto(organizationDto).setKey(PROJECT_KEY));
-    insertProject(ComponentTesting.newPrivateProjectDto(organizationDto).setKey(PROJECT_KEY));
-    insertProject(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("ANOTHER_PROJECT_KEY"));
+    insertProject(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey(PROJECT_KEY));
+    insertProject(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey(PROJECT_KEY));
+    insertProject(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey(PROJECT_KEY));
+    insertProject(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("ANOTHER_PROJECT_KEY"));
 
     assertThat(underTest.selectComponentsHavingSameKeyOrderedById(db.getSession(), PROJECT_KEY)).hasSize(3);
   }

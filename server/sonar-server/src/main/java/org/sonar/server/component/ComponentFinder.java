@@ -123,7 +123,7 @@ public class ComponentFinder {
     checkRequest(component.scope().equals(Scopes.PROJECT) && rootQualifiers.contains(component.qualifier()),
       format(
         "Component '%s' (id: %s) must be a project%s.",
-        component.key(), component.uuid(),
+        component.getDbKey(), component.uuid(),
         rootQualifiers.contains(Qualifiers.VIEW) ? " or a view" : ""));
 
     return component;

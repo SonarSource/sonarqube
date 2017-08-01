@@ -70,7 +70,7 @@ public class ComponentUpdater {
   public ComponentDto create(DbSession dbSession, NewComponent newComponent, @Nullable Integer userId) {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     ComponentDto componentDto = createRootComponent(dbSession, newComponent);
-    removeDuplicatedProjects(dbSession, componentDto.getKey());
+    removeDuplicatedProjects(dbSession, componentDto.getDbKey());
     handlePermissionTemplate(dbSession, componentDto, newComponent.getOrganizationUuid(), userId);
     projectIndexers.commitAndIndex(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
     return componentDto;
@@ -91,7 +91,7 @@ public class ComponentUpdater {
       .setModuleUuid(null)
       .setModuleUuidPath(ComponentDto.UUID_PATH_SEPARATOR + uuid + ComponentDto.UUID_PATH_SEPARATOR)
       .setProjectUuid(uuid)
-      .setKey(keyWithBranch)
+      .setDbKey(keyWithBranch)
       .setDeprecatedKey(keyWithBranch)
       .setName(newComponent.name())
       .setLongName(newComponent.name())

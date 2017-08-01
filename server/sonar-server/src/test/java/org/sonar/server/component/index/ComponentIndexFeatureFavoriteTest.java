@@ -46,14 +46,14 @@ public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
     ComponentIndexQuery query1 = ComponentIndexQuery.builder()
       .setQuery("SonarQube")
       .setQualifiers(singletonList(PROJECT))
-      .setFavoriteKeys(of(project1.getKey()))
+      .setFavoriteKeys(of(project1.getDbKey()))
       .build();
     assertSearch(query1).containsExactly(uuids(project1, project2));
 
     ComponentIndexQuery query2 = ComponentIndexQuery.builder()
       .setQuery("SonarQube")
       .setQualifiers(singletonList(PROJECT))
-      .setFavoriteKeys(of(project2.getKey()))
+      .setFavoriteKeys(of(project2.getDbKey()))
       .build();
     assertSearch(query2).containsExactly(uuids(project2, project1));
   }
@@ -66,7 +66,7 @@ public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
     ComponentIndexQuery query1 = ComponentIndexQuery.builder()
       .setQuery("bar")
       .setQualifiers(singletonList(PROJECT))
-      .setFavoriteKeys(of(project1.getKey()))
+      .setFavoriteKeys(of(project1.getDbKey()))
       .build();
     assertSearch(query1).isEmpty();
   }

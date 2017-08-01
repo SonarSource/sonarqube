@@ -122,7 +122,7 @@ public class AddActionTest {
   public void add_a_project_notification() {
     ComponentDto project = db.components().insertPrivateProject();
 
-    call(request.setProject(project.getKey()));
+    call(request.setProject(project.getDbKey()));
 
     db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
   }
@@ -130,7 +130,7 @@ public class AddActionTest {
   @Test
   public void add_a_global_notification_when_a_project_one_exists() {
     ComponentDto project = db.components().insertPrivateProject();
-    call(request.setProject(project.getKey()));
+    call(request.setProject(project.getDbKey()));
 
     call(request.setProject(null));
 
@@ -143,7 +143,7 @@ public class AddActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     call(request);
 
-    call(request.setProject(project.getKey()));
+    call(request.setProject(project.getDbKey()));
 
     db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
     db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), null);
@@ -216,7 +216,7 @@ public class AddActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");
 
-    call(request.setType("Dispatcher42").setProject(project.key()));
+    call(request.setType("Dispatcher42").setProject(project.getDbKey()));
   }
 
   @Test
@@ -235,7 +235,7 @@ public class AddActionTest {
 
   @Test
   public void fail_when_component_is_not_a_project() {
-    db.components().insertViewAndSnapshot(newView(db.organizations().insert()).setKey("VIEW_1"));
+    db.components().insertViewAndSnapshot(newView(db.organizations().insert()).setDbKey("VIEW_1"));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Component 'VIEW_1' must be a project");

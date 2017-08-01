@@ -1105,7 +1105,7 @@ public class IssueIndexTest {
 
     userSessionRule.logIn(user1);
     assertThatSearchReturnsOnly(IssueQuery.builder(), "I1");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(asList(project3.key())));
+    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(asList(project3.getDbKey())));
 
     userSessionRule.logIn(user2);
     assertThatSearchReturnsOnly(IssueQuery.builder(), "I2");

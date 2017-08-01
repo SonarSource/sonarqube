@@ -63,7 +63,7 @@ public class WebhookDeliveriesActionTest {
     ComponentFinder componentFinder = TestComponentFinder.from(db);
     WebhookDeliveriesAction underTest = new WebhookDeliveriesAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-    project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("my-project"));
+    project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("my-project"));
   }
 
   @Test
@@ -86,7 +86,7 @@ public class WebhookDeliveriesActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
-      .setParam("componentKey", project.getKey())
+      .setParam("componentKey", project.getDbKey())
       .executeProtobuf(Webhooks.DeliveriesWsResponse.class);
 
     assertThat(response.getDeliveriesCount()).isEqualTo(0);
@@ -120,7 +120,7 @@ public class WebhookDeliveriesActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     String json = ws.newRequest()
-      .setParam("componentKey", project.getKey())
+      .setParam("componentKey", project.getDbKey())
       .execute()
       .getInput();
 
@@ -157,7 +157,7 @@ public class WebhookDeliveriesActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     ws.newRequest()
-      .setParam("componentKey", project.getKey())
+      .setParam("componentKey", project.getDbKey())
       .execute();
   }
 
@@ -185,7 +185,7 @@ public class WebhookDeliveriesActionTest {
     expectedException.expectMessage("Either parameter 'ceTaskId' or 'componentKey' must be defined");
 
     ws.newRequest()
-      .setParam("componentKey", project.getKey())
+      .setParam("componentKey", project.getDbKey())
       .setParam("ceTaskId", "t1")
       .execute();
   }

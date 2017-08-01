@@ -116,7 +116,7 @@ public class ProjectDataLoaderTest {
         .setProjectUuid(uuid)
         .setScope(scope)
         .setQualifier(qualifier)
-        .setKey(key));
+        .setDbKey(key));
       dbSession.commit();
 
       try {
@@ -136,7 +136,7 @@ public class ProjectDataLoaderTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("You're not authorized to execute any SonarQube analysis");
 
-    underTest.load(ProjectDataQuery.create().setModuleKey(project.key()));
+    underTest.load(ProjectDataQuery.create().setModuleKey(project.getDbKey()));
   }
 
   @Test
@@ -147,7 +147,7 @@ public class ProjectDataLoaderTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server");
 
-    underTest.load(ProjectDataQuery.create().setModuleKey(project.key()));
+    underTest.load(ProjectDataQuery.create().setModuleKey(project.getDbKey()));
   }
 
   @Test
@@ -155,7 +155,7 @@ public class ProjectDataLoaderTest {
     ComponentDto project = dbTester.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(true));
+    ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setModuleKey(project.getDbKey()).setIssuesMode(true));
 
     assertThat(repositories).isNotNull();
   }
@@ -168,7 +168,7 @@ public class ProjectDataLoaderTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("You don't have the required permissions to access this project");
 
-    underTest.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(true));
+    underTest.load(ProjectDataQuery.create().setModuleKey(project.getDbKey()).setIssuesMode(true));
   }
 
   @Test
@@ -177,7 +177,7 @@ public class ProjectDataLoaderTest {
     userSession.logIn().addPermission(SCAN, project.getOrganizationUuid());
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(true));
+    ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setModuleKey(project.getDbKey()).setIssuesMode(true));
 
     assertThat(repositories).isNotNull();
   }

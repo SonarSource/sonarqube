@@ -134,14 +134,14 @@ public class CreateAction implements CustomMeasuresWsAction {
   }
 
   private static void checkIsProjectOrModule(ComponentDto component) {
-    checkRequest(Scopes.PROJECT.equals(component.scope()), "Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid());
+    checkRequest(Scopes.PROJECT.equals(component.scope()), "Component '%s' (id: %s) must be a project or a module.", component.getDbKey(), component.uuid());
   }
 
   private void checkMeasureDoesNotExistAlready(DbSession dbSession, ComponentDto component, MetricDto metric) {
     int nbMeasuresOnSameMetricAndMeasure = dbClient.customMeasureDao().countByComponentIdAndMetricId(dbSession, component.uuid(), metric.getId());
     checkRequest(nbMeasuresOnSameMetricAndMeasure == 0,
       "A measure already exists for project '%s' (id: %s) and metric '%s' (id: '%d')",
-      component.key(), component.uuid(), metric.getKey(), metric.getId());
+      component.getDbKey(), component.uuid(), metric.getKey(), metric.getId());
   }
 
   private MetricDto searchMetric(DbSession dbSession, Request request) {

@@ -36,9 +36,9 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 
 public class ValidateProjectStepTest {
 
@@ -77,7 +77,7 @@ public class ValidateProjectStepTest {
       .build());
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
-    ComponentDto project = ComponentTesting.newView(dbTester.organizations().insert(), "ABCD").setKey(PROJECT_KEY);
+    ComponentDto project = ComponentTesting.newView(dbTester.organizations().insert(), "ABCD").setDbKey(PROJECT_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), project);
     dbTester.getSession().commit();
 
@@ -159,7 +159,7 @@ public class ValidateProjectStepTest {
       .setKey(MODULE_KEY)
       .build());
 
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setKey(MODULE_KEY);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setDbKey(MODULE_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), project);
     dbTester.getSession().commit();
 
@@ -192,10 +192,10 @@ public class ValidateProjectStepTest {
       .build());
 
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD").setKey(PROJECT_KEY);
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(organizationDto).setKey(anotherProjectKey);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD").setDbKey(PROJECT_KEY);
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey(anotherProjectKey);
     dbClient.componentDao().insert(dbTester.getSession(), project, anotherProject);
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", anotherProject).setKey(MODULE_KEY);
+    ComponentDto module = ComponentTesting.newModuleDto("BCDE", anotherProject).setDbKey(MODULE_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), module);
     dbTester.getSession().commit();
 
@@ -226,9 +226,9 @@ public class ValidateProjectStepTest {
       .setKey(MODULE_KEY)
       .build());
 
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()).setKey(anotherProjectKey);
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()).setDbKey(anotherProjectKey);
     dbClient.componentDao().insert(dbTester.getSession(), anotherProject);
-    ComponentDto module = ComponentTesting.newModuleDto("ABCD", anotherProject).setKey(PROJECT_KEY);
+    ComponentDto module = ComponentTesting.newModuleDto("ABCD", anotherProject).setDbKey(PROJECT_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), module);
     dbTester.getSession().commit();
 
@@ -255,7 +255,7 @@ public class ValidateProjectStepTest {
       .addChildRef(2)
       .build());
 
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setKey(PROJECT_KEY);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setDbKey(PROJECT_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), project);
     dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(1420088400000L)); // 2015-01-01
     dbTester.getSession().commit();
@@ -276,7 +276,7 @@ public class ValidateProjectStepTest {
       .addChildRef(2)
       .build());
 
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setKey(PROJECT_KEY);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setDbKey(PROJECT_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), project);
     dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(1433131200000L)); // 2015-06-01
     dbTester.getSession().commit();

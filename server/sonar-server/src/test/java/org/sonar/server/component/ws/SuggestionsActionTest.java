@@ -140,15 +140,15 @@ public class SuggestionsActionTest {
   @Test
   public void test_example_json_response() {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("default-organization").setName("Default Organization"));
-    ComponentDto project1 = db.components().insertPublicProject(organization, p -> p.setKey("org.sonarsource:sonarqube").setName("SonarSource :: SonarQube"));
-    ComponentDto project2 = db.components().insertPublicProject(organization, p -> p.setKey("org.sonarsource:sonarlint").setName("SonarSource :: SonarLint"));
+    ComponentDto project1 = db.components().insertPublicProject(organization, p -> p.setDbKey("org.sonarsource:sonarqube").setName("SonarSource :: SonarQube"));
+    ComponentDto project2 = db.components().insertPublicProject(organization, p -> p.setDbKey("org.sonarsource:sonarlint").setName("SonarSource :: SonarLint"));
     componentIndexer.indexOnStartup(null);
     authorizationIndexerTester.allowOnlyAnyone(project1);
     authorizationIndexerTester.allowOnlyAnyone(project2);
 
     TestResponse wsResponse = ws.newRequest()
       .setParam(PARAM_QUERY, "Sonar")
-      .setParam(PARAM_RECENTLY_BROWSED, project1.key())
+      .setParam(PARAM_RECENTLY_BROWSED, project1.getDbKey())
       .setMethod("POST")
       .setMediaType(MediaTypes.JSON)
       .execute();
@@ -165,7 +165,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getDbKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
@@ -178,7 +178,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsRecentlyBrowsed)
-      .containsExactly(tuple(project.getKey(), true));
+      .containsExactly(tuple(project.getDbKey(), true));
   }
 
   @Test
@@ -189,7 +189,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getDbKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
@@ -202,7 +202,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsRecentlyBrowsed)
-      .containsExactly(tuple(project.getKey(), true));
+      .containsExactly(tuple(project.getDbKey(), true));
   }
 
   @Test
@@ -213,7 +213,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getDbKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
@@ -243,7 +243,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsFavorite)
-      .containsExactly(tuple(project.getKey(), true));
+      .containsExactly(tuple(project.getDbKey(), true));
   }
 
   @Test
@@ -272,7 +272,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.key())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getDbKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
@@ -285,7 +285,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsFavorite, Suggestion::getIsRecentlyBrowsed)
-      .containsExactly(tuple(project.getKey(), true, true));
+      .containsExactly(tuple(project.getDbKey(), true, true));
   }
 
   @Test
@@ -322,7 +322,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(project3, project1).map(ComponentDto::getKey).collect(joining(",")))
+      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(project3, project1).map(ComponentDto::getDbKey).collect(joining(",")))
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert order of keys
@@ -344,7 +344,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.key())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getDbKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
@@ -361,7 +361,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.key())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getDbKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
@@ -378,7 +378,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_QUERY, project.getKey())
+      .setParam(PARAM_QUERY, project.getDbKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
@@ -391,7 +391,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getOrganization)
-      .containsExactly(tuple(project.getKey(), organization.getKey()));
+      .containsExactly(tuple(project.getDbKey(), organization.getKey()));
   }
 
   @Test
@@ -435,7 +435,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey)
-      .contains(project.getKey());
+      .contains(project.getDbKey());
     assertThat(response.getWarning()).contains(SHORT_INPUT_WARNING);
   }
 
@@ -455,7 +455,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getName)
-      .containsExactlyInAnyOrder(tuple(project1.getKey(), project1.name()));
+      .containsExactlyInAnyOrder(tuple(project1.getDbKey(), project1.name()));
   }
 
   @Test
@@ -499,12 +499,12 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getProject)
-      .containsOnly(project.key());
+      .containsOnly(project.getDbKey());
 
     assertThat(response.getProjectsList())
       .extracting(Project::getKey, Project::getName)
       .containsExactlyInAnyOrder(
-        tuple(project.key(), project.longName()));
+        tuple(project.getDbKey(), project.longName()));
   }
 
   @Test
@@ -520,7 +520,7 @@ public class SuggestionsActionTest {
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, "Module")
-      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(module1.getKey()).collect(joining(",")))
+      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(module1.getDbKey()).collect(joining(",")))
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
@@ -549,7 +549,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsFavorite)
-      .containsExactly(tuple(favorite.getKey(), true), tuple(nonFavorite.getKey(), false));
+      .containsExactly(tuple(favorite.getDbKey(), true), tuple(nonFavorite.getDbKey(), false));
   }
 
   @Test

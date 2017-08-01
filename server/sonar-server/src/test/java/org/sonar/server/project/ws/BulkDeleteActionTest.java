@@ -95,7 +95,7 @@ public class BulkDeleteActionTest {
     ComponentDto toKeep = db.components().insertPrivateProject(org2);
 
     WsTester.Result result = ws.newPostRequest("api/projects", ACTION)
-      .setParam("keys", toDeleteInOrg1.key() + "," + toDeleteInOrg2.key())
+      .setParam("keys", toDeleteInOrg1.getDbKey() + "," + toDeleteInOrg2.getDbKey())
       .execute();
     result.assertNoContent();
 
@@ -109,7 +109,7 @@ public class BulkDeleteActionTest {
     ComponentDto toDelete2 = db.components().insertPrivateProject(org1);
 
     WsTester.Result result = ws.newPostRequest("api/projects", ACTION)
-      .setParam("keys", toDelete1.key() + ",missing," + toDelete2.key() + ",doesNotExist")
+      .setParam("keys", toDelete1.getDbKey() + ",missing," + toDelete2.getDbKey() + ",doesNotExist")
       .execute();
     result.assertNoContent();
 
@@ -125,7 +125,7 @@ public class BulkDeleteActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     ws.newPostRequest("api/projects", ACTION)
-      .setParam("keys", project.key())
+      .setParam("keys", project.getDbKey())
       .execute();
 
     verifyNoDeletions();
@@ -139,7 +139,7 @@ public class BulkDeleteActionTest {
 
     WsTester.Result result = ws.newPostRequest("api/projects", ACTION)
       .setParam("organization", org1.getKey())
-      .setParam("keys", toDelete.key() + "," + cantBeDeleted.key())
+      .setParam("keys", toDelete.getDbKey() + "," + cantBeDeleted.getDbKey())
       .execute();
     result.assertNoContent();
 

@@ -317,7 +317,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
     if (referenceComponent != null) {
       wsComponent.setRefId(referenceComponent.uuid());
-      wsComponent.setRefKey(referenceComponent.key());
+      wsComponent.setRefKey(referenceComponent.getDbKey());
     }
     WsMeasures.Measure.Builder measureBuilder = WsMeasures.Measure.newBuilder();
     for (Map.Entry<MetricDto, ComponentTreeData.Measure> entry : measures.entrySet()) {

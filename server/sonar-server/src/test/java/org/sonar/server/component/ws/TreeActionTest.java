@@ -231,7 +231,7 @@ public class TreeActionTest {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto view = newView(organizationDto, "view-uuid");
     componentDb.insertViewAndSnapshot(view);
-    ComponentDto project = newPrivateProjectDto(organizationDto, "project-uuid-1").setName("project-name").setKey("project-key-1");
+    ComponentDto project = newPrivateProjectDto(organizationDto, "project-uuid-1").setName("project-name").setDbKey("project-key-1");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newProjectCopy("project-uuid-1-copy", project, view));
     componentDb.insertComponent(newSubView(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"));
@@ -358,7 +358,7 @@ public class TreeActionTest {
   @Test
   public void fail_when_base_component_is_removed() {
     ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
-    componentDb.insertComponent(ComponentTesting.newFileDto(project).setKey("file-key").setEnabled(false));
+    componentDb.insertComponent(ComponentTesting.newFileDto(project).setDbKey("file-key").setEnabled(false));
     logInWithBrowsePermission(project);
 
     expectedException.expect(NotFoundException.class);
@@ -380,7 +380,7 @@ public class TreeActionTest {
   private static ComponentDto newFileDto(ComponentDto moduleOrProject, @Nullable ComponentDto directory, int i) {
     return ComponentTesting.newFileDto(moduleOrProject, directory, "file-uuid-" + i)
       .setName("file-name-" + i)
-      .setKey("file-key-" + i)
+      .setDbKey("file-key-" + i)
       .setPath("file-path-" + i);
   }
 
@@ -391,7 +391,7 @@ public class TreeActionTest {
   private ComponentDto initJsonExampleComponents() throws IOException {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
     ComponentDto project = newPrivateProjectDto(organizationDto, "MY_PROJECT_ID")
-      .setKey("MY_PROJECT_KEY")
+      .setDbKey("MY_PROJECT_KEY")
       .setName("Project Name");
     componentDb.insertProjectAndSnapshot(project);
     Date now = new Date();
@@ -402,7 +402,7 @@ public class TreeActionTest {
       JsonObject componentAsJsonObject = componentAsJsonElement.getAsJsonObject();
       String uuid = getJsonField(componentAsJsonObject, "id");
       componentDb.insertComponent(newChildComponent(uuid, project, project)
-        .setKey(getJsonField(componentAsJsonObject, "key"))
+        .setDbKey(getJsonField(componentAsJsonObject, "key"))
         .setName(getJsonField(componentAsJsonObject, "name"))
         .setLanguage(getJsonField(componentAsJsonObject, "language"))
         .setPath(getJsonField(componentAsJsonObject, "path"))

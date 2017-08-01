@@ -45,14 +45,14 @@ public class ComponentIndexFeatureRecentlyBrowsedTest extends ComponentIndexTest
     ComponentIndexQuery query1 = ComponentIndexQuery.builder()
       .setQuery("SonarQube")
       .setQualifiers(Collections.singletonList(PROJECT))
-      .setRecentlyBrowsedKeys(of(project1.getKey()))
+      .setRecentlyBrowsedKeys(of(project1.getDbKey()))
       .build();
     assertSearch(query1).containsExactly(uuids(project1, project2));
 
     ComponentIndexQuery query2 = ComponentIndexQuery.builder()
       .setQuery("SonarQube")
       .setQualifiers(Collections.singletonList(PROJECT))
-      .setRecentlyBrowsedKeys(of(project2.getKey()))
+      .setRecentlyBrowsedKeys(of(project2.getDbKey()))
       .build();
     assertSearch(query2).containsExactly(uuids(project2, project1));
   }

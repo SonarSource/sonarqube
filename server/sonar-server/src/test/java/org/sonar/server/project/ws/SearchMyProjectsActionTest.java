@@ -244,20 +244,20 @@ public class SearchMyProjectsActionTest {
   private ComponentDto insertClang(OrganizationDto organizationDto) {
     return db.components().insertComponent(newPrivateProjectDto(organizationDto, Uuids.UUID_EXAMPLE_01)
       .setName("Clang")
-      .setKey("clang"));
+      .setDbKey("clang"));
   }
 
   private ComponentDto insertJdk7(OrganizationDto organizationDto) {
     return db.components().insertComponent(newPrivateProjectDto(organizationDto, Uuids.UUID_EXAMPLE_02)
       .setName("JDK 7")
-      .setKey("net.java.openjdk:jdk7")
+      .setDbKey("net.java.openjdk:jdk7")
       .setDescription("JDK"));
   }
 
   private ComponentDto insertView(OrganizationDto organizationDto) {
     return db.components().insertComponent(newView(organizationDto, "752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
       .setName("Java")
-      .setKey("Java"));
+      .setDbKey("Java"));
   }
 
   private SearchMyProjectsWsResponse call_ws() {

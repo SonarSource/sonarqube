@@ -169,7 +169,7 @@ public class SearchAction implements ProjectsWsAction {
     Component.Builder builder = Component.newBuilder()
       .setOrganization(organization.getKey())
       .setId(dto.uuid())
-      .setKey(dto.key())
+      .setKey(dto.getDbKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier())
       .setVisibility(dto.isPrivate() ? PRIVATE.getLabel() : PUBLIC.getLabel());

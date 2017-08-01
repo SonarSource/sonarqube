@@ -143,7 +143,7 @@ public class IssuesAction implements BatchWsAction {
     if (Scopes.PROJECT.equals(component.scope())) {
       List<ComponentDto> modulesTree = dbClient.componentDao().selectDescendantModules(session, component.uuid());
       for (ComponentDto componentDto : modulesTree) {
-        keysByUUid.put(componentDto.uuid(), componentDto.key());
+        keysByUUid.put(componentDto.uuid(), componentDto.getDbKey());
       }
     } else {
       String moduleUuid = component.moduleUuid();
@@ -151,7 +151,7 @@ public class IssuesAction implements BatchWsAction {
         throw new IllegalArgumentException(String.format("The component '%s' has no module uuid", component.uuid()));
       }
       ComponentDto module = dbClient.componentDao().selectOrFailByUuid(session, moduleUuid);
-      keysByUUid.put(module.uuid(), module.key());
+      keysByUUid.put(module.uuid(), module.getDbKey());
     }
     return keysByUUid;
   }

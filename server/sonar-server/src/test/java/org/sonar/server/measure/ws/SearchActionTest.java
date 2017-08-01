@@ -115,7 +115,7 @@ public class SearchActionTest {
     dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, project, projectSnapshot).setValue(15.5d));
     db.commit();
 
-    SearchWsResponse result = call(singletonList(project.key()), singletonList("coverage"));
+    SearchWsResponse result = call(singletonList(project.getDbKey()), singletonList("coverage"));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
@@ -136,7 +136,7 @@ public class SearchActionTest {
         .setVariation(10d));
     db.commit();
 
-    SearchWsResponse result = call(singletonList(project.key()), singletonList("coverage"));
+    SearchWsResponse result = call(singletonList(project.getDbKey()), singletonList("coverage"));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
@@ -168,12 +168,12 @@ public class SearchActionTest {
     dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, project3, projectSnapshot3).setValue(20d));
     db.commit();
 
-    SearchWsResponse result = call(asList(project1.key(), project2.key(), project3.key()), asList("coverage", "complexity"));
+    SearchWsResponse result = call(asList(project1.getDbKey(), project2.getDbKey(), project3.getDbKey()), asList("coverage", "complexity"));
 
     assertThat(result.getMeasuresList()).extracting(Measure::getMetric, Measure::getComponent)
       .containsExactly(
-        tuple("complexity", project2.key()), tuple("complexity", project3.key()), tuple("complexity", project1.key()),
-        tuple("coverage", project2.key()), tuple("coverage", project3.key()), tuple("coverage", project1.key()));
+        tuple("complexity", project2.getDbKey()), tuple("complexity", project3.getDbKey()), tuple("complexity", project1.getDbKey()),
+        tuple("coverage", project2.getDbKey()), tuple("coverage", project3.getDbKey()), tuple("coverage", project1.getDbKey()));
   }
 
   @Test
@@ -184,7 +184,7 @@ public class SearchActionTest {
     dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, view, viewSnapshot).setValue(15.5d));
     db.commit();
 
-    SearchWsResponse result = call(singletonList(view.key()), singletonList("coverage"));
+    SearchWsResponse result = call(singletonList(view.getDbKey()), singletonList("coverage"));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
@@ -202,7 +202,7 @@ public class SearchActionTest {
     dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, application, viewSnapshot).setValue(15.5d));
     db.commit();
 
-    SearchWsResponse result = call(singletonList(application.key()), singletonList("coverage"));
+    SearchWsResponse result = call(singletonList(application.getDbKey()), singletonList("coverage"));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
@@ -220,7 +220,7 @@ public class SearchActionTest {
     dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, subView, viewSnapshot).setValue(15.5d));
     db.commit();
 
-    SearchWsResponse result = call(singletonList(subView.key()), singletonList("coverage"));
+    SearchWsResponse result = call(singletonList(subView.getDbKey()), singletonList("coverage"));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
@@ -242,9 +242,9 @@ public class SearchActionTest {
     db.commit();
     setBrowsePermissionOnUser(project1);
 
-    SearchWsResponse result = call(asList(project1.key(), project2.key()), singletonList("complexity"));
+    SearchWsResponse result = call(asList(project1.getDbKey(), project2.getDbKey()), singletonList("complexity"));
 
-    assertThat(result.getMeasuresList()).extracting(Measure::getComponent).containsOnly(project1.key());
+    assertThat(result.getMeasuresList()).extracting(Measure::getComponent).containsOnly(project1.getDbKey());
   }
 
   @Test
@@ -256,11 +256,11 @@ public class SearchActionTest {
     db.commit();
 
     userSession.setNonRoot();
-    SearchWsResponse result = call(asList(project1.key()), singletonList("complexity"));
+    SearchWsResponse result = call(asList(project1.getDbKey()), singletonList("complexity"));
     assertThat(result.getMeasuresCount()).isEqualTo(0);
 
     userSession.setRoot();
-    result = call(asList(project1.key()), singletonList("complexity"));
+    result = call(asList(project1.getDbKey()), singletonList("complexity"));
     assertThat(result.getMeasuresCount()).isEqualTo(1);
   }
 
@@ -295,7 +295,7 @@ public class SearchActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The following metrics are not found: ncloc, violations");
 
-    call(singletonList(project.key()), newArrayList("violations", "complexity", "ncloc"));
+    call(singletonList(project.getDbKey()), newArrayList("violations", "complexity", "ncloc"));
   }
 
   @Test
@@ -322,7 +322,7 @@ public class SearchActionTest {
   public void fail_if_more_than_100_project_keys() {
     List<String> keys = IntStream.rangeClosed(1, 101)
       .mapToObj(i -> db.components().insertPrivateProject())
-      .map(ComponentDto::key)
+      .map(ComponentDto::getDbKey)
       .collect(Collectors.toList());
     insertComplexityMetric();
 
@@ -336,7 +336,7 @@ public class SearchActionTest {
   public void does_not_fail_on_100_projects() {
     List<String> keys = IntStream.rangeClosed(1, 100)
       .mapToObj(i -> db.components().insertPrivateProject())
-      .map(ComponentDto::key)
+      .map(ComponentDto::getDbKey)
       .collect(Collectors.toList());
     insertComplexityMetric();
 
@@ -353,7 +353,7 @@ public class SearchActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
 
-    call(singletonList(module.key()), singletonList("complexity"));
+    call(singletonList(module.getDbKey()), singletonList("complexity"));
   }
 
   @Test
@@ -366,7 +366,7 @@ public class SearchActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
 
-    call(singletonList(dir.key()), singletonList("complexity"));
+    call(singletonList(dir.getDbKey()), singletonList("complexity"));
   }
 
   @Test
@@ -379,7 +379,7 @@ public class SearchActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
 
-    call(singletonList(file.key()), singletonList("complexity"));
+    call(singletonList(file.getDbKey()), singletonList("complexity"));
   }
 
   @Test
@@ -478,10 +478,10 @@ public class SearchActionTest {
   private List<String> insertJsonExampleData() {
     List<String> projectKeys = new ArrayList<>();
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organizationDto).setKey("MY_PROJECT_1").setName("Project 1");
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organizationDto).setKey("MY_PROJECT_2").setName("Project 2");
-    ComponentDto project3 = ComponentTesting.newPrivateProjectDto(organizationDto).setKey("MY_PROJECT_3").setName("Project 3");
-    projectKeys.addAll(asList(project1.key(), project2.key(), project3.key()));
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("MY_PROJECT_1").setName("Project 1");
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("MY_PROJECT_2").setName("Project 2");
+    ComponentDto project3 = ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("MY_PROJECT_3").setName("Project 3");
+    projectKeys.addAll(asList(project1.getDbKey(), project2.getDbKey(), project3.getDbKey()));
     db.components().insertComponents(project1, project2, project3);
     SnapshotDto projectSnapshot1 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project1)
       .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())

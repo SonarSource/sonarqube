@@ -323,7 +323,7 @@ public class FileMoveDetectionStepTest {
     assertThat(movedFilesRepository.getComponentsWithOriginal()).containsExactly(FILE_2);
     MovedFilesRepository.OriginalFile originalFile = movedFilesRepository.getOriginalFile(FILE_2).get();
     assertThat(originalFile.getId()).isEqualTo(dtos[0].getId());
-    assertThat(originalFile.getKey()).isEqualTo(dtos[0].getKey());
+    assertThat(originalFile.getKey()).isEqualTo(dtos[0].getDbKey());
     assertThat(originalFile.getUuid()).isEqualTo(dtos[0].uuid());
   }
 
@@ -446,11 +446,11 @@ public class FileMoveDetectionStepTest {
     assertThat(movedFilesRepository.getComponentsWithOriginal()).containsOnly(FILE_3, file6);
     MovedFilesRepository.OriginalFile originalFile2 = movedFilesRepository.getOriginalFile(FILE_3).get();
     assertThat(originalFile2.getId()).isEqualTo(dtos[0].getId());
-    assertThat(originalFile2.getKey()).isEqualTo(dtos[0].getKey());
+    assertThat(originalFile2.getKey()).isEqualTo(dtos[0].getDbKey());
     assertThat(originalFile2.getUuid()).isEqualTo(dtos[0].uuid());
     MovedFilesRepository.OriginalFile originalFile5 = movedFilesRepository.getOriginalFile(file6).get();
     assertThat(originalFile5.getId()).isEqualTo(dtos[3].getId());
-    assertThat(originalFile5.getKey()).isEqualTo(dtos[3].getKey());
+    assertThat(originalFile5.getKey()).isEqualTo(dtos[3].getDbKey());
     assertThat(originalFile5.getUuid()).isEqualTo(dtos[3].uuid());
   }
 
@@ -541,7 +541,7 @@ public class FileMoveDetectionStepTest {
     ComponentDto res = new ComponentDto();
     res
       .setId(dbIdGenerator)
-      .setKey(key)
+      .setDbKey(key)
       .setUuid(componentUuidOf(key))
       .setPath("path_" + key);
     dbIdGenerator++;

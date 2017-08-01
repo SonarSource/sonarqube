@@ -96,7 +96,7 @@ public class CreateActionTest {
     dbSession.commit();
 
     OrganizationDto organizationDto = db.organizations().insert();
-    project = ComponentTesting.newPrivateProjectDto(organizationDto, DEFAULT_PROJECT_UUID).setKey(DEFAULT_PROJECT_KEY);
+    project = ComponentTesting.newPrivateProjectDto(organizationDto, DEFAULT_PROJECT_UUID).setDbKey(DEFAULT_PROJECT_KEY);
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
     userSession.logIn("login").addProjectPermission(UserRole.ADMIN, project);
@@ -452,7 +452,7 @@ public class CreateActionTest {
   public void fail_when_not_a_project() throws Exception {
     MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(STRING.name()).setKey("metric-key");
     dbClient.metricDao().insert(dbSession, metric);
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newDirectory(project, "directory-uuid", "path/to/directory").setKey("directory-key"));
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newDirectory(project, "directory-uuid", "path/to/directory").setDbKey("directory-key"));
     dbSession.commit();
 
     expectedException.expect(ServerException.class);

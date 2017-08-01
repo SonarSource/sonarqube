@@ -135,7 +135,7 @@ public class SearchAction implements ComponentsWsAction {
       .map(ComponentDto::projectUuid)
       .collect(toHashSet());
     List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuidsToSearch);
-    return projects.stream().collect(toMap(ComponentDto::uuid, ComponentDto::key));
+    return projects.stream().collect(toMap(ComponentDto::uuid, ComponentDto::getDbKey));
   }
 
   private static ComponentQuery buildQuery(SearchWsRequest request) {
@@ -191,7 +191,7 @@ public class SearchAction implements ComponentsWsAction {
     WsComponents.Component.Builder builder = WsComponents.Component.newBuilder()
       .setOrganization(organization.getKey())
       .setId(dto.uuid())
-      .setKey(dto.key())
+      .setKey(dto.getDbKey())
       .setProject(projectKey)
       .setName(dto.name())
       .setQualifier(dto.qualifier());

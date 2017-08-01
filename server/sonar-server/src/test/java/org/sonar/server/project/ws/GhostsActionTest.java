@@ -95,13 +95,13 @@ public class GhostsActionTest {
       "  \"projects\": [" +
       "    {" +
       "      \"uuid\": \"" + ghost1.uuid() + "\"," +
-      "      \"key\": \"" + ghost1.key() + "\"," +
+      "      \"key\": \"" + ghost1.getDbKey() + "\"," +
       "      \"name\": \"" + ghost1.name() + "\"," +
       "      \"visibility\": \"private\"" +
       "    }," +
       "    {" +
       "      \"uuid\": \"" + ghost2.uuid() + "\"," +
-      "      \"key\": \"" + ghost2.key() + "\"," +
+      "      \"key\": \"" + ghost2.getDbKey() + "\"," +
       "      \"name\": \"" + ghost2.name() + "\"," +
       "      \"visibility\": \"private\"" +
       "    }" +
@@ -115,7 +115,7 @@ public class GhostsActionTest {
     OrganizationDto organization = db.organizations().insert();
     for (int i = 1; i <= 10; i++) {
       int count = i;
-      insertGhostProject(organization, dto -> dto.setKey("ghost-key-" + count));
+      insertGhostProject(organization, dto -> dto.setDbKey("ghost-key-" + count));
     }
     userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
@@ -173,7 +173,7 @@ public class GhostsActionTest {
   @Test
   public void ghost_projects_with_partial_query_on_key() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    insertGhostProject(organization, dto -> dto.setKey("ghost-key-1"));
+    insertGhostProject(organization, dto -> dto.setDbKey("ghost-key-1"));
 
     userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
@@ -190,7 +190,7 @@ public class GhostsActionTest {
   public void ghost_projects_base_on_json_example() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto hBaseProject = ComponentTesting.newPrivateProjectDto(organization, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
-      .setKey("org.apache.hbas:hbase")
+      .setDbKey("org.apache.hbas:hbase")
       .setName("HBase")
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"))
       .setPrivate(false);
@@ -198,7 +198,7 @@ public class GhostsActionTest {
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(hBaseProject)
       .setStatus(STATUS_UNPROCESSED));
     ComponentDto roslynProject = ComponentTesting.newPrivateProjectDto(organization, "c526ef20-131b-4486-9357-063fa64b5079")
-      .setKey("com.microsoft.roslyn:roslyn")
+      .setDbKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
     dbClient.componentDao().insert(db.getSession(), roslynProject);

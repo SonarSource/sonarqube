@@ -106,7 +106,7 @@ public class ReportSubmitterTest {
     ComponentDto project = db.components().insertPrivateProject(organization);
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(organization.getKey(), project.getKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(organization.getKey(), project.getDbKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
   }
 
   @Test
@@ -116,7 +116,7 @@ public class ReportSubmitterTest {
 
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(defaultOrganizationKey, project.getKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(defaultOrganizationKey, project.getDbKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
 
     verifyReportIsPersisted(TASK_UUID);
     verifyZeroInteractions(permissionTemplateService);
@@ -143,7 +143,7 @@ public class ReportSubmitterTest {
       .addPermission(PROVISION_PROJECTS, organization);
 
     mockSuccessfulPrepareSubmitCall();
-    ComponentDto createdProject = newPrivateProjectDto(organization, PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto createdProject = newPrivateProjectDto(organization, PROJECT_UUID).setDbKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyInt(), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
@@ -174,7 +174,7 @@ public class ReportSubmitterTest {
       .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     mockSuccessfulPrepareSubmitCall();
-    ComponentDto createdProject = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto createdProject = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
@@ -193,7 +193,7 @@ public class ReportSubmitterTest {
       .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     mockSuccessfulPrepareSubmitCall();
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(project);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
@@ -212,7 +212,7 @@ public class ReportSubmitterTest {
 
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(org.getKey(), project.getKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(org.getKey(), project.getDbKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
 
     verify(queue).submit(any(CeTaskSubmit.class));
   }
@@ -224,7 +224,7 @@ public class ReportSubmitterTest {
 
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(defaultOrganizationKey, project.getKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(defaultOrganizationKey, project.getDbKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
 
     verify(queue).submit(any(CeTaskSubmit.class));
   }
@@ -241,7 +241,7 @@ public class ReportSubmitterTest {
     userSession.addProjectPermission(SCAN_EXECUTION, ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
 
     mockSuccessfulPrepareSubmitCall();
-    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setDbKey(PROJECT_KEY));
 
     thrown.expect(ForbiddenException.class);
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
@@ -257,10 +257,10 @@ public class ReportSubmitterTest {
 
     // user does not have the "scan" permission on the branch, so it can't scan it
     String branchName = "branchFoo";
-    ComponentDto branchProject = db.components().insertPrivateProject(p -> p.setKey(mainProject.getKey() + ":" + branchName));
+    ComponentDto branchProject = db.components().insertPrivateProject(p -> p.setDbKey(mainProject.getDbKey() + ":" + branchName));
 
     thrown.expect(ForbiddenException.class);
-    underTest.submit(defaultOrganizationKey, mainProject.key(), branchName, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
+    underTest.submit(defaultOrganizationKey, mainProject.getDbKey(), branchName, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
   }
 
   private void verifyReportIsPersisted(String taskUuid) {

@@ -175,7 +175,7 @@ public class SearchAction implements QProfileWsAction {
 
     ComponentDto project = componentFinder.getByKey(dbSession, request.getProjectKey());
     if (!project.getOrganizationUuid().equals(organization.getUuid())) {
-      throw new NotFoundException(format("Component key '%s' not found", project.getKey()));
+      throw new NotFoundException(format("Component key '%s' not found", project.getDbKey()));
     }
     if (project.isRoot()) {
       return project;

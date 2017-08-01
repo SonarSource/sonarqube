@@ -424,7 +424,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .clear()
         .setOrganization(organizationDto.getKey())
         .setId(dbComponent.uuid())
-        .setKey(dbComponent.key())
+        .setKey(dbComponent.getDbKey())
         .setName(dbComponent.name())
         .setVisibility(Visibility.getLabel(dbComponent.isPrivate()));
       wsComponent.getTagsBuilder().addAllTags(dbComponent.getTags());

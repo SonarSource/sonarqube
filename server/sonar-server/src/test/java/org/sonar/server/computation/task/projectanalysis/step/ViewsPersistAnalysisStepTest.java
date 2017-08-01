@@ -97,7 +97,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
   @Test
   public void persist_analysis() {
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto viewDto = save(newView(organizationDto, "UUID_VIEW").setKey("KEY_VIEW"));
+    ComponentDto viewDto = save(newView(organizationDto, "UUID_VIEW").setDbKey("KEY_VIEW"));
     save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
     save(newPrivateProjectDto(organizationDto, "proj"));
     dbTester.getSession().commit();
@@ -124,7 +124,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
   @Test
   public void persist_snapshots_with_leak_period() {
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto viewDto = save(newView(organizationDto, "UUID_VIEW").setKey("KEY_VIEW"));
+    ComponentDto viewDto = save(newView(organizationDto, "UUID_VIEW").setDbKey("KEY_VIEW"));
     ComponentDto subViewDto = save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
     dbTester.getSession().commit();
 

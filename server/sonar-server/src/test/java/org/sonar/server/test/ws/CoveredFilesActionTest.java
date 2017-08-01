@@ -85,8 +85,8 @@ public class CoveredFilesActionTest {
     OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
     when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
       Arrays.asList(
-        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
-        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
+        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_1_ID).setDbKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
+        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_2_ID).setDbKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
 
     TestRequest request = ws.newRequest().setParam(TEST_ID, "test-uuid");
 
@@ -106,8 +106,8 @@ public class CoveredFilesActionTest {
     OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
     when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
       Arrays.asList(
-        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
-        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
+        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_1_ID).setDbKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
+        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_2_ID).setDbKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Test with id 'test-uuid' is not found");

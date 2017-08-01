@@ -69,7 +69,7 @@ public class CustomMeasureJsonWriter {
       MetricJsonWriter.write(json, metric, MetricJsonWriter.MANDATORY_FIELDS);
     }
     writeIfNeeded(json, component.uuid(), FIELD_PROJECT_ID, fieldsToReturn);
-    writeIfNeeded(json, component.key(), FIELD_PROJECT_KEY, fieldsToReturn);
+    writeIfNeeded(json, component.getDbKey(), FIELD_PROJECT_KEY, fieldsToReturn);
     writeIfNeeded(json, new Date(measure.getCreatedAt()), FIELD_CREATED_AT, fieldsToReturn);
     writeIfNeeded(json, new Date(measure.getUpdatedAt()), FIELD_UPDATED_AT, fieldsToReturn);
     writeIfNeeded(json, isPending, FIELD_PENDING, fieldsToReturn);

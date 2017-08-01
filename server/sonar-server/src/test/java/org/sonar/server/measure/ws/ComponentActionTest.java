@@ -134,7 +134,7 @@ public class ComponentActionTest {
 
   @Test
   public void reference_uuid_in_the_response() {
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid").setKey("project-key");
+    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid").setDbKey("project-key");
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto view = newView(db.getDefaultOrganization(), "view-uuid");
     componentDb.insertViewAndSnapshot(view);
@@ -211,7 +211,7 @@ public class ComponentActionTest {
   @Test
   public void fail_when_component_is_removed() {
     ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
-    componentDb.insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
+    componentDb.insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
     userSession.addProjectPermission(USER, project);
     insertNclocMetric();
 
@@ -292,7 +292,7 @@ public class ComponentActionTest {
       .setPeriodParam("1.0-SNAPSHOT");
     ComponentDto file = newFileDto(project, null)
       .setUuid("AVIwDXE-bJbJqrw6wFv5")
-      .setKey("MY_PROJECT:ElementImpl.java")
+      .setDbKey("MY_PROJECT:ElementImpl.java")
       .setName("ElementImpl.java")
       .setQualifier(Qualifiers.FILE)
       .setLanguage("java")

@@ -161,7 +161,7 @@ public class FileMoveDetectionStep implements ComputationStep {
           .setStrategy(Strategy.LEAVES)
           .build());
       return from(componentDtos)
-        .transform(componentDto -> new DbComponent(componentDto.getId(), componentDto.key(), componentDto.uuid(), componentDto.path()))
+        .transform(componentDto -> new DbComponent(componentDto.getId(), componentDto.getDbKey(), componentDto.uuid(), componentDto.path()))
         .uniqueIndex(DbComponent::getKey);
     }
   }

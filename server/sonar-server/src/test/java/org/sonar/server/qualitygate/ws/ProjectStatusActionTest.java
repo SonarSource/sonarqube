@@ -124,7 +124,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_status_by_project_key() throws IOException {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("project-key"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("project-key"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")

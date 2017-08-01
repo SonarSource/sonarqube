@@ -87,7 +87,7 @@ public class CreateActionTest {
 
     String result = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
       .execute().getInput();
@@ -234,11 +234,11 @@ public class CreateActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component '" + component.key() + "' (id: " + component.uuid() + ") must be a project");
+    expectedException.expectMessage("Component '" + component.getDbKey() + "' (id: " + component.uuid() + ") must be a project");
 
     TestRequest testRequest = ws.newRequest();
     if (new Random().nextBoolean()) {
-      testRequest.setParam(PARAM_PROJECT_KEY, component.key());
+      testRequest.setParam(PARAM_PROJECT_KEY, component.getDbKey());
     } else {
       testRequest.setParam(PARAM_PROJECT_ID, component.uuid());
     }
@@ -251,13 +251,13 @@ public class CreateActionTest {
   private ComponentDto insertProject() {
     OrganizationDto org = db.organizations().insert();
     return db.components().insertComponent(
-      ComponentTesting.newPrivateProjectDto(org, PROJECT_UUID).setKey(PROJECT_KEY));
+      ComponentTesting.newPrivateProjectDto(org, PROJECT_UUID).setDbKey(PROJECT_KEY));
   }
 
   private void createAndTest(ComponentDto project, String name, String url, String type) throws IOException {
     WsProjectLinks.CreateWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .setParam(PARAM_NAME, name)
       .setParam(PARAM_URL, url)
       .executeProtobuf(WsProjectLinks.CreateWsResponse.class);

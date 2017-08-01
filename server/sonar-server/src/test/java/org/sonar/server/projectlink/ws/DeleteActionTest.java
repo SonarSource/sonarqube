@@ -152,7 +152,7 @@ public class DeleteActionTest {
     return componentDb.insertComponent(new ComponentDto()
       .setOrganizationUuid("org1")
       .setUuid(projectUuid)
-      .setKey(projectKey)
+      .setDbKey(projectKey)
       .setUuidPath("")
       .setRootUuid("")
       .setProjectUuid(""));

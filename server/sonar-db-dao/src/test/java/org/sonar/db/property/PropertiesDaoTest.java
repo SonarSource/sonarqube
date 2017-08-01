@@ -117,7 +117,7 @@ public class PropertiesDaoTest {
     int userId2 = insertUser("user2");
     ComponentDto projectDto = insertProject("PROJECT_A");
     long projectId = projectDto.getId();
-    String projectKey = projectDto.key();
+    String projectKey = projectDto.getDbKey();
 
     // global subscription
     insertProperty("notification.DispatcherWithGlobalSubscribers.Email", "true", null, userId2);
@@ -263,7 +263,7 @@ public class PropertiesDaoTest {
     insertProperty("project.one", "Pone", projectId, null);
     insertProperty("project.two", "Ptwo", projectId, null);
 
-    List<PropertyDto> dtos = underTest.selectProjectProperties(projectDto.key());
+    List<PropertyDto> dtos = underTest.selectProjectProperties(projectDto.getDbKey());
     assertThat(dtos)
       .hasSize(2);
     assertThatDto(findByKey(dtos, "project.one"))
@@ -282,7 +282,7 @@ public class PropertiesDaoTest {
     ComponentDto projectDto = insertProject("A");
     insertProperty("project.one", dbValue, projectDto.getId(), null);
 
-    List<PropertyDto> dtos = underTest.selectProjectProperties(projectDto.key());
+    List<PropertyDto> dtos = underTest.selectProjectProperties(projectDto.getDbKey());
     assertThat(dtos).hasSize(1);
     assertThatDto(dtos.iterator().next())
       .hasKey("project.one")
@@ -1091,7 +1091,7 @@ public class PropertiesDaoTest {
 
   private ComponentDto insertProject(String uuid) {
     String key = "project" + uuid;
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), uuid).setKey(key);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), uuid).setDbKey(key);
     dbClient.componentDao().insert(session, project);
     dbTester.commit();
     return project;

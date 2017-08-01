@@ -153,7 +153,7 @@ public class SearchAction implements FavoritesWsAction {
     builder
       .clear()
       .setOrganization(organization.getKey())
-      .setKey(componentDto.key());
+      .setKey(componentDto.getDbKey());
     setNullable(componentDto.name(), builder::setName);
     setNullable(componentDto.qualifier(), builder::setQualifier);
     return builder.build();

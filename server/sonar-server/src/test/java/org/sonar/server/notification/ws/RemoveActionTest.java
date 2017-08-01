@@ -130,7 +130,7 @@ public class RemoveActionTest {
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
     dbSession.commit();
 
-    call(request.setProject(project.getKey()));
+    call(request.setProject(project.getDbKey()));
 
     db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getId(), project);
   }
@@ -156,7 +156,7 @@ public class RemoveActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Notification doesn't exist");
 
-    call(request.setProject(project.getKey()));
+    call(request.setProject(project.getDbKey()));
   }
 
   @Test
@@ -232,7 +232,7 @@ public class RemoveActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");
 
-    call(request.setType("Dispatcher42").setProject(project.key()));
+    call(request.setType("Dispatcher42").setProject(project.getDbKey()));
   }
 
   @Test
@@ -251,7 +251,7 @@ public class RemoveActionTest {
 
   @Test
   public void fail_when_component_is_not_a_project() {
-    db.components().insertViewAndSnapshot(newView(db.organizations().insert()).setKey("VIEW_1"));
+    db.components().insertViewAndSnapshot(newView(db.organizations().insert()).setDbKey("VIEW_1"));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Component 'VIEW_1' must be a project");

@@ -62,7 +62,7 @@ public class IndexActionTest {
     insertFileWithData(file, newData("public class HelloWorld {", "}"));
 
     TestResponse request = tester.newRequest()
-      .setParam("resource", file.getKey())
+      .setParam("resource", file.getDbKey())
       .execute();
 
     assertJson(request.getInput()).isSimilarTo("[\n" +
@@ -81,7 +81,7 @@ public class IndexActionTest {
     insertFileWithData(file, newData("/**", " */", "public class HelloWorld {", "}", "", "foo"));
 
     TestResponse request = tester.newRequest()
-      .setParam("resource", file.getKey())
+      .setParam("resource", file.getDbKey())
       .setParam("from", "3")
       .setParam("to", "5")
       .execute();
@@ -103,7 +103,7 @@ public class IndexActionTest {
     expectedException.expect(ForbiddenException.class);
 
     tester.newRequest()
-      .setParam("resource", file.getKey())
+      .setParam("resource", file.getDbKey())
       .execute();
   }
 

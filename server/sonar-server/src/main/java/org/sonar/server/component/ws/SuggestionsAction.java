@@ -35,9 +35,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -217,7 +217,7 @@ public class SuggestionsAction implements ComponentsWsAction {
     }
 
     List<ComponentDto> favorites = favoriteFinder.list();
-    Set<String> favoriteKeys = favorites.stream().map(ComponentDto::getKey).collect(MoreCollectors.toSet(favorites.size()));
+    Set<String> favoriteKeys = favorites.stream().map(ComponentDto::getDbKey).collect(MoreCollectors.toSet(favorites.size()));
     ComponentIndexQuery.Builder queryBuilder = ComponentIndexQuery.builder()
       .setQuery(query)
       .setRecentlyBrowsedKeys(recentlyBrowsedKeys)
@@ -343,13 +343,13 @@ public class SuggestionsAction implements ComponentsWsAction {
     checkState(organizationKey != null, "Organization with uuid '%s' not found", result.getOrganizationUuid());
     Suggestion.Builder builder = Suggestion.newBuilder()
       .setOrganization(organizationKey)
-      .setKey(result.getKey())
+      .setKey(result.getDbKey())
       .setName(result.name())
       .setMatch(hit.getHighlightedText().orElse(HtmlEscapers.htmlEscaper().escape(result.name())))
-      .setIsRecentlyBrowsed(recentlyBrowsedKeys.contains(result.getKey()))
+      .setIsRecentlyBrowsed(recentlyBrowsedKeys.contains(result.getDbKey()))
       .setIsFavorite(favoriteUuids.contains(result.uuid()));
     if (QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier())) {
-      builder.setProject(projectsByUuids.get(result.projectUuid()).getKey());
+      builder.setProject(projectsByUuids.get(result.projectUuid()).getDbKey());
     }
     return builder.build();
   }
@@ -366,7 +366,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   private static List<Project> toProjects(Map<String, ComponentDto> projectsByUuids) {
     return projectsByUuids.values().stream()
       .map(p -> Project.newBuilder()
-        .setKey(p.key())
+        .setKey(p.getDbKey())
         .setName(p.longName())
         .build())
       .collect(Collectors.toList());

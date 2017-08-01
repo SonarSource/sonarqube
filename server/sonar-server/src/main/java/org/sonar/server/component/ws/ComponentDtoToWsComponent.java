@@ -58,7 +58,7 @@ class ComponentDtoToWsComponent {
     WsComponents.Component.Builder wsComponent = WsComponents.Component.newBuilder()
       .setOrganization(organizationDtoKey)
       .setId(dto.uuid())
-      .setKey(dto.key())
+      .setKey(dto.getDbKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier());
     setNullable(emptyToNull(dto.path()), wsComponent::setPath);

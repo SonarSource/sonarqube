@@ -84,7 +84,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
         "  \"projects\": [" +
         "    {" +
         "      \"id\": \"" + project.uuid() + "\"," +
-        "      \"key\": \"" + project.key() + "\"," +
+        "      \"key\": \"" + project.getDbKey() + "\"," +
         "      \"name\": \"" + project.name() + "\"," +
         "      \"qualifier\": \"TRK\"," +
         "      \"permissions\": []" +
@@ -110,7 +110,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
         "  \"projects\": [" +
         "    {" +
         "      \"id\": \"" + project.uuid() + "\"," +
-        "      \"key\": \"" + project.key() + "\"," +
+        "      \"key\": \"" + project.getDbKey() + "\"," +
         "      \"name\": \"" + project.name() + "\"," +
         "      \"qualifier\": \"TRK\"," +
         "      \"permissions\": []" +
@@ -213,8 +213,8 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   @Test
   public void search_by_query_on_key_must_match_exactly() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
-    componentDb.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("project-key"));
-    componentDb.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("another-key"));
+    componentDb.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("project-key"));
+    componentDb.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("another-key"));
 
     String result = newRequest()
       .setParam(TEXT_QUERY, "project-key")
@@ -287,7 +287,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     return db.components().insertComponent(newView(db.getDefaultOrganization())
       .setUuid("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
       .setName("Java")
-      .setKey("Java"));
+      .setDbKey("Java"));
   }
 
   private ComponentDto insertProjectInView(ComponentDto project, ComponentDto view) {
@@ -297,14 +297,14 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   private ComponentDto insertClang() {
     return db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid-2")
       .setName("Clang")
-      .setKey("clang")
+      .setDbKey("clang")
       .setUuid("ce4c03d6-430f-40a9-b777-ad877c00aa4d"));
   }
 
   private ComponentDto insertJdk7() {
     return db.components().insertComponent(ComponentTesting.newPublicProjectDto(db.getDefaultOrganization())
       .setName("JDK 7")
-      .setKey("net.java.openjdk:jdk7")
+      .setDbKey("net.java.openjdk:jdk7")
       .setUuid("0bd7b1e7-91d6-439e-a607-4a3a9aad3c6a"));
   }
 }

@@ -38,7 +38,7 @@ class ComponentDtoToWsComponent {
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
     if (referenceComponent != null) {
       wsComponent.setRefId(referenceComponent.uuid());
-      wsComponent.setRefKey(referenceComponent.key());
+      wsComponent.setRefKey(referenceComponent.getDbKey());
     }
 
     WsMeasures.Measure.Builder measureBuilder = WsMeasures.Measure.newBuilder();
@@ -54,7 +54,7 @@ class ComponentDtoToWsComponent {
   static Component.Builder componentDtoToWsComponent(ComponentDto component) {
     Component.Builder wsComponent = Component.newBuilder()
       .setId(component.uuid())
-      .setKey(component.key())
+      .setKey(component.getDbKey())
       .setName(component.name())
       .setQualifier(component.qualifier());
     if (component.path() != null) {

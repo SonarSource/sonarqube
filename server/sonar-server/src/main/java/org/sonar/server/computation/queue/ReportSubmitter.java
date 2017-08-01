@@ -34,10 +34,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.user.UserSession;
 
@@ -102,7 +102,7 @@ public class ReportSubmitter {
     if (project.isPresent()) {
       checkArgument(project.get().getOrganizationUuid().equals(organizationDto.getUuid()),
         "Organization of component with key '%s' does not match specified organization '%s'",
-        project.get().key(), organizationDto.getKey());
+        project.get().getDbKey(), organizationDto.getKey());
     }
   }
 

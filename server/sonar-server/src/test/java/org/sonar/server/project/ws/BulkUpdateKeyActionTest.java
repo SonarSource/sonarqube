@@ -97,11 +97,11 @@ public class BulkUpdateKeyActionTest {
   @Test
   public void json_example() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("my_project"));
-    componentDb.insertComponent(newModuleDto(project).setKey("my_project:module_1"));
-    ComponentDto anotherProject = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("another_project"));
-    componentDb.insertComponent(newModuleDto(anotherProject).setKey("my_new_project:module_1"));
-    ComponentDto module2 = componentDb.insertComponent(newModuleDto(project).setKey("my_project:module_2"));
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("my_project"));
+    componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:module_1"));
+    ComponentDto anotherProject = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("another_project"));
+    componentDb.insertComponent(newModuleDto(anotherProject).setDbKey("my_new_project:module_1"));
+    ComponentDto module2 = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:module_2"));
     componentDb.insertComponent(newFileDto(module2, null));
 
     String result = ws.newRequest()
@@ -127,18 +127,18 @@ public class BulkUpdateKeyActionTest {
   @Test
   public void bulk_update_project_key() {
     ComponentDto project = insertMyProject();
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:module"));
-    ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:inactive_module").setEnabled(false));
-    ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/File.xoo"));
-    ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
+    ComponentDto module = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:module"));
+    ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:inactive_module").setEnabled(false));
+    ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
+    ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
 
     BulkUpdateKeyWsResponse result = callByUuid(project.uuid(), FROM, TO);
 
     assertThat(result.getKeysCount()).isEqualTo(2);
     assertThat(result.getKeysList()).extracting(Key::getKey, Key::getNewKey, Key::getDuplicate)
       .containsExactly(
-        tuple(project.key(), "your_project", false),
-        tuple(module.key(), "your_project:root:module", false));
+        tuple(project.getDbKey(), "your_project", false),
+        tuple(module.getDbKey(), "your_project:root:module", false));
 
     verify(componentService).bulkUpdateKey(any(DbSession.class), eq(project), eq(FROM), eq(TO));
   }
@@ -148,15 +148,15 @@ public class BulkUpdateKeyActionTest {
     String newKey = "provisionedProject2";
     ComponentDto provisionedProject = componentDb.insertPrivateProject();
 
-    callByKey(provisionedProject.key(), provisionedProject.getKey(), newKey);
+    callByKey(provisionedProject.getDbKey(), provisionedProject.getDbKey(), newKey);
 
-    verify(componentService).bulkUpdateKey(any(DbSession.class), eq(provisionedProject), eq(provisionedProject.getKey()), eq(newKey));
+    verify(componentService).bulkUpdateKey(any(DbSession.class), eq(provisionedProject), eq(provisionedProject.getDbKey()), eq(newKey));
   }
 
   @Test
   public void fail_to_bulk_if_a_component_already_exists_with_the_same_key() {
-    componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("my_project"));
-    componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("your_project"));
+    componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("my_project"));
+    componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("your_project"));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Impossible to update key: a component with key \"your_project\" already exists.");
@@ -192,7 +192,7 @@ public class BulkUpdateKeyActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component updated must be a module or a key");
 
-    callByKey(file.key(), FROM, TO);
+    callByKey(file.getDbKey(), FROM, TO);
   }
 
   @Test
@@ -201,7 +201,7 @@ public class BulkUpdateKeyActionTest {
 
     ComponentDto project = insertMyProject();
 
-    callDryRunByKey(project.key(), null, TO);
+    callDryRunByKey(project.getDbKey(), null, TO);
   }
 
   @Test
@@ -210,7 +210,7 @@ public class BulkUpdateKeyActionTest {
 
     ComponentDto project = insertMyProject();
 
-    callDryRunByKey(project.key(), FROM, null);
+    callDryRunByKey(project.getDbKey(), FROM, null);
   }
 
   @Test
@@ -226,7 +226,7 @@ public class BulkUpdateKeyActionTest {
 
     ComponentDto project = insertMyProject();
 
-    call(project.uuid(), project.key(), FROM, TO, false);
+    call(project.uuid(), project.getDbKey(), FROM, TO, false);
   }
 
   @Test
@@ -260,7 +260,7 @@ public class BulkUpdateKeyActionTest {
   }
 
   private ComponentDto insertMyProject() {
-    return componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey(MY_PROJECT_KEY));
+    return componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey(MY_PROJECT_KEY));
   }
 
   private BulkUpdateKeyWsResponse callDryRunByUuid(@Nullable String uuid, @Nullable String from, @Nullable String to) {

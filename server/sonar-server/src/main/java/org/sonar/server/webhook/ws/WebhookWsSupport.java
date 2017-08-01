@@ -40,7 +40,7 @@ class WebhookWsSupport {
       .setUrl(dto.getUrl())
       .setSuccess(dto.isSuccess())
       .setCeTaskId(dto.getCeTaskUuid())
-      .setComponentKey(component.getKey());
+      .setComponentKey(component.getDbKey());
     if (dto.getHttpStatus() != null) {
       builder.setHttpStatus(dto.getHttpStatus());
     }

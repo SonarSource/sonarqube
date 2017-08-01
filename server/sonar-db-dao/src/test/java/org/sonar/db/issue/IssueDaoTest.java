@@ -182,8 +182,8 @@ public class IssueDaoTest {
 
   private static IssueDto newIssueDto(String key) {
     IssueDto dto = new IssueDto();
-    dto.setComponent(new ComponentDto().setKey("struts:Action").setId(123L).setUuid("component-uuid"));
-    dto.setProject(new ComponentDto().setKey("struts").setId(100L).setUuid("project-uuid"));
+    dto.setComponent(new ComponentDto().setDbKey("struts:Action").setId(123L).setUuid("component-uuid"));
+    dto.setProject(new ComponentDto().setDbKey("struts").setId(100L).setUuid("project-uuid"));
     dto.setRule(RuleTesting.newRule(RuleKey.of("squid", "S001")).setId(200));
     dto.setKee(key);
     dto.setType(2);
@@ -209,8 +209,8 @@ public class IssueDaoTest {
   private void prepareTables() {
     db.rules().insertRule(RULE);
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto projectDto = db.components().insertPrivateProject(organizationDto, (t) -> t.setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
-    db.components().insertComponent(newFileDto(projectDto).setUuid(FILE_UUID).setKey(FILE_KEY));
+    ComponentDto projectDto = db.components().insertPrivateProject(organizationDto, (t) -> t.setUuid(PROJECT_UUID).setDbKey(PROJECT_KEY));
+    db.components().insertComponent(newFileDto(projectDto).setUuid(FILE_UUID).setDbKey(FILE_KEY));
     underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
       .setMessage("the message")
       .setRuleId(RULE.getId())

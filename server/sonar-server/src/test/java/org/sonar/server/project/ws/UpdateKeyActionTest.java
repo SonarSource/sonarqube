@@ -67,7 +67,7 @@ public class UpdateKeyActionTest {
   public void call_by_key() {
     ComponentDto project = insertProject();
 
-    callByKey(project.key(), ANOTHER_KEY);
+    callByKey(project.getDbKey(), ANOTHER_KEY);
 
     assertCallComponentService(ANOTHER_KEY);
   }
@@ -87,7 +87,7 @@ public class UpdateKeyActionTest {
 
     ComponentDto project = insertProject();
 
-    callByKey(project.key(), null);
+    callByKey(project.getDbKey(), null);
   }
 
   @Test
@@ -103,7 +103,7 @@ public class UpdateKeyActionTest {
 
     ComponentDto project = insertProject();
 
-    call(project.uuid(), project.key(), ANOTHER_KEY);
+    call(project.uuid(), project.getDbKey(), ANOTHER_KEY);
   }
 
   @Test

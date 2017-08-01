@@ -79,7 +79,7 @@ public class ValidateProjectStep implements ComputationStep {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Component root = treeRootHolder.getRoot();
       List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(dbSession, root.getKey());
-      Map<String, ComponentDto> baseModulesByKey = from(baseModules).uniqueIndex(ComponentDto::key);
+      Map<String, ComponentDto> baseModulesByKey = from(baseModules).uniqueIndex(ComponentDto::getDbKey);
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(dbSession, dbClient.componentDao(), baseModulesByKey);
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
 
@@ -138,7 +138,7 @@ public class ValidateProjectStep implements ComputationStep {
         ComponentDto anotherBaseProject = componentDao.selectOrFailByUuid(session, baseProject.get().projectUuid());
         validationMessages.add(format("The project \"%s\" is already defined in SonarQube but as a module of project \"%s\". "
           + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
-          rawProjectKey, anotherBaseProject.key(), anotherBaseProject.key(), rawProjectKey));
+          rawProjectKey, anotherBaseProject.getDbKey(), anotherBaseProject.getDbKey(), rawProjectKey));
       }
     }
 
@@ -181,7 +181,7 @@ public class ValidateProjectStep implements ComputationStep {
     private void validateModuleKeyIsNotAlreadyUsedInAnotherProject(ComponentDto baseModule, String rawModuleKey) {
       if (!baseModule.projectUuid().equals(baseModule.uuid()) && !baseModule.projectUuid().equals(rawProject.getUuid())) {
         ComponentDto projectModule = componentDao.selectOrFailByUuid(session, baseModule.projectUuid());
-        validationMessages.add(format("Module \"%s\" is already part of project \"%s\"", rawModuleKey, projectModule.key()));
+        validationMessages.add(format("Module \"%s\" is already part of project \"%s\"", rawModuleKey, projectModule.getDbKey()));
       }
     }
 

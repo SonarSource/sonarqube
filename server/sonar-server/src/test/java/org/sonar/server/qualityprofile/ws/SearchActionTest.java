@@ -260,7 +260,7 @@ public class SearchActionTest {
     db.qualityProfiles().associateWithProject(project, profileOnXoo1);
     db.qualityProfiles().setAsDefault(defaultProfileOnXoo1, defaultProfileOnXoo2);
 
-    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT_KEY, project.key()));
+    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT_KEY, project.getDbKey()));
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getKey)
@@ -278,7 +278,7 @@ public class SearchActionTest {
     db.qualityProfiles().associateWithProject(project, profileOnXoo1);
     db.qualityProfiles().setAsDefault(defaultProfileOnXoo1, defaultProfileOnXoo2);
 
-    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT_KEY, module.key()));
+    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT_KEY, module.getDbKey()));
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getKey)
@@ -296,7 +296,7 @@ public class SearchActionTest {
     db.qualityProfiles().setAsDefault(defaultProfileOnXoo1, defaultProfileOnXoo2);
 
     SearchWsResponse result = call(ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .setParam(PARAM_DEFAULTS, "true"));
 
     assertThat(result.getProfilesList())
@@ -314,7 +314,7 @@ public class SearchActionTest {
     db.qualityProfiles().associateWithProject(project, profileOnXoo1);
 
     SearchWsResponse result = call(ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .setParam(PARAM_DEFAULTS, "true"));
 
     assertThat(result.getProfilesList()).isEmpty();
@@ -336,7 +336,7 @@ public class SearchActionTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage(format("Project uuid of component uuid '%s' does not exist", module.uuid()));
 
-    call(ws.newRequest().setParam(PARAM_PROJECT_KEY, module.key()));
+    call(ws.newRequest().setParam(PARAM_PROJECT_KEY, module.getDbKey()));
   }
 
   @Test
@@ -346,11 +346,11 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPrivateProject(anotherOrganization);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", project.getKey()));
+    expectedException.expectMessage(format("Component key '%s' not found", project.getDbKey()));
 
     call(ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam(PARAM_PROJECT_KEY, project.getKey()));
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey()));
   }
 
   @Test

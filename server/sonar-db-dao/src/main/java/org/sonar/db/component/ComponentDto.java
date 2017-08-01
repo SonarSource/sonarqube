@@ -173,8 +173,31 @@ public class ComponentDto {
     return UUID_PATH_SPLITTER.splitToList(uuidPath);
   }
 
-  public String key() {
+  /**
+   * Used my MyBatis mapper
+   */
+  private String getKee(){
     return kee;
+  }
+
+  /**
+   * Used my MyBatis mapper
+   */
+  private void setKee(String kee){
+    this.kee = kee;
+  }
+
+  public String getDbKey() {
+    return kee;
+  }
+
+  public ComponentDto setDbKey(String key) {
+    this.kee = checkComponentKey(key);
+    return this;
+  }
+
+  public String getKey() {
+    return getDbKey();
   }
 
   public String scope() {
@@ -338,15 +361,6 @@ public class ComponentDto {
 
   public ComponentDto setCreatedAt(Date datetime) {
     this.createdAt = datetime;
-    return this;
-  }
-
-  public String getKey() {
-    return key();
-  }
-
-  public ComponentDto setKey(String key) {
-    this.kee = checkComponentKey(key);
     return this;
   }
 

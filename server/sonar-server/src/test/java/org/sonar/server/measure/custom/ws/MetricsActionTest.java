@@ -229,7 +229,7 @@ public class MetricsActionTest {
 
   private ComponentDto insertProject(String projectUuid, String projectKey) {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), projectUuid)
-      .setKey(projectKey);
+      .setDbKey(projectKey);
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 

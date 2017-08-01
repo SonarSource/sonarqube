@@ -106,7 +106,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   @Test
   public void add_permission_to_project_referenced_by_its_id() throws Exception {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), A_PROJECT_UUID).setKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
@@ -122,7 +122,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   @Test
   public void add_permission_to_project_referenced_by_its_key() throws Exception {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), A_PROJECT_UUID).setKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
@@ -139,7 +139,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   public void add_with_view_uuid() throws Exception {
     OrganizationDto organizationDto = db.getDefaultOrganization();
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
-    ComponentDto view = db.components().insertComponent(newView(organizationDto, "view-uuid").setKey("view-key"));
+    ComponentDto view = db.components().insertComponent(newView(organizationDto, "view-uuid").setDbKey("view-key"));
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
@@ -198,7 +198,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component '" + file.key() + "' (id: " + file.uuid() + ") must be a project or a view.");
+    expectedException.expectMessage("Component '" + file.getDbKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
@@ -221,7 +221,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   public void adding_a_project_permission_fails_if_component_is_not_a_project() throws Exception {
     OrganizationDto organizationDto = db.getDefaultOrganization();
     GroupDto group = db.users().insertGroup(organizationDto, "sonar-administrators");
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, A_PROJECT_UUID).setKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project, null, "file-uuid"));
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -311,7 +311,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .execute();
   }
 
@@ -340,7 +340,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PERMISSION, PROVISIONING)
-      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .execute();
   }
 

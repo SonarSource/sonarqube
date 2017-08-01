@@ -73,7 +73,7 @@ public class ShowResponseBuilder {
     String ref = null;
     ComponentDto componentDto = duplication.file();
     if (componentDto != null) {
-      String componentKey = componentDto.key();
+      String componentKey = componentDto.getDbKey();
       ref = refByComponentKey.get(componentKey);
       if (ref == null) {
         ref = Integer.toString(refByComponentKey.size() + 1);
@@ -91,19 +91,19 @@ public class ShowResponseBuilder {
 
   private static WsDuplications.File toWsFile(ComponentDto file, @Nullable ComponentDto project, @Nullable ComponentDto subProject) {
     WsDuplications.File.Builder wsFile = WsDuplications.File.newBuilder();
-    wsFile.setKey(file.key());
+    wsFile.setKey(file.getDbKey());
     wsFile.setUuid(file.uuid());
     wsFile.setName(file.longName());
 
     if (project != null) {
-      wsFile.setProject(project.key());
+      wsFile.setProject(project.getDbKey());
       wsFile.setProjectUuid(project.uuid());
       wsFile.setProjectName(project.longName());
 
       // Do not return sub project if sub project and project are the same
       boolean displaySubProject = subProject != null && !subProject.uuid().equals(project.uuid());
       if (displaySubProject) {
-        wsFile.setSubProject(subProject.key());
+        wsFile.setSubProject(subProject.getDbKey());
         wsFile.setSubProjectUuid(subProject.uuid());
         wsFile.setSubProjectName(subProject.longName());
       }

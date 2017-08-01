@@ -169,7 +169,7 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, OrganizationDto organizationDto, @Nullable SnapshotDto analysis) {
-    json.prop("key", component.key())
+    json.prop("key", component.getDbKey())
       .prop("organization", organizationDto.getKey())
       .prop("id", component.uuid())
       .prop("name", component.name())
@@ -281,7 +281,7 @@ public class ComponentAction implements NavigationWsAction {
 
     for (ComponentDto c : breadcrumb) {
       json.beginObject()
-        .prop("key", c.key())
+        .prop("key", c.getDbKey())
         .prop("name", c.name())
         .prop("qualifier", c.qualifier())
         .endObject();

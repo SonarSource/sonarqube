@@ -106,7 +106,7 @@ public class DeselectActionTest {
     String gateId = String.valueOf(gate.getId());
     associateProjectToQualityGate(project.getId(), gateId);
 
-    callByKey(gateId, project.getKey());
+    callByKey(gateId, project.getDbKey());
 
     assertDeselected(project.getId());
   }
@@ -118,7 +118,7 @@ public class DeselectActionTest {
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    callByKey(gateId, project.getKey());
+    callByKey(gateId, project.getDbKey());
 
     assertDeselected(project.getId());
   }
@@ -127,7 +127,7 @@ public class DeselectActionTest {
   public void fail_when_no_quality_gate() throws Exception {
     expectedException.expect(NotFoundException.class);
 
-    callByKey("-1", project.getKey());
+    callByKey("-1", project.getDbKey());
   }
 
   @Test
@@ -154,7 +154,7 @@ public class DeselectActionTest {
     userSession.anonymous();
 
     expectedException.expect(ForbiddenException.class);
-    callByKey(gateId, project.getKey());
+    callByKey(gateId, project.getDbKey());
   }
 
   @Test
@@ -165,7 +165,7 @@ public class DeselectActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    callByKey(gateId, project.getKey());
+    callByKey(gateId, project.getDbKey());
   }
 
   @Test
@@ -176,7 +176,7 @@ public class DeselectActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    callByKey(gateId, project.getKey());
+    callByKey(gateId, project.getDbKey());
   }
 
   private QualityGateDto insertQualityGate() {

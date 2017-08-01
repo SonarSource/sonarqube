@@ -92,7 +92,7 @@ public class SearchActionComponentsTest {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
+      .setParam(PARAM_COMPONENT_KEYS, application.getDbKey())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList()).extracting(Issue::getKey)
@@ -110,7 +110,7 @@ public class SearchActionComponentsTest {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
+      .setParam(PARAM_COMPONENT_KEYS, application.getDbKey())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList()).isEmpty();
@@ -126,7 +126,7 @@ public class SearchActionComponentsTest {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
+      .setParam(PARAM_COMPONENT_KEYS, application.getDbKey())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList()).isEmpty();
@@ -155,7 +155,7 @@ public class SearchActionComponentsTest {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
+      .setParam(PARAM_COMPONENT_KEYS, application.getDbKey())
       .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
       .executeProtobuf(SearchWsResponse.class);
 
@@ -179,8 +179,8 @@ public class SearchActionComponentsTest {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
-      .setParam(PARAM_PROJECT_KEYS, project1.getKey())
+      .setParam(PARAM_COMPONENT_KEYS, application.getDbKey())
+      .setParam(PARAM_PROJECT_KEYS, project1.getDbKey())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList()).extracting(Issue::getKey)
@@ -211,8 +211,8 @@ public class SearchActionComponentsTest {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
-      .setParam(PARAM_PROJECT_KEYS, project1.getKey())
+      .setParam(PARAM_COMPONENT_KEYS, application.getDbKey())
+      .setParam(PARAM_PROJECT_KEYS, project1.getDbKey())
       .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
       .executeProtobuf(SearchWsResponse.class);
 
@@ -244,7 +244,7 @@ public class SearchActionComponentsTest {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
+      .setParam(PARAM_COMPONENT_KEYS, application.getDbKey())
       .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
       .executeProtobuf(SearchWsResponse.class);
 

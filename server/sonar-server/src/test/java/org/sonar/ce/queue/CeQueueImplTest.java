@@ -195,7 +195,7 @@ public class CeQueueImplTest {
       assertThat(task.getComponentKey()).isNull();
       assertThat(task.getComponentName()).isNull();
     } else {
-      assertThat(task.getComponentKey()).isEqualTo(componentDto.key());
+      assertThat(task.getComponentKey()).isEqualTo(componentDto.getDbKey());
       assertThat(task.getComponentName()).isEqualTo(componentDto.name());
     }
     assertThat(task.getSubmitterLogin()).isEqualTo(taskSubmit.getSubmitterLogin());

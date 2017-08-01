@@ -32,7 +32,7 @@ public class ComponentDtoTest {
   public void setters_and_getters() {
     ComponentDto componentDto = new ComponentDto()
       .setId(1L)
-      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+      .setDbKey("org.struts:struts-core:src/org/struts/RequestContext.java")
       .setDeprecatedKey("org.struts:struts-core:src/org/struts/RequestContext.java")
       .setName("RequestContext.java")
       .setLongName("org.struts.RequestContext")
@@ -46,7 +46,7 @@ public class ComponentDtoTest {
       .setDeveloperUuid("uuid_6");
 
     assertThat(componentDto.getId()).isEqualTo(1L);
-    assertThat(componentDto.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(componentDto.getDbKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(componentDto.deprecatedKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(componentDto.name()).isEqualTo("RequestContext.java");
     assertThat(componentDto.longName()).isEqualTo("org.struts.RequestContext");

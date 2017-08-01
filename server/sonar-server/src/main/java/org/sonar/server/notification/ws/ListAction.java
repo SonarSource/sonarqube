@@ -204,7 +204,7 @@ public class ListAction implements NotificationsWsAction {
     checkArgument(organizationDto != null, "No organization for uuid '%s'", organizationUuid);
 
     return notification.setOrganization(organizationDto.getKey())
-      .setProject(project.getKey())
+      .setProject(project.getDbKey())
       .setProjectName(project.name());
   }
 

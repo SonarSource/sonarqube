@@ -56,7 +56,7 @@ public class IssueChangeNotification extends Notification {
 
   public IssueChangeNotification setProject(ComponentDto project) {
     setFieldValue("projectName", project.longName());
-    setFieldValue("projectKey", project.key());
+    setFieldValue("projectKey", project.getDbKey());
     return this;
   }
 

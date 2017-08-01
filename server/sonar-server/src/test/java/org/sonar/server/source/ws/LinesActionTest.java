@@ -86,7 +86,7 @@ public class LinesActionTest {
     wsTester = new WsTester(new SourcesWs(
       new LinesAction(TestComponentFinder.from(dbTester), dbTester.getDbClient(), sourceService, htmlSourceDecorator, userSessionRule)));
     project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID);
-    file = newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
+    file = newFileDto(project, null, FILE_UUID).setDbKey(FILE_KEY);
   }
 
   @Test
@@ -149,7 +149,7 @@ public class LinesActionTest {
 
   @Test
   public void fail_when_file_is_removed() throws Exception {
-    ComponentDto file = newFileDto(project).setKey("file-key").setEnabled(false);
+    ComponentDto file = newFileDto(project).setDbKey("file-key").setEnabled(false);
     dbTester.components().insertComponents(project, file);
     setUserWithValidPermission();
 

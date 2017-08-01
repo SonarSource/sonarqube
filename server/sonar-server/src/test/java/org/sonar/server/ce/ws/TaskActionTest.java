@@ -88,7 +88,7 @@ public class TaskActionTest {
     assertThat(taskResponse.getTask().getStatus()).isEqualTo(WsCe.TaskStatus.PENDING);
     assertThat(taskResponse.getTask().getSubmitterLogin()).isEqualTo("john");
     assertThat(taskResponse.getTask().getComponentId()).isEqualTo(project.uuid());
-    assertThat(taskResponse.getTask().getComponentKey()).isEqualTo(project.key());
+    assertThat(taskResponse.getTask().getComponentKey()).isEqualTo(project.getDbKey());
     assertThat(taskResponse.getTask().getComponentName()).isEqualTo(project.name());
     assertThat(taskResponse.getTask().hasExecutionTimeMs()).isFalse();
     assertThat(taskResponse.getTask().getLogs()).isFalse();
@@ -109,7 +109,7 @@ public class TaskActionTest {
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
     assertThat(task.getComponentId()).isEqualTo(project.uuid());
-    assertThat(task.getComponentKey()).isEqualTo(project.key());
+    assertThat(task.getComponentKey()).isEqualTo(project.getDbKey());
     assertThat(task.getComponentName()).isEqualTo(project.name());
     assertThat(task.getAnalysisId()).isEqualTo(activityDto.getAnalysisUuid());
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
