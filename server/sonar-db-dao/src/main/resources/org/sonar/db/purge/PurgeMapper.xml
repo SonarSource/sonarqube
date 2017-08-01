@@ -255,54 +255,6 @@
     where project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteIssueChangesByComponentUuids" parameterType="map">
-    delete from issue_changes ic
-    where
-      exists (
-        select
-          1
-        from issues i
-        where
-          i.kee=ic.issue_key
-          and i.component_uuid in
-            <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-              #{componentUuid,jdbcType=VARCHAR}
-            </foreach>
-    )
-  </delete>
-
-  <!-- Mssql -->
-  <delete id="deleteIssueChangesByComponentUuids" databaseId="mssql" parameterType="map">
-    delete issue_changes from issue_changes
-    inner join issues on
-      issue_changes.issue_key=issues.kee
-    where
-      issues.project_uuid  in
-        <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-          #{componentUuid,jdbcType=VARCHAR}
-        </foreach>
-  </delete>
-
-  <!-- Mysql -->
-  <delete id="deleteIssueChangesByComponentUuids" databaseId="mysql" parameterType="map">
-    delete ic from issue_changes as ic, issues as i
-    where
-      ic.issue_key=i.kee
-      and i.component_uuid  in
-        <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-          #{componentUuid,jdbcType=VARCHAR}
-        </foreach>
-  </delete>
-
-  <delete id="deleteIssuesByComponentUuids" parameterType="map">
-    delete from issues
-    where
-      project_uuid  in
-        <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-          #{componentUuid,jdbcType=VARCHAR}
-        </foreach>
-  </delete>
-
   <delete id="deleteFileSourcesByProjectUuid">
     delete from file_sources where project_uuid=#{rootProjectUuid,jdbcType=VARCHAR}
   </delete>
