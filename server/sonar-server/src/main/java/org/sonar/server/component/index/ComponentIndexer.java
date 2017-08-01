@@ -72,8 +72,8 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   @Override
-  public void indexOnAnalysis(String projectUuid) {
-    doIndexByProjectUuid(projectUuid, Size.REGULAR);
+  public void indexOnAnalysis(String branchUuid) {
+    doIndexByProjectUuid(branchUuid, Size.REGULAR);
   }
 
   @Override
@@ -93,7 +93,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
       case PROJECT_DELETION:
       case PROJECT_KEY_UPDATE:
         List<EsQueueDto> items = projectUuids.stream()
-          .map(projectUuid -> EsQueueDto.create(INDEX_TYPE_COMPONENT.format(), projectUuid, null, projectUuid))
+          .map(branchUuid -> EsQueueDto.create(INDEX_TYPE_COMPONENT.format(), branchUuid, null, branchUuid))
           .collect(MoreCollectors.toArrayList(projectUuids.size()));
         return dbClient.esQueueDao().insert(dbSession, items);
 
@@ -112,12 +112,12 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     OneToManyResilientIndexingListener listener = new OneToManyResilientIndexingListener(dbClient, dbSession, items);
     BulkIndexer bulkIndexer = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT, Size.REGULAR, listener);
     bulkIndexer.start();
-    Set<String> projectUuids = items.stream().map(EsQueueDto::getDocId).collect(MoreCollectors.toHashSet(items.size()));
-    Set<String> remaining = new HashSet<>(projectUuids);
+    Set<String> branchUuids = items.stream().map(EsQueueDto::getDocId).collect(MoreCollectors.toHashSet(items.size()));
+    Set<String> remaining = new HashSet<>(branchUuids);
 
-    for (String projectUuid : projectUuids) {
+    for (String branchUuid : branchUuids) {
       // TODO allow scrolling multiple projects at the same time
-      dbClient.componentDao().scrollForIndexing(dbSession, projectUuid, context -> {
+      dbClient.componentDao().scrollForIndexing(dbSession, branchUuid, context -> {
         ComponentDto dto = context.getResultObject();
         bulkIndexer.add(newIndexRequest(toDocument(dto)));
         remaining.remove(dto.projectUuid());

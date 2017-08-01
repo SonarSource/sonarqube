@@ -34,6 +34,10 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final IndexType INDEX_TYPE_PROJECT_MEASURES = new IndexType("projectmeasures", "projectmeasure");
   public static final String FIELD_UUID = "uuid";
   public static final String FIELD_ORGANIZATION_UUID = "organizationUuid";
+
+  /**
+   * Project key. Only projects (qualifier=TRK)
+   */
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_ANALYSED_AT = "analysedAt";
