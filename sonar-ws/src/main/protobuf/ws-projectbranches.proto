@@ -1,0 +1,47 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.projectbranch;
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "WsBranches";
+option optimize_for = SPEED;
+
+
+// WS api/project_branches/list
+message ListWsResponse {
+  repeated Branch branches = 1;
+
+  message Branch {
+    optional string name = 1;
+    optional bool isMain = 2;
+    optional BranchType type = 3;
+  }
+
+  enum BranchType {
+    // Zero is required in order to not get MAINTAINABILITY as default value
+    // See http://androiddevblog.com/protocol-buffers-pitfall-adding-enum-values/
+    UNKNOWN = 0;
+
+    LONG = 1;
+    SHORT = 2;
+  }
+
+}
