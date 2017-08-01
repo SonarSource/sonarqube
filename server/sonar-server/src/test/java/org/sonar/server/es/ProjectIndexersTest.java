@@ -85,7 +85,7 @@ public class ProjectIndexersTest {
     }
 
     @Override
-    public void indexOnAnalysis(String projectUuid) {
+    public void indexOnAnalysis(String branchUuid) {
       throw new UnsupportedOperationException();
     }
   }

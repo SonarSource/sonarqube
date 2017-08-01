@@ -164,22 +164,6 @@ public class TestIndexerTest {
     assertThat(document.get(FIELD_FILE_UUID)).isEqualTo("F2");
   }
 
-//  @Test
-//  public void delete_project_by_uuid() throws Exception {
-//    indexTest("P1", "F1", "T1", "U111");
-//    indexTest("P1", "F1", "T2", "U112");
-//    indexTest("P1", "F2", "T1", "U121");
-//    indexTest("P2", "F3", "T1", "U231");
-//
-//    underTest.deleteProject("P1");
-//
-//    List<SearchHit> hits = getDocuments();
-//    assertThat(hits).hasSize(1);
-//    Map<String, Object> document = hits.get(0).getSource();
-//    assertThat(hits).hasSize(1);
-//    assertThat(document.get(FIELD_PROJECT_UUID)).isEqualTo("P2");
-//  }
-
   private void indexTest(String projectUuid, String fileUuid, String testName, String uuid) throws IOException {
     es.client().prepareIndex(INDEX_TYPE_TEST)
       .setId(uuid)
