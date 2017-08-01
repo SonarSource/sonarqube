@@ -141,6 +141,7 @@ import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
 import org.sonar.server.project.ws.ProjectsWsModule;
 import org.sonar.server.projectanalysis.ProjectAnalysisModule;
+import org.sonar.server.projectbranch.ws.BranchWsModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
@@ -364,6 +365,7 @@ public class PlatformLevel4 extends PlatformLevel {
       GroupPermissionChanger.class,
 
       // components
+      BranchWsModule.class,
       ProjectsWsModule.class,
       ProjectsEsModule.class,
       ProjectTagsWsModule.class,

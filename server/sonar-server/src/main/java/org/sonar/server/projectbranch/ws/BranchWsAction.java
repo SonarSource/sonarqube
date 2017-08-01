@@ -17,27 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project.ws;
+package org.sonar.server.projectbranch.ws;
 
-import org.sonar.core.platform.Module;
+import org.sonar.server.ws.WsAction;
 
-public class ProjectsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      ProjectsWsSupport.class,
-      ProjectsWs.class,
-      CreateAction.class,
-      IndexAction.class,
-      BulkDeleteAction.class,
-      DeleteAction.class,
-      UpdateKeyAction.class,
-      BulkUpdateKeyAction.class,
-      GhostsAction.class,
-      ProvisionedAction.class,
-      SearchMyProjectsAction.class,
-      SearchMyProjectsDataLoader.class,
-      SearchAction.class,
-      UpdateVisibilityAction.class);
-  }
+public interface BranchWsAction extends WsAction {
+  // marker interface
 }
