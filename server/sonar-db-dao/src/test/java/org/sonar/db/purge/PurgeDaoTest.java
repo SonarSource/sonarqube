@@ -456,7 +456,7 @@ public class PurgeDaoTest {
     assertThat(getComponentUuidsOfMeasures())
       .containsOnly(view.uuid(), subview.uuid());
 
-    underTest.deleteNonRootComponents(dbSession, asList(subview));
+    underTest.deleteNonRootComponents(dbSession, singletonList(subview));
     assertThat(getComponentUuidsOfMeasures())
       .containsOnly(view.uuid());
   }
@@ -477,23 +477,6 @@ public class PurgeDaoTest {
     underTest.deleteNonRootComponents(dbSession, asList(module1, dir1));
     assertThat(getComponentUuidsOfIssueChanges())
       .containsOnly(project.uuid());
-  }
-
-  @Test
-  public void deleteNonRootComponents_deletes_issues_and_changes_of_any_non_root_component_of_a_view() {
-    ComponentDto view = dbTester.components().insertView();
-    ComponentDto subview = dbTester.components().insertComponent(ComponentTesting.newSubView(view));
-    ComponentDto pc = dbTester.components().insertComponent(newProjectCopy("a", dbTester.components().insertPrivateProject(), view));
-    insertIssueAndChangesFor(view, subview, pc);
-    assertThat(getComponentUuidsOfIssueChanges()).containsOnly(view.uuid(), subview.uuid(), pc.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, singletonList(pc));
-    assertThat(getComponentUuidsOfIssueChanges())
-      .containsOnly(view.uuid(), subview.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, asList(subview));
-    assertThat(getComponentUuidsOfIssueChanges())
-      .containsOnly(view.uuid());
   }
 
   @Test
@@ -669,9 +652,9 @@ public class PurgeDaoTest {
       .map(row -> (String) row.get("COMPONENT_UUID"));
   }
 
-  private void insertIssueAndChangesFor(ComponentDto... components) {
-    Arrays.stream(components).forEach(componentDto -> {
-      IssueDto issue = dbTester.issues().insert(RuleTesting.newRule(), componentDto, componentDto);
+  private void insertIssueAndChangesFor(ComponentDto project, ComponentDto... otherComponents) {
+    Stream.concat(Stream.of(project), Arrays.stream(otherComponents)).forEach(componentDto -> {
+      IssueDto issue = dbTester.issues().insert(RuleTesting.newRule(), project, componentDto);
       dbTester.issues().insertComment(issue, "foo", "bar");
     });
     dbSession.commit();
