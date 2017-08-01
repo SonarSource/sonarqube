@@ -75,9 +75,9 @@ public class IssueDbTester {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject(organizationDto);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    IssueDto issueDto = newIssue(rule, file, project);
-    populateIssueDto.accept(issueDto);
-    return insertIssue(issueDto);
+    IssueDto issue = newIssue(rule, project, file);
+    populateIssueDto.accept(issue);
+    return insertIssue(issue);
   }
 
   public IssueChangeDto insertChange(IssueChangeDto issueChangeDto) {
