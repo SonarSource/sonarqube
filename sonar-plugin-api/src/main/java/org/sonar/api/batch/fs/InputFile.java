@@ -26,6 +26,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 
 /**
  * This layer over {@link java.io.File} adds information for code analyzers.
@@ -54,8 +55,8 @@ public interface InputFile extends IndexedFile {
   }
 
   /**
-   * Path relative to module base directory. Path is unique and identifies file
-   * within given <code>{@link FileSystem}</code>. File separator is the forward
+   * Relative path to module (for normal Sensors) or project (for {@link SensorDescriptor#global() global} Sensors) base directory.
+   * File separator is the forward
    * slash ('/'), even on Microsoft Windows.
    * <br>
    * Returns <code>src/main/java/com/Foo.java</code> if module base dir is

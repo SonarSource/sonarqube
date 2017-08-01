@@ -37,37 +37,37 @@ import org.sonar.api.utils.PathUtils;
  */
 @Immutable
 public class DefaultIndexedFile extends DefaultInputComponent implements IndexedFile {
-  private final String relativePath;
+  private final String projectRelativePath;
+  private final String moduleRelativePath;
   private final String moduleKey;
-  private final Path moduleBaseDir;
   private final String language;
   private final Type type;
-  private final Path path;
+  private final Path absolutePath;
+  private final SensorStrategy sensorStrategy;
 
   /**
    * Testing purposes only!
    */
-  public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath, @Nullable String language) {
-    this(moduleKey, moduleBaseDir, relativePath, language, TestInputFileBuilder.nextBatchId());
+  public DefaultIndexedFile(String moduleKey, Path baseDir, String relativePath, @Nullable String language) {
+    this(baseDir.resolve(relativePath), moduleKey, PathUtils.sanitize(relativePath), PathUtils.sanitize(relativePath), Type.MAIN, language, TestInputFileBuilder.nextBatchId(),
+      new SensorStrategy());
   }
 
-  public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath, @Nullable String language, int batchId) {
-    this(moduleKey, moduleBaseDir, relativePath, Type.MAIN, language, batchId);
-  }
-
-  public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath, Type type, @Nullable String language, int batchId) {
+  public DefaultIndexedFile(Path absolutePath, String moduleKey, String projectRelativePath, String moduleRelativePath, Type type, @Nullable String language, int batchId,
+    SensorStrategy sensorStrategy) {
     super(batchId);
     this.moduleKey = moduleKey;
-    this.relativePath = PathUtils.sanitize(relativePath);
-    this.moduleBaseDir = moduleBaseDir.normalize();
+    this.projectRelativePath = projectRelativePath;
+    this.moduleRelativePath = moduleRelativePath;
     this.type = type;
     this.language = language;
-    this.path = this.moduleBaseDir.resolve(this.relativePath);
+    this.sensorStrategy = sensorStrategy;
+    this.absolutePath = absolutePath;
   }
 
   @Override
   public String relativePath() {
-    return relativePath;
+    return sensorStrategy.isGlobal() ? projectRelativePath : moduleRelativePath;
   }
 
   @Override
@@ -82,7 +82,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
 
   @Override
   public Path path() {
-    return path;
+    return absolutePath;
   }
 
   @Override
@@ -106,7 +106,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
    */
   @Override
   public String key() {
-    return new StringBuilder().append(moduleKey).append(":").append(relativePath).toString();
+    return new StringBuilder().append(moduleKey).append(":").append(moduleRelativePath).toString();
   }
 
   public String moduleKey() {
@@ -124,17 +124,17 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
     }
 
     DefaultIndexedFile that = (DefaultIndexedFile) o;
-    return moduleKey.equals(that.moduleKey) && relativePath.equals(that.relativePath);
+    return projectRelativePath.equals(that.projectRelativePath);
   }
 
   @Override
   public int hashCode() {
-    return moduleKey.hashCode() + relativePath.hashCode() * 13;
+    return projectRelativePath.hashCode();
   }
 
   @Override
   public String toString() {
-    return "[moduleKey=" + moduleKey + ", relative=" + relativePath + ", basedir=" + moduleBaseDir + "]";
+    return projectRelativePath;
   }
 
   @Override

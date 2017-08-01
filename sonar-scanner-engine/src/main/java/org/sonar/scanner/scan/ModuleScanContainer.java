@@ -25,6 +25,7 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
@@ -70,7 +71,6 @@ import org.sonar.scanner.scan.filesystem.StatusDetectionFactory;
 import org.sonar.scanner.scan.report.IssuesReports;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.sensor.SensorOptimizer;
-import org.sonar.scanner.sensor.SensorStrategy;
 import org.sonar.scanner.source.HighlightableBuilder;
 import org.sonar.scanner.source.SymbolizableBuilder;
 

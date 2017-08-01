@@ -163,8 +163,7 @@ public class FileIndexer {
   private Void indexFile(Path sourceFile, InputFile.Type type, Progress progress) throws IOException {
     // get case of real file without resolving link
     Path realAbsoluteFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS).toAbsolutePath().normalize();
-    String relativePathStr = PathResolver.relativePath(module.getBaseDir(), realAbsoluteFile);
-    if (relativePathStr == null) {
+    if (!realAbsoluteFile.startsWith(module.getBaseDir())) {
       LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", realAbsoluteFile.toAbsolutePath(), module.getBaseDir());
       return null;
     }
@@ -178,7 +177,7 @@ public class FileIndexer {
       LOG.warn("File '{}' is ignored because it doesn't belong to the forced language '{}'", realAbsoluteFile.toAbsolutePath(), langDetection.forcedLanguage());
       return null;
     }
-    DefaultInputFile inputFile = inputFileBuilder.create(type, relativePathStr, language);
+    DefaultInputFile inputFile = inputFileBuilder.create(type, realAbsoluteFile, language);
     if (!accept(inputFile)) {
       progress.increaseExcludedByPatternsCount();
       return null;
@@ -188,7 +187,7 @@ public class FileIndexer {
       indexFileAndParentDir(inputFile, parentRelativePath);
       progress.markAsIndexed(inputFile);
     }
-    LOG.debug("'{}' indexed {}with language '{}'", relativePathStr, type == Type.TEST ? "as test " : "", inputFile.language());
+    LOG.debug("'{}' indexed {}with language '{}'", relativePath, type == Type.TEST ? "as test " : "", inputFile.language());
     inputFileBuilder.checkMetadata(inputFile);
     return null;
   }

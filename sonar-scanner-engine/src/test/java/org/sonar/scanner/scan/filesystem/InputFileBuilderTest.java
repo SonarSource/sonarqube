@@ -30,7 +30,9 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.scanner.scan.DefaultInputModuleHierarchy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -44,12 +46,18 @@ public class InputFileBuilderTest {
   private Path workDir;
   private InputFileBuilder builder;
 
+  private SensorStrategy sensorStrategy;
+
   @Before
   public void setUp() throws IOException {
     baseDir = temp.newFolder().toPath();
     workDir = temp.newFolder().toPath();
-    DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create()
+    DefaultInputModule root = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(baseDir.toFile())
+      .setWorkDir(workDir.toFile())
+      .setKey("root"), 0);
+    DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create()
+      .setBaseDir(baseDir.resolve("module1").toFile())
       .setWorkDir(workDir.toFile())
       .setKey("module1"), 0);
 
@@ -58,17 +66,25 @@ public class InputFileBuilderTest {
     MapSettings settings = new MapSettings();
     ModuleFileSystemInitializer moduleFileSystemInitializer = mock(ModuleFileSystemInitializer.class);
     when(moduleFileSystemInitializer.defaultEncoding()).thenReturn(StandardCharsets.UTF_8);
-    builder = new InputFileBuilder(module, metadataGenerator, idGenerator, settings.asConfig(), moduleFileSystemInitializer);
+    sensorStrategy = new SensorStrategy();
+    builder = new InputFileBuilder(module, metadataGenerator, idGenerator, settings.asConfig(), moduleFileSystemInitializer, new DefaultInputModuleHierarchy(root),
+      sensorStrategy);
   }
 
   @Test
   public void testBuild() {
-    Path filePath = baseDir.resolve("src/File1.xoo");
-    DefaultInputFile inputFile = builder.create(Type.MAIN, "src/File1.xoo", null);
+    Path filePath = baseDir.resolve("module1/src/File1.xoo");
+    DefaultInputFile inputFile = builder.create(Type.MAIN, filePath, null);
 
     assertThat(inputFile.moduleKey()).isEqualTo("module1");
     assertThat(inputFile.absolutePath()).isEqualTo(filePath.toString().replaceAll("\\\\", "/"));
+    assertThat(inputFile.relativePath()).isEqualTo("src/File1.xoo");
+    assertThat(inputFile.path()).isEqualTo(filePath);
     assertThat(inputFile.key()).isEqualTo("module1:src/File1.xoo");
     assertThat(inputFile.isPublished()).isFalse();
+
+    sensorStrategy.setGlobal(true);
+
+    assertThat(inputFile.relativePath()).isEqualTo("module1/src/File1.xoo");
   }
 }
