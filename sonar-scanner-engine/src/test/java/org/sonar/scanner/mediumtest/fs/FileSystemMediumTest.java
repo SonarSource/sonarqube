@@ -712,4 +712,23 @@ public class FileSystemMediumTest {
 
     assertThat(result.inputFiles()).hasSize(1);
   }
+
+  @Test
+  public void detectDuplicatedFilesInDifferentModules() throws IOException {
+    File srcDir = new File(baseDir, "module1/src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    TaskResult result = tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "module1/src")
+        .put("sonar.modules", "module1")
+        .put("module1.sonar.sources", "src")
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(1);
+  }
 }

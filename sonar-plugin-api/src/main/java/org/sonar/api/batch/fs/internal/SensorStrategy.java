@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.sensor;
+package org.sonar.api.batch.fs.internal;
 
 /**
  * A shared, mutable object in the module container.

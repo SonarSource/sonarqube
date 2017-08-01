@@ -25,7 +25,10 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.PathUtils;
 
 public class InputFileBuilder {
   public static final String PRELOAD_FILE_METADATA_KEY = "sonar.preloadFileMetadata";
@@ -35,9 +38,13 @@ public class InputFileBuilder {
   private final MetadataGenerator metadataGenerator;
   private final boolean preloadMetadata;
   private final ModuleFileSystemInitializer moduleFileSystemInitializer;
+  private final Path projectBaseDir;
+  private final SensorStrategy sensorStrategy;
 
   public InputFileBuilder(DefaultInputModule module, MetadataGenerator metadataGenerator,
-    BatchIdGenerator idGenerator, Configuration settings, ModuleFileSystemInitializer moduleFileSystemInitializer) {
+    BatchIdGenerator idGenerator, Configuration settings, ModuleFileSystemInitializer moduleFileSystemInitializer, InputModuleHierarchy hierarchy, SensorStrategy sensorStrategy) {
+    this.sensorStrategy = sensorStrategy;
+    this.projectBaseDir = hierarchy.root().getBaseDir();
     this.moduleFileSystemInitializer = moduleFileSystemInitializer;
     this.moduleKey = module.key();
     this.moduleBaseDir = module.getBaseDir();
@@ -46,8 +53,11 @@ public class InputFileBuilder {
     this.preloadMetadata = settings.getBoolean(PRELOAD_FILE_METADATA_KEY).orElse(false);
   }
 
-  DefaultInputFile create(InputFile.Type type, String relativePath, @Nullable String language) {
-    DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, language, idGenerator.get());
+  DefaultInputFile create(InputFile.Type type, Path absolutePath, @Nullable String language) {
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, moduleKey,
+      PathUtils.sanitize(projectBaseDir.relativize(absolutePath).toString()),
+      PathUtils.sanitize(moduleBaseDir.relativize(absolutePath).toString()),
+      type, language, idGenerator.get(), sensorStrategy);
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, moduleFileSystemInitializer.defaultEncoding()));
     if (language != null) {
       inputFile.setPublished(true);

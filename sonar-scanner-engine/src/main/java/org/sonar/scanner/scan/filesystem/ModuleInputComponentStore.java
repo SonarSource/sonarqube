@@ -25,7 +25,7 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.scanner.sensor.SensorStrategy;
+import org.sonar.api.batch.fs.internal.SensorStrategy;
 
 @ScannerSide
 public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
@@ -91,7 +91,8 @@ public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
     return inputComponentStore.getFilesByName(filename);
   }
 
-  @Override public Iterable<InputFile> getFilesByExtension(String extension) {
+  @Override
+  public Iterable<InputFile> getFilesByExtension(String extension) {
     return inputComponentStore.getFilesByExtension(extension);
   }
 }

@@ -192,7 +192,7 @@ public class TestInputFileBuilder {
   }
 
   public DefaultInputFile build() {
-    DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, language, id);
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleBaseDir.resolve(relativePath), moduleKey, relativePath, relativePath, type, language, id, new SensorStrategy());
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile,
       f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineOffsets, lastValidOffset)),
       contents);

@@ -26,7 +26,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.config.ExclusionProperties;
-import org.sonar.scanner.phases.CoverageExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
