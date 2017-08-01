@@ -54,7 +54,6 @@ class IssueIteratorForSingleChunk implements IssueIterator {
   private static final String[] FIELDS = {
     // column 1
     "i.kee",
-    "root.uuid",
     "i.assignee",
     "i.line",
     "i.resolution",
@@ -63,9 +62,9 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "i.effort",
     "i.author_login",
     "i.issue_close_date",
+    "i.issue_creation_date",
 
     // column 11
-    "i.issue_creation_date",
     "i.issue_update_date",
     "r.plugin_name",
     "r.plugin_rule_key",
@@ -75,6 +74,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "p.path",
     "p.scope",
     "p.organization_uuid",
+    "p.project_uuid",
 
     // column 21
     "i.tags",
@@ -82,12 +82,11 @@ class IssueIteratorForSingleChunk implements IssueIterator {
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
-    "inner join rules r on r.id=i.rule_id " +
-    "inner join projects p on p.uuid=i.component_uuid " +
-    "inner join projects root on root.uuid=i.project_uuid";
+    "inner join rules r on r.id = i.rule_id " +
+    "inner join projects p on p.uuid = i.component_uuid ";
 
-  private static final String PROJECT_FILTER = " AND root.uuid=?";
-  private static final String ISSUE_KEY_FILTER_PREFIX = " AND i.kee IN (";
+  private static final String PROJECT_FILTER = " and p.project_uuid=?";
+  private static final String ISSUE_KEY_FILTER_PREFIX = " and i.kee in (";
   private static final String ISSUE_KEY_FILTER_SUFFIX = ")";
 
   static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
@@ -187,34 +186,34 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       IssueDoc doc = new IssueDoc(Maps.newHashMapWithExpectedSize(30));
 
       String key = rs.getString(1);
-      String projectUuid = rs.getString(2);
 
       // all the fields must be present, even if value is null
       doc.setKey(key);
-      doc.setProjectUuid(projectUuid);
-      doc.setAssignee(rs.getString(3));
-      doc.setLine(DatabaseUtils.getInt(rs, 4));
-      doc.setResolution(rs.getString(5));
-      doc.setSeverity(rs.getString(6));
-      doc.setStatus(rs.getString(7));
-      doc.setEffort(getLong(rs, 8));
-      doc.setAuthorLogin(rs.getString(9));
-      doc.setFuncCloseDate(longToDate(getLong(rs, 10)));
-      doc.setFuncCreationDate(longToDate(getLong(rs, 11)));
-      doc.setFuncUpdateDate(longToDate(getLong(rs, 12)));
-      String ruleRepo = rs.getString(13);
-      String ruleKey = rs.getString(14);
+      doc.setAssignee(rs.getString(2));
+      doc.setLine(DatabaseUtils.getInt(rs, 3));
+      doc.setResolution(rs.getString(4));
+      doc.setSeverity(rs.getString(5));
+      doc.setStatus(rs.getString(6));
+      doc.setEffort(getLong(rs, 7));
+      doc.setAuthorLogin(rs.getString(8));
+      doc.setFuncCloseDate(longToDate(getLong(rs, 9)));
+      doc.setFuncCreationDate(longToDate(getLong(rs, 10)));
+      doc.setFuncUpdateDate(longToDate(getLong(rs, 11)));
+      String ruleRepo = rs.getString(12);
+      String ruleKey = rs.getString(13);
       doc.setRuleKey(RuleKey.of(ruleRepo, ruleKey).toString());
-      doc.setLanguage(rs.getString(15));
-      doc.setComponentUuid(rs.getString(16));
-      String moduleUuidPath = rs.getString(17);
+      doc.setLanguage(rs.getString(14));
+      doc.setComponentUuid(rs.getString(15));
+      String moduleUuidPath = rs.getString(16);
       doc.setModuleUuid(extractModule(moduleUuidPath));
       doc.setModuleUuidPath(moduleUuidPath);
-      String scope = rs.getString(19);
-      String filePath = extractFilePath(rs.getString(18), scope);
+      String scope = rs.getString(18);
+      String filePath = extractFilePath(rs.getString(17), scope);
       doc.setFilePath(filePath);
       doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
-      doc.setOrganizationUuid(rs.getString(20));
+      doc.setOrganizationUuid(rs.getString(19));
+      String projectUuid = rs.getString(20);
+      doc.setProjectUuid(projectUuid);
       String tags = rs.getString(21);
       doc.setTags(ImmutableList.copyOf(IssueIteratorForSingleChunk.TAGS_SPLITTER.split(tags == null ? "" : tags)));
       doc.setType(RuleType.valueOf(rs.getInt(22)));
