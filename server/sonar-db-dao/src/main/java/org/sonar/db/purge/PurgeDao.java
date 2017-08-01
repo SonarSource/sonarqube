@@ -42,18 +42,12 @@ import static java.util.Collections.emptyList;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-/**
- * @since 2.14
- */
 public class PurgeDao implements Dao {
   private static final Logger LOG = Loggers.get(PurgeDao.class);
   private static final String[] UNPROCESSED_STATUS = new String[] {"U"};
   private static final ImmutableSet<String> QUALIFIERS_PROJECT_VIEW = ImmutableSet.of("TRK", "VW");
   private static final ImmutableSet<String> QUALIFIERS_MODULE_SUBVIEW = ImmutableSet.of("BRC", "SVW");
   private static final String SCOPE_PROJECT = "PRJ";
-  private static final String SCOPE_FILE = "FIL";
-  private static final String QUALIFIER_FILE = "FIL";
-  private static final String QUALIFIER_UNIT_TEST = "UTS";
 
   private final ComponentDao componentDao;
   private final System2 system2;
@@ -154,11 +148,10 @@ public class PurgeDao implements Dao {
     return result;
   }
 
-  public PurgeDao deleteRootComponent(DbSession session, String uuid) {
+  public void deleteRootComponent(DbSession session, String uuid) {
     PurgeProfiler profiler = new PurgeProfiler();
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler);
     deleteRootComponent(uuid, mapper(session), purgeCommands);
-    return this;
   }
 
   private static void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
@@ -181,35 +174,31 @@ public class PurgeDao implements Dao {
   }
 
   /**
-   * Delete the non root components (ie. neither project nor view) from the specified collection of {@link ComponentDto}
+   * Delete the non root components (ie. sub-view, application or project copy) from the specified collection of {@link ComponentDto}
    * and data from their child tables.
    * <p>
    *   This method has no effect when passed an empty collection or only root components.
    * </p>
    */
-  public PurgeDao deleteNonRootComponents(DbSession dbSession, Collection<ComponentDto> components) {
+  public void deleteNonRootComponentsInView(DbSession dbSession, Collection<ComponentDto> components) {
     Set<ComponentDto> nonRootComponents = components.stream().filter(PurgeDao::isNotRoot).collect(MoreCollectors.toSet());
     if (nonRootComponents.isEmpty()) {
-      return this;
+      return;
     }
 
     PurgeProfiler profiler = new PurgeProfiler();
     PurgeCommands purgeCommands = new PurgeCommands(dbSession, profiler);
-    deleteNonRootComponents(nonRootComponents, purgeCommands);
-
-    return this;
+    deleteNonRootComponentsInView(nonRootComponents, purgeCommands);
   }
 
-  private static void deleteNonRootComponents(Set<ComponentDto> nonRootComponents, PurgeCommands purgeCommands) {
-    List<IdUuidPair> modulesOrSubviews = nonRootComponents.stream()
+  private static void deleteNonRootComponentsInView(Set<ComponentDto> nonRootComponents, PurgeCommands purgeCommands) {
+    List<IdUuidPair> subviewsOrProjectCopies = nonRootComponents.stream()
       .filter(PurgeDao::isModuleOrSubview)
       .map(PurgeDao::toIdUuidPair)
       .collect(MoreCollectors.toList());
-    purgeCommands.deleteByRootAndModulesOrSubviews(modulesOrSubviews);
+    purgeCommands.deleteByRootAndModulesOrSubviews(subviewsOrProjectCopies);
     List<String> nonRootComponentUuids = nonRootComponents.stream().map(ComponentDto::uuid).collect(MoreCollectors.toList(nonRootComponents.size()));
     purgeCommands.deleteComponentMeasures(nonRootComponentUuids);
-    purgeCommands.deleteFileSources(nonRootComponents.stream().filter(PurgeDao::isFile).map(ComponentDto::uuid).collect(MoreCollectors.toList()));
-    purgeCommands.deleteIssues(nonRootComponentUuids);
     purgeCommands.deleteComponents(nonRootComponentUuids);
   }
 
@@ -219,10 +208,6 @@ public class PurgeDao implements Dao {
 
   private static boolean isModuleOrSubview(ComponentDto dto) {
     return SCOPE_PROJECT.equals(dto.scope()) && QUALIFIERS_MODULE_SUBVIEW.contains(dto.qualifier());
-  }
-
-  private static boolean isFile(ComponentDto dto) {
-    return SCOPE_FILE.equals(dto.qualifier()) && ImmutableSet.of(QUALIFIER_FILE, QUALIFIER_UNIT_TEST).contains(dto.qualifier());
   }
 
   private static IdUuidPair toIdUuidPair(ComponentDto dto) {
