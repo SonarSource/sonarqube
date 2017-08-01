@@ -31,7 +31,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
@@ -55,7 +54,7 @@ public class DefaultPostJobContextTest {
   public void setUp() throws IOException {
     issueCache = mock(IssueCache.class);
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule("foo", temp.newFolder());
-    componentStore = new InputComponentStore(new PathResolver(), rootModule);
+    componentStore = new InputComponentStore(rootModule);
     settings = new MapSettings();
     analysisMode = mock(AnalysisMode.class);
     context = new DefaultPostJobContext(settings.asConfig(), settings, issueCache, componentStore, analysisMode);

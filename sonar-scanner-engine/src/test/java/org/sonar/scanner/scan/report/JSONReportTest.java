@@ -45,7 +45,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.scan.DefaultComponentTree;
@@ -83,7 +82,7 @@ public class JSONReportTest {
     DefaultComponentTree inputComponentTree = new DefaultComponentTree();
     ProjectDefinition def = ProjectDefinition.create().setBaseDir(projectBaseDir).setWorkDir(temp.newFolder()).setKey("struts");
     DefaultInputModule rootModule = new DefaultInputModule(def, 1);
-    InputComponentStore inputComponentStore = new InputComponentStore(new PathResolver(), rootModule);
+    InputComponentStore inputComponentStore = new InputComponentStore(rootModule);
 
     DefaultInputModule moduleA = new DefaultInputModule(ProjectDefinition.create().setKey("struts-core").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
     inputComponentTree.index(moduleA, rootModule);

@@ -19,27 +19,47 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.FileSystem;
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.utils.PathUtils;
 
 /**
- * @since 6.3
+ * @since 6.6
  */
-public class FilenamePredicate extends AbstractFilePredicate {
-  private final String filename;
+class URIPredicate extends AbstractFilePredicate {
 
-  public FilenamePredicate(String filename) {
-    this.filename = filename;
+  private final URI uri;
+  private final Path baseDir;
+
+  URIPredicate(URI uri, Path baseDir) {
+    this.baseDir = baseDir;
+    this.uri = uri;
   }
 
   @Override
-  public boolean apply(InputFile inputFile) {
-    return filename.equals(inputFile.filename());
+  public boolean apply(InputFile f) {
+    return uri.equals(f.uri());
   }
 
   @Override
-  public Iterable<InputFile> get(FileSystem.Index index) {
-    return index.getFilesByName(filename);
+  public Iterable<InputFile> get(Index index) {
+    Path path = Paths.get(uri);
+    String relative = PathUtils.sanitize(PathResolver.relativePath(baseDir, path));
+    if (relative == null) {
+      return Collections.emptyList();
+    }
+    InputFile f = index.inputFile(relative);
+    return f != null ? Arrays.asList(f) : Collections.<InputFile>emptyList();
   }
 
+  @Override
+  public int priority() {
+    return USE_INDEX;
+  }
 }

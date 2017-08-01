@@ -185,7 +185,7 @@ public class FileIndexer {
     }
     String parentRelativePath = getParentRelativePath(inputFile);
     synchronized (this) {
-      indexParentDir(inputFile, parentRelativePath);
+      indexFileAndParentDir(inputFile, parentRelativePath);
       progress.markAsIndexed(inputFile);
     }
     LOG.debug("'{}' indexed {}with language '{}'", relativePathStr, type == Type.TEST ? "as test " : "", inputFile.language());
@@ -202,7 +202,7 @@ public class FileIndexer {
     return relativePath;
   }
 
-  private void indexParentDir(InputFile inputFile, String parentRelativePath) {
+  private void indexFileAndParentDir(InputFile inputFile, String parentRelativePath) {
     DefaultInputDir inputDir = (DefaultInputDir) componentStore.getDir(module.key(), parentRelativePath);
     if (inputDir == null) {
       inputDir = new DefaultInputDir(module.key(), parentRelativePath, batchIdGenerator.get());

@@ -19,18 +19,16 @@
  */
 package org.sonar.scanner.scan;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.Arrays;
-
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ModuleIndexerTest {
   private ModuleIndexer indexer;
@@ -39,19 +37,19 @@ public class ModuleIndexerTest {
   private InputComponentStore componentStore;
 
   public void createIndexer(DefaultInputModule rootModule) {
-    componentStore = new InputComponentStore(new PathResolver(), rootModule);
+    componentStore = new InputComponentStore(rootModule);
     tree = new DefaultComponentTree();
     moduleHierarchy = mock(DefaultInputModuleHierarchy.class);
     indexer = new ModuleIndexer(tree, componentStore, moduleHierarchy);
   }
-  
+
   @Test
   public void testIndex() {
     ProjectDefinition rootDef = mock(ProjectDefinition.class);
     ProjectDefinition def = mock(ProjectDefinition.class);
     when(rootDef.getParent()).thenReturn(null);
     when(def.getParent()).thenReturn(rootDef);
-    
+
     DefaultInputModule root = mock(DefaultInputModule.class);
     DefaultInputModule mod1 = mock(DefaultInputModule.class);
     DefaultInputModule mod2 = mock(DefaultInputModule.class);
@@ -61,7 +59,7 @@ public class ModuleIndexerTest {
     when(mod1.key()).thenReturn("mod1");
     when(mod2.key()).thenReturn("mod2");
     when(mod3.key()).thenReturn("mod3");
-    
+
     when(root.getKeyWithBranch()).thenReturn("root");
     when(mod1.getKeyWithBranch()).thenReturn("mod1");
     when(mod2.getKeyWithBranch()).thenReturn("mod2");

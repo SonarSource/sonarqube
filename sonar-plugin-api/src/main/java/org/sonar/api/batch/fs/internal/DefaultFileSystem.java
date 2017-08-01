@@ -252,7 +252,7 @@ public class DefaultFileSystem implements FileSystem {
         languages.add(inputFile.language());
       }
       fileMap.put(inputFile.relativePath(), inputFile);
-      filesByNameCache.put(FilenamePredicate.getFilename(inputFile), inputFile);
+      filesByNameCache.put(inputFile.filename(), inputFile);
       filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
     }
 

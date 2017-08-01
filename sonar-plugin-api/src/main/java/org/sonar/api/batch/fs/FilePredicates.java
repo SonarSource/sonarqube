@@ -20,6 +20,7 @@
 package org.sonar.api.batch.fs;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Collection;
 
 /**
@@ -76,6 +77,13 @@ public interface FilePredicates {
    * @since 6.3
    */
   FilePredicate hasExtension(String s);
+
+  /**
+   * Predicate that gets a file by its {@link InputFile#uri()}.
+   * 
+   * @since 6.6
+   */
+  FilePredicate hasURI(URI uri);
 
   /**
    * Predicate that gets the files which relative or absolute path matches a wildcard pattern.

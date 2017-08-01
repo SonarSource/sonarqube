@@ -45,7 +45,7 @@ public class FileExtensionPredicate extends AbstractFilePredicate {
   }
 
   public static String getExtension(InputFile inputFile) {
-    return getExtension(FilenamePredicate.getFilename(inputFile));
+    return getExtension(inputFile.filename());
   }
 
   static String getExtension(String name) {

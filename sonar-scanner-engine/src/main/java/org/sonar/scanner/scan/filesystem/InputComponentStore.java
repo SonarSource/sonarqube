@@ -41,7 +41,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
-import org.sonar.api.batch.fs.internal.FilenamePredicate;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 /**
@@ -51,7 +50,6 @@ import org.sonar.api.scan.filesystem.PathResolver;
 @ScannerSide
 public class InputComponentStore {
 
-  private final PathResolver pathResolver;
   private final SortedSet<String> globalLanguagesCache = new TreeSet<>();
   private final Map<String, SortedSet<String>> languagesCache = new HashMap<>();
   private final Map<String, InputFile> globalInputFileCache = new HashMap<>();
@@ -65,8 +63,7 @@ public class InputComponentStore {
   private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
   private final InputModule root;
 
-  public InputComponentStore(PathResolver pathResolver, DefaultInputModule root) {
-    this.pathResolver = pathResolver;
+  public InputComponentStore(DefaultInputModule root) {
     this.root = root;
     this.put(root);
   }
@@ -129,7 +126,7 @@ public class InputComponentStore {
     inputFileCache.put(file.moduleKey(), inputFile.relativePath(), inputFile);
     globalInputFileCache.put(getProjectRelativePath(file), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
-    filesByNameCache.put(FilenamePredicate.getFilename(inputFile), inputFile);
+    filesByNameCache.put(inputFile.filename(), inputFile);
     filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
     return this;
   }
@@ -151,11 +148,11 @@ public class InputComponentStore {
   }
 
   private String getProjectRelativePath(DefaultInputFile file) {
-    return pathResolver.relativePath(getProjectBaseDir(), file.path());
+    return PathResolver.relativePath(getProjectBaseDir(), file.path());
   }
 
   private String getProjectRelativePath(DefaultInputDir dir) {
-    return pathResolver.relativePath(getProjectBaseDir(), dir.path());
+    return PathResolver.relativePath(getProjectBaseDir(), dir.path());
   }
 
   private Path getProjectBaseDir() {
