@@ -17,10 +17,9 @@ exports[`should display correctly for a file 1`] = `
     </span>
   </span>
   <div
-    className="measure-details-page-spinner"
+    className="measure-details-page-actions"
   >
     <DeferredSpinner
-      className="pull-right"
       loading={false}
       timeout={100}
     />
@@ -65,12 +64,31 @@ exports[`should display correctly for a project 1`] = `
     </span>
   </span>
   <div
-    className="measure-details-page-spinner"
+    className="measure-details-page-actions"
   >
     <DeferredSpinner
-      className="pull-right"
       loading={true}
       timeout={100}
+    />
+  </div>
+</div>
+`;
+
+exports[`should display the total of files 1`] = `
+<div
+  className="pull-right"
+>
+  <div
+    className="measure-details-page-actions"
+  >
+    <DeferredSpinner
+      loading={true}
+      timeout={100}
+    />
+    <FilesCounter
+      className="spacer-left"
+      current={12}
+      total={120}
     />
   </div>
 </div>
@@ -81,10 +99,9 @@ exports[`should not display shortcuts for treemap 1`] = `
   className="pull-right"
 >
   <div
-    className="measure-details-page-spinner"
+    className="measure-details-page-actions"
   >
     <DeferredSpinner
-      className="pull-right"
       loading={true}
       timeout={100}
     />

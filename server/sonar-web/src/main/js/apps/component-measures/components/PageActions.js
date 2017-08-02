@@ -20,11 +20,15 @@
 // @flow
 import React from 'react';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import FilesCounter from './FilesCounter';
 import { translate } from '../../../helpers/l10n';
+import type { Paging } from '../types';
 
 type Props = {|
+  current: ?number,
   loading: boolean,
   isFile: ?boolean,
+  paging: ?Paging,
   view: string
 |};
 
@@ -61,14 +65,20 @@ export default class PageActions extends React.PureComponent {
   }
 
   render() {
-    const { isFile, view } = this.props;
+    const { isFile, paging, view } = this.props;
     const showShortcuts = ['list', 'tree'].includes(view);
     return (
       <div className="pull-right">
         {!isFile && showShortcuts && this.renderShortcuts()}
         {isFile && this.renderFileShortcuts()}
-        <div className="measure-details-page-spinner">
-          <DeferredSpinner className="pull-right" loading={this.props.loading} />
+        <div className="measure-details-page-actions">
+          <DeferredSpinner loading={this.props.loading} />
+          {paging != null &&
+            <FilesCounter
+              className="spacer-left"
+              current={this.props.current}
+              total={paging.total}
+            />}
         </div>
       </div>
     );
