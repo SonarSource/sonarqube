@@ -99,6 +99,9 @@ export const groupByDomains = memoize((measures: Array<MeasureEnhanced>): Array<
   ]);
 });
 
+export const hasTreemap = (metricType: string): boolean =>
+  ['PERCENT', 'RATING', 'LEVEL'].includes(metricType);
+
 export const hasBubbleChart = (domainName: string): boolean => bubbles[domainName] != null;
 
 export const parseQuery = memoize((urlQuery: RawQuery): Query => ({

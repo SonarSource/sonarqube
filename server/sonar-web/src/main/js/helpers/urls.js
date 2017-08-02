@@ -62,10 +62,7 @@ export function getComponentIssuesUrlAsString(componentKey, query) {
  * @returns {Object}
  */
 export function getComponentDrilldownUrl(componentKey, metric) {
-  return {
-    pathname: `/component_measures_old/metric/${metric}`,
-    query: { id: componentKey }
-  };
+  return { pathname: '/component_measures', query: { id: componentKey, metric } };
 }
 
 /**

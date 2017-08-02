@@ -19,25 +19,20 @@
  */
 // @flow
 import React from 'react';
-import moment from 'moment';
 import ComponentsList from './ComponentsList';
 import ListFooter from '../../../../components/controls/ListFooter';
-import SourceViewer from '../../../../components/SourceViewer/SourceViewer';
 import { getComponentTree } from '../../../../api/components';
 import { complementary } from '../../config/complementary';
-import { isDiffMetric } from '../../../../helpers/measures';
 import { enhanceComponent } from '../../utils';
-import type { Component, ComponentEnhanced, Paging, Period } from '../../types';
+import { isDiffMetric } from '../../../../helpers/measures';
+import type { Component, ComponentEnhanced, Paging } from '../../types';
 import type { Metric } from '../../../../store/metrics/actions';
 
 type Props = {
   component: Component,
   handleSelect: Component => void,
-  leakPeriod?: Period,
-  loading: boolean,
   metric: Metric,
   metrics: { [string]: Metric },
-  selectedComponent: ?string,
   updateLoading: ({ [string]: boolean }) => void
 };
 
@@ -94,11 +89,7 @@ export default class ListView extends React.PureComponent {
     return { metricKeys, opts: { ...opts, ...options } };
   };
 
-  fetchComponents = ({ component, metric, selectedComponent }: Props) => {
-    if (selectedComponent) {
-      this.setState({ metric });
-      return;
-    }
+  fetchComponents = ({ component, metric }: Props) => {
     const { metricKeys, opts } = this.getComponentRequestParams(metric);
     this.props.updateLoading({ components: true });
     getComponentTree('leaves', component.key, metricKeys, opts).then(
@@ -148,29 +139,6 @@ export default class ListView extends React.PureComponent {
     const { components, metric, paging } = this.state;
     if (metric == null) {
       return null;
-    }
-
-    const { leakPeriod, selectedComponent } = this.props;
-    if (selectedComponent) {
-      const leakPeriodDate =
-        isDiffMetric(metric.key) && leakPeriod != null ? moment(leakPeriod.date).toDate() : null;
-
-      let filterLine;
-      if (leakPeriodDate != null) {
-        filterLine = line => {
-          if (line.scmDate) {
-            const scmDate = moment(line.scmDate).toDate();
-            return scmDate >= leakPeriodDate;
-          } else {
-            return false;
-          }
-        };
-      }
-      return (
-        <div className="measure-details-viewer">
-          <SourceViewer component={selectedComponent} filterLine={filterLine} />
-        </div>
-      );
     }
 
     return (
