@@ -126,7 +126,7 @@ public abstract class AbstractPhaseExecutor {
       eventBus.fireEvent(new BatchStepEvent(stepName, true));
 
       for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
-        issueExclusionsLoader.addMulticriteriaPatterns(inputFile.relativePath(), inputFile.key());
+        issueExclusionsLoader.addMulticriteriaPatterns(((DefaultInputFile) inputFile).getModuleRelativePath(), inputFile.key());
       }
 
       eventBus.fireEvent(new BatchStepEvent(stepName, false));

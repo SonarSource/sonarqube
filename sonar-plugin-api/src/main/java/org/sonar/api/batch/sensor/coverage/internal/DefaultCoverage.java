@@ -90,7 +90,7 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
   }
 
   private void validateLine(int line) {
-    checkState(line <= inputFile.lines(), "Line %s is out of range in the file %s (lines: %s)", line, inputFile.relativePath(), inputFile.lines());
+    checkState(line <= inputFile.lines(), "Line %s is out of range in the file %s (lines: %s)", line, inputFile, inputFile.lines());
     checkState(line > 0, "Line number must be strictly positive: %s", line);
   }
 

@@ -341,18 +341,17 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-
-    // Use instanceof to support DeprecatedDefaultInputFile
-    if (!(o instanceof DefaultInputFile)) {
+  public boolean equals(Object obj) {
+    if (obj == null) {
       return false;
     }
 
-    DefaultInputFile that = (DefaultInputFile) o;
-    return this.moduleKey().equals(that.moduleKey()) && this.relativePath().equals(that.relativePath());
+    if (this.getClass() != obj.getClass()) {
+      return false;
+    }
+
+    DefaultInputFile that = (DefaultInputFile) obj;
+    return this.getProjectRelativePath().equals(that.getProjectRelativePath());
   }
 
   @Override
