@@ -80,6 +80,9 @@ export const enhanceComponent = (component: Component, metric: Metric): Componen
   return { ...component, value, leak, measures: enhancedMeasures };
 };
 
+export const isFileType = (component: Component): boolean =>
+  ['FIL', 'UTS'].includes(component.qualifier);
+
 export const groupByDomains = memoize((measures: Array<MeasureEnhanced>): Array<{
   name: string,
   measures: Array<MeasureEnhanced>

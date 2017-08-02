@@ -22,69 +22,60 @@ import React from 'react';
 import moment from 'moment';
 import Breadcrumbs from './Breadcrumbs';
 import Favorite from '../../../components/controls/Favorite';
-import ListView from './drilldown/ListView';
+import FilesView from './drilldown/FilesView';
 import MeasureHeader from './MeasureHeader';
 import MeasureViewSelect from './MeasureViewSelect';
 import MetricNotFound from './MetricNotFound';
 import PageActions from './PageActions';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import { getComponentTree } from '../../../api/components';
+import { complementary } from '../config/complementary';
+import { enhanceComponent, isFileType } from '../utils';
 import { isDiffMetric } from '../../../helpers/measures';
-import type { Component, Period, Query } from '../types';
+import type { Component, ComponentEnhanced, Paging, Period } from '../types';
 import type { MeasureEnhanced } from '../../../components/measure/types';
 import type { Metric } from '../../../store/metrics/actions';
 
 type Props = {
   className?: string,
+  component: Component,
   currentUser: { isLoggedIn: boolean },
-  rootComponent: Component,
-  fetchMeasures: (
-    Component,
-    Array<string>
-  ) => Promise<{ component: Component, measures: Array<MeasureEnhanced> }>,
+  loading: boolean,
   leakPeriod?: Period,
+  measure: ?MeasureEnhanced,
   metric: Metric,
   metrics: { [string]: Metric },
-  selected: ?string,
-  updateQuery: Query => void,
+  rootComponent: Component,
+  secondaryMeasure: ?MeasureEnhanced,
+  updateLoading: ({ [string]: boolean }) => void,
+  updateSelected: Component => void,
+  updateView: string => void,
   view: string
 };
 
 type State = {
-  component: ?Component,
-  loading: {
-    measure: boolean,
-    components: boolean
-  },
-  measure: ?MeasureEnhanced,
-  secondaryMeasure: ?MeasureEnhanced
+  components: Array<ComponentEnhanced>,
+  metric: ?Metric,
+  paging?: Paging
 };
 
 export default class MeasureContent extends React.PureComponent {
   mounted: boolean;
   props: Props;
   state: State = {
-    component: null,
-    loading: {
-      measure: false,
-      components: false
-    },
-    measure: null,
-    secondaryMeasure: null
+    components: [],
+    metric: null,
+    paging: null
   };
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchMeasure(this.props);
+    this.fetchComponents(this.props);
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { component } = this.state;
-    const componentChanged =
-      !component ||
-      nextProps.rootComponent.key !== component.key ||
-      nextProps.selected !== component.key;
-    if (componentChanged || nextProps.metric !== this.props.metric) {
-      this.fetchMeasure(nextProps);
+    if (nextProps.component !== this.props.component || nextProps.metric !== this.props.metric) {
+      this.fetchComponents(nextProps);
     }
   }
 
@@ -92,56 +83,89 @@ export default class MeasureContent extends React.PureComponent {
     this.mounted = false;
   }
 
-  fetchMeasure = ({ rootComponent, fetchMeasures, metric, selected }: Props) => {
-    this.updateLoading({ measure: true });
+  getComponentRequestParams = (metric: Metric, options: Object = {}) => {
+    const metricKeys = [metric.key, ...(complementary[metric.key] || [])];
+    let opts: Object = {
+      asc: metric.direction === 1,
+      ps: 100,
+      metricSortFilter: 'withMeasuresOnly',
+      metricSort: metric.key
+    };
+    if (isDiffMetric(metric.key)) {
+      opts = {
+        ...opts,
+        s: 'metricPeriod,name',
+        metricPeriodSort: 1
+      };
+    } else {
+      opts = {
+        ...opts,
+        s: 'metric,name'
+      };
+    }
+    return { metricKeys, opts: { ...opts, ...options } };
+  };
 
-    const metricKeys = [metric.key];
-    if (metric.key === 'ncloc') {
-      metricKeys.push('ncloc_language_distribution');
-    } else if (metric.key === 'function_complexity') {
-      metricKeys.push('function_complexity_distribution');
-    } else if (metric.key === 'file_complexity') {
-      metricKeys.push('file_complexity_distribution');
+  fetchComponents = ({ component, metric, view }: Props) => {
+    if (isFileType(component)) {
+      return this.setState({ components: [], metric: null, paging: null });
     }
 
-    fetchMeasures(selected || rootComponent.key, metricKeys).then(
-      ({ component, measures }) => {
+    const strategy = view === 'list' ? 'leaves' : 'children';
+    const { metricKeys, opts } = this.getComponentRequestParams(metric);
+    this.props.updateLoading({ components: true });
+    getComponentTree(strategy, component.key, metricKeys, opts).then(
+      r => {
         if (this.mounted) {
-          const measure = measures.find(measure => measure.metric.key === metric.key);
-          const secondaryMeasure = measures.find(measure => measure.metric.key !== metric.key);
-          this.setState({ component, measure, secondaryMeasure });
-          this.updateLoading({ measure: false });
+          this.setState({
+            components: r.components.map(component => enhanceComponent(component, metric)),
+            metric,
+            paging: r.paging
+          });
         }
+        this.props.updateLoading({ components: false });
       },
-      () => this.updateLoading({ measure: false })
+      () => this.props.updateLoading({ components: false })
     );
   };
 
-  handleSelect = (component: Component) =>
-    this.props.updateQuery({
-      selected: component.key !== this.props.rootComponent.key ? component.key : null
-    });
-
-  updateLoading = (loading: { [string]: boolean }) => {
-    if (this.mounted) {
-      this.setState(state => ({ loading: { ...state.loading, ...loading } }));
+  fetchMoreComponents = () => {
+    const { component, metric, view } = this.props;
+    const { paging } = this.state;
+    if (!paging) {
+      return;
     }
+    const strategy = view === 'list' ? 'leaves' : 'children';
+    const { metricKeys, opts } = this.getComponentRequestParams(metric, {
+      p: paging.pageIndex + 1
+    });
+    this.props.updateLoading({ components: true });
+    getComponentTree(strategy, component.key, metricKeys, opts).then(
+      r => {
+        if (this.mounted) {
+          this.setState(state => ({
+            components: [
+              ...state.components,
+              ...r.components.map(component => enhanceComponent(component, metric))
+            ],
+            metric,
+            paging: r.paging
+          }));
+        }
+        this.props.updateLoading({ components: false });
+      },
+      () => this.props.updateLoading({ components: false })
+    );
   };
 
-  updateView = (view: string) => this.props.updateQuery({ view });
-
   renderContent() {
-    const { component } = this.state;
-    if (!component) {
-      return null;
-    }
+    const { component, leakPeriod, view } = this.props;
 
-    const { leakPeriod, metric, rootComponent, view } = this.props;
-    const isFile = component.key !== rootComponent.key && component.qualifier === 'FIL';
-
-    if (isFile) {
+    if (isFileType(component)) {
       const leakPeriodDate =
-        isDiffMetric(metric.key) && leakPeriod != null ? moment(leakPeriod.date).toDate() : null;
+        isDiffMetric(this.props.metric.key) && leakPeriod != null
+          ? moment(leakPeriod.date).toDate()
+          : null;
 
       let filterLine;
       if (leakPeriodDate != null) {
@@ -161,38 +185,40 @@ export default class MeasureContent extends React.PureComponent {
       );
     }
 
-    if (view === 'list') {
+    const { metric } = this.state;
+    if (metric == null) {
+      return null;
+    }
+
+    if (['list', 'tree'].includes(view)) {
       return (
-        <ListView
-          component={component}
-          handleSelect={this.handleSelect}
+        <FilesView
+          components={this.state.components}
+          fetchMore={this.fetchMoreComponents}
+          handleSelect={this.props.updateSelected}
           metric={metric}
           metrics={this.props.metrics}
-          updateLoading={this.updateLoading}
+          paging={this.state.paging}
         />
       );
     }
   }
 
   render() {
-    const { currentUser, metric, rootComponent, view } = this.props;
-    const { component, loading, measure } = this.state;
+    const { component, currentUser, measure, metric, rootComponent, view } = this.props;
     const isLoggedIn = currentUser && currentUser.isLoggedIn;
     return (
-      <div className="layout-page-main">
+      <div className={this.props.className}>
         <div className="layout-page-header-panel layout-page-main-header issues-main-header">
           <div className="layout-page-header-panel-inner layout-page-main-header-inner">
             <div className="layout-page-main-inner clearfix">
-              {component &&
-                <Breadcrumbs
-                  className="measure-breadcrumbs spacer-right text-ellipsis"
-                  component={component}
-                  handleSelect={this.handleSelect}
-                  rootComponent={rootComponent}
-                  view={view}
-                />}
-              {component &&
-                component.key !== rootComponent.key &&
+              <Breadcrumbs
+                className="measure-breadcrumbs spacer-right text-ellipsis"
+                component={component}
+                handleSelect={this.props.updateSelected}
+                rootComponent={rootComponent}
+              />
+              {component.key !== rootComponent.key &&
                 isLoggedIn &&
                 <Favorite
                   favorite={component.isFavorite === true}
@@ -201,13 +227,15 @@ export default class MeasureContent extends React.PureComponent {
                 />}
               <MeasureViewSelect
                 className="measure-view-select"
-                metric={this.props.metric}
-                handleViewChange={this.updateView}
+                metric={metric}
+                handleViewChange={this.props.updateView}
                 view={view}
               />
               <PageActions
-                loading={loading.measure || loading.components}
-                isFile={component && component.qualifier === 'FIL'}
+                current={this.state.components.length}
+                loading={this.props.loading}
+                isFile={isFileType(component)}
+                paging={this.state.paging}
                 view={view}
               />
             </div>
@@ -217,14 +245,12 @@ export default class MeasureContent extends React.PureComponent {
         {metric != null &&
           measure != null &&
           <div className="layout-page-main-inner">
-            {component &&
-              <MeasureHeader
-                component={component}
-                leakPeriod={this.props.leakPeriod}
-                measure={measure}
-                secondaryMeasure={this.state.secondaryMeasure}
-                updateQuery={this.props.updateQuery}
-              />}
+            <MeasureHeader
+              component={component}
+              leakPeriod={this.props.leakPeriod}
+              measure={measure}
+              secondaryMeasure={this.props.secondaryMeasure}
+            />
             {this.renderContent()}
           </div>}
       </div>

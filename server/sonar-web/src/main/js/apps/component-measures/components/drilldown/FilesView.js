@@ -17,32 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
-import { shallow } from 'enzyme';
-import PageActions from '../PageActions';
+import ComponentsList from './ComponentsList';
+import ListFooter from '../../../../components/controls/ListFooter';
+import type { Component, ComponentEnhanced, Paging } from '../../types';
+import type { Metric } from '../../../../store/metrics/actions';
 
-it('should display correctly for a project', () => {
-  expect(shallow(<PageActions loading={true} isFile={false} view="list" />)).toMatchSnapshot();
-});
+type Props = {
+  components: Array<ComponentEnhanced>,
+  fetchMore: () => void,
+  handleSelect: Component => void,
+  metric: Metric,
+  metrics: { [string]: Metric },
+  paging: ?Paging
+};
 
-it('should display correctly for a file', () => {
-  expect(shallow(<PageActions loading={false} isFile={true} view="tree" />)).toMatchSnapshot();
-});
-
-it('should not display shortcuts for treemap', () => {
-  expect(shallow(<PageActions loading={true} isFile={false} view="treemap" />)).toMatchSnapshot();
-});
-
-it('should display the total of files', () => {
-  expect(
-    shallow(
-      <PageActions
-        current={12}
-        loading={true}
-        isFile={false}
-        view="treemap"
-        paging={{ total: 120 }}
+export default function ListView(props: Props) {
+  return (
+    <div>
+      <ComponentsList
+        components={props.components}
+        metrics={props.metrics}
+        metric={props.metric}
+        onClick={props.handleSelect}
       />
-    )
-  ).toMatchSnapshot();
-});
+      {props.paging &&
+        <ListFooter
+          count={props.components.length}
+          total={props.paging.total}
+          loadMore={props.fetchMore}
+        />}
+    </div>
+  );
+}

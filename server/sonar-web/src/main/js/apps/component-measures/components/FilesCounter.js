@@ -17,32 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
-import { shallow } from 'enzyme';
-import PageActions from '../PageActions';
+import { translate } from '../../../helpers/l10n';
+import { formatMeasure } from '../../../helpers/measures';
 
-it('should display correctly for a project', () => {
-  expect(shallow(<PageActions loading={true} isFile={false} view="list" />)).toMatchSnapshot();
-});
+type Props = {
+  className?: string,
+  current: ?number,
+  total: number
+};
 
-it('should display correctly for a file', () => {
-  expect(shallow(<PageActions loading={false} isFile={true} view="tree" />)).toMatchSnapshot();
-});
-
-it('should not display shortcuts for treemap', () => {
-  expect(shallow(<PageActions loading={true} isFile={false} view="treemap" />)).toMatchSnapshot();
-});
-
-it('should display the total of files', () => {
-  expect(
-    shallow(
-      <PageActions
-        current={12}
-        loading={true}
-        isFile={false}
-        view="treemap"
-        paging={{ total: 120 }}
-      />
-    )
-  ).toMatchSnapshot();
-});
+export default function FilesCounter({ className, current, total }: Props) {
+  return (
+    <span className={className}>
+      <strong>
+        {current != null &&
+          <span>
+            {formatMeasure(current, 'INT')}
+            {' / '}
+          </span>}
+        {formatMeasure(total, 'INT')}
+      </strong>{' '}
+      {translate('component_measures.files')}
+    </span>
+  );
+}
