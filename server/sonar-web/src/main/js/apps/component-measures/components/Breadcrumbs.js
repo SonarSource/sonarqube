@@ -23,13 +23,12 @@ import Breadcrumb from './Breadcrumb';
 import { getBreadcrumbs } from '../../../api/components';
 import type { Component } from '../types';
 
-type Props = {
+type Props = {|
   className?: string,
   component: Component,
   handleSelect: Component => void,
-  rootComponent: Component,
-  view: string
-};
+  rootComponent: Component
+|};
 
 type State = {
   breadcrumbs: Array<Component>
@@ -57,9 +56,9 @@ export default class Breadcrumbs extends React.PureComponent {
     this.mounted = false;
   }
 
-  fetchBreadcrumbs = ({ component, rootComponent, view }: Props) => {
+  fetchBreadcrumbs = ({ component, rootComponent }: Props) => {
     const isRoot = component.key === rootComponent.key;
-    if (isRoot || view === 'list') {
+    if (isRoot) {
       if (this.mounted) {
         this.setState({ breadcrumbs: isRoot ? [component] : [rootComponent, component] });
       }
