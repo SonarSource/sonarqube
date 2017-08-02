@@ -16,6 +16,13 @@
   white-space: nowrap;
 }
 
+.measure-details-page-spinner {
+  display: inline-block;
+  min-width: 20px;
+  text-align: right;
+  vertical-align: text-bottom;
+}
+
 .measure-details-header {
   display: flex;
   flex-wrap: nowrap;
@@ -38,6 +45,14 @@
   margin-top: -10px;
 }
 
+.measure-details-component-cell {
+  max-width: 0;
+}
+
+.measure-details-component-cell > div {
+  max-width: 100%;
+}
+
 .domain-measures-value .rating,
 .measure-details-value .rating {
   width: 18px;
@@ -46,4 +61,23 @@
   margin-top: -2px;
   margin-bottom: -2px;
   font-size: 12px;
+}
+
+.measure-view-select {
+  width: 50px;
+}
+
+.measure-view-select .Select-menu-outer {
+  width: 100px;
+  border-top-right-radius: 4px;
+}
+
+.measure-breadcrumbs {
+  display: inline-block;
+  max-width: 60%;
+  vertical-align: middle;
+}
+
+.measure-favorite svg {
+  vertical-align: middle;
 }

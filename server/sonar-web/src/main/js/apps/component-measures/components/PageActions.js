@@ -19,16 +19,13 @@
  */
 // @flow
 import React from 'react';
-import IssuesCounter from './IssuesCounter';
-import ReloadButton from './ReloadButton';
-import type { Paging } from '../utils';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {|
   loading: boolean,
-  onReload: () => void,
-  paging: ?Paging,
-  selectedIndex: ?number
+  isFile: ?boolean,
+  view: string
 |};
 
 export default class PageActions extends React.PureComponent {
@@ -40,30 +37,38 @@ export default class PageActions extends React.PureComponent {
         <span className="big-spacer-right">
           <span className="shortcut-button little-spacer-right">↑</span>
           <span className="shortcut-button little-spacer-right">↓</span>
-          {translate('issues.to_select_issues')}
+          {translate('component_measures.to_select_files')}
         </span>
 
         <span>
           <span className="shortcut-button little-spacer-right">←</span>
           <span className="shortcut-button little-spacer-right">→</span>
-          {translate('issues.to_navigate')}
+          {translate('component_measures.to_navigate')}
+        </span>
+      </span>
+    );
+  }
+
+  renderFileShortcuts() {
+    return (
+      <span className="note big-spacer-right">
+        <span>
+          <span className="shortcut-button little-spacer-right">←</span>
+          {translate('component_measures.to_navigate_back')}
         </span>
       </span>
     );
   }
 
   render() {
-    const { paging, selectedIndex } = this.props;
-
+    const { isFile, view } = this.props;
+    const showShortcuts = ['list', 'tree'].includes(view);
     return (
       <div className="pull-right">
-        {this.renderShortcuts()}
-
-        <div className="issues-page-actions">
-          {this.props.loading
-            ? <i className="issues-main-header-spinner spinner spacer-right" />
-            : <ReloadButton className="spacer-right" onClick={this.props.onReload} />}
-          {paging != null && <IssuesCounter current={selectedIndex} total={paging.total} />}
+        {!isFile && showShortcuts && this.renderShortcuts()}
+        {isFile && this.renderFileShortcuts()}
+        <div className="measure-details-page-spinner">
+          <DeferredSpinner className="pull-right" loading={this.props.loading} />
         </div>
       </div>
     );

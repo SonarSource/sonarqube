@@ -63,7 +63,7 @@ export default class DomainFacet extends React.PureComponent {
                 disabled={false}
                 key={measure.metric.key}
                 name={
-                  <Tooltip overlay={getLocalizedMetricName(measure.metric)} mouseEnterDelay={1}>
+                  <Tooltip overlay={getLocalizedMetricName(measure.metric)} mouseEnterDelay={0.5}>
                     <span id={`measure-${measure.metric.key}-name`}>
                       <IssueTypeIcon query={measure.metric.key} className="little-spacer-right" />
                       {getLocalizedMetricName(measure.metric)}

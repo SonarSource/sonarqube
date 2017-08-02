@@ -82,6 +82,7 @@ exports[`should render correctly 1`] = `
     }
     selected=""
     updateQuery={[Function]}
+    view="list"
   />
 </div>
 `;
