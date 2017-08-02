@@ -24,10 +24,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.PathUtils;
 
 /**
  * @since 6.6
@@ -50,11 +50,11 @@ class URIPredicate extends AbstractFilePredicate {
   @Override
   public Iterable<InputFile> get(Index index) {
     Path path = Paths.get(uri);
-    String relative = PathUtils.sanitize(PathResolver.relativePath(baseDir, path));
-    if (relative == null) {
+    Optional<String> relative = PathResolver.relativize(baseDir, path);
+    if (!relative.isPresent()) {
       return Collections.emptyList();
     }
-    InputFile f = index.inputFile(relative);
+    InputFile f = index.inputFile(relative.get());
     return f != null ? Arrays.asList(f) : Collections.<InputFile>emptyList();
   }
 
