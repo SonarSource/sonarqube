@@ -35,8 +35,8 @@ exports[`should render correctly 1`] = `
       </div>
     </div>
   </div>
-  <MeasureContent
-    className="layout-page-main-inner"
+  <MeasureContentContainer
+    className="layout-page-main"
     fetchMeasures={[Function]}
     leakPeriod={null}
     metric={

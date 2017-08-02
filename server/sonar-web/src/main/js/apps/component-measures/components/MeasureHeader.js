@@ -32,12 +32,12 @@ import { isDiffMetric } from '../../../helpers/measures';
 import type { Component, Period } from '../types';
 import type { MeasureEnhanced } from '../../../components/measure/types';
 
-type Props = {
+type Props = {|
   component: Component,
   leakPeriod?: Period,
   measure: MeasureEnhanced,
   secondaryMeasure: ?MeasureEnhanced
-};
+|};
 
 export default function MeasureHeader({ component, leakPeriod, measure, secondaryMeasure }: Props) {
   const metric = measure.metric;

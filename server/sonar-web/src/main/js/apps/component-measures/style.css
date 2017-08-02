@@ -16,10 +16,13 @@
   white-space: nowrap;
 }
 
-.measure-details-page-spinner {
+.measure-details-page-actions {
   display: inline-block;
-  min-width: 20px;
+  min-width: 80px;
   text-align: right;
+}
+
+.measure-details-page-actions .spinner {
   vertical-align: text-bottom;
 }
 
