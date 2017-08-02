@@ -24,6 +24,7 @@ import App from './App';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import {
   getComponent,
+  getCurrentUser,
   getMetrics,
   getMetricByKey,
   getMetricsKey
@@ -37,6 +38,7 @@ import type { Measure, MeasureEnhanced } from '../../../components/measure/types
 
 const mapStateToProps = (state, ownProps) => ({
   component: getComponent(state, ownProps.location.query.id),
+  currentUser: getCurrentUser(state),
   metrics: getMetrics(state),
   metricsKey: getMetricsKey(state)
 });

@@ -42,6 +42,7 @@ type Props = {
 export default function MeasureHeader({ component, leakPeriod, measure, secondaryMeasure }: Props) {
   const metric = measure.metric;
   const isDiff = isDiffMetric(metric.key);
+  const hasHistory = ['TRK', 'VW', 'SVW', 'APP'].includes(component.qualifier);
   return (
     <div className="measure-details-header big-spacer-bottom">
       <div className="measure-details-metric">
@@ -55,6 +56,7 @@ export default function MeasureHeader({ component, leakPeriod, measure, secondar
           </strong>
         </span>
         {!isDiff &&
+          hasHistory &&
           <Tooltip placement="right" overlay={translate('component_measures.show_metric_history')}>
             <Link
               className="js-show-history spacer-left button button-small button-compact"

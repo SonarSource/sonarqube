@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly for a file 1`] = `
+<div
+  className="pull-right"
+>
+  <span
+    className="note big-spacer-right"
+  >
+    <span>
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        ←
+      </span>
+      component_measures.to_navigate_back
+    </span>
+  </span>
+  <div
+    className="measure-details-page-spinner"
+  >
+    <DeferredSpinner
+      className="pull-right"
+      loading={false}
+      timeout={100}
+    />
+  </div>
+</div>
+`;
+
+exports[`should display correctly for a project 1`] = `
+<div
+  className="pull-right"
+>
+  <span
+    className="note big-spacer-right"
+  >
+    <span
+      className="big-spacer-right"
+    >
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        ↑
+      </span>
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        ↓
+      </span>
+      component_measures.to_select_files
+    </span>
+    <span>
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        ←
+      </span>
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        →
+      </span>
+      component_measures.to_navigate
+    </span>
+  </span>
+  <div
+    className="measure-details-page-spinner"
+  >
+    <DeferredSpinner
+      className="pull-right"
+      loading={true}
+      timeout={100}
+    />
+  </div>
+</div>
+`;
+
+exports[`should not display shortcuts for treemap 1`] = `
+<div
+  className="pull-right"
+>
+  <div
+    className="measure-details-page-spinner"
+  >
+    <DeferredSpinner
+      className="pull-right"
+      loading={true}
+      timeout={100}
+    />
+  </div>
+</div>
+`;

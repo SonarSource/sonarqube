@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly for the list view 1`] = `
+<Breadcrumbs
+  component={
+    Object {
+      "key": "bar",
+      "name": "Bar",
+    }
+  }
+  handleSelect={[Function]}
+  rootComponent={
+    Object {
+      "key": "foo",
+      "name": "Foo",
+    }
+  }
+  view="list"
+>
+  <div>
+    <Breadcrumb
+      canBrowse={true}
+      component={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+        }
+      }
+      handleSelect={[Function]}
+      isLast={false}
+    >
+      <span>
+        <a
+          href="#"
+          onClick={[Function]}
+        >
+          Foo
+        </a>
+        <span
+          className="slash-separator"
+        />
+      </span>
+    </Breadcrumb>
+    <Breadcrumb
+      canBrowse={false}
+      component={
+        Object {
+          "key": "bar",
+          "name": "Bar",
+        }
+      }
+      handleSelect={[Function]}
+      isLast={true}
+    >
+      <span>
+        <span>
+          Bar
+        </span>
+      </span>
+    </Breadcrumb>
+  </div>
+</Breadcrumbs>
+`;
+
+exports[`should display only the root component 1`] = `
+Object {
+  "breadcrumbs": Array [
+    Object {
+      "key": "foo",
+      "name": "Foo",
+    },
+  ],
+}
+`;
+
+exports[`should load the breadcrumb from the api 1`] = `
+Object {
+  "breadcrumbs": Array [
+    Object {
+      "key": "anc1",
+      "name": "Ancestor1",
+    },
+    Object {
+      "key": "anc2",
+      "name": "Ancestor2",
+    },
+    Object {
+      "key": "bar",
+      "name": "Bar",
+    },
+  ],
+}
+`;

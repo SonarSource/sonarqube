@@ -103,10 +103,9 @@ export function splitPath(path) {
   }
 }
 
-export function limitComponentName(str) {
+export function limitComponentName(str, limit = 30) {
   if (typeof str === 'string') {
-    const LIMIT = 30;
-    return str.length > LIMIT ? str.substr(0, LIMIT) + '...' : str;
+    return str.length > limit ? str.substr(0, limit) + '...' : str;
   } else {
     return '';
   }

@@ -1,0 +1,81 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly with treemap option 1`] = `
+<Select
+  addLabelText="Add \\"{label}\\"?"
+  arrowRenderer={[Function]}
+  autosize={true}
+  backspaceRemoves={true}
+  backspaceToRemoveMessage="Press backspace to remove {label}"
+  clearAllText="Clear all"
+  clearRenderer={[Function]}
+  clearValueText="Clear value"
+  clearable={false}
+  deleteRemoves={true}
+  delimiter=","
+  disabled={false}
+  escapeClearsValue={true}
+  filterOptions={[Function]}
+  ignoreAccents={true}
+  ignoreCase={true}
+  inputProps={Object {}}
+  isLoading={false}
+  joinValues={false}
+  labelKey="label"
+  matchPos="any"
+  matchProp="any"
+  menuBuffer={0}
+  menuRenderer={[Function]}
+  multi={false}
+  noResultsText="No results found"
+  onBlurResetsInput={true}
+  onChange={[Function]}
+  onCloseResetsInput={true}
+  optionComponent={[Function]}
+  options={
+    Array [
+      Object {
+        "icon": <ListIcon />,
+        "label": <div>
+          <ListIcon
+                className="little-spacer-right"
+          />
+          component_measures.tab.list
+    </div>,
+        "value": "list",
+      },
+      Object {
+        "icon": <TreeIcon />,
+        "label": <div>
+          <TreeIcon
+                className="little-spacer-right"
+          />
+          component_measures.tab.tree
+    </div>,
+        "value": "tree",
+      },
+      Object {
+        "icon": <TreemapIcon />,
+        "label": <div>
+          <TreemapIcon
+                className="little-spacer-right"
+          />
+          component_measures.tab.treemap
+    </div>,
+        "value": "treemap",
+      },
+    ]
+  }
+  pageSize={5}
+  placeholder="Select..."
+  required={false}
+  scrollMenuIntoView={true}
+  searchable={false}
+  simpleValue={false}
+  tabSelectsValue={true}
+  value="tree"
+  valueComponent={[Function]}
+  valueKey="value"
+  valueRenderer={[Function]}
+/>
+`;
