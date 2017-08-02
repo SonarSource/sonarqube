@@ -19,16 +19,23 @@
  */
 // @flow
 import React from 'react';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import moment from 'moment';
+import Breadcrumbs from './Breadcrumbs';
+import Favorite from '../../../components/controls/Favorite';
 import ListView from './drilldown/ListView';
 import MeasureHeader from './MeasureHeader';
+import MeasureViewSelect from './MeasureViewSelect';
 import MetricNotFound from './MetricNotFound';
+import PageActions from './PageActions';
+import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import { isDiffMetric } from '../../../helpers/measures';
 import type { Component, Period, Query } from '../types';
 import type { MeasureEnhanced } from '../../../components/measure/types';
 import type { Metric } from '../../../store/metrics/actions';
 
 type Props = {
   className?: string,
+  currentUser: { isLoggedIn: boolean },
   rootComponent: Component,
   fetchMeasures: (
     Component,
@@ -38,7 +45,8 @@ type Props = {
   metric: Metric,
   metrics: { [string]: Metric },
   selected: ?string,
-  updateQuery: Query => void
+  updateQuery: Query => void,
+  view: string
 };
 
 type State = {
@@ -109,7 +117,10 @@ export default class MeasureContent extends React.PureComponent {
     );
   };
 
-  handleSelect = (component: Component) => this.props.updateQuery({ selected: component.key });
+  handleSelect = (component: Component) =>
+    this.props.updateQuery({
+      selected: component.key !== this.props.rootComponent.key ? component.key : null
+    });
 
   updateLoading = (loading: { [string]: boolean }) => {
     if (this.mounted) {
@@ -117,43 +128,105 @@ export default class MeasureContent extends React.PureComponent {
     }
   };
 
-  render() {
-    const { metric } = this.props;
-    const { loading, measure } = this.state;
+  updateView = (view: string) => this.props.updateQuery({ view });
 
+  renderContent() {
+    const { component } = this.state;
+    if (!component) {
+      return null;
+    }
+
+    const { leakPeriod, metric, rootComponent, view } = this.props;
+    const isFile = component.key !== rootComponent.key && component.qualifier === 'FIL';
+
+    if (isFile) {
+      const leakPeriodDate =
+        isDiffMetric(metric.key) && leakPeriod != null ? moment(leakPeriod.date).toDate() : null;
+
+      let filterLine;
+      if (leakPeriodDate != null) {
+        filterLine = line => {
+          if (line.scmDate) {
+            const scmDate = moment(line.scmDate).toDate();
+            return scmDate >= leakPeriodDate;
+          } else {
+            return false;
+          }
+        };
+      }
+      return (
+        <div className="measure-details-viewer">
+          <SourceViewer component={component.key} filterLine={filterLine} />
+        </div>
+      );
+    }
+
+    if (view === 'list') {
+      return (
+        <ListView
+          component={component}
+          handleSelect={this.handleSelect}
+          metric={metric}
+          metrics={this.props.metrics}
+          updateLoading={this.updateLoading}
+        />
+      );
+    }
+  }
+
+  render() {
+    const { currentUser, metric, rootComponent, view } = this.props;
+    const { component, loading, measure } = this.state;
+    const isLoggedIn = currentUser && currentUser.isLoggedIn;
     return (
       <div className="layout-page-main">
         <div className="layout-page-header-panel layout-page-main-header issues-main-header">
           <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-            <div className="layout-page-main-inner">
-              Page Actions
-              <DeferredSpinner
-                className="pull-right"
+            <div className="layout-page-main-inner clearfix">
+              {component &&
+                <Breadcrumbs
+                  className="measure-breadcrumbs spacer-right text-ellipsis"
+                  component={component}
+                  handleSelect={this.handleSelect}
+                  rootComponent={rootComponent}
+                  view={view}
+                />}
+              {component &&
+                component.key !== rootComponent.key &&
+                isLoggedIn &&
+                <Favorite
+                  favorite={component.isFavorite === true}
+                  component={component.key}
+                  className="measure-favorite spacer-right"
+                />}
+              <MeasureViewSelect
+                className="measure-view-select"
+                metric={this.props.metric}
+                handleViewChange={this.updateView}
+                view={view}
+              />
+              <PageActions
                 loading={loading.measure || loading.components}
+                isFile={component && component.qualifier === 'FIL'}
+                view={view}
               />
             </div>
           </div>
         </div>
-        {metric != null && measure != null
-          ? <div className="layout-page-main-inner">
+        {metric == null && <MetricNotFound className="layout-page-main-inner" />}
+        {metric != null &&
+          measure != null &&
+          <div className="layout-page-main-inner">
+            {component &&
               <MeasureHeader
-                component={this.state.component}
+                component={component}
                 leakPeriod={this.props.leakPeriod}
                 measure={measure}
                 secondaryMeasure={this.state.secondaryMeasure}
-              />
-              <ListView
-                component={this.state.component}
-                handleSelect={this.handleSelect}
-                leakPeriod={this.props.leakPeriod}
-                loading={loading.components}
-                metric={metric}
-                metrics={this.props.metrics}
-                selectedComponent={this.props.selected}
-                updateLoading={this.updateLoading}
-              />
-            </div>
-          : <MetricNotFound className="layout-page-main-inner" />}
+                updateQuery={this.props.updateQuery}
+              />}
+            {this.renderContent()}
+          </div>}
       </div>
     );
   }

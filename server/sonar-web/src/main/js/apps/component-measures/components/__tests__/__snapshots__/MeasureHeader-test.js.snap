@@ -71,6 +71,7 @@ exports[`should render correctly 1`] = `
     component={
       Object {
         "key": "foo",
+        "qualifier": "TRK",
       }
     }
     period={
@@ -134,6 +135,7 @@ exports[`should render correctly for leak 1`] = `
     component={
       Object {
         "key": "foo",
+        "qualifier": "TRK",
       }
     }
     period={

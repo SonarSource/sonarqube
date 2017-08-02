@@ -53,7 +53,7 @@ const SECONDARY = {
 };
 
 const PROPS = {
-  component: { key: 'foo' },
+  component: { key: 'foo', qualifier: 'TRK' },
   leakPeriod: {
     date: '2017-05-16T13:50:02+0200',
     index: 1,

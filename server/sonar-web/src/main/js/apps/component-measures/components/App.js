@@ -32,6 +32,7 @@ import '../style.css';
 
 type Props = {|
   component: Component,
+  currentUser: { isLoggedIn: boolean },
   location: { pathname: string, query: RawQuery },
   fetchMeasures: (
     Component,
@@ -154,6 +155,7 @@ export default class App extends React.PureComponent {
         {metric != null &&
           <MeasureContent
             className="layout-page-main-inner"
+            currentUser={this.props.currentUser}
             rootComponent={this.props.component}
             fetchMeasures={this.props.fetchMeasures}
             leakPeriod={this.state.leakPeriod}
@@ -161,6 +163,7 @@ export default class App extends React.PureComponent {
             metrics={this.props.metrics}
             selected={query.selected}
             updateQuery={this.updateQuery}
+            view={query.view}
           />}
       </div>
     );

@@ -74,15 +74,9 @@ export default class ComponentCell extends React.PureComponent {
     });
 
     return (
-      <td style={{ maxWidth: 0 }}>
-        <div
-          style={{
-            maxWidth: '100%',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>
-          {component.refId == null || component.qualifier === 'DEV_PRJ'
+      <td className="measure-details-component-cell">
+        <div className="text-ellipsis">
+          {component.refId == null
             ? <a
                 id={'component-measures-component-link-' + component.key}
                 className={linkClassName}

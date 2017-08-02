@@ -15,7 +15,7 @@ exports[`should display facet item list 1`] = `
       halfWidth={false}
       name={
         <Tooltip
-          mouseEnterDelay={1}
+          mouseEnterDelay={0.5}
           overlay="Bugs"
           placement="bottom"
         >
@@ -61,7 +61,7 @@ exports[`should display facet item list 1`] = `
       halfWidth={false}
       name={
         <Tooltip
-          mouseEnterDelay={1}
+          mouseEnterDelay={0.5}
           overlay="New Bugs"
           placement="bottom"
         >
@@ -119,7 +119,7 @@ exports[`should display facet item list with bugs selected 1`] = `
       halfWidth={false}
       name={
         <Tooltip
-          mouseEnterDelay={1}
+          mouseEnterDelay={0.5}
           overlay="Bugs"
           placement="bottom"
         >
@@ -165,7 +165,7 @@ exports[`should display facet item list with bugs selected 1`] = `
       halfWidth={false}
       name={
         <Tooltip
-          mouseEnterDelay={1}
+          mouseEnterDelay={0.5}
           overlay="New Bugs"
           placement="bottom"
         >
