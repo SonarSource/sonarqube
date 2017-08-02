@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import Helmet from 'react-helmet';
-import MeasureContent from './MeasureContent';
+import MeasureContentContainer from './MeasureContentContainer';
 import Sidebar from '../sidebar/Sidebar';
 import { parseQuery, serializeQuery } from '../utils';
 import { translate } from '../../../helpers/l10n';
@@ -153,8 +153,8 @@ export default class App extends React.PureComponent {
         </div>
 
         {metric != null &&
-          <MeasureContent
-            className="layout-page-main-inner"
+          <MeasureContentContainer
+            className="layout-page-main"
             currentUser={this.props.currentUser}
             rootComponent={this.props.component}
             fetchMeasures={this.props.fetchMeasures}
