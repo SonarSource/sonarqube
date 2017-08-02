@@ -124,7 +124,7 @@ public class ReportSubmitterTest {
       .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     mockSuccessfulPrepareSubmitCall();
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(project);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
