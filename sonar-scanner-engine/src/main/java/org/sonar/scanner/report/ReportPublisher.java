@@ -173,6 +173,10 @@ public class ReportPublisher implements Startable {
       .setParam("projectBranch", moduleHierarchy.root().getBranch())
       .setPart("report", filePart);
 
+    if (analysisMode.isIncremental()) {
+      post.setParam("characteristic", "incremental=true");
+    }
+
     WsResponse response;
     try {
       response = wsClient.call(post).failIfNotSuccessful();

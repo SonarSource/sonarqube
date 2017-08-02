@@ -74,7 +74,6 @@ import org.sonar.scanner.repository.DefaultQualityProfileLoader;
 import org.sonar.scanner.repository.DefaultServerIssuesLoader;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
-import org.sonar.scanner.repository.ProjectRepositoriesProvider;
 import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.QualityProfileProvider;
 import org.sonar.scanner.repository.ServerIssuesLoader;
@@ -122,7 +121,6 @@ public class ProjectScanContainer extends ComponentContainer {
   private void addBatchComponents() {
     add(
       props,
-      DefaultAnalysisMode.class,
       ProjectReactorBuilder.class,
       WorkDirectoryCleaner.class,
       new MutableProjectReactorProvider(),
@@ -137,7 +135,6 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultIndex.class,
       Storages.class,
       new RulesProvider(),
-      new ProjectRepositoriesProvider(),
 
       // temp
       new AnalysisTempFolderProvider(),

@@ -19,12 +19,15 @@
  */
 package org.sonar.server.computation.task.projectanalysis.measure;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.SetMultimap;
+import java.util.Collection;
 import java.util.Set;
+
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricImpl;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.SetMultimap;
 
 public interface MeasureRepository {
 
@@ -39,6 +42,8 @@ public interface MeasureRepository {
    * @throws NullPointerException if either argument is {@code null}
    */
   Optional<Measure> getBaseMeasure(Component component, Metric metric);
+
+  int loadAsRawMeasures(Collection<Component> components, Collection<Metric> metrics);
 
   /**
    * Retrieves the measure created during the current analysis for the specified {@link Component} for the specified

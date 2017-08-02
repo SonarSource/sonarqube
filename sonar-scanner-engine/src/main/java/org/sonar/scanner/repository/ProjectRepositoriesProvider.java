@@ -32,18 +32,22 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
   private ProjectRepositories project = null;
 
   public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode) {
+    return provideInternal(loader, projectKey, mode.isIssues());
+  }
+
+  protected ProjectRepositories provideInternal(ProjectRepositoriesLoader loader, ProjectKey projectKey, boolean isIssueMode) {
     if (project == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      project = loader.load(projectKey.get(), mode.isIssues());
-      checkProject(mode);
+      project = loader.load(projectKey.get(), isIssueMode);
+      checkProject(isIssueMode);
       profiler.stopInfo();
     }
 
     return project;
   }
 
-  private void checkProject(DefaultAnalysisMode mode) {
-    if (mode.isIssues()) {
+  private void checkProject(boolean isIssueMode) {
+    if (isIssueMode) {
       if (!project.exists()) {
         LOG.warn("Project doesn't exist on the server. All issues will be marked as 'new'.");
       } else if (project.lastAnalysisDate() == null) {

@@ -116,7 +116,7 @@ public class MeasureDao implements Dao {
       ids -> mapper(dbSession).selectProjectMeasuresOfDeveloper(developerId, metricIds));
   }
 
-  public List<MeasureDto> selectByComponentsAndMetrics(DbSession dbSession, List<String> componentUuids, List<Integer> metricIds) {
+  public List<MeasureDto> selectByComponentsAndMetrics(DbSession dbSession, Collection<String> componentUuids, Collection<Integer> metricIds) {
     return executeLargeInputs(componentUuids, partitionComponentUuids -> mapper(dbSession).selectByComponentsAndMetrics(partitionComponentUuids, metricIds));
   }
 

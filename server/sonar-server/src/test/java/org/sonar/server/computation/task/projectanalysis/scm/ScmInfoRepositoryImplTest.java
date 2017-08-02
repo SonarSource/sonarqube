@@ -19,14 +19,19 @@
  */
 package org.sonar.server.computation.task.projectanalysis.scm;
 
-import com.google.common.collect.ImmutableList;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.sonar.api.utils.log.LoggerLevel.TRACE;
+import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
+
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.annotation.Nullable;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -45,18 +50,17 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepository;
 import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryImpl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.sonar.api.utils.log.LoggerLevel.TRACE;
-import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
+import com.google.common.collect.ImmutableList;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
 @RunWith(DataProviderRunner.class)
 public class ScmInfoRepositoryImplTest {
@@ -89,6 +93,21 @@ public class ScmInfoRepositoryImplTest {
     new SourceHashRepositoryImpl(new SourceLinesRepositoryImpl(reportReader)));
 
   @Test
+  public void dont_check_hash_for_unmodified_files_incremental_analysis() {
+    analysisMetadataHolder.setIncrementalAnalysis(true);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
+
+    addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
+    addCopyFromPreviousChangesetInReport();
+
+    Component file = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").setStatus(Status.SAME).build();
+    ScmInfo scmInfo = underTest.getScmInfo(file).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(1);
+
+    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from db for file 'FILE_KEY'");
+  }
+
+  @Test
   public void read_from_report() throws Exception {
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     addChangesetInReport("john", DATE_1, "rev-1");
@@ -112,6 +131,8 @@ public class ScmInfoRepositoryImplTest {
   @Test
   public void getScmInfo_returns_ScmInfo_from_DB_CopyFromPrevious_is_true_if_hashes_are_the_same() throws Exception {
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
+    analysisMetadataHolder.setIncrementalAnalysis(false);
+
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
     addFileSourceInReport(1);
     addCopyFromPreviousChangesetInReport();
@@ -125,6 +146,8 @@ public class ScmInfoRepositoryImplTest {
   @Test
   public void getScmInfo_returns_absent_when_CopyFromPrevious_is_true_but_hashes_are_not_the_same() throws Exception {
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
+    analysisMetadataHolder.setIncrementalAnalysis(false);
+
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1) + "_different");
     addFileSourceInReport(1);
     addCopyFromPreviousChangesetInReport();
@@ -151,6 +174,8 @@ public class ScmInfoRepositoryImplTest {
   @Test
   public void read_from_db_even_if_data_in_report_exists_when_CopyFromPrevious_is_true() throws Exception {
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
+    analysisMetadataHolder.setIncrementalAnalysis(false);
+
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
     addFileSourceInReport(1);
     addChangesetInReport("john", DATE_2, "rev-2", true);

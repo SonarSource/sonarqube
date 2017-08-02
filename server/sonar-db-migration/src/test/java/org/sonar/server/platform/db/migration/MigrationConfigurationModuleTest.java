@@ -37,7 +37,7 @@ public class MigrationConfigurationModuleTest {
     assertThat(container.getPicoContainer().getComponentAdapters())
       .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
         // DbVersion classes
-        + 8
+        + 9
         // Others
         + 3);
   }

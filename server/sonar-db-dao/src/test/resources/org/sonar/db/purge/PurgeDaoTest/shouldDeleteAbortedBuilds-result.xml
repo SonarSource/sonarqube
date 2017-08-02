@@ -50,6 +50,7 @@ Snapshot 2 has been deleted
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
   <!-- snapshot with status "processed" and flagged as "last" -> do not purge and do not delete -->
@@ -77,6 +78,7 @@ Snapshot 2 has been deleted
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
 </dataset>

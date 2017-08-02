@@ -20,15 +20,16 @@
 package org.sonar.scanner.scan.filesystem;
 
 import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 public class InputComponentStoreProvider extends ProviderAdapter {
   private InputComponentStore store;
 
-  public InputComponentStore provide(PathResolver pathResolver, InputModuleHierarchy hierarchy) {
+  public InputComponentStore provide(PathResolver pathResolver, InputModuleHierarchy hierarchy, AnalysisMode mode) {
     if (store == null) {
-      store = new InputComponentStore(pathResolver, hierarchy.root());
+      store = new InputComponentStore(pathResolver, hierarchy.root(), mode);
     }
     return store;
   }

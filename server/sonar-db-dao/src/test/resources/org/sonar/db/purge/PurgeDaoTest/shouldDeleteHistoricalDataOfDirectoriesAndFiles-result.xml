@@ -148,6 +148,7 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
   <!-- snapshots to be purged -->
@@ -175,6 +176,7 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
 </dataset>

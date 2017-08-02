@@ -19,8 +19,13 @@
  */
 package org.sonar.server.ce.ws;
 
+import static org.sonar.server.ws.WsUtils.checkRequest;
+
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -38,6 +43,7 @@ public class SubmitAction implements CeWsAction {
   private static final String PARAM_PROJECT_BRANCH = "projectBranch";
   private static final String PARAM_PROJECT_NAME = "projectName";
   private static final String PARAM_REPORT_DATA = "report";
+  private static final String PARAM_ANALYSIS_CHARACTERISTIC = "characteristic";
 
   private final ReportSubmitter reportSubmitter;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
@@ -85,6 +91,13 @@ public class SubmitAction implements CeWsAction {
       .createParam(PARAM_REPORT_DATA)
       .setRequired(true)
       .setDescription("Report file. Format is not an API, it changes among SonarQube versions.");
+
+    action
+      .createParam(PARAM_ANALYSIS_CHARACTERISTIC)
+      .setRequired(false)
+      .setDescription("Optional characteristic of the analysis. Can be repeated to define multiple characteristics.")
+      .setExampleValue("incremental=true")
+      .setSince("6.6");
   }
 
   @Override
@@ -96,8 +109,10 @@ public class SubmitAction implements CeWsAction {
     String projectBranch = wsRequest.param(PARAM_PROJECT_BRANCH);
     String projectName = StringUtils.defaultIfBlank(wsRequest.param(PARAM_PROJECT_NAME), projectKey);
 
+    Map<String, String> characteristics = parseTaskCharacteristics(wsRequest);
+
     try (InputStream report = new BufferedInputStream(wsRequest.mandatoryParamAsPart(PARAM_REPORT_DATA).getInputStream())) {
-      CeTask task = reportSubmitter.submit(organizationKey, projectKey, projectBranch, projectName, report);
+      CeTask task = reportSubmitter.submit(organizationKey, projectKey, projectBranch, projectName, characteristics, report);
       WsCe.SubmitResponse submitResponse = WsCe.SubmitResponse.newBuilder()
         .setTaskId(task.getUuid())
         .setProjectId(task.getComponentUuid())
@@ -105,4 +120,17 @@ public class SubmitAction implements CeWsAction {
       WsUtils.writeProtobuf(submitResponse, wsRequest, wsResponse);
     }
   }
+
+  private static Map<String, String> parseTaskCharacteristics(Request wsRequest) {
+    Map<String, String> characteristics = new LinkedHashMap<>();
+
+    for (String param : wsRequest.multiParam(PARAM_ANALYSIS_CHARACTERISTIC)) {
+      String[] pair = StringUtils.split(param, "=", 2);
+      checkRequest(pair.length == 2, "Parameter '%s' must be a key-value pair with the format 'key=value'.", PARAM_ANALYSIS_CHARACTERISTIC);
+      checkRequest(!characteristics.containsKey(pair[0]), "Key '%s' was provided twice with parameters '%s'", pair[0], PARAM_ANALYSIS_CHARACTERISTIC);
+      characteristics.put(pair[0], pair[1]);
+    }
+    return characteristics;
+  }
+
 }
