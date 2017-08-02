@@ -22,18 +22,21 @@ import React from 'react';
 
 type Props = { className?: string, size?: number };
 
-export default function ListIcon({ className, size = 14 }: Props) {
+export default function TreemapIcon({ className, size = 14 }: Props) {
   /* eslint-disable max-len */
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       className={className}
       height={size}
       width={size}
-      viewBox="0 0 16 16">
+      viewBox="0 0 16 16"
+      fillRule="evenodd"
+      clipRule="evenodd"
+      strokeLinejoin="round"
+      strokeMiterlimit="1.414">
       <path
         fill="currentColor"
-        d="M16 12v1.143q0 0.232-0.17 0.402t-0.402 0.17h-14.857q-0.232 0-0.402-0.17t-0.17-0.402v-1.143q0-0.232 0.17-0.402t0.402-0.17h14.857q0.232 0 0.402 0.17t0.17 0.402zM16 8.571v1.143q0 0.232-0.17 0.402t-0.402 0.17h-14.857q-0.232 0-0.402-0.17t-0.17-0.402v-1.143q0-0.232 0.17-0.402t0.402-0.17h14.857q0.232 0 0.402 0.17t0.17 0.402zM16 5.143v1.143q0 0.232-0.17 0.402t-0.402 0.17h-14.857q-0.232 0-0.402-0.17t-0.17-0.402v-1.143q0-0.232 0.17-0.402t0.402-0.17h14.857q0.232 0 0.402 0.17t0.17 0.402zM16 1.714v1.143q0 0.232-0.17 0.402t-0.402 0.17h-14.857q-0.232 0-0.402-0.17t-0.17-0.402v-1.143q0-0.232 0.17-0.402t0.402-0.17h14.857q0.232 0 0.402 0.17t0.17 0.402z"
+        d="M0 0h8v16h-8zM9.143 0h6.857v9.143h-6.857zM9.143 10.286h6.857v5.714h-6.857z"
       />
     </svg>
   );
