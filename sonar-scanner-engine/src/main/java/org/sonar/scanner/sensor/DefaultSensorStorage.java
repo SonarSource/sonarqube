@@ -324,7 +324,7 @@ public class DefaultSensorStorage implements SensorStorage {
 
   public static void validateCoverageMeasure(String value, InputFile inputFile) {
     Map<Integer, Integer> m = KeyValueFormat.parseIntInt(value);
-    validatePositiveLine(m, inputFile.absolutePath());
+    validatePositiveLine(m, inputFile.toString());
     validateMaxLine(m, inputFile);
   }
 
@@ -333,7 +333,7 @@ public class DefaultSensorStorage implements SensorStorage {
 
     for (int line : m.keySet()) {
       if (line > maxLine) {
-        throw new IllegalStateException(String.format("Can't create measure for line %d for file '%s' with %d lines", line, inputFile.absolutePath(), maxLine));
+        throw new IllegalStateException(String.format("Can't create measure for line %d for file '%s' with %d lines", line, inputFile, maxLine));
       }
     }
   }
@@ -364,7 +364,7 @@ public class DefaultSensorStorage implements SensorStorage {
     inputFile.setPublished(true);
     int componentRef = inputFile.batchId();
     if (writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, componentRef)) {
-      throw new UnsupportedOperationException("Trying to save highlighting twice for the same file is not supported: " + inputFile.absolutePath());
+      throw new UnsupportedOperationException("Trying to save highlighting twice for the same file is not supported: " + inputFile);
     }
     final ScannerReport.SyntaxHighlightingRule.Builder builder = ScannerReport.SyntaxHighlightingRule.newBuilder();
     final ScannerReport.TextRange.Builder rangeBuilder = ScannerReport.TextRange.newBuilder();

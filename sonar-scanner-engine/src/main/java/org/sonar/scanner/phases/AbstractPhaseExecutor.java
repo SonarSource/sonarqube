@@ -103,10 +103,10 @@ public abstract class AbstractPhaseExecutor {
       coverageExclusions.log();
 
       for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
-        boolean excluded = coverageExclusions.isExcluded(inputFile);
+        boolean excluded = coverageExclusions.isExcluded((DefaultInputFile) inputFile);
         if (excluded) {
           ((DefaultInputFile) inputFile).setExcludedForCoverage(true);
-          LOG.debug("File {} excluded for coverage", inputFile.relativePath());
+          LOG.debug("File {} excluded for coverage", inputFile);
         }
       }
 

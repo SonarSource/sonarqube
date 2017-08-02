@@ -34,7 +34,6 @@ import org.sonar.api.scan.filesystem.PathResolver;
 
 @Immutable
 public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
-  private final PathResolver pathResolver = new PathResolver();
   private final DefaultInputModule root;
   private final Map<DefaultInputModule, DefaultInputModule> parents;
   private final ImmutableMultimap<DefaultInputModule, DefaultInputModule> children;
@@ -111,6 +110,6 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
     Path parentBaseDir = parent.getBaseDir();
     Path moduleBaseDir = inputModule.getBaseDir();
 
-    return pathResolver.relativePath(parentBaseDir, moduleBaseDir);
+    return PathResolver.relativePath(parentBaseDir, moduleBaseDir);
   }
 }

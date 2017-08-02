@@ -27,7 +27,7 @@ import javax.annotation.concurrent.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
 
@@ -49,11 +49,11 @@ public class CoverageExclusions {
     log("Excluded sources for coverage: ", exclusionPatterns);
   }
 
-  boolean isExcluded(InputFile file) {
+  boolean isExcluded(DefaultInputFile file) {
     boolean found = false;
     Iterator<WildcardPattern> iterator = exclusionPatterns.iterator();
     while (!found && iterator.hasNext()) {
-      found = iterator.next().match(file.relativePath());
+      found = iterator.next().match(file.getModuleRelativePath());
     }
     return found;
   }
