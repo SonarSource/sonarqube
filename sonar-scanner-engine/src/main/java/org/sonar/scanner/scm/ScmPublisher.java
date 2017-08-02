@@ -102,7 +102,7 @@ public final class ScmPublisher {
         addIfNotEmpty(filesToBlame, f);
       } else {
         // File status is SAME so that mean fileData exists
-        FileData fileData = projectRepositories.fileData(inputModule.definition().getKeyWithBranch(), f.relativePath());
+        FileData fileData = projectRepositories.fileData(inputModule.definition().getKeyWithBranch(), inputFile.getModuleRelativePath());
         if (StringUtils.isEmpty(fileData.revision())) {
           addIfNotEmpty(filesToBlame, f);
         } else {

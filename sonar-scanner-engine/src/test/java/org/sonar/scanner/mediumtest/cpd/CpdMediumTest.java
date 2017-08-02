@@ -142,8 +142,8 @@ public class CpdMediumTest {
 
     assertThat(result.inputFiles()).hasSize(2);
 
-    InputFile inputFile1 = result.inputFile("sample1.xoo");
-    InputFile inputFile2 = result.inputFile("sample2.xoo");
+    InputFile inputFile1 = result.inputFile("module1/sample1.xoo");
+    InputFile inputFile2 = result.inputFile("module2/sample2.xoo");
 
     // One clone group on each file
     List<org.sonar.scanner.protocol.output.ScannerReport.Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);

@@ -92,7 +92,7 @@ public class LanguageDetection {
     patternsByLanguage = Collections.unmodifiableMap(patternsByLanguageBuilder);
   }
 
-  public String forcedLanguage() {
+  public String getForcedLanguage() {
     return forcedLanguage;
   }
 

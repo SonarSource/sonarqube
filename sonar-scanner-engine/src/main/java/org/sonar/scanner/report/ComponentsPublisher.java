@@ -22,7 +22,6 @@ package org.sonar.scanner.report;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -30,7 +29,6 @@ import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
-import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -155,8 +153,11 @@ public class ComponentsPublisher implements ReportPublisherStep {
 
   @CheckForNull
   private String getPath(InputComponent component) {
-    if (component instanceof InputPath) {
-      InputPath inputPath = (InputPath) component;
+    if (component instanceof InputFile) {
+      DefaultInputFile inputPath = (DefaultInputFile) component;
+      return inputPath.getModuleRelativePath();
+    } else if (component instanceof InputDir) {
+      InputDir inputPath = (InputDir) component;
       if (StringUtils.isEmpty(inputPath.relativePath())) {
         return "/";
       } else {

@@ -55,7 +55,7 @@ import org.sonar.api.batch.ScannerSide;
 public interface FileSystem {
 
   /**
-   * Absolute base directory of module
+   * Absolute base directory of module.
    */
   File baseDir();
 
@@ -136,7 +136,9 @@ public interface FileSystem {
   /**
    * Files matching the given predicate.
    * @see #predicates()
+   * @deprecated since 6.6 Plugins should avoid working with {@link File} and prefer working with {@link InputFile}
    */
+  @Deprecated
   Iterable<File> files(FilePredicate predicate);
 
   /**

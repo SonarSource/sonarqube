@@ -232,7 +232,7 @@ public class CoverageMediumTest {
         .build())
       .execute();
 
-    InputFile file1 = result.inputFile("src/sample1.xoo");
+    InputFile file1 = result.inputFile("module1/src/sample1.xoo");
     assertThat(result.coverageFor(file1, 1)).isNull();
 
     assertThat(result.coverageFor(file1, 2).getHits()).isFalse();
@@ -242,7 +242,7 @@ public class CoverageMediumTest {
     assertThat(result.coverageFor(file1, 3).getHits()).isFalse();
     assertThat(result.coverageFor(file1, 4)).isNull();
 
-    InputFile file2 = result.inputFile("src/sample2.xoo");
+    InputFile file2 = result.inputFile("module1/src/sample2.xoo");
     assertThat(result.coverageFor(file2, 1)).isNull();
     assertThat(result.coverageFor(file2, 2)).isNull();
     assertThat(result.coverageFor(file2, 3)).isNull();

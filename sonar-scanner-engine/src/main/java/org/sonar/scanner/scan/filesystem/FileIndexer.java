@@ -170,8 +170,8 @@ public class FileIndexer {
       return null;
     }
     String language = langDetection.language(realAbsoluteFile, relativePath);
-    if (language == null && langDetection.forcedLanguage() != null) {
-      LOG.warn("File '{}' is ignored because it doesn't belong to the forced language '{}'", realAbsoluteFile.toAbsolutePath(), langDetection.forcedLanguage());
+    if (language == null && langDetection.getForcedLanguage() != null) {
+      LOG.warn("File '{}' is ignored because it doesn't belong to the forced language '{}'", realAbsoluteFile.toAbsolutePath(), langDetection.getForcedLanguage());
       return null;
     }
     DefaultInputFile inputFile = inputFileBuilder.create(type, realAbsoluteFile, language);
@@ -179,7 +179,7 @@ public class FileIndexer {
       progress.increaseExcludedByPatternsCount();
       return null;
     }
-    String parentRelativePath = getParentRelativePath(inputFile);
+    String parentRelativePath = getParentRelativePath(realAbsoluteFile);
     synchronized (this) {
       progress.markAsIndexed(inputFile);
       indexFileAndParentDir(inputFile, parentRelativePath);
@@ -189,11 +189,11 @@ public class FileIndexer {
     return null;
   }
 
-  private String getParentRelativePath(InputFile inputFile) {
-    Path parentDir = inputFile.path().getParent();
+  private String getParentRelativePath(Path filePath) {
+    Path parentDir = filePath.getParent();
     String relativePath = PathResolver.relativePath(module.getBaseDir(), parentDir);
     if (relativePath == null) {
-      throw new IllegalStateException("Failed to compute relative path of file: " + inputFile);
+      throw new IllegalStateException("Failed to compute relative path of file: " + parentDir);
     }
     return relativePath;
   }
@@ -214,7 +214,7 @@ public class FileIndexer {
     // InputFileFilter extensions. Might trigger generation of metadata
     for (InputFileFilter filter : filters) {
       if (!filter.accept(indexedFile)) {
-        LOG.debug("'{}' excluded by {}", indexedFile.toString(), filter.getClass().getName());
+        LOG.debug("'{}' excluded by {}", indexedFile, filter.getClass().getName());
         return false;
       }
     }
@@ -277,7 +277,7 @@ public class FileIndexer {
           + "disjoint sets for main and test files");
       }
       int count = indexedCount.incrementAndGet();
-      progressReport.message(count + " " + pluralizeFiles(count) + " indexed...  (last one was " + inputFile.relativePath() + ")");
+      progressReport.message(count + " " + pluralizeFiles(count) + " indexed...  (last one was " + inputFile.getProjectRelativePath() + ")");
     }
 
     void increaseExcludedByPatternsCount() {

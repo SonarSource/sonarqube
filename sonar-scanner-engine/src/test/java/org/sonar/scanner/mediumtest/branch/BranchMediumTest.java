@@ -125,10 +125,10 @@ public class BranchMediumTest {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA:src/sample.xoo");
+    assertThat(result.inputFile("moduleA/src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA:src/sample.xoo");
 
     // no branch in the report
-    DefaultInputFile inputfile = (DefaultInputFile) result.inputFile("src/sample.xoo");
+    DefaultInputFile inputfile = (DefaultInputFile) result.inputFile("moduleA/src/sample.xoo");
     assertThat(result.getReportReader().readComponent(inputfile.batchId()).getPath()).isEqualTo("src/sample.xoo");
 
     // no branch in InputModule's key or in report
@@ -145,7 +145,7 @@ public class BranchMediumTest {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA:src/sample.xoo");
+    assertThat(result.inputFile("moduleA/src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA:src/sample.xoo");
   }
 
 }

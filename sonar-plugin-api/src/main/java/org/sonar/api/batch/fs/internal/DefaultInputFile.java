@@ -120,6 +120,10 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return excludedForCoverage;
   }
 
+  /**
+   * @deprecated since 6.6
+   */
+  @Deprecated
   @Override
   public String relativePath() {
     return indexedFile.relativePath();
@@ -133,6 +137,10 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return indexedFile.getProjectRelativePath();
   }
 
+  /**
+   * @deprecated since 6.6
+   */
+  @Deprecated
   @Override
   public String absolutePath() {
     return indexedFile.absolutePath();

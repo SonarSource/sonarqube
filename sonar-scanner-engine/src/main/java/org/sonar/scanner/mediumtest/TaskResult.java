@@ -104,7 +104,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
   private void storeFs(ProjectScanContainer container) {
     InputComponentStore inputFileCache = container.getComponentByType(InputComponentStore.class);
     for (InputFile inputPath : inputFileCache.allFiles()) {
-      inputFiles.put(inputPath.relativePath(), inputPath);
+      inputFiles.put(((DefaultInputFile) inputPath).getProjectRelativePath(), inputPath);
     }
     for (InputDir inputPath : inputFileCache.allDirs()) {
       inputDirs.put(inputPath.relativePath(), inputPath);
@@ -189,7 +189,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
         }
       }
     } catch (Exception e) {
-      throw new IllegalStateException("Can't read syntax highlighting for " + file.absolutePath(), e);
+      throw new IllegalStateException("Can't read syntax highlighting for " + file, e);
     }
     return result;
   }

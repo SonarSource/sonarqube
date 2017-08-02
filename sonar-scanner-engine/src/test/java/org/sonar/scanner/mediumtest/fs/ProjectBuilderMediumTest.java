@@ -132,7 +132,7 @@ public class ProjectBuilderMediumTest {
         .put("sonar.xoo.enableProjectBuilder", "true")
         .build())
       .execute();
-    List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
+    List<Issue> issues = result.issuesFor(result.inputFile("module1/src/sample.xoo"));
     assertThat(issues).hasSize(10);
 
     assertThat(issues)
@@ -181,7 +181,7 @@ public class ProjectBuilderMediumTest {
         .build())
       .execute();
 
-    List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
+    List<Issue> issues = result.issuesFor(result.inputFile("module1/src/sample.xoo"));
     assertThat(issues).hasSize(10);
 
     assertThat(issues)
