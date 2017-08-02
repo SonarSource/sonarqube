@@ -79,12 +79,12 @@ export function requestMessages() {
 
   if (browserLocale) {
     params.locale = browserLocale;
-  }
 
-  if (browserLocale.startsWith(cachedLocale)) {
-    const bundleTimestamp = localStorage.getItem('l10n.timestamp');
-    if (bundleTimestamp !== null && checkCachedBundle()) {
-      params.ts = bundleTimestamp;
+    if (browserLocale.startsWith(cachedLocale)) {
+      const bundleTimestamp = localStorage.getItem('l10n.timestamp');
+      if (bundleTimestamp !== null && checkCachedBundle()) {
+        params.ts = bundleTimestamp;
+      }
     }
   }
 
