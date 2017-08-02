@@ -191,11 +191,8 @@ public class FileIndexer {
 
   private String getParentRelativePath(Path filePath) {
     Path parentDir = filePath.getParent();
-    String relativePath = PathResolver.relativePath(module.getBaseDir(), parentDir);
-    if (relativePath == null) {
-      throw new IllegalStateException("Failed to compute relative path of file: " + parentDir);
-    }
-    return relativePath;
+    return PathResolver.relativize(module.getBaseDir(), parentDir)
+      .orElseThrow(() -> new IllegalStateException("Failed to compute relative path of file: " + parentDir));
   }
 
   private void indexFileAndParentDir(InputFile inputFile, String parentRelativePath) {

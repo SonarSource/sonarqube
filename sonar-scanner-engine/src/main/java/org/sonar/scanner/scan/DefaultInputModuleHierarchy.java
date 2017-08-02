@@ -110,6 +110,6 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
     Path parentBaseDir = parent.getBaseDir();
     Path moduleBaseDir = inputModule.getBaseDir();
 
-    return PathResolver.relativePath(parentBaseDir, moduleBaseDir);
+    return PathResolver.relativize(parentBaseDir, moduleBaseDir).orElse(null);
   }
 }

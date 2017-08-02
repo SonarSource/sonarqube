@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
@@ -59,10 +60,11 @@ public class ModuleFileSystemInitializer {
 
   private static List<Path> initSources(ProjectDefinition module, Path baseDir, String propertyKey, String logLabel) {
     List<Path> result = new ArrayList<>();
+    PathResolver pathResolver = new PathResolver();
     String srcPropValue = module.properties().get(propertyKey);
     if (srcPropValue != null) {
       for (String sourcePath : parseAsCsv(propertyKey, srcPropValue)) {
-        File dirOrFile = PathResolver.relativeFile(module.getBaseDir(), sourcePath);
+        File dirOrFile = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
         if (dirOrFile.exists()) {
           result.add(dirOrFile.toPath());
         }
@@ -102,13 +104,13 @@ public class ModuleFileSystemInitializer {
       StringBuilder sb = new StringBuilder(label);
       for (Iterator<Path> it = paths.iterator(); it.hasNext();) {
         Path file = it.next();
-        String relativePathToBaseDir = PathResolver.relativePath(baseDir, file);
-        if (relativePathToBaseDir == null) {
+        Optional<String> relativePathToBaseDir = PathResolver.relativize(baseDir, file);
+        if (!relativePathToBaseDir.isPresent()) {
           sb.append(file);
-        } else if (StringUtils.isBlank(relativePathToBaseDir)) {
+        } else if (StringUtils.isBlank(relativePathToBaseDir.get())) {
           sb.append(".");
         } else {
-          sb.append(relativePathToBaseDir);
+          sb.append(relativePathToBaseDir.get());
         }
         if (it.hasNext()) {
           sb.append(", ");

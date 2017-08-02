@@ -149,7 +149,7 @@ public class InputComponentStore {
   }
 
   private String getProjectRelativePath(DefaultInputDir dir) {
-    return PathResolver.relativePath(getProjectBaseDir(), dir.path());
+    return PathResolver.relativize(getProjectBaseDir(), dir.path()).orElseThrow(() -> new IllegalStateException("Dir " + dir.path() + " should be relative to project baseDir"));
   }
 
   private Path getProjectBaseDir() {
