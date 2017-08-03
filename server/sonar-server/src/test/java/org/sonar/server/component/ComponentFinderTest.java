@@ -28,8 +28,11 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.NotFoundException;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 
@@ -108,7 +111,6 @@ public class ComponentFinderTest {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
     db.components().insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
 
-
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'file-key' not found");
 
@@ -131,5 +133,31 @@ public class ComponentFinderTest {
     ComponentDto component = underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
 
     assertThat(component.getDbKey()).isEqualTo("project-key");
+  }
+
+  @Test
+  public void get_by_key_and_branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "scr"));
+    ComponentDto file = db.components().insertComponent(newFileDto(module));
+
+    assertThat(underTest.getByKeyAndBranch(dbSession, project.getKey(), "my_branch").uuid()).isEqualTo(branch.uuid());
+    assertThat(underTest.getByKeyAndBranch(dbSession, module.getKey(), "my_branch").uuid()).isEqualTo(module.uuid());
+    assertThat(underTest.getByKeyAndBranch(dbSession, file.getKey(), "my_branch").uuid()).isEqualTo(file.uuid());
+    assertThat(underTest.getByKeyAndBranch(dbSession, directory.getKey(), "my_branch").uuid()).isEqualTo(directory.uuid());
+  }
+
+  @Test
+  public void fail_to_get_by_key_and_branch_when_branch_does_not_exist() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component '%s' on branch 'other_branch' not found", file.getKey()));
+
+    underTest.getByKeyAndBranch(dbSession, file.getKey(), "other_branch");
   }
 }
