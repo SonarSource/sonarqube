@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.config.ScannerProperties;
@@ -37,9 +38,9 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
  */
 public class ProjectReactorValidator {
   private final DefaultAnalysisMode mode;
-  private final ProjectSettings settings;
+  private final Configuration settings;
 
-  public ProjectReactorValidator(DefaultAnalysisMode mode, ProjectSettings settings) {
+  public ProjectReactorValidator(DefaultAnalysisMode mode, Configuration settings) {
     this.mode = mode;
     this.settings = settings;
   }

@@ -41,14 +41,14 @@ public class ProjectReactorValidatorTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private DefaultAnalysisMode mode;
-  private ProjectSettings settings;
+  private Configuration settings;
   private ProjectReactorValidator validator;
 
   @Before
   public void prepare() {
     mode = mock(DefaultAnalysisMode.class);
 
-    settings = mock(ProjectSettings.class);
+    settings = mock(Configuration.class);
     when(settings.get(ScannerProperties.BRANCH_NAME)).thenReturn(Optional.empty());
 
     validator = new ProjectReactorValidator(mode, settings);
