@@ -20,15 +20,20 @@
 package org.sonar.server.batch;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -37,6 +42,7 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
@@ -44,7 +50,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.core.util.stream.MoreCollectors.index;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
@@ -52,17 +59,18 @@ public class ProjectDataLoader {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public ProjectDataLoader(DbClient dbClient, UserSession userSession) {
+  public ProjectDataLoader(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   public ProjectRepositories load(ProjectDataQuery query) {
     try (DbSession session = dbClient.openSession(false)) {
       ProjectRepositories data = new ProjectRepositories();
-      ComponentDto module = checkFoundWithOptional(dbClient.componentDao().selectByKey(session, query.getModuleKey()),
-        "Project or module with key '%s' is not found", query.getModuleKey());
+      ComponentDto module = componentFinder.getByKey(session, query.getModuleKey());
       checkRequest(isProjectOrModule(module), "Key '%s' belongs to a component which is not a Project", query.getModuleKey());
 
       boolean hasScanPerm = userSession.hasComponentPermission(SCAN_EXECUTION, module) ||
@@ -70,20 +78,26 @@ public class ProjectDataLoader {
       boolean hasBrowsePerm = userSession.hasComponentPermission(USER, module);
       checkPermission(query.isIssuesMode(), hasScanPerm, hasBrowsePerm);
 
-      ComponentDto project = getProject(module, session);
-      if (!project.getDbKey().equals(module.getDbKey())) {
-        addSettings(data, module.getDbKey(), getSettingsFromParents(module, hasScanPerm, session));
+      ComponentDto moduleToUseForSettings = module;
+      ComponentDto moduleToUseForFileData = module;
+      String branch = query.getBranch();
+      if (branch != null) {
+        Optional<ComponentDto> branchDto = dbClient.componentDao().selectByKeyAndBranch(session, query.getModuleKey(), branch);
+        moduleToUseForSettings = branchDto.orElse(module);
+        moduleToUseForFileData = branchDto.orElse(null);
       }
 
-      List<ComponentDto> modulesTree = dbClient.componentDao().selectEnabledDescendantModules(session, module.uuid());
-      Map<String, String> moduleUuidsByKey = moduleUuidsByKey(modulesTree);
-      Map<String, Long> moduleIdsByKey = moduleIdsByKey(modulesTree);
+      ComponentDto project = getProject(moduleToUseForSettings, session);
+      if (!project.getKey().equals(moduleToUseForSettings.getKey())) {
+        addSettings(data, moduleToUseForSettings.getKey(), getSettingsFromParents(moduleToUseForSettings, hasScanPerm, session));
+      }
 
+      List<ComponentDto> modulesTree = dbClient.componentDao().selectEnabledDescendantModules(session, moduleToUseForSettings.uuid());
       List<PropertyDto> modulesTreeSettings = dbClient.propertiesDao().selectEnabledDescendantModuleProperties(module.uuid(), session);
-      TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, modulesTree, modulesTreeSettings);
+      TreeModuleSettings treeModuleSettings = new TreeModuleSettings(session, modulesTree, modulesTreeSettings);
 
-      addSettingsToChildrenModules(data, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm);
-      List<FilePathWithHashDto> files = searchFilesWithHashAndRevision(session, module);
+      addSettingsToChildrenModules(data, query.getModuleKey(), Maps.newHashMap(), treeModuleSettings, hasScanPerm);
+      List<FilePathWithHashDto> files = searchFilesWithHashAndRevision(session, moduleToUseForFileData);
       addFileData(data, modulesTree, files);
 
       // FIXME need real value but actually only used to know if there is a previous analysis in local issue tracking mode so any value is
@@ -101,7 +115,10 @@ public class ProjectDataLoader {
     return Qualifiers.PROJECT.equals(module.qualifier()) || Qualifiers.MODULE.equals(module.qualifier());
   }
 
-  private List<FilePathWithHashDto> searchFilesWithHashAndRevision(DbSession session, ComponentDto module) {
+  private List<FilePathWithHashDto> searchFilesWithHashAndRevision(DbSession session, @Nullable ComponentDto module) {
+    if (module == null) {
+      return Collections.emptyList();
+    }
     return module.isRootProject() ? dbClient.componentDao().selectEnabledFilesFromProject(session, module.uuid())
       : dbClient.componentDao().selectEnabledDescendantFiles(session, module.uuid());
   }
@@ -121,7 +138,7 @@ public class ProjectDataLoader {
 
     Map<String, String> parentProperties = newHashMap();
     for (ComponentDto parent : parents) {
-      parentProperties.putAll(getPropertiesMap(dbClient.propertiesDao().selectProjectProperties(session, parent.getDbKey()), hasScanPerm));
+      parentProperties.putAll(getPropertiesMap(dbClient.propertiesDao().selectProjectProperties(session, parent.getKey()), hasScanPerm));
     }
     return parentProperties;
   }
@@ -145,8 +162,8 @@ public class ProjectDataLoader {
     addSettings(ref, moduleKey, currentParentProperties);
 
     for (ComponentDto childModule : treeModuleSettings.findChildrenModule(moduleKey)) {
-      addSettings(ref, childModule.getDbKey(), currentParentProperties);
-      addSettingsToChildrenModules(ref, childModule.getDbKey(), currentParentProperties, treeModuleSettings, hasScanPerm);
+      addSettings(ref, childModule.getKey(), currentParentProperties);
+      addSettingsToChildrenModules(ref, childModule.getKey(), currentParentProperties, treeModuleSettings, hasScanPerm);
     }
   }
 
@@ -175,7 +192,7 @@ public class ProjectDataLoader {
   private static void addFileData(ProjectRepositories data, List<ComponentDto> moduleChildren, List<FilePathWithHashDto> files) {
     Map<String, String> moduleKeysByUuid = newHashMap();
     for (ComponentDto module : moduleChildren) {
-      moduleKeysByUuid.put(module.uuid(), module.getDbKey());
+      moduleKeysByUuid.put(module.uuid(), module.getKey());
     }
 
     for (FilePathWithHashDto file : files) {
@@ -197,56 +214,29 @@ public class ProjectDataLoader {
     }
   }
 
-  private static Map<String, String> moduleUuidsByKey(List<ComponentDto> moduleChildren) {
-    Map<String, String> moduleUuidsByKey = newHashMap();
-    for (ComponentDto componentDto : moduleChildren) {
-      moduleUuidsByKey.put(componentDto.getDbKey(), componentDto.uuid());
-    }
-    return moduleUuidsByKey;
-  }
+  private class TreeModuleSettings {
 
-  private static Map<String, Long> moduleIdsByKey(List<ComponentDto> moduleChildren) {
-    Map<String, Long> moduleIdsByKey = newHashMap();
-    for (ComponentDto componentDto : moduleChildren) {
-      moduleIdsByKey.put(componentDto.getDbKey(), componentDto.getId());
-    }
-    return moduleIdsByKey;
-  }
-
-  private static class TreeModuleSettings {
-
-    private Map<String, Long> moduleIdsByKey;
-    private Map<String, String> moduleUuidsByKey;
-    private Multimap<Long, PropertyDto> propertiesByModuleId;
+    private Map<String, ComponentDto> modulesByKey;
+    private Multimap<String, PropertyDto> propertiesByModuleKey;
     private Multimap<String, ComponentDto> moduleChildrenByModuleUuid;
 
-    private TreeModuleSettings(Map<String, String> moduleUuidsByKey, Map<String, Long> moduleIdsByKey, List<ComponentDto> moduleChildren,
-      List<PropertyDto> moduleChildrenSettings) {
-      this.moduleIdsByKey = moduleIdsByKey;
-      this.moduleUuidsByKey = moduleUuidsByKey;
-      propertiesByModuleId = ArrayListMultimap.create();
+    private TreeModuleSettings(DbSession session, List<ComponentDto> moduleChildren, List<PropertyDto> moduleChildrenSettings) {
+      modulesByKey = moduleChildren.stream().collect(uniqueIndex(ComponentDto::getKey));
       moduleChildrenByModuleUuid = ArrayListMultimap.create();
 
-      for (PropertyDto settings : moduleChildrenSettings) {
-        propertiesByModuleId.put(settings.getResourceId(), settings);
-      }
-
-      for (ComponentDto componentDto : moduleChildren) {
-        String moduleUuid = componentDto.moduleUuid();
-        if (moduleUuid != null) {
-          moduleChildrenByModuleUuid.put(moduleUuid, componentDto);
-        }
-      }
+      Set<Long> propertiesByComponentId = moduleChildrenSettings.stream().map(PropertyDto::getResourceId).collect(MoreCollectors.toSet());
+      Map<Long, ComponentDto> componentsById = dbClient.componentDao().selectByIds(session, propertiesByComponentId).stream().collect(uniqueIndex(ComponentDto::getId));
+      propertiesByModuleKey = moduleChildrenSettings.stream().collect(index(s -> componentsById.get(s.getResourceId()).getKey()));
+      moduleChildrenByModuleUuid = moduleChildren.stream().filter(c -> c.moduleUuid() != null).collect(index(ComponentDto::moduleUuid));
     }
 
     List<PropertyDto> findModuleSettings(String moduleKey) {
-      Long moduleId = moduleIdsByKey.get(moduleKey);
-      return newArrayList(propertiesByModuleId.get(moduleId));
+      return ImmutableList.copyOf(propertiesByModuleKey.get(moduleKey));
     }
 
     List<ComponentDto> findChildrenModule(String moduleKey) {
-      String moduleUuid = moduleUuidsByKey.get(moduleKey);
-      return newArrayList(moduleChildrenByModuleUuid.get(moduleUuid));
+      String moduleUuid = modulesByKey.get(moduleKey).uuid();
+      return ImmutableList.copyOf(moduleChildrenByModuleUuid.get(moduleUuid));
     }
   }
 }
