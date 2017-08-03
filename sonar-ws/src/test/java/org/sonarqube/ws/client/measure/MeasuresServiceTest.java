@@ -36,6 +36,7 @@ import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
@@ -121,6 +122,7 @@ public class MeasuresServiceTest {
   public void search_history() {
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(VALUE_COMPONENT)
+      .setBranch("my_branch")
       .setMetrics(VALUE_METRICS)
       .setFrom(VALUE_FROM)
       .setTo(VALUE_TO)
@@ -134,6 +136,7 @@ public class MeasuresServiceTest {
     assertThat(serviceTester.getGetParser()).isSameAs(WsMeasures.SearchHistoryResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasParam(PARAM_COMPONENT, VALUE_COMPONENT)
+      .hasParam(PARAM_BRANCH, "my_branch")
       .hasParam(PARAM_METRICS, "ncloc,complexity")
       .hasParam(PARAM_FROM, VALUE_FROM)
       .hasParam(PARAM_TO, VALUE_TO)
