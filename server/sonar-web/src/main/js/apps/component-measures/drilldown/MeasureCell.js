@@ -19,12 +19,21 @@
  */
 // @flow
 import React from 'react';
-import { translate } from '../../../../helpers/l10n';
+import Measure from '../../../components/measure/Measure';
+import type { Component } from '../types';
+import type { Metric } from '../../../store/metrics/actions';
 
-export default function EmptyComponentsList() {
+type Props = {
+  component: Component,
+  metric: Metric
+};
+
+export default function MeasureCell({ component, metric }: Props) {
   return (
-    <div className="note">
-      {translate('no_results')}
-    </div>
+    <td className="thin nowrap text-right">
+      <span id={'component-measures-component-measure-' + component.key + '-' + metric.key}>
+        <Measure measure={{ metric, value: component.value, leak: component.leak }} />
+      </span>
+    </td>
   );
 }

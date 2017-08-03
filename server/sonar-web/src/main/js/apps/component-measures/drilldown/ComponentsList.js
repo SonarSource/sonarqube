@@ -21,10 +21,10 @@
 import React from 'react';
 import ComponentsListRow from './ComponentsListRow';
 import EmptyComponentsList from './EmptyComponentsList';
-import { complementary } from '../../config/complementary';
-import { getLocalizedMetricName } from '../../../../helpers/l10n';
-import type { Component } from '../../types';
-import type { Metric } from '../../../../store/metrics/actions';
+import { complementary } from '../config/complementary';
+import { getLocalizedMetricName } from '../../../helpers/l10n';
+import type { Component } from '../types';
+import type { Metric } from '../../../store/metrics/actions';
 
 type Props = {|
   components: Array<Component>,

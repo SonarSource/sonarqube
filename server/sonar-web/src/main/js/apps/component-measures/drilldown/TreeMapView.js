@@ -21,18 +21,14 @@
 import React from 'react';
 import { AutoSizer } from 'react-virtualized';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
-import QualifierIcon from '../../../../components/shared/QualifierIcon';
-import TreeMap from '../../../../components/charts/TreeMap';
-import {
-  translate,
-  translateWithParameters,
-  getLocalizedMetricName
-} from '../../../../helpers/l10n';
-import { formatMeasure, isDiffMetric } from '../../../../helpers/measures';
-import { getComponentUrl } from '../../../../helpers/urls';
-import type { Metric } from '../../../../store/metrics/actions';
-import type { ComponentEnhanced } from '../../types';
-import type { TreeMapItem } from '../../../../components/charts/TreeMap';
+import QualifierIcon from '../../../components/shared/QualifierIcon';
+import TreeMap from '../../../components/charts/TreeMap';
+import { translate, translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
+import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
+import { getComponentUrl } from '../../../helpers/urls';
+import type { Metric } from '../../../store/metrics/actions';
+import type { ComponentEnhanced } from '../types';
+import type { TreeMapItem } from '../../../components/charts/TreeMap';
 
 type Props = {|
   components: Array<ComponentEnhanced>,
