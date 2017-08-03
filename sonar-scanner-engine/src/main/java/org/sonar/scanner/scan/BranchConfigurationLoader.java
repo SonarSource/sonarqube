@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.repository;
+package org.sonar.scanner.scan;
 
-import javax.annotation.Nullable;
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
-public interface ProjectRepositoriesLoader {
-  ProjectRepositories load(String projectKeyWithBranch, boolean issuesMode, @Nullable String branchTarget);
+@ScannerSide
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+public interface BranchConfigurationLoader {
+  BranchConfiguration load(String projectKey, GlobalConfiguration settings);
 }
