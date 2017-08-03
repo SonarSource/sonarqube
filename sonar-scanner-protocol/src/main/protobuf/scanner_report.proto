@@ -40,12 +40,20 @@ message Metadata {
   map<string, QProfile> qprofiles_per_language = 7;
   bool incremental = 8;
   string branch_name = 9;
+  BranchType branch_type = 10;
+  
 
   message QProfile {
     string key = 1;
     string name = 2;
     string language = 3;
     int64 rulesUpdatedAt = 4;
+  }
+  
+  enum BranchType {
+    UNSET = 0;
+    LONG = 1;
+    SHORT = 2;
   }
 }
 
