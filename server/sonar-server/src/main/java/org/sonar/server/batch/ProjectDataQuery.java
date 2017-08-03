@@ -27,6 +27,7 @@ public class ProjectDataQuery {
   private String projectOrModuleKey;
   private String profileName;
   private boolean issuesMode;
+  private String branch;
 
   private ProjectDataQuery() {
     // No direct call
@@ -57,6 +58,16 @@ public class ProjectDataQuery {
 
   public ProjectDataQuery setModuleKey(String projectOrModuleKey) {
     this.projectOrModuleKey = projectOrModuleKey;
+    return this;
+  }
+
+  @CheckForNull
+  public String getBranch() {
+    return branch;
+  }
+
+  public ProjectDataQuery setBranch(@Nullable String branch) {
+    this.branch = branch;
     return this;
   }
 
