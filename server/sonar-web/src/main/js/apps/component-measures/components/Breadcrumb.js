@@ -27,7 +27,7 @@ type Props = {
   canBrowse: boolean,
   component: Component,
   isLast: boolean,
-  handleSelect: Component => void
+  handleSelect: string => void
 };
 
 export default class Breadcrumb extends React.PureComponent {
@@ -36,7 +36,7 @@ export default class Breadcrumb extends React.PureComponent {
   handleClick = (e: Event & { target: HTMLElement }) => {
     e.preventDefault();
     e.target.blur();
-    this.props.handleSelect(this.props.component);
+    this.props.handleSelect(this.props.component.key);
   };
 
   render() {

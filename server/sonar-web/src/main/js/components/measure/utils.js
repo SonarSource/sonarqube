@@ -29,10 +29,13 @@ import type { Metric } from '../../store/metrics/actions';
 
 const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
 
-export const enhanceMeasure = (measure: Measure, metric: Metric): MeasureEnhanced => ({
+export const enhanceMeasure = (
+  measure: Measure,
+  metrics: { [string]: Metric }
+): MeasureEnhanced => ({
   value: measure.value,
   periods: measure.periods,
-  metric,
+  metric: metrics[measure.metric],
   leak: getLeakValue(measure)
 });
 

@@ -28,6 +28,7 @@ import MeasureViewSelect from './MeasureViewSelect';
 import MetricNotFound from './MetricNotFound';
 import PageActions from './PageActions';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import TreeMapView from './drilldown/TreeMapView';
 import { getComponentTree } from '../../../api/components';
 import { complementary } from '../config/complementary';
 import { enhanceComponent, isFileType } from '../utils';
@@ -36,7 +37,7 @@ import type { Component, ComponentEnhanced, Paging, Period } from '../types';
 import type { MeasureEnhanced } from '../../../components/measure/types';
 import type { Metric } from '../../../store/metrics/actions';
 
-type Props = {
+type Props = {|
   className?: string,
   component: Component,
   currentUser: { isLoggedIn: boolean },
@@ -48,10 +49,10 @@ type Props = {
   rootComponent: Component,
   secondaryMeasure: ?MeasureEnhanced,
   updateLoading: ({ [string]: boolean }) => void,
-  updateSelected: Component => void,
+  updateSelected: string => void,
   updateView: string => void,
   view: string
-};
+|};
 
 type State = {
   components: Array<ComponentEnhanced>,
@@ -83,42 +84,42 @@ export default class MeasureContent extends React.PureComponent {
     this.mounted = false;
   }
 
-  getComponentRequestParams = (metric: Metric, options: Object = {}) => {
-    const metricKeys = [metric.key, ...(complementary[metric.key] || [])];
-    let opts: Object = {
-      asc: metric.direction === 1,
-      ps: 100,
-      metricSortFilter: 'withMeasuresOnly',
-      metricSort: metric.key
-    };
-    if (isDiffMetric(metric.key)) {
-      opts = {
-        ...opts,
-        s: 'metricPeriod,name',
-        metricPeriodSort: 1
-      };
+  getComponentRequestParams = (view: string, metric: Metric, options: Object = {}) => {
+    const strategy = view === 'list' ? 'leaves' : 'children';
+    const metricKeys = [metric.key];
+    const opts: Object = { metricSortFilter: 'withMeasuresOnly' };
+    if (view === 'treemap') {
+      metricKeys.push('ncloc');
+      opts.asc = false;
+      opts.metricSort = 'ncloc';
+      opts.s = 'metric';
     } else {
-      opts = {
-        ...opts,
-        s: 'metric,name'
-      };
+      metricKeys.push(...(complementary[metric.key] || []));
+      opts.asc = metric.direction === 1;
+      opts.ps = 100;
+      opts.metricSort = metric.key;
+      if (isDiffMetric(metric.key)) {
+        opts.s = 'metricPeriod,name';
+        opts.metricPeriodSort = 1;
+      } else {
+        opts.s = 'metric,name';
+      }
     }
-    return { metricKeys, opts: { ...opts, ...options } };
+    return { metricKeys, opts: { ...opts, ...options }, strategy };
   };
 
-  fetchComponents = ({ component, metric, view }: Props) => {
+  fetchComponents = ({ component, metric, metrics, view }: Props) => {
     if (isFileType(component)) {
       return this.setState({ components: [], metric: null, paging: null });
     }
 
-    const strategy = view === 'list' ? 'leaves' : 'children';
-    const { metricKeys, opts } = this.getComponentRequestParams(metric);
+    const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, metric);
     this.props.updateLoading({ components: true });
     getComponentTree(strategy, component.key, metricKeys, opts).then(
       r => {
         if (this.mounted) {
           this.setState({
-            components: r.components.map(component => enhanceComponent(component, metric)),
+            components: r.components.map(component => enhanceComponent(component, metric, metrics)),
             metric,
             paging: r.paging
           });
@@ -130,13 +131,12 @@ export default class MeasureContent extends React.PureComponent {
   };
 
   fetchMoreComponents = () => {
-    const { component, metric, view } = this.props;
+    const { component, metric, metrics, view } = this.props;
     const { paging } = this.state;
     if (!paging) {
       return;
     }
-    const strategy = view === 'list' ? 'leaves' : 'children';
-    const { metricKeys, opts } = this.getComponentRequestParams(metric, {
+    const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, metric, {
       p: paging.pageIndex + 1
     });
     this.props.updateLoading({ components: true });
@@ -146,7 +146,7 @@ export default class MeasureContent extends React.PureComponent {
           this.setState(state => ({
             components: [
               ...state.components,
-              ...r.components.map(component => enhanceComponent(component, metric))
+              ...r.components.map(component => enhanceComponent(component, metric, metrics))
             ],
             metric,
             paging: r.paging
@@ -202,11 +202,22 @@ export default class MeasureContent extends React.PureComponent {
         />
       );
     }
+
+    if (view === 'treemap') {
+      return (
+        <TreeMapView
+          components={this.state.components}
+          handleSelect={this.props.updateSelected}
+          metric={metric}
+        />
+      );
+    }
   }
 
   render() {
     const { component, currentUser, measure, metric, rootComponent, view } = this.props;
     const isLoggedIn = currentUser && currentUser.isLoggedIn;
+    const isFile = isFileType(component);
     return (
       <div className={this.props.className}>
         <div className="layout-page-header-panel layout-page-main-header issues-main-header">
@@ -225,16 +236,17 @@ export default class MeasureContent extends React.PureComponent {
                   component={component.key}
                   className="measure-favorite spacer-right"
                 />}
-              <MeasureViewSelect
-                className="measure-view-select"
-                metric={metric}
-                handleViewChange={this.props.updateView}
-                view={view}
-              />
+              {!isFile &&
+                <MeasureViewSelect
+                  className="measure-view-select"
+                  metric={metric}
+                  handleViewChange={this.props.updateView}
+                  view={view}
+                />}
               <PageActions
                 current={this.state.components.length}
                 loading={this.props.loading}
-                isFile={isFileType(component)}
+                isFile={isFile}
                 paging={this.state.paging}
                 view={view}
               />

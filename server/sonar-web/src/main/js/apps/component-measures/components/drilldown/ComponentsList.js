@@ -26,13 +26,13 @@ import { getLocalizedMetricName } from '../../../../helpers/l10n';
 import type { Component } from '../../types';
 import type { Metric } from '../../../../store/metrics/actions';
 
-type Props = {
+type Props = {|
   components: Array<Component>,
-  onClick: Component => void,
+  onClick: string => void,
   metric: Metric,
   metrics: { [string]: Metric },
   selectedComponent?: ?string
-};
+|};
 
 export default function ComponentsList({
   components,
