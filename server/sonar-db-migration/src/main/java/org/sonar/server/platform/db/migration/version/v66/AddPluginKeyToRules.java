@@ -38,7 +38,7 @@ public class AddPluginKeyToRules extends DdlChange {
     context.execute(new AddColumnsBuilder(getDialect(), "rules")
       .addColumn(newVarcharColumnDefBuilder()
         .setColumnName("plugin_key")
-        .setLimit(200)
+        .setLimit(CreateTablePlugins.PLUGIN_KEY_MAX_SIZE)
         .setIsNullable(true)
         .build())
       .build());
