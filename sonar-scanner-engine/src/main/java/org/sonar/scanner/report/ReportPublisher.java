@@ -53,6 +53,7 @@ import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 
+import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
@@ -177,6 +178,8 @@ public class ReportPublisher implements Startable {
       post.setParam("characteristic", "incremental=true");
     }
 
+    settings.get(BRANCH_NAME).ifPresent(b -> post.setParam("characteristic", "branch=" + b));
+
     WsResponse response;
     try {
       response = wsClient.call(post).failIfNotSuccessful();
@@ -208,6 +211,7 @@ public class ReportPublisher implements Startable {
       metadata.put("projectKey", effectiveKey);
       metadata.put("serverUrl", publicUrl);
       metadata.put("serverVersion", server.getVersion());
+      settings.get(BRANCH_NAME).ifPresent(branch -> metadata.put("branch", branch));
 
       URL dashboardUrl = httpUrl.newBuilder()
         .addPathSegment("dashboard").addPathSegment("index").addPathSegment(effectiveKey)
