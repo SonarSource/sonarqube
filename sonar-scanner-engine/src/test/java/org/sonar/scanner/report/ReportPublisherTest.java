@@ -232,7 +232,11 @@ public class ReportPublisherTest {
       new ReportPublisherStep[0]);
 
     when(mode.isIncremental()).thenReturn(true);
-    settings.setProperty(ScannerProperties.ORGANIZATION, "MyOrg");
+    String orgName = "MyOrg";
+    settings.setProperty(ScannerProperties.ORGANIZATION, orgName);
+
+    String branchName = "feature";
+    settings.setProperty(ScannerProperties.BRANCH_NAME, branchName);
 
     WsResponse response = mock(WsResponse.class);
 
@@ -251,10 +255,11 @@ public class ReportPublisherTest {
     verify(wsClient).call(capture.capture());
 
     WsRequest wsRequest = capture.getValue();
-    assertThat(wsRequest.getParams()).containsOnly(
-      entry("organization", "MyOrg"),
-      entry("projectKey", "struts"),
-      entry("characteristic", "incremental=true"));
+    assertThat(wsRequest.getParameters().getKeys()).hasSize(3);
+    assertThat(wsRequest.getParameters().getValues("organization")).containsExactly(orgName);
+    assertThat(wsRequest.getParameters().getValues("projectKey")).containsExactly("struts");
+    assertThat(wsRequest.getParameters().getValues("characteristic"))
+      .containsExactly("incremental=true", "branch=" + branchName);
   }
 
 }
