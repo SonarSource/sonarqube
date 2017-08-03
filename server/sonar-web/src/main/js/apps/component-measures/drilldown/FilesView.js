@@ -19,21 +19,35 @@
  */
 // @flow
 import React from 'react';
-import Measure from '../../../../components/measure/Measure';
-import type { Component } from '../../types';
-import type { Metric } from '../../../../store/metrics/actions';
+import ComponentsList from './ComponentsList';
+import ListFooter from '../../../components/controls/ListFooter';
+import type { ComponentEnhanced, Paging } from '../types';
+import type { Metric } from '../../../store/metrics/actions';
 
-type Props = {
-  component: Component,
-  metric: Metric
-};
+type Props = {|
+  components: Array<ComponentEnhanced>,
+  fetchMore: () => void,
+  handleSelect: string => void,
+  metric: Metric,
+  metrics: { [string]: Metric },
+  paging: ?Paging
+|};
 
-export default function MeasureCell({ component, metric }: Props) {
+export default function ListView(props: Props) {
   return (
-    <td className="thin nowrap text-right">
-      <span id={'component-measures-component-measure-' + component.key + '-' + metric.key}>
-        <Measure measure={{ metric, value: component.value, leak: component.leak }} />
-      </span>
-    </td>
+    <div>
+      <ComponentsList
+        components={props.components}
+        metrics={props.metrics}
+        metric={props.metric}
+        onClick={props.handleSelect}
+      />
+      {props.paging &&
+        <ListFooter
+          count={props.components.length}
+          total={props.paging.total}
+          loadMore={props.fetchMore}
+        />}
+    </div>
   );
 }

@@ -19,35 +19,12 @@
  */
 // @flow
 import React from 'react';
-import ComponentsList from './ComponentsList';
-import ListFooter from '../../../../components/controls/ListFooter';
-import type { ComponentEnhanced, Paging } from '../../types';
-import type { Metric } from '../../../../store/metrics/actions';
+import { translate } from '../../../helpers/l10n';
 
-type Props = {|
-  components: Array<ComponentEnhanced>,
-  fetchMore: () => void,
-  handleSelect: string => void,
-  metric: Metric,
-  metrics: { [string]: Metric },
-  paging: ?Paging
-|};
-
-export default function ListView(props: Props) {
+export default function EmptyComponentsList() {
   return (
-    <div>
-      <ComponentsList
-        components={props.components}
-        metrics={props.metrics}
-        metric={props.metric}
-        onClick={props.handleSelect}
-      />
-      {props.paging &&
-        <ListFooter
-          count={props.components.length}
-          total={props.paging.total}
-          loadMore={props.fetchMore}
-        />}
+    <div className="note">
+      {translate('no_results')}
     </div>
   );
 }
