@@ -35,8 +35,8 @@ type Props = {|
   currentUser: { isLoggedIn: boolean },
   location: { pathname: string, query: RawQuery },
   fetchMeasures: (
-    Component,
-    Array<string>
+    component: string,
+    metricsKey: Array<string>
   ) => Promise<{ component: Component, measures: Array<MeasureEnhanced>, leakPeriod: ?Period }>,
   fetchMetrics: () => void,
   metrics: { [string]: Metric },

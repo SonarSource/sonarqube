@@ -28,7 +28,7 @@ import type { Component } from '../../types';
 type Props = {
   component: Component,
   isSelected: boolean,
-  onClick: Component => void
+  onClick: string => void
 };
 
 export default class ComponentCell extends React.PureComponent {
@@ -40,7 +40,7 @@ export default class ComponentCell extends React.PureComponent {
 
     if (isLeftClickEvent && !isModifiedEvent) {
       e.preventDefault();
-      this.props.onClick();
+      this.props.onClick(this.props.component.key);
     }
   };
 

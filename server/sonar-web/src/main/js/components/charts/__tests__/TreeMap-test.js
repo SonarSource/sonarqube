@@ -19,16 +19,16 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import { Treemap, TreemapRect } from '../treemap';
+import TreeMap from '../TreeMap';
 
 it('should display', () => {
   const items = [
-    { size: 10, color: '#777', label: 'SonarQube :: Server' },
-    { size: 30, color: '#777', label: 'SonarQube :: Web' },
-    { size: 20, color: '#777', label: 'SonarQube :: Search' }
+    { key: '1', size: 10, color: '#777', label: 'SonarQube :: Server' },
+    { key: '2', size: 30, color: '#777', label: 'SonarQube :: Web' },
+    { key: '3', size: 20, color: '#777', label: 'SonarQube :: Search' }
   ];
   const chart = shallow(
-    <Treemap items={items} width={100} height={100} breadcrumbs={[]} canBeClicked={() => true} />
+    <TreeMap items={items} width={100} height={100} onRectangleClick={() => {}} />
   );
-  expect(chart.find(TreemapRect).length).toBe(3);
+  expect(chart.find('TreeMapRect')).toHaveLength(3);
 });
