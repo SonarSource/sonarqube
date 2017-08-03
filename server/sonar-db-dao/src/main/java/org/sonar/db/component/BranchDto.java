@@ -97,16 +97,18 @@ public class BranchDto {
     return uuid;
   }
 
-  public void setUuid(String s) {
+  public BranchDto setUuid(String s) {
     this.uuid = s;
+    return this;
   }
 
   public String getProjectUuid() {
     return projectUuid;
   }
 
-  public void setProjectUuid(String s) {
+  public BranchDto setProjectUuid(String s) {
     this.projectUuid = s;
+    return this;
   }
 
   public boolean isMain() {
@@ -117,8 +119,9 @@ public class BranchDto {
     return keeType;
   }
 
-  public void setKeeType(BranchKeyType t) {
+  public BranchDto setKeeType(BranchKeyType t) {
     this.keeType = t;
+    return this;
   }
 
   /**
@@ -142,10 +145,11 @@ public class BranchDto {
     this.kee = s;
   }
 
-  public void setKey(@Nullable String s) {
+  public BranchDto setKey(@Nullable String s) {
     checkArgument(s == null || s.length() <= KEE_MAX_LENGTH, "Maximum length of branch name or pull request id is %s: %s", KEE_MAX_LENGTH, s);
     checkArgument(!NULL_KEY.equals(s), "Branch name is not allowed: %s", s);
     setKee(convertKeyToDb(s));
+    return this;
   }
 
   @Nullable
@@ -153,8 +157,9 @@ public class BranchDto {
     return branchType;
   }
 
-  public void setBranchType(@Nullable BranchType b) {
+  public BranchDto setBranchType(@Nullable BranchType b) {
     this.branchType = b;
+    return this;
   }
 
   @Nullable
@@ -162,8 +167,9 @@ public class BranchDto {
     return mergeBranchUuid;
   }
 
-  public void setMergeBranchUuid(@Nullable String s) {
+  public BranchDto setMergeBranchUuid(@Nullable String s) {
     this.mergeBranchUuid = s;
+    return this;
   }
 
   @Nullable
@@ -171,9 +177,10 @@ public class BranchDto {
     return pullRequestTitle;
   }
 
-  public void setPullRequestTitle(@Nullable String s) {
+  public BranchDto setPullRequestTitle(@Nullable String s) {
     checkArgument(s == null || s.length() <= 4000, "Maximum length of pull request title is 4000: %s", s);
     this.pullRequestTitle = s;
+    return this;
   }
 
   @Override
@@ -198,4 +205,5 @@ public class BranchDto {
   static String convertKeyFromDb(String s) {
     return NULL_KEY.equals(s) ? null : s;
   }
+
 }

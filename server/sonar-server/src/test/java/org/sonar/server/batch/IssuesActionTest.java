@@ -20,6 +20,8 @@
 package org.sonar.server.batch;
 
 import java.io.IOException;
+import javax.annotation.Nullable;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -37,9 +39,11 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rules.RuleType.BUG;
@@ -66,25 +70,24 @@ public class IssuesActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null).setPath(null));
-    IssueDto issue = db.issues().insert(rule, project, file, i ->
-      i.setSeverity("BLOCKER")
-        // non-null fields
-        .setStatus("OPEN")
-        .setType(BUG)
-        .setManualSeverity(true)
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setSeverity("BLOCKER")
+      // non-null fields
+      .setStatus("OPEN")
+      .setType(BUG)
+      .setManualSeverity(true)
 
-        // all the nullable fields
-        .setResolution(null)
-        .setMessage(null)
-        .setLine(null)
-        .setChecksum(null)
-        .setAssignee(null));
+      // all the nullable fields
+      .setResolution(null)
+      .setMessage(null)
+      .setLine(null)
+      .setChecksum(null)
+      .setAssignee(null));
     addPermissionTo(project);
 
-    ServerIssue serverIssue = call(project.getDbKey());
+    ServerIssue serverIssue = call(project.getKey());
 
     assertThat(serverIssue.getKey()).isEqualTo(issue.getKey());
-    assertThat(serverIssue.getModuleKey()).isEqualTo(module.getDbKey());
+    assertThat(serverIssue.getModuleKey()).isEqualTo(module.getKey());
     assertThat(serverIssue.getRuleRepository()).isEqualTo(rule.getRepositoryKey());
     assertThat(serverIssue.getRuleKey()).isEqualTo(rule.getRuleKey());
     assertThat(serverIssue.getStatus()).isEqualTo("OPEN");
@@ -106,22 +109,21 @@ public class IssuesActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null));
-    IssueDto issue = db.issues().insert(rule, project, file, i ->
-      i.setSeverity("BLOCKER")
-        .setStatus("OPEN")
-        .setType(BUG)
-        .setManualSeverity(true)
-        .setResolution("FIXED")
-        .setMessage("the message")
-        .setLine(10)
-        .setChecksum("ABC")
-        .setAssignee("foo"));
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setSeverity("BLOCKER")
+      .setStatus("OPEN")
+      .setType(BUG)
+      .setManualSeverity(true)
+      .setResolution("FIXED")
+      .setMessage("the message")
+      .setLine(10)
+      .setChecksum("ABC")
+      .setAssignee("foo"));
     addPermissionTo(project);
 
-    ServerIssue serverIssue = call(project.getDbKey());
+    ServerIssue serverIssue = call(project.getKey());
 
     assertThat(serverIssue.getKey()).isEqualTo(issue.getKey());
-    assertThat(serverIssue.getModuleKey()).isEqualTo(module.getDbKey());
+    assertThat(serverIssue.getModuleKey()).isEqualTo(module.getKey());
     assertThat(serverIssue.getRuleRepository()).isEqualTo(rule.getRepositoryKey());
     assertThat(serverIssue.getRuleKey()).isEqualTo(rule.getRuleKey());
     assertThat(serverIssue.getStatus()).isEqualTo("OPEN");
@@ -147,13 +149,13 @@ public class IssuesActionTest {
     IssueDto issueOnProject = db.issues().insert(rule, project, project, i -> i.setKee("ON_PROJECT"));
 
     addPermissionTo(project);
-    try (CloseableIterator<ServerIssue> result = callStream(project.getDbKey())) {
+    try (CloseableIterator<ServerIssue> result = callStream(project.getKey(), null)) {
       assertThat(result)
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
         .containsExactlyInAnyOrder(
-          tuple(issueOnFile.getKey(), module.getDbKey()),
-          tuple(issueOnModule.getKey(), module.getDbKey()),
-          tuple(issueOnProject.getKey(), project.getDbKey()));
+          tuple(issueOnFile.getKey(), module.getKey()),
+          tuple(issueOnModule.getKey(), module.getKey()),
+          tuple(issueOnProject.getKey(), project.getKey()));
     }
   }
 
@@ -168,12 +170,12 @@ public class IssuesActionTest {
     IssueDto issueOnProject = db.issues().insert(rule, project, project, i -> i.setKee("ON_PROJECT"));
 
     addPermissionTo(project);
-    try (CloseableIterator<ServerIssue> result = callStream(module.getDbKey())) {
+    try (CloseableIterator<ServerIssue> result = callStream(module.getKey(), null)) {
       assertThat(result)
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
         .containsExactlyInAnyOrder(
-          tuple(issueOnFile.getKey(), module.getDbKey()),
-          tuple(issueOnModule.getKey(), module.getDbKey()));
+          tuple(issueOnFile.getKey(), module.getKey()),
+          tuple(issueOnModule.getKey(), module.getKey()));
     }
   }
 
@@ -188,12 +190,47 @@ public class IssuesActionTest {
     IssueDto issueOnProject = db.issues().insert(rule, project, project);
 
     addPermissionTo(project);
-    try (CloseableIterator<ServerIssue> result = callStream(file.getDbKey())) {
+    try (CloseableIterator<ServerIssue> result = callStream(file.getKey(), null)) {
       assertThat(result)
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
         .containsExactlyInAnyOrder(
-          tuple(issueOnFile.getKey(), module.getDbKey()));
+          tuple(issueOnFile.getKey(), module.getKey()));
     }
+  }
+
+  @Test
+  public void return_issues_by_project_and_branch() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    addPermissionTo(project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    IssueDto issueOnFile = db.issues().insert(rule, branch, file);
+    IssueDto issueOnBranch = db.issues().insert(rule, branch, branch);
+
+    assertResult(project.getKey(), "my_branch",
+      tuple(issueOnFile.getKey(), branch.getKey()),
+      tuple(issueOnBranch.getKey(), branch.getKey()));
+  }
+
+  @Test
+  public void return_issues_by_module_and_branch() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    addPermissionTo(project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
+    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
+    ComponentDto file = db.components().insertComponent(newFileDto(subModule));
+    IssueDto issueOnFile = db.issues().insert(rule, branch, file);
+    IssueDto issueOnSubModule = db.issues().insert(rule, branch, subModule);
+    IssueDto issueOnModule = db.issues().insert(rule, branch, module);
+
+    assertResult(module.getKey(), "my_branch",
+      tuple(issueOnFile.getKey(), subModule.getKey()),
+      tuple(issueOnSubModule.getKey(), subModule.getKey()),
+      tuple(issueOnModule.getKey(), module.getKey())
+    );
   }
 
   @Test
@@ -205,7 +242,7 @@ public class IssuesActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component of scope 'DIR' is not allowed");
 
-    call(directory.getDbKey());
+    call(directory.getKey());
   }
 
   @Test
@@ -217,11 +254,11 @@ public class IssuesActionTest {
     IssueDto issue = db.issues().insert(rule, project, file);
 
     addPermissionTo(project);
-    try (CloseableIterator<ServerIssue> result = callStream(project.getDbKey())) {
+    try (CloseableIterator<ServerIssue> result = callStream(project.getKey(), null)) {
       // Module key of removed file should be returned
       assertThat(result)
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
-        .containsExactly(tuple(issue.getKey(), module.getDbKey()));
+        .containsExactly(tuple(issue.getKey(), module.getKey()));
     }
   }
 
@@ -232,7 +269,7 @@ public class IssuesActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    tester.newRequest().setParam("key", file.getDbKey()).execute();
+    tester.newRequest().setParam("key", file.getKey()).execute();
   }
 
   @Test
@@ -241,6 +278,21 @@ public class IssuesActionTest {
     expectedException.expectMessage("Component key 'does_not_exist' not found");
 
     tester.newRequest().setParam("key", "does_not_exist").execute();
+  }
+
+  @Test
+  public void fail_if_branch_does_not_exist() {
+    ComponentDto project = db.components().insertPrivateProject();
+     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    addPermissionTo(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component '%s' on branch 'does_not_exist' not found", project.getKey()));
+
+    tester.newRequest()
+      .setParam("key",project.getKey())
+      .setParam("branch", "does_not_exist")
+      .execute();
   }
 
   private void addPermissionTo(ComponentDto project) {
@@ -252,8 +304,20 @@ public class IssuesActionTest {
     return ServerIssue.parseDelimitedFrom(response.getInputStream());
   }
 
-  private CloseableIterator<ServerIssue> callStream(String componentKey) {
-    TestResponse response = tester.newRequest().setParam("key", componentKey).execute();
-    return Protobuf.readStream(response.getInputStream(), ServerIssue.parser());
+  private CloseableIterator<ServerIssue> callStream(String componentKey, @Nullable String branch) {
+    TestRequest request = tester.newRequest()
+      .setParam("key", componentKey);
+    if (branch != null) {
+      request.setParam("branch", branch);
+    }
+    return Protobuf.readStream(request.execute().getInputStream(), ServerIssue.parser());
+  }
+
+  private void assertResult(String componentKey, String branch, Tuple... tuples) {
+    try (CloseableIterator<ServerIssue> result = callStream(componentKey, branch)) {
+      assertThat(result)
+        .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
+        .containsExactlyInAnyOrder(tuples);
+    }
   }
 }

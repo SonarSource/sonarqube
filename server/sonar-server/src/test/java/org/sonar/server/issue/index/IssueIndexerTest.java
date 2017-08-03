@@ -192,7 +192,6 @@ public class IssueIndexerTest {
     assertThatEsQueueTableHasSize(0);
   }
 
-
   @Test
   public void index_is_not_updated_when_creating_project() {
     // it's impossible to already have an issue on a project
@@ -451,7 +450,7 @@ public class IssueIndexerTest {
   public void index_issue_in_non_main_branch() {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
-    ComponentDto branch = db.components().insertProjectBranch(project, "feature/foo");
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(branch, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, dir, "F1"));
     IssueDto issue = db.issues().insertIssue(IssueTesting.newIssue(rule, branch, file));
