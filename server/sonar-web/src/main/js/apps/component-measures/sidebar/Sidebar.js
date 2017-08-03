@@ -49,7 +49,9 @@ export default class Sidebar extends React.PureComponent {
     }));
   };
 
-  changeMetric = (metric: string) => this.props.updateQuery({ metric, selected: null });
+  resetSelection = () => ({ selected: null, view: 'list' });
+
+  changeMetric = (metric: string) => this.props.updateQuery({ metric, ...this.resetSelection() });
 
   render() {
     return (

@@ -31,18 +31,33 @@
   border-bottom: 1px solid #fff;
   box-sizing: border-box;
   text-align: center;
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .sonar-d3 .treemap-inner {
-  display: inline-block;
+  display: inline-flex;
   vertical-align: middle;
-  line-height: 1.2;
-  padding: 5px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 0 4px;
   box-sizing: border-box;
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.2;
+
+  .treemap-icon {
+    flex-shrink: 0;
+  }
+
+  .treemap-text {
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+  }
 }
 
 .sonar-d3 .treemap-link {
@@ -52,6 +67,8 @@
   right: 5px;
   line-height: @iconSmallFontSize;
   opacity: 0.5;
+  font-size: 12;
+
   .link-no-underline;
 
   &:hover {
@@ -64,21 +81,6 @@
   vertical-align: top;
   font-size: inherit;
   line-height: inherit;
-}
-
-.sonar-d3 .treemap-cell-small {
-  .treemap-inner {
-    display: none;
-  }
-}
-
-.sonar-d3 .treemap-cell-very-small {
-  .treemap-inner {
-    display: none;
-  }
-  .treemap-link {
-    display: none;
-  }
 }
 
 .sonar-d3 .treemap-breadcrumbs {
