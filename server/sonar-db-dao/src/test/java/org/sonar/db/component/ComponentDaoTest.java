@@ -161,14 +161,22 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByKey() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto file = db.components().insertComponent(
+      newFileDto(project)
+        .setDbKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+        .setPath("path_of_U4")
+        .setName("RequestContext.java")
+        .setLongName("org.struts.RequestContext")
+        .setLanguage("java"));
 
     Optional<ComponentDto> optional = underTest.selectByKey(dbSession, "org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(optional).isPresent();
 
     ComponentDto result = optional.get();
-    assertThat(result.getOrganizationUuid()).isEqualTo("org1");
-    assertThat(result.uuid()).isEqualTo("U4");
+    assertThat(result.getOrganizationUuid()).isEqualTo(organization.getUuid());
+    assertThat(result.uuid()).isEqualTo(file.uuid());
     assertThat(result.getDbKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("path_of_U4");
     assertThat(result.name()).isEqualTo("RequestContext.java");
@@ -176,9 +184,21 @@ public class ComponentDaoTest {
     assertThat(result.qualifier()).isEqualTo("FIL");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
-    assertThat(result.getRootUuid()).isEqualTo("U1");
+    assertThat(result.projectUuid()).isEqualTo(project.uuid());
 
     assertThat(underTest.selectByKey(dbSession, "unknown")).isAbsent();
+  }
+
+  @Test
+  public void selectByKeyAndBranch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    assertThat(underTest.selectByKeyAndBranch(dbSession, project.getKey(), "my_branch").get().uuid()).isEqualTo(branch.uuid());
+    assertThat(underTest.selectByKeyAndBranch(dbSession, file.getKey(), "my_branch").get().uuid()).isEqualTo(file.uuid());
+    assertThat(underTest.selectByKeyAndBranch(dbSession, "unknown", "my_branch")).isNotPresent();
+    assertThat(underTest.selectByKeyAndBranch(dbSession, file.getKey(), "unknown")).isNotPresent();
   }
 
   @Test
@@ -553,7 +573,8 @@ public class ComponentDaoTest {
   @Test
   public void select_provisioned() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto provisionedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organization).setDbKey("provisioned.project").setName("Provisioned Project"));
+    ComponentDto provisionedProject = db.components()
+      .insertComponent(ComponentTesting.newPrivateProjectDto(organization).setDbKey("provisioned.project").setName("Provisioned Project"));
     ComponentDto provisionedView = db.components().insertView(organization);
     String projectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization)).getComponentUuid();
     String disabledProjectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization).setEnabled(false)).getComponentUuid();

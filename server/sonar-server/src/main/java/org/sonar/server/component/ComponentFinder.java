@@ -143,6 +143,10 @@ public class ComponentFinder {
     return checkFoundWithOptional(organizationDto, "Organization with uuid '%s' not found", organizationUuid);
   }
 
+  public ComponentDto getByKeyAndBranch(DbSession dbSession, String key, String branch) {
+    return checkFoundWithOptional(dbClient.componentDao().selectByKeyAndBranch(dbSession, key, branch), "Component '%s' on branch '%s' not found", key, branch);
+  }
+
   public enum ParamNames {
     PROJECT_ID_AND_KEY("projectId", "projectKey"),
     PROJECT_UUID_AND_KEY("projectUuid", "projectKey"),
