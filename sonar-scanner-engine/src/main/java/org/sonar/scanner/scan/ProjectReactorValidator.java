@@ -22,7 +22,6 @@ package org.sonar.scanner.scan;
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -58,7 +57,7 @@ public class ProjectReactorValidator {
       }
     }
 
-    validateBranchParams(validationMessages, branch, settings.get(ScannerProperties.BRANCH_NAME));
+    validateBranchParams(validationMessages, branch, settings.get(ScannerProperties.BRANCH_NAME).orElse(null));
 
     validateBranch(validationMessages, branch);
 
@@ -88,8 +87,8 @@ public class ProjectReactorValidator {
     }
   }
 
-  private static void validateBranchParams(List<String> validationMessages, @Nullable String deprecatedBranch, Optional<String> branchName) {
-    if (StringUtils.isNotEmpty(deprecatedBranch) && branchName.isPresent()) {
+  private static void validateBranchParams(List<String> validationMessages, @Nullable String deprecatedBranch, @Nullable String branchName) {
+    if (StringUtils.isNotEmpty(deprecatedBranch) && StringUtils.isNotEmpty(branchName)) {
       validationMessages.add(String.format("The %s parameter must not be used together with the deprecated sonar.branch parameter", ScannerProperties.BRANCH_NAME));
     }
   }
