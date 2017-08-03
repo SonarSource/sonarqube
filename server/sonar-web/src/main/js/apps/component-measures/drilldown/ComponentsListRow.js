@@ -21,8 +21,8 @@
 import React from 'react';
 import ComponentCell from './ComponentCell';
 import MeasureCell from './MeasureCell';
-import type { Component } from '../../types';
-import type { Metric } from '../../../../store/metrics/actions';
+import type { Component } from '../types';
+import type { Metric } from '../../../store/metrics/actions';
 
 type Props = {|
   component: Component,
