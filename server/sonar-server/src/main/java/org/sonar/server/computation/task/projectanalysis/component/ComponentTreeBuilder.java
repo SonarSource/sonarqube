@@ -90,8 +90,9 @@ public class ComponentTreeBuilder {
         String uuid = uuidSupplier.apply(projectKey);
         return ComponentImpl.builder(Component.Type.PROJECT)
           .setUuid(uuid)
-          .setKey(projectKey)
+          .setKey(projectKey) 
           .setName(nameOfProject(component))
+          .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
           .setReportAttributes(createAttributesBuilder(component)
             .setVersion(createProjectVersion(component))
@@ -105,6 +106,7 @@ public class ComponentTreeBuilder {
           .setUuid(uuidSupplier.apply(moduleKey))
           .setKey(moduleKey)
           .setName(nameOfOthers(component, moduleKey))
+          .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
           .setReportAttributes(createAttributesBuilder(component).build())
           .addChildren(buildChildren(component, component))
@@ -117,6 +119,7 @@ public class ComponentTreeBuilder {
           .setUuid(uuidSupplier.apply(key))
           .setKey(key)
           .setName(nameOfOthers(component, key))
+          .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
           .setReportAttributes(createAttributesBuilder(component).build())
           .setFileAttributes(createFileAttributes(component))
@@ -125,6 +128,22 @@ public class ComponentTreeBuilder {
 
       default:
         throw new IllegalArgumentException(format("Unsupported component type '%s'", component.getType()));
+    }
+  }
+  
+  private static Component.Status convertStatus(ScannerReport.Component.FileStatus status) {
+    switch(status) {
+      case ADDED:
+        return Component.Status.ADDED;
+      case SAME:
+        return Component.Status.SAME;
+      case CHANGED:
+        return Component.Status.CHANGED;
+      case UNAVAILABLE:
+        return Component.Status.UNAVAILABLE;
+      case UNRECOGNIZED:
+      default:
+        throw new IllegalArgumentException("Unsupported ComponentType value " + status);
     }
   }
 

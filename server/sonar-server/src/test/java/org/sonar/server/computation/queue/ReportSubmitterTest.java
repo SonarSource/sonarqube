@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -69,23 +68,6 @@ import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
 
-<<<<<<< b8aee971b31e31be4ed5531adff48c8e43dc8112
-=======
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
-import static org.sonar.db.permission.OrganizationPermission.SCAN;
-
->>>>>>> SONAR-9616 compute engine backend to support branches
 public class ReportSubmitterTest {
 
   private static final String PROJECT_KEY = "MY_PROJECT";
@@ -143,8 +125,8 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(project);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(), anyString(),
-      eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(), eq(PROJECT_KEY),
+      eq(Qualifiers.PROJECT)))
         .thenReturn(true);
 
     Map<String, String> taskCharacteristics = new HashMap<>();
@@ -197,7 +179,8 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = newPrivateProjectDto(organization, PROJECT_UUID).setDbKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyInt(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+    when(
+      permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyInt(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(organization.getUuid()), any(ComponentDto.class))).thenReturn(true);
 

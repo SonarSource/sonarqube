@@ -30,8 +30,8 @@ public class DbVersion66 implements DbVersion {
       .add(1800, "Create table project_branches", CreateTableProjectBranches.class)
       .add(1801, "Add on project_branches key", AddIndexOnProjectBranchesKey.class)
       .add(1802, "Add branch column to projects table", AddBranchColumnToProjectsTable.class)
-      .add(1800, "Add incremental column to snapthots table", AddIncrementalColumnToSnapshotsTable.class)
-      .add(1801, "Create table CE task characteristics", CreateTableCeTaskCharacteristics.class)
+      .add(1803, "Add incremental column to snapthots table", AddIncrementalColumnToSnapshotsTable.class)
+      .add(1804, "Create table CE task characteristics", CreateTableCeTaskCharacteristics.class)
     ;
   }
 }

@@ -225,15 +225,15 @@ public class ReportPublisherTest {
       entry("organization", "MyOrg"),
       entry("projectKey", "struts"));
   }
-  
+
   @Test
   public void test_send_characteristics() throws Exception {
     ReportPublisher underTest = new ReportPublisher(settings.asConfig(), wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
       new ReportPublisherStep[0]);
-    
+
     when(mode.isIncremental()).thenReturn(true);
-    settings.setProperty(CoreProperties.PROJECT_ORGANIZATION_PROPERTY, "MyOrg");
-    
+    settings.setProperty(ScannerProperties.ORGANIZATION, "MyOrg");
+
     WsResponse response = mock(WsResponse.class);
 
     PipedOutputStream out = new PipedOutputStream();
