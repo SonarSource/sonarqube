@@ -39,6 +39,7 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,6 +60,9 @@ public class DeprecatedRulesDefinitionLoaderTest {
 
   @Mock
   DebtRulesXMLImporter importer;
+
+  @Mock
+  ServerPluginRepository pluginRepository;
 
   static class CheckstyleRules extends RuleRepository {
     public CheckstyleRules() {
@@ -96,7 +100,9 @@ public class DeprecatedRulesDefinitionLoaderTest {
   @Test
   public void wrap_deprecated_rule_repositories() {
     RulesDefinition.Context context = new RulesDefinition.Context();
-    new DeprecatedRulesDefinitionLoader(i18n, debtModelRepository, importer, new RuleRepository[] {new CheckstyleRules()}).complete(context);
+    CheckstyleRules checkstyleRules = new CheckstyleRules();
+    when(pluginRepository.getPluginKey(checkstyleRules)).thenReturn("unittest");
+    new DeprecatedRulesDefinitionLoader(i18n, debtModelRepository, importer, pluginRepository, new RuleRepository[] {checkstyleRules}).complete(context);
 
     assertThat(context.repositories()).hasSize(1);
     RulesDefinition.Repository checkstyle = context.repository("checkstyle");
@@ -108,6 +114,7 @@ public class DeprecatedRulesDefinitionLoaderTest {
     RulesDefinition.Rule rule = checkstyle.rule("ConstantName");
     assertThat(rule).isNotNull();
     assertThat(rule.key()).isEqualTo("ConstantName");
+    assertThat(rule.pluginKey()).isEqualTo("unittest");
     assertThat(rule.name()).isEqualTo("Constant Name");
     assertThat(rule.htmlDescription()).isEqualTo("Checks that constant names conform to the specified format");
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
@@ -128,7 +135,7 @@ public class DeprecatedRulesDefinitionLoaderTest {
     RulesDefinition.Context context = new RulesDefinition.Context();
 
     // no more RuleRepository !
-    new DeprecatedRulesDefinitionLoader(i18n, debtModelRepository, importer);
+    new DeprecatedRulesDefinitionLoader(i18n, debtModelRepository, importer, pluginRepository);
 
     assertThat(context.repositories()).isEmpty();
   }
@@ -140,7 +147,7 @@ public class DeprecatedRulesDefinitionLoaderTest {
     when(i18n.getDescription("checkstyle", "ConstantName")).thenReturn("Checks that constant names conform to the specified format");
     when(i18n.getParamDescription("checkstyle", "ConstantName", "format")).thenReturn("Regular expression");
 
-    new DeprecatedRulesDefinitionLoader(i18n, debtModelRepository, importer, new RuleRepository[] {new UseBundles()}).complete(context);
+    new DeprecatedRulesDefinitionLoader(i18n, debtModelRepository, importer, pluginRepository, new RuleRepository[] {new UseBundles()}).complete(context);
 
     RulesDefinition.Repository checkstyle = context.repository("checkstyle");
     RulesDefinition.Rule rule = checkstyle.rule("ConstantName");
@@ -162,15 +169,14 @@ public class DeprecatedRulesDefinitionLoaderTest {
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
         .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setCoefficient("1d")
-        .setOffset("10min")
-      );
+        .setOffset("10min"));
 
     Reader javaModelReader = mock(Reader.class);
     when(debtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
     when(debtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
     when(importer.importXML(eq(javaModelReader), any(ValidationMessages.class))).thenReturn(ruleDebts);
 
-    new DeprecatedRulesDefinitionLoader(i18n, debtModelRepository, importer, new RuleRepository[] {new CheckstyleRules()}).complete(context);
+    new DeprecatedRulesDefinitionLoader(i18n, debtModelRepository, importer, pluginRepository, new RuleRepository[] {new CheckstyleRules()}).complete(context);
 
     assertThat(context.repositories()).hasSize(1);
     RulesDefinition.Repository checkstyle = context.repository("checkstyle");
@@ -192,8 +198,7 @@ public class DeprecatedRulesDefinitionLoaderTest {
       new DebtModelXMLExporter.RuleDebt()
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
         .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setCoefficient("1d")
-      );
+        .setCoefficient("1d"));
 
     Reader javaModelReader = mock(Reader.class);
     when(debtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
@@ -201,7 +206,7 @@ public class DeprecatedRulesDefinitionLoaderTest {
     when(importer.importXML(eq(javaModelReader), any(ValidationMessages.class))).thenReturn(ruleDebts);
 
     try {
-      new DeprecatedRulesDefinitionLoader(i18n, debtModelRepository, importer, new RuleRepository[] {new CheckstyleRules()}).complete(context);
+      new DeprecatedRulesDefinitionLoader(i18n, debtModelRepository, importer, pluginRepository, new RuleRepository[] {new CheckstyleRules()}).complete(context);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class);

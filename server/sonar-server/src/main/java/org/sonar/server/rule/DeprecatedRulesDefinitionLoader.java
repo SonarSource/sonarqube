@@ -29,11 +29,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
@@ -46,6 +46,7 @@ import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.debt.DebtRulesXMLImporter;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -63,9 +64,12 @@ public class DeprecatedRulesDefinitionLoader {
 
   private final DebtModelPluginRepository languageModelFinder;
   private final DebtRulesXMLImporter importer;
+  private final ServerPluginRepository serverPluginRepository;
 
-  public DeprecatedRulesDefinitionLoader(RuleI18nManager i18n, DebtModelPluginRepository languageModelFinder, DebtRulesXMLImporter importer, RuleRepository[] repositories) {
+  public DeprecatedRulesDefinitionLoader(RuleI18nManager i18n, DebtModelPluginRepository languageModelFinder, DebtRulesXMLImporter importer,
+    ServerPluginRepository serverPluginRepository, RuleRepository[] repositories) {
     this.i18n = i18n;
+    this.serverPluginRepository = serverPluginRepository;
     this.repositories = repositories;
     this.languageModelFinder = languageModelFinder;
     this.importer = importer;
@@ -74,8 +78,9 @@ public class DeprecatedRulesDefinitionLoader {
   /**
    * Used when no deprecated repositories
    */
-  public DeprecatedRulesDefinitionLoader(RuleI18nManager i18n, DebtModelPluginRepository languageModelFinder, DebtRulesXMLImporter importer) {
-    this(i18n, languageModelFinder, importer, new RuleRepository[0]);
+  public DeprecatedRulesDefinitionLoader(RuleI18nManager i18n, DebtModelPluginRepository languageModelFinder, DebtRulesXMLImporter importer,
+    ServerPluginRepository serverPluginRepository) {
+    this(i18n, languageModelFinder, importer, serverPluginRepository, new RuleRepository[0]);
   }
 
   void complete(RulesDefinition.Context context) {
@@ -83,6 +88,7 @@ public class DeprecatedRulesDefinitionLoader {
     List<RuleDebt> ruleDebts = loadRuleDebtList();
 
     for (RuleRepository repository : repositories) {
+      context.setCurrentPluginKey(serverPluginRepository.getPluginKey(repository));
       // RuleRepository API does not handle difference between new and extended repositories,
       RulesDefinition.NewRepository newRepository;
       if (context.repository(repository.getKey()) == null) {
@@ -119,8 +125,7 @@ public class DeprecatedRulesDefinitionLoader {
         ruleDebt.coefficient(),
         ruleDebt.offset(),
         newRule.debtRemediationFunctions(),
-        repoKey, ruleKey
-        ));
+        repoKey, ruleKey));
     }
   }
 
@@ -159,8 +164,7 @@ public class DeprecatedRulesDefinitionLoader {
   private String paramDescription(String repositoryKey, String ruleKey, RuleParam param) {
     String desc = StringUtils.defaultIfEmpty(
       i18n.getParamDescription(repositoryKey, ruleKey, param.getKey()),
-      param.getDescription()
-      );
+      param.getDescription());
     return StringUtils.defaultIfBlank(desc, null);
   }
 

@@ -108,7 +108,6 @@ public class ComputeEngineContainerImplTest {
 
     underTest
       .start(new Props(properties));
-
     MutablePicoContainer picoContainer = underTest.getComponentContainer().getPicoContainer();
     assertThat(picoContainer.getComponentAdapters())
       .hasSize(

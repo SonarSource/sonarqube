@@ -20,21 +20,27 @@
 
 package org.sonar.server.platform.db.migration.version.v66;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class DbVersion66Test {
-  private DbVersion66 underTest = new DbVersion66();
+public class AddPluginKeyToRules extends DdlChange {
 
-  @Test
-  public void migrationNumber_starts_at_1800() {
-    verifyMinimumMigrationNumber(underTest, 1800);
+  public AddPluginKeyToRules(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 3);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "rules")
+      .addColumn(newVarcharColumnDefBuilder()
+        .setColumnName("plugin_key")
+        .setLimit(200)
+        .setIsNullable(true)
+        .build())
+      .build());
   }
 }
