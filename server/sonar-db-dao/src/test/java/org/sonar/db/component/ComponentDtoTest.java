@@ -48,6 +48,7 @@ public class ComponentDtoTest {
     assertThat(componentDto.getId()).isEqualTo(1L);
     assertThat(componentDto.getDbKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(componentDto.deprecatedKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(componentDto.getBranch()).isNull();
     assertThat(componentDto.name()).isEqualTo("RequestContext.java");
     assertThat(componentDto.longName()).isEqualTo("org.struts.RequestContext");
     assertThat(componentDto.qualifier()).isEqualTo("FIL");
@@ -102,5 +103,16 @@ public class ComponentDtoTest {
 
     ComponentDto nonRoot = new ComponentDto().setUuidPath(".12.34.56.");
     assertThat(nonRoot.getUuidPathAsList()).containsExactly("12", "34", "56");
+  }
+
+  @Test
+  public void test_getKey_and_getBranch() {
+    ComponentDto underTest = new ComponentDto().setDbKey("my_key:BRANCH:my_branch");
+    assertThat(underTest.getKey()).isEqualTo("my_key");
+    assertThat(underTest.getBranch()).isEqualTo("my_branch");
+
+    underTest = new ComponentDto().setDbKey("my_key");
+    assertThat(underTest.getKey()).isEqualTo("my_key");
+    assertThat(underTest.getBranch()).isNull();
   }
 }

@@ -96,7 +96,7 @@ public class ProjectMeasuresIndexerTest {
   @Test
   public void indexOnStartup_ignores_non_main_branches() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(project, "feature/foo");
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
 
     underTest.indexOnStartup(emptySet());
 
@@ -202,7 +202,7 @@ public class ProjectMeasuresIndexerTest {
   @Test
   public void non_main_branches_are_not_indexed_during_analysis() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(project, "feature/foo");
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
 
     underTest.indexOnAnalysis(branch.uuid());
 
