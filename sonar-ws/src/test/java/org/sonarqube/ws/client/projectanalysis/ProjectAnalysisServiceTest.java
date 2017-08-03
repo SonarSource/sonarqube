@@ -31,6 +31,7 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.QUALITY_GATE;
+import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_CATEGORY;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_PROJECT;
 
@@ -45,6 +46,7 @@ public class ProjectAnalysisServiceTest {
   public void search() {
     underTest.search(SearchRequest.builder()
       .setProject("project")
+      .setBranch("my_branch")
       .setCategory(QUALITY_GATE)
       .setPage(10)
       .setPageSize(50)
@@ -54,6 +56,7 @@ public class ProjectAnalysisServiceTest {
     assertThat(serviceTester.getGetParser()).isSameAs(ProjectAnalyses.SearchResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasParam(PARAM_PROJECT, "project")
+      .hasParam(PARAM_BRANCH, "my_branch")
       .hasParam(PARAM_CATEGORY, QUALITY_GATE.name())
       .hasParam(PAGE, 10)
       .hasParam(PAGE_SIZE, 50)
@@ -61,19 +64,17 @@ public class ProjectAnalysisServiceTest {
   }
 
   @Test
-  public void search_without_category() {
+  public void search_with_minimal_fields() {
     underTest.search(SearchRequest.builder()
       .setProject("project")
-      .setPage(10)
-      .setPageSize(50)
       .build());
     GetRequest getRequest = serviceTester.getGetRequest();
 
     assertThat(serviceTester.getGetParser()).isSameAs(ProjectAnalyses.SearchResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasParam(PARAM_PROJECT, "project")
-      .hasParam(PAGE, 10)
-      .hasParam(PAGE_SIZE, 50)
+      .hasParam(PAGE, 1)
+      .hasParam(PAGE_SIZE, 100)
       .andNoOtherParam();
   }
 

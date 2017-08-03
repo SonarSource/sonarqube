@@ -30,6 +30,7 @@ public class SearchRequest {
   public static final int MAX_SIZE = 500;
 
   private final String project;
+  private final String branch;
   private final EventCategory category;
   private final int page;
   private final int pageSize;
@@ -38,6 +39,7 @@ public class SearchRequest {
 
   private SearchRequest(Builder builder) {
     this.project = builder.project;
+    this.branch= builder.branch;
     this.category = builder.category;
     this.page = builder.page;
     this.pageSize = builder.pageSize;
@@ -47,6 +49,11 @@ public class SearchRequest {
 
   public String getProject() {
     return project;
+  }
+
+  @CheckForNull
+  public String getBranch() {
+    return branch;
   }
 
   @CheckForNull
@@ -78,6 +85,7 @@ public class SearchRequest {
 
   public static class Builder {
     private String project;
+    private String branch;
     private EventCategory category;
     private int page = 1;
     private int pageSize = DEFAULT_PAGE_SIZE;
@@ -90,6 +98,11 @@ public class SearchRequest {
 
     public Builder setProject(String project) {
       this.project = project;
+      return this;
+    }
+
+    public Builder setBranch(@Nullable String branch) {
+      this.branch = branch;
       return this;
     }
 
