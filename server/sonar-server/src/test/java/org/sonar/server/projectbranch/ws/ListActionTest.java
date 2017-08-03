@@ -27,9 +27,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchKeyType;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.tester.UserSessionRule;
@@ -111,8 +108,8 @@ public class ListActionTest {
   @Test
   public void test_project_with_branches() {
     ComponentDto project = db.components().insertPrivateProject();
-    insertBranch(project, "feature/bar");
-    insertBranch(project, "feature/foo");
+    db.components().insertProjectBranch(project, b -> b.setKey("feature/bar"));
+    db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     ListWsResponse response = tester.newRequest()
@@ -128,8 +125,8 @@ public class ListActionTest {
   @Test
   public void test_example() {
     ComponentDto project = db.components().insertPrivateProject();
-    insertBranch(project, "feature/bar");
-    insertBranch(project, "feature/foo");
+    db.components().insertProjectBranch(project, b -> b.setKey("feature/bar"));
+    db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     String json = tester.newRequest()
@@ -140,15 +137,4 @@ public class ListActionTest {
     assertJson(json).isSimilarTo(tester.getDef().responseExampleAsString());
   }
 
-  private void insertBranch(ComponentDto project, String branchName) {
-    ComponentDto branch = db.components().insertProjectBranch(project, branchName);
-    BranchDto branchDto = new BranchDto();
-    branchDto.setUuid(branch.uuid());
-    branchDto.setProjectUuid(project.uuid());
-    branchDto.setBranchType(BranchType.LONG);
-    branchDto.setKeeType(BranchKeyType.BRANCH);
-    branchDto.setKey(branchName);
-    db.getDbClient().branchDao().insert(db.getSession(), branchDto);
-    db.commit();
-  }
 }

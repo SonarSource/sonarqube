@@ -39,15 +39,18 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class IssuesAction implements BatchWsAction {
 
   private static final String PARAM_KEY = "key";
+  private static final String PARAM_BRANCH = "branch";
   private static final Splitter MODULE_PATH_SPLITTER = Splitter.on('.').trimResults().omitEmptyStrings();
 
   private final DbClient dbClient;
@@ -74,15 +77,19 @@ public class IssuesAction implements BatchWsAction {
       .setRequired(true)
       .setDescription("Project, module or file key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+
+    action
+      .createParam(PARAM_BRANCH)
+      .setSince("6.6")
+      .setDescription("Branch key")
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String componentKey = request.mandatoryParam(PARAM_KEY);
-      ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
+      ComponentDto component = loadComponent(dbSession, request);
       userSession.checkComponentPermission(USER, component);
-
       Map<String, String> keysByUUid = keysByUUid(dbSession, component);
 
       ScannerInput.ServerIssue.Builder responseBuilder = ScannerInput.ServerIssue.newBuilder();
@@ -108,7 +115,7 @@ public class IssuesAction implements BatchWsAction {
   }
 
   private static void handleIssue(IssueDto issue, ScannerInput.ServerIssue.Builder issueBuilder,
-                                  Map<String, String> keysByUUid, OutputStream out) {
+    Map<String, String> keysByUUid, OutputStream out) {
     issueBuilder.setKey(issue.getKey());
     String moduleUuid = extractModuleUuid(issue);
     issueBuilder.setModuleKey(keysByUUid.get(moduleUuid));
@@ -135,7 +142,7 @@ public class IssuesAction implements BatchWsAction {
 
   private static String extractModuleUuid(IssueDto issue) {
     List<String> split = MODULE_PATH_SPLITTER.splitToList(issue.getModuleUuidPath());
-    return split.get(split.size()-1);
+    return split.get(split.size() - 1);
   }
 
   private Map<String, String> keysByUUid(DbSession session, ComponentDto component) {
@@ -143,16 +150,23 @@ public class IssuesAction implements BatchWsAction {
     if (Scopes.PROJECT.equals(component.scope())) {
       List<ComponentDto> modulesTree = dbClient.componentDao().selectDescendantModules(session, component.uuid());
       for (ComponentDto componentDto : modulesTree) {
-        keysByUUid.put(componentDto.uuid(), componentDto.getDbKey());
+        keysByUUid.put(componentDto.uuid(), componentDto.getKey());
       }
     } else {
       String moduleUuid = component.moduleUuid();
-      if (moduleUuid == null) {
-        throw new IllegalArgumentException(String.format("The component '%s' has no module uuid", component.uuid()));
-      }
+      checkArgument(moduleUuid != null, "The component '%s' has no module uuid", component.uuid());
       ComponentDto module = dbClient.componentDao().selectOrFailByUuid(session, moduleUuid);
-      keysByUUid.put(module.uuid(), module.getDbKey());
+      keysByUUid.put(module.uuid(), module.getKey());
     }
     return keysByUUid;
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, Request request) {
+    String componentKey = request.mandatoryParam(PARAM_KEY);
+    String branch = request.param(PARAM_BRANCH);
+    if (branch != null) {
+      return componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
+    }
+    return componentFinder.getByKey(dbSession, componentKey);
   }
 }
