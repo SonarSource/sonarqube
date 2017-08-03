@@ -26,28 +26,55 @@ import javax.annotation.Nullable;
 public class ComponentWsRequest {
   private String componentId;
   private String componentKey;
+  private String component;
   private List<String> metricKeys;
   private List<String> additionalFields;
   private String developerId;
   private String developerKey;
 
+  /**
+   * @deprecated since 6.6, please use {@link #getComponent()} instead
+   */
+  @Deprecated
   @CheckForNull
   public String getComponentId() {
     return componentId;
   }
 
+  /**
+   * @deprecated since 6.6, please use {@link #setComponent(String)} instead
+   */
+  @Deprecated
   public ComponentWsRequest setComponentId(@Nullable String componentId) {
     this.componentId = componentId;
     return this;
   }
 
+  /**
+   * @deprecated since 6.6, please use {@link #getComponent()} instead
+   */
+  @Deprecated
   @CheckForNull
   public String getComponentKey() {
     return componentKey;
   }
 
+  /**
+   * @deprecated since 6.6, please use {@link #setComponent(String)} instead
+   */
+  @Deprecated
   public ComponentWsRequest setComponentKey(@Nullable String componentKey) {
     this.componentKey = componentKey;
+    return this;
+  }
+
+  @CheckForNull
+  public String getComponent() {
+    return component;
+  }
+
+  public ComponentWsRequest setComponent(@Nullable String component) {
+    this.component = component;
     return this;
   }
 
