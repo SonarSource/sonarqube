@@ -20,10 +20,10 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import QualifierIcon from '../../../../components/shared/QualifierIcon';
-import { splitPath } from '../../../../helpers/path';
-import { getComponentUrl } from '../../../../helpers/urls';
-import type { Component } from '../../types';
+import QualifierIcon from '../../../components/shared/QualifierIcon';
+import { splitPath } from '../../../helpers/path';
+import { getComponentUrl } from '../../../helpers/urls';
+import type { Component } from '../types';
 
 type Props = {
   component: Component,
