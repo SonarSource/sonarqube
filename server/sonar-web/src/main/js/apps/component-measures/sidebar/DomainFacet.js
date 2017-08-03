@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
@@ -26,8 +27,12 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import FacetMeasureValue from './FacetMeasureValue';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import Tooltip from '../../../components/controls/Tooltip';
-import { filterMeasures, sortMeasures } from '../utils';
-import { getLocalizedMetricDomain, getLocalizedMetricName } from '../../../helpers/l10n';
+import { filterMeasures, hasBubbleChart, sortMeasures } from '../utils';
+import {
+  getLocalizedMetricDomain,
+  getLocalizedMetricName,
+  translateWithParameters
+} from '../../../helpers/l10n';
 import type { MeasureEnhanced } from '../../../components/measure/types';
 
 type Props = {|
@@ -43,6 +48,34 @@ export default class DomainFacet extends React.PureComponent {
 
   handleHeaderClick = () => this.props.onToggle(this.props.domain.name);
 
+  renderOverviewFacet = () => {
+    const { domain, selected } = this.props;
+    if (!hasBubbleChart(domain.name)) {
+      return null;
+    }
+    const facetName = translateWithParameters(
+      'component_measures.domain_x_overview',
+      getLocalizedMetricDomain(domain.name)
+    );
+    return (
+      <FacetItem
+        active={domain.name === selected}
+        disabled={false}
+        key={domain.name}
+        name={
+          <Tooltip overlay={facetName} mouseEnterDelay={0.5}>
+            <span id={`measure-overview-${domain.name}-name`}>
+              {facetName}
+            </span>
+          </Tooltip>
+        }
+        onClick={this.props.onChange}
+        stat={<BubblesIcon size={14} />}
+        value={domain.name}
+      />
+    );
+  };
+
   render() {
     const { domain, selected } = this.props;
     const measures = sortMeasures(domain.name, filterMeasures(domain.measures));
@@ -57,6 +90,7 @@ export default class DomainFacet extends React.PureComponent {
 
         {this.props.open &&
           <FacetItemsList>
+            {this.renderOverviewFacet()}
             {measures.map(measure =>
               <FacetItem
                 active={measure.metric.key === selected}
