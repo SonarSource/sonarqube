@@ -22,21 +22,22 @@ package org.sonarqube.tests.qualityProfile;
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.pageobjects.QualityProfilePage;
-import org.sonarqube.pageobjects.RulesPage;
-import org.sonarqube.tests.Category6Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.pageobjects.QualityProfilePage;
+import org.sonarqube.pageobjects.RulesPage;
+import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.tests.Tester;
-import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
-import org.sonarqube.pageobjects.Navigation;
 
 import static com.codeborne.selenide.Selenide.$;
 import static util.ItUtils.projectDir;
@@ -49,13 +50,14 @@ public class OrganizationQualityProfilesUiTest {
   @Rule
   public Tester tester = new Tester(orchestrator);
 
-  private Organizations.Organization organization;
+  private Organization organization;
+  private User user;
 
   @Before
   public void setUp() {
     // key and name are overridden for HTML Selenese tests
     organization = tester.organizations().generate(o -> o.setKey("test-org").setName("test-org"));
-    tester.users().generateAdministrator(organization, u -> u.setLogin("admin2").setPassword("admin2"));
+    user = tester.users().generateAdministrator(organization, u -> u.setLogin("admin2").setPassword("admin2"));
     createProfile("xoo", "sample");
     inheritProfile("xoo", "sample", "Basic");
     analyzeProject("shared/xoo-sample");
@@ -82,8 +84,12 @@ public class OrganizationQualityProfilesUiTest {
     tester.runHtmlTests(
       "/organization/OrganizationQualityProfilesUiTest/should_display_profile_rules.html",
       "/organization/OrganizationQualityProfilesUiTest/should_display_profile_inheritance.html",
-      "/organization/OrganizationQualityProfilesUiTest/should_display_profile_projects.html",
       "/organization/OrganizationQualityProfilesUiTest/should_display_profile_exporters.html");
+
+    tester.openBrowser().openHome().logIn().submitCredentials(user.getLogin())
+      .openQualityProfile("xoo", "sample", organization.getKey())
+      .shouldHaveAssociatedProject("Sample")
+      .shouldAllowToChangeProjects();
   }
 
   @Test
