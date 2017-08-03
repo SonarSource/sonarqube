@@ -147,6 +147,22 @@ public class ComponentTreeBuilder {
     }
   }
 
+  private static Component.Status convertStatus(ScannerReport.Component.FileStatus status) {
+    switch(status) {
+      case ADDED:
+        return Component.Status.ADDED;
+      case SAME:
+        return Component.Status.SAME;
+      case CHANGED:
+        return Component.Status.CHANGED;
+      case UNAVAILABLE:
+        return Component.Status.UNAVAILABLE;
+      case UNRECOGNIZED:
+      default:
+        throw new IllegalArgumentException("Unsupported ComponentType value " + status);
+    }
+  }
+
   private String nameOfProject(ScannerReport.Component component) {
     String name = trimToNull(component.getName());
     if (name != null) {
