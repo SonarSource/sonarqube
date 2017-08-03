@@ -36,6 +36,7 @@ public class SearchRequestTest {
   public void search_request() {
     SearchRequest result = underTest
       .setProject("P1")
+      .setBranch("my_branch")
       .setCategory(QUALITY_GATE)
       .setPage(2)
       .setPageSize(500)
@@ -44,6 +45,7 @@ public class SearchRequestTest {
       .build();
 
     assertThat(result.getProject()).isEqualTo("P1");
+    assertThat(result.getBranch()).isEqualTo("my_branch");
     assertThat(result.getPage()).isEqualTo(2);
     assertThat(result.getPageSize()).isEqualTo(500);
     assertThat(result.getCategory()).isEqualTo(QUALITY_GATE);
