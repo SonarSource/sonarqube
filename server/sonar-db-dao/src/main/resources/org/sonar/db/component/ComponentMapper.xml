@@ -37,6 +37,14 @@
       p.kee=#{key,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByDbKey" parameterType="String" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    where
+    p.kee=#{key,jdbcType=VARCHAR}
+  </select>
+
   <select id="selectComponentsHavingSameKeyOrderedById" parameterType="String" resultType="Component">
     select
     <include refid="componentColumns"/>
