@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
@@ -93,6 +94,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   // following fields are available after startup
   private final Map<String, PluginInfo> pluginInfosByKeys = new HashMap<>();
   private final Map<String, Plugin> pluginInstancesByKeys = new HashMap<>();
+  private final Map<ClassLoader, String> keysByClassLoader = new HashMap<>();
 
   public ServerPluginRepository(SonarRuntime runtime, ServerUpgradeStatus upgradeStatus,
     ServerFileSystem fs, PluginLoader loader) {
@@ -124,7 +126,16 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     loader.unload(pluginInstancesByKeys.values());
     pluginInstancesByKeys.clear();
     pluginInfosByKeys.clear();
+    keysByClassLoader.clear();
     started.set(true);
+  }
+
+  /**
+   * Return the key of the plugin the extension (in the sense of {@link Plugin.Context#addExtension(Object)} is coming from.
+   */
+  @CheckForNull
+  public String getPluginKey(Object extension) {
+    return keysByClassLoader.get(extension.getClass().getClassLoader());
   }
 
   /**
@@ -286,6 +297,10 @@ public class ServerPluginRepository implements PluginRepository, Startable {
 
   private void loadInstances() {
     pluginInstancesByKeys.putAll(loader.load(pluginInfosByKeys));
+
+    for (Map.Entry<String, Plugin> e : pluginInstancesByKeys.entrySet()) {
+      keysByClassLoader.put(e.getValue().getClass().getClassLoader(), e.getKey());
+    }
   }
 
   /**

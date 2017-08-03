@@ -22,6 +22,7 @@
     r.gap_description as "gapDescription",
     r.system_tags as "systemTagsField",
     r.rule_type as "type",
+    r.plugin_key as "pluginKey",
   </sql>
 
   <sql id="selectRuleTableColumns">
@@ -282,6 +283,7 @@
 
   <insert id="insertDefinition" parameterType="org.sonar.db.rule.RuleDefinitionDto" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into rules (
+      plugin_key,
       plugin_rule_key,
       plugin_name,
       description,
@@ -303,6 +305,7 @@
       updated_at
     )
     values (
+      #{pluginKey,jdbcType=VARCHAR},
       #{ruleKey,jdbcType=VARCHAR},
       #{repositoryKey,jdbcType=VARCHAR},
       #{description,jdbcType=VARCHAR},
@@ -327,6 +330,7 @@
 
   <update id="updateDefinition" parameterType="org.sonar.db.rule.RuleDefinitionDto">
     update rules set
+      plugin_key=#{pluginKey,jdbcType=VARCHAR},
       plugin_rule_key=#{ruleKey,jdbcType=VARCHAR},
       plugin_name=#{repositoryKey,jdbcType=VARCHAR},
       description=#{description,jdbcType=VARCHAR},

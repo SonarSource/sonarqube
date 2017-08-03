@@ -17,20 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v66;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-public class DbVersion66 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(1800, "Add incremental column to snapthots table", AddIncrementalColumnToSnapshotsTable.class)
-      .add(1801, "Create table CE task characteristics", CreateTableCeTaskCharacteristics.class)
-      .add(1802, "Delete leak settings on views", DeleteLeakSettingsOnViews.class)
-      .add(1803, "Fix empty USERS.EXTERNAL_IDENTITY and USERS.EXTERNAL_IDENTITY_PROVIDER", FixEmptyIdentityProviderInUsers.class)
-      .add(1804, "Add rules.plugin_key", AddPluginKeyToRules.class);
+public class AddPluginKeyToRulesTest {
+  @Rule
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(AddPluginKeyToRulesTest.class, "rules_6_5.sql");
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AddPluginKeyToRules underTest = new AddPluginKeyToRules(dbTester.database());
+
+  @Test
+  public void column_is_added_to_table() throws SQLException {
+    underTest.execute();
+
+    dbTester.assertColumnDefinition("rules", "plugin_key", java.sql.Types.VARCHAR, 200, true);
   }
+
+  @Test
+  public void migration_is_not_reentrant() throws SQLException {
+    underTest.execute();
+
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
+  }
+
 }

@@ -94,6 +94,7 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
 
     pluginInstancesByKeys.clear();
     infosByKeys.clear();
+    keysByClassLoader.clear();
   }
 
   @Override

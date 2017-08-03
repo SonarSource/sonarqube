@@ -89,6 +89,15 @@ public class RuleDto {
     return this;
   }
 
+  public String getPluginKey() {
+    return definition.getPluginKey();
+  }
+
+  public RuleDto setPluginKey(String s) {
+    definition.setPluginKey(s);
+    return this;
+  }
+
   public String getDescription() {
     return definition.getDescription();
   }
