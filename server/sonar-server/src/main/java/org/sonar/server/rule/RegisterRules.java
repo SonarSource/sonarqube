@@ -214,6 +214,7 @@ public class RegisterRules implements Startable {
   private RuleDefinitionDto createRuleDto(RulesDefinition.Rule ruleDef, DbSession session) {
     RuleDefinitionDto ruleDto = new RuleDefinitionDto()
       .setRuleKey(RuleKey.of(ruleDef.repository().key(), ruleDef.key()))
+      .setPluginKey(ruleDef.pluginKey())
       .setIsTemplate(ruleDef.template())
       .setConfigKey(ruleDef.internalKey())
       .setLanguage(ruleDef.repository().language())
@@ -244,6 +245,10 @@ public class RegisterRules implements Startable {
       changed = true;
     }
     if (mergeDescription(def, dto)) {
+      changed = true;
+    }
+    if (!StringUtils.equals(dto.getPluginKey(), def.pluginKey())) {
+      dto.setPluginKey(def.pluginKey());
       changed = true;
     }
     if (!StringUtils.equals(dto.getConfigKey(), def.internalKey())) {
@@ -457,6 +462,10 @@ public class RegisterRules implements Startable {
     }
     if (!StringUtils.equals(customRule.getConfigKey(), templateRule.getConfigKey())) {
       customRule.setConfigKey(templateRule.getConfigKey());
+      changed = true;
+    }
+    if (!StringUtils.equals(customRule.getPluginKey(), templateRule.getPluginKey())) {
+      customRule.setPluginKey(templateRule.getPluginKey());
       changed = true;
     }
     if (!StringUtils.equals(customRule.getDefRemediationFunction(), templateRule.getDefRemediationFunction())) {

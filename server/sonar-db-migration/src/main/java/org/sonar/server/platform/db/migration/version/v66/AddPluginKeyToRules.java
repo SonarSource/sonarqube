@@ -20,17 +20,27 @@
 
 package org.sonar.server.platform.db.migration.version.v66;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion66 implements DbVersion {
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
+
+public class AddPluginKeyToRules extends DdlChange {
+
+  public AddPluginKeyToRules(Database db) {
+    super(db);
+  }
+
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(1800, "Add incremental column to snapthots table", AddIncrementalColumnToSnapshotsTable.class)
-      .add(1801, "Create table CE task characteristics", CreateTableCeTaskCharacteristics.class)
-      .add(1802, "Delete leak settings on views", DeleteLeakSettingsOnViews.class)
-      .add(1803, "Fix empty USERS.EXTERNAL_IDENTITY and USERS.EXTERNAL_IDENTITY_PROVIDER", FixEmptyIdentityProviderInUsers.class)
-      .add(1804, "Add rules.plugin_key", AddPluginKeyToRules.class);
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "rules")
+      .addColumn(newVarcharColumnDefBuilder()
+        .setColumnName("plugin_key")
+        .setLimit(200)
+        .setIsNullable(true)
+        .build())
+      .build());
   }
 }

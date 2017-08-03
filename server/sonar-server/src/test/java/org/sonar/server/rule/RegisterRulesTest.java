@@ -47,6 +47,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.TestOrganizationFlags;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
@@ -58,6 +59,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -67,6 +69,7 @@ import static org.sonar.api.rule.Severity.INFO;
 
 public class RegisterRulesTest {
 
+  private static final String FAKE_PLUGIN_KEY = "unittest";
   private static final Date DATE1 = DateUtils.parseDateTime("2014-01-01T19:10:03+0100");
   private static final Date DATE2 = DateUtils.parseDateTime("2014-02-01T12:10:03+0100");
   private static final Date DATE3 = DateUtils.parseDateTime("2014-03-01T12:10:03+0100");
@@ -122,6 +125,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getDefRemediationGapMultiplier()).isEqualTo("5d");
     assertThat(rule1.getDefRemediationBaseEffort()).isEqualTo("10h");
     assertThat(rule1.getType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
+    assertThat(rule1.getPluginKey()).isEqualTo(FAKE_PLUGIN_KEY);
 
     List<RuleParamDto> params = dbClient.ruleDao().selectRuleParamsByRuleKey(dbTester.getSession(), RULE_KEY1);
     assertThat(params).hasSize(2);
@@ -481,7 +485,10 @@ public class RegisterRulesTest {
   }
 
   private void execute(RulesDefinition... defs) {
-    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), mock(CommonRuleDefinitionsImpl.class), defs);
+    ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
+    when(pluginRepository.getPluginKey(any(RulesDefinition.class))).thenReturn(FAKE_PLUGIN_KEY);
+    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), mock(CommonRuleDefinitionsImpl.class), pluginRepository,
+      defs);
     Languages languages = mock(Languages.class);
     when(languages.get("java")).thenReturn(mock(Language.class));
     reset(webServerRuleFinder);

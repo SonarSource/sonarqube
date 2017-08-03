@@ -385,6 +385,7 @@ public interface RulesDefinition {
    */
   class Context {
     private final Map<String, Repository> repositoriesByKey = new HashMap<>();
+    private String currentPluginKey;
 
     /**
      * New builder for {@link org.sonar.api.server.rule.RulesDefinition.Repository}.
@@ -442,6 +443,10 @@ public interface RulesDefinition {
       }
       repositoriesByKey.put(newRepository.key, new RepositoryImpl(newRepository, existing));
     }
+
+    public void setCurrentPluginKey(@Nullable String pluginKey) {
+      this.currentPluginKey = pluginKey;
+    }
   }
 
   interface NewExtendedRepository {
@@ -496,7 +501,7 @@ public interface RulesDefinition {
     @Override
     public NewRule createRule(String ruleKey) {
       checkArgument(!newRules.containsKey(ruleKey), "The rule '%s' of repository '%s' is declared several times", ruleKey, key);
-      NewRule newRule = new NewRule(key, ruleKey);
+      NewRule newRule = new NewRule(context.currentPluginKey, key, ruleKey);
       newRules.put(ruleKey, newRule);
       return newRule;
     }
@@ -671,6 +676,7 @@ public interface RulesDefinition {
   }
 
   class NewRule {
+    private final String pluginKey;
     private final String repoKey;
     private final String key;
     private RuleType type;
@@ -688,7 +694,8 @@ public interface RulesDefinition {
     private final DebtRemediationFunctions functions;
     private boolean activatedByDefault;
 
-    private NewRule(String repoKey, String key) {
+    private NewRule(@Nullable String pluginKey, String repoKey, String key) {
+      this.pluginKey = pluginKey;
       this.repoKey = repoKey;
       this.key = key;
       this.functions = new DefaultDebtRemediationFunctions(repoKey, key);
@@ -926,6 +933,7 @@ public interface RulesDefinition {
 
   @Immutable
   class Rule {
+    private final String pluginKey;
     private final Repository repository;
     private final String repoKey;
     private final String key;
@@ -944,6 +952,7 @@ public interface RulesDefinition {
     private final boolean activatedByDefault;
 
     private Rule(Repository repository, NewRule newRule) {
+      this.pluginKey = newRule.pluginKey;
       this.repository = repository;
       this.repoKey = newRule.repoKey;
       this.key = newRule.key;
@@ -968,6 +977,14 @@ public interface RulesDefinition {
 
     public Repository repository() {
       return repository;
+    }
+
+    /**
+     * @since 6.6 the plugin the rule was declared in
+     */
+    @CheckForNull
+    public String pluginKey() {
+      return pluginKey;
     }
 
     public String key() {

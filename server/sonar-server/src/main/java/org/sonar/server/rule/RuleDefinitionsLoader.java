@@ -20,6 +20,7 @@
 package org.sonar.server.rule;
 
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 /**
  * Loads all instances of {@link RulesDefinition}. Used during server startup
@@ -30,11 +31,13 @@ public class RuleDefinitionsLoader {
   private final DeprecatedRulesDefinitionLoader deprecatedDefConverter;
   private final CommonRuleDefinitions coreCommonDefs;
   private final RulesDefinition[] pluginDefs;
+  private final ServerPluginRepository serverPluginRepository;
 
   public RuleDefinitionsLoader(DeprecatedRulesDefinitionLoader deprecatedDefConverter,
-    CommonRuleDefinitions coreCommonDefs, RulesDefinition[] pluginDefs) {
+    CommonRuleDefinitions coreCommonDefs, ServerPluginRepository serverPluginRepository, RulesDefinition[] pluginDefs) {
     this.deprecatedDefConverter = deprecatedDefConverter;
     this.coreCommonDefs = coreCommonDefs;
+    this.serverPluginRepository = serverPluginRepository;
     this.pluginDefs = pluginDefs;
   }
 
@@ -42,16 +45,18 @@ public class RuleDefinitionsLoader {
    * Used when no definitions at all.
    */
   public RuleDefinitionsLoader(DeprecatedRulesDefinitionLoader converter,
-    CommonRuleDefinitions coreCommonDefs) {
-    this(converter, coreCommonDefs, new RulesDefinition[0]);
+    CommonRuleDefinitions coreCommonDefs, ServerPluginRepository serverPluginRepository) {
+    this(converter, coreCommonDefs, serverPluginRepository, new RulesDefinition[0]);
   }
 
   public RulesDefinition.Context load() {
     RulesDefinition.Context context = new RulesDefinition.Context();
     for (RulesDefinition pluginDefinition : pluginDefs) {
+      context.setCurrentPluginKey(serverPluginRepository.getPluginKey(pluginDefinition));
       pluginDefinition.define(context);
     }
     deprecatedDefConverter.complete(context);
+    context.setCurrentPluginKey(null);
     coreCommonDefs.define(context);
     return context;
   }
