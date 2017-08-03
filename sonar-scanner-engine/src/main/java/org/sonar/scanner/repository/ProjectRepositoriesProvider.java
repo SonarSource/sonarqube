@@ -25,20 +25,21 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.sonar.scanner.scan.BranchConfiguration;
 
 public class ProjectRepositoriesProvider extends ProviderAdapter {
   private static final Logger LOG = Loggers.get(ProjectRepositoriesProvider.class);
   private static final String LOG_MSG = "Load project repositories";
   private ProjectRepositories project = null;
 
-  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode) {
-    return provideInternal(loader, projectKey, mode.isIssues());
+  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode, BranchConfiguration branchConfig) {
+    return provideInternal(loader, projectKey, mode.isIssues(), branchConfig);
   }
 
-  protected ProjectRepositories provideInternal(ProjectRepositoriesLoader loader, ProjectKey projectKey, boolean isIssueMode) {
+  protected ProjectRepositories provideInternal(ProjectRepositoriesLoader loader, ProjectKey projectKey, boolean isIssueMode, BranchConfiguration branchConfig) {
     if (project == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      project = loader.load(projectKey.get(), isIssueMode);
+      project = loader.load(projectKey.get(), isIssueMode, branchConfig.branchTarget());
       checkProject(isIssueMode);
       profiler.stopInfo();
     }

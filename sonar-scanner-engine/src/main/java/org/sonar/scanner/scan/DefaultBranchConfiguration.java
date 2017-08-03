@@ -17,10 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.repository;
+package org.sonar.scanner.scan;
 
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 
-public interface ProjectRepositoriesLoader {
-  ProjectRepositories load(String projectKeyWithBranch, boolean issuesMode, @Nullable String branchTarget);
+public class DefaultBranchConfiguration implements BranchConfiguration {
+  @Override
+  public BranchType branchType() {
+    return BranchType.LONG;
+  }
+
+  @CheckForNull
+  @Override
+  public String branchTarget() {
+    return null;
+  }
 }
