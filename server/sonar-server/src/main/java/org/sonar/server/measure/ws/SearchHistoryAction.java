@@ -52,8 +52,10 @@ import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_SEARCH_HISTORY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRICS;
@@ -75,6 +77,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
   private static SearchHistoryRequest toWsRequest(Request request) {
     return SearchHistoryRequest.builder()
       .setComponent(request.mandatoryParam(PARAM_COMPONENT))
+      .setBranch(request.param(PARAM_BRANCH))
       .setMetrics(request.mandatoryParamAsStrings(PARAM_METRICS))
       .setFrom(request.param(PARAM_FROM))
       .setTo(request.param(PARAM_TO))
@@ -98,6 +101,12 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .setDescription("Component key")
       .setRequired(true)
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
+
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setSince("6.6")
+      .setInternal(true)
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
 
     action.createParam(PARAM_METRICS)
       .setDescription("Comma-separated list of metric keys")
@@ -141,7 +150,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
   }
 
   private ComponentDto searchComponent(SearchHistoryRequest request, DbSession dbSession) {
-    ComponentDto component = componentFinder.getByKey(dbSession, request.getComponent());
+    ComponentDto component = loadComponent(dbSession, request);
     userSession.checkComponentPermission(UserRole.USER, component);
     return component;
   }
@@ -179,6 +188,15 @@ public class SearchHistoryAction implements MeasuresWsAction {
     }
 
     return metrics;
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, SearchHistoryRequest request) {
+    String componentKey = request.getComponent();
+    String branch = request.getBranch();
+    if (branch != null) {
+      return componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
+    }
+    return componentFinder.getByKey(dbSession, componentKey);
   }
 
 }
