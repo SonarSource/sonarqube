@@ -72,8 +72,12 @@ export function sortMeasures(
   ]);
 }
 
-export const enhanceComponent = (component: Component, metric: Metric): ComponentEnhanced => {
-  const enhancedMeasures = component.measures.map(measure => enhanceMeasure(measure, metric));
+export const enhanceComponent = (
+  component: Component,
+  metric: Metric,
+  metrics: { [string]: Metric }
+): ComponentEnhanced => {
+  const enhancedMeasures = component.measures.map(measure => enhanceMeasure(measure, metrics));
   const measure = enhancedMeasures.find(measure => measure.metric.key === metric.key);
   const value = measure ? measure.value : null;
   const leak = measure ? measure.leak : null;

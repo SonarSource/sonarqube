@@ -21,17 +21,17 @@
 import React from 'react';
 import ComponentsList from './ComponentsList';
 import ListFooter from '../../../../components/controls/ListFooter';
-import type { Component, ComponentEnhanced, Paging } from '../../types';
+import type { ComponentEnhanced, Paging } from '../../types';
 import type { Metric } from '../../../../store/metrics/actions';
 
-type Props = {
+type Props = {|
   components: Array<ComponentEnhanced>,
   fetchMore: () => void,
-  handleSelect: Component => void,
+  handleSelect: string => void,
   metric: Metric,
   metrics: { [string]: Metric },
   paging: ?Paging
-};
+|};
 
 export default function ListView(props: Props) {
   return (
