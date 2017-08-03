@@ -39,6 +39,7 @@ public class SearchHistoryRequestTest {
   public void full_example() {
     SearchHistoryRequest result = underTest
       .setComponent("C1")
+      .setBranch("my_branch")
       .setMetrics(singletonList("new_lines"))
       .setFrom("2017-01-15")
       .setTo("2017-01-20")
@@ -47,9 +48,9 @@ public class SearchHistoryRequestTest {
       .build();
 
     assertThat(result)
-      .extracting(SearchHistoryRequest::getComponent, SearchHistoryRequest::getMetrics, SearchHistoryRequest::getFrom, SearchHistoryRequest::getTo,
+      .extracting(SearchHistoryRequest::getComponent, SearchHistoryRequest::getBranch, SearchHistoryRequest::getMetrics, SearchHistoryRequest::getFrom, SearchHistoryRequest::getTo,
         SearchHistoryRequest::getPage, SearchHistoryRequest::getPageSize)
-      .containsExactly("C1", singletonList("new_lines"), "2017-01-15", "2017-01-20", 23, 42);
+      .containsExactly("C1", "my_branch", singletonList("new_lines"), "2017-01-15", "2017-01-20", 23, 42);
   }
 
   @Test
