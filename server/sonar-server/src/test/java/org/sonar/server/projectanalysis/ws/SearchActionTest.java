@@ -64,6 +64,7 @@ import static org.sonarqube.ws.client.WsRequest.Method.POST;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.QUALITY_GATE;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
+import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_CATEGORY;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_PROJECT;
@@ -110,13 +111,13 @@ public class SearchActionTest {
 
   @Test
   public void return_analyses_ordered_by_analysis_date() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("P1"));
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setCreatedAt(1_000_000L));
     db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setCreatedAt(2_000_000L));
     db.components().insertSnapshot(newAnalysis(project).setUuid("A3").setCreatedAt(3_000_000L));
 
-    List<Analysis> result = call("P1").getAnalysesList();
+    List<Analysis> result = call(project.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(3);
     assertThat(result).extracting(Analysis::getKey, a -> parseDateTime(a.getDate()).getTime()).containsExactly(
@@ -296,7 +297,7 @@ public class SearchActionTest {
     assertThat(result.getAnalysesList())
       .extracting(Analysis::getKey)
       .containsOnly(a2.getUuid(), a3.getUuid())
-    .doesNotContain(a1.getUuid(), a4.getUuid());
+      .doesNotContain(a1.getUuid(), a4.getUuid());
   }
 
   @Test
@@ -321,6 +322,25 @@ public class SearchActionTest {
   }
 
   @Test
+  public void branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(branch));
+    EventDto event = db.events().insertEvent(newEvent(analysis).setCategory(EventCategory.QUALITY_GATE.getLabel()));
+
+    List<Analysis> result = call(SearchRequest.builder()
+      .setProject(project.getKey())
+      .setBranch("my_branch")
+      .build())
+        .getAnalysesList();
+
+    assertThat(result).extracting(Analysis::getKey).containsExactlyInAnyOrder(analysis.getUuid());
+    assertThat(result.get(0).getEventsList()).extracting(Event::getKey).containsExactlyInAnyOrder(event.getUuid());
+
+  }
+
+  @Test
   public void empty_response() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
@@ -330,23 +350,6 @@ public class SearchActionTest {
     assertThat(result.hasPaging()).isTrue();
     assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsExactly(1, 100, 0);
     assertThat(result.getAnalysesCount()).isEqualTo(0);
-  }
-
-  @Test
-  public void definition() {
-    WebService.Action definition = ws.getDef();
-
-    assertThat(definition.key()).isEqualTo("search");
-    assertThat(definition.since()).isEqualTo("6.3");
-    assertThat(definition.responseExampleAsString()).isNotEmpty();
-    assertThat(definition.param("project").isRequired()).isTrue();
-    assertThat(definition.param("category")).isNotNull();
-
-    Param from = definition.param("from");
-    assertThat(from.since()).isEqualTo("6.5");
-
-    Param to = definition.param("to");
-    assertThat(to.since()).isEqualTo("6.5");
   }
 
   @Test
@@ -378,6 +381,44 @@ public class SearchActionTest {
     call(view.getDbKey());
   }
 
+  @Test
+  public void fail_if_branch_does_not_exist() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", project.getKey(), "another_branch"));
+
+    call(SearchRequest.builder()
+      .setProject(project.getKey())
+      .setBranch("another_branch")
+      .build());
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action definition = ws.getDef();
+
+    assertThat(definition.key()).isEqualTo("search");
+    assertThat(definition.since()).isEqualTo("6.3");
+    assertThat(definition.responseExampleAsString()).isNotEmpty();
+    assertThat(definition.param("project").isRequired()).isTrue();
+    assertThat(definition.param("category")).isNotNull();
+    assertThat(definition.params()).hasSize(7);
+
+    Param from = definition.param("from");
+    assertThat(from.since()).isEqualTo("6.5");
+
+    Param to = definition.param("to");
+    assertThat(to.since()).isEqualTo("6.5");
+
+    Param branch = definition.param("branch");
+    assertThat(branch.since()).isEqualTo("6.6");
+    assertThat(branch.isInternal()).isTrue();
+    assertThat(branch.isRequired()).isFalse();
+  }
+
   private static Function<Event, String> wsToDbCategory() {
     return e -> e == null ? null : EventCategory.valueOf(e.getCategory()).getLabel();
   }
@@ -392,6 +433,7 @@ public class SearchActionTest {
     TestRequest request = ws.newRequest()
       .setMethod(POST.name());
     setNullable(wsRequest.getProject(), project -> request.setParam(PARAM_PROJECT, project));
+    setNullable(wsRequest.getBranch(), branch -> request.setParam(PARAM_BRANCH, branch));
     setNullable(wsRequest.getCategory(), category -> request.setParam(PARAM_CATEGORY, category.name()));
     setNullable(wsRequest.getPage(), page -> request.setParam(Param.PAGE, String.valueOf(page)));
     setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(Param.PAGE_SIZE, String.valueOf(pageSize)));
