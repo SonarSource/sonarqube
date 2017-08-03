@@ -26,7 +26,6 @@ import {
   getComponent,
   getCurrentUser,
   getMetrics,
-  getMetricByKey,
   getMetricsKey
 } from '../../../store/rootReducer';
 import { fetchMetrics } from '../../../store/rootActions';
@@ -57,17 +56,17 @@ const banQualityGate = (component: Component): Array<Measure> => {
   return newMeasures;
 };
 
-const fetchMeasures = (component: string, metrics: Array<string>) => (
+const fetchMeasures = (component: string, metricsKey: Array<string>) => (
   dispatch,
   getState
 ): Promise<{ component: Component, measures: Array<MeasureEnhanced>, leakPeriod: ?Period }> => {
-  if (metrics.length <= 0) {
+  if (metricsKey.length <= 0) {
     return Promise.resolve({ component: {}, measures: [], leakPeriod: null });
   }
 
-  return getMeasuresAndMeta(component, metrics, { additionalFields: 'periods' }).then(r => {
+  return getMeasuresAndMeta(component, metricsKey, { additionalFields: 'periods' }).then(r => {
     const measures: Array<MeasureEnhanced> = banQualityGate(r.component).map(measure =>
-      enhanceMeasure(measure, getMetricByKey(getState(), measure.metric))
+      enhanceMeasure(measure, getMetrics(getState()))
     );
 
     const newBugs = measures.find(measure => measure.metric.key === 'new_bugs');

@@ -26,7 +26,7 @@ import type { Component } from '../types';
 type Props = {|
   className?: string,
   component: Component,
-  handleSelect: Component => void,
+  handleSelect: string => void,
   rootComponent: Component
 |};
 

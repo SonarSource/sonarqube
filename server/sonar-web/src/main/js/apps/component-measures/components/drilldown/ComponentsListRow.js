@@ -24,47 +24,37 @@ import MeasureCell from './MeasureCell';
 import type { Component } from '../../types';
 import type { Metric } from '../../../../store/metrics/actions';
 
-type Props = {
+type Props = {|
   component: Component,
   isSelected: boolean,
-  onClick: Component => void,
+  onClick: string => void,
   otherMetrics: Array<Metric>,
   metric: Metric
-};
+|};
 
-export default class ComponentsListRow extends React.PureComponent {
-  props: Props;
+export default function ComponentsListRow(props: Props) {
+  const { component } = props;
+  const otherMeasures = props.otherMetrics.map(metric => {
+    const measure = component.measures.find(measure => measure.metric === metric.key);
+    return { ...measure, metric };
+  });
+  return (
+    <tr>
+      <ComponentCell component={component} isSelected={props.isSelected} onClick={props.onClick} />
 
-  handleClick = () => this.props.onClick(this.props.component);
+      <MeasureCell component={component} metric={props.metric} />
 
-  render() {
-    const { component } = this.props;
-    const otherMeasures = this.props.otherMetrics.map(metric => {
-      const measure = component.measures.find(measure => measure.metric === metric.key);
-      return { ...measure, metric };
-    });
-    return (
-      <tr>
-        <ComponentCell
-          component={component}
-          isSelected={this.props.isSelected}
-          onClick={this.handleClick}
+      {otherMeasures.map(measure =>
+        <MeasureCell
+          key={measure.metric.key}
+          component={{
+            ...component,
+            value: measure.value,
+            leak: measure.leak
+          }}
+          metric={measure.metric}
         />
-
-        <MeasureCell component={component} metric={this.props.metric} />
-
-        {otherMeasures.map(measure =>
-          <MeasureCell
-            key={measure.metric.key}
-            component={{
-              ...component,
-              value: measure.value,
-              leak: measure.leak
-            }}
-            metric={measure.metric}
-          />
-        )}
-      </tr>
-    );
-  }
+      )}
+    </tr>
+  );
 }

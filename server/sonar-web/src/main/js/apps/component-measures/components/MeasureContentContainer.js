@@ -29,8 +29,8 @@ type Props = {
   currentUser: { isLoggedIn: boolean },
   rootComponent: Component,
   fetchMeasures: (
-    Component,
-    Array<string>
+    component: string,
+    metricsKey: Array<string>
   ) => Promise<{ component: Component, measures: Array<MeasureEnhanced> }>,
   leakPeriod?: Period,
   metric: Metric,
@@ -114,9 +114,9 @@ export default class MeasureContentContainer extends React.PureComponent {
     }
   };
 
-  updateSelected = (component: Component) =>
+  updateSelected = (component: string) =>
     this.props.updateQuery({
-      selected: component.key !== this.props.rootComponent.key ? component.key : null
+      selected: component !== this.props.rootComponent.key ? component : null
     });
 
   updateView = (view: string) => this.props.updateQuery({ view });
