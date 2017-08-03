@@ -20,8 +20,8 @@
 package org.sonar.scanner.report;
 
 import java.util.Map.Entry;
-import org.sonar.api.batch.AnalysisMode;
 import java.util.Optional;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -31,9 +31,11 @@ import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
+import org.sonar.scanner.scan.BranchConfiguration;
 
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
@@ -47,9 +49,10 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final CpdSettings cpdSettings;
   private final AnalysisMode mode;
   private final ScannerPluginRepository pluginRepository;
+  private final BranchConfiguration branchConfiguration;
 
   public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings,
-    ModuleQProfiles qProfiles, CpdSettings cpdSettings, AnalysisMode mode, ScannerPluginRepository pluginRepository) {
+    ModuleQProfiles qProfiles, CpdSettings cpdSettings, AnalysisMode mode, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration) {
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
@@ -57,6 +60,7 @@ public class MetadataPublisher implements ReportPublisherStep {
     this.cpdSettings = cpdSettings;
     this.mode = mode;
     this.pluginRepository = pluginRepository;
+    this.branchConfiguration = branchConfiguration;
   }
 
   @Override
@@ -72,7 +76,14 @@ public class MetadataPublisher implements ReportPublisherStep {
       .setIncremental(mode.isIncremental());
 
     settings.get(ORGANIZATION).ifPresent(builder::setOrganizationKey);
-    settings.get(BRANCH_NAME).ifPresent(builder::setBranchName);
+    settings.get(BRANCH_NAME).ifPresent(branch -> {
+      builder.setBranchName(branch);
+      builder.setBranchType(toProtobufBranchType(branchConfiguration.branchType()));
+      String branchTarget = branchConfiguration.branchTarget();
+      if (branchTarget != null) {
+        builder.setMergeBranchName(branchTarget);
+      }
+    });
     Optional.ofNullable(rootDef.getBranch()).ifPresent(builder::setDeprecatedBranch);
 
     for (QProfile qp : qProfiles.findAll()) {
@@ -88,5 +99,12 @@ public class MetadataPublisher implements ReportPublisherStep {
         .setUpdatedAt(pluginEntry.getValue().getUpdatedAt()).build());
     }
     writer.writeMetadata(builder.build());
+  }
+
+  private static BranchType toProtobufBranchType(BranchConfiguration.BranchType branchType) {
+    if (branchType == BranchConfiguration.BranchType.LONG) {
+      return BranchType.LONG;
+    }
+    return BranchType.SHORT;
   }
 }
