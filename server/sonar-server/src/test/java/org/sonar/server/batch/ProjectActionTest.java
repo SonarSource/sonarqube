@@ -19,7 +19,6 @@
  */
 package org.sonar.server.batch;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.scanner.protocol.input.FileData;
@@ -37,12 +36,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class ProjectActionTest {
 
   private ProjectDataLoader projectDataLoader = mock(ProjectDataLoader.class);
-  private WsActionTester ws;
-
-  @Before
-  public void setUp() {
-    ws = new WsActionTester(new ProjectAction(projectDataLoader));
-  }
+  private WsActionTester ws = new WsActionTester(new ProjectAction(projectDataLoader));
 
   @Test
   public void project_referentials() throws Exception {
@@ -56,6 +50,7 @@ public class ProjectActionTest {
 
     TestResponse response = ws.newRequest()
       .setParam("key", projectKey)
+      .setParam("branch", "my_branch")
       .setParam("profile", "Default")
       .setParam("preview", "false")
       .execute();
@@ -64,6 +59,7 @@ public class ProjectActionTest {
     assertThat(queryArgumentCaptor.getValue().getModuleKey()).isEqualTo(projectKey);
     assertThat(queryArgumentCaptor.getValue().getProfileName()).isEqualTo("Default");
     assertThat(queryArgumentCaptor.getValue().isIssuesMode()).isFalse();
+    assertThat(queryArgumentCaptor.getValue().getBranch()).isEqualTo("my_branch");
   }
 
   /**
