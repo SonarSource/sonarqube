@@ -211,6 +211,7 @@ public class ReportPublisher implements Startable {
       metadata.put("projectKey", effectiveKey);
       metadata.put("serverUrl", publicUrl);
       metadata.put("serverVersion", server.getVersion());
+      settings.get(BRANCH_NAME).ifPresent(branch -> metadata.put("branch", branch));
 
       URL dashboardUrl = httpUrl.newBuilder()
         .addPathSegment("dashboard").addPathSegment("index").addPathSegment(effectiveKey)
