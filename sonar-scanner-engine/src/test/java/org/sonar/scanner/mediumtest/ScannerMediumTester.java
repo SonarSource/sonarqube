@@ -51,6 +51,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalMode;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
@@ -66,8 +67,12 @@ import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
+import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.BranchConfigurationLoader;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Main utility class for writing scanner medium tests.
@@ -78,6 +83,7 @@ public class ScannerMediumTester extends ExternalResource {
   private static Path userHome = null;
   private Map<String, String> globalProperties = new HashMap<>();
   private final FakeMetricsRepositoryLoader globalRefProvider = new FakeMetricsRepositoryLoader();
+  private final FakeBranchConfigurationLoader projectBranchesProvider = new FakeBranchConfigurationLoader();
   private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
   private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
   private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
@@ -280,6 +286,7 @@ public class ScannerMediumTester extends ExternalResource {
           tester.globalRefProvider,
           tester.qualityProfiles,
           tester.rulesLoader,
+          tester.projectBranchesProvider,
           tester.projectRefProvider,
           tester.activeRules,
           tester.serverIssues,
@@ -357,7 +364,7 @@ public class ScannerMediumTester extends ExternalResource {
     private Date lastAnalysisDate;
 
     @Override
-    public ProjectRepositories load(String projectKey, boolean isIssuesMode) {
+    public ProjectRepositories load(String projectKey, boolean isIssuesMode, @Nullable String branchTarget) {
       Table<String, String, String> settings = HashBasedTable.create();
       return new ProjectRepositories(settings, fileDataTable, lastAnalysisDate);
     }
@@ -372,6 +379,13 @@ public class ScannerMediumTester extends ExternalResource {
       return this;
     }
 
+  }
+
+  private static class FakeBranchConfigurationLoader implements BranchConfigurationLoader {
+    @Override
+    public BranchConfiguration load(String projectKey, GlobalConfiguration settings) {
+      return mock(BranchConfiguration.class);
+    }
   }
 
   private static class FakeQualityProfileLoader implements QualityProfileLoader {
