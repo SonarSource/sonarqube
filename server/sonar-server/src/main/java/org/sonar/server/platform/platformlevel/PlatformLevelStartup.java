@@ -30,8 +30,8 @@ import org.sonar.server.qualityprofile.BuiltInQProfileInsertImpl;
 import org.sonar.server.qualityprofile.BuiltInQProfileLoader;
 import org.sonar.server.qualityprofile.BuiltInQProfileUpdateImpl;
 import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationDispatcher;
-import org.sonar.server.qualityprofile.BuiltInQualityProfilesUpdateListener;
 import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationTemplate;
+import org.sonar.server.qualityprofile.BuiltInQualityProfilesUpdateListener;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.rule.RegisterRules;
 import org.sonar.server.rule.WebServerRuleFinder;
@@ -41,6 +41,7 @@ import org.sonar.server.startup.GeneratePluginIndex;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.startup.RegisterPermissionTemplates;
 import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
+import org.sonar.server.startup.RegisterPlugins;
 import org.sonar.server.user.DoPrivileged;
 import org.sonar.server.user.ThreadLocalUserSession;
 
@@ -52,6 +53,7 @@ public class PlatformLevelStartup extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(GeneratePluginIndex.class,
+      RegisterPlugins.class,
       ServerLifecycleNotifier.class,
       DefaultOrganizationEnforcer.class);
 

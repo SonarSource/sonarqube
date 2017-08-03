@@ -26,16 +26,21 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharUtils;
+import org.picocontainer.Startable;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.platform.RemotePlugin;
 import org.sonar.server.platform.ServerFileSystem;
 
 @ServerSide
-public final class GeneratePluginIndex {
+public final class GeneratePluginIndex implements Startable {
+
+  private static final Logger LOG = Loggers.get(GeneratePluginIndex.class);
 
   private final ServerFileSystem fileSystem;
   private final PluginRepository repository;
@@ -45,22 +50,30 @@ public final class GeneratePluginIndex {
     this.repository = repository;
   }
 
-  public void start() throws IOException {
+  @Override
+  public void start() {
+    Profiler profiler = Profiler.create(LOG).startInfo("Generate scanner plugin index");
     writeIndex(fileSystem.getPluginIndex());
+    profiler.stopDebug();
   }
 
-  void writeIndex(File indexFile) throws IOException {
-    FileUtils.forceMkdir(indexFile.getParentFile());
-    Writer writer = new OutputStreamWriter(new FileOutputStream(indexFile), StandardCharsets.UTF_8);
-    try {
-      for (PluginInfo pluginInfo : repository.getPluginInfos()) {
-        writer.append(RemotePlugin.create(pluginInfo).marshal());
-        writer.append(CharUtils.LF);
-      }
-      writer.flush();
+  @Override
+  public void stop() {
+    // Nothing to do
+  }
 
-    } finally {
-      IOUtils.closeQuietly(writer);
+  void writeIndex(File indexFile) {
+    try {
+      FileUtils.forceMkdir(indexFile.getParentFile());
+      try (Writer writer = new OutputStreamWriter(new FileOutputStream(indexFile), StandardCharsets.UTF_8)) {
+        for (PluginInfo pluginInfo : repository.getPluginInfos()) {
+          writer.append(RemotePlugin.create(pluginInfo).marshal());
+          writer.append(CharUtils.LF);
+        }
+        writer.flush();
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to generate plugin index at " + indexFile, e);
     }
   }
 }

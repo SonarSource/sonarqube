@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,8 +32,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.platform.ServerFileSystem;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,8 +45,8 @@ public class GeneratePluginIndexTest {
   private File index;
 
   @Before
-  public void createIndexFile() {
-    index = new File("target/test-tmp/GeneratePluginIndexTest/plugins.txt");
+  public void createIndexFile() throws IOException {
+    index = temp.newFile();
     when(fileSystem.getPluginIndex()).thenReturn(index);
   }
 
@@ -59,12 +57,26 @@ public class GeneratePluginIndexTest {
     PluginInfo checkstyle = newInfo("checkstyle");
     when(repository.getPluginInfos()).thenReturn(Arrays.asList(sqale, checkstyle));
 
-    new GeneratePluginIndex(fileSystem, repository).start();
+    GeneratePluginIndex underTest = new GeneratePluginIndex(fileSystem, repository);
+    underTest.start();
+    underTest.stop(); // For coverage
 
     List<String> lines = FileUtils.readLines(index);
-    assertThat(lines.size(), Is.is(2));
-    assertThat(lines.get(0), containsString("sqale"));
-    assertThat(lines.get(1), containsString("checkstyle"));
+    assertThat(lines).hasSize(2);
+    assertThat(lines.get(0)).contains("sqale");
+    assertThat(lines.get(1)).contains("checkstyle");
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldThrowWhenUnableToWrite() throws IOException {
+    File wrongParent = temp.newFile();
+    wrongParent.createNewFile();
+    File wrongIndex = new File(wrongParent, "index.txt");
+    when(fileSystem.getPluginIndex()).thenReturn(wrongIndex);
+
+    PluginRepository repository = mock(PluginRepository.class);
+
+    new GeneratePluginIndex(fileSystem, repository).start();
   }
 
   private PluginInfo newInfo(String pluginKey) throws IOException {
