@@ -43,8 +43,8 @@ public class MeasuresWsParameters {
   public static final String PARAM_METRIC_PERIOD_SORT = "metricPeriodSort";
   public static final String PARAM_METRIC_SORT_FILTER = "metricSortFilter";
   public static final String PARAM_ADDITIONAL_FIELDS = "additionalFields";
-  public static final String PARAM_COMPONENT_ID = "componentId";
-  public static final String PARAM_COMPONENT_KEY = "componentKey";
+  public static final String DEPRECATED_PARAM_COMPONENT_ID = "componentId";
+  public static final String DEPRECATED_PARAM_COMPONENT_KEY = "componentKey";
   public static final String PARAM_PROJECT_KEYS = "projectKeys";
   public static final String PARAM_DEVELOPER_ID = "developerId";
   public static final String PARAM_DEVELOPER_KEY = "developerKey";
