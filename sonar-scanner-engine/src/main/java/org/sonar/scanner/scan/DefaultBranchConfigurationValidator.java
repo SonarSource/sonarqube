@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.repository;
+package org.sonar.scanner.scan;
 
+import java.util.List;
 import javax.annotation.Nullable;
 
-public interface ProjectRepositoriesLoader {
-  ProjectRepositories load(String projectKeyWithBranch, boolean issuesMode, @Nullable String branchTarget);
+public class DefaultBranchConfigurationValidator implements BranchConfigurationValidator {
+  @Override
+  public void validate(List<String> validationMessages, @Nullable String deprecatedBranchName) {
+    // no-op
+  }
 }
