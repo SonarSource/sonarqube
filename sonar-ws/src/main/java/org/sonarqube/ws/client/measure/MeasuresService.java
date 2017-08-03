@@ -35,6 +35,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.CONTROLLER_ME
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_KEY;
@@ -91,6 +92,7 @@ public class MeasuresService extends BaseService {
   public SearchHistoryResponse searchHistory(SearchHistoryRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_SEARCH_HISTORY))
       .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch())
       .setParam(PARAM_METRICS, inlineMultipleParamValue(request.getMetrics()))
       .setParam(PARAM_FROM, request.getFrom())
       .setParam(PARAM_TO, request.getTo())
