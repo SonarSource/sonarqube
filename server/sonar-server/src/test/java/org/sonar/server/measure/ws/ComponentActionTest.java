@@ -19,20 +19,15 @@
  */
 package org.sonar.server.measure.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -46,20 +41,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
-import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 
 public class ComponentActionTest {
-  private static final String PROJECT_UUID = "project-uuid";
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -68,16 +57,7 @@ public class ComponentActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
-  private DbClient dbClient = db.getDbClient();
-  private final DbSession dbSession = db.getSession();
-
-  private WsActionTester ws = new WsActionTester(new ComponentAction(dbClient, TestComponentFinder.from(db), userSession));
-
-  @Before
-  public void setUp() {
-    userSession.logIn().setRoot();
-  }
+  private WsActionTester ws = new WsActionTester(new ComponentAction(db.getDbClient(), TestComponentFinder.from(db), userSession));
 
   @Test
   public void test_definition_of_web_service() {
@@ -85,45 +65,35 @@ public class ComponentActionTest {
 
     assertThat(def.since()).isEqualTo("5.4");
     assertThat(def.params()).extracting(WebService.Param::key)
-      .containsExactlyInAnyOrder("componentId", "componentKey", "metricKeys", "additionalFields", "developerId", "developerKey");
+      .containsExactlyInAnyOrder("componentId", "component", "metricKeys", "additionalFields", "developerId", "developerKey");
+
     assertThat(def.param("developerId").deprecatedSince()).isEqualTo("6.4");
     assertThat(def.param("developerKey").deprecatedSince()).isEqualTo("6.4");
-  }
-
-  @Test
-  public void json_example() {
-    insertJsonExampleData();
-
-    String response = ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "AVIwDXE-bJbJqrw6wFv5")
-      .setParam(PARAM_METRIC_KEYS, "ncloc, complexity, new_violations")
-      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,periods")
-      .execute()
-      .getInput();
-
-    assertJson(response).isSimilarTo(getClass().getResource("component-example.json"));
+    assertThat(def.param("componentId").deprecatedSince()).isEqualTo("6.6");
   }
 
   @Test
   public void provided_project() {
-    ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
-    userSession.addProjectPermission(USER, project);
+    ComponentDto project = db.components().insertPrivateProject();
+    logAsUser(project);
     insertNclocMetric();
 
-    ComponentWsResponse response = newRequest(PROJECT_UUID, "ncloc");
+    ComponentWsResponse response = newRequest(project.getKey(), "ncloc");
 
     assertThat(response.getMetrics().getMetricsCount()).isEqualTo(1);
     assertThat(response.getPeriods().getPeriodsCount()).isEqualTo(0);
-    assertThat(response.getComponent().getId()).isEqualTo(PROJECT_UUID);
+    assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());
   }
 
   @Test
   public void without_additional_fields() {
-    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
+    ComponentDto project = db.components().insertPrivateProject();
+    logAsUser(project);
+    db.components().insertSnapshot(project);
     insertNclocMetric();
 
     String response = ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT, project.getKey())
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       .execute().getInput();
 
@@ -134,65 +104,114 @@ public class ComponentActionTest {
 
   @Test
   public void reference_uuid_in_the_response() {
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid").setDbKey("project-key");
-    componentDb.insertProjectAndSnapshot(project);
-    ComponentDto view = newView(db.getDefaultOrganization(), "view-uuid");
-    componentDb.insertViewAndSnapshot(view);
-    componentDb.insertComponent(newProjectCopy("project-uuid-copy", project, view));
+    userSession.logIn().setRoot();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto view = db.components().insertView();
+    db.components().insertSnapshot(view);
+    ComponentDto projectCopy = db.components().insertComponent(newProjectCopy("project-uuid-copy", project, view));
     insertNclocMetric();
 
-    ComponentWsResponse response = newRequest("project-uuid-copy", "ncloc");
+    ComponentWsResponse response = newRequest(projectCopy.getKey(), "ncloc");
 
-    assertThat(response.getComponent().getId()).isEqualTo("project-uuid-copy");
-    assertThat(response.getComponent().getRefId()).isEqualTo("project-uuid");
-    assertThat(response.getComponent().getRefKey()).isEqualTo("project-key");
+    assertThat(response.getComponent().getRefId()).isEqualTo(project.uuid());
+    assertThat(response.getComponent().getRefKey()).isEqualTo(project.getKey());
+  }
+
+  @Test
+  public void return_deprecated_id_in_the_response() {
+    ComponentDto project = db.components().insertPrivateProject();
+    logAsUser(project);
+    db.components().insertSnapshot(project);
+    insertNclocMetric();
+
+    ComponentWsResponse response = newRequest(project.getKey(), "ncloc");
+
+    assertThat(response.getComponent().getId()).isEqualTo(project.uuid());
+  }
+
+  @Test
+  public void use_deprecated_component_id_parameter() {
+    ComponentDto project = db.components().insertPrivateProject();
+    logAsUser(project);
+    userSession.addProjectPermission(USER, project);
+    insertNclocMetric();
+
+    ComponentWsResponse response = ws.newRequest()
+      .setParam("componentId", project.uuid())
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .executeProtobuf(ComponentWsResponse.class);
+
+    assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());
+  }
+
+  @Test
+  public void use_deprecated_component_key_parameter() {
+    ComponentDto project = db.components().insertPrivateProject();
+    logAsUser(project);
+    userSession.addProjectPermission(USER, project);
+    insertNclocMetric();
+
+    ComponentWsResponse response = ws.newRequest()
+      .setParam("componentKey", project.getKey())
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .executeProtobuf(ComponentWsResponse.class);
+
+    assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());
   }
 
   @Test
   public void fail_when_developer_is_not_found() {
+    ComponentDto project = db.components().insertPrivateProject();
+    logAsUser(project);
+    db.components().insertSnapshot(project);
+
+    insertNclocMetric();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component id 'unknown-developer-id' not found");
 
-    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
-    insertNclocMetric();
-
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, PROJECT_UUID)
+      .setParam(PARAM_COMPONENT, project.getKey())
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       .setParam(PARAM_DEVELOPER_ID, "unknown-developer-id").executeProtobuf(ComponentWsResponse.class);
   }
 
   @Test
   public void fail_when_a_metric_is_not_found() {
-    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), PROJECT_UUID));
+    ComponentDto project = db.components().insertPrivateProject();
+    logAsUser(project);
+    db.components().insertSnapshot(project);
     insertNclocMetric();
     insertComplexityMetric();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("The following metric keys are not found: unknown-metric, another-unknown-metric");
 
-    newRequest(PROJECT_UUID, "ncloc, complexity, unknown-metric, another-unknown-metric");
+    newRequest(project.getKey(), "ncloc, complexity, unknown-metric, another-unknown-metric");
   }
 
   @Test
   public void fail_when_empty_metric_keys_parameter() {
-    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
+    ComponentDto project = db.components().insertPrivateProject();
+    logAsUser(project);
+    db.components().insertSnapshot(project);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("At least one metric key must be provided");
 
-    newRequest(PROJECT_UUID, "");
+    newRequest(project.getKey(), "");
   }
 
   @Test
   public void fail_when_not_enough_permission() {
     userSession.logIn();
-    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), PROJECT_UUID));
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertSnapshot(project);
     insertNclocMetric();
 
     expectedException.expect(ForbiddenException.class);
 
-    newRequest(PROJECT_UUID, "ncloc");
+    newRequest(project.getKey(), "ncloc");
   }
 
   @Test
@@ -203,45 +222,76 @@ public class ComponentActionTest {
     expectedException.expectMessage("Component key 'project-key' not found");
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEY, "project-key")
+      .setParam(PARAM_COMPONENT, "project-key")
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       .execute();
   }
 
   @Test
   public void fail_when_component_is_removed() {
-    ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
-    componentDb.insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setEnabled(false));
+    logAsUser(project);
     userSession.addProjectPermission(USER, project);
     insertNclocMetric();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'file-key' not found");
+    expectedException.expectMessage(String.format("Component key '%s' not found", project.getKey()));
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEY, "file-key")
+      .setParam(PARAM_COMPONENT, project.getKey())
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       .execute();
   }
 
-  private ComponentWsResponse newRequest(String componentUuid, String metricKeys) {
-    return ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, componentUuid)
-      .setParam(PARAM_METRIC_KEYS, metricKeys)
-      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,periods").executeProtobuf(ComponentWsResponse.class);
+  @Test
+  public void json_example() {
+    ComponentDto project = db.components().insertPrivateProject();
+    logAsUser(project);
+    SnapshotDto analysis = db.components().insertSnapshot(project,
+      s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+        .setPeriodMode("previous_version")
+        .setPeriodParam("1.0-SNAPSHOT"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project)
+      .setDbKey("MY_PROJECT:ElementImpl.java")
+      .setName("ElementImpl.java")
+      .setLanguage("java")
+      .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"));
+    MetricDto complexity = insertComplexityMetric();
+    db.measureDbTester().insertMeasure(file, analysis, complexity,
+      m -> m.setValue(12.0d)
+        .setVariation(2.0d)
+        .setData(null));
+    MetricDto ncloc = insertNclocMetric();
+    db.measureDbTester().insertMeasure(file, analysis, ncloc,
+      m -> m.setValue(114.0d)
+        .setVariation(3.0d)
+        .setData(null));
+    MetricDto newViolations = insertNewViolationMetric();
+    db.measureDbTester().insertMeasure(file, analysis, newViolations,
+      m -> m.setVariation(25.0d)
+        .setValue(null)
+        .setData(null));
+
+    String response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_METRIC_KEYS, "ncloc, complexity, new_violations")
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,periods")
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo(getClass().getResource("component-example.json"));
   }
 
-  private static MetricDto newMetricDtoWithoutOptimization() {
-    return newMetricDto()
-      .setWorstValue(null)
-      .setOptimizedBestValue(false)
-      .setBestValue(null)
-      .setUserManaged(false);
+  private ComponentWsResponse newRequest(String componentKey, String metricKeys) {
+    return ws.newRequest()
+      .setParam(PARAM_COMPONENT, componentKey)
+      .setParam(PARAM_METRIC_KEYS, metricKeys)
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,periods")
+      .executeProtobuf(ComponentWsResponse.class);
   }
 
   private MetricDto insertNclocMetric() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
-      .setKey("ncloc")
+    return db.measureDbTester().insertMetric(m -> m.setKey("ncloc")
       .setShortName("Lines of code")
       .setDescription("Non Commenting Lines of Code")
       .setDomain("Size")
@@ -250,13 +300,10 @@ public class ComponentActionTest {
       .setQualitative(false)
       .setHidden(false)
       .setUserManaged(false));
-    db.commit();
-    return metric;
   }
 
   private MetricDto insertComplexityMetric() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
-      .setKey("complexity")
+    return db.measureDbTester().insertMetric(m -> m.setKey("complexity")
       .setShortName("Complexity")
       .setDescription("Cyclomatic complexity")
       .setDomain("Complexity")
@@ -265,13 +312,10 @@ public class ComponentActionTest {
       .setQualitative(false)
       .setHidden(false)
       .setUserManaged(false));
-    db.commit();
-    return metric;
   }
 
   private MetricDto insertNewViolationMetric() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
-      .setKey("new_violations")
+    return db.measureDbTester().insertMetric(m -> m.setKey("new_violations")
       .setShortName("New issues")
       .setDescription("New Issues")
       .setDomain("Issues")
@@ -280,43 +324,10 @@ public class ComponentActionTest {
       .setQualitative(true)
       .setHidden(false)
       .setUserManaged(false));
-    db.commit();
-    return metric;
   }
 
-  private void insertJsonExampleData() {
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID);
-    SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(project)
-      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
-      .setPeriodMode("previous_version")
-      .setPeriodParam("1.0-SNAPSHOT");
-    ComponentDto file = newFileDto(project, null)
-      .setUuid("AVIwDXE-bJbJqrw6wFv5")
-      .setDbKey("MY_PROJECT:ElementImpl.java")
-      .setName("ElementImpl.java")
-      .setQualifier(Qualifiers.FILE)
-      .setLanguage("java")
-      .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java");
-    componentDb.insertComponents(project, file);
-    dbClient.snapshotDao().insert(dbSession, projectSnapshot);
-
-    MetricDto complexity = insertComplexityMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(complexity, file, projectSnapshot)
-        .setValue(12.0d)
-        .setVariation(2.0d));
-
-    MetricDto ncloc = insertNclocMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, file, projectSnapshot)
-        .setValue(114.0d)
-        .setVariation(3.0d));
-
-    MetricDto newViolations = insertNewViolationMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(newViolations, file, projectSnapshot)
-        .setVariation(25.0d));
-    db.commit();
+  private void logAsUser(ComponentDto project) {
+    userSession.addProjectPermission(UserRole.USER, project);
   }
 
 }
