@@ -21,6 +21,7 @@ package org.sonarqube.ws.client.measure;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static java.lang.String.format;
 
@@ -29,6 +30,7 @@ public class SearchHistoryRequest {
   public static final int DEFAULT_PAGE_SIZE = 100;
 
   private final String component;
+  private final String branch;
   private final List<String> metrics;
   private final String from;
   private final String to;
@@ -37,6 +39,7 @@ public class SearchHistoryRequest {
 
   public SearchHistoryRequest(Builder builder) {
     this.component = builder.component;
+    this.branch = builder.branch;
     this.metrics = builder.metrics;
     this.from = builder.from;
     this.to = builder.to;
@@ -46,6 +49,11 @@ public class SearchHistoryRequest {
 
   public String getComponent() {
     return component;
+  }
+
+  @CheckForNull
+  public String getBranch() {
+    return branch;
   }
 
   public List<String> getMetrics() {
@@ -76,6 +84,7 @@ public class SearchHistoryRequest {
 
   public static class Builder {
     private String component;
+    private String branch;
     private List<String> metrics;
     private String from;
     private String to;
@@ -91,17 +100,22 @@ public class SearchHistoryRequest {
       return this;
     }
 
+    public Builder setBranch(@Nullable String branch) {
+      this.branch = branch;
+      return this;
+    }
+
     public Builder setMetrics(List<String> metrics) {
       this.metrics = metrics;
       return this;
     }
 
-    public Builder setFrom(String from) {
+    public Builder setFrom(@Nullable String from) {
       this.from = from;
       return this;
     }
 
-    public Builder setTo(String to) {
+    public Builder setTo(@Nullable String to) {
       this.to = to;
       return this;
     }
