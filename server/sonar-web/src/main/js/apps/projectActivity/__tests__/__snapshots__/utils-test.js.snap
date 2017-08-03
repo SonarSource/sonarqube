@@ -252,3 +252,38 @@ Array [
   },
 ]
 `;
+
+exports[`getAnalysesByVersionByDay should create fake version 1`] = `
+Array [
+  Object {
+    "byDay": Object {
+      "2017-4-18": Array [
+        Object {
+          "date": 2017-05-18T12:13:07.000Z,
+          "events": Array [],
+          "key": "AVxZtCpH7841nF4RNEMI",
+        },
+      ],
+      "2017-5-9": Array [
+        Object {
+          "date": 2017-06-09T11:06:10.000Z,
+          "events": Array [],
+          "key": "AVyMjlK1HjR_PLDzRbB9",
+        },
+        Object {
+          "date": 2017-06-09T09:12:27.000Z,
+          "events": Array [],
+          "key": "AVyM9n3cHjR_PLDzRciT",
+        },
+        Object {
+          "date": 2017-06-09T09:12:27.000Z,
+          "events": Array [],
+          "key": "AVyMjlK1HjR_PLDzRbB9",
+        },
+      ],
+    },
+    "key": null,
+    "version": null,
+  },
+]
+`;

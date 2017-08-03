@@ -146,6 +146,24 @@ describe('getAnalysesByVersionByDay', () => {
       })
     ).toMatchSnapshot();
   });
+  it('should create fake version', () => {
+    expect(
+      utils.getAnalysesByVersionByDay(
+        [
+          { key: 'AVyMjlK1HjR_PLDzRbB9', date: new Date('2017-06-09T13:06:10+0200'), events: [] },
+          { key: 'AVyM9n3cHjR_PLDzRciT', date: new Date('2017-06-09T11:12:27+0200'), events: [] },
+          { key: 'AVyMjlK1HjR_PLDzRbB9', date: new Date('2017-06-09T11:12:27+0200'), events: [] },
+          { key: 'AVxZtCpH7841nF4RNEMI', date: new Date('2017-05-18T14:13:07+0200'), events: [] }
+        ],
+        {
+          category: '',
+          customMetrics: [],
+          graph: utils.DEFAULT_GRAPH,
+          project: 'foo'
+        }
+      )
+    ).toMatchSnapshot();
+  });
 });
 
 describe('getDisplayedHistoryMetrics', () => {

@@ -153,6 +153,10 @@ export const getAnalysesByVersionByDay = (
         acc[acc.length - 1] = newVersion;
       }
       currentVersion = newVersion;
+    } else if (!currentVersion) {
+      // APPs don't have version events, so let's create a fake one
+      currentVersion = { version: null, key: null, byDay: {} };
+      acc.push(currentVersion);
     }
 
     const day = moment(analysis.date).startOf('day').valueOf().toString();
