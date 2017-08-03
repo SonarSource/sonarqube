@@ -26,6 +26,7 @@ import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_CATEGORY;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_PROJECT;
 
@@ -39,6 +40,7 @@ public class ProjectAnalysisService extends BaseService {
     EventCategory eventCategory = searchRequest.getCategory();
     GetRequest request = new GetRequest(path("search"))
       .setParam(PARAM_PROJECT, searchRequest.getProject())
+      .setParam(PARAM_BRANCH, searchRequest.getBranch())
       .setParam(PARAM_CATEGORY, eventCategory == null ? null : eventCategory.name())
       .setParam(PAGE, searchRequest.getPage())
       .setParam(PAGE_SIZE, searchRequest.getPageSize());
