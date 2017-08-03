@@ -19,11 +19,6 @@
  */
 package org.sonar.scanner.scan;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,8 +27,10 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
-import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProjectReactorValidatorTest {
 
@@ -41,17 +38,12 @@ public class ProjectReactorValidatorTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private DefaultAnalysisMode mode;
-  private ProjectSettings settings;
   private ProjectReactorValidator validator;
 
   @Before
   public void prepare() {
     mode = mock(DefaultAnalysisMode.class);
-
-    settings = mock(ProjectSettings.class);
-    when(settings.get(ScannerProperties.BRANCH_NAME)).thenReturn(Optional.empty());
-
-    validator = new ProjectReactorValidator(mode, settings);
+    validator = new ProjectReactorValidator(mode);
   }
 
   @Test
@@ -159,14 +151,6 @@ public class ProjectReactorValidatorTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("\"12345\" is not a valid project or module key");
     validator.validate(reactor);
-  }
-
-  @Test
-  public void should_fail_when_both_old_and_new_branch_property_present() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("The sonar.branch.name parameter must not be used together with the deprecated sonar.branch parameter");
-    when(settings.get(ScannerProperties.BRANCH_NAME)).thenReturn(Optional.of("feature"));
-    validator.validate(createProjectReactor("foo", "branch1"));
   }
 
   private ProjectReactor createProjectReactor(String projectKey) {
