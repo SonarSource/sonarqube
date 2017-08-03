@@ -165,7 +165,8 @@ public class ComponentDaoTest {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(directory)
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory)
+      .setDbKey("org.struts:struts-core:src/org/struts/RequestContext.java")
       .setName("RequestContext.java")
       .setLongName("org.struts.RequestContext")
       .setLanguage("java")
@@ -176,7 +177,7 @@ public class ComponentDaoTest {
     ComponentDto result = optional.get();
     assertThat(result.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(result.uuid()).isEqualTo(file.uuid());
-    assertThat(result.getDbKey()).isEqualTo(file.getDbKey());
+    assertThat(result.getDbKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("src/RequestContext.java");
     assertThat(result.name()).isEqualTo("RequestContext.java");
     assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
@@ -186,6 +187,18 @@ public class ComponentDaoTest {
     assertThat(result.projectUuid()).isEqualTo(project.uuid());
 
     assertThat(underTest.selectByKey(dbSession, "unknown")).isAbsent();
+  }
+
+  @Test
+  public void selectByKeyAndBranch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    assertThat(underTest.selectByKeyAndBranch(dbSession, project.getKey(), "my_branch").get().uuid()).isEqualTo(branch.uuid());
+    assertThat(underTest.selectByKeyAndBranch(dbSession, file.getKey(), "my_branch").get().uuid()).isEqualTo(file.uuid());
+    assertThat(underTest.selectByKeyAndBranch(dbSession, "unknown", "my_branch")).isNotPresent();
+    assertThat(underTest.selectByKeyAndBranch(dbSession, file.getKey(), "unknown")).isNotPresent();
   }
 
   @Test

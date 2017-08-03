@@ -518,7 +518,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void hasComponentPermission_on_branch_checks_permissions_of_its_project() {
-    ComponentDto branch = db.components().insertProjectBranch(privateProject, "feature/foo");
+    ComponentDto branch = db.components().insertProjectBranch(privateProject, b -> b.setKey("feature/foo"));
     ComponentDto fileInBranch = db.components().insertComponent(newChildComponent("fileUuid", branch, branch));
 
     // permissions are defined on the project, not on the branch
