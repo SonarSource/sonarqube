@@ -19,19 +19,17 @@
  */
 package org.sonar.scanner.scan;
 
+import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.Nullable;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
-
-import com.google.common.base.Joiner;
 
 /**
  * This class aims at validating project reactor
@@ -39,9 +37,11 @@ import com.google.common.base.Joiner;
  */
 public class ProjectReactorValidator {
   private final DefaultAnalysisMode mode;
+  private final ProjectSettings settings;
 
-  public ProjectReactorValidator(DefaultAnalysisMode mode) {
+  public ProjectReactorValidator(DefaultAnalysisMode mode, ProjectSettings settings) {
     this.mode = mode;
+    this.settings = settings;
   }
 
   public void validate(ProjectReactor reactor) {
@@ -56,6 +56,8 @@ public class ProjectReactorValidator {
         validateModule(moduleDef, validationMessages);
       }
     }
+
+    validateBranchParams(validationMessages, branch, settings.get(ScannerProperties.BRANCH_NAME).orElse(null));
 
     validateBranch(validationMessages, branch);
 
@@ -82,6 +84,12 @@ public class ProjectReactorValidator {
     if (StringUtils.isNotEmpty(branch) && !ComponentKeys.isValidBranch(branch)) {
       validationMessages.add(String.format("\"%s\" is not a valid branch name. "
         + "Allowed characters are alphanumeric, '-', '_', '.' and '/'.", branch));
+    }
+  }
+
+  private static void validateBranchParams(List<String> validationMessages, @Nullable String deprecatedBranch, @Nullable String branchName) {
+    if (StringUtils.isNotEmpty(deprecatedBranch) && StringUtils.isNotEmpty(branchName)) {
+      validationMessages.add(String.format("The %s parameter must not be used together with the deprecated sonar.branch parameter", ScannerProperties.BRANCH_NAME));
     }
   }
 
