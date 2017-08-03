@@ -36,7 +36,7 @@ export function getValues(keys, componentKey) {
   if (componentKey) {
     data.component = componentKey;
   }
-  return getJSON(url, data).then(r => r.settings);
+  return postJSON(url, data).then(r => r.settings);
 }
 
 export function setSettingValue(definition, value, componentKey) {
