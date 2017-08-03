@@ -86,7 +86,7 @@ public class ComponentIndexerTest {
   @Test
   public void indexOnStartup_does_not_index_non_main_branches() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(project, "feature/foo");
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
 
     underTest.indexOnStartup(emptySet());
 
@@ -133,7 +133,7 @@ public class ComponentIndexerTest {
   @Test
   public void indexOnAnalysis_does_not_index_non_main_branches() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(project, "feature/foo");
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
 
     underTest.indexOnAnalysis(branch.uuid());
 
