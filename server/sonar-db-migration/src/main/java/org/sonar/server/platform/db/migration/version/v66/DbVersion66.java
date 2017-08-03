@@ -29,6 +29,7 @@ public class DbVersion66 implements DbVersion {
     registry
       .add(1800, "Add incremental column to snapthots table", AddIncrementalColumnToSnapshotsTable.class)
       .add(1801, "Create table CE task characteristics", CreateTableCeTaskCharacteristics.class)
-      .add(1802, "Add rules.plugin_key", AddPluginKeyToRules.class);
+      .add(1802, "Add rules.plugin_key", AddPluginKeyToRules.class)
+      .add(1803, "Create table plugins", CreateTablePlugins.class);
   }
 }
