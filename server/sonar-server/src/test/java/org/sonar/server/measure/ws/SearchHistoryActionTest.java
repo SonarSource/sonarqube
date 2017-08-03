@@ -37,6 +37,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -51,6 +52,7 @@ import org.sonarqube.ws.WsMeasures.SearchHistoryResponse.HistoryValue;
 import org.sonarqube.ws.client.measure.SearchHistoryRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.Double.parseDouble;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -64,6 +66,7 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRICS;
@@ -273,6 +276,29 @@ public class SearchHistoryActionTest {
   }
 
   @Test
+  public void branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    MeasureDto measure = db.measureDbTester().insertMeasure(file, analysis, nclocMetric, m -> m.setValue(2d));
+
+    SearchHistoryResponse result = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, "my_branch")
+      .setParam(PARAM_METRICS, "ncloc")
+      .executeProtobuf(SearchHistoryResponse.class);
+
+    assertThat(result.getMeasuresList()).extracting(HistoryMeasure::getMetric).hasSize(1);
+    HistoryMeasure historyMeasure = result.getMeasures(0);
+    assertThat(historyMeasure.getMetric()).isEqualTo(nclocMetric.getKey());
+    assertThat(historyMeasure.getHistoryList())
+      .extracting(m -> parseDouble(m.getValue()))
+      .containsExactlyInAnyOrder(measure.getValue());
+  }
+
+  @Test
   public void fail_if_unknown_metric() {
     wsRequest.setMetrics(newArrayList(complexityMetric.getKey(), nclocMetric.getKey(), "METRIC_42", "42_METRIC"));
 
@@ -316,6 +342,23 @@ public class SearchHistoryActionTest {
   }
 
   @Test
+  public void fail_if_branch_does_not_exist() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    userSession.addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, "another_branch")
+      .setParam(PARAM_METRICS, "ncloc")
+      .execute();
+  }
+
+  @Test
   public void definition() {
     WebService.Action definition = ws.getDef();
 
@@ -324,6 +367,12 @@ public class SearchHistoryActionTest {
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.isInternal()).isFalse();
     assertThat(definition.since()).isEqualTo("6.3");
+    assertThat(definition.params()).hasSize(7);
+
+    Param branch = definition.param("branch");
+    assertThat(branch.since()).isEqualTo("6.6");
+    assertThat(branch.isInternal()).isTrue();
+    assertThat(branch.isRequired()).isFalse();
   }
 
   @Test
