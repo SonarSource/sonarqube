@@ -31,11 +31,19 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.resources.Scopes;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static org.sonar.db.component.ComponentValidator.checkComponentKey;
 import static org.sonar.db.component.ComponentValidator.checkComponentName;
 import static org.sonar.db.component.DbTagsReader.readDbTags;
 
 public class ComponentDto {
+
+  /**
+   * Separator used to generate the key of the branch
+   */
+  public static final String BRANCH_KEY_SEPARATOR = ":BRANCH:";
+
+  private static final Splitter BRANCH_KEY_SPLITTER = Splitter.on(BRANCH_KEY_SEPARATOR);
 
   public static final String UUID_PATH_SEPARATOR = ".";
   public static final String UUID_PATH_OF_ROOT = UUID_PATH_SEPARATOR;
@@ -108,7 +116,7 @@ public class ComponentDto {
 
   /**
    * On non-main branches only, {@link #uuid} of the main branch that represents
-   * the project ({@link #qualifier}="TRK").
+   * the project ({@link #qualifier}="TRK").x
    * It is propagated to all the components of the branch.
    *
    * Value is null on the main-branch components and on other kinds of components
@@ -216,6 +224,22 @@ public class ComponentDto {
     return this;
   }
 
+  /**
+   * The key to be displayed to user, doesn't contain information on branches
+   */
+  public String getKey() {
+    List<String> split = BRANCH_KEY_SPLITTER.splitToList(kee);
+    return split.size() == 2 ? split.get(0) : kee;
+  }
+
+  /**
+   * @return the key of the branch. It will be null on the main branch and when the component is not on a branch
+   */
+  @CheckForNull
+  public String getBranch(){
+    List<String> split = BRANCH_KEY_SPLITTER.splitToList(kee);
+    return split.size() == 2 ? split.get(1) : null;
+  }
 
   public String scope() {
     return scope;
@@ -502,5 +526,10 @@ public class ComponentDto {
     copy.isPrivate = isPrivate;
     copy.createdAt = createdAt;
     return copy;
+  }
+
+  // TODO Use it in branch plugin
+  public static String generateBranchKey(String componentKey, String branch) {
+    return format("%s%s%s", componentKey, BRANCH_KEY_SEPARATOR, branch);
   }
 }
