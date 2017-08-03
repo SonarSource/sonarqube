@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.plugin.PluginMapper">
+
+  <sql id="sqlColumns">
+    uuid,
+    kee,
+    base_plugin_key as basePluginKey,
+    hash,
+    created_at as createdAt,
+    updated_at as updatedAt
+  </sql>
+
+  <select id="selectByKey" parameterType="String" resultType="org.sonar.db.plugin.PluginDto">
+    select
+    <include refid="sqlColumns" />
+    from plugins
+    where kee = #{key,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectAll" resultType="org.sonar.db.plugin.PluginDto">
+    select <include refid="sqlColumns" />
+    from plugins
+  </select>
+
+  <insert id="insert" parameterType="org.sonar.db.plugin.PluginDto" useGeneratedKeys="false">
+    insert into plugins (
+    uuid,
+    kee,
+    base_plugin_key,
+    hash,
+    created_at,
+    updated_at
+    ) values (
+    #{uuid,jdbcType=VARCHAR},
+    #{kee,jdbcType=VARCHAR},
+    #{basePluginKey,jdbcType=VARCHAR},
+    #{hash,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=TIMESTAMP},
+    #{updatedAt,jdbcType=TIMESTAMP}
+    )
+  </insert>
+  
+  <update id="update" parameterType="org.sonar.db.plugin.PluginDto">
+    update plugins set
+      base_plugin_key=#{basePluginKey,jdbcType=VARCHAR},
+      hash=#{hash,jdbcType=VARCHAR},
+      updated_at=#{updatedAt,jdbcType=BIGINT}
+    where
+      uuid=#{uuid,jdbcType=VARCHAR}
+  </update>
+
+  <delete id="delete" parameterType="String">
+    delete from plugins
+    where
+    uuid = #{uuid,jdbcType=VARCHAR}
+  </delete>
+</mapper>

@@ -20,7 +20,6 @@
 package org.sonar.server.plugins;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -37,7 +36,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
@@ -57,6 +55,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.io.FileUtils.copyFile;
 import static org.apache.commons.io.FileUtils.moveFile;
 import static org.apache.commons.io.FileUtils.moveFileToDirectory;
@@ -340,7 +339,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   }
 
   public List<String> getUninstalledPluginFilenames() {
-    return newArrayList(transform(listJarFiles(uninstalledPluginsDir()), FileToName.INSTANCE));
+    return listJarFiles(uninstalledPluginsDir()).stream().map(File::getName).collect(toList());
   }
 
   /**
@@ -392,16 +391,6 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   public boolean hasPlugin(String key) {
     checkState(started.get(), NOT_STARTED_YET);
     return pluginInfosByKeys.containsKey(key);
-  }
-
-  private enum FileToName implements Function<File, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull File file) {
-      return file.getName();
-    }
-
   }
 
   /**

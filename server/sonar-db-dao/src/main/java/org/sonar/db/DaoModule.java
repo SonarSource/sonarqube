@@ -48,6 +48,7 @@ import org.sonar.db.permission.GroupPermissionDao;
 import org.sonar.db.permission.UserPermissionDao;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
 import org.sonar.db.permission.template.PermissionTemplateDao;
+import org.sonar.db.plugin.PluginDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.purge.PurgeDao;
@@ -105,6 +106,7 @@ public class DaoModule extends Module {
     OrganizationMemberDao.class,
     PermissionTemplateCharacteristicDao.class,
     PermissionTemplateDao.class,
+    PluginDao.class,
     ProjectQgateAssociationDao.class,
     PropertiesDao.class,
     PurgeDao.class,
