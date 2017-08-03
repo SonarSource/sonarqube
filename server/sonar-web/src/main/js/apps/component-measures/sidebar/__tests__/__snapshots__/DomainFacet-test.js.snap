@@ -16,6 +16,31 @@ exports[`should display facet item list 1`] = `
       name={
         <Tooltip
           mouseEnterDelay={0.5}
+          overlay="component_measures.domain_x_overview.Reliability"
+          placement="bottom"
+        >
+          <span
+            id="measure-overview-Reliability-name"
+          >
+            component_measures.domain_x_overview.Reliability
+          </span>
+        </Tooltip>
+      }
+      onClick={[Function]}
+      stat={
+        <BubblesIcon
+          size={14}
+        />
+      }
+      value="Reliability"
+    />
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      name={
+        <Tooltip
+          mouseEnterDelay={0.5}
           overlay="Bugs"
           placement="bottom"
         >
@@ -113,6 +138,31 @@ exports[`should display facet item list with bugs selected 1`] = `
     values={1}
   />
   <FacetItemsList>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      name={
+        <Tooltip
+          mouseEnterDelay={0.5}
+          overlay="component_measures.domain_x_overview.Reliability"
+          placement="bottom"
+        >
+          <span
+            id="measure-overview-Reliability-name"
+          >
+            component_measures.domain_x_overview.Reliability
+          </span>
+        </Tooltip>
+      }
+      onClick={[Function]}
+      stat={
+        <BubblesIcon
+          size={14}
+        />
+      }
+      value="Reliability"
+    />
     <FacetItem
       active={true}
       disabled={false}
