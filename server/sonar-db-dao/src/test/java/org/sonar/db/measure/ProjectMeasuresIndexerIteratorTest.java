@@ -263,8 +263,8 @@ public class ProjectMeasuresIndexerIteratorTest {
     SnapshotDto projectAnalysis = dbTester.components().insertProjectAndSnapshot(project);
     insertMeasure(project, projectAnalysis, metric, 10d);
 
-    ComponentDto branch = ComponentTesting.newProjectBranch(project, "feature/foo");
-    SnapshotDto branchAnalysis = dbTester.components().insertProjectAndSnapshot(branch);
+    ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
+    SnapshotDto branchAnalysis = dbTester.components().insertSnapshot(branch);
     insertMeasure(branch, branchAnalysis, metric, 20d);
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
