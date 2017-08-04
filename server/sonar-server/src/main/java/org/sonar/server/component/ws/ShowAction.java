@@ -33,19 +33,22 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents.ShowWsResponse;
 import org.sonarqube.ws.client.component.ShowWsRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 
 public class ShowAction implements ComponentsWsAction {
   private final UserSession userSession;
@@ -85,6 +88,12 @@ public class ShowAction implements ComponentsWsAction {
       .setDescription("Component key")
       .setDeprecatedKey("key", "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("6.6");
   }
 
   @Override
@@ -97,7 +106,7 @@ public class ShowAction implements ComponentsWsAction {
 
   private ShowWsResponse doHandle(ShowWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = getComponentByUuidOrKey(dbSession, request);
+      ComponentDto component = loadComponent(dbSession, request);
       Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.projectUuid());
       List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
       OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, component);
@@ -105,8 +114,14 @@ public class ShowAction implements ComponentsWsAction {
     }
   }
 
-  private ComponentDto getComponentByUuidOrKey(DbSession dbSession, ShowWsRequest request) {
-    ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.COMPONENT_ID_AND_COMPONENT);
+  private ComponentDto loadComponent(DbSession dbSession, ShowWsRequest request) {
+    String componentId = request.getId();
+    String componentKey = request.getKey();
+    String branch = request.getBranch();
+    checkArgument(componentId == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", PARAM_COMPONENT_ID, PARAM_BRANCH);
+    ComponentDto component = branch == null
+      ? componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_COMPONENT)
+      : componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
     userSession.checkComponentPermission(UserRole.USER, component);
     return component;
   }
@@ -125,6 +140,7 @@ public class ShowAction implements ComponentsWsAction {
   private static ShowWsRequest toShowWsRequest(Request request) {
     return new ShowWsRequest()
       .setId(request.param(PARAM_COMPONENT_ID))
-      .setKey(request.param(PARAM_COMPONENT));
+      .setKey(request.param(PARAM_COMPONENT))
+      .setBranch(request.param(PARAM_BRANCH));
   }
 }
