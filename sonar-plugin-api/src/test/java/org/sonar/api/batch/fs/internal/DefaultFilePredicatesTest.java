@@ -176,6 +176,7 @@ public class DefaultFilePredicatesTest {
 
   @Test
   public void has_status() {
+    assertThat(predicates.hasAnyStatus().apply(javaFile)).isTrue();
     assertThat(predicates.hasStatus(InputFile.Status.SAME).apply(javaFile)).isTrue();
     assertThat(predicates.hasStatus(InputFile.Status.ADDED).apply(javaFile)).isFalse();
   }
