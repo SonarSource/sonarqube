@@ -29,6 +29,7 @@ export const Histogram = createReactClass({
   displayName: 'Histogram',
 
   propTypes: {
+    alignTicks: PropTypes.bool,
     data: PropTypes.arrayOf(PropTypes.object).isRequired,
     yTicks: PropTypes.arrayOf(PropTypes.any),
     yValues: PropTypes.arrayOf(PropTypes.any),
@@ -68,17 +69,18 @@ export const Histogram = createReactClass({
       const y = Math.round(yScale(point.y) + yScale.bandwidth() / 2 + this.props.barsHeight / 2);
       const label = tick.label ? tick.label : tick;
       const tooltip = tick.tooltip ? tick.tooltip : null;
+      const historyTickClass = this.props.alignTicks ? 'histogram-tick-start' : 'histogram-tick';
       return (
         <text
           key={index}
-          className="bar-chart-tick histogram-tick"
+          className={'bar-chart-tick ' + historyTickClass}
           onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
           style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
           data-title={tooltip}
           data-toggle={tooltip ? 'tooltip' : null}
           x={x}
           y={y}
-          dx="-1em"
+          dx={this.props.alignTicks ? 0 : '-1em'}
           dy="0.3em">
           {label}
         </text>
@@ -97,7 +99,7 @@ export const Histogram = createReactClass({
     }
     const ticks = this.props.yValues.map((value, index) => {
       const point = this.props.data[index];
-      const x = xScale(point.x);
+      const x = xScale(point.x) + (this.props.alignTicks ? this.props.padding[3] : 0);
       const y = Math.round(yScale(point.y) + yScale.bandwidth() / 2 + this.props.barsHeight / 2);
       return (
         <text
@@ -122,7 +124,8 @@ export const Histogram = createReactClass({
 
   renderBars(xScale, yScale) {
     const bars = this.props.data.map((d, index) => {
-      const x = Math.round(xScale(d.x)) + /* minimum bar width */ 1;
+      const width = Math.round(xScale(d.x)) + /* minimum bar width */ 1;
+      const x = xScale.range()[0] + (this.props.alignTicks ? this.props.padding[3] : 0);
       const y = Math.round(yScale(d.y) + yScale.bandwidth() / 2);
       return (
         <rect
@@ -130,9 +133,9 @@ export const Histogram = createReactClass({
           className="bar-chart-bar"
           onClick={this.props.onBarClick && this.handleClick.bind(this, d)}
           style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
-          x={0}
+          x={x}
           y={y}
-          width={x}
+          width={width}
           height={this.props.barsHeight}
         />
       );
@@ -160,7 +163,9 @@ export const Histogram = createReactClass({
 
     return (
       <svg className="bar-chart" width={this.state.width} height={this.state.height}>
-        <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+        <g
+          transform={`translate(${this.props.alignTicks ? 4 : this.props.padding[3]}, ${this.props
+            .padding[0]})`}>
           {this.renderTicks(xScale, yScale)}
           {this.renderValues(xScale, yScale)}
           {this.renderBars(xScale, yScale)}
