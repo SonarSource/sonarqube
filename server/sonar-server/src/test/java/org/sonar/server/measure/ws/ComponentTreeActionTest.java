@@ -22,11 +22,9 @@ package org.sonar.server.measure.ws;
 import com.google.common.base.Joiner;
 import java.util.List;
 import java.util.stream.IntStream;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -38,6 +36,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
 import org.sonar.server.component.ComponentFinder;
@@ -51,13 +50,20 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
 
+import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.FLOAT;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
+import static org.sonar.api.resources.Qualifiers.DIRECTORY;
+import static org.sonar.api.resources.Qualifiers.FILE;
+import static org.sonar.api.resources.Qualifiers.MODULE;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
@@ -74,6 +80,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PERIODS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
@@ -84,14 +91,17 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEG
 
 public class ComponentTreeActionTest {
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private I18nRule i18n = new I18nRule();
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule()
+    .setRootQualifiers(PROJECT)
+    .setChildrenQualifiers(MODULE, FILE, DIRECTORY)
+    .setLeavesQualifiers(FILE, UNIT_TEST_FILE);
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
@@ -100,13 +110,6 @@ public class ComponentTreeActionTest {
     new ComponentTreeAction(
       new ComponentTreeDataLoader(dbClient, new ComponentFinder(dbClient, resourceTypes), userSession, resourceTypes),
       i18n, resourceTypes));
-
-  @Before
-  public void setUp() {
-    userSession.logIn().setRoot();
-    resourceTypes.setChildrenQualifiers(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.DIRECTORY);
-    resourceTypes.setLeavesQualifiers(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
-  }
 
   @Test
   public void json_example() {
@@ -120,19 +123,19 @@ public class ComponentTreeActionTest {
       .setDbKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java")
       .setName("ElementImpl.java")
       .setLanguage("java")
-      .setQualifier(Qualifiers.FILE)
+      .setQualifier(FILE)
       .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"));
     ComponentDto file2 = componentDb.insertComponent(newFileDto(project, null)
       .setUuid("AVIwDXE_bJbJqrw6wFwJ")
       .setDbKey("com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java")
       .setName("ElementImplTest.java")
       .setLanguage("java")
-      .setQualifier(Qualifiers.UNIT_TEST_FILE)
+      .setQualifier(UNIT_TEST_FILE)
       .setPath("src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java"));
     ComponentDto dir = componentDb.insertComponent(newDirectory(project, "src/main/java/com/sonarsource/markdown/impl")
       .setUuid("AVIwDXE-bJbJqrw6wFv8")
       .setDbKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
-      .setQualifier(Qualifiers.DIRECTORY));
+      .setQualifier(DIRECTORY));
 
     MetricDto complexity = insertComplexityMetric();
     dbClient.measureDao().insert(dbSession,
@@ -484,6 +487,28 @@ public class ComponentTreeActionTest {
   }
 
   @Test
+  public void branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    MetricDto complexity = insertComplexityMetric();
+    MeasureDto measure = db.measureDbTester().insertMeasure(file, analysis, complexity, m -> m.setValue(12.0d));
+
+    ComponentTreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, file.getBranch())
+      .setParam(PARAM_METRIC_KEYS, complexity.getKey())
+      .executeProtobuf(WsMeasures.ComponentTreeWsResponse.class);
+
+    assertThat(response.getBaseComponent()).extracting(WsMeasures.Component::getKey, WsMeasures.Component::getBranch)
+      .containsExactlyInAnyOrder(file.getKey(), file.getBranch());
+    assertThat(response.getBaseComponent().getMeasuresList())
+      .extracting(WsMeasures.Measure::getMetric, m -> parseDouble(m.getValue()))
+      .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));
+  }
+
+  @Test
   public void return_deprecated_id_in_the_response() {
     ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto analysis = db.components().insertSnapshot(project);
@@ -748,6 +773,23 @@ public class ComponentTreeActionTest {
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .execute();
+  }
+
+  @Test
+  public void fail_if_branch_does_not_exist() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    userSession.addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, "another_branch")
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       .execute();
   }
