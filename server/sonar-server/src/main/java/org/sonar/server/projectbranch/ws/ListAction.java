@@ -37,10 +37,10 @@ import org.sonarqube.ws.WsBranches;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
 
 public class ListAction implements BranchWsAction {
-
-  private static final String PROJECT_PARAM = "project";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -52,14 +52,14 @@ public class ListAction implements BranchWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("list")
+    WebService.NewAction action = context.createAction(ACTION_LIST)
       .setSince("6.6")
       .setDescription("List the branches of a project")
       .setResponseExample(Resources.getResource(getClass(), "list-example.json"))
       .setHandler(this);
 
     action
-      .createParam(PROJECT_PARAM)
+      .createParam(PARAM_PROJECT)
       .setDescription("Project key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setRequired(true);
@@ -67,7 +67,7 @@ public class ListAction implements BranchWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String projectKey = request.mandatoryParam(PROJECT_PARAM);
+    String projectKey = request.mandatoryParam(PARAM_PROJECT);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = dbClient.componentDao().selectOrFailByKey(dbSession, projectKey);
