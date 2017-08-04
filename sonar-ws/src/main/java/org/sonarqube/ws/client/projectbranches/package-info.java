@@ -17,27 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.projectbranch.ws;
+@ParametersAreNonnullByDefault
+package org.sonarqube.ws.client.projectbranches;
 
-import java.util.Arrays;
-import org.sonar.api.server.ws.WebService;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.CONTROLLER;
-
-public class BranchesWs implements WebService {
-
-  private final BranchWsAction[] actions;
-
-  public BranchesWs(BranchWsAction... actions) {
-    this.actions = actions;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController(CONTROLLER)
-      .setSince("6.6");
-    Arrays.stream(actions).forEach(action -> action.define(controller));
-    controller.done();
-  }
-
-}
