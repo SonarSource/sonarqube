@@ -28,6 +28,7 @@ import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.project.ProjectsService;
 import org.sonarqube.ws.client.projectanalysis.ProjectAnalysisService;
+import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.qualitygate.QualityGatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
@@ -118,4 +119,9 @@ public interface WsClient {
    * @since 6.3
    */
   ProjectAnalysisService projectAnalysis();
+
+  /**
+   * @since 6.6>
+   */
+  ProjectBranchesService projectBranches();
 }
