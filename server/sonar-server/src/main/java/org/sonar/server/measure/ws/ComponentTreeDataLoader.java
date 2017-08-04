@@ -74,6 +74,8 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.STRATEGIES;
 import static org.sonar.server.measure.ws.ComponentTreeAction.WITH_MEASURES_ONLY_METRIC_SORT_FILTER;
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 
 public class ComponentTreeDataLoader {
   private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = ImmutableSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
@@ -93,7 +95,7 @@ public class ComponentTreeDataLoader {
 
   ComponentTreeData load(ComponentTreeWsRequest wsRequest) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, wsRequest.getBaseComponentId(), wsRequest.getComponent(), BASE_COMPONENT_ID_AND_KEY);
+      ComponentDto baseComponent = loadComponent(dbSession, wsRequest);
       checkPermissions(baseComponent);
       Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, baseComponent.projectUuid());
       if (!baseSnapshot.isPresent()) {
@@ -126,6 +128,16 @@ public class ComponentTreeDataLoader {
         .setReferenceComponentsByUuid(searchReferenceComponentsById(dbSession, components))
         .build();
     }
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, ComponentTreeWsRequest request) {
+    String componentKey = request.getComponent();
+    String componentId = request.getBaseComponentId();
+    String branch = request.getBranch();
+    checkArgument(componentId == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", DEPRECATED_PARAM_BASE_COMPONENT_ID, PARAM_BRANCH);
+    return branch == null
+      ? componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, BASE_COMPONENT_ID_AND_KEY)
+      : componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
   }
 
   @CheckForNull
