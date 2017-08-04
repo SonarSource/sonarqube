@@ -29,6 +29,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -38,7 +39,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.ShowWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,6 +53,7 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 
@@ -77,6 +79,7 @@ public class ShowActionTest {
       tuple("6.4", "The field 'id' is deprecated in the response"),
       tuple("6.4", "The 'visibility' field is added to the response"),
       tuple("6.5", "Leak period date is added to the response"));
+    assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("component", "componentId", "branch");
 
     WebService.Param componentId = action.param(PARAM_COMPONENT_ID);
     assertThat(componentId.isRequired()).isFalse();
@@ -92,6 +95,11 @@ public class ShowActionTest {
     assertThat(component.exampleValue()).isNotNull();
     assertThat(component.deprecatedKey()).isEqualTo("key");
     assertThat(component.deprecatedKeySince()).isEqualTo("6.4");
+
+    WebService.Param branch = action.param(PARAM_BRANCH);
+    assertThat(branch.isInternal()).isTrue();
+    assertThat(branch.isRequired()).isFalse();
+    assertThat(branch.since()).isEqualTo("6.6");
   }
 
   @Test
@@ -154,7 +162,7 @@ public class ShowActionTest {
     ShowWsResponse response = newRequest(null, file.getDbKey());
 
     assertThat(response.getComponent().getKey()).isEqualTo(file.getDbKey());
-    assertThat(response.getAncestorsList()).extracting(WsComponents.Component::getKey).containsOnly(directory.getDbKey(), module.getDbKey(), project.getDbKey());
+    assertThat(response.getAncestorsList()).extracting(Component::getKey).containsOnly(directory.getDbKey(), module.getDbKey(), project.getDbKey());
   }
 
   @Test
@@ -210,7 +218,7 @@ public class ShowActionTest {
     ShowWsResponse response = newRequest(null, file.getDbKey());
 
     String expectedDate = formatDateTime(new Date(3_000_000_000L));
-    assertThat(response.getAncestorsList()).extracting(WsComponents.Component::getAnalysisDate)
+    assertThat(response.getAncestorsList()).extracting(Component::getAnalysisDate)
       .containsOnly(expectedDate, expectedDate, expectedDate);
   }
 
@@ -254,6 +262,30 @@ public class ShowActionTest {
   }
 
   @Test
+  public void branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    String branchKey = "my_branch";
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
+    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, branchKey)
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getComponent()).extracting(Component::getKey, Component::getBranch)
+      .containsExactlyInAnyOrder(file.getKey(), branchKey);
+    assertThat(response.getAncestorsList()).extracting(Component::getKey, Component::getBranch)
+      .containsExactlyInAnyOrder(
+        tuple(directory.getKey(), branchKey),
+        tuple(module.getKey(), branchKey),
+        tuple(branch.getKey(), branchKey));
+  }
+
+  @Test
   public void throw_ForbiddenException_if_user_doesnt_have_browse_permission_on_project() {
     userSession.logIn();
 
@@ -281,6 +313,37 @@ public class ShowActionTest {
     expectedException.expectMessage("Component key 'file-key' not found");
 
     newRequest(null, "file-key");
+  }
+
+  @Test
+  public void fail_when_componentId_and_branch_params_are_used_together() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'componentId' and 'branch' parameters cannot be used at the same time");
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, branch.uuid())
+      .setParam(PARAM_BRANCH, "my_branch")
+      .execute();
+  }
+
+  @Test
+  public void fail_if_branch_does_not_exist() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    userSession.addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, "another_branch")
+      .execute();
   }
 
   private ShowWsResponse newRequest(@Nullable String uuid, @Nullable String key) {
