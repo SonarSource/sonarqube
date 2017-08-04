@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import ComponentsListRow from './ComponentsListRow';
-import EmptyComponentsList from './EmptyComponentsList';
+import EmptyResult from './EmptyResult';
 import { complementary } from '../config/complementary';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 import type { Component } from '../types';
@@ -42,7 +42,7 @@ export default function ComponentsList({
   selectedComponent
 }: Props) {
   if (!components.length) {
-    return <EmptyComponentsList />;
+    return <EmptyResult />;
   }
 
   const otherMetrics = (complementary[metric.key] || []).map(key => metrics[key]);

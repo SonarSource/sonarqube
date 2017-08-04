@@ -93,3 +93,43 @@
 .measure-favorite svg {
   vertical-align: middle;
 }
+
+.measure-details-bubble-chart {
+  position: relative;
+  padding: 0 0 30px 60px;
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
+}
+
+.measure-details-bubble-chart-header {
+  padding: 16px;
+  margin-left: -60px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.measure-details-bubble-chart-legend {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  text-align: center;
+}
+
+.measure-details-bubble-chart-axis {
+  position: absolute;
+  color: #777;
+  font-size: 12px;
+}
+
+.measure-details-bubble-chart-axis.x {
+  left: 50%;
+  bottom: 10px;
+  width: 500px;
+  margin-left: -250px;
+  text-align: center;
+}
+
+.measure-details-bubble-chart-axis.y {
+  top: 50%;
+  left: -20px;
+  transform: rotate(-90deg);
+}
