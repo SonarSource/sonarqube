@@ -45,44 +45,46 @@ export default function MeasureHeader({ component, leakPeriod, measure, secondar
   const hasHistory = ['TRK', 'VW', 'SVW', 'APP'].includes(component.qualifier);
   return (
     <div className="measure-details-header big-spacer-bottom">
-      <div className="measure-details-metric">
-        <IssueTypeIcon query={metric.key} className="little-spacer-right text-text-bottom" />
-        {getLocalizedMetricName(metric)}
-        <span className="measure-details-value spacer-left">
-          <strong>
-            {isDiff
-              ? <Measure className="domain-measures-leak" measure={measure} metric={metric} />
-              : <Measure measure={measure} metric={metric} />}
-          </strong>
-        </span>
-        {!isDiff &&
-          hasHistory &&
-          <Tooltip placement="right" overlay={translate('component_measures.show_metric_history')}>
-            <Link
-              className="js-show-history spacer-left button button-small button-compact"
-              to={getComponentMeasureHistory(component.key, metric.key)}>
-              <HistoryIcon />
-            </Link>
-          </Tooltip>}
-        {secondaryMeasure &&
-          secondaryMeasure.metric.key === 'ncloc_language_distribution' &&
-          <div className="measure-details-secondary">
-            <LanguageDistribution distribution={secondaryMeasure.value} />
-          </div>}
-
-        {secondaryMeasure &&
-          secondaryMeasure.metric.key === 'function_complexity_distribution' &&
-          <div className="measure-details-secondary">
-            <ComplexityDistribution distribution={secondaryMeasure.value} of="function" />
-          </div>}
-
-        {secondaryMeasure &&
-          secondaryMeasure.metric.key === 'file_complexity_distribution' &&
-          <div className="measure-details-secondary">
-            <ComplexityDistribution distribution={secondaryMeasure.value} of="file" />
-          </div>}
+      <div className="measure-details-primary">
+        <div className="measure-details-metric">
+          <IssueTypeIcon query={metric.key} className="little-spacer-right text-text-bottom" />
+          {getLocalizedMetricName(metric)}
+          <span className="measure-details-value spacer-left">
+            <strong>
+              {isDiff
+                ? <Measure className="domain-measures-leak" measure={measure} metric={metric} />
+                : <Measure measure={measure} metric={metric} />}
+            </strong>
+          </span>
+          {!isDiff &&
+            hasHistory &&
+            <Tooltip
+              placement="right"
+              overlay={translate('component_measures.show_metric_history')}>
+              <Link
+                className="js-show-history spacer-left button button-small button-compact"
+                to={getComponentMeasureHistory(component.key, metric.key)}>
+                <HistoryIcon />
+              </Link>
+            </Tooltip>}
+        </div>
+        {leakPeriod != null && <LeakPeriodLegend component={component} period={leakPeriod} />}
       </div>
-      {leakPeriod != null && <LeakPeriodLegend component={component} period={leakPeriod} />}
+      {secondaryMeasure &&
+        secondaryMeasure.metric.key === 'ncloc_language_distribution' &&
+        <div className="measure-details-secondary">
+          <LanguageDistribution alignTicks={true} distribution={secondaryMeasure.value} />
+        </div>}
+      {secondaryMeasure &&
+        secondaryMeasure.metric.key === 'function_complexity_distribution' &&
+        <div className="measure-details-secondary">
+          <ComplexityDistribution distribution={secondaryMeasure.value} of="function" />
+        </div>}
+      {secondaryMeasure &&
+        secondaryMeasure.metric.key === 'file_complexity_distribution' &&
+        <div className="measure-details-secondary">
+          <ComplexityDistribution distribution={secondaryMeasure.value} of="file" />
+        </div>}
     </div>
   );
 }
