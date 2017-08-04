@@ -37,7 +37,7 @@ export default function Event(props: { event: EventType }) {
   return (
     <div className="overview-analysis-event">
       <span className="note">{translate('event.category', event.category)}:</span>{' '}
-      <Tooltip overlay={event.description}>
+      <Tooltip overlay={event.description} placement="left">
         <strong>
           {event.name}
         </strong>
