@@ -31,8 +31,8 @@ public class MeasuresWsParameters {
   public static final String ACTION_SEARCH_HISTORY = "search_history";
 
   // parameters
-  public static final String PARAM_BASE_COMPONENT_ID = "baseComponentId";
-  public static final String PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
+  public static final String DEPRECATED_PARAM_BASE_COMPONENT_ID = "baseComponentId";
+  public static final String DEPRECATED_PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
   public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_BRANCH = "branch";
   public static final String PARAM_STRATEGY = "strategy";
