@@ -58,9 +58,10 @@ class ComponentDtoToWsComponent {
     WsComponents.Component.Builder wsComponent = WsComponents.Component.newBuilder()
       .setOrganization(organizationDtoKey)
       .setId(dto.uuid())
-      .setKey(dto.getDbKey())
+      .setKey(dto.getKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier());
+    setNullable(emptyToNull(dto.getBranch()), wsComponent::setBranch);
     setNullable(emptyToNull(dto.path()), wsComponent::setPath);
     setNullable(emptyToNull(dto.description()), wsComponent::setDescription);
     setNullable(emptyToNull(dto.language()), wsComponent::setLanguage);
