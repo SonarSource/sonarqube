@@ -21,8 +21,8 @@
 import React from 'react';
 import moment from 'moment';
 import Breadcrumbs from './Breadcrumbs';
-import Favorite from '../../../components/controls/Favorite';
 import FilesView from '../drilldown/FilesView';
+import MeasureFavoriteContainer from './MeasureFavoriteContainer';
 import MeasureHeader from './MeasureHeader';
 import MeasureViewSelect from './MeasureViewSelect';
 import MetricNotFound from './MetricNotFound';
@@ -231,8 +231,7 @@ export default class MeasureContent extends React.PureComponent {
               />
               {component.key !== rootComponent.key &&
                 isLoggedIn &&
-                <Favorite
-                  favorite={component.isFavorite === true}
+                <MeasureFavoriteContainer
                   component={component.key}
                   className="measure-favorite spacer-right"
                 />}
