@@ -35,26 +35,22 @@
   vertical-align: text-bottom;
 }
 
-.measure-details-header {
+.measure-details-metric {
+  display: flex;
+  align-items: center;
+}
+
+.measure-details-primary {
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
 }
 
-.measure-details-metric {
-  display: flex;
-  align-items: center;
-}
-
 .measure-details-secondary {
   display: inline-block;
   width: 260px;
-  margin-left: 4px;
-}
-
-.measure-details-secondary .bar-chart {
-  margin-top: -10px;
+  margin-top: 4px;
 }
 
 .measure-details-component-cell {
