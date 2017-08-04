@@ -235,7 +235,7 @@ public class CorePropertyDefinitions {
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
         .multiValues(true)
         .build(),
-
+        
       // ORGANIZATIONS
       PropertyDefinition.builder(ORGANIZATIONS_ANYONE_CAN_CREATE)
         .name("Allow any authenticated user to create organizations")
