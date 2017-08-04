@@ -120,6 +120,7 @@ message Component {
   optional string leakPeriodDate = 16;
   // Root project key
   optional string project = 17;
+  optional string branch = 18;
 
   message Tags {
     repeated string tags = 1;
