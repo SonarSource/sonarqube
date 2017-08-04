@@ -54,6 +54,7 @@ import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAddi
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeveloperParameters;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
@@ -65,6 +66,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PE
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
@@ -164,6 +166,12 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setDescription("Component key. The search is based on this component.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setDeprecatedKey(DEPRECATED_PARAM_BASE_COMPONENT_KEY, "6.6");
+
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("6.6");
 
     action.createParam(PARAM_METRIC_SORT)
       .setDescription(
@@ -283,6 +291,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     ComponentTreeWsRequest componentTreeWsRequest = new ComponentTreeWsRequest()
       .setBaseComponentId(request.param(DEPRECATED_PARAM_BASE_COMPONENT_ID))
       .setComponent(request.param(PARAM_COMPONENT))
+      .setBranch(request.param(PARAM_BRANCH))
       .setMetricKeys(metricKeys)
       .setStrategy(request.mandatoryParam(PARAM_STRATEGY))
       .setQualifiers(request.paramAsStrings(PARAM_QUALIFIERS))
