@@ -61,6 +61,7 @@ public class MeasuresService extends BaseService {
       .setParam(DEPRECATED_PARAM_BASE_COMPONENT_ID, request.getBaseComponentId())
       .setParam(DEPRECATED_PARAM_BASE_COMPONENT_KEY, request.getBaseComponentKey())
       .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch())
       .setParam(PARAM_STRATEGY, request.getStrategy())
       .setParam(PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers()))
       .setParam(PARAM_METRIC_KEYS, inlineMultipleParamValue(request.getMetricKeys()))
