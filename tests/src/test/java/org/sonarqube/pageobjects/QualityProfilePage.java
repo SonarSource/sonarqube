@@ -21,6 +21,8 @@ package org.sonarqube.pageobjects;
 
 import com.codeborne.selenide.Condition;
 
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.page;
 
@@ -32,7 +34,7 @@ public class QualityProfilePage {
   public QualityProfilePage shouldHaveMissingSonarWayRules(Integer nbRules) {
     $(".quality-profile-rules-sonarway-missing")
       .shouldBe(Condition.visible)
-      .$("a").shouldHave(Condition.text(nbRules.toString()));
+      .$("a").shouldHave(text(nbRules.toString()));
     return this;
   }
 
@@ -41,5 +43,16 @@ public class QualityProfilePage {
       .shouldBe(Condition.visible).$("a").click();
     $(".coding-rules").shouldBe(Condition.visible);
     return page(RulesPage.class);
+  }
+
+  public QualityProfilePage shouldHaveAssociatedProject(String projectName) {
+    $(".js-profile-project").shouldHave(text(projectName));
+    return this;
+  }
+
+  public QualityProfilePage shouldAllowToChangeProjects() {
+    $(".js-change-projects").shouldBe(visible).click();
+    $("#profile-projects .select-list-list").shouldBe(visible);
+    return this;
   }
 }

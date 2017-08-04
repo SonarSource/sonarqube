@@ -35,16 +35,12 @@ export default class ChangeProjectsForm extends React.PureComponent {
   container: HTMLElement;
   props: Props;
 
-  componentDidMount() {
-    this.renderSelectList();
-  }
-
   handleCloseClick = (event: Event) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  renderSelectList() {
+  renderSelectList = () => {
     const { key } = this.props.profile;
 
     const searchUrl =
@@ -73,7 +69,7 @@ export default class ChangeProjectsForm extends React.PureComponent {
         deselect: translate('quality_profiles.projects.deselect_hint')
       }
     });
-  }
+  };
 
   render() {
     const header = translate('projects');
@@ -83,6 +79,7 @@ export default class ChangeProjectsForm extends React.PureComponent {
         isOpen={true}
         contentLabel={header}
         className="modal"
+        onAfterOpen={this.renderSelectList}
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
         <div className="modal-head">
