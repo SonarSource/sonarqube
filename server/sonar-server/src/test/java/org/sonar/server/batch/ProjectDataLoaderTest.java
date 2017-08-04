@@ -510,31 +510,17 @@ public class ProjectDataLoaderTest {
   }
 
   @Test
-  public void return_settings_from_project_when_branch_does_not_exist() {
+  public void throws_NotFoundException_when_branch_does_not_exist() {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organizationDto);
     userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    // Project properties
-    db.properties().insertProperties(
-      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()),
-      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-    // Module properties
-    db.properties().insertProperties(
-      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module.getId()),
-      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(module.getId()));
 
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create()
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component '%s' on branch '%s' not found", project.getKey(), "unknown_branch"));
+
+    underTest.load(ProjectDataQuery.create()
       .setModuleKey(project.getKey())
-      .setBranch("my_branch"));
-
-    assertThat(ref.settings(project.getKey())).containsOnly(
-      entry("sonar.jira.project.key", "SONAR"),
-      entry("sonar.jira.login.secured", "john"));
-    assertThat(ref.settings(module.getKey())).containsOnly(
-      entry("sonar.jira.project.key", "SONAR-SERVER"),
-      entry("sonar.jira.login.secured", "john"),
-      entry("sonar.coverage.exclusions", "**/*.java"));
+      .setBranch("unknown_branch"));
   }
 
   @Test
@@ -615,23 +601,6 @@ public class ProjectDataLoaderTest {
 
     assertThat(ref.fileData(branch.getKey(), projectFile.path()).hash()).isEqualTo("123456");
     assertThat(ref.fileData(moduleBranch.getKey(), moduleFile.path()).hash()).isEqualTo("789456");
-  }
-
-  @Test
-  public void return_no_file_data_when_branch_does_not_exist() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    ComponentDto projectFile = db.components().insertComponent(newFileDto(branch));
-    dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(projectFile).setSrcHash("123456"));
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create()
-      .setModuleKey(project.getKey())
-      .setBranch("new_branch"));
-
-    assertThat(ref.fileDataByPath(project.getKey())).isEmpty();
   }
 
   @Test
