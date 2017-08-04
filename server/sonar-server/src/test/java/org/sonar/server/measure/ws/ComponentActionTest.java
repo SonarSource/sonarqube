@@ -28,6 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -35,15 +36,21 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.WsMeasures.Component;
 import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 
+import static java.lang.Double.parseDouble;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
@@ -65,11 +72,16 @@ public class ComponentActionTest {
 
     assertThat(def.since()).isEqualTo("5.4");
     assertThat(def.params()).extracting(WebService.Param::key)
-      .containsExactlyInAnyOrder("componentId", "component", "metricKeys", "additionalFields", "developerId", "developerKey");
+      .containsExactlyInAnyOrder("componentId", "component", "branch", "metricKeys", "additionalFields", "developerId", "developerKey");
 
     assertThat(def.param("developerId").deprecatedSince()).isEqualTo("6.4");
     assertThat(def.param("developerKey").deprecatedSince()).isEqualTo("6.4");
     assertThat(def.param("componentId").deprecatedSince()).isEqualTo("6.6");
+
+    WebService.Param branch = def.param("branch");
+    assertThat(branch.since()).isEqualTo("6.6");
+    assertThat(branch.isInternal()).isTrue();
+    assertThat(branch.isRequired()).isFalse();
   }
 
   @Test
@@ -100,6 +112,29 @@ public class ComponentActionTest {
     assertThat(response)
       .doesNotContain("periods")
       .doesNotContain("metrics");
+  }
+
+  @Test
+  public void branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    logAsUser(project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    MetricDto complexity = insertComplexityMetric();
+    MeasureDto measure = db.measureDbTester().insertMeasure(file, analysis, complexity, m -> m.setValue(12.0d).setVariation(2.0d));
+
+    ComponentWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, file.getBranch())
+      .setParam(PARAM_METRIC_KEYS, complexity.getKey())
+      .executeProtobuf(ComponentWsResponse.class);
+
+    assertThat(response.getComponent()).extracting(Component::getKey, Component::getBranch)
+      .containsExactlyInAnyOrder(file.getKey(), file.getBranch());
+    assertThat(response.getComponent().getMeasuresList())
+      .extracting(WsMeasures.Measure::getMetric, m -> parseDouble(m.getValue()))
+      .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));
   }
 
   @Test
@@ -239,6 +274,40 @@ public class ComponentActionTest {
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .execute();
+  }
+
+  @Test
+  public void fail_if_branch_does_not_exist() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    userSession.addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, "another_branch")
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_componentId_and_branch_params_are_used_together() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    userSession.addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'componentId' and 'branch' parameters cannot be used at the same time");
+
+    ws.newRequest()
+      .setParam(DEPRECATED_PARAM_COMPONENT_ID, file.uuid())
+      .setParam(PARAM_BRANCH, "my_branch")
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       .execute();
   }
