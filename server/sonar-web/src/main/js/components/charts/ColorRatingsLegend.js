@@ -19,19 +19,20 @@
  */
 // @flow
 import React from 'react';
-import { formatMeasure } from '../../../helpers/measures';
-import { RATING_COLORS } from '../../../helpers/constants';
+import classNames from 'classnames';
+import { formatMeasure } from '../../helpers/measures';
+import { RATING_COLORS } from '../../helpers/constants';
 
-export default function RatingsLegend() {
+export default function ColorRatingsLegend({ className }: { className?: string }) {
   return (
-    <div className="projects-visualizations-ratings">
+    <div className={classNames('color-ratings-legend', className)}>
       {[1, 2, 3, 4, 5].map(rating =>
         <div key={rating}>
           <span
-            className="projects-visualizations-ratings-rect"
+            className="color-ratings-legend-rect"
             style={{ borderColor: RATING_COLORS[rating - 1] }}>
             <span
-              className="projects-visualizations-ratings-rect-inner"
+              className="color-ratings-legend-rect-inner"
               style={{ backgroundColor: RATING_COLORS[rating - 1] }}
             />
           </span>
