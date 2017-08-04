@@ -19,9 +19,7 @@
  */
 package org.sonar.core.config;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
@@ -29,6 +27,7 @@ import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
+import static java.util.Arrays.asList;
 import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
 
@@ -54,7 +53,7 @@ public class CorePropertyDefinitions {
   }
 
   public static List<PropertyDefinition> all() {
-    List<PropertyDefinition> defs = Lists.newArrayList();
+    List<PropertyDefinition> defs = new ArrayList<>();
     defs.addAll(IssueExclusionProperties.all());
     defs.addAll(ExclusionProperties.all());
     defs.addAll(SecurityProperties.all());
@@ -62,8 +61,9 @@ public class CorePropertyDefinitions {
     defs.addAll(PurgeProperties.all());
     defs.addAll(EmailSettings.definitions());
     defs.addAll(WebhookProperties.all());
+    defs.addAll(ScannerProperties.all());
 
-    defs.addAll(ImmutableList.of(
+    defs.addAll(asList(
       PropertyDefinition.builder(PROP_PASSWORD)
         .type(PropertyType.PASSWORD)
         .hidden()
@@ -99,14 +99,6 @@ public class CorePropertyDefinitions {
         .name("SCM connection for developers")
         .description("HTTP URL used by developers to connect to the SCM server for the project.")
         .category(CoreProperties.CATEGORY_GENERAL)
-        .hidden()
-        .build(),
-      PropertyDefinition.builder(CoreProperties.ANALYSIS_MODE)
-        .name("Analysis mode")
-        .type(PropertyType.SINGLE_SELECT_LIST)
-        .options(Arrays.asList(CoreProperties.ANALYSIS_MODE_ANALYSIS, CoreProperties.ANALYSIS_MODE_PREVIEW, CoreProperties.ANALYSIS_MODE_INCREMENTAL))
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .defaultValue(CoreProperties.ANALYSIS_MODE_ANALYSIS)
         .hidden()
         .build(),
       PropertyDefinition.builder(CoreProperties.PREVIEW_INCLUDE_PLUGINS)
@@ -146,20 +138,6 @@ public class CorePropertyDefinitions {
         .type(BOOLEAN)
         .defaultValue(String.valueOf(false))
         .hidden()
-        .build(),
-      PropertyDefinition.builder(CoreProperties.SCM_DISABLED_KEY)
-        .name("Disable the SCM Sensor")
-        .description("Disable the retrieval of blame information from Source Control Manager")
-        .category(CoreProperties.CATEGORY_SCM)
-        .type(BOOLEAN)
-        .onQualifiers(Qualifiers.PROJECT)
-        .defaultValue(String.valueOf(false))
-        .build(),
-      PropertyDefinition.builder(CoreProperties.SCM_PROVIDER_KEY)
-        .name("Key of the SCM provider for this project")
-        .description("Force the provider to be used to get SCM information for this project. By default auto-detection is done. Example: svn, git.")
-        .category(CoreProperties.CATEGORY_SCM)
-        .onlyOnQualifiers(Qualifiers.PROJECT)
         .build(),
       PropertyDefinition.builder(DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES)
         .name("Avoid quality profiles notification")

@@ -162,7 +162,7 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
-    assertThat(logs.getAllAsString()).contains("Branch key: my-branch");
+    assertThat(logs.getAllAsString()).contains("Branch key (deprecated): my-branch");
   }
 
   @Test

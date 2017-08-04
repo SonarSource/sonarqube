@@ -58,7 +58,13 @@ public interface Component {
     }
   }
 
+  enum Status {
+    UNAVAILABLE, SAME, CHANGED, ADDED;
+  }
+
   Type getType();
+
+  Status getStatus();
 
   /**
    * Returns the component uuid
@@ -66,7 +72,9 @@ public interface Component {
   String getUuid();
 
   /**
-   * Returns the component key
+   * Returns the component key <b>as defined in database</b>
+   * It may differ from keys listed in scanner report
+   * when analyzing a branch.
    */
   String getKey();
 

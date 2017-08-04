@@ -129,15 +129,15 @@ public class ComputeEngineContainerImplTest {
     );
     assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
-        + 11 // MigrationConfigurationModule
+        + 12 // MigrationConfigurationModule
         + 17 // level 2
     );
     assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
       COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
         + 25 // level 1
-        + 46 // content of DaoModule
+        + 48 // content of DaoModule
         + 3 // content of EsSearchModule
-        + 58 // content of CorePropertyDefinitions
+        + 60 // content of CorePropertyDefinitions
     );
     assertThat(
       picoContainer.getComponentAdapters().stream()

@@ -17,30 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.step;
+package org.sonar.api.batch.fs.internal;
 
-import org.sonar.server.computation.task.projectanalysis.api.developer.PersistDevelopersDelegate;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.api.batch.fs.InputFile;
 
-/**
- * Persist developers, should only be execute when the Dev Cockpit plugin is installed.
- */
-public class PersistDevelopersStep implements ComputationStep {
+public class StatusPredicate extends AbstractFilePredicate {
 
-  private final PersistDevelopersDelegate persistDevelopersDelegate;
+  private final InputFile.Status status;
 
-  public PersistDevelopersStep(PersistDevelopersDelegate persistDevelopersDelegate) {
-    this.persistDevelopersDelegate = persistDevelopersDelegate;
+  StatusPredicate(InputFile.Status status) {
+    this.status = status;
   }
 
   @Override
-  public String getDescription() {
-    return "Persist developers";
-  }
-
-  @Override
-  public void execute() {
-    persistDevelopersDelegate.execute();
+  public boolean apply(InputFile f) {
+    return status == f.status();
   }
 
 }

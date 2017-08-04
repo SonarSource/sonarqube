@@ -34,7 +34,7 @@ public interface MutableQualityGateHolder extends QualityGateHolder {
   void setQualityGate(QualityGate qualityGate);
 
   /**
-   * Sets that there is no quality gate for the project of the currently processed {@link ReportQueue.Item}.
+   * Sets that there is no quality gate for the project of the currently processed report.
    *
    * @throws IllegalStateException if the holder has already been initialized
    */

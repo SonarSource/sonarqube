@@ -31,11 +31,19 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.resources.Scopes;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static org.sonar.db.component.ComponentValidator.checkComponentKey;
 import static org.sonar.db.component.ComponentValidator.checkComponentName;
 import static org.sonar.db.component.DbTagsReader.readDbTags;
 
 public class ComponentDto {
+
+  /**
+   * Separator used to generate the key of the branch
+   */
+  public static final String BRANCH_KEY_SEPARATOR = ":BRANCH:";
+
+  private static final Splitter BRANCH_KEY_SPLITTER = Splitter.on(BRANCH_KEY_SEPARATOR);
 
   public static final String UUID_PATH_SEPARATOR = ".";
   public static final String UUID_PATH_OF_ROOT = UUID_PATH_SEPARATOR;
@@ -105,6 +113,26 @@ public class ComponentDto {
    * @since 6.0
    */
   private String rootUuid;
+
+  /**
+   * On non-main branches only, {@link #uuid} of the main branch that represents
+   * the project ({@link #qualifier}="TRK").x
+   * It is propagated to all the components of the branch.
+   *
+   * Value is null on the main-branch components and on other kinds of components
+   * (applications, portfolios).
+   *
+   * Value must be used for loading settings, checking permissions, running webhooks,
+   * selecting Quality profiles/gates and any other project-related operations.
+   *
+   * Example:
+   * - project P : kee=P, uuid=U1, qualifier=TRK, project_uuid=U1, main_branch_project_uuid=NULL
+   * - file F of project P : kee=P:F, uuid=U2, qualifier=FIL, project_uuid=U1, main_branch_project_uuid=NULL
+   * - branch B of project P : kee=P:BRANCH:B, uuid=U3, qualifier=TRK, project_uuid=U3, main_branch_project_uuid=U1
+   * - file F in branch B of project P : kee=P:F:BRANCH:B, uuid=U4, qualifier=FIL, project_uuid=U3, main_branch_project_uuid=U1
+   */
+  @Nullable
+  private String mainBranchProjectUuid;
 
   private String moduleUuid;
   private String moduleUuidPath;
@@ -196,8 +224,21 @@ public class ComponentDto {
     return this;
   }
 
+  /**
+   * The key to be displayed to user, doesn't contain information on branches
+   */
   public String getKey() {
-    return getDbKey();
+    List<String> split = BRANCH_KEY_SPLITTER.splitToList(kee);
+    return split.size() == 2 ? split.get(0) : kee;
+  }
+
+  /**
+   * @return the key of the branch. It will be null on the main branch and when the component is not on a branch
+   */
+  @CheckForNull
+  public String getBranch(){
+    List<String> split = BRANCH_KEY_SPLITTER.splitToList(kee);
+    return split.size() == 2 ? split.get(1) : null;
   }
 
   public String scope() {
@@ -317,12 +358,26 @@ public class ComponentDto {
     return this;
   }
 
+  /**
+   * Use {@link #projectUuid()}, {@link #moduleUuid()} or {@link #moduleUuidPath()}
+   */
+  @Deprecated
   public String getRootUuid() {
     return rootUuid;
   }
 
   public ComponentDto setRootUuid(String rootUuid) {
     this.rootUuid = rootUuid;
+    return this;
+  }
+
+  @Nullable
+  public String getMainBranchProjectUuid() {
+    return mainBranchProjectUuid;
+  }
+
+  public ComponentDto setMainBranchProjectUuid(@Nullable String s) {
+    this.mainBranchProjectUuid = s;
     return this;
   }
 
@@ -430,6 +485,7 @@ public class ComponentDto {
       .append("moduleUuid", moduleUuid)
       .append("moduleUuidPath", moduleUuidPath)
       .append("rootUuid", rootUuid)
+      .append("mainBranchProjectUuid", mainBranchProjectUuid)
       .append("copyComponentUuid", copyComponentUuid)
       .append("developerUuid", developerUuid)
       .append("path", path)
@@ -440,5 +496,40 @@ public class ComponentDto {
       .append("enabled", enabled)
       .append("private", isPrivate)
       .toString();
+  }
+
+  public ComponentDto copy() {
+    ComponentDto copy = new ComponentDto();
+    copy.projectUuid = projectUuid;
+    copy.id = id;
+    copy.organizationUuid = organizationUuid;
+    copy.kee = kee;
+    copy.uuid = uuid;
+    copy.uuidPath = uuidPath;
+    copy.projectUuid = projectUuid;
+    copy.rootUuid = rootUuid;
+    copy.mainBranchProjectUuid = mainBranchProjectUuid;
+    copy.moduleUuid = moduleUuid;
+    copy.moduleUuidPath = moduleUuidPath;
+    copy.copyComponentUuid = copyComponentUuid;
+    copy.developerUuid = developerUuid;
+    copy.scope = scope;
+    copy.qualifier = qualifier;
+    copy.path = path;
+    copy.deprecatedKey = deprecatedKey;
+    copy.name = name;
+    copy.longName = longName;
+    copy.language = language;
+    copy.description = description;
+    copy.tags = tags;
+    copy.enabled = enabled;
+    copy.isPrivate = isPrivate;
+    copy.createdAt = createdAt;
+    return copy;
+  }
+
+  // TODO Use it in branch plugin
+  public static String generateBranchKey(String componentKey, String branch) {
+    return format("%s%s%s", componentKey, BRANCH_KEY_SEPARATOR, branch);
   }
 }

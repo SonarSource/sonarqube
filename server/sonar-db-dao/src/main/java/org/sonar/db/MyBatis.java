@@ -32,7 +32,10 @@ import org.sonar.api.Startable;
 import org.sonar.db.ce.CeActivityMapper;
 import org.sonar.db.ce.CeQueueMapper;
 import org.sonar.db.ce.CeScannerContextMapper;
+import org.sonar.db.ce.CeTaskCharacteristicDto;
+import org.sonar.db.ce.CeTaskCharacteristicMapper;
 import org.sonar.db.ce.CeTaskInputMapper;
+import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.component.ComponentKeyUpdaterMapper;
@@ -137,6 +140,7 @@ public class MyBatis implements Startable {
     // DTO aliases, keep them sorted alphabetically
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
+    confBuilder.loadAlias("CeTaskCharacteristic", CeTaskCharacteristicDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
     confBuilder.loadAlias("ComponentLink", ComponentLinkDto.class);
     confBuilder.loadAlias("ComponentWithSnapshot", ComponentDtoWithSnapshotId.class);
@@ -184,10 +188,12 @@ public class MyBatis implements Startable {
     Class<?>[] mappers = {
       ActiveRuleMapper.class,
       AuthorizationMapper.class,
+      BranchMapper.class,
       CeActivityMapper.class,
       CeQueueMapper.class,
       CeScannerContextMapper.class,
       CeTaskInputMapper.class,
+      CeTaskCharacteristicMapper.class,
       ComponentKeyUpdaterMapper.class,
       ComponentLinkMapper.class,
       ComponentMapper.class,

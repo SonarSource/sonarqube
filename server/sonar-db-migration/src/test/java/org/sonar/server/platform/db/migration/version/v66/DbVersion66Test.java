@@ -17,7 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.computation.task.projectanalysis.api.developer;
+package org.sonar.server.platform.db.migration.version.v66;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.Test;
+
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+
+public class DbVersion66Test {
+
+  private DbVersion66 underTest = new DbVersion66();
+
+  @Test
+  public void migrationNumber_starts_at_1800() {
+    verifyMinimumMigrationNumber(underTest, 1800);
+  }
+
+  @Test
+  public void verify_migration_count() {
+    verifyMigrationCount(underTest, 5);
+  }
+
+}

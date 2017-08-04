@@ -19,9 +19,20 @@
  */
 package org.sonar.server.computation.queue;
 
-import com.google.common.base.Optional;
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import javax.annotation.Nullable;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
@@ -29,8 +40,10 @@ import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -41,11 +54,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.server.component.NewComponent.newComponentBuilder;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+import com.google.common.base.Optional;
 
 @ServerSide
 public class ReportSubmitter {
@@ -55,29 +64,36 @@ public class ReportSubmitter {
   private final ComponentUpdater componentUpdater;
   private final PermissionTemplateService permissionTemplateService;
   private final DbClient dbClient;
+  private final UuidFactory uuidFactory;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession, ComponentUpdater componentUpdater,
-    PermissionTemplateService permissionTemplateService, DbClient dbClient) {
+    PermissionTemplateService permissionTemplateService, UuidFactory uuidFactory, DbClient dbClient) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
     this.permissionTemplateService = permissionTemplateService;
+    this.uuidFactory = uuidFactory;
     this.dbClient = dbClient;
+  }
+
+  public CeTask submit(String organizationKey, String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
+    return submit(organizationKey, projectKey, projectBranch, projectName, Collections.emptyMap(), reportInput);
   }
 
   /**
    * @throws NotFoundException if the organization with the specified key does not exist
    * @throws IllegalArgumentException if the organization with the specified key is not the organization of the specified project (when it already exists in DB)
    */
-  public CeTask submit(String organizationKey, String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
+  public CeTask submit(String organizationKey, String projectKey, @Nullable String projectBranch, @Nullable String projectName, Map<String, String> characteristics,
+    InputStream reportInput) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String effectiveProjectKey = ComponentKeys.createKey(projectKey, projectBranch);
       OrganizationDto organizationDto = getOrganizationDtoOrFail(dbSession, organizationKey);
+      String effectiveProjectKey = ComponentKeys.createKey(projectKey, projectBranch);
       Optional<ComponentDto> opt = dbClient.componentDao().selectByKey(dbSession, effectiveProjectKey);
       ensureOrganizationIsConsistent(opt, organizationDto);
       ComponentDto project = opt.or(() -> createProject(dbSession, organizationDto, projectKey, projectBranch, projectName));
       checkScanPermission(project);
-      return submitReport(dbSession, reportInput, project);
+      return submitReport(dbSession, reportInput, project, characteristics);
     }
   }
 
@@ -106,12 +122,13 @@ public class ReportSubmitter {
     }
   }
 
-  private ComponentDto createProject(DbSession dbSession, OrganizationDto organization, String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
+  private ComponentDto createProject(DbSession dbSession, OrganizationDto organization, String projectKey, @Nullable String deprecatedBranch, @Nullable String projectName) {
     userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization);
     Integer userId = userSession.getUserId();
 
+    String effectiveProjectKey = ComponentKeys.createEffectiveKey(projectKey, deprecatedBranch);
     boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(
-      dbSession, organization.getUuid(), userId, projectBranch, projectKey, Qualifiers.PROJECT);
+      dbSession, organization.getUuid(), userId, effectiveProjectKey, Qualifiers.PROJECT);
     if (!wouldCurrentUserHaveScanPermission) {
       throw insufficientPrivilegesException();
     }
@@ -122,22 +139,37 @@ public class ReportSubmitter {
       .setOrganizationUuid(organization.getUuid())
       .setKey(projectKey)
       .setName(StringUtils.defaultIfBlank(projectName, projectKey))
-      .setBranch(projectBranch)
+      .setBranch(deprecatedBranch)
       .setQualifier(Qualifiers.PROJECT)
       .setPrivate(newProjectPrivate)
       .build();
     return componentUpdater.create(dbSession, newProject, userId);
   }
 
-  private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto project) {
-    // the report file must be saved before submitting the task
+  private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto project, Map<String, String> characteristicsMap) {
     CeTaskSubmit.Builder submit = queue.prepareSubmit();
+    List<CeTaskCharacteristicDto> characteristics = characteristicsMap.entrySet().stream()
+      .map(e -> toDto(submit.getUuid(), e.getKey(), e.getValue())).collect(Collectors.toList());
+
+    // the report file must be saved before submitting the task
     dbClient.ceTaskInputDao().insert(dbSession, submit.getUuid(), reportInput);
+    if (!characteristics.isEmpty()) {
+      dbClient.ceTaskCharacteristicsDao().insert(dbSession, characteristics);
+    }
     dbSession.commit();
 
     submit.setType(CeTaskTypes.REPORT);
     submit.setComponentUuid(project.uuid());
     submit.setSubmitterLogin(userSession.getLogin());
     return queue.submit(submit.build());
+  }
+
+  private CeTaskCharacteristicDto toDto(String taskUuid, String key, String value) {
+    CeTaskCharacteristicDto dto = new CeTaskCharacteristicDto();
+    dto.setTaskUuid(taskUuid);
+    dto.setKey(key);
+    dto.setValue(value);
+    dto.setUuid(uuidFactory.create());
+    return dto;
   }
 }

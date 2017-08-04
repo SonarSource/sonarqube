@@ -125,6 +125,7 @@ public class ComponentRootBuilder {
     return ComponentImpl.builder(convertType(reportComponent.getType()))
       .setUuid(uuidSupplier.apply(componentKey))
       .setKey(componentKey)
+      .setStatus(convertStatus(reportComponent.getStatus()))
       .setDescription(trimToNull(reportComponent.getDescription()))
       .setFileAttributes(createFileAttributes(reportComponent))
       .addChildren(toArray(buildChildren(reportComponent, latestModuleKey), Component.class));
@@ -195,6 +196,22 @@ public class ComponentRootBuilder {
       component.getIsTest(),
       trimToNull(component.getLanguage()),
       component.getLines());
+  }
+
+  static Component.Status convertStatus(ScannerReport.Component.FileStatus status) {
+    switch(status) {
+      case ADDED:
+        return Component.Status.ADDED;
+      case SAME:
+        return Component.Status.SAME;
+      case CHANGED:
+        return Component.Status.CHANGED;
+      case UNAVAILABLE:
+        return Component.Status.UNAVAILABLE;
+      case UNRECOGNIZED:
+      default:
+        throw new IllegalArgumentException("Unsupported ComponentType value " + status);
+    }
   }
 
   @VisibleForTesting

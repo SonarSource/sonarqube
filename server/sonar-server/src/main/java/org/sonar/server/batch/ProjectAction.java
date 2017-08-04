@@ -31,6 +31,7 @@ import org.sonarqube.ws.WsBatch.WsProjectResponse;
 import org.sonarqube.ws.WsBatch.WsProjectResponse.FileData.Builder;
 
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -39,6 +40,7 @@ public class ProjectAction implements BatchWsAction {
   private static final String PARAM_KEY = "key";
   private static final String PARAM_PROFILE = "profile";
   private static final String PARAM_ISSUES_MODE = "issues_mode";
+  private static final String PARAM_BRANCH = "branch";
 
   private final ProjectDataLoader projectDataLoader;
 
@@ -71,6 +73,12 @@ public class ProjectAction implements BatchWsAction {
       .setDescription("Issues mode or not")
       .setDefaultValue(false)
       .setBooleanPossibleValues();
+
+    action
+      .createParam(PARAM_BRANCH)
+      .setSince("6.6")
+      .setDescription("Branch key")
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 
   @Override
@@ -78,7 +86,8 @@ public class ProjectAction implements BatchWsAction {
     ProjectRepositories data = projectDataLoader.load(ProjectDataQuery.create()
       .setModuleKey(wsRequest.mandatoryParam(PARAM_KEY))
       .setProfileName(wsRequest.param(PARAM_PROFILE))
-      .setIssuesMode(wsRequest.mandatoryParamAsBoolean(PARAM_ISSUES_MODE)));
+      .setIssuesMode(wsRequest.mandatoryParamAsBoolean(PARAM_ISSUES_MODE))
+      .setBranch(wsRequest.param(PARAM_BRANCH)));
 
     WsProjectResponse projectResponse = buildResponse(data);
     writeProtobuf(projectResponse, wsRequest, wsResponse);
@@ -125,8 +134,7 @@ public class ProjectAction implements BatchWsAction {
     for (Map.Entry<String, Map<String, String>> moduleSettingsEntry : data.settings().entrySet()) {
       settingsByModuleResponse.put(
         moduleSettingsEntry.getKey(),
-        toSettingsResponse(moduleSettingsEntry.getValue())
-        );
+        toSettingsResponse(moduleSettingsEntry.getValue()));
     }
 
     return settingsByModuleResponse;

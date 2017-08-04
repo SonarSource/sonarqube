@@ -19,25 +19,20 @@
  */
 package org.sonar.scanner.report;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.util.Date;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -45,6 +40,12 @@ import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
+
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MetadataPublisherTest {
 
@@ -58,6 +59,7 @@ public class MetadataPublisherTest {
   private ProjectAnalysisInfo projectAnalysisInfo;
   private CpdSettings cpdSettings;
   private InputModuleHierarchy inputModuleHierarchy;
+  private AnalysisMode analysisMode;
 
   @Before
   public void prepare() {
@@ -73,7 +75,8 @@ public class MetadataPublisherTest {
     rootModule = new DefaultInputModule(def, TestInputFileBuilder.nextBatchId());
     inputModuleHierarchy = mock(InputModuleHierarchy.class);
     when(inputModuleHierarchy.root()).thenReturn(rootModule);
-    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings);
+    analysisMode = mock(AnalysisMode.class);
+    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings, analysisMode);
   }
 
   @Test
@@ -91,6 +94,7 @@ public class MetadataPublisherTest {
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
+    assertThat(metadata.getIncremental()).isFalse();
     assertThat(metadata.getQprofilesPerLanguage()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile.newBuilder()
       .setKey("q1")
       .setName("Q1")
@@ -119,13 +123,13 @@ public class MetadataPublisherTest {
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
-    assertThat(metadata.getBranch()).isEqualTo("myBranch");
+    assertThat(metadata.getDeprecatedBranch()).isEqualTo("myBranch");
     assertThat(metadata.getCrossProjectDuplicationActivated()).isFalse();
   }
 
   @Test
   public void write_project_organization() throws Exception {
-    settings.setProperty(CoreProperties.PROJECT_ORGANIZATION_PROPERTY, "SonarSource");
+    settings.setProperty(ScannerProperties.ORGANIZATION, "SonarSource");
 
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);

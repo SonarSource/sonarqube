@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -48,7 +49,7 @@ public class ModuleInputComponentStoreTest {
   @Before
   public void setUp() throws IOException {
     DefaultInputModule root = TestInputFileBuilder.newDefaultInputModule(moduleKey, temp.newFolder());
-    componentStore = new InputComponentStore(new PathResolver(), root);
+    componentStore = new InputComponentStore(new PathResolver(), root, mock(AnalysisMode.class));
   }
 
   @Test

@@ -19,13 +19,16 @@
  */
 package org.sonar.db;
 
-import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.core.platform.Module;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
+import org.sonar.db.ce.CeTaskCharacteristicDao;
 import org.sonar.db.ce.CeTaskInputDao;
+import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ComponentLinkDao;
@@ -70,15 +73,17 @@ import org.sonar.db.user.UserTokenDao;
 import org.sonar.db.webhook.WebhookDeliveryDao;
 
 public class DaoModule extends Module {
-  private static final List<Class<? extends Dao>> classes = ImmutableList.<Class<? extends Dao>>builder().add(
+  private static final List<Class<? extends Dao>> classes = Collections.unmodifiableList(Arrays.asList(
     // =====================================================================
     // for readability and easier merge, keep list ordered alphabetically
     // =====================================================================
     ActiveRuleDao.class,
     AuthorizationDao.class,
+    BranchDao.class,
     CeActivityDao.class,
     CeQueueDao.class,
     CeScannerContextDao.class,
+    CeTaskCharacteristicDao.class,
     CeTaskInputDao.class,
     ComponentDao.class,
     ComponentKeyUpdaterDao.class,
@@ -120,7 +125,7 @@ public class DaoModule extends Module {
     UserPermissionDao.class,
     UserTokenDao.class,
     WebhookDeliveryDao.class)
-    .build();
+  );
 
   @Override
   protected void configureModule() {

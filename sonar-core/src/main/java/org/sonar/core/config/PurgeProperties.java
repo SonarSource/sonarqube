@@ -19,12 +19,13 @@
  */
 package org.sonar.core.config;
 
-import java.util.Arrays;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+
+import static java.util.Arrays.asList;
 
 public final class PurgeProperties {
 
@@ -32,7 +33,7 @@ public final class PurgeProperties {
   }
 
   public static List<PropertyDefinition> all() {
-    return Arrays.asList(
+    return asList(
       PropertyDefinition.builder(PurgeConstants.PROPERTY_CLEAN_DIRECTORY)
         .defaultValue("true")
         .name("Clean directory/package history")

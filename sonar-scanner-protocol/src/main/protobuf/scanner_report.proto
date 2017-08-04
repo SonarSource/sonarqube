@@ -30,19 +30,30 @@ option optimize_for = SPEED;
 
 message Metadata {
   int64 analysis_date = 1;
-  // TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
   string organization_key = 2;
+  // TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
   string project_key = 3;
-  string branch = 4;
+  // maps the property sonar.branch
+  string deprecated_branch = 4;
   int32 root_component_ref = 5;
   bool cross_project_duplication_activated = 6;
   map<string, QProfile> qprofiles_per_language = 7;
+  bool incremental = 8;
+  string branch_name = 9;
+  BranchType branch_type = 10;
+  
 
   message QProfile {
     string key = 1;
     string name = 2;
     string language = 3;
     int64 rulesUpdatedAt = 4;
+  }
+  
+  enum BranchType {
+    UNSET = 0;
+    LONG = 1;
+    SHORT = 2;
   }
 }
 
@@ -91,6 +102,7 @@ message Component {
   int32 lines = 11;
   // Only available on PROJECT and MODULE types
   string description = 12;
+  FileStatus status = 13;
   
 	enum ComponentType {
 	  UNSET = 0;
@@ -98,6 +110,14 @@ message Component {
 	  MODULE = 2;
 	  DIRECTORY = 3;
 	  FILE = 4;
+	}
+	
+	// For incremental mode
+	enum FileStatus {
+	  UNAVAILABLE = 0;
+	  SAME = 1;
+	  CHANGED = 2;
+	  ADDED = 3;
 	}
 	
 }

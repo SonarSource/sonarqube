@@ -7,6 +7,7 @@
             project_uuid="P1"
             module_uuid="[null]"
             module_uuid_path="."
+            main_branch_project_uuid="[null]"
             enabled="[true]"
             created_at="[null]"
             long_name="[null]"
@@ -64,6 +65,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
 
@@ -92,6 +94,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
   <!-- snapshot to be purged -->
@@ -119,6 +122,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
 </dataset>

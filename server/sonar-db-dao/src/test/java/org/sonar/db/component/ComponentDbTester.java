@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -29,8 +30,12 @@ import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.sonar.db.component.BranchKeyType.BRANCH;
+import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.ComponentTesting.newApplication;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newProjectBranch;
 import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -189,6 +194,23 @@ public class ComponentDbTester {
   public void insertSnapshots(SnapshotDto... snapshotDtos) {
     dbClient.snapshotDao().insert(dbSession, asList(snapshotDtos));
     db.commit();
+  }
+
+  @SafeVarargs
+  public final ComponentDto insertProjectBranch(ComponentDto project, Consumer<BranchDto>... dtoPopulators) {
+    String uuid = Uuids.createFast();
+    BranchDto branchDto = new BranchDto()
+      .setKey(randomAlphanumeric(255))
+      .setUuid(uuid)
+      .setProjectUuid(project.uuid())
+      .setKeeType(BRANCH)
+      .setBranchType(LONG);
+    Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(branchDto));
+    ComponentDto branch = newProjectBranch(project, branchDto);
+    insertComponent(branch);
+    dbClient.branchDao().insert(dbSession, branchDto);
+    db.commit();
+    return branch;
   }
 
 }

@@ -25,6 +25,21 @@
       </if>
     </where>
   </select>
+  
+  <select id="selectComponent" parameterType="map" resultType="DuplicationUnit">
+    SELECT DISTINCT
+    dup.id as id,
+    dup.analysis_uuid as analysisUuid,
+    dup.component_uuid as componentUuid,
+    dup.hash as hash,
+    dup.index_in_file as indexInFile,
+    dup.start_line as startLine,
+    dup.end_line as endLine
+    FROM duplications_index dup
+    WHERE
+      dup.component_uuid = #{componentUuid,jdbcType=VARCHAR} AND
+      dup.analysis_uuid = #{analysisUuid,jdbcType=VARCHAR} 
+  </select>
 
   <insert id="batchInsert" parameterType="DuplicationUnit" useGeneratedKeys="false">
     INSERT INTO duplications_index (

@@ -70,7 +70,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, s.uuid, s.created_at, p.tags " +
     "FROM projects p " +
     "LEFT OUTER JOIN snapshots s ON s.component_uuid=p.uuid AND s.islast=? " +
-    "WHERE p.enabled=? AND p.scope=? AND p.qualifier=?";
+    "WHERE p.enabled=? AND p.scope=? AND p.qualifier=? and p.main_branch_project_uuid is null ";
 
   private static final String PROJECT_FILTER = " AND p.uuid=?";
 

@@ -25,6 +25,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
   <!-- delete only resource 1 -->
@@ -52,6 +53,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
   <!-- to be deleted -->
@@ -79,6 +81,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             incremental="[false]"
   />
 
 </dataset>

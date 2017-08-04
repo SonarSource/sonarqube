@@ -17,18 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.api.developer;
+package org.sonar.server.projectbranch.ws;
 
-import org.sonar.server.computation.task.step.ComputationStep;
+import java.util.Arrays;
+import org.sonar.api.server.ws.WebService;
 
-/**
- * This interface is used to delegate the persistence of developers to the Developer Cockpit plugin
- */
-public interface PersistDevelopersDelegate {
+public class BranchesWs implements WebService {
 
-  /**
-   * The delegate's implementation of {@link ComputationStep#execute()}.
-   */
-  void execute();
+  private final BranchWsAction[] actions;
+
+  public BranchesWs(BranchWsAction... actions) {
+    this.actions = actions;
+  }
+
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController("api/project_branches")
+      .setSince("6.6");
+    Arrays.stream(actions).forEach(action -> action.define(controller));
+    controller.done();
+  }
 
 }

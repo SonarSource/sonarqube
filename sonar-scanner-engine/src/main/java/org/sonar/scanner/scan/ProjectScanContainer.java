@@ -31,6 +31,7 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.config.ScannerProperties;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.ProjectAnalysisInfo;
@@ -74,7 +75,6 @@ import org.sonar.scanner.repository.DefaultQualityProfileLoader;
 import org.sonar.scanner.repository.DefaultServerIssuesLoader;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
-import org.sonar.scanner.repository.ProjectRepositoriesProvider;
 import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.QualityProfileProvider;
 import org.sonar.scanner.repository.ServerIssuesLoader;
@@ -122,7 +122,6 @@ public class ProjectScanContainer extends ComponentContainer {
   private void addBatchComponents() {
     add(
       props,
-      DefaultAnalysisMode.class,
       ProjectReactorBuilder.class,
       WorkDirectoryCleaner.class,
       new MutableProjectReactorProvider(),
@@ -137,7 +136,6 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultIndex.class,
       Storages.class,
       new RulesProvider(),
-      new ProjectRepositoriesProvider(),
 
       // temp
       new AnalysisTempFolderProvider(),
@@ -235,7 +233,12 @@ public class ProjectScanContainer extends ComponentContainer {
     }
     String branch = tree.root().definition().getBranch();
     if (branch != null) {
-      LOG.info("Branch key: {}", branch);
+      LOG.info("Branch key (deprecated): {}", branch);
+    }
+
+    String branchName = props.property(ScannerProperties.BRANCH_NAME);
+    if (branchName != null) {
+      LOG.info("Branch name: {}", branchName);
     }
 
     LOG.debug("Start recursive analysis of project modules");

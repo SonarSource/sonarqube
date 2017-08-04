@@ -98,6 +98,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void persist_analysis() {
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto projectDto = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD").setDbKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
@@ -132,6 +133,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     assertThat(projectSnapshot.getStatus()).isEqualTo("U");
     assertThat(projectSnapshot.getCreatedAt()).isEqualTo(analysisDate);
     assertThat(projectSnapshot.getBuildDate()).isEqualTo(now);
+    assertThat(projectSnapshot.getIncremental()).isFalse();
 
     assertThat(dbIdsRepository.getComponentId(module)).isEqualTo(moduleDto.getId());
     assertThat(dbIdsRepository.getComponentId(directory)).isEqualTo(directoryDto.getId());
@@ -140,6 +142,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void persist_snapshots_with_leak_period() {
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto projectDto = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD").setDbKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
@@ -162,6 +165,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void only_persist_snapshots_with_leak_period_on_project_and_module() {
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     periodsHolder.setPeriod(new Period(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, null, analysisDate, "u1"));
 
     OrganizationDto organizationDto = dbTester.organizations().insert();
@@ -200,6 +204,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void set_no_period_on_snapshots_when_no_period() {
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     ComponentDto projectDto = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setDbKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
     SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(projectDto);

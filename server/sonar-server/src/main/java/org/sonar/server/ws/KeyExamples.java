@@ -29,6 +29,8 @@ public class KeyExamples {
   public static final String KEY_ORG_EXAMPLE_001 = "my-org";
   public static final String KEY_ORG_EXAMPLE_002 = "foo-company";
 
+  public static final String KEY_BRANCH_EXAMPLE_001 = "feature/my_branch";
+
   private KeyExamples() {
     // prevent instantiation
   }

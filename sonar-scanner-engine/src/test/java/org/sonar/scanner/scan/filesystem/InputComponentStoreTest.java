@@ -27,6 +27,7 @@ import java.util.List;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
@@ -38,6 +39,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class InputComponentStoreTest {
   @ClassRule
@@ -58,7 +60,7 @@ public class InputComponentStoreTest {
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(rootDef);
     DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(moduleDef);
 
-    InputComponentStore cache = new InputComponentStore(new PathResolver(), rootModule);
+    InputComponentStore cache = new InputComponentStore(new PathResolver(), rootModule, mock(AnalysisMode.class));
     cache.put(subModule);
 
     DefaultInputFile fooFile = new TestInputFileBuilder(rootModuleKey, "src/main/java/Foo.java")
@@ -102,7 +104,7 @@ public class InputComponentStoreTest {
 
   static class InputComponentStoreTester extends InputComponentStore {
     InputComponentStoreTester() throws IOException {
-      super(new PathResolver(), TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()));
+      super(new PathResolver(), TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()), mock(AnalysisMode.class));
     }
 
     InputFile addFile(String moduleKey, String relpath, String language) {

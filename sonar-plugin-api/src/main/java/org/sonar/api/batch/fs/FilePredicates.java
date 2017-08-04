@@ -146,4 +146,6 @@ public interface FilePredicates {
 
   FilePredicate and(FilePredicate first, FilePredicate second);
 
+  FilePredicate hasStatus(InputFile.Status status);
+
 }

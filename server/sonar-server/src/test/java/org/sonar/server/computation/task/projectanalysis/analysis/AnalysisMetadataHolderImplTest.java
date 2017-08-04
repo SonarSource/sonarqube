@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.computation.task.projectanalysis.component.MainBranchImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -199,7 +200,7 @@ public class AnalysisMetadataHolderImplTest {
 
     new AnalysisMetadataHolderImpl().isCrossProjectDuplicationEnabled();
   }
-
+  
   @Test
   public void setIsCrossProjectDuplicationEnabled_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
@@ -211,21 +212,58 @@ public class AnalysisMetadataHolderImplTest {
   }
 
   @Test
-  public void set_branch() {
+  public void setIsIncrementalAnalysis_throws_ISE_when_called_twice() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setIncrementalAnalysis(true);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Incremental analysis flag has already been set");
+    underTest.setIncrementalAnalysis(false);
+  }
+  
+  @Test
+  public void isIncrementalAnalysis_return_true() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
-    underTest.setBranch("origin/master");
+    underTest.setIncrementalAnalysis(true);
 
-    assertThat(underTest.getBranch()).isEqualTo("origin/master");
+    assertThat(underTest.isIncrementalAnalysis()).isEqualTo(true);
   }
 
   @Test
-  public void set_no_branch() {
+  public void isIncrementalAnalysis_return_false() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
-    underTest.setBranch(null);
+    underTest.setIncrementalAnalysis(false);
 
-    assertThat(underTest.getBranch()).isNull();
+    assertThat(underTest.isIncrementalAnalysis()).isEqualTo(false);
+  }
+
+  @Test
+  public void isIncrementalAnalysisEnabled_throws_ISE_when_holder_is_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Incremental analysis flag has not been set");
+
+    new AnalysisMetadataHolderImpl().isIncrementalAnalysis();
+  }
+
+  @Test
+  public void setIsIncrementalAnalys_throws_ISE_when_called_twice() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setIncrementalAnalysis(true);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Incremental analysis flag has already been set");
+    underTest.setIncrementalAnalysis(false);
+  }
+
+  @Test
+  public void set_branch() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    underTest.setBranch(new MainBranchImpl("master"));
+
+    assertThat(underTest.getBranch().get().getName()).hasValue("master");
   }
 
   @Test
@@ -239,11 +277,39 @@ public class AnalysisMetadataHolderImplTest {
   @Test
   public void setBranch_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
-    underTest.setBranch("origin/master");
+    underTest.setBranch(new MainBranchImpl("master"));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Branch has already been set");
-    underTest.setBranch("origin/master");
+    underTest.setBranch(new MainBranchImpl("master"));
+  }
+
+  @Test
+  public void set_and_get_project() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    Project project = new Project("U", "K", "N");
+    underTest.setProject(project);
+
+    assertThat(underTest.getProject()).isSameAs(project);
+  }
+
+  @Test
+  public void getProject_throws_ISE_when_holder_is_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Project has not been set");
+
+    new AnalysisMetadataHolderImpl().getProject();
+  }
+
+  @Test
+  public void setProject_throws_ISE_when_called_twice() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setProject(new Project("U", "K", "N"));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Project has already been set");
+    underTest.setProject(new Project("U", "K", "N"));
   }
 
   @Test

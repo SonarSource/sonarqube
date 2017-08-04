@@ -19,10 +19,16 @@
  */
 package org.sonar.server.computation.task.projectanalysis.measure;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.SetMultimap;
+import static java.util.Objects.requireNonNull;
+import static org.sonar.server.computation.task.projectanalysis.component.ComponentFunctions.toReportRef;
+
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -36,8 +42,8 @@ import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.metric.ReportMetricValidator;
 
-import static java.util.Objects.requireNonNull;
-import static org.sonar.server.computation.task.projectanalysis.component.ComponentFunctions.toReportRef;
+import com.google.common.base.Optional;
+import com.google.common.collect.SetMultimap;
 
 public class MeasureRepositoryImpl implements MeasureRepository {
   private final MapBasedRawMeasureRepository<Integer> delegate = new MapBasedRawMeasureRepository<>(toReportRef());
@@ -47,10 +53,11 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   private final MetricRepository metricRepository;
   private final ReportMetricValidator reportMetricValidator;
 
-  private MeasureDtoToMeasure underTest = new MeasureDtoToMeasure();
+  private MeasureDtoToMeasure measureTransformer = new MeasureDtoToMeasure();
   private final Set<Integer> loadedComponents = new HashSet<>();
 
-  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MetricRepository metricRepository, ReportMetricValidator reportMetricValidator) {
+  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MetricRepository metricRepository,
+    ReportMetricValidator reportMetricValidator) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.reportMetricValidator = reportMetricValidator;
@@ -68,10 +75,36 @@ public class MeasureRepositoryImpl implements MeasureRepository {
       MeasureQuery query = MeasureQuery.builder().setComponentUuid(component.getUuid()).setMetricKey(metric.getKey()).build();
       java.util.Optional<MeasureDto> measureDto = dbClient.measureDao().selectSingle(dbSession, query);
       if (measureDto.isPresent()) {
-        return underTest.toMeasure(measureDto.get(), metric);
+        return measureTransformer.toMeasure(measureDto.get(), metric);
       }
       return Optional.absent();
     }
+  }
+
+  @Override
+  public int loadAsRawMeasures(Collection<Component> components, Collection<Metric> metrics) {
+    requireNonNull(components);
+    requireNonNull(metrics);
+
+    Map<String, Component> componentsByUuid = components.stream()
+      .collect(Collectors.toMap(Component::getUuid, c -> c));
+    Map<Integer, Metric> metricsById = metrics.stream()
+      .collect(Collectors.toMap(Metric::getId, m -> m));
+
+    List<MeasureDto> measuresDto;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      measuresDto = dbClient.measureDao().selectByComponentsAndMetrics(dbSession, componentsByUuid.keySet(), metricsById.keySet());
+    }
+    
+    for (MeasureDto dto : measuresDto) {
+
+      Metric metric = metricsById.get(dto.getMetricId());
+      Component component = componentsByUuid.get(dto.getComponentUuid());
+      Measure measure = measureTransformer.toMeasure(dto, metric).get();
+
+      delegate.add(component, metric, measure);
+    }
+    return measuresDto.size();
   }
 
   @Override

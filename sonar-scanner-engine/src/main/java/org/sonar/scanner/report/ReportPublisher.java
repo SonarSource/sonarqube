@@ -35,7 +35,6 @@ import javax.annotation.Nullable;
 import okhttp3.HttpUrl;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Configuration;
@@ -54,6 +53,8 @@ import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 
+import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
+import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 @ScannerSide
@@ -167,11 +168,17 @@ public class ReportPublisher implements Startable {
     PostRequest.Part filePart = new PostRequest.Part(MediaTypes.ZIP, report);
     PostRequest post = new PostRequest("api/ce/submit")
       .setMediaType(MediaTypes.PROTOBUF)
-      .setParam("organization", settings.get(CoreProperties.PROJECT_ORGANIZATION_PROPERTY).orElse(null))
+      .setParam("organization", settings.get(ORGANIZATION).orElse(null))
       .setParam("projectKey", moduleHierarchy.root().key())
       .setParam("projectName", moduleHierarchy.root().getOriginalName())
       .setParam("projectBranch", moduleHierarchy.root().getBranch())
       .setPart("report", filePart);
+
+    if (analysisMode.isIncremental()) {
+      post.setParam("characteristic", "incremental=true");
+    }
+
+    settings.get(BRANCH_NAME).ifPresent(b -> post.setParam("characteristic", "branch=" + b));
 
     WsResponse response;
     try {
@@ -200,10 +207,11 @@ public class ReportPublisher implements Startable {
 
       Map<String, String> metadata = new LinkedHashMap<>();
       String effectiveKey = moduleHierarchy.root().getKeyWithBranch();
-      settings.get(CoreProperties.PROJECT_ORGANIZATION_PROPERTY).ifPresent(org -> metadata.put("organization", org));
+      settings.get(ORGANIZATION).ifPresent(org -> metadata.put("organization", org));
       metadata.put("projectKey", effectiveKey);
       metadata.put("serverUrl", publicUrl);
       metadata.put("serverVersion", server.getVersion());
+      settings.get(BRANCH_NAME).ifPresent(branch -> metadata.put("branch", branch));
 
       URL dashboardUrl = httpUrl.newBuilder()
         .addPathSegment("dashboard").addPathSegment("index").addPathSegment(effectiveKey)

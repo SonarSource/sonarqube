@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.server.qualityprofile.QualityProfile;
 
@@ -53,6 +54,11 @@ public interface AnalysisMetadataHolder {
    * @throws IllegalStateException if baseProjectSnapshot has not been set
    */
   boolean isFirstAnalysis();
+  
+  /**
+   * Whether this is an incremental analysis or a full analysis.
+   */
+  boolean isIncrementalAnalysis();
 
   /**
    * Return the last analysis of the project.
@@ -69,12 +75,31 @@ public interface AnalysisMetadataHolder {
   boolean isCrossProjectDuplicationEnabled();
 
   /**
+   * Branch is present whatever the type of branch (long or short, main or not). However
+   * it is absent when analyzing a pull request.
+   *
    * @throws IllegalStateException if branch has not been set
    */
-  @CheckForNull
-  String getBranch();
+  Optional<Branch> getBranch();
 
   /**
+   * The project as represented by the main branch. It is used to load settings
+   * like Quality gates, webhooks and configuration.
+   *
+   * In case of analysis of main branch, the returned value is the main branch,
+   * so its uuid and key are the same in
+   * {@link org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder#getRoot().
+   *
+   * In case of analysis of non-main branch or pull request, the returned value
+   * is the main branch. Its uuid and key are different than
+   * {@link org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder#getRoot().
+   *
+   * @throws IllegalStateException if project has not been set
+   */
+  Project getProject();
+
+  /**
+   * Reference of the root component in the scanner report
    * @throws IllegalStateException if root component ref has not been set
    */
   int getRootComponentRef();
