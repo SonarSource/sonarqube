@@ -62,9 +62,10 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_COMPONENT_TREE;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_METRICS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PERIODS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
@@ -132,12 +133,15 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setDescription(format("Navigate through components based on the chosen strategy with specified measures. The %s or the %s parameter must be provided.<br>" +
         "Requires the following permission: 'Browse' on the specified project.<br>" +
         "When limiting search with the %s parameter, directories are not returned.",
-        PARAM_BASE_COMPONENT_ID, PARAM_BASE_COMPONENT_KEY, Param.TEXT_QUERY))
+        DEPRECATED_PARAM_BASE_COMPONENT_ID, PARAM_COMPONENT, Param.TEXT_QUERY))
       .setResponseExample(getClass().getResource("component_tree-example.json"))
       .setSince("5.4")
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
-      .setChangelog(new Change("6.3", format("Number of metric keys is limited to %s", MAX_METRIC_KEYS)));
+      .setChangelog(
+        new Change("6.3", format("Number of metric keys is limited to %s", MAX_METRIC_KEYS)),
+        new Change("6.6", "the response field id is deprecated. Use key instead."),
+        new Change("6.6", "the response field refId is deprecated. Use refKey instead."));
 
     action.createSortParams(SORTS, NAME_SORT, true)
       .setDescription("Comma-separated list of sort fields")
@@ -151,13 +155,15 @@ public class ComponentTreeAction implements MeasuresWsAction {
         "Must have at least %d characters.", QUERY_MINIMUM_LENGTH))
       .setExampleValue("FILE_NAM");
 
-    action.createParam(PARAM_BASE_COMPONENT_ID)
+    action.createParam(DEPRECATED_PARAM_BASE_COMPONENT_ID)
       .setDescription("Base component id. The search is based on this component.")
-      .setExampleValue(UUID_EXAMPLE_02);
+      .setExampleValue(UUID_EXAMPLE_02)
+      .setDeprecatedSince("6.6");
 
-    action.createParam(PARAM_BASE_COMPONENT_KEY)
-      .setDescription("Base component key. The search is based on this component.")
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+    action.createParam(PARAM_COMPONENT)
+      .setDescription("Component key. The search is based on this component.")
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001)
+      .setDeprecatedKey(DEPRECATED_PARAM_BASE_COMPONENT_KEY, "6.6");
 
     action.createParam(PARAM_METRIC_SORT)
       .setDescription(
@@ -275,8 +281,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
     List<String> metricKeys = request.mandatoryParamAsStrings(PARAM_METRIC_KEYS);
     checkArgument(metricKeys.size() <= MAX_METRIC_KEYS, "Number of metrics keys is limited to %s, got %s", MAX_METRIC_KEYS, metricKeys.size());
     ComponentTreeWsRequest componentTreeWsRequest = new ComponentTreeWsRequest()
-      .setBaseComponentId(request.param(PARAM_BASE_COMPONENT_ID))
-      .setBaseComponentKey(request.param(PARAM_BASE_COMPONENT_KEY))
+      .setBaseComponentId(request.param(DEPRECATED_PARAM_BASE_COMPONENT_ID))
+      .setComponent(request.param(PARAM_COMPONENT))
       .setMetricKeys(metricKeys)
       .setStrategy(request.mandatoryParam(PARAM_STRATEGY))
       .setQualifiers(request.paramAsStrings(PARAM_QUALIFIERS))
