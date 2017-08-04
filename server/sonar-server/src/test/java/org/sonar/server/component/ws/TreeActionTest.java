@@ -28,13 +28,13 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -53,10 +53,17 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.TreeWsResponse;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.resources.Qualifiers.DIRECTORY;
+import static org.sonar.api.resources.Qualifiers.FILE;
+import static org.sonar.api.resources.Qualifiers.MODULE;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.db.component.ComponentTesting.newChildComponent;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -64,6 +71,7 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
@@ -77,17 +85,46 @@ public class TreeActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule()
+    .setRootQualifiers(PROJECT)
+    .setChildrenQualifiers(MODULE, FILE, DIRECTORY)
+    .setLeavesQualifiers(FILE, UNIT_TEST_FILE);
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
 
-  private WsActionTester ws;
+  private WsActionTester ws = new WsActionTester(new TreeAction(dbClient, new ComponentFinder(dbClient, resourceTypes), resourceTypes, userSession, Mockito.mock(I18n.class)));
 
-  @Before
-  public void setUp() {
-    ws = new WsActionTester(new TreeAction(dbClient, new ComponentFinder(dbClient, resourceTypes), resourceTypes, userSession, Mockito.mock(I18n.class)));
-    resourceTypes.setChildrenQualifiers(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.DIRECTORY);
-    resourceTypes.setLeavesQualifiers(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
+  @Test
+  public void verify_definition() throws Exception {
+    WebService.Action action = ws.getDef();
+
+    assertThat(action.since()).isEqualTo("5.4");
+    assertThat(action.description()).isNotNull();
+    assertThat(action.responseExample()).isNotNull();
+    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("6.4", "The field 'id' is deprecated in the response"));
+    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("component", "componentId", "branch", "qualifiers", "strategy",
+      "q", "s", "p", "asc", "ps");
+
+    Param componentId = action.param(PARAM_COMPONENT_ID);
+    assertThat(componentId.isRequired()).isFalse();
+    assertThat(componentId.description()).isNotNull();
+    assertThat(componentId.exampleValue()).isNotNull();
+    assertThat(componentId.deprecatedSince()).isEqualTo("6.4");
+    assertThat(componentId.deprecatedKey()).isEqualTo("baseComponentId");
+    assertThat(componentId.deprecatedKeySince()).isEqualTo("6.4");
+
+    Param component = action.param(PARAM_COMPONENT);
+    assertThat(component.isRequired()).isFalse();
+    assertThat(component.description()).isNotNull();
+    assertThat(component.exampleValue()).isNotNull();
+    assertThat(component.deprecatedKey()).isEqualTo("baseComponentKey");
+    assertThat(component.deprecatedKeySince()).isEqualTo("6.4");
+
+    Param branch = action.param(PARAM_BRANCH);
+    assertThat(branch.isInternal()).isTrue();
+    assertThat(branch.isRequired()).isFalse();
+    assertThat(branch.since()).isEqualTo("6.6");
   }
 
   @Test
@@ -176,7 +213,7 @@ public class TreeActionTest {
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
-      .setParam(PARAM_QUALIFIERS, Qualifiers.FILE)
+      .setParam(PARAM_QUALIFIERS, FILE)
       .setParam(PARAM_COMPONENT_ID, "project-uuid").executeProtobuf(TreeWsResponse.class);
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-1", "file-uuid-2");
@@ -199,7 +236,7 @@ public class TreeActionTest {
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "leaves")
       .setParam(PARAM_COMPONENT_ID, "project-uuid")
-      .setParam(PARAM_QUALIFIERS, Qualifiers.FILE).executeProtobuf(TreeWsResponse.class);
+      .setParam(PARAM_QUALIFIERS, FILE).executeProtobuf(TreeWsResponse.class);
 
     assertThat(response.getComponentsCount()).isEqualTo(3);
     assertThat(response.getPaging().getTotal()).isEqualTo(3);
@@ -280,6 +317,29 @@ public class TreeActionTest {
     assertThat(response.getComponentsCount()).isEqualTo(1);
     assertThat(response.getComponents(0).getId()).isEqualTo("project-copy-uuid");
     assertThat(response.getComponents(0).getRefId()).isEqualTo("project-uuid");
+  }
+
+  @Test
+  public void branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    String branchKey = "my_branch";
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
+    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory));
+
+    TreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, module.getKey())
+      .setParam(PARAM_BRANCH, branchKey)
+      .executeProtobuf(TreeWsResponse.class);
+
+    assertThat(response.getBaseComponent()).extracting(WsComponents.Component::getKey, WsComponents.Component::getBranch)
+      .containsExactlyInAnyOrder(module.getKey(), branchKey);
+    assertThat(response.getComponentsList()).extracting(WsComponents.Component::getKey, WsComponents.Component::getBranch)
+      .containsExactlyInAnyOrder(
+        tuple(directory.getKey(), branchKey),
+        tuple(file.getKey(), branchKey));
   }
 
   @Test
@@ -375,6 +435,36 @@ public class TreeActionTest {
     expectedException.expectMessage("Either 'componentId' or 'component' must be provided, not both");
 
     ws.newRequest().execute();
+  }
+
+  @Test
+  public void fail_when_componentId_and_branch_params_are_used_together() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'componentId' and 'branch' parameters cannot be used at the same time");
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, branch.uuid())
+      .setParam(PARAM_BRANCH, "my_branch")
+      .execute();
+  }
+
+  @Test
+  public void fail_if_branch_does_not_exist() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", project.getKey(), "another_branch"));
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT, project.getKey())
+      .setParam(PARAM_BRANCH, "another_branch")
+      .execute();
   }
 
   private static ComponentDto newFileDto(ComponentDto moduleOrProject, @Nullable ComponentDto directory, int i) {
