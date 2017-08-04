@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -70,34 +69,27 @@ public class ProjectDataLoader {
   public ProjectRepositories load(ProjectDataQuery query) {
     try (DbSession session = dbClient.openSession(false)) {
       ProjectRepositories data = new ProjectRepositories();
-      ComponentDto module = componentFinder.getByKey(session, query.getModuleKey());
-      checkRequest(isProjectOrModule(module), "Key '%s' belongs to a component which is not a Project", query.getModuleKey());
-
-      boolean hasScanPerm = userSession.hasComponentPermission(SCAN_EXECUTION, module) ||
-        userSession.hasPermission(OrganizationPermission.SCAN, module.getOrganizationUuid());
-      boolean hasBrowsePerm = userSession.hasComponentPermission(USER, module);
-      checkPermission(query.isIssuesMode(), hasScanPerm, hasBrowsePerm);
-
-      ComponentDto moduleToUseForSettings = module;
-      ComponentDto moduleToUseForFileData = module;
+      String moduleKey = query.getModuleKey();
       String branch = query.getBranch();
-      if (branch != null) {
-        Optional<ComponentDto> branchDto = dbClient.componentDao().selectByKeyAndBranch(session, query.getModuleKey(), branch);
-        moduleToUseForSettings = branchDto.orElse(module);
-        moduleToUseForFileData = branchDto.orElse(null);
+      ComponentDto mainModule = componentFinder.getByKey(session, moduleKey);
+      checkRequest(isProjectOrModule(mainModule), "Key '%s' belongs to a component which is not a Project", moduleKey);
+      boolean hasScanPerm = userSession.hasComponentPermission(SCAN_EXECUTION, mainModule) ||
+        userSession.hasPermission(OrganizationPermission.SCAN, mainModule.getOrganizationUuid());
+      boolean hasBrowsePerm = userSession.hasComponentPermission(USER, mainModule);
+      checkPermission(query.isIssuesMode(), hasScanPerm, hasBrowsePerm);
+      ComponentDto branchOrMainModule = branch == null ? mainModule : componentFinder.getByKeyAndBranch(session, moduleKey, branch);
+
+      ComponentDto project = getProject(branchOrMainModule, session);
+      if (!project.getKey().equals(branchOrMainModule.getKey())) {
+        addSettings(data, branchOrMainModule.getKey(), getSettingsFromParents(branchOrMainModule, hasScanPerm, session));
       }
 
-      ComponentDto project = getProject(moduleToUseForSettings, session);
-      if (!project.getKey().equals(moduleToUseForSettings.getKey())) {
-        addSettings(data, moduleToUseForSettings.getKey(), getSettingsFromParents(moduleToUseForSettings, hasScanPerm, session));
-      }
-
-      List<ComponentDto> modulesTree = dbClient.componentDao().selectEnabledDescendantModules(session, moduleToUseForSettings.uuid());
-      List<PropertyDto> modulesTreeSettings = dbClient.propertiesDao().selectEnabledDescendantModuleProperties(module.uuid(), session);
+      List<ComponentDto> modulesTree = dbClient.componentDao().selectEnabledDescendantModules(session, branchOrMainModule.uuid());
+      List<PropertyDto> modulesTreeSettings = dbClient.propertiesDao().selectEnabledDescendantModuleProperties(mainModule.uuid(), session);
       TreeModuleSettings treeModuleSettings = new TreeModuleSettings(session, modulesTree, modulesTreeSettings);
 
-      addSettingsToChildrenModules(data, query.getModuleKey(), Maps.newHashMap(), treeModuleSettings, hasScanPerm);
-      List<FilePathWithHashDto> files = searchFilesWithHashAndRevision(session, moduleToUseForFileData);
+      addSettingsToChildrenModules(data, moduleKey, Maps.newHashMap(), treeModuleSettings, hasScanPerm);
+      List<FilePathWithHashDto> files = searchFilesWithHashAndRevision(session, branchOrMainModule);
       addFileData(data, modulesTree, files);
 
       // FIXME need real value but actually only used to know if there is a previous analysis in local issue tracking mode so any value is
