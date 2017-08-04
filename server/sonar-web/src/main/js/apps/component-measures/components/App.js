@@ -21,8 +21,9 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import MeasureContentContainer from './MeasureContentContainer';
+import MeasureOverviewContainer from './MeasureOverviewContainer';
 import Sidebar from '../sidebar/Sidebar';
-import { parseQuery, serializeQuery } from '../utils';
+import { hasBubbleChart, parseQuery, serializeQuery } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import type { Component, Query, Period } from '../types';
 import type { RawQuery } from '../../../helpers/query';
@@ -132,8 +133,10 @@ export default class App extends React.PureComponent {
     if (isLoading) {
       return <i className="spinner spinner-margin" />;
     }
+    const { component, fetchMeasures, metrics } = this.props;
+    const { leakPeriod } = this.state;
     const query = parseQuery(this.props.location.query);
-    const metric = this.props.metrics[query.metric];
+    const metric = metrics[query.metric];
     return (
       <div className="layout-page" id="component-measures">
         <Helmet title={translate('layout.measures')} />
@@ -156,14 +159,26 @@ export default class App extends React.PureComponent {
           <MeasureContentContainer
             className="layout-page-main"
             currentUser={this.props.currentUser}
-            rootComponent={this.props.component}
-            fetchMeasures={this.props.fetchMeasures}
-            leakPeriod={this.state.leakPeriod}
+            rootComponent={component}
+            fetchMeasures={fetchMeasures}
+            leakPeriod={leakPeriod}
             metric={metric}
-            metrics={this.props.metrics}
+            metrics={metrics}
             selected={query.selected}
             updateQuery={this.updateQuery}
             view={query.view}
+          />}
+        {metric == null &&
+          hasBubbleChart(query.metric) &&
+          <MeasureOverviewContainer
+            className="layout-page-main"
+            rootComponent={component}
+            currentUser={this.props.currentUser}
+            domain={query.metric}
+            leakPeriod={leakPeriod}
+            metrics={metrics}
+            selected={query.selected}
+            updateQuery={this.updateQuery}
           />}
       </div>
     );
