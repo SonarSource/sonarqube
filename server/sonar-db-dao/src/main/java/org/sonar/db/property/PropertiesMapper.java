@@ -35,7 +35,7 @@ public interface PropertiesMapper {
 
   PropertyDto selectByKey(PropertyDto key);
 
-  List<PropertyDto> selectByKeys(@Param("keys") List<String> keys, @Nullable @Param("componentId") Long componentId);
+  List<PropertyDto> selectByKeys(@Param("keys") List<String> keys);
 
   List<PropertyDto> selectByKeysAndComponentIds(@Param("keys") List<String> keys, @Param("componentIds") List<Long> componentIds);
 

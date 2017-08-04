@@ -17,7 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.computation.task.projectanalysis.api.developer;
+package org.sonar.server.computation.task.projectanalysis.component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.scanner.protocol.output.ScannerReport;
+
+@ComputeEngineSide
+public interface BranchLoaderDelegate {
+
+  void load(ScannerReport.Metadata metadata);
+
+}

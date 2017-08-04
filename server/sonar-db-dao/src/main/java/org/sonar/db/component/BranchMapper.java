@@ -17,30 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.step;
+package org.sonar.db.component;
 
-import org.sonar.server.computation.task.projectanalysis.api.developer.PersistDevelopersDelegate;
-import org.sonar.server.computation.task.step.ComputationStep;
+import java.util.Collection;
+import org.apache.ibatis.annotations.Param;
 
-/**
- * Persist developers, should only be execute when the Dev Cockpit plugin is installed.
- */
-public class PersistDevelopersStep implements ComputationStep {
+public interface BranchMapper {
 
-  private final PersistDevelopersDelegate persistDevelopersDelegate;
+  void insert(@Param("dto") BranchDto dto, @Param("now") long now);
 
-  public PersistDevelopersStep(PersistDevelopersDelegate persistDevelopersDelegate) {
-    this.persistDevelopersDelegate = persistDevelopersDelegate;
-  }
+  int update(@Param("dto") BranchDto dto, @Param("now") long now);
 
-  @Override
-  public String getDescription() {
-    return "Persist developers";
-  }
+  BranchDto selectByKey(@Param("projectUuid") String projectUuid,
+    @Param("keyType") BranchKeyType keyType, @Param("key") String key);
 
-  @Override
-  public void execute() {
-    persistDevelopersDelegate.execute();
-  }
-
+  Collection<BranchDto> selectByProjectUuid(@Param("projectUuid") String projectUuid);
 }

@@ -19,8 +19,11 @@
  */
 package org.sonar.db.version;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.HashSet;
 import java.util.Set;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableSet;
 
 public final class SqTables {
   /**
@@ -28,7 +31,7 @@ public final class SqTables {
    * incorrect collation must be fixed so that joins with other
    * tables are possible.
    */
-  public static final Set<String> OLD_DROPPED_TABLES = ImmutableSet.of(
+  public static final Set<String> OLD_DROPPED_TABLES = unmodifiableSet(new HashSet<>(asList(
     "active_dashboards",
     "activities",
     "dashboards",
@@ -38,14 +41,14 @@ public final class SqTables {
     "measure_filter_favourites",
     "resource_index",
     "widgets",
-    "widget_properties");
+    "widget_properties")));
 
   /**
    * List of all the tables.
    * This list is hardcoded because we didn't succeed in using java.sql.DatabaseMetaData#getTables() in the same way
    * for all the supported databases, particularly due to Oracle results.
    */
-  public static final Set<String> TABLES = ImmutableSet.of(
+  public static final Set<String> TABLES = unmodifiableSet(new HashSet<>(asList(
     "active_rules",
     "active_rule_parameters",
     "ce_activity",
@@ -75,6 +78,7 @@ public final class SqTables {
     "perm_templates_groups",
     "perm_tpl_characteristics",
     "projects",
+    "project_branches",
     "project_links",
     "project_measures",
     "project_qprofiles",
@@ -92,7 +96,7 @@ public final class SqTables {
     "users",
     "user_roles",
     "user_tokens",
-    "webhook_deliveries");
+    "webhook_deliveries")));
 
   private SqTables() {
     // prevents instantiation

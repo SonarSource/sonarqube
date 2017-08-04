@@ -32,7 +32,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -44,6 +43,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.WsCe;
@@ -91,7 +91,7 @@ public class ReportPublisherTest {
   public void log_and_dump_information_about_report_uploading() throws IOException {
     ReportPublisher underTest = new ReportPublisher(settings.asConfig(), wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
       new ReportPublisherStep[0]);
-    settings.setProperty(CoreProperties.PROJECT_ORGANIZATION_PROPERTY, "MyOrg");
+    settings.setProperty(ScannerProperties.ORGANIZATION, "MyOrg");
 
     underTest.logSuccess("TASK-123");
 
@@ -202,7 +202,7 @@ public class ReportPublisherTest {
     ReportPublisher underTest = new ReportPublisher(settings.asConfig(), wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
       new ReportPublisherStep[0]);
 
-    settings.setProperty(CoreProperties.PROJECT_ORGANIZATION_PROPERTY, "MyOrg");
+    settings.setProperty(ScannerProperties.ORGANIZATION, "MyOrg");
 
     WsResponse response = mock(WsResponse.class);
 

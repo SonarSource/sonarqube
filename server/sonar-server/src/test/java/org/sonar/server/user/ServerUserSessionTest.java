@@ -20,7 +20,6 @@
 package org.sonar.server.user;
 
 import java.util.Arrays;
-import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,9 +39,11 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.component.ComponentTesting.newChildComponent;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
@@ -50,8 +51,8 @@ import static org.sonar.db.permission.OrganizationPermission.SCAN;
 public class ServerUserSessionTest {
   private static final String LOGIN = "marius";
 
-  private static final String PUBLIC_PROJECT_UUID = "public project";
-  private static final String PRIVATE_PROJECT_UUID = "private project";
+  private static final String PUBLIC_PROJECT_UUID = "public_project";
+  private static final String PRIVATE_PROJECT_UUID = "private_project";
   private static final String FILE_KEY = "com.foo:Bar:BarFile.xoo";
   private static final String FILE_UUID = "BCDE";
   private static final UserDto ROOT_USER_DTO = new UserDto() {
@@ -390,7 +391,10 @@ public class ServerUserSessionTest {
   }
 
   private boolean hasComponentPermissionByDtoOrUuid(UserSession underTest, String permission, ComponentDto component) {
-    return new Random().nextBoolean() ? underTest.hasComponentPermission(permission, component) : underTest.hasComponentUuidPermission(permission, component.uuid());
+    boolean b1 = underTest.hasComponentPermission(permission, component);
+    boolean b2 = underTest.hasComponentUuidPermission(permission, component.uuid());
+    checkState(b1 == b2, "Different behaviors");
+    return b1;
   }
 
   @Test
@@ -510,6 +514,20 @@ public class ServerUserSessionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     session.checkIsSystemAdministrator();
+  }
+
+  @Test
+  public void hasComponentPermission_on_branch_checks_permissions_of_its_project() {
+    ComponentDto branch = db.components().insertProjectBranch(privateProject, "feature/foo");
+    ComponentDto fileInBranch = db.components().insertComponent(newChildComponent("fileUuid", branch, branch));
+
+    // permissions are defined on the project, not on the branch
+    db.users().insertProjectPermissionOnUser(user, "p1", privateProject);
+
+    UserSession underTest = newUserSession(user);
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", privateProject)).isTrue();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", branch)).isTrue();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", fileInBranch)).isTrue();
   }
 
   private ServerUserSession newUserSession(@Nullable UserDto userDto) {

@@ -451,7 +451,7 @@ public class PermissionTemplateServiceTest {
   }
 
   @Test
-  public void would_user_have_scann_permission_with_empty_template() {
+  public void would_user_have_scan_permission_with_empty_template() {
     PermissionTemplateDto template = templateDb.insertTemplate(dbTester.getDefaultOrganization());
     dbTester.organizations().setDefaultTemplates(template, null);
 
@@ -459,7 +459,7 @@ public class PermissionTemplateServiceTest {
   }
 
   private void checkWouldUserHaveScanPermission(OrganizationDto organization, @Nullable Integer userId, boolean expectedResult) {
-    assertThat(underTest.wouldUserHaveScanPermissionWithDefaultTemplate(session, organization.getUuid(), userId, null, "PROJECT_KEY", Qualifiers.PROJECT))
+    assertThat(underTest.wouldUserHaveScanPermissionWithDefaultTemplate(session, organization.getUuid(), userId, "PROJECT_KEY", Qualifiers.PROJECT))
       .isEqualTo(expectedResult);
   }
 

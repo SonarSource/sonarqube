@@ -17,24 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.step;
+package org.sonar.server.projectbranch.ws;
 
-import org.junit.Test;
-import org.sonar.server.computation.task.projectanalysis.api.developer.PersistDevelopersDelegate;
+import java.util.Arrays;
+import org.sonar.api.server.ws.WebService;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+public class BranchesWs implements WebService {
 
-public class PersistDevelopersStepTest {
+  private final BranchWsAction[] actions;
 
-  PersistDevelopersDelegate persistDevelopersDelegate = mock(PersistDevelopersDelegate.class);
-
-  PersistDevelopersStep underTest = new PersistDevelopersStep(persistDevelopersDelegate);
-
-  @Test
-  public void execute_calls_delegate_execute() throws Exception {
-    underTest.execute();
-
-    verify(persistDevelopersDelegate).execute();
+  public BranchesWs(BranchWsAction... actions) {
+    this.actions = actions;
   }
+
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController("api/project_branches")
+      .setSince("6.6");
+    Arrays.stream(actions).forEach(action -> action.define(controller));
+    controller.done();
+  }
+
 }

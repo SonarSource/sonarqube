@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import java.util.Date;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,6 +31,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueIndex;
@@ -46,9 +48,11 @@ import org.sonar.server.ws.WsResponseCommonFormat;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
+import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
@@ -77,6 +81,13 @@ public class SearchActionComponentsTest {
 
   private WsActionTester ws = new WsActionTester(new SearchAction(userSession, index, issueQueryFactory, searchResponseLoader, searchResponseFormat));
 
+  private RuleDefinitionDto rule;
+
+  @Before
+  public void setUp() throws Exception {
+    rule = db.rules().insert();
+  }
+
   @Test
   public void search_by_application_key() throws Exception {
     ComponentDto project1 = db.components().insertPublicProject();
@@ -84,8 +95,8 @@ public class SearchActionComponentsTest {
     ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
-    IssueDto issue1 = db.issues().insertIssue(i -> i.setProject(project1));
-    IssueDto issue2 = db.issues().insertIssue(i -> i.setProject(project2));
+    IssueDto issue1 = db.issues().insertIssue(newIssue(rule, project1, project1));
+    IssueDto issue2 = db.issues().insertIssue(newIssue(rule, project2, project2));
     userSession.registerComponents(application, project1, project2);
     permissionIndexer.allowOnlyAnyone(project1);
     permissionIndexer.allowOnlyAnyone(project2);
@@ -140,14 +151,14 @@ public class SearchActionComponentsTest {
     ComponentDto project1 = db.components().insertPublicProject();
     db.components().insertSnapshot(project1, s -> s.setPeriodDate(addDays(now, -14).getTime()));
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
-    IssueDto project1Issue1 = db.issues().insertIssue(i -> i.setProject(project1).setIssueCreationDate(addDays(now, -10)));
-    IssueDto project1Issue2 = db.issues().insertIssue(i -> i.setProject(project1).setIssueCreationDate(addDays(now, -20)));
+    IssueDto project1Issue1 = db.issues().insertIssue(newIssue(rule, project1, project1).setIssueCreationDate(addDays(now, -10)));
+    IssueDto project1Issue2 = db.issues().insertIssue(newIssue(rule, project1, project1).setIssueCreationDate(addDays(now, -20)));
     // Project 2
     ComponentDto project2 = db.components().insertPublicProject();
     db.components().insertSnapshot(project2, s -> s.setPeriodDate(addDays(now, -25).getTime()));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
-    IssueDto project2Issue1 = db.issues().insertIssue(i -> i.setProject(project2).setIssueCreationDate(addDays(now, -15)));
-    IssueDto project2Issue2 = db.issues().insertIssue(i -> i.setProject(project2).setIssueCreationDate(addDays(now, -30)));
+    IssueDto project2Issue1 = db.issues().insertIssue(newIssue(rule, project2, project2).setIssueCreationDate(addDays(now, -15)));
+    IssueDto project2Issue2 = db.issues().insertIssue(newIssue(rule, project2, project2).setIssueCreationDate(addDays(now, -30)));
     // Permissions and index
     userSession.registerComponents(application, project1, project2);
     permissionIndexer.allowOnlyAnyone(project1);
@@ -166,13 +177,13 @@ public class SearchActionComponentsTest {
 
   @Test
   public void search_by_application_and_project() throws Exception {
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto project1 = db.components().insertPublicProject(db.getDefaultOrganization());
+    ComponentDto project2 = db.components().insertPublicProject(db.getDefaultOrganization());
     ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
-    IssueDto issue1 = db.issues().insertIssue(i -> i.setProject(project1));
-    IssueDto issue2 = db.issues().insertIssue(i -> i.setProject(project2));
+    IssueDto issue1 = db.issues().insertIssue(i -> i.setComponent(project1).setProject(project1));
+    IssueDto issue2 = db.issues().insertIssue(i -> i.setComponent(project2).setProject(project2));
     userSession.registerComponents(application, project1, project2);
     permissionIndexer.allowOnlyAnyone(project1);
     permissionIndexer.allowOnlyAnyone(project2);
@@ -196,14 +207,14 @@ public class SearchActionComponentsTest {
     ComponentDto project1 = db.components().insertPublicProject();
     db.components().insertSnapshot(project1, s -> s.setPeriodDate(addDays(now, -14).getTime()));
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
-    IssueDto project1Issue1 = db.issues().insertIssue(i -> i.setProject(project1).setIssueCreationDate(addDays(now, -10)));
-    IssueDto project1Issue2 = db.issues().insertIssue(i -> i.setProject(project1).setIssueCreationDate(addDays(now, -20)));
+    IssueDto project1Issue1 = db.issues().insertIssue(newIssue(rule, project1, project1).setIssueCreationDate(addDays(now, -10)));
+    IssueDto project1Issue2 = db.issues().insertIssue(newIssue(rule, project1, project1).setIssueCreationDate(addDays(now, -20)));
     // Project 2
     ComponentDto project2 = db.components().insertPublicProject();
     db.components().insertSnapshot(project2, s -> s.setPeriodDate(addDays(now, -25).getTime()));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
-    IssueDto project2Issue1 = db.issues().insertIssue(i -> i.setProject(project2).setIssueCreationDate(addDays(now, -15)));
-    IssueDto project2Issue2 = db.issues().insertIssue(i -> i.setProject(project2).setIssueCreationDate(addDays(now, -30)));
+    IssueDto project2Issue1 = db.issues().insertIssue(newIssue(rule, project2, project2).setIssueCreationDate(addDays(now, -15)));
+    IssueDto project2Issue2 = db.issues().insertIssue(newIssue(rule, project2, project2).setIssueCreationDate(addDays(now, -30)));
     // Permissions and index
     userSession.registerComponents(application, project1, project2);
     permissionIndexer.allowOnlyAnyone(project1);
@@ -229,14 +240,14 @@ public class SearchActionComponentsTest {
     ComponentDto project1 = db.components().insertPublicProject();
     db.components().insertSnapshot(project1, s -> s.setPeriodDate(addDays(now, -14).getTime()));
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
-    IssueDto project1Issue1 = db.issues().insertIssue(i -> i.setProject(project1).setIssueCreationDate(addDays(now, -10)));
-    IssueDto project1Issue2 = db.issues().insertIssue(i -> i.setProject(project1).setIssueCreationDate(addDays(now, -20)));
+    IssueDto project1Issue1 = db.issues().insertIssue(newIssue(rule, project1, project1).setIssueCreationDate(addDays(now, -10)));
+    IssueDto project1Issue2 = db.issues().insertIssue(newIssue(rule, project1, project1).setIssueCreationDate(addDays(now, -20)));
     // Project 2, without leak => no issue form it should be returned
     ComponentDto project2 = db.components().insertPublicProject();
     db.components().insertSnapshot(project2, s -> s.setPeriodDate(null));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
-    IssueDto project2Issue1 = db.issues().insertIssue(i -> i.setProject(project2).setIssueCreationDate(addDays(now, -15)));
-    IssueDto project2Issue2 = db.issues().insertIssue(i -> i.setProject(project2).setIssueCreationDate(addDays(now, -30)));
+    IssueDto project2Issue1 = db.issues().insertIssue(newIssue(rule, project2, project2).setIssueCreationDate(addDays(now, -15)));
+    IssueDto project2Issue2 = db.issues().insertIssue(newIssue(rule, project2, project2).setIssueCreationDate(addDays(now, -30)));
     // Permissions and index
     userSession.registerComponents(application, project1, project2);
     permissionIndexer.allowOnlyAnyone(project1);
@@ -254,7 +265,7 @@ public class SearchActionComponentsTest {
   }
 
   private void indexIssuesAndViews() {
-    issueIndexer.indexOnStartup(null);
-    viewIndexer.indexOnStartup(null);
+    issueIndexer.indexOnStartup(emptySet());
+    viewIndexer.indexOnStartup(emptySet());
   }
 }
