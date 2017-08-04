@@ -316,7 +316,7 @@
 }
 
 .overview-meta-header {
-  color: #797979;
+  color: #444;
 }
 
 .overview-meta-list > li {
@@ -360,6 +360,7 @@
 }
 
 .overview-analysis {
+  color: #777;
 }
 
 .overview-analysis + .overview-analysis {
