@@ -17,27 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.projectbranch.ws;
+package org.sonarqube.ws.client.projectbranches;
 
-import java.util.Arrays;
-import org.sonar.api.server.ws.WebService;
+public class ProjectBranchesParameters {
 
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.CONTROLLER;
+  public static final String CONTROLLER = "api/project_branches";
 
-public class BranchesWs implements WebService {
+  // actions
+  public static final String ACTION_LIST = "list";
 
-  private final BranchWsAction[] actions;
+  // parameters
+  public static final String PARAM_PROJECT = "project";
 
-  public BranchesWs(BranchWsAction... actions) {
-    this.actions = actions;
+  private ProjectBranchesParameters() {
+    // static utility class
   }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController(CONTROLLER)
-      .setSince("6.6");
-    Arrays.stream(actions).forEach(action -> action.define(controller));
-    controller.done();
-  }
-
 }
