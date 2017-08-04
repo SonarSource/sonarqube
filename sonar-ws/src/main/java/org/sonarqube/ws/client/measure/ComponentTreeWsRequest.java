@@ -27,6 +27,7 @@ public class ComponentTreeWsRequest {
 
   private String baseComponentId;
   private String baseComponentKey;
+  private String component;
   private String strategy;
   private List<String> qualifiers;
   private List<String> additionalFields;
@@ -42,23 +43,49 @@ public class ComponentTreeWsRequest {
   private String developerId;
   private String developerKey;
 
+  /**
+   * @deprecated since 6.6, please use {@link #getComponent()} instead
+   */
+  @Deprecated
   @CheckForNull
   public String getBaseComponentId() {
     return baseComponentId;
   }
 
+  /**
+   * @deprecated since 6.6, please use {@link #setComponent(String)} instead
+   */
+  @Deprecated
   public ComponentTreeWsRequest setBaseComponentId(@Nullable String baseComponentId) {
     this.baseComponentId = baseComponentId;
     return this;
   }
 
+  /**
+   * @deprecated since 6.6, please use {@link #getComponent()} instead
+   */
+  @Deprecated
   @CheckForNull
   public String getBaseComponentKey() {
     return baseComponentKey;
   }
 
+  /**
+   * @deprecated since 6.6, please use {@link #setComponent(String)} instead
+   */
+  @Deprecated
   public ComponentTreeWsRequest setBaseComponentKey(@Nullable String baseComponentKey) {
     this.baseComponentKey = baseComponentKey;
+    return this;
+  }
+
+  @CheckForNull
+  public String getComponent() {
+    return component;
+  }
+
+  public ComponentTreeWsRequest setComponent(@Nullable String component) {
+    this.component = component;
     return this;
   }
 
@@ -102,11 +129,12 @@ public class ComponentTreeWsRequest {
     return this;
   }
 
+  @CheckForNull
   public List<String> getSort() {
     return sort;
   }
 
-  public ComponentTreeWsRequest setSort(List<String> sort) {
+  public ComponentTreeWsRequest setSort(@Nullable List<String> sort) {
     this.sort = sort;
     return this;
   }
@@ -146,7 +174,7 @@ public class ComponentTreeWsRequest {
     return asc;
   }
 
-  public ComponentTreeWsRequest setAsc(boolean asc) {
+  public ComponentTreeWsRequest setAsc(@Nullable Boolean asc) {
     this.asc = asc;
     return this;
   }

@@ -5,7 +5,6 @@
     "total": 3
   },
   "baseComponent": {
-    "id": "project-id",
     "key": "MY_PROJECT",
     "name": "My Project",
     "qualifier": "TRK",
@@ -31,7 +30,6 @@
   },
   "components": [
     {
-      "id": "AVIwDXE-bJbJqrw6wFv5",
       "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java",
       "name": "ElementImpl.java",
       "qualifier": "FIL",
@@ -58,7 +56,6 @@
       ]
     },
     {
-      "id": "AVIwDXE_bJbJqrw6wFwJ",
       "key": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java",
       "name": "ElementImplTest.java",
       "qualifier": "UTS",
@@ -77,7 +74,6 @@
       ]
     },
     {
-      "id": "AVIwDXE-bJbJqrw6wFv8",
       "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl",
       "name": "src/main/java/com/sonarsource/markdown/impl",
       "qualifier": "DIR",

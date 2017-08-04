@@ -33,9 +33,9 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
@@ -81,6 +81,7 @@ public class MeasuresServiceTest {
     ComponentTreeWsRequest componentTreeRequest = new ComponentTreeWsRequest()
       .setBaseComponentId(VALUE_BASE_COMPONENT_ID)
       .setBaseComponentKey(VALUE_BASE_COMPONENT_KEY)
+      .setComponent(VALUE_BASE_COMPONENT_KEY)
       .setMetricKeys(VALUE_METRIC_KEYS)
       .setStrategy(VALUE_STRATEGY)
       .setQualifiers(VALUE_QUALIFIERS)
@@ -100,8 +101,9 @@ public class MeasuresServiceTest {
 
     assertThat(serviceTester.getGetParser()).isSameAs(ComponentTreeWsResponse.parser());
     serviceTester.assertThat(getRequest)
-      .hasParam(PARAM_BASE_COMPONENT_ID, VALUE_BASE_COMPONENT_ID)
-      .hasParam(PARAM_BASE_COMPONENT_KEY, VALUE_BASE_COMPONENT_KEY)
+      .hasParam(DEPRECATED_PARAM_BASE_COMPONENT_ID, VALUE_BASE_COMPONENT_ID)
+      .hasParam(DEPRECATED_PARAM_BASE_COMPONENT_KEY, VALUE_BASE_COMPONENT_KEY)
+      .hasParam(PARAM_COMPONENT, VALUE_BASE_COMPONENT_KEY)
       .hasParam(PARAM_METRIC_KEYS, "ncloc,complexity")
       .hasParam(PARAM_STRATEGY, VALUE_STRATEGY)
       .hasParam(PARAM_QUALIFIERS, "FIL,PRJ")
