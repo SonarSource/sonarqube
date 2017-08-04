@@ -205,4 +205,9 @@ public class DefaultFilePredicates implements FilePredicates {
   public FilePredicate hasStatus(Status status) {
     return new StatusPredicate(status);
   }
+
+  @Override
+  public FilePredicate hasAnyStatus() {
+    return new StatusPredicate(null);
+  }
 }

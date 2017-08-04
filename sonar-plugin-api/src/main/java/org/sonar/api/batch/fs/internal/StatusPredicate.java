@@ -19,19 +19,20 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 
 public class StatusPredicate extends AbstractFilePredicate {
 
   private final InputFile.Status status;
 
-  StatusPredicate(InputFile.Status status) {
+  StatusPredicate(@Nullable InputFile.Status status) {
     this.status = status;
   }
 
   @Override
   public boolean apply(InputFile f) {
-    return status == f.status();
+    return status == null || status == f.status();
   }
 
 }

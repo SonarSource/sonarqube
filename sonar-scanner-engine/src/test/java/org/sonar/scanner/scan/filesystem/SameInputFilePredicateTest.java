@@ -46,6 +46,7 @@ public class SameInputFilePredicateTest {
   public void testHasExplicitFilterOnStatus() {
     assertThat(SameInputFilePredicate.hasExplicitFilterOnStatus(predicates.all())).isFalse();
     assertThat(SameInputFilePredicate.hasExplicitFilterOnStatus(predicates.hasStatus(InputFile.Status.ADDED))).isTrue();
+    assertThat(SameInputFilePredicate.hasExplicitFilterOnStatus(predicates.hasAnyStatus())).isTrue();
     assertThat(SameInputFilePredicate.hasExplicitFilterOnStatus(predicates.and(predicates.all(), predicates.hasStatus(InputFile.Status.ADDED)))).isTrue();
   }
 }
