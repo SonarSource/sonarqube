@@ -29,7 +29,9 @@ import type { RawQuery } from '../../helpers/query';
 import type { Metric } from '../../store/metrics/actions';
 import type { MeasureEnhanced } from '../../components/measure/types';
 
+export const PROJECT_OVERVEW = 'project_overview';
 export const DEFAULT_VIEW = 'list';
+export const DEFAULT_METRIC = PROJECT_OVERVEW;
 const KNOWN_DOMAINS = [
   'Releasability',
   'Reliability',
@@ -112,15 +114,27 @@ export const hasTreemap = (metricType: string): boolean =>
 
 export const hasBubbleChart = (domainName: string): boolean => bubbles[domainName] != null;
 
+export const getBubbleMetrics = (domain: string, metrics: { [string]: Metric }) => {
+  const conf = bubbles[domain];
+  return {
+    xMetric: metrics[conf.x],
+    yMetric: metrics[conf.y],
+    sizeMetric: metrics[conf.size],
+    colorsMetric: conf.colors ? conf.colors.map(color => metrics[color]) : null
+  };
+};
+
+export const isProjectOverview = (metric: string) => metric === PROJECT_OVERVEW;
+
 export const parseQuery = memoize((urlQuery: RawQuery): Query => ({
-  metric: parseAsString(urlQuery['metric']),
+  metric: parseAsString(urlQuery['metric']) || DEFAULT_METRIC,
   selected: parseAsString(urlQuery['selected']),
   view: parseAsString(urlQuery['view']) || DEFAULT_VIEW
 }));
 
 export const serializeQuery = memoize((query: Query): RawQuery => {
   return cleanQuery({
-    metric: serializeString(query.metric),
+    metric: query.metric === DEFAULT_METRIC ? null : serializeString(query.metric),
     selected: serializeString(query.selected),
     view: query.view === DEFAULT_VIEW ? null : serializeString(query.view)
   });
