@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.projectbranch.ws;
+package org.sonarqube.ws.client.projectbranches;
 
-import java.util.Arrays;
-import org.sonar.api.server.ws.WebService;
+import org.sonarqube.ws.WsBranches.ListWsResponse;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsConnector;
 
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.CONTROLLER;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
 
-public class BranchesWs implements WebService {
+public class ProjectBranchesService extends BaseService {
 
-  private final BranchWsAction[] actions;
-
-  public BranchesWs(BranchWsAction... actions) {
-    this.actions = actions;
+  public ProjectBranchesService(WsConnector wsConnector) {
+    super(wsConnector, CONTROLLER);
   }
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController(CONTROLLER)
-      .setSince("6.6");
-    Arrays.stream(actions).forEach(action -> action.define(controller));
-    controller.done();
+  public ListWsResponse list(String project) {
+    GetRequest get = new GetRequest(path(ACTION_LIST))
+      .setParam(PARAM_PROJECT, project);
+    return call(get, ListWsResponse.parser());
   }
 
 }
