@@ -54,3 +54,15 @@ it('should render correctly', () => {
   wrapper.setState({ loading: false });
   expect(wrapper).toMatchSnapshot();
 });
+
+it('should render a measure overview', () => {
+  const wrapper = shallow(
+    <App
+      {...PROPS}
+      location={{ pathname: '/component_measures', query: { metric: 'Reliability' } }}
+    />
+  );
+  expect(wrapper.find('.spinner')).toHaveLength(1);
+  wrapper.setState({ loading: false });
+  expect(wrapper.find('MeasureOverviewContainer')).toHaveLength(1);
+});
