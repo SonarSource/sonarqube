@@ -98,16 +98,22 @@
 }
 
 .measure-details-bubble-chart-header {
+  display: flex;
+  align-items: center;
   padding: 16px;
   margin-left: -60px;
   border-bottom: 1px solid #e6e6e6;
 }
 
-.measure-details-bubble-chart-legend {
+.measure-details-bubble-chart-title {
   position: absolute;
-  width: 100%;
-  left: 0;
+}
+
+.measure-details-bubble-chart-legend {
+  display: flex;
+  flex-direction: column;
   text-align: center;
+  flex-grow: 1;
 }
 
 .measure-details-bubble-chart-axis {

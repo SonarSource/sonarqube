@@ -4,6 +4,11 @@ exports[`should display two facets 1`] = `
 <div
   className="search-navigator-facets-list"
 >
+  <ProjectOverviewFacet
+    onChange={[Function]}
+    selected="foo"
+    value="project_overview"
+  />
   <DomainFacet
     domain={
       Object {

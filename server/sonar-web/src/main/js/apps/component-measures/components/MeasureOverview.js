@@ -26,8 +26,7 @@ import MeasureFavoriteContainer from './MeasureFavoriteContainer';
 import PageActions from './PageActions';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getComponentLeaves } from '../../../api/components';
-import { enhanceComponent, isFileType } from '../utils';
-import { bubbles } from '../config/bubbles';
+import { enhanceComponent, getBubbleMetrics, isFileType } from '../utils';
 import type { Component, ComponentEnhanced, Paging, Period } from '../types';
 import type { Metric } from '../../../store/metrics/actions';
 
@@ -78,22 +77,19 @@ export default class MeasureOverview extends React.PureComponent {
     this.mounted = false;
   }
 
-  getBubbleMetrics = ({ domain, metrics }: Props) => {
-    const conf = bubbles[domain];
-    return {
-      xMetric: metrics[conf.x],
-      yMetric: metrics[conf.y],
-      sizeMetric: metrics[conf.size]
-    };
-  };
-
   fetchComponents = (props: Props) => {
     const { component, metrics } = props;
     if (isFileType(component)) {
       return this.setState({ components: [], paging: null });
     }
-    const { xMetric, yMetric, sizeMetric } = this.getBubbleMetrics(props);
+    const { xMetric, yMetric, sizeMetric, colorsMetric } = getBubbleMetrics(
+      props.domain,
+      props.metrics
+    );
     const metricsKey = [xMetric.key, yMetric.key, sizeMetric.key];
+    if (colorsMetric) {
+      metricsKey.push(colorsMetric.map(metric => metric.key));
+    }
     const options = {
       s: 'metric',
       metricSort: sizeMetric.key,
