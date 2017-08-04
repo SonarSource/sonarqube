@@ -83,6 +83,7 @@ public class MeasuresService extends BaseService {
       .setParam(DEPRECATED_PARAM_COMPONENT_ID, request.getComponentId())
       .setParam(DEPRECATED_PARAM_COMPONENT_KEY, request.getComponentKey())
       .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch())
       .setParam(PARAM_ADDITIONAL_FIELDS, inlineMultipleParamValue(request.getAdditionalFields()))
       .setParam(PARAM_METRIC_KEYS, inlineMultipleParamValue(request.getMetricKeys()))
       .setParam(PARAM_DEVELOPER_ID, request.getDeveloperId())
