@@ -27,6 +27,7 @@ public class ComponentWsRequest {
   private String componentId;
   private String componentKey;
   private String component;
+  private String branch;
   private List<String> metricKeys;
   private List<String> additionalFields;
   private String developerId;
@@ -75,6 +76,16 @@ public class ComponentWsRequest {
 
   public ComponentWsRequest setComponent(@Nullable String component) {
     this.component = component;
+    return this;
+  }
+
+  @CheckForNull
+  public String getBranch() {
+    return branch;
+  }
+
+  public ComponentWsRequest setBranch(@Nullable String branch) {
+    this.branch = branch;
     return this;
   }
 
