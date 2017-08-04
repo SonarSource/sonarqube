@@ -54,6 +54,7 @@ import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.TreeWsResponse;
 import org.sonarqube.ws.client.component.TreeWsRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;
@@ -64,6 +65,7 @@ import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
@@ -74,6 +76,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COM
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 
 public class TreeAction implements ComponentsWsAction {
 
@@ -131,6 +134,12 @@ public class TreeAction implements ComponentsWsAction {
       .setDeprecatedKey("baseComponentKey", "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("6.6");
+
     action.createSortParams(SORTS, NAME_SORT, true)
       .setDescription("Comma-separated list of sort fields")
       .setExampleValue(NAME_SORT + ", " + PATH_SORT);
@@ -164,8 +173,7 @@ public class TreeAction implements ComponentsWsAction {
 
   private TreeWsResponse doHandle(TreeWsRequest treeWsRequest) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, treeWsRequest.getBaseComponentId(), treeWsRequest.getBaseComponentKey(),
-        COMPONENT_ID_AND_COMPONENT);
+      ComponentDto baseComponent = loadComponent(dbSession, treeWsRequest);
       checkPermissions(baseComponent);
       OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, baseComponent);
 
@@ -180,6 +188,16 @@ public class TreeAction implements ComponentsWsAction {
       return buildResponse(baseComponent, organizationDto, components, referenceComponentsByUuid,
         Paging.forPageIndex(treeWsRequest.getPage()).withPageSize(treeWsRequest.getPageSize()).andTotal(total));
     }
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, TreeWsRequest request) {
+    String componentId = request.getBaseComponentId();
+    String componentKey = request.getBaseComponentKey();
+    String branch = request.getBranch();
+    checkArgument(componentId == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", PARAM_COMPONENT_ID, PARAM_BRANCH);
+    return branch == null
+      ? componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_COMPONENT)
+      : componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
   }
 
   private Map<String, ComponentDto> searchReferenceComponentsByUuid(DbSession dbSession, List<ComponentDto> components) {
@@ -270,6 +288,7 @@ public class TreeAction implements ComponentsWsAction {
     TreeWsRequest treeWsRequest = new TreeWsRequest()
       .setBaseComponentId(request.param(PARAM_COMPONENT_ID))
       .setBaseComponentKey(request.param(PARAM_COMPONENT))
+      .setBranch(request.param(PARAM_BRANCH))
       .setStrategy(request.mandatoryParam(PARAM_STRATEGY))
       .setQuery(request.param(Param.TEXT_QUERY))
       .setQualifiers(request.paramAsStrings(PARAM_QUALIFIERS))
