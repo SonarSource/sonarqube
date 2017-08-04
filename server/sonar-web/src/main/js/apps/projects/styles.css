@@ -268,31 +268,6 @@
   font-style: italic;
 }
 
-.projects-visualizations-ratings {
-  display: flex;
-  justify-content: center;
-  margin-top: 16px;
-}
-
-.projects-visualizations-ratings > *:not(:first-child) {
-  margin-left: 24px;
-}
-
-.projects-visualizations-ratings-rect {
-  display: inline-block;
-  vertical-align: top;
-  margin-top: 1px;
-  margin-right: 4px;
-  border: 1px solid;
-}
-
-.projects-visualizations-ratings-rect-inner {
-  display: block;
-  width: 8px;
-  height: 8px;
-  opacity: 0.2;
-}
-
 .measure-details-bubble-chart-axis {
   position: absolute;
   color: #777;

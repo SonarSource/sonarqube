@@ -92,7 +92,11 @@ describe('groupByDomains', () => {
 
 describe('parseQuery', () => {
   it('should correctly parse the url query', () => {
-    expect(utils.parseQuery({})).toEqual({ metric: '', selected: '', view: utils.DEFAULT_VIEW });
+    expect(utils.parseQuery({})).toEqual({
+      metric: 'project_overview',
+      selected: '',
+      view: utils.DEFAULT_VIEW
+    });
     expect(utils.parseQuery({ metric: 'foo', selected: 'bar', view: 'tree' })).toEqual({
       metric: 'foo',
       selected: 'bar',
