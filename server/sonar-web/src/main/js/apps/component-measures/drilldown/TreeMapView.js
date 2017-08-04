@@ -64,7 +64,6 @@ export default class TreeMapView extends React.PureComponent {
         const colorMeasure = component.measures.find(measure => measure.metric.key === metric.key);
         const sizeMeasure = component.measures.find(measure => measure.metric.key !== metric.key);
         if (colorMeasure == null || sizeMeasure == null) {
-          // $FlowFixMe Null values are filtered just after
           return null;
         }
         const colorValue = isDiffMetric(colorMeasure.metric.key)
@@ -74,7 +73,6 @@ export default class TreeMapView extends React.PureComponent {
           ? sizeMeasure.leak
           : sizeMeasure.value;
         if (sizeValue == null) {
-          // $FlowFixMe Null values are filtered just after
           return null;
         }
         return {
@@ -93,7 +91,7 @@ export default class TreeMapView extends React.PureComponent {
           link: getComponentUrl(component.key)
         };
       })
-      .filter(component => component != null);
+      .filter(Boolean);
   };
 
   getLevelColorScale = () =>

@@ -19,53 +19,44 @@
  */
 // @flow
 import React from 'react';
-import MeasureContent from './MeasureContent';
+import MeasureOverview from './MeasureOverview';
+import { getComponentShow } from '../../../api/components';
 import type { Component, Period, Query } from '../types';
-import type { MeasureEnhanced } from '../../../components/measure/types';
 import type { Metric } from '../../../store/metrics/actions';
 
 type Props = {|
   className?: string,
-  currentUser: { isLoggedIn: boolean },
   rootComponent: Component,
-  fetchMeasures: (
-    component: string,
-    metricsKey: Array<string>
-  ) => Promise<{ component: Component, measures: Array<MeasureEnhanced> }>,
-  leakPeriod?: Period,
-  metric: Metric,
+  currentUser: { isLoggedIn: boolean },
+  domain: string,
+  leakPeriod: Period,
   metrics: { [string]: Metric },
   selected: ?string,
-  updateQuery: Query => void,
-  view: string
+  updateQuery: Query => void
 |};
 
 type State = {
   component: ?Component,
   loading: {
-    measure: boolean,
-    components: boolean
-  },
-  measure: ?MeasureEnhanced,
-  secondaryMeasure: ?MeasureEnhanced
+    component: boolean,
+    bubbles: boolean
+  }
 };
 
-export default class MeasureContentContainer extends React.PureComponent {
+export default class MeasureOverviewContainer extends React.PureComponent {
   mounted: boolean;
   props: Props;
   state: State = {
     component: null,
     loading: {
-      measure: false,
-      components: false
-    },
-    measure: null,
-    secondaryMeasure: null
+      component: false,
+      bubbles: false
+    }
   };
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchMeasure(this.props);
+    this.fetchComponent(this.props);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -74,8 +65,8 @@ export default class MeasureContentContainer extends React.PureComponent {
       !component ||
       nextProps.rootComponent.key !== component.key ||
       nextProps.selected !== component.key;
-    if (componentChanged || nextProps.metric !== this.props.metric) {
-      this.fetchMeasure(nextProps);
+    if (componentChanged || nextProps.domain !== this.props.domain) {
+      this.fetchComponent(nextProps);
     }
   }
 
@@ -83,28 +74,21 @@ export default class MeasureContentContainer extends React.PureComponent {
     this.mounted = false;
   }
 
-  fetchMeasure = ({ rootComponent, fetchMeasures, metric, selected }: Props) => {
-    this.updateLoading({ measure: true });
-
-    const metricKeys = [metric.key];
-    if (metric.key === 'ncloc') {
-      metricKeys.push('ncloc_language_distribution');
-    } else if (metric.key === 'function_complexity') {
-      metricKeys.push('function_complexity_distribution');
-    } else if (metric.key === 'file_complexity') {
-      metricKeys.push('file_complexity_distribution');
+  fetchComponent = ({ rootComponent, selected }: Props) => {
+    if (!selected || rootComponent.key === selected) {
+      this.setState({ component: rootComponent });
+      this.updateLoading({ component: false });
+      return;
     }
-
-    fetchMeasures(selected || rootComponent.key, metricKeys).then(
-      ({ component, measures }) => {
+    this.updateLoading({ component: true });
+    getComponentShow(selected).then(
+      ({ component }) => {
         if (this.mounted) {
-          const measure = measures.find(measure => measure.metric.key === metric.key);
-          const secondaryMeasure = measures.find(measure => measure.metric.key !== metric.key);
-          this.setState({ component, measure, secondaryMeasure });
-          this.updateLoading({ measure: false });
+          this.setState({ component });
+          this.updateLoading({ component: false });
         }
       },
-      () => this.updateLoading({ measure: false })
+      () => this.updateLoading({ component: false })
     );
   };
 
@@ -119,29 +103,23 @@ export default class MeasureContentContainer extends React.PureComponent {
       selected: component !== this.props.rootComponent.key ? component : null
     });
 
-  updateView = (view: string) => this.props.updateQuery({ view });
-
   render() {
     if (!this.state.component) {
       return null;
     }
 
     return (
-      <MeasureContent
+      <MeasureOverview
         className={this.props.className}
         component={this.state.component}
         currentUser={this.props.currentUser}
-        loading={this.state.loading.measure || this.state.loading.components}
+        domain={this.props.domain}
+        loading={this.state.loading.component || this.state.loading.bubbles}
         leakPeriod={this.props.leakPeriod}
-        measure={this.state.measure}
-        metric={this.props.metric}
         metrics={this.props.metrics}
         rootComponent={this.props.rootComponent}
-        secondaryMeasure={this.state.secondaryMeasure}
         updateLoading={this.updateLoading}
         updateSelected={this.updateSelected}
-        updateView={this.updateView}
-        view={this.props.view}
       />
     );
   }

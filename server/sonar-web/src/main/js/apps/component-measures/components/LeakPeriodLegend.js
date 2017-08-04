@@ -19,29 +19,31 @@
  */
 // @flow
 import React from 'react';
+import classNames from 'classnames';
 import moment from 'moment';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import type { Component, Period } from '../types';
 
-export default function LeakPeriodLegend({
-  component,
-  period
-}: {
+type Props = {
+  className?: string,
   component: Component,
   period: Period
-}) {
+};
+
+export default function LeakPeriodLegend({ className, component, period }: Props) {
+  const leakClass = classNames('domain-measures-leak-header', className);
   if (component.qualifier === 'APP') {
     return (
-      <div className="domain-measures-leak-header">
+      <div className={leakClass}>
         {translate('issues.leak_period')}
       </div>
     );
   }
 
   const label = (
-    <div className="domain-measures-leak-header">
+    <div className={leakClass}>
       {translateWithParameters('overview.leak_period_x', getPeriodLabel(period))}
     </div>
   );

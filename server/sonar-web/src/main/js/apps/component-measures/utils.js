@@ -74,11 +74,12 @@ export function sortMeasures(
 
 export const enhanceComponent = (
   component: Component,
-  metric: Metric,
+  metric: ?Metric,
   metrics: { [string]: Metric }
 ): ComponentEnhanced => {
   const enhancedMeasures = component.measures.map(measure => enhanceMeasure(measure, metrics));
-  const measure = enhancedMeasures.find(measure => measure.metric.key === metric.key);
+  // $FlowFixMe metric can't be null since there is a guard for it
+  const measure = metric && enhancedMeasures.find(measure => measure.metric.key === metric.key);
   const value = measure ? measure.value : null;
   const leak = measure ? measure.leak : null;
   return { ...component, value, leak, measures: enhancedMeasures };

@@ -29,7 +29,7 @@ type Props = {|
   loading: boolean,
   isFile: ?boolean,
   paging: ?Paging,
-  view: string
+  view?: string
 |};
 
 export default class PageActions extends React.PureComponent {
