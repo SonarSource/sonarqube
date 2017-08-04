@@ -38,6 +38,7 @@ public class ComponentsWsParameters {
   public static final String PARAM_FILTER = "filter";
   public static final String PARAM_COMPONENT_ID = "componentId";
   public static final String PARAM_COMPONENT = "component";
+  public static final String PARAM_BRANCH = "branch";
 
   private ComponentsWsParameters() {
     // static utility class
