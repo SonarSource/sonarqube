@@ -21,8 +21,8 @@
 import React from 'react';
 import Breadcrumbs from './Breadcrumbs';
 import BubbleChart from '../drilldown/BubbleChart';
-import Favorite from '../../../components/controls/Favorite';
 import LeakPeriodLegend from './LeakPeriodLegend';
+import MeasureFavoriteContainer from './MeasureFavoriteContainer';
 import PageActions from './PageActions';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getComponentLeaves } from '../../../api/components';
@@ -154,8 +154,7 @@ export default class MeasureOverview extends React.PureComponent {
               />
               {component.key !== rootComponent.key &&
                 isLoggedIn &&
-                <Favorite
-                  favorite={component.isFavorite === true}
+                <MeasureFavoriteContainer
                   component={component.key}
                   className="measure-favorite spacer-right"
                 />}
