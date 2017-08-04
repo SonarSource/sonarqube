@@ -19,8 +19,9 @@
  */
 // @flow
 import React from 'react';
+import ProjectOverviewFacet from './ProjectOverviewFacet';
 import DomainFacet from './DomainFacet';
-import { groupByDomains } from '../utils';
+import { groupByDomains, PROJECT_OVERVEW } from '../utils';
 import type { MeasureEnhanced } from '../../../components/measure/types';
 import type { Query } from '../types';
 
@@ -56,6 +57,11 @@ export default class Sidebar extends React.PureComponent {
   render() {
     return (
       <div className="search-navigator-facets-list">
+        <ProjectOverviewFacet
+          onChange={this.changeMetric}
+          selected={this.props.selectedMetric}
+          value={PROJECT_OVERVEW}
+        />
         {groupByDomains(this.props.measures).map(domain =>
           <DomainFacet
             key={domain.name}

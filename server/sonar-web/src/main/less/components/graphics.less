@@ -263,6 +263,30 @@
   text-anchor: end;
 }
 
+.color-ratings-legend {
+  display: flex;
+  justify-content: center;
+
+  & > *:not(:first-child) {
+    margin-left: 24px;
+  }
+
+  .color-ratings-legend-rect {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 1px;
+    margin-right: 4px;
+    border: 1px solid;
+  }
+
+  .color-ratings-legend-rect-inner {
+    display: block;
+    width: 8px;
+    height: 8px;
+    opacity: 0.2;
+  }
+}
+
 /*
  * Bar Chart
  */
