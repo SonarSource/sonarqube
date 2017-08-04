@@ -35,5 +35,7 @@ const EVENTS = [
 ];
 
 it('should render correctly', () => {
-  expect(shallow(<GraphsTooltipsContentEvents events={EVENTS} />)).toMatchSnapshot();
+  expect(
+    shallow(<GraphsTooltipsContentEvents addSeparator={true} events={EVENTS} />)
+  ).toMatchSnapshot();
 });

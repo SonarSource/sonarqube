@@ -37,6 +37,7 @@ const MEASURES_DUPLICATION = [
 ];
 
 const DEFAULT_PROPS = {
+  addSeparator: true,
   measuresHistory: MEASURES_DUPLICATION,
   tooltipIdx: 1
 };

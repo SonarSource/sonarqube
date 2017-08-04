@@ -94,3 +94,9 @@ it('should render correctly for random graphs', () => {
     )
   ).toMatchSnapshot();
 });
+
+it('should not add separators if not needed', () => {
+  expect(
+    shallow(<GraphsTooltips {...DEFAULT_PROPS} graph="coverage" series={[]} />)
+  ).toMatchSnapshot();
+});

@@ -24,17 +24,19 @@ import { translate } from '../../../helpers/l10n';
 import type { Event } from '../types';
 
 type Props = {
+  addSeparator: boolean,
   events: Array<Event>
 };
 
-export default function GraphsTooltipsContentEvents({ events }: Props) {
+export default function GraphsTooltipsContentEvents({ addSeparator, events }: Props) {
   return (
     <tbody>
-      <tr>
-        <td className="project-activity-graph-tooltip-separator" colSpan="3">
-          <hr />
-        </td>
-      </tr>
+      {addSeparator &&
+        <tr>
+          <td className="project-activity-graph-tooltip-separator" colSpan="3">
+            <hr />
+          </td>
+        </tr>}
       <tr className="project-activity-graph-tooltip-line">
         <td colSpan="3">
           <span>

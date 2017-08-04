@@ -24,11 +24,16 @@ import { translate } from '../../../helpers/l10n';
 import type { MeasureHistory } from '../types';
 
 type Props = {
+  addSeparator: boolean,
   measuresHistory: Array<MeasureHistory>,
   tooltipIdx: number
 };
 
-export default function GraphsTooltipsContentDuplication({ measuresHistory, tooltipIdx }: Props) {
+export default function GraphsTooltipsContentDuplication({
+  addSeparator,
+  measuresHistory,
+  tooltipIdx
+}: Props) {
   const duplicationDensity = measuresHistory.find(
     measure => measure.metric === 'duplicated_lines_density'
   );
@@ -41,11 +46,12 @@ export default function GraphsTooltipsContentDuplication({ measuresHistory, tool
   }
   return (
     <tbody>
-      <tr>
-        <td className="project-activity-graph-tooltip-separator" colSpan="3">
-          <hr />
-        </td>
-      </tr>
+      {addSeparator &&
+        <tr>
+          <td className="project-activity-graph-tooltip-separator" colSpan="3">
+            <hr />
+          </td>
+        </tr>}
       <tr className="project-activity-graph-tooltip-line">
         <td
           colSpan="2"

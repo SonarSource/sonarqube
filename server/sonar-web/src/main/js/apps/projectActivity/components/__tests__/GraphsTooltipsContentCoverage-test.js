@@ -63,6 +63,7 @@ const MEASURES_COVERAGE = [
 ];
 
 const DEFAULT_PROPS = {
+  addSeparator: true,
   measuresHistory: MEASURES_COVERAGE,
   tooltipIdx: 1
 };

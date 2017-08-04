@@ -1,5 +1,41 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should not add separators if not needed 1`] = `
+<BubblePopup
+  customClass="bubble-popup-right"
+  position={
+    Object {
+      "left": 476,
+      "top": 30,
+      "width": 250,
+    }
+  }
+>
+  <div
+    className="project-activity-graph-tooltip"
+  >
+    <div
+      className="project-activity-graph-tooltip-title spacer-bottom"
+    >
+      <FormattedDate
+        date={2011-10-01T22:01:00.000Z}
+        format="LL"
+      />
+    </div>
+    <table
+      className="width-100"
+    >
+      <tbody />
+      <GraphsTooltipsContentCoverage
+        addSeparator={false}
+        measuresHistory={Array []}
+        tooltipIdx={0}
+      />
+    </table>
+  </div>
+</BubblePopup>
+`;
+
 exports[`should render correctly for issues graphs 1`] = `
 <BubblePopup
   customClass="bubble-popup-right"
