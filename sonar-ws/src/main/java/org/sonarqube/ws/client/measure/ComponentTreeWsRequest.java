@@ -28,6 +28,7 @@ public class ComponentTreeWsRequest {
   private String baseComponentId;
   private String baseComponentKey;
   private String component;
+  private String branch;
   private String strategy;
   private List<String> qualifiers;
   private List<String> additionalFields;
@@ -86,6 +87,16 @@ public class ComponentTreeWsRequest {
 
   public ComponentTreeWsRequest setComponent(@Nullable String component) {
     this.component = component;
+    return this;
+  }
+
+  @CheckForNull
+  public String getBranch() {
+    return branch;
+  }
+
+  public ComponentTreeWsRequest setBranch(@Nullable String branch) {
+    this.branch = branch;
     return this;
   }
 
