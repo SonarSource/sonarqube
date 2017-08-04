@@ -20,6 +20,7 @@
 package org.sonar.application.process;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -33,6 +34,8 @@ public class EsCommand extends AbstractCommand<EsCommand> {
   private int port;
   private Properties log4j2Properties;
   private List<String> esOptions = new ArrayList<>();
+  private List<String> jvmOptions = new ArrayList<>();
+  private Path jvmOptionsFile;
 
   public EsCommand(ProcessId id) {
     super(id);
@@ -100,6 +103,26 @@ public class EsCommand extends AbstractCommand<EsCommand> {
     if (!s.isEmpty()) {
       esOptions.add(s);
     }
+    return this;
+  }
+
+  public List<String> getJvmOptions() {
+    return jvmOptions;
+  }
+
+  public EsCommand addJvmOption(String s) {
+    if (!s.isEmpty()) {
+      jvmOptions.add(s);
+    }
+    return this;
+  }
+
+  public Path getJvmOptionsFile() {
+    return jvmOptionsFile;
+  }
+
+  public EsCommand setJvmOptionsFile(Path jvmOptionsFile) {
+    this.jvmOptionsFile = jvmOptionsFile;
     return this;
   }
 }

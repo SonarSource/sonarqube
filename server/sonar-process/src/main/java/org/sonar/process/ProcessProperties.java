@@ -121,9 +121,25 @@ public class ProcessProperties {
     Properties defaults = new Properties();
     defaults.put(SEARCH_HOST, InetAddress.getLoopbackAddress().getHostAddress());
     defaults.put(SEARCH_PORT, "9001");
-    defaults.put(SEARCH_JAVA_OPTS, "-Xmx1G -Xms256m -Xss256k -Djna.nosys=true " +
-      "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +
-      "-XX:+HeapDumpOnOutOfMemoryError");
+    defaults.put(SEARCH_JAVA_OPTS, "-Xms1g" +
+      " -Xmx1g"  +
+      " -XX:+UseConcMarkSweepGC"  +
+      " -XX:CMSInitiatingOccupancyFraction=75"  +
+      " -XX:+UseCMSInitiatingOccupancyOnly"  +
+      " -XX:+AlwaysPreTouch"  +
+      " -server"  +
+      " -Xss1m"  +
+      " -Djava.awt.headless=true"  +
+      " -Dfile.encoding=UTF-8"  +
+      " -Djna.nosys=true"  +
+      " -Djdk.io.permissionsUseCanonicalPath=true"  +
+      " -Dio.netty.noUnsafe=true"  +
+      " -Dio.netty.noKeySetOptimization=true"  +
+      " -Dio.netty.recycler.maxCapacityPerThread=0"  +
+      " -Dlog4j.shutdownHookEnabled=false"  +
+      " -Dlog4j2.disable.jmx=true"  +
+      " -Dlog4j.skipJansi=true"  +
+      " -XX:+HeapDumpOnOutOfMemoryError");
     defaults.put(SEARCH_JAVA_ADDITIONAL_OPTS, "");
 
     defaults.put(PATH_DATA, "data");

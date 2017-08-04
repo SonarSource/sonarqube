@@ -20,6 +20,7 @@
 package org.sonar.application.process;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -64,15 +65,22 @@ public class CommandFactoryImpl implements CommandFactory {
     Map<String, String> settingsMap = new EsSettings(this.settings.getProps()).build();
 
     File logDir = new File(settingsMap.get("path.logs"));
+    File confDir = new File(settingsMap.get("path.conf"));
+    Path jvmOptionsFile = confDir.toPath().resolve("jvm.options");
     EsCommand res = new EsCommand(ProcessId.ELASTICSEARCH)
       .setWorkDir(executable.getParentFile().getParentFile())
       .setExecutable(executable)
-      .setConfDir(new File(settingsMap.get("path.conf")))
+      .setConfDir(confDir)
       .setLog4j2Properties(buildLog4j2Properties(logDir))
       .setArguments(this.settings.getProps().rawProperties())
       .setClusterName(settingsMap.get("cluster.name"))
       .setHost(settingsMap.get("network.host"))
-      .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")));
+      .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")))
+      .addJvmOption(settings.getProps().nonNullValue(ProcessProperties.SEARCH_JAVA_OPTS))
+      .addJvmOption(settings.getProps().nonNullValue(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
+      .setJvmOptionsFile(jvmOptionsFile)
+      .setEnvVariable("ES_JVM_OPTIONS", jvmOptionsFile.toString())
+      ;
 
     settingsMap.forEach((key, value) -> res.addEsOption("-E" + key + "=" + value));
 
