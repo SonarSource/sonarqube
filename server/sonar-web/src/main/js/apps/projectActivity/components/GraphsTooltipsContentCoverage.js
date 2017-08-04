@@ -24,11 +24,16 @@ import { translate } from '../../../helpers/l10n';
 import type { MeasureHistory } from '../types';
 
 type Props = {
+  addSeparator: boolean,
   measuresHistory: Array<MeasureHistory>,
   tooltipIdx: number
 };
 
-export default function GraphsTooltipsContentCoverage({ measuresHistory, tooltipIdx }: Props) {
+export default function GraphsTooltipsContentCoverage({
+  addSeparator,
+  measuresHistory,
+  tooltipIdx
+}: Props) {
   const uncovered = measuresHistory.find(measure => measure.metric === 'uncovered_lines');
   const coverage = measuresHistory.find(measure => measure.metric === 'coverage');
   if (!uncovered || !uncovered.history[tooltipIdx] || !coverage || !coverage.history[tooltipIdx]) {
@@ -38,11 +43,12 @@ export default function GraphsTooltipsContentCoverage({ measuresHistory, tooltip
   const coverageValue = coverage.history[tooltipIdx].value;
   return (
     <tbody>
-      <tr>
-        <td className="project-activity-graph-tooltip-separator" colSpan="3">
-          <hr />
-        </td>
-      </tr>
+      {addSeparator &&
+        <tr>
+          <td className="project-activity-graph-tooltip-separator" colSpan="3">
+            <hr />
+          </td>
+        </tr>}
       {uncoveredValue &&
         <tr className="project-activity-graph-tooltip-line">
           <td

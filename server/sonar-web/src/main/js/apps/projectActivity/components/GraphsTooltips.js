@@ -47,6 +47,40 @@ const TOOLTIP_WIDTH = 250;
 export default class GraphsTooltips extends React.PureComponent {
   props: Props;
 
+  renderContent() {
+    const { tooltipIdx } = this.props;
+
+    return this.props.series.map((serie, idx) => {
+      const point = serie.data[tooltipIdx];
+      if (!point || (!point.y && point.y !== 0)) {
+        return null;
+      }
+      if (this.props.graph === DEFAULT_GRAPH) {
+        return (
+          <GraphsTooltipsContentIssues
+            key={serie.name}
+            measuresHistory={this.props.measuresHistory}
+            name={serie.name}
+            style={idx.toString()}
+            tooltipIdx={tooltipIdx}
+            translatedName={serie.translatedName}
+            value={this.props.formatValue(point.y)}
+          />
+        );
+      } else {
+        return (
+          <GraphsTooltipsContent
+            key={serie.name}
+            name={serie.name}
+            style={idx.toString()}
+            translatedName={serie.translatedName}
+            value={this.props.formatValue(point.y)}
+          />
+        );
+      }
+    });
+  }
+
   render() {
     const { events, measuresHistory, tooltipIdx } = this.props;
     const top = 30;
@@ -56,6 +90,8 @@ export default class GraphsTooltips extends React.PureComponent {
       left -= TOOLTIP_WIDTH;
       customClass = 'bubble-popup-right';
     }
+    const tooltipContent = this.renderContent().filter(Boolean);
+    const addSeparator = tooltipContent.length > 0;
     return (
       <BubblePopup customClass={customClass} position={{ top, left, width: TOOLTIP_WIDTH }}>
         <div className="project-activity-graph-tooltip">
@@ -64,47 +100,23 @@ export default class GraphsTooltips extends React.PureComponent {
           </div>
           <table className="width-100">
             <tbody>
-              {this.props.series.map((serie, idx) => {
-                const point = serie.data[tooltipIdx];
-                if (!point || (!point.y && point.y !== 0)) {
-                  return null;
-                }
-                if (this.props.graph === DEFAULT_GRAPH) {
-                  return (
-                    <GraphsTooltipsContentIssues
-                      key={serie.name}
-                      measuresHistory={measuresHistory}
-                      name={serie.name}
-                      style={idx.toString()}
-                      tooltipIdx={tooltipIdx}
-                      translatedName={serie.translatedName}
-                      value={this.props.formatValue(point.y)}
-                    />
-                  );
-                } else {
-                  return (
-                    <GraphsTooltipsContent
-                      key={serie.name}
-                      name={serie.name}
-                      style={idx.toString()}
-                      translatedName={serie.translatedName}
-                      value={this.props.formatValue(point.y)}
-                    />
-                  );
-                }
-              })}
+              {tooltipContent}
             </tbody>
             {this.props.graph === 'coverage' &&
               <GraphsTooltipsContentCoverage
+                addSeparator={addSeparator}
                 measuresHistory={measuresHistory}
                 tooltipIdx={tooltipIdx}
               />}
             {this.props.graph === 'duplications' &&
               <GraphsTooltipsContentDuplication
+                addSeparator={addSeparator}
                 measuresHistory={measuresHistory}
                 tooltipIdx={tooltipIdx}
               />}
-            {events && events.length > 0 && <GraphsTooltipsContentEvents events={events} />}
+            {events &&
+              events.length > 0 &&
+              <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />}
           </table>
         </div>
       </BubblePopup>
