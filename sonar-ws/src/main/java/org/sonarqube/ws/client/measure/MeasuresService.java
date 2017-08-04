@@ -32,11 +32,11 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_COMPON
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_COMPONENT_TREE;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_SEARCH_HISTORY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.CONTROLLER_MEASURES;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
@@ -58,8 +58,9 @@ public class MeasuresService extends BaseService {
 
   public ComponentTreeWsResponse componentTree(ComponentTreeWsRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_COMPONENT_TREE))
-      .setParam(PARAM_BASE_COMPONENT_ID, request.getBaseComponentId())
-      .setParam(PARAM_BASE_COMPONENT_KEY, request.getBaseComponentKey())
+      .setParam(DEPRECATED_PARAM_BASE_COMPONENT_ID, request.getBaseComponentId())
+      .setParam(DEPRECATED_PARAM_BASE_COMPONENT_KEY, request.getBaseComponentKey())
+      .setParam(PARAM_COMPONENT, request.getComponent())
       .setParam(PARAM_STRATEGY, request.getStrategy())
       .setParam(PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers()))
       .setParam(PARAM_METRIC_KEYS, inlineMultipleParamValue(request.getMetricKeys()))
