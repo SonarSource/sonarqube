@@ -66,7 +66,6 @@ public class EsSettingsTest {
     // http is disabled for security reasons
     assertThat(generated.get("http.enabled")).isEqualTo("false");
 
-    assertThat(generated.get("index.number_of_replicas")).isEqualTo("0");
     assertThat(generated.get("discovery.zen.ping.unicast.hosts")).isNull();
     assertThat(generated.get("discovery.zen.minimum_master_nodes")).isEqualTo("1");
     assertThat(generated.get("discovery.initial_state_timeout")).isEqualTo("30s");
@@ -95,7 +94,6 @@ public class EsSettingsTest {
     props.set(ProcessProperties.CLUSTER_SEARCH_HOSTS, "1.2.3.4:9000,1.2.3.5:8080");
     Map<String, String> settings = new EsSettings(props).build();
 
-    assertThat(settings.get("index.number_of_replicas")).isEqualTo("1");
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("1.2.3.4:9000,1.2.3.5:8080");
     assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("2");
     assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("120s");
@@ -145,36 +143,6 @@ public class EsSettingsTest {
     Map<String, String> settings = new EsSettings(props).build();
 
     assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("1");
-  }
-
-
-  @Test
-  public void in_standalone_searchReplicas_is_not_overridable() throws Exception {
-    Props props = minProps(false);
-    props.set(ProcessProperties.SEARCH_REPLICAS, "5");
-    Map<String, String> settings = new EsSettings(props).build();
-
-    assertThat(settings.get("index.number_of_replicas")).isEqualTo("0");
-  }
-
-  @Test
-  public void cluster_is_enabled_with_defined_replicas() throws Exception {
-    Props props = minProps(true);
-    props.set(ProcessProperties.SEARCH_REPLICAS, "5");
-    Map<String, String> settings = new EsSettings(props).build();
-
-    assertThat(settings.get("index.number_of_replicas")).isEqualTo("5");
-  }
-
-  @Test
-  public void incorrect_values_of_replicas() throws Exception {
-    Props props = minProps(true);
-
-    props.set(ProcessProperties.SEARCH_REPLICAS, "ꝱꝲꝳପ");
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Value of property sonar.search.replicas is not an integer:");
-    Map<String, String> settings = new EsSettings(props).build();
   }
 
   @Test

@@ -35,7 +35,6 @@ public class DefaultIndexSettingsTest {
 
     // test some values
     assertThat(map.get("index.number_of_shards")).isEqualTo("1");
-    assertThat(map.get("index.number_of_replicas")).isEqualTo("0");
     assertThat(map.get("index.analysis.analyzer." + SORTABLE_ANALYZER.getName() + ".tokenizer")).isEqualTo("keyword");
   }
 
