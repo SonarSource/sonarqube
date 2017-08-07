@@ -41,7 +41,7 @@ type Props = {
   history: ?History,
   metrics: Array<Metric>,
   project: string,
-  router: { replace: ({ pathname: string, query?: {} }) => void }
+  router: { push: ({ pathname: string, query?: {} }) => void }
 };
 
 type State = {
@@ -133,7 +133,7 @@ export default class PreviewGraph extends React.PureComponent {
   };
 
   handleClick = () => {
-    this.props.router.replace({ pathname: '/project/activity', query: { id: this.props.project } });
+    this.props.router.push({ pathname: '/project/activity', query: { id: this.props.project } });
   };
 
   updateTooltip = (selectedDate: ?Date, tooltipXPos: ?number, tooltipIdx: ?number) =>

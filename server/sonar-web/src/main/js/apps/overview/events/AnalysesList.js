@@ -32,7 +32,7 @@ type Props = {
   history: ?History,
   project: string,
   qualifier: string,
-  router: { replace: ({ pathname: string, query?: {} }) => void }
+  router: { push: ({ pathname: string, query?: {} }) => void }
 };
 
 type State = {
