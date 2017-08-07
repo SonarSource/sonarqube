@@ -137,7 +137,7 @@ public class ComputeEngineContainerImplTest {
         + 25 // level 1
         + 48 // content of DaoModule
         + 3 // content of EsSearchModule
-        + 60 // content of CorePropertyDefinitions
+        + 62 // content of CorePropertyDefinitions
     );
     assertThat(
       picoContainer.getComponentAdapters().stream()
