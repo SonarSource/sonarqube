@@ -73,7 +73,7 @@ public class MetadataPublisher implements ReportPublisherStep {
     settings.get(ORGANIZATION).ifPresent(builder::setOrganizationKey);
     settings.get(BRANCH_NAME).ifPresent(branch -> {
       builder.setBranchName(branch);
-      builder.setBranchType(toProtobufBranchType(branches.getBranchType(branch)));
+      builder.setBranchType(toProtobufBranchType(branches.branchType()));
     });
     Optional.ofNullable(rootDef.getBranch()).ifPresent(builder::setDeprecatedBranch);
 
