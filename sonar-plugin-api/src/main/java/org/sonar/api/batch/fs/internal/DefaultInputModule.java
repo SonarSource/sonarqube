@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 
@@ -93,11 +92,6 @@ public class DefaultInputModule extends DefaultInputComponent implements InputMo
 
   private static Path initWorkingDir(ProjectDefinition module) {
     File workingDirAsFile = module.getWorkDir();
-    try {
-      FileUtils.forceMkdir(workingDirAsFile);
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to create working dir: " + workingDirAsFile.getAbsolutePath(), e);
-    }
     return workingDirAsFile.getAbsoluteFile().toPath().normalize();
   }
 

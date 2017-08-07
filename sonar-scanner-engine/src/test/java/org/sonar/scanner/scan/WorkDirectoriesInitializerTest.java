@@ -21,6 +21,7 @@ package org.sonar.scanner.scan;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,46 +34,68 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class WorkDirectoryCleanerTest {
-  private WorkDirectoryCleaner cleaner;
+public class WorkDirectoriesInitializerTest {
+  private WorkDirectoriesInitializer initializer;
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  private File rootWorkDir;
+  private File lock;
+  private InputModuleHierarchy hierarchy;
+  private DefaultInputModule root;
+
   @Before
   public void setUp() throws IOException {
+    rootWorkDir = temp.newFolder();
     // create files to clean
-    temp.newFile();
-    File newFolder = temp.newFolder();
+    new File(rootWorkDir, "foo.txt").createNewFile();
+    File newFolder = new File(rootWorkDir, "foo");
+    newFolder.mkdir();
     File fileInFolder = new File(newFolder, "test");
     fileInFolder.createNewFile();
 
-    File lock = new File(temp.getRoot(), DirectoryLock.LOCK_FILE_NAME);
+    lock = new File(rootWorkDir, DirectoryLock.LOCK_FILE_NAME);
     lock.createNewFile();
 
-    // mock project
-    InputModuleHierarchy hierarchy = mock(InputModuleHierarchy.class);
-    DefaultInputModule root = mock(DefaultInputModule.class);
+    hierarchy = mock(InputModuleHierarchy.class);
+    root = mock(DefaultInputModule.class);
     when(hierarchy.root()).thenReturn(root);
-    when(root.getWorkDir()).thenReturn(temp.getRoot().toPath());
+    when(root.getWorkDir()).thenReturn(rootWorkDir.toPath());
 
-    assertThat(temp.getRoot().list().length).isGreaterThan(1);
-    cleaner = new WorkDirectoryCleaner(hierarchy);
+    assertThat(rootWorkDir.list().length).isGreaterThan(1);
+    initializer = new WorkDirectoriesInitializer(hierarchy);
   }
 
   @Test
   public void testNonExisting() {
     temp.delete();
-    cleaner.execute();
+    initializer.execute();
   }
 
   @Test
   public void testClean() {
-    File lock = new File(temp.getRoot(), DirectoryLock.LOCK_FILE_NAME);
-    cleaner.execute();
+    initializer.execute();
 
-    assertThat(temp.getRoot()).exists();
+    assertThat(rootWorkDir).exists();
     assertThat(lock).exists();
-    assertThat(temp.getRoot().list()).containsOnly(DirectoryLock.LOCK_FILE_NAME);
+    assertThat(rootWorkDir.list()).containsOnly(DirectoryLock.LOCK_FILE_NAME);
+  }
+
+  @Test
+  public void cleaningRootModuleShouldNotDeleteChildrenWorkDir() throws IOException {
+    DefaultInputModule moduleA = mock(DefaultInputModule.class);
+    when(hierarchy.children(root)).thenReturn(Arrays.asList(moduleA));
+    File moduleAWorkdir = new File(rootWorkDir, "moduleA");
+    when(moduleA.getWorkDir()).thenReturn(moduleAWorkdir.toPath());
+    moduleAWorkdir.mkdir();
+    new File(moduleAWorkdir, "fooA.txt").createNewFile();
+
+    initializer.execute();
+
+    assertThat(rootWorkDir).exists();
+    assertThat(lock).exists();
+    assertThat(rootWorkDir.list()).containsOnly(DirectoryLock.LOCK_FILE_NAME, "moduleA");
+    assertThat(moduleAWorkdir).exists();
   }
 
 }

@@ -108,7 +108,7 @@ public class ProjectScanContainer extends ComponentContainer {
     addBatchExtensions();
     ProjectLock lock = getComponentByType(ProjectLock.class);
     lock.tryLock();
-    getComponentByType(WorkDirectoryCleaner.class).execute();
+    getComponentByType(WorkDirectoriesInitializer.class).execute();
     Settings settings = getComponentByType(Settings.class);
     if (settings != null && settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
       add(PhasesSumUpTimeProfiler.class);
@@ -122,7 +122,7 @@ public class ProjectScanContainer extends ComponentContainer {
     add(
       props,
       ProjectReactorBuilder.class,
-      WorkDirectoryCleaner.class,
+      WorkDirectoriesInitializer.class,
       new MutableProjectReactorProvider(),
       ProjectBuildersExecutor.class,
       ProjectLock.class,
