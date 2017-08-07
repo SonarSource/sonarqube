@@ -28,10 +28,12 @@ import {
   getDisplayedHistoryMetrics,
   generateSeries,
   getSeriesMetricType,
+  hasHistoryDataValue,
   splitSeriesInGraphs
 } from '../../projectActivity/utils';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 import type { History, Metric } from '../types';
 
@@ -137,46 +139,57 @@ export default class PreviewGraph extends React.PureComponent {
   updateTooltip = (selectedDate: ?Date, tooltipXPos: ?number, tooltipIdx: ?number) =>
     this.setState({ selectedDate, tooltipXPos, tooltipIdx });
 
-  render() {
+  renderTimeline() {
     const { graph, selectedDate, series, tooltipIdx, tooltipXPos } = this.state;
+    return (
+      <AutoSizer disableHeight={true}>
+        {({ width }) =>
+          <div>
+            <AdvancedTimeline
+              endDate={null}
+              startDate={null}
+              height={80}
+              width={width}
+              hideGrid={true}
+              hideXAxis={true}
+              interpolate="linear"
+              metricType={getSeriesMetricType(series)}
+              padding={GRAPH_PADDING}
+              series={series}
+              showAreas={['coverage', 'duplications'].includes(graph)}
+              updateTooltip={this.updateTooltip}
+            />
+            {selectedDate != null &&
+              tooltipXPos != null &&
+              tooltipIdx != null &&
+              <PreviewGraphTooltips
+                formatValue={this.formatValue}
+                graph={graph}
+                graphWidth={width}
+                metrics={this.props.metrics}
+                selectedDate={selectedDate}
+                series={series}
+                tooltipIdx={tooltipIdx}
+                tooltipPos={tooltipXPos}
+              />}
+          </div>}
+      </AutoSizer>
+    );
+  }
+
+  render() {
+    const { series } = this.state;
     return (
       <div
         className="overview-analysis-graph big-spacer-bottom spacer-top"
         onClick={this.handleClick}
         tabIndex={0}
         role="link">
-        <AutoSizer disableHeight={true}>
-          {({ width }) =>
-            <div>
-              <AdvancedTimeline
-                endDate={null}
-                startDate={null}
-                height={80}
-                width={width}
-                hideGrid={true}
-                hideXAxis={true}
-                interpolate="linear"
-                metricType={getSeriesMetricType(series)}
-                padding={GRAPH_PADDING}
-                series={series}
-                showAreas={['coverage', 'duplications'].includes(graph)}
-                updateTooltip={this.updateTooltip}
-              />
-              {selectedDate != null &&
-                tooltipXPos != null &&
-                tooltipIdx != null &&
-                <PreviewGraphTooltips
-                  formatValue={this.formatValue}
-                  graph={graph}
-                  graphWidth={width}
-                  metrics={this.props.metrics}
-                  selectedDate={selectedDate}
-                  series={series}
-                  tooltipIdx={tooltipIdx}
-                  tooltipPos={tooltipXPos}
-                />}
+        {hasHistoryDataValue(series)
+          ? this.renderTimeline()
+          : <div className="note text-center spacer-top big-spacer-bottom">
+              {translate('component_measures.no_history')}
             </div>}
-        </AutoSizer>
       </div>
     );
   }

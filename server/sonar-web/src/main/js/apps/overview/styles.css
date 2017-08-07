@@ -381,6 +381,10 @@
   padding: 0;
 }
 
+.overview-analysis-graph .bubble-popup-arrow {
+  top: 7px;
+}
+
 .overview-analysis-graph-tooltip {
   padding: 4px;
   pointer-events: none;
