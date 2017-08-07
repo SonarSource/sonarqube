@@ -42,6 +42,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.RuleKey;
@@ -66,8 +67,12 @@ import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
+import org.sonar.scanner.scan.ProjectBranches;
+import org.sonar.scanner.scan.ProjectBranchesLoader;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Main utility class for writing scanner medium tests.
@@ -78,6 +83,7 @@ public class ScannerMediumTester extends ExternalResource {
   private static Path userHome = null;
   private Map<String, String> globalProperties = new HashMap<>();
   private final FakeMetricsRepositoryLoader globalRefProvider = new FakeMetricsRepositoryLoader();
+  private final FakeProjectBranchesLoader projectBranchesProvider = new FakeProjectBranchesLoader();
   private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
   private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
   private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
@@ -280,6 +286,7 @@ public class ScannerMediumTester extends ExternalResource {
           tester.globalRefProvider,
           tester.qualityProfiles,
           tester.rulesLoader,
+          tester.projectBranchesProvider,
           tester.projectRefProvider,
           tester.activeRules,
           tester.serverIssues,
@@ -372,6 +379,13 @@ public class ScannerMediumTester extends ExternalResource {
       return this;
     }
 
+  }
+
+  private static class FakeProjectBranchesLoader implements ProjectBranchesLoader {
+    @Override
+    public ProjectBranches load(String projectKey, Configuration settings) {
+      return mock(ProjectBranches.class);
+    }
   }
 
   private static class FakeQualityProfileLoader implements QualityProfileLoader {
