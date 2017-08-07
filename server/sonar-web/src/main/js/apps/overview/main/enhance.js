@@ -21,6 +21,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import moment from 'moment';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
+import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import Rating from './../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
@@ -35,7 +36,11 @@ import {
 } from '../../../helpers/measures';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getPeriodDate } from '../../../helpers/periods';
-import { getComponentIssuesUrl, getComponentMeasureHistory } from '../../../helpers/urls';
+import {
+  getComponentDrilldownUrl,
+  getComponentIssuesUrl,
+  getComponentMeasureHistory
+} from '../../../helpers/urls';
 
 export default function enhance(ComposedComponent) {
   return class extends React.PureComponent {
@@ -55,16 +60,16 @@ export default function enhance(ComposedComponent) {
 
     renderHeader = (domain, label) => {
       const { component } = this.props;
-      const domainUrl = {
-        pathname: `/component_measures_old/domain/${domain}`,
-        query: { id: component.key }
-      };
-
       return (
         <div className="overview-card-header">
           <div className="overview-title">
-            <Link to={domainUrl}>
+            <span>
               {label}
+            </span>
+            <Link
+              className="button button-small button-compact spacer-left text-text-bottom"
+              to={getComponentDrilldownUrl(component.key, domain)}>
+              <BubblesIcon size={14} />
             </Link>
           </div>
         </div>
