@@ -95,14 +95,33 @@ public class ProjectBranches {
     return new ProjectBranches(branchType, branchName, branchTarget);
   }
 
+  /**
+   * The type of the branch we're on, determined by:
+   *
+   * - If the specified branch exists on the server, then its type
+   * - If the branch name matches the pattern of long-lived branches, then it's long-lived
+   * - Otherwise it's short-lived
+   *
+   * @return type of the current branch
+   */
   public BranchType branchType() {
     return branchType;
   }
 
+  /**
+   * The name of the current branch.
+   *
+   * @return name of the current branch
+   */
   public String branchName() {
     return branchName;
   }
 
+  /**
+   * The name of the target branch to merge into, and the base to determine changed files.
+   *
+   * @return name of the target branch
+   */
   public String branchTarget() {
     return branchTarget;
   }
