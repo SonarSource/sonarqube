@@ -54,7 +54,7 @@ public class DefaultProjectBranchesLoader implements ProjectBranchesLoader {
     GetRequest request = new GetRequest(getUrl(projectKey));
     WsResponse call = wsClient.call(request);
     try {
-      return new ProjectBranches(settings, parseResponse(call));
+      ProjectBranches.create(settings, parseResponse(call));
     } catch (RuntimeException e) {
       if (shouldThrow(e)) {
         throw e;
@@ -63,7 +63,7 @@ public class DefaultProjectBranchesLoader implements ProjectBranchesLoader {
     } catch (IOException e) {
       LOG.debug("Project branches could not be parsed - continuing without it");
     }
-    return new ProjectBranches(settings, Collections.emptyList());
+    return ProjectBranches.create(settings, Collections.emptyList());
   }
 
   private static String getUrl(String projectKey) {
