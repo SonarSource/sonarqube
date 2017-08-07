@@ -23,17 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
+import org.sonar.core.config.ScannerProperties;
 
 public class ProjectBranches {
-  private final String longLivedBranchesRegex;
-  private final Map<String, BranchInfo> branches;
-
-  public ProjectBranches(Configuration settings, List<BranchInfo> branchInfos) {
-    this.longLivedBranchesRegex = settings.get(CoreProperties.LONG_LIVED_BRANCHES_REGEX).orElse("");
-    this.branches = branchInfos.stream().collect(Collectors.toMap(b -> b.name, Function.identity()));
-  }
 
   public enum BranchType {
     SHORT, LONG
@@ -53,14 +49,61 @@ public class ProjectBranches {
     }
   }
 
-  public BranchType getBranchType(String branchName) {
-    BranchInfo branch = branches.get(branchName);
-    if (branch != null) {
-      return branch.type;
+  private final BranchType branchType;
+
+  @Nullable
+  private final String branchName;
+
+  @Nullable
+  private final String branchTarget;
+
+  private ProjectBranches(BranchType branchType, @Nullable String branchName, @Nullable String branchTarget) {
+    this.branchType = branchType;
+    this.branchName = branchName;
+    this.branchTarget = branchTarget;
+  }
+
+  static ProjectBranches create(Configuration settings, List<BranchInfo> branchInfos) {
+    String branchName = settings.get(ScannerProperties.BRANCH_NAME).orElse("");
+    if (branchName.isEmpty()) {
+      return new ProjectBranches(BranchType.LONG, null, null);
     }
 
-    return branchName.matches(longLivedBranchesRegex)
-      ? BranchType.LONG
-      : BranchType.SHORT;
+    Map<String, BranchInfo> branches = branchInfos.stream().collect(Collectors.toMap(b -> b.name, Function.identity()));
+
+    BranchType branchType;
+
+    BranchInfo info = branches.get(branchName);
+    if (info != null) {
+      branchType = info.type;
+    } else {
+      String longLivedBranchesRegex = settings.get(CoreProperties.LONG_LIVED_BRANCHES_REGEX)
+        .orElseThrow(() -> new IllegalStateException("Property must exist: " + CoreProperties.LONG_LIVED_BRANCHES_REGEX));
+
+      if (branchName.matches(longLivedBranchesRegex)) {
+        branchType = BranchType.LONG;
+      } else {
+        branchType = BranchType.SHORT;
+      }
+    }
+
+    String branchTarget = StringUtils.trimToNull(settings.get(ScannerProperties.BRANCH_TARGET).orElse(null));
+    if (branchTarget != null && !branches.containsKey(branchTarget)) {
+      throw new IllegalStateException("Target branch does not exist on server: " + branchTarget);
+    }
+
+    return new ProjectBranches(branchType, branchName, branchTarget);
+  }
+
+  public BranchType branchType() {
+    return branchType;
+  }
+
+  public String branchName() {
+    return branchName;
+  }
+
+  public String branchTarget() {
+    return branchTarget;
   }
 }

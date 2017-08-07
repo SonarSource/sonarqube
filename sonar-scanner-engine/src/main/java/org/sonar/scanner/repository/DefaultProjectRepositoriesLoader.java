@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +52,8 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
   }
 
   @Override
-  public ProjectRepositories load(String projectKey, boolean issuesMode) {
-    GetRequest request = new GetRequest(getUrl(projectKey, issuesMode));
+  public ProjectRepositories load(String projectKey, boolean issuesMode, @Nullable String branchName) {
+    GetRequest request = new GetRequest(getUrl(projectKey, issuesMode, branchName));
     try (WsResponse response = wsClient.call(request)) {
       InputStream is = response.contentStream();
       return processStream(is, projectKey);
@@ -66,13 +67,16 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
     }
   }
 
-  private static String getUrl(String projectKey, boolean issuesMode) {
+  private static String getUrl(String projectKey, boolean issuesMode, @Nullable String branchName) {
     StringBuilder builder = new StringBuilder();
 
     builder.append(BATCH_PROJECT_URL)
       .append("?key=").append(ScannerUtils.encodeForUrl(projectKey));
     if (issuesMode) {
       builder.append("&issues_mode=true");
+    }
+    if (branchName != null) {
+      builder.append("&branch=").append(branchName);
     }
     return builder.toString();
   }
