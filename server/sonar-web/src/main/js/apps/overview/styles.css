@@ -21,17 +21,6 @@
   margin-left: 15px;
 }
 
-.overview-title > a {
-  border-bottom-color: #d0d0d0;
-  color: #444;
-}
-
-.overview-title > a:hover,
-.overview-title > a:focus {
-  border-bottom-color: #cae3f2;
-  color: #4b9fd5;
-}
-
 /*
  * Quality Gate
  */
