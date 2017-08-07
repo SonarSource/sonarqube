@@ -21,7 +21,7 @@ package org.sonar.scanner.scm;
 
 import com.google.common.base.Preconditions;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +44,7 @@ class DefaultBlameOutput implements BlameOutput {
   private static final Logger LOG = Loggers.get(DefaultBlameOutput.class);
 
   private final ScannerReportWriter writer;
-  private final Set<InputFile> allFilesToBlame = new HashSet<>();
+  private final Set<InputFile> allFilesToBlame = new LinkedHashSet<>();
   private ProgressReport progressReport;
   private int count;
   private int total;
