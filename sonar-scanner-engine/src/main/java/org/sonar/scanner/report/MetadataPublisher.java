@@ -19,8 +19,8 @@
  */
 package org.sonar.scanner.report;
 
-import org.sonar.api.batch.AnalysisMode;
 import java.util.Optional;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -28,9 +28,11 @@ import org.sonar.api.config.Configuration;
 import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
+import org.sonar.scanner.scan.ProjectBranches;
 
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
@@ -43,15 +45,17 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final InputModuleHierarchy moduleHierarchy;
   private final CpdSettings cpdSettings;
   private final AnalysisMode mode;
+  private final ProjectBranches branches;
 
   public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings,
-    ModuleQProfiles qProfiles, CpdSettings cpdSettings, AnalysisMode mode) {
+    ModuleQProfiles qProfiles, CpdSettings cpdSettings, AnalysisMode mode, ProjectBranches branches) {
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
     this.qProfiles = qProfiles;
     this.cpdSettings = cpdSettings;
     this.mode = mode;
+    this.branches = branches;
   }
 
   @Override
@@ -67,7 +71,10 @@ public class MetadataPublisher implements ReportPublisherStep {
       .setIncremental(mode.isIncremental());
 
     settings.get(ORGANIZATION).ifPresent(builder::setOrganizationKey);
-    settings.get(BRANCH_NAME).ifPresent(builder::setBranchName);
+    settings.get(BRANCH_NAME).ifPresent(branch -> {
+      builder.setBranchName(branch);
+      builder.setBranchType(toProtobufBranchType(branches.getBranchType(branch)));
+    });
     Optional.ofNullable(rootDef.getBranch()).ifPresent(builder::setDeprecatedBranch);
 
     for (QProfile qp : qProfiles.findAll()) {
@@ -78,5 +85,12 @@ public class MetadataPublisher implements ReportPublisherStep {
         .setRulesUpdatedAt(qp.getRulesUpdatedAt().getTime()).build());
     }
     writer.writeMetadata(builder.build());
+  }
+
+  private BranchType toProtobufBranchType(ProjectBranches.BranchType branchType) {
+    if (branchType == ProjectBranches.BranchType.LONG) {
+      return BranchType.LONG;
+    }
+    return BranchType.SHORT;
   }
 }
