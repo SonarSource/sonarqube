@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
@@ -113,6 +114,7 @@ public class ProjectBranches {
    *
    * @return name of the target branch
    */
+  @CheckForNull
   public String branchTarget() {
     return branchTarget;
   }
