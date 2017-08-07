@@ -20,34 +20,37 @@
 import React from 'react';
 import { Link } from 'react-router';
 import enhance from './enhance';
-import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import ApplicationLeakPeriodLegend from '../components/ApplicationLeakPeriodLegend';
-import { getMetricName } from '../helpers/metrics';
-import { translate } from '../../../helpers/l10n';
+import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import BugIcon from '../../../components/icons-components/BugIcon';
+import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
+import { getMetricName } from '../helpers/metrics';
+import { getComponentDrilldownUrl } from '../../../helpers/urls';
+import { translate } from '../../../helpers/l10n';
 
 class BugsAndVulnerabilities extends React.PureComponent {
   renderHeader() {
     const { component } = this.props;
-    const bugsDomainUrl = {
-      pathname: '/component_measures_old/domain/Reliability',
-      query: { id: component.key }
-    };
-    const vulnerabilitiesDomainUrl = {
-      pathname: '/component_measures_old/domain/Security',
-      query: { id: component.key }
-    };
 
     return (
       <div className="overview-card-header">
         <div className="overview-title">
-          <Link to={bugsDomainUrl}>
+          <span>
             {translate('metric.bugs.name')}
+          </span>
+          <Link
+            className="button button-small button-compact spacer-left text-text-bottom"
+            to={getComponentDrilldownUrl(component.key, 'Reliability')}>
+            <BubblesIcon size={14} />
           </Link>
-          {' & '}
-          <Link to={vulnerabilitiesDomainUrl}>
+          <span className="big-spacer-left">
             {translate('metric.vulnerabilities.name')}
+          </span>
+          <Link
+            className="button button-small button-compact spacer-left text-text-bottom"
+            to={getComponentDrilldownUrl(component.key, 'Security')}>
+            <BubblesIcon size={14} />
           </Link>
         </div>
       </div>
