@@ -31,6 +31,7 @@ import static org.sonar.api.PropertyType.BOOLEAN;
 public class ScannerProperties {
 
   public static final String BRANCH_NAME = "sonar.branch.name";
+  public static final String BRANCH_TARGET = "sonar.branch.target";
   public static final String ORGANIZATION = "sonar.organization";
 
   private ScannerProperties() {
@@ -67,7 +68,12 @@ public class ScannerProperties {
         .hidden()
         .build(),
       PropertyDefinition.builder(BRANCH_NAME)
-        .name("Optional name of SCM branch")
+        .name("Optional name of SonarQube/SCM branch")
+        .description("TODO")
+        .hidden()
+        .build(),
+      PropertyDefinition.builder(BRANCH_TARGET)
+        .name("Optional name of target branch to merge into, and the base to determine changed files")
         .description("TODO")
         .hidden()
         .build()
