@@ -175,6 +175,19 @@ export default class BubbleChart extends React.PureComponent {
     );
   }
 
+  renderChartFooter(domain: string) {
+    const description = `component_measures.overview.${domain}.description`;
+    const translatedDescription = translate(description);
+    if (description === translatedDescription) {
+      return null;
+    }
+    return (
+      <div className="measure-overview-bubble-chart-footer">
+        {translatedDescription}
+      </div>
+    );
+  }
+
   render() {
     if (this.props.components.length <= 0) {
       return <EmptyResult />;
@@ -197,6 +210,7 @@ export default class BubbleChart extends React.PureComponent {
         <div className="measure-overview-bubble-chart-axis y">
           {getLocalizedMetricName(yMetric)}
         </div>
+        {this.renderChartFooter(domain)}
       </div>
     );
   }

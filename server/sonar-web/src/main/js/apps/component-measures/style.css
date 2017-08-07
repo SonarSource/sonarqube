@@ -90,47 +90,57 @@
   vertical-align: middle;
 }
 
-.measure-details-bubble-chart {
+.measure-overview-bubble-chart {
   position: relative;
-  padding: 0 0 30px 60px;
   border: 1px solid #e6e6e6;
   background-color: #fff;
 }
 
-.measure-details-bubble-chart-header {
+.measure-overview-bubble-chart-content {
+  padding: 0;
+  padding-left: 60px;
+}
+
+.measure-overview-bubble-chart-header {
   display: flex;
   align-items: center;
   padding: 16px;
-  margin-left: -60px;
   border-bottom: 1px solid #e6e6e6;
 }
 
-.measure-details-bubble-chart-title {
+.measure-overview-bubble-chart-title {
   position: absolute;
 }
 
-.measure-details-bubble-chart-legend {
+.measure-overview-bubble-chart-legend {
   display: flex;
   flex-direction: column;
   text-align: center;
   flex-grow: 1;
 }
 
-.measure-details-bubble-chart-axis {
-  position: absolute;
+.measure-overview-bubble-chart-footer {
+  padding: 15px 60px;
+  border-top: 1px solid #e6e6e6;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.measure-overview-bubble-chart-axis {
   color: #777;
   font-size: 12px;
 }
 
-.measure-details-bubble-chart-axis.x {
-  left: 50%;
-  bottom: 10px;
-  width: 500px;
-  margin-left: -250px;
+.measure-overview-bubble-chart-axis.x {
+  position: relative;
+  top: -8px;
+  padding-bottom: 8px;
   text-align: center;
 }
 
-.measure-details-bubble-chart-axis.y {
+.measure-overview-bubble-chart-axis.y {
+  position: absolute;
   top: 50%;
   left: -20px;
   transform: rotate(-90deg);
