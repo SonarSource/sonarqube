@@ -67,7 +67,7 @@ public class DefaultProjectBranchesLoader implements ProjectBranchesLoader {
   }
 
   private static String getUrl(String projectKey) {
-    return PROJECT_BRANCHES_URL + "?key=" + ScannerUtils.encodeForUrl(projectKey);
+    return PROJECT_BRANCHES_URL + "?project=" + ScannerUtils.encodeForUrl(projectKey);
   }
 
   private static boolean shouldThrow(Exception e) {
