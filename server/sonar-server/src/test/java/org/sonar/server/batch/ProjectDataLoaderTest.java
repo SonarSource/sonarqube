@@ -49,7 +49,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileName;
-import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.format;
@@ -720,7 +719,7 @@ public class ProjectDataLoaderTest {
   private void addDefaultProfile() {
     OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
     dbClient.organizationDao().insert(dbSession, organizationDto, false);
-    QProfileDto profileDto = newQProfileDto(organizationDto, QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
+    QProfileDto profileDto = newQProfileDto(organizationDto, QProfileName.createFor("xoo", "SonarQube way"), "abcd").setRulesUpdatedAt(
       formatDateTime(new Date()));
     dbClient.qualityProfileDao().insert(dbSession, profileDto);
     dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profileDto));

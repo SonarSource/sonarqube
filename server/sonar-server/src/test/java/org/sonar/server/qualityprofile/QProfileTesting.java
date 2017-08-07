@@ -19,12 +19,8 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.tester.ServerTester;
 
 /**
  * Utility class for tests involving quality profiles
@@ -95,14 +91,5 @@ public class QProfileTesting {
 
   public static QProfileDto newXooP3(OrganizationDto organization) {
     return newQProfileDto(organization, XOO_P3_NAME, XOO_P3_KEY);
-  }
-
-  /**
-   * Used in medium tests.
-   */
-  public static OrganizationDto getDefaultOrganization(ServerTester tester, DbClient db, DbSession session) {
-    String organizationKey = tester.get(DefaultOrganizationProvider.class).get().getKey();
-    return db.organizationDao().selectByKey(session, organizationKey)
-      .orElseThrow(() -> new IllegalStateException("Cannot load default organization (key='" + organizationKey + "')"));
   }
 }
