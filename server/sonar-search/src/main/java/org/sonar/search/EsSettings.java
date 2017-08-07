@@ -148,12 +148,10 @@ public class EsSettings implements EsSettingsMBean {
 
   private void configureCluster(Map<String, String> builder) {
     // Default value in a standalone mode, not overridable
-    int replicationFactor = 0;
     int minimumMasterNodes = 1;
     String initialStateTimeOut = "30s";
 
     if (clusterEnabled) {
-      replicationFactor = props.valueAsInt(ProcessProperties.SEARCH_REPLICAS, 1);
       minimumMasterNodes = props.valueAsInt(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, 2);
       initialStateTimeOut = props.value(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "120s");
 
@@ -164,7 +162,6 @@ public class EsSettings implements EsSettingsMBean {
 
     builder.put("discovery.zen.minimum_master_nodes", String.valueOf(minimumMasterNodes));
     builder.put("discovery.initial_state_timeout", initialStateTimeOut);
-    builder.put("index.number_of_replicas", String.valueOf(replicationFactor));
     builder.put("cluster.name", getClusterName());
     builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
     builder.put("node.attr.rack_id", nodeName);

@@ -79,7 +79,6 @@ public class DefaultIndexSettings {
   static Settings.Builder defaults() {
     Settings.Builder builder = Settings.builder()
       .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
-      .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0)
       .put("index.refresh_interval", "30s")
       .put("index.mapper.dynamic", false);
 
