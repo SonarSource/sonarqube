@@ -357,7 +357,7 @@ public class ScannerMediumTester extends ExternalResource {
     private Date lastAnalysisDate;
 
     @Override
-    public ProjectRepositories load(String projectKey, boolean isIssuesMode, String branchName) {
+    public ProjectRepositories load(String projectKey, boolean isIssuesMode, @Nullable String branchTarget) {
       Table<String, String, String> settings = HashBasedTable.create();
       return new ProjectRepositories(settings, fileDataTable, lastAnalysisDate);
     }

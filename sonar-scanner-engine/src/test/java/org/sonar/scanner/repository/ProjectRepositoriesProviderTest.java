@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.sonar.scanner.scan.ProjectBranches;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -47,6 +48,8 @@ public class ProjectRepositoriesProviderTest {
   private ProjectKey projectKey;
   @Mock
   private DefaultAnalysisMode mode;
+  @Mock
+  private ProjectBranches branches;
 
   @Before
   public void setUp() {
@@ -66,7 +69,7 @@ public class ProjectRepositoriesProviderTest {
     when(mode.isIssues()).thenReturn(true);
     when(loader.load(eq("key"), eq(true), any())).thenReturn(project);
 
-    provider.provide(loader, projectKey, mode, null);
+    provider.provide(loader, projectKey, mode, branches);
   }
 
   @Test
@@ -74,14 +77,14 @@ public class ProjectRepositoriesProviderTest {
     when(mode.isIssues()).thenReturn(false);
     when(loader.load(eq("key"), eq(false), any())).thenReturn(project);
 
-    ProjectRepositories repo = provider.provide(loader, projectKey, mode, null);
+    ProjectRepositories repo = provider.provide(loader, projectKey, mode, branches);
 
     assertThat(repo.exists()).isEqualTo(true);
     assertThat(repo.lastAnalysisDate()).isNotNull();
 
     verify(mode, times(1)).isIssues();
     verify(projectKey).get();
-    verify(loader).load(eq("key"), eq(false), null);
+    verify(loader).load(eq("key"), eq(false), eq(null));
     verifyNoMoreInteractions(loader, projectKey, mode);
   }
 }
