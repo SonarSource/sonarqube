@@ -25,6 +25,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
 public class ProjectBranchesProvider extends ProviderAdapter {
 
@@ -33,10 +34,10 @@ public class ProjectBranchesProvider extends ProviderAdapter {
 
   private ProjectBranches branches = null;
 
-  public ProjectBranches provide(ProjectBranchesLoader loader, ProjectKey projectKey, Configuration settings) {
+  public ProjectBranches provide(ProjectBranchesLoader loader, ProjectKey projectKey, GlobalConfiguration globalConfiguration) {
     if (branches == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      branches = loader.load(projectKey.get(), settings);
+      branches = loader.load(projectKey.get(), globalConfiguration);
       profiler.stopInfo();
     }
     return branches;
