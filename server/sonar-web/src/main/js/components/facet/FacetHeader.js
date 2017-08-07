@@ -95,7 +95,7 @@ export default class FacetHeader extends React.PureComponent {
       return null;
     }
     return (
-      <span className="spacer-left badge is-rounded">
+      <span className="spacer-left badge badge-secondary is-rounded">
         {this.props.values}
       </span>
     );
