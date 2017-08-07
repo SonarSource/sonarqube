@@ -52,21 +52,17 @@ public class ProjectBranches {
   private final BranchType branchType;
 
   @Nullable
-  private final String branchName;
-
-  @Nullable
   private final String branchTarget;
 
-  private ProjectBranches(BranchType branchType, @Nullable String branchName, @Nullable String branchTarget) {
+  private ProjectBranches(BranchType branchType, @Nullable String branchTarget) {
     this.branchType = branchType;
-    this.branchName = branchName;
     this.branchTarget = branchTarget;
   }
 
   static ProjectBranches create(Configuration settings, List<BranchInfo> branchInfos) {
     String branchName = settings.get(ScannerProperties.BRANCH_NAME).orElse("");
     if (branchName.isEmpty()) {
-      return new ProjectBranches(BranchType.LONG, null, null);
+      return new ProjectBranches(BranchType.LONG, null);
     }
 
     Map<String, BranchInfo> branches = branchInfos.stream().collect(Collectors.toMap(b -> b.name, Function.identity()));
@@ -88,11 +84,15 @@ public class ProjectBranches {
     }
 
     String branchTarget = StringUtils.trimToNull(settings.get(ScannerProperties.BRANCH_TARGET).orElse(null));
-    if (branchTarget != null && !branches.containsKey(branchTarget)) {
-      throw new IllegalStateException("Target branch does not exist on server: " + branchTarget);
+    if (branchTarget != null) {
+      if (!branches.containsKey(branchTarget)) {
+        throw new IllegalStateException("Target branch does not exist on server: " + branchTarget);
+      } else if (branches.get(branchTarget).type != BranchType.LONG) {
+        throw new IllegalStateException("Target branch is not long-lived: " + branchTarget);
+      }
     }
 
-    return new ProjectBranches(branchType, branchName, branchTarget);
+    return new ProjectBranches(branchType, branchTarget);
   }
 
   /**
@@ -106,15 +106,6 @@ public class ProjectBranches {
    */
   public BranchType branchType() {
     return branchType;
-  }
-
-  /**
-   * The name of the current branch.
-   *
-   * @return name of the current branch
-   */
-  public String branchName() {
-    return branchName;
   }
 
   /**
