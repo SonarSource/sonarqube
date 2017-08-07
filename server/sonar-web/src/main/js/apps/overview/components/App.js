@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import OverviewApp from './OverviewApp';
 import EmptyOverview from './EmptyOverview';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
@@ -39,7 +40,7 @@ export default class App extends React.PureComponent {
   state: Object;
 
   static contextTypes = {
-    router: React.PropTypes.object
+    router: PropTypes.object
   };
 
   componentDidMount() {
