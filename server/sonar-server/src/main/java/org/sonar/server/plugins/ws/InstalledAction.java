@@ -25,19 +25,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.function.Function;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.plugin.PluginDto;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
-import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.Plugin;
 
 import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
 import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
 
@@ -48,23 +52,22 @@ public class InstalledAction implements PluginsWsAction {
   private static final String ARRAY_PLUGINS = "plugins";
   private static final String FIELD_CATEGORY = "category";
 
-  private final UserSession userSession;
   private final ServerPluginRepository pluginRepository;
   private final PluginWSCommons pluginWSCommons;
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
+  private final DbClient dbClient;
 
-  public InstalledAction(UserSession userSession, ServerPluginRepository pluginRepository, PluginWSCommons pluginWSCommons, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
-    this.userSession = userSession;
+  public InstalledAction(ServerPluginRepository pluginRepository, PluginWSCommons pluginWSCommons, UpdateCenterMatrixFactory updateCenterMatrixFactory, DbClient dbClient) {
     this.pluginRepository = pluginRepository;
     this.pluginWSCommons = pluginWSCommons;
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
+    this.dbClient = dbClient;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("installed")
-      .setDescription("Get the list of all the plugins installed on the SonarQube instance, sorted by plugin name.<br/>" +
-        "Require 'Administer System' permission.")
+      .setDescription("Get the list of all the plugins installed on the SonarQube instance, sorted by plugin name.")
       .setSince("5.2")
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-installed_plugins.json"));
@@ -79,16 +82,18 @@ public class InstalledAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsSystemAdministrator();
-
     Collection<PluginInfo> pluginInfoList = searchPluginInfoList();
+    Map<String, PluginDto> pluginDtosByKey;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      pluginDtosByKey = dbClient.pluginDao().selectAll(dbSession).stream().collect(toMap(PluginDto::getKee, Function.identity()));
+    }
 
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.setSerializeEmptys(false);
     jsonWriter.beginObject();
 
     List<String> additionalFields = request.paramAsStrings(WebService.Param.FIELDS);
-    writePluginInfoList(jsonWriter, pluginInfoList, additionalFields == null ? Collections.<String>emptyList() : additionalFields);
+    writePluginInfoList(jsonWriter, pluginInfoList, additionalFields == null ? Collections.<String>emptyList() : additionalFields, pluginDtosByKey);
 
     jsonWriter.endObject();
     jsonWriter.close();
@@ -98,10 +103,10 @@ public class InstalledAction implements PluginsWsAction {
     return copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, pluginRepository.getPluginInfos());
   }
 
-  private void writePluginInfoList(JsonWriter jsonWriter, Collection<PluginInfo> pluginInfoList, List<String> additionalFields) {
+  private void writePluginInfoList(JsonWriter jsonWriter, Collection<PluginInfo> pluginInfoList, List<String> additionalFields, Map<String, PluginDto> pluginDtos) {
     Map<String, Plugin> compatiblesPluginsFromUpdateCenter = additionalFields.isEmpty()
       ? Collections.<String, Plugin>emptyMap()
       : compatiblePluginsByKey(updateCenterMatrixFactory);
-    pluginWSCommons.writePluginInfoList(jsonWriter, pluginInfoList, compatiblesPluginsFromUpdateCenter, ARRAY_PLUGINS);
+    pluginWSCommons.writePluginInfoList(jsonWriter, pluginInfoList, compatiblesPluginsFromUpdateCenter, ARRAY_PLUGINS, pluginDtos);
   }
 }

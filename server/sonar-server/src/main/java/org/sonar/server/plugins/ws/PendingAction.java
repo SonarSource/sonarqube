@@ -59,8 +59,8 @@ public class PendingAction implements PluginsWsAction {
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
 
   public PendingAction(UserSession userSession, PluginDownloader pluginDownloader,
-                       ServerPluginRepository installer,
-                       PluginWSCommons pluginWSCommons, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
+    ServerPluginRepository installer,
+    PluginWSCommons pluginWSCommons, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
     this.userSession = userSession;
     this.pluginDownloader = pluginDownloader;
     this.installer = installer;
@@ -108,9 +108,9 @@ public class PendingAction implements PluginsWsAction {
       }
     }
 
-    pluginWSCommons.writePluginInfoList(json, newPlugins, compatiblePluginsByKey, ARRAY_INSTALLING);
-    pluginWSCommons.writePluginInfoList(json, updatedPlugins, compatiblePluginsByKey, ARRAY_UPDATING);
-    pluginWSCommons.writePluginInfoList(json, uninstalledPlugins, compatiblePluginsByKey, ARRAY_REMOVING);
+    pluginWSCommons.writePluginInfoList(json, newPlugins, compatiblePluginsByKey, ARRAY_INSTALLING, null);
+    pluginWSCommons.writePluginInfoList(json, updatedPlugins, compatiblePluginsByKey, ARRAY_UPDATING, null);
+    pluginWSCommons.writePluginInfoList(json, uninstalledPlugins, compatiblePluginsByKey, ARRAY_REMOVING, null);
   }
 
   private enum PluginInfoToKey implements Function<PluginInfo, String> {
