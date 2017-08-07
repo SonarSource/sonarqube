@@ -67,6 +67,9 @@ export const hasDataValues = (serie: Serie) => serie.data.some(point => point.y 
 export const hasHistoryData = (series: Array<Serie>) =>
   series.some(serie => serie.data && serie.data.length > 1);
 
+export const hasHistoryDataValue = (series: Array<Serie>) =>
+  series.some(serie => serie.data && serie.data.length > 1 && hasDataValues(serie));
+
 export const historyQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
   prevQuery.graph !== nextQuery.graph;
 
