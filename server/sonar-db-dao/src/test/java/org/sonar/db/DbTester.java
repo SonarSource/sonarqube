@@ -38,6 +38,7 @@ import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.template.PermissionTemplateDbTester;
+import org.sonar.db.plugin.PluginDbTester;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.qualitygate.QualityGateDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
@@ -78,6 +79,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
   private final QualityProfileDbTester qualityProfileDbTester;
   private final MeasureDbTester measureDbTester;
   private final FileSourceTester fileSourceTester;
+  private final PluginDbTester pluginDbTester;
 
   public DbTester(System2 system2, @Nullable String schemaPath) {
     super(TestDb.create(schemaPath));
@@ -99,6 +101,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     this.qualityProfileDbTester = new QualityProfileDbTester(this);
     this.measureDbTester = new MeasureDbTester(this);
     this.fileSourceTester = new FileSourceTester(this);
+    this.pluginDbTester = new PluginDbTester(this);
   }
 
   public static DbTester create() {
@@ -231,6 +234,10 @@ public class DbTester extends AbstractDbTester<TestDb> {
 
   public FileSourceTester fileSources() {
     return fileSourceTester;
+  }
+
+  public PluginDbTester pluginDbTester() {
+    return pluginDbTester;
   }
 
   @Override

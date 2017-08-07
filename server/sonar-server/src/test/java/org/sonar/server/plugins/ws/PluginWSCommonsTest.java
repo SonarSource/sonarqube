@@ -19,9 +19,11 @@
  */
 package org.sonar.server.plugins.ws;
 
+import java.io.File;
 import org.junit.Test;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.db.plugin.PluginDto;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
@@ -45,7 +47,7 @@ public class PluginWSCommonsTest {
 
   @Test
   public void verify_properties_written_by_writePluginMetadata() {
-    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), null);
+    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), null, null);
 
     jsonWriter.close();
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
@@ -62,8 +64,30 @@ public class PluginWSCommonsTest {
   }
 
   @Test
+  public void verify_properties_written_by_writePluginMetadata_with_dto() {
+    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), null, new PluginDto().setHash("abcdef123456").setUpdatedAt(123456L));
+
+    jsonWriter.close();
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
+      "  \"key\": \"scmgit\"," +
+      "  \"name\": \"Git\"," +
+      "  \"description\": \"Git SCM Provider.\"," +
+      "  \"version\": \"1.0\"," +
+      "  \"license\": \"GNU LGPL 3\"," +
+      "  \"organizationName\": \"SonarSource\"," +
+      "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
+      "  \"homepageUrl\": \"https://redirect.sonarsource.com/plugins/scmgit.html\"," +
+      "  \"issueTrackerUrl\": \"http://jira.sonarsource.com/browse/SONARSCGIT\"," +
+      "  \"filename\": \"sonar-scm-git-plugin-1.0.jar\"," +
+      "  \"hash\": \"abcdef123456\"," +
+      "  \"sonarLintSupported\": true," +
+      "  \"updatedAt\": 123456" +
+      "}");
+  }
+
+  @Test
   public void verify_properties_written_by_writeMetadata() {
-    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), "cat_1");
+    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), "cat_1", null);
 
     jsonWriter.close();
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
@@ -176,8 +200,7 @@ public class PluginWSCommonsTest {
   public void writeUpdate_renders_key_name_and_description_of_requirements() {
     PluginUpdate pluginUpdate = new PluginUpdate();
     pluginUpdate.setRelease(
-      new Release(newPlugin(), version("1.0")).addOutgoingDependency(newRelease())
-      );
+      new Release(newPlugin(), version("1.0")).addOutgoingDependency(newRelease()));
 
     jsonWriter.beginObject();
     underTest.writeUpdate(jsonWriter, pluginUpdate);
@@ -214,7 +237,9 @@ public class PluginWSCommonsTest {
       .setOrganizationName("SonarSource")
       .setOrganizationUrl("http://www.sonarsource.com")
       .setHomepageUrl("https://redirect.sonarsource.com/plugins/scmgit.html")
-      .setIssueTrackerUrl("http://jira.sonarsource.com/browse/SONARSCGIT");
+      .setIssueTrackerUrl("http://jira.sonarsource.com/browse/SONARSCGIT")
+      .setSonarLintSupported(true)
+      .setJarFile(new File("sonar-scm-git-plugin-1.0.jar"));
   }
 
   private Plugin newPlugin() {
