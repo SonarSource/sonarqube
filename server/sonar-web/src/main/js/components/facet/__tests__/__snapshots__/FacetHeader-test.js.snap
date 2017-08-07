@@ -14,6 +14,7 @@ exports[`should clear 1`] = `
     onClick={[Function]}
   >
     <svg
+      className="little-spacer-right"
       height="10"
       style={
         Object {
@@ -32,9 +33,7 @@ exports[`should clear 1`] = `
         }
       />
     </svg>
-     
     foo
-     
     <span
       className="spacer-left badge is-rounded"
     >
@@ -52,6 +51,7 @@ exports[`should render closed facet with value 1`] = `
     onClick={[Function]}
   >
     <svg
+      className="little-spacer-right"
       height="10"
       style={
         Object {
@@ -70,9 +70,7 @@ exports[`should render closed facet with value 1`] = `
         }
       />
     </svg>
-     
     foo
-     
     <span
       className="spacer-left badge is-rounded"
     >
@@ -90,6 +88,7 @@ exports[`should render closed facet without value 1`] = `
     onClick={[Function]}
   >
     <svg
+      className="little-spacer-right"
       height="10"
       style={
         Object {
@@ -108,9 +107,7 @@ exports[`should render closed facet without value 1`] = `
         }
       />
     </svg>
-     
     foo
-     
   </a>
 </div>
 `;
@@ -123,6 +120,7 @@ exports[`should render open facet with value 1`] = `
     onClick={[Function]}
   >
     <svg
+      className="little-spacer-right"
       height="10"
       style={
         Object {
@@ -141,9 +139,7 @@ exports[`should render open facet with value 1`] = `
         }
       />
     </svg>
-     
     foo
-     
   </a>
 </div>
 `;
@@ -156,6 +152,7 @@ exports[`should render open facet without value 1`] = `
     onClick={[Function]}
   >
     <svg
+      className="little-spacer-right"
       height="10"
       style={
         Object {
@@ -174,9 +171,7 @@ exports[`should render open facet without value 1`] = `
         }
       />
     </svg>
-     
     foo
-     
   </a>
 </div>
 `;
