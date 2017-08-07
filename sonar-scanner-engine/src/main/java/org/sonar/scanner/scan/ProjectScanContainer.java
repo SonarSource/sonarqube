@@ -136,6 +136,7 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultIndex.class,
       Storages.class,
       new RulesProvider(),
+      new ProjectBranchesProvider(),
 
       // temp
       new AnalysisTempFolderProvider(),
@@ -201,6 +202,7 @@ public class ProjectScanContainer extends ComponentContainer {
     addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
     addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
     addIfMissing(DefaultQualityProfileLoader.class, QualityProfileLoader.class);
+    addIfMissing(DefaultProjectBranchesLoader.class, ProjectBranchesLoader.class);
     addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
   }
 
