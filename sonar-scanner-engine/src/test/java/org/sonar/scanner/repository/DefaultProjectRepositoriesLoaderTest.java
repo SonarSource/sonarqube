@@ -59,7 +59,7 @@ public class DefaultProjectRepositoriesLoaderTest {
   @Test
   public void continueOnError() {
     when(wsClient.call(any(WsRequest.class))).thenThrow(IllegalStateException.class);
-    ProjectRepositories proj = loader.load(PROJECT_KEY, false);
+    ProjectRepositories proj = loader.load(PROJECT_KEY, false, null);
     assertThat(proj.exists()).isEqualTo(false);
   }
 
@@ -68,7 +68,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     InputStream is = mock(InputStream.class);
     when(is.read()).thenThrow(IOException.class);
     WsTestUtil.mockStream(wsClient, "/batch/project.protobuf?key=foo%3F", is);
-    loader.load(PROJECT_KEY, false);
+    loader.load(PROJECT_KEY, false, null);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -76,7 +76,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     HttpException http = new HttpException("url", 403, null);
     IllegalStateException e = new IllegalStateException("http error", http);
     WsTestUtil.mockException(wsClient, e);
-    loader.load(PROJECT_KEY, false);
+    loader.load(PROJECT_KEY, false, null);
   }
 
   @Test
@@ -87,26 +87,26 @@ public class DefaultProjectRepositoriesLoaderTest {
     HttpException http = new HttpException("uri", 403, null);
     MessageException e = MessageException.of("http error", http);
     WsTestUtil.mockException(wsClient, e);
-    loader.load(PROJECT_KEY, false);
+    loader.load(PROJECT_KEY, false, null);
   }
 
   @Test
   public void passIssuesModeParameter() {
-    loader.load(PROJECT_KEY, false);
+    loader.load(PROJECT_KEY, false, null);
     WsTestUtil.verifyCall(wsClient, "/batch/project.protobuf?key=foo%3F");
 
-    loader.load(PROJECT_KEY, true);
+    loader.load(PROJECT_KEY, true, null);
     WsTestUtil.verifyCall(wsClient, "/batch/project.protobuf?key=foo%3F&issues_mode=true");
   }
 
   @Test
   public void deserializeResponse() throws IOException {
-    loader.load(PROJECT_KEY, false);
+    loader.load(PROJECT_KEY, false, null);
   }
 
   @Test
   public void passAndEncodeProjectKeyParameter() {
-    loader.load(PROJECT_KEY, false);
+    loader.load(PROJECT_KEY, false, null);
     WsTestUtil.verifyCall(wsClient, "/batch/project.protobuf?key=foo%3F");
   }
 
@@ -124,7 +124,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     InputStream is = getTestResource("project.protobuf");
     WsTestUtil.mockStream(wsClient, "/batch/project.protobuf?key=org.sonarsource.github%3Asonar-github-plugin&issues_mode=true", is);
 
-    ProjectRepositories proj = loader.load("org.sonarsource.github:sonar-github-plugin", true);
+    ProjectRepositories proj = loader.load("org.sonarsource.github:sonar-github-plugin", true, null);
     FileData fd = proj.fileData("org.sonarsource.github:sonar-github-plugin",
       "src/test/java/org/sonar/plugins/github/PullRequestIssuePostJobTest.java");
 
