@@ -30,6 +30,7 @@ import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -63,24 +64,24 @@ public class ProjectRepositoriesProviderTest {
   @Test
   public void testValidation() {
     when(mode.isIssues()).thenReturn(true);
-    when(loader.load(eq("key"), eq(true))).thenReturn(project);
+    when(loader.load(eq("key"), eq(true), any())).thenReturn(project);
 
-    provider.provide(loader, projectKey, mode);
+    provider.provide(loader, projectKey, mode, null);
   }
 
   @Test
   public void testAssociated() {
     when(mode.isIssues()).thenReturn(false);
-    when(loader.load(eq("key"), eq(false))).thenReturn(project);
+    when(loader.load(eq("key"), eq(false), any())).thenReturn(project);
 
-    ProjectRepositories repo = provider.provide(loader, projectKey, mode);
+    ProjectRepositories repo = provider.provide(loader, projectKey, mode, null);
 
     assertThat(repo.exists()).isEqualTo(true);
     assertThat(repo.lastAnalysisDate()).isNotNull();
 
     verify(mode, times(1)).isIssues();
     verify(projectKey).get();
-    verify(loader).load(eq("key"), eq(false));
+    verify(loader).load(eq("key"), eq(false), null);
     verifyNoMoreInteractions(loader, projectKey, mode);
   }
 }
