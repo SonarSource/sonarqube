@@ -41,6 +41,7 @@ public class CorePropertyDefinitions {
   public static final String LEAK_PERIOD_MODE_PREVIOUS_VERSION = "previous_version";
 
   private static final String DEFAULT_LEAK_PERIOD = LEAK_PERIOD_MODE_PREVIOUS_VERSION;
+  private static final String DEFAULT_LONG_LIVED_BRANCHES_REGEX = "(branch|release)-.*";
 
   private static final String CATEGORY_ORGANIZATIONS = "organizations";
   public static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
@@ -234,6 +235,17 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
         .multiValues(true)
+        .build(),
+        
+        // BRANCHES
+        PropertyDefinition.builder(CoreProperties.LONG_LIVED_BRANCHES_REGEX)
+        .defaultValue("")
+        .name("Detection of long lived branches")
+        .description("Regular expression used to detect whether a branch is a long living branch (as opposed to short living branch), based on its name.")
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_BRANCHES)
+        .defaultValue(DEFAULT_LONG_LIVED_BRANCHES_REGEX)
         .build(),
 
       // ORGANIZATIONS

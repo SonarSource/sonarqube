@@ -42,7 +42,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
-import org.sonar.server.computation.task.projectanalysis.component.MainBranchImpl;
+import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.Condition;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.ConditionStatus;
@@ -221,7 +221,7 @@ public class PostProjectAnalysisTasksExecutorTest {
 
   @Test
   public void branch_is_empty_when_legacy_branch_implementation_is_used() {
-    analysisMetadataHolder.setBranch(new MainBranchImpl("feature/foo"));
+    analysisMetadataHolder.setBranch(new DefaultBranchImpl("feature/foo"));
 
     underTest.finished(true);
 
@@ -246,6 +246,11 @@ public class PostProjectAnalysisTasksExecutorTest {
       @Override
       public boolean isLegacyFeature() {
         return false;
+      }
+      
+      @Override
+      public Optional<String> getMergeBranchName() {
+        return Optional.empty();
       }
 
       @Override
