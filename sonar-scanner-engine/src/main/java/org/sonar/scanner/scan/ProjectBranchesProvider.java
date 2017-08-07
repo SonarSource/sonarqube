@@ -21,7 +21,6 @@ package org.sonar.scanner.scan;
 
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectKey;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
