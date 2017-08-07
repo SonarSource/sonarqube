@@ -20,9 +20,12 @@
 // @flow
 /* eslint-disable max-len */
 import React from 'react';
+import Tooltip from '../controls/Tooltip';
+import HelpIcon from '../icons-components/HelpIcon';
 import { translate } from '../../helpers/l10n';
 
 type Props = {|
+  helper?: string,
   name: string,
   onClear?: () => void,
   onClick?: () => void,
@@ -55,7 +58,12 @@ export default class FacetHeader extends React.PureComponent {
 
   renderCheckbox() {
     return (
-      <svg viewBox="0 0 1792 1792" width="10" height="10" style={{ paddingTop: 3 }}>
+      <svg
+        className="little-spacer-right"
+        viewBox="0 0 1792 1792"
+        width="10"
+        height="10"
+        style={{ paddingTop: 3 }}>
         {this.props.open
           ? <path
               style={{ fill: 'currentColor ' }}
@@ -66,6 +74,19 @@ export default class FacetHeader extends React.PureComponent {
               d="M1363 877l-742 742q-19 19-45 19t-45-19l-166-166q-19-19-19-45t19-45l531-531-531-531q-19-19-19-45t19-45l166-166q19-19 45-19t45 19l742 742q19 19 19 45t-19 45z"
             />}
       </svg>
+    );
+  }
+
+  renderHelper() {
+    if (!this.props.helper) {
+      return null;
+    }
+    return (
+      <Tooltip overlay={this.props.helper} placement="right">
+        <span>
+          <HelpIcon className="spacer-left text-info" />
+        </span>
+      </Tooltip>
     );
   }
 
@@ -94,10 +115,14 @@ export default class FacetHeader extends React.PureComponent {
 
         {this.props.onClick
           ? <a className="search-navigator-facet-header" href="#" onClick={this.handleClick}>
-              {this.renderCheckbox()} {this.props.name} {this.renderValueIndicator()}
+              {this.renderCheckbox()}
+              {this.props.name}
+              {this.renderHelper()}
+              {this.renderValueIndicator()}
             </a>
           : <span className="search-navigator-facet-header">
               {this.props.name}
+              {this.renderHelper()}
             </span>}
       </div>
     );
