@@ -91,7 +91,7 @@ public class MetadataPublisher implements ReportPublisherStep {
     writer.writeMetadata(builder.build());
   }
 
-  private BranchType toProtobufBranchType(ProjectBranches.BranchType branchType) {
+  private static BranchType toProtobufBranchType(ProjectBranches.BranchType branchType) {
     if (branchType == ProjectBranches.BranchType.LONG) {
       return BranchType.LONG;
     }
