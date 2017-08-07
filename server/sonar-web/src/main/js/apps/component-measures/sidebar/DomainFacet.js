@@ -31,6 +31,7 @@ import { filterMeasures, hasBubbleChart, sortMeasures } from '../utils';
 import {
   getLocalizedMetricDomain,
   getLocalizedMetricName,
+  translate,
   translateWithParameters
 } from '../../../helpers/l10n';
 import type { MeasureEnhanced } from '../../../components/measure/types';
@@ -47,6 +48,16 @@ export default class DomainFacet extends React.PureComponent {
   props: Props;
 
   handleHeaderClick = () => this.props.onToggle(this.props.domain.name);
+
+  hasFacetSelected = (
+    domain: { name: string },
+    measures: Array<MeasureEnhanced>,
+    selected: string
+  ) => {
+    const measureSelected = measures.find(measure => measure.metric.key === selected);
+    const overviewSelected = domain.name === selected && hasBubbleChart(domain.name);
+    return measureSelected || overviewSelected;
+  };
 
   renderOverviewFacet = () => {
     const { domain, selected } = this.props;
@@ -79,13 +90,16 @@ export default class DomainFacet extends React.PureComponent {
   render() {
     const { domain, selected } = this.props;
     const measures = sortMeasures(domain.name, filterMeasures(domain.measures));
+    const helper = `component_measures.domain_facets.${domain.name}.help`;
+    const translatedHelper = translate(helper);
     return (
       <FacetBox>
         <FacetHeader
+          helper={helper !== translatedHelper ? translatedHelper : undefined}
           name={getLocalizedMetricDomain(domain.name)}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={measures.find(measure => measure.metric.key === selected) ? 1 : 0}
+          values={this.hasFacetSelected(domain, measures, selected) ? 1 : 0}
         />
 
         {this.props.open &&
