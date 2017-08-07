@@ -25,6 +25,11 @@ import java.io.IOException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * @deprecated since 6.6 Used for deprecated deploy/plugin/index.txt
+ *
+ */
+@Deprecated
 public class RemotePlugin {
   private String pluginKey;
   private boolean sonarLintSupported;
