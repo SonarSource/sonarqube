@@ -52,8 +52,8 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
   }
 
   @Override
-  public ProjectRepositories load(String projectKey, boolean issuesMode, @Nullable String branchName) {
-    GetRequest request = new GetRequest(getUrl(projectKey, issuesMode, branchName));
+  public ProjectRepositories load(String projectKey, boolean issuesMode, @Nullable String branchTarget) {
+    GetRequest request = new GetRequest(getUrl(projectKey, issuesMode, branchTarget));
     try (WsResponse response = wsClient.call(request)) {
       InputStream is = response.contentStream();
       return processStream(is, projectKey);
@@ -67,7 +67,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
     }
   }
 
-  private static String getUrl(String projectKey, boolean issuesMode, @Nullable String branchName) {
+  private static String getUrl(String projectKey, boolean issuesMode, @Nullable String branchTarget) {
     StringBuilder builder = new StringBuilder();
 
     builder.append(BATCH_PROJECT_URL)
@@ -75,8 +75,8 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
     if (issuesMode) {
       builder.append("&issues_mode=true");
     }
-    if (branchName != null) {
-      builder.append("&branch=").append(branchName);
+    if (branchTarget != null) {
+      builder.append("&branch=").append(branchTarget);
     }
     return builder.toString();
   }
