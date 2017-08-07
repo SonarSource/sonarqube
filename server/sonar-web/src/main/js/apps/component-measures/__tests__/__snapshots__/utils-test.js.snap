@@ -67,21 +67,7 @@ exports[`sortMeasures should sort based on the config 1`] = `
 Array [
   Object {
     "metric": Object {
-      "key": "bugs",
-      "name": "bugs",
-      "type": "INT",
-    },
-  },
-  Object {
-    "metric": Object {
       "key": "new_bugs",
-      "name": "new_bugs",
-      "type": "INT",
-    },
-  },
-  Object {
-    "metric": Object {
-      "key": "reliability_remediation_effort",
       "name": "new_bugs",
       "type": "INT",
     },
@@ -90,6 +76,20 @@ Array [
     "metric": Object {
       "key": "new_reliability_remediation_effort",
       "name": "bugs",
+      "type": "INT",
+    },
+  },
+  Object {
+    "metric": Object {
+      "key": "bugs",
+      "name": "bugs",
+      "type": "INT",
+    },
+  },
+  Object {
+    "metric": Object {
+      "key": "reliability_remediation_effort",
+      "name": "new_bugs",
       "type": "INT",
     },
   },
