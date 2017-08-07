@@ -74,6 +74,10 @@ public class MetadataPublisher implements ReportPublisherStep {
     settings.get(BRANCH_NAME).ifPresent(branch -> {
       builder.setBranchName(branch);
       builder.setBranchType(toProtobufBranchType(branches.branchType()));
+      String branchTarget = branches.branchTarget();
+      if (branchTarget != null) {
+        builder.setMergeBranchName(branchTarget);
+      }
     });
     Optional.ofNullable(rootDef.getBranch()).ifPresent(builder::setDeprecatedBranch);
 
