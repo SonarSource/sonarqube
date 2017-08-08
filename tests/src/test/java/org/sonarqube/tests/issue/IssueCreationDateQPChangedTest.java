@@ -24,6 +24,7 @@ import com.sonar.orchestrator.container.Server;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
@@ -45,14 +46,13 @@ import static util.ItUtils.projectDir;
 /**
  * @see <a href="https://jira.sonarsource.com/browse/MMF-567">MMF-567</a>
  */
-public class IssueCreationDateTest extends AbstractIssueTest {
+public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
 
   private static final String ISSUE_STATUS_OPEN = "OPEN";
 
   private static final String LANGUAGE_XOO = "xoo";
 
   private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
-  private static final String DATE_FORMAT = "yyyy-MM-dd";
 
   private static final String SAMPLE_PROJECT_KEY = "creation-date-sample";
   private static final String SAMPLE_PROJECT_NAME = "Creation date sample";
@@ -232,16 +232,8 @@ public class IssueCreationDateTest extends AbstractIssueTest {
     }
   }
 
-  private static Date dateParse(String expectedDate) {
-    try {
-      return new SimpleDateFormat(DATE_FORMAT).parse(expectedDate);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   private static String todayMinusDays(int numberOfDays) {
-    return DateTimeFormatter.ofPattern(DATE_FORMAT).format(LocalDate.now().atStartOfDay().minusDays(numberOfDays));
+    return DateTimeFormatter.ofPattern(DATETIME_FORMAT).format(LocalDate.now().atStartOfDay().minusDays(numberOfDays).atZone(ZoneId.systemDefault()));
   }
 
   private enum SourceCode {
@@ -277,8 +269,8 @@ public class IssueCreationDateTest extends AbstractIssueTest {
   private static final Component[] COMPONENTS_OF_SOURCE_CHANGED = {Component.ForeverAndModified, Component.ForeverAndUnmodified, Component.OnlyInChanged};
 
   private enum QProfile {
-    ONE_RULE("/issue/IssueCreationDateTest/one-rule.xml"),
-    NO_RULES("/issue/IssueCreationDateTest/no-rules.xml"),
+    ONE_RULE("/issue/IssueCreationDateQPChangedTest/one-rule.xml"),
+    NO_RULES("/issue/IssueCreationDateQPChangedTest/no-rules.xml"),
     ;
 
     private final String path;
@@ -323,8 +315,8 @@ public class IssueCreationDateTest extends AbstractIssueTest {
     ForeverAndModified_R1(dateTimeParse("2003-01-01T00:00:00+0000")),
     ForeverAndModified_R2(dateTimeParse("2004-01-01T00:00:00+0000")),
     OnlyInChanged_R1(dateTimeParse("2005-01-01T00:00:00+0000")),
-    EXPLICIT_DATE_1(dateParse(SAMPLE_EXPLICIT_DATE_1)),
-    EXPLICIT_DATE_2(dateParse(SAMPLE_EXPLICIT_DATE_2)),
+    EXPLICIT_DATE_1(dateTimeParse(SAMPLE_EXPLICIT_DATE_1)),
+    EXPLICIT_DATE_2(dateTimeParse(SAMPLE_EXPLICIT_DATE_2)),
     FIRST_ANALYSIS {
       @Override
       Date getDate() {
@@ -371,7 +363,7 @@ public class IssueCreationDateTest extends AbstractIssueTest {
           .getAnalysesList())
         .flatMap(chooseItem)
         .map(ProjectAnalyses.Analysis::getDate)
-        .map(IssueCreationDateTest::dateTimeParse)
+        .map(IssueCreationDateQPChangedTest::dateTimeParse)
         .orElseThrow(() -> new IllegalStateException("There is no analysis"));
     }
   }
