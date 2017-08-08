@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.computation.task.projectanalysis.component.MainBranchImpl;
+import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -261,7 +261,7 @@ public class AnalysisMetadataHolderImplTest {
   public void set_branch() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
-    underTest.setBranch(new MainBranchImpl("master"));
+    underTest.setBranch(new DefaultBranchImpl("master"));
 
     assertThat(underTest.getBranch().get().getName()).hasValue("master");
   }
@@ -277,11 +277,11 @@ public class AnalysisMetadataHolderImplTest {
   @Test
   public void setBranch_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
-    underTest.setBranch(new MainBranchImpl("master"));
+    underTest.setBranch(new DefaultBranchImpl("master"));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Branch has already been set");
-    underTest.setBranch(new MainBranchImpl("master"));
+    underTest.setBranch(new DefaultBranchImpl("master"));
   }
 
   @Test
