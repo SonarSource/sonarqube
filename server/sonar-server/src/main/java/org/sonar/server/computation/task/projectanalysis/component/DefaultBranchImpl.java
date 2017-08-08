@@ -33,16 +33,16 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 
 /**
  * The default (and legacy) implementation of {@link Branch}. It is used
- * when scanner is configured with parameter "sonar.branch".
+ * when scanner is configured with parameter "sonar.branch" or when no branch is provided and the branch plugin is not installed.
  * A legacy branch is implemented as a fork of the project, so any branch
  * is considered as "main".
  */
-public class MainBranchImpl implements Branch {
+public class DefaultBranchImpl implements Branch {
 
   @Nullable
   private final String branchName;
 
-  public MainBranchImpl(@Nullable String name) {
+  public DefaultBranchImpl(@Nullable String name) {
     this.branchName = name;
     if (name != null && !ComponentKeys.isValidBranch(name)) {
       throw MessageException.of(format("\"%s\" is not a valid branch name. "
@@ -58,6 +58,11 @@ public class MainBranchImpl implements Branch {
   @Override
   public boolean isMain() {
     return true;
+  }
+  
+  @Override
+  public Optional<String> getMergeBranchName() {
+    return Optional.empty();
   }
 
   @Override
