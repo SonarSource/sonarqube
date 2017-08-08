@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import IssueChangelog from './IssueChangelog';
 import IssueMessage from './IssueMessage';
 import SimilarIssuesFilter from './SimilarIssuesFilter';
+import LinkIcon from '../../../components/icons-components/LinkIcon';
 import LocationIndex from '../../common/LocationIndex';
 import Tooltip from '../../controls/Tooltip';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
@@ -104,11 +105,12 @@ export default function IssueTitleBar(props: Props) {
                 </li>}
               <li className="issue-meta">
                 <Link
-                  className="js-issue-permalink icon-link"
+                  className="js-issue-permalink link-no-underline"
                   onClick={stopPropagation}
                   target="_blank"
-                  to={issueUrl}
-                />
+                  to={issueUrl}>
+                  <LinkIcon />
+                </Link>
               </li>
               {hasSimilarIssuesFilter &&
                 <li className="issue-meta">

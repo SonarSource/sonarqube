@@ -21,6 +21,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { scaleLinear } from 'd3-scale';
+import LinkIcon from '../icons-components/LinkIcon';
 import Tooltip from '../controls/Tooltip';
 
 const SIZE_SCALE = scaleLinear().domain([3, 15]).range([11, 18]).clamp(true);
@@ -60,7 +61,7 @@ export default class TreeMapRect extends React.PureComponent {
     if (width >= 24 && height >= 24 && (width >= 48 || height >= 50)) {
       return (
         <a className="treemap-link" href={link} onClick={this.handleLinkClick}>
-          <span className="icon-link" />
+          <LinkIcon />
         </a>
       );
     }
