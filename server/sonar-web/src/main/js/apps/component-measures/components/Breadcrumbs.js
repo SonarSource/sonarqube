@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import key from 'keymaster';
 import Breadcrumb from './Breadcrumb';
 import { getBreadcrumbs } from '../../../api/components';
 import type { Component } from '../types';
@@ -44,6 +45,7 @@ export default class Breadcrumbs extends React.PureComponent {
   componentDidMount() {
     this.mounted = true;
     this.fetchBreadcrumbs(this.props);
+    this.attachShortcuts();
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -54,6 +56,21 @@ export default class Breadcrumbs extends React.PureComponent {
 
   componentWillUnmount() {
     this.mounted = false;
+    this.detachShortcuts();
+  }
+
+  attachShortcuts() {
+    key('left', 'measures-files', () => {
+      const { breadcrumbs } = this.state;
+      if (breadcrumbs.length > 1) {
+        this.props.handleSelect(breadcrumbs[breadcrumbs.length - 2].key);
+      }
+      return false;
+    });
+  }
+
+  detachShortcuts() {
+    key.unbind('left', 'measures-files');
   }
 
   fetchBreadcrumbs = ({ component, rootComponent }: Props) => {
