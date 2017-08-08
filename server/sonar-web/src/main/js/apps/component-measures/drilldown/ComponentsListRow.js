@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import classNames from 'classnames';
 import ComponentCell from './ComponentCell';
 import MeasureCell from './MeasureCell';
 import type { Component } from '../types';
@@ -38,9 +39,12 @@ export default function ComponentsListRow(props: Props) {
     const measure = component.measures.find(measure => measure.metric === metric.key);
     return { ...measure, metric };
   });
+  const rowClass = classNames('measure-details-component-row', {
+    selected: props.isSelected
+  });
   return (
-    <tr>
-      <ComponentCell component={component} isSelected={props.isSelected} onClick={props.onClick} />
+    <tr className={rowClass}>
+      <ComponentCell component={component} onClick={props.onClick} />
 
       <MeasureCell component={component} metric={props.metric} />
 

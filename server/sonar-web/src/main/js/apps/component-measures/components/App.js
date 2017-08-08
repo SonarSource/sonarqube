@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import Helmet from 'react-helmet';
+import key from 'keymaster';
 import MeasureContentContainer from './MeasureContentContainer';
 import MeasureOverviewContainer from './MeasureOverviewContainer';
 import Sidebar from '../sidebar/Sidebar';
@@ -71,7 +72,7 @@ export default class App extends React.PureComponent {
     this.mounted = true;
     this.props.fetchMetrics();
     this.fetchMeasures(this.props);
-
+    key.setScope('measures-files');
     const footer = document.getElementById('footer');
     if (footer) {
       footer.classList.add('search-navigator-footer');
@@ -89,6 +90,7 @@ export default class App extends React.PureComponent {
 
   componentWillUnmount() {
     this.mounted = false;
+    key.deleteScope('measures-files');
     const footer = document.getElementById('footer');
     if (footer) {
       footer.classList.remove('search-navigator-footer');

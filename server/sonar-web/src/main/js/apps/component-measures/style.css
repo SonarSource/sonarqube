@@ -52,6 +52,10 @@
   margin-top: 4px;
 }
 
+.measure-details-component-row.selected {
+  background-color: #cae3f2 !important;
+}
+
 .measure-details-component-cell {
   max-width: 0;
 }

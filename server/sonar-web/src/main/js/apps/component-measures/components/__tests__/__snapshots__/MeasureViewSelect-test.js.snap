@@ -4,6 +4,7 @@ exports[`should display correctly with treemap option 1`] = `
 <Select
   addLabelText="Add \\"{label}\\"?"
   arrowRenderer={[Function]}
+  autoBlur={true}
   autosize={true}
   backspaceRemoves={true}
   backspaceToRemoveMessage="Press backspace to remove {label}"
