@@ -52,6 +52,8 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
 
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
 
+  private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
+
   @Override
   public AnalysisMetadataHolderRule setOrganization(Organization organization) {
     requireNonNull(organization, "organization can't be null");
@@ -172,6 +174,18 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   public Map<String, QualityProfile> getQProfilesByLanguage() {
     checkState(qProfilesPerLanguage.isInitialized(), "QProfile per language has not been set");
     return qProfilesPerLanguage.getProperty();
+  }
+
+  @Override
+  public AnalysisMetadataHolderRule setScannerPluginsByKey(Map<String, ScannerPlugin> plugins) {
+    this.pluginsByKey.setProperty(plugins);
+    return this;
+  }
+
+  @Override
+  public Map<String, ScannerPlugin> getScannerPluginsByKey() {
+    checkState(pluginsByKey.isInitialized(), "Plugins per key has not been set");
+    return pluginsByKey.getProperty();
   }
 
   @Override

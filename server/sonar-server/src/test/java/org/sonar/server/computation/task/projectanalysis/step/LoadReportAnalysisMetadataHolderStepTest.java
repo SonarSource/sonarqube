@@ -42,6 +42,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -147,7 +148,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isEqualTo(false);
   }
-  
+
   @Test
   public void set_incremental_analysis_to_true() {
     reportReader.setMetadata(
@@ -159,19 +160,18 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     assertThat(analysisMetadataHolder.isIncrementalAnalysis()).isTrue();
   }
-  
+
   @Test
   public void set_incremental_analysis_to_false() {
     reportReader.setMetadata(
       newBatchReportBuilder()
-      .setIncremental(false)
+        .setIncremental(false)
         .build());
 
     underTest.execute();
 
     assertThat(analysisMetadataHolder.isIncrementalAnalysis()).isFalse();
   }
-
 
   @Test
   public void set_cross_project_duplication_to_false_when_nothing_in_the_report() {
@@ -371,6 +371,21 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     verify(billingValidations).checkOnProjectAnalysis(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getKey()).isEqualTo(organization.getKey());
     assertThat(argumentCaptor.getValue().getUuid()).isEqualTo(organization.getUuid());
+  }
+
+  @Test
+  public void execute_read_plugins_from_report() {
+    ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
+    metadataBuilder.getMutablePluginsByKey().put("java", ScannerReport.Metadata.Plugin.newBuilder().setKey("java").setUpdatedAt(12345L).build());
+    metadataBuilder.getMutablePluginsByKey().put("php", ScannerReport.Metadata.Plugin.newBuilder().setKey("php").setUpdatedAt(678910L).build());
+    reportReader.setMetadata(metadataBuilder.build());
+
+    underTest.execute();
+
+    assertThat(analysisMetadataHolder.getScannerPluginsByKey()).containsOnlyKeys("java", "php");
+    assertThat(analysisMetadataHolder.getScannerPluginsByKey().values()).extracting("key", "updatedAt").containsOnly(
+      tuple("java", 12345L),
+      tuple("php", 678910L));
   }
 
   private LoadReportAnalysisMetadataHolderStep createStep(CeTask ceTask) {

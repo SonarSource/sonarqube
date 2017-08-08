@@ -31,6 +31,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
@@ -64,10 +65,32 @@ public class IssueCreationDateCalculator extends IssueVisitor {
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
-    if (issue.isNew() && ruleIsNew(issue)) {
+    if (!issue.isNew()) {
+      return;
+    }
+    Optional<Long> lastAnalysisOptional = lastAnalysis();
+    boolean firstAnalysis = !lastAnalysisOptional.isPresent();
+    ActiveRule activeRule = toJavaUtilOptional(activeRulesHolder.get(issue.getRuleKey()))
+      .orElseThrow(illegalStateException("The rule %s raised an issue, but is not one of the active rules.", issue.getRuleKey()));
+    if (firstAnalysis
+      || ruleIsNew(activeRule, lastAnalysisOptional.get())
+      || pluginIsNew(activeRule, lastAnalysisOptional.get())) {
       getScmChangeDate(component, issue)
         .ifPresent(changeDate -> updateDate(issue, changeDate));
     }
+  }
+
+  private boolean pluginIsNew(ActiveRule activeRule, Long lastAnalysisDate) {
+    String pluginKey = activeRule.getPluginKey();
+    long pluginUpdateDate = Optional.ofNullable(analysisMetadataHolder.getScannerPluginsByKey().get(pluginKey))
+      .orElseThrow(illegalStateException("The rule %s is declared to come from plugin %s, but this plugin was not used by scanner.", activeRule.getRuleKey(), pluginKey))
+      .getUpdatedAt();
+    return lastAnalysisDate < pluginUpdateDate;
+  }
+
+  private static boolean ruleIsNew(ActiveRule activeRule, Long lastAnalysisDate) {
+    long ruleCreationDate = activeRule.getCreatedAt();
+    return lastAnalysisDate < ruleCreationDate;
   }
 
   private Optional<Date> getScmChangeDate(Component component, DefaultIssue issue) {
@@ -76,26 +99,8 @@ public class IssueCreationDateCalculator extends IssueVisitor {
       .map(IssueCreationDateCalculator::getChangeDate);
   }
 
-  private boolean ruleIsNew(DefaultIssue issue) {
-    long ruleCreation = ruleCreation(issue);
-    Optional<Long> lastAnalysisOptional = lastAnalysis();
-
-    if (lastAnalysisOptional.isPresent()) {
-      return lastAnalysisOptional.get() < ruleCreation;
-    }
-
-    // special case: this is the first analysis of the project: use scm dates for all issues
-    return true;
-  }
-
   private Optional<Long> lastAnalysis() {
     return Optional.ofNullable(analysisMetadataHolder.getBaseAnalysis()).map(Analysis::getCreatedAt);
-  }
-
-  private long ruleCreation(DefaultIssue issue) {
-    return toJavaUtilOptional(activeRulesHolder.get(issue.getRuleKey()))
-      .orElseThrow(illegalStateException("The rule %s raised an issue, but is not one of the active rules.", issue.getRuleKey().rule()))
-      .getCreatedAt();
   }
 
   private Optional<ScmInfo> getScmInfo(Component component) {

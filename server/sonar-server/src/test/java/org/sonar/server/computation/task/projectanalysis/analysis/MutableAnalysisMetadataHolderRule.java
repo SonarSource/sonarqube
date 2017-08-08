@@ -131,6 +131,17 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
+  public MutableAnalysisMetadataHolder setScannerPluginsByKey(Map<String, ScannerPlugin> plugins) {
+    delegate.setScannerPluginsByKey(plugins);
+    return this;
+  }
+
+  @Override
+  public Map<String, ScannerPlugin> getScannerPluginsByKey() {
+    return delegate.getScannerPluginsByKey();
+  }
+
+  @Override
   public boolean isIncrementalAnalysis() {
     return delegate.isIncrementalAnalysis();
   }
