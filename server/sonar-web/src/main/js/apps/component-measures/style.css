@@ -71,6 +71,14 @@
   font-size: 12px;
 }
 
+.measure-details-treemap-legend {
+  margin-right: -4px;
+}
+
+.measure-details-treemap-legend.color-box-legend {
+  margin-right: 0;
+}
+
 .measure-view-select {
   width: 50px;
 }
