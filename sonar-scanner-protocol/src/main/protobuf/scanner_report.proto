@@ -41,7 +41,7 @@ message Metadata {
   bool incremental = 8;
   string branch_name = 9;
   BranchType branch_type = 10;
-  
+  string merge_branch_name = 11;
 
   message QProfile {
     string key = 1;
