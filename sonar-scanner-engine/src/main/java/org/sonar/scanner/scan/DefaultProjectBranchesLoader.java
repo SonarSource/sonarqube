@@ -56,9 +56,6 @@ public class DefaultProjectBranchesLoader implements ProjectBranchesLoader {
     try {
       ProjectBranches.create(settings, parseResponse(call));
     } catch (RuntimeException e) {
-      if (shouldThrow(e)) {
-        throw e;
-      }
       LOG.debug("Project branches not available - continuing without it");
     } catch (IOException e) {
       LOG.debug("Project branches could not be parsed - continuing without it");
