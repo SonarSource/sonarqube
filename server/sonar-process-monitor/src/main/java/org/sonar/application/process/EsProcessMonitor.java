@@ -41,6 +41,7 @@ import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.ProcessId;
 
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
@@ -61,8 +62,8 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
   private final EsCommand esCommand;
   private AtomicReference<TransportClient> transportClient = new AtomicReference<>(null);
 
-  public EsProcessMonitor(Process process, EsCommand esCommand) throws MalformedURLException {
-    super(process);
+  public EsProcessMonitor(Process process, ProcessId processId, EsCommand esCommand) throws MalformedURLException {
+    super(process, processId);
     this.esCommand = esCommand;
   }
 
