@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.report;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -34,6 +35,8 @@ import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.bootstrap.ScannerPlugin;
+import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
@@ -42,6 +45,7 @@ import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
@@ -60,6 +64,7 @@ public class MetadataPublisherTest {
   private CpdSettings cpdSettings;
   private InputModuleHierarchy inputModuleHierarchy;
   private AnalysisMode analysisMode;
+  private ScannerPluginRepository pluginRepository;
 
   @Before
   public void prepare() throws IOException {
@@ -68,7 +73,9 @@ public class MetadataPublisherTest {
     when(projectAnalysisInfo.analysisDate()).thenReturn(new Date(1234567L));
     settings = new MapSettings();
     qProfiles = mock(ModuleQProfiles.class);
+    pluginRepository = mock(ScannerPluginRepository.class);
     createPublisher(ProjectDefinition.create().setKey("foo"));
+    when(pluginRepository.getPluginsByKey()).thenReturn(emptyMap());
   }
 
   private void createPublisher(ProjectDefinition def) throws IOException {
@@ -76,7 +83,7 @@ public class MetadataPublisherTest {
     inputModuleHierarchy = mock(InputModuleHierarchy.class);
     when(inputModuleHierarchy.root()).thenReturn(rootModule);
     analysisMode = mock(AnalysisMode.class);
-    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings, analysisMode);
+    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings, analysisMode, pluginRepository);
   }
 
   @Test
@@ -84,6 +91,9 @@ public class MetadataPublisherTest {
     settings.setProperty(CoreProperties.CPD_CROSS_PROJECT, "true");
     Date date = new Date();
     when(qProfiles.findAll()).thenReturn(asList(new QProfile("q1", "Q1", "java", date)));
+    when(pluginRepository.getPluginsByKey()).thenReturn(ImmutableMap.of(
+      "java", new ScannerPlugin("java", 12345L, null),
+      "php", new ScannerPlugin("php", 45678L, null)));
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);
 
@@ -101,6 +111,14 @@ public class MetadataPublisherTest {
       .setLanguage("java")
       .setRulesUpdatedAt(date.getTime())
       .build()));
+    assertThat(metadata.getPluginsByKey()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin.newBuilder()
+      .setKey("java")
+      .setUpdatedAt(12345)
+      .build()),
+      entry("php", org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin.newBuilder()
+        .setKey("php")
+        .setUpdatedAt(45678)
+        .build()));
   }
 
   @Test

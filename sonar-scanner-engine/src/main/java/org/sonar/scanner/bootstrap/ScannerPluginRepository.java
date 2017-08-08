@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
@@ -31,6 +32,9 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Orchestrates the installation and loading of plugins
@@ -42,7 +46,7 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
   private final PluginLoader loader;
 
   private Map<String, Plugin> pluginInstancesByKeys;
-  private Map<String, PluginInfo> infosByKeys;
+  private Map<String, ScannerPlugin> pluginsByKeys;
   private Map<ClassLoader, String> keysByClassLoader;
 
   public ScannerPluginRepository(PluginInstaller installer, PluginLoader loader) {
@@ -52,15 +56,18 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
 
   @Override
   public void start() {
-    infosByKeys = new HashMap<>(installer.installRemotes());
-    pluginInstancesByKeys = new HashMap<>(loader.load(infosByKeys));
+    pluginsByKeys = new HashMap<>(installer.installRemotes());
+    pluginInstancesByKeys = new HashMap<>(
+      loader.load(pluginsByKeys.values().stream()
+        .map(ScannerPlugin::getInfo)
+        .collect(toMap(PluginInfo::getKey, Function.identity()))));
 
-    // this part is only used by tests
-    for (Map.Entry<String, Plugin> entry : installer.installLocals().entrySet()) {
-      String pluginKey = entry.getKey();
+    // this part is only used by medium tests
+    for (Object[] localPlugin : installer.installLocals()) {
+      String pluginKey = (String) localPlugin[0];
       PluginInfo pluginInfo = new PluginInfo(pluginKey);
-      infosByKeys.put(pluginKey, pluginInfo);
-      pluginInstancesByKeys.put(pluginKey, entry.getValue());
+      pluginsByKeys.put(pluginKey, new ScannerPlugin(pluginInfo.getKey(), (long) localPlugin[2], pluginInfo));
+      pluginInstancesByKeys.put(pluginKey, (Plugin) localPlugin[1]);
     }
 
     keysByClassLoader = new HashMap<>();
@@ -77,11 +84,11 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
   }
 
   private void logPlugins() {
-    if (infosByKeys.isEmpty()) {
+    if (pluginsByKeys.isEmpty()) {
       LOG.debug("No plugins loaded");
     } else {
       LOG.debug("Plugins:");
-      for (PluginInfo p : infosByKeys.values()) {
+      for (ScannerPlugin p : pluginsByKeys.values()) {
         LOG.debug("  * {} {} ({})", p.getName(), p.getVersion(), p.getKey());
       }
     }
@@ -93,20 +100,24 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
     loader.unload(pluginInstancesByKeys.values());
 
     pluginInstancesByKeys.clear();
-    infosByKeys.clear();
+    pluginsByKeys.clear();
     keysByClassLoader.clear();
+  }
+
+  public Map<String, ScannerPlugin> getPluginsByKey() {
+    return pluginsByKeys;
   }
 
   @Override
   public Collection<PluginInfo> getPluginInfos() {
-    return infosByKeys.values();
+    return pluginsByKeys.values().stream().map(ScannerPlugin::getInfo).collect(toList());
   }
 
   @Override
   public PluginInfo getPluginInfo(String key) {
-    PluginInfo info = infosByKeys.get(key);
+    ScannerPlugin info = pluginsByKeys.get(key);
     Preconditions.checkState(info != null, "Plugin [%s] does not exist", key);
-    return info;
+    return info.getInfo();
   }
 
   @Override
@@ -118,6 +129,6 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
 
   @Override
   public boolean hasPlugin(String key) {
-    return infosByKeys.containsKey(key);
+    return pluginsByKeys.containsKey(key);
   }
 }
