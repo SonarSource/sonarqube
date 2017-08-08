@@ -58,6 +58,7 @@ type State = {
   components: Array<ComponentEnhanced>,
   metric: ?Metric,
   paging?: Paging,
+  selected: ?string,
   view: ?string
 };
 
@@ -68,6 +69,7 @@ export default class MeasureContent extends React.PureComponent {
     components: [],
     metric: null,
     paging: null,
+    selected: null,
     view: null
   };
 
@@ -85,6 +87,13 @@ export default class MeasureContent extends React.PureComponent {
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  getSelectedIndex = (): ?number => {
+    const index = this.state.components.findIndex(
+      component => component.key === this.state.selected
+    );
+    return index !== -1 ? index : null;
+  };
 
   getComponentRequestParams = (view: string, metric: Metric, options: Object = {}) => {
     const strategy = view === 'list' ? 'leaves' : 'children';
@@ -127,6 +136,7 @@ export default class MeasureContent extends React.PureComponent {
               ),
               metric,
               paging: r.paging,
+              selected: r.components.length > 0 ? r.components[0].key : null,
               view
             });
           }
@@ -168,6 +178,8 @@ export default class MeasureContent extends React.PureComponent {
     );
   };
 
+  onSelectComponent = (component: string) => this.setState({ selected: component });
+
   renderContent() {
     const { component, leakPeriod } = this.props;
 
@@ -201,14 +213,18 @@ export default class MeasureContent extends React.PureComponent {
     }
 
     if (['list', 'tree'].includes(view)) {
+      const selectedIdx = this.getSelectedIndex();
       return (
         <FilesView
           components={this.state.components}
           fetchMore={this.fetchMoreComponents}
-          handleSelect={this.props.updateSelected}
+          handleOpen={this.props.updateSelected}
+          handleSelect={this.onSelectComponent}
           metric={metric}
           metrics={this.props.metrics}
           paging={this.state.paging}
+          selectedKey={selectedIdx != null ? this.state.selected : null}
+          selectedIdx={selectedIdx}
         />
       );
     }
@@ -253,7 +269,7 @@ export default class MeasureContent extends React.PureComponent {
                   view={view}
                 />}
               <PageActions
-                current={this.state.components.length}
+                current={this.getSelectedIndex() + 1}
                 loading={this.props.loading}
                 isFile={isFile}
                 paging={this.state.paging}

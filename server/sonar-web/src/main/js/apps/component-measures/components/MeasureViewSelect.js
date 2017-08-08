@@ -82,6 +82,7 @@ export default class MeasureViewSelect extends React.PureComponent {
   render() {
     return (
       <Select
+        autoBlur={true}
         className={this.props.className}
         clearable={false}
         searchable={false}
