@@ -61,5 +61,7 @@
     <module>ui-extensions-plugin</module>
     <module>posttask-plugin</module>
     <module>ws-plugin</module>
+    <module>backdating-plugin-v1</module>
+    <module>backdating-plugin-v2</module>
   </modules>
 </project>
