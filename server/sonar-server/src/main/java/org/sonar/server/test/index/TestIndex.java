@@ -53,7 +53,7 @@ public class TestIndex {
       .setSize(1)
       .setQuery(boolQuery().must(matchAllQuery()).filter(termQuery(FIELD_TEST_UUID, testUuid)))
       .get().getHits().getHits()) {
-      coveredFiles.addAll(new TestDoc(hit.sourceAsMap()).coveredFiles());
+      coveredFiles.addAll(new TestDoc(hit.getSourceAsMap()).coveredFiles());
     }
 
     return coveredFiles;
@@ -97,7 +97,7 @@ public class TestIndex {
       .setQuery(boolQuery().must(matchAllQuery()).filter(termQuery(FIELD_TEST_UUID, testUuid)))
       .get().getHits().getHits();
     if (hits.length > 0) {
-      return Optional.of(new TestDoc(hits[0].sourceAsMap()));
+      return Optional.of(new TestDoc(hits[0].getSourceAsMap()));
     }
     return Optional.absent();
   }

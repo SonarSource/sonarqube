@@ -284,13 +284,13 @@ public class ProjectMeasuresIndex {
     filters.put("__authorization", authorizationTypeSupport.createQueryFilter());
     Multimap<String, MetricCriterion> metricCriterionMultimap = ArrayListMultimap.create();
     query.getMetricCriteria().forEach(metricCriterion -> metricCriterionMultimap.put(metricCriterion.getMetricKey(), metricCriterion));
-    metricCriterionMultimap.asMap().entrySet().forEach(entry -> {
+    metricCriterionMultimap.asMap().forEach((key, value) -> {
       BoolQueryBuilder metricFilters = boolQuery();
-      entry.getValue()
+      value
         .stream()
         .map(ProjectMeasuresIndex::toQuery)
         .forEach(metricFilters::must);
-      filters.put(entry.getKey(), metricFilters);
+      filters.put(key, metricFilters);
     });
 
     query.getQualityGateStatus()
@@ -308,16 +308,10 @@ public class ProjectMeasuresIndex {
     query.getTags()
       .ifPresent(tags -> filters.put(FIELD_TAGS, termsQuery(FIELD_TAGS, tags)));
 
-    createTextQueryFilter(query).ifPresent(queryBuilder -> filters.put("textQuery", queryBuilder));
+    query.getQueryText()
+      .map(ProjectsTextSearchQueryFactory::createQuery)
+      .ifPresent(queryBuilder -> filters.put("textQuery", queryBuilder));
     return filters;
-  }
-
-  private static Optional<QueryBuilder> createTextQueryFilter(ProjectMeasuresQuery query) {
-    Optional<String> queryText = query.getQueryText();
-    if (!queryText.isPresent()) {
-      return Optional.empty();
-    }
-    return Optional.of(ProjectsTextSearchQueryFactory.createQuery(queryText.get()));
   }
 
   private static QueryBuilder toQuery(MetricCriterion criterion) {

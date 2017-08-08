@@ -65,7 +65,7 @@ public class EsUtils {
     return docs;
   }
 
-  public static LinkedHashMap<String, Long> termsToMap(Terms terms) {
+  public static Map<String, Long> termsToMap(Terms terms) {
     LinkedHashMap<String, Long> map = new LinkedHashMap<>();
     List<? extends Terms.Bucket> buckets = terms.getBuckets();
     for (Terms.Bucket bucket : buckets) {
@@ -115,58 +115,19 @@ public class EsUtils {
     return SPECIAL_REGEX_CHARS.matcher(str).replaceAll("\\\\$0");
   }
 
-  private static class DocScrollIterator<D extends BaseDoc> implements Iterator<D> {
-
-    private final EsClient esClient;
-    private final String scrollId;
-    private final Function<Map<String, Object>, D> docConverter;
-
-    private final Queue<SearchHit> hits = new ArrayDeque<>();
-
-    private DocScrollIterator(EsClient esClient, SearchResponse scrollResponse, Function<Map<String, Object>, D> docConverter) {
-      this.esClient = esClient;
-      this.scrollId = scrollResponse.getScrollId();
-      this.docConverter = docConverter;
-      Collections.addAll(hits, scrollResponse.getHits().getHits());
-    }
-
-    @Override
-    public boolean hasNext() {
-      if (hits.isEmpty()) {
-        SearchScrollRequestBuilder esRequest = esClient.prepareSearchScroll(scrollId)
-          .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
-        Collections.addAll(hits, esRequest.get().getHits().getHits());
-      }
-      return !hits.isEmpty();
-    }
-
-    @Override
-    public D next() {
-      if (!hasNext()) {
-        throw new NoSuchElementException();
-      }
-      return docConverter.apply(hits.poll().getSource());
-    }
-
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException("Cannot remove item when scrolling");
-    }
-  }
-
-  public static <ID> Iterator<ID> scrollIds(EsClient esClient, SearchResponse scrollResponse, Function<String, ID> idConverter) {
+  public static <I> Iterator<I> scrollIds(EsClient esClient, SearchResponse scrollResponse, Function<String, I> idConverter) {
     return new IdScrollIterator<>(esClient, scrollResponse, idConverter);
   }
 
-  private static class IdScrollIterator<ID> implements Iterator<ID> {
+  private static class IdScrollIterator<I> implements Iterator<I> {
 
     private final EsClient esClient;
     private final String scrollId;
-    private final Function<String, ID> idConverter;
+    private final Function<String, I> idConverter;
 
     private final Queue<SearchHit> hits = new ArrayDeque<>();
 
-    private IdScrollIterator(EsClient esClient, SearchResponse scrollResponse, Function<String, ID> idConverter) {
+    private IdScrollIterator(EsClient esClient, SearchResponse scrollResponse, Function<String, I> idConverter) {
       this.esClient = esClient;
       this.scrollId = scrollResponse.getScrollId();
       this.idConverter = idConverter;
@@ -184,7 +145,7 @@ public class EsUtils {
     }
 
     @Override
-    public ID next() {
+    public I next() {
       if (!hasNext()) {
         throw new NoSuchElementException();
       }

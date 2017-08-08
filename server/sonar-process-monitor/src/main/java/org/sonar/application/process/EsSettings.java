@@ -173,7 +173,7 @@ public class EsSettings {
     }
   }
 
-  private void configureAction(Map<String, String> builder) {
+  private static void configureAction(Map<String, String> builder) {
     builder.put("action.auto_create_index", String.valueOf(false));
   }
 }

@@ -90,7 +90,7 @@ public class UserIndex {
             .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_SCM_ACCOUNTS), scmAccount))))
         .setSize(3);
       for (SearchHit hit : request.get().getHits().getHits()) {
-        result.add(new UserDoc(hit.sourceAsMap()));
+        result.add(new UserDoc(hit.getSourceAsMap()));
       }
     }
     return result;

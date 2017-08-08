@@ -215,7 +215,6 @@ public class RuleIndex {
 
   /* Build main filter (match based) */
   private static Map<String, QueryBuilder> buildFilters(RuleQuery query) {
-
     Map<String, QueryBuilder> filters = new HashMap<>();
 
     /* Add enforced filter on rules that are REMOVED */
@@ -255,14 +254,8 @@ public class RuleIndex {
     }
 
     if (isNotEmpty(query.getTags())) {
-      BoolQueryBuilder q = boolQuery();
-      query.getTags().stream()
-        .map(tag -> boolQuery()
-          .filter(QueryBuilders.termQuery(FIELD_RULE_EXTENSION_TAGS, tag))
-          .filter(termsQuery(FIELD_RULE_EXTENSION_SCOPE, RuleExtensionScope.system().getScope(), RuleExtensionScope.organization(query.getOrganization()).getScope())))
-        .map(childQuery -> JoinQueryBuilders.hasChildQuery(INDEX_TYPE_RULE_EXTENSION.getType(), childQuery, ScoreMode.None))
-        .forEach(q::should);
-      filters.put(FIELD_RULE_EXTENSION_TAGS, q);
+      filters.put(FIELD_RULE_EXTENSION_TAGS,
+        buildTagsFilter(query.getTags(), query.getOrganization()));
     }
 
     Collection<RuleType> types = query.getTypes();
@@ -301,20 +294,7 @@ public class RuleIndex {
     /* Implementation of activation query */
     QProfileDto profile = query.getQProfile();
     if (query.getActivation() != null && profile != null) {
-
-      // ActiveRule Filter (profile and inheritance)
-      BoolQueryBuilder activeRuleFilter = boolQuery();
-      addTermFilter(activeRuleFilter, FIELD_ACTIVE_RULE_PROFILE_UUID, profile.getRulesProfileUuid());
-      addTermFilter(activeRuleFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
-      addTermFilter(activeRuleFilter, FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
-
-      // ChildQuery
-      QueryBuilder childQuery;
-      if (activeRuleFilter.hasClauses()) {
-        childQuery = activeRuleFilter;
-      } else {
-        childQuery = matchAllQuery();
-      }
+      QueryBuilder childQuery = buildActivationFilter(query, profile);
 
       if (TRUE.equals(query.getActivation())) {
         filters.put("activation",
@@ -337,6 +317,34 @@ public class RuleIndex {
     }
 
     return filters;
+  }
+
+  private static BoolQueryBuilder buildTagsFilter(Collection<String> tags, OrganizationDto organization) {
+    BoolQueryBuilder q = boolQuery();
+    tags.stream()
+      .map(tag -> boolQuery()
+        .filter(QueryBuilders.termQuery(FIELD_RULE_EXTENSION_TAGS, tag))
+        .filter(termsQuery(FIELD_RULE_EXTENSION_SCOPE, RuleExtensionScope.system().getScope(), RuleExtensionScope.organization(organization).getScope())))
+      .map(childQuery -> JoinQueryBuilders.hasChildQuery(INDEX_TYPE_RULE_EXTENSION.getType(), childQuery, ScoreMode.None))
+      .forEach(q::should);
+    return q;
+  }
+
+  private static QueryBuilder buildActivationFilter(RuleQuery query, QProfileDto profile) {
+    // ActiveRule Filter (profile and inheritance)
+    BoolQueryBuilder activeRuleFilter = boolQuery();
+    addTermFilter(activeRuleFilter, FIELD_ACTIVE_RULE_PROFILE_UUID, profile.getRulesProfileUuid());
+    addTermFilter(activeRuleFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
+    addTermFilter(activeRuleFilter, FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
+
+    // ChildQuery
+    QueryBuilder childQuery;
+    if (activeRuleFilter.hasClauses()) {
+      childQuery = activeRuleFilter;
+    } else {
+      childQuery = matchAllQuery();
+    }
+    return childQuery;
   }
 
   private static BoolQueryBuilder addTermFilter(BoolQueryBuilder filter, String field, @Nullable Collection<String> values) {

@@ -85,14 +85,6 @@ public class CommandFactoryImpl implements CommandFactory {
     settingsMap.forEach((key, value) -> res.addEsOption("-E" + key + "=" + value));
 
     return res;
-
-    // FIXME quid of proxy settings and sonar.search.javaOpts/javaAdditionalOpts
-    // defaults of HTTPS are the same than HTTP defaults
-    // setSystemPropertyToDefaultIfNotSet(command, HTTPS_PROXY_HOST, HTTP_PROXY_HOST);
-    // setSystemPropertyToDefaultIfNotSet(command, HTTPS_PROXY_PORT, HTTP_PROXY_PORT);
-    // command
-    // .addJavaOptions(settings.getProps().nonNullValue(ProcessProperties.SEARCH_JAVA_OPTS))
-    // .addJavaOptions(settings.getProps().nonNullValue(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS));
   }
 
   private Properties buildLog4j2Properties(File logDir) {

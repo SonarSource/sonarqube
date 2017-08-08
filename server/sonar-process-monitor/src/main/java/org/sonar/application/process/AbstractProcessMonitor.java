@@ -30,7 +30,7 @@ import org.sonar.process.ProcessId;
 
 abstract class AbstractProcessMonitor implements ProcessMonitor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(EsProcessMonitor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractProcessMonitor.class);
   private static final int EXPECTED_EXIT_VALUE = 0;
 
   protected final Process process;

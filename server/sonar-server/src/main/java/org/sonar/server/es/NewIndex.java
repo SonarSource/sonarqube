@@ -338,54 +338,62 @@ public class NewIndex {
     }
 
     public NewIndexType build() {
-      Map<String, Object> hash = new TreeMap<>();
       if (subFields.isEmpty()) {
-        hash.putAll(ImmutableMap.of(
-          "type", getFieldType(),
-          "index", disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE,
-          "norms", valueOf(!disableNorms),
-          "store", valueOf(store)));
-        if (getFieldData()) {
-          hash.put(FIELD_FIELDDATA, FIELDDATA_ENABLED);
-        }
-      } else {
-        hash.put("type", getFieldType());
-
-        Map<String, Object> multiFields = new TreeMap<>(subFields);
-
-        if (termVectorWithPositionOffsets) {
-          multiFields.entrySet().forEach(entry -> {
-            Object subFieldMapping = entry.getValue();
-            if (subFieldMapping instanceof Map) {
-              entry.setValue(
-                addFieldToMapping(
-                  (Map<String, String>) subFieldMapping,
-                  FIELD_TERM_VECTOR, "with_positions_offsets"));
-            }
-          });
-          hash.put(FIELD_TERM_VECTOR, "with_positions_offsets");
-        }
-        if (getFieldData()) {
-          multiFields.entrySet().forEach(entry -> {
-            Object subFieldMapping = entry.getValue();
-            if (subFieldMapping instanceof Map) {
-              entry.setValue(
-                addFieldToMapping(
-                  (Map<String, String>) subFieldMapping,
-                  FIELD_FIELDDATA, FIELDDATA_ENABLED));
-            }
-          });
-          hash.put(FIELD_FIELDDATA, FIELDDATA_ENABLED);
-        }
-
-        multiFields.put(fieldName, ImmutableMap.of(
-          "type", getFieldType(),
-          "index", INDEX_SEARCHABLE,
-          "norms", "false",
-          "store", valueOf(store)));
-
-        hash.put("fields", multiFields);
+        return buildWithoutSubfields();
       }
+      return buildWithSubfields();
+    }
+
+    private NewIndexType buildWithoutSubfields() {
+      Map<String, Object> hash = new TreeMap<>();
+      hash.putAll(ImmutableMap.of(
+        "type", getFieldType(),
+        INDEX, disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE,
+        "norms", valueOf(!disableNorms),
+        "store", valueOf(store)));
+      if (getFieldData()) {
+        hash.put(FIELD_FIELDDATA, FIELDDATA_ENABLED);
+      }
+      return indexType.setProperty(fieldName, hash);
+    }
+
+    private NewIndexType buildWithSubfields() {
+      Map<String, Object> hash = new TreeMap<>();
+      hash.put("type", getFieldType());
+
+      Map<String, Object> multiFields = new TreeMap<>(subFields);
+
+      if (termVectorWithPositionOffsets) {
+        multiFields.entrySet().forEach(entry -> {
+          Object subFieldMapping = entry.getValue();
+          if (subFieldMapping instanceof Map) {
+            entry.setValue(
+              addFieldToMapping(
+                (Map<String, String>) subFieldMapping,
+                FIELD_TERM_VECTOR, "with_positions_offsets"));
+          }
+        });
+        hash.put(FIELD_TERM_VECTOR, "with_positions_offsets");
+      }
+      if (getFieldData()) {
+        multiFields.entrySet().forEach(entry -> {
+          Object subFieldMapping = entry.getValue();
+          if (subFieldMapping instanceof Map) {
+            entry.setValue(
+              addFieldToMapping(
+                (Map<String, String>) subFieldMapping,
+                FIELD_FIELDDATA, FIELDDATA_ENABLED));
+          }
+        });
+        hash.put(FIELD_FIELDDATA, FIELDDATA_ENABLED);
+      }
+
+      multiFields.put(fieldName, ImmutableMap.of(
+        "type", getFieldType(),
+        INDEX, INDEX_SEARCHABLE,
+        "norms", "false",
+        "store", valueOf(store)));
+      hash.put("fields", multiFields);
 
       return indexType.setProperty(fieldName, hash);
     }
@@ -463,7 +471,7 @@ public class NewIndex {
     public NestedFieldBuilder addKeywordField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of(
         "type", FIELD_TYPE_KEYWORD,
-        "index", INDEX_SEARCHABLE));
+        INDEX, INDEX_SEARCHABLE));
     }
 
     public NestedFieldBuilder addDoubleField(String fieldName) {

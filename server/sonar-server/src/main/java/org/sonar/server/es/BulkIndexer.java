@@ -151,8 +151,8 @@ public class BulkIndexer {
     while (true) {
       SearchHit[] hits = searchResponse.getHits().getHits();
       for (SearchHit hit : hits) {
-        SearchHitField routing = hit.field("_routing");
-        DeleteRequestBuilder deleteRequestBuilder = client.prepareDelete(hit.index(), hit.type(), hit.getId());
+        SearchHitField routing = hit.getField("_routing");
+        DeleteRequestBuilder deleteRequestBuilder = client.prepareDelete(hit.getIndex(), hit.getType(), hit.getId());
         if (routing != null) {
           deleteRequestBuilder.setRouting(routing.getValue());
         }

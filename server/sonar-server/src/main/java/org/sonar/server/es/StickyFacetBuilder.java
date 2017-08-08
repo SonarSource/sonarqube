@@ -81,7 +81,8 @@ public class StickyFacetBuilder {
    * @param selected the terms, that the user already has selected
    * @return the (global) aggregation, that can be added on top level of the elasticsearch request
    */
-  public AggregationBuilder buildStickyFacet(String fieldName, String facetName, Function<TermsAggregationBuilder, AggregationBuilder> additionalAggregationFilter, Object... selected) {
+  public AggregationBuilder buildStickyFacet(String fieldName, String facetName, Function<TermsAggregationBuilder, AggregationBuilder> additionalAggregationFilter,
+    Object... selected) {
     return buildStickyFacet(fieldName, facetName, FACET_DEFAULT_SIZE, additionalAggregationFilter, selected);
   }
 
