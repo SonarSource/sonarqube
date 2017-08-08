@@ -46,8 +46,6 @@ public class ProjectReactorValidator {
   }
 
   public void validate(ProjectReactor reactor) {
-    String branch = reactor.getRoot().getBranch();
-
     List<String> validationMessages = new ArrayList<>();
 
     for (ProjectDefinition moduleDef : reactor.getProjects()) {
@@ -58,9 +56,13 @@ public class ProjectReactorValidator {
       }
     }
 
-    validateBranchParams(validationMessages, branch, settings.get(ScannerProperties.BRANCH_NAME).orElse(null));
+    String branch = settings.get(ScannerProperties.BRANCH_NAME).orElse(null);
+    String deprecatedBranch = reactor.getRoot().getBranch();
+
+    validateBranchParams(validationMessages, deprecatedBranch, branch);
 
     validateBranch(validationMessages, branch);
+    validateBranch(validationMessages, deprecatedBranch);
 
     if (!validationMessages.isEmpty()) {
       throw MessageException.of("Validation of project reactor failed:\n  o " + Joiner.on("\n  o ").join(validationMessages));
