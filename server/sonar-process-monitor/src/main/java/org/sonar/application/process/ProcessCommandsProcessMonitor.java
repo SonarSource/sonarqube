@@ -20,6 +20,7 @@
 package org.sonar.application.process;
 
 import org.sonar.process.ProcessCommands;
+import org.sonar.process.ProcessId;
 
 import static java.util.Objects.requireNonNull;
 
@@ -27,8 +28,8 @@ class ProcessCommandsProcessMonitor extends AbstractProcessMonitor {
 
   private final ProcessCommands commands;
 
-  ProcessCommandsProcessMonitor(Process process, ProcessCommands commands) {
-    super(process);
+  ProcessCommandsProcessMonitor(Process process, ProcessId processId, ProcessCommands commands) {
+    super(process, processId);
     this.commands = requireNonNull(commands, "commands can't be null");
   }
 

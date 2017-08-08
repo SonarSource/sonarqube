@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.process.ProcessCommands;
+import org.sonar.process.ProcessId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -41,7 +42,7 @@ public class ProcessCommandsProcessMonitorTest {
     Process process = mock(Process.class, RETURNS_DEEP_STUBS);
     ProcessCommands commands = mock(ProcessCommands.class, RETURNS_DEEP_STUBS);
 
-    ProcessCommandsProcessMonitor underTest = new ProcessCommandsProcessMonitor(process, commands);
+    ProcessCommandsProcessMonitor underTest = new ProcessCommandsProcessMonitor(process, ProcessId.WEB_SERVER, commands);
 
     underTest.waitFor();
     verify(process).waitFor();
@@ -68,7 +69,7 @@ public class ProcessCommandsProcessMonitorTest {
     Process process = mock(Process.class, RETURNS_DEEP_STUBS);
     ProcessCommands commands = mock(ProcessCommands.class, RETURNS_DEEP_STUBS);
 
-    ProcessCommandsProcessMonitor underTest = new ProcessCommandsProcessMonitor(process, commands);
+    ProcessCommandsProcessMonitor underTest = new ProcessCommandsProcessMonitor(process, null, commands);
 
     underTest.askForStop();
     verify(commands).askForStop();
@@ -89,7 +90,7 @@ public class ProcessCommandsProcessMonitorTest {
     Process process = mock(Process.class);
     when(process.getInputStream()).thenReturn(null);
 
-    ProcessCommandsProcessMonitor underTest = new ProcessCommandsProcessMonitor(process, commands);
+    ProcessCommandsProcessMonitor underTest = new ProcessCommandsProcessMonitor(process, null, commands);
 
     // no failures
     underTest.closeStreams();
@@ -102,7 +103,7 @@ public class ProcessCommandsProcessMonitorTest {
     Process process = mock(Process.class);
     when(process.getInputStream()).thenReturn(stream);
 
-    ProcessCommandsProcessMonitor underTest = new ProcessCommandsProcessMonitor(process, mock(ProcessCommands.class, Mockito.RETURNS_MOCKS));
+    ProcessCommandsProcessMonitor underTest = new ProcessCommandsProcessMonitor(process, null, mock(ProcessCommands.class, Mockito.RETURNS_MOCKS));
 
     // no failures
     underTest.closeStreams();

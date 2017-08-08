@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.AllProcessesCommands;
 import org.sonar.process.ProcessCommands;
+import org.sonar.process.ProcessId;
 
 import static java.lang.String.format;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
@@ -76,20 +77,21 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   @Override
   public ProcessMonitor launch(EsCommand esCommand) {
     Process process = null;
+    ProcessId processId = esCommand.getProcessId();
     try {
       writeConfFiles(esCommand);
       ProcessBuilder processBuilder = create(esCommand);
-      LOG.info("Launch process[{}]: {}", esCommand.getProcessId().getKey(), String.join(" ", processBuilder.command()));
+      LOG.info("Launch process[{}]: {}", processId.getKey(), String.join(" ", processBuilder.command()));
 
       process = processBuilder.start();
 
-      return new EsProcessMonitor(process, esCommand);
+      return new EsProcessMonitor(process, processId, esCommand);
     } catch (Exception e) {
       // just in case
       if (process != null) {
         process.destroyForcibly();
       }
-      throw new IllegalStateException(format("Fail to launch process [%s]", esCommand.getProcessId().getKey()), e);
+      throw new IllegalStateException(format("Fail to launch process [%s]", processId.getKey()), e);
     }
   }
 
@@ -114,19 +116,20 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   @Override
   public ProcessMonitor launch(JavaCommand javaCommand) {
     Process process = null;
+    ProcessId processId = javaCommand.getProcessId();
     try {
-      ProcessCommands commands = allProcessesCommands.createAfterClean(javaCommand.getProcessId().getIpcIndex());
+      ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
 
       ProcessBuilder processBuilder = create(javaCommand);
-      LOG.info("Launch process[{}]: {}", javaCommand.getProcessId().getKey(), String.join(" ", processBuilder.command()));
+      LOG.info("Launch process[{}]: {}", processId.getKey(), String.join(" ", processBuilder.command()));
       process = processBuilder.start();
-      return new ProcessCommandsProcessMonitor(process, commands);
+      return new ProcessCommandsProcessMonitor(process, processId, commands);
     } catch (Exception e) {
       // just in case
       if (process != null) {
         process.destroyForcibly();
       }
-      throw new IllegalStateException(format("Fail to launch process [%s]", javaCommand.getProcessId().getKey()), e);
+      throw new IllegalStateException(format("Fail to launch process [%s]", processId.getKey()), e);
     }
   }
 

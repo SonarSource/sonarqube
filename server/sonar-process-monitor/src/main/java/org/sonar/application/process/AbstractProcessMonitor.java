@@ -24,12 +24,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.process.ProcessId;
 
 abstract class AbstractProcessMonitor implements ProcessMonitor {
-  protected final Process process;
 
-  protected AbstractProcessMonitor(Process process) {
+  private static final Logger LOG = LoggerFactory.getLogger(EsProcessMonitor.class);
+  private static final int EXPECTED_EXIT_VALUE = 0;
+
+  protected final Process process;
+  private final ProcessId processId;
+
+  protected AbstractProcessMonitor(Process process, ProcessId processId) {
     this.process = process;
+    this.processId = processId;
   }
 
   public InputStream getInputStream() {
@@ -61,7 +70,12 @@ abstract class AbstractProcessMonitor implements ProcessMonitor {
   }
 
   public void waitFor() throws InterruptedException {
-    process.waitFor();
+    int exitValue = process.waitFor();
+    if (exitValue != EXPECTED_EXIT_VALUE) {
+      LOG.warn("Process exited with exit value [{}]: {}", processId.getKey(), exitValue);
+    } else {
+      LOG.debug("Process exited with exit value [{}]: {}", processId.getKey(), exitValue);
+    }
   }
 
   public void waitFor(long timeout, TimeUnit unit) throws InterruptedException {
