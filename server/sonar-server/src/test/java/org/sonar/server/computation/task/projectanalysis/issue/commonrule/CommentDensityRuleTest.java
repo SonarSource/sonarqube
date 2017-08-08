@@ -43,10 +43,12 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 
 public class CommentDensityRuleTest {
 
-  static RuleKey RULE_KEY = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY);
+  private static final String PLUGIN_KEY = "java";
+
+  static RuleKey RULE_KEY = RuleKey.of(CommonRuleKeys.commonRepositoryForLang(PLUGIN_KEY), CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY);
 
   static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, 1)
-    .setFileAttributes(new FileAttributes(false, "java", 1))
+    .setFileAttributes(new FileAttributes(false, PLUGIN_KEY, 1))
     .build();
 
   @Rule
@@ -71,22 +73,22 @@ public class CommentDensityRuleTest {
 
   @Test
   public void no_issues_if_enough_comments() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25"), 1_000L));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25"), 1_000L, PLUGIN_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(90.0, 1));
 
-    DefaultIssue issue = underTest.processFile(FILE, "java");
+    DefaultIssue issue = underTest.processFile(FILE, PLUGIN_KEY);
 
     assertThat(issue).isNull();
   }
 
   @Test
   public void issue_if_not_enough_comments() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25"), 1_000L));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25"), 1_000L, PLUGIN_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(10.0, 1));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_KEY, Measure.newMeasureBuilder().create(40));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.NCLOC_KEY, Measure.newMeasureBuilder().create(360));
 
-    DefaultIssue issue = underTest.processFile(FILE, "java");
+    DefaultIssue issue = underTest.processFile(FILE, PLUGIN_KEY);
 
     assertThat(issue.ruleKey()).isEqualTo(RULE_KEY);
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
@@ -98,12 +100,12 @@ public class CommentDensityRuleTest {
 
   @Test
   public void issue_if_not_enough_comments__test_ceil() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25"), 1_000L));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25"), 1_000L, PLUGIN_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(0.0, 1));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_KEY, Measure.newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.NCLOC_KEY, Measure.newMeasureBuilder().create(1));
 
-    DefaultIssue issue = underTest.processFile(FILE, "java");
+    DefaultIssue issue = underTest.processFile(FILE, PLUGIN_KEY);
 
     assertThat(issue.ruleKey()).isEqualTo(RULE_KEY);
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
@@ -120,11 +122,11 @@ public class CommentDensityRuleTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Minimum density of rule [common-java:InsufficientCommentDensity] is incorrect. Got [100] but must be strictly less than 100.");
 
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "100"), 1_000L));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "100"), 1_000L, PLUGIN_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(0.0, 1));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_KEY, Measure.newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.NCLOC_KEY, Measure.newMeasureBuilder().create(1));
 
-    underTest.processFile(FILE, "java");
+    underTest.processFile(FILE, PLUGIN_KEY);
   }
 }

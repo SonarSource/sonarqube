@@ -43,6 +43,7 @@ public class RuleImpl implements Rule {
   private final Set<String> tags;
   private final DebtRemediationFunction remediationFunction;
   private final RuleType type;
+  private final String pluginKey;
 
   public RuleImpl(RuleDto dto) {
     this.id = dto.getId();
@@ -52,6 +53,7 @@ public class RuleImpl implements Rule {
     this.tags = union(dto.getSystemTags(), dto.getTags());
     this.remediationFunction = effectiveRemediationFunction(dto);
     this.type = RuleType.valueOf(dto.getType());
+    this.pluginKey = dto.getPluginKey();
   }
 
   @Override
@@ -90,6 +92,11 @@ public class RuleImpl implements Rule {
   }
 
   @Override
+  public String getPluginKey() {
+    return pluginKey;
+  }
+
+  @Override
   public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
@@ -114,6 +121,7 @@ public class RuleImpl implements Rule {
       .add("name", name)
       .add("status", status)
       .add("tags", tags)
+      .add("pluginKey", pluginKey)
       .toString();
   }
 

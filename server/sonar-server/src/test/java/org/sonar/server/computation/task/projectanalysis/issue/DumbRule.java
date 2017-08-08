@@ -37,6 +37,7 @@ public class DumbRule implements Rule {
   private RuleType type = RuleType.CODE_SMELL;
   private Set<String> tags = new HashSet<>();
   private DebtRemediationFunction function;
+  private String pluginKey;
 
   public DumbRule(RuleKey key) {
     this.key = key;
@@ -78,6 +79,11 @@ public class DumbRule implements Rule {
     return function;
   }
 
+  @Override
+  public String getPluginKey() {
+    return pluginKey;
+  }
+
   public DumbRule setId(Integer id) {
     this.id = id;
     return this;
@@ -98,11 +104,19 @@ public class DumbRule implements Rule {
     return this;
   }
 
-  public void setTags(Set<String> tags) {
+  public DumbRule setTags(Set<String> tags) {
     this.tags = tags;
+    return this;
   }
 
-  public void setType(RuleType type) {
+  public DumbRule setType(RuleType type) {
     this.type = type;
+    return this;
   }
+
+  public DumbRule setPluginKey(String pluginKey) {
+    this.pluginKey = pluginKey;
+    return this;
+  }
+
 }

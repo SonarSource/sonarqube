@@ -20,12 +20,10 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.util.CloseableIterator;
@@ -36,8 +34,6 @@ import org.sonar.server.computation.task.projectanalysis.issue.RuleRepository;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.server.computation.task.step.ComputationStep;
-
-import static com.google.common.collect.FluentIterable.from;
 
 public class LoadQualityProfilesStep implements ComputationStep {
 
@@ -56,21 +52,16 @@ public class LoadQualityProfilesStep implements ComputationStep {
     List<ActiveRule> activeRules = new ArrayList<>();
     try (CloseableIterator<ScannerReport.ActiveRule> batchActiveRules = batchReportReader.readActiveRules()) {
       while (batchActiveRules.hasNext()) {
-        ScannerReport.ActiveRule batchActiveRule = batchActiveRules.next();
-        activeRules.add(convert(batchActiveRule));
+        ScannerReport.ActiveRule scannerReportActiveRule = batchActiveRules.next();
+        Optional<Rule> rule = ruleRepository.findByKey(RuleKey.of(scannerReportActiveRule.getRuleRepository(), scannerReportActiveRule.getRuleKey()));
+        if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
+          ActiveRule activeRule = convert(scannerReportActiveRule, rule.get());
+          activeRules.add(activeRule);
+        }
       }
     }
 
-    List<ActiveRule> validActiveRules = from(activeRules).filter(new IsValid()).toList();
-    activeRulesHolder.set(validActiveRules);
-  }
-
-  private class IsValid implements Predicate<ActiveRule> {
-    @Override
-    public boolean apply(@Nonnull ActiveRule input) {
-      Optional<Rule> rule = ruleRepository.findByKey(input.getRuleKey());
-      return rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED;
-    }
+    activeRulesHolder.set(activeRules);
   }
 
   @Override
@@ -78,9 +69,9 @@ public class LoadQualityProfilesStep implements ComputationStep {
     return "Load quality profiles";
   }
 
-  private static ActiveRule convert(ScannerReport.ActiveRule input) {
+  private static ActiveRule convert(ScannerReport.ActiveRule input, Rule rule) {
     RuleKey key = RuleKey.of(input.getRuleRepository(), input.getRuleKey());
     Map<String, String> params = new HashMap<>(input.getParamsByKey());
-    return new ActiveRule(key, input.getSeverity().name(), params, input.getCreatedAt());
+    return new ActiveRule(key, input.getSeverity().name(), params, input.getCreatedAt(), rule.getPluginKey());
   }
 }
