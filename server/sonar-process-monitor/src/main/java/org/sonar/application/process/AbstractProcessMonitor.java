@@ -45,6 +45,10 @@ abstract class AbstractProcessMonitor implements ProcessMonitor {
     return process.getInputStream();
   }
 
+  public InputStream getErrorStream() {
+    return process.getErrorStream();
+  }
+
   public void closeStreams() {
     closeQuietly(process.getInputStream());
     closeQuietly(process.getOutputStream());

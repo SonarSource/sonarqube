@@ -261,6 +261,7 @@ public class SQProcessTest {
 
     private final CountDownLatch alive = new CountDownLatch(1);
     private final InputStream inputStream = mock(InputStream.class, Mockito.RETURNS_MOCKS);
+    private final InputStream errorStream = mock(InputStream.class, Mockito.RETURNS_MOCKS);
     private boolean streamsClosed = false;
     private boolean operational = false;
     private boolean askedForRestart = false;
@@ -270,6 +271,11 @@ public class SQProcessTest {
     @Override
     public InputStream getInputStream() {
       return inputStream;
+    }
+
+    @Override
+    public InputStream getErrorStream() {
+      return errorStream;
     }
 
     @Override
