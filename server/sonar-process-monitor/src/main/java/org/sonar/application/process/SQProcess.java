@@ -43,7 +43,8 @@ public class SQProcess {
   private final long watcherDelayMs;
 
   private ProcessMonitor process;
-  private StreamGobbler gobbler;
+  private StreamGobbler stdOutGobbler;
+  private StreamGobbler stdErrGobbler;
   private final StopWatcher stopWatcher;
   private final EventWatcher eventWatcher;
   // keep flag so that the operational event is sent only once
@@ -71,8 +72,10 @@ public class SQProcess {
       lifecycle.tryToMoveTo(Lifecycle.State.STOPPED);
       throw e;
     }
-    this.gobbler = new StreamGobbler(process.getInputStream(), processId.getKey());
-    this.gobbler.start();
+    this.stdOutGobbler = new StreamGobbler(process.getInputStream(), processId.getKey());
+    this.stdOutGobbler.start();
+    this.stdErrGobbler = new StreamGobbler(process.getErrorStream(), processId.getKey());
+    this.stdErrGobbler.start();
     this.stopWatcher.start();
     this.eventWatcher.start();
     // Could be improved by checking the status "up" in shared memory.
@@ -143,9 +146,13 @@ public class SQProcess {
       waitForDown();
       process.closeStreams();
     }
-    if (gobbler != null) {
-      StreamGobbler.waitUntilFinish(gobbler);
-      gobbler.interrupt();
+    if (stdOutGobbler != null) {
+      StreamGobbler.waitUntilFinish(stdOutGobbler);
+      stdOutGobbler.interrupt();
+    }
+    if (stdErrGobbler != null) {
+      StreamGobbler.waitUntilFinish(stdErrGobbler);
+      stdErrGobbler.interrupt();
     }
     lifecycle.tryToMoveTo(Lifecycle.State.STOPPED);
   }

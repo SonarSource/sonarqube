@@ -30,6 +30,11 @@ public interface ProcessMonitor {
   InputStream getInputStream();
 
   /**
+   * @see Process#getErrorStream()
+   */
+  InputStream getErrorStream();
+
+  /**
    * Closes the streams {@link Process#getInputStream()}, {@link Process#getOutputStream()}
    * and {@link Process#getErrorStream()}.
    *

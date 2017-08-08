@@ -404,6 +404,11 @@ public class SchedulerImplTest {
     }
 
     @Override
+    public InputStream getErrorStream() {
+      return mock(InputStream.class, Mockito.RETURNS_MOCKS);
+    }
+
+    @Override
     public void closeStreams() {
     }
 
