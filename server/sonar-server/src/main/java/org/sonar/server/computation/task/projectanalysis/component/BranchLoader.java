@@ -51,7 +51,7 @@ public class BranchLoader {
     if (delegate != null) {
       delegate.load(metadata);
     } else {
-      metadataHolder.setBranch(new MainBranchImpl(deprecatedBranch));
+      metadataHolder.setBranch(new DefaultBranchImpl(deprecatedBranch));
     }
   }
 }
