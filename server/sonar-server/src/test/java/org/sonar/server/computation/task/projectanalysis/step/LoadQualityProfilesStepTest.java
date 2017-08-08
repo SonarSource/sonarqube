@@ -51,8 +51,10 @@ public class LoadQualityProfilesStepTest {
 
   @Test
   public void feed_active_rules() throws Exception {
-    ruleRepository.add(XOO_X1);
-    ruleRepository.add(XOO_X2);
+    ruleRepository.add(XOO_X1)
+      .setPluginKey("xoo");
+    ruleRepository.add(XOO_X2)
+      .setPluginKey("xoo");
 
     ScannerReport.ActiveRule.Builder batch1 = ScannerReport.ActiveRule.newBuilder()
       .setRuleRepository(XOO_X1.repository()).setRuleKey(XOO_X1.rule())
@@ -70,10 +72,12 @@ public class LoadQualityProfilesStepTest {
     Optional<ActiveRule> ar1 = activeRulesHolder.get(XOO_X1);
     assertThat(ar1.get().getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(ar1.get().getParams()).containsExactly(MapEntry.entry("p1", "v1"));
+    assertThat(ar1.get().getPluginKey()).isEqualTo("xoo");
 
     Optional<ActiveRule> ar2 = activeRulesHolder.get(XOO_X2);
     assertThat(ar2.get().getSeverity()).isEqualTo(Severity.MAJOR);
     assertThat(ar2.get().getParams()).isEmpty();
+    assertThat(ar2.get().getPluginKey()).isEqualTo("xoo");
   }
 
   @Test

@@ -21,12 +21,15 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.base.Optional;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolder;
@@ -56,10 +59,13 @@ public class IssueCreationDateCalculatorTest {
   private ActiveRule activeRule;
   private IssueCreationDateCalculator calculator;
   private Analysis baseAnalysis;
+  private Map<String, ScannerPlugin> scannerPlugins;
 
   @Before
   public void before() {
     analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
+    scannerPlugins = new HashMap<>();
+    when(analysisMetadataHolder.getScannerPluginsByKey()).thenReturn(scannerPlugins);
     scmInfoRepository = mock(ScmInfoRepository.class);
     issueUpdater = mock(IssueFieldsSetter.class);
     activeRulesHolder = mock(ActiveRulesHolder.class);
@@ -70,6 +76,8 @@ public class IssueCreationDateCalculatorTest {
     baseAnalysis = mock(Analysis.class);
     calculator = new IssueCreationDateCalculator(analysisMetadataHolder, scmInfoRepository, issueUpdater, activeRulesHolder);
 
+    when(activeRulesHolder.get(any(RuleKey.class)))
+      .thenReturn(Optional.absent());
     when(activeRulesHolder.get(ruleKey))
       .thenReturn(Optional.of(activeRule));
     when(issue.getRuleKey())
@@ -83,7 +91,7 @@ public class IssueCreationDateCalculatorTest {
 
     newIssue();
     noScm();
-    rule(2800L);
+    ruleCreatedAt(2800L);
 
     run();
 
@@ -97,7 +105,9 @@ public class IssueCreationDateCalculatorTest {
 
     newIssue();
     withScm(1200L);
-    rule(1500L);
+    ruleCreatedAt(1500L);
+    rulePlugin("java");
+    pluginUpdatedAt("java", 1700L);
 
     run();
 
@@ -111,7 +121,21 @@ public class IssueCreationDateCalculatorTest {
 
     existingIssue();
     withScm(1200L);
-    rule(2800L);
+    ruleCreatedAt(2800L);
+
+    run();
+
+    assertNoChangeOfCreationDate();
+  }
+
+  @Test
+  public void should_not_fail_for_issue_about_to_be_closed() {
+    previousAnalysisWas(2000L);
+    currentAnalysisIs(3000L);
+
+    existingIssue();
+    when(issue.getRuleKey())
+      .thenReturn(RuleKey.of("repo", "disabled"));
 
     run();
 
@@ -125,7 +149,35 @@ public class IssueCreationDateCalculatorTest {
 
     newIssue();
     withScm(1200L);
-    rule(2800L);
+    ruleCreatedAt(2800L);
+
+    run();
+
+    assertChangeOfCreationDateTo(1200L);
+  }
+
+  @Test
+  public void should_change_date_if_scm_is_available_and_first_analysis() {
+    currentAnalysisIs(3000L);
+
+    newIssue();
+    withScm(1200L);
+
+    run();
+
+    assertChangeOfCreationDateTo(1200L);
+  }
+
+  @Test
+  public void should_change_date_if_scm_is_available_and_plugin_is_new() {
+    previousAnalysisWas(2000L);
+    currentAnalysisIs(3000L);
+
+    newIssue();
+    withScm(1200L);
+    ruleCreatedAt(1500L);
+    rulePlugin("java");
+    pluginUpdatedAt("java", 2500L);
 
     run();
 
@@ -137,6 +189,10 @@ public class IssueCreationDateCalculatorTest {
       .thenReturn(baseAnalysis);
     when(baseAnalysis.getCreatedAt())
       .thenReturn(analysisDate);
+  }
+
+  private void pluginUpdatedAt(String pluginKey, long updatedAt) {
+    scannerPlugins.put(pluginKey, new ScannerPlugin(pluginKey, updatedAt));
   }
 
   private void currentAnalysisIs(long analysisDate) {
@@ -166,8 +222,12 @@ public class IssueCreationDateCalculatorTest {
     when(scmInfo.getLatestChangeset()).thenReturn(changeset);
   }
 
-  private void rule(long createdAt) {
+  private void ruleCreatedAt(long createdAt) {
     when(activeRule.getCreatedAt()).thenReturn(createdAt);
+  }
+
+  private void rulePlugin(String pluginKey) {
+    when(activeRule.getPluginKey()).thenReturn(pluginKey);
   }
 
   private void run() {

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import java.util.Date;
 import java.util.List;
@@ -33,9 +32,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Organization;
+import org.sonar.server.computation.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.organization.BillingValidations;
@@ -45,8 +46,8 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QualityProfile;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Maps.transformValues;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
@@ -54,15 +55,6 @@ import static org.sonar.core.util.stream.MoreCollectors.toList;
  * Feed analysis metadata holder with metadata from the analysis report.
  */
 public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
-
-  private static final ToComputeQProfile TO_COMPUTE_QPROFILE = new ToComputeQProfile();
-
-  private static final class ToComputeQProfile implements Function<QProfile, QualityProfile> {
-    @Override
-    public QualityProfile apply(QProfile input) {
-      return new QualityProfile(input.getKey(), input.getName(), input.getLanguage(), new Date(input.getRulesUpdatedAt()));
-    }
-  }
 
   private final CeTask ceTask;
   private final BatchReportReader reportReader;
@@ -96,7 +88,14 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     mutableAnalysisMetadataHolder.setBranch(isNotEmpty(reportMetadata.getBranch()) ? reportMetadata.getBranch() : null);
     mutableAnalysisMetadataHolder.setCrossProjectDuplicationEnabled(reportMetadata.getCrossProjectDuplicationActivated());
     mutableAnalysisMetadataHolder.setIncrementalAnalysis(reportMetadata.getIncremental());
-    mutableAnalysisMetadataHolder.setQProfilesByLanguage(transformValues(reportMetadata.getQprofilesPerLanguage(), TO_COMPUTE_QPROFILE));
+    mutableAnalysisMetadataHolder.setQProfilesByLanguage(reportMetadata.getQprofilesPerLanguage().values().stream()
+      .collect(toMap(
+        QProfile::getLanguage,
+        qp -> new QualityProfile(qp.getKey(), qp.getName(), qp.getLanguage(), new Date(qp.getRulesUpdatedAt())))));
+    mutableAnalysisMetadataHolder.setScannerPluginsByKey(reportMetadata.getPluginsByKey().values().stream()
+      .collect(toMap(
+        Plugin::getKey,
+        p -> new ScannerPlugin(p.getKey(), p.getUpdatedAt()))));
     mutableAnalysisMetadataHolder.setOrganization(organization);
   }
 
