@@ -5,7 +5,7 @@ exports[`should display correctly for a file 1`] = `
   className="pull-right"
 >
   <span
-    className="note big-spacer-right"
+    className="note spacer-right"
   >
     <span>
       <span
@@ -22,7 +22,11 @@ exports[`should display correctly for a file 1`] = `
     <DeferredSpinner
       loading={false}
       timeout={100}
-    />
+    >
+      <i
+        className="spinner-placeholder"
+      />
+    </DeferredSpinner>
   </div>
 </div>
 `;
@@ -69,7 +73,11 @@ exports[`should display correctly for a project 1`] = `
     <DeferredSpinner
       loading={true}
       timeout={100}
-    />
+    >
+      <i
+        className="spinner-placeholder"
+      />
+    </DeferredSpinner>
   </div>
 </div>
 `;
@@ -84,7 +92,11 @@ exports[`should display the total of files 1`] = `
     <DeferredSpinner
       loading={true}
       timeout={100}
-    />
+    >
+      <i
+        className="spinner-placeholder"
+      />
+    </DeferredSpinner>
     <FilesCounter
       className="spacer-left"
       current={12}
@@ -104,7 +116,11 @@ exports[`should not display shortcuts for treemap 1`] = `
     <DeferredSpinner
       loading={true}
       timeout={100}
-    />
+    >
+      <i
+        className="spinner-placeholder"
+      />
+    </DeferredSpinner>
   </div>
 </div>
 `;
