@@ -23,6 +23,8 @@ import { AutoSizer } from 'react-virtualized';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import TreeMap from '../../../components/charts/TreeMap';
+import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
+import ColorGradientLegend from '../../../components/charts/ColorGradientLegend';
 import { translate, translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getComponentUrl } from '../../../helpers/urls';
@@ -41,6 +43,8 @@ type State = {
 };
 
 const HEIGHT = 500;
+const COLORS = ['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f'];
+const LEVEL_COLORS = ['#d4333f', '#ed7d20', '#00aa00', '#b4b4b4'];
 
 export default class TreeMapView extends React.PureComponent {
   props: Props;
@@ -52,7 +56,7 @@ export default class TreeMapView extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.components !== this.props.components) {
+    if (nextProps.components !== this.props.components || nextProps.metric !== this.props.metric) {
       this.setState({ treemapItems: this.getTreemapComponents(nextProps) });
     }
   }
@@ -95,24 +99,15 @@ export default class TreeMapView extends React.PureComponent {
   };
 
   getLevelColorScale = () =>
-    scaleOrdinal()
-      .domain(['ERROR', 'WARN', 'OK', 'NONE'])
-      .range(['#d4333f', '#ed7d20', '#00aa00', '#b4b4b4']);
+    scaleOrdinal().domain(['ERROR', 'WARN', 'OK', 'NONE']).range(LEVEL_COLORS);
 
   getPercentColorScale = (metric: Metric) => {
     const color = scaleLinear().domain([0, 25, 50, 75, 100]);
-    color.range(
-      metric.direction === 1
-        ? ['#d4333f', '#ed7d20', '#eabe06', '#b0d513', '#00aa00']
-        : ['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f']
-    );
+    color.range(metric.direction === 1 ? COLORS.reverse() : COLORS);
     return color;
   };
 
-  getRatingColorScale = () =>
-    scaleLinear()
-      .domain([1, 2, 3, 4, 5])
-      .range(['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f']);
+  getRatingColorScale = () => scaleLinear().domain([1, 2, 3, 4, 5]).range(COLORS);
 
   getColorScale = (metric: Metric) => {
     if (metric.type === 'LEVEL') {
@@ -144,6 +139,30 @@ export default class TreeMapView extends React.PureComponent {
     );
   };
 
+  renderLegend() {
+    const { metric } = this.props;
+    const colorScale = this.getColorScale(metric);
+    if (['LEVEL', 'RATING'].includes(metric.type)) {
+      return (
+        <ColorBoxLegend
+          className="measure-details-treemap-legend color-box-full"
+          colorScale={colorScale}
+          metricType={metric.type}
+        />
+      );
+    }
+    return (
+      <ColorGradientLegend
+        className="measure-details-treemap-legend"
+        colorScale={colorScale}
+        colorNA="#777"
+        direction={metric.direction}
+        height={20}
+        width={200}
+      />
+    );
+  }
+
   render() {
     return (
       <div className="measure-details-treemap">
@@ -159,6 +178,9 @@ export default class TreeMapView extends React.PureComponent {
               'component_measures.legend.size_x',
               translate('metric.ncloc.name')
             )}
+          </li>
+          <li className="pull-right">
+            {this.renderLegend()}
           </li>
         </ul>
         <AutoSizer>

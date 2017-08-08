@@ -263,7 +263,11 @@
   text-anchor: end;
 }
 
-.color-ratings-legend {
+/*
+ * Legends
+ */
+
+.color-box-legend {
   display: flex;
   justify-content: center;
 
@@ -271,7 +275,7 @@
     margin-left: 24px;
   }
 
-  .color-ratings-legend-rect {
+  .color-box-legend-rect {
     display: inline-block;
     vertical-align: top;
     margin-top: 1px;
@@ -279,11 +283,32 @@
     border: 1px solid;
   }
 
-  .color-ratings-legend-rect-inner {
+  .color-box-legend-rect-inner {
     display: block;
     width: 8px;
     height: 8px;
     opacity: 0.2;
+  }
+
+  &.color-box-full .color-box-legend-rect-inner {
+    opacity: 1;
+  }
+}
+
+.gradient-legend-text,
+.gradient-legend-na {
+  text-anchor: middle;
+  fill: @secondFontColor;
+  font-size: 10px;
+}
+
+.gradient-legend-text {
+  &:first-of-type {
+    text-anchor: start;
+  }
+
+  &:last-of-type {
+    text-anchor: end;
   }
 }
 
