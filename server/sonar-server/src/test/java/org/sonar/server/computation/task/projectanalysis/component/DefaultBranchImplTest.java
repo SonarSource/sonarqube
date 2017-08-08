@@ -30,7 +30,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MainBranchImplTest {
+public class DefaultBranchImplTest {
 
   private static final ScannerReport.Component PROJECT = ScannerReport.Component.newBuilder().setType(ComponentType.PROJECT).setKey("P").build();
   private static final ScannerReport.Component MODULE = ScannerReport.Component.newBuilder().setType(ComponentType.MODULE).setKey("M").build();
@@ -51,7 +51,7 @@ public class MainBranchImplTest {
 
   @Test
   public void default_branch_represents_the_project() {
-    MainBranchImpl branch = new MainBranchImpl(null);
+    DefaultBranchImpl branch = new DefaultBranchImpl(null);
 
     assertThat(branch.isMain()).isTrue();
     assertThat(branch.getType()).isEqualTo(BranchType.LONG);
@@ -65,7 +65,7 @@ public class MainBranchImplTest {
 
   @Test
   public void branch_represents_a_forked_project_with_different_key() {
-    MainBranchImpl branch = new MainBranchImpl("bar");
+    DefaultBranchImpl branch = new DefaultBranchImpl("bar");
 
     // not a real branch. Parameter sonar.branch forks project.
     assertThat(branch.isMain()).isTrue();
@@ -79,7 +79,7 @@ public class MainBranchImplTest {
   }
 
   private void assertThatNameIsCorrect(@Nullable String name) {
-    MainBranchImpl branch = new MainBranchImpl(name);
+    DefaultBranchImpl branch = new DefaultBranchImpl(name);
     assertThat(branch.getName()).hasValue(name);
   }
 
@@ -87,6 +87,6 @@ public class MainBranchImplTest {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("\"" + name + "\" is not a valid branch name. Allowed characters are alphanumeric, '-', '_', '.' and '/'.");
 
-    new MainBranchImpl(name);
+    new DefaultBranchImpl(name);
   }
 }
