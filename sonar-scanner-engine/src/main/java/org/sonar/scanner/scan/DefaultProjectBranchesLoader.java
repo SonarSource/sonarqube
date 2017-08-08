@@ -50,7 +50,7 @@ public class DefaultProjectBranchesLoader implements ProjectBranchesLoader {
     GetRequest request = new GetRequest(getUrl(projectKey));
     try {
       WsResponse call = wsClient.call(request);
-      ProjectBranches.create(settings, parseResponse(call));
+      return ProjectBranches.create(settings, parseResponse(call));
     } catch (RuntimeException e) {
       LOG.debug("Project branches not available - continuing without it");
     } catch (IOException e) {
