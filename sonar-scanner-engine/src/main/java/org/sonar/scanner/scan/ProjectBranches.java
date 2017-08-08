@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.ScannerProperties;
 
 public class ProjectBranches {
@@ -75,7 +76,7 @@ public class ProjectBranches {
       branchType = info.type;
     } else {
       String longLivedBranchesRegex = settings.get(CoreProperties.LONG_LIVED_BRANCHES_REGEX)
-        .orElseThrow(() -> new IllegalStateException("Property must exist: " + CoreProperties.LONG_LIVED_BRANCHES_REGEX));
+        .orElseThrow(() -> MessageException.of("Property must exist: " + CoreProperties.LONG_LIVED_BRANCHES_REGEX));
 
       if (branchName.matches(longLivedBranchesRegex)) {
         branchType = BranchType.LONG;
@@ -87,9 +88,9 @@ public class ProjectBranches {
     String branchTarget = StringUtils.trimToNull(settings.get(ScannerProperties.BRANCH_TARGET).orElse(null));
     if (branchTarget != null) {
       if (!branches.containsKey(branchTarget)) {
-        throw new IllegalStateException("Target branch does not exist on server: " + branchTarget);
+        throw MessageException.of("Target branch does not exist on server: " + branchTarget);
       } else if (branches.get(branchTarget).type != BranchType.LONG) {
-        throw new IllegalStateException("Target branch is not long-lived: " + branchTarget);
+        throw MessageException.of("Target branch is not long-lived: " + branchTarget);
       }
     }
 
