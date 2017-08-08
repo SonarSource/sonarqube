@@ -25,6 +25,7 @@ import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.ScannerProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,7 +83,7 @@ public class ProjectBranchesTest {
 
   @Test
   public void should_fail_when_longLived_regex_property_missing() {
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Property must exist");
 
     String branchName = "long";
@@ -92,7 +93,7 @@ public class ProjectBranchesTest {
 
   @Test
   public void should_fail_when_branchTarget_nonexistent() {
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Target branch does not exist");
 
     String branchName = "long";
@@ -116,7 +117,7 @@ public class ProjectBranchesTest {
 
   @Test
   public void should_fail_when_target_branch_is_not_long() {
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Target branch is not long-lived");
 
     String branchName = "dummy";
