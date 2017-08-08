@@ -44,6 +44,12 @@ public interface Branch extends ComponentKeyGenerator {
   Optional<String> getName();
 
   /**
+   * For short living branches, indicates the branch from which it was forked.
+   * It will be empty for other types of branches. 
+   */
+  Optional<String> getMergeBranchName();
+  
+  /**
    * Whether the cross-project duplication tracker must be enabled
    * or not.
    */
