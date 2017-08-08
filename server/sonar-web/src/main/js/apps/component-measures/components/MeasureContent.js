@@ -57,7 +57,8 @@ type Props = {|
 type State = {
   components: Array<ComponentEnhanced>,
   metric: ?Metric,
-  paging?: Paging
+  paging?: Paging,
+  view: ?string
 };
 
 export default class MeasureContent extends React.PureComponent {
@@ -66,7 +67,8 @@ export default class MeasureContent extends React.PureComponent {
   state: State = {
     components: [],
     metric: null,
-    paging: null
+    paging: null,
+    view: null
   };
 
   componentDidMount() {
@@ -110,21 +112,26 @@ export default class MeasureContent extends React.PureComponent {
 
   fetchComponents = ({ component, metric, metrics, view }: Props) => {
     if (isFileType(component)) {
-      return this.setState({ components: [], metric: null, paging: null });
+      return this.setState({ components: [], metric: null, paging: null, view: null });
     }
 
     const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, metric);
     this.props.updateLoading({ components: true });
     getComponentTree(strategy, component.key, metricKeys, opts).then(
       r => {
-        if (this.mounted) {
-          this.setState({
-            components: r.components.map(component => enhanceComponent(component, metric, metrics)),
-            metric,
-            paging: r.paging
-          });
+        if (metric === this.props.metric) {
+          if (this.mounted) {
+            this.setState({
+              components: r.components.map(component =>
+                enhanceComponent(component, metric, metrics)
+              ),
+              metric,
+              paging: r.paging,
+              view
+            });
+          }
+          this.props.updateLoading({ components: false });
         }
-        this.props.updateLoading({ components: false });
       },
       () => this.props.updateLoading({ components: false })
     );
@@ -142,24 +149,27 @@ export default class MeasureContent extends React.PureComponent {
     this.props.updateLoading({ components: true });
     getComponentTree(strategy, component.key, metricKeys, opts).then(
       r => {
-        if (this.mounted) {
-          this.setState(state => ({
-            components: [
-              ...state.components,
-              ...r.components.map(component => enhanceComponent(component, metric, metrics))
-            ],
-            metric,
-            paging: r.paging
-          }));
+        if (metric === this.props.metric) {
+          if (this.mounted) {
+            this.setState(state => ({
+              components: [
+                ...state.components,
+                ...r.components.map(component => enhanceComponent(component, metric, metrics))
+              ],
+              metric,
+              paging: r.paging,
+              view
+            }));
+          }
+          this.props.updateLoading({ components: false });
         }
-        this.props.updateLoading({ components: false });
       },
       () => this.props.updateLoading({ components: false })
     );
   };
 
   renderContent() {
-    const { component, leakPeriod, view } = this.props;
+    const { component, leakPeriod } = this.props;
 
     if (isFileType(component)) {
       const leakPeriodDate =
@@ -185,7 +195,7 @@ export default class MeasureContent extends React.PureComponent {
       );
     }
 
-    const { metric } = this.state;
+    const { metric, view } = this.state;
     if (metric == null) {
       return null;
     }

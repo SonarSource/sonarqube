@@ -78,14 +78,11 @@ export default class MeasureOverview extends React.PureComponent {
   }
 
   fetchComponents = (props: Props) => {
-    const { component, metrics } = props;
+    const { component, domain, metrics } = props;
     if (isFileType(component)) {
       return this.setState({ components: [], paging: null });
     }
-    const { xMetric, yMetric, sizeMetric, colorsMetric } = getBubbleMetrics(
-      props.domain,
-      props.metrics
-    );
+    const { xMetric, yMetric, sizeMetric, colorsMetric } = getBubbleMetrics(domain, metrics);
     const metricsKey = [xMetric.key, yMetric.key, sizeMetric.key];
     if (colorsMetric) {
       metricsKey.push(colorsMetric.map(metric => metric.key));
@@ -100,11 +97,13 @@ export default class MeasureOverview extends React.PureComponent {
     this.props.updateLoading({ bubbles: true });
     getComponentLeaves(component.key, metricsKey, options).then(
       r => {
-        if (this.mounted) {
-          this.setState({
-            components: r.components.map(component => enhanceComponent(component, null, metrics)),
-            paging: r.paging
-          });
+        if (domain === this.props.domain) {
+          if (this.mounted) {
+            this.setState({
+              components: r.components.map(component => enhanceComponent(component, null, metrics)),
+              paging: r.paging
+            });
+          }
           this.props.updateLoading({ bubbles: false });
         }
       },
