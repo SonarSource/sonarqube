@@ -31,6 +31,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
