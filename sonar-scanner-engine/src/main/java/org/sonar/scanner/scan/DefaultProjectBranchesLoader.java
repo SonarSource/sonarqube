@@ -19,10 +19,8 @@
  */
 package org.sonar.scanner.scan;
 
-import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.io.Reader;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,12 +28,10 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.scanner.util.ScannerUtils;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsResponse;
 
 public class DefaultProjectBranchesLoader implements ProjectBranchesLoader {
@@ -52,8 +48,8 @@ public class DefaultProjectBranchesLoader implements ProjectBranchesLoader {
   @Override
   public ProjectBranches load(String projectKey, Configuration settings) {
     GetRequest request = new GetRequest(getUrl(projectKey));
-    WsResponse call = wsClient.call(request);
     try {
+      WsResponse call = wsClient.call(request);
       ProjectBranches.create(settings, parseResponse(call));
     } catch (RuntimeException e) {
       LOG.debug("Project branches not available - continuing without it");
@@ -65,20 +61,6 @@ public class DefaultProjectBranchesLoader implements ProjectBranchesLoader {
 
   private static String getUrl(String projectKey) {
     return PROJECT_BRANCHES_URL + "?project=" + ScannerUtils.encodeForUrl(projectKey);
-  }
-
-  private static boolean shouldThrow(Exception e) {
-    for (Throwable t : Throwables.getCausalChain(e)) {
-      if (t instanceof HttpException) {
-        HttpException http = (HttpException) t;
-        return http.code() != HttpURLConnection.HTTP_NOT_FOUND;
-      }
-      if (t instanceof MessageException) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   private static class WsProjectBranch {
