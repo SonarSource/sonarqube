@@ -55,7 +55,7 @@ export default class PageActions extends React.PureComponent {
 
   renderFileShortcuts() {
     return (
-      <span className="note big-spacer-right">
+      <span className="note spacer-right">
         <span>
           <span className="shortcut-button little-spacer-right">←</span>
           {translate('component_measures.to_navigate_back')}
@@ -72,7 +72,9 @@ export default class PageActions extends React.PureComponent {
         {!isFile && showShortcuts && this.renderShortcuts()}
         {isFile && this.renderFileShortcuts()}
         <div className="measure-details-page-actions">
-          <DeferredSpinner loading={this.props.loading} />
+          <DeferredSpinner loading={this.props.loading}>
+            <i className="spinner-placeholder" />
+          </DeferredSpinner>
           {paging != null &&
             <FilesCounter
               className="spacer-left"
