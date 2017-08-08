@@ -43,7 +43,7 @@ import org.sonar.server.computation.task.projectanalysis.analysis.Project;
 import org.sonar.server.computation.task.projectanalysis.component.BranchPersisterDelegate;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
-import org.sonar.server.computation.task.projectanalysis.component.MainBranchImpl;
+import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDisabledComponentsHolder;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
@@ -893,7 +893,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   private ComponentDto prepareProject(Consumer<ComponentDto>... populators) {
     ComponentDto dto = db.components().insertPrivateProject(db.organizations().insert(), populators);
     analysisMetadataHolder.setProject(Project.copyOf(dto));
-    analysisMetadataHolder.setBranch(new MainBranchImpl(null));
+    analysisMetadataHolder.setBranch(new DefaultBranchImpl(null));
     return dto;
   }
 
@@ -919,6 +919,11 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     @Override
     public boolean isMain() {
       return false;
+    }
+    
+    @Override
+    public java.util.Optional<String> getMergeBranchName() {
+      return java.util.Optional.empty();
     }
 
     @Override
