@@ -21,24 +21,37 @@
 import React from 'react';
 import classNames from 'classnames';
 import { formatMeasure } from '../../helpers/measures';
-import { RATING_COLORS } from '../../helpers/constants';
 
-export default function ColorRatingsLegend({ className }: { className?: string }) {
+type Props = {
+  className?: string,
+  colorScale: Object,
+  colorNA?: string,
+  metricType: string
+};
+
+export default function ColorBoxLegend({ className, colorScale, colorNA, metricType }: Props) {
+  const colorDomain = colorScale.domain();
+  const colorRange = colorScale.range();
   return (
     <div className={classNames('color-box-legend', className)}>
-      {[1, 2, 3, 4, 5].map(rating =>
-        <div key={rating}>
-          <span
-            className="color-box-legend-rect"
-            style={{ borderColor: RATING_COLORS[rating - 1] }}>
+      {colorDomain.map((value, idx) =>
+        <div key={value}>
+          <span className="color-box-legend-rect" style={{ borderColor: colorRange[idx] }}>
             <span
               className="color-box-legend-rect-inner"
-              style={{ backgroundColor: RATING_COLORS[rating - 1] }}
+              style={{ backgroundColor: colorRange[idx] }}
             />
           </span>
-          {formatMeasure(rating, 'RATING')}
+          {formatMeasure(value, metricType)}
         </div>
       )}
+      {colorNA &&
+        <div>
+          <span className="color-box-legend-rect" style={{ borderColor: colorNA }}>
+            <span className="color-box-legend-rect-inner" style={{ backgroundColor: colorNA }} />
+          </span>
+          N/A
+        </div>}
     </div>
   );
 }
