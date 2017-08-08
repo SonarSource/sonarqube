@@ -41,7 +41,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
-import org.sonar.server.computation.task.projectanalysis.component.MainBranchImpl;
+import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
@@ -53,7 +53,7 @@ public class ValidateProjectStepTest {
   static long DEFAULT_ANALYSIS_TIME = 1433131200000L; // 2015-06-01
   static final String PROJECT_KEY = "PROJECT_KEY";
   static final String MODULE_KEY = "MODULE_KEY";
-  static final Branch DEFAULT_BRANCH = new MainBranchImpl(null);
+  static final Branch DEFAULT_BRANCH = new DefaultBranchImpl(null);
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
