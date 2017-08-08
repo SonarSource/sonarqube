@@ -20,12 +20,16 @@
 package org.sonarqube.tests;
 
 import com.sonar.orchestrator.Orchestrator;
+import org.junit.ClassRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import org.sonarqube.tests.issue.AutoAssignTest;
 import org.sonarqube.tests.issue.CommonRulesTest;
 import org.sonarqube.tests.issue.CustomRulesTest;
 import org.sonarqube.tests.issue.IssueActionTest;
 import org.sonarqube.tests.issue.IssueBulkChangeTest;
 import org.sonarqube.tests.issue.IssueChangelogTest;
+import org.sonarqube.tests.issue.IssueCreationDateQPChangedTest;
 import org.sonarqube.tests.issue.IssueCreationTest;
 import org.sonarqube.tests.issue.IssueFilterExtensionTest;
 import org.sonarqube.tests.issue.IssueFilterOnCommonRulesTest;
@@ -51,9 +55,6 @@ import org.sonarqube.tests.test.CoverageTest;
 import org.sonarqube.tests.test.CoverageTrackingTest;
 import org.sonarqube.tests.test.NewCoverageTest;
 import org.sonarqube.tests.test.TestExecutionTest;
-import org.junit.ClassRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
@@ -85,6 +86,7 @@ import static util.ItUtils.xooPlugin;
   IssueTrackingTest.class,
   IssueWorkflowTest.class,
   NewIssuesMeasureTest.class,
+  IssueCreationDateQPChangedTest.class,
   // debt
   MaintainabilityMeasureTest.class,
   MaintainabilityRatingMeasureTest.class,
