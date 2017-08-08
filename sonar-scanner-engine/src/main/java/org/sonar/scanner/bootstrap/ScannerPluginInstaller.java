@@ -27,9 +27,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -60,12 +60,12 @@ public class ScannerPluginInstaller implements PluginInstaller {
   }
 
   @Override
-  public Map<String, PluginInfo> installRemotes() {
+  public Map<String, ScannerPlugin> installRemotes() {
     return loadPlugins(listInstalledPlugins());
   }
 
-  private Map<String, PluginInfo> loadPlugins(InstalledPlugin[] remotePlugins) {
-    Map<String, PluginInfo> infosByKey = new HashMap<>(remotePlugins.length);
+  private Map<String, ScannerPlugin> loadPlugins(InstalledPlugin[] remotePlugins) {
+    Map<String, ScannerPlugin> infosByKey = new HashMap<>(remotePlugins.length);
 
     Profiler profiler = Profiler.create(LOG).startDebug("Load plugins");
 
@@ -73,7 +73,7 @@ public class ScannerPluginInstaller implements PluginInstaller {
       if (pluginPredicate.apply(installedPlugin.key)) {
         File jarFile = download(installedPlugin);
         PluginInfo info = PluginInfo.create(jarFile);
-        infosByKey.put(info.getKey(), info);
+        infosByKey.put(info.getKey(), new ScannerPlugin(installedPlugin.key, installedPlugin.updatedAt, info));
       }
     }
 
@@ -82,12 +82,12 @@ public class ScannerPluginInstaller implements PluginInstaller {
   }
 
   /**
-   * Returns empty on purpose. This method is used only by tests.
+   * Returns empty on purpose. This method is used only by medium tests.
    * @see org.sonar.scanner.mediumtest.ScannerMediumTester
    */
   @Override
-  public Map<String, Plugin> installLocals() {
-    return Collections.emptyMap();
+  public List<Object[]> installLocals() {
+    return Collections.emptyList();
   }
 
   @VisibleForTesting
@@ -125,6 +125,7 @@ public class ScannerPluginInstaller implements PluginInstaller {
     String key;
     String hash;
     String filename;
+    long updatedAt;
   }
 
   private class FileDownloader implements FileCache.Downloader {

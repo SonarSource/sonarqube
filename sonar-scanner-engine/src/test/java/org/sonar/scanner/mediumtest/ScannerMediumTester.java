@@ -106,12 +106,20 @@ public class ScannerMediumTester extends ExternalResource {
   }
 
   public ScannerMediumTester registerPlugin(String pluginKey, File location) {
-    pluginInstaller.add(pluginKey, location);
+    return registerPlugin(pluginKey, location, 1L);
+  }
+
+  public ScannerMediumTester registerPlugin(String pluginKey, File location, long lastUpdatedAt) {
+    pluginInstaller.add(pluginKey, location, lastUpdatedAt);
     return this;
   }
 
   public ScannerMediumTester registerPlugin(String pluginKey, Plugin instance) {
-    pluginInstaller.add(pluginKey, instance);
+    return registerPlugin(pluginKey, instance, 1L);
+  }
+
+  public ScannerMediumTester registerPlugin(String pluginKey, Plugin instance, long lastUpdatedAt) {
+    pluginInstaller.add(pluginKey, instance, lastUpdatedAt);
     return this;
   }
 

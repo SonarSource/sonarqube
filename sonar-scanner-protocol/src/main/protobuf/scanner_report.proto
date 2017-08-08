@@ -37,13 +37,19 @@ message Metadata {
   int32 root_component_ref = 5;
   bool cross_project_duplication_activated = 6;
   map<string, QProfile> qprofiles_per_language = 7;
-  bool incremental = 8;
+  map<string, Plugin> plugins_by_key = 8;
+  bool incremental = 9;
 
   message QProfile {
     string key = 1;
     string name = 2;
     string language = 3;
     int64 rulesUpdatedAt = 4;
+  }
+  
+  message Plugin {
+    string key = 1;
+    int64 updatedAt = 2;
   }
 }
 
