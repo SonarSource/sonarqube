@@ -19,8 +19,11 @@
  */
 // @flow
 import React from 'react';
+import key from 'keymaster';
+import { throttle } from 'lodash';
 import ComponentsList from './ComponentsList';
 import ListFooter from '../../../components/controls/ListFooter';
+import { scrollToElement } from '../../../helpers/scrolling';
 import type { ComponentEnhanced, Paging } from '../types';
 import type { Metric } from '../../../store/metrics/actions';
 
@@ -28,26 +31,104 @@ type Props = {|
   components: Array<ComponentEnhanced>,
   fetchMore: () => void,
   handleSelect: string => void,
+  handleOpen: string => void,
   metric: Metric,
   metrics: { [string]: Metric },
-  paging: ?Paging
+  paging: ?Paging,
+  selectedKey: ?string,
+  selectedIdx: ?number
 |};
 
-export default function ListView(props: Props) {
-  return (
-    <div>
-      <ComponentsList
-        components={props.components}
-        metrics={props.metrics}
-        metric={props.metric}
-        onClick={props.handleSelect}
-      />
-      {props.paging &&
-        <ListFooter
-          count={props.components.length}
-          total={props.paging.total}
-          loadMore={props.fetchMore}
-        />}
-    </div>
-  );
+export default class ListView extends React.PureComponent {
+  listContainer: HTMLElement;
+  props: Props;
+
+  constructor(props: Props) {
+    super(props);
+    this.selectNext = throttle(this.selectNext, 100);
+    this.selectPrevious = throttle(this.selectPrevious, 100);
+  }
+
+  componentDidMount() {
+    this.attachShortcuts();
+  }
+
+  componentDidUpdate() {
+    if (this.listContainer && this.props.selectedIdx != null) {
+      const elem = this.listContainer.getElementsByClassName('selected')[0];
+      if (elem) {
+        scrollToElement(elem, { topOffset: 215, bottomOffset: 100 });
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    this.detachShortcuts();
+  }
+
+  attachShortcuts() {
+    key('up', 'measures-files', () => {
+      this.selectPrevious();
+      return false;
+    });
+    key('down', 'measures-files', () => {
+      this.selectNext();
+      return false;
+    });
+    key('right', 'measures-files', () => {
+      this.openSelected();
+      return false;
+    });
+  }
+
+  detachShortcuts() {
+    ['up', 'down', 'right'].map(action => key.unbind(action, 'measures-files'));
+  }
+
+  openSelected = () => {
+    if (this.props.selectedKey != null) {
+      this.props.handleOpen(this.props.selectedKey);
+    }
+  };
+
+  selectPrevious = () => {
+    const { selectedIdx } = this.props;
+    if (selectedIdx != null && selectedIdx > 0) {
+      this.props.handleSelect(this.props.components[selectedIdx - 1].key);
+    } else {
+      this.props.handleSelect(this.props.components[this.props.components.length - 1].key);
+    }
+  };
+
+  selectNext = () => {
+    const { selectedIdx } = this.props;
+    if (selectedIdx != null && selectedIdx < this.props.components.length - 1) {
+      this.props.handleSelect(this.props.components[selectedIdx + 1].key);
+    } else {
+      this.props.handleSelect(this.props.components[0].key);
+    }
+  };
+
+  render() {
+    return (
+      <div
+        ref={elem => {
+          this.listContainer = elem;
+        }}>
+        <ComponentsList
+          components={this.props.components}
+          metrics={this.props.metrics}
+          metric={this.props.metric}
+          onClick={this.props.handleOpen}
+          selectedComponent={this.props.selectedKey}
+        />
+        {this.props.paging &&
+          <ListFooter
+            count={this.props.components.length}
+            total={this.props.paging.total}
+            loadMore={this.props.fetchMore}
+          />}
+      </div>
+    );
+  }
 }

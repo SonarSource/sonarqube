@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import classNames from 'classnames';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { splitPath } from '../../../helpers/path';
 import { getComponentUrl } from '../../../helpers/urls';
@@ -27,7 +26,6 @@ import type { Component } from '../types';
 
 type Props = {
   component: Component,
-  isSelected: boolean,
   onClick: string => void
 };
 
@@ -69,24 +67,20 @@ export default class ComponentCell extends React.PureComponent {
 
   render() {
     const { component } = this.props;
-    const linkClassName = classNames('link-no-underline', {
-      selected: this.props.isSelected
-    });
-
     return (
       <td className="measure-details-component-cell">
         <div className="text-ellipsis">
           {component.refId == null
             ? <a
                 id={'component-measures-component-link-' + component.key}
-                className={linkClassName}
+                className="link-no-underline"
                 href={getComponentUrl(component.key)}
                 onClick={this.handleClick}>
                 {this.renderInner()}
               </a>
             : <a
                 id={'component-measures-component-link-' + component.key}
-                className={linkClassName}
+                className="link-no-underline"
                 href={getComponentUrl(component.refKey || component.key)}>
                 <span className="big-spacer-right">
                   <i className="icon-detach" />
