@@ -23,7 +23,6 @@ import com.google.common.net.HostAndPort;
 import io.netty.util.ThreadDeathWatcher;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,7 +61,7 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
   private final EsCommand esCommand;
   private AtomicReference<TransportClient> transportClient = new AtomicReference<>(null);
 
-  public EsProcessMonitor(Process process, ProcessId processId, EsCommand esCommand) throws MalformedURLException {
+  public EsProcessMonitor(Process process, ProcessId processId, EsCommand esCommand) {
     super(process, processId);
     this.esCommand = esCommand;
   }
@@ -165,7 +164,7 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
   }
 
   private TransportClient buildTransportClient() {
-    org.elasticsearch.common.settings.Settings.Builder esSettings = org.elasticsearch.common.settings.Settings.builder();
+    Settings.Builder esSettings = Settings.builder();
 
     // mandatory property defined by bootstrap process
     esSettings.put("cluster.name", esCommand.getClusterName());

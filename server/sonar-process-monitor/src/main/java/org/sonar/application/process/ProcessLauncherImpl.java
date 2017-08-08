@@ -81,7 +81,9 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     try {
       writeConfFiles(esCommand);
       ProcessBuilder processBuilder = create(esCommand);
-      LOG.info("Launch process[{}]: {}", processId.getKey(), String.join(" ", processBuilder.command()));
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Launch process[{}]: {}", processId.getKey(), String.join(" ", processBuilder.command()));
+      }
 
       process = processBuilder.start();
 
@@ -108,7 +110,6 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       IOUtils.copy(getClass().getResourceAsStream("jvm.options"), new FileOutputStream(new File(confDir, "jvm.options")));
       esCommand.getLog4j2Properties().store(new FileOutputStream(new File(confDir, "log4j2.properties")), "log42 properties file for ES bundled in SonarQube");
     } catch (IOException e) {
-      e.printStackTrace();
       throw new IllegalStateException("Failed to write ES configuration files", e);
     }
   }
@@ -121,7 +122,9 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
 
       ProcessBuilder processBuilder = create(javaCommand);
-      LOG.info("Launch process[{}]: {}", processId.getKey(), String.join(" ", processBuilder.command()));
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Launch process[{}]: {}", processId.getKey(), String.join(" ", processBuilder.command()));
+      }
       process = processBuilder.start();
       return new ProcessCommandsProcessMonitor(process, processId, commands);
     } catch (Exception e) {
@@ -143,18 +146,20 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     return create(esCommand, commands);
   }
 
-  private void writeJvmOptions(EsCommand esCommand) {
+  private static void writeJvmOptions(EsCommand esCommand) {
     Path jvmOptionsFile = esCommand.getJvmOptionsFile();
     String jvmOptions = esCommand.getJvmOptions()
       .stream()
-      .map(s -> s.split(" (?=-)"))// FIXME this pattern does not allow escaping
+
+      // we do not expect the user to use parameters containing " -"
+      .map(s -> s.split(" (?=-)"))
       .flatMap(Arrays::stream)
       .collect(Collectors.joining("\n"));
     String jvmOptionsContent = ELASTICSEARCH_JVM_OPTIONS_HEADER + jvmOptions;
     try {
       Files.write(jvmOptionsFile, jvmOptionsContent.getBytes(Charset.forName("UTF-8")));
     } catch (IOException e) {
-      throw new RuntimeException("Cannot write Elasticsearch jvm options file", e);
+      throw new IllegalStateException("Cannot write Elasticsearch jvm options file", e);
     }
   }
 
@@ -199,7 +204,6 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       props.putAll(javaCommand.getArguments());
       props.setProperty(PROPERTY_PROCESS_KEY, javaCommand.getProcessId().getKey());
       props.setProperty(PROPERTY_PROCESS_INDEX, Integer.toString(javaCommand.getProcessId().getIpcIndex()));
-      // FIXME is it the responsibility of child process to have this timeout (too) ?
       props.setProperty(PROPERTY_TERMINATION_TIMEOUT, "60000");
       props.setProperty(PROPERTY_SHARED_PATH, tempDir.getAbsolutePath());
       try (OutputStream out = new FileOutputStream(propertiesFile)) {

@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -210,7 +209,6 @@ public class SearchActionComponentsTest {
       .assertJson(this.getClass(), "no_issue.json");
   }
 
-  @Ignore
   @Test
   public void search_since_leak_period_on_project() throws Exception {
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "P1").setDbKey("PK1"));
@@ -239,7 +237,6 @@ public class SearchActionComponentsTest {
       .assertJson(this.getClass(), "search_since_leak_period.json");
   }
 
-  @Ignore
   @Test
   public void search_since_leak_period_on_file_in_module_project() throws Exception {
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(defaultOrganization, "P1").setDbKey("PK1"));

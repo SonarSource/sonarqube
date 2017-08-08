@@ -32,7 +32,6 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregator;
 import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregator.KeyedFilter;
 import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters;
 import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters.InternalBucket;
@@ -156,6 +155,6 @@ public class ComponentIndex {
     SearchHits hitList = docs.getHits();
     SearchHit[] hits = hitList.getHits();
 
-    return new ComponentHitsPerQualifier(bucket.getKey(), ComponentHit.fromSearchHits(hits), hitList.totalHits());
+    return new ComponentHitsPerQualifier(bucket.getKey(), ComponentHit.fromSearchHits(hits), hitList.getTotalHits());
   }
 }
