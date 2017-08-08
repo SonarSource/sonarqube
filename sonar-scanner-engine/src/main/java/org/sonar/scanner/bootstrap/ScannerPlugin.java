@@ -19,23 +19,39 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import java.util.List;
-import java.util.Map;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.updatecenter.common.Version;
 
-@ScannerSide
-public interface PluginInstaller {
+public class ScannerPlugin {
 
-  /**
-   * Gets the list of plugins installed on server and downloads them if not
-   * already in local cache.
-   * @return information about all installed plugins, grouped by key
-   */
-  Map<String, ScannerPlugin> installRemotes();
+  private final String key;
+  private final long updatedAt;
+  private final PluginInfo info;
 
-  /**
-   * Used only by medium tests.
-   * @see org.sonar.scanner.mediumtest.ScannerMediumTester
-   */
-  List<Object[]> installLocals();
+  public ScannerPlugin(String key, long updatedAt, PluginInfo info) {
+    this.key = key;
+    this.updatedAt = updatedAt;
+    this.info = info;
+  }
+
+  public PluginInfo getInfo() {
+    return info;
+  }
+
+  public String getName() {
+    return info.getName();
+  }
+
+  public Version getVersion() {
+    return info.getVersion();
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public long getUpdatedAt() {
+    return updatedAt;
+  }
+
 }
