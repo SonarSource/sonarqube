@@ -21,15 +21,28 @@ package org.sonar.scanner.scan;
 
 import javax.annotation.CheckForNull;
 
-public class DefaultProjectBranches implements ProjectBranches {
-  @Override
-  public BranchType branchType() {
-    return BranchType.LONG;
+public interface BranchConfiguration {
+
+  enum BranchType {
+    SHORT, LONG
   }
 
+  /**
+   * The type of the branch we're on, determined by:
+   *
+   * - If the specified branch exists on the server, then its type
+   * - If the branch name matches the pattern of long-lived branches, then it's long-lived
+   * - Otherwise it's short-lived
+   *
+   * @return type of the current branch
+   */
+  BranchType branchType();
+
+  /**
+   * The name of the target branch to merge into, and the base to determine changed files.
+   *
+   * @return name of the target branch
+   */
   @CheckForNull
-  @Override
-  public String branchTarget() {
-    return null;
-  }
+  String branchTarget();
 }
