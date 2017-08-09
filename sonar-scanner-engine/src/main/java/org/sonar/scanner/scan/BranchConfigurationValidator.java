@@ -21,7 +21,11 @@ package org.sonar.scanner.scan;
 
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 
+@ScannerSide
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public interface BranchConfigurationValidator {
   void validate(List<String> validationMessages, @Nullable String deprecatedBranchName);
 }
