@@ -140,27 +140,25 @@ export default class MeasureOverview extends React.PureComponent {
       <div className={this.props.className}>
         <div className="layout-page-header-panel layout-page-main-header issues-main-header">
           <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-            <div className="layout-page-main-inner clearfix">
-              <Breadcrumbs
-                backToFirst={true}
-                className="measure-breadcrumbs spacer-right text-ellipsis"
-                component={component}
-                handleSelect={this.props.updateSelected}
-                rootComponent={rootComponent}
-              />
-              {component.key !== rootComponent.key &&
-                isLoggedIn &&
-                <MeasureFavoriteContainer
-                  component={component.key}
-                  className="measure-favorite spacer-right"
-                />}
-              <PageActions
-                current={this.state.components.length}
-                loading={this.props.loading}
-                isFile={isFile}
-                paging={this.state.paging}
-              />
-            </div>
+            <Breadcrumbs
+              backToFirst={true}
+              className="measure-breadcrumbs spacer-right text-ellipsis"
+              component={component}
+              handleSelect={this.props.updateSelected}
+              rootComponent={rootComponent}
+            />
+            {component.key !== rootComponent.key &&
+              isLoggedIn &&
+              <MeasureFavoriteContainer
+                component={component.key}
+                className="measure-favorite spacer-right"
+              />}
+            <PageActions
+              current={this.state.components.length}
+              loading={this.props.loading}
+              isFile={isFile}
+              paging={this.state.paging}
+            />
           </div>
         </div>
         <div className="layout-page-main-inner">

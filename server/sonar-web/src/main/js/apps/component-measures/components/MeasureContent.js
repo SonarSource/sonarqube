@@ -258,35 +258,33 @@ export default class MeasureContent extends React.PureComponent {
       <div className={this.props.className}>
         <div className="layout-page-header-panel layout-page-main-header issues-main-header">
           <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-            <div className="layout-page-main-inner clearfix">
-              <Breadcrumbs
-                backToFirst={view === 'list'}
-                className="measure-breadcrumbs spacer-right text-ellipsis"
-                component={component}
-                handleSelect={this.onOpenComponent}
-                rootComponent={rootComponent}
-              />
-              {component.key !== rootComponent.key &&
-                isLoggedIn &&
-                <MeasureFavoriteContainer
-                  component={component.key}
-                  className="measure-favorite spacer-right"
-                />}
-              {!isFile &&
-                <MeasureViewSelect
-                  className="measure-view-select"
-                  metric={metric}
-                  handleViewChange={this.props.updateView}
-                  view={view}
-                />}
-              <PageActions
-                current={selectedIdx && selectedIdx + 1}
-                loading={this.props.loading}
-                isFile={isFile}
-                paging={this.state.paging}
+            <Breadcrumbs
+              backToFirst={view === 'list'}
+              className="measure-breadcrumbs spacer-right text-ellipsis"
+              component={component}
+              handleSelect={this.onOpenComponent}
+              rootComponent={rootComponent}
+            />
+            {component.key !== rootComponent.key &&
+              isLoggedIn &&
+              <MeasureFavoriteContainer
+                component={component.key}
+                className="measure-favorite spacer-right"
+              />}
+            {!isFile &&
+              <MeasureViewSelect
+                className="measure-view-select"
+                metric={metric}
+                handleViewChange={this.props.updateView}
                 view={view}
-              />
-            </div>
+              />}
+            <PageActions
+              current={selectedIdx && selectedIdx + 1}
+              loading={this.props.loading}
+              isFile={isFile}
+              paging={this.state.paging}
+              view={view}
+            />
           </div>
         </div>
         {metric == null && <MetricNotFound className="layout-page-main-inner" />}
