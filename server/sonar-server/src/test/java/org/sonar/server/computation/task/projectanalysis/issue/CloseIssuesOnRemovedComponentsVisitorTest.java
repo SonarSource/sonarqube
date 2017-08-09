@@ -48,7 +48,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  BaseIssuesLoader baseIssuesLoader = mock(BaseIssuesLoader.class);
+  ComponentIssuesLoader issuesLoader = mock(ComponentIssuesLoader.class);
   ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues = mock(ComponentsWithUnprocessedIssues.class);
   IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
   IssueCache issueCache;
@@ -57,7 +57,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   @Before
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new CloseIssuesOnRemovedComponentsVisitor(baseIssuesLoader, componentsWithUnprocessedIssues, issueCache, issueLifecycle)));
+    underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new CloseIssuesOnRemovedComponentsVisitor(issuesLoader, componentsWithUnprocessedIssues, issueCache, issueLifecycle)));
   }
 
   @Test
@@ -67,7 +67,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
 
     when(componentsWithUnprocessedIssues.getUuids()).thenReturn(newHashSet(fileUuid));
     DefaultIssue issue = new DefaultIssue().setKey(issueUuid);
-    when(baseIssuesLoader.loadForComponentUuid(fileUuid)).thenReturn(Collections.singletonList(issue));
+    when(issuesLoader.loadForComponentUuid(fileUuid)).thenReturn(Collections.singletonList(issue));
 
     underTest.visit(ReportComponent.builder(PROJECT, 1).build());
 
