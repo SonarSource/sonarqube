@@ -19,6 +19,7 @@
 }
 
 .domain-measures-leak-header {
+  display: inline-block;
   background-color: #fbf3d5;
   border: 1px solid #eae3c7;
   padding: 4px 10px;
@@ -43,6 +44,11 @@
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
+  align-items: center;
+}
+
+.measure-details-primary-actions {
+  display: flex;
   align-items: center;
 }
 
