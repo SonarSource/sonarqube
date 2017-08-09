@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.task;
 
+import org.sonar.scanner.scan.BranchConfigurationProvider;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
@@ -49,6 +50,7 @@ public class ScanTask implements Task {
     ProjectScanContainer scanContainer = new ProjectScanContainer(taskContainer, props);
     scanContainer.add(DefaultAnalysisMode.class);
     scanContainer.add(new ProjectRepositoriesProvider());
+    scanContainer.add(new BranchConfigurationProvider());
     scanContainer.execute();
   }
 }

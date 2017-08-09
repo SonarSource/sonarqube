@@ -37,12 +37,15 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
 public class ProjectReactorValidator {
   private final DefaultAnalysisMode mode;
 
-  @Nullable
   private final BranchConfigurationValidator branchConfigurationValidator;
 
-  public ProjectReactorValidator(DefaultAnalysisMode mode, @Nullable BranchConfigurationValidator branchConfigurationValidator) {
+  public ProjectReactorValidator(DefaultAnalysisMode mode, BranchConfigurationValidator branchConfigurationValidator) {
     this.mode = mode;
     this.branchConfigurationValidator = branchConfigurationValidator;
+  }
+
+  public ProjectReactorValidator(DefaultAnalysisMode mode) {
+    this(mode, new DefaultBranchConfigurationValidator());
   }
 
   public void validate(ProjectReactor reactor) {
@@ -58,11 +61,8 @@ public class ProjectReactorValidator {
 
     String deprecatedBranchName = reactor.getRoot().getBranch();
 
-    if (branchConfigurationValidator != null) {
-      branchConfigurationValidator.validate(validationMessages, deprecatedBranchName);
-    } else {
-      validateBranch(validationMessages, deprecatedBranchName);
-    }
+    branchConfigurationValidator.validate(validationMessages, deprecatedBranchName);
+    validateBranch(validationMessages, deprecatedBranchName);
 
     if (!validationMessages.isEmpty()) {
       throw MessageException.of("Validation of project reactor failed:\n  o " + Joiner.on("\n  o ").join(validationMessages));
