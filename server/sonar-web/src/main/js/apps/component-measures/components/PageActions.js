@@ -32,57 +32,49 @@ type Props = {|
   view?: string
 |};
 
-export default class PageActions extends React.PureComponent {
-  props: Props;
-
-  renderShortcuts() {
-    return (
-      <span className="note big-spacer-right">
-        <span className="big-spacer-right">
-          <span className="shortcut-button little-spacer-right">↑</span>
-          <span className="shortcut-button little-spacer-right">↓</span>
-          {translate('component_measures.to_select_files')}
-        </span>
-
-        <span>
-          <span className="shortcut-button little-spacer-right">←</span>
-          <span className="shortcut-button little-spacer-right">→</span>
-          {translate('component_measures.to_navigate')}
-        </span>
-      </span>
-    );
-  }
-
-  renderFileShortcuts() {
-    return (
-      <span className="note spacer-right">
-        <span>
-          <span className="shortcut-button little-spacer-right">←</span>
-          {translate('component_measures.to_navigate_back')}
-        </span>
-      </span>
-    );
-  }
-
-  render() {
-    const { isFile, paging, view } = this.props;
-    const showShortcuts = ['list', 'tree'].includes(view);
-    return (
-      <div className="pull-right">
-        {!isFile && showShortcuts && this.renderShortcuts()}
-        {isFile && this.renderFileShortcuts()}
-        <div className="measure-details-page-actions">
-          <DeferredSpinner loading={this.props.loading}>
-            <i className="spinner-placeholder" />
-          </DeferredSpinner>
-          {paging != null &&
-            <FilesCounter
-              className="spacer-left"
-              current={this.props.current}
-              total={paging.total}
-            />}
-        </div>
+export default function PageActions(props: Props) {
+  const { isFile, paging } = props;
+  const showShortcuts = ['list', 'tree'].includes(props.view);
+  return (
+    <div className="pull-right">
+      {!isFile && showShortcuts && renderShortcuts()}
+      {isFile && renderFileShortcuts()}
+      <div className="measure-details-page-actions">
+        <DeferredSpinner loading={props.loading}>
+          <i className="spinner-placeholder" />
+        </DeferredSpinner>
+        {paging != null &&
+          <FilesCounter className="spacer-left" current={props.current} total={paging.total} />}
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+function renderShortcuts() {
+  return (
+    <span className="note big-spacer-right">
+      <span className="big-spacer-right">
+        <span className="shortcut-button little-spacer-right">↑</span>
+        <span className="shortcut-button little-spacer-right">↓</span>
+        {translate('component_measures.to_select_files')}
+      </span>
+
+      <span>
+        <span className="shortcut-button little-spacer-right">←</span>
+        <span className="shortcut-button little-spacer-right">→</span>
+        {translate('component_measures.to_navigate')}
+      </span>
+    </span>
+  );
+}
+
+function renderFileShortcuts() {
+  return (
+    <span className="note spacer-right">
+      <span>
+        <span className="shortcut-button little-spacer-right">←</span>
+        {translate('component_measures.to_navigate_back')}
+      </span>
+    </span>
+  );
 }
