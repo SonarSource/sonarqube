@@ -84,8 +84,8 @@ public class ListActionTest {
 
   @Test
   public void fail_if_project_does_not_exist() {
-    expectedException.expect(RowNotFoundException.class);
-    expectedException.expectMessage("Component key 'foo' not found");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Project key 'foo' not found");
 
     tester.newRequest()
       .setParam("project", "foo")
