@@ -31,6 +31,7 @@ import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.BranchConfigurationLoader;
 import org.sonar.scanner.util.ScannerUtils;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
