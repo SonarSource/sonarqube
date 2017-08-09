@@ -922,7 +922,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     }
     
     @Override
-    public java.util.Optional<String> getMergeBranchName() {
+    public java.util.Optional<String> getMergeBranchUuid() {
       return java.util.Optional.empty();
     }
 
