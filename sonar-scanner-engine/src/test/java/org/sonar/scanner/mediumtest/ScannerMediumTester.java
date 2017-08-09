@@ -68,7 +68,7 @@ import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
 import org.sonar.scanner.scan.BranchConfiguration;
-import com.sonarsource.branch.BranchConfigurationLoader;
+import org.sonar.scanner.scan.BranchConfigurationLoader;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
