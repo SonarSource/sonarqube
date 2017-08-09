@@ -19,11 +19,9 @@
  */
 package org.sonar.scanner.scan;
 
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import java.util.List;
+import javax.annotation.Nullable;
 
-public class DefaultProjectBranchesLoader implements ProjectBranchesLoader {
-  @Override
-  public ProjectBranches load(String projectKey, GlobalConfiguration settings) {
-    return new DefaultProjectBranches();
-  }
+public interface BranchConfigurationValidator {
+  void validate(List<String> validationMessages, @Nullable String deprecatedBranchName);
 }
