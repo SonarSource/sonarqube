@@ -19,6 +19,7 @@
  */
 package org.sonar.server.projectbranch.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import org.sonar.api.resources.Qualifiers;
@@ -70,7 +71,13 @@ public class ListAction implements BranchWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = dbClient.componentDao().selectOrFailByKey(dbSession, projectKey);
+      Optional<ComponentDto> projectOptional = dbClient.componentDao().selectByKey(dbSession, projectKey);
+
+      if (!projectOptional.isPresent()) {
+        throw new IllegalArgumentException(String.format("Project key '%s' not found", projectKey));
+      }
+
+      ComponentDto project = projectOptional.get();
       userSession.checkComponentPermission(UserRole.USER, project);
       if (!project.isEnabled() || !Qualifiers.PROJECT.equals(project.qualifier())) {
         throw new IllegalArgumentException("Invalid project key");
