@@ -133,18 +133,6 @@ export default class ComponentNavMenu extends React.PureComponent {
     );
   }
 
-  renderComponentMeasuresOldLink() {
-    return (
-      <li>
-        <Link
-          to={{ pathname: '/component_measures_old', query: { id: this.props.component.key } }}
-          activeClassName="active">
-          Old Measures
-        </Link>
-      </li>
-    );
-  }
-
   renderAdministration() {
     const adminLinks = this.renderAdministrationLinks();
     if (!adminLinks.some(link => link != null)) {
@@ -372,7 +360,6 @@ export default class ComponentNavMenu extends React.PureComponent {
         {this.renderDashboardLink()}
         {this.renderIssuesLink()}
         {this.renderComponentMeasuresLink()}
-        {this.renderComponentMeasuresOldLink()}
         {this.renderCodeLink()}
         {this.renderActivityLink()}
         {this.renderAdministration()}

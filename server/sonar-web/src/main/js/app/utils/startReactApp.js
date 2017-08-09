@@ -46,7 +46,6 @@ import codeRoutes from '../../apps/code/routes';
 import codingRulesRoutes from '../../apps/coding-rules/routes';
 import componentRoutes from '../../apps/component/routes';
 import componentMeasuresRoutes from '../../apps/component-measures/routes';
-import componentMeasuresOldRoutes from '../../apps/component-measures-old/routes';
 import customMeasuresRoutes from '../../apps/custom-measures/routes';
 import groupsRoutes from '../../apps/groups/routes';
 import issuesRoutes from '../../apps/issues/routes';
@@ -172,7 +171,6 @@ const startReactApp = () => {
                       import('../components/ProjectContainer').then(i => i.default)}>
                     <Route path="code" childRoutes={codeRoutes} />
                     <Route path="component_measures" childRoutes={componentMeasuresRoutes} />
-                    <Route path="component_measures_old" childRoutes={componentMeasuresOldRoutes} />
                     <Route path="custom_measures" childRoutes={customMeasuresRoutes} />
                     <Route path="dashboard" childRoutes={overviewRoutes} />
                     <Route path="project">
