@@ -39,14 +39,14 @@ public class TrackerBaseInputFactoryTest {
   private static final String FILE_UUID = "uuid";
   private static final ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, 1).setUuid(FILE_UUID).build();
 
-  private BaseIssuesLoader baseIssuesLoader = mock(BaseIssuesLoader.class);
+  private ComponentIssuesLoader issuesLoader = mock(ComponentIssuesLoader.class);
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);
   private FileSourceDao fileSourceDao = mock(FileSourceDao.class);
 
   private MovedFilesRepository movedFilesRepository = mock(MovedFilesRepository.class);
 
-  private TrackerBaseInputFactory underTest = new TrackerBaseInputFactory(baseIssuesLoader, dbClient, movedFilesRepository);
+  private TrackerBaseInputFactory underTest = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository);
 
   @Before
   public void setUp() throws Exception {
@@ -68,8 +68,7 @@ public class TrackerBaseInputFactoryTest {
     String originalUuid = "original uuid";
 
     when(movedFilesRepository.getOriginalFile(FILE)).thenReturn(
-        Optional.of(new MovedFilesRepository.OriginalFile(6542, originalUuid, "original key"))
-    );
+      Optional.of(new MovedFilesRepository.OriginalFile(6542, originalUuid, "original key")));
 
     underTest.create(FILE).getLineHashSequence();
 
@@ -81,7 +80,7 @@ public class TrackerBaseInputFactoryTest {
   public void create_returns_Input_which_retrieves_issues_of_specified_file_component_when_it_has_no_original_file() {
     underTest.create(FILE).getIssues();
 
-    verify(baseIssuesLoader).loadForComponentUuid(FILE_UUID);
+    verify(issuesLoader).loadForComponentUuid(FILE_UUID);
   }
 
   @Test
@@ -89,12 +88,11 @@ public class TrackerBaseInputFactoryTest {
     String originalUuid = "original uuid";
 
     when(movedFilesRepository.getOriginalFile(FILE)).thenReturn(
-        Optional.of(new MovedFilesRepository.OriginalFile(6542, originalUuid, "original key"))
-    );
+      Optional.of(new MovedFilesRepository.OriginalFile(6542, originalUuid, "original key")));
 
     underTest.create(FILE).getIssues();
 
-    verify(baseIssuesLoader).loadForComponentUuid(originalUuid);
-    verify(baseIssuesLoader, times(0)).loadForComponentUuid(FILE_UUID);
+    verify(issuesLoader).loadForComponentUuid(originalUuid);
+    verify(issuesLoader, times(0)).loadForComponentUuid(FILE_UUID);
   }
 }
