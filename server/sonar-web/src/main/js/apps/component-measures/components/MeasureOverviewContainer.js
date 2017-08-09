@@ -21,7 +21,9 @@
 import React from 'react';
 import MeasureOverview from './MeasureOverview';
 import { getComponentShow } from '../../../api/components';
+import { getComponentUrl } from '../../../helpers/urls';
 import type { Component, Period, Query } from '../types';
+import type { RawQuery } from '../../../helpers/query';
 import type { Metric } from '../../../store/metrics/actions';
 
 type Props = {|
@@ -31,6 +33,9 @@ type Props = {|
   domain: string,
   leakPeriod: Period,
   metrics: { [string]: Metric },
+  router: {
+    push: ({ pathname: string, query?: RawQuery }) => void
+  },
   selected: ?string,
   updateQuery: Query => void
 |};
@@ -98,10 +103,15 @@ export default class MeasureOverviewContainer extends React.PureComponent {
     }
   };
 
-  updateSelected = (component: string) =>
-    this.props.updateQuery({
-      selected: component !== this.props.rootComponent.key ? component : null
-    });
+  updateSelected = (component: string) => {
+    if (this.state.component && ['VW', 'SVW', 'APP'].includes(this.state.component.qualifier)) {
+      this.props.router.push(getComponentUrl(component));
+    } else {
+      this.props.updateQuery({
+        selected: component !== this.props.rootComponent.key ? component : null
+      });
+    }
+  };
 
   render() {
     if (!this.state.component) {
