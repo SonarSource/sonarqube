@@ -19,16 +19,25 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Predicate;
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Optional.ofNullable;
+import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
+import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
+import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
+import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
@@ -53,12 +62,7 @@ import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisi
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static com.google.common.collect.FluentIterable.from;
-import static java.util.Optional.ofNullable;
-import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
-import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
-import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
-import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+import com.google.common.base.Predicate;
 
 /**
  * Persist report components
@@ -169,7 +173,7 @@ public class PersistComponentsStep implements ComputationStep {
   private Map<String, ComponentDto> indexExistingDtosByKey(DbSession session) {
     return dbClient.componentDao().selectAllComponentsFromProjectKey(session, treeRootHolder.getRoot().getKey())
       .stream()
-      .collect(java.util.stream.Collectors.toMap(ComponentDto::getDbKey, Function.identity()));
+      .collect(Collectors.toMap(ComponentDto::getDbKey, Function.identity()));
   }
 
   private class PersistComponentStepsVisitor extends PathAwareVisitorAdapter<ComponentDtoHolder> {

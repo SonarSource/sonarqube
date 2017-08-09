@@ -70,6 +70,13 @@ public interface AnalysisMetadataHolder {
   Analysis getBaseAnalysis();
 
   /**
+   * Convenience method equivalent to do the check using {@link #getBranch()}
+   *
+   * @throws IllegalStateException if branch has not been set
+   */
+  boolean isShortLivingBranch();
+
+  /**
    * @throws IllegalStateException if cross project duplication flag has not been set
    */
   boolean isCrossProjectDuplicationEnabled();
