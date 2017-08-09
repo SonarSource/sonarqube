@@ -25,6 +25,7 @@ package org.sonar.server.computation.task.projectanalysis.component;
 public interface TreeRootHolder {
   /**
    * The root of the tree, for example the project or the portfolio.
+   * With branches, it will refer to the root component of the branch.
    *
    * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
    */
