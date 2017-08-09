@@ -23,9 +23,12 @@ import com.google.common.base.Joiner;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.queue.CeTask;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -62,15 +65,17 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final DbClient dbClient;
   private final BillingValidations billingValidations;
+  private final PluginRepository pluginRepository;
 
   public LoadReportAnalysisMetadataHolderStep(CeTask ceTask, BatchReportReader reportReader, MutableAnalysisMetadataHolder mutableAnalysisMetadataHolder,
-    DefaultOrganizationProvider defaultOrganizationProvider, DbClient dbClient, BillingValidationsProxy billingValidations) {
+    DefaultOrganizationProvider defaultOrganizationProvider, DbClient dbClient, BillingValidationsProxy billingValidations, PluginRepository pluginRepository) {
     this.ceTask = ceTask;
     this.reportReader = reportReader;
     this.mutableAnalysisMetadataHolder = mutableAnalysisMetadataHolder;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.dbClient = dbClient;
     this.billingValidations = billingValidations;
+    this.pluginRepository = pluginRepository;
   }
 
   @Override
@@ -95,8 +100,19 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     mutableAnalysisMetadataHolder.setScannerPluginsByKey(reportMetadata.getPluginsByKey().values().stream()
       .collect(toMap(
         Plugin::getKey,
-        p -> new ScannerPlugin(p.getKey(), p.getUpdatedAt()))));
+        p -> new ScannerPlugin(p.getKey(), getBasePluginKey(p), p.getUpdatedAt()))));
     mutableAnalysisMetadataHolder.setOrganization(organization);
+  }
+
+  @CheckForNull
+  private String getBasePluginKey(Plugin p) {
+    PluginInfo pluginInfo = pluginRepository.getPluginInfo(p.getKey());
+    if (pluginInfo == null) {
+      // May happen if plugin was uninstalled between start of scanner analysis and now.
+      // But it doesn't matter since all active rules are removed anyway, so no issues will be reported
+      return null;
+    }
+    return pluginInfo.getBasePlugin();
   }
 
   /**

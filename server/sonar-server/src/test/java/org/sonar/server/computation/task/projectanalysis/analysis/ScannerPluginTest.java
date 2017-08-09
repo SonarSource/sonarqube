@@ -27,33 +27,34 @@ public class ScannerPluginTest {
 
   @Test
   public void verify_getters() {
-    ScannerPlugin plugin = new ScannerPlugin("key", 12345L);
+    ScannerPlugin plugin = new ScannerPlugin("key", "base", 12345L);
 
     assertThat(plugin.getKey()).isEqualTo("key");
+    assertThat(plugin.getBasePluginKey()).isEqualTo("base");
     assertThat(plugin.getUpdatedAt()).isEqualTo(12345L);
   }
 
   @Test
   public void verify_toString() {
-    ScannerPlugin plugin = new ScannerPlugin("key", 12345L);
+    ScannerPlugin plugin = new ScannerPlugin("key", "base", 12345L);
 
-    assertThat(plugin.toString()).isEqualTo("ScannerPlugin{key='key', updatedAt='12345'}");
+    assertThat(plugin.toString()).isEqualTo("ScannerPlugin{key='key', basePluginKey='base', updatedAt='12345'}");
   }
 
   @Test
   public void equals_is_based_on_key_only() {
-    ScannerPlugin plugin = new ScannerPlugin("key", 12345L);
+    ScannerPlugin plugin = new ScannerPlugin("key", "base", 12345L);
 
     assertThat(plugin).isEqualTo(plugin);
-    assertThat(plugin).isEqualTo(new ScannerPlugin("key", 45678L));
-    assertThat(plugin).isNotEqualTo(new ScannerPlugin("key2", 12345L));
+    assertThat(plugin).isEqualTo(new ScannerPlugin("key", null, 45678L));
+    assertThat(plugin).isNotEqualTo(new ScannerPlugin("key2", "base", 12345L));
     assertThat(plugin).isNotEqualTo(null);
     assertThat(plugin).isNotEqualTo("toto");
   }
 
   @Test
   public void hashcode_is_based_on_key_only() {
-    ScannerPlugin plugin = new ScannerPlugin("key", 12345L);
+    ScannerPlugin plugin = new ScannerPlugin("key", "base", 12345L);
 
     assertThat(plugin.hashCode()).isEqualTo("key".hashCode());
   }
