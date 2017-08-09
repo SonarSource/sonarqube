@@ -96,7 +96,7 @@ export default class MeasureHeader extends React.PureComponent {
     const { component, components, leakPeriod, measure, secondaryMeasure } = this.props;
     const metric = measure.metric;
     const isDiff = isDiffMetric(metric.key);
-    const hasHistory = ['TRK', 'VW', 'SVW', 'APP'].includes(component.qualifier);
+    const hasHistory = !isDiff && ['TRK', 'VW', 'SVW', 'APP'].includes(component.qualifier);
     const hasComponents = components && components.length > 1;
     return (
       <div className="measure-details-header big-spacer-bottom">
@@ -111,8 +111,7 @@ export default class MeasureHeader extends React.PureComponent {
                   : <Measure measure={measure} metric={metric} />}
               </strong>
             </span>
-            {!isDiff &&
-              hasHistory &&
+            {hasHistory &&
               <Tooltip
                 placement="right"
                 overlay={translate('component_measures.show_metric_history')}>

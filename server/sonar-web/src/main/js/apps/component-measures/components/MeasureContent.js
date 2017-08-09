@@ -131,15 +131,18 @@ export default class MeasureContent extends React.PureComponent {
       r => {
         if (metric === this.props.metric) {
           if (this.mounted) {
-            this.setState({
+            this.setState(({ selected }: State) => ({
               components: r.components.map(component =>
                 enhanceComponent(component, metric, metrics)
               ),
               metric,
               paging: r.paging,
-              selected: r.components.length > 0 ? r.components[0].key : null,
+              selected:
+                r.components.length > 0 && !r.components.find(c => c.key === selected)
+                  ? r.components[0].key
+                  : selected,
               view
-            });
+            }));
           }
           this.props.updateLoading({ components: false });
         }
@@ -177,6 +180,11 @@ export default class MeasureContent extends React.PureComponent {
       },
       () => this.props.updateLoading({ components: false })
     );
+  };
+
+  onOpenComponent = (component: string) => {
+    this.setState({ selected: this.props.component.key });
+    this.props.updateSelected(component);
   };
 
   onSelectComponent = (component: string) => this.setState({ selected: component });
@@ -219,7 +227,7 @@ export default class MeasureContent extends React.PureComponent {
         <FilesView
           components={this.state.components}
           fetchMore={this.fetchMoreComponents}
-          handleOpen={this.props.updateSelected}
+          handleOpen={this.onOpenComponent}
           handleSelect={this.onSelectComponent}
           metric={metric}
           metrics={this.props.metrics}
@@ -234,7 +242,7 @@ export default class MeasureContent extends React.PureComponent {
       return (
         <TreeMapView
           components={this.state.components}
-          handleSelect={this.props.updateSelected}
+          handleSelect={this.onOpenComponent}
           metric={metric}
         />
       );
@@ -252,9 +260,10 @@ export default class MeasureContent extends React.PureComponent {
           <div className="layout-page-header-panel-inner layout-page-main-header-inner">
             <div className="layout-page-main-inner clearfix">
               <Breadcrumbs
+                backToFirst={view === 'list'}
                 className="measure-breadcrumbs spacer-right text-ellipsis"
                 component={component}
-                handleSelect={this.props.updateSelected}
+                handleSelect={this.onOpenComponent}
                 rootComponent={rootComponent}
               />
               {component.key !== rootComponent.key &&
@@ -271,7 +280,7 @@ export default class MeasureContent extends React.PureComponent {
                   view={view}
                 />}
               <PageActions
-                current={selectedIdx + 1}
+                current={selectedIdx && selectedIdx + 1}
                 loading={this.props.loading}
                 isFile={isFile}
                 paging={this.state.paging}

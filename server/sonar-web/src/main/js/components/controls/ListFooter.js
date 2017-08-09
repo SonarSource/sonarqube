@@ -35,19 +35,15 @@ export default class ListFooter extends React.PureComponent {
     ready: true
   };
 
-  componentWillMount() {
-    this.handleLoadMore = this.handleLoadMore.bind(this);
-  }
-
   canLoadMore() {
     return typeof this.props.loadMore === 'function';
   }
 
-  handleLoadMore(e) {
-    e.preventDefault();
-    e.target.blur();
+  handleLoadMore = event => {
+    event.preventDefault();
+    event.target.blur();
     this.props.loadMore();
-  }
+  };
 
   render() {
     const hasMore = this.props.total > this.props.count;

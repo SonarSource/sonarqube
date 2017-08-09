@@ -53,8 +53,12 @@ export default class ListView extends React.PureComponent {
     this.attachShortcuts();
   }
 
-  componentDidUpdate() {
-    if (this.listContainer && this.props.selectedIdx != null) {
+  componentDidUpdate(prevProps: Props) {
+    if (
+      this.listContainer &&
+      this.props.selectedKey != null &&
+      prevProps.selectedKey !== this.props.selectedKey
+    ) {
       const elem = this.listContainer.getElementsByClassName('selected')[0];
       if (elem) {
         scrollToElement(elem, { topOffset: 215, bottomOffset: 100 });
@@ -111,10 +115,7 @@ export default class ListView extends React.PureComponent {
 
   render() {
     return (
-      <div
-        ref={elem => {
-          this.listContainer = elem;
-        }}>
+      <div ref={elem => (this.listContainer = elem)}>
         <ComponentsList
           components={this.props.components}
           metrics={this.props.metrics}
