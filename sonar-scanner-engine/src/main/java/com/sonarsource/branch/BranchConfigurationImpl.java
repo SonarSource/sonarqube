@@ -30,9 +30,9 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.ScannerProperties;
-import org.sonar.scanner.scan.ProjectBranches;
+import org.sonar.scanner.scan.BranchConfiguration;
 
-public class ProjectBranchesImpl implements ProjectBranches {
+public class BranchConfigurationImpl implements BranchConfiguration {
 
   static class BranchInfo {
     private final String name;
@@ -53,15 +53,15 @@ public class ProjectBranchesImpl implements ProjectBranches {
   @Nullable
   private final String branchTarget;
 
-  private ProjectBranchesImpl(BranchType branchType, @Nullable String branchTarget) {
+  private BranchConfigurationImpl(BranchType branchType, @Nullable String branchTarget) {
     this.branchType = branchType;
     this.branchTarget = branchTarget;
   }
 
-  static ProjectBranchesImpl create(Configuration settings, List<BranchInfo> branchInfos) {
+  static BranchConfigurationImpl create(Configuration settings, List<BranchInfo> branchInfos) {
     String branchName = settings.get(ScannerProperties.BRANCH_NAME).orElse("");
     if (branchName.isEmpty()) {
-      return new ProjectBranchesImpl(BranchType.LONG, null);
+      return new BranchConfigurationImpl(BranchType.LONG, null);
     }
 
     Map<String, BranchInfo> branches = branchInfos.stream().collect(Collectors.toMap(b -> b.name, Function.identity()));
@@ -91,7 +91,7 @@ public class ProjectBranchesImpl implements ProjectBranches {
       }
     }
 
-    return new ProjectBranchesImpl(branchType, branchTarget);
+    return new BranchConfigurationImpl(branchType, branchTarget);
   }
 
   /**
