@@ -60,7 +60,7 @@ export default class OrganizationMembers extends React.PureComponent {
     }
   }
 
-  handleSearchMembers = (query /*: ?string */) => {
+  handleSearchMembers = (query /*: string | void */) => {
     this.props.fetchOrganizationMembers(this.props.organization.key, query);
   };
 

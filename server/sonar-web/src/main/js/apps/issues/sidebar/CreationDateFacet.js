@@ -58,7 +58,7 @@ export default class CreationDateFacet extends React.PureComponent {
   property = 'createdAt';
 
   hasValue = () =>
-    /*: boolean */ this.props.createdAfter.length > 0 ||
+    this.props.createdAfter.length > 0 ||
     this.props.createdAt.length > 0 ||
     this.props.createdBefore.length > 0 ||
     this.props.createdInLast.length > 0 ||

@@ -38,7 +38,7 @@ type Props = {
 export default class IssueSeverity extends React.PureComponent {
   /*:: props: Props; */
 
-  toggleSetSeverity = (open /*: ?boolean */) => {
+  toggleSetSeverity = (open /*: boolean | void */) => {
     this.props.togglePopup('set-severity', open);
   };
 

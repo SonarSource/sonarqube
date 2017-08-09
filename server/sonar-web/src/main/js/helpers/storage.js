@@ -91,5 +91,5 @@ export function saveGraph(graph /*: ?string */) {
   save(PROJECT_ACTIVITY_GRAPH, graph);
 }
 export function getGraph() /*: string */ {
-  window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH) || 'issues';
+  return window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH) || 'issues';
 }

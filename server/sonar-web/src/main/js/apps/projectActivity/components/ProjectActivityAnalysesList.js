@@ -47,7 +47,7 @@ type Props = {
   loading: boolean,
   project: { qualifier: string },
   query: Query,
-  updateQuery: RawQuery => void
+  updateQuery: Object => void
 };
 */
 

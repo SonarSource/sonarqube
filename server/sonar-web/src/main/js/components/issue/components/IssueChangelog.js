@@ -42,7 +42,7 @@ export default class IssueChangelog extends React.PureComponent {
     this.toggleChangelog();
   };
 
-  toggleChangelog = (open /*: ?boolean */) => {
+  toggleChangelog = (open /*: boolean | void */) => {
     this.props.togglePopup('changelog', open);
   };
 

@@ -39,7 +39,7 @@ type Props = {
 export default class IssueType extends React.PureComponent {
   /*:: props: Props; */
 
-  toggleSetType = (open /*: ?boolean */) => {
+  toggleSetType = (open /*: boolean | void */) => {
     this.props.togglePopup('set-type', open);
   };
 

@@ -70,7 +70,7 @@ type State = {|
 |};
 */
 
-const hasAction = (action /*: string */) => (issue /*: Issue */ /*: boolean */) =>
+const hasAction = (action /*: string */) => (issue /*: Issue */) =>
   issue.actions && issue.actions.includes(action);
 
 export default class BulkChangeModal extends React.PureComponent {

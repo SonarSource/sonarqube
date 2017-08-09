@@ -96,11 +96,11 @@ export function getIssuesCount(query /*: {} */) /*: Promise<*> */ {
   });
 }
 
-export const searchIssueTags = (
-  data /*: { organization?: string, ps?: number, q?: string } */ = {
-    ps: 500
-  } /*: Promise<Array<string>> */
-) => getJSON('/api/issues/tags', data).then(r => r.tags);
+export function searchIssueTags(
+  data /*: { organization?: string, ps?: number, q?: string } */ = { ps: 500 }
+) /*: Promise<Array<string>> */ {
+  return getJSON('/api/issues/tags', data).then(r => r.tags);
+}
 
 export function getIssueChangelog(issue /*: string */) /*: Promise<*> */ {
   const url = '/api/issues/changelog';

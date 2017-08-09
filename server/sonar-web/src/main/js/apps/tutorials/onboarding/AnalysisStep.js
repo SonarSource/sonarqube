@@ -52,7 +52,7 @@ export default class AnalysisStep extends React.PureComponent {
   /*:: props: Props; */
   state /*: State */ = {};
 
-  handleLanguageSelect = (result /*: ?Result */) => {
+  handleLanguageSelect = (result /*: Result | void */) => {
     this.setState({ result });
     const projectKey = result && result.language !== 'java' ? result.projectKey : undefined;
     this.props.onFinish(projectKey);

@@ -41,7 +41,7 @@ type Props = {|
 export default class IssueTags extends React.PureComponent {
   /*:: props: Props; */
 
-  toggleSetTags = (open /*: ?boolean */) => {
+  toggleSetTags = (open /*: boolean | void */) => {
     this.props.togglePopup('edit-tags', open);
   };
 

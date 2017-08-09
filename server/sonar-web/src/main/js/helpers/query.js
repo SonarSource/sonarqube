@@ -22,7 +22,7 @@ import { isNil, omitBy } from 'lodash';
 import moment from 'moment';
 
 /*::
-export type RawQuery = { [string]: string };
+export type RawQuery = { [string]: any };
 */
 
 function arraysEqual(a, b) {
@@ -37,7 +37,7 @@ function arraysEqual(a, b) {
   return true;
 }
 
-export function queriesEqual(a, b) /*: boolean */ {
+export function queriesEqual(a /*: Object */, b /*: Object */) /*: boolean */ {
   const keysA = Object.keys(a);
   const keysB = Object.keys(b);
 
@@ -64,7 +64,7 @@ export function parseAsBoolean(
   return value === 'false' ? false : value === 'true' ? true : defaultValue;
 }
 
-export function parseAsDate(value /*: ?string */) /*: ?Date */ {
+export function parseAsDate(value /*: ?string */) /*: Date | void */ {
   const date = moment(value);
   if (value && date) {
     return date.toDate();
@@ -83,7 +83,7 @@ export function parseAsArray(value /*: ?string */, itemParser /*: string => * */
   return value ? value.split(',').map(itemParser) : [];
 }
 
-export function serializeDate(value /*: ?Date */) /*: ?string */ {
+export function serializeDate(value /*: ?Date */) /*: string | void */ {
   if (value != null && value.toISOString) {
     return moment(value).format('YYYY-MM-DDTHH:mm:ssZZ');
   }

@@ -129,7 +129,7 @@ export default class ChangelogContainer extends React.PureComponent {
     });
   }
 
-  handleFromDateChange = (fromDate /*: ?string */) => {
+  handleFromDateChange = (fromDate /*: string | void */) => {
     const path = getProfileChangelogPath(
       this.props.profile.name,
       this.props.profile.language,
@@ -142,7 +142,7 @@ export default class ChangelogContainer extends React.PureComponent {
     this.context.router.push(path);
   };
 
-  handleToDateChange = (toDate /*: ?string */) => {
+  handleToDateChange = (toDate /*: string | void */) => {
     const path = getProfileChangelogPath(
       this.props.profile.name,
       this.props.profile.language,

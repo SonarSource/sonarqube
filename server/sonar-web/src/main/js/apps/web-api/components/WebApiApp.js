@@ -72,7 +72,7 @@ export default class WebApiApp extends React.PureComponent {
     }
   }
 
-  fetchList(cb /*: ?() => void */) {
+  fetchList(cb /*: void | () => void */) {
     fetchWebApi().then(domains => {
       if (this.mounted) {
         this.setState({ domains }, cb);

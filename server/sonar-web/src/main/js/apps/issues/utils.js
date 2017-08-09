@@ -70,41 +70,43 @@ export type Paging = {
 */
 
 // allow sorting by CREATION_DATE only
-const parseAsSort = (sort /*: string */ /*: string */) =>
-  sort === 'CREATION_DATE' ? 'CREATION_DATE' : '';
+const parseAsSort = (sort /*: string */) => (sort === 'CREATION_DATE' ? 'CREATION_DATE' : '');
 
-export const parseQuery = (query /*: RawQuery */ /*: Query */) => ({
-  assigned: parseAsBoolean(query.assigned),
-  assignees: parseAsArray(query.assignees, parseAsString),
-  authors: parseAsArray(query.authors, parseAsString),
-  createdAfter: parseAsString(query.createdAfter),
-  createdAt: parseAsString(query.createdAt),
-  createdBefore: parseAsString(query.createdBefore),
-  createdInLast: parseAsString(query.createdInLast),
-  directories: parseAsArray(query.directories, parseAsString),
-  facetMode: parseAsFacetMode(query.facetMode),
-  files: parseAsArray(query.fileUuids, parseAsString),
-  issues: parseAsArray(query.issues, parseAsString),
-  languages: parseAsArray(query.languages, parseAsString),
-  modules: parseAsArray(query.moduleUuids, parseAsString),
-  projects: parseAsArray(query.projectUuids, parseAsString),
-  resolved: parseAsBoolean(query.resolved),
-  resolutions: parseAsArray(query.resolutions, parseAsString),
-  rules: parseAsArray(query.rules, parseAsString),
-  sort: parseAsSort(query.s),
-  severities: parseAsArray(query.severities, parseAsString),
-  sinceLeakPeriod: parseAsBoolean(query.sinceLeakPeriod, false),
-  statuses: parseAsArray(query.statuses, parseAsString),
-  tags: parseAsArray(query.tags, parseAsString),
-  types: parseAsArray(query.types, parseAsString)
-});
+export function parseQuery(query /*: RawQuery */) /*: Query */ {
+  return {
+    assigned: parseAsBoolean(query.assigned),
+    assignees: parseAsArray(query.assignees, parseAsString),
+    authors: parseAsArray(query.authors, parseAsString),
+    createdAfter: parseAsString(query.createdAfter),
+    createdAt: parseAsString(query.createdAt),
+    createdBefore: parseAsString(query.createdBefore),
+    createdInLast: parseAsString(query.createdInLast),
+    directories: parseAsArray(query.directories, parseAsString),
+    facetMode: parseAsFacetMode(query.facetMode),
+    files: parseAsArray(query.fileUuids, parseAsString),
+    issues: parseAsArray(query.issues, parseAsString),
+    languages: parseAsArray(query.languages, parseAsString),
+    modules: parseAsArray(query.moduleUuids, parseAsString),
+    projects: parseAsArray(query.projectUuids, parseAsString),
+    resolved: parseAsBoolean(query.resolved),
+    resolutions: parseAsArray(query.resolutions, parseAsString),
+    rules: parseAsArray(query.rules, parseAsString),
+    sort: parseAsSort(query.s),
+    severities: parseAsArray(query.severities, parseAsString),
+    sinceLeakPeriod: parseAsBoolean(query.sinceLeakPeriod, false),
+    statuses: parseAsArray(query.statuses, parseAsString),
+    tags: parseAsArray(query.tags, parseAsString),
+    types: parseAsArray(query.types, parseAsString)
+  };
+}
 
-export const getOpen = (query /*: RawQuery */) => query.open;
+export function getOpen(query /*: RawQuery */) /*: string */ {
+  return query.open;
+}
 
-export const areMyIssuesSelected = (query /*: RawQuery */ /*: boolean */) =>
-  query.myIssues === 'true';
+export const areMyIssuesSelected = (query /*: RawQuery */) => query.myIssues === 'true';
 
-export const serializeQuery = (query /*: Query */ /*: RawQuery */) => {
+export function serializeQuery(query /*: Query */) /*: RawQuery */ {
   const filter = {
     assigned: query.assigned ? undefined : 'false',
     assignees: serializeStringArray(query.assignees),
@@ -131,7 +133,7 @@ export const serializeQuery = (query /*: Query */ /*: RawQuery */) => {
     types: serializeStringArray(query.types)
   };
   return cleanQuery(filter);
-};
+}
 
 export const areQueriesEqual = (a /*: RawQuery */, b /*: RawQuery */) =>
   queriesEqual(parseQuery(a), parseQuery(b));
@@ -147,16 +149,16 @@ type RawFacet = {
 export type Facet = { [string]: number };
 */
 
-export const mapFacet = (facet /*: string */ /*: string */) => {
+export function mapFacet(facet /*: string */) /*: string */ {
   const propertyMapping = {
     files: 'fileUuids',
     modules: 'moduleUuids',
     projects: 'projectUuids'
   };
   return propertyMapping[facet] || facet;
-};
+}
 
-export const parseFacets = (facets /*: Array<RawFacet> */ /*: { [string]: Facet } */) => {
+export function parseFacets(facets /*: Array<RawFacet> */) /*: { [string]: Facet } */ {
   // for readability purpose
   const propertyMapping = {
     fileUuids: 'files',
@@ -174,7 +176,7 @@ export const parseFacets = (facets /*: Array<RawFacet> */ /*: { [string]: Facet 
     result[finalProperty] = values;
   });
   return result;
-};
+}
 
 export function formatFacetStat(stat /*: ?number */, mode /*: string */) /*: string | void */ {
   if (stat != null) {
@@ -243,7 +245,7 @@ const LOCALSTORAGE_KEY = 'sonarqube.issues.default';
 const LOCALSTORAGE_MY = 'my';
 const LOCALSTORAGE_ALL = 'all';
 
-export const isMySet = () => /*: boolean */ {
+export const isMySet = () => {
   const setting = window.localStorage.getItem(LOCALSTORAGE_KEY);
   return setting === LOCALSTORAGE_MY;
 };

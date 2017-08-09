@@ -151,7 +151,7 @@ export default class Search extends React.PureComponent {
     );
   };
 
-  getPlainComponentsList = (results /*: Results */, more /*: More */ /*: Array<string> */) =>
+  getPlainComponentsList = (results /*: Results */, more /*: More */) =>
     sortQualifiers(Object.keys(results)).reduce((components, qualifier) => {
       const next = [...components, ...results[qualifier].map(component => component.key)];
       if (more[qualifier]) {

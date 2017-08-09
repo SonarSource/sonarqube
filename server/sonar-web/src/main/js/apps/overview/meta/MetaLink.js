@@ -50,7 +50,7 @@ export default class MetaLink extends React.PureComponent {
   handleClick = (e /*: Object */) => {
     e.preventDefault();
     e.target.blur();
-    this.setState((s /*: State */ /*: State */) => ({ expanded: !s.expanded }));
+    this.setState((s /*: State */) => ({ expanded: !s.expanded }));
   };
 
   renderLinkIcon(link /*: Link */) {

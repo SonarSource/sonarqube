@@ -86,7 +86,7 @@ export function getComponentTree(
 
 export function getChildren(
   componentKey /*: string */,
-  metrics /*: ?Array<string> */,
+  metrics /*: Array<string> | void */,
   additional /*: ?Object */
 ) {
   return getComponentTree('children', componentKey, metrics, additional);
@@ -94,7 +94,7 @@ export function getChildren(
 
 export function getComponentLeaves(
   componentKey /*: string */,
-  metrics /*: ?Array<string> */,
+  metrics /*: Array<string> | void */,
   additional /*: ?Object */
 ) {
   return getComponentTree('leaves', componentKey, metrics, additional);

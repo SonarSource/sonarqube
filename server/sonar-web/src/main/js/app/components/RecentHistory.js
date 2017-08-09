@@ -65,7 +65,7 @@ export default class RecentHistory {
     componentKey /*: string */,
     componentName /*: string */,
     icon /*: string */,
-    organization /*: ?string */
+    organization /*: string | void */
   ) /*: void */ {
     const sonarHistory = RecentHistory.get();
     const newEntry = { key: componentKey, name: componentName, icon, organization };

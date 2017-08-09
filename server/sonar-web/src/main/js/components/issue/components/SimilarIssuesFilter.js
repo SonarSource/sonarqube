@@ -47,7 +47,7 @@ export default class SimilarIssuesFilter extends React.PureComponent {
     this.props.onFilter(property, issue);
   };
 
-  togglePopup = (open /*: ?boolean */) => {
+  togglePopup = (open /*: boolean | void */) => {
     this.props.togglePopup('similarIssues', open);
   };
 

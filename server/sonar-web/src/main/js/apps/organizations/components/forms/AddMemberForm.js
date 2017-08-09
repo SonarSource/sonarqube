@@ -56,7 +56,7 @@ export default class AddMemberForm extends React.PureComponent {
     this.setState({ open: false, selectedMember: undefined });
   };
 
-  handleSearch = (query /*: ?string */, ps /*: number */ /*: Promise<*> */) => {
+  handleSearch = (query /*: ?string */, ps /*: number */) => {
     const data = { organization: this.props.organization.key, ps, selected: 'deselected' };
     if (!query) {
       return searchMembers(data);

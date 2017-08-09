@@ -49,7 +49,7 @@ export default class IssueTransition extends React.PureComponent {
     this.toggleSetTransition();
   };
 
-  toggleSetTransition = (open /*: ?boolean */) => {
+  toggleSetTransition = (open /*: boolean | void */) => {
     this.props.togglePopup('transition', open);
   };
 

@@ -20,7 +20,7 @@
 // @flow
 /*:: import type { SourceLine } from '../types'; */
 
-const getCoverageStatus = (s /*: SourceLine */ /*: string | null */) => {
+export default function getCoverageStatus(s /*: SourceLine */) /*: string | null */ {
   let status = null;
   if (s.lineHits != null && s.lineHits > 0) {
     status = 'partially-covered';
@@ -32,6 +32,4 @@ const getCoverageStatus = (s /*: SourceLine */ /*: string | null */) => {
     status = 'uncovered';
   }
   return status;
-};
-
-export default getCoverageStatus;
+}

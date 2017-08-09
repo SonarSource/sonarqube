@@ -355,14 +355,17 @@ export default class App extends React.PureComponent {
       : undefined;
 
     const parameters = {
-      componentKeys: component && component.key,
       s: 'FILE_LINE',
       ...serializeQuery(query),
-      ps: 100,
+      ps: '100',
       organization: organization && organization.key,
       facets,
       ...additional
     };
+
+    if (component) {
+      Object.assign(parameters, { componentKeys: component.key });
+    }
 
     // only sorting by CREATION_DATE is allowed, so let's sort DESC
     if (query.sort) {
@@ -401,7 +404,7 @@ export default class App extends React.PureComponent {
     });
   }
 
-  fetchIssuesPage = (p /*: number */ /*: Promise<*> */) => {
+  fetchIssuesPage = (p /*: number */) => {
     return this.fetchIssues({ p });
   };
 
@@ -448,10 +451,9 @@ export default class App extends React.PureComponent {
       return Promise.reject();
     }
 
-    const isSameComponent = (issue /*: Issue */ /*: boolean */) =>
-      issue.component === openIssue.component;
+    const isSameComponent = (issue /*: Issue */) => issue.component === openIssue.component;
 
-    const done = (issues /*: Array<Issue> */, paging /*: Paging */ /*: boolean */) => {
+    const done = (issues /*: Array<Issue> */, paging /*: Paging */) => {
       if (paging.total <= paging.pageIndex * paging.pageSize) {
         return true;
       }

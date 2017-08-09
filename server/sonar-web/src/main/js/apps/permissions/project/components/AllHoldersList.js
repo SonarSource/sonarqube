@@ -83,7 +83,7 @@ export default class AllHoldersList extends React.PureComponent {
     }
   };
 
-  handleSelectPermission = (permission /*: ?string */) => {
+  handleSelectPermission = (permission /*: string | void */) => {
     this.props.onPermissionSelect(permission);
   };
 

@@ -41,11 +41,13 @@ const reducer = (state /*: State */ = {}, action /*: Action */) => {
 
 export default reducer;
 
-export const getDefinition = (state /*: State */, key /*: string */ /*: Definition */) =>
-  state[key];
+export function getDefinition(state /*: State */, key /*: string */) /*: Definition */ {
+  return state[key];
+}
 
-export const getAllDefinitions = (state /*: State */ /*: Definition[] */) =>
-  Object.keys(state).map(key => state[key]);
+export function getAllDefinitions(state /*: State */) /*: Definition[] */ {
+  return Object.keys(state).map(key => state[key]);
+}
 
 export const getDefinitionsForCategory = (state /*: State */, category /*: string */) =>
   getAllDefinitions(state).filter(

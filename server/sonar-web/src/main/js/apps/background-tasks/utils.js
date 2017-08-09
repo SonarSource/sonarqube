@@ -19,7 +19,7 @@
  */
 /* @flow */
 import { STATUSES, ALL_TYPES, CURRENTS } from './constants';
-/*:: import type { Task } from '../types'; */
+/*:: import type { Task } from './types'; */
 
 export function updateTask(tasks /*: Task[] */, newTask /*: Task */) {
   return tasks.map(task => (task.id === newTask.id ? newTask : task));

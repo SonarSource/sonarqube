@@ -122,7 +122,7 @@ export default class Onboarding extends React.PureComponent {
     this.finishOnboarding();
   };
 
-  handleFinish = (projectKey /*: ?string */) => this.setState({ finished: true, projectKey });
+  handleFinish = (projectKey /*: string | void */) => this.setState({ finished: true, projectKey });
 
   handleReset = () => this.setState({ finished: false });
 

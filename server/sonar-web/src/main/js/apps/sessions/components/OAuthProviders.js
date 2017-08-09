@@ -50,8 +50,8 @@ export default function OAuthProviders(props /*: Props */) {
                 height="20"
                 src={window.baseUrl + identityProvider.iconPath}
               />
-              {/* $FlowFixMe formatLabel is always defined through defaultProps */}
               <span>
+                {/* $FlowFixMe formatLabel is always defined through defaultProps */}
                 {props.formatLabel(identityProvider.name)}
               </span>
             </a>

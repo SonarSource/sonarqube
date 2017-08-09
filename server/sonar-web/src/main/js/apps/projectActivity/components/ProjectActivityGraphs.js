@@ -136,7 +136,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     }
   };
 
-  getMetricsTypeFilter = () => /*: ?Array<string> */ {
+  getMetricsTypeFilter = () => {
     if (this.state.graphs.length < MAX_GRAPH_NB) {
       return null;
     }

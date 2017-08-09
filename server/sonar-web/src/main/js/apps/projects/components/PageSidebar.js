@@ -60,11 +60,12 @@ export default function PageSidebar(
   const pathname = basePathName + (isFavorite ? '/favorite' : '');
   const facetProps = { query, isFavorite, organization };
 
-  let linkQuery;
+  let linkQuery = null;
   if (view !== 'overall') {
     linkQuery = { view };
 
     if (view === 'visualizations') {
+      // $FlowFixMe
       linkQuery.visualization = visualization;
     }
   }

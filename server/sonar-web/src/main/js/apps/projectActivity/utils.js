@@ -98,12 +98,12 @@ export const generateCoveredLinesMetric = (
   };
 };
 
-export const generateSeries = (
+export function generateSeries(
   measuresHistory /*: Array<MeasureHistory> */,
   graph /*: string */,
   metrics /*: Array<Metric> */,
   displayedMetrics /*: Array<string> */
-) => {
+) /*: Array<Serie> */ {
   if (displayedMetrics.length <= 0) {
     return [];
   }
@@ -127,7 +127,7 @@ export const generateSeries = (
       }),
     serie => displayedMetrics.indexOf(serie.name)
   );
-};
+}
 
 export const splitSeriesInGraphs = (
   series /*: Array<Serie> */,
@@ -180,41 +180,41 @@ export function getAnalysesByVersionByDay(analyses /*: Array<Analysis> */, query
 
 export const getDisplayedHistoryMetrics = (
   graph /*: string */,
-  customMetrics /*: Array<string> */ /*: Array<string> */
+  customMetrics /*: Array<string> */
 ) => (isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS_DISPLAYED[graph]);
 
-export const getHistoryMetrics = (
-  graph /*: string */,
-  customMetrics /*: Array<string> */ /*: Array<string> */
-) => (isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS[graph]);
+export const getHistoryMetrics = (graph /*: string */, customMetrics /*: Array<string> */) =>
+  isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS[graph];
 
-const parseGraph = (value /*: ?string */ /*: string */) => {
+const parseGraph = (value /*: ?string */) => {
   const graph = parseAsString(value);
   return GRAPH_TYPES.includes(graph) ? graph : DEFAULT_GRAPH;
 };
 
-const serializeGraph = (value /*: string */ /*: ?string */) =>
-  value === DEFAULT_GRAPH ? undefined : value;
+const serializeGraph = (value /*: string */) => (value === DEFAULT_GRAPH ? undefined : value);
 
-export const parseQuery = (urlQuery /*: RawQuery */ /*: Query */) => ({
-  category: parseAsString(urlQuery['category']),
-  customMetrics: parseAsArray(urlQuery['custom_metrics'], parseAsString),
-  from: parseAsDate(urlQuery['from']),
-  graph: parseGraph(urlQuery['graph']),
-  project: parseAsString(urlQuery['id']),
-  to: parseAsDate(urlQuery['to']),
-  selectedDate: parseAsDate(urlQuery['selected_date'])
-});
+export function parseQuery(urlQuery /*: RawQuery */) /*: Query */ {
+  return {
+    category: parseAsString(urlQuery['category']),
+    customMetrics: parseAsArray(urlQuery['custom_metrics'], parseAsString),
+    from: parseAsDate(urlQuery['from']),
+    graph: parseGraph(urlQuery['graph']),
+    project: parseAsString(urlQuery['id']),
+    to: parseAsDate(urlQuery['to']),
+    selectedDate: parseAsDate(urlQuery['selected_date'])
+  };
+}
 
-export const serializeQuery = (query /*: Query */ /*: RawQuery */) =>
-  cleanQuery({
+export function serializeQuery(query /*: Query */) /*: RawQuery */ {
+  return cleanQuery({
     category: serializeString(query.category),
     from: serializeDate(query.from),
     project: serializeString(query.project),
     to: serializeDate(query.to)
   });
+}
 
-export const serializeUrlQuery = (query /*: Query */ /*: RawQuery */) => {
+export function serializeUrlQuery(query /*: Query */) /*: RawQuery */ {
   return cleanQuery({
     category: serializeString(query.category),
     custom_metrics: serializeStringArray(query.customMetrics),
@@ -224,4 +224,4 @@ export const serializeUrlQuery = (query /*: Query */ /*: RawQuery */) => {
     to: serializeDate(query.to),
     selected_date: serializeDate(query.selectedDate)
   });
-};
+}

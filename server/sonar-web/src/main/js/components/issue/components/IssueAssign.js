@@ -39,7 +39,7 @@ type Props = {
 export default class IssueAssign extends React.PureComponent {
   /*:: props: Props; */
 
-  toggleAssign = (open /*: ?boolean */) => {
+  toggleAssign = (open /*: boolean | void */) => {
     this.props.togglePopup('assign', open);
   };
 

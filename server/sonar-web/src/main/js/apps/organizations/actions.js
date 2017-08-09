@@ -44,7 +44,7 @@ const onMembersFail = (organization /*: string */, dispatch /*: Function */) => 
   dispatch(membersActions.updateState(organization, { loading: false }));
 };
 
-export const fetchOrganization = (key /*: string */) => dispatch => {
+export const fetchOrganization = (key /*: string */) => (dispatch /*: Function */) => {
   const onFulfilled = ([organization, navigation]) => {
     if (organization) {
       const organizationWithPermissions = { ...organization, ...navigation };
@@ -58,13 +58,15 @@ export const fetchOrganization = (key /*: string */) => dispatch => {
   );
 };
 
-export const fetchOrganizationGroups = (organization /*: string */) => dispatch => {
+export const fetchOrganizationGroups = (organization /*: string */) => (
+  dispatch /*: Function */
+) => {
   return searchUsersGroups({ organization }).then(response => {
     dispatch(actions.receiveOrganizationGroups(organization, response.groups));
   }, onFail(dispatch));
 };
 
-export const createOrganization = fields => dispatch => {
+export const createOrganization = (fields /*: Object */) => (dispatch /*: Function */) => {
   const onFulfilled = (organization /*: Organization */) => {
     dispatch(actions.createOrganization(organization));
     dispatch(
@@ -75,7 +77,9 @@ export const createOrganization = fields => dispatch => {
   return api.createOrganization(fields).then(onFulfilled, onRejected(dispatch));
 };
 
-export const updateOrganization = (key /*: string */, changes /*: {} */) => dispatch => {
+export const updateOrganization = (key /*: string */, changes /*: {} */) => (
+  dispatch /*: Function */
+) => {
   const onFulfilled = () => {
     dispatch(actions.updateOrganization(key, changes));
     dispatch(addGlobalSuccessMessage(translate('organization.updated')));
@@ -84,7 +88,7 @@ export const updateOrganization = (key /*: string */, changes /*: {} */) => disp
   return api.updateOrganization(key, changes).then(onFulfilled, onFail(dispatch));
 };
 
-export const deleteOrganization = (key /*: string */) => dispatch => {
+export const deleteOrganization = (key /*: string */) => (dispatch /*: Function */) => {
   const onFulfilled = () => {
     dispatch(actions.deleteOrganization(key));
     dispatch(addGlobalSuccessMessage(translate('organization.deleted')));

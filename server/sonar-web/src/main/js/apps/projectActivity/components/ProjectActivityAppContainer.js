@@ -137,10 +137,10 @@ class ProjectActivityAppContainer extends React.PureComponent {
           this.mounted && this.setState(actions.addCustomEvent(analysis, event))
       );
 
-  addVersion = (analysis /*: string */, version /*: string */ /*: Promise<*> */) =>
+  addVersion = (analysis /*: string */, version /*: string */) =>
     this.addCustomEvent(analysis, version, 'VERSION');
 
-  changeEvent = (event /*: string */, name /*: string */ /*: Promise<*> */) =>
+  changeEvent = (event /*: string */, name /*: string */) =>
     api
       .changeEvent(event, name)
       .then(
@@ -148,7 +148,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
           this.mounted && this.setState(actions.changeEvent(analysis, event))
       );
 
-  deleteAnalysis = (analysis /*: string */ /*: Promise<*> */) =>
+  deleteAnalysis = (analysis /*: string */) =>
     api.deleteAnalysis(analysis).then(() => {
       if (this.mounted) {
         this.updateGraphData(this.state.query.graph, this.state.query.customMetrics);
@@ -156,7 +156,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
       }
     });
 
-  deleteEvent = (analysis /*: string */, event /*: string */ /*: Promise<*> */) =>
+  deleteEvent = (analysis /*: string */, event /*: string */) =>
     api
       .deleteEvent(event)
       .then(() => this.mounted && this.setState(actions.deleteEvent(analysis, event)));
@@ -178,7 +178,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
       }));
   };
 
-  fetchMeasuresHistory = (metrics /*: Array<string> */ /*: Promise<Array<MeasureHistory>> */) => {
+  fetchMeasuresHistory = (metrics /*: Array<string> */) => {
     if (metrics.length <= 0) {
       return Promise.resolve([]);
     }
@@ -195,7 +195,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
     );
   };
 
-  fetchMetrics = () => /*: Promise<Array<Metric>> */ getMetrics().catch(throwGlobalError);
+  fetchMetrics = () => getMetrics().catch(throwGlobalError);
 
   loadAllActivities = (
     project /*: string */,

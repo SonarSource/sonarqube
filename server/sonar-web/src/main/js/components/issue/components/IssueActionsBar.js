@@ -79,7 +79,7 @@ export default class IssueActionsBar extends React.PureComponent {
     this.props.togglePopup(popup, false);
   };
 
-  toggleComment = (open /*: ?boolean */, placeholder /*: ?string */) => {
+  toggleComment = (open /*: boolean | void */, placeholder /*: string | void */) => {
     this.setState({ commentPlaceholder: placeholder || '' });
     this.props.togglePopup('comment', open);
   };
