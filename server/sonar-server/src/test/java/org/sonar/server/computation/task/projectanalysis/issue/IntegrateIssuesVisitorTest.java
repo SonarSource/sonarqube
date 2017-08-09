@@ -20,7 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -29,7 +28,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -54,12 +52,13 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
+import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitor;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.server.computation.task.projectanalysis.issue.commonrule.CommonRuleEngineImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.filter.IssueFilter;
@@ -104,23 +103,24 @@ public class IntegrateIssuesVisitorTest {
   public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
 
   @Mock
-  AnalysisMetadataHolderRule analysisMetadataHolder;
+  private AnalysisMetadataHolder analysisMetadataHolder;
   @Mock
-  IssueFilter issueFilter;
+  private IssueFilter issueFilter;
   @Mock
-  MovedFilesRepository movedFilesRepository;
+  private MovedFilesRepository movedFilesRepository;
   @Mock
-  IssueLifecycle issueLifecycle;
+  private IssueLifecycle issueLifecycle;
   @Mock
-  IssueVisitor issueVisitor;
+  private IssueVisitor issueVisitor;
 
   ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
 
-  BaseIssuesLoader baseIssuesLoader = new BaseIssuesLoader(treeRootHolder, dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule);
-
+  ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule);
+  MergeBranchIssuesLoader mergeIssuesLoader = new MergeBranchIssuesLoader(dbTester.getDbClient(), issuesLoader, analysisMetadataHolder);
+  IssueTrackingDelegator trackingDelegator;
   TrackerExecution tracker;
+  ShortBranchTrackerExecution shortBranchTracker;
   IssueCache issueCache;
-  ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues = new ComponentsWithUnprocessedIssues();
 
   TypeAwareVisitor underTest;
 
@@ -129,23 +129,26 @@ public class IntegrateIssuesVisitorTest {
     MockitoAnnotations.initMocks(this);
     IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[] {issueVisitor});
 
-    tracker = new TrackerExecution(new TrackerBaseInputFactory(baseIssuesLoader, dbTester.getDbClient(), movedFilesRepository),
-      new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, new CommonRuleEngineImpl(), issueFilter),
-      new Tracker<>());
+    when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.<MovedFilesRepository.OriginalFile>absent());
 
+    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, new CommonRuleEngineImpl(), issueFilter);
+    TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbTester.getDbClient(), movedFilesRepository);
+    TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(mergeIssuesLoader, dbTester.getDbClient());
+    tracker = new TrackerExecution(baseInputFactory, rawInputFactory, new Tracker<>());
+    shortBranchTracker = new ShortBranchTrackerExecution(baseInputFactory, rawInputFactory, mergeInputFactory, new Tracker<>());
+
+    trackingDelegator = new IssueTrackingDelegator(shortBranchTracker, tracker, analysisMetadataHolder);
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     when(analysisMetadataHolder.isIncrementalAnalysis()).thenReturn(false);
+    when(analysisMetadataHolder.getBranch()).thenReturn(java.util.Optional.of(new DefaultBranchImpl()));
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.<MovedFilesRepository.OriginalFile>absent());
-    underTest = new IntegrateIssuesVisitor(tracker, issueCache, issueLifecycle, issueVisitors, componentsWithUnprocessedIssues,
-      movedFilesRepository, baseIssuesLoader, analysisMetadataHolder);
+    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, issuesLoader, analysisMetadataHolder, trackingDelegator);
   }
 
   @Test
   public void process_issues_on_incremental_mode() {
     when(analysisMetadataHolder.isIncrementalAnalysis()).thenReturn(true);
-    componentsWithUnprocessedIssues.setUuids(Collections.singleton(FILE_UUID));
 
     Component file = builder(Component.Type.FILE, FILE_REF)
       .setKey(FILE_KEY)
@@ -157,20 +160,19 @@ public class IntegrateIssuesVisitorTest {
 
     underTest.visitAny(file);
 
-    verify(issueLifecycle).updateExistingOpenissue(defaultIssueCaptor.capture());
-    assertThat(defaultIssueCaptor.getValue().ruleKey().rule()).isEqualTo("x1");
-
     verify(issueLifecycle).doAutomaticTransition(defaultIssueCaptor.capture());
     assertThat(defaultIssueCaptor.getValue().ruleKey().rule()).isEqualTo("x1");
 
     assertThat(newArrayList(issueCache.traverse())).hasSize(1);
-    assertThat(componentsWithUnprocessedIssues.getUuids()).isEmpty();
+  }
+  
+  @Test
+  public void process_short_branch_issues() {
+    //TODO
   }
 
   @Test
   public void process_new_issue() throws Exception {
-    componentsWithUnprocessedIssues.setUuids(Collections.<String>emptySet());
-
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository("xoo")
@@ -189,12 +191,10 @@ public class IntegrateIssuesVisitorTest {
     assertThat(defaultIssueCaptor.getValue().ruleKey().rule()).isEqualTo("S001");
 
     assertThat(newArrayList(issueCache.traverse())).hasSize(1);
-    assertThat(componentsWithUnprocessedIssues.getUuids()).isEmpty();
   }
 
   @Test
   public void process_existing_issue() throws Exception {
-    componentsWithUnprocessedIssues.setUuids(newHashSet(FILE_UUID));
 
     RuleKey ruleKey = RuleTesting.XOO_X1;
     // Issue from db has severity major
@@ -224,12 +224,10 @@ public class IntegrateIssuesVisitorTest {
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
 
-    assertThat(componentsWithUnprocessedIssues.getUuids()).isEmpty();
   }
 
   @Test
   public void execute_issue_visitors() throws Exception {
-    componentsWithUnprocessedIssues.setUuids(Collections.<String>emptySet());
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository("xoo")
@@ -249,7 +247,6 @@ public class IntegrateIssuesVisitorTest {
 
   @Test
   public void close_unmatched_base_issue() throws Exception {
-    componentsWithUnprocessedIssues.setUuids(newHashSet(FILE_UUID));
     RuleKey ruleKey = RuleTesting.XOO_X1;
     addBaseIssue(ruleKey);
 
@@ -261,20 +258,19 @@ public class IntegrateIssuesVisitorTest {
     assertThat(defaultIssueCaptor.getValue().isBeingClosed()).isTrue();
     List<DefaultIssue> issues = newArrayList(issueCache.traverse());
     assertThat(issues).hasSize(1);
-
-    assertThat(componentsWithUnprocessedIssues.getUuids()).isEmpty();
   }
 
   @Test
   public void remove_uuid_of_original_file_from_componentsWithUnprocessedIssues_if_component_has_one() {
     String originalFileUuid = "original file uuid";
-    componentsWithUnprocessedIssues.setUuids(newHashSet(FILE_UUID, originalFileUuid));
     when(movedFilesRepository.getOriginalFile(FILE))
       .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile(4851, originalFileUuid, "original file key")));
 
     underTest.visitAny(FILE);
-
-    assertThat(componentsWithUnprocessedIssues.getUuids()).isEmpty();
+  }
+  
+  private void addMergeIssue(RuleKey ruleKey) {
+    
   }
 
   private void addBaseIssue(RuleKey ruleKey) {
@@ -293,5 +289,4 @@ public class IntegrateIssuesVisitorTest {
     dbTester.getDbClient().issueDao().insert(dbTester.getSession(), issue);
     dbTester.getSession().commit();
   }
-
 }
