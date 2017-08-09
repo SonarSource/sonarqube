@@ -99,10 +99,10 @@ export default class App extends React.PureComponent {
 
   fetchMeasures = ({ component, fetchMeasures, metrics, metricsKey }: Props) => {
     this.setState({ loading: true });
-    const filterdKeys = metricsKey.filter(
+    const filteredKeys = metricsKey.filter(
       key => !metrics[key].hidden && !['DATA', 'DISTRIB'].includes(metrics[key].type)
     );
-    fetchMeasures(component.key, filterdKeys).then(
+    fetchMeasures(component.key, filteredKeys).then(
       ({ measures, leakPeriod }) => {
         if (this.mounted) {
           this.setState({

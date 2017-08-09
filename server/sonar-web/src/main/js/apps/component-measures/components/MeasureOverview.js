@@ -142,6 +142,7 @@ export default class MeasureOverview extends React.PureComponent {
           <div className="layout-page-header-panel-inner layout-page-main-header-inner">
             <div className="layout-page-main-inner clearfix">
               <Breadcrumbs
+                backToFirst={true}
                 className="measure-breadcrumbs spacer-right text-ellipsis"
                 component={component}
                 handleSelect={this.props.updateSelected}
