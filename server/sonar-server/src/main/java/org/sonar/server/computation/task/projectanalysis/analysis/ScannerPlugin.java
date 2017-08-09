@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.analysis;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
@@ -26,15 +28,22 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class ScannerPlugin {
   private final String key;
+  private final String basePluginKey;
   private final long updatedAt;
 
-  public ScannerPlugin(String key, long updatedAt) {
+  public ScannerPlugin(String key, @Nullable String basePluginKey, long updatedAt) {
     this.key = requireNonNull(key, "key can't be null");
+    this.basePluginKey = basePluginKey;
     this.updatedAt = updatedAt;
   }
 
   public String getKey() {
     return key;
+  }
+
+  @CheckForNull
+  public String getBasePluginKey() {
+    return basePluginKey;
   }
 
   public long getUpdatedAt() {
@@ -62,6 +71,7 @@ public class ScannerPlugin {
   public String toString() {
     return "ScannerPlugin{" +
       "key='" + key + '\'' +
+      ", basePluginKey='" + basePluginKey + '\'' +
       ", updatedAt='" + updatedAt + '\'' +
       '}';
   }
