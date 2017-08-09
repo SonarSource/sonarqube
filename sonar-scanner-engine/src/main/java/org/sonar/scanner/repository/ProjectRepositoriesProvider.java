@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.repository;
 
-import javax.annotation.Nullable;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
@@ -33,15 +32,14 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
   private static final String LOG_MSG = "Load project repositories";
   private ProjectRepositories project = null;
 
-  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode, @Nullable BranchConfiguration branchConfig) {
+  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode, BranchConfiguration branchConfig) {
     return provideInternal(loader, projectKey, mode.isIssues(), branchConfig);
   }
 
-  protected ProjectRepositories provideInternal(ProjectRepositoriesLoader loader, ProjectKey projectKey, boolean isIssueMode, @Nullable BranchConfiguration branchConfig) {
+  protected ProjectRepositories provideInternal(ProjectRepositoriesLoader loader, ProjectKey projectKey, boolean isIssueMode, BranchConfiguration branchConfig) {
     if (project == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      String branchTarget = branchConfig != null ? branchConfig.branchTarget() : null;
-      project = loader.load(projectKey.get(), isIssueMode, branchTarget);
+      project = loader.load(projectKey.get(), isIssueMode, branchConfig.branchTarget());
       checkProject(isIssueMode);
       profiler.stopInfo();
     }

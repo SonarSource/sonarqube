@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package com.sonarsource.branch;
+package org.sonar.scanner.scan;
 
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectKey;
@@ -25,7 +25,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.scan.BranchConfiguration;
 
 public class BranchConfigurationProvider extends ProviderAdapter {
 
