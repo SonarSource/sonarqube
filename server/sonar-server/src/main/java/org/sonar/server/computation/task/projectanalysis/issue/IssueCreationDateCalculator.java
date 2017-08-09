@@ -30,6 +30,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolder;
@@ -73,22 +74,35 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     ActiveRule activeRule = toJavaUtilOptional(activeRulesHolder.get(issue.getRuleKey()))
       .orElseThrow(illegalStateException("The rule %s raised an issue, but is not one of the active rules.", issue.getRuleKey()));
     if (firstAnalysis
-      || ruleIsNew(activeRule, lastAnalysisOptional.get())
-      || pluginIsNew(activeRule, lastAnalysisOptional.get())) {
+      || activeRuleIsNew(activeRule, lastAnalysisOptional.get())
+      || ruleImplementationChanged(activeRule, lastAnalysisOptional.get())) {
       getScmChangeDate(component, issue)
         .ifPresent(changeDate -> updateDate(issue, changeDate));
     }
   }
 
-  private boolean pluginIsNew(ActiveRule activeRule, Long lastAnalysisDate) {
+  private boolean ruleImplementationChanged(ActiveRule activeRule, long lastAnalysisDate) {
     String pluginKey = activeRule.getPluginKey();
-    long pluginUpdateDate = Optional.ofNullable(analysisMetadataHolder.getScannerPluginsByKey().get(pluginKey))
-      .orElseThrow(illegalStateException("The rule %s is declared to come from plugin %s, but this plugin was not used by scanner.", activeRule.getRuleKey(), pluginKey))
-      .getUpdatedAt();
-    return lastAnalysisDate < pluginUpdateDate;
+    ScannerPlugin scannerPlugin = Optional.ofNullable(analysisMetadataHolder.getScannerPluginsByKey().get(pluginKey))
+      .orElseThrow(illegalStateException("The rule %s is declared to come from plugin %s, but this plugin was not used by scanner.", activeRule.getRuleKey(), pluginKey));
+    return pluginIsNew(scannerPlugin, lastAnalysisDate)
+      || basePluginIsNew(scannerPlugin, lastAnalysisDate);
   }
 
-  private static boolean ruleIsNew(ActiveRule activeRule, Long lastAnalysisDate) {
+  private boolean basePluginIsNew(ScannerPlugin scannerPlugin, long lastAnalysisDate) {
+    String basePluginKey = scannerPlugin.getBasePluginKey();
+    if (basePluginKey == null) {
+      return false;
+    }
+    ScannerPlugin basePlugin = analysisMetadataHolder.getScannerPluginsByKey().get(basePluginKey);
+    return lastAnalysisDate < basePlugin.getUpdatedAt();
+  }
+
+  private static boolean pluginIsNew(ScannerPlugin scannerPlugin, long lastAnalysisDate) {
+    return lastAnalysisDate < scannerPlugin.getUpdatedAt();
+  }
+
+  private static boolean activeRuleIsNew(ActiveRule activeRule, Long lastAnalysisDate) {
     long ruleCreationDate = activeRule.getCreatedAt();
     return lastAnalysisDate < ruleCreationDate;
   }

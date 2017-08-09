@@ -99,7 +99,24 @@ public class IssueCreationDateCalculatorTest {
   }
 
   @Test
-  public void should_not_change_date_if_rule_is_old() {
+  public void should_not_change_date_if_rule_and_plugin_and_base_plugin_are_old() {
+    previousAnalysisWas(2000L);
+    currentAnalysisIs(3000L);
+
+    newIssue();
+    withScm(1200L);
+    ruleCreatedAt(1500L);
+    rulePlugin("customjava");
+    pluginUpdatedAt("customjava", "java", 1700L);
+    pluginUpdatedAt("java", 1700L);
+
+    run();
+
+    assertNoChangeOfCreationDate();
+  }
+
+  @Test
+  public void should_not_change_date_if_rule_and_plugin_are_old_and_no_base_plugin() {
     previousAnalysisWas(2000L);
     currentAnalysisIs(3000L);
 
@@ -184,6 +201,23 @@ public class IssueCreationDateCalculatorTest {
     assertChangeOfCreationDateTo(1200L);
   }
 
+  @Test
+  public void should_change_date_if_scm_is_available_and_base_plugin_is_new() {
+    previousAnalysisWas(2000L);
+    currentAnalysisIs(3000L);
+
+    newIssue();
+    withScm(1200L);
+    ruleCreatedAt(1500L);
+    rulePlugin("customjava");
+    pluginUpdatedAt("customjava", "java", 1000L);
+    pluginUpdatedAt("java", 2500L);
+
+    run();
+
+    assertChangeOfCreationDateTo(1200L);
+  }
+
   private void previousAnalysisWas(long analysisDate) {
     when(analysisMetadataHolder.getBaseAnalysis())
       .thenReturn(baseAnalysis);
@@ -192,7 +226,11 @@ public class IssueCreationDateCalculatorTest {
   }
 
   private void pluginUpdatedAt(String pluginKey, long updatedAt) {
-    scannerPlugins.put(pluginKey, new ScannerPlugin(pluginKey, updatedAt));
+    scannerPlugins.put(pluginKey, new ScannerPlugin(pluginKey, null, updatedAt));
+  }
+
+  private void pluginUpdatedAt(String pluginKey, String basePluginKey, long updatedAt) {
+    scannerPlugins.put(pluginKey, new ScannerPlugin(pluginKey, basePluginKey, updatedAt));
   }
 
   private void currentAnalysisIs(long analysisDate) {
