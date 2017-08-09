@@ -41,7 +41,7 @@ import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
-import org.sonar.scanner.scan.ProjectBranches;
+import org.sonar.scanner.scan.BranchConfiguration;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +62,7 @@ public class MetadataPublisherTest {
   private CpdSettings cpdSettings;
   private InputModuleHierarchy inputModuleHierarchy;
   private AnalysisMode analysisMode;
-  private ProjectBranches branches;
+  private BranchConfiguration branches;
 
   @Before
   public void prepare() throws IOException {
@@ -79,7 +79,7 @@ public class MetadataPublisherTest {
     inputModuleHierarchy = mock(InputModuleHierarchy.class);
     when(inputModuleHierarchy.root()).thenReturn(rootModule);
     analysisMode = mock(AnalysisMode.class);
-    branches = mock(ProjectBranches.class);
+    branches = mock(BranchConfiguration.class);
     underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings, analysisMode, branches);
   }
 
@@ -150,7 +150,7 @@ public class MetadataPublisherTest {
     String branchName = "long-lived";
     settings.setProperty(ScannerProperties.BRANCH_NAME, branchName);
 
-    when(branches.branchType()).thenReturn(ProjectBranches.BranchType.LONG);
+    when(branches.branchType()).thenReturn(BranchConfiguration.BranchType.LONG);
 
     File outputDir = temp.newFolder();
     underTest.publish(new ScannerReportWriter(outputDir));
