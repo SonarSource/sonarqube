@@ -83,7 +83,8 @@ export default class BubbleChart extends React.PureComponent {
     return `<div class="text-left">${inner.join('<br/>')}</div>`;
   }
 
-  handleBubbleClick = (component: ComponentEnhanced) => this.props.updateSelected(component.key);
+  handleBubbleClick = (component: ComponentEnhanced) =>
+    this.props.updateSelected(component.refKey || component.key);
 
   renderBubbleChart(
     xMetric: Metric,
