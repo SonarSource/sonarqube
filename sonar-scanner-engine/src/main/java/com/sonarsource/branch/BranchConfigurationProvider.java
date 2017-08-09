@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
+package com.sonarsource.branch;
 
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectKey;
@@ -25,21 +25,22 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import org.sonar.scanner.scan.BranchConfiguration;
 
-public class ProjectBranchesProvider extends ProviderAdapter {
+public class BranchConfigurationProvider extends ProviderAdapter {
 
-  private static final Logger LOG = Loggers.get(ProjectBranchesProvider.class);
+  private static final Logger LOG = Loggers.get(BranchConfigurationProvider.class);
   private static final String LOG_MSG = "Load project branches";
 
-  private ProjectBranches branches = null;
+  private BranchConfiguration branchConfiguration = null;
 
-  public ProjectBranches provide(ProjectBranchesLoader loader, ProjectKey projectKey, GlobalConfiguration globalConfiguration) {
-    if (branches == null) {
+  public BranchConfiguration provide(BranchConfigurationLoader loader, ProjectKey projectKey, GlobalConfiguration globalConfiguration) {
+    if (branchConfiguration == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      branches = loader.load(projectKey.get(), globalConfiguration);
+      branchConfiguration = loader.load(projectKey.get(), globalConfiguration);
       profiler.stopInfo();
     }
-    return branches;
+    return branchConfiguration;
   }
 
 }
