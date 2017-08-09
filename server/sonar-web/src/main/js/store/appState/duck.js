@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
+/*::
 type AppState = {
   adminPages?: Array<*>,
   authenticationError: boolean,
@@ -25,32 +26,44 @@ type AppState = {
   organizationsEnabled: boolean,
   qualifiers: ?Array<string>
 };
+*/
 
+/*::
 type SetAppStateAction = {
   type: 'SET_APP_STATE',
   appState: AppState
 };
+*/
 
+/*::
 type SetAdminPagesAction = {
   type: 'SET_ADMIN_PAGES',
   adminPages: Array<*>
 };
+*/
 
-export type Action = SetAppStateAction | SetAdminPagesAction;
+/*::
+export type Action = SetAppStateAction | SetAdminPagesAction; */
 
-export const setAppState = (appState: AppState): SetAppStateAction => ({
-  type: 'SET_APP_STATE',
-  appState
-});
+export function setAppState(appState /*: AppState */) /*: SetAppStateAction */ {
+  return {
+    type: 'SET_APP_STATE',
+    appState
+  };
+}
 
-export const setAdminPages = (adminPages: Array<*>): SetAdminPagesAction => ({
-  type: 'SET_ADMIN_PAGES',
-  adminPages
-});
+export function setAdminPages(adminPages /*: Array<*> */) /*: SetAdminPagesAction */ {
+  return {
+    type: 'SET_ADMIN_PAGES',
+    adminPages
+  };
+}
 
-export const requireAuthorization = () => ({
-  type: 'REQUIRE_AUTHORIZATION'
-});
+export function requireAuthorization() {
+  return {
+    type: 'REQUIRE_AUTHORIZATION'
+  };
+}
 
 const defaultValue = {
   authenticationError: false,
@@ -59,7 +72,7 @@ const defaultValue = {
   qualifiers: null
 };
 
-export default (state: AppState = defaultValue, action: Action) => {
+export default function(state /*: AppState */ = defaultValue, action /*: Action */) {
   if (action.type === 'SET_APP_STATE') {
     return { ...state, ...action.appState };
   }
@@ -73,6 +86,8 @@ export default (state: AppState = defaultValue, action: Action) => {
   }
 
   return state;
-};
+}
 
-export const getRootQualifiers = (state: AppState) => state.qualifiers;
+export function getRootQualifiers(state /*: AppState */) {
+  return state.qualifiers;
+}
