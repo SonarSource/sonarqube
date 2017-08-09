@@ -34,15 +34,15 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
  */
 public class CloseIssuesOnRemovedComponentsVisitor extends TypeAwareVisitorAdapter {
 
-  private final BaseIssuesLoader baseIssuesLoader;
+  private final ComponentIssuesLoader issuesLoader;
   private final ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;
   private final IssueCache issueCache;
   private final IssueLifecycle issueLifecycle;
 
-  public CloseIssuesOnRemovedComponentsVisitor(BaseIssuesLoader baseIssuesLoader, ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, IssueCache issueCache,
+  public CloseIssuesOnRemovedComponentsVisitor(ComponentIssuesLoader issuesLoader, ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, IssueCache issueCache,
     IssueLifecycle issueLifecycle) {
     super(CrawlerDepthLimit.PROJECT, POST_ORDER);
-    this.baseIssuesLoader = baseIssuesLoader;
+    this.issuesLoader = issuesLoader;
     this.componentsWithUnprocessedIssues = componentsWithUnprocessedIssues;
     this.issueCache = issueCache;
     this.issueLifecycle = issueLifecycle;
@@ -57,7 +57,7 @@ public class CloseIssuesOnRemovedComponentsVisitor extends TypeAwareVisitorAdapt
     DiskCache<DefaultIssue>.DiskAppender cacheAppender = issueCache.newAppender();
     try {
       for (String deletedComponentUuid : deletedComponentUuids) {
-        List<DefaultIssue> issues = baseIssuesLoader.loadForComponentUuid(deletedComponentUuid);
+        List<DefaultIssue> issues = issuesLoader.loadForComponentUuid(deletedComponentUuid);
         for (DefaultIssue issue : issues) {
           issue.setBeingClosed(true);
           // TODO should be renamed
