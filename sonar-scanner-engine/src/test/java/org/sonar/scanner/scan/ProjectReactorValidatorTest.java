@@ -43,7 +43,7 @@ public class ProjectReactorValidatorTest {
   @Before
   public void prepare() {
     mode = mock(DefaultAnalysisMode.class);
-    validator = new ProjectReactorValidator(mode, null);
+    validator = new ProjectReactorValidator(mode);
   }
 
   @Test
