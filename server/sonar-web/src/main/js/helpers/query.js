@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import { isNil, omitBy } from 'lodash';
 import moment from 'moment';
 
+/*::
 export type RawQuery = { [string]: string };
+*/
 
-const arraysEqual = <T>(a: Array<T>, b: Array<T>) => {
+function arraysEqual(a, b) {
   if (a.length !== b.length) {
     return false;
   }
@@ -32,9 +35,9 @@ const arraysEqual = <T>(a: Array<T>, b: Array<T>) => {
     }
   }
   return true;
-};
+}
 
-export const queriesEqual = <T>(a: T, b: T): boolean => {
+export function queriesEqual(a, b) /*: boolean */ {
   const keysA = Object.keys(a);
   const keysB = Object.keys(b);
 
@@ -48,35 +51,48 @@ export const queriesEqual = <T>(a: T, b: T): boolean => {
         ? arraysEqual(a[key], b[key])
         : a[key] === b[key]
   );
-};
+}
 
-export const cleanQuery = (query: { [string]: ?string }): RawQuery => omitBy(query, isNil);
+export function cleanQuery(query /*: { [string]: ?string } */) /*: RawQuery */ {
+  return omitBy(query, isNil);
+}
 
-export const parseAsBoolean = (value: ?string, defaultValue: boolean = true): boolean =>
-  value === 'false' ? false : value === 'true' ? true : defaultValue;
+export function parseAsBoolean(
+  value /*: ?string */,
+  defaultValue /*: boolean */ = true
+) /*: boolean */ {
+  return value === 'false' ? false : value === 'true' ? true : defaultValue;
+}
 
-export const parseAsDate = (value: ?string): ?Date => {
+export function parseAsDate(value /*: ?string */) /*: ?Date */ {
   const date = moment(value);
   if (value && date) {
     return date.toDate();
   }
-};
+}
 
-export const parseAsFacetMode = (facetMode: string) =>
-  facetMode === 'debt' || facetMode === 'effort' ? 'effort' : 'count';
+export function parseAsFacetMode(facetMode /*: string */) {
+  return facetMode === 'debt' || facetMode === 'effort' ? 'effort' : 'count';
+}
 
-export const parseAsString = (value: ?string): string => value || '';
+export function parseAsString(value /*: ?string */) /*: string */ {
+  return value || '';
+}
 
-export const parseAsArray = <T>(value: ?string, itemParser: string => T): Array<T> =>
-  value ? value.split(',').map(itemParser) : [];
+export function parseAsArray(value /*: ?string */, itemParser /*: string => * */) /*: Array<*> */ {
+  return value ? value.split(',').map(itemParser) : [];
+}
 
-export const serializeDate = (value: ?Date): ?string => {
+export function serializeDate(value /*: ?Date */) /*: ?string */ {
   if (value != null && value.toISOString) {
     return moment(value).format('YYYY-MM-DDTHH:mm:ssZZ');
   }
-};
+}
 
-export const serializeString = (value: string): ?string => value || undefined;
+export function serializeString(value /*: string */) /*: ?string */ {
+  return value || undefined;
+}
 
-export const serializeStringArray = (value: ?Array<string>): ?string =>
-  value && value.length ? value.join() : undefined;
+export function serializeStringArray(value /*: ?Array<string> */) /*: ?string */ {
+  return value && value.length ? value.join() : undefined;
+}

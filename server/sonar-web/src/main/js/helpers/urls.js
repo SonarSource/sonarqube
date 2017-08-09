@@ -97,21 +97,25 @@ export function getQualityProfileUrl(name, language, organization) {
   return getProfilePath(name, language, organization);
 }
 
-export const getQualityGateUrl = (key: string, organization?: string) => ({
-  pathname: getQualityGatesUrl(organization).pathname + '/show/' + encodeURIComponent(key)
-});
+export function getQualityGateUrl(key /*: string */, organization /*: ?string */) {
+  return {
+    pathname: getQualityGatesUrl(organization).pathname + '/show/' + encodeURIComponent(key)
+  };
+}
 
-export const getQualityGatesUrl = (organization?: string) => ({
-  pathname:
-    (organization ? '/organizations/' + encodeURIComponent(organization) : '') + '/quality_gates'
-});
+export function getQualityGatesUrl(organization /*: ?string */) {
+  return {
+    pathname:
+      (organization ? '/organizations/' + encodeURIComponent(organization) : '') + '/quality_gates'
+  };
+}
 
 /**
  * Generate URL for the rules page
  * @param {object} query
  * @returns {string}
  */
-export function getRulesUrl(query, organization?: string) {
+export function getRulesUrl(query, organization /*: ?string */) {
   const path = organization ? `/organizations/${organization}/rules` : '/coding_rules';
 
   if (query) {
@@ -131,7 +135,7 @@ export function getRulesUrl(query, organization?: string) {
  * @param {object} query
  * @returns {string}
  */
-export function getDeprecatedActiveRulesUrl(query = {}, organization?: string) {
+export function getDeprecatedActiveRulesUrl(query = {}, organization /*: ?string */) {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
   return getRulesUrl({ ...query, ...baseQuery }, organization);
 }

@@ -29,7 +29,7 @@ const PROJECTS_SORT = 'sonarqube.projects.sort';
 const PROJECT_ACTIVITY_GRAPH = 'sonarqube.project_activity.graph';
 const PROJECT_ACTIVITY_GRAPH_CUSTOM = 'sonarqube.project_activity.graph.custom';
 
-const save = (key: string, value: ?string) => {
+const save = (key /*: string */, value /*: ?string */) => {
   try {
     if (value) {
       window.localStorage.setItem(key, value);
@@ -42,35 +42,54 @@ const save = (key: string, value: ?string) => {
   }
 };
 
-export const saveFavorite = () => save(PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE);
-export const isFavoriteSet = (): boolean => {
+export function saveFavorite() {
+  save(PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE);
+}
+export function isFavoriteSet() /*: boolean */ {
   const setting = window.localStorage.getItem(PROJECTS_DEFAULT_FILTER);
   return setting === PROJECTS_FAVORITE;
-};
+}
 
-export const saveAll = () => save(PROJECTS_DEFAULT_FILTER, PROJECTS_ALL);
-export const isAllSet = (): boolean => {
+export function saveAll() {
+  save(PROJECTS_DEFAULT_FILTER, PROJECTS_ALL);
+}
+export function isAllSet() /*: boolean */ {
   const setting = window.localStorage.getItem(PROJECTS_DEFAULT_FILTER);
   return setting === PROJECTS_ALL;
-};
+}
 
-export const saveView = (view: ?string) => save(PROJECTS_VIEW, view);
-export const getView = () => window.localStorage.getItem(PROJECTS_VIEW);
+export function saveView(view /*: ?string */) {
+  save(PROJECTS_VIEW, view);
+}
+export function getView() {
+  return window.localStorage.getItem(PROJECTS_VIEW);
+}
 
-export const saveVisualization = (visualization: ?string) =>
+export function saveVisualization(visualization /*: ?string */) {
   save(PROJECTS_VISUALIZATION, visualization);
-export const getVisualization = () => window.localStorage.getItem(PROJECTS_VISUALIZATION);
+}
+export function getVisualization() {
+  window.localStorage.getItem(PROJECTS_VISUALIZATION);
+}
 
-export const saveSort = (sort: ?string) => save(PROJECTS_SORT, sort);
-export const getSort = () => window.localStorage.getItem(PROJECTS_SORT);
+export function saveSort(sort /*: ?string */) {
+  save(PROJECTS_SORT, sort);
+}
+export function getSort() {
+  window.localStorage.getItem(PROJECTS_SORT);
+}
 
-export const saveCustomGraph = (metrics: ?Array<string>) =>
+export function saveCustomGraph(metrics /*: ?Array<string> */) {
   save(PROJECT_ACTIVITY_GRAPH_CUSTOM, metrics ? metrics.join(',') : '');
-export const getCustomGraph = (): Array<string> => {
+}
+export function getCustomGraph() /*: Array<string> */ {
   const customGraphs = window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH_CUSTOM);
   return customGraphs ? customGraphs.split(',') : [];
-};
+}
 
-export const saveGraph = (graph: ?string) => save(PROJECT_ACTIVITY_GRAPH, graph);
-export const getGraph = (): string =>
+export function saveGraph(graph /*: ?string */) {
+  save(PROJECT_ACTIVITY_GRAPH, graph);
+}
+export function getGraph() /*: string */ {
   window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH) || 'issues';
+}

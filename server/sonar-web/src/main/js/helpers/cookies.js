@@ -20,7 +20,7 @@
 // @flow
 let cookies;
 
-export function getCookie(name: string) {
+export function getCookie(name /*: string */) {
   if (cookies) {
     return cookies[name];
   }

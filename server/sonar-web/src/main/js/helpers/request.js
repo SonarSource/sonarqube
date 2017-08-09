@@ -22,16 +22,18 @@ import { stringify } from 'querystring';
 import { omitBy, isNil } from 'lodash';
 import { getCookie } from './cookies';
 
+/*::
 type Response = {
   json: () => Promise<Object>,
   status: number
 };
+*/
 
-export function getCSRFTokenName(): string {
+export function getCSRFTokenName() /*: string */ {
   return 'X-XSRF-TOKEN';
 }
 
-export function getCSRFTokenValue(): string {
+export function getCSRFTokenValue() /*: string */ {
   const cookieName = 'XSRF-TOKEN';
   const cookieValue = getCookie(cookieName);
   if (!cookieValue) {
@@ -44,24 +46,24 @@ export function getCSRFTokenValue(): string {
  * Return an object containing a special http request header used to prevent CSRF attacks.
  * @returns {Object}
  */
-export function getCSRFToken(): Object {
+export function getCSRFToken() /*: Object */ {
   // Fetch API in Edge doesn't work with empty header,
   // so we ensure non-empty value
   const value = getCSRFTokenValue();
   return value ? { [getCSRFTokenName()]: value } : {};
 }
 
-export function omitNil(obj: Object): Object {
+export function omitNil(obj /*: Object */) /*: Object */ {
   return omitBy(obj, isNil);
 }
 
 /**
  * Default options for any request
  */
-const DEFAULT_OPTIONS: {
+const DEFAULT_OPTIONS /*: {
   credentials: string,
   method: string
-} = {
+} */ = {
   method: 'GET',
   credentials: 'same-origin'
 };
@@ -69,9 +71,9 @@ const DEFAULT_OPTIONS: {
 /**
  * Default request headers
  */
-const DEFAULT_HEADERS: {
+const DEFAULT_HEADERS /*: {
   'Accept': string
-} = {
+} */ = {
   Accept: 'application/json'
 };
 
@@ -79,21 +81,19 @@ const DEFAULT_HEADERS: {
  * Request
  */
 class Request {
-  url: string;
-  options: {
-    method?: string
-  };
-  headers: Object;
-  data: ?Object;
+  /*:: url: string; */
+  /*:: options: { method?: string }; */
+  /*:: headers: Object; */
+  /*:: data: ?Object; */
 
-  constructor(url: string): void {
+  constructor(url /*: string */) /*: void */ {
     this.url = url;
     this.options = {};
     this.headers = {};
   }
 
   submit() {
-    let url: string = this.url;
+    let url /*: string */ = this.url;
 
     const options = { ...DEFAULT_OPTIONS, ...this.options };
     const customHeaders = {};
@@ -122,17 +122,17 @@ class Request {
     return window.fetch(window.baseUrl + url, options);
   }
 
-  setMethod(method: string): Request {
+  setMethod(method /*: string */) /*: Request */ {
     this.options.method = method;
     return this;
   }
 
-  setData(data?: Object): Request {
+  setData(data /*: ?Object */) /*: Request */ {
     this.data = data;
     return this;
   }
 
-  setHeader(name: string, value: string): Request {
+  setHeader(name /*: string */, value /*: string */) /*: Request */ {
     this.headers[name] = value;
     return this;
   }
@@ -143,7 +143,7 @@ class Request {
  * @param {string} url
  * @returns {Request}
  */
-export function request(url: string): Request {
+export function request(url /*: string */) /*: Request */ {
   return new Request(url);
 }
 
@@ -152,7 +152,7 @@ export function request(url: string): Request {
  * @param response
  * @returns {*}
  */
-export function checkStatus(response: Response): Promise<Object> {
+export function checkStatus(response /*: Response */) /*: Promise<Object> */ {
   return new Promise((resolve, reject) => {
     if (response.status === 401) {
       // workaround cyclic dependencies
@@ -172,7 +172,7 @@ export function checkStatus(response: Response): Promise<Object> {
  * @param response
  * @returns {object}
  */
-export function parseJSON(response: Response): Promise<Object> {
+export function parseJSON(response /*: Response */) /*: Promise<Object> */ {
   return response.json();
 }
 
@@ -181,7 +181,7 @@ export function parseJSON(response: Response): Promise<Object> {
  * @param url
  * @param data
  */
-export function getJSON(url: string, data?: Object): Promise<Object> {
+export function getJSON(url /*: string */, data /*: ?Object */) /*: Promise<Object> */ {
   return request(url).setData(data).submit().then(checkStatus).then(parseJSON);
 }
 
@@ -190,7 +190,7 @@ export function getJSON(url: string, data?: Object): Promise<Object> {
  * @param url
  * @param data
  */
-export function postJSON(url: string, data?: Object): Promise<Object> {
+export function postJSON(url /*: string */, data /*: ?Object */) /*: Promise<Object> */ {
   return request(url).setMethod('POST').setData(data).submit().then(checkStatus).then(parseJSON);
 }
 
@@ -199,7 +199,7 @@ export function postJSON(url: string, data?: Object): Promise<Object> {
  * @param url
  * @param data
  */
-export function post(url: string, data?: Object): Promise<void> {
+export function post(url /*: string */, data /*: ?Object */) /*: Promise<void> */ {
   return request(url).setMethod('POST').setData(data).submit().then(checkStatus);
 }
 
@@ -208,7 +208,7 @@ export function post(url: string, data?: Object): Promise<void> {
  * @param url
  * @param data
  */
-export function requestDelete(url: string, data?: Object): Promise<Object> {
+export function requestDelete(url /*: string */, data /*: ?Object */) /*: Promise<Object> */ {
   return request(url).setMethod('DELETE').setData(data).submit().then(checkStatus);
 }
 
@@ -217,6 +217,6 @@ export function requestDelete(url: string, data?: Object): Promise<Object> {
  * @param response
  * @returns {Promise}
  */
-export function delay(response: *): Promise<*> {
+export function delay(response /*: * */) /*: Promise<*> */ {
   return new Promise(resolve => setTimeout(() => resolve(response), 1200));
 }
