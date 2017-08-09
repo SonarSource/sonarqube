@@ -19,9 +19,12 @@
  */
 package org.sonar.scanner.scan;
 
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.scan.BranchConfiguration;
 
+@ScannerSide
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public interface BranchConfigurationLoader {
   BranchConfiguration load(String projectKey, GlobalConfiguration settings);
 }
