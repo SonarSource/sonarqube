@@ -21,11 +21,16 @@
 import { getJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
+/*::
 type GetApplicationLeakResponse = Array<{
   date: string,
   project: string,
   projectName: string
 }>;
+*/
 
-export const getApplicationLeak = (application: string): Promise<GetApplicationLeakResponse> =>
-  getJSON('/api/views/show_leak', { application }).then(r => r.leaks, throwGlobalError);
+export function getApplicationLeak(
+  application /*: string */
+) /*: Promise<GetApplicationLeakResponse> */ {
+  return getJSON('/api/views/show_leak', { application }).then(r => r.leaks, throwGlobalError);
+}

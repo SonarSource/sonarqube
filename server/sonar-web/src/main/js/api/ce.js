@@ -21,31 +21,45 @@
 import { getJSON, post } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export const getActivity = (data?: Object): Promise<*> => getJSON('/api/ce/activity', data);
+export function getActivity(data /*: ?Object */) /*: Promise<*> */ {
+  return getJSON('/api/ce/activity', data);
+}
 
-export const getStatus = (componentId?: string): Promise<*> => {
+export function getStatus(componentId /*: ?string */) /*: Promise<*> */ {
   const data = {};
   if (componentId) {
     Object.assign(data, { componentId });
   }
   return getJSON('/api/ce/activity_status', data);
-};
+}
 
-export const getTask = (id: string, additionalFields?: Array<string>): Promise<*> =>
-  getJSON('/api/ce/task', { id, additionalFields }).then(r => r.task);
+export function getTask(
+  id /*: string */,
+  additionalFields /*: ?Array<string> */
+) /*: Promise<*> */ {
+  return getJSON('/api/ce/task', { id, additionalFields }).then(r => r.task);
+}
 
-export const cancelTask = (id: string): Promise<*> =>
-  post('/api/ce/cancel', { id }).then(() => getTask(id), () => getTask(id));
+export function cancelTask(id /*: string */) /*: Promise<*> */ {
+  return post('/api/ce/cancel', { id }).then(() => getTask(id), () => getTask(id));
+}
 
-export const cancelAllTasks = (): Promise<*> => post('/api/ce/cancel_all');
+export function cancelAllTasks() /*: Promise<*> */ {
+  return post('/api/ce/cancel_all');
+}
 
-export const getTasksForComponent = (componentKey: string): Promise<*> =>
-  getJSON('/api/ce/component', { componentKey });
+export function getTasksForComponent(componentKey /*: string */) /*: Promise<*> */ {
+  return getJSON('/api/ce/component', { componentKey });
+}
 
-export const getTypes = (): Promise<*> => getJSON('/api/ce/task_types').then(r => r.taskTypes);
+export function getTypes() /*: Promise<*> */ {
+  return getJSON('/api/ce/task_types').then(r => r.taskTypes);
+}
 
-export const getWorkers = (): Promise<{ canSetWorkerCount: boolean, value: number }> =>
-  getJSON('/api/ce/worker_count').catch(throwGlobalError);
+export function getWorkers() /*: Promise<{ canSetWorkerCount: boolean, value: number }> */ {
+  return getJSON('/api/ce/worker_count').catch(throwGlobalError);
+}
 
-export const setWorkerCount = (count: number): Promise<void> =>
-  post('/api/ce/set_worker_count', { count }).catch(throwGlobalError);
+export function setWorkerCount(count /*: number */) /*: Promise<void> */ {
+  return post('/api/ce/set_worker_count', { count }).catch(throwGlobalError);
+}

@@ -19,22 +19,26 @@
  */
 // @flow
 import { getJSON, post, postJSON } from '../helpers/request';
-import type { Organization } from '../store/organizations/duck';
+/*:: import type { Organization } from '../store/organizations/duck'; */
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export const getOrganizations = (organizations?: Array<string>) => {
+export function getOrganizations(organizations /*: ?Array<string> */) {
   const data = {};
   if (organizations) {
     Object.assign(data, { organizations: organizations.join() });
   }
   return getJSON('/api/organizations/search', data);
-};
+}
 
-export const getMyOrganizations = () =>
-  getJSON('/api/organizations/search_my_organizations').then(r => r.organizations);
+export function getMyOrganizations() {
+  return getJSON('/api/organizations/search_my_organizations').then(r => r.organizations);
+}
 
+/*::
 type GetOrganizationType = null | Organization;
+*/
 
+/*::
 type GetOrganizationNavigation = {
   canAdmin: boolean,
   canDelete: boolean,
@@ -43,39 +47,55 @@ type GetOrganizationNavigation = {
   pages: Array<{ key: string, name: string }>,
   adminPages: Array<{ key: string, name: string }>
 };
+*/
 
-export const getOrganization = (key: string): Promise<GetOrganizationType> => {
+export function getOrganization(key /*: string */) /*: Promise<GetOrganizationType> */ {
   return getOrganizations([key])
     .then(r => r.organizations.find(o => o.key === key))
     .catch(throwGlobalError);
-};
+}
 
-export const getOrganizationNavigation = (key: string): Promise<GetOrganizationNavigation> => {
+export function getOrganizationNavigation(
+  key /*: string */
+) /*: Promise<GetOrganizationNavigation> */ {
   return getJSON('/api/navigation/organization', { organization: key }).then(r => r.organization);
-};
+}
 
-export const createOrganization = (fields: {}): Promise<Organization> =>
-  postJSON('/api/organizations/create', fields).then(r => r.organization, throwGlobalError);
+export function createOrganization(fields /*: {} */) /*: Promise<Organization> */ {
+  return postJSON('/api/organizations/create', fields).then(r => r.organization, throwGlobalError);
+}
 
-export const updateOrganization = (key: string, changes: {}) =>
-  post('/api/organizations/update', { key, ...changes });
+export function updateOrganization(key /*: string */, changes /*: {} */) {
+  return post('/api/organizations/update', { key, ...changes });
+}
 
-export const deleteOrganization = (key: string) =>
-  post('/api/organizations/delete', { key }).catch(throwGlobalError);
+export function deleteOrganization(key /*: string */) {
+  return post('/api/organizations/delete', { key }).catch(throwGlobalError);
+}
 
-export const searchMembers = (data: {
+export function searchMembers(
+  data /*: {
   organization?: string,
   p?: number,
   ps?: number,
   q?: string,
   selected?: string
-}) => getJSON('/api/organizations/search_members', data);
+} */
+) {
+  return getJSON('/api/organizations/search_members', data);
+}
 
-export const addMember = (data: { login: string, organization: string }) =>
-  postJSON('/api/organizations/add_member', data).then(r => r.user);
+export function addMember(data /*: { login: string, organization: string } */) {
+  return postJSON('/api/organizations/add_member', data).then(r => r.user);
+}
 
-export const removeMember = (data: { login: string, organization: string }) =>
-  post('/api/organizations/remove_member', data);
+export function removeMember(data /*: { login: string, organization: string } */) {
+  return post('/api/organizations/remove_member', data);
+}
 
-export const changeProjectVisibility = (organization: string, projectVisibility: string) =>
-  post('/api/organizations/update_project_visibility', { organization, projectVisibility });
+export function changeProjectVisibility(
+  organization /*: string */,
+  projectVisibility /*: string */
+) {
+  return post('/api/organizations/update_project_visibility', { organization, projectVisibility });
+}

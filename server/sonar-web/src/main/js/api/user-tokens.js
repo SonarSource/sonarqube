@@ -26,7 +26,7 @@ import throwGlobalError from '../app/utils/throwGlobalError';
  * @param {string} login
  * @returns {Promise}
  */
-export function getTokens(login: string) {
+export function getTokens(login /*: string */) {
   const url = '/api/user_tokens/search';
   const data = { login };
   return getJSON(url, data).then(r => r.userTokens);
@@ -39,11 +39,11 @@ export function getTokens(login: string) {
  * @returns {Promise}
  */
 export function generateToken(
-  tokenName: string,
-  userLogin?: string
-): Promise<{ name: string, token: string }> {
+  tokenName /*: string */,
+  userLogin /*: ?string */
+) /*: Promise<{ name: string, token: string }> */ {
   const url = '/api/user_tokens/generate';
-  const data: { [string]: string } = { name: tokenName };
+  const data /*: { [string]: string } */ = { name: tokenName };
   if (userLogin) {
     data.login = userLogin;
   }
@@ -56,9 +56,9 @@ export function generateToken(
  * @param {string} tokenName
  * @returns {Promise}
  */
-export function revokeToken(tokenName: string, userLogin?: string) {
+export function revokeToken(tokenName /*: string */, userLogin /*: ?string */) {
   const url = '/api/user_tokens/revoke';
-  const data: { [string]: string } = { name: tokenName };
+  const data /*: { [string]: string } */ = { name: tokenName };
   if (userLogin) {
     data.login = userLogin;
   }

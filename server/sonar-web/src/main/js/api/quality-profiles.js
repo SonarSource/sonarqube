@@ -20,17 +20,17 @@
 // @flow
 import { request, checkStatus, parseJSON, getJSON, post, postJSON } from '../helpers/request';
 
-export function searchQualityProfiles(data: { organization?: string, projectKey?: string }) {
+export function searchQualityProfiles(data /*: { organization?: string, projectKey?: string } */) {
   const url = '/api/qualityprofiles/search';
   return getJSON(url, data).then(r => r.profiles);
 }
 
-export function getQualityProfiles(data: { compareToSonarWay?: boolean, profile: string }) {
+export function getQualityProfiles(data /*: { compareToSonarWay?: boolean, profile: string } */) {
   const url = '/api/qualityprofiles/show';
   return getJSON(url, data);
 }
 
-export function createQualityProfile(data: Object) {
+export function createQualityProfile(data /*: Object */) {
   return request('/api/qualityprofiles/create')
     .setMethod('post')
     .setData(data)
@@ -39,7 +39,7 @@ export function createQualityProfile(data: Object) {
     .then(parseJSON);
 }
 
-export function restoreQualityProfile(data: Object) {
+export function restoreQualityProfile(data /*: Object */) {
   return request('/api/qualityprofiles/restore')
     .setMethod('post')
     .setData(data)
@@ -48,42 +48,42 @@ export function restoreQualityProfile(data: Object) {
     .then(parseJSON);
 }
 
-export function getProfileProjects(data: Object) {
+export function getProfileProjects(data /*: Object */) {
   const url = '/api/qualityprofiles/projects';
   return getJSON(url, data);
 }
 
-export function getProfileInheritance(profileKey: string) {
+export function getProfileInheritance(profileKey /*: string */) {
   const url = '/api/qualityprofiles/inheritance';
   const data = { profileKey };
   return getJSON(url, data);
 }
 
-export function setDefaultProfile(profileKey: string) {
+export function setDefaultProfile(profileKey /*: string */) {
   const url = '/api/qualityprofiles/set_default';
   const data = { profileKey };
   return post(url, data);
 }
 
-export function renameProfile(key: string, name: string) {
+export function renameProfile(key /*: string */, name /*: string */) {
   const url = '/api/qualityprofiles/rename';
   const data = { key, name };
   return post(url, data);
 }
 
-export function copyProfile(fromKey: string, toName: string) {
+export function copyProfile(fromKey /*: string */, toName /*: string */) {
   const url = '/api/qualityprofiles/copy';
   const data = { fromKey, toName };
   return postJSON(url, data);
 }
 
-export function deleteProfile(profileKey: string) {
+export function deleteProfile(profileKey /*: string */) {
   const url = '/api/qualityprofiles/delete';
   const data = { profileKey };
   return post(url, data);
 }
 
-export function changeProfileParent(profileKey: string, parentKey: string) {
+export function changeProfileParent(profileKey /*: string */, parentKey /*: string */) {
   const url = '/api/qualityprofiles/change_parent';
   const data = { profileKey, parentKey };
   return post(url, data);
@@ -99,24 +99,24 @@ export function getExporters() {
   return getJSON(url).then(r => r.exporters);
 }
 
-export function getProfileChangelog(data: Object) {
+export function getProfileChangelog(data /*: Object */) {
   const url = '/api/qualityprofiles/changelog';
   return getJSON(url, data);
 }
 
-export function compareProfiles(leftKey: string, rightKey: string) {
+export function compareProfiles(leftKey /*: string */, rightKey /*: string */) {
   const url = '/api/qualityprofiles/compare';
   const data = { leftKey, rightKey };
   return getJSON(url, data);
 }
 
-export function associateProject(profileKey: string, projectKey: string) {
+export function associateProject(profileKey /*: string */, projectKey /*: string */) {
   const url = '/api/qualityprofiles/add_project';
   const data = { profileKey, projectKey };
   return post(url, data);
 }
 
-export function dissociateProject(profileKey: string, projectKey: string) {
+export function dissociateProject(profileKey /*: string */, projectKey /*: string */) {
   const url = '/api/qualityprofiles/remove_project';
   const data = { profileKey, projectKey };
   return post(url, data);

@@ -20,33 +20,39 @@
 //@flow
 import { getJSON, post } from '../helpers/request';
 
-export function searchUsersGroups(data: {
+export function searchUsersGroups(
+  data /*: {
   f?: string,
   organization?: string,
   p?: number,
   ps?: number,
   q?: string
-}) {
+} */
+) {
   const url = '/api/user_groups/search';
   return getJSON(url, data);
 }
 
-export function addUserToGroup(data: {
+export function addUserToGroup(
+  data /*: {
   id?: string,
   name?: string,
   login?: string,
   organization?: string
-}) {
+} */
+) {
   const url = '/api/user_groups/add_user';
   return post(url, data);
 }
 
-export function removeUserFromGroup(data: {
+export function removeUserFromGroup(
+  data /*: {
   id?: string,
   name?: string,
   login?: string,
   organization?: string
-}) {
+} */
+) {
   const url = '/api/user_groups/remove_user';
   return post(url, data);
 }

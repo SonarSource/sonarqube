@@ -25,18 +25,25 @@ export function getCurrentUser() {
   return getJSON(url);
 }
 
-export function changePassword(login: string, password: string, previousPassword?: string) {
+export function changePassword(
+  login /*: string */,
+  password /*: string */,
+  previousPassword /*: ?string */
+) {
   const url = '/api/users/change_password';
-  const data: { login: string, password: string, previousPassword?: string } = { login, password };
+  const data /*: { login: string, password: string, previousPassword?: string } */ = {
+    login,
+    password
+  };
   if (previousPassword != null) {
     data.previousPassword = previousPassword;
   }
   return post(url, data);
 }
 
-export function getUserGroups(login: string, organization?: string) {
+export function getUserGroups(login /*: string */, organization /*: ?string */) {
   const url = '/api/users/groups';
-  const data: { login: string, organization?: string, q?: string } = { login };
+  const data /*: { login: string, organization?: string, q?: string } */ = { login };
   if (organization) {
     data.organization = organization;
   }
@@ -48,15 +55,15 @@ export function getIdentityProviders() {
   return getJSON(url);
 }
 
-export function searchUsers(query: string, pageSize?: number) {
+export function searchUsers(query /*: string */, pageSize /*: ?number */) {
   const url = '/api/users/search';
-  const data: { q: string, ps?: number } = { q: query };
+  const data /*: { q: string, ps?: number } */ = { q: query };
   if (pageSize != null) {
     data.ps = pageSize;
   }
   return getJSON(url, data);
 }
 
-export function skipOnboarding(): Promise<void> {
+export function skipOnboarding() /*: Promise<void> */ {
   return post('/api/users/skip_onboarding_tutorial');
 }

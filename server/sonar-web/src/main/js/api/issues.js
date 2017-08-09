@@ -20,13 +20,16 @@
 // @flow
 import { getJSON, post, postJSON } from '../helpers/request';
 
+/*::
 export type IssueResponse = {
   components?: Array<*>,
   issue: {},
   rules?: Array<*>,
   users?: Array<*>
 };
+*/
 
+/*::
 type IssuesResponse = {
   components?: Array<*>,
   debtTotal?: number,
@@ -40,11 +43,13 @@ type IssuesResponse = {
   rules?: Array<*>,
   users?: Array<*>
 };
+*/
 
-export const searchIssues = (query: {}): Promise<IssuesResponse> =>
-  getJSON('/api/issues/search', query);
+export function searchIssues(query /*: {} */) /*: Promise<IssuesResponse> */ {
+  return getJSON('/api/issues/search', query);
+}
 
-export function getFacets(query: {}, facets: Array<string>): Promise<*> {
+export function getFacets(query /*: {} */, facets /*: Array<string> */) /*: Promise<*> */ {
   const data = {
     ...query,
     facets: facets.join(),
@@ -56,32 +61,35 @@ export function getFacets(query: {}, facets: Array<string>): Promise<*> {
   });
 }
 
-export function getFacet(query: {}, facet: string): Promise<*> {
+export function getFacet(query /*: {} */, facet /*: string */) /*: Promise<*> */ {
   return getFacets(query, [facet]).then(r => {
     return { facet: r.facets[0].values, response: r.response };
   });
 }
 
-export function getSeverities(query: {}): Promise<*> {
+export function getSeverities(query /*: {} */) /*: Promise<*> */ {
   return getFacet(query, 'severities').then(r => r.facet);
 }
 
-export function getTags(query: {}): Promise<*> {
+export function getTags(query /*: {} */) /*: Promise<*> */ {
   return getFacet(query, 'tags').then(r => r.facet);
 }
 
-export function extractAssignees(facet: Array<{ val: string }>, response: IssuesResponse) {
+export function extractAssignees(
+  facet /*: Array<{ val: string }> */,
+  response /*: IssuesResponse */
+) {
   return facet.map(item => {
     const user = response.users ? response.users.find(user => user.login === item.val) : null;
     return { ...item, user };
   });
 }
 
-export function getAssignees(query: {}): Promise<*> {
+export function getAssignees(query /*: {} */) /*: Promise<*> */ {
   return getFacet(query, 'assignees').then(r => extractAssignees(r.facet, r.response));
 }
 
-export function getIssuesCount(query: {}): Promise<*> {
+export function getIssuesCount(query /*: {} */) /*: Promise<*> */ {
   const data = { ...query, ps: 1, facetMode: 'effort' };
   return searchIssues(data).then(r => {
     return { issues: r.paging.total, debt: r.debtTotal };
@@ -89,10 +97,12 @@ export function getIssuesCount(query: {}): Promise<*> {
 }
 
 export const searchIssueTags = (
-  data: { organization?: string, ps?: number, q?: string } = { ps: 500 }
-): Promise<Array<string>> => getJSON('/api/issues/tags', data).then(r => r.tags);
+  data /*: { organization?: string, ps?: number, q?: string } */ = {
+    ps: 500
+  } /*: Promise<Array<string>> */
+) => getJSON('/api/issues/tags', data).then(r => r.tags);
 
-export function getIssueChangelog(issue: string): Promise<*> {
+export function getIssueChangelog(issue /*: string */) /*: Promise<*> */ {
   const url = '/api/issues/changelog';
   return getJSON(url, { issue }).then(r => r.changelog);
 }
@@ -102,54 +112,69 @@ export function getIssueFilters() {
   return getJSON(url).then(r => r.issueFilters);
 }
 
-export function addIssueComment(data: { issue: string, text: string }): Promise<IssueResponse> {
+export function addIssueComment(
+  data /*: { issue: string, text: string } */
+) /*: Promise<IssueResponse> */ {
   const url = '/api/issues/add_comment';
   return postJSON(url, data);
 }
 
-export function deleteIssueComment(data: { comment: string }): Promise<IssueResponse> {
+export function deleteIssueComment(data /*: { comment: string } */) /*: Promise<IssueResponse> */ {
   const url = '/api/issues/delete_comment';
   return postJSON(url, data);
 }
 
-export function editIssueComment(data: { comment: string, text: string }): Promise<IssueResponse> {
+export function editIssueComment(
+  data /*: { comment: string, text: string } */
+) /*: Promise<IssueResponse> */ {
   const url = '/api/issues/edit_comment';
   return postJSON(url, data);
 }
 
-export function setIssueAssignee(data: {
+export function setIssueAssignee(
+  data /*: {
   issue: string,
   assignee?: string
-}): Promise<IssueResponse> {
+} */
+) /*: Promise<IssueResponse> */ {
   const url = '/api/issues/assign';
   return postJSON(url, data);
 }
 
-export function setIssueSeverity(data: { issue: string, severity: string }): Promise<*> {
+export function setIssueSeverity(
+  data /*: { issue: string, severity: string } */
+) /*: Promise<*> */ {
   const url = '/api/issues/set_severity';
   return postJSON(url, data);
 }
 
-export function setIssueTags(data: { issue: string, tags: string }): Promise<IssueResponse> {
+export function setIssueTags(
+  data /*: { issue: string, tags: string } */
+) /*: Promise<IssueResponse> */ {
   const url = '/api/issues/set_tags';
   return postJSON(url, data);
 }
 
-export function setIssueTransition(data: {
+export function setIssueTransition(
+  data /*: {
   issue: string,
   transition: string
-}): Promise<IssueResponse> {
+} */
+) /*: Promise<IssueResponse> */ {
   const url = '/api/issues/do_transition';
   return postJSON(url, data);
 }
 
-export function setIssueType(data: { issue: string, type: string }): Promise<IssueResponse> {
+export function setIssueType(
+  data /*: { issue: string, type: string } */
+) /*: Promise<IssueResponse> */ {
   const url = '/api/issues/set_type';
   return postJSON(url, data);
 }
 
-export const bulkChangeIssues = (issueKeys: Array<string>, query: {}) =>
-  post('/api/issues/bulk_change', {
+export function bulkChangeIssues(issueKeys /*: Array<string> */, query /*: {} */) {
+  return post('/api/issues/bulk_change', {
     issues: issueKeys.join(),
     ...query
   });
+}

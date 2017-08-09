@@ -20,6 +20,7 @@
 // @flow
 import { getJSON } from '../helpers/request';
 
+/*::
 export type Param = {
   key: string,
   defaultValue?: string,
@@ -32,7 +33,9 @@ export type Param = {
   possibleValues?: Array<string>,
   required: boolean
 };
+*/
 
+/*::
 export type Action = {
   key: string,
   description: string,
@@ -47,7 +50,9 @@ export type Action = {
   }>,
   params?: Array<Param>
 };
+*/
 
+/*::
 export type Domain = {
   actions: Array<Action>,
   description: string,
@@ -55,8 +60,9 @@ export type Domain = {
   internal: boolean,
   path: string
 };
+*/
 
-export function fetchWebApi(showInternal: boolean = true): Promise<Array<Domain>> {
+export function fetchWebApi(showInternal /*: boolean */ = true) /*: Promise<Array<Domain>> */ {
   const url = '/api/webservices/list';
   const data = { include_internals: showInternal };
 
@@ -70,7 +76,10 @@ export function fetchWebApi(showInternal: boolean = true): Promise<Array<Domain>
   );
 }
 
-export function fetchResponseExample(domain: string, action: string): Promise<{ example: string }> {
+export function fetchResponseExample(
+  domain /*: string */,
+  action /*: string */
+) /*: Promise<{ example: string }> */ {
   const url = '/api/webservices/response_example';
   const data = { controller: domain, action };
 
