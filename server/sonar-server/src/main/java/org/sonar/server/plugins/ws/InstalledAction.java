@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.function.Function;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -69,6 +70,11 @@ public class InstalledAction implements PluginsWsAction {
     WebService.NewAction action = controller.createAction("installed")
       .setDescription("Get the list of all the plugins installed on the SonarQube instance, sorted by plugin name.")
       .setSince("5.2")
+      .setChangelog(
+        new Change("6.6", "The 'filename' field is added"),
+        new Change("6.6", "The 'hash' field is added"),
+        new Change("6.6", "The 'sonarLintSupported' field is added"),
+        new Change("6.6", "The 'updatedAt' field is added"))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-installed_plugins.json"));
 
