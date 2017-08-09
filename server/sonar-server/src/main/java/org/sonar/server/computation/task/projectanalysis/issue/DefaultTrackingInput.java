@@ -19,25 +19,37 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
+import java.util.Collection;
+
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Tracker;
-import org.sonar.core.issue.tracking.Tracking;
-import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.core.issue.tracking.BlockHashSequence;
+import org.sonar.core.issue.tracking.Input;
+import org.sonar.core.issue.tracking.LineHashSequence;
 
-public class TrackerExecution {
+public class DefaultTrackingInput implements Input<DefaultIssue> {
+  private final Collection<DefaultIssue> issues;
+  private final LineHashSequence lineHashes;
+  private final BlockHashSequence blockHashes;
 
-  protected final TrackerBaseInputFactory baseInputFactory;
-  protected final TrackerRawInputFactory rawInputFactory;
-  protected final Tracker<DefaultIssue, DefaultIssue> tracker;
-
-  public TrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerRawInputFactory rawInputFactory,
-    Tracker<DefaultIssue, DefaultIssue> tracker) {
-    this.baseInputFactory = baseInputFactory;
-    this.rawInputFactory = rawInputFactory;
-    this.tracker = tracker;
+  public DefaultTrackingInput(Collection<DefaultIssue> issues, LineHashSequence lineHashes, BlockHashSequence blockHashes) {
+    this.issues = issues;
+    this.lineHashes = lineHashes;
+    this.blockHashes = blockHashes;
   }
 
-  public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
-    return tracker.track(rawInputFactory.create(component), baseInputFactory.create(component));
+  @Override
+  public LineHashSequence getLineHashSequence() {
+    return lineHashes;
   }
+
+  @Override
+  public BlockHashSequence getBlockHashSequence() {
+    return blockHashes;
+  }
+
+  @Override
+  public Collection<DefaultIssue> getIssues() {
+    return issues;
+  }
+
 }

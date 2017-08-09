@@ -19,59 +19,22 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.issue.IssueMapper;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 
 /**
  * Loads all the project open issues from database, including manual issues.
- *
  */
 public class BaseIssuesLoader {
 
   private final TreeRootHolder treeRootHolder;
   private final DbClient dbClient;
-  private final RuleRepository ruleRepository;
-  private final ActiveRulesHolder activeRulesHolder;
 
-  public BaseIssuesLoader(TreeRootHolder treeRootHolder,
-    DbClient dbClient, RuleRepository ruleRepository, ActiveRulesHolder activeRulesHolder) {
-    this.activeRulesHolder = activeRulesHolder;
+  public BaseIssuesLoader(TreeRootHolder treeRootHolder, DbClient dbClient) {
     this.treeRootHolder = treeRootHolder;
     this.dbClient = dbClient;
-    this.ruleRepository = ruleRepository;
-  }
-
-  public List<DefaultIssue> loadForComponentUuid(String componentUuid) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<DefaultIssue> result = new ArrayList<>();
-      dbSession.getMapper(IssueMapper.class).scrollNonClosedByComponentUuid(componentUuid, resultContext -> {
-        DefaultIssue issue = (resultContext.getResultObject()).toDefaultIssue();
-
-        // TODO this field should be set outside this class
-        if (!isActive(issue.ruleKey()) || ruleRepository.getByKey(issue.ruleKey()).getStatus() == RuleStatus.REMOVED) {
-          issue.setOnDisabledRule(true);
-          // TODO to be improved, why setOnDisabledRule(true) is not enough ?
-          issue.setBeingClosed(true);
-        }
-        // FIXME
-        issue.setSelectedAt(System.currentTimeMillis());
-        result.add(issue);
-      });
-      return result;
-    }
-  }
-
-  private boolean isActive(RuleKey ruleKey) {
-    return activeRulesHolder.get(ruleKey).isPresent();
   }
 
   /**
