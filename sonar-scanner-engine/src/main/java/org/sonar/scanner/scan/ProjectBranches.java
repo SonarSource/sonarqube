@@ -19,82 +19,12 @@
  */
 package org.sonar.scanner.scan;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.MessageException;
-import org.sonar.core.config.ScannerProperties;
 
-public class ProjectBranches {
+public interface ProjectBranches {
 
-  public enum BranchType {
+  enum BranchType {
     SHORT, LONG
-  }
-
-  static class BranchInfo {
-    private final String name;
-    private final BranchType type;
-
-    BranchInfo(String name, boolean isLong) {
-      this.name = name;
-      if (isLong) {
-        this.type = BranchType.LONG;
-      } else {
-        this.type = BranchType.SHORT;
-      }
-    }
-  }
-
-  private final BranchType branchType;
-
-  @Nullable
-  private final String branchTarget;
-
-  private ProjectBranches(BranchType branchType, @Nullable String branchTarget) {
-    this.branchType = branchType;
-    this.branchTarget = branchTarget;
-  }
-
-  static ProjectBranches create(Configuration settings, List<BranchInfo> branchInfos) {
-    String branchName = settings.get(ScannerProperties.BRANCH_NAME).orElse("");
-    if (branchName.isEmpty()) {
-      return new ProjectBranches(BranchType.LONG, null);
-    }
-
-    Map<String, BranchInfo> branches = branchInfos.stream().collect(Collectors.toMap(b -> b.name, Function.identity()));
-
-    BranchType branchType;
-
-    BranchInfo info = branches.get(branchName);
-    if (info != null) {
-      branchType = info.type;
-    } else {
-      String longLivedBranchesRegex = settings.get(CoreProperties.LONG_LIVED_BRANCHES_REGEX)
-        .orElseThrow(() -> MessageException.of("Property must exist: " + CoreProperties.LONG_LIVED_BRANCHES_REGEX));
-
-      if (branchName.matches(longLivedBranchesRegex)) {
-        branchType = BranchType.LONG;
-      } else {
-        branchType = BranchType.SHORT;
-      }
-    }
-
-    String branchTarget = StringUtils.trimToNull(settings.get(ScannerProperties.BRANCH_TARGET).orElse(null));
-    if (branchTarget != null) {
-      if (!branches.containsKey(branchTarget)) {
-        throw MessageException.of("Target branch does not exist on server: " + branchTarget);
-      } else if (branches.get(branchTarget).type != BranchType.LONG) {
-        throw MessageException.of("Target branch is not long-lived: " + branchTarget);
-      }
-    }
-
-    return new ProjectBranches(branchType, branchTarget);
   }
 
   /**
@@ -106,9 +36,7 @@ public class ProjectBranches {
    *
    * @return type of the current branch
    */
-  public BranchType branchType() {
-    return branchType;
-  }
+  BranchType branchType();
 
   /**
    * The name of the target branch to merge into, and the base to determine changed files.
@@ -116,7 +44,5 @@ public class ProjectBranches {
    * @return name of the target branch
    */
   @CheckForNull
-  public String branchTarget() {
-    return branchTarget;
-  }
+  String branchTarget();
 }
