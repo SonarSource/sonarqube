@@ -42,6 +42,10 @@ public class DefaultBranchImpl implements Branch {
   @Nullable
   private final String branchName;
 
+  public DefaultBranchImpl() {
+    this(null);
+  }
+  
   public DefaultBranchImpl(@Nullable String name) {
     this.branchName = name;
     if (name != null && !ComponentKeys.isValidBranch(name)) {
@@ -61,7 +65,7 @@ public class DefaultBranchImpl implements Branch {
   }
   
   @Override
-  public Optional<String> getMergeBranchName() {
+  public Optional<String> getMergeBranchUuid() {
     return Optional.empty();
   }
 
