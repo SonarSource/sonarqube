@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.html5.WebStorage;
+import org.sonarqube.pageobjects.measures.MeasuresPage;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.pageobjects.issues.IssuesPage;
 import org.sonarqube.pageobjects.licenses.LicensesPage;
@@ -134,6 +135,12 @@ public class Navigation {
     // TODO encode projectKey
     String url = "/project/activity?id=" + projectKey;
     return open(url, ProjectActivityPage.class);
+  }
+
+  public MeasuresPage openProjectMeasures(String projectKey) {
+    // TODO encode projectKey
+    String url = "/component_measures?id=" + projectKey;
+    return open(url, MeasuresPage.class);
   }
 
   public MembersPage openOrganizationMembers(String orgKey) {
