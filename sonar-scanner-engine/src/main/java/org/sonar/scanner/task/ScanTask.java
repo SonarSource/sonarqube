@@ -50,7 +50,6 @@ public class ScanTask implements Task {
     ProjectScanContainer scanContainer = new ProjectScanContainer(taskContainer, props);
     scanContainer.add(DefaultAnalysisMode.class);
     scanContainer.add(new ProjectRepositoriesProvider());
-    scanContainer.add(new BranchConfigurationProvider());
     scanContainer.execute();
   }
 }
