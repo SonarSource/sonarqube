@@ -32,7 +32,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
-import org.sonar.scanner.scan.ProjectBranches;
+import org.sonar.scanner.scan.BranchConfiguration;
 
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
@@ -45,17 +45,17 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final InputModuleHierarchy moduleHierarchy;
   private final CpdSettings cpdSettings;
   private final AnalysisMode mode;
-  private final ProjectBranches branches;
+  private final BranchConfiguration branchConfiguration;
 
   public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings,
-    ModuleQProfiles qProfiles, CpdSettings cpdSettings, AnalysisMode mode, ProjectBranches branches) {
+    ModuleQProfiles qProfiles, CpdSettings cpdSettings, AnalysisMode mode, BranchConfiguration branchConfiguration) {
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
     this.qProfiles = qProfiles;
     this.cpdSettings = cpdSettings;
     this.mode = mode;
-    this.branches = branches;
+    this.branchConfiguration = branchConfiguration;
   }
 
   @Override
@@ -73,8 +73,8 @@ public class MetadataPublisher implements ReportPublisherStep {
     settings.get(ORGANIZATION).ifPresent(builder::setOrganizationKey);
     settings.get(BRANCH_NAME).ifPresent(branch -> {
       builder.setBranchName(branch);
-      builder.setBranchType(toProtobufBranchType(branches.branchType()));
-      String branchTarget = branches.branchTarget();
+      builder.setBranchType(toProtobufBranchType(branchConfiguration.branchType()));
+      String branchTarget = branchConfiguration.branchTarget();
       if (branchTarget != null) {
         builder.setMergeBranchName(branchTarget);
       }
@@ -91,8 +91,8 @@ public class MetadataPublisher implements ReportPublisherStep {
     writer.writeMetadata(builder.build());
   }
 
-  private static BranchType toProtobufBranchType(ProjectBranches.BranchType branchType) {
-    if (branchType == ProjectBranches.BranchType.LONG) {
+  private static BranchType toProtobufBranchType(BranchConfiguration.BranchType branchType) {
+    if (branchType == BranchConfiguration.BranchType.LONG) {
       return BranchType.LONG;
     }
     return BranchType.SHORT;

@@ -26,10 +26,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 
 /**
@@ -38,11 +36,13 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
  */
 public class ProjectReactorValidator {
   private final DefaultAnalysisMode mode;
-  private final Configuration settings;
 
-  public ProjectReactorValidator(DefaultAnalysisMode mode, Configuration settings) {
+  @Nullable
+  private final BranchConfigurationValidator branchConfigurationValidator;
+
+  public ProjectReactorValidator(DefaultAnalysisMode mode, @Nullable BranchConfigurationValidator branchConfigurationValidator) {
     this.mode = mode;
-    this.settings = settings;
+    this.branchConfigurationValidator = branchConfigurationValidator;
   }
 
   public void validate(ProjectReactor reactor) {
@@ -56,13 +56,13 @@ public class ProjectReactorValidator {
       }
     }
 
-    String branch = settings.get(ScannerProperties.BRANCH_NAME).orElse(null);
-    String deprecatedBranch = reactor.getRoot().getBranch();
+    String deprecatedBranchName = reactor.getRoot().getBranch();
 
-    validateBranchParams(validationMessages, deprecatedBranch, branch);
-
-    validateBranch(validationMessages, branch);
-    validateBranch(validationMessages, deprecatedBranch);
+    if (branchConfigurationValidator != null) {
+      branchConfigurationValidator.validate(validationMessages, deprecatedBranchName);
+    } else {
+      validateBranch(validationMessages, deprecatedBranchName);
+    }
 
     if (!validationMessages.isEmpty()) {
       throw MessageException.of("Validation of project reactor failed:\n  o " + Joiner.on("\n  o ").join(validationMessages));
@@ -87,12 +87,6 @@ public class ProjectReactorValidator {
     if (StringUtils.isNotEmpty(branch) && !ComponentKeys.isValidBranch(branch)) {
       validationMessages.add(String.format("\"%s\" is not a valid branch name. "
         + "Allowed characters are alphanumeric, '-', '_', '.' and '/'.", branch));
-    }
-  }
-
-  private static void validateBranchParams(List<String> validationMessages, @Nullable String deprecatedBranch, @Nullable String branchName) {
-    if (StringUtils.isNotEmpty(deprecatedBranch) && StringUtils.isNotEmpty(branchName)) {
-      validationMessages.add(String.format("The %s parameter must not be used together with the deprecated sonar.branch parameter", ScannerProperties.BRANCH_NAME));
     }
   }
 
