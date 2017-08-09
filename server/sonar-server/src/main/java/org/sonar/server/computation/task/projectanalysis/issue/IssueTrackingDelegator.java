@@ -20,24 +20,33 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.issue.tracking.Tracking;
+import org.sonar.db.component.BranchType;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
-public class TrackerExecution {
+public class IssueTrackingDelegator {
+  private final ShortBranchTrackerExecution shortBranchTracker;
+  private final TrackerExecution tracker;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  protected final TrackerBaseInputFactory baseInputFactory;
-  protected final TrackerRawInputFactory rawInputFactory;
-  protected final Tracker<DefaultIssue, DefaultIssue> tracker;
-
-  public TrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerRawInputFactory rawInputFactory,
-    Tracker<DefaultIssue, DefaultIssue> tracker) {
-    this.baseInputFactory = baseInputFactory;
-    this.rawInputFactory = rawInputFactory;
+  public IssueTrackingDelegator(ShortBranchTrackerExecution shortBranchTracker, TrackerExecution tracker, AnalysisMetadataHolder analysisMetadataHolder) {
+    this.shortBranchTracker = shortBranchTracker;
     this.tracker = tracker;
+    this.analysisMetadataHolder = analysisMetadataHolder;
+  }
+
+  private boolean isShortLivingBranch() {
+    java.util.Optional<Branch> branch = analysisMetadataHolder.getBranch();
+    return branch.isPresent() && branch.get().getType() == BranchType.SHORT;
   }
 
   public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
-    return tracker.track(rawInputFactory.create(component), baseInputFactory.create(component));
+    if (isShortLivingBranch()) {
+      return shortBranchTracker.track(component);
+    } else {
+      return tracker.track(component);
+    }
   }
 }
