@@ -116,7 +116,6 @@ public class ProjectMeasuresPageTest {
   }
 
   @Test
-  @Ignore
   public void should_redirect_history_to_project_activity() {
     Navigation nav = tester.openBrowser();
     nav.open("/component_measures/metric/reliability_rating/history?id=project-measures-page-test-project");
@@ -125,6 +124,24 @@ public class ProjectMeasuresPageTest {
       .contains("id=project-measures-page-test-project")
       .contains("graph=custom")
       .contains("custom_metrics=reliability_rating");
+  }
+
+  @Test
+  public void should_redirect_old_routes_to_new_measures_page() {
+    Navigation nav = tester.openBrowser();
+    nav.open("/component_measures/metric/reliability_rating/tree?id=project-measures-page-test-project");
+    assertThat(url())
+      .contains("/component_measures")
+      .contains("id=project-measures-page-test-project")
+      .contains("metric=reliability_rating")
+      .contains("view=tree")
+      .doesNotContain("/metric/reliability_rating/tree");
+    nav.open("/component_measures/domain/Security?id=project-measures-page-test-project");
+    assertThat(url())
+      .contains("/component_measures")
+      .contains("id=project-measures-page-test-project")
+      .contains("metric=Security")
+      .doesNotContain("/domain/Security");
   }
 
   @Test
