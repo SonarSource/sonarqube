@@ -21,29 +21,35 @@
 import { flatten } from 'lodash';
 import { splitByTokens } from './highlight';
 import { getLinearLocations } from './issueLocations';
-import type { Issue } from '../../issue/types';
-import type { SourceLine } from '../types';
+/*:: import type { Issue } from '../../issue/types'; */
+/*:: import type { SourceLine } from '../types'; */
 
+/*::
 export type LinearIssueLocation = {
   from: number,
   line: number,
   to: number,
   index?: number
 };
+*/
 
+/*::
 export type IndexedIssueLocation = {
   from: number,
   line: number,
   to: number
 };
+*/
 
+/*::
 export type IndexedIssueLocationMessage = {
   flowIndex: number,
   locationIndex: number,
   msg?: string
 };
+*/
 
-export const issuesByLine = (issues: Array<Issue>) => {
+export const issuesByLine = (issues /*: Array<Issue> */) => {
   const index = {};
   issues.forEach(issue => {
     const line = issue.textRange ? issue.textRange.endLine : 0;
@@ -55,7 +61,9 @@ export const issuesByLine = (issues: Array<Issue>) => {
   return index;
 };
 
-export const locationsByLine = (issues: Array<Issue>): { [number]: Array<LinearIssueLocation> } => {
+export function locationsByLine(
+  issues /*: Array<Issue> */
+) /*: { [number]: Array<LinearIssueLocation> } */ {
   const index = {};
   issues.forEach(issue => {
     getLinearLocations(issue.textRange).forEach(location => {
@@ -66,9 +74,9 @@ export const locationsByLine = (issues: Array<Issue>): { [number]: Array<LinearI
     });
   });
   return index;
-};
+}
 
-export const duplicationsByLine = (duplications: Array<*> | null) => {
+export const duplicationsByLine = (duplications /*: Array<*> | null */) => {
   if (duplications == null) {
     return {};
   }
@@ -91,7 +99,7 @@ export const duplicationsByLine = (duplications: Array<*> | null) => {
   return duplicationsByLine;
 };
 
-export const symbolsByLine = (sources: Array<SourceLine>) => {
+export const symbolsByLine = (sources /*: Array<SourceLine> */) => {
   const index = {};
   sources.forEach(line => {
     const tokens = splitByTokens(line.code);

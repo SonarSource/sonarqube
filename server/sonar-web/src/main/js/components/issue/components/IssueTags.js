@@ -25,8 +25,9 @@ import SetIssueTagsPopup from '../popups/SetIssueTagsPopup';
 import TagsList from '../../../components/tags/TagsList';
 import { setIssueTags } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {|
   canSetTags: boolean,
   isOpen: boolean,
@@ -35,15 +36,16 @@ type Props = {|
   onFail: Error => void,
   togglePopup: (string, boolean | void) => void
 |};
+*/
 
 export default class IssueTags extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  toggleSetTags = (open?: boolean) => {
+  toggleSetTags = (open /*: ?boolean */) => {
     this.props.togglePopup('edit-tags', open);
   };
 
-  setTags = (tags: Array<string>) => {
+  setTags = (tags /*: Array<string> */) => {
     const { issue } = this.props;
     const newIssue = { ...issue, tags };
     updateIssue(

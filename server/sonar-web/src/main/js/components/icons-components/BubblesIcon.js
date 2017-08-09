@@ -20,9 +20,11 @@
 // @flow
 import React from 'react';
 
+/*::
 type Props = { className?: string, size?: number };
+*/
 
-export default function BubblesIcon({ className, size = 16 }: Props) {
+export default function BubblesIcon({ className, size = 16 } /*: Props */) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

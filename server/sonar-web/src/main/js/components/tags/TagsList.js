@@ -22,14 +22,16 @@ import React from 'react';
 import classNames from 'classnames';
 import './TagsList.css';
 
+/*::
 type Props = {
   tags: Array<string>,
   allowUpdate: boolean,
   customClass?: string
 };
+*/
 
 export default class TagsList extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static defaultProps = {
     allowUpdate: false

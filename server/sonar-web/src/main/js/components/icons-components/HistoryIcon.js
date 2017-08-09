@@ -20,9 +20,11 @@
 // @flow
 import React from 'react';
 
+/*::
 type Props = { className?: string, size?: number };
+*/
 
-export default function IconHistory({ className, size = 16 }: Props) {
+export default function IconHistory({ className, size = 16 } /*: Props */) {
   /* eslint max-len: 0 */
   return (
     <svg

@@ -24,18 +24,20 @@ import BubblePopup from '../../../components/common/BubblePopup';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import SelectList from '../../../components/common/SelectList';
 import SelectListItem from '../../../components/common/SelectListItem';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {
   issue: Issue,
   onSelect: string => void,
   popupPosition?: {}
 };
+*/
 
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
 
 export default class SetTypePopup extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     return (

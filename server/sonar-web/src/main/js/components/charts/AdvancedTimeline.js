@@ -25,11 +25,20 @@ import { bisector, extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { line as d3Line, area, curveBasis } from 'd3-shape';
 
+/*::
 type Event = { className?: string, name: string, date: Date };
+*/
+/*::
 export type Point = { x: Date, y: number | string };
+*/
+/*::
 export type Serie = { name: string, data: Array<Point>, type: string };
+*/
+/*::
 type Scale = Function;
+*/
 
+/*::
 type Props = {
   basisCurve?: boolean,
   endDate: ?Date,
@@ -54,7 +63,9 @@ type Props = {
   updateZoom?: (start: ?Date, endDate: ?Date) => void,
   zoomSpeed: number
 };
+*/
 
+/*::
 type State = {
   maxXRange: Array<number>,
   mouseOver?: boolean,
@@ -65,10 +76,11 @@ type State = {
   yScale: Scale,
   xScale: Scale
 };
+*/
 
 export default class AdvancedTimeline extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
   static defaultProps = {
     eventSize: 8,
@@ -76,7 +88,7 @@ export default class AdvancedTimeline extends React.PureComponent {
     zoomSpeed: 1
   };
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     const scales = this.getScales(props);
     const selectedDatePos = this.getSelectedDatePos(scales.xScale, props.selectedDate);
@@ -85,7 +97,7 @@ export default class AdvancedTimeline extends React.PureComponent {
     this.handleZoomUpdate = throttle(this.handleZoomUpdate, 40);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     let scales;
     let selectedDatePos;
     if (
@@ -121,13 +133,13 @@ export default class AdvancedTimeline extends React.PureComponent {
     }
   }
 
-  getRatingScale = (availableHeight: number) =>
+  getRatingScale = (availableHeight /*: number */) =>
     scalePoint().domain([5, 4, 3, 2, 1]).range([availableHeight, 0]);
 
-  getLevelScale = (availableHeight: number) =>
+  getLevelScale = (availableHeight /*: number */) =>
     scalePoint().domain(['ERROR', 'WARN', 'OK']).range([availableHeight, 0]);
 
-  getYScale = (props: Props, availableHeight: number, flatData: Array<Point>) => {
+  getYScale = (props /*: Props */, availableHeight /*: number */, flatData /*: Array<Point> */) => {
     if (props.metricType === 'RATING') {
       return this.getRatingScale(availableHeight);
     } else if (props.metricType === 'LEVEL') {
@@ -140,7 +152,11 @@ export default class AdvancedTimeline extends React.PureComponent {
     }
   };
 
-  getXScale = ({ startDate, endDate }: Props, availableWidth: number, flatData: Array<Point>) => {
+  getXScale = (
+    { startDate, endDate } /*: Props */,
+    availableWidth /*: number */,
+    flatData /*: Array<Point> */
+  ) => {
     const dateRange = extent(flatData, d => d.x);
     const start = startDate && startDate > dateRange[0] ? startDate : dateRange[0];
     const end = endDate && endDate < dateRange[1] ? endDate : dateRange[1];
@@ -151,17 +167,17 @@ export default class AdvancedTimeline extends React.PureComponent {
     };
   };
 
-  getScales = (props: Props) => {
+  getScales = (props /*: Props */) => {
     const availableWidth = props.width - props.padding[1] - props.padding[3];
     const availableHeight = props.height - props.padding[0] - props.padding[2];
-    const flatData = flatten(props.series.map((serie: Serie) => serie.data));
+    const flatData = flatten(props.series.map((serie /*: Serie */) => serie.data));
     return {
       ...this.getXScale(props, availableWidth, flatData),
       yScale: this.getYScale(props, availableHeight, flatData)
     };
   };
 
-  getSelectedDatePos = (xScale: Scale, selectedDate: ?Date) => {
+  getSelectedDatePos = (xScale /*: Scale */, selectedDate /*: ?Date */) => {
     const firstSerie = this.props.series[0];
     if (selectedDate && firstSerie) {
       const idx = firstSerie.data.findIndex(
@@ -181,12 +197,12 @@ export default class AdvancedTimeline extends React.PureComponent {
     return { selectedDate: null, selectedDateXPos: null, selectedDateIdx: null };
   };
 
-  getEventMarker = (size: number) => {
+  getEventMarker = (size /*: number */) => {
     const half = size / 2;
     return `M${half} 0 L${size} ${half} L ${half} ${size} L0 ${half} L${half} 0 L${size} ${half}`;
   };
 
-  getMouseOverlayPos = (target: HTMLElement) => {
+  getMouseOverlayPos = (target /*: HTMLElement */) => {
     if (this.state.mouseOverlayPos) {
       return this.state.mouseOverlayPos;
     }
@@ -195,7 +211,7 @@ export default class AdvancedTimeline extends React.PureComponent {
     return pos;
   };
 
-  handleWheel = (evt: WheelEvent & { target: HTMLElement }) => {
+  handleWheel = (evt /*: WheelEvent & { target: HTMLElement } */) => {
     evt.preventDefault();
     const { maxXRange, xScale } = this.state;
     const parentBbox = this.getMouseOverlayPos(evt.target);
@@ -209,20 +225,20 @@ export default class AdvancedTimeline extends React.PureComponent {
     this.handleZoomUpdate(startDate, endDate);
   };
 
-  handleZoomUpdate = (startDate: ?Date, endDate: ?Date) => {
+  handleZoomUpdate = (startDate /*: ?Date */, endDate /*: ?Date */) => {
     if (this.props.updateZoom) {
       this.props.updateZoom(startDate, endDate);
     }
   };
 
-  handleMouseMove = (evt: MouseEvent & { target: HTMLElement }) => {
+  handleMouseMove = (evt /*: MouseEvent & { target: HTMLElement } */) => {
     const parentBbox = this.getMouseOverlayPos(evt.target);
     this.updateTooltipPos(evt.pageX - parentBbox.left);
   };
 
   handleMouseEnter = () => this.setState({ mouseOver: true });
 
-  handleMouseOut = (evt: Event & { relatedTarget: HTMLElement }) => {
+  handleMouseOut = (evt /*: Event & { relatedTarget: HTMLElement } */) => {
     const { updateTooltip } = this.props;
     const targetClass =
       evt.relatedTarget && typeof evt.relatedTarget.className === 'string'
@@ -251,7 +267,7 @@ export default class AdvancedTimeline extends React.PureComponent {
     }
   };
 
-  updateTooltipPos = (xPos: number) => {
+  updateTooltipPos = (xPos /*: number */) => {
     const firstSerie = this.props.series[0];
     if (this.state.mouseOver && firstSerie) {
       const { updateTooltip } = this.props;
@@ -465,7 +481,7 @@ export default class AdvancedTimeline extends React.PureComponent {
     );
   };
 
-  renderMouseEventsOverlay = (zoomEnabled: boolean) => {
+  renderMouseEventsOverlay = (zoomEnabled /*: boolean */) => {
     const mouseEvents = {};
     if (zoomEnabled) {
       mouseEvents.onWheel = this.handleWheel;

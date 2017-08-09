@@ -21,12 +21,15 @@
 import escapeHtml from 'escape-html';
 import { uniq } from 'lodash';
 
+/*::
 export type Token = { className: string, markers: Array<number>, text: string };
-export type Tokens = Array<Token>;
+*/
+/*::
+export type Tokens = Array<Token>; */
 
 const ISSUE_LOCATION_CLASS = 'source-line-code-issue';
 
-export const splitByTokens = (code: string, rootClassName: string = ''): Tokens => {
+export function splitByTokens(code /*: string */, rootClassName /*: string */ = '') /*: Tokens */ {
   const container = document.createElement('div');
   let tokens = [];
   container.innerHTML = code;
@@ -43,9 +46,9 @@ export const splitByTokens = (code: string, rootClassName: string = ''): Tokens 
     }
   });
   return tokens;
-};
+}
 
-export const highlightSymbol = (tokens: Tokens, symbol: string): Tokens => {
+export function highlightSymbol(tokens /*: Tokens */, symbol /*: string */) /*: Tokens */ {
   const symbolRegExp = new RegExp(`\\b${symbol}\\b`);
   return tokens.map(
     token =>
@@ -53,7 +56,7 @@ export const highlightSymbol = (tokens: Tokens, symbol: string): Tokens => {
         ? { ...token, className: `${token.className} highlighted` }
         : token
   );
-};
+}
 
 /**
  * Intersect two ranges
@@ -62,14 +65,14 @@ export const highlightSymbol = (tokens: Tokens, symbol: string): Tokens => {
  * @param s2 Start position of the second range
  * @param e2 End position of the second range
  */
-const intersect = (
-  s1: number,
-  e1: number,
-  s2: number,
-  e2: number
-): { from: number, to: number } => {
+function intersect(
+  s1 /*: number */,
+  e1 /*: number */,
+  s2 /*: number */,
+  e2 /*: number */
+) /*: { from: number, to: number } */ {
   return { from: Math.max(s1, s2), to: Math.min(e1, e2) };
-};
+}
 
 /**
  * Get the substring of a string
@@ -78,19 +81,24 @@ const intersect = (
  * @param to "To" offset
  * @param acc Global offset to eliminate
  */
-const part = (str: string, from: number, to: number, acc: number): string => {
+function part(
+  str /*: string */,
+  from /*: number */,
+  to /*: number */,
+  acc /*: number */
+) /*: string */ {
   // we do not want negative number as the first argument of `substr`
   return from >= acc ? str.substr(from - acc, to - from) : str.substr(0, to - from);
-};
+}
 
 /**
  * Highlight issue locations in the list of tokens
  */
-export const highlightIssueLocations = (
-  tokens: Tokens,
-  issueLocations: Array<*>,
-  rootClassName: string = ISSUE_LOCATION_CLASS
-): Tokens => {
+export function highlightIssueLocations(
+  tokens /*: Tokens */,
+  issueLocations /*: Array<*> */,
+  rootClassName /*: string */ = ISSUE_LOCATION_CLASS
+) /*: Tokens */ {
   issueLocations.forEach(location => {
     const nextTokens = [];
     let acc = 0;
@@ -126,10 +134,10 @@ export const highlightIssueLocations = (
     tokens = nextTokens.slice();
   });
   return tokens;
-};
+}
 
-export const generateHTML = (tokens: Tokens): string => {
+export function generateHTML(tokens /*: Tokens */) /*: string */ {
   return tokens
     .map(token => `<span class="${token.className}">${escapeHtml(token.text)}</span>`)
     .join('');
-};
+}

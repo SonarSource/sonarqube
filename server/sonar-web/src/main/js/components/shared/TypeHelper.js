@@ -22,11 +22,13 @@ import React from 'react';
 import IssueTypeIcon from '../ui/IssueTypeIcon';
 import { translate } from '../../helpers/l10n';
 
+/*::
 type Props = {
   type: string
 };
+*/
 
-const TypeHelper = (props: Props) =>
+const TypeHelper = (props /*: Props */) =>
   <span>
     <IssueTypeIcon className="little-spacer-right" query={props.type} />
     {translate('issue.type', props.type)}

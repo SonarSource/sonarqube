@@ -23,8 +23,9 @@ import Avatar from '../../../components/ui/Avatar';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SetAssigneePopup from '../popups/SetAssigneePopup';
 import { translate } from '../../../helpers/l10n';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {
   isOpen: boolean,
   issue: Issue,
@@ -33,11 +34,12 @@ type Props = {
   onFail: Error => void,
   togglePopup: (string, boolean | void) => void
 };
+*/
 
 export default class IssueAssign extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  toggleAssign = (open?: boolean) => {
+  toggleAssign = (open /*: ?boolean */) => {
     this.props.togglePopup('assign', open);
   };
 

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
+/*::
 export type SourceLine = {
   code: string,
   conditions?: number,
@@ -30,7 +31,9 @@ export type SourceLine = {
   scmDate?: string,
   scmRevision?: string
 };
+*/
 
+/*::
 export type Duplication = {
   blocks: Array<{
     _ref: string,
@@ -38,3 +41,4 @@ export type Duplication = {
     size: number
   }>
 };
+*/

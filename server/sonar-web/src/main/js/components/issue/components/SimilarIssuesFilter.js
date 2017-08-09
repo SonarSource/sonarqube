@@ -22,8 +22,9 @@ import React from 'react';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SimilarIssuesPopup from '../popups/SimilarIssuesPopup';
 import { translate } from '../../../helpers/l10n';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {|
   isOpen: boolean,
   issue: Issue,
@@ -31,21 +32,22 @@ type Props = {|
   onFail: Error => void,
   onFilter: (property: string, issue: Issue) => void
 |};
+*/
 
 export default class SimilarIssuesFilter extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleClick = (evt: SyntheticInputEvent) => {
+  handleClick = (evt /*: SyntheticInputEvent */) => {
     evt.preventDefault();
     this.togglePopup();
   };
 
-  handleFilter = (property: string, issue: Issue) => {
+  handleFilter = (property /*: string */, issue /*: Issue */) => {
     this.togglePopup(false);
     this.props.onFilter(property, issue);
   };
 
-  togglePopup = (open?: boolean) => {
+  togglePopup = (open /*: ?boolean */) => {
     this.props.togglePopup('similarIssues', open);
   };
 

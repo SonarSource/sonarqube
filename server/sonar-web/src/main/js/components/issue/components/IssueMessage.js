@@ -22,13 +22,14 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default class IssueMessage extends React.PureComponent {
-  props: {
+  /*:: props: {
     message: string,
     rule: string,
     organization: string
   };
+*/
 
-  handleClick = (e: MouseEvent) => {
+  handleClick = (e /*: MouseEvent */) => {
     e.preventDefault();
     e.stopPropagation();
     const Workspace = require('../../workspace/main').default;

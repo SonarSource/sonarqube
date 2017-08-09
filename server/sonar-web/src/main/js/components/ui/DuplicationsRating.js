@@ -24,11 +24,12 @@ import { inRange } from 'lodash';
 import './DuplicationsRating.css';
 
 export default class DuplicationsRating extends React.PureComponent {
-  props: {
+  /*:: props: {
     value: number,
     size?: 'small' | 'normal' | 'big' | 'huge',
     muted?: boolean
   };
+*/
 
   static defaultProps = {
     small: false,

@@ -21,27 +21,31 @@
 import React from 'react';
 import classNames from 'classnames';
 
+/*::
 type Props = {
   children?: React.Element<*>,
   className?: string,
   loading?: boolean,
   timeout: number
 };
+*/
 
+/*::
 type State = {
   showSpinner: boolean
 };
+*/
 
 export default class DeferredSpinner extends React.PureComponent {
-  props: Props;
-  state: State;
-  timer: number;
+  /*:: props: Props; */
+  /*:: state: State; */
+  /*:: timer: number; */
 
   static defaultProps = {
     timeout: 100
   };
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = { showSpinner: false };
   }
@@ -52,7 +56,7 @@ export default class DeferredSpinner extends React.PureComponent {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (this.props.loading === false && nextProps.loading === true) {
       this.stopTimer();
       this.startTimer();

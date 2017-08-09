@@ -20,9 +20,11 @@
 // @flow
 import React from 'react';
 
+/*::
 type Props = { className?: string, size?: number };
+*/
 
-export default function DeleteIcon({ className, size = 12 }: Props) {
+export default function DeleteIcon({ className, size = 12 } /*: Props */) {
   /* eslint-disable max-len */
   return (
     <svg

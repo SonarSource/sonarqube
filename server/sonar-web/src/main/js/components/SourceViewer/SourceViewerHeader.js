@@ -28,7 +28,7 @@ import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
 export default class SourceViewerHeader extends React.PureComponent {
-  props: {
+  /*:: props: {
     component: {
       canMarkAsFavorite: boolean,
       key: string,
@@ -49,13 +49,14 @@ export default class SourceViewerHeader extends React.PureComponent {
     },
     showMeasures: () => void
   };
+*/
 
-  showMeasures = (e: SyntheticInputEvent) => {
+  showMeasures = (e /*: SyntheticInputEvent */) => {
     e.preventDefault();
     this.props.showMeasures();
   };
 
-  openInWorkspace = (e: SyntheticInputEvent) => {
+  openInWorkspace = (e /*: SyntheticInputEvent */) => {
     e.preventDefault();
     const { key } = this.props.component;
     const Workspace = require('../workspace/main').default;

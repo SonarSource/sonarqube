@@ -22,12 +22,14 @@ import React from 'react';
 import classNames from 'classnames';
 import './LocationMessage.css';
 
+/*::
 type Props = {
   children?: React.Element<*>,
   selected: boolean
 };
+*/
 
-export default function LocationMessage(props: Props) {
+export default function LocationMessage(props /*: Props */) {
   return (
     <div className={classNames('location-message', { selected: props.selected })}>
       {props.children}

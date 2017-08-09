@@ -20,13 +20,15 @@
 import React from 'react';
 import classNames from 'classnames';
 
+/*::
 type Props = {
   className?: string,
   qualifier: ?string
 };
+*/
 
 export default class QualifierIcon extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     if (!this.props.qualifier) {

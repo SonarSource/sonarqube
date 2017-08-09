@@ -24,8 +24,9 @@ import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import SetTypePopup from '../popups/SetTypePopup';
 import { setIssueType } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {
   canSetSeverity: boolean,
   isOpen: boolean,
@@ -33,15 +34,17 @@ type Props = {
   setIssueProperty: (string, string, apiCall: (Object) => Promise<*>, string) => void,
   togglePopup: (string, boolean | void) => void
 };
+*/
 
 export default class IssueType extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  toggleSetType = (open?: boolean) => {
+  toggleSetType = (open /*: ?boolean */) => {
     this.props.togglePopup('set-type', open);
   };
 
-  setType = (type: string) => this.props.setIssueProperty('type', 'set-type', setIssueType, type);
+  setType = (type /*: string */) =>
+    this.props.setIssueProperty('type', 'set-type', setIssueType, type);
 
   render() {
     const { issue } = this.props;

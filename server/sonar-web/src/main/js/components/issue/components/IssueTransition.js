@@ -24,8 +24,9 @@ import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SetTransitionPopup from '../popups/SetTransitionPopup';
 import StatusHelper from '../../../components/shared/StatusHelper';
 import { setIssueTransition } from '../../../api/issues';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {
   hasTransitions: boolean,
   isOpen: boolean,
@@ -34,11 +35,12 @@ type Props = {
   onFail: Error => void,
   togglePopup: (string, boolean | void) => void
 };
+*/
 
 export default class IssueTransition extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  setTransition = (transition: string) => {
+  setTransition = (transition /*: string */) => {
     updateIssue(
       this.props.onChange,
       this.props.onFail,
@@ -47,7 +49,7 @@ export default class IssueTransition extends React.PureComponent {
     this.toggleSetTransition();
   };
 
-  toggleSetTransition = (open?: boolean) => {
+  toggleSetTransition = (open /*: ?boolean */) => {
     this.props.togglePopup('transition', open);
   };
 

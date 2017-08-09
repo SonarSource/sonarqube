@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import type { SourceLine } from '../types';
+/*:: import type { SourceLine } from '../types'; */
 
-const getCoverageStatus = (s: SourceLine): string | null => {
+const getCoverageStatus = (s /*: SourceLine */ /*: string | null */) => {
   let status = null;
   if (s.lineHits != null && s.lineHits > 0) {
     status = 'partially-covered';

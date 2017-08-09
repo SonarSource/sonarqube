@@ -29,8 +29,9 @@ import Tooltip from '../../controls/Tooltip';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {|
   issue: Issue,
   currentPopup: string,
@@ -38,10 +39,11 @@ type Props = {|
   onFilter?: (property: string, issue: Issue) => void,
   togglePopup: (string, boolean | void) => void
 |};
+*/
 
-const stopPropagation = (event: Event) => event.stopPropagation();
+const stopPropagation = (event /*: Event */) => event.stopPropagation();
 
-export default function IssueTitleBar(props: Props) {
+export default function IssueTitleBar(props /*: Props */) {
   const { issue } = props;
   const hasSimilarIssuesFilter = props.onFilter != null;
 

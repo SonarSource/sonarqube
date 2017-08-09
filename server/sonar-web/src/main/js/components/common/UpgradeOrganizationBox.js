@@ -23,11 +23,13 @@ import { Link } from 'react-router';
 import { translate, hasMessage } from '../../helpers/l10n';
 import './UpgradeOrganizationBox.css';
 
+/*::
 type Props = {
   organization: string
 };
+*/
 
-export default function UpgradeOrganizationBox(props: Props) {
+export default function UpgradeOrganizationBox(props /*: Props */) {
   return (
     <div className="boxed-group boxed-group-inner upgrade-organization-box">
       <h3 className="spacer-bottom">

@@ -18,18 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
+/*::
 export type TextRange = {
   startLine: number,
   startOffset: number,
   endLine: number,
   endOffset: number
 };
+*/
 
+/*::
 export type FlowLocation = {
   msg: string,
   textRange: TextRange
 };
+*/
 
+/*::
 export type IssueComment = {
   author?: string,
   authorActive?: boolean,
@@ -42,7 +47,9 @@ export type IssueComment = {
   markdown: string,
   updatable: boolean
 };
+*/
 
+/*::
 export type Issue = {
   actions: Array<string>,
   assignee?: string,
@@ -81,3 +88,4 @@ export type Issue = {
   transitions?: Array<string>,
   type: string
 };
+*/

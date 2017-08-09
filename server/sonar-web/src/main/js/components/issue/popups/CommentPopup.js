@@ -23,8 +23,9 @@ import classNames from 'classnames';
 import BubblePopup from '../../../components/common/BubblePopup';
 import MarkdownTips from '../../../components/common/MarkdownTips';
 import { translate } from '../../../helpers/l10n';
-import type { IssueComment } from '../types';
+/*:: import type { IssueComment } from '../types'; */
 
+/*::
 type Props = {
   comment?: IssueComment,
   customClass?: string,
@@ -33,23 +34,26 @@ type Props = {
   placeholder: string,
   popupPosition?: {}
 };
+*/
 
+/*::
 type State = {
   textComment: string
 };
+*/
 
 export default class CommentPopup extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       textComment: props.comment ? props.comment.markdown : ''
     };
   }
 
-  handleCommentChange = (evt: SyntheticInputEvent) => {
+  handleCommentChange = (evt /*: SyntheticInputEvent */) => {
     this.setState({ textComment: evt.target.value });
   };
 
@@ -59,12 +63,12 @@ export default class CommentPopup extends React.PureComponent {
     }
   };
 
-  handleCancelClick = (evt: MouseEvent) => {
+  handleCancelClick = (evt /*: MouseEvent */) => {
     evt.preventDefault();
     this.props.toggleComment(false);
   };
 
-  handleKeyboard = (evt: KeyboardEvent) => {
+  handleKeyboard = (evt /*: KeyboardEvent */) => {
     if (evt.keyCode === 13 && (evt.metaKey || evt.ctrlKey)) {
       // Ctrl + Enter
       this.handleCommentClick();

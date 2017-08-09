@@ -21,17 +21,19 @@
 import React from 'react';
 import Tooltip from '../../controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-import type { SourceLine } from '../types';
+/*:: import type { SourceLine } from '../types'; */
 
+/*::
 type Props = {
   line: SourceLine,
   onClick: (SourceLine, HTMLElement) => void
 };
+*/
 
 export default class LineCoverage extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleClick = (e: SyntheticInputEvent) => {
+  handleClick = (e /*: SyntheticInputEvent */) => {
     e.preventDefault();
     this.props.onClick(this.props.line, e.target);
   };

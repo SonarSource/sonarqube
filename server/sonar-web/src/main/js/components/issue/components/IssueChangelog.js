@@ -22,8 +22,9 @@ import React from 'react';
 import moment from 'moment';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import ChangelogPopup from '../popups/ChangelogPopup';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {
   isOpen: boolean,
   issue: Issue,
@@ -31,16 +32,17 @@ type Props = {
   togglePopup: (string, boolean | void) => void,
   onFail: Error => void
 };
+*/
 
 export default class IssueChangelog extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleClick = (evt: SyntheticInputEvent) => {
+  handleClick = (evt /*: SyntheticInputEvent */) => {
     evt.preventDefault();
     this.toggleChangelog();
   };
 
-  toggleChangelog = (open?: boolean) => {
+  toggleChangelog = (open /*: ?boolean */) => {
     this.props.togglePopup('changelog', open);
   };
 

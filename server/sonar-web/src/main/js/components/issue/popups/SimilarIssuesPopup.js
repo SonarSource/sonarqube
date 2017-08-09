@@ -29,18 +29,20 @@ import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
 import { fileFromPath, limitComponentName } from '../../../helpers/path';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {|
   issue: Issue,
   onFilter: (property: string, issue: Issue) => void,
   popupPosition?: {}
 |};
+*/
 
 export default class SimilarIssuesPopup extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleSelect = (property: string) => {
+  handleSelect = (property /*: string */) => {
     this.props.onFilter(property, this.props.issue);
   };
 

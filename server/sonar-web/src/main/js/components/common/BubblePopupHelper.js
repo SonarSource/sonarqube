@@ -20,6 +20,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
+/*::
 type Props = {
   className?: string,
   children?: React.Element<*>,
@@ -32,14 +33,17 @@ type Props = {
   position: 'bottomleft' | 'bottomright',
   togglePopup: (?boolean) => void
 };
+*/
 
+/*::
 type State = {
   position: { top: number, right: number }
 };
+*/
 
 export default class BubblePopupHelper extends React.PureComponent {
-  props: Props;
-  state: State = {
+  /*:: props: Props; */
+  state /*: State */ = {
     position: {
       top: 0,
       right: 0
@@ -50,7 +54,7 @@ export default class BubblePopupHelper extends React.PureComponent {
     this.setState({ position: this.getPosition(this.props) });
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (!this.props.isOpen && nextProps.isOpen) {
       window.addEventListener('keydown', this.handleKey, false);
       window.addEventListener('click', this.handleOutsideClick, false);
@@ -60,24 +64,24 @@ export default class BubblePopupHelper extends React.PureComponent {
     }
   }
 
-  handleKey = (evt: KeyboardEvent) => {
+  handleKey = (evt /*: KeyboardEvent */) => {
     // Escape key
     if (evt.keyCode === 27) {
       this.props.togglePopup(false);
     }
   };
 
-  handleOutsideClick = (evt: SyntheticInputEvent) => {
+  handleOutsideClick = (evt /*: SyntheticInputEvent */) => {
     if (!this.popupContainer || !this.popupContainer.contains(evt.target)) {
       this.props.togglePopup(false);
     }
   };
 
-  handleClick(evt: SyntheticInputEvent) {
+  handleClick(evt /*: SyntheticInputEvent */) {
     evt.stopPropagation();
   }
 
-  getPosition(props: Props) {
+  getPosition(props /*: Props */) {
     const containerPos = this.container.getBoundingClientRect();
     const { position } = props;
     const offset = props.offset || { vertical: 0, horizontal: 0 };

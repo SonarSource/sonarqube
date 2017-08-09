@@ -29,37 +29,43 @@ import { areThereCustomOrganizations } from '../../../store/organizations/utils'
 import { searchMembers } from '../../../api/organizations';
 import { searchUsers } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type User = {
   avatar?: string,
   email?: string,
   login: string,
   name: string
 };
+*/
 
+/*::
 type Props = {
   issue: Issue,
   onFail: Error => void,
   onSelect: string => void,
   popupPosition?: {}
 };
+*/
 
+/*::
 type State = {
   query: string,
   users: Array<User>,
   currentUser: string
 };
+*/
 
 const LIST_SIZE = 10;
 
 export default class SetAssigneePopup extends React.PureComponent {
-  defaultUsersArray: Array<User>;
-  organizationEnabled: boolean;
-  props: Props;
-  state: State;
+  /*:: defaultUsersArray: Array<User>; */
+  /*:: organizationEnabled: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.organizationEnabled = areThereCustomOrganizations();
     this.searchUsers = debounce(this.searchUsers, 250);
@@ -78,7 +84,7 @@ export default class SetAssigneePopup extends React.PureComponent {
     };
   }
 
-  searchMembers = (query: string) => {
+  searchMembers = (query /*: string */) => {
     searchMembers({
       organization: this.props.issue.projectOrganization,
       q: query,
@@ -86,18 +92,18 @@ export default class SetAssigneePopup extends React.PureComponent {
     }).then(this.handleSearchResult, this.props.onFail);
   };
 
-  searchUsers = (query: string) => {
+  searchUsers = (query /*: string */) => {
     searchUsers(query, LIST_SIZE).then(this.handleSearchResult, this.props.onFail);
   };
 
-  handleSearchResult = (data: Object) => {
+  handleSearchResult = (data /*: Object */) => {
     this.setState({
       users: data.users,
       currentUser: data.users.length > 0 ? data.users[0].login : ''
     });
   };
 
-  handleSearchChange = (evt: SyntheticInputEvent) => {
+  handleSearchChange = (evt /*: SyntheticInputEvent */) => {
     const query = evt.target.value;
     if (query.length < 2) {
       this.setState({

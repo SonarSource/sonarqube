@@ -21,13 +21,15 @@
 import React from 'react';
 import classNames from 'classnames';
 
+/*::
 type Props = {
   className?: string,
   favorite: boolean,
   size?: number
 };
+*/
 
-export default function FavoriteIcon(props: Props) {
+export default function FavoriteIcon(props /*: Props */) {
   /* eslint max-len: 0 */
   return (
     <span

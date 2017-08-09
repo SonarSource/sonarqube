@@ -23,8 +23,9 @@ import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SetSeverityPopup from '../popups/SetSeverityPopup';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { setIssueSeverity } from '../../../api/issues';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {
   canSetSeverity: boolean,
   isOpen: boolean,
@@ -32,15 +33,16 @@ type Props = {
   setIssueProperty: (string, string, apiCall: (Object) => Promise<*>, string) => void,
   togglePopup: (string, boolean | void) => void
 };
+*/
 
 export default class IssueSeverity extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  toggleSetSeverity = (open?: boolean) => {
+  toggleSetSeverity = (open /*: ?boolean */) => {
     this.props.togglePopup('set-severity', open);
   };
 
-  setSeverity = (severity: string) =>
+  setSeverity = (severity /*: string */) =>
     this.props.setIssueProperty('severity', 'set-severity', setIssueSeverity, severity);
 
   render() {

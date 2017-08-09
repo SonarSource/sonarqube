@@ -24,11 +24,12 @@ import { inRange } from 'lodash';
 import './SizeRating.css';
 
 export default class SizeRating extends React.PureComponent {
-  props: {
+  /*:: props: {
     value: number,
     small?: boolean,
     muted?: boolean
   };
+*/
 
   static defaultProps = {
     small: false,

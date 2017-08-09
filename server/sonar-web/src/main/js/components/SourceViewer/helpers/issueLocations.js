@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import type { TextRange, Issue } from '../../issue/types';
+/*:: import type { TextRange, Issue } from '../../issue/types'; */
 
-export const getLinearLocations = (
-  textRange?: TextRange
-): Array<{ line: number, from: number, to: number }> => {
+export function getLinearLocations(
+  textRange /*: ?TextRange */
+) /*: Array<{ line: number, from: number, to: number }> */ {
   if (!textRange) {
     return [];
   }
@@ -36,17 +36,19 @@ export const getLinearLocations = (
     locations.push({ line, from, to });
   }
   return locations;
-};
+}
 
-export const getIssueLocations = (
-  issue: Issue
-): Array<{
+/*::
+type Location = {
   msg: string,
   flowIndex: number,
   locationIndex: number,
   textRange?: TextRange,
   index?: number
-}> => {
+}
+*/
+
+export function getIssueLocations(issue /*: Issue */) /*: Array<Location> */ {
   const allLocations = [];
   issue.flows.forEach((locations, flowIndex) => {
     if (locations) {
@@ -64,4 +66,4 @@ export const getIssueLocations = (
     }
   });
   return allLocations;
-};
+}

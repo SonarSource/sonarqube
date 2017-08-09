@@ -21,25 +21,30 @@
 import { searchIssues } from '../../../api/issues';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 
+/*::
 export type Query = { [string]: string };
+*/
 
-export type Issues = Array<*>;
+/*::
+export type Issues = Array<*>; */
 
 // maximum possible value
 const PAGE_SIZE = 500;
 
-const buildQuery = (component: string): Query => ({
-  additionalFields: '_all',
-  resolved: 'false',
-  componentKeys: component,
-  s: 'FILE_LINE'
-});
+function buildQuery(component /*: string */) /*: Query */ {
+  return {
+    additionalFields: '_all',
+    resolved: 'false',
+    componentKeys: component,
+    s: 'FILE_LINE'
+  };
+}
 
-export const loadPage = (
-  query: Query,
-  page: number,
-  pageSize: number = PAGE_SIZE
-): Promise<Issues> => {
+export function loadPage(
+  query /*: Query */,
+  page /*: number */,
+  pageSize /*: number */ = PAGE_SIZE
+) /*: Promise<Issues> */ {
   return searchIssues({
     ...query,
     p: page,
@@ -47,14 +52,14 @@ export const loadPage = (
   }).then(r =>
     r.issues.map(issue => parseIssueFromResponse(issue, r.components, r.users, r.rules))
   );
-};
+}
 
-export const loadPageAndNext = (
-  query: Query,
-  toLine: number,
-  page: number,
-  pageSize: number = PAGE_SIZE
-): Promise<Issues> => {
+export function loadPageAndNext(
+  query /*: Query */,
+  toLine /*: number */,
+  page /*: number */,
+  pageSize /*: number */ = PAGE_SIZE
+) /*: Promise<Issues> */ {
   return loadPage(query, page).then(issues => {
     if (issues.length === 0) {
       return [];
@@ -73,15 +78,19 @@ export const loadPageAndNext = (
       return [...issues, ...nextIssues];
     });
   });
-};
+}
 
-const loadIssues = (component: string, fromLine: number, toLine: number): Promise<Issues> => {
+function loadIssues(
+  component /*: string */,
+  fromLine /*: number */,
+  toLine /*: number */
+) /*: Promise<Issues> */ {
   const query = buildQuery(component);
   return new Promise(resolve => {
     loadPageAndNext(query, toLine, 1).then(issues => {
       resolve(issues);
     });
   });
-};
+}
 
 export default loadIssues;

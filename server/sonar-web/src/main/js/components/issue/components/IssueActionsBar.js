@@ -27,8 +27,9 @@ import IssueTransition from './IssueTransition';
 import IssueType from './IssueType';
 import { updateIssue } from '../actions';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {
   issue: Issue,
   currentPopup: string,
@@ -37,18 +38,21 @@ type Props = {
   onFail: Error => void,
   togglePopup: (string, boolean | void) => void
 };
+*/
 
+/*::
 type State = {
   commentPlaceholder: string
 };
+*/
 
 export default class IssueActionsBar extends React.PureComponent {
-  props: Props;
-  state: State = {
+  /*:: props: Props; */
+  state /*: State */ = {
     commentPlaceholder: ''
   };
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     const { resolution } = this.props.issue;
     if (!prevProps.issue.resolution && ['FALSE-POSITIVE', 'WONTFIX'].includes(resolution)) {
       this.toggleComment(true, translate('issue.comment.tell_why'));
@@ -56,10 +60,10 @@ export default class IssueActionsBar extends React.PureComponent {
   }
 
   setIssueProperty = (
-    property: string,
-    popup: string,
-    apiCall: Object => Promise<*>,
-    value: string
+    property /*: string */,
+    popup /*: string */,
+    apiCall /*: Object => Promise<*> */,
+    value /*: string */
   ) => {
     const { issue } = this.props;
     if (issue[property] !== value) {
@@ -75,7 +79,7 @@ export default class IssueActionsBar extends React.PureComponent {
     this.props.togglePopup(popup, false);
   };
 
-  toggleComment = (open?: boolean, placeholder?: string) => {
+  toggleComment = (open /*: ?boolean */, placeholder /*: ?string */) => {
     this.setState({ commentPlaceholder: placeholder || '' });
     this.props.togglePopup('comment', open);
   };

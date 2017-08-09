@@ -25,8 +25,9 @@ import IssueActionsBar from './components/IssueActionsBar';
 import IssueCommentLine from './components/IssueCommentLine';
 import { updateIssue } from './actions';
 import { deleteIssueComment, editIssueComment } from '../../api/issues';
-import type { Issue } from './types';
+/*:: import type { Issue } from './types'; */
 
+/*::
 type Props = {|
   checked?: boolean,
   currentPopup: string,
@@ -40,11 +41,12 @@ type Props = {|
   selected: boolean,
   togglePopup: (string, boolean | void) => void
 |};
+*/
 
 export default class IssueView extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleCheck = (event: Event) => {
+  handleCheck = (event /*: Event */) => {
     event.preventDefault();
     event.stopPropagation();
     if (this.props.onCheck) {
@@ -52,18 +54,18 @@ export default class IssueView extends React.PureComponent {
     }
   };
 
-  handleClick = (event: Event & { target: HTMLElement }) => {
+  handleClick = (event /*: Event & { target: HTMLElement } */) => {
     event.preventDefault();
     if (this.props.onClick) {
       this.props.onClick(this.props.issue.key);
     }
   };
 
-  editComment = (comment: string, text: string) => {
+  editComment = (comment /*: string */, text /*: string */) => {
     updateIssue(this.props.onChange, this.props.onFail, editIssueComment({ comment, text }));
   };
 
-  deleteComment = (comment: string) => {
+  deleteComment = (comment /*: string */) => {
     updateIssue(this.props.onChange, this.props.onFail, deleteIssueComment({ comment }));
   };
 

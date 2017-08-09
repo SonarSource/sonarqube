@@ -28,10 +28,11 @@ import LineDuplications from './LineDuplications';
 import LineDuplicationBlock from './LineDuplicationBlock';
 import LineIssuesIndicator from './LineIssuesIndicator';
 import LineCode from './LineCode';
-import type { SourceLine } from '../types';
-import type { LinearIssueLocation } from '../helpers/indexing';
-import type { Issue } from '../../issue/types';
+/*:: import type { SourceLine } from '../types'; */
+/*:: import type { LinearIssueLocation } from '../helpers/indexing'; */
+/*:: import type { Issue } from '../../issue/types'; */
 
+/*::
 type Props = {|
   displayAllIssues: boolean,
   displayCoverage: boolean,
@@ -72,9 +73,10 @@ type Props = {|
   }>,
   selectedIssue: string | null
 |};
+*/
 
 export default class Line extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   handleIssuesIndicatorClick = () => {
     if (this.props.openIssues) {

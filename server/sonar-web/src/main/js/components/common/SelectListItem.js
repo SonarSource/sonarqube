@@ -22,6 +22,7 @@ import React from 'react';
 import classNames from 'classnames';
 import Tooltip from '../controls/Tooltip';
 
+/*::
 type Props = {
   active?: string,
   children?: React.Element<*>,
@@ -30,11 +31,12 @@ type Props = {
   onHover?: string => void,
   title?: string
 };
+*/
 
 export default class SelectListItem extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleSelect = (evt: SyntheticInputEvent) => {
+  handleSelect = (evt /*: SyntheticInputEvent */) => {
     evt.preventDefault();
     this.props.onSelect && this.props.onSelect(this.props.item);
   };

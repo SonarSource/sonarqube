@@ -23,6 +23,7 @@ import BubblePopup from '../common/BubblePopup';
 import MultiSelect from '../common/MultiSelect';
 import './TagsList.css';
 
+/*::
 type Props = {
   position: {},
   tags: Array<string>,
@@ -32,12 +33,14 @@ type Props = {
   onSelect: string => void,
   onUnselect: string => void
 };
+*/
 
 export default class TagsSelector extends React.PureComponent {
-  validateTag: string => string;
-  props: Props;
+  /*:: validateTag: string => string; */
 
-  validateTag(value: string) {
+  /*:: props: Props; */
+
+  validateTag(value /*: string */) {
     // Allow only a-z, 0-9, '+', '-', '#', '.'
     return value.toLowerCase().replace(/[^a-z0-9\+\-#.]/gi, '');
   }
