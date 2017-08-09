@@ -21,8 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
@@ -30,37 +29,28 @@ import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepository;
-import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepository.OriginalFile;
 
-/**
- * Factory of {@link Input} of base data for issue tracking. Data are lazy-loaded.
- */
-public class TrackerBaseInputFactory {
+public class TrackerMergeBranchInputFactory {
   private static final LineHashSequence EMPTY_LINE_HASH_SEQUENCE = new LineHashSequence(Collections.<String>emptyList());
 
-  private final ComponentIssuesLoader issuesLoader;
+  private final MergeBranchIssuesLoader mergeIssuesLoader;
   private final DbClient dbClient;
-  private final MovedFilesRepository movedFilesRepository;
 
-  public TrackerBaseInputFactory(ComponentIssuesLoader issuesLoader, DbClient dbClient, MovedFilesRepository movedFilesRepository) {
-    this.issuesLoader = issuesLoader;
+  public TrackerMergeBranchInputFactory(MergeBranchIssuesLoader mergeIssuesLoader, DbClient dbClient) {
+    this.mergeIssuesLoader = mergeIssuesLoader;
     this.dbClient = dbClient;
-    this.movedFilesRepository = movedFilesRepository;
+    // TODO detect file moves?
   }
 
   public Input<DefaultIssue> create(Component component) {
-    return new BaseLazyInput(component, movedFilesRepository.getOriginalFile(component).orNull());
+    return new MergeLazyInput(component);
   }
 
-  private class BaseLazyInput extends LazyInput<DefaultIssue> {
+  private class MergeLazyInput extends LazyInput<DefaultIssue> {
     private final Component component;
-    @CheckForNull
-    private final String effectiveUuid;
 
-    private BaseLazyInput(Component component, @Nullable OriginalFile originalFile) {
+    private MergeLazyInput(Component component) {
       this.component = component;
-      this.effectiveUuid = originalFile == null ? component.getUuid() : originalFile.getUuid();
     }
 
     @Override
@@ -70,7 +60,7 @@ public class TrackerBaseInputFactory {
       }
 
       try (DbSession session = dbClient.openSession(false)) {
-        List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, effectiveUuid);
+        List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, component.getUuid());
         if (hashes == null || hashes.isEmpty()) {
           return EMPTY_LINE_HASH_SEQUENCE;
         }
@@ -80,7 +70,7 @@ public class TrackerBaseInputFactory {
 
     @Override
     protected List<DefaultIssue> loadIssues() {
-      return issuesLoader.loadForComponentUuid(effectiveUuid);
+      return mergeIssuesLoader.loadForKey(component.getUuid());
     }
   }
 }
