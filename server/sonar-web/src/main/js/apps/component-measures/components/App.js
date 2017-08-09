@@ -179,6 +179,7 @@ export default class App extends React.PureComponent {
             domain={query.metric}
             leakPeriod={leakPeriod}
             metrics={metrics}
+            router={this.props.router}
             selected={query.selected}
             updateQuery={this.updateQuery}
           />}
