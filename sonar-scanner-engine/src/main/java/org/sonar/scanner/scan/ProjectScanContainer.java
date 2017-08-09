@@ -136,6 +136,7 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultIndex.class,
       Storages.class,
       new RulesProvider(),
+      new BranchConfigurationProvider(),
 
       // temp
       new AnalysisTempFolderProvider(),
