@@ -19,8 +19,8 @@
  */
 package org.sonar.scanner.scan;
 
-import org.sonar.api.config.Configuration;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
 public interface ProjectBranchesLoader {
-  ProjectBranches load(String projectKey, Configuration settings);
+  ProjectBranches load(String projectKey, GlobalConfiguration settings);
 }

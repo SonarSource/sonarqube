@@ -19,11 +19,17 @@
  */
 package org.sonar.scanner.scan;
 
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import javax.annotation.CheckForNull;
 
-public class DefaultProjectBranchesLoader implements ProjectBranchesLoader {
+public class DefaultProjectBranches implements ProjectBranches {
   @Override
-  public ProjectBranches load(String projectKey, GlobalConfiguration settings) {
-    return new DefaultProjectBranches();
+  public BranchType branchType() {
+    return BranchType.LONG;
+  }
+
+  @CheckForNull
+  @Override
+  public String branchTarget() {
+    return null;
   }
 }
