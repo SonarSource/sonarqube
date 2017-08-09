@@ -21,15 +21,17 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   displayReset: boolean,
   onReset: () => void
 };
+*/
 
 export default class FiltersHeader extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleResetClick = (e: Event & { currentTarget: HTMLElement }) => {
+  handleResetClick = (e /*: Event & { currentTarget: HTMLElement } */) => {
     e.preventDefault();
     e.currentTarget.blur();
     this.props.onReset();

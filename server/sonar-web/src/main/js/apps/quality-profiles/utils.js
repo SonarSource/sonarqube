@@ -20,9 +20,9 @@
 // @flow
 import { sortBy } from 'lodash';
 import moment from 'moment';
-import type { Profile } from './propTypes';
+/*:: import type { Profile } from './propTypes'; */
 
-export function sortProfiles(profiles: Array<Profile>) {
+export function sortProfiles(profiles /*: Array<Profile> */) {
   const result = [];
   const sorted = sortBy(profiles, 'name');
 
@@ -51,7 +51,7 @@ export function sortProfiles(profiles: Array<Profile>) {
   return result;
 }
 
-export function createFakeProfile(overrides: {}) {
+export function createFakeProfile(overrides /*: {} */) {
   return {
     key: 'key',
     name: 'name',
@@ -66,30 +66,37 @@ export function createFakeProfile(overrides: {}) {
   };
 }
 
-export function isStagnant(profile: Profile) {
+export function isStagnant(profile /*: Profile */) {
   return moment().diff(moment(profile.userUpdatedAt), 'years') >= 1;
 }
 
-export const getProfilesPath = (organization: ?string) =>
+export const getProfilesPath = (organization /*: ?string */) =>
   organization ? `/organizations/${organization}/quality_profiles` : '/profiles';
 
-export const getProfilesForLanguagePath = (language: string, organization: ?string) => ({
+export const getProfilesForLanguagePath = (
+  language /*: string */,
+  organization /*: ?string */
+) => ({
   pathname: getProfilesPath(organization),
   query: { language }
 });
 
-export const getProfilePath = (name: string, language: string, organization: ?string) => ({
+export const getProfilePath = (
+  name /*: string */,
+  language /*: string */,
+  organization /*: ?string */
+) => ({
   pathname: getProfilesPath(organization) + '/show',
   query: { name, language }
 });
 
 export const getProfileComparePath = (
-  name: string,
-  language: string,
-  organization: ?string,
-  withKey?: string
+  name /*: string */,
+  language /*: string */,
+  organization /*: ?string */,
+  withKey /*: ?string */
 ) => {
-  const query: Object = { language, name };
+  const query /*: Object */ = { language, name };
   if (withKey) {
     Object.assign(query, { withKey });
   }
@@ -100,12 +107,12 @@ export const getProfileComparePath = (
 };
 
 export const getProfileChangelogPath = (
-  name: string,
-  language: string,
-  organization: ?string,
-  filter?: { since?: string, to?: string }
+  name /*: string */,
+  language /*: string */,
+  organization /*: ?string */,
+  filter /*: ?{ since?: string, to?: string } */
 ) => {
-  const query: Object = { language, name };
+  const query /*: Object */ = { language, name };
   if (filter) {
     if (filter.since) {
       Object.assign(query, { since: filter.since });

@@ -24,6 +24,7 @@ import SQScanner from './SQScanner';
 import BuildWrapper from './BuildWrapper';
 import { translate } from '../../../../helpers/l10n';
 
+/*::
 type Props = {
   host: string,
   os: string,
@@ -31,6 +32,7 @@ type Props = {
   projectKey: string,
   token: string
 };
+*/
 
 const executables = {
   linux: 'build-wrapper-linux-x86-64',
@@ -38,7 +40,7 @@ const executables = {
   mac: 'build-wrapper-macosx-x86'
 };
 
-export default function ClangGCC(props: Props) {
+export default function ClangGCC(props /*: Props */) {
   const command1 = `${executables[props.os]} --out-dir bw-output make clean all`;
 
   const command2 = [

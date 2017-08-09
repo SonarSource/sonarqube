@@ -21,26 +21,30 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   failingCount: number,
   pendingCount: number,
   onShowFailing: () => void,
   onCancelAllPending: () => void
 };
+*/
 
+/*::
 type State = Object;
+*/
 
 export default class Stats extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  handleCancelAllPending(e: Object) {
+  handleCancelAllPending(e /*: Object */) {
     e.preventDefault();
     e.target.blur();
     this.props.onCancelAllPending();
   }
 
-  handleShowFailing(e: Object) {
+  handleShowFailing(e /*: Object */) {
     e.preventDefault();
     e.target.blur();
     this.props.onShowFailing();

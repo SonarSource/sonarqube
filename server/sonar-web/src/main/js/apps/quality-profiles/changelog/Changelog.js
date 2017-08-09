@@ -25,6 +25,7 @@ import ChangesList from './ChangesList';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 
+/*::
 type Props = {
   events: Array<{
     action: string,
@@ -36,9 +37,10 @@ type Props = {
   }>,
   organization: ?string
 };
+*/
 
 export default class Changelog extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     let isEvenRow = false;

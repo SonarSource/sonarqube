@@ -27,6 +27,7 @@ import SearchableFilterOption from './SearchableFilterOption';
 import { searchProjectTags } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   query: {},
   router: { push: ({ pathname: string, query?: {} }) => void },
@@ -36,21 +37,24 @@ type Props = {
   organization?: {},
   maxFacetValue?: number
 };
+*/
 
+/*::
 type State = {
   isLoading: boolean,
   search: string,
   tags: Array<string>
 };
+*/
 
 const LIST_SIZE = 10;
 
 export default class TagsFilter extends React.PureComponent {
-  props: Props;
-  state: State;
-  property: string;
+  /*:: props: Props; */
+  /*:: state: State; */
+  /*:: property: string; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       isLoading: false,
@@ -61,7 +65,10 @@ export default class TagsFilter extends React.PureComponent {
     this.handleSearch = debounce(this.handleSearch.bind(this), 250);
   }
 
-  getSearchOptions(facet?: {}, tags: Array<string>): Array<{ label: string, value: string }> {
+  getSearchOptions(
+    facet /*: ?{} */,
+    tags /*: Array<string> */
+  ) /*: Array<{ label: string, value: string }> */ {
     let tagsCopy = [...tags];
     if (facet) {
       tagsCopy = difference(tagsCopy, Object.keys(facet));
@@ -69,7 +76,7 @@ export default class TagsFilter extends React.PureComponent {
     return tagsCopy.slice(0, LIST_SIZE).map(tag => ({ label: tag, value: tag }));
   }
 
-  handleSearch = (search?: string) => {
+  handleSearch = (search /*: ?string */) => {
     if (search !== this.state.search) {
       search = search || '';
       this.setState({ search, isLoading: true });
@@ -82,13 +89,13 @@ export default class TagsFilter extends React.PureComponent {
     }
   };
 
-  getSortedOptions(facet: {} = {}) {
+  getSortedOptions(facet /*: {} */ = {}) {
     return sortBy(Object.keys(facet), [option => -facet[option], option => option]);
   }
 
-  getFacetValueForOption = (facet: {}, option: string) => facet[option];
+  getFacetValueForOption = (facet /*: {} */, option /*: string */) => facet[option];
 
-  renderOption = (option: string) => <SearchableFilterOption optionKey={option} />;
+  renderOption = (option /*: string */) => <SearchableFilterOption optionKey={option} />;
 
   render() {
     return (

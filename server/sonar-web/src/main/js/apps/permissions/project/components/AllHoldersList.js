@@ -25,6 +25,7 @@ import HoldersList from '../../shared/components/HoldersList';
 import { translate } from '../../../../helpers/l10n';
 import { PERMISSIONS_ORDER_BY_QUALIFIER } from '../constants';
 
+/*::
 type Props = {|
   component: {
     configuration?: {
@@ -57,11 +58,12 @@ type Props = {|
     permissions: Array<string>
   }>
 |};
+*/
 
 export default class AllHoldersList extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleToggleUser = (user: Object, permission: string) => {
+  handleToggleUser = (user /*: Object */, permission /*: string */) => {
     const hasPermission = user.permissions.includes(permission);
 
     if (hasPermission) {
@@ -71,7 +73,7 @@ export default class AllHoldersList extends React.PureComponent {
     }
   };
 
-  handleToggleGroup = (group: Object, permission: string) => {
+  handleToggleGroup = (group /*: Object */, permission /*: string */) => {
     const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {
@@ -81,7 +83,7 @@ export default class AllHoldersList extends React.PureComponent {
     }
   };
 
-  handleSelectPermission = (permission?: string) => {
+  handleSelectPermission = (permission /*: ?string */) => {
     this.props.onPermissionSelect(permission);
   };
 

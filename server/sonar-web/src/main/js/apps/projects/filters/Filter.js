@@ -68,7 +68,7 @@ export default class Filter extends React.PureComponent {
     );
   }
 
-  blurOnClick = (evt: Event & { currentTarget: HTMLElement }) => evt.currentTarget.blur();
+  blurOnClick = (evt /*: Event & { currentTarget: HTMLElement } */) => evt.currentTarget.blur();
 
   getPath(option) {
     const { property, value } = this.props;

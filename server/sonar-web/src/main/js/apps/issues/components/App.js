@@ -43,7 +43,7 @@ import {
   mapFacet,
   saveMyIssues
 } from '../utils';
-import type {
+/*:: import type {
   Query,
   Paging,
   Facet,
@@ -52,15 +52,16 @@ import type {
   ReferencedLanguage,
   Component,
   CurrentUser
-} from '../utils';
+} from '../utils'; */
 import ListFooter from '../../../components/controls/ListFooter';
 import EmptySearch from '../../../components/common/EmptySearch';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
-import type { Issue } from '../../../components/issue/types';
-import type { RawQuery } from '../../../helpers/query';
+/*:: import type { Issue } from '../../../components/issue/types'; */
+/*:: import type { RawQuery } from '../../../helpers/query'; */
 import '../styles.css';
 
+/*::
 export type Props = {
   component?: Component,
   currentUser: CurrentUser,
@@ -73,7 +74,9 @@ export type Props = {
     replace: ({ pathname: string, query?: RawQuery }) => void
   }
 };
+*/
 
+/*::
 export type State = {
   bulkChange: 'all' | 'selected' | null,
   checked: Array<string>,
@@ -94,15 +97,16 @@ export type State = {
   selectedFlowIndex: ?number,
   selectedLocationIndex: ?number
 };
+*/
 
 const DEFAULT_QUERY = { resolved: 'false' };
 
 export default class App extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       bulkChange: null,
@@ -137,7 +141,7 @@ export default class App extends React.PureComponent {
     this.fetchFirstIssues();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     const openIssue = this.getOpenIssue(nextProps, this.state.issues);
 
     if (openIssue != null && openIssue.key !== this.state.selected) {
@@ -159,7 +163,7 @@ export default class App extends React.PureComponent {
     });
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps /*: Props */, prevState /*: State */) {
     const { query } = this.props.location;
     const { query: prevQuery } = prevProps.location;
     if (
@@ -213,7 +217,7 @@ export default class App extends React.PureComponent {
     window.removeEventListener('keyup', this.handleKeyUp);
   }
 
-  handleKeyDown = (event: KeyboardEvent) => {
+  handleKeyDown = (event /*: KeyboardEvent */) => {
     if (key.getScope() !== 'issues') {
       return;
     }
@@ -240,7 +244,7 @@ export default class App extends React.PureComponent {
     }
   };
 
-  handleKeyUp = (event: KeyboardEvent) => {
+  handleKeyUp = (event /*: KeyboardEvent */) => {
     if (key.getScope() !== 'issues') {
       return;
     }
@@ -250,13 +254,13 @@ export default class App extends React.PureComponent {
     }
   };
 
-  getSelectedIndex(): ?number {
+  getSelectedIndex() /*: ?number */ {
     const { issues, selected } = this.state;
     const index = issues.findIndex(issue => issue.key === selected);
     return index !== -1 ? index : null;
   }
 
-  getOpenIssue = (props: Props, issues: Array<Issue>): ?Issue => {
+  getOpenIssue = (props /*: Props */, issues /*: Array<Issue> */) => {
     const open = getOpen(props.location.query);
     return open ? issues.find(issue => issue.key === open) : null;
   };
@@ -293,7 +297,7 @@ export default class App extends React.PureComponent {
     }
   };
 
-  openIssue = (issue: string) => {
+  openIssue = (issue /*: string */) => {
     const path = {
       pathname: this.props.location.pathname,
       query: {
@@ -332,7 +336,7 @@ export default class App extends React.PureComponent {
     }
   };
 
-  scrollToSelectedIssue = (smooth: boolean = true) => {
+  scrollToSelectedIssue = (smooth /*: boolean */ = true) => {
     const { selected } = this.state;
     if (selected) {
       const element = document.querySelector(`[data-issue="${selected}"]`);
@@ -342,7 +346,7 @@ export default class App extends React.PureComponent {
     }
   };
 
-  fetchIssues = (additional?: {}, requestFacets?: boolean = false): Promise<*> => {
+  fetchIssues = (additional /*: ?{} */, requestFacets /*: ?boolean */ = false) => {
     const { component, organization } = this.props;
     const { myIssues, openFacets, query } = this.state;
 
@@ -397,11 +401,11 @@ export default class App extends React.PureComponent {
     });
   }
 
-  fetchIssuesPage = (p: number): Promise<*> => {
+  fetchIssuesPage = (p /*: number */ /*: Promise<*> */) => {
     return this.fetchIssues({ p });
   };
 
-  fetchIssuesUntil = (p: number, done: (Array<Issue>, Paging) => boolean) => {
+  fetchIssuesUntil = (p /*: number */, done /*: (Array<Issue>, Paging) => boolean */) => {
     return this.fetchIssuesPage(p).then(response => {
       const { issues, paging } = response;
 
@@ -437,20 +441,17 @@ export default class App extends React.PureComponent {
     });
   };
 
-  fetchIssuesForComponent = (
-    component: string,
-    from: number,
-    to: number
-  ): Promise<Array<Issue>> => {
+  fetchIssuesForComponent = (component /*: string */, from /*: number */, to /*: number */) => {
     const { issues, openIssue, paging } = this.state;
 
     if (!openIssue || !paging) {
       return Promise.reject();
     }
 
-    const isSameComponent = (issue: Issue): boolean => issue.component === openIssue.component;
+    const isSameComponent = (issue /*: Issue */ /*: boolean */) =>
+      issue.component === openIssue.component;
 
-    const done = (issues: Array<Issue>, paging: Paging): boolean => {
+    const done = (issues /*: Array<Issue> */, paging /*: Paging */ /*: boolean */) => {
       if (paging.total <= paging.pageIndex * paging.pageSize) {
         return true;
       }
@@ -478,7 +479,7 @@ export default class App extends React.PureComponent {
     });
   };
 
-  fetchFacet = (facet: string) => {
+  fetchFacet = (facet /*: string */) => {
     return this.fetchIssues({ ps: 1, facets: mapFacet(facet) }).then(({ facets, ...other }) => {
       if (this.mounted) {
         this.setState(state => ({
@@ -517,7 +518,7 @@ export default class App extends React.PureComponent {
     return Promise.resolve({ issues, paging });
   };
 
-  handleFilterChange = (changes: {}) => {
+  handleFilterChange = (changes /*: {} */) => {
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
@@ -528,7 +529,7 @@ export default class App extends React.PureComponent {
     });
   };
 
-  handleMyIssuesChange = (myIssues: boolean) => {
+  handleMyIssuesChange = (myIssues /*: boolean */) => {
     this.closeFacet('assignees');
     if (!this.props.component) {
       saveMyIssues(myIssues);
@@ -543,13 +544,13 @@ export default class App extends React.PureComponent {
     });
   };
 
-  closeFacet = (property: string) => {
+  closeFacet = (property /*: string */) => {
     this.setState(state => ({
       openFacets: { ...state.openFacets, [property]: false }
     }));
   };
 
-  handleFacetToggle = (property: string) => {
+  handleFacetToggle = (property /*: string */) => {
     this.setState(state => ({
       openFacets: { ...state.openFacets, [property]: !state.openFacets[property] }
     }));
@@ -569,7 +570,7 @@ export default class App extends React.PureComponent {
     });
   };
 
-  handleIssueCheck = (issue: string) => {
+  handleIssueCheck = (issue /*: string */) => {
     this.setState(state => ({
       checked: state.checked.includes(issue)
         ? without(state.checked, issue)
@@ -577,13 +578,13 @@ export default class App extends React.PureComponent {
     }));
   };
 
-  handleIssueChange = (issue: Issue) => {
+  handleIssueChange = (issue /*: Issue */) => {
     this.setState(state => ({
       issues: state.issues.map(candidate => (candidate.key === issue.key ? issue : candidate))
     }));
   };
 
-  openBulkChange = (mode: 'all' | 'selected') => {
+  openBulkChange = (mode /*: 'all' | 'selected' */) => {
     this.setState({ bulkChange: mode });
     key.setScope('issues-bulk-change');
   };
@@ -593,13 +594,13 @@ export default class App extends React.PureComponent {
     this.setState({ bulkChange: null });
   };
 
-  handleBulkChangeClick = (e: Event & { target: HTMLElement }) => {
+  handleBulkChangeClick = (e /*: Event & { target: HTMLElement } */) => {
     e.preventDefault();
     e.target.blur();
     this.openBulkChange('all');
   };
 
-  handleBulkChangeSelectedClick = (e: Event & { target: HTMLElement }) => {
+  handleBulkChangeSelectedClick = (e /*: Event & { target: HTMLElement } */) => {
     e.preventDefault();
     e.target.blur();
     this.openBulkChange('selected');
@@ -622,14 +623,14 @@ export default class App extends React.PureComponent {
     });
   };
 
-  selectLocation = (index: ?number) => this.setState(actions.selectLocation(index));
+  selectLocation = (index /*: ?number */) => this.setState(actions.selectLocation(index));
   selectNextLocation = () => this.setState(actions.selectNextLocation);
   selectPreviousLocation = () => this.setState(actions.selectPreviousLocation);
-  selectFlow = (index: ?number) => this.setState(actions.selectFlow(index));
+  selectFlow = (index /*: ?number */) => this.setState(actions.selectFlow(index));
   selectNextFlow = () => this.setState(actions.selectNextFlow);
   selectPreviousFlow = () => this.setState(actions.selectPreviousFlow);
 
-  renderBulkChange(openIssue: ?Issue) {
+  renderBulkChange(openIssue /*: ?Issue */) {
     const { component, currentUser } = this.props;
     const { bulkChange, checked, paging } = this.state;
 
@@ -733,7 +734,7 @@ export default class App extends React.PureComponent {
     );
   }
 
-  renderSide(openIssue: ?Issue) {
+  renderSide(openIssue /*: ?Issue */) {
     const top = this.props.component || this.props.organization ? 95 : 30;
 
     return (

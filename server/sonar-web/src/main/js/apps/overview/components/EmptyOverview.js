@@ -22,11 +22,13 @@ import React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   component: { key: string }
 };
+*/
 
-export default function EmptyOverview({ component }: Props) {
+export default function EmptyOverview({ component } /*: Props */) {
   const rawMessage = translate('provisioning.no_analysis.delete');
   const head = rawMessage.substr(0, rawMessage.indexOf('{0}'));
   const tail = rawMessage.substr(rawMessage.indexOf('{0}') + 3);

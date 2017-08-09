@@ -26,6 +26,7 @@ import { withRouter } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 import { createOrganization } from '../../organizations/actions';
 
+/*::
 type State = {
   loading: boolean,
   avatar: string,
@@ -35,14 +36,16 @@ type State = {
   name: string,
   url: string
 };
+*/
 
 class CreateOrganizationForm extends React.PureComponent {
-  mounted: boolean;
-  state: State;
-  props: {
+  /*:: mounted: boolean; */
+  /*:: state: State; */
+  /*:: props: {
     createOrganization: (fields: {}) => Promise<*>,
     router: { push: string => void }
   };
+*/
 
   constructor(props) {
     super(props);
@@ -83,19 +86,19 @@ class CreateOrganizationForm extends React.PureComponent {
     this.closeForm();
   };
 
-  handleAvatarInputChange = (e: Object) => {
+  handleAvatarInputChange = (e /*: Object */) => {
     const { value } = e.target;
     this.setState({ avatar: value });
     this.changeAvatarImage(value);
   };
 
-  changeAvatarImage = (value: string) => {
+  changeAvatarImage = (value /*: string */) => {
     this.setState({ avatarImage: value });
   };
 
-  handleSubmit = (e: Object) => {
+  handleSubmit = (e /*: Object */) => {
     e.preventDefault();
-    const organization: Object = { name: this.state.name };
+    const organization /*: Object */ = { name: this.state.name };
     if (this.state.avatar) {
       Object.assign(organization, { avatar: this.state.avatar });
     }

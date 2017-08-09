@@ -22,8 +22,9 @@ import React from 'react';
 import PageHeader from './PageHeader';
 import Evolution from './Evolution';
 import ProfilesList from './ProfilesList';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   canAdmin: boolean,
   languages: Array<{ key: string, name: string }>,
@@ -33,9 +34,10 @@ type Props = {
   profiles: Array<Profile>,
   updateProfiles: () => Promise<*>
 };
+*/
 
 export default class HomeContainer extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     return (

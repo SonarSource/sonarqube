@@ -24,6 +24,7 @@ import NoFavoriteProjects from './NoFavoriteProjects';
 import EmptyInstance from './EmptyInstance';
 import EmptySearch from '../../../components/common/EmptySearch';
 
+/*::
 type Props = {
   projects?: Array<string>,
   isFavorite: boolean,
@@ -31,9 +32,10 @@ type Props = {
   organization?: { key: string },
   cardType?: string
 };
+*/
 
 export default class ProjectsList extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   renderNoProjects() {
     if (this.props.isFavorite && !this.props.isFiltered) {

@@ -25,6 +25,7 @@ import UserGroups from './UserGroups';
 import UserScmAccounts from './UserScmAccounts';
 import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
 
+/*::
 type Props = {
   customOrganizations: boolean,
   user: {
@@ -36,8 +37,9 @@ type Props = {
     scmAccounts: Array<*>
   }
 };
+*/
 
-function Profile(props: Props) {
+function Profile(props /*: Props */) {
   const { customOrganizations, user } = props;
 
   return (

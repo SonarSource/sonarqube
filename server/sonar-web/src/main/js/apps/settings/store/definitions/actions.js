@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import type { Definition } from '../../types';
+/*:: import type { Definition } from '../../types'; */
 
-export const RECEIVE_DEFINITIONS: string = 'RECEIVE_DEFINITIONS';
+export const RECEIVE_DEFINITIONS /*: string */ = 'RECEIVE_DEFINITIONS';
 
 /**
  * Receive definitions action creator
  * @param {Array} definitions
  * @returns {Object}
  */
-export const receiveDefinitions = (definitions: Definition[]) => ({
+export const receiveDefinitions = (definitions /*: Definition[] */) => ({
   type: RECEIVE_DEFINITIONS,
   definitions
 });

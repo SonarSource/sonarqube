@@ -20,17 +20,19 @@
 //@flow
 import React from 'react';
 import Avatar from '../../../components/ui/Avatar';
-import type { Option } from './UsersSelectSearch';
+/*:: import type { Option } from './UsersSelectSearch'; */
 
+/*::
 type Props = {
   value: Option,
   children?: Element | Text
 };
+*/
 
-const AVATAR_SIZE: number = 20;
+const AVATAR_SIZE /*: number */ = 20;
 
 export default class UsersSelectSearchValue extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const user = this.props.value;

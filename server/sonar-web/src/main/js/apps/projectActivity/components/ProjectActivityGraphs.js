@@ -33,10 +33,11 @@ import {
   isCustomGraph,
   splitSeriesInGraphs
 } from '../utils';
-import type { RawQuery } from '../../../helpers/query';
-import type { Analysis, MeasureHistory, Metric, Query } from '../types';
-import type { Serie } from '../../../components/charts/AdvancedTimeline';
+/*:: import type { RawQuery } from '../../../helpers/query'; */
+/*:: import type { Analysis, MeasureHistory, Metric, Query } from '../types'; */
+/*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
 
+/*::
 type Props = {
   analyses: Array<Analysis>,
   leakPeriodDate: Date,
@@ -46,22 +47,25 @@ type Props = {
   query: Query,
   updateQuery: RawQuery => void
 };
+*/
 
+/*::
 type State = {
   graphStartDate: ?Date,
   graphEndDate: ?Date,
   series: Array<Serie>,
   graphs: Array<Array<Serie>>
 };
+*/
 
 const MAX_GRAPH_NB = 2;
 const MAX_SERIES_PER_GRAPH = 3;
 
 export default class ProjectActivityGraphs extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     const series = generateSeries(
       props.measuresHistory,
@@ -77,7 +81,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     this.updateQueryDateRange = debounce(this.updateQueryDateRange, 500);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     let newSeries;
     let newGraphs;
     if (
@@ -109,10 +113,10 @@ export default class ProjectActivityGraphs extends React.PureComponent {
   }
 
   getStateZoomDates = (
-    props: ?Props,
-    nextProps: Props,
-    newSeries: ?Array<Serie>
-  ): ?{ graphEndDate: ?Date, graphStartDate: ?Date } => {
+    props /*: ?Props */,
+    nextProps /*: Props */,
+    newSeries /*: ?Array<Serie> */
+  ) => {
     const newDates = { from: nextProps.query.from || null, to: nextProps.query.to || null };
     if (!props || datesQueryChanged(props.query, nextProps.query)) {
       return { graphEndDate: newDates.to, graphStartDate: newDates.from };
@@ -132,7 +136,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     }
   };
 
-  getMetricsTypeFilter = (): ?Array<string> => {
+  getMetricsTypeFilter = () => /*: ?Array<string> */ {
     if (this.state.graphs.length < MAX_GRAPH_NB) {
       return null;
     }
@@ -141,19 +145,19 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       .map(graph => graph[0].type);
   };
 
-  addCustomMetric = (metric: string) => {
+  addCustomMetric = (metric /*: string */) => {
     const customMetrics = [...this.props.query.customMetrics, metric];
     saveCustomGraph(customMetrics);
     this.props.updateQuery({ customMetrics });
   };
 
-  removeCustomMetric = (removedMetric: string) => {
+  removeCustomMetric = (removedMetric /*: string */) => {
     const customMetrics = this.props.query.customMetrics.filter(metric => metric !== removedMetric);
     saveCustomGraph(customMetrics);
     this.props.updateQuery({ customMetrics });
   };
 
-  updateGraph = (graph: string) => {
+  updateGraph = (graph /*: string */) => {
     saveGraph(graph);
     if (isCustomGraph(graph) && this.props.query.customMetrics.length <= 0) {
       this.props.updateQuery({ graph, customMetrics: getCustomGraph() });
@@ -162,7 +166,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     }
   };
 
-  updateGraphZoom = (graphStartDate: ?Date, graphEndDate: ?Date) => {
+  updateGraphZoom = (graphStartDate /*: ?Date */, graphEndDate /*: ?Date */) => {
     if (graphEndDate != null && graphStartDate != null) {
       const msDiff = Math.abs(graphEndDate.valueOf() - graphStartDate.valueOf());
       // 12 hours minimum between the two dates
@@ -175,9 +179,9 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     this.updateQueryDateRange([graphStartDate, graphEndDate]);
   };
 
-  updateSelectedDate = (selectedDate: ?Date) => this.props.updateQuery({ selectedDate });
+  updateSelectedDate = (selectedDate /*: ?Date */) => this.props.updateQuery({ selectedDate });
 
-  updateQueryDateRange = (dates: Array<?Date>) => {
+  updateQueryDateRange = (dates /*: Array<?Date> */) => {
     if (dates[0] == null || dates[1] == null) {
       this.props.updateQuery({ from: dates[0], to: dates[1] });
     } else {

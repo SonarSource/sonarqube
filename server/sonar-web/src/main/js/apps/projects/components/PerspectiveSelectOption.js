@@ -21,8 +21,9 @@
 import React from 'react';
 import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import ListIcon from '../../../components/icons-components/ListIcon';
-import type { Option } from './PerspectiveSelect';
+/*:: import type { Option } from './PerspectiveSelect'; */
 
+/*::
 type Props = {
   option: Option,
   children?: Element | Text,
@@ -31,21 +32,22 @@ type Props = {
   onFocus: (Option, MouseEvent) => void,
   onSelect: (Option, MouseEvent) => void
 };
+*/
 
 export default class PerspectiveSelectOption extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleMouseDown = (event: MouseEvent) => {
+  handleMouseDown = (event /*: MouseEvent */) => {
     event.preventDefault();
     event.stopPropagation();
     this.props.onSelect(this.props.option, event);
   };
 
-  handleMouseEnter = (event: MouseEvent) => {
+  handleMouseEnter = (event /*: MouseEvent */) => {
     this.props.onFocus(this.props.option, event);
   };
 
-  handleMouseMove = (event: MouseEvent) => {
+  handleMouseMove = (event /*: MouseEvent */) => {
     if (this.props.isFocused) {
       return;
     }

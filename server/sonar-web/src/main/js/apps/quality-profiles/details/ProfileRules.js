@@ -29,16 +29,19 @@ import { searchRules, takeFacet } from '../../../api/rules';
 import { getQualityProfiles } from '../../../api/quality-profiles';
 import { getRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
 
+/*::
 type Props = {
   canAdmin: boolean,
   organization: ?string,
   profile: Profile
 };
+*/
 
+/*::
 type State = {
   activatedTotal: ?number,
   activatedByType?: { [string]: ?{ val: string, count: ?number } },
@@ -47,11 +50,12 @@ type State = {
   loading: boolean,
   total: ?number
 };
+*/
 
 export default class ProfileRules extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     activatedTotal: null,
     activatedByType: keyBy(TYPES.map(t => ({ val: t, count: null })), 'val'),
     allByType: keyBy(TYPES.map(t => ({ val: t, count: null })), 'val'),
@@ -65,7 +69,7 @@ export default class ProfileRules extends React.PureComponent {
     this.loadRules();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (prevProps.profile !== this.props.profile) {
       this.loadRules();
     }
@@ -123,13 +127,13 @@ export default class ProfileRules extends React.PureComponent {
     });
   }
 
-  getRulesCountForType(type: string): ?number {
+  getRulesCountForType(type /*: string */) /*: ?number */ {
     return this.state.activatedByType && this.state.activatedByType[type]
       ? this.state.activatedByType[type].count
       : null;
   }
 
-  getRulesTotalForType(type: string): ?number {
+  getRulesTotalForType(type /*: string */) /*: ?number */ {
     return this.state.allByType && this.state.allByType[type]
       ? this.state.allByType[type].count
       : null;

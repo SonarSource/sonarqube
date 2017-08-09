@@ -26,11 +26,13 @@ import Rating from '../../../components/ui/Rating';
 import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   measures?: { [string]: string }
 };
+*/
 
-export default function ProjectCardLeakMeasures({ measures }: Props) {
+export default function ProjectCardLeakMeasures({ measures } /*: Props */) {
   if (measures == null) {
     return null;
   }

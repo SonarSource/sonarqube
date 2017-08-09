@@ -23,12 +23,14 @@ import classNames from 'classnames';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {|
   className?: string,
   tooltip?: boolean
 |};
+*/
 
-export default function BuiltInBadge(props: Props) {
+export default function BuiltInBadge(props /*: Props */) {
   const badge = (
     <div className={classNames('built-in-badge', props.className)}>
       {translate('quality_profiles.built_in')}

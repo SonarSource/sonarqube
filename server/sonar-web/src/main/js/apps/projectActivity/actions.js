@@ -18,10 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import type { Event } from './types';
-import type { State } from './components/ProjectActivityAppContainer';
+/*:: import type { Event } from './types'; */
+/*:: import type { State } from './components/ProjectActivityAppContainer'; */
 
-export const addCustomEvent = (analysis: string, event: Event) => (state: State) => ({
+export const addCustomEvent = (analysis /*: string */, event /*: Event */) => (
+  state /*: State */
+) => ({
   analyses: state.analyses.map(item => {
     if (item.key !== analysis) {
       return item;
@@ -30,7 +32,9 @@ export const addCustomEvent = (analysis: string, event: Event) => (state: State)
   })
 });
 
-export const deleteEvent = (analysis: string, event: string) => (state: State) => ({
+export const deleteEvent = (analysis /*: string */, event /*: string */) => (
+  state /*: State */
+) => ({
   analyses: state.analyses.map(item => {
     if (item.key !== analysis) {
       return item;
@@ -42,7 +46,9 @@ export const deleteEvent = (analysis: string, event: string) => (state: State) =
   })
 });
 
-export const changeEvent = (analysis: string, event: Event) => (state: State) => ({
+export const changeEvent = (analysis /*: string */, event /*: Event */) => (
+  state /*: State */
+) => ({
   analyses: state.analyses.map(item => {
     if (item.key !== analysis) {
       return item;
@@ -56,6 +62,6 @@ export const changeEvent = (analysis: string, event: Event) => (state: State) =>
   })
 });
 
-export const deleteAnalysis = (analysis: string) => (state: State) => ({
+export const deleteAnalysis = (analysis /*: string */) => (state /*: State */) => ({
   analyses: state.analyses.filter(item => item.key !== analysis)
 });

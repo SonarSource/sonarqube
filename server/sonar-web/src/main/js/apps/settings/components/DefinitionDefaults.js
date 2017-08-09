@@ -30,7 +30,7 @@ export default class DefinitionDefaults extends React.PureComponent {
     onReset: PropTypes.func.isRequired
   };
 
-  handleReset(e: Object) {
+  handleReset(e /*: Object */) {
     e.preventDefault();
     e.target.blur();
     this.props.onReset();

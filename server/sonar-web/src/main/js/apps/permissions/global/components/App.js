@@ -26,7 +26,7 @@ import PageError from '../../shared/components/PageError';
 import { translate } from '../../../../helpers/l10n';
 import '../../styles.css';
 
-export default function App(props: { organization?: {} }) {
+export default function App(props /*: { organization?: {} } */) {
   return (
     <div className="page page-limited">
       <Helmet title={translate('global_permissions.permission')} />

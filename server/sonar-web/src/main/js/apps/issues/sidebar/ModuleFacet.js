@@ -27,8 +27,9 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { formatFacetStat } from '../utils';
-import type { ReferencedComponent } from '../utils';
+/*:: import type { ReferencedComponent } from '../utils'; */
 
+/*::
 type Props = {|
   facetMode: string,
   onChange: (changes: { [string]: Array<string> }) => void,
@@ -38,9 +39,10 @@ type Props = {|
   referencedComponents: { [string]: ReferencedComponent },
   modules: Array<string>
 |};
+*/
 
 export default class ModuleFacet extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static defaultProps = {
     open: true
@@ -48,7 +50,7 @@ export default class ModuleFacet extends React.PureComponent {
 
   property = 'modules';
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue /*: string */) => {
     const { modules } = this.props;
     const newValue = sortBy(
       modules.includes(itemValue) ? without(modules, itemValue) : [...modules, itemValue]
@@ -64,12 +66,12 @@ export default class ModuleFacet extends React.PureComponent {
     this.props.onChange({ [this.property]: [] });
   };
 
-  getStat(module: string): ?number {
+  getStat(module /*: string */) /*: ?number */ {
     const { stats } = this.props;
     return stats ? stats[module] : null;
   }
 
-  renderName(module: string): React.Element<*> | string {
+  renderName(module /*: string */) /*: React.Element<*> | string */ {
     const { referencedComponents } = this.props;
     const name = referencedComponents[module] ? referencedComponents[module].name : module;
     return (

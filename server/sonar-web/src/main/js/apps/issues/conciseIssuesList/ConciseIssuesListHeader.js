@@ -22,8 +22,9 @@ import React from 'react';
 import BackButton from './BackButton';
 import ReloadButton from '../components/ReloadButton';
 import IssuesCounter from '../components/IssuesCounter';
-import type { Paging } from '../utils';
+/*:: import type { Paging } from '../utils'; */
 
+/*::
 type Props = {|
   loading: boolean,
   onBackClick: () => void,
@@ -31,8 +32,9 @@ type Props = {|
   paging?: Paging,
   selectedIndex: ?number
 |};
+*/
 
-export default function ConciseIssuesListHeader(props: Props) {
+export default function ConciseIssuesListHeader(props /*: Props */) {
   const { paging, selectedIndex } = props;
 
   return (

@@ -24,9 +24,11 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = { activeDeprecatedRules: number, organization: ?string, profile: string };
+*/
 
-export default function ProfileRulesDeprecatedWarning(props: Props) {
+export default function ProfileRulesDeprecatedWarning(props /*: Props */) {
   const url = getDeprecatedActiveRulesUrl({ qprofile: props.profile }, props.organization);
   return (
     <div className="quality-profile-rules-deprecated clearfix">

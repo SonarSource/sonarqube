@@ -25,24 +25,28 @@ import TagsSelector from '../../../components/tags/TagsSelector';
 import { searchProjectTags } from '../../../api/components';
 import { setProjectTags } from '../store/actions';
 
+/*::
 type Props = {
   position: {},
   project: string,
   selectedTags: Array<string>,
   setProjectTags: (string, Array<string>) => void
 };
+*/
 
+/*::
 type State = {
   searchResult: Array<string>
 };
+*/
 
 const LIST_SIZE = 10;
 
 class ProjectTagsSelectorContainer extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = { searchResult: [] };
     this.onSearch = debounce(this.onSearch, 250);
@@ -52,7 +56,7 @@ class ProjectTagsSelectorContainer extends React.PureComponent {
     this.onSearch('');
   }
 
-  onSearch = (query: string) => {
+  onSearch = (query /*: string */) => {
     searchProjectTags({
       q: query || '',
       ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, 100)
@@ -63,11 +67,11 @@ class ProjectTagsSelectorContainer extends React.PureComponent {
     });
   };
 
-  onSelect = (tag: string) => {
+  onSelect = (tag /*: string */) => {
     this.props.setProjectTags(this.props.project, [...this.props.selectedTags, tag]);
   };
 
-  onUnselect = (tag: string) => {
+  onUnselect = (tag /*: string */) => {
     this.props.setProjectTags(this.props.project, without(this.props.selectedTags, tag));
   };
 

@@ -18,12 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
+/*::
 export type Definition = {
   key: string,
   category: string
 };
+*/
 
+/*::
 export type SettingValue = {
   key: string,
   value?: string
 };
+*/

@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import type { SettingValue } from '../../types';
+/*:: import type { SettingValue } from '../../types'; */
 
-export const RECEIVE_VALUES: string = 'RECEIVE_VALUES';
+export const RECEIVE_VALUES /*: string */ = 'RECEIVE_VALUES';
 
 /**
  * Receive settings action creator
  * @param {Array} settings
  * @returns {Object}
  */
-export const receiveValues = (settings: SettingValue[]) => ({
+export const receiveValues = (settings /*: SettingValue[] */) => ({
   type: RECEIVE_VALUES,
   settings
 });

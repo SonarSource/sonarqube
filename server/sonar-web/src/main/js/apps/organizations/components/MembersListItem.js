@@ -24,9 +24,10 @@ import { translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import RemoveMemberForm from './forms/RemoveMemberForm';
 import ManageMemberGroupsForm from './forms/ManageMemberGroupsForm';
-import type { Member } from '../../../store/organizationsMembers/actions';
-import type { Organization, OrgGroup } from '../../../store/organizations/duck';
+/*:: import type { Member } from '../../../store/organizationsMembers/actions'; */
+/*:: import type { Organization, OrgGroup } from '../../../store/organizations/duck'; */
 
+/*::
 type Props = {
   member: Member,
   organization: Organization,
@@ -34,11 +35,12 @@ type Props = {
   removeMember: Member => void,
   updateMemberGroups: (member: Member, add: Array<string>, remove: Array<string>) => void
 };
+*/
 
-const AVATAR_SIZE: number = 36;
+const AVATAR_SIZE /*: number */ = 36;
 
 export default class MembersListItem extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { member, organization } = this.props;

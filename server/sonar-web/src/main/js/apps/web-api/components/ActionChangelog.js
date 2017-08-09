@@ -20,15 +20,17 @@
 // @flow
 import React from 'react';
 
+/*::
 type Props = {
   changelog: Array<{
     description: string,
     version: string
   }>
 };
+*/
 
 export default class ActionChangelog extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     return (

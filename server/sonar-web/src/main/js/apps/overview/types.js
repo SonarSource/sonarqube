@@ -19,14 +19,19 @@
  */
 //@flow
 
+/*::
 export type Component = {
   id: string,
   key: string,
   qualifier: string
 };
+*/
 
+/*::
 export type History = { [string]: Array<{ date: Date, value: string }> };
+*/
 
+/*::
 export type Metric = {
   custom?: boolean,
   hidden?: boolean,
@@ -34,18 +39,24 @@ export type Metric = {
   name: string,
   type: string
 };
+*/
 
+/*::
 export type Measure = {
   metric: Metric,
   value?: string,
   periods?: Array<Period>
 };
+*/
 
+/*::
 export type Period = {
   index: number,
   date: string,
   mode: string,
   parameter?: string
 };
+*/
 
-export type MeasuresList = Array<Measure>;
+/*::
+export type MeasuresList = Array<Measure>; */

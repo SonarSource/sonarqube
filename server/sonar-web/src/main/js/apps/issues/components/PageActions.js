@@ -21,18 +21,20 @@
 import React from 'react';
 import IssuesCounter from './IssuesCounter';
 import ReloadButton from './ReloadButton';
-import type { Paging } from '../utils';
+/*:: import type { Paging } from '../utils'; */
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {|
   loading: boolean,
   onReload: () => void,
   paging: ?Paging,
   selectedIndex: ?number
 |};
+*/
 
 export default class PageActions extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   renderShortcuts() {
     return (

@@ -21,13 +21,15 @@
 import React from 'react';
 import { sortBy } from 'lodash';
 import OrganizationCard from './OrganizationCard';
-import type { Organization } from '../../../store/organizations/duck';
+/*:: import type { Organization } from '../../../store/organizations/duck'; */
 
+/*::
 type Props = {
   organizations: Array<Organization>
 };
+*/
 
-export default function OrganizationsList(props: Props) {
+export default function OrganizationsList(props /*: Props */) {
   return (
     <ul className="account-projects-list">
       {sortBy(props.organizations, organization =>

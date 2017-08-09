@@ -23,22 +23,26 @@ import { sortBy } from 'lodash';
 import { IndexLink } from 'react-router';
 import { getCategoryName } from '../utils';
 
+/*::
 type Category = {
   key: string,
   name: string
 };
+*/
 
+/*::
 type Props = {
   categories: Category[],
   component?: { key: string },
   defaultCategory: string,
   selectedCategory: string
 };
+*/
 
 export default class CategoriesList extends React.PureComponent {
-  rops: Props;
+  /*:: rops: Props; */
 
-  renderLink(category: Category) {
+  renderLink(category /*: Category */) {
     const query = {};
 
     if (category.key !== this.props.defaultCategory) {

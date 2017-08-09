@@ -23,12 +23,14 @@ import { IndexLink } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 import { getProfilesPath } from '../utils';
 
+/*::
 type Props = {
   organization: ?string
 };
+*/
 
 export default class ProfileNotFound extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     return (

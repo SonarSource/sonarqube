@@ -27,6 +27,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
 import { formatFacetStat } from '../utils';
 
+/*::
 type Props = {|
   facetMode: string,
   onChange: (changes: { [string]: Array<string> }) => void,
@@ -35,9 +36,10 @@ type Props = {|
   stats?: { [string]: number },
   statuses: Array<string>
 |};
+*/
 
 export default class StatusFacet extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static defaultProps = {
     open: true
@@ -45,7 +47,7 @@ export default class StatusFacet extends React.PureComponent {
 
   property = 'statuses';
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue /*: string */) => {
     const { statuses } = this.props;
     const newValue = orderBy(
       statuses.includes(itemValue) ? without(statuses, itemValue) : [...statuses, itemValue]
@@ -61,12 +63,12 @@ export default class StatusFacet extends React.PureComponent {
     this.props.onChange({ [this.property]: [] });
   };
 
-  getStat(status: string): ?number {
+  getStat(status /*: string */) /*: ?number */ {
     const { stats } = this.props;
     return stats ? stats[status] : null;
   }
 
-  renderStatus(status: string) {
+  renderStatus(status /*: string */) {
     return (
       <span>
         <i className={`icon-status-${status.toLowerCase()}`} /> {translate('issue.status', status)}
@@ -74,7 +76,7 @@ export default class StatusFacet extends React.PureComponent {
     );
   }
 
-  renderItem = (status: string) => {
+  renderItem = (status /*: string */) => {
     const active = this.props.statuses.includes(status);
     const stat = this.getStat(status);
 

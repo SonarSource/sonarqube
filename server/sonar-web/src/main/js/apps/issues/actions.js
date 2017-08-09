@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import type { State } from './components/App';
+/*:: import type { State } from './components/App'; */
 
-export const enableLocationsNavigator = (state: State) => {
+export const enableLocationsNavigator = (state /*: State */) => {
   const { openIssue } = state;
   if (openIssue && (openIssue.secondaryLocations.length > 0 || openIssue.flows.length > 0)) {
     return {
@@ -35,7 +35,7 @@ export const disableLocationsNavigator = () => ({
   locationsNavigator: false
 });
 
-export const selectLocation = (nextIndex: ?number) => (state: State) => {
+export const selectLocation = (nextIndex /*: ?number */) => (state /*: State */) => {
   const { selectedLocationIndex: index, openIssue } = state;
   if (openIssue) {
     if (!state.locationsNavigator) {
@@ -52,7 +52,7 @@ export const selectLocation = (nextIndex: ?number) => (state: State) => {
   }
 };
 
-export const selectNextLocation = (state: State) => {
+export const selectNextLocation = (state /*: State */) => {
   const { selectedFlowIndex, selectedLocationIndex: index, openIssue } = state;
   if (openIssue) {
     const locations =
@@ -63,25 +63,25 @@ export const selectNextLocation = (state: State) => {
   }
 };
 
-export const selectPreviousLocation = (state: State) => {
+export const selectPreviousLocation = (state /*: State */) => {
   const { selectedLocationIndex: index, openIssue } = state;
   if (openIssue) {
     return { selectedLocationIndex: index != null && index > 0 ? index - 1 : index };
   }
 };
 
-export const selectFlow = (nextIndex: ?number) => () => {
+export const selectFlow = (nextIndex /*: ?number */) => () => {
   return { selectedFlowIndex: nextIndex, selectedLocationIndex: 0 };
 };
 
-export const selectNextFlow = (state: State) => {
+export const selectNextFlow = (state /*: State */) => {
   const { openIssue, selectedFlowIndex } = state;
   if (openIssue && selectedFlowIndex != null && openIssue.flows.length > selectedFlowIndex + 1) {
     return { selectedFlowIndex: selectedFlowIndex + 1, selectedLocationIndex: 0 };
   }
 };
 
-export const selectPreviousFlow = (state: State) => {
+export const selectPreviousFlow = (state /*: State */) => {
   const { openIssue, selectedFlowIndex } = state;
   if (openIssue && selectedFlowIndex != null && selectedFlowIndex > 0) {
     return { selectedFlowIndex: selectedFlowIndex - 1, selectedLocationIndex: 0 };

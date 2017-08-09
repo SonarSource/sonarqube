@@ -31,6 +31,7 @@ import * as api from '../../../../api/permissions';
 import { translate } from '../../../../helpers/l10n';
 import '../../styles.css';
 
+/*::
 export type Props = {|
   component: {
     configuration?: {
@@ -46,7 +47,9 @@ export type Props = {|
   onComponentChange: (changes: {}) => void,
   onRequestFail: Object => void
 |};
+*/
 
+/*::
 export type State = {|
   disclaimer: boolean,
   filter: string,
@@ -63,13 +66,14 @@ export type State = {|
     permissions: Array<string>
   }>
 |};
+*/
 
 export default class App extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       disclaimer: false,
@@ -139,13 +143,13 @@ export default class App extends React.PureComponent {
     }
   };
 
-  handleFilterChange = (filter: string) => {
+  handleFilterChange = (filter /*: string */) => {
     if (this.mounted) {
       this.setState({ filter }, this.loadHolders);
     }
   };
 
-  handleQueryChange = (query: string) => {
+  handleQueryChange = (query /*: string */) => {
     if (this.mounted) {
       this.setState({ query }, () => {
         if (query.length === 0 || query.length > 2) {
@@ -155,10 +159,10 @@ export default class App extends React.PureComponent {
     }
   };
 
-  handlePermissionSelect = (selectedPermission?: string) => {
+  handlePermissionSelect = (selectedPermission /*: ?string */) => {
     if (this.mounted) {
       this.setState(
-        (state: State) => ({
+        (state /*: State */) => ({
           selectedPermission:
             state.selectedPermission === selectedPermission ? undefined : selectedPermission
         }),
@@ -167,7 +171,7 @@ export default class App extends React.PureComponent {
     }
   };
 
-  addPermissionToGroup = (group: string, permission: string) =>
+  addPermissionToGroup = (group /*: string */, permission /*: string */) =>
     this.state.groups.map(
       candidate =>
         candidate.name === group
@@ -175,7 +179,7 @@ export default class App extends React.PureComponent {
           : candidate
     );
 
-  addPermissionToUser = (user: string, permission: string) =>
+  addPermissionToUser = (user /*: string */, permission /*: string */) =>
     this.state.users.map(
       candidate =>
         candidate.login === user
@@ -183,7 +187,7 @@ export default class App extends React.PureComponent {
           : candidate
     );
 
-  removePermissionFromGroup = (group: string, permission: string) =>
+  removePermissionFromGroup = (group /*: string */, permission /*: string */) =>
     this.state.groups.map(
       candidate =>
         candidate.name === group
@@ -191,7 +195,7 @@ export default class App extends React.PureComponent {
           : candidate
     );
 
-  removePermissionFromUser = (user: string, permission: string) =>
+  removePermissionFromUser = (user /*: string */, permission /*: string */) =>
     this.state.users.map(
       candidate =>
         candidate.login === user
@@ -199,7 +203,7 @@ export default class App extends React.PureComponent {
           : candidate
     );
 
-  grantPermissionToGroup = (group: string, permission: string) => {
+  grantPermissionToGroup = (group /*: string */, permission /*: string */) => {
     if (this.mounted) {
       this.setState({ loading: true, groups: this.addPermissionToGroup(group, permission) });
       api
@@ -221,7 +225,7 @@ export default class App extends React.PureComponent {
     }
   };
 
-  grantPermissionToUser = (user: string, permission: string) => {
+  grantPermissionToUser = (user /*: string */, permission /*: string */) => {
     if (this.mounted) {
       this.setState({ loading: true, users: this.addPermissionToUser(user, permission) });
       api
@@ -243,7 +247,7 @@ export default class App extends React.PureComponent {
     }
   };
 
-  revokePermissionFromGroup = (group: string, permission: string) => {
+  revokePermissionFromGroup = (group /*: string */, permission /*: string */) => {
     if (this.mounted) {
       this.setState({ loading: true, groups: this.removePermissionFromGroup(group, permission) });
       api
@@ -265,7 +269,7 @@ export default class App extends React.PureComponent {
     }
   };
 
-  revokePermissionFromUser = (user: string, permission: string) => {
+  revokePermissionFromUser = (user /*: string */, permission /*: string */) => {
     if (this.mounted) {
       this.setState({ loading: true, users: this.removePermissionFromUser(user, permission) });
       api
@@ -287,7 +291,7 @@ export default class App extends React.PureComponent {
     }
   };
 
-  handleVisibilityChange = (visibility: string) => {
+  handleVisibilityChange = (visibility /*: string */) => {
     if (visibility === 'public') {
       this.openDisclaimer();
     } else {

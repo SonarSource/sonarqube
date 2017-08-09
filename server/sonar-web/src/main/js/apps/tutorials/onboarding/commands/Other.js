@@ -23,6 +23,7 @@ import Command from './Command';
 import SQScanner from './SQScanner';
 import { translate } from '../../../../helpers/l10n';
 
+/*::
 type Props = {|
   host: string,
   organization?: string,
@@ -30,8 +31,9 @@ type Props = {|
   projectKey: string,
   token: string
 |};
+*/
 
-export default function Other(props: Props) {
+export default function Other(props /*: Props */) {
   const command = [
     props.os === 'win' ? 'sonar-scanner.bat' : 'sonar-scanner',
     `-Dsonar.projectKey=${props.projectKey}`,

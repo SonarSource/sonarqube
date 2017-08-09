@@ -24,7 +24,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { formatMeasure } from '../../../helpers/measures';
 import { translateWithParameters } from '../../../helpers/l10n';
 
-export default function ProjectCardQualityGate({ status }: { status?: string }) {
+export default function ProjectCardQualityGate({ status } /*: { status?: string } */) {
   if (!status) {
     return null;
   }

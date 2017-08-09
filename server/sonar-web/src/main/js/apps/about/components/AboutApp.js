@@ -39,6 +39,7 @@ import { fetchAboutPageSettings } from '../actions';
 import AboutAppForSonarQubeDotComLazyLoader from './AboutAppForSonarQubeDotComLazyLoader';
 import '../styles.css';
 
+/*::
 type State = {
   loading: boolean,
   projectsCount: number,
@@ -48,11 +49,12 @@ type State = {
     }
   }
 };
+*/
 
 class AboutApp extends React.PureComponent {
-  mounted: boolean;
+  /*:: mounted: boolean; */
 
-  props: {
+  /*:: props: {
     appState: {
       defaultOrganization: string,
       organizationsEnabled: boolean
@@ -62,8 +64,9 @@ class AboutApp extends React.PureComponent {
     fetchAboutPageSettings: () => Promise<*>,
     sonarqubeDotCom?: { value: string }
   };
+*/
 
-  state: State = {
+  state /*: State */ = {
     loading: true,
     projectsCount: 0
   };

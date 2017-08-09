@@ -26,17 +26,21 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RATING_COLORS } from '../../../helpers/constants';
 import { getProjectUrl } from '../../../helpers/urls';
 
+/*::
 type Metric = { key: string, type: string };
+*/
 
+/*::
 type Project = {
   key: string,
   measures: { [string]: string },
   name: string,
   organization?: { name: string }
 };
+*/
 
 export default class SimpleBubbleChart extends React.PureComponent {
-  props: {
+  /*:: props: {
     displayOrganizations: boolean,
     projects: Array<Project>,
     sizeMetric: Metric,
@@ -45,14 +49,21 @@ export default class SimpleBubbleChart extends React.PureComponent {
     yMetric: Metric,
     colorMetric?: string
   };
+*/
 
-  getMetricTooltip(metric: Metric, value: ?number) {
+  getMetricTooltip(metric /*: Metric */, value /*: ?number */) {
     const name = translate('metric', metric.key, 'name');
     const formattedValue = value != null ? formatMeasure(value, metric.type) : '–';
     return `<div>${name}: ${formattedValue}</div>`;
   }
 
-  getTooltip(project: Project, x: ?number, y: ?number, size: ?number, color?: number) {
+  getTooltip(
+    project /*: Project */,
+    x /*: ?number */,
+    y /*: ?number */,
+    size /*: ?number */,
+    color /*: ?number */
+  ) {
     const fullProjectName =
       this.props.displayOrganizations && project.organization
         ? `${project.organization.name} / <strong>${project.name}</strong>`

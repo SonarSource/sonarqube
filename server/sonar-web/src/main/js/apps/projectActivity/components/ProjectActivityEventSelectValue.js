@@ -20,14 +20,16 @@
 //@flow
 import React from 'react';
 import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
-import type { Option } from './ProjectActivityEventSelectOption';
+/*:: import type { Option } from './ProjectActivityEventSelectOption'; */
 
+/*::
 type Props = {
   value: Option,
   children?: Element | Text
 };
+*/
 
-export default function ProjectActivityEventSelectValue(props: Props) {
+export default function ProjectActivityEventSelectValue(props /*: Props */) {
   const { value } = props;
   return (
     <div className="Select-value" title={value.label}>

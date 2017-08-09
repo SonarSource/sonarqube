@@ -39,9 +39,10 @@ import {
   serializeQuery,
   serializeUrlQuery
 } from '../utils';
-import type { RawQuery } from '../../../helpers/query';
-import type { Analysis, MeasureHistory, Metric, Paging, Query } from '../types';
+/*:: import type { RawQuery } from '../../../helpers/query'; */
+/*:: import type { Analysis, MeasureHistory, Metric, Paging, Query } from '../types'; */
 
+/*::
 type Props = {
   location: { pathname: string, query: RawQuery },
   project: {
@@ -55,7 +56,9 @@ type Props = {
     replace: ({ pathname: string, query?: RawQuery }) => void
   }
 };
+*/
 
+/*::
 export type State = {
   analyses: Array<Analysis>,
   analysesLoading: boolean,
@@ -66,13 +69,14 @@ export type State = {
   paging?: Paging,
   query: Query
 };
+*/
 
 class ProjectActivityAppContainer extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       analyses: [],
@@ -105,7 +109,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (nextProps.location.query !== this.props.location.query) {
       const query = parseQuery(nextProps.location.query);
       if (query.graph !== this.state.query.graph || customMetricsChanged(this.state.query, query)) {
@@ -125,7 +129,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
     elem && elem.classList.remove('dashboard-page');
   }
 
-  addCustomEvent = (analysis: string, name: string, category?: string): Promise<*> =>
+  addCustomEvent = (analysis /*: string */, name /*: string */, category /*: ?string */) =>
     api
       .createEvent(analysis, name, category)
       .then(
@@ -133,10 +137,10 @@ class ProjectActivityAppContainer extends React.PureComponent {
           this.mounted && this.setState(actions.addCustomEvent(analysis, event))
       );
 
-  addVersion = (analysis: string, version: string): Promise<*> =>
+  addVersion = (analysis /*: string */, version /*: string */ /*: Promise<*> */) =>
     this.addCustomEvent(analysis, version, 'VERSION');
 
-  changeEvent = (event: string, name: string): Promise<*> =>
+  changeEvent = (event /*: string */, name /*: string */ /*: Promise<*> */) =>
     api
       .changeEvent(event, name)
       .then(
@@ -144,7 +148,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
           this.mounted && this.setState(actions.changeEvent(analysis, event))
       );
 
-  deleteAnalysis = (analysis: string): Promise<*> =>
+  deleteAnalysis = (analysis /*: string */ /*: Promise<*> */) =>
     api.deleteAnalysis(analysis).then(() => {
       if (this.mounted) {
         this.updateGraphData(this.state.query.graph, this.state.query.customMetrics);
@@ -152,19 +156,19 @@ class ProjectActivityAppContainer extends React.PureComponent {
       }
     });
 
-  deleteEvent = (analysis: string, event: string): Promise<*> =>
+  deleteEvent = (analysis /*: string */, event /*: string */ /*: Promise<*> */) =>
     api
       .deleteEvent(event)
       .then(() => this.mounted && this.setState(actions.deleteEvent(analysis, event)));
 
   fetchActivity = (
-    project: string,
-    p: number,
-    ps: number,
-    additional?: {
+    project /*: string */,
+    p /*: number */,
+    ps /*: number */,
+    additional /*: ?{
       [string]: string
-    }
-  ): Promise<{ analyses: Array<Analysis>, paging: Paging }> => {
+    } */
+  ) => {
     const parameters = { project, p, ps };
     return api
       .getProjectActivity({ ...parameters, ...additional })
@@ -174,7 +178,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
       }));
   };
 
-  fetchMeasuresHistory = (metrics: Array<string>): Promise<Array<MeasureHistory>> => {
+  fetchMeasuresHistory = (metrics /*: Array<string> */ /*: Promise<Array<MeasureHistory>> */) => {
     if (metrics.length <= 0) {
       return Promise.resolve([]);
     }
@@ -191,12 +195,12 @@ class ProjectActivityAppContainer extends React.PureComponent {
     );
   };
 
-  fetchMetrics = (): Promise<Array<Metric>> => getMetrics().catch(throwGlobalError);
+  fetchMetrics = () => /*: Promise<Array<Metric>> */ getMetrics().catch(throwGlobalError);
 
   loadAllActivities = (
-    project: string,
-    prevResult?: { analyses: Array<Analysis>, paging: Paging }
-  ): Promise<{ analyses: Array<Analysis>, paging: Paging }> => {
+    project /*: string */,
+    prevResult /*: ?{ analyses: Array<Analysis>, paging: Paging } */
+  ) => {
     if (
       prevResult &&
       prevResult.paging.pageIndex * prevResult.paging.pageSize >= prevResult.paging.total
@@ -215,7 +219,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
     });
   };
 
-  firstLoadData(query: Query) {
+  firstLoadData(query /*: Query */) {
     const graphMetrics = getHistoryMetrics(query.graph, query.customMetrics);
     Promise.all([
       this.fetchActivity(query.project, 1, 100, serializeQuery(query)),
@@ -246,15 +250,15 @@ class ProjectActivityAppContainer extends React.PureComponent {
     });
   }
 
-  updateGraphData = (graph: string, customMetrics: Array<string>) => {
+  updateGraphData = (graph /*: string */, customMetrics /*: Array<string> */) => {
     const graphMetrics = getHistoryMetrics(graph, customMetrics);
     this.setState({ graphLoading: true });
-    this.fetchMeasuresHistory(graphMetrics).then((measuresHistory: Array<MeasureHistory>) =>
+    this.fetchMeasuresHistory(graphMetrics).then((measuresHistory /*: Array<MeasureHistory> */) =>
       this.setState({ graphLoading: false, measuresHistory })
     );
   };
 
-  updateQuery = (newQuery: Query) => {
+  updateQuery = (newQuery /*: Query */) => {
     const query = serializeUrlQuery({
       ...this.state.query,
       ...newQuery

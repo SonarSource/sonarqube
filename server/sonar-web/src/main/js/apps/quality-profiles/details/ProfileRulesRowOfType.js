@@ -25,6 +25,7 @@ import { formatMeasure } from '../../../helpers/measures';
 import { getRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   count: ?number,
   organization: ?string,
@@ -32,8 +33,9 @@ type Props = {
   total: ?number,
   type: string
 };
+*/
 
-export default function ProfileRulesRowOfType(props: Props) {
+export default function ProfileRulesRowOfType(props /*: Props */) {
   const activeRulesUrl = getRulesUrl(
     { qprofile: props.qprofile, activation: 'true', types: props.type },
     props.organization

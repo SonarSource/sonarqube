@@ -23,19 +23,23 @@ import Modal from 'react-modal';
 import { getTask } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   onClose: () => void,
   task: { componentName: string, id: string, type: string }
 };
+*/
 
+/*::
 type State = {
   scannerContext: ?string
 };
+*/
 
 export default class ScannerContext extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     scannerContext: null
   };
 
@@ -56,7 +60,7 @@ export default class ScannerContext extends React.PureComponent {
     });
   }
 
-  handleCloseClick = (event: Event) => {
+  handleCloseClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClose();
   };

@@ -25,17 +25,19 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {|
   facetMode: string,
   onChange: (changes: {}) => void
 |};
+*/
 
 export default class FacetMode extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   property = 'facetMode';
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue /*: string */) => {
     this.props.onChange({ [this.property]: itemValue });
   };
 

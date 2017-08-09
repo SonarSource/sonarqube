@@ -22,9 +22,9 @@ import React from 'react';
 import { STATUSES } from './../constants';
 import PendingIcon from '../../../components/shared/pending-icon';
 import { translate } from '../../../helpers/l10n';
-import { Task } from '../types';
+/*:: import type { Task } from '../types'; */
 
-const TaskStatus = ({ task }: { task: Task }) => {
+const TaskStatus = ({ task } /*: { task: Task } */) => {
   let inner;
 
   switch (task.status) {

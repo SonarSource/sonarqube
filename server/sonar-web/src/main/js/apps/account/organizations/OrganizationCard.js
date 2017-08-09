@@ -20,13 +20,15 @@
 // @flow
 import React from 'react';
 import OrganizationLink from '../../../components/ui/OrganizationLink';
-import type { Organization } from '../../../store/organizations/duck';
+/*:: import type { Organization } from '../../../store/organizations/duck'; */
 
+/*::
 type Props = {
   organization: Organization
 };
+*/
 
-export default function OrganizationCard(props: Props) {
+export default function OrganizationCard(props /*: Props */) {
   const { organization } = props;
 
   return (

@@ -23,9 +23,10 @@ import { searchQualityProfiles, getExporters } from '../../../api/quality-profil
 import { sortProfiles } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
-import type { Exporter } from '../propTypes';
+/*:: import type { Exporter } from '../propTypes'; */
 import '../styles.css';
 
+/*::
 type Props = {
   children: React.Element<*>,
   currentUser: { permissions: { global: Array<string> } },
@@ -33,17 +34,20 @@ type Props = {
   onRequestFail: Object => void,
   organization: { name: string, canAdmin?: boolean, key: string } | null
 };
+*/
 
+/*::
 type State = {
   loading: boolean,
   exporters?: Array<Exporter>,
   profiles?: Array<*>
 };
+*/
 
 export default class App extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = { loading: true };
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = { loading: true };
 
   componentWillMount() {
     const html = document.querySelector('html');

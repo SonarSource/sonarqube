@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import Task from './Task';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   tasks: Array<*>,
   component: Object,
@@ -31,12 +32,15 @@ type Props = {
   onCancelTask: Function,
   onFilterTask: Function
 };
+*/
 
+/*::
 type State = Object;
+*/
 
 export default class Tasks extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
   render() {
     const { tasks, component, types, loading, onCancelTask, onFilterTask } = this.props;

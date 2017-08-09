@@ -21,15 +21,13 @@
 import moment from 'moment';
 import React from 'react';
 
-const TaskDate = ({
-  date,
-  baseDate,
-  format
-}: {
+const TaskDate = (
+  { date, baseDate, format } /*: {
   date: string,
   baseDate: string,
   format: string
-}) => {
+} */
+) => {
   const m = moment(date);
   const baseM = moment(baseDate);
   const diff = date && baseDate ? m.diff(baseM, 'days') : 0;

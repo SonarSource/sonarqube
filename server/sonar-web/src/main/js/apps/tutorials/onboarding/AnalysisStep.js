@@ -21,7 +21,7 @@
 import React from 'react';
 import Step from './Step';
 import LanguageStep from './LanguageStep';
-import type { Result } from './LanguageStep';
+/*:: import type { Result } from './LanguageStep'; */
 import JavaMaven from './commands/JavaMaven';
 import JavaGradle from './commands/JavaGradle';
 import DotNet from './commands/DotNet';
@@ -30,6 +30,7 @@ import ClangGCC from './commands/ClangGCC';
 import Other from './commands/Other';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {|
   onFinish: (projectKey?: string) => void,
   onReset: () => void,
@@ -39,16 +40,19 @@ type Props = {|
   stepNumber: number,
   token: string
 |};
+*/
 
+/*::
 type State = {
   result?: Result
 };
+*/
 
 export default class AnalysisStep extends React.PureComponent {
-  props: Props;
-  state: State = {};
+  /*:: props: Props; */
+  state /*: State */ = {};
 
-  handleLanguageSelect = (result?: Result) => {
+  handleLanguageSelect = (result /*: ?Result */) => {
     this.setState({ result });
     const projectKey = result && result.language !== 'java' ? result.projectKey : undefined;
     this.props.onFinish(projectKey);
@@ -81,7 +85,7 @@ export default class AnalysisStep extends React.PureComponent {
     );
   };
 
-  renderFormattedCommand = (...lines: Array<string>) =>
+  renderFormattedCommand = (...lines /*: Array<string> */) =>
     <pre>
       {lines.join(' ' + '\\' + '\n' + '  ')}
     </pre>;

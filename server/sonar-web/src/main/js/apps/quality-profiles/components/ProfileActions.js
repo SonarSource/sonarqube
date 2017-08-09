@@ -28,8 +28,9 @@ import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { setDefaultProfile } from '../../../api/quality-profiles';
 import { getProfilePath, getProfileComparePath, getProfilesPath } from '../utils';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   canAdmin: boolean,
   fromList: boolean,
@@ -38,16 +39,19 @@ type Props = {
   profile: Profile,
   updateProfiles: () => Promise<*>
 };
+*/
 
+/*::
 type State = {
   copyFormOpen: boolean,
   deleteFormOpen: boolean,
   renameFormOpen: boolean
 };
+*/
 
 export default class ProfileActions extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
   static defaultProps = {
     fromList: false
@@ -57,7 +61,7 @@ export default class ProfileActions extends React.PureComponent {
     router: PropTypes.object
   };
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       copyFormOpen: false,
@@ -66,12 +70,12 @@ export default class ProfileActions extends React.PureComponent {
     };
   }
 
-  handleRenameClick = (event: Event) => {
+  handleRenameClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ renameFormOpen: true });
   };
 
-  handleProfileRename = (name: string) => {
+  handleProfileRename = (name /*: string */) => {
     this.closeRenameForm();
     this.props.updateProfiles().then(() => {
       if (!this.props.fromList) {
@@ -86,12 +90,12 @@ export default class ProfileActions extends React.PureComponent {
     this.setState({ renameFormOpen: false });
   };
 
-  handleCopyClick = (event: Event) => {
+  handleCopyClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ copyFormOpen: true });
   };
 
-  handleProfileCopy = (name: string) => {
+  handleProfileCopy = (name /*: string */) => {
     this.props.updateProfiles().then(() => {
       this.context.router.push(
         getProfilePath(name, this.props.profile.language, this.props.organization)
@@ -103,12 +107,12 @@ export default class ProfileActions extends React.PureComponent {
     this.setState({ copyFormOpen: false });
   };
 
-  handleSetDefaultClick = (e: SyntheticInputEvent) => {
+  handleSetDefaultClick = (e /*: SyntheticInputEvent */) => {
     e.preventDefault();
     setDefaultProfile(this.props.profile.key).then(this.props.updateProfiles);
   };
 
-  handleDeleteClick = (event: Event) => {
+  handleDeleteClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ deleteFormOpen: true });
   };

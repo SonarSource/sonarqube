@@ -22,7 +22,7 @@ import React from 'react';
 import FavoriteProjectsContainer from '../../projects/components/FavoriteProjectsContainer';
 
 export default class OrganizationFavoriteProjects extends React.PureComponent {
-  props: {
+  /*:: props: {
     children?: React.Element<*>,
     currentUser: { isLoggedIn: boolean },
     location: Object,
@@ -30,6 +30,7 @@ export default class OrganizationFavoriteProjects extends React.PureComponent {
       key: string
     }
   };
+*/
 
   componentDidMount() {
     const html = document.querySelector('html');

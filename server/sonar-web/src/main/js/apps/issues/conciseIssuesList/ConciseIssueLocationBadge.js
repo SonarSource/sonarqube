@@ -24,13 +24,15 @@ import LocationIndex from '../../../components/common/LocationIndex';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
+/*::
 type Props = {|
   count: number,
   onClick?: () => void,
   selected?: boolean
 |};
+*/
 
-export default function ConciseIssueLocationBadge(props: Props) {
+export default function ConciseIssueLocationBadge(props /*: Props */) {
   return (
     <Tooltip
       mouseEnterDelay={0.5}

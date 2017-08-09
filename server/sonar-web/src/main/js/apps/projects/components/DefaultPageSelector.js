@@ -25,8 +25,9 @@ import AllProjectsContainer from './AllProjectsContainer';
 import { getCurrentUser } from '../../../store/rootReducer';
 import { isFavoriteSet, isAllSet } from '../../../helpers/storage';
 import { searchProjects } from '../../../api/components';
-import type { RawQuery } from '../../../helpers/query';
+/*:: import type { RawQuery } from '../../../helpers/query'; */
 
+/*::
 type Props = {
   currentUser: { isLoggedIn: boolean },
   location: { query: {} },
@@ -34,17 +35,20 @@ type Props = {
     replace: (location: { pathname?: string, query?: RawQuery }) => void
   }
 };
+*/
 
+/*::
 type State = {
   shouldBeRedirected?: boolean,
   shouldForceSorting?: string
 };
+*/
 
 class DefaultPageSelector extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {};
   }
@@ -53,7 +57,7 @@ class DefaultPageSelector extends React.PureComponent {
     this.defineIfShouldBeRedirected();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (prevProps.location !== this.props.location) {
       this.defineIfShouldBeRedirected();
     } else if (this.state.shouldBeRedirected === true) {

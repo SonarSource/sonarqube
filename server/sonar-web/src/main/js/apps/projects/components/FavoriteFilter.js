@@ -22,8 +22,9 @@ import React from 'react';
 import { IndexLink, Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 import { saveAll, saveFavorite } from '../../../helpers/storage';
-import type { RawQuery } from '../../../helpers/query';
+/*:: import type { RawQuery } from '../../../helpers/query'; */
 
+/*::
 type Props = {
   user: {
     isLoggedIn?: boolean
@@ -31,9 +32,10 @@ type Props = {
   organization?: { key: string },
   query: RawQuery
 };
+*/
 
 export default class FavoriteFilter extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   handleSaveFavorite = () => {
     if (!this.props.organization) {

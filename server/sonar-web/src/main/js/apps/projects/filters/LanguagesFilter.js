@@ -27,6 +27,7 @@ import SearchableFilterOption from './SearchableFilterOption';
 import { getLanguageByKey } from '../../../store/languages/reducer';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   query: {},
   languages: {},
@@ -37,14 +38,18 @@ type Props = {
   organization?: {},
   maxFacetValue?: number
 };
+*/
 
 const LIST_SIZE = 10;
 
 export default class LanguagesFilter extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
   property = 'languages';
 
-  getSearchOptions(facet?: {}, languages: {}): Array<{ label: string, value: string }> {
+  getSearchOptions(
+    facet /*: ?{} */,
+    languages /*: {} */
+  ) /*: Array<{ label: string, value: string }> */ {
     let languageKeys = Object.keys(languages);
     if (facet) {
       languageKeys = difference(languageKeys, Object.keys(facet));
@@ -54,13 +59,13 @@ export default class LanguagesFilter extends React.PureComponent {
       .map(key => ({ label: languages[key].name, value: key }));
   }
 
-  getSortedOptions(facet: {} = {}) {
+  getSortedOptions(facet /*: {} */ = {}) {
     return sortBy(Object.keys(facet), [option => -facet[option], option => option]);
   }
 
-  getFacetValueForOption = (facet: {} = {}, option: string) => facet[option];
+  getFacetValueForOption = (facet /*: {} */ = {}, option /*: string */) => facet[option];
 
-  renderOption = (option: string) =>
+  renderOption = (option /*: string */) =>
     <SearchableFilterOption
       optionKey={option}
       option={getLanguageByKey(this.props.languages, option)}

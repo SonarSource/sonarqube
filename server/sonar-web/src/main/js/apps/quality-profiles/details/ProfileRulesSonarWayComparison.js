@@ -24,6 +24,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { getRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   language: string,
   organization: ?string,
@@ -31,8 +32,9 @@ type Props = {
   sonarway: string,
   sonarWayMissingRules: number
 };
+*/
 
-export default function ProfileRulesSonarWayComparison(props: Props) {
+export default function ProfileRulesSonarWayComparison(props /*: Props */) {
   const url = getRulesUrl(
     {
       qprofile: props.profile,

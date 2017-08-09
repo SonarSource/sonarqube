@@ -23,24 +23,28 @@ import Modal from 'react-modal';
 import UsersSelectSearch from '../../../users/components/UsersSelectSearch';
 import { searchMembers } from '../../../../api/organizations';
 import { translate } from '../../../../helpers/l10n';
-import type { Organization } from '../../../../store/organizations/duck';
-import type { Member } from '../../../../store/organizationsMembers/actions';
+/*:: import type { Organization } from '../../../../store/organizations/duck'; */
+/*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
 
+/*::
 type Props = {
   addMember: (member: Member) => void,
   organization: Organization,
   memberLogins: Array<string>
 };
+*/
 
+/*::
 type State = {
   open: boolean,
   selectedMember?: Member
 };
+*/
 
 export default class AddMemberForm extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  state: State = {
+  state /*: State */ = {
     open: false
   };
 
@@ -52,7 +56,7 @@ export default class AddMemberForm extends React.PureComponent {
     this.setState({ open: false, selectedMember: undefined });
   };
 
-  handleSearch = (query?: string, ps: number): Promise<*> => {
+  handleSearch = (query /*: ?string */, ps /*: number */ /*: Promise<*> */) => {
     const data = { organization: this.props.organization.key, ps, selected: 'deselected' };
     if (!query) {
       return searchMembers(data);
@@ -60,7 +64,7 @@ export default class AddMemberForm extends React.PureComponent {
     return searchMembers({ ...data, q: query });
   };
 
-  handleSubmit = (e: Object) => {
+  handleSubmit = (e /*: Object */) => {
     e.preventDefault();
     if (this.state.selectedMember) {
       this.props.addMember(this.state.selectedMember);
@@ -68,7 +72,7 @@ export default class AddMemberForm extends React.PureComponent {
     }
   };
 
-  selectedMemberChange = (member: Member) => {
+  selectedMemberChange = (member /*: Member */) => {
     this.setState({ selectedMember: member });
   };
 

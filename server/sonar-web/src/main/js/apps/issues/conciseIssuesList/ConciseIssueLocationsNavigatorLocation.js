@@ -22,6 +22,7 @@ import React from 'react';
 import LocationIndex from '../../../components/common/LocationIndex';
 import LocationMessage from '../../../components/common/LocationMessage';
 
+/*::
 type Props = {
   index: number,
   message: string,
@@ -29,10 +30,11 @@ type Props = {
   scroll: HTMLElement => void,
   selected: boolean
 };
+*/
 
 export default class ConciseIssueLocationsNavigatorLocation extends React.PureComponent {
-  node: HTMLElement;
-  props: Props;
+  /*:: node: HTMLElement; */
+  /*:: props: Props; */
 
   componentDidMount() {
     if (this.props.selected) {
@@ -40,13 +42,13 @@ export default class ConciseIssueLocationsNavigatorLocation extends React.PureCo
     }
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (this.props.selected && prevProps.selected !== this.props.selected) {
       this.props.scroll(this.node);
     }
   }
 
-  handleClick = (event: Event) => {
+  handleClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClick(this.props.index);
   };

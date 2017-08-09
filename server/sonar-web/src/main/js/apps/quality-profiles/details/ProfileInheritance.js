@@ -24,8 +24,9 @@ import ProfileInheritanceBox from './ProfileInheritanceBox';
 import ChangeParentForm from './ChangeParentForm';
 import { translate } from '../../../helpers/l10n';
 import { getProfileInheritance } from '../../../api/quality-profiles';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   canAdmin: boolean,
   onRequestFail: Object => void,
@@ -34,7 +35,9 @@ type Props = {
   profiles: Array<Profile>,
   updateProfiles: () => Promise<*>
 };
+*/
 
+/*::
 type ProfileInheritanceDetails = {
   activeRuleCount: number,
   isBuiltIn: boolean,
@@ -43,7 +46,9 @@ type ProfileInheritanceDetails = {
   name: string,
   overridingRuleCount?: number
 };
+*/
 
+/*::
 type State = {
   ancestors?: Array<ProfileInheritanceDetails>,
   children?: Array<ProfileInheritanceDetails>,
@@ -51,11 +56,12 @@ type State = {
   loading: boolean,
   profile?: ProfileInheritanceDetails
 };
+*/
 
 export default class ProfileInheritance extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     formOpen: false,
     loading: true
   };
@@ -65,7 +71,7 @@ export default class ProfileInheritance extends React.PureComponent {
     this.loadData();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (prevProps.profile !== this.props.profile) {
       this.loadData();
     }
@@ -89,7 +95,7 @@ export default class ProfileInheritance extends React.PureComponent {
     });
   }
 
-  handleChangeParentClick = (event: Event) => {
+  handleChangeParentClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ formOpen: true });
   };

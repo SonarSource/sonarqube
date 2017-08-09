@@ -28,8 +28,11 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { SORTING_METRICS, SORTING_LEAK_METRICS, parseSorting } from '../utils';
 
+/*::
 export type Option = { label: string, value: string, class?: string, short?: string };
+*/
 
+/*::
 type Props = {
   className?: string,
   onChange: (sort: string, desc: boolean) => void,
@@ -37,22 +40,25 @@ type Props = {
   view: string,
   defaultOption: string
 };
+*/
 
+/*::
 type State = {
   sortValue: string,
   sortDesc: boolean
 };
+*/
 
 export default class ProjectsSortingSelect extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = parseSorting(props.selectedSort);
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (prevProps.selectedSort !== this.props.selectedSort) {
       this.setState(parseSorting(this.props.selectedSort));
     }
@@ -60,23 +66,23 @@ export default class ProjectsSortingSelect extends React.PureComponent {
 
   getOptions = () => {
     const sortMetrics = this.props.view === 'leak' ? SORTING_LEAK_METRICS : SORTING_METRICS;
-    return sortBy(
-      sortMetrics,
-      opt => (opt.value === this.props.defaultOption ? 0 : 1)
-    ).map((opt: { value: string, class?: string }) => ({
+    return sortBy(sortMetrics, opt => (opt.value === this.props.defaultOption ? 0 : 1)).map((
+      opt /*: { value: string, class?: string } */
+    ) => ({
       value: opt.value,
       label: translate('projects.sorting', opt.value),
       class: opt.class
     }));
   };
 
-  handleDescToggle = (evt: Event & { currentTarget: HTMLElement }) => {
+  handleDescToggle = (evt /*: Event & { currentTarget: HTMLElement } */) => {
     evt.preventDefault();
     evt.currentTarget.blur();
     this.props.onChange(this.state.sortValue, !this.state.sortDesc);
   };
 
-  handleSortChange = (option: Option) => this.props.onChange(option.value, this.state.sortDesc);
+  handleSortChange = (option /*: Option */) =>
+    this.props.onChange(option.value, this.state.sortDesc);
 
   render() {
     const { sortDesc } = this.state;

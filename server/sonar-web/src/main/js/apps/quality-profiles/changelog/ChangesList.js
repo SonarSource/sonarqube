@@ -22,12 +22,14 @@ import React from 'react';
 import SeverityChange from './SeverityChange';
 import ParameterChange from './ParameterChange';
 
+/*::
 type Props = {
   changes: { [string]: ?string }
 };
+*/
 
 export default class ChangesList extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { changes } = this.props;

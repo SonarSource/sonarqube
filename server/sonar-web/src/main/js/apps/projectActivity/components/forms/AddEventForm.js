@@ -21,24 +21,28 @@
 import React from 'react';
 import Modal from 'react-modal';
 import { translate } from '../../../../helpers/l10n';
-import type { Analysis } from '../../types';
+/*:: import type { Analysis } from '../../types'; */
 
+/*::
 type Props = {
   addEvent: (analysis: string, name: string, category?: string) => Promise<*>,
   analysis: Analysis,
   addEventButtonText: string
 };
+*/
 
+/*::
 type State = {
   open: boolean,
   processing: boolean,
   name: string
 };
+*/
 
 export default class AddEventForm extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     open: false,
     processing: false,
     name: ''
@@ -52,7 +56,7 @@ export default class AddEventForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  openForm = (e: Event) => {
+  openForm = (e /*: Event */) => {
     e.preventDefault();
     e.stopPropagation();
     if (this.mounted) {
@@ -66,7 +70,7 @@ export default class AddEventForm extends React.PureComponent {
     }
   };
 
-  changeInput = (e: Object) => {
+  changeInput = (e /*: Object */) => {
     if (this.mounted) {
       this.setState({ name: e.target.value });
     }
@@ -84,7 +88,7 @@ export default class AddEventForm extends React.PureComponent {
     }
   };
 
-  handleSubmit = (e: Object) => {
+  handleSubmit = (e /*: Object */) => {
     e.preventDefault();
     this.setState({ processing: true });
     this.props

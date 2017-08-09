@@ -23,11 +23,13 @@ import { Link, IndexLink } from 'react-router';
 import NavBarTabs from '../../../components/nav/NavBarTabs';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   customOrganizations: boolean
 };
+*/
 
-export default function Nav({ customOrganizations }: Props) {
+export default function Nav({ customOrganizations } /*: Props */) {
   return (
     <nav className="account-nav">
       <NavBarTabs>

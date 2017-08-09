@@ -20,6 +20,7 @@
 // @flow
 import { shape, string, number, bool, arrayOf } from 'prop-types';
 
+/*::
 export type Profile = {
   key: string,
   name: string,
@@ -39,12 +40,15 @@ export type Profile = {
   depth: number,
   childrenCount: number
 };
+*/
 
+/*::
 export type Exporter = {
   key: string,
   name: string,
   languages: Array<string>
 };
+*/
 
 export const ProfileType = shape({
   key: string.isRequired,

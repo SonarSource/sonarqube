@@ -21,8 +21,11 @@
 import React from 'react';
 import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
 
+/*::
 export type Option = { label: string, value: string };
+*/
 
+/*::
 type Props = {
   option: Option,
   children?: Element | Text,
@@ -31,21 +34,22 @@ type Props = {
   onFocus: (Option, MouseEvent) => void,
   onSelect: (Option, MouseEvent) => void
 };
+*/
 
 export default class ProjectActivityEventSelectOption extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleMouseDown = (event: MouseEvent) => {
+  handleMouseDown = (event /*: MouseEvent */) => {
     event.preventDefault();
     event.stopPropagation();
     this.props.onSelect(this.props.option, event);
   };
 
-  handleMouseEnter = (event: MouseEvent) => {
+  handleMouseEnter = (event /*: MouseEvent */) => {
     this.props.onFocus(this.props.option, event);
   };
 
-  handleMouseMove = (event: MouseEvent) => {
+  handleMouseMove = (event /*: MouseEvent */) => {
     if (this.props.isFocused) {
       return;
     }

@@ -23,14 +23,16 @@ import GraphsLegendItem from './GraphsLegendItem';
 import Tooltip from '../../../components/controls/Tooltip';
 import { hasDataValues } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import type { Serie } from '../../../components/charts/AdvancedTimeline';
+/*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
 
+/*::
 type Props = {
   removeMetric: string => void,
   series: Array<Serie & { translatedName: string }>
 };
+*/
 
-export default function GraphsLegendCustom({ removeMetric, series }: Props) {
+export default function GraphsLegendCustom({ removeMetric, series } /*: Props */) {
   return (
     <div className="project-activity-graph-legends">
       {series.map((serie, idx) => {

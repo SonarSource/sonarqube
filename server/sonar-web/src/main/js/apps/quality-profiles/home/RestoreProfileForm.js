@@ -23,25 +23,29 @@ import Modal from 'react-modal';
 import { restoreQualityProfile } from '../../../api/quality-profiles';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   onClose: () => void,
   onRequestFail: Object => void,
   onRestore: Function,
   organization: ?string
 };
+*/
 
+/*::
 type State = {
   loading: boolean,
   profile?: { name: string },
   ruleFailures?: number,
   ruleSuccesses?: number
 };
+*/
 
 export default class RestoreProfileForm extends React.PureComponent {
-  form: HTMLFormElement;
-  mounted: boolean;
-  props: Props;
-  state: State = { loading: false };
+  /*:: form: HTMLFormElement; */
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = { loading: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -51,12 +55,12 @@ export default class RestoreProfileForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  handleCancelClick = (event: Event) => {
+  handleCancelClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  handleFormSubmit = (event: Event) => {
+  handleFormSubmit = (event /*: Event */) => {
     event.preventDefault();
 
     this.setState({ loading: true });

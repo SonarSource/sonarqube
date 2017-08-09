@@ -28,14 +28,15 @@ import { searchRules } from '../../../api/rules';
 import { getLanguages } from '../../../store/rootReducer';
 
 class MetaQualityProfiles extends React.PureComponent {
-  mounted: boolean;
+  /*:: mounted: boolean; */
 
-  props: {
+  /*:: props: {
     component: { organization: string },
     customOrganizations: boolean,
     languages: { [string]: { name: string } },
     profiles: Array<{ key: string, language: string, name: string }>
   };
+*/
 
   state = {
     deprecatedByKey: {}

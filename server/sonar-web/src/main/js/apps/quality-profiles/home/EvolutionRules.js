@@ -39,13 +39,15 @@ function parseRules(r) {
   });
 }
 
+/*::
 type Props = {
   organization: ?string
 };
+*/
 
 export default class EvolutionRules extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
   state = {};
 
   componentDidMount() {

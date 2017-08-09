@@ -22,8 +22,9 @@ import React from 'react';
 import { AutoSizer } from 'react-virtualized';
 import ZoomTimeLine from '../../../components/charts/ZoomTimeLine';
 import { hasHistoryData } from '../utils';
-import type { Serie } from '../../../components/charts/AdvancedTimeline';
+/*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
 
+/*::
 type Props = {
   graphEndDate: ?Date,
   graphStartDate: ?Date,
@@ -34,8 +35,9 @@ type Props = {
   showAreas?: boolean,
   updateGraphZoom: (from: ?Date, to: ?Date) => void
 };
+*/
 
-export default function GraphsZoom(props: Props) {
+export default function GraphsZoom(props /*: Props */) {
   const { loading } = props;
   if (loading || !hasHistoryData(props.series)) {
     return null;

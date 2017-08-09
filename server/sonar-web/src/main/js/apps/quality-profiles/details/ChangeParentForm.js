@@ -24,8 +24,9 @@ import Select from 'react-select';
 import { sortBy } from 'lodash';
 import { changeProfileParent } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   onChange: () => void,
   onClose: () => void,
@@ -33,16 +34,19 @@ type Props = {
   profile: Profile,
   profiles: Array<Profile>
 };
+*/
 
+/*::
 type State = {
   loading: boolean,
   selected: ?string
 };
+*/
 
 export default class ChangeParentForm extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     loading: false,
     selected: null
   };
@@ -55,16 +59,16 @@ export default class ChangeParentForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  handleCancelClick = (event: Event) => {
+  handleCancelClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  handleSelectChange = (option: { value: string }) => {
+  handleSelectChange = (option /*: { value: string } */) => {
     this.setState({ selected: option.value });
   };
 
-  handleFormSubmit = (event: Event) => {
+  handleFormSubmit = (event /*: Event */) => {
     event.preventDefault();
 
     const parent = this.state.selected;

@@ -30,6 +30,7 @@ import TagsList from '../../../components/tags/TagsList';
 import PrivateBadge from '../../../components/common/PrivateBadge';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   measures: { [string]: string },
   organization?: { key: string },
@@ -44,8 +45,9 @@ type Props = {
     visibility?: boolean
   }
 };
+*/
 
-export default function ProjectCardLeak({ measures, organization, project }: Props) {
+export default function ProjectCardLeak({ measures, organization, project } /*: Props */) {
   if (project == null) {
     return null;
   }

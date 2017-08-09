@@ -21,8 +21,9 @@
 import React from 'react';
 import { sortBy } from 'lodash';
 import Event from './Event';
-import type { Event as EventType } from '../types';
+/*:: import type { Event as EventType } from '../types'; */
 
+/*::
 type Props = {
   analysis?: string,
   canAdmin?: boolean,
@@ -31,8 +32,9 @@ type Props = {
   events: Array<EventType>,
   isFirst?: boolean
 };
+*/
 
-export default function Events(props: Props) {
+export default function Events(props /*: Props */) {
   const sortedEvents = sortBy(
     props.events,
     // versions last

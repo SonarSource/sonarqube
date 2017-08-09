@@ -28,7 +28,7 @@ import { getOrganizationByKey } from '../../../store/rootReducer';
 import { deleteOrganization } from '../actions';
 
 class OrganizationDelete extends React.PureComponent {
-  props: {
+  /*:: props: {
     organization: {
       key: string,
       name: string
@@ -38,13 +38,14 @@ class OrganizationDelete extends React.PureComponent {
     },
     deleteOrganization: string => Promise<*>
   };
+*/
 
   state = {
     deleting: false,
     loading: false
   };
 
-  handleSubmit = (e: Object) => {
+  handleSubmit = (e /*: Object */) => {
     e.preventDefault();
     this.setState({ loading: true });
     this.props.deleteOrganization(this.props.organization.key).then(() => {

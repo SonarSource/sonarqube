@@ -21,8 +21,9 @@
 import React from 'react';
 import ConciseIssueBox from './ConciseIssueBox';
 import ConciseIssueComponent from './ConciseIssueComponent';
-import type { Issue } from '../../../components/issue/types';
+/*:: import type { Issue } from '../../../components/issue/types'; */
 
+/*::
 type Props = {|
   issue: Issue,
   onFlowSelect: number => void,
@@ -34,9 +35,10 @@ type Props = {|
   selectedFlowIndex: ?number,
   selectedLocationIndex: ?number
 |};
+*/
 
 export default class ConciseIssue extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { issue, previousIssue, selected } = this.props;

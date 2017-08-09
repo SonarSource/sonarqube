@@ -27,9 +27,10 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import FacetFooter from '../../../components/facet/FacetFooter';
 import { searchIssueTags } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
-import type { Component } from '../utils';
+/*:: import type { Component } from '../utils'; */
 import { formatFacetStat } from '../utils';
 
+/*::
 type Props = {|
   component?: Component,
   facetMode: string,
@@ -40,9 +41,10 @@ type Props = {|
   stats?: { [string]: number },
   tags: Array<string>
 |};
+*/
 
 export default class TagFacet extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static defaultProps = {
     open: true
@@ -50,7 +52,7 @@ export default class TagFacet extends React.PureComponent {
 
   property = 'tags';
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue /*: string */) => {
     const { tags } = this.props;
     const newValue = sortBy(
       tags.includes(itemValue) ? without(tags, itemValue) : [...tags, itemValue]
@@ -66,7 +68,7 @@ export default class TagFacet extends React.PureComponent {
     this.props.onChange({ [this.property]: [] });
   };
 
-  handleSearch = (query: string) => {
+  handleSearch = (query /*: string */) => {
     let organization = this.props.component && this.props.component.organization;
     if (this.props.organization && !organization) {
       organization = this.props.organization.key;
@@ -76,17 +78,17 @@ export default class TagFacet extends React.PureComponent {
     );
   };
 
-  handleSelect = (tag: string) => {
+  handleSelect = (tag /*: string */) => {
     const { tags } = this.props;
     this.props.onChange({ [this.property]: uniq([...tags, tag]) });
   };
 
-  getStat(tag: string): ?number {
+  getStat(tag /*: string */) /*: ?number */ {
     const { stats } = this.props;
     return stats ? stats[tag] : null;
   }
 
-  renderTag(tag: string) {
+  renderTag(tag /*: string */) {
     return (
       <span>
         <i className="icon-tags icon-gray little-spacer-right" />

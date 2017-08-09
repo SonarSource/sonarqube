@@ -24,6 +24,7 @@ import AlertWarnIcon from '../../../components/icons-components/AlertWarnIcon';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
 import CloseIcon from '../../../components/icons-components/CloseIcon';
 
+/*::
 type Props = {
   className?: string,
   metric: string,
@@ -32,11 +33,12 @@ type Props = {
   style: string,
   removeMetric?: string => void
 };
+*/
 
 export default class GraphsLegendItem extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleClick = (e: Event) => {
+  handleClick = (e /*: Event */) => {
     e.preventDefault();
     if (this.props.removeMetric) {
       this.props.removeMetric(this.props.metric);

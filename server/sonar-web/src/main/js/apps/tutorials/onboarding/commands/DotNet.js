@@ -23,14 +23,16 @@ import Command from './Command';
 import MSBuildScanner from './MSBuildScanner';
 import { translate } from '../../../../helpers/l10n';
 
+/*::
 type Props = {|
   host: string,
   organization?: string,
   projectKey: string,
   token: string
 |};
+*/
 
-export default function DotNet(props: Props) {
+export default function DotNet(props /*: Props */) {
   const command1 = [
     'SonarQube.Scanner.MSBuild.exe begin',
     `/k:"${props.projectKey}"`,

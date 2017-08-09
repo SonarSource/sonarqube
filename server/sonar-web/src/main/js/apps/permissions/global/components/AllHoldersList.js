@@ -112,11 +112,13 @@ const mapStateToProps = state => ({
   selectedPermission: getPermissionsAppSelectedPermission(state)
 });
 
+/*::
 type OwnProps = {
   organization?: { key: string }
 };
+*/
 
-const mapDispatchToProps = (dispatch: Function, ownProps: OwnProps) => {
+const mapDispatchToProps = (dispatch /*: Function */, ownProps /*: OwnProps */) => {
   const organizationKey = ownProps.organization ? ownProps.organization.key : undefined;
   return {
     loadHolders: () => dispatch(loadHolders(organizationKey)),

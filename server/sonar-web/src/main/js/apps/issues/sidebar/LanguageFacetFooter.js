@@ -24,17 +24,21 @@ import { connect } from 'react-redux';
 import { translate } from '../../../helpers/l10n';
 import { getLanguages } from '../../../store/rootReducer';
 
+/*::
 type Option = { label: string, value: string };
+*/
 
+/*::
 type Props = {|
   languages: Array<{ key: string, name: string }>,
   onSelect: (value: string) => void
 |};
+*/
 
 class LanguageFacetFooter extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleChange = (option: Option) => {
+  handleChange = (option /*: Option */) => {
     this.props.onSelect(option.value);
   };
 

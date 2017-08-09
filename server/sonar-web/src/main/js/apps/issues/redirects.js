@@ -19,10 +19,10 @@
  */
 // @flow
 import { parseQuery, areMyIssuesSelected, serializeQuery } from './utils';
-import type { RawQuery } from '../../helpers/query';
+/*:: import type { RawQuery } from '../../helpers/query'; */
 
-const parseHash = (hash: string): RawQuery => {
-  const query: RawQuery = {};
+const parseHash = (hash /*: string */ /*: RawQuery */) => {
+  const query /*: RawQuery */ = {};
   const parts = hash.split('|');
   parts.forEach(part => {
     const tokens = part.split('=');
@@ -39,7 +39,7 @@ const parseHash = (hash: string): RawQuery => {
   return query;
 };
 
-export const onEnter = (state: Object, replace: Function) => {
+export const onEnter = (state /*: Object */, replace /*: Function */) => {
   const { hash } = window.location;
   if (hash.length > 1) {
     const query = parseHash(hash.substr(1));

@@ -27,14 +27,18 @@ import BugIcon from '../../../components/icons-components/BugIcon';
 import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 
+/*::
 type Props = {
   bugs: ?number,
   codeSmells: ?number,
   loading: boolean,
   vulnerabilities: ?number
 };
+*/
 
-export default function EntryIssueTypes({ bugs, codeSmells, loading, vulnerabilities }: Props) {
+export default function EntryIssueTypes(
+  { bugs, codeSmells, loading, vulnerabilities } /*: Props */
+) {
   return (
     <div className="about-page-projects">
       {loading && <i className="spinner" />}

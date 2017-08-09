@@ -22,33 +22,38 @@ import React from 'react';
 import { isProvided, isClickable } from '../../project-admin/links/utils';
 import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
 
+/*::
 type Link = {
   id: string,
   name: string,
   url: string,
   type: string
 };
+*/
 
+/*::
 type State = {|
   expanded: boolean
 |};
+*/
 
 export default class MetaLink extends React.PureComponent {
-  props: {
+  /*:: props: {
     link: Link
   };
+*/
 
-  state: State = {
+  state /*: State */ = {
     expanded: false
   };
 
-  handleClick = (e: Object) => {
+  handleClick = (e /*: Object */) => {
     e.preventDefault();
     e.target.blur();
-    this.setState((s: State): State => ({ expanded: !s.expanded }));
+    this.setState((s /*: State */ /*: State */) => ({ expanded: !s.expanded }));
   };
 
-  renderLinkIcon(link: Link) {
+  renderLinkIcon(link /*: Link */) {
     if (link.type === 'issue') {
       return <BugTrackerIcon />;
     }

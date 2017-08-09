@@ -26,23 +26,27 @@ import { translate } from '../../../helpers/l10n';
 const INTERVAL = 5000;
 const TIMEOUT = 10 * 60 * 1000; // 10 min
 
+/*::
 type Props = {
   onFinish: () => void,
   onTimeout: () => void,
   projectKey: string
 };
+*/
 
+/*::
 type State = {
   inQueue: boolean,
   status: ?string
 };
+*/
 
 export default class ProjectWatcher extends React.PureComponent {
-  interval: number;
-  mounted: boolean;
-  props: Props;
-  timeout: number;
-  state: State = {
+  /*:: interval: number; */
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: timeout: number; */
+  state /*: State */ = {
     inQueue: false,
     status: null
   };

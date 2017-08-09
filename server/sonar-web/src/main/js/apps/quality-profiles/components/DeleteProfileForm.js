@@ -20,25 +20,29 @@
 // @flow
 import React from 'react';
 import Modal from 'react-modal';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 import { deleteProfile } from '../../../api/quality-profiles';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   onClose: () => void,
   onDelete: () => void,
   onRequestFail: Object => void,
   profile: Profile
 };
+*/
 
+/*::
 type State = {
   loading: boolean
 };
+*/
 
 export default class DeleteProfileForm extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = { loading: false, name: null };
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = { loading: false, name: null };
 
   componentDidMount() {
     this.mounted = true;
@@ -48,12 +52,12 @@ export default class DeleteProfileForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  handleCancelClick = (event: Event) => {
+  handleCancelClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  handleFormSubmit = (event: Event) => {
+  handleFormSubmit = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ loading: true });
     deleteProfile(this.props.profile.key).then(this.props.onDelete, error => {

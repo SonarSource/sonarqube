@@ -25,8 +25,9 @@ import Tooltip from '../../../components/controls/Tooltip';
 import PerspectiveSelect from './PerspectiveSelect';
 import ProjectsSortingSelect from './ProjectsSortingSelect';
 import { translate } from '../../../helpers/l10n';
-import type { RawQuery } from '../../../helpers/query';
+/*:: import type { RawQuery } from '../../../helpers/query'; */
 
+/*::
 type Props = {|
   currentUser?: { isLoggedIn: boolean },
   isFavorite?: boolean,
@@ -40,8 +41,9 @@ type Props = {|
   view: string,
   visualization?: string
 |};
+*/
 
-export default function PageHeader(props: Props) {
+export default function PageHeader(props /*: Props */) {
   const renderSortingSelect = () => {
     const { projectsAppState, projects, currentUser, view } = props;
     const limitReached =

@@ -32,6 +32,7 @@ import {
 } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   allProfiles: Array<{}>,
   component: { key: string, organization: string },
@@ -40,9 +41,10 @@ type Props = {
   profiles: Array<{}>,
   setProjectProfile: (string, string, string) => void
 };
+*/
 
 class QualityProfiles extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   componentDidMount() {
     if (this.props.customOrganizations) {

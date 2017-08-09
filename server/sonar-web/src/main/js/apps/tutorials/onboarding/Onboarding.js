@@ -31,13 +31,16 @@ import { getProjectUrl } from '../../../helpers/urls';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import './styles.css';
 
+/*::
 type Props = {|
   currentUser: { login: string, isLoggedIn: boolean },
   onFinish: () => void,
   organizationsEnabled: boolean,
   sonarCloud: boolean
 |};
+*/
 
+/*::
 type State = {
   finished: boolean,
   organization?: string,
@@ -46,17 +49,18 @@ type State = {
   step: string,
   token?: string
 };
+*/
 
 export default class Onboarding extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
   static contextTypes = {
     router: PropTypes.object
   };
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       finished: false,
@@ -101,11 +105,11 @@ export default class Onboarding extends React.PureComponent {
     this.setState({ projectKey: undefined });
   };
 
-  handleTokenDone = (token: string) => {
+  handleTokenDone = (token /*: string */) => {
     this.setState({ step: 'analysis', token });
   };
 
-  handleOrganizationDone = (organization: string) => {
+  handleOrganizationDone = (organization /*: string */) => {
     this.setState({ organization, step: 'token' });
   };
 
@@ -113,12 +117,12 @@ export default class Onboarding extends React.PureComponent {
 
   handleOrganizationOpen = () => this.setState({ step: 'organization' });
 
-  handleSkipClick = (event: Event) => {
+  handleSkipClick = (event /*: Event */) => {
     event.preventDefault();
     this.finishOnboarding();
   };
 
-  handleFinish = (projectKey?: string) => this.setState({ finished: true, projectKey });
+  handleFinish = (projectKey /*: ?string */) => this.setState({ finished: true, projectKey });
 
   handleReset = () => this.setState({ finished: false });
 

@@ -29,8 +29,9 @@ import {
   translate,
   translateWithParameters
 } from '../../../../helpers/l10n';
-import type { Metric } from '../../types';
+/*:: import type { Metric } from '../../types'; */
 
+/*::
 type Props = {
   addMetric: (metric: string) => void,
   className?: string,
@@ -38,19 +39,22 @@ type Props = {
   metricsTypeFilter: ?Array<string>,
   selectedMetrics: Array<string>
 };
+*/
 
+/*::
 type State = {
   open: boolean,
   selectedMetric?: string
 };
+*/
 
 export default class AddGraphMetric extends React.PureComponent {
-  props: Props;
-  state: State = {
+  /*:: props: Props; */
+  state /*: State */ = {
     open: false
   };
 
-  getMetricsOptions = (metricsTypeFilter: ?Array<string>) => {
+  getMetricsOptions = (metricsTypeFilter /*: ?Array<string> */) => {
     return this.props.metrics
       .filter(metric => {
         if (
@@ -65,7 +69,7 @@ export default class AddGraphMetric extends React.PureComponent {
         }
         return true;
       })
-      .map((metric: Metric) => ({
+      .map((metric /*: Metric */) => ({
         value: metric.key,
         label: getLocalizedMetricName(metric)
       }));
@@ -84,10 +88,10 @@ export default class AddGraphMetric extends React.PureComponent {
     });
   };
 
-  handleChange = (option: { value: string, label: string }) =>
+  handleChange = (option /*: { value: string, label: string } */) =>
     this.setState({ selectedMetric: option.value });
 
-  handleSubmit = (e: Object) => {
+  handleSubmit = (e /*: Object */) => {
     e.preventDefault();
     if (this.state.selectedMetric) {
       this.props.addMetric(this.state.selectedMetric);

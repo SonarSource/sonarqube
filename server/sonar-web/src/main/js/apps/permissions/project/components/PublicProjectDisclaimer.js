@@ -22,6 +22,7 @@ import React from 'react';
 import Modal from 'react-modal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
+/*::
 type Props = {
   component: {
     name: string
@@ -29,16 +30,17 @@ type Props = {
   onClose: () => void,
   onConfirm: () => void
 };
+*/
 
 export default class PublicProjectDisclaimer extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleCancelClick = (event: Event) => {
+  handleCancelClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  handleConfirmClick = (event: Event) => {
+  handleConfirmClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onConfirm();
     this.props.onClose();

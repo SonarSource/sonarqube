@@ -21,13 +21,17 @@
 import { keyBy, sortBy, uniqBy } from 'lodash';
 import { RECEIVE_DEFINITIONS } from './actions';
 import { DEFAULT_CATEGORY, getCategoryName } from '../../utils';
-import type { Definition } from '../../types';
+/*:: import type { Definition } from '../../types'; */
 
+/*::
 type State = { [key: string]: Definition };
+*/
 
+/*::
 type Action = { type: string, definitions: Definition[] };
+*/
 
-const reducer = (state: State = {}, action: Action) => {
+const reducer = (state /*: State */ = {}, action /*: Action */) => {
   if (action.type === RECEIVE_DEFINITIONS) {
     return keyBy(action.definitions, 'key');
   }
@@ -37,22 +41,23 @@ const reducer = (state: State = {}, action: Action) => {
 
 export default reducer;
 
-export const getDefinition = (state: State, key: string): Definition => state[key];
+export const getDefinition = (state /*: State */, key /*: string */ /*: Definition */) =>
+  state[key];
 
-export const getAllDefinitions = (state: State): Definition[] =>
+export const getAllDefinitions = (state /*: State */ /*: Definition[] */) =>
   Object.keys(state).map(key => state[key]);
 
-export const getDefinitionsForCategory = (state: State, category: string) =>
+export const getDefinitionsForCategory = (state /*: State */, category /*: string */) =>
   getAllDefinitions(state).filter(
     definition => definition.category.toLowerCase() === category.toLowerCase()
   );
 
-export const getAllCategories = (state: State) =>
+export const getAllCategories = (state /*: State */) =>
   uniqBy(getAllDefinitions(state).map(definition => definition.category), category =>
     category.toLowerCase()
   );
 
-export const getDefaultCategory = (state: State) => {
+export const getDefaultCategory = (state /*: State */) => {
   const categories = getAllCategories(state);
   if (categories.includes(DEFAULT_CATEGORY)) {
     return DEFAULT_CATEGORY;

@@ -28,8 +28,9 @@ import { BarChart } from '../../../components/charts/bar-chart';
 import DateInput from '../../../components/controls/DateInput';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import type { Component } from '../utils';
+/*:: import type { Component } from '../utils'; */
 
+/*::
 type Props = {|
   component?: Component,
   createdAfter: string,
@@ -43,11 +44,12 @@ type Props = {|
   sinceLeakPeriod: boolean,
   stats?: { [string]: number }
 |};
+*/
 
 const DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ssZZ';
 
 export default class CreationDateFacet extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static defaultProps = {
     open: true
@@ -55,8 +57,8 @@ export default class CreationDateFacet extends React.PureComponent {
 
   property = 'createdAt';
 
-  hasValue = (): boolean =>
-    this.props.createdAfter.length > 0 ||
+  hasValue = () =>
+    /*: boolean */ this.props.createdAfter.length > 0 ||
     this.props.createdAt.length > 0 ||
     this.props.createdBefore.length > 0 ||
     this.props.createdInLast.length > 0 ||
@@ -70,7 +72,7 @@ export default class CreationDateFacet extends React.PureComponent {
     this.resetTo({});
   };
 
-  resetTo = (changes: {}) => {
+  resetTo = (changes /*: {} */) => {
     this.props.onChange({
       createdAfter: undefined,
       createdAt: undefined,
@@ -81,20 +83,22 @@ export default class CreationDateFacet extends React.PureComponent {
     });
   };
 
-  handleBarClick = ({
-    createdAfter,
-    createdBefore
-  }: {
+  handleBarClick = (
+    {
+      createdAfter,
+      createdBefore
+    } /*: {
     createdAfter: Object,
     createdBefore?: Object
-  }) => {
+  } */
+  ) => {
     this.resetTo({
       createdAfter: createdAfter.format(DATE_FORMAT),
       createdBefore: createdBefore && createdBefore.format(DATE_FORMAT)
     });
   };
 
-  handlePeriodChange = (property: string) => (value: string) => {
+  handlePeriodChange = (property /*: string */) => (value /*: string */) => {
     this.props.onChange({
       createdAt: undefined,
       createdInLast: undefined,
@@ -103,7 +107,7 @@ export default class CreationDateFacet extends React.PureComponent {
     });
   };
 
-  handlePeriodClick = (period: string) => {
+  handlePeriodClick = (period /*: string */) => {
     this.resetTo({ createdInLast: period });
   };
 

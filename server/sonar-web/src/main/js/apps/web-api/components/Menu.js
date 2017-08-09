@@ -25,8 +25,9 @@ import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { isDomainPathActive, actionsFilter } from '../utils';
-import type { Domain as DomainType } from '../../../api/web-api';
+/*:: import type { Domain as DomainType } from '../../../api/web-api'; */
 
+/*::
 type Props = {
   domains: Array<DomainType>,
   showDeprecated: boolean,
@@ -34,9 +35,10 @@ type Props = {
   searchQuery: string,
   splat: string
 };
+*/
 
 export default class Menu extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { domains, showInternal, showDeprecated, searchQuery, splat } = this.props;

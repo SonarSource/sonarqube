@@ -23,8 +23,9 @@ import Select from 'react-select';
 import AddGraphMetric from './forms/AddGraphMetric';
 import { isCustomGraph, GRAPH_TYPES } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import type { Metric } from '../types';
+/*:: import type { Metric } from '../types'; */
 
+/*::
 type Props = {
   addCustomMetric: string => void,
   graph: string,
@@ -33,11 +34,12 @@ type Props = {
   selectedMetrics: Array<string>,
   updateGraph: string => void
 };
+*/
 
 export default class ProjectActivityGraphsHeader extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleGraphChange = (option: { value: string }) => {
+  handleGraphChange = (option /*: { value: string } */) => {
     if (option.value !== this.props.graph) {
       this.props.updateGraph(option.value);
     }

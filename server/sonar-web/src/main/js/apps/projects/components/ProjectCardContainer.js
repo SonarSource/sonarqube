@@ -23,7 +23,7 @@ import ProjectCardLeak from './ProjectCardLeak';
 import ProjectCardOverall from './ProjectCardOverall';
 import { getComponent, getComponentMeasures } from '../../../store/rootReducer';
 
-function ProjectCard(props: { type?: string }) {
+function ProjectCard(props /*: { type?: string } */) {
   if (props.type === 'leak') {
     return <ProjectCardLeak {...props} />;
   }

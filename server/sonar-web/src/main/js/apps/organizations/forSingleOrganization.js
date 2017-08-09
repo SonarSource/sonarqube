@@ -23,7 +23,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { areThereCustomOrganizations } from '../../store/rootReducer';
 
-const forSingleOrganization = (ComposedComponent: Object) => {
+const forSingleOrganization = (ComposedComponent /*: Object */) => {
   class X extends React.PureComponent {
     static displayName = `forSingleOrganization(${ComposedComponent.displayName})}`;
 

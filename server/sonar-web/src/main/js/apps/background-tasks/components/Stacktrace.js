@@ -23,20 +23,24 @@ import Modal from 'react-modal';
 import { getTask } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   onClose: () => void,
   task: { componentName: string, errorMessage: string, id: string, type: string }
 };
+*/
 
+/*::
 type State = {
   loading: boolean,
   stacktrace: ?string
 };
+*/
 
 export default class Stacktrace extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     loading: true,
     stacktrace: null
   };
@@ -58,7 +62,7 @@ export default class Stacktrace extends React.PureComponent {
     });
   }
 
-  handleCloseClick = (event: Event) => {
+  handleCloseClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClose();
   };

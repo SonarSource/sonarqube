@@ -22,10 +22,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CreateProfileForm from './CreateProfileForm';
 import RestoreProfileForm from './RestoreProfileForm';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 import { getProfilePath } from '../utils';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   canAdmin: boolean,
   languages: Array<{ key: string, name: string }>,
@@ -33,31 +34,34 @@ type Props = {
   organization: ?string,
   updateProfiles: () => Promise<*>
 };
+*/
 
+/*::
 type State = {
   createFormOpen: boolean,
   restoreFormOpen: boolean
 };
+*/
 
 export default class PageHeader extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static contextTypes = {
     router: PropTypes.object
   };
 
-  state: State = {
+  state /*: State */ = {
     createFormOpen: false,
     restoreFormOpen: false
   };
 
-  handleCreateClick = (event: Event & { currentTarget: HTMLButtonElement }) => {
+  handleCreateClick = (event /*: Event & { currentTarget: HTMLButtonElement } */) => {
     event.preventDefault();
     event.currentTarget.blur();
     this.setState({ createFormOpen: true });
   };
 
-  handleCreate = (profile: Profile) => {
+  handleCreate = (profile /*: Profile */) => {
     this.props.updateProfiles().then(() => {
       this.context.router.push(
         getProfilePath(profile.name, profile.language, this.props.organization)
@@ -69,7 +73,7 @@ export default class PageHeader extends React.PureComponent {
     this.setState({ createFormOpen: false });
   };
 
-  handleRestoreClick = (event: Event) => {
+  handleRestoreClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ restoreFormOpen: true });
   };

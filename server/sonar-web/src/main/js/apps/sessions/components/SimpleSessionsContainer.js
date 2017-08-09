@@ -21,11 +21,13 @@
 import React from 'react';
 import SimpleContainer from '../../../app/components/SimpleContainer';
 
+/*::
 type Props = {
   children?: React.Element<*> | Array<React.Element<*>>
 };
+*/
 
-export default function SimpleSessionsContainer({ children }: Props) {
+export default function SimpleSessionsContainer({ children } /*: Props */) {
   return (
     <SimpleContainer hideLoggedInInfo={true}>
       {children}

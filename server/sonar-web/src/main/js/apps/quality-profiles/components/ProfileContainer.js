@@ -22,8 +22,9 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import ProfileNotFound from './ProfileNotFound';
 import ProfileHeader from '../details/ProfileHeader';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   canAdmin: boolean,
   children: React.Element<*>,
@@ -37,9 +38,10 @@ type Props = {
   router: { replace: ({}) => void },
   updateProfiles: () => Promise<*>
 };
+*/
 
 export default class ProfileContainer extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   componentDidMount() {
     const { location, profiles, router } = this.props;

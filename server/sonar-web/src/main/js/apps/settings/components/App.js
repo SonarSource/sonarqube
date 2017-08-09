@@ -30,20 +30,24 @@ import { getSettingsAppDefaultCategory } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
+/*::
 type Props = {
   component: { key: string },
   defaultCategory: ?string,
   fetchSettings(componentKey: ?string): Promise<*>,
   location: { query: {} }
 };
+*/
 
+/*::
 type State = {
   loaded: boolean
 };
+*/
 
 class App extends React.PureComponent {
-  props: Props;
-  state: State = { loaded: false };
+  /*:: props: Props; */
+  state /*: State */ = { loaded: false };
 
   componentDidMount() {
     const html = document.querySelector('html');

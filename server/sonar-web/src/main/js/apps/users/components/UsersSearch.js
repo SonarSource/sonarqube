@@ -23,20 +23,24 @@ import { debounce } from 'lodash';
 import classNames from 'classnames';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   onSearch: (query?: string) => void,
   className?: string
 };
+*/
 
+/*::
 type State = {
   query?: string
 };
+*/
 
 export default class UsersSearch extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       query: ''
@@ -44,11 +48,11 @@ export default class UsersSearch extends React.PureComponent {
     this.handleSearch = debounce(this.handleSearch, 250);
   }
 
-  handleSearch = (query: string) => {
+  handleSearch = (query /*: string */) => {
     this.props.onSearch(query);
   };
 
-  handleInputChange = ({ target }: { target: HTMLInputElement }) => {
+  handleInputChange = ({ target } /*: { target: HTMLInputElement } */) => {
     this.setState({ query: target.value });
     if (!target.value || target.value.length >= 2) {
       this.handleSearch(target.value);

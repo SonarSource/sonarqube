@@ -21,6 +21,7 @@
 import React from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   formatLabel?: string => string,
   identityProviders: Array<{
@@ -30,12 +31,13 @@ type Props = {
     name: string
   }>
 };
+*/
 
-export default function OAuthProviders(props: Props) {
+export default function OAuthProviders(props /*: Props */) {
   return (
     <section className="oauth-providers">
       <ul>
-        {props.identityProviders.map(identityProvider => (
+        {props.identityProviders.map(identityProvider =>
           <li key={identityProvider.key}>
             <a
               href={`${window.baseUrl}/sessions/init/${identityProvider.key}`}
@@ -49,15 +51,17 @@ export default function OAuthProviders(props: Props) {
                 src={window.baseUrl + identityProvider.iconPath}
               />
               {/* $FlowFixMe formatLabel is always defined through defaultProps */}
-              <span>{props.formatLabel(identityProvider.name)}</span>
+              <span>
+                {props.formatLabel(identityProvider.name)}
+              </span>
             </a>
           </li>
-        ))}
+        )}
       </ul>
     </section>
   );
 }
 
 OAuthProviders.defaultProps = {
-  formatLabel: (name: string) => translateWithParameters('login.login_with_x', name)
+  formatLabel: (name /*: string */) => translateWithParameters('login.login_with_x', name)
 };

@@ -27,8 +27,9 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { formatFacetStat } from '../utils';
-import type { ReferencedComponent } from '../utils';
+/*:: import type { ReferencedComponent } from '../utils'; */
 
+/*::
 type Props = {|
   facetMode: string,
   onChange: (changes: { [string]: Array<string> }) => void,
@@ -38,9 +39,10 @@ type Props = {|
   referencedComponents: { [string]: ReferencedComponent },
   directories: Array<string>
 |};
+*/
 
 export default class DirectoryFacet extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static defaultProps = {
     open: true
@@ -48,7 +50,7 @@ export default class DirectoryFacet extends React.PureComponent {
 
   property = 'directories';
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue /*: string */) => {
     const { directories } = this.props;
     const newValue = sortBy(
       directories.includes(itemValue)
@@ -66,12 +68,12 @@ export default class DirectoryFacet extends React.PureComponent {
     this.props.onChange({ [this.property]: [] });
   };
 
-  getStat(directory: string): ?number {
+  getStat(directory /*: string */) /*: ?number */ {
     const { stats } = this.props;
     return stats ? stats[directory] : null;
   }
 
-  renderName(directory: string): React.Element<*> | string {
+  renderName(directory /*: string */) /*: React.Element<*> | string */ {
     // `referencedComponents` are indexed by uuid
     // so we have to browse them all to find a matching one
     const { referencedComponents } = this.props;

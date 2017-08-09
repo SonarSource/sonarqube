@@ -21,21 +21,23 @@
 import React from 'react';
 import Modal from 'react-modal';
 import escapeHtml from 'escape-html';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 import SelectList from '../../../components/SelectList';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   onClose: () => void,
   organization: ?string,
   profile: Profile
 };
+*/
 
 export default class ChangeProjectsForm extends React.PureComponent {
-  container: HTMLElement;
-  props: Props;
+  /*:: container: HTMLElement; */
+  /*:: props: Props; */
 
-  handleCloseClick = (event: Event) => {
+  handleCloseClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClose();
   };

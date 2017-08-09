@@ -21,9 +21,10 @@
 import React from 'react';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 import Issue from '../../../components/issue/Issue';
-import type { Issue as IssueType } from '../../../components/issue/types';
-import type { Component } from '../utils';
+/*:: import type { Issue as IssueType } from '../../../components/issue/types'; */
+/*:: import type { Component } from '../utils'; */
 
+/*::
 type Props = {|
   checked: boolean,
   component?: Component,
@@ -36,16 +37,19 @@ type Props = {|
   previousIssue: ?Object,
   selected: boolean
 |};
+*/
 
+/*::
 type State = {
   similarIssues: boolean
 };
+*/
 
 export default class ListItem extends React.PureComponent {
-  props: Props;
-  state: State = { similarIssues: false };
+  /*:: props: Props; */
+  state /*: State */ = { similarIssues: false };
 
-  handleFilter = (property: string, issue: IssueType) => {
+  handleFilter = (property /*: string */, issue /*: IssueType */) => {
     const { onFilterChange } = this.props;
 
     const issuesReset = { issues: [] };

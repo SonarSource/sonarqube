@@ -23,21 +23,23 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 import { translate } from '../../../helpers/l10n';
-import type { Organization } from '../../../store/organizations/duck';
+/*:: import type { Organization } from '../../../store/organizations/duck'; */
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { updateOrganization } from '../actions';
 
+/*::
 type Props = {
   organization: Organization,
   updateOrganization: (string, Object) => Promise<*>
 };
+*/
 
 class OrganizationEdit extends React.PureComponent {
-  mounted: boolean;
+  /*:: mounted: boolean; */
 
-  props: Props;
+  /*:: props: Props; */
 
-  state: {
+  /*:: state: {
     loading: boolean,
     avatar: string,
     avatarImage: string,
@@ -45,8 +47,9 @@ class OrganizationEdit extends React.PureComponent {
     name: string,
     url: string
   };
+*/
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       loading: false,
@@ -68,17 +71,17 @@ class OrganizationEdit extends React.PureComponent {
     this.mounted = false;
   }
 
-  handleAvatarInputChange = (e: Object) => {
+  handleAvatarInputChange = (e /*: Object */) => {
     const { value } = e.target;
     this.setState({ avatar: value });
     this.changeAvatarImage(value);
   };
 
-  changeAvatarImage = (value: string) => {
+  changeAvatarImage = (value /*: string */) => {
     this.setState({ avatarImage: value });
   };
 
-  handleSubmit = (e: Object) => {
+  handleSubmit = (e /*: Object */) => {
     e.preventDefault();
     const changes = {
       avatar: this.state.avatar,

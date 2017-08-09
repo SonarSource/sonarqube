@@ -27,6 +27,7 @@ import NewOrganizationForm from './NewOrganizationForm';
 import { getMyOrganizations } from '../../../api/organizations';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {|
   currentUser: { login: string, isLoggedIn: boolean },
   finished: boolean,
@@ -35,7 +36,9 @@ type Props = {|
   open: boolean,
   stepNumber: number
 |};
+*/
 
+/*::
 type State = {
   loading: boolean,
   newOrganization?: string,
@@ -44,11 +47,12 @@ type State = {
   personalOrganization?: string,
   selection: 'personal' | 'existing' | 'new'
 };
+*/
 
 export default class OrganizationStep extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     loading: true,
     existingOrganizations: [],
     selection: 'personal'
@@ -103,22 +107,22 @@ export default class OrganizationStep extends React.PureComponent {
     }
   };
 
-  handlePersonalClick = (event: Event) => {
+  handlePersonalClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ selection: 'personal' });
   };
 
-  handleExistingClick = (event: Event) => {
+  handleExistingClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ selection: 'existing' });
   };
 
-  handleNewClick = (event: Event) => {
+  handleNewClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ selection: 'new' });
   };
 
-  handleOrganizationCreate = (newOrganization: string) => {
+  handleOrganizationCreate = (newOrganization /*: string */) => {
     this.setState({ newOrganization });
   };
 
@@ -126,11 +130,11 @@ export default class OrganizationStep extends React.PureComponent {
     this.setState({ newOrganization: undefined });
   };
 
-  handleExistingOrganizationSelect = ({ value }: { value: string }) => {
+  handleExistingOrganizationSelect = ({ value } /*: { value: string } */) => {
     this.setState({ existingOrganization: value });
   };
 
-  handleContinueClick = (event: Event) => {
+  handleContinueClick = (event /*: Event */) => {
     event.preventDefault();
     const organization = this.getSelectedOrganization();
     if (organization) {

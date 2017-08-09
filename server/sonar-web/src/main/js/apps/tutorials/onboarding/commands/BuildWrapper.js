@@ -21,10 +21,12 @@
 import React from 'react';
 import { translate } from '../../../../helpers/l10n';
 
+/*::
 type Props = {
   className?: string,
   os: string
 };
+*/
 
 const filenames = {
   linux: 'build-wrapper-win-x86.zip',
@@ -32,7 +34,7 @@ const filenames = {
   mac: 'build-wrapper-macosx-x86.zip'
 };
 
-export default function BuildWrapper(props: Props) {
+export default function BuildWrapper(props /*: Props */) {
   return (
     <div className={props.className}>
       <h4 className="spacer-bottom">

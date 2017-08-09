@@ -21,27 +21,31 @@
 import React from 'react';
 import Modal from 'react-modal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import type { Member } from '../../../../store/organizationsMembers/actions';
-import type { Organization } from '../../../../store/organizations/duck';
+/*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
+/*:: import type { Organization } from '../../../../store/organizations/duck'; */
 
+/*::
 type Props = {
   member: Member,
   organization: Organization,
   removeMember: (member: Member) => void
 };
+*/
 
+/*::
 type State = {
   open: boolean
 };
+*/
 
 export default class RemoveMemberForm extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  state: State = {
+  state /*: State */ = {
     open: false
   };
 
-  openForm = (evt: MouseEvent) => {
+  openForm = (evt /*: MouseEvent */) => {
     evt.preventDefault();
     this.setState({ open: true });
   };
@@ -50,7 +54,7 @@ export default class RemoveMemberForm extends React.PureComponent {
     this.setState({ open: false });
   };
 
-  handleSubmit = (e: Object) => {
+  handleSubmit = (e /*: Object */) => {
     e.preventDefault();
     this.props.removeMember(this.props.member);
     this.closeForm();

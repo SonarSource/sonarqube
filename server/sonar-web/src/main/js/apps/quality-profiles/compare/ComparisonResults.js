@@ -25,8 +25,11 @@ import SeverityIcon from '../../../components/shared/SeverityIcon';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 
+/*::
 type Params = { [string]: string };
+*/
 
+/*::
 type Props = {
   left: { name: string },
   right: { name: string },
@@ -35,11 +38,12 @@ type Props = {
   modified: Array<*>,
   organization: ?string
 };
+*/
 
 export default class ComparisonResults extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  renderRule(rule: { key: string, name: string }, severity: string) {
+  renderRule(rule /*: { key: string, name: string } */, severity /*: string */) {
     return (
       <div>
         <SeverityIcon severity={severity} />{' '}
@@ -48,7 +52,7 @@ export default class ComparisonResults extends React.PureComponent {
     );
   }
 
-  renderParameters(params: Params) {
+  renderParameters(params /*: Params */) {
     if (!params) {
       return null;
     }

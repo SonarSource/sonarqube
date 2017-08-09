@@ -25,35 +25,39 @@ import PreviewGraph from './PreviewGraph';
 import { getMetrics } from '../../../api/metrics';
 import { getProjectActivity } from '../../../api/projectActivity';
 import { translate } from '../../../helpers/l10n';
-import type { Analysis as AnalysisType } from '../../projectActivity/types';
-import type { History, Metric } from '../types';
+/*:: import type { Analysis as AnalysisType } from '../../projectActivity/types'; */
+/*:: import type { History, Metric } from '../types'; */
 
+/*::
 type Props = {
   history: ?History,
   project: string,
   qualifier: string,
   router: { push: ({ pathname: string, query?: {} }) => void }
 };
+*/
 
+/*::
 type State = {
   analyses: Array<AnalysisType>,
   loading: boolean,
   metrics: Array<Metric>
 };
+*/
 
 const PAGE_SIZE = 3;
 
 export default class AnalysesList extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = { analyses: [], loading: true, metrics: [] };
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = { analyses: [], loading: true, metrics: [] };
 
   componentDidMount() {
     this.mounted = true;
     this.fetchData();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (prevProps.project !== this.props.project) {
       this.fetchData();
     }
@@ -75,7 +79,7 @@ export default class AnalysesList extends React.PureComponent {
     });
   }
 
-  renderList(analyses: Array<AnalysisType>) {
+  renderList(analyses /*: Array<AnalysisType> */) {
     if (!analyses.length) {
       return (
         <p className="spacer-top note">

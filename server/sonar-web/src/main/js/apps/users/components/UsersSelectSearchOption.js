@@ -20,8 +20,9 @@
 //@flow
 import React from 'react';
 import Avatar from '../../../components/ui/Avatar';
-import type { Option } from './UsersSelectSearch';
+/*:: import type { Option } from './UsersSelectSearch'; */
 
+/*::
 type Props = {
   option: Option,
   children?: Element | Text,
@@ -30,23 +31,24 @@ type Props = {
   onFocus: (Option, MouseEvent) => void,
   onSelect: (Option, MouseEvent) => void
 };
+*/
 
-const AVATAR_SIZE: number = 20;
+const AVATAR_SIZE /*: number */ = 20;
 
 export default class UsersSelectSearchOption extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleMouseDown = (event: MouseEvent) => {
+  handleMouseDown = (event /*: MouseEvent */) => {
     event.preventDefault();
     event.stopPropagation();
     this.props.onSelect(this.props.option, event);
   };
 
-  handleMouseEnter = (event: MouseEvent) => {
+  handleMouseEnter = (event /*: MouseEvent */) => {
     this.props.onFocus(this.props.option, event);
   };
 
-  handleMouseMove = (event: MouseEvent) => {
+  handleMouseMove = (event /*: MouseEvent */) => {
     if (this.props.isFocused) {
       return;
     }

@@ -26,9 +26,10 @@ import MembersList from './MembersList';
 import AddMemberForm from './forms/AddMemberForm';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
-import type { Organization, OrgGroup } from '../../../store/organizations/duck';
-import type { Member } from '../../../store/organizationsMembers/actions';
+/*:: import type { Organization, OrgGroup } from '../../../store/organizations/duck'; */
+/*:: import type { Member } from '../../../store/organizationsMembers/actions'; */
 
+/*::
 type Props = {
   members: Array<Member>,
   memberLogins: Array<string>,
@@ -47,9 +48,10 @@ type Props = {
     remove: Array<string>
   ) => void
 };
+*/
 
 export default class OrganizationMembers extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   componentDidMount() {
     this.handleSearchMembers();
@@ -58,7 +60,7 @@ export default class OrganizationMembers extends React.PureComponent {
     }
   }
 
-  handleSearchMembers = (query?: string) => {
+  handleSearchMembers = (query /*: ?string */) => {
     this.props.fetchOrganizationMembers(this.props.organization.key, query);
   };
 
@@ -66,15 +68,19 @@ export default class OrganizationMembers extends React.PureComponent {
     this.props.fetchMoreOrganizationMembers(this.props.organization.key, this.props.status.query);
   };
 
-  addMember = (member: Member) => {
+  addMember = (member /*: Member */) => {
     this.props.addOrganizationMember(this.props.organization.key, member);
   };
 
-  removeMember = (member: Member) => {
+  removeMember = (member /*: Member */) => {
     this.props.removeOrganizationMember(this.props.organization.key, member);
   };
 
-  updateMemberGroups = (member: Member, add: Array<string>, remove: Array<string>) => {
+  updateMemberGroups = (
+    member /*: Member */,
+    add /*: Array<string> */,
+    remove /*: Array<string> */
+  ) => {
     this.props.updateOrganizationMemberGroups(this.props.organization, member, add, remove);
   };
 

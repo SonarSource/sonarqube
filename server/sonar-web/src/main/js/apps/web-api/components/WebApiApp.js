@@ -28,20 +28,22 @@ import Search from './Search';
 import Domain from './Domain';
 import { getActionKey, isDomainPathActive } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import type { Domain as DomainType } from '../../../api/web-api';
+/*:: import type { Domain as DomainType } from '../../../api/web-api'; */
 import '../styles/web-api.css';
 
+/*::
 type State = {
   domains: Array<DomainType>,
   searchQuery: string,
   showDeprecated: boolean,
   showInternal: boolean
 };
+*/
 
 export default class WebApiApp extends React.PureComponent {
-  mounted: boolean;
-  scrollToAction: () => void;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: scrollToAction: () => void; */
+  state /*: State */ = {
     domains: [],
     searchQuery: '',
     showDeprecated: false,
@@ -70,7 +72,7 @@ export default class WebApiApp extends React.PureComponent {
     }
   }
 
-  fetchList(cb?: () => void) {
+  fetchList(cb /*: ?() => void */) {
     fetchWebApi().then(domains => {
       if (this.mounted) {
         this.setState({ domains }, cb);
@@ -83,7 +85,7 @@ export default class WebApiApp extends React.PureComponent {
     this.scrollToElement(splat);
   };
 
-  scrollToElement(id: string) {
+  scrollToElement(id /*: string */) {
     const element = document.getElementById(id);
 
     if (element) {
@@ -115,7 +117,7 @@ export default class WebApiApp extends React.PureComponent {
     }
   }
 
-  handleSearch = (searchQuery: string) => {
+  handleSearch = (searchQuery /*: string */) => {
     this.setState({ searchQuery });
   };
 

@@ -24,6 +24,7 @@ import Checkbox from '../../../components/controls/Checkbox';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   showDeprecated: boolean,
   showInternal: boolean,
@@ -31,23 +32,26 @@ type Props = {
   onToggleInternal: () => void,
   onToggleDeprecated: () => void
 };
+*/
 
+/*::
 type State = {
   query: string
 };
+*/
 
 export default class Search extends React.PureComponent {
-  actuallySearch: () => void;
-  props: Props;
-  state: State;
+  /*:: actuallySearch: () => void; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = { query: '' };
     this.actuallySearch = debounce(this.actuallySearch, 250);
   }
 
-  handleSearch = (e: SyntheticInputEvent) => {
+  handleSearch = (e /*: SyntheticInputEvent */) => {
     const { value } = e.target;
     this.setState({ query: value });
     this.actuallySearch();

@@ -24,26 +24,30 @@ import ChangeProjectsForm from './ChangeProjectsForm';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { getProfileProjects } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   canAdmin: boolean,
   organization: ?string,
   profile: Profile,
   updateProfiles: () => Promise<*>
 };
+*/
 
+/*::
 type State = {
   formOpen: boolean,
   loading: boolean,
   more?: boolean,
   projects: ?Array<*>
 };
+*/
 
 export default class ProfileProjects extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     formOpen: false,
     loading: true,
     projects: null
@@ -54,7 +58,7 @@ export default class ProfileProjects extends React.PureComponent {
     this.loadProjects();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (prevProps.profile !== this.props.profile) {
       this.loadProjects();
     }
@@ -81,7 +85,7 @@ export default class ProfileProjects extends React.PureComponent {
     });
   }
 
-  handleChangeClick = (event: Event) => {
+  handleChangeClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ formOpen: true });
   };

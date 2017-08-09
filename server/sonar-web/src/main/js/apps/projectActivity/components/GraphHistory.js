@@ -24,9 +24,10 @@ import GraphsTooltips from './GraphsTooltips';
 import GraphsLegendCustom from './GraphsLegendCustom';
 import GraphsLegendStatic from './GraphsLegendStatic';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
-import type { Event, MeasureHistory } from '../types';
-import type { Serie } from '../../../components/charts/AdvancedTimeline';
+/*:: import type { Event, MeasureHistory } from '../types'; */
+/*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
 
+/*::
 type Props = {
   events: Array<Event>,
   graph: string,
@@ -44,23 +45,30 @@ type Props = {
   updateSelectedDate: (selectedDate: ?Date) => void,
   updateTooltip: (selectedDate: ?Date) => void
 };
+*/
 
+/*::
 type State = {
   tooltipIdx: ?number,
   tooltipXPos: ?number
 };
+*/
 
 export default class GraphHistory extends React.PureComponent {
-  props: Props;
-  state: State = {
+  /*:: props: Props; */
+  state /*: State */ = {
     tooltipIdx: null,
     tooltipXPos: null
   };
 
-  formatValue = (tick: string | number) =>
+  formatValue = (tick /*: string | number */) =>
     formatMeasure(tick, getShortType(this.props.metricsType));
 
-  updateTooltip = (selectedDate: ?Date, tooltipXPos: ?number, tooltipIdx: ?number) => {
+  updateTooltip = (
+    selectedDate /*: ?Date */,
+    tooltipXPos /*: ?number */,
+    tooltipIdx /*: ?number */
+  ) => {
     this.props.updateTooltip(selectedDate);
     this.setState({ tooltipXPos, tooltipIdx });
   };

@@ -20,8 +20,9 @@
 // @flow
 import React from 'react';
 import ConciseIssueLocationsNavigatorLocation from './ConciseIssueLocationsNavigatorLocation';
-import type { Issue } from '../../../components/issue/types';
+/*:: import type { Issue } from '../../../components/issue/types'; */
 
+/*::
 type Props = {|
   issue: Issue,
   onLocationSelect: number => void,
@@ -29,11 +30,12 @@ type Props = {|
   selectedFlowIndex: ?number,
   selectedLocationIndex: ?number
 |};
+*/
 
 export default class ConciseIssueLocationsNavigator extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleClick = (index: number) => (event: Event) => {
+  handleClick = (index /*: number */) => (event /*: Event */) => {
     event.preventDefault();
     this.props.onLocationSelect(index);
   };

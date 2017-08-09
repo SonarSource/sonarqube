@@ -31,7 +31,7 @@ export default class SubCategoryDefinitionsList extends React.PureComponent {
     settings: PropTypes.array.isRequired
   };
 
-  renderEmailForm(subCategoryKey: string) {
+  renderEmailForm(subCategoryKey /*: string */) {
     const isEmailSettings = this.props.category === 'general' && subCategoryKey === 'email';
     if (!isEmailSettings) {
       return null;

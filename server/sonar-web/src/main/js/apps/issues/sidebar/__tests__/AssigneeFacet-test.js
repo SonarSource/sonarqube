@@ -23,7 +23,7 @@ import AssigneeFacet from '../AssigneeFacet';
 
 jest.mock('../../../../store/rootReducer', () => ({}));
 
-const renderAssigneeFacet = (props?: {}) =>
+const renderAssigneeFacet = (props /*: ?{} */) =>
   shallow(
     <AssigneeFacet
       assigned={true}

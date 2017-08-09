@@ -27,19 +27,18 @@ import BugIconForSonarQubeDotCom from './BugIconForSonarQubeDotCom';
 import VulnerabilityIconForSonarQubeDotCom from './VulnerabilityIconForSonarQubeDotCom';
 import CodeSmellIconForSonarQubeDotCom from './CodeSmellIconForSonarQubeDotCom';
 
+/*::
 type Props = {
   bugs: ?number,
   codeSmells: ?number,
   loading: boolean,
   vulnerabilities: ?number
 };
+*/
 
-export default function EntryIssueTypesForSonarQubeDotCom({
-  bugs,
-  codeSmells,
-  loading,
-  vulnerabilities
-}: Props) {
+export default function EntryIssueTypesForSonarQubeDotCom(
+  { bugs, codeSmells, loading, vulnerabilities } /*: Props */
+) {
   return (
     <div className="about-page-projects">
       {loading && <i className="spinner" />}

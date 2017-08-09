@@ -28,17 +28,17 @@ import {
   getNotificationChannels,
   getNotificationPerProjectTypes
 } from '../../../store/rootReducer';
-import type {
+/*:: import type {
   Notification,
   NotificationsState,
   ChannelsState,
   TypesState
-} from '../../../store/notifications/duck';
+} from '../../../store/notifications/duck'; */
 import { addNotification, removeNotification } from './actions';
 import { getProjectUrl } from '../../../helpers/urls';
 
 class ProjectNotifications extends React.PureComponent {
-  props: {
+  /*:: props: {
     project: {
       key: string,
       name: string,
@@ -50,6 +50,7 @@ class ProjectNotifications extends React.PureComponent {
     addNotification: (n: Notification) => void,
     removeNotification: (n: Notification) => void
   };
+*/
 
   handleAddNotification({ channel, type }) {
     this.props.addNotification({

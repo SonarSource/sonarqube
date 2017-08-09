@@ -26,7 +26,7 @@ import ContextNavBar from '../../../components/nav/ContextNavBar';
 import NavBarTabs from '../../../components/nav/NavBarTabs';
 import OrganizationIcon from '../../../components/icons-components/OrganizationIcon';
 import { getQualityGatesUrl } from '../../../helpers/urls';
-import type { Organization } from '../../../store/organizations/duck';
+/*:: import type { Organization } from '../../../store/organizations/duck'; */
 
 const ADMIN_PATHS = [
   'edit',
@@ -38,12 +38,13 @@ const ADMIN_PATHS = [
 ];
 
 export default class OrganizationNavigation extends React.PureComponent {
-  props: {
+  /*:: props: {
     location: { pathname: string },
     organization: Organization
   };
+*/
 
-  renderAdministration(adminActive: boolean) {
+  renderAdministration(adminActive /*: boolean */) {
     const { organization } = this.props;
 
     return (
@@ -101,7 +102,7 @@ export default class OrganizationNavigation extends React.PureComponent {
     return extensions.map(this.renderExtension);
   }
 
-  renderExtension = (extension: { key: string, name: string }) => {
+  renderExtension = (extension /*: { key: string, name: string } */) => {
     const { organization } = this.props;
     const pathname = `/organizations/${organization.key}/extension/${extension.key}`;
     return (
@@ -113,7 +114,7 @@ export default class OrganizationNavigation extends React.PureComponent {
     );
   };
 
-  renderExtensions(moreActive: boolean) {
+  renderExtensions(moreActive /*: boolean */) {
     const extensions = this.props.organization.pages || [];
     if (extensions.length > 0) {
       return (

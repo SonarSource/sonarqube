@@ -27,22 +27,24 @@ import { onFail } from '../../store/rootActions';
 import { getOrganizationMembersState } from '../../store/rootReducer';
 import { addGlobalSuccessMessage } from '../../store/globalMessages/duck';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import type { Organization } from '../../store/organizations/duck';
-import type { Member } from '../../store/organizationsMembers/actions';
+/*:: import type { Organization } from '../../store/organizations/duck'; */
+/*:: import type { Member } from '../../store/organizationsMembers/actions'; */
 
 const PAGE_SIZE = 50;
 
-const onRejected = (dispatch: Function) => (error: Object) => {
+const onRejected = (dispatch /*: Function */) => (error /*: Object */) => {
   onFail(dispatch)(error);
   return Promise.reject();
 };
 
-const onMembersFail = (organization: string, dispatch: Function) => (error: Object) => {
+const onMembersFail = (organization /*: string */, dispatch /*: Function */) => (
+  error /*: Object */
+) => {
   onFail(dispatch)(error);
   dispatch(membersActions.updateState(organization, { loading: false }));
 };
 
-export const fetchOrganization = (key: string): Function => (dispatch: Function): Promise<*> => {
+export const fetchOrganization = (key /*: string */) => dispatch => {
   const onFulfilled = ([organization, navigation]) => {
     if (organization) {
       const organizationWithPermissions = { ...organization, ...navigation };
@@ -56,16 +58,14 @@ export const fetchOrganization = (key: string): Function => (dispatch: Function)
   );
 };
 
-export const fetchOrganizationGroups = (organization: string): Function => (
-  dispatch: Function
-): Promise<*> => {
+export const fetchOrganizationGroups = (organization /*: string */) => dispatch => {
   return searchUsersGroups({ organization }).then(response => {
     dispatch(actions.receiveOrganizationGroups(organization, response.groups));
   }, onFail(dispatch));
 };
 
-export const createOrganization = (fields: {}): Function => (dispatch: Function): Promise<*> => {
-  const onFulfilled = (organization: Organization) => {
+export const createOrganization = fields => dispatch => {
+  const onFulfilled = (organization /*: Organization */) => {
     dispatch(actions.createOrganization(organization));
     dispatch(
       addGlobalSuccessMessage(translateWithParameters('organization.created', organization.name))
@@ -75,9 +75,7 @@ export const createOrganization = (fields: {}): Function => (dispatch: Function)
   return api.createOrganization(fields).then(onFulfilled, onRejected(dispatch));
 };
 
-export const updateOrganization = (key: string, changes: {}): Function => (
-  dispatch: Function
-): Promise<*> => {
+export const updateOrganization = (key /*: string */, changes /*: {} */) => dispatch => {
   const onFulfilled = () => {
     dispatch(actions.updateOrganization(key, changes));
     dispatch(addGlobalSuccessMessage(translate('organization.updated')));
@@ -86,7 +84,7 @@ export const updateOrganization = (key: string, changes: {}): Function => (
   return api.updateOrganization(key, changes).then(onFulfilled, onFail(dispatch));
 };
 
-export const deleteOrganization = (key: string): Function => (dispatch: Function): Promise<*> => {
+export const deleteOrganization = (key /*: string */) => dispatch => {
   const onFulfilled = () => {
     dispatch(actions.deleteOrganization(key));
     dispatch(addGlobalSuccessMessage(translate('organization.deleted')));
@@ -96,14 +94,14 @@ export const deleteOrganization = (key: string): Function => (dispatch: Function
 };
 
 const fetchMembers = (
-  dispatch: Function,
-  receiveAction: Function,
-  key: string,
-  query?: string,
-  page?: number
+  dispatch /*: Function */,
+  receiveAction /*: Function */,
+  key /*: string */,
+  query /*: ?string */,
+  page /*: ?number */
 ) => {
   dispatch(membersActions.updateState(key, { loading: true }));
-  const data: Object = {
+  const data /*: Object */ = {
     organization: key,
     ps: PAGE_SIZE
   };
@@ -125,12 +123,13 @@ const fetchMembers = (
   }, onMembersFail(key, dispatch));
 };
 
-export const fetchOrganizationMembers = (key: string, query?: string) => (dispatch: Function) =>
-  fetchMembers(dispatch, membersActions.receiveMembers, key, query);
+export const fetchOrganizationMembers = (key /*: string */, query /*: ?string */) => (
+  dispatch /*: Function */
+) => fetchMembers(dispatch, membersActions.receiveMembers, key, query);
 
-export const fetchMoreOrganizationMembers = (key: string, query?: string) => (
-  dispatch: Function,
-  getState: Function
+export const fetchMoreOrganizationMembers = (key /*: string */, query /*: ?string */) => (
+  dispatch /*: Function */,
+  getState /*: Function */
 ) =>
   fetchMembers(
     dispatch,
@@ -140,26 +139,32 @@ export const fetchMoreOrganizationMembers = (key: string, query?: string) => (
     getOrganizationMembersState(getState(), key).pageIndex + 1
   );
 
-export const addOrganizationMember = (key: string, member: Member) => (dispatch: Function) => {
+export const addOrganizationMember = (key /*: string */, member /*: Member */) => (
+  dispatch /*: Function */
+) => {
   return api
     .addMember({ login: member.login, organization: key })
     .then(user => dispatch(membersActions.addMember(key, user)), onFail(dispatch));
 };
 
-export const removeOrganizationMember = (key: string, member: Member) => (dispatch: Function) => {
+export const removeOrganizationMember = (key /*: string */, member /*: Member */) => (
+  dispatch /*: Function */
+) => {
   dispatch(membersActions.removeMember(key, member));
-  return api.removeMember({ login: member.login, organization: key }).catch((error: Object) => {
+  return api.removeMember({ login: member.login, organization: key }).catch((
+    error /*: Object */
+  ) => {
     onFail(dispatch)(error);
     dispatch(membersActions.addMember(key, member));
   });
 };
 
 export const updateOrganizationMemberGroups = (
-  organization: Organization,
-  member: Member,
-  add: Array<string>,
-  remove: Array<string>
-) => (dispatch: Function) => {
+  organization /*: Organization */,
+  member /*: Member */,
+  add /*: Array<string> */,
+  remove /*: Array<string> */
+) => (dispatch /*: Function */) => {
   dispatch(
     receiveUser({
       ...member,

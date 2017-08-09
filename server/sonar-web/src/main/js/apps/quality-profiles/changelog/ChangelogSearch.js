@@ -22,6 +22,7 @@ import React from 'react';
 import DateInput from '../../../components/controls/DateInput';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   fromDate?: string,
   toDate?: string,
@@ -29,11 +30,12 @@ type Props = {
   onReset: () => void,
   onToDateChange: () => void
 };
+*/
 
 export default class ChangelogSearch extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleResetClick(e: SyntheticInputEvent) {
+  handleResetClick(e /*: SyntheticInputEvent */) {
     e.preventDefault();
     e.target.blur();
     this.props.onReset();

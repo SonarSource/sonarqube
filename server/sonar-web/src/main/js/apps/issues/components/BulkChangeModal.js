@@ -32,9 +32,10 @@ import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { searchIssueTags, bulkChangeIssues } from '../../../api/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { searchAssignees } from '../utils';
-import type { Paging, Component, CurrentUser } from '../utils';
-import type { Issue } from '../../../components/issue/types';
+/*:: import type { Paging, Component, CurrentUser } from '../utils'; */
+/*:: import type { Issue } from '../../../components/issue/types'; */
 
+/*::
 type Props = {|
   component?: Component,
   currentUser: CurrentUser,
@@ -44,7 +45,9 @@ type Props = {|
   onRequestFail: Error => void,
   organization?: { key: string }
 |};
+*/
 
+/*::
 type State = {|
   issues: Array<Issue>,
   // used for initial loading of issues
@@ -65,16 +68,17 @@ type State = {|
   transition?: string,
   type?: string
 |};
+*/
 
-const hasAction = (action: string) => (issue: Issue): boolean =>
+const hasAction = (action /*: string */) => (issue /*: Issue */ /*: boolean */) =>
   issue.actions && issue.actions.includes(action);
 
 export default class BulkChangeModal extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     let organization = props.component && props.component.organization;
     if (props.organization && !organization) {
@@ -105,7 +109,7 @@ export default class BulkChangeModal extends React.PureComponent {
     this.mounted = false;
   }
 
-  handleCloseClick = (e: Event & { target: HTMLElement }) => {
+  handleCloseClick = (e /*: Event & { target: HTMLElement } */) => {
     e.preventDefault();
     e.target.blur();
     this.props.onClose();
@@ -115,7 +119,7 @@ export default class BulkChangeModal extends React.PureComponent {
     return this.props.fetchIssues({ additionalFields: 'actions,transitions', ps: 250 });
   };
 
-  handleAssigneeSearch = (query: string) => {
+  handleAssigneeSearch = (query /*: string */) => {
     if (query.length > 1) {
       return searchAssignees(query, this.state.organization);
     } else {
@@ -144,11 +148,11 @@ export default class BulkChangeModal extends React.PureComponent {
     }
   };
 
-  handleAssigneeSelect = (assignee: string) => {
+  handleAssigneeSelect = (assignee /*: string */) => {
     this.setState({ assignee });
   };
 
-  handleFieldCheck = (field: string) => (checked: boolean) => {
+  handleFieldCheck = (field /*: string */) => (checked /*: boolean */) => {
     if (!checked) {
       this.setState({ [field]: undefined });
     } else if (field === 'notifications') {
@@ -156,19 +160,21 @@ export default class BulkChangeModal extends React.PureComponent {
     }
   };
 
-  handleFieldChange = (field: string) => (event: { target: HTMLInputElement }) => {
+  handleFieldChange = (field /*: string */) => (event /*: { target: HTMLInputElement } */) => {
     this.setState({ [field]: event.target.value });
   };
 
-  handleSelectFieldChange = (field: string) => ({ value }: { value: string }) => {
+  handleSelectFieldChange = (field /*: string */) => ({ value } /*: { value: string } */) => {
     this.setState({ [field]: value });
   };
 
-  handleMultiSelectFieldChange = (field: string) => (options: Array<{ value: string }>) => {
+  handleMultiSelectFieldChange = (field /*: string */) => (
+    options /*: Array<{ value: string }> */
+  ) => {
     this.setState({ [field]: options.map(option => option.value) });
   };
 
-  handleSubmit = (e: Event) => {
+  handleSubmit = (e /*: Event */) => {
     e.preventDefault();
     const query = pickBy(
       {
@@ -192,14 +198,16 @@ export default class BulkChangeModal extends React.PureComponent {
         this.setState({ submitting: false });
         this.props.onDone();
       },
-      (error: Error) => {
+      (error /*: Error */) => {
         this.setState({ submitting: false });
         this.props.onRequestFail(error);
       }
     );
   };
 
-  getAvailableTransitions(issues: Array<Issue>): Array<{ transition: string, count: number }> {
+  getAvailableTransitions(
+    issues /*: Array<Issue> */
+  ) /*: Array<{ transition: string, count: number }> */ {
     const transitions = {};
     issues.forEach(issue => {
       if (issue.transitions) {
@@ -240,15 +248,20 @@ export default class BulkChangeModal extends React.PureComponent {
       </div>
     </div>;
 
-  renderCheckbox = (field: string) =>
+  renderCheckbox = (field /*: string */) =>
     <Checkbox checked={this.state[field] != null} onCheck={this.handleFieldCheck(field)} />;
 
-  renderAffected = (affected: number) =>
+  renderAffected = (affected /*: number */) =>
     <div className="pull-right note">
       ({translateWithParameters('issue_bulk_change.x_issues', affected)})
     </div>;
 
-  renderField = (field: string, label: string, affected: ?number, input: Object) =>
+  renderField = (
+    field /*: string */,
+    label /*: string */,
+    affected /*: ?number */,
+    input /*: Object */
+  ) =>
     <div className="modal-field" id={`issues-bulk-change-${field}`}>
       <label htmlFor={field}>
         {translate(label)}
@@ -258,7 +271,7 @@ export default class BulkChangeModal extends React.PureComponent {
       {affected != null && this.renderAffected(affected)}
     </div>;
 
-  renderAssigneeOption = (option: { avatar?: string, email?: string, label: string }) =>
+  renderAssigneeOption = (option /*: { avatar?: string, email?: string, label: string } */) =>
     <span>
       {(option.avatar != null || option.email != null) &&
         <Avatar
@@ -272,7 +285,7 @@ export default class BulkChangeModal extends React.PureComponent {
     </span>;
 
   renderAssigneeField = () => {
-    const affected: number = this.state.issues.filter(hasAction('assign')).length;
+    const affected /*: number */ = this.state.issues.filter(hasAction('assign')).length;
 
     if (affected === 0) {
       return null;
@@ -293,7 +306,7 @@ export default class BulkChangeModal extends React.PureComponent {
   };
 
   renderTypeField = () => {
-    const affected: number = this.state.issues.filter(hasAction('set_type')).length;
+    const affected /*: number */ = this.state.issues.filter(hasAction('set_type')).length;
 
     if (affected === 0) {
       return null;
@@ -302,7 +315,7 @@ export default class BulkChangeModal extends React.PureComponent {
     const types = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
     const options = types.map(type => ({ label: translate('issue.type', type), value: type }));
 
-    const optionRenderer = (option: { label: string, value: string }) =>
+    const optionRenderer = (option /*: { label: string, value: string } */) =>
       <span>
         <IssueTypeIcon className="little-spacer-right" query={option.value} />
         {option.label}
@@ -325,7 +338,7 @@ export default class BulkChangeModal extends React.PureComponent {
   };
 
   renderSeverityField = () => {
-    const affected: number = this.state.issues.filter(hasAction('set_severity')).length;
+    const affected /*: number */ = this.state.issues.filter(hasAction('set_severity')).length;
 
     if (affected === 0) {
       return null;
@@ -354,7 +367,7 @@ export default class BulkChangeModal extends React.PureComponent {
   };
 
   renderAddTagsField = () => {
-    const affected: number = this.state.issues.filter(hasAction('set_tags')).length;
+    const affected /*: number */ = this.state.issues.filter(hasAction('set_tags')).length;
 
     if (this.state.tags == null || affected === 0) {
       return null;
@@ -378,7 +391,7 @@ export default class BulkChangeModal extends React.PureComponent {
   };
 
   renderRemoveTagsField = () => {
-    const affected: number = this.state.issues.filter(hasAction('set_tags')).length;
+    const affected /*: number */ = this.state.issues.filter(hasAction('set_tags')).length;
 
     if (this.state.tags == null || affected === 0) {
       return null;
@@ -437,7 +450,7 @@ export default class BulkChangeModal extends React.PureComponent {
   };
 
   renderCommentField = () => {
-    const affected: number = this.state.issues.filter(hasAction('comment')).length;
+    const affected /*: number */ = this.state.issues.filter(hasAction('comment')).length;
 
     if (affected === 0) {
       return null;
@@ -478,7 +491,7 @@ export default class BulkChangeModal extends React.PureComponent {
   renderForm = () => {
     const { issues, paging, submitting } = this.state;
 
-    const limitReached: boolean =
+    const limitReached /*: boolean */ =
       paging != null && paging.total > paging.pageIndex * paging.pageSize;
 
     return (

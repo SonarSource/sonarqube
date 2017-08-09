@@ -63,7 +63,7 @@ export default class Form extends React.PureComponent {
       .catch(this.stopLoading);
   };
 
-  handleCloseClick = (event: Event) => {
+  handleCloseClick = (event /*: Event */) => {
     event.preventDefault();
     this.closeModal();
   };

@@ -24,6 +24,7 @@ import CloseIcon from '../../../components/icons-components/CloseIcon';
 import { generateToken, revokeToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {|
   finished: boolean,
   open: boolean,
@@ -31,17 +32,20 @@ type Props = {|
   onOpen: () => void,
   stepNumber: number
 |};
+*/
 
+/*::
 type State = {
   loading: boolean,
   tokenName?: string,
   token?: string
 };
+*/
 
 export default class TokenStep extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     loading: false
   };
 
@@ -53,11 +57,11 @@ export default class TokenStep extends React.PureComponent {
     this.mounted = false;
   }
 
-  handleTokenNameChange = (event: { target: HTMLInputElement }) => {
+  handleTokenNameChange = (event /*: { target: HTMLInputElement } */) => {
     this.setState({ tokenName: event.target.value });
   };
 
-  handleTokenGenerate = (event: Event) => {
+  handleTokenGenerate = (event /*: Event */) => {
     event.preventDefault();
     const { tokenName } = this.state;
     if (tokenName) {
@@ -77,7 +81,7 @@ export default class TokenStep extends React.PureComponent {
     }
   };
 
-  handleTokenRevoke = (event: Event) => {
+  handleTokenRevoke = (event /*: Event */) => {
     event.preventDefault();
     const { tokenName } = this.state;
     if (tokenName) {
@@ -97,7 +101,7 @@ export default class TokenStep extends React.PureComponent {
     }
   };
 
-  handleContinueClick = (event: Event) => {
+  handleContinueClick = (event /*: Event */) => {
     event.preventDefault();
     if (this.state.token) {
       this.props.onContinue(this.state.token);

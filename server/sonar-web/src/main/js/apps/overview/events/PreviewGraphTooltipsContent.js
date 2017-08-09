@@ -21,13 +21,15 @@
 import React from 'react';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
 
+/*::
 type Props = {
   style: string,
   translatedName: string,
   value: string
 };
+*/
 
-export default function PreviewGraphTooltipsContent({ style, translatedName, value }: Props) {
+export default function PreviewGraphTooltipsContent({ style, translatedName, value } /*: Props */) {
   return (
     <tr className="overview-analysis-graph-tooltip-line">
       <td className="thin">

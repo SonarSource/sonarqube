@@ -37,8 +37,9 @@ import SecurityFilter from '../filters/SecurityFilter';
 import SizeFilter from '../filters/SizeFilter';
 import TagsFilterContainer from '../filters/TagsFilterContainer';
 import { translate } from '../../../helpers/l10n';
-import type { RawQuery } from '../../../helpers/query';
+/*:: import type { RawQuery } from '../../../helpers/query'; */
 
+/*::
 type Props = {
   isFavorite: boolean,
   organization?: { key: string },
@@ -46,14 +47,11 @@ type Props = {
   view: string,
   visualization: string
 };
+*/
 
-export default function PageSidebar({
-  query,
-  isFavorite,
-  organization,
-  view,
-  visualization
-}: Props) {
+export default function PageSidebar(
+  { query, isFavorite, organization, view, visualization } /*: Props */
+) {
   const isFiltered = Object.keys(query)
     .filter(key => !['view', 'visualization', 'sort'].includes(key))
     .some(key => query[key] != null);
@@ -62,7 +60,7 @@ export default function PageSidebar({
   const pathname = basePathName + (isFavorite ? '/favorite' : '');
   const facetProps = { query, isFavorite, organization };
 
-  let linkQuery: ?{ view: string, visualization?: string };
+  let linkQuery;
   if (view !== 'overall') {
     linkQuery = { view };
 

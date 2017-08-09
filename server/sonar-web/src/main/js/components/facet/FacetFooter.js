@@ -21,17 +21,21 @@
 import React from 'react';
 import SearchSelect from '../controls/SearchSelect';
 
+/*::
 type Option = { label: string, value: string };
+*/
 
+/*::
 type Props = {|
   minimumQueryLength?: number,
   onSearch: (query: string) => Promise<Array<Option>>,
   onSelect: (value: string) => void,
   renderOption?: (option: Object) => React.Element<*>
 |};
+*/
 
 export default class FacetFooter extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     return (

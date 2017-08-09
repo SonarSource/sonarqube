@@ -21,13 +21,15 @@
 import React from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   name: string,
   value: ?string
 };
+*/
 
 export default class ParameterChange extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { name, value } = this.props;

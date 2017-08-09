@@ -19,23 +19,32 @@
  */
 // @flow
 
+/*::
 export type Event = {
   key: string,
   name: string,
   category: string,
   description?: string
 };
+*/
 
+/*::
 export type Analysis = {
   key: string,
   date: Date,
   events: Array<Event>
 };
+*/
 
+/*::
 export type HistoryItem = { date: Date, value: string };
+*/
 
+/*::
 export type MeasureHistory = { metric: string, history: Array<HistoryItem> };
+*/
 
+/*::
 export type Metric = {
   custom?: boolean,
   hidden?: boolean,
@@ -43,13 +52,17 @@ export type Metric = {
   name: string,
   type: string
 };
+*/
 
+/*::
 export type Paging = {
   pageIndex: number,
   pageSize: number,
   total: number
 };
+*/
 
+/*::
 export type Query = {
   category: string,
   customMetrics: Array<string>,
@@ -59,3 +72,4 @@ export type Query = {
   to?: Date,
   selectedDate?: Date
 };
+*/

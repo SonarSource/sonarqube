@@ -22,7 +22,9 @@ import React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
 import { CURRENTS } from '../constants';
 
-const CurrentsFilter = ({ value, onChange }: { value: ?string, onChange: string => void }) => {
+const CurrentsFilter = (
+  { value, onChange } /*: { value: ?string, onChange: string => void } */
+) => {
   function handleChange(value) {
     const newValue = value ? CURRENTS.ONLY_CURRENTS : CURRENTS.ALL;
     onChange(newValue);

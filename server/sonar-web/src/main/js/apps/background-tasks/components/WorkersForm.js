@@ -27,22 +27,26 @@ import { translate } from '../../../helpers/l10n';
 
 const MAX_WORKERS = 10;
 
+/*::
 type Props = {
   onClose: (newWorkerCount?: number) => void,
   workerCount: number
 };
+*/
 
+/*::
 type State = {
   newWorkerCount: number,
   submitting: boolean
 };
+*/
 
 export default class WorkersForm extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       newWorkerCount: props.workerCount,
@@ -60,10 +64,10 @@ export default class WorkersForm extends React.PureComponent {
 
   handleClose = () => this.props.onClose();
 
-  handleWorkerCountChange = (option: { value: number }) =>
+  handleWorkerCountChange = (option /*: { value: number } */) =>
     this.setState({ newWorkerCount: option.value });
 
-  handleSubmit = (event: Event) => {
+  handleSubmit = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ submitting: true });
     const { newWorkerCount } = this.state;
@@ -92,7 +96,9 @@ export default class WorkersForm extends React.PureComponent {
         overlayClassName="modal-overlay"
         onRequestClose={this.handleClose}>
         <header className="modal-head">
-          <h2>{translate('background_tasks.change_number_of_workers')}</h2>
+          <h2>
+            {translate('background_tasks.change_number_of_workers')}
+          </h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">

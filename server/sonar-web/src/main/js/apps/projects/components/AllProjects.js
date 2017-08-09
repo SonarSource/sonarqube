@@ -29,9 +29,10 @@ import { parseUrlQuery } from '../store/utils';
 import { translate } from '../../../helpers/l10n';
 import * as utils from '../utils';
 import * as storage from '../../../helpers/storage';
-import type { RawQuery } from '../../../helpers/query';
+/*:: import type { RawQuery } from '../../../helpers/query'; */
 import '../styles.css';
 
+/*::
 type Props = {|
   isFavorite: boolean,
   location: { pathname: string, query: RawQuery },
@@ -43,14 +44,17 @@ type Props = {|
   },
   currentUser?: { isLoggedIn: boolean }
 |};
+*/
 
+/*::
 type State = {
   query: RawQuery
 };
+*/
 
 export default class AllProjects extends React.PureComponent {
-  props: Props;
-  state: State = { query: {} };
+  /*:: props: Props; */
+  state /*: State */ = { query: {} };
 
   componentDidMount() {
     this.handleQueryChange(true);
@@ -58,7 +62,7 @@ export default class AllProjects extends React.PureComponent {
     footer && footer.classList.add('search-navigator-footer');
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (prevProps.location.query !== this.props.location.query) {
       this.handleQueryChange(false);
     }
@@ -91,8 +95,10 @@ export default class AllProjects extends React.PureComponent {
     return options;
   };
 
-  handlePerspectiveChange = ({ view, visualization }: { view: string, visualization?: string }) => {
-    const query: { view: ?string, visualization: ?string, sort?: ?string } = {
+  handlePerspectiveChange = (
+    { view, visualization } /*: { view: string, visualization?: string } */
+  ) => {
+    const query /*: { view: ?string, visualization: ?string, sort?: ?string } */ = {
       view: view === 'overall' ? undefined : view,
       visualization
     };
@@ -114,13 +120,13 @@ export default class AllProjects extends React.PureComponent {
     storage.saveVisualization(visualization);
   };
 
-  handleSortChange = (sort: string, desc: boolean) => {
+  handleSortChange = (sort /*: string */, desc /*: boolean */) => {
     const asString = (desc ? '-' : '') + sort;
     this.updateLocationQuery({ sort: asString });
     storage.saveSort(asString);
   };
 
-  handleQueryChange(initialMount: boolean) {
+  handleQueryChange(initialMount /*: boolean */) {
     const query = parseUrlQuery(this.props.location.query);
     const savedOptions = this.getSavedOptions();
     const savedOptionsSet = savedOptions.sort || savedOptions.view || savedOptions.visualization;
@@ -134,7 +140,7 @@ export default class AllProjects extends React.PureComponent {
     }
   }
 
-  updateLocationQuery = (newQuery: { [string]: ?string }) => {
+  updateLocationQuery = (newQuery /*: { [string]: ?string } */) => {
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {

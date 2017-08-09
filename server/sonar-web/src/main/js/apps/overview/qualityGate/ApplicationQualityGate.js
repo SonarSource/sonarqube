@@ -25,10 +25,13 @@ import Level from '../../../components/ui/Level';
 import { getApplicationQualityGate } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   component: { key: string }
 };
+*/
 
+/*::
 type State = {
   loading: boolean,
   metrics?: { [string]: Object },
@@ -40,11 +43,12 @@ type State = {
   }>,
   status?: string
 };
+*/
 
 export default class ApplicationQualityGate extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     loading: true
   };
 
@@ -53,7 +57,7 @@ export default class ApplicationQualityGate extends React.PureComponent {
     this.fetchDetails();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (prevProps.component.key !== this.props.component.key) {
       this.fetchDetails();
     }

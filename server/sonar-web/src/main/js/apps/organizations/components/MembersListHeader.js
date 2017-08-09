@@ -23,13 +23,15 @@ import UsersSearch from '../../users/components/UsersSearch';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   handleSearch: (query?: string) => void,
   total?: number
 };
+*/
 
 export default class MembersListHeader extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { total } = this.props;

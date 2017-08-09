@@ -22,12 +22,14 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
+/*::
 type Props = {
   current: ?number,
   total: number
 };
+*/
 
-const IssuesCounter = (props: Props) =>
+const IssuesCounter = (props /*: Props */) =>
   <span>
     <strong>
       {props.current != null &&

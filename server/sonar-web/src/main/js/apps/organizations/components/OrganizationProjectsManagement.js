@@ -22,13 +22,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import AppContainer from '../../projects-admin/AppContainer';
 import { getOrganizationByKey } from '../../../store/rootReducer';
-import type { Organization } from '../../../store/organizations/duck';
+/*:: import type { Organization } from '../../../store/organizations/duck'; */
 
+/*::
 type Props = {
   organization: Organization
 };
+*/
 
-function OrganizationProjectsManagement(props: Props) {
+function OrganizationProjectsManagement(props /*: Props */) {
   return <AppContainer organization={props.organization} />;
 }
 

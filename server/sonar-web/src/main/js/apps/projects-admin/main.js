@@ -29,15 +29,18 @@ import ListFooter from '../../components/controls/ListFooter';
 import { PAGE_SIZE, TYPE } from './constants';
 import { getComponents, getProvisioned, getGhosts, deleteComponents } from '../../api/components';
 import { translate } from '../../helpers/l10n';
-import type { Organization } from '../../store/organizations/duck';
+/*:: import type { Organization } from '../../store/organizations/duck'; */
 
+/*::
 type Props = {|
   hasProvisionPermission: boolean,
   onVisibilityChange: string => void,
   onRequestFail: Object => void,
   organization: Organization
 |};
+*/
 
+/*::
 type State = {
   createProjectForm: boolean,
   ready: boolean,
@@ -49,12 +52,13 @@ type State = {
   type: string,
   selection: Array<string>
 };
+*/
 
 export default class Main extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       createProjectForm: false,
@@ -75,7 +79,7 @@ export default class Main extends React.PureComponent {
   }
 
   getFilters = () => {
-    const filters: { [string]: string | number } = {
+    const filters /*: { [string]: string | number } */ = {
       organization: this.props.organization.key,
       ps: PAGE_SIZE
     };
@@ -151,7 +155,7 @@ export default class Main extends React.PureComponent {
     this.setState({ ready: false, page: this.state.page + 1 }, this.requestProjects);
   };
 
-  onSearch = (query: string) => {
+  onSearch = (query /*: string */) => {
     this.setState(
       {
         ready: false,
@@ -163,7 +167,7 @@ export default class Main extends React.PureComponent {
     );
   };
 
-  onTypeChanged = (newType: string) => {
+  onTypeChanged = (newType /*: string */) => {
     this.setState(
       {
         ready: false,
@@ -177,7 +181,7 @@ export default class Main extends React.PureComponent {
     );
   };
 
-  onQualifierChanged = (newQualifier: string) => {
+  onQualifierChanged = (newQualifier /*: string */) => {
     this.setState(
       {
         ready: false,
@@ -191,12 +195,12 @@ export default class Main extends React.PureComponent {
     );
   };
 
-  onProjectSelected = (project: { key: string }) => {
+  onProjectSelected = (project /*: { key: string } */) => {
     const newSelection = uniq([].concat(this.state.selection, project.key));
     this.setState({ selection: newSelection });
   };
 
-  onProjectDeselected = (project: { key: string }) => {
+  onProjectDeselected = (project /*: { key: string } */) => {
     const newSelection = without(this.state.selection, project.key);
     this.setState({ selection: newSelection });
   };

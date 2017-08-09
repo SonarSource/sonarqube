@@ -27,28 +27,32 @@ import { translate } from '../../../helpers/l10n';
 import { getSuggestions } from '../../../api/components';
 import { getProjectsWithNotifications } from '../../../store/rootReducer';
 
+/*::
 type Props = {
   projects: Array<{
     key: string,
     name: string
   }>
 };
+*/
 
+/*::
 type State = {
   addedProjects: Array<{
     key: string,
     name: string
   }>
 };
+*/
 
 class Projects extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  state: State = {
+  state /*: State */ = {
     addedProjects: []
   };
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     // remove all projects from `this.state.addedProjects`
     // that already exist in `nextProps.projects`
     const nextAddedProjects = differenceBy(

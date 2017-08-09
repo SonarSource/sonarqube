@@ -29,15 +29,16 @@ import { localizeSorting } from '../utils';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class Visualizations extends React.PureComponent {
-  props: {
+  /*:: props: {
     displayOrganizations: boolean,
     projects?: Array<*>,
     sort?: string,
     total?: number,
     visualization: string
   };
+*/
 
-  renderVisualization(projects: Array<*>) {
+  renderVisualization(projects /*: Array<*> */) {
     const visualizationToComponent = {
       risk: Risk,
       reliability: Reliability,

@@ -38,10 +38,17 @@ import {
   getPermissionsAppSelectedPermission
 } from '../../../../store/rootReducer';
 
+/*::
 type Dispatch = Object => void;
+*/
+/*::
 type GetState = () => Object;
+*/
 
-export const loadHolders = (organization?: string) => (dispatch: Dispatch, getState: GetState) => {
+export const loadHolders = (organization /*: ?string */) => (
+  dispatch /*: Dispatch */,
+  getState /*: GetState */
+) => {
   const query = getPermissionsAppQuery(getState());
   const filter = getPermissionsAppFilter(getState());
   const selectedPermission = getPermissionsAppSelectedPermission(getState());
@@ -76,21 +83,25 @@ export const loadHolders = (organization?: string) => (dispatch: Dispatch, getSt
     });
 };
 
-export const updateQuery = (query: string = '', organization?: string) => (dispatch: Dispatch) => {
+export const updateQuery = (query /*: string */ = '', organization /*: ?string */) => (
+  dispatch /*: Dispatch */
+) => {
   dispatch({ type: UPDATE_QUERY, query });
   if (query.length === 0 || query.length > 2) {
     dispatch(loadHolders(organization));
   }
 };
 
-export const updateFilter = (filter: string, organization?: string) => (dispatch: Dispatch) => {
+export const updateFilter = (filter /*: string */, organization /*: ?string */) => (
+  dispatch /*: Dispatch */
+) => {
   dispatch({ type: UPDATE_FILTER, filter });
   dispatch(loadHolders(organization));
 };
 
-export const selectPermission = (permission: string, organization?: string) => (
-  dispatch: Dispatch,
-  getState: GetState
+export const selectPermission = (permission /*: string */, organization /*: ?string */) => (
+  dispatch /*: Dispatch */,
+  getState /*: GetState */
 ) => {
   const selectedPermission = getPermissionsAppSelectedPermission(getState());
   if (selectedPermission !== permission) {
@@ -101,9 +112,11 @@ export const selectPermission = (permission: string, organization?: string) => (
   dispatch(loadHolders(organization));
 };
 
-export const grantToUser = (login: string, permission: string, organization?: string) => (
-  dispatch: Dispatch
-) => {
+export const grantToUser = (
+  login /*: string */,
+  permission /*: string */,
+  organization /*: ?string */
+) => (dispatch /*: Dispatch */) => {
   api
     .grantPermissionToUser(null, login, permission, organization)
     .then(() => {
@@ -114,9 +127,11 @@ export const grantToUser = (login: string, permission: string, organization?: st
     });
 };
 
-export const revokeFromUser = (login: string, permission: string, organization?: string) => (
-  dispatch: Dispatch
-) => {
+export const revokeFromUser = (
+  login /*: string */,
+  permission /*: string */,
+  organization /*: ?string */
+) => (dispatch /*: Dispatch */) => {
   api
     .revokePermissionFromUser(null, login, permission, organization)
     .then(() => {
@@ -127,9 +142,11 @@ export const revokeFromUser = (login: string, permission: string, organization?:
     });
 };
 
-export const grantToGroup = (groupName: string, permission: string, organization?: string) => (
-  dispatch: Dispatch
-) => {
+export const grantToGroup = (
+  groupName /*: string */,
+  permission /*: string */,
+  organization /*: ?string */
+) => (dispatch /*: Dispatch */) => {
   api
     .grantPermissionToGroup(null, groupName, permission, organization)
     .then(() => {
@@ -144,9 +161,11 @@ export const grantToGroup = (groupName: string, permission: string, organization
     });
 };
 
-export const revokeFromGroup = (groupName: string, permission: string, organization?: string) => (
-  dispatch: Dispatch
-) => {
+export const revokeFromGroup = (
+  groupName /*: string */,
+  permission /*: string */,
+  organization /*: ?string */
+) => (dispatch /*: Dispatch */) => {
   api
     .revokePermissionFromGroup(null, groupName, permission, organization)
     .then(() => {

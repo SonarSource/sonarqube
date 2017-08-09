@@ -31,8 +31,9 @@ import {
   getProfilesForLanguagePath,
   getProfileChangelogPath
 } from '../utils';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   canAdmin: boolean,
   onRequestFail: Object => void,
@@ -40,9 +41,10 @@ type Props = {
   profile: Profile,
   updateProfiles: () => Promise<*>
 };
+*/
 
 export default class ProfileHeader extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   renderUpdateDate() {
     const { profile } = this.props;

@@ -23,40 +23,44 @@ import Modal from 'react-modal';
 import classNames from 'classnames';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import { translate } from '../../helpers/l10n';
-import type { Organization } from '../../store/organizations/duck';
+/*:: import type { Organization } from '../../store/organizations/duck'; */
 
+/*::
 type Props = {
   onClose: () => void,
   onConfirm: string => void,
   organization: Organization
 };
+*/
 
+/*::
 type State = {
   visibility: string
 };
+*/
 
 export default class ChangeVisibilityForm extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = { visibility: props.organization.projectVisibility };
   }
 
-  handleCancelClick = (event: Event) => {
+  handleCancelClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  handleConfirmClick = (event: Event) => {
+  handleConfirmClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onConfirm(this.state.visibility);
     this.props.onClose();
   };
 
-  handleVisibilityClick = (visibility: string) => (
-    event: Event & { currentTarget: HTMLElement }
+  handleVisibilityClick = (visibility /*: string */) => (
+    event /*: Event & { currentTarget: HTMLElement } */
   ) => {
     event.preventDefault();
     event.currentTarget.blur();

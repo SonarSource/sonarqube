@@ -21,11 +21,13 @@
 import React from 'react';
 import { collapsePath } from '../../../helpers/path';
 
+/*::
 type Props = {
   path: string
 };
+*/
 
-const ConciseIssueComponent = (props: Props) =>
+const ConciseIssueComponent = (props /*: Props */) =>
   <div className="concise-issue-component note text-ellipsis">
     {collapsePath(props.path, 20)}
   </div>;

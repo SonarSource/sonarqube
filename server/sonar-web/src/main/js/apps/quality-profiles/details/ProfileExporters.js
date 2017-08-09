@@ -21,22 +21,24 @@
 import { stringify } from 'querystring';
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
-import type { Profile, Exporter } from '../propTypes';
+/*:: import type { Profile, Exporter } from '../propTypes'; */
 
+/*::
 type Props = {
   exporters: Array<Exporter>,
   organization: ?string,
   profile: Profile
 };
+*/
 
 export default class ProfileExporters extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  getExportUrl(exporter: Exporter) {
+  getExportUrl(exporter /*: Exporter */) {
     const { organization, profile } = this.props;
 
     const path = '/api/qualityprofiles/export';
-    const parameters: { [string]: string } = {
+    const parameters /*: { [string]: string } */ = {
       exporterKey: exporter.key,
       language: profile.language,
       name: profile.name

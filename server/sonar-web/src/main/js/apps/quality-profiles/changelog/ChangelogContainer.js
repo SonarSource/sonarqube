@@ -26,8 +26,9 @@ import ChangelogEmpty from './ChangelogEmpty';
 import { getProfileChangelog } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
 import { getProfileChangelogPath } from '../utils';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   location: {
     query: {
@@ -38,23 +39,26 @@ type Props = {
   organization: ?string,
   profile: Profile
 };
+*/
 
+/*::
 type State = {
   events?: Array<*>,
   loading: boolean,
   page?: number,
   total?: number
 };
+*/
 
 export default class ChangelogContainer extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
 
   static contextTypes = {
     router: PropTypes.object
   };
 
-  state: State = {
+  state /*: State */ = {
     loading: true
   };
 
@@ -63,7 +67,7 @@ export default class ChangelogContainer extends React.PureComponent {
     this.loadChangelog();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (prevProps.location !== this.props.location) {
       this.loadChangelog();
     }
@@ -76,7 +80,7 @@ export default class ChangelogContainer extends React.PureComponent {
   loadChangelog() {
     this.setState({ loading: true });
     const { query } = this.props.location;
-    const data: Object = { profileKey: this.props.profile.key };
+    const data /*: Object */ = { profileKey: this.props.profile.key };
     if (query.since) {
       data.since = query.since;
     }
@@ -96,13 +100,13 @@ export default class ChangelogContainer extends React.PureComponent {
     });
   }
 
-  loadMore(e: SyntheticInputEvent) {
+  loadMore(e /*: SyntheticInputEvent */) {
     e.preventDefault();
     e.target.blur();
 
     this.setState({ loading: true });
     const { query } = this.props.location;
-    const data: Object = {
+    const data /*: Object */ = {
       profileKey: this.props.profile.key,
       p: this.state.page + 1
     };
@@ -125,7 +129,7 @@ export default class ChangelogContainer extends React.PureComponent {
     });
   }
 
-  handleFromDateChange = (fromDate?: string) => {
+  handleFromDateChange = (fromDate /*: ?string */) => {
     const path = getProfileChangelogPath(
       this.props.profile.name,
       this.props.profile.language,
@@ -138,7 +142,7 @@ export default class ChangelogContainer extends React.PureComponent {
     this.context.router.push(path);
   };
 
-  handleToDateChange = (toDate?: string) => {
+  handleToDateChange = (toDate /*: ?string */) => {
     const path = getProfileChangelogPath(
       this.props.profile.name,
       this.props.profile.language,
