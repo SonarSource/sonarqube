@@ -54,6 +54,8 @@ const SECONDARY = {
 
 const PROPS = {
   component: { key: 'foo', qualifier: 'TRK' },
+  components: [],
+  handleSelect: () => {},
   leakPeriod: {
     date: '2017-05-16T13:50:02+0200',
     index: 1,
@@ -61,7 +63,9 @@ const PROPS = {
     parameter: '6,4'
   },
   measure: MEASURE,
-  secondaryMeasure: null
+  paging: null,
+  secondaryMeasure: null,
+  selectedIdx: null
 };
 
 it('should render correctly', () => {
@@ -75,4 +79,18 @@ it('should render correctly for leak', () => {
 it('should display secondary measure too', () => {
   const wrapper = shallow(<MeasureHeader {...PROPS} secondaryMeasure={SECONDARY} />);
   expect(wrapper.find('LanguageDistribution')).toHaveLength(1);
+});
+
+it('shohuld display correctly for open file', () => {
+  const wrapper = shallow(
+    <MeasureHeader
+      {...PROPS}
+      component={{ key: 'bar', qualifier: 'FIL' }}
+      components={[{ key: 'foo' }, { key: 'bar' }, { key: 'baz' }]}
+      selectedIdx={1}
+    />
+  );
+  expect(wrapper.find('.measure-details-primary-actions')).toMatchSnapshot();
+  wrapper.setProps({ components: [{ key: 'foo' }, { key: 'bar' }] });
+  expect(wrapper.find('.measure-details-primary-actions')).toMatchSnapshot();
 });
