@@ -249,7 +249,7 @@ public class PostProjectAnalysisTasksExecutorTest {
       }
       
       @Override
-      public Optional<String> getMergeBranchName() {
+      public Optional<String> getMergeBranchUuid() {
         return Optional.empty();
       }
 
