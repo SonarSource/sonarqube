@@ -65,6 +65,6 @@ it('display special links page for SonarCloud', () => {
   expect(wrapper.find('LinksHelpSonarCloud')).toHaveLength(1);
 });
 
-function clickOnSection(wrapper: Object, section: string) {
+function clickOnSection(wrapper /*: Object */, section /*: string */) {
   click(wrapper.find(`[data-section="${section}"]`), { currentTarget: { dataset: { section } } });
 }

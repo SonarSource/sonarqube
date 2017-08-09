@@ -21,10 +21,12 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = { onTutorialSelect: () => void };
+*/
 
-export default function TutorialsHelp({ onTutorialSelect }: Props) {
-  const handleClick = (event: Event) => {
+export default function TutorialsHelp({ onTutorialSelect } /*: Props */) {
+  const handleClick = (event /*: Event */) => {
     event.preventDefault();
     onTutorialSelect();
   };

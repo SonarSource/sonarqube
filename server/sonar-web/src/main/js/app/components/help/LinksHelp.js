@@ -22,9 +22,11 @@ import React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = { onClose: () => void };
+*/
 
-export default function LinksHelp({ onClose }: Props) {
+export default function LinksHelp({ onClose } /*: Props */) {
   return (
     <div>
       <h2 className="spacer-top spacer-bottom">

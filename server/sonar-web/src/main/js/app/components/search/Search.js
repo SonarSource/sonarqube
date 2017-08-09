@@ -26,7 +26,7 @@ import { debounce, keyBy, uniqBy } from 'lodash';
 import SearchResults from './SearchResults';
 import SearchResult from './SearchResult';
 import { sortQualifiers } from './utils';
-import type { Component, More, Results } from './utils';
+/*:: import type { Component, More, Results } from './utils'; */
 import RecentHistory from '../../components/RecentHistory';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ClockIcon from '../../../components/common/ClockIcon';
@@ -36,11 +36,14 @@ import { scrollToElement } from '../../../helpers/scrolling';
 import { getProjectUrl } from '../../../helpers/urls';
 import './Search.css';
 
+/*::
 type Props = {|
   appState: { organizationsEnabled: boolean },
   currentUser: { isLoggedIn: boolean }
 |};
+*/
 
+/*::
 type State = {
   loading: boolean,
   loadingMore: ?string,
@@ -53,20 +56,22 @@ type State = {
   selected: ?string,
   shortQuery: boolean
 };
+*/
 
 export default class Search extends React.PureComponent {
-  input: HTMLElement;
-  mounted: boolean;
-  node: HTMLElement;
-  nodes: { [string]: HTMLElement };
-  props: Props;
-  state: State;
+  /*:: input: HTMLElement; */
+  /*:: mounted: boolean; */
+  /*:: node: HTMLElement; */
+  /*:: nodes: { [string]: HTMLElement };
+*/
+  /*:: props: Props; */
+  /*:: state: State; */
 
   static contextTypes = {
     router: PropTypes.object
   };
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.nodes = {};
     this.search = debounce(this.search, 250);
@@ -97,7 +102,7 @@ export default class Search extends React.PureComponent {
     this.nodes = {};
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps /*: Props */, prevState /*: State */) {
     if (prevState.selected !== this.state.selected) {
       this.scrollToSelected();
     }
@@ -109,7 +114,7 @@ export default class Search extends React.PureComponent {
     window.removeEventListener('click', this.handleClickOutside);
   }
 
-  handleClickOutside = (event: { target: HTMLElement }) => {
+  handleClickOutside = (event /*: { target: HTMLElement } */) => {
     if (!this.node || !this.node.contains(event.target)) {
       this.closeSearch(false);
     }
@@ -123,7 +128,7 @@ export default class Search extends React.PureComponent {
     this.setState({ open: true });
   };
 
-  closeSearch = (clear: boolean = true) => {
+  closeSearch = (clear /*: boolean */ = true) => {
     if (this.input) {
       this.input.blur();
     }
@@ -146,7 +151,7 @@ export default class Search extends React.PureComponent {
     );
   };
 
-  getPlainComponentsList = (results: Results, more: More): Array<string> =>
+  getPlainComponentsList = (results /*: Results */, more /*: More */ /*: Array<string> */) =>
     sortQualifiers(Object.keys(results)).reduce((components, qualifier) => {
       const next = [...components, ...results[qualifier].map(component => component.key)];
       if (more[qualifier]) {
@@ -155,7 +160,7 @@ export default class Search extends React.PureComponent {
       return next;
     }, []);
 
-  mergeWithRecentlyBrowsed = (components: Array<Component>) => {
+  mergeWithRecentlyBrowsed = (components /*: Array<Component> */) => {
     const recentlyBrowsed = RecentHistory.get().map(component => ({
       ...component,
       isRecentlyBrowsed: true,
@@ -164,7 +169,7 @@ export default class Search extends React.PureComponent {
     return uniqBy([...components, ...recentlyBrowsed], 'key');
   };
 
-  search = (query: string) => {
+  search = (query /*: string */) => {
     if (query.length === 0 || query.length >= 2) {
       this.setState({ loading: true });
       const recentlyBrowsed = RecentHistory.get().map(component => component.key);
@@ -195,7 +200,7 @@ export default class Search extends React.PureComponent {
     }
   };
 
-  searchMore = (qualifier: string) => {
+  searchMore = (qualifier /*: string */) => {
     if (this.state.query.length !== 1) {
       this.setState({ loading: true, loadingMore: qualifier });
       const recentlyBrowsed = RecentHistory.get().map(component => component.key);
@@ -220,14 +225,14 @@ export default class Search extends React.PureComponent {
     }
   };
 
-  handleQueryChange = (event: { currentTarget: HTMLInputElement }) => {
+  handleQueryChange = (event /*: { currentTarget: HTMLInputElement } */) => {
     const query = event.currentTarget.value;
     this.setState({ query, shortQuery: query.length === 1 });
     this.search(query);
   };
 
   selectPrevious = () => {
-    this.setState(({ more, results, selected }: State) => {
+    this.setState(({ more, results, selected } /*: State */) => {
       if (selected) {
         const list = this.getPlainComponentsList(results, more);
         const index = list.indexOf(selected);
@@ -237,7 +242,7 @@ export default class Search extends React.PureComponent {
   };
 
   selectNext = () => {
-    this.setState(({ more, results, selected }: State) => {
+    this.setState(({ more, results, selected } /*: State */) => {
       if (selected) {
         const list = this.getPlainComponentsList(results, more);
         const index = list.indexOf(selected);
@@ -267,7 +272,7 @@ export default class Search extends React.PureComponent {
     }
   };
 
-  handleKeyDown = (event: KeyboardEvent) => {
+  handleKeyDown = (event /*: KeyboardEvent */) => {
     switch (event.keyCode) {
       case 13:
         event.preventDefault();
@@ -288,15 +293,15 @@ export default class Search extends React.PureComponent {
     }
   };
 
-  handleSelect = (selected: string) => {
+  handleSelect = (selected /*: string */) => {
     this.setState({ selected });
   };
 
-  innerRef = (component: string, node: HTMLElement) => {
+  innerRef = (component /*: string */, node /*: HTMLElement */) => {
     this.nodes[component] = node;
   };
 
-  renderResult = (component: Component) =>
+  renderResult = (component /*: Component */) =>
     <SearchResult
       appState={this.props.appState}
       component={component}

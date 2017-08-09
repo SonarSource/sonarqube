@@ -21,15 +21,17 @@
 const STORAGE_KEY = 'sonar_recent_history';
 const HISTORY_LIMIT = 10;
 
+/*::
 type History = Array<{
   key: string,
   name: string,
   icon: string,
   organization?: string
 }>;
+*/
 
 export default class RecentHistory {
-  static get(): History {
+  static get() /*: History */ {
     if (!window.localStorage) {
       return [];
     }
@@ -47,24 +49,24 @@ export default class RecentHistory {
     return history;
   }
 
-  static set(newHistory: History): void {
+  static set(newHistory /*: History */) /*: void */ {
     if (window.localStorage) {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
     }
   }
 
-  static clear(): void {
+  static clear() /*: void */ {
     if (window.localStorage) {
       window.localStorage.removeItem(STORAGE_KEY);
     }
   }
 
   static add(
-    componentKey: string,
-    componentName: string,
-    icon: string,
-    organization?: string
-  ): void {
+    componentKey /*: string */,
+    componentName /*: string */,
+    icon /*: string */,
+    organization /*: ?string */
+  ) /*: void */ {
     const sonarHistory = RecentHistory.get();
     const newEntry = { key: componentKey, name: componentName, icon, organization };
     let newHistory = sonarHistory.filter(entry => entry.key !== newEntry.key);
@@ -73,7 +75,7 @@ export default class RecentHistory {
     RecentHistory.set(newHistory);
   }
 
-  static remove(componentKey: string): void {
+  static remove(componentKey /*: string */) /*: void */ {
     const history = RecentHistory.get();
     const newHistory = history.filter(entry => entry.key !== componentKey);
     RecentHistory.set(newHistory);

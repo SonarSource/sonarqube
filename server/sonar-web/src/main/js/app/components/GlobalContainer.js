@@ -23,7 +23,7 @@ import GlobalNav from './nav/global/GlobalNav';
 import GlobalFooterContainer from './GlobalFooterContainer';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 
-export default function GlobalContainer(props: Object) {
+export default function GlobalContainer(props /*: Object */) {
   // it is important to pass `location` down to `GlobalNav` to trigger render on url change
 
   return (

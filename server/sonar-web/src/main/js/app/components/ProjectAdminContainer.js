@@ -23,6 +23,7 @@ import { getComponent } from '../../store/rootReducer';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
 class ProjectAdminContainer extends React.PureComponent {
+  /*::
   props: {
     project: {
       configuration?: {
@@ -30,6 +31,7 @@ class ProjectAdminContainer extends React.PureComponent {
       }
     }
   };
+  */
 
   componentDidMount() {
     this.checkPermissions();

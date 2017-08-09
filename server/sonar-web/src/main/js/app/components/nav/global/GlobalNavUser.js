@@ -26,12 +26,15 @@ import Avatar from '../../../../components/ui/Avatar';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
 import { translate } from '../../../../helpers/l10n';
 
+/*::
 type CurrentUser = {
   email?: string,
   isLoggedIn: boolean,
   name: string
 };
+*/
 
+/*::
 type Props = {
   appState: {
     organizationsEnabled: boolean
@@ -42,27 +45,30 @@ type Props = {
   organizations: Array<{ key: string, name: string }>,
   router: { push: string => void }
 };
+*/
 
+/*::
 type State = {
   open: boolean
 };
+*/
 
 export default class GlobalNavUser extends React.PureComponent {
-  node: HTMLElement;
-  props: Props;
-  state: State = { open: false };
+  /*:: node: HTMLElement; */
+  /*:: props: Props; */
+  state /*: State */ = { open: false };
 
   componentWillUnmount() {
     window.removeEventListener('click', this.handleClickOutside);
   }
 
-  handleClickOutside = (event: { target: HTMLElement }) => {
+  handleClickOutside = (event /*: { target: HTMLElement } */) => {
     if (!this.node || !this.node.contains(event.target)) {
       this.closeDropdown();
     }
   };
 
-  handleLogin = (e: Event) => {
+  handleLogin = (e /*: Event */) => {
     e.preventDefault();
     const shouldReturnToCurrentPage = window.location.pathname !== `${window.baseUrl}/about`;
     if (shouldReturnToCurrentPage) {
@@ -74,13 +80,13 @@ export default class GlobalNavUser extends React.PureComponent {
     }
   };
 
-  handleLogout = (e: Event) => {
+  handleLogout = (e /*: Event */) => {
     e.preventDefault();
     this.closeDropdown();
     this.props.router.push('/sessions/logout');
   };
 
-  toggleDropdown = (evt: Event) => {
+  toggleDropdown = (evt /*: Event */) => {
     evt.preventDefault();
     if (this.state.open) {
       this.closeDropdown();

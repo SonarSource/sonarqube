@@ -25,6 +25,7 @@ import ExtensionNotFound from './ExtensionNotFound';
 import { getComponent } from '../../../store/rootReducer';
 import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 
+/*::
 type Props = {
   component: {
     configuration?: {
@@ -37,8 +38,9 @@ type Props = {
     pluginKey: string
   }
 };
+*/
 
-function ProjectAdminPageExtension(props: Props) {
+function ProjectAdminPageExtension(props /*: Props */) {
   const { extensionKey, pluginKey } = props.params;
   const { component } = props;
   const extension =
@@ -49,7 +51,7 @@ function ProjectAdminPageExtension(props: Props) {
     : <ExtensionNotFound />;
 }
 
-const mapStateToProps = (state, ownProps: Props) => ({
+const mapStateToProps = (state, ownProps /*: Props */) => ({
   component: getComponent(state, ownProps.location.query.id)
 });
 

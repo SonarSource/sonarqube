@@ -24,8 +24,9 @@ import Extension from './Extension';
 import ExtensionNotFound from './ExtensionNotFound';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { fetchOrganization } from '../../../apps/organizations/actions';
-import type { Organization } from '../../../store/organizations/duck';
+/*:: import type { Organization } from '../../../store/organizations/duck'; */
 
+/*::
 type Props = {
   fetchOrganization: string => void,
   location: {},
@@ -36,9 +37,10 @@ type Props = {
     pluginKey: string
   }
 };
+*/
 
 class OrganizationPageExtension extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   refreshOrganization = () => this.props.fetchOrganization(this.props.organization.key);
 
@@ -62,7 +64,7 @@ class OrganizationPageExtension extends React.PureComponent {
   }
 }
 
-const mapStateToProps = (state, ownProps: Props) => ({
+const mapStateToProps = (state, ownProps /*: Props */) => ({
   organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
 

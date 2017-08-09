@@ -24,10 +24,12 @@ import GlobalLoading from './GlobalLoading';
 import { getSystemStatus } from '../../api/system';
 
 class MigrationContainer extends React.PureComponent {
+  /*::
   props: {
     children?: React.Element<*>,
     router: { push: (path: string) => void }
   };
+  */
 
   state = {
     loading: true

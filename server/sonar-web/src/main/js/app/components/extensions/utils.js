@@ -20,17 +20,17 @@
 // @flow
 import { getExtensionFromCache } from '../../utils/installExtensionsHandler';
 
-const installScript = (key: string) => {
+function installScript(key /*: string */) {
   return new Promise(resolve => {
     const scriptTag = document.createElement('script');
     scriptTag.src = `${window.baseUrl}/static/${key}.js`;
     scriptTag.onload = resolve;
     document.getElementsByTagName('body')[0].appendChild(scriptTag);
   });
-};
+}
 
-export const getExtensionStart = (key: string) =>
-  new Promise((resolve, reject) => {
+export function getExtensionStart(key /*: string */) {
+  return new Promise((resolve, reject) => {
     const fromCache = getExtensionFromCache(key);
     if (fromCache) {
       return resolve(fromCache);
@@ -45,3 +45,4 @@ export const getExtensionStart = (key: string) =>
       }
     });
   });
+}

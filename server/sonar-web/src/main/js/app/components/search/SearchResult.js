@@ -20,13 +20,14 @@
 // @flow
 import React from 'react';
 import { Link } from 'react-router';
-import type { Component } from './utils';
+/*:: import type { Component } from './utils'; */
 import FavoriteIcon from '../../../components/common/FavoriteIcon';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import ClockIcon from '../../../components/common/ClockIcon';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getProjectUrl } from '../../../helpers/urls';
 
+/*::
 type Props = {|
   appState: { organizationsEnabled: boolean },
   component: Component,
@@ -37,17 +38,20 @@ type Props = {|
   projects: { [string]: { name: string } },
   selected: boolean
 |};
+*/
 
+/*::
 type State = {
   tooltipVisible: boolean
 };
+*/
 
 const TOOLTIP_DELAY = 1000;
 
 export default class SearchResult extends React.PureComponent {
-  interval: ?number;
-  props: Props;
-  state: State = { tooltipVisible: false };
+  /*:: interval: ?number; */
+  /*:: props: Props; */
+  state /*: State */ = { tooltipVisible: false };
 
   componentDidMount() {
     if (this.props.selected) {
@@ -55,7 +59,7 @@ export default class SearchResult extends React.PureComponent {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (!this.props.selected && nextProps.selected) {
       this.scheduleTooltip();
     } else if (this.props.selected && !nextProps.selected) {
@@ -82,7 +86,7 @@ export default class SearchResult extends React.PureComponent {
     this.props.onSelect(this.props.component.key);
   };
 
-  renderOrganization = (component: Component) => {
+  renderOrganization = (component /*: Component */) => {
     if (!this.props.appState.organizationsEnabled) {
       return null;
     }
@@ -102,7 +106,7 @@ export default class SearchResult extends React.PureComponent {
       : null;
   };
 
-  renderProject = (component: Component) => {
+  renderProject = (component /*: Component */) => {
     if (!['BRC', 'FIL', 'UTS'].includes(component.qualifier) || component.project == null) {
       return null;
     }

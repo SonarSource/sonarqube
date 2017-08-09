@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
+/*::
 type Props = {|
   allowMore: boolean,
   loadingMore: ?string,
@@ -31,11 +32,12 @@ type Props = {|
   qualifier: string,
   selected: boolean
 |};
+*/
 
 export default class SearchShowMore extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleMoreClick = (event: MouseEvent & { currentTarget: HTMLElement }) => {
+  handleMoreClick = (event /*: MouseEvent & { currentTarget: HTMLElement } */) => {
     event.preventDefault();
     event.stopPropagation();
     event.currentTarget.blur();
@@ -43,7 +45,7 @@ export default class SearchShowMore extends React.PureComponent {
     this.props.onMoreClick(qualifier);
   };
 
-  handleMoreMouseEnter = (event: { currentTarget: HTMLElement }) => {
+  handleMoreMouseEnter = (event /*: { currentTarget: HTMLElement } */) => {
     const { qualifier } = event.currentTarget.dataset;
     this.props.onSelect(`qualifier###${qualifier}`);
   };
