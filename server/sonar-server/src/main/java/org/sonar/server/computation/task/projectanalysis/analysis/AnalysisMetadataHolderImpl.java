@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import org.sonar.db.component.BranchType;
 import org.sonar.server.computation.util.InitializedProperty;
 import org.sonar.server.qualityprofile.QualityProfile;
 
@@ -163,6 +165,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
 
   @Override
   public MutableAnalysisMetadataHolder setRootComponentRef(int rootComponentRef) {
+
     checkState(!this.rootComponentRef.isInitialized(), "Root component ref has already been set");
     this.rootComponentRef.setProperty(rootComponentRef);
     return this;
@@ -198,6 +201,12 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   public Map<String, ScannerPlugin> getScannerPluginsByKey() {
     checkState(pluginsByKey.isInitialized(), "Plugins by key has not been set");
     return pluginsByKey.getProperty();
+  }
+
+  public boolean isShortLivingBranch() {
+    checkState(this.branch.isInitialized(), "Branch has not been set");
+    Branch prop = branch.getProperty();
+    return prop != null && prop.getType() == BranchType.SHORT;
   }
 
 }

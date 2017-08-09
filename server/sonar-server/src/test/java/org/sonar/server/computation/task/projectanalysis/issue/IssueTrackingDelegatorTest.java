@@ -24,8 +24,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -55,7 +53,7 @@ public class IssueTrackingDelegatorTest {
 
   @Test
   public void delegate_regular_tracker() {
-    when(analysisMetadataHolder.getBranch()).thenReturn(Optional.empty());
+    when(analysisMetadataHolder.isShortLivingBranch()).thenReturn(false);
 
     underTest.track(component);
 
@@ -67,7 +65,7 @@ public class IssueTrackingDelegatorTest {
   public void delegate_short_branch_tracker() {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.SHORT);
-    when(analysisMetadataHolder.getBranch()).thenReturn(Optional.of(branch));
+    when(analysisMetadataHolder.isShortLivingBranch()).thenReturn(true);
 
     underTest.track(component);
 
