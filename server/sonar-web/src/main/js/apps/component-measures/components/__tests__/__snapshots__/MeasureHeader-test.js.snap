@@ -1,5 +1,94 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`shohuld display correctly for open file 1`] = `
+<div
+  className="measure-details-primary-actions"
+>
+  <div
+    className="display-inline-block"
+  >
+    <span
+      className="note spacer-right"
+    >
+      component_measures.x_of_y.2.3
+    </span>
+    <div
+      className="button-group"
+    >
+      <button
+        onClick={[Function]}
+      >
+        &lt;
+      </button>
+      <button
+        onClick={[Function]}
+      >
+        &gt;
+      </button>
+    </div>
+  </div>
+  <LeakPeriodLegend
+    className="spacer-left"
+    component={
+      Object {
+        "key": "bar",
+        "qualifier": "FIL",
+      }
+    }
+    period={
+      Object {
+        "date": "2017-05-16T13:50:02+0200",
+        "index": 1,
+        "mode": "previous_version",
+        "parameter": "6,4",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`shohuld display correctly for open file 2`] = `
+<div
+  className="measure-details-primary-actions"
+>
+  <div
+    className="display-inline-block"
+  >
+    <span
+      className="note spacer-right"
+    >
+      component_measures.x_of_y.2.2
+    </span>
+    <div
+      className="button-group"
+    >
+      <button
+        onClick={[Function]}
+      >
+        &lt;
+      </button>
+    </div>
+  </div>
+  <LeakPeriodLegend
+    className="spacer-left"
+    component={
+      Object {
+        "key": "bar",
+        "qualifier": "FIL",
+      }
+    }
+    period={
+      Object {
+        "date": "2017-05-16T13:50:02+0200",
+        "index": 1,
+        "mode": "previous_version",
+        "parameter": "6,4",
+      }
+    }
+  />
+</div>
+`;
+
 exports[`should render correctly 1`] = `
 <div
   className="measure-details-header big-spacer-bottom"
@@ -70,22 +159,27 @@ exports[`should render correctly 1`] = `
         </Link>
       </Tooltip>
     </div>
-    <LeakPeriodLegend
-      component={
-        Object {
-          "key": "foo",
-          "qualifier": "TRK",
+    <div
+      className="measure-details-primary-actions"
+    >
+      <LeakPeriodLegend
+        className="spacer-left"
+        component={
+          Object {
+            "key": "foo",
+            "qualifier": "TRK",
+          }
         }
-      }
-      period={
-        Object {
-          "date": "2017-05-16T13:50:02+0200",
-          "index": 1,
-          "mode": "previous_version",
-          "parameter": "6,4",
+        period={
+          Object {
+            "date": "2017-05-16T13:50:02+0200",
+            "index": 1,
+            "mode": "previous_version",
+            "parameter": "6,4",
+          }
         }
-      }
-    />
+      />
+    </div>
   </div>
 </div>
 `;
@@ -138,22 +232,27 @@ exports[`should render correctly for leak 1`] = `
         </strong>
       </span>
     </div>
-    <LeakPeriodLegend
-      component={
-        Object {
-          "key": "foo",
-          "qualifier": "TRK",
+    <div
+      className="measure-details-primary-actions"
+    >
+      <LeakPeriodLegend
+        className="spacer-left"
+        component={
+          Object {
+            "key": "foo",
+            "qualifier": "TRK",
+          }
         }
-      }
-      period={
-        Object {
-          "date": "2017-05-16T13:50:02+0200",
-          "index": 1,
-          "mode": "previous_version",
-          "parameter": "6,4",
+        period={
+          Object {
+            "date": "2017-05-16T13:50:02+0200",
+            "index": 1,
+            "mode": "previous_version",
+            "parameter": "6,4",
+          }
         }
-      }
-    />
+      />
+    </div>
   </div>
 </div>
 `;

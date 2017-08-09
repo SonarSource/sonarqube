@@ -89,9 +89,10 @@ export default class MeasureContent extends React.PureComponent {
   }
 
   getSelectedIndex = (): ?number => {
-    const index = this.state.components.findIndex(
-      component => component.key === this.state.selected
-    );
+    const componentKey = isFileType(this.props.component)
+      ? this.props.component.key
+      : this.state.selected;
+    const index = this.state.components.findIndex(component => component.key === componentKey);
     return index !== -1 ? index : null;
   };
 
@@ -121,7 +122,7 @@ export default class MeasureContent extends React.PureComponent {
 
   fetchComponents = ({ component, metric, metrics, view }: Props) => {
     if (isFileType(component)) {
-      return this.setState({ components: [], metric: null, paging: null, view: null });
+      return this.setState({ metric: null, view: null });
     }
 
     const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, metric);
@@ -244,6 +245,7 @@ export default class MeasureContent extends React.PureComponent {
     const { component, currentUser, measure, metric, rootComponent, view } = this.props;
     const isLoggedIn = currentUser && currentUser.isLoggedIn;
     const isFile = isFileType(component);
+    const selectedIdx = this.getSelectedIndex();
     return (
       <div className={this.props.className}>
         <div className="layout-page-header-panel layout-page-main-header issues-main-header">
@@ -269,7 +271,7 @@ export default class MeasureContent extends React.PureComponent {
                   view={view}
                 />}
               <PageActions
-                current={this.getSelectedIndex() + 1}
+                current={selectedIdx + 1}
                 loading={this.props.loading}
                 isFile={isFile}
                 paging={this.state.paging}
@@ -284,9 +286,12 @@ export default class MeasureContent extends React.PureComponent {
           <div className="layout-page-main-inner">
             <MeasureHeader
               component={component}
+              components={this.state.components}
+              handleSelect={this.props.updateSelected}
               leakPeriod={this.props.leakPeriod}
               measure={measure}
               secondaryMeasure={this.props.secondaryMeasure}
+              selectedIdx={selectedIdx}
             />
             {this.renderContent()}
           </div>}
