@@ -19,25 +19,36 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Collection;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Tracker;
-import org.sonar.core.issue.tracking.Tracking;
-import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.core.issue.tracking.BlockHashSequence;
+import org.sonar.core.issue.tracking.LineHashSequence;
 
-public class TrackerExecution {
+public class DefaultTrackingInputTest {
+  @Mock
+  private Collection<DefaultIssue> issues;
+  @Mock
+  private BlockHashSequence blockHashes;
+  @Mock
+  private LineHashSequence lineHashes;
 
-  protected final TrackerBaseInputFactory baseInputFactory;
-  protected final TrackerRawInputFactory rawInputFactory;
-  protected final Tracker<DefaultIssue, DefaultIssue> tracker;
-
-  public TrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerRawInputFactory rawInputFactory,
-    Tracker<DefaultIssue, DefaultIssue> tracker) {
-    this.baseInputFactory = baseInputFactory;
-    this.rawInputFactory = rawInputFactory;
-    this.tracker = tracker;
+  @Before
+  public void setUp() {
+    MockitoAnnotations.initMocks(this);
   }
 
-  public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
-    return tracker.track(rawInputFactory.create(component), baseInputFactory.create(component));
+  @Test
+  public void test_getters() {
+    DefaultTrackingInput underTest = new DefaultTrackingInput(issues, lineHashes, blockHashes);
+    assertThat(underTest.getBlockHashSequence()).isEqualTo(blockHashes);
+    assertThat(underTest.getLineHashSequence()).isEqualTo(lineHashes);
+    assertThat(underTest.getIssues()).isEqualTo(issues);
   }
 }
