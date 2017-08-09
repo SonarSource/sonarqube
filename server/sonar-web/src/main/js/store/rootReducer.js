@@ -29,7 +29,6 @@ import notifications, * as fromNotifications from './notifications/duck';
 import organizations, * as fromOrganizations from './organizations/duck';
 import organizationsMembers, * as fromOrganizationsMembers from './organizationsMembers/reducer';
 import globalMessages, * as fromGlobalMessages from './globalMessages/duck';
-import measuresApp, * as fromMeasuresApp from '../apps/component-measures-old/store/rootReducer';
 import permissionsApp, * as fromPermissionsApp from '../apps/permissions/shared/store/rootReducer';
 import projectAdminApp, * as fromProjectAdminApp from '../apps/project-admin/store/rootReducer';
 import projectsApp, * as fromProjectsApp from '../apps/projects/store/reducer';
@@ -50,7 +49,6 @@ export default combineReducers({
   users,
 
   // apps
-  measuresApp,
   permissionsApp,
   projectAdminApp,
   projectsApp,
@@ -222,54 +220,3 @@ export const getProjectAdminProjectModules = (state, projectKey) =>
 
 export const getProjectAdminGlobalMessages = state =>
   fromProjectAdminApp.getGlobalMessages(state.projectAdminApp);
-
-export const getMeasuresAppComponent = state => fromMeasuresApp.getComponent(state.measuresApp);
-
-export const getMeasuresAppAllMetrics = state => fromMeasuresApp.getAllMetrics(state.measuresApp);
-
-export const getMeasuresAppDetailsMetric = state =>
-  fromMeasuresApp.getDetailsMetric(state.measuresApp);
-
-export const getMeasuresAppDetailsMeasure = state =>
-  fromMeasuresApp.getDetailsMeasure(state.measuresApp);
-
-export const getMeasuresAppDetailsSecondaryMeasure = state =>
-  fromMeasuresApp.getDetailsSecondaryMeasure(state.measuresApp);
-
-export const getMeasuresAppDetailsPeriods = state =>
-  fromMeasuresApp.getDetailsPeriods(state.measuresApp);
-
-export const isMeasuresAppFetching = state => fromMeasuresApp.isFetching(state.measuresApp);
-
-export const getMeasuresAppList = state => fromMeasuresApp.getList(state.measuresApp);
-
-export const getMeasuresAppListComponents = state =>
-  fromMeasuresApp.getListComponents(state.measuresApp);
-
-export const getMeasuresAppListSelected = state =>
-  fromMeasuresApp.getListSelected(state.measuresApp);
-
-export const getMeasuresAppListTotal = state => fromMeasuresApp.getListTotal(state.measuresApp);
-
-export const getMeasuresAppListPageIndex = state =>
-  fromMeasuresApp.getListPageIndex(state.measuresApp);
-
-export const getMeasuresAppTree = state => fromMeasuresApp.getTree(state.measuresApp);
-
-export const getMeasuresAppTreeComponents = state =>
-  fromMeasuresApp.getTreeComponents(state.measuresApp);
-
-export const getMeasuresAppTreeBreadcrumbs = state =>
-  fromMeasuresApp.getTreeBreadcrumbs(state.measuresApp);
-
-export const getMeasuresAppTreeSelected = state =>
-  fromMeasuresApp.getTreeSelected(state.measuresApp);
-
-export const getMeasuresAppTreeTotal = state => fromMeasuresApp.getTreeTotal(state.measuresApp);
-
-export const getMeasuresAppTreePageIndex = state =>
-  fromMeasuresApp.getTreePageIndex(state.measuresApp);
-
-export const getMeasuresAppHomeDomains = state => fromMeasuresApp.getHomeDomains(state.measuresApp);
-
-export const getMeasuresAppHomePeriods = state => fromMeasuresApp.getHomePeriods(state.measuresApp);
