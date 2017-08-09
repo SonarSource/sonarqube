@@ -28,7 +28,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.scan.ProjectBranches;
+import org.sonar.scanner.scan.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -49,7 +49,7 @@ public class ProjectRepositoriesProviderTest {
   @Mock
   private DefaultAnalysisMode mode;
   @Mock
-  private ProjectBranches branches;
+  private BranchConfiguration branchConfiguration;
 
   @Before
   public void setUp() {
@@ -69,7 +69,7 @@ public class ProjectRepositoriesProviderTest {
     when(mode.isIssues()).thenReturn(true);
     when(loader.load(eq("key"), eq(true), any())).thenReturn(project);
 
-    provider.provide(loader, projectKey, mode, branches);
+    provider.provide(loader, projectKey, mode, branchConfiguration);
   }
 
   @Test
@@ -77,7 +77,7 @@ public class ProjectRepositoriesProviderTest {
     when(mode.isIssues()).thenReturn(false);
     when(loader.load(eq("key"), eq(false), any())).thenReturn(project);
 
-    ProjectRepositories repo = provider.provide(loader, projectKey, mode, branches);
+    ProjectRepositories repo = provider.provide(loader, projectKey, mode, branchConfiguration);
 
     assertThat(repo.exists()).isEqualTo(true);
     assertThat(repo.lastAnalysisDate()).isNotNull();

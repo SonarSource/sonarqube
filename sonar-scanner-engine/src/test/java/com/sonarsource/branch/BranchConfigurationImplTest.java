@@ -35,7 +35,7 @@ import org.sonar.core.config.ScannerProperties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-public class ProjectBranchesImplTest {
+public class BranchConfigurationImplTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -50,9 +50,9 @@ public class ProjectBranchesImplTest {
 
   @Test
   public void should_be_longLived_and_target_null_when_branchName_missing() {
-    ProjectBranchesImpl branches = ProjectBranchesImpl.create(settings, Collections.emptyList());
-    assertThat(branches.branchType()).isEqualTo(ProjectBranchesImpl.BranchType.LONG);
-    assertThat(branches.branchTarget()).isNull();
+    BranchConfigurationImpl branchConfig = BranchConfigurationImpl.create(settings, Collections.emptyList());
+    assertThat(branchConfig.branchType()).isEqualTo(BranchConfigurationImpl.BranchType.LONG);
+    assertThat(branchConfig.branchTarget()).isNull();
   }
 
   @Test
@@ -60,9 +60,9 @@ public class ProjectBranchesImplTest {
     String branchName = "long";
     when(settings.get(Matchers.eq(ScannerProperties.BRANCH_NAME))).thenReturn(Optional.of(branchName));
     when(settings.get(Matchers.eq(CoreProperties.LONG_LIVED_BRANCHES_REGEX))).thenReturn(Optional.of(branchName));
-    ProjectBranchesImpl branches = ProjectBranchesImpl.create(settings, Collections.emptyList());
-    assertThat(branches.branchType()).isEqualTo(ProjectBranchesImpl.BranchType.LONG);
-    assertThat(branches.branchTarget()).isNull();
+    BranchConfigurationImpl branchConfig = BranchConfigurationImpl.create(settings, Collections.emptyList());
+    assertThat(branchConfig.branchType()).isEqualTo(BranchConfigurationImpl.BranchType.LONG);
+    assertThat(branchConfig.branchTarget()).isNull();
   }
 
   @Test
@@ -70,9 +70,9 @@ public class ProjectBranchesImplTest {
     String branchName = "long";
     when(settings.get(Matchers.eq(ScannerProperties.BRANCH_NAME))).thenReturn(Optional.of(branchName));
     when(settings.get(Matchers.eq(CoreProperties.LONG_LIVED_BRANCHES_REGEX))).thenReturn(Optional.of(branchName + "x"));
-    ProjectBranchesImpl branches = ProjectBranchesImpl.create(settings, Collections.emptyList());
-    assertThat(branches.branchType()).isEqualTo(ProjectBranchesImpl.BranchType.SHORT);
-    assertThat(branches.branchTarget()).isNull();
+    BranchConfigurationImpl branchConfig = BranchConfigurationImpl.create(settings, Collections.emptyList());
+    assertThat(branchConfig.branchType()).isEqualTo(BranchConfigurationImpl.BranchType.SHORT);
+    assertThat(branchConfig.branchTarget()).isNull();
   }
 
   @Test
@@ -80,9 +80,9 @@ public class ProjectBranchesImplTest {
     String branchName = "long";
     when(settings.get(Matchers.eq(ScannerProperties.BRANCH_NAME))).thenReturn(Optional.of(branchName));
     when(settings.get(Matchers.eq(CoreProperties.LONG_LIVED_BRANCHES_REGEX))).thenReturn(Optional.of(branchName));
-    assertThat(ProjectBranchesImpl.create(settings, Collections.singletonList(
-      new ProjectBranchesImpl.BranchInfo(branchName, false)
-    )).branchType()).isEqualTo(ProjectBranchesImpl.BranchType.SHORT);
+    assertThat(BranchConfigurationImpl.create(settings, Collections.singletonList(
+      new BranchConfigurationImpl.BranchInfo(branchName, false)
+    )).branchType()).isEqualTo(BranchConfigurationImpl.BranchType.SHORT);
   }
 
   @Test
@@ -92,7 +92,7 @@ public class ProjectBranchesImplTest {
 
     String branchName = "long";
     when(settings.get(Matchers.eq(ScannerProperties.BRANCH_NAME))).thenReturn(Optional.of(branchName));
-    ProjectBranchesImpl.create(settings, Collections.emptyList());
+    BranchConfigurationImpl.create(settings, Collections.emptyList());
   }
 
   @Test
@@ -104,7 +104,7 @@ public class ProjectBranchesImplTest {
     when(settings.get(Matchers.eq(ScannerProperties.BRANCH_NAME))).thenReturn(Optional.of(branchName));
     when(settings.get(Matchers.eq(ScannerProperties.BRANCH_TARGET))).thenReturn(Optional.of("nonexistent"));
     when(settings.get(Matchers.eq(CoreProperties.LONG_LIVED_BRANCHES_REGEX))).thenReturn(Optional.of("dummy"));
-    ProjectBranchesImpl.create(settings, Collections.emptyList());
+    BranchConfigurationImpl.create(settings, Collections.emptyList());
   }
 
   @Test
@@ -114,8 +114,8 @@ public class ProjectBranchesImplTest {
     when(settings.get(Matchers.eq(ScannerProperties.BRANCH_NAME))).thenReturn(Optional.of(branchName));
     when(settings.get(Matchers.eq(ScannerProperties.BRANCH_TARGET))).thenReturn(Optional.of(branchTarget));
     when(settings.get(Matchers.eq(CoreProperties.LONG_LIVED_BRANCHES_REGEX))).thenReturn(Optional.of("foo"));
-    assertThat(ProjectBranchesImpl.create(settings, Collections.singletonList(
-      new ProjectBranchesImpl.BranchInfo(branchTarget, true)
+    assertThat(BranchConfigurationImpl.create(settings, Collections.singletonList(
+      new BranchConfigurationImpl.BranchInfo(branchTarget, true)
     )).branchTarget()).isEqualTo(branchTarget);
   }
 
@@ -129,8 +129,8 @@ public class ProjectBranchesImplTest {
     when(settings.get(Matchers.eq(ScannerProperties.BRANCH_NAME))).thenReturn(Optional.of(branchName));
     when(settings.get(Matchers.eq(ScannerProperties.BRANCH_TARGET))).thenReturn(Optional.of(branchTarget));
     when(settings.get(Matchers.eq(CoreProperties.LONG_LIVED_BRANCHES_REGEX))).thenReturn(Optional.of("foo"));
-    ProjectBranchesImpl.create(settings, Collections.singletonList(
-      new ProjectBranchesImpl.BranchInfo(branchTarget, false)
+    BranchConfigurationImpl.create(settings, Collections.singletonList(
+      new BranchConfigurationImpl.BranchInfo(branchTarget, false)
     ));
   }
 }
