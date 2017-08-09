@@ -67,8 +67,8 @@ import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
-import org.sonar.scanner.scan.ProjectBranches;
-import org.sonar.scanner.scan.ProjectBranchesLoader;
+import org.sonar.scanner.scan.BranchConfiguration;
+import com.sonarsource.branch.BranchConfigurationLoader;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
@@ -83,7 +83,7 @@ public class ScannerMediumTester extends ExternalResource {
   private static Path userHome = null;
   private Map<String, String> globalProperties = new HashMap<>();
   private final FakeMetricsRepositoryLoader globalRefProvider = new FakeMetricsRepositoryLoader();
-  private final FakeProjectBranchesLoader projectBranchesProvider = new FakeProjectBranchesLoader();
+  private final FakeBranchConfigurationLoader projectBranchesProvider = new FakeBranchConfigurationLoader();
   private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
   private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
   private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
@@ -381,10 +381,10 @@ public class ScannerMediumTester extends ExternalResource {
 
   }
 
-  private static class FakeProjectBranchesLoader implements ProjectBranchesLoader {
+  private static class FakeBranchConfigurationLoader implements BranchConfigurationLoader {
     @Override
-    public ProjectBranches load(String projectKey, GlobalConfiguration settings) {
-      return mock(ProjectBranches.class);
+    public BranchConfiguration load(String projectKey, GlobalConfiguration settings) {
+      return mock(BranchConfiguration.class);
     }
   }
 

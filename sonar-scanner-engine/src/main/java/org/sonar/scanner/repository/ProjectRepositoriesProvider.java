@@ -19,27 +19,29 @@
  */
 package org.sonar.scanner.repository;
 
+import javax.annotation.Nullable;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.scan.ProjectBranches;
+import org.sonar.scanner.scan.BranchConfiguration;
 
 public class ProjectRepositoriesProvider extends ProviderAdapter {
   private static final Logger LOG = Loggers.get(ProjectRepositoriesProvider.class);
   private static final String LOG_MSG = "Load project repositories";
   private ProjectRepositories project = null;
 
-  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode, ProjectBranches branches) {
-    return provideInternal(loader, projectKey, mode.isIssues(), branches);
+  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode, @Nullable BranchConfiguration branchConfig) {
+    return provideInternal(loader, projectKey, mode.isIssues(), branchConfig);
   }
 
-  protected ProjectRepositories provideInternal(ProjectRepositoriesLoader loader, ProjectKey projectKey, boolean isIssueMode, ProjectBranches branches) {
+  protected ProjectRepositories provideInternal(ProjectRepositoriesLoader loader, ProjectKey projectKey, boolean isIssueMode, @Nullable BranchConfiguration branchConfig) {
     if (project == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      project = loader.load(projectKey.get(), isIssueMode, branches.branchTarget());
+      String branchTarget = branchConfig != null ? branchConfig.branchTarget() : null;
+      project = loader.load(projectKey.get(), isIssueMode, branchTarget);
       checkProject(isIssueMode);
       profiler.stopInfo();
     }
