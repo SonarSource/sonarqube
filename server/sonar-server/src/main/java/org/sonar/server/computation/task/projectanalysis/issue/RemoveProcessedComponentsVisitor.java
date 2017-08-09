@@ -19,25 +19,26 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Tracker;
-import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepository;
 
-public class TrackerExecution {
+import com.google.common.base.Optional;
 
-  protected final TrackerBaseInputFactory baseInputFactory;
-  protected final TrackerRawInputFactory rawInputFactory;
-  protected final Tracker<DefaultIssue, DefaultIssue> tracker;
+public class RemoveProcessedComponentsVisitor extends IssueVisitor {
+  private final ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;
+  private final MovedFilesRepository movedFilesRepository;
 
-  public TrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerRawInputFactory rawInputFactory,
-    Tracker<DefaultIssue, DefaultIssue> tracker) {
-    this.baseInputFactory = baseInputFactory;
-    this.rawInputFactory = rawInputFactory;
-    this.tracker = tracker;
+  public RemoveProcessedComponentsVisitor(ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, MovedFilesRepository movedFilesRepository) {
+    this.componentsWithUnprocessedIssues = componentsWithUnprocessedIssues;
+    this.movedFilesRepository = movedFilesRepository;
   }
 
-  public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
-    return tracker.track(rawInputFactory.create(component), baseInputFactory.create(component));
+  @Override
+  public void afterComponent(Component component) {
+    componentsWithUnprocessedIssues.remove(component.getUuid());
+    Optional<MovedFilesRepository.OriginalFile> originalFile = movedFilesRepository.getOriginalFile(component);
+    if (originalFile.isPresent()) {
+      componentsWithUnprocessedIssues.remove(originalFile.get().getUuid());
+    }
   }
 }
