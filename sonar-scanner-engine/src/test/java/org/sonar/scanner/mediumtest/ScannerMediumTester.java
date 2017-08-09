@@ -42,7 +42,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.RuleKey;
@@ -52,6 +51,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalMode;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
@@ -383,7 +383,7 @@ public class ScannerMediumTester extends ExternalResource {
 
   private static class FakeProjectBranchesLoader implements ProjectBranchesLoader {
     @Override
-    public ProjectBranches load(String projectKey, Configuration settings) {
+    public ProjectBranches load(String projectKey, GlobalConfiguration settings) {
       return mock(ProjectBranches.class);
     }
   }
