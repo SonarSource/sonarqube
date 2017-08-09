@@ -22,6 +22,42 @@ const routes = [
     getIndexRoute(_, callback) {
       import('./components/AppContainer').then(i => callback(null, { component: i.default }));
     }
+  },
+  {
+    path: 'domain/:domainName',
+    onEnter(nextState, replace) {
+      replace({
+        pathname: '/component_measures',
+        query: {
+          ...nextState.location.query,
+          metric: nextState.params.domainName
+        }
+      });
+    }
+  },
+  {
+    path: 'metric/:metricKey/:view',
+    onEnter(nextState, replace) {
+      if (nextState.params.view === 'history') {
+        replace({
+          pathname: '/project/activity',
+          query: {
+            id: nextState.location.query.id,
+            graph: 'custom',
+            custom_metrics: nextState.params.metricKey
+          }
+        });
+      } else {
+        replace({
+          pathname: '/component_measures',
+          query: {
+            ...nextState.location.query,
+            metric: nextState.params.metricKey,
+            view: nextState.params.view
+          }
+        });
+      }
+    }
   }
 ];
 
