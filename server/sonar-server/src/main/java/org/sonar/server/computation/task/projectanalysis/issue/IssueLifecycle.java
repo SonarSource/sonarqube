@@ -64,10 +64,6 @@ public class IssueLifecycle {
     issue.setStatus(Issue.STATUS_OPEN);
     issue.setEffort(debtCalculator.calculate(issue));
   }
-  
-  public void updateExistingOpenissue(DefaultIssue base) {
-    // nothing to do
-  }
 
   public void mergeExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {
     raw.setNew(false);
