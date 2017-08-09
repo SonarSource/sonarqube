@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package com.sonarsource.branch;
+package org.sonar.scanner.scan;
 
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.scan.BranchConfiguration;
+import java.util.List;
+import javax.annotation.Nullable;
 
-public interface BranchConfigurationLoader {
-  BranchConfiguration load(String projectKey, GlobalConfiguration settings);
+public class DefaultBranchConfigurationValidator implements BranchConfigurationValidator {
+  @Override
+  public void validate(List<String> validationMessages, @Nullable String deprecatedBranchName) {
+    // no-op
+  }
 }
