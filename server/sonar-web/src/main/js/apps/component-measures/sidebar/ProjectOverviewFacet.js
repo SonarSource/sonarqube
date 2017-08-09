@@ -31,31 +31,26 @@ type Props = {|
   value: string
 |};
 
-export default class ProjectOverviewFacet extends React.PureComponent {
-  props: Props;
-
-  render() {
-    const { value, selected } = this.props;
-    const facetName = translate('component_measures.overview', value, 'facet');
-    return (
-      <FacetBox>
-        <FacetItemsList>
-          <FacetItem
-            active={value === selected}
-            disabled={false}
-            key={value}
-            name={
-              <Tooltip overlay={facetName} mouseEnterDelay={0.5}>
-                <strong id={`measure-overview-${value}-name`}>
-                  {facetName}
-                </strong>
-              </Tooltip>
-            }
-            onClick={this.props.onChange}
-            value={value}
-          />
-        </FacetItemsList>
-      </FacetBox>
-    );
-  }
+export default function ProjectOverviewFacet({ value, selected, onChange }: Props) {
+  const facetName = translate('component_measures.overview', value, 'facet');
+  return (
+    <FacetBox>
+      <FacetItemsList>
+        <FacetItem
+          active={value === selected}
+          disabled={false}
+          key={value}
+          name={
+            <Tooltip overlay={facetName} mouseEnterDelay={0.5}>
+              <strong id={`measure-overview-${value}-name`}>
+                {facetName}
+              </strong>
+            </Tooltip>
+          }
+          onClick={onChange}
+          value={value}
+        />
+      </FacetItemsList>
+    </FacetBox>
+  );
 }
