@@ -25,6 +25,7 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.computation.util.InitializedProperty;
 import org.sonar.server.qualityprofile.QualityProfile;
@@ -199,5 +200,11 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   public AnalysisMetadataHolderRule setIncrementalAnalysis(boolean isIncrementalAnalysis) {
     this.incremental.setProperty(isIncrementalAnalysis);
     return this;
+  }
+
+  @Override
+  public boolean isShortLivingBranch() {
+    Branch property = this.branch.getProperty();
+    return property != null && property.getType() == BranchType.SHORT;
   }
 }
