@@ -76,8 +76,8 @@ import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -205,12 +205,15 @@ public class IssueIndex {
     QueryBuilder moduleFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids());
     QueryBuilder directoryFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
     QueryBuilder fileFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
+    QueryBuilder branchFilter = createTermFilter(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, query.branchUuid());
+    filters.put("__is_main_branch", createTermFilter(IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(query.branchUuid() == null)));
 
     if (BooleanUtils.isTrue(query.onComponentOnly())) {
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentFilter);
     } else {
       filters.put("__view", viewFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectFilter);
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, branchFilter);
       filters.put("__module", moduleRootFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);

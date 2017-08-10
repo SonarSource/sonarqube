@@ -89,6 +89,18 @@
       </foreach>
   </select>
 
+  <select id="selectByDbKeys" parameterType="String" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects p
+    where
+    p.enabled=${_true}
+    and p.kee in
+    <foreach collection="keys" open="(" close=")" item="key" separator=",">
+      #{key,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
   <select id="selectByIds" parameterType="long" resultType="Component">
     select
     <include refid="componentColumns"/>
