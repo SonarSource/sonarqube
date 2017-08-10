@@ -21,7 +21,7 @@
 import React from 'react';
 import { AutoSizer } from 'react-virtualized';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
-import QualifierIcon from '../../../components/shared/QualifierIcon';
+import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import TreeMap from '../../../components/charts/TreeMap';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
 import ColorGradientLegend from '../../../components/charts/ColorGradientLegend';
@@ -80,10 +80,10 @@ export default class TreeMapView extends React.PureComponent {
           return null;
         }
         return {
-          key: component.key,
+          key: component.refKey || component.key,
           size: sizeValue,
           color: colorValue != null ? colorScale(colorValue) : '#777',
-          icon: <QualifierIcon qualifier={component.qualifier} />,
+          icon: <QualifierIcon color="#444" qualifier={component.qualifier} />,
           tooltip: this.getTooltip(
             component.name,
             colorMeasure.metric,

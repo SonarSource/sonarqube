@@ -51,6 +51,10 @@
     flex-shrink: 0;
   }
 
+  .treemap-icon svg {
+    margin-top: 2px;
+  }
+
   .treemap-text {
     flex-shrink: 1;
     overflow: hidden;
@@ -66,13 +70,12 @@
   top: 5px;
   right: 5px;
   line-height: @iconSmallFontSize;
-  opacity: 0.5;
-  font-size: 12;
+  font-size: 12px;
 
   .link-no-underline;
 
   &:hover {
-    opacity: 1;
+    color: #d1eafb;
   }
 }
 
@@ -254,7 +257,6 @@
 
   .color-box-legend-rect {
     display: inline-block;
-    vertical-align: top;
     margin-top: 1px;
     margin-right: 4px;
     border: 1px solid;

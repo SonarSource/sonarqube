@@ -84,6 +84,7 @@ export default class TreeMap extends React.PureComponent {
 
     const nodes = treemap(hierarchy).leaves();
     const prefix = this.mostCommitPrefix(items.map(item => item.label));
+    const halfWidth = width / 2;
     return (
       <div className="sonar-d3">
         <div className="treemap-container" style={{ width, height }}>
@@ -102,6 +103,7 @@ export default class TreeMap extends React.PureComponent {
               tooltip={node.data.tooltip}
               link={node.data.link}
               onClick={this.props.onRectangleClick}
+              placement={node.x0 === 0 || node.x1 < halfWidth ? 'right' : 'left'}
             />
           )}
         </div>
