@@ -66,10 +66,15 @@ public class ProjectQualityGatePageTest {
     QualityGate customQualityGate = createCustomQualityGate("should_display_default");
     qualityGateClient().setDefault(customQualityGate.id());
 
-    ProjectQualityGatePage page = openPage();
-    SelenideElement selectedQualityGate = page.getSelectedQualityGate();
-    selectedQualityGate.should(Condition.hasText("Default"));
-    selectedQualityGate.should(Condition.hasText(customQualityGate.name()));
+    try {
+      ProjectQualityGatePage page = openPage();
+      SelenideElement selectedQualityGate = page.getSelectedQualityGate();
+      selectedQualityGate.should(Condition.hasText("Default"));
+      selectedQualityGate.should(Condition.hasText(customQualityGate.name()));
+    } finally {
+      qualityGateClient().unsetDefault();
+      qualityGateClient().destroy(customQualityGate.id());
+    }
   }
 
   @Test
@@ -107,12 +112,17 @@ public class ProjectQualityGatePageTest {
     QualityGate customQualityGate = createCustomQualityGate("should_set_default");
     qualityGateClient().setDefault(customQualityGate.id());
 
-    ProjectQualityGatePage page = openPage();
-    page.setQualityGate(customQualityGate.name());
+    try {
+      ProjectQualityGatePage page = openPage();
+      page.setQualityGate(customQualityGate.name());
 
-    SelenideElement selectedQualityGate = page.getSelectedQualityGate();
-    selectedQualityGate.should(Condition.hasText("Default"));
-    selectedQualityGate.should(Condition.hasText(customQualityGate.name()));
+      SelenideElement selectedQualityGate = page.getSelectedQualityGate();
+      selectedQualityGate.should(Condition.hasText("Default"));
+      selectedQualityGate.should(Condition.hasText(customQualityGate.name()));
+    } finally {
+      qualityGateClient().unsetDefault();
+      qualityGateClient().destroy(customQualityGate.id());
+    }
   }
 
   @Test
