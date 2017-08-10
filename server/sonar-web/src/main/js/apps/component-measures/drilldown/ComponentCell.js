@@ -22,10 +22,10 @@ import React from 'react';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { splitPath } from '../../../helpers/path';
 import { getComponentUrl } from '../../../helpers/urls';
-import type { Component } from '../types';
+import type { ComponentEnhanced } from '../types';
 
 type Props = {
-  component: Component,
+  component: ComponentEnhanced,
   onClick: string => void
 };
 

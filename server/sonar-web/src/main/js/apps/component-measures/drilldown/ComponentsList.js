@@ -23,11 +23,11 @@ import ComponentsListRow from './ComponentsListRow';
 import EmptyResult from './EmptyResult';
 import { complementary } from '../config/complementary';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
-import type { Component } from '../types';
+import type { ComponentEnhanced } from '../types';
 import type { Metric } from '../../../store/metrics/actions';
 
 type Props = {|
-  components: Array<Component>,
+  components: Array<ComponentEnhanced>,
   onClick: string => void,
   metric: Metric,
   metrics: { [string]: Metric },
