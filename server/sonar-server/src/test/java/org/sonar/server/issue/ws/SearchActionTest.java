@@ -70,6 +70,7 @@ import org.sonar.server.ws.WsResponseCommonFormat;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
@@ -128,13 +129,20 @@ public class SearchActionTest {
     assertThat(def.responseExampleAsString()).isNotEmpty();
 
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
-      "additionalFields", "asc", "assigned", "assignees", "authors", "componentKeys", "componentRootUuids", "componentRoots", "componentUuids", "components",
+      "additionalFields", "asc", "assigned", "assignees", "authors", "componentKeys", "componentRootUuids", "componentRoots", "componentUuids", "components", "branch",
+      "organization",
       "createdAfter", "createdAt", "createdBefore", "createdInLast", "directories", "facetMode", "facets", "fileUuids", "issues", "languages", "moduleUuids", "onComponentOnly",
-      "organization", "p", "projectUuids", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod",
+      "p", "projectUuids", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod",
       "statuses", "tags", "types");
+
     assertThat(def.param("organization"))
       .matches(WebService.Param::isInternal)
       .matches(p -> p.since().equals("6.4"));
+
+    WebService.Param branch = def.param(PARAM_BRANCH);
+    assertThat(branch.isInternal()).isTrue();
+    assertThat(branch.isRequired()).isFalse();
+    assertThat(branch.since()).isEqualTo("6.6");
   }
 
   @Test

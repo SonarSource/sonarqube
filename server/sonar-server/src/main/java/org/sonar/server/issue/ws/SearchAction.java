@@ -57,6 +57,7 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
@@ -71,6 +72,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASC;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHORS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_ROOTS;
@@ -113,7 +115,7 @@ public class SearchAction implements IssuesWsAction {
   private final SearchResponseFormat searchResponseFormat;
 
   public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory,
-                      SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat) {
+    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
@@ -287,6 +289,12 @@ public class SearchAction implements IssuesWsAction {
         INTERNAL_PARAMETER_DISCLAIMER)
       .setInternal(true)
       .setExampleValue("bdd82933-3070-4903-9188-7d8749e8bb92");
+
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("6.6");
 
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
@@ -465,6 +473,7 @@ public class SearchAction implements IssuesWsAction {
       .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
       .setModuleUuids(request.paramAsStrings(PARAM_MODULE_UUIDS))
       .setOnComponentOnly(request.paramAsBoolean(PARAM_ON_COMPONENT_ONLY))
+      .setBranch(request.param(PARAM_BRANCH))
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
