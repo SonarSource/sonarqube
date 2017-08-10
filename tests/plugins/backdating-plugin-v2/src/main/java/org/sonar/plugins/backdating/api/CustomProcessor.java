@@ -17,7 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.backdating;
+package org.sonar.plugins.backdating.api;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
+
+@ScannerSide
+public interface CustomProcessor {
+
+  void process(String lineContent, SensorContext context, InputFile inputFile, int line);
+
+}

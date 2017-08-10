@@ -7,5 +7,10 @@
       <key>Rule</key>
       <priority>MAJOR</priority>
     </rule>
+    <rule>
+      <repositoryKey>back</repositoryKey>
+      <key>Custom</key>
+      <priority>MAJOR</priority>
+    </rule>
   </rules>
 </profile>
