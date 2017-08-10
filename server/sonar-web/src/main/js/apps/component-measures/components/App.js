@@ -166,6 +166,7 @@ export default class App extends React.PureComponent {
             leakPeriod={leakPeriod}
             metric={metric}
             metrics={metrics}
+            router={this.props.router}
             selected={query.selected}
             updateQuery={this.updateQuery}
             view={query.view}

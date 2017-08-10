@@ -21,7 +21,8 @@
 import React from 'react';
 import MeasureOverview from './MeasureOverview';
 import { getComponentShow } from '../../../api/components';
-import { getComponentUrl } from '../../../helpers/urls';
+import { getProjectUrl } from '../../../helpers/urls';
+import { isViewType } from '../utils';
 import type { Component, Period, Query } from '../types';
 import type { RawQuery } from '../../../helpers/query';
 import type { Metric } from '../../../store/metrics/actions';
@@ -104,8 +105,8 @@ export default class MeasureOverviewContainer extends React.PureComponent {
   };
 
   updateSelected = (component: string) => {
-    if (this.state.component && ['VW', 'SVW', 'APP'].includes(this.state.component.qualifier)) {
-      this.props.router.push(getComponentUrl(component));
+    if (this.state.component && isViewType(this.state.component)) {
+      this.props.router.push(getProjectUrl(component));
     } else {
       this.props.updateQuery({
         selected: component !== this.props.rootComponent.key ? component : null
