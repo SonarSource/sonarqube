@@ -53,6 +53,8 @@ public interface ComponentMapper {
 
   List<ComponentDto> selectByKeys(@Param("keys") Collection<String> keys);
 
+  List<ComponentDto> selectByDbKeys(@Param("keys") Collection<String> keys);
+
   List<ComponentDto> selectByIds(@Param("ids") Collection<Long> ids);
 
   List<ComponentDto> selectByUuids(@Param("uuids") Collection<String> uuids);

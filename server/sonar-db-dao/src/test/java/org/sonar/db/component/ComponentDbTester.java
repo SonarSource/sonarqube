@@ -200,7 +200,7 @@ public class ComponentDbTester {
   public final ComponentDto insertProjectBranch(ComponentDto project, Consumer<BranchDto>... dtoPopulators) {
     String uuid = Uuids.createFast();
     BranchDto branchDto = new BranchDto()
-      .setKey(randomAlphanumeric(255))
+      .setKey("branch_" + randomAlphanumeric(248))
       .setUuid(uuid)
       .setProjectUuid(project.uuid())
       .setKeeType(BRANCH)

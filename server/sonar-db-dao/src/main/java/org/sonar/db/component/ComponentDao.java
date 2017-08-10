@@ -35,6 +35,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
@@ -47,6 +48,7 @@ import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
+import static org.sonar.db.component.ComponentDto.generateBranchKey;
 
 public class ComponentDao implements Dao {
 
@@ -170,6 +172,11 @@ public class ComponentDao implements Dao {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
+  public List<ComponentDto> selectByKeysAndBranch(DbSession session, Collection<String> keys, String branch) {
+    List<String> dbKeys = keys.stream().map(k -> generateBranchKey(k, branch)).collect(MoreCollectors.toList());
+    return executeLargeInputs(dbKeys, mapper(session)::selectByDbKeys);
+  }
+
   public List<ComponentDto> selectComponentsHavingSameKeyOrderedById(DbSession session, String key) {
     return mapper(session).selectComponentsHavingSameKeyOrderedById(key);
   }
@@ -216,7 +223,7 @@ public class ComponentDao implements Dao {
   }
 
   public java.util.Optional<ComponentDto> selectByKeyAndBranch(DbSession session, String key, String branch) {
-    return java.util.Optional.ofNullable(mapper(session).selectByDbKey(ComponentDto.generateBranchKey(key, branch)));
+    return java.util.Optional.ofNullable(mapper(session).selectByDbKey(generateBranchKey(key, branch)));
   }
 
   public List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(DbSession session) {
