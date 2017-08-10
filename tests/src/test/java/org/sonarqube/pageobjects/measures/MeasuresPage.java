@@ -79,7 +79,7 @@ public class MeasuresPage {
     SelenideElement sidebar = this.getSideBar();
     SelenideElement facetItem = sidebar.$("#measure-" + measure + "-name").should(exist);
     facetItem.click();
-    MeasureContent content = new MeasureContent($("#component-measures .layout-page-main-inner").should(exist));
+    MeasureContent content = new MeasureContent($("#component-measures .measure-details-content").should(exist));
     content.shouldHaveTitle(facetItem.getText());
     return content;
   }
