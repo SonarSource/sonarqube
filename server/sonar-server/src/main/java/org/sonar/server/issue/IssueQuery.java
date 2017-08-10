@@ -81,6 +81,7 @@ public class IssueQuery {
   private final Boolean asc;
   private final String facetMode;
   private final String organizationUuid;
+  private final String branchUuid;
   private final boolean checkAuthorization;
 
   private IssueQuery(Builder builder) {
@@ -113,6 +114,7 @@ public class IssueQuery {
     this.checkAuthorization = builder.checkAuthorization;
     this.facetMode = builder.facetMode;
     this.organizationUuid = builder.organizationUuid;
+    this.branchUuid = builder.branchUuid;
   }
 
   public Collection<String> issueKeys() {
@@ -236,6 +238,11 @@ public class IssueQuery {
     return organizationUuid;
   }
 
+  @CheckForNull
+  public String branchUuid() {
+    return branchUuid;
+  }
+
   public String facetMode() {
     return facetMode;
   }
@@ -279,6 +286,7 @@ public class IssueQuery {
     private boolean checkAuthorization = true;
     private String facetMode;
     private String organizationUuid;
+    private String branchUuid;
 
     private Builder() {
 
@@ -448,6 +456,11 @@ public class IssueQuery {
 
     public Builder organizationUuid(String s) {
       this.organizationUuid = s;
+      return this;
+    }
+
+    public Builder branchUuid(@Nullable String s) {
+      this.branchUuid = s;
       return this;
     }
   }
