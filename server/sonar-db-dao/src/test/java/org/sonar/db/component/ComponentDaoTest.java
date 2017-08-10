@@ -259,6 +259,24 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void selectByKeysAndBranch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(branch));
+    ComponentDto anotherBranch = db.components().insertProjectBranch(project, b -> b.setKey("another_branch"));
+    ComponentDto fileOnAnotherBranch = db.components().insertComponent(newFileDto(anotherBranch));
+
+    assertThat(underTest.selectByKeysAndBranch(dbSession, asList(branch.getKey(), file1.getKey(), file2.getKey()), "my_branch")).extracting(ComponentDto::uuid)
+      .containsExactlyInAnyOrder(branch.uuid(), file1.uuid(), file2.uuid());
+    assertThat(underTest.selectByKeysAndBranch(dbSession, asList(file1.getKey(), file2.getKey(), fileOnAnotherBranch.getKey()), "my_branch")).extracting(ComponentDto::uuid)
+      .containsExactlyInAnyOrder(file1.uuid(), file2.uuid());
+    assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList(fileOnAnotherBranch.getKey()), "my_branch")).isEmpty();
+    assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList(file1.getKey()), "unknown")).isEmpty();
+    assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList("unknown"), "my_branch")).isEmpty();
+  }
+
+  @Test
   public void get_by_ids() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
