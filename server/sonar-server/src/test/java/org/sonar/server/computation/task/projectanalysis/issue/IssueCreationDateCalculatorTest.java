@@ -27,6 +27,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.protobuf.DbCommons.TextRange;
+import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.protobuf.DbIssues.Flow;
+import org.sonar.db.protobuf.DbIssues.Location;
+import org.sonar.db.protobuf.DbIssues.Locations.Builder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.ScannerPlugin;
@@ -60,6 +65,7 @@ public class IssueCreationDateCalculatorTest {
   private IssueCreationDateCalculator calculator;
   private Analysis baseAnalysis;
   private Map<String, ScannerPlugin> scannerPlugins;
+  private ScmInfo scmInfo;
 
   @Before
   public void before() {
@@ -218,6 +224,52 @@ public class IssueCreationDateCalculatorTest {
     assertChangeOfCreationDateTo(1200L);
   }
 
+  @Test
+  public void should_use_primary_location_when_backdating() {
+    currentAnalysisIs(3000L);
+
+    newIssue();
+    when(issue.getLocations()).thenReturn(DbIssues.Locations.newBuilder().setTextRange(range(2, 3)).build());
+    withScmAt(2, 1200L);
+    withScmAt(3, 1300L);
+
+    run();
+
+    assertChangeOfCreationDateTo(1300L);
+  }
+
+  @Test
+  public void should_use_flows_location_when_backdating() {
+    currentAnalysisIs(3000L);
+
+    newIssue();
+    Builder builder = DbIssues.Locations.newBuilder()
+      .setTextRange(range(2, 3));
+    Flow.Builder secondary = Flow.newBuilder().addLocation(Location.newBuilder().setTextRange(range(4, 5)));
+    builder.addFlow(secondary).build();
+    Flow.Builder flow = Flow.newBuilder()
+      .addLocation(Location.newBuilder().setTextRange(range(6, 7)))
+      .addLocation(Location.newBuilder().setTextRange(range(8, 9)));
+    builder.addFlow(flow).build();
+    when(issue.getLocations()).thenReturn(builder.build());
+    withScmAt(2, 1200L);
+    withScmAt(3, 1300L);
+    withScmAt(4, 1400L);
+    withScmAt(5, 1500L);
+    withScmAt(6, 1600L);
+    withScmAt(7, 1700L);
+    withScmAt(8, 1800L);
+    withScmAt(9, 1900L);
+
+    run();
+
+    assertChangeOfCreationDateTo(1900L);
+  }
+
+  private org.sonar.db.protobuf.DbCommons.TextRange.Builder range(int startLine, int endLine) {
+    return TextRange.newBuilder().setStartLine(startLine).setEndLine(endLine);
+  }
+
   private void previousAnalysisWas(long analysisDate) {
     when(analysisMetadataHolder.getBaseAnalysis())
       .thenReturn(baseAnalysis);
@@ -253,11 +305,23 @@ public class IssueCreationDateCalculatorTest {
   }
 
   private void withScm(long blame) {
-    ScmInfo scmInfo = mock(ScmInfo.class);
+    createMockScmInfo();
     Changeset changeset = Changeset.newChangesetBuilder().setDate(blame).setRevision("1").build();
-    when(scmInfoRepository.getScmInfo(component))
-      .thenReturn(Optional.of(scmInfo));
     when(scmInfo.getLatestChangeset()).thenReturn(changeset);
+  }
+
+  private void createMockScmInfo() {
+    if (scmInfo == null) {
+      scmInfo = mock(ScmInfo.class);
+      when(scmInfoRepository.getScmInfo(component))
+        .thenReturn(Optional.of(scmInfo));
+    }
+  }
+
+  private void withScmAt(int line, long blame) {
+    createMockScmInfo();
+    Changeset changeset = Changeset.newChangesetBuilder().setDate(blame).setRevision("1").build();
+    when(scmInfo.getChangesetForLine(line)).thenReturn(changeset);
   }
 
   private void ruleCreatedAt(long createdAt) {

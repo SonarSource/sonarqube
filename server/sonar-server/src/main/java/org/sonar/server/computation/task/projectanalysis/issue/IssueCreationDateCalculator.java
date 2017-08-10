@@ -20,14 +20,22 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.protobuf.DbCommons.TextRange;
+import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.protobuf.DbIssues.Flow;
+import org.sonar.db.protobuf.DbIssues.Location;
 import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.ScannerPlugin;
@@ -122,11 +130,21 @@ public class IssueCreationDateCalculator extends IssueVisitor {
   }
 
   private static Optional<Changeset> getChangeset(ScmInfo scmInfo, DefaultIssue issue) {
-    Integer line = issue.getLine();
-    if (line != null) {
-      Changeset changesetForLine = scmInfo.getChangesetForLine(line);
-      if (changesetForLine != null) {
-        return Optional.of(changesetForLine);
+    Set<Integer> involvedLines = new HashSet<>();
+    DbIssues.Locations locations = issue.getLocations();
+    if (locations != null) {
+      if (locations.hasTextRange()) {
+        addLines(involvedLines, locations.getTextRange());
+      }
+      for (Flow f : locations.getFlowList()) {
+        for (Location l : f.getLocationList()) {
+          addLines(involvedLines, l.getTextRange());
+        }
+      }
+      if (!involvedLines.isEmpty()) {
+        return involvedLines.stream()
+          .map(scmInfo::getChangesetForLine)
+          .max(Comparator.comparingLong(Changeset::getDate));
       }
     }
 
@@ -136,6 +154,10 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     }
 
     return Optional.empty();
+  }
+
+  private static void addLines(Set<Integer> involvedLines, TextRange range) {
+    IntStream.rangeClosed(range.getStartLine(), range.getEndLine()).forEach(involvedLines::add);
   }
 
   private static Date getChangeDate(Changeset changesetForLine) {
