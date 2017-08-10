@@ -462,7 +462,7 @@ public class IssueIndexerTest {
     assertThat(doc.getId()).isEqualTo(issue.getKey());
     assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
     assertThat(doc.componentUuid()).isEqualTo(file.uuid());
-    assertThat(doc.projectUuid()).isEqualTo(project.uuid());
+    assertThat(doc.projectUuid()).isEqualTo(branch.getMainBranchProjectUuid());
     assertThat(doc.branchUuid()).isEqualTo(branch.uuid());
     assertThat(doc.isMainBranch()).isFalse();
   }
