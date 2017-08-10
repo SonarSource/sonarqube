@@ -43,17 +43,11 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const banQualityGate = (component: Component): Array<Measure> => {
-  let newMeasures = [...component.measures];
-  if (!['VW', 'SVW', 'APP'].includes(component.qualifier)) {
-    newMeasures = newMeasures.filter(measure => measure.metric !== 'alert_status');
-  }
+  const bannedMetrics = ['alert_status'];
   if (component.qualifier === 'APP') {
-    newMeasures = newMeasures.filter(
-      measure =>
-        measure.metric !== 'releasability_rating' && measure.metric !== 'releasability_effort'
-    );
+    bannedMetrics.push('releasability_rating', 'releasability_effort');
   }
-  return newMeasures;
+  return component.measures.filter(measure => !bannedMetrics.includes(measure.metric));
 };
 
 const fetchMeasures = (component: string, metricsKey: Array<string>) => (
