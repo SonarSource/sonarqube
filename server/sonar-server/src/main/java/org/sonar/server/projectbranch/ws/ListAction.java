@@ -19,7 +19,6 @@
  */
 package org.sonar.server.projectbranch.ws;
 
-import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import org.sonar.api.resources.Qualifiers;
