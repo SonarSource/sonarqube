@@ -36,7 +36,7 @@ const routes = [
     }
   },
   {
-    path: 'metric/:metricKey/:view',
+    path: 'metric/:metricKey(/:view)',
     onEnter(nextState, replace) {
       if (nextState.params.view === 'history') {
         replace({
