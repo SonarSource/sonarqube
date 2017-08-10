@@ -24,6 +24,7 @@
     <category>*</category>
     <skipIts>false</skipIts>
     <jetty.version>9.3.11.v20160721</jetty.version>
+    <byteman.version>3.0.10</byteman.version>
   </properties>
 
   <dependencies>
@@ -126,6 +127,11 @@
       <version>2.7</version>
       <type>zip</type>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.byteman</groupId>
+      <artifactId>byteman-submit</artifactId>
+      <version>${byteman.version}</version>
+    </dependency>
 
     <!-- JDBC drivers -->
     <dependency>
@@ -172,7 +178,7 @@
                 <artifactItem>
                   <groupId>org.jboss.byteman</groupId>
                   <artifactId>byteman</artifactId>
-                  <version>3.0.10</version>
+                  <version>${byteman.version}</version>
                   <overWrite>false</overWrite>
                   <destFileName>byteman.jar</destFileName>
                 </artifactItem>
@@ -184,7 +190,6 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
 

@@ -21,6 +21,8 @@ package org.sonarqube.tests.rule;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,16 +37,32 @@ import util.ItUtils;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.tests.Byteman.Process.WEB;
 
 public class RuleEsResilienceTest {
 
   @ClassRule
   public static final Orchestrator orchestrator;
+  private static final Byteman byteman;
 
   static {
-    orchestrator = Byteman.enableScript(Orchestrator.builderEnv(), "resilience/rule_indexer.btm")
+    byteman = new Byteman(Orchestrator.builderEnv(), WEB);
+    orchestrator = byteman
+      .getOrchestratorBuilder()
+      .setServerProperty("sonar.search.recovery.delayInMs", "1000")
+      .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
       .addPlugin(ItUtils.xooPlugin())
       .build();
+  }
+
+  @Before
+  public void before() throws Exception {
+    byteman.activateScript("resilience/rule_indexer.btm");
+  }
+
+  @After
+  public void after() throws Exception {
+    byteman.deactivateAllRules();
   }
 
   @Rule
