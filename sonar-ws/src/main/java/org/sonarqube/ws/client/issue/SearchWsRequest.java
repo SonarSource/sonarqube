@@ -47,6 +47,7 @@ public class SearchWsRequest {
   private List<String> languages;
   private List<String> moduleUuids;
   private Boolean onComponentOnly;
+  private String branch;
   private String organization;
   private Integer page;
   private Integer pageSize;
@@ -440,6 +441,16 @@ public class SearchWsRequest {
 
   public SearchWsRequest setProjects(@Nullable List<String> projects) {
     this.projects = projects;
+    return this;
+  }
+
+  @CheckForNull
+  public String getBranch() {
+    return branch;
+  }
+
+  public SearchWsRequest setBranch(@Nullable String branch) {
+    this.branch = branch;
     return this;
   }
 }
