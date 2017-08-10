@@ -38,7 +38,8 @@ type Props = {|
   tooltip?: string | React.Element<*>,
   itemKey: string,
   link?: string,
-  onClick?: string => void
+  onClick?: string => void,
+  placement?: string
 |};
 
 export default class TreeMapRect extends React.PureComponent {
@@ -106,10 +107,10 @@ export default class TreeMapRect extends React.PureComponent {
   };
 
   render() {
-    const { tooltip, x } = this.props;
+    const { placement, tooltip } = this.props;
     if (tooltip != null) {
       return (
-        <Tooltip overlay={tooltip} placement={x > 0 ? 'left' : 'right'}>
+        <Tooltip overlay={tooltip} placement={placement || 'left'} mouseLeaveDelay={0}>
           {this.renderCell()}
         </Tooltip>
       );

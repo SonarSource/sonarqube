@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import QualifierIcon from '../../../components/shared/QualifierIcon';
+import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { splitPath } from '../../../helpers/path';
 import { getComponentUrl } from '../../../helpers/urls';
 import type { Component } from '../types';

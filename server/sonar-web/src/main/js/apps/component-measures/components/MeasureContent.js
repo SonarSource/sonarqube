@@ -279,7 +279,7 @@ export default class MeasureContent extends React.PureComponent {
                 view={view}
               />}
             <PageActions
-              current={selectedIdx && selectedIdx + 1}
+              current={selectedIdx != null && view !== 'treemap' ? selectedIdx + 1 : null}
               loading={this.props.loading}
               isFile={isFile}
               paging={this.state.paging}
