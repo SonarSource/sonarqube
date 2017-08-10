@@ -48,6 +48,8 @@ public class IssueQueryTest {
       .languages(newArrayList("xoo"))
       .tags(newArrayList("tag1", "tag2"))
       .types(newArrayList("RELIABILITY", "SECURITY"))
+      .organizationUuid("orga")
+      .branchUuid("my_branch")
       .createdAfterByProjectUuids(ImmutableMap.of("PROJECT", new Date(10_000_000_000L)))
       .assigned(true)
       .createdAfter(new Date())
@@ -68,6 +70,8 @@ public class IssueQueryTest {
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
     assertThat(query.types()).containsOnly("RELIABILITY", "SECURITY");
+    assertThat(query.organizationUuid()).isEqualTo("orga");
+    assertThat(query.branchUuid()).isEqualTo("my_branch");
     assertThat(query.createdAfterByProjectUuids()).containsOnly(entry("PROJECT", new Date(10_000_000_000L)));
     assertThat(query.assigned()).isTrue();
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
@@ -151,6 +155,9 @@ public class IssueQueryTest {
     assertThat(query.severities()).isEmpty();
     assertThat(query.languages()).isEmpty();
     assertThat(query.tags()).isEmpty();
+    assertThat(query.types()).isEmpty();
+    assertThat(query.organizationUuid()).isNull();
+    assertThat(query.branchUuid()).isNull();
     assertThat(query.assigned()).isNull();
     assertThat(query.createdAfter()).isNull();
     assertThat(query.createdBefore()).isNull();
