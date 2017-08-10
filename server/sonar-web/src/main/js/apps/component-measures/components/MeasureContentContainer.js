@@ -23,6 +23,7 @@ import MeasureContent from './MeasureContent';
 import type { Component, Period, Query } from '../types';
 import type { MeasureEnhanced } from '../../../components/measure/types';
 import type { Metric } from '../../../store/metrics/actions';
+import type { RawQuery } from '../../../helpers/query';
 
 type Props = {|
   className?: string,
@@ -35,6 +36,9 @@ type Props = {|
   leakPeriod?: Period,
   metric: Metric,
   metrics: { [string]: Metric },
+  router: {
+    push: ({ pathname: string, query?: RawQuery }) => void
+  },
   selected: ?string,
   updateQuery: Query => void,
   view: string
@@ -137,6 +141,7 @@ export default class MeasureContentContainer extends React.PureComponent {
         metric={this.props.metric}
         metrics={this.props.metrics}
         rootComponent={this.props.rootComponent}
+        router={this.props.router}
         secondaryMeasure={this.state.secondaryMeasure}
         updateLoading={this.updateLoading}
         updateSelected={this.updateSelected}

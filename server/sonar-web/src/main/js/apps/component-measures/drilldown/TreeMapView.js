@@ -92,7 +92,7 @@ export default class TreeMapView extends React.PureComponent {
             sizeValue
           ),
           label: component.name,
-          link: getComponentUrl(component.key)
+          link: getComponentUrl(component.refKey || component.key)
         };
       })
       .filter(Boolean);

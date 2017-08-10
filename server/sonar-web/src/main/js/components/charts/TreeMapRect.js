@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { Link } from 'react-router';
 import classNames from 'classnames';
 import { scaleLinear } from 'd3-scale';
 import LinkIcon from '../icons-components/LinkIcon';
@@ -61,9 +62,9 @@ export default class TreeMapRect extends React.PureComponent {
 
     if (width >= 24 && height >= 24 && (width >= 48 || height >= 50)) {
       return (
-        <a className="treemap-link" href={link} onClick={this.handleLinkClick}>
+        <Link className="treemap-link" to={link} onClick={this.handleLinkClick}>
           <LinkIcon />
-        </a>
+        </Link>
       );
     }
   };
