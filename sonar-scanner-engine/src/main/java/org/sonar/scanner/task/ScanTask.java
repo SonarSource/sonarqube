@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.task;
 
-import org.sonar.scanner.scan.BranchConfigurationProvider;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
