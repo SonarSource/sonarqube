@@ -31,6 +31,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 
 public class SearchActionTest {
 
@@ -57,13 +58,20 @@ public class SearchActionTest {
     assertThat(def.responseExampleAsString()).isNotEmpty();
 
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
-      "additionalFields", "asc", "assigned", "assignees", "authors", "componentKeys", "componentRootUuids", "componentRoots", "componentUuids", "components",
+      "additionalFields", "asc", "assigned", "assignees", "authors", "componentKeys", "componentRootUuids", "componentRoots", "componentUuids", "components", "branch",
+      "organization",
       "createdAfter", "createdAt", "createdBefore", "createdInLast", "directories", "facetMode", "facets", "fileUuids", "issues", "languages", "moduleUuids", "onComponentOnly",
-      "organization", "p", "projectUuids", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod",
+      "p", "projectUuids", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod",
       "statuses", "tags", "types");
+
     assertThat(def.param("organization"))
       .matches(Param::isInternal)
       .matches(p -> p.since().equals("6.4"));
+
+    WebService.Param branch = def.param(PARAM_BRANCH);
+    assertThat(branch.isInternal()).isTrue();
+    assertThat(branch.isRequired()).isFalse();
+    assertThat(branch.since()).isEqualTo("6.6");
   }
 
 }
