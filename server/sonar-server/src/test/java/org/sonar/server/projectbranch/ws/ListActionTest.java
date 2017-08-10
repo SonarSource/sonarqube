@@ -29,6 +29,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -84,8 +85,8 @@ public class ListActionTest {
 
   @Test
   public void fail_if_project_does_not_exist() {
-    expectedException.expect(RowNotFoundException.class);
-    expectedException.expectMessage("Component key 'foo' not found");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Project key 'foo' not found");
 
     tester.newRequest()
       .setParam("project", "foo")
