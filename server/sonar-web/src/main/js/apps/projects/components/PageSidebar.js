@@ -60,7 +60,7 @@ export default function PageSidebar(
   const pathname = basePathName + (isFavorite ? '/favorite' : '');
   const facetProps = { query, isFavorite, organization };
 
-  let linkQuery = null;
+  let linkQuery;
   if (view !== 'overall') {
     linkQuery = { view };
 
