@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import classNames from 'classnames';
 import moment from 'moment';
 import Breadcrumbs from './Breadcrumbs';
 import FilesView from '../drilldown/FilesView';
@@ -63,6 +64,7 @@ type State = {
 };
 
 export default class MeasureContent extends React.PureComponent {
+  container: HTMLElement;
   mounted: boolean;
   props: Props;
   state: State = {
@@ -185,6 +187,9 @@ export default class MeasureContent extends React.PureComponent {
   onOpenComponent = (component: string) => {
     this.setState({ selected: this.props.component.key });
     this.props.updateSelected(component);
+    if (this.container) {
+      this.container.focus();
+    }
   };
 
   onSelectComponent = (component: string) => this.setState({ selected: component });
@@ -255,7 +260,10 @@ export default class MeasureContent extends React.PureComponent {
     const isFile = isFileType(component);
     const selectedIdx = this.getSelectedIndex();
     return (
-      <div className={this.props.className}>
+      <div
+        className={classNames('no-outline', this.props.className)}
+        ref={container => (this.container = container)}
+        tabIndex={0}>
         <div className="layout-page-header-panel layout-page-main-header issues-main-header">
           <div className="layout-page-header-panel-inner layout-page-main-header-inner">
             <Breadcrumbs
