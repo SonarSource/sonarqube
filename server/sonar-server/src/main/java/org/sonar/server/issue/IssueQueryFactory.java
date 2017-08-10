@@ -25,6 +25,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -46,7 +47,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -64,8 +64,10 @@ import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
+import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
@@ -84,6 +86,9 @@ public class IssueQueryFactory {
   public static final String LOGIN_MYSELF = "__me__";
 
   private static final String UNKNOWN = "<UNKNOWN>";
+
+  private static final ComponentDto UNKNOWN_COMPONENT = new ComponentDto().setUuid(UNKNOWN).setProjectUuid(UNKNOWN);
+
   private final DbClient dbClient;
   private final System2 system;
   private final UserSession userSession;
@@ -113,30 +118,17 @@ public class IssueQueryFactory {
         .facetMode(request.getFacetMode())
         .organizationUuid(convertOrganizationKeyToUuid(dbSession, request.getOrganization()));
 
-      Set<String> allComponentUuids = new HashSet<>();
-      boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession,
-        request.getOnComponentOnly(),
-        request.getComponents(),
-        request.getComponentUuids(),
-        request.getComponentKeys(),
-        request.getComponentRootUuids(),
-        request.getComponentRoots(),
-        allComponentUuids);
+      List<ComponentDto> allComponents = new ArrayList<>();
+      boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession, request, allComponents);
+      addComponentParameters(builder, dbSession, effectiveOnComponentOnly, allComponents, request);
 
-      addComponentParameters(builder, dbSession,
-        effectiveOnComponentOnly,
-        allComponentUuids,
-        request);
-
-      builder.createdAfter(buildCreatedAfterFromRequest(dbSession, request, allComponentUuids));
-
+      builder.createdAfter(buildCreatedAfterFromRequest(dbSession, request, allComponents));
       String sort = request.getSort();
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);
         builder.asc(request.getAsc());
       }
       return builder.build();
-
     }
   }
 
@@ -161,7 +153,7 @@ public class IssueQueryFactory {
     return organization.map(OrganizationDto::getUuid).orElse(UNKNOWN);
   }
 
-  private Date buildCreatedAfterFromRequest(DbSession dbSession, SearchWsRequest request, Set<String> componentUuids) {
+  private Date buildCreatedAfterFromRequest(DbSession dbSession, SearchWsRequest request, List<ComponentDto> componentUuids) {
     Date createdAfter = parseStartingDateOrDateTime(request.getCreatedAfter());
     String createdInLast = request.getCreatedInLast();
 
@@ -170,16 +162,14 @@ public class IssueQueryFactory {
     }
 
     checkRequest(createdAfter == null, "Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_SINCE_LEAK_PERIOD);
-
     checkArgument(componentUuids.size() == 1, "One and only one component must be provided when searching since leak period");
-    String uuid = componentUuids.iterator().next();
-    Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(dbSession, uuid);
+    ComponentDto component = componentUuids.iterator().next();
+    Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(dbSession, component);
     return buildCreatedAfterFromDates(createdAfterFromSnapshot, createdInLast);
   }
 
   @CheckForNull
-  private Date findCreatedAfterFromComponentUuid(DbSession dbSession, String uuid) {
-    ComponentDto component = checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, uuid), "Component with id '%s' not found", uuid);
+  private Date findCreatedAfterFromComponentUuid(DbSession dbSession, ComponentDto component) {
     Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.uuid());
     return snapshot.map(s -> longToDate(s.getPeriodDate())).orElse(null);
   }
@@ -200,13 +190,15 @@ public class IssueQueryFactory {
     return assignees;
   }
 
-  private boolean mergeDeprecatedComponentParameters(DbSession session, @Nullable Boolean onComponentOnly,
-    @Nullable Collection<String> components,
-    @Nullable Collection<String> componentUuids,
-    @Nullable Collection<String> componentKeys,
-    @Nullable Collection<String> componentRootUuids,
-    @Nullable Collection<String> componentRoots,
-    Set<String> allComponentUuids) {
+  private boolean mergeDeprecatedComponentParameters(DbSession session, SearchWsRequest request, List<ComponentDto> allComponents) {
+    Boolean onComponentOnly = request.getOnComponentOnly();
+    Collection<String> components = request.getComponents();
+    Collection<String> componentUuids = request.getComponentUuids();
+    Collection<String> componentKeys = request.getComponentKeys();
+    Collection<String> componentRootUuids = request.getComponentRootUuids();
+    Collection<String> componentRoots = request.getComponentRoots();
+    String branch = request.getBranch();
+
     boolean effectiveOnComponentOnly = false;
 
     checkArgument(atMostOneNonNullElement(components, componentUuids, componentKeys, componentRootUuids, componentRoots),
@@ -214,21 +206,22 @@ public class IssueQueryFactory {
       PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS, PARAM_COMPONENTS, PARAM_COMPONENT_ROOTS, PARAM_COMPONENT_UUIDS);
 
     if (componentRootUuids != null) {
-      allComponentUuids.addAll(componentRootUuids);
+      allComponents.addAll(getComponentsFromUuids(session, componentRootUuids));
       effectiveOnComponentOnly = false;
     } else if (componentRoots != null) {
-      allComponentUuids.addAll(convertComponentKeysToUuids(session, componentRoots));
+      allComponents.addAll(getComponentsFromKeys(session, componentRoots, branch));
       effectiveOnComponentOnly = false;
     } else if (components != null) {
-      allComponentUuids.addAll(convertComponentKeysToUuids(session, components));
+      allComponents.addAll(getComponentsFromKeys(session, components, branch));
       effectiveOnComponentOnly = true;
     } else if (componentUuids != null) {
-      allComponentUuids.addAll(componentUuids);
+      allComponents.addAll(getComponentsFromUuids(session, componentUuids));
       effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
     } else if (componentKeys != null) {
-      allComponentUuids.addAll(convertComponentKeysToUuids(session, componentKeys));
+      allComponents.addAll(getComponentsFromKeys(session, componentKeys, branch));
       effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
     }
+
     return effectiveOnComponentOnly;
   }
 
@@ -238,14 +231,14 @@ public class IssueQueryFactory {
       .count() <= 1;
   }
 
-  private void addComponentParameters(IssueQuery.Builder builder, DbSession session,
-    boolean onComponentOnly,
-    Collection<String> componentUuids,
-    SearchWsRequest request) {
+  private void addComponentParameters(IssueQuery.Builder builder, DbSession session, boolean onComponentOnly,
+    List<ComponentDto> components, SearchWsRequest request) {
 
+    String branch = request.getBranch();
     builder.onComponentOnly(onComponentOnly);
     if (onComponentOnly) {
-      builder.componentUuids(componentUuids);
+      builder.componentUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
+      builder.branchUuid(branch == null ? null : components.get(0).projectUuid());
       return;
     }
 
@@ -256,64 +249,63 @@ public class IssueQueryFactory {
     if (projectUuids != null) {
       builder.projectUuids(projectUuids);
     } else if (projectKeys != null) {
-      builder.projectUuids(convertComponentKeysToUuids(session, projectKeys));
+      List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, branch);
+      builder.projectUuids(projects.stream().map(p -> branch == null ? p.projectUuid() : p.getMainBranchProjectUuid()).collect(toList()));
+      builder.branchUuid(branch == null ? null : projects.get(0).projectUuid());
     }
     builder.moduleUuids(request.getModuleUuids());
     builder.directories(request.getDirectories());
     builder.fileUuids(request.getFileUuids());
 
-    if (!componentUuids.isEmpty()) {
-      addComponentsBasedOnQualifier(builder, session, componentUuids, request);
-    }
+    addComponentsBasedOnQualifier(builder, session, components, request);
   }
 
-  private void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession dbSession, Collection<String> componentUuids, SearchWsRequest request) {
-    if (componentUuids.isEmpty()) {
-      builder.componentUuids(componentUuids);
-      return;
-    }
-
-    List<ComponentDto> components = dbClient.componentDao().selectByUuids(dbSession, componentUuids);
+  private void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> components, SearchWsRequest request) {
     if (components.isEmpty()) {
-      builder.componentUuids(componentUuids);
+      return;
+    }
+    if (components.stream().map(ComponentDto::uuid).anyMatch(uuid -> uuid.equals(UNKNOWN))) {
+      builder.componentUuids(singleton(UNKNOWN));
       return;
     }
 
-    Set<String> qualifiers = components.stream().map(ComponentDto::qualifier).collect(MoreCollectors.toHashSet());
+    Set<String> qualifiers = components.stream().map(ComponentDto::qualifier).collect(toHashSet());
     checkArgument(qualifiers.size() == 1, "All components must have the same qualifier, found %s", String.join(",", qualifiers));
 
+    String branch = request.getBranch();
+    builder.branchUuid(branch == null ? null : components.get(0).projectUuid());
     String qualifier = qualifiers.iterator().next();
     switch (qualifier) {
       case Qualifiers.VIEW:
       case Qualifiers.SUBVIEW:
-        addViewsOrSubViews(builder, componentUuids);
+        addViewsOrSubViews(builder, components);
         break;
       case Qualifiers.APP:
         addApplications(builder, dbSession, components, request);
         break;
       case Qualifiers.PROJECT:
-        builder.projectUuids(componentUuids);
+        builder.projectUuids(components.stream().map(c -> branch == null ? c.projectUuid() : c.getMainBranchProjectUuid()).collect(toList()));
         break;
       case Qualifiers.MODULE:
-        builder.moduleRootUuids(componentUuids);
+        builder.moduleRootUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
         break;
       case Qualifiers.DIRECTORY:
         addDirectories(builder, components);
         break;
       case Qualifiers.FILE:
       case Qualifiers.UNIT_TEST_FILE:
-        builder.fileUuids(componentUuids);
+        builder.fileUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
         break;
       default:
-        throw new IllegalArgumentException("Unable to set search root context for components " + Joiner.on(',').join(componentUuids));
+        throw new IllegalArgumentException("Unable to set search root context for components " + Joiner.on(',').join(components));
     }
   }
 
-  private void addViewsOrSubViews(IssueQuery.Builder builder, Collection<String> viewOrSubViewUuids) {
+  private void addViewsOrSubViews(IssueQuery.Builder builder, Collection<ComponentDto> viewOrSubViewUuids) {
     List<String> filteredViewUuids = viewOrSubViewUuids.stream()
-      .filter(uuid -> userSession.hasComponentUuidPermission(UserRole.USER, uuid))
+      .filter(uuid -> userSession.hasComponentPermission(UserRole.USER, uuid))
+      .map(ComponentDto::uuid)
       .collect(Collectors.toList());
-
     if (filteredViewUuids.isEmpty()) {
       filteredViewUuids.add(UNKNOWN);
     }
@@ -324,7 +316,7 @@ public class IssueQueryFactory {
     Set<String> authorizedApplicationUuids = applications.stream()
       .filter(app -> userSession.hasComponentPermission(UserRole.USER, app))
       .map(ComponentDto::uuid)
-      .collect(MoreCollectors.toSet());
+      .collect(toSet());
 
     builder.viewUuids(authorizedApplicationUuids.isEmpty() ? singleton(UNKNOWN) : authorizedApplicationUuids);
     addCreatedAfterByProjects(builder, dbSession, request, authorizedApplicationUuids);
@@ -337,7 +329,7 @@ public class IssueQueryFactory {
 
     Set<String> projectUuids = applicationUuids.stream()
       .flatMap(app -> dbClient.componentDao().selectProjectsFromView(dbSession, app, app).stream())
-      .collect(MoreCollectors.toSet());
+      .collect(toSet());
 
     Map<String, Date> leakByProjects = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
       .stream()
@@ -357,14 +349,22 @@ public class IssueQueryFactory {
     builder.directories(directoryPaths);
   }
 
-  private Collection<String> convertComponentKeysToUuids(DbSession dbSession, Collection<String> componentKeys) {
-    List<String> componentUuids = dbClient.componentDao().selectByKeys(dbSession, componentKeys).stream().map(ComponentDto::uuid).collect(MoreCollectors.toList());
-    // If unknown components are given, but no components are found, then all issues will be returned,
-    // so we add this hack in order to return no issue in this case.
-    if (!componentKeys.isEmpty() && componentUuids.isEmpty()) {
-      return singletonList(UNKNOWN);
+  private List<ComponentDto> getComponentsFromKeys(DbSession dbSession, Collection<String> componentKeys, @Nullable String branch) {
+    List<ComponentDto> componentDtos = branch == null
+      ? dbClient.componentDao().selectByKeys(dbSession, componentKeys)
+      : dbClient.componentDao().selectByKeysAndBranch(dbSession, componentKeys, branch);
+    if (!componentKeys.isEmpty() && componentDtos.isEmpty()) {
+      return singletonList(UNKNOWN_COMPONENT);
     }
-    return componentUuids;
+    return componentDtos;
+  }
+
+  private List<ComponentDto> getComponentsFromUuids(DbSession dbSession, Collection<String> componentUuids) {
+    List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, componentUuids);
+    if (!componentUuids.isEmpty() && componentDtos.isEmpty()) {
+      return singletonList(UNKNOWN_COMPONENT);
+    }
+    return componentDtos;
   }
 
   @VisibleForTesting
