@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import java.util.ArrayList;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,14 +30,12 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +44,11 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.addDays;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
+import static org.sonar.db.component.ComponentTesting.newSubView;
 
 public class IssueQueryFactoryTest {
 
@@ -63,8 +66,8 @@ public class IssueQueryFactoryTest {
   public void create_from_parameters() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     SearchWsRequest request = new SearchWsRequest()
       .setIssues(asList("anIssueKey"))
@@ -134,6 +137,23 @@ public class IssueQueryFactoryTest {
   }
 
   @Test
+  public void query_without_any_parameter() {
+    SearchWsRequest request = new SearchWsRequest();
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.componentUuids()).isEmpty();
+    assertThat(query.projectUuids()).isEmpty();
+    assertThat(query.moduleUuids()).isEmpty();
+    assertThat(query.moduleRootUuids()).isEmpty();
+    assertThat(query.directories()).isEmpty();
+    assertThat(query.fileUuids()).isEmpty();
+    assertThat(query.viewUuids()).isEmpty();
+    assertThat(query.organizationUuid()).isNull();
+    assertThat(query.branchUuid()).isNull();
+  }
+
+  @Test
   public void parse_list_of_rules() {
     assertThat(IssueQueryFactory.toRules(null)).isNull();
     assertThat(IssueQueryFactory.toRules("")).isEmpty();
@@ -181,7 +201,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void fail_if_componentRoots_references_components_with_different_qualifier() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     SearchWsRequest request = new SearchWsRequest()
       .setComponentRoots(asList(project.getDbKey(), file.getDbKey()));
 
@@ -234,18 +254,17 @@ public class IssueQueryFactoryTest {
 
     IssueQuery result = underTest.create(new SearchWsRequest()
       .setComponentUuids(singletonList(application.uuid()))
-      .setSinceLeakPeriod(true)
-    );
+      .setSinceLeakPeriod(true));
 
     assertThat(result.createdAfterByProjectUuids()).containsOnly(
-        entry(project1.uuid(), new Date(analysis1.getPeriodDate())));
+      entry(project1.uuid(), new Date(analysis1.getPeriodDate())));
     assertThat(result.viewUuids()).containsExactlyInAnyOrder(application.uuid());
   }
 
   @Test
   public void return_empty_results_if_not_allowed_to_search_for_subview() {
     ComponentDto view = db.components().insertView();
-    ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubView(view));
+    ComponentDto subView = db.components().insertComponent(newSubView(view));
     SearchWsRequest request = new SearchWsRequest()
       .setComponentRootUuids(asList(subView.uuid()));
 
@@ -282,7 +301,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void should_search_in_tree_with_module_uuid() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
     SearchWsRequest request = new SearchWsRequest()
       .setComponentUuids(asList(module.uuid()));
 
@@ -294,7 +313,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void param_componentUuids_enables_search_in_directory_tree() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
+    ComponentDto dir = db.components().insertComponent(newDirectory(project, "src/main/java/foo"));
     SearchWsRequest request = new SearchWsRequest()
       .setComponentUuids(asList(dir.uuid()));
 
@@ -308,7 +327,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void param_componentUuids_enables_search_by_file() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     SearchWsRequest request = new SearchWsRequest()
       .setComponentUuids(asList(file.uuid()));
 
@@ -320,13 +339,72 @@ public class IssueQueryFactoryTest {
   @Test
   public void param_componentUuids_enables_search_by_test_file() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project).setQualifier(Qualifiers.UNIT_TEST_FILE));
+    ComponentDto file = db.components().insertComponent(newFileDto(project).setQualifier(Qualifiers.UNIT_TEST_FILE));
     SearchWsRequest request = new SearchWsRequest()
       .setComponentUuids(asList(file.uuid()));
 
     IssueQuery query = underTest.create(request);
 
     assertThat(query.fileUuids()).containsExactly(file.uuid());
+  }
+
+  @Test
+  public void search_issue_from_branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    assertThat(underTest.create(new SearchWsRequest()
+      .setProjectKeys(singletonList(branch.getKey()))
+      .setBranch(branch.getBranch())))
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()))
+        .containsOnly(branch.uuid(), singletonList(project.uuid()));
+
+    assertThat(underTest.create(new SearchWsRequest()
+      .setComponentKeys(singletonList(branch.getKey()))
+      .setBranch(branch.getBranch())))
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()))
+        .containsOnly(branch.uuid(), singletonList(project.uuid()));
+  }
+
+  @Test
+  public void search_file_issue_from_branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    assertThat(underTest.create(new SearchWsRequest()
+      .setComponentKeys(singletonList(file.getKey()))
+      .setBranch(branch.getBranch())))
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.fileUuids()))
+        .containsOnly(branch.uuid(), singletonList(file.uuid()));
+
+    assertThat(underTest.create(new SearchWsRequest()
+      .setComponentKeys(singletonList(branch.getKey()))
+      .setFileUuids(singletonList(file.uuid()))
+      .setBranch(branch.getBranch())))
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.fileUuids()))
+        .containsOnly(branch.uuid(), singletonList(file.uuid()));
+
+    assertThat(underTest.create(new SearchWsRequest()
+      .setProjectKeys(singletonList(branch.getKey()))
+      .setFileUuids(singletonList(file.uuid()))
+      .setBranch(branch.getBranch())))
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.fileUuids()))
+        .containsOnly(branch.uuid(), singletonList(file.uuid()));
+  }
+
+  @Test
+  public void search_issue_on_component_only_from_branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    assertThat(underTest.create(new SearchWsRequest()
+      .setComponentKeys(singletonList(file.getKey()))
+      .setBranch(branch.getBranch())
+      .setOnComponentOnly(true)))
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.componentUuids()))
+      .containsOnly(branch.uuid(), singletonList(file.uuid()));
   }
 
   @Test
@@ -372,12 +450,15 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void fail_if_several_components_provided_with_since_leak_period() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("One and only one component must be provided when searching since leak period");
 
     underTest.create(new SearchWsRequest()
       .setSinceLeakPeriod(true)
-      .setComponentUuids(newArrayList("foo", "bar")));
+      .setComponentKeys(asList(project1.getKey(), project2.getKey())));
   }
 
   @Test
