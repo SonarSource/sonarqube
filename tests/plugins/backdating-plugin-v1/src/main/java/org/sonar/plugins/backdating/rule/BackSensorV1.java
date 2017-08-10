@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.backdating.rule;
+package org.sonar.plugins.backdating.rule;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,13 +29,13 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
 
-public class BackSensorV2 implements Sensor {
+public class BackSensorV1 implements Sensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor.createIssuesForRuleRepositories(BackRulesDefinition.BACK_REPOSITORY)
       .onlyOnLanguage("xoo")
-      .name("Back V2");
+      .name("Back V1");
   }
 
   @Override
@@ -47,7 +47,7 @@ public class BackSensorV2 implements Sensor {
         String line;
         while ((line = reader.readLine()) != null) {
           lineNb++;
-          if (line.contains("BACKV1") || line.contains("BACKV2")) {
+          if (line.contains("BACKV1")) {
             NewIssue newIssue = context.newIssue();
             newIssue.at(newIssue.newLocation().on(inputFile).at(inputFile.selectLine(lineNb)))
               .forRule(RuleKey.of(BackRulesDefinition.BACK_REPOSITORY, BackRulesDefinition.RULE_KEY))

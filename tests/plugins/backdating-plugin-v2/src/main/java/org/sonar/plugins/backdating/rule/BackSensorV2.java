@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.backdating.rule;
+package org.sonar.plugins.backdating.rule;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,14 +28,25 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.plugins.backdating.api.CustomProcessor;
 
-public class BackSensorV1 implements Sensor {
+public class BackSensorV2 implements Sensor {
+
+  private final CustomProcessor[] processors;
+
+  public BackSensorV2() {
+    this(new CustomProcessor[0]);
+  }
+
+  public BackSensorV2(CustomProcessor... processors) {
+    this.processors = processors;
+  }
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor.createIssuesForRuleRepositories(BackRulesDefinition.BACK_REPOSITORY)
       .onlyOnLanguage("xoo")
-      .name("Back V1");
+      .name("Back V2");
   }
 
   @Override
@@ -47,11 +58,14 @@ public class BackSensorV1 implements Sensor {
         String line;
         while ((line = reader.readLine()) != null) {
           lineNb++;
-          if (line.contains("BACKV1")) {
+          if (line.contains("BACKV1") || line.contains("BACKV2")) {
             NewIssue newIssue = context.newIssue();
             newIssue.at(newIssue.newLocation().on(inputFile).at(inputFile.selectLine(lineNb)))
               .forRule(RuleKey.of(BackRulesDefinition.BACK_REPOSITORY, BackRulesDefinition.RULE_KEY))
               .save();
+          }
+          for (CustomProcessor processor : processors) {
+            processor.process(line, context, inputFile, lineNb);
           }
         }
       } catch (IOException e) {

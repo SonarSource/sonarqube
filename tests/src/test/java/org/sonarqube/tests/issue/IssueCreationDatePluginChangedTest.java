@@ -59,6 +59,7 @@ public class IssueCreationDatePluginChangedTest {
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(xooPlugin())
     .addPlugin(ItUtils.pluginArtifact("backdating-plugin-v1"))
+    .addPlugin(ItUtils.pluginArtifact("backdating-customplugin"))
     .build();
 
   @Before
@@ -68,7 +69,7 @@ public class IssueCreationDatePluginChangedTest {
 
   @Test
   public void should_use_scm_date_for_new_issues_if_plugin_updated() {
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationDatePluginChangedTest/one-rule.xml"));
+    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationDatePluginChangedTest/profile.xml"));
 
     ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_NAME);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, LANGUAGE_XOO, SAMPLE_QUALITY_PROFILE_NAME);
@@ -95,13 +96,14 @@ public class IssueCreationDatePluginChangedTest {
 
     ORCHESTRATOR.restartServer();
 
-    // New analysis that should raise a new issue
+    // New analysis that should raise 2 new issues that will be backdated
     ORCHESTRATOR.executeBuild(scanner);
     issues = getIssues(issueQuery().components("creation-date-sample:src/main/xoo/sample/Sample.xoo"));
     assertThat(issues)
       .extracting(Issue::line, Issue::creationDate)
       .containsExactly(tuple(1, dateTimeParse("2005-01-01T00:00:00+0000")),
-        tuple(2, dateTimeParse("2005-01-01T00:00:00+0000")));
+        tuple(2, dateTimeParse("2005-01-01T00:00:00+0000")),
+        tuple(3, dateTimeParse("2005-01-01T00:00:00+0000")));
   }
 
   private static List<Issue> getIssues(IssueQuery query) {

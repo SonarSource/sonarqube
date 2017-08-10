@@ -67,7 +67,7 @@
         <configuration>
           <pluginKey>backdating</pluginKey>
           <pluginName>Foo</pluginName>
-          <pluginClass>org.sonar.backdating.BackdatingPlugin</pluginClass>
+          <pluginClass>org.sonar.plugins.backdating.BackdatingPlugin</pluginClass>
         </configuration>
       </plugin>
     </plugins>

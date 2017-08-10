@@ -63,5 +63,6 @@
     <module>ws-plugin</module>
     <module>backdating-plugin-v1</module>
     <module>backdating-plugin-v2</module>
+    <module>backdating-customplugin</module>
   </modules>
 </project>
