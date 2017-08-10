@@ -33,11 +33,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -64,8 +66,8 @@ public class ProjectDataLoaderTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private int uuidCounter = 0;
-
-  private ProjectDataLoader underTest = new ProjectDataLoader(dbClient, userSession);
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private ProjectDataLoader underTest = new ProjectDataLoader(dbClient, userSession, new ComponentFinder(dbClient, resourceTypes));
 
   @Test
   public void return_project_settings_with_global_scan_permission() {
