@@ -17,22 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.backdating;
+package org.sonar.plugins.backdating.api;
 
-import org.sonar.api.Plugin;
-import org.sonar.backdating.rule.BackRulesDefinition;
-import org.sonar.backdating.rule.BackSensorV1;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
 
-/**
- * Plugin entry-point, as declared in pom.xml.
- */
-public class BackdatingPlugin implements Plugin {
+@ScannerSide
+public interface CustomProcessor {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      BackRulesDefinition.class,
-      BackSensorV1.class);
-  }
+  void process(String lineContent, SensorContext context, InputFile inputFile, int line);
 
 }

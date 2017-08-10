@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.backdating.rule;
+@ParametersAreNonnullByDefault
+package org.sonar.plugins.backdating.rule;
 
-import org.sonar.api.server.rule.RulesDefinition;
-
-public class BackRulesDefinition implements RulesDefinition {
-
-  public static final String RULE_KEY = "Rule";
-  public static final String BACK_REPOSITORY = "back";
-
-  @Override
-  public void define(Context context) {
-    defineRulesXoo(context);
-  }
-
-  private static void defineRulesXoo(Context context) {
-    NewRepository repo = context.createRepository(BACK_REPOSITORY, "xoo").setName("Back");
-    createRule(repo, RULE_KEY);
-    repo.done();
-  }
-
-  private static NewRule createRule(NewRepository repo, String key) {
-    return repo.createRule(key).setName(key).setHtmlDescription(key);
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

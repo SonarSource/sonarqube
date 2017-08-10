@@ -8,10 +8,10 @@
     <version>6.6-SNAPSHOT</version>
     <relativePath>../..</relativePath>
   </parent>
-  <artifactId>backdating-plugin-v2</artifactId>
-  <name>SonarQube :: Plugins :: Backdating (V2)</name>
+  <artifactId>backdating-customplugin</artifactId>
+  <name>SonarQube :: Plugins :: Backdating (custom)</name>
   <packaging>sonar-plugin</packaging>
-  <description>Sample of plugin to test issue backdating</description>
+  <description>Sample of custom rule plugin to test issue backdating</description>
 
   <properties>
     <sonar.skip>true</sonar.skip>
@@ -40,6 +40,12 @@
       <artifactId>sonar-plugin-api</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>backdating-plugin-v1</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- unit testing -->
     <dependency>
@@ -65,9 +71,10 @@
         <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <configuration>
-          <pluginKey>backdating</pluginKey>
-          <pluginName>Foo</pluginName>
-          <pluginClass>org.sonar.plugins.backdating.BackdatingPlugin</pluginClass>
+          <pluginKey>custombackdating</pluginKey>
+          <pluginName>Custom</pluginName>
+          <basePlugin>backdating</basePlugin>
+          <pluginClass>org.sonar.backdating.custom.BackdatingPlugin</pluginClass>
         </configuration>
       </plugin>
     </plugins>
