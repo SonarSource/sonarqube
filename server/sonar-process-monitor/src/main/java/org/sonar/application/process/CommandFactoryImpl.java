@@ -80,7 +80,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .addJvmOption(settings.getProps().nonNullValue(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
       .setJvmOptionsFile(jvmOptionsFile)
       .setEnvVariable("ES_JVM_OPTIONS", jvmOptionsFile.toString())
-      ;
+      .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"));
 
     settingsMap.forEach((key, value) -> res.addEsOption("-E" + key + "=" + value));
 
