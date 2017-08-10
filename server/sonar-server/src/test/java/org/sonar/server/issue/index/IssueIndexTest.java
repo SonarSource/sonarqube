@@ -74,6 +74,7 @@ import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -125,8 +126,8 @@ public class IssueIndexTest {
   @Test
   public void filter_by_projects() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-    ComponentDto subModule = ComponentTesting.newModuleDto(module);
+    ComponentDto module = newModuleDto(project);
+    ComponentDto subModule = newModuleDto(module);
 
     indexIssues(
       newDoc("I1", project),
@@ -157,8 +158,8 @@ public class IssueIndexTest {
   @Test
   public void filter_by_modules() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-    ComponentDto subModule = ComponentTesting.newModuleDto(module);
+    ComponentDto module = newModuleDto(project);
+    ComponentDto subModule = newModuleDto(module);
     ComponentDto file = newFileDto(subModule, null);
 
     indexIssues(
@@ -176,8 +177,8 @@ public class IssueIndexTest {
   @Test
   public void filter_by_components_on_contextualized_search() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-    ComponentDto subModule = ComponentTesting.newModuleDto(module);
+    ComponentDto module = newModuleDto(project);
+    ComponentDto subModule = newModuleDto(module);
     ComponentDto file1 = newFileDto(project, null);
     ComponentDto file2 = newFileDto(module, null);
     ComponentDto file3 = newFileDto(subModule, null);
@@ -205,9 +206,9 @@ public class IssueIndexTest {
   public void filter_by_components_on_non_contextualized_search() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto(), "project");
     ComponentDto file1 = newFileDto(project, null, "file1");
-    ComponentDto module = ComponentTesting.newModuleDto(project).setUuid("module");
+    ComponentDto module = newModuleDto(project).setUuid("module");
     ComponentDto file2 = newFileDto(module, null, "file2");
-    ComponentDto subModule = ComponentTesting.newModuleDto(module).setUuid("subModule");
+    ComponentDto subModule = newModuleDto(module).setUuid("subModule");
     ComponentDto file3 = newFileDto(subModule, null, "file3");
     String view = "ABCD";
     indexView(view, asList(project.uuid()));
@@ -318,39 +319,90 @@ public class IssueIndexTest {
     Date now = new Date();
     OrganizationDto organizationDto = newOrganizationDto();
     ComponentDto project1 = newPrivateProjectDto(organizationDto);
-    IssueDoc project1Issue1 = newDoc().setProjectUuid(project1.uuid()).setFuncCreationDate(addDays(now, -10));
-    IssueDoc project1Issue2 = newDoc().setProjectUuid(project1.uuid()).setFuncCreationDate(addDays(now, -20));
+    IssueDoc project1Issue1 = newDoc(project1).setFuncCreationDate(addDays(now, -10));
+    IssueDoc project1Issue2 = newDoc(project1).setFuncCreationDate(addDays(now, -20));
     ComponentDto project2 = newPrivateProjectDto(organizationDto);
-    IssueDoc project2Issue1 = newDoc().setProjectUuid(project2.uuid()).setFuncCreationDate(addDays(now, -15));
-    IssueDoc project2Issue2 = newDoc().setProjectUuid(project2.uuid()).setFuncCreationDate(addDays(now, -30));
+    IssueDoc project2Issue1 = newDoc(project2).setFuncCreationDate(addDays(now, -15));
+    IssueDoc project2Issue2 = newDoc(project2).setFuncCreationDate(addDays(now, -30));
     indexIssues(project1Issue1, project1Issue2, project2Issue1, project2Issue2);
 
     // Search for issues of project 1 having less than 15 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-        .createdAfterByProjectUuids(ImmutableMap.of(project1.uuid(), addDays(now, -15))),
+      .createdAfterByProjectUuids(ImmutableMap.of(project1.uuid(), addDays(now, -15))),
       project1Issue1.key());
 
     // Search for issues of project 1 having less than 14 days and project 2 having less then 25 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
       .createdAfterByProjectUuids(ImmutableMap.of(
         project1.uuid(), addDays(now, -14),
-        project2.uuid(), addDays(now, -25)
-      )),
+        project2.uuid(), addDays(now, -25))),
       project1Issue1.key(), project2Issue1.key());
 
     // Search for issues of project 1 having less than 30 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-        .createdAfterByProjectUuids(ImmutableMap.of(
-          project1.uuid(), addDays(now, -30)
-        )),
+      .createdAfterByProjectUuids(ImmutableMap.of(
+        project1.uuid(), addDays(now, -30))),
       project1Issue1.key(), project1Issue2.key());
 
     // Search for issues of project 1 and project 2 having less than 5 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-        .createdAfterByProjectUuids(ImmutableMap.of(
-          project1.uuid(), addDays(now, -5),
-          project2.uuid(), addDays(now, -5)
-        )));
+      .createdAfterByProjectUuids(ImmutableMap.of(
+        project1.uuid(), addDays(now, -5),
+        project2.uuid(), addDays(now, -5))));
+  }
+
+  @Test
+  public void filter_one_issue_by_project_and_branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto anotherbBranch = db.components().insertProjectBranch(project);
+
+    IssueDoc issueOnProject = newDoc(project);
+    IssueDoc issueOnBranch = newDoc(branch);
+    IssueDoc issueOnAnotherBranch = newDoc(anotherbBranch);
+    indexIssues(issueOnProject, issueOnBranch, issueOnAnotherBranch);
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().branchUuid(branch.uuid()), issueOnBranch.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().componentUuids(singletonList(branch.uuid())).branchUuid(branch.uuid()), issueOnBranch.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())).branchUuid(branch.uuid()), issueOnBranch.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().componentUuids(singletonList(branch.uuid())).projectUuids(singletonList(project.uuid())).branchUuid(branch.uuid()),
+      issueOnBranch.key());
+    assertThatSearchReturnsEmpty(IssueQuery.builder().branchUuid("unknown"));
+  }
+
+  @Test
+  public void issues_from_branch_component_children() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto projectModule = db.components().insertComponent(newModuleDto(project));
+    ComponentDto projectFile = db.components().insertComponent(newFileDto(projectModule));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ComponentDto branchModule = db.components().insertComponent(newModuleDto(branch));
+    ComponentDto branchFile = db.components().insertComponent(newFileDto(branchModule));
+
+    indexIssues(
+      newDoc("I1", project),
+      newDoc("I2", projectFile),
+      newDoc("I3", projectModule),
+      newDoc("I4", branch),
+      newDoc("I5", branchModule),
+      newDoc("I6", branchFile));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().branchUuid(branch.uuid()), "I4", "I5", "I6");
+    assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(singletonList(branchModule.uuid())).branchUuid(branch.uuid()), "I5", "I6");
+    assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(singletonList(branchFile.uuid())).branchUuid(branch.uuid()), "I6");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().fileUuids(singletonList(branchFile.uuid())).branchUuid("unknown"));
+  }
+
+  @Test
+  public void branch_issues_are_ignored_when_no_branch_param() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    IssueDoc projectIssue = newDoc(project);
+    IssueDoc branchIssue = newDoc(branch);
+    indexIssues(projectIssue, branchIssue);
+
+    assertThatSearchReturnsOnly(IssueQuery.builder(), projectIssue.key());
   }
 
   @Test

@@ -34,6 +34,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -44,6 +45,7 @@ import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.organization.OrganizationDao;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
@@ -67,11 +69,13 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsResponseCommonFormat;
+import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -84,6 +88,9 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
+import static org.sonar.db.issue.IssueTesting.newIssue;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 
 public class SearchActionComponentsTest {
 
@@ -127,6 +134,22 @@ public class SearchActionComponentsTest {
   @After
   public void after() {
     session.close();
+  }
+
+  @Test
+  public void search_all_issues_when_no_parameter() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
+    IssueDto issue = db.issues().insertIssue(newIssue(rule, project, projectFile));
+    userSession.registerComponents(project);
+    permissionIndexerTester.allowOnlyAnyone(project);
+    issueIndexer.indexOnStartup(emptySet());
+
+    SearchWsResponse result = ws.newRequest().executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList()).extracting(Issues.Issue::getKey)
+      .containsExactlyInAnyOrder(issue.getKey());
   }
 
   @Test
@@ -584,6 +607,7 @@ public class SearchActionComponentsTest {
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
   }
+
   @Test
   public void search_by_application_key() throws Exception {
     ComponentDto project1 = db.components().insertPublicProject();
@@ -758,6 +782,50 @@ public class SearchActionComponentsTest {
     assertThat(result.getIssuesList()).extracting(Issue::getKey)
       .containsExactlyInAnyOrder(project1Issue1.getKey())
       .doesNotContain(project1Issue2.getKey(), project2Issue1.getKey(), project2Issue2.getKey());
+  }
+
+
+  @Test
+  public void search_by_branch() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    permissionIndexerTester.allowOnlyAnyone(project);
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
+    IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
+    IssueDto branchIssue = db.issues().insertIssue(newIssue(rule, branch, branchFile));
+    issueIndexer.indexOnStartup(emptySet());
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, branch.getKey())
+      .setParam(PARAM_BRANCH, branch.getBranch())
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList()).extracting(Issues.Issue::getKey)
+      .containsExactlyInAnyOrder(branchIssue.getKey())
+      .doesNotContain(projectIssue.getKey());
+  }
+
+  @Test
+  public void does_not_return_branch_issues_on_not_contextualized_search() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPublicProject();
+    userSession.registerComponents(project);
+    permissionIndexerTester.allowOnlyAnyone(project);
+    ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
+    IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
+    IssueDto branchIssue = db.issues().insertIssue(newIssue(rule, branch, branchFile));
+    issueIndexer.indexOnStartup(emptySet());
+
+    SearchWsResponse result = ws.newRequest().executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList()).extracting(Issues.Issue::getKey)
+      .containsExactlyInAnyOrder(projectIssue.getKey())
+      .doesNotContain(branchIssue.getKey());
   }
 
   private RuleDto newRule() {

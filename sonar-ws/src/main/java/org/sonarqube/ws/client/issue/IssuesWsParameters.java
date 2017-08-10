@@ -69,6 +69,7 @@ public class IssuesWsParameters {
   public static final String PARAM_DIRECTORIES = "directories";
   public static final String PARAM_FILE_UUIDS = "fileUuids";
   public static final String PARAM_ON_COMPONENT_ONLY = "onComponentOnly";
+  public static final String PARAM_BRANCH = "branch";
   public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_RULES = "rules";
   public static final String PARAM_ACTIONS = "actions";
