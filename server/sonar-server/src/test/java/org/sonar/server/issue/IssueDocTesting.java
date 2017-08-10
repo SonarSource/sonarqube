@@ -36,6 +36,25 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 
 public class IssueDocTesting {
 
+  public static IssueDoc newDoc(ComponentDto componentDto) {
+    return newDoc(Uuids.createFast(), componentDto);
+  }
+
+  public static IssueDoc newDoc(String key, ComponentDto componentDto) {
+    String mainBranchProjectUuid = componentDto.getMainBranchProjectUuid();
+    return newDoc()
+      .setKey(key)
+      .setBranchUuid(componentDto.projectUuid())
+      .setComponentUuid(componentDto.uuid())
+      .setModuleUuid(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.moduleUuid() : componentDto.uuid())
+      .setModuleUuidPath(componentDto.moduleUuidPath())
+      .setProjectUuid(mainBranchProjectUuid == null ? componentDto.projectUuid() : mainBranchProjectUuid)
+      .setOrganizationUuid(componentDto.getOrganizationUuid())
+      // File path make no sens on modules and projects
+      .setFilePath(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.path() : null)
+      .setIsMainBranch(mainBranchProjectUuid == null);
+  }
+
   public static IssueDoc newDoc() {
     IssueDoc doc = new IssueDoc(Maps.<String, Object>newHashMap());
     doc.setKey(Uuids.createFast());
@@ -59,17 +78,5 @@ public class IssueDocTesting {
     doc.setFuncUpdateDate(new Date(System.currentTimeMillis() - 1_000));
     doc.setFuncCloseDate(null);
     return doc;
-  }
-
-  public static IssueDoc newDoc(String key, ComponentDto componentDto) {
-    return newDoc()
-      .setKey(key)
-      .setComponentUuid(componentDto.uuid())
-      .setModuleUuid(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.moduleUuid() : componentDto.uuid())
-      .setModuleUuidPath(componentDto.moduleUuidPath())
-      .setProjectUuid(componentDto.projectUuid())
-      .setOrganizationUuid(componentDto.getOrganizationUuid())
-      // File path make no sens on modules and projects
-      .setFilePath(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.path() : null);
   }
 }
