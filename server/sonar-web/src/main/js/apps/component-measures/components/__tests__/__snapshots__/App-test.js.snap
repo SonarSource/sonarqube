@@ -80,6 +80,11 @@ exports[`should render correctly 1`] = `
         "key": "foo",
       }
     }
+    router={
+      Object {
+        "push": [Function],
+      }
+    }
     selected=""
     updateQuery={[Function]}
     view="list"

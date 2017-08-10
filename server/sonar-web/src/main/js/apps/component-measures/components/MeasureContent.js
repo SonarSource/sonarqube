@@ -32,7 +32,8 @@ import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import TreeMapView from '../drilldown/TreeMapView';
 import { getComponentTree } from '../../../api/components';
 import { complementary } from '../config/complementary';
-import { enhanceComponent, isFileType } from '../utils';
+import { enhanceComponent, isFileType, isViewType } from '../utils';
+import { getProjectUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
 import type { Component, ComponentEnhanced, Paging, Period } from '../types';
 import type { MeasureEnhanced } from '../../../components/measure/types';
@@ -48,6 +49,12 @@ type Props = {|
   metric: Metric,
   metrics: { [string]: Metric },
   rootComponent: Component,
+  router: Object /*
+  Switching to the following type will make flow crash with :
+  https://github.com/facebook/flow/issues/3147
+  {
+    push: ({ pathname: string, query?: RawQuery }) => void
+  }*/,
   secondaryMeasure: ?MeasureEnhanced,
   updateLoading: ({ [string]: boolean }) => void,
   updateSelected: string => void,
@@ -184,15 +191,26 @@ export default class MeasureContent extends React.PureComponent {
     );
   };
 
-  onOpenComponent = (component: string) => {
+  onOpenComponent = (componentKey: string) => {
+    if (isViewType(this.props.rootComponent)) {
+      const component = this.state.components.find(
+        component => component.refKey === componentKey || component.key === componentKey
+      );
+      if (component && component.qualifier === 'TRK') {
+        if (this.props.view === 'treemap') {
+          this.props.router.push(getProjectUrl(componentKey));
+        }
+        return;
+      }
+    }
     this.setState({ selected: this.props.component.key });
-    this.props.updateSelected(component);
+    this.props.updateSelected(componentKey);
     if (this.container) {
       this.container.focus();
     }
   };
 
-  onSelectComponent = (component: string) => this.setState({ selected: component });
+  onSelectComponent = (componentKey: string) => this.setState({ selected: componentKey });
 
   renderContent() {
     const { component, leakPeriod } = this.props;

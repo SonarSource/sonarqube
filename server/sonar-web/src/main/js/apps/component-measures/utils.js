@@ -90,6 +90,9 @@ export const enhanceComponent = (
 export const isFileType = (component: Component): boolean =>
   ['FIL', 'UTS'].includes(component.qualifier);
 
+export const isViewType = (component: Component): boolean =>
+  ['VW', 'SVW', 'APP'].includes(component.qualifier);
+
 export const groupByDomains = memoize((measures: Array<MeasureEnhanced>): Array<{
   name: string,
   measures: Array<MeasureEnhanced>
