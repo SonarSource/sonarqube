@@ -70,7 +70,10 @@ public class ListAction implements BranchWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = dbClient.componentDao().selectOrFailByKey(dbSession, projectKey);
+      ComponentDto project = WsUtils.checkFoundWithOptional(
+        dbClient.componentDao().selectByKey(dbSession, projectKey),
+        "Project key '%s' not found", projectKey);
+
       userSession.checkComponentPermission(UserRole.USER, project);
       if (!project.isEnabled() || !Qualifiers.PROJECT.equals(project.qualifier())) {
         throw new IllegalArgumentException("Invalid project key");
