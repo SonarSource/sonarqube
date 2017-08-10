@@ -28,6 +28,7 @@ import { translate } from '../../../helpers/l10n';
 import { getExtensionStart } from './utils';
 import getStore from '../../utils/getStore';
 
+/*::
 type Props = {
   currentUser: Object,
   extension: {
@@ -39,17 +40,18 @@ type Props = {
   options?: {},
   router: Object
 };
+*/
 
 class Extension extends React.PureComponent {
-  container: Object;
-  props: Props;
-  stop: ?Function;
+  /*:: container: Object; */
+  /*:: props: Props; */
+  /*:: stop: ?Function; */
 
   componentDidMount() {
     this.startExtension();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (prevProps.extension !== this.props.extension) {
       this.stopExtension();
       this.startExtension();
@@ -66,7 +68,7 @@ class Extension extends React.PureComponent {
     this.stopExtension();
   }
 
-  handleStart = (start: Function) => {
+  handleStart = (start /*: Function */) => {
     const store = getStore();
     this.stop = start({
       store,
