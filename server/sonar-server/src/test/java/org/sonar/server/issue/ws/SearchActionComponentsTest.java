@@ -732,6 +732,10 @@ public class SearchActionComponentsTest {
     assertThat(result.getIssuesList()).extracting(Issues.Issue::getKey)
       .containsExactlyInAnyOrder(branchIssue.getKey())
       .doesNotContain(projectIssue.getKey());
+    assertThat(result.getComponentsList()).extracting(Issues.Component::getKey, Issues.Component::getBranch)
+      .containsExactlyInAnyOrder(
+        tuple(branchFile.getKey(), branchFile.getBranch()),
+        tuple(branch.getKey(), branch.getBranch()));
   }
 
   @Test
