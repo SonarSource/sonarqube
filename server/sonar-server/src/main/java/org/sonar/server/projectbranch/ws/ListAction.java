@@ -21,6 +21,8 @@ package org.sonar.server.projectbranch.ws;
 
 import com.google.common.io.Resources;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -35,7 +37,10 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsBranches;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
@@ -80,19 +85,29 @@ public class ListAction implements BranchWsAction {
       }
 
       Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project);
+      Map<String, BranchDto> mergeBranchesByUuid = dbClient.branchDao()
+        .selectByUuids(dbSession, branches.stream().map(BranchDto::getMergeBranchUuid).filter(Objects::nonNull).collect(toList()))
+        .stream().collect(uniqueIndex(BranchDto::getUuid));
+
       WsBranches.ListWsResponse.Builder protobufResponse = WsBranches.ListWsResponse.newBuilder();
       branches.stream()
         .filter(b -> b.getKeeType().equals(BranchKeyType.BRANCH))
-        .forEach(b -> addToProtobuf(protobufResponse, b));
+        .forEach(b -> addToProtobuf(protobufResponse, b, mergeBranchesByUuid));
       WsUtils.writeProtobuf(protobufResponse.build(), request, response);
     }
   }
 
-  private static void addToProtobuf(WsBranches.ListWsResponse.Builder response, BranchDto branch) {
+  private static void addToProtobuf(WsBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid) {
     WsBranches.ListWsResponse.Branch.Builder builder = response.addBranchesBuilder();
     setNullable(branch.getKey(), builder::setName);
     builder.setIsMain(branch.isMain());
     builder.setType(WsBranches.ListWsResponse.BranchType.valueOf(branch.getBranchType().name()));
+    String mergeBranchUuid = branch.getMergeBranchUuid();
+    if (mergeBranchUuid != null) {
+      BranchDto megeBranch = mergeBranchesByUuid.get(mergeBranchUuid);
+      checkState(megeBranch != null, "Component uuid '%s' cannot be found", megeBranch);
+      setNullable(megeBranch.getKey(), builder::setMergeBranch);
+    }
     builder.build();
   }
 }
