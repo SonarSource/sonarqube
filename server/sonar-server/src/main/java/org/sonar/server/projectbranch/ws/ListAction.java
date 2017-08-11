@@ -40,6 +40,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsBranches;
+import org.sonarqube.ws.WsBranches.Branch.Status;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
@@ -51,6 +52,8 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
@@ -127,9 +130,30 @@ public class ListAction implements BranchWsAction {
       setNullable(mergeBranch.getKey(), builder::setMergeBranch);
     }
 
-    int qualityGateStatusMetricId = metricIdsByKey.get(ALERT_STATUS_KEY);
-    measuresByComponentUuids.get(branch.getUuid()).stream().filter(m -> m.getMetricId() == qualityGateStatusMetricId).findAny()
-      .ifPresent(measure -> builder.setStatus(WsBranches.Branch.Status.newBuilder().setQualityGateStatus(measure.getData())));
+    Status.Builder statusBuilder = Status.newBuilder();
+    Collection<MeasureDto> componentMeasures = measuresByComponentUuids.get(branch.getUuid());
+    if (branch.getBranchType().equals(LONG)) {
+      int qualityGateStatusMetricId = metricIdsByKey.get(ALERT_STATUS_KEY);
+      componentMeasures.stream().filter(m -> m.getMetricId() == qualityGateStatusMetricId).findAny()
+        .ifPresent(measure -> statusBuilder.setQualityGateStatus(measure.getData()));
+    }
+
+    if (branch.getBranchType().equals(SHORT)) {
+      int bugsMetricId = metricIdsByKey.get(BUGS_KEY);
+      componentMeasures.stream().filter(m -> m.getMetricId() == bugsMetricId).findAny()
+        .ifPresent(measure -> statusBuilder.setBugs(measure.getValue().intValue()));
+
+      int vulnerabilitiesMetricId = metricIdsByKey.get(VULNERABILITIES_KEY);
+      componentMeasures.stream().filter(m -> m.getMetricId() == vulnerabilitiesMetricId).findAny()
+        .ifPresent(measure -> statusBuilder.setVulnerabilities(measure.getValue().intValue()));
+
+      int codeSmellMetricId = metricIdsByKey.get(CODE_SMELLS_KEY);
+      componentMeasures.stream().filter(m -> m.getMetricId() == codeSmellMetricId).findAny()
+        .ifPresent(measure -> statusBuilder.setCodeSmells(measure.getValue().intValue()));
+    }
+
+    builder.setStatus(statusBuilder);
     builder.build();
   }
+
 }
