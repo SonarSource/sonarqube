@@ -96,7 +96,7 @@ public class ComponentTreeBuilder {
         String uuid = uuidSupplier.apply(projectKey);
         return ComponentImpl.builder(Component.Type.PROJECT)
           .setUuid(uuid)
-          .setKey(projectKey) 
+          .setKey(projectKey)
           .setName(nameOfProject(component))
           .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
@@ -136,9 +136,9 @@ public class ComponentTreeBuilder {
         throw new IllegalArgumentException(format("Unsupported component type '%s'", component.getType()));
     }
   }
-  
-  private static Component.Status convertStatus(ScannerReport.Component.FileStatus status) {
-    switch(status) {
+
+  private static Component.Status convertStatus(FileStatus status) {
+    switch (status) {
       case ADDED:
         return Component.Status.ADDED;
       case SAME:
