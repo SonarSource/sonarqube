@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.scanner.bootstrap.GlobalProperties;
+import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.DefaultBranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -83,21 +85,22 @@ public class DefaultAnalysisModeTest {
     Map<String, String> props = new HashMap<>();
     props.put(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES);
     GlobalProperties globalProps = new GlobalProperties(props);
+    BranchConfiguration branchConfig = new DefaultBranchConfiguration();
 
     AnalysisProperties analysisProps = new AnalysisProperties(new HashMap<String, String>());
-    DefaultAnalysisMode mode = new DefaultAnalysisMode(globalProps, analysisProps);
+    DefaultAnalysisMode mode = new DefaultAnalysisMode(globalProps, analysisProps, branchConfig);
     assertThat(mode.scanAllFiles()).isFalse();
 
     props.put("sonar.scanAllFiles", "true");
     analysisProps = new AnalysisProperties(props);
 
-    mode = new DefaultAnalysisMode(globalProps, analysisProps);
+    mode = new DefaultAnalysisMode(globalProps, analysisProps, branchConfig);
     assertThat(mode.scanAllFiles()).isTrue();
 
     props.put(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PUBLISH);
     analysisProps = new AnalysisProperties(props);
 
-    mode = new DefaultAnalysisMode(globalProps, analysisProps);
+    mode = new DefaultAnalysisMode(globalProps, analysisProps, branchConfig);
     assertThat(mode.scanAllFiles()).isTrue();
   }
 
@@ -123,6 +126,7 @@ public class DefaultAnalysisModeTest {
   private static DefaultAnalysisMode createMode(@Nullable String bootstrapMode, @Nullable String analysisMode) {
     Map<String, String> bootstrapMap = new HashMap<>();
     Map<String, String> analysisMap = new HashMap<>();
+    BranchConfiguration branchConfig = new DefaultBranchConfiguration();
 
     if (bootstrapMode != null) {
       bootstrapMap.put(CoreProperties.ANALYSIS_MODE, bootstrapMode);
@@ -130,7 +134,7 @@ public class DefaultAnalysisModeTest {
     if (analysisMode != null) {
       analysisMap.put(CoreProperties.ANALYSIS_MODE, analysisMode);
     }
-    return new DefaultAnalysisMode(new GlobalProperties(bootstrapMap), new AnalysisProperties(analysisMap));
+    return new DefaultAnalysisMode(new GlobalProperties(bootstrapMap), new AnalysisProperties(analysisMap), branchConfig);
   }
 
 }

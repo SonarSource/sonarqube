@@ -27,6 +27,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.AbstractAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalProperties;
+import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.BranchConfiguration.BranchType;
 
 @Immutable
 public class DefaultAnalysisMode extends AbstractAnalysisMode {
@@ -36,33 +38,34 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode {
 
   private boolean scanAllFiles;
 
-  public DefaultAnalysisMode(GlobalProperties globalProps, AnalysisProperties props) {
-    init(globalProps.properties(), props.properties());
+  public DefaultAnalysisMode(GlobalProperties globalProps, AnalysisProperties props, BranchConfiguration branchConfig) {
+    init(globalProps.properties(), props.properties(), branchConfig);
   }
 
   public boolean scanAllFiles() {
     return scanAllFiles;
   }
 
-  private void init(Map<String, String> globalProps, Map<String, String> analysisProps) {
+  private void init(Map<String, String> globalProps, Map<String, String> analysisProps, BranchConfiguration branchConfig) {
     // make sure analysis is consistent with global properties
     boolean globalPreview = isIssues(globalProps);
     boolean analysisPreview = isIssues(analysisProps);
+    boolean shortLivingBranch = branchConfig.branchType() == BranchType.SHORT;
 
     if (!globalPreview && analysisPreview) {
       throw new IllegalStateException("Inconsistent properties: global properties doesn't enable issues mode while analysis properties enables it");
     }
 
-    load(globalProps, analysisProps);
+    load(globalProps, analysisProps, shortLivingBranch);
   }
 
-  private void load(Map<String, String> globalProps, Map<String, String> analysisProps) {
+  private void load(Map<String, String> globalProps, Map<String, String> analysisProps, boolean isShortLivingBranch) {
     String mode = getPropertyWithFallback(analysisProps, globalProps, CoreProperties.ANALYSIS_MODE);
     validate(mode);
     issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
     mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, MEDIUM_TEST_ENABLED));
     String scanAllStr = getPropertyWithFallback(analysisProps, globalProps, KEY_SCAN_ALL);
-    scanAllFiles = !issues || "true".equals(scanAllStr);
+    scanAllFiles = !isShortLivingBranch && (!issues || "true".equals(scanAllStr));
   }
 
   public void printMode() {
