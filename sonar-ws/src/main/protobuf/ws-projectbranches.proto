@@ -28,13 +28,24 @@ option optimize_for = SPEED;
 // WS api/project_branches/list
 message ListWsResponse {
   repeated Branch branches = 1;
+}
 
-  message Branch {
-    optional string name = 1;
-    optional bool isMain = 2;
-    optional BranchType type = 3;
-    // Merge branch is only present if it's a short living branch
-    optional string mergeBranch = 4;
+message Branch {
+  optional string name = 1;
+  optional string project = 2;
+  optional bool isMain = 3;
+  optional BranchType type = 4;
+  // Merge branch is only present for short living branch
+  optional string mergeBranch = 5;
+  optional Status status = 6;
+
+  message Status {
+    // Quality gate status is only present for long living branch
+    optional string qualityGateStatus = 1;
+    // Merge bugs, vulnerabilities and codeSmell are only present for short living branch
+    optional string bugs = 2;
+    optional string vulnerabilities = 3;
+    optional string codeSmell = 4;
   }
 
   enum BranchType {
@@ -45,5 +56,4 @@ message ListWsResponse {
     LONG = 1;
     SHORT = 2;
   }
-
 }
