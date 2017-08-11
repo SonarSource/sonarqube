@@ -43,7 +43,10 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const banQualityGate = (component: Component): Array<Measure> => {
-  const bannedMetrics = ['alert_status'];
+  const bannedMetrics = [];
+  if (!['VW', 'SVW'].includes(component.qualifier)) {
+    bannedMetrics.push('alert_status');
+  }
   if (component.qualifier === 'APP') {
     bannedMetrics.push('releasability_rating', 'releasability_effort');
   }

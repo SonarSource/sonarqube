@@ -112,10 +112,24 @@ export const groupByDomains = memoize((measures: Array<MeasureEnhanced>): Array<
   ]);
 });
 
-export const hasTreemap = (metricType: string): boolean =>
-  ['PERCENT', 'RATING', 'LEVEL'].includes(metricType);
+export const getDefaultView = (metric: string): string => {
+  if (!hasList(metric)) {
+    return 'tree';
+  }
+  return DEFAULT_VIEW;
+};
+
+export const hasList = (metric: string): boolean =>
+  !['releasability_rating', 'releasability_effort'].includes(metric);
+
+export const hasTree = (metric: string): boolean => metric !== 'alert_status';
+
+export const hasTreemap = (metric: string, type: string): boolean =>
+  ['PERCENT', 'RATING', 'LEVEL'].includes(type) && hasTree(metric);
 
 export const hasBubbleChart = (domainName: string): boolean => bubbles[domainName] != null;
+
+export const hasFacetStat = (metric: string): boolean => metric !== 'alert_status';
 
 export const getBubbleMetrics = (domain: string, metrics: { [string]: Metric }) => {
   const conf = bubbles[domain];
@@ -129,11 +143,24 @@ export const getBubbleMetrics = (domain: string, metrics: { [string]: Metric }) 
 
 export const isProjectOverview = (metric: string) => metric === PROJECT_OVERVEW;
 
-export const parseQuery = memoize((urlQuery: RawQuery): Query => ({
-  metric: parseAsString(urlQuery['metric']) || DEFAULT_METRIC,
-  selected: parseAsString(urlQuery['selected']),
-  view: parseAsString(urlQuery['view']) || DEFAULT_VIEW
-}));
+const parseView = memoize((rawView?: string, metric: string) => {
+  const view = parseAsString(rawView) || DEFAULT_VIEW;
+  if (!hasTree(metric)) {
+    return 'list';
+  } else if (view === 'list' && !hasList(metric)) {
+    return 'tree';
+  }
+  return view;
+});
+
+export const parseQuery = memoize((urlQuery: RawQuery): Query => {
+  const metric = parseAsString(urlQuery['metric']) || DEFAULT_METRIC;
+  return {
+    metric,
+    selected: parseAsString(urlQuery['selected']),
+    view: parseView(urlQuery['view'], metric)
+  };
+});
 
 export const serializeQuery = memoize((query: Query): RawQuery => {
   return cleanQuery({

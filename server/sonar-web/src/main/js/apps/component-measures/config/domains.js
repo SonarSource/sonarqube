@@ -116,7 +116,7 @@ export const domains = {
   },
 
   Releasability: {
-    order: ['alert_status']
+    order: ['releasability_rating', 'releasability_effort', 'alert_status']
   },
 
   Issues: {
