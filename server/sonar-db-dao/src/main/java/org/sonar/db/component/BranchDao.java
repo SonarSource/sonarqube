@@ -20,11 +20,14 @@
 package org.sonar.db.component;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class BranchDao implements Dao {
 
@@ -57,6 +60,10 @@ public class BranchDao implements Dao {
       projectUuid = component.projectUuid();
     }
     return mapper(dbSession).selectByProjectUuid(projectUuid);
+  }
+
+  public List<BranchDto> selectByUuids(DbSession session, Collection<String> uuids) {
+    return executeLargeInputs(uuids, mapper(session)::selectByUuids);
   }
 
   private static BranchMapper mapper(DbSession dbSession) {
