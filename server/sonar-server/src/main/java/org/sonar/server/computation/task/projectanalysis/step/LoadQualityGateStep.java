@@ -19,17 +19,19 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.MutableQualityGateHolder;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGate;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateService;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import com.google.common.base.Optional;
 
 /**
  * This step retrieves the QualityGate and stores it in
@@ -43,16 +45,22 @@ public class LoadQualityGateStep implements ComputationStep {
   private final ConfigurationRepository configRepository;
   private final QualityGateService qualityGateService;
   private final MutableQualityGateHolder qualityGateHolder;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public LoadQualityGateStep(ConfigurationRepository settingsRepository,
-    QualityGateService qualityGateService, MutableQualityGateHolder qualityGateHolder) {
+  public LoadQualityGateStep(ConfigurationRepository settingsRepository, QualityGateService qualityGateService, MutableQualityGateHolder qualityGateHolder,
+    AnalysisMetadataHolder analysisMetadataHolder) {
     this.configRepository = settingsRepository;
     this.qualityGateService = qualityGateService;
     this.qualityGateHolder = qualityGateHolder;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
   public void execute() {
+    if (analysisMetadataHolder.isShortLivingBranch()) {
+      qualityGateHolder.setNoQualityGate();
+      return;
+    }
     Configuration config = configRepository.getConfiguration();
     String qualityGateSetting = config.get(PROPERTY_QUALITY_GATE).orElse(null);
 
