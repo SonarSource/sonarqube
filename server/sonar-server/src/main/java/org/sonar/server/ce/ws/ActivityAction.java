@@ -22,14 +22,15 @@ package org.sonar.server.ce.ws;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -56,7 +57,9 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.Pagination.forPage;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
@@ -69,7 +72,7 @@ import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
 
 public class ActivityAction implements CeWsAction {
   private static final int MAX_PAGE_SIZE = 1000;
-  private static final List<String> POSSIBLE_QUALIFIERS = ImmutableList.of(Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW, "DEV", Qualifiers.MODULE);
+  private static final String[] POSSIBLE_QUALIFIERS = new String[] {Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW, "DEV", Qualifiers.MODULE};
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -92,11 +95,13 @@ public class ActivityAction implements CeWsAction {
     WebService.NewAction action = controller.createAction("activity")
       .setDescription(format("Search for tasks.<br> " +
         "Requires the system administration permission, " +
-        "or project administration permission if %s is set.<br/>" +
-        "Since 5.5, it's no more possible to specify the page parameter.<br/>" +
-        "Since 6.1, field \"logs\" is deprecated and its value is always false.", PARAM_COMPONENT_ID))
+        "or project administration permission if %s is set.", PARAM_COMPONENT_ID))
       .setResponseExample(getClass().getResource("activity-example.json"))
       .setHandler(this)
+      .setChangelog(
+        new Change("5.5", "it's no more possible to specify the page parameter.<"),
+        new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
+        new Change("6.6", "field \"incremental\" is added"))
       .setSince("5.2");
 
     action.createParam(PARAM_COMPONENT_ID)
@@ -157,9 +162,10 @@ public class ActivityAction implements CeWsAction {
   }
 
   private ActivityResponse doHandle(ActivityWsRequest request) {
-    checkPermission(request);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
+      ComponentDto component = loadComponent(dbSession, request);
+      checkPermission(component);
       // if a task searched by uuid is found all other parameters are ignored
       Optional<WsCe.Task> taskSearchedById = searchTaskByUuid(dbSession, request);
       if (taskSearchedById.isPresent()) {
@@ -169,10 +175,9 @@ public class ActivityAction implements CeWsAction {
           request.getPageSize());
       }
 
-      CeTaskQuery query = buildQuery(dbSession, request);
-      Iterable<WsCe.Task> queuedTasks = loadQueuedTasks(dbSession, request, query);
-      Iterable<WsCe.Task> pastTasks = loadPastTasks(dbSession, request, query);
-
+      CeTaskQuery query = buildQuery(dbSession, request, component);
+      List<WsCe.Task> queuedTasks = loadQueuedTasks(dbSession, request, query);
+      List<WsCe.Task> pastTasks = loadPastTasks(dbSession, request, query);
       return buildResponse(
         queuedTasks,
         pastTasks,
@@ -180,14 +185,23 @@ public class ActivityAction implements CeWsAction {
     }
   }
 
-  private void checkPermission(ActivityWsRequest request) {
+  @CheckForNull
+  private ComponentDto loadComponent(DbSession dbSession, ActivityWsRequest request) {
+    String componentId = request.getComponentId();
+    if (componentId == null) {
+      return null;
+    }
+    return checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, componentId), "Component '%s' does not exist", componentId);
+  }
+
+  private void checkPermission(@Nullable ComponentDto component) {
     // fail fast if not logged in
     userSession.checkLoggedIn();
 
-    if (request.getComponentId() == null) {
+    if (component == null) {
       userSession.checkIsSystemAdministrator();
     } else {
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, request.getComponentId());
+      userSession.checkComponentPermission(UserRole.ADMIN, component);
     }
   }
 
@@ -203,14 +217,11 @@ public class ActivityAction implements CeWsAction {
     }
 
     java.util.Optional<CeActivityDto> activity = dbClient.ceActivityDao().selectByUuid(dbSession, textQuery);
-    if (activity.isPresent()) {
-      return Optional.of(formatter.formatActivity(dbSession, activity.get()));
-    }
+    return activity.map(ceActivityDto -> Optional.of(formatter.formatActivity(dbSession, ceActivityDto))).orElseGet(Optional::absent);
 
-    return Optional.absent();
   }
 
-  private CeTaskQuery buildQuery(DbSession dbSession, ActivityWsRequest request) {
+  private CeTaskQuery buildQuery(DbSession dbSession, ActivityWsRequest request, @Nullable ComponentDto component) {
     CeTaskQuery query = new CeTaskQuery();
     query.setType(request.getType());
     query.setOnlyCurrents(request.getOnlyCurrents());
@@ -224,28 +235,17 @@ public class ActivityAction implements CeWsAction {
       query.setStatuses(request.getStatus());
     }
 
-    query.setComponentUuids(loadComponentUuids(dbSession, request));
+    query.setComponentUuids(component == null ? loadComponentUuids(dbSession, request).stream().map(ComponentDto::uuid).collect(toList()) : singletonList(component.uuid()));
     return query;
   }
 
-  @CheckForNull
-  private List<String> loadComponentUuids(DbSession dbSession, ActivityWsRequest request) {
-    String componentUuid = request.getComponentId();
+  private List<ComponentDto> loadComponentUuids(DbSession dbSession, ActivityWsRequest request) {
     String componentQuery = request.getQuery();
-
-    if (componentUuid != null) {
-      return singletonList(componentUuid);
-    }
-    if (componentQuery != null) {
-      ComponentQuery componentDtoQuery = ComponentQuery.builder()
-        .setNameOrKeyQuery(componentQuery)
-        .setQualifiers(POSSIBLE_QUALIFIERS.toArray(new String[0]))
-        .build();
-      List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeTaskQuery.MAX_COMPONENT_UUIDS);
-      return Lists.transform(componentDtos, ComponentDto::uuid);
-    }
-
-    return null;
+    ComponentQuery componentDtoQuery = ComponentQuery.builder()
+      .setNameOrKeyQuery(componentQuery)
+      .setQualifiers(POSSIBLE_QUALIFIERS)
+      .build();
+    return dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeTaskQuery.MAX_COMPONENT_UUIDS);
   }
 
   private List<WsCe.Task> loadQueuedTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {

@@ -22,6 +22,7 @@ package org.sonar.server.ce.ws;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -39,6 +40,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -52,6 +54,7 @@ import org.sonarqube.ws.WsCe.Task;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -88,8 +91,7 @@ public class ActivityActionTest {
     ComponentDto project2 = db.components().insertPrivateProject(org2);
     SnapshotDto analysisProject1 = db.components().insertSnapshot(project1);
     insertActivity("T1", project1, SUCCESS, analysisProject1);
-    SnapshotDto analysisProject2 = db.components().insertSnapshot(project2);
-    insertActivity("T2", project2, FAILED, analysisProject2);
+    insertActivity("T2", project2, FAILED, null);
 
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam(PARAM_MAX_EXECUTED_AT, formatDateTime(EXECUTED_AT + 2_000)));
@@ -101,15 +103,18 @@ public class ActivityActionTest {
     assertThat(task.getId()).isEqualTo("T2");
     assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
     assertThat(task.getComponentId()).isEqualTo(project2.uuid());
-    assertThat(task.getAnalysisId()).isEqualTo(analysisProject2.getUuid());
+    assertThat(task.hasAnalysisId()).isFalse();
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getLogs()).isFalse();
+    assertThat(task.getIncremental()).isFalse();
+
     task = activityResponse.getTasks(1);
     assertThat(task.getId()).isEqualTo("T1");
     assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.SUCCESS);
     assertThat(task.getComponentId()).isEqualTo(project1.uuid());
     assertThat(task.getLogs()).isFalse();
     assertThat(task.getOrganization()).isEqualTo(org1.getKey());
+    assertThat(task.getIncremental()).isFalse();
   }
 
   @Test
@@ -188,29 +193,6 @@ public class ActivityActionTest {
     assertPage(1, asList("T3"));
     assertPage(2, asList("T3", "T2"));
     assertPage(10, asList("T3", "T2", "T1"));
-  }
-
-  @Test
-  public void throws_IAE_if_pageSize_is_0() {
-    logInAsSystemAdministrator();
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("page size must be >= 1");
-
-    call(ws.newRequest()
-      .setParam(Param.PAGE_SIZE, Integer.toString(0))
-      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
-  }
-
-  private void assertPage(int pageSize, List<String> expectedOrderedTaskIds) {
-    ActivityResponse activityResponse = call(ws.newRequest()
-      .setParam(Param.PAGE_SIZE, Integer.toString(pageSize))
-      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
-
-    assertThat(activityResponse.getTasksCount()).isEqualTo(expectedOrderedTaskIds.size());
-    for (int i = 0; i < expectedOrderedTaskIds.size(); i++) {
-      String expectedTaskId = expectedOrderedTaskIds.get(i);
-      assertThat(activityResponse.getTasks(i).getId()).isEqualTo(expectedTaskId);
-    }
   }
 
   @Test
@@ -341,6 +323,55 @@ public class ActivityActionTest {
   }
 
   @Test
+  public void incremental_analysis_on_single_project() {
+    ComponentDto project = db.components().insertPrivateProject();
+    SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
+    insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, project.uuid()));
+
+    assertThat(activityResponse.getTasksList())
+      .extracting(Task::getId, Task::getIncremental)
+    .containsExactlyInAnyOrder(tuple("T1", true));
+  }
+
+  @Test
+  public void incremental_analysis_on_search_text() {
+    ComponentDto project = db.components().insertPrivateProject();
+    SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
+    SnapshotDto standardAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(false));
+    insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    insertActivity("T2", project, SUCCESS, standardAnalysis);
+    logInAsSystemAdministrator();
+
+    ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam(PARAM_COMPONENT_QUERY, project.name()));
+
+    assertThat(activityResponse.getTasksList())
+      .extracting(Task::getId, Task::getIncremental)
+      .containsExactlyInAnyOrder(
+        tuple("T1", true),
+        tuple("T2", false));
+  }
+
+  @Test
+  public void incremental_analysis_on_search_uuid() {
+    ComponentDto project = db.components().insertPrivateProject();
+    SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
+    insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    logInAsSystemAdministrator();
+
+    ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam(PARAM_COMPONENT_QUERY, "T1"));
+
+    assertThat(activityResponse.getTasksList())
+      .extracting(Task::getId, Task::getIncremental)
+      .containsExactlyInAnyOrder(tuple("T1", true));
+  }
+
+  @Test
   public void fail_if_both_filters_on_component_id_and_name() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("componentId and componentQuery must not be set at the same time");
@@ -375,6 +406,41 @@ public class ActivityActionTest {
   }
 
   @Test
+  public void throws_IAE_if_pageSize_is_0() {
+    logInAsSystemAdministrator();
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("page size must be >= 1");
+
+    call(ws.newRequest()
+      .setParam(Param.PAGE_SIZE, Integer.toString(0))
+      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
+  }
+
+  @Test
+  public void fail_when_project_does_not_exist() {
+    logInAsSystemAdministrator();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component 'unknown' does not exist");
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, "unknown")
+      .execute();
+  }
+
+  private void assertPage(int pageSize, List<String> expectedOrderedTaskIds) {
+    ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam(Param.PAGE_SIZE, Integer.toString(pageSize))
+      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
+
+    assertThat(activityResponse.getTasksCount()).isEqualTo(expectedOrderedTaskIds.size());
+    for (int i = 0; i < expectedOrderedTaskIds.size(); i++) {
+      String expectedTaskId = expectedOrderedTaskIds.get(i);
+      assertThat(activityResponse.getTasks(i).getId()).isEqualTo(expectedTaskId);
+    }
+  }
+
+  @Test
   public void support_json_response() {
     logInAsSystemAdministrator();
     TestResponse wsResponse = ws.newRequest()
@@ -403,7 +469,7 @@ public class ActivityActionTest {
     return insertActivity(taskUuid, project, status, db.components().insertSnapshot(project));
   }
 
-  private CeActivityDto insertActivity(String taskUuid, ComponentDto project, Status status, SnapshotDto analysis) {
+  private CeActivityDto insertActivity(String taskUuid, ComponentDto project, Status status, @Nullable SnapshotDto analysis) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(project.uuid());
@@ -413,7 +479,7 @@ public class ActivityActionTest {
     activityDto.setStatus(status);
     activityDto.setExecutionTimeMs(500L);
     activityDto.setExecutedAt(EXECUTED_AT);
-    activityDto.setAnalysisUuid(analysis.getUuid());
+    activityDto.setAnalysisUuid(analysis == null ? null : analysis.getUuid());
     db.getDbClient().ceActivityDao(). insert(db.getSession(), activityDto);
     db.commit();
     return activityDto;
