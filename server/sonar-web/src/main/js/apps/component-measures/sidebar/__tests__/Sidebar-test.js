@@ -59,7 +59,7 @@ const MEASURES = [
 
 const PROPS = {
   measures: MEASURES,
-  selectedMetric: 'foo',
+  selectedMetric: 'duplicated_lines_density',
   updateQuery: () => {}
 };
 
@@ -69,9 +69,9 @@ it('should display two facets', () => {
 
 it('should correctly toggle facets', () => {
   const wrapper = shallow(<Sidebar {...PROPS} />);
-  expect(wrapper.state('closedFacets').bugs).toBeUndefined();
+  expect(wrapper.state('openFacets').bugs).toBeUndefined();
   wrapper.instance().toggleFacet('bugs');
-  expect(wrapper.state('closedFacets').bugs).toBeTruthy();
+  expect(wrapper.state('openFacets').bugs).toBeTruthy();
   wrapper.instance().toggleFacet('bugs');
-  expect(wrapper.state('closedFacets').bugs).toBeFalsy();
+  expect(wrapper.state('openFacets').bugs).toBeFalsy();
 });
