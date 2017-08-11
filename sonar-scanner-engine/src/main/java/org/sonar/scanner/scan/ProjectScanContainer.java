@@ -239,7 +239,8 @@ public class ProjectScanContainer extends ComponentContainer {
 
     String branchName = props.property(ScannerProperties.BRANCH_NAME);
     if (branchName != null) {
-      LOG.info("Branch name: {}", branchName);
+      BranchConfiguration branchConfig = getComponentByType(BranchConfiguration.class);
+      LOG.info("Branch name: {}, type: {}", branchName, branchConfig.branchType().toString().toLowerCase());
     }
 
     LOG.debug("Start recursive analysis of project modules");
