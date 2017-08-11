@@ -31,10 +31,11 @@ import org.sonar.api.web.UserRole;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeActivityDto.Status;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -54,8 +55,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.db.component.ComponentTesting.newApplication;
-import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
+import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -72,21 +73,23 @@ public class ActivityActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
-  private ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
+  private TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
+  private ActivityAction underTest = new ActivityAction(userSession, db.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void get_all_past_activity() {
     logInAsSystemAdministrator();
-    OrganizationDto org1 = dbTester.organizations().insert();
-    dbTester.components().insertPrivateProject(org1, "PROJECT_1");
-    OrganizationDto org2 = dbTester.organizations().insert();
-    dbTester.components().insertPrivateProject(org2, "PROJECT_2");
-    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
+    OrganizationDto org1 = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPrivateProject(org1);
+    OrganizationDto org2 = db.organizations().insert();
+    ComponentDto project2 = db.components().insertPrivateProject(org2);
+    SnapshotDto analysisProject1 = db.components().insertSnapshot(project1);
+    insertActivity("T1", project1, SUCCESS, analysisProject1);
+    SnapshotDto analysisProject2 = db.components().insertSnapshot(project2);
+    insertActivity("T2", project2, FAILED, analysisProject2);
 
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam(PARAM_MAX_EXECUTED_AT, formatDateTime(EXECUTED_AT + 2_000)));
@@ -97,14 +100,14 @@ public class ActivityActionTest {
     assertThat(task.getOrganization()).isEqualTo(org2.getKey());
     assertThat(task.getId()).isEqualTo("T2");
     assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
-    assertThat(task.getComponentId()).isEqualTo("PROJECT_2");
-    assertThat(task.getAnalysisId()).isEqualTo("U1");
+    assertThat(task.getComponentId()).isEqualTo(project2.uuid());
+    assertThat(task.getAnalysisId()).isEqualTo(analysisProject2.getUuid());
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getLogs()).isFalse();
     task = activityResponse.getTasks(1);
     assertThat(task.getId()).isEqualTo("T1");
     assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.SUCCESS);
-    assertThat(task.getComponentId()).isEqualTo("PROJECT_1");
+    assertThat(task.getComponentId()).isEqualTo(project1.uuid());
     assertThat(task.getLogs()).isFalse();
     assertThat(task.getOrganization()).isEqualTo(org1.getKey());
   }
@@ -112,11 +115,11 @@ public class ActivityActionTest {
   @Test
   public void filter_by_status() {
     logInAsSystemAdministrator();
-    dbTester.components().insertPrivateProject(dbTester.getDefaultOrganization(), "PROJECT_1");
-    dbTester.components().insertPrivateProject(dbTester.getDefaultOrganization(), "PROJECT_2");
-    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
-    insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    insertActivity("T1", project1, SUCCESS);
+    insertActivity("T2", project2, FAILED);
+    insertQueue("T3", project1, CeQueueDto.Status.IN_PROGRESS);
 
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam("status", "FAILED,IN_PROGRESS"));
@@ -129,9 +132,11 @@ public class ActivityActionTest {
   @Test
   public void filter_by_max_executed_at_exclude() {
     logInAsSystemAdministrator();
-    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
-    insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    insertActivity("T1", project1, SUCCESS);
+    insertActivity("T2", project2, FAILED);
+    insertQueue("T3", project1, CeQueueDto.Status.IN_PROGRESS);
 
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam("status", "FAILED,IN_PROGRESS,SUCCESS")
@@ -143,9 +148,8 @@ public class ActivityActionTest {
   @Test
   public void filter_by_min_submitted_and_max_executed_at_include_day() {
     logInAsSystemAdministrator();
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    dbTester.components().insertPrivateProject(organizationDto, "PROJECT_1");
-    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    ComponentDto project = db.components().insertPrivateProject();
+    insertActivity("T1", project, SUCCESS);
     String today = formatDate(new Date(EXECUTED_AT));
 
     ActivityResponse activityResponse = call(ws.newRequest()
@@ -157,12 +161,12 @@ public class ActivityActionTest {
 
   @Test
   public void filter_on_current_activities() {
-    dbTester.components().insertPrivateProject(dbTester.organizations().insert(), "PROJECT_1");
     logInAsSystemAdministrator();
+    ComponentDto project = db.components().insertPrivateProject();
     // T2 is the current activity (the most recent one)
-    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insertActivity("T2", "PROJECT_1", CeActivityDto.Status.FAILED);
-    insertQueue("T3", "PROJECT_1", CeQueueDto.Status.PENDING);
+    insertActivity("T1", project, SUCCESS);
+    insertActivity("T2", project, FAILED);
+    insertQueue("T3", project, CeQueueDto.Status.PENDING);
 
     ActivityResponse activityResponse = call(
       ws.newRequest()
@@ -175,12 +179,11 @@ public class ActivityActionTest {
   @Test
   public void limit_results() {
     logInAsSystemAdministrator();
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    dbTester.components().insertPrivateProject(organizationDto, "PROJECT_1");
-    dbTester.components().insertPrivateProject(organizationDto, "PROJECT_2");
-    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
-    insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    insertActivity("T1", project1, SUCCESS);
+    insertActivity("T2", project2, FAILED);
+    insertQueue("T3", project1, CeQueueDto.Status.IN_PROGRESS);
 
     assertPage(1, asList("T3"));
     assertPage(2, asList("T3", "T2"));
@@ -212,23 +215,24 @@ public class ActivityActionTest {
 
   @Test
   public void project_administrator_can_access_his_project_activity() {
-    ComponentDto project = dbTester.components().insertPrivateProject(dbTester.organizations().insert(), "PROJECT_1");
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
     // no need to be a system admin
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project1);
+    insertActivity("T1", project1, SUCCESS);
+    insertActivity("T2", project2, FAILED);
 
-    ActivityResponse activityResponse = call(ws.newRequest().setParam("componentId", "PROJECT_1"));
+    ActivityResponse activityResponse = call(ws.newRequest().setParam("componentId", project1.uuid()));
 
     assertThat(activityResponse.getTasksCount()).isEqualTo(1);
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T1");
     assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(WsCe.TaskStatus.SUCCESS);
-    assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo("PROJECT_1");
+    assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo(project1.uuid());
   }
 
   @Test
   public void return_401_if_user_is_not_logged_in() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
@@ -239,17 +243,16 @@ public class ActivityActionTest {
 
   @Test
   public void search_activity_by_component_name() throws IOException {
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto struts = ComponentTesting.newPrivateProjectDto(organizationDto).setName("old apache struts").setUuid("P1").setProjectUuid("P1");
-    ComponentDto zookeeper = ComponentTesting.newPrivateProjectDto(organizationDto).setName("new apache zookeeper").setUuid("P2").setProjectUuid("P2");
-    ComponentDto eclipse = ComponentTesting.newPrivateProjectDto(organizationDto).setName("eclipse").setUuid("P3").setProjectUuid("P3");
-    dbTester.components().insertProjectAndSnapshot(struts);
-    dbTester.components().insertProjectAndSnapshot(zookeeper);
-    dbTester.components().insertProjectAndSnapshot(eclipse);
+    ComponentDto struts = db.components().insertPrivateProject(c -> c.setName("old apache struts"));
+    ComponentDto zookeeper = db.components().insertPrivateProject(c -> c.setName("new apache zookeeper"));
+    ComponentDto eclipse = db.components().insertPrivateProject(c -> c.setName("eclipse"));
+    db.components().insertSnapshot(struts);
+    db.components().insertSnapshot(zookeeper);
+    db.components().insertSnapshot(eclipse);
     logInAsSystemAdministrator();
-    insertActivity("T1", "P1", CeActivityDto.Status.SUCCESS);
-    insertActivity("T2", "P2", CeActivityDto.Status.SUCCESS);
-    insertActivity("T3", "P3", CeActivityDto.Status.SUCCESS);
+    insertActivity("T1", struts, SUCCESS);
+    insertActivity("T2", zookeeper, SUCCESS);
+    insertActivity("T3", eclipse, SUCCESS);
 
     ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
 
@@ -258,11 +261,10 @@ public class ActivityActionTest {
 
   @Test
   public void search_activity_returns_views() {
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto apacheView = newView(organizationDto).setName("Apache View").setUuid("V1").setProjectUuid("V1");
-    dbTester.components().insertViewAndSnapshot(apacheView);
+    ComponentDto apacheView = db.components().insertView(v -> v.setName("Apache View"));
+    db.components().insertSnapshot(apacheView);
     logInAsSystemAdministrator();
-    insertActivity("T2", "V1", CeActivityDto.Status.SUCCESS);
+    insertActivity("T2", apacheView, SUCCESS);
 
     ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
 
@@ -271,11 +273,10 @@ public class ActivityActionTest {
 
   @Test
   public void search_activity_returns_application() {
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto apacheApp = newApplication(organizationDto).setName("Apache App");
-    dbTester.components().insertViewAndSnapshot(apacheApp);
+    ComponentDto apacheApp = db.components().insertApplication(db.getDefaultOrganization(), a -> a.setName("Apache App"));
+    db.components().insertSnapshot(apacheApp);
     logInAsSystemAdministrator();
-    insertActivity("T2", apacheApp.uuid(), CeActivityDto.Status.SUCCESS);
+    insertActivity("T2", apacheApp, SUCCESS);
 
     ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
 
@@ -285,8 +286,8 @@ public class ActivityActionTest {
   @Test
   public void search_task_id_in_queue_ignoring_other_parameters() throws IOException {
     logInAsSystemAdministrator();
-    dbTester.components().insertPrivateProject(dbTester.getDefaultOrganization(), "PROJECT_1");
-    insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
+    ComponentDto project = db.components().insertPrivateProject();
+    insertQueue("T1", project, CeQueueDto.Status.IN_PROGRESS);
 
     ActivityResponse result = call(
       ws.newRequest()
@@ -300,8 +301,8 @@ public class ActivityActionTest {
   @Test
   public void search_task_id_in_activity() {
     logInAsSystemAdministrator();
-    dbTester.components().insertPrivateProject(dbTester.getDefaultOrganization(), "PROJECT_1");
-    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    ComponentDto project = db.components().insertPrivateProject();
+    insertActivity("T1", project, SUCCESS);
 
     ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
 
@@ -314,8 +315,8 @@ public class ActivityActionTest {
     // WS api/ce/task must be used in order to search by task id.
     // Here it's a convenient feature of search by text query, which
     // is reserved to roots
-    ComponentDto view = dbTester.components().insertView();
-    insertActivity("T1", view.uuid(), CeActivityDto.Status.SUCCESS);
+    ComponentDto view = db.components().insertView();
+    insertActivity("T1", view, SUCCESS);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, view);
 
     expectedException.expect(ForbiddenException.class);
@@ -326,13 +327,13 @@ public class ActivityActionTest {
 
   @Test
   public void search_task_by_component_id() {
-    ComponentDto project = dbTester.components().insertPrivateProject(dbTester.getDefaultOrganization(), "PROJECT_1");
-    insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
-    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    ComponentDto project = db.components().insertPrivateProject();
+    insertQueue("T1", project, CeQueueDto.Status.IN_PROGRESS);
+    insertActivity("T1", project, SUCCESS);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     ActivityResponse result = call(ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "PROJECT_1")
+      .setParam(PARAM_COMPONENT_ID, project.uuid())
       .setParam(PARAM_TYPE, CeTaskTypes.REPORT)
       .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
 
@@ -387,30 +388,34 @@ public class ActivityActionTest {
     userSession.logIn().setSystemAdministrator();
   }
 
-  private CeQueueDto insertQueue(String taskUuid, String componentUuid, CeQueueDto.Status status) {
+  private CeQueueDto insertQueue(String taskUuid, ComponentDto project, CeQueueDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponentUuid(componentUuid);
+    queueDto.setComponentUuid(project.uuid());
     queueDto.setUuid(taskUuid);
     queueDto.setStatus(status);
-    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
-    dbTester.commit();
+    db.getDbClient().ceQueueDao().insert(db.getSession(), queueDto);
+    db.commit();
     return queueDto;
   }
 
-  private CeActivityDto insertActivity(String taskUuid, String componentUuid, CeActivityDto.Status status) {
+  private CeActivityDto insertActivity(String taskUuid, ComponentDto project, Status status) {
+    return insertActivity(taskUuid, project, status, db.components().insertSnapshot(project));
+  }
+
+  private CeActivityDto insertActivity(String taskUuid, ComponentDto project, Status status, SnapshotDto analysis) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponentUuid(componentUuid);
+    queueDto.setComponentUuid(project.uuid());
     queueDto.setUuid(taskUuid);
     queueDto.setCreatedAt(EXECUTED_AT);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);
     activityDto.setExecutionTimeMs(500L);
     activityDto.setExecutedAt(EXECUTED_AT);
-    activityDto.setAnalysisUuid("U1");
-    dbTester.getDbClient().ceActivityDao(). insert(dbTester.getSession(), activityDto);
-    dbTester.commit();
+    activityDto.setAnalysisUuid(analysis.getUuid());
+    db.getDbClient().ceActivityDao(). insert(db.getSession(), activityDto);
+    db.commit();
     return activityDto;
   }
 
