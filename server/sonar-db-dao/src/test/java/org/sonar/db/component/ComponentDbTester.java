@@ -202,7 +202,8 @@ public class ComponentDbTester {
     BranchDto branchDto = new BranchDto()
       .setKey("branch_" + randomAlphanumeric(248))
       .setUuid(uuid)
-      .setProjectUuid(project.uuid())
+      // MainBranchProjectUuid will be null if it's a main branch
+      .setProjectUuid(firstNonNull(project.getMainBranchProjectUuid(), project.projectUuid()))
       .setKeeType(BRANCH)
       .setBranchType(LONG);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(branchDto));
@@ -211,6 +212,10 @@ public class ComponentDbTester {
     dbClient.branchDao().insert(dbSession, branchDto);
     db.commit();
     return branch;
+  }
+
+  private static <T> T firstNonNull(@Nullable T first, T second) {
+    return (first != null) ? first : second;
   }
 
 }
