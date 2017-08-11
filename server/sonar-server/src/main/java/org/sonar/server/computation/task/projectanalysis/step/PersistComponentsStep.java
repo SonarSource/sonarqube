@@ -19,7 +19,13 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Predicate;
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Optional.ofNullable;
+import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
+import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
+import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
+import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -31,6 +37,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
@@ -39,7 +46,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -54,15 +60,9 @@ import org.sonar.server.computation.task.projectanalysis.component.PathAwareCraw
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static com.google.common.collect.FluentIterable.from;
-import static java.util.Optional.ofNullable;
-import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
-import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
-import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
-import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+import com.google.common.base.Predicate;
 
 /**
  * Persist report components
@@ -118,7 +118,7 @@ public class PersistComponentsStep implements ComputationStep {
 
       // Insert or update the components in database. They are removed from existingDtosByKeys
       // at the same time.
-      new PathAwareCrawler<>(new PersistComponentStepsVisitor(existingDtosByKeys, dbSession, skipUnchangedFiles(), mainBranchProjectUuid))
+      new PathAwareCrawler<>(new PersistComponentStepsVisitor(existingDtosByKeys, dbSession, mainBranchProjectUuid))
         .visit(treeRootHolder.getRoot());
 
       disableRemainingComponents(dbSession, existingDtosByKeys.values());
@@ -126,11 +126,6 @@ public class PersistComponentsStep implements ComputationStep {
 
       dbSession.commit();
     }
-  }
-
-  private boolean skipUnchangedFiles() {
-    Optional<Branch> branch = analysisMetadataHolder.getBranch();
-    return branch.isPresent() && branch.get().getType() == BranchType.SHORT;
   }
 
   /**
@@ -185,11 +180,10 @@ public class PersistComponentsStep implements ComputationStep {
 
     private final Map<String, ComponentDto> existingComponentDtosByKey;
     private final DbSession dbSession;
-    private final boolean onlyChanged;
     @Nullable
     private final String mainBranchProjectUuid;
 
-    PersistComponentStepsVisitor(Map<String, ComponentDto> existingComponentDtosByKey, DbSession dbSession, boolean onlyChanged, @Nullable String mainBranchProjectUuid) {
+    PersistComponentStepsVisitor(Map<String, ComponentDto> existingComponentDtosByKey, DbSession dbSession, @Nullable String mainBranchProjectUuid) {
       super(
         CrawlerDepthLimit.LEAVES,
         PRE_ORDER,
@@ -213,7 +207,6 @@ public class PersistComponentsStep implements ComputationStep {
         });
       this.existingComponentDtosByKey = existingComponentDtosByKey;
       this.dbSession = dbSession;
-      this.onlyChanged = onlyChanged;
       this.mainBranchProjectUuid = mainBranchProjectUuid;
     }
 
@@ -237,9 +230,6 @@ public class PersistComponentsStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file, Path<ComponentDtoHolder> path) {
-      if (onlyChanged && file.getStatus() == Status.SAME) {
-        return;
-      }
       ComponentDto dto = createForFile(file, path);
       persistAndPopulateCache(file, dto);
     }
