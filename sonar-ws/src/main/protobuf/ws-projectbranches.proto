@@ -43,9 +43,9 @@ message Branch {
     // Quality gate status is only present for long living branch
     optional string qualityGateStatus = 1;
     // Merge bugs, vulnerabilities and codeSmell are only present for short living branch
-    optional string bugs = 2;
-    optional string vulnerabilities = 3;
-    optional string codeSmell = 4;
+    optional int32 bugs = 2;
+    optional int32 vulnerabilities = 3;
+    optional int32 codeSmells = 4;
   }
 
   enum BranchType {
