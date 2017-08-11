@@ -134,11 +134,18 @@ BUILD)
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
           $MAVEN_ARGS \
           -Pdeploy-sonarsource,release
-    mvn sonar:sonar \
+    if [[ "$TRAVIS_BUILD_NUMBER" == *0 ]]; then
+      mvn sonar:sonar \
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.login=$SONAR_TOKEN \
           -Dsonar.projectVersion=$INITIAL_VERSION
-
+    else
+      mvn sonar:sonar \
+          -Dsonar.incremental=true \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.login=$SONAR_TOKEN \
+          -Dsonar.projectVersion=$INITIAL_VERSION
+    fi
 
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build release branch'
