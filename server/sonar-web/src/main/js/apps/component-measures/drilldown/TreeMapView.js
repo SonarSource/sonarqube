@@ -21,10 +21,11 @@
 import React from 'react';
 import { AutoSizer } from 'react-virtualized';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
-import QualifierIcon from '../../../components/icons-components/QualifierIcon';
-import TreeMap from '../../../components/charts/TreeMap';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
 import ColorGradientLegend from '../../../components/charts/ColorGradientLegend';
+import EmptyResult from './EmptyResult';
+import QualifierIcon from '../../../components/icons-components/QualifierIcon';
+import TreeMap from '../../../components/charts/TreeMap';
 import { translate, translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getComponentUrl } from '../../../helpers/urls';
@@ -164,6 +165,11 @@ export default class TreeMapView extends React.PureComponent {
   }
 
   render() {
+    const { treemapItems } = this.state;
+    if (treemapItems.length <= 0) {
+      return <EmptyResult />;
+    }
+
     return (
       <div className="measure-details-treemap">
         <ul className="list-inline note spacer-bottom">
@@ -186,7 +192,7 @@ export default class TreeMapView extends React.PureComponent {
         <AutoSizer>
           {({ width }) =>
             <TreeMap
-              items={this.state.treemapItems}
+              items={treemapItems}
               onRectangleClick={this.props.handleSelect}
               height={HEIGHT}
               width={width}
