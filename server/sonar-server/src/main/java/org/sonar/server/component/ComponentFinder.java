@@ -105,6 +105,14 @@ public class ComponentFinder {
     throw new NotFoundException(format(message, messageArguments));
   }
 
+  private static ComponentDto checkComponent(java.util.Optional<ComponentDto> componentDto, String message, Object... messageArguments) {
+    if (componentDto.isPresent() && componentDto.get().isEnabled()) {
+      return componentDto.get();
+    }
+    throw new NotFoundException(format(message, messageArguments));
+  }
+
+
   public ComponentDto getRootComponentByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey) {
     ComponentDto project;
     if (projectUuid != null) {
@@ -144,7 +152,7 @@ public class ComponentFinder {
   }
 
   public ComponentDto getByKeyAndBranch(DbSession dbSession, String key, String branch) {
-    return checkFoundWithOptional(dbClient.componentDao().selectByKeyAndBranch(dbSession, key, branch), "Component '%s' on branch '%s' not found", key, branch);
+    return checkComponent(dbClient.componentDao().selectByKeyAndBranch(dbSession, key, branch), "Component '%s' on branch '%s' not found", key, branch);
   }
 
   public enum ParamNames {
