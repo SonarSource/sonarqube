@@ -30,6 +30,11 @@ message ListWsResponse {
   repeated Branch branches = 1;
 }
 
+// WS api/project_branches/show
+message ShowWsResponse {
+  optional Branch branch = 1;
+}
+
 message Branch {
   optional string name = 1;
   optional string project = 2;
