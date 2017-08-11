@@ -112,15 +112,16 @@ public class ListAction implements BranchWsAction {
       WsBranches.ListWsResponse.Builder protobufResponse = WsBranches.ListWsResponse.newBuilder();
       branches.stream()
         .filter(b -> b.getKeeType().equals(BranchKeyType.BRANCH))
-        .forEach(b -> addToProtobuf(protobufResponse, b, mergeBranchesByUuid, metricIdsByKey, measuresByComponentUuids));
+        .forEach(b -> addToProtobuf(protobufResponse, b, project, mergeBranchesByUuid, metricIdsByKey, measuresByComponentUuids));
       WsUtils.writeProtobuf(protobufResponse.build(), request, response);
     }
   }
 
-  private static void addToProtobuf(WsBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
+  private static void addToProtobuf(WsBranches.ListWsResponse.Builder response, BranchDto branch, ComponentDto project, Map<String, BranchDto> mergeBranchesByUuid,
     Map<String, Integer> metricIdsByKey, Multimap<String, MeasureDto> measuresByComponentUuids) {
     WsBranches.Branch.Builder builder = response.addBranchesBuilder();
     setNullable(branch.getKey(), builder::setName);
+    builder.setProject(project.getKey());
     builder.setIsMain(branch.isMain());
     builder.setType(WsBranches.Branch.BranchType.valueOf(branch.getBranchType().name()));
     String mergeBranchUuid = branch.getMergeBranchUuid();
@@ -130,15 +131,16 @@ public class ListAction implements BranchWsAction {
       setNullable(mergeBranch.getKey(), builder::setMergeBranch);
     }
 
-    Status.Builder statusBuilder = Status.newBuilder();
     Collection<MeasureDto> componentMeasures = measuresByComponentUuids.get(branch.getUuid());
     if (branch.getBranchType().equals(LONG)) {
+      Status.Builder statusBuilder = Status.newBuilder();
       int qualityGateStatusMetricId = metricIdsByKey.get(ALERT_STATUS_KEY);
       componentMeasures.stream().filter(m -> m.getMetricId() == qualityGateStatusMetricId).findAny()
-        .ifPresent(measure -> statusBuilder.setQualityGateStatus(measure.getData()));
+        .ifPresent(measure -> builder.setStatus(statusBuilder.setQualityGateStatus(measure.getData())));
     }
 
     if (branch.getBranchType().equals(SHORT)) {
+      Status.Builder statusBuilder = Status.newBuilder();
       int bugsMetricId = metricIdsByKey.get(BUGS_KEY);
       componentMeasures.stream().filter(m -> m.getMetricId() == bugsMetricId).findAny()
         .ifPresent(measure -> statusBuilder.setBugs(measure.getValue().intValue()));
@@ -150,9 +152,8 @@ public class ListAction implements BranchWsAction {
       int codeSmellMetricId = metricIdsByKey.get(CODE_SMELLS_KEY);
       componentMeasures.stream().filter(m -> m.getMetricId() == codeSmellMetricId).findAny()
         .ifPresent(measure -> statusBuilder.setCodeSmells(measure.getValue().intValue()));
+      builder.setStatus(statusBuilder);
     }
-
-    builder.setStatus(statusBuilder);
     builder.build();
   }
 
