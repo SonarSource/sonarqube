@@ -1,0 +1,8 @@
+{
+  "branch": {
+    "name": "feature/bar",
+    "project": "sonarqube",
+    "isMain": false,
+    "type": "LONG"
+  }
+}
