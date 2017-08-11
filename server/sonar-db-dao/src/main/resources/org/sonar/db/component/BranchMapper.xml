@@ -61,4 +61,15 @@
     where
     pb.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
+
+  <select id="selectByUuids" resultType="org.sonar.db.component.BranchDto">
+    select <include refid="columns" />
+    from project_branches pb
+    where
+    pb.uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
 </mapper>
