@@ -77,6 +77,7 @@ import org.sonarqube.ws.client.issue.IssuesWsParameters;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
@@ -811,6 +812,10 @@ public class SearchActionComponentsTest {
     assertThat(result.getIssuesList()).extracting(Issues.Issue::getKey)
       .containsExactlyInAnyOrder(branchIssue.getKey())
       .doesNotContain(projectIssue.getKey());
+    assertThat(result.getComponentsList()).extracting(Issues.Component::getKey, Issues.Component::getBranch)
+      .containsExactlyInAnyOrder(
+        tuple(branchFile.getKey(), branchFile.getBranch()),
+        tuple(branch.getKey(), branch.getBranch()));
   }
 
   @Test
