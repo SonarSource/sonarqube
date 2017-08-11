@@ -19,11 +19,10 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
+
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracking;
-import org.sonar.db.component.BranchType;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 public class IssueTrackingDelegator {
@@ -37,13 +36,8 @@ public class IssueTrackingDelegator {
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
-  private boolean isShortLivingBranch() {
-    java.util.Optional<Branch> branch = analysisMetadataHolder.getBranch();
-    return branch.isPresent() && branch.get().getType() == BranchType.SHORT;
-  }
-
   public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
-    if (isShortLivingBranch()) {
+    if (analysisMetadataHolder.isShortLivingBranch()) {
       return shortBranchTracker.track(component);
     } else {
       return tracker.track(component);
