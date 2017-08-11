@@ -19,8 +19,10 @@
  */
 package org.sonar.server.projectbranch.ws;
 
+import com.google.common.collect.Multimap;
 import com.google.common.io.Resources;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.sonar.api.resources.Qualifiers;
@@ -33,12 +35,20 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchKeyType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsBranches;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Arrays.asList;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
+import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
+import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -84,20 +94,28 @@ public class ListAction implements BranchWsAction {
         throw new IllegalArgumentException("Invalid project key");
       }
 
+      List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, asList(ALERT_STATUS_KEY));
+      Map<Integer, MetricDto> metricsById = metrics.stream().collect(uniqueIndex(MetricDto::getId));
+      Map<String, Integer> metricIdsByKey = metrics.stream().collect(uniqueIndex(MetricDto::getKey, MetricDto::getId));
+
       Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project);
       Map<String, BranchDto> mergeBranchesByUuid = dbClient.branchDao()
         .selectByUuids(dbSession, branches.stream().map(BranchDto::getMergeBranchUuid).filter(Objects::nonNull).collect(toList()))
         .stream().collect(uniqueIndex(BranchDto::getUuid));
+      Multimap<String, MeasureDto> measuresByComponentUuids = dbClient.measureDao()
+        .selectByComponentsAndMetrics(dbSession, branches.stream().map(BranchDto::getUuid).collect(toList()), metricsById.keySet())
+        .stream().collect(index(MeasureDto::getComponentUuid));
 
       WsBranches.ListWsResponse.Builder protobufResponse = WsBranches.ListWsResponse.newBuilder();
       branches.stream()
         .filter(b -> b.getKeeType().equals(BranchKeyType.BRANCH))
-        .forEach(b -> addToProtobuf(protobufResponse, b, mergeBranchesByUuid));
+        .forEach(b -> addToProtobuf(protobufResponse, b, mergeBranchesByUuid, metricIdsByKey, measuresByComponentUuids));
       WsUtils.writeProtobuf(protobufResponse.build(), request, response);
     }
   }
 
-  private static void addToProtobuf(WsBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid) {
+  private static void addToProtobuf(WsBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
+    Map<String, Integer> metricIdsByKey, Multimap<String, MeasureDto> measuresByComponentUuids) {
     WsBranches.Branch.Builder builder = response.addBranchesBuilder();
     setNullable(branch.getKey(), builder::setName);
     builder.setIsMain(branch.isMain());
@@ -108,6 +126,10 @@ public class ListAction implements BranchWsAction {
       checkState(mergeBranch != null, "Component uuid '%s' cannot be found", mergeBranch);
       setNullable(mergeBranch.getKey(), builder::setMergeBranch);
     }
+
+    int qualityGateStatusMetricId = metricIdsByKey.get(ALERT_STATUS_KEY);
+    measuresByComponentUuids.get(branch.getUuid()).stream().filter(m -> m.getMetricId() == qualityGateStatusMetricId).findAny()
+      .ifPresent(measure -> builder.setStatus(WsBranches.Branch.Status.newBuilder().setQualityGateStatus(measure.getData())));
     builder.build();
   }
 }
