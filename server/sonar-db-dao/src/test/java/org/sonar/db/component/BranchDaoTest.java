@@ -189,4 +189,17 @@ public class BranchDaoTest {
       .containsExactlyInAnyOrder(branch1.uuid());
     assertThat(underTest.selectByUuids(db.getSession(), singletonList("unknown"))).isEmpty();
   }
+
+  @Test
+  public void selectByUuid() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch1 = db.components().insertProjectBranch(project);
+    ComponentDto branch2 = db.components().insertProjectBranch(project);
+
+    assertThat(underTest.selectByUuid(db.getSession(), branch1.uuid()).get())
+      .extracting(BranchDto::getUuid)
+      .containsExactlyInAnyOrder(branch1.uuid());
+    assertThat(underTest.selectByUuid(db.getSession(), project.uuid())).isNotPresent();
+    assertThat(underTest.selectByUuid(db.getSession(), "unknown")).isNotPresent();
+  }
 }

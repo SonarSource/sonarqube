@@ -20,12 +20,15 @@
 package org.sonarqube.ws.client.projectbranches;
 
 import org.sonarqube.ws.WsBranches.ListWsResponse;
+import org.sonarqube.ws.WsBranches.ShowWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.CONTROLLER;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
 
 public class ProjectBranchesService extends BaseService {
@@ -38,6 +41,13 @@ public class ProjectBranchesService extends BaseService {
     GetRequest get = new GetRequest(path(ACTION_LIST))
       .setParam(PARAM_PROJECT, project);
     return call(get, ListWsResponse.parser());
+  }
+
+  public ShowWsResponse show(String project, String branch) {
+    GetRequest get = new GetRequest(path(ACTION_SHOW))
+      .setParam(PARAM_PROJECT, project)
+      .setParam(PARAM_BRANCH, branch);
+    return call(get, ShowWsResponse.parser());
   }
 
 }
