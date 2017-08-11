@@ -19,22 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
-import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
-import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
-import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitorAdapter;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.server.computation.task.projectanalysis.formula.Formula;
-import org.sonar.server.computation.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
-import org.sonar.server.computation.task.projectanalysis.measure.Measure;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
-import org.sonar.server.computation.task.projectanalysis.metric.Metric;
-import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
-import org.sonar.server.computation.task.step.ComputationStep;
-
 import static org.sonar.api.measures.CoreMetrics.ACCESSORS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
 import static org.sonar.api.measures.CoreMetrics.DIRECTORIES_KEY;
@@ -49,19 +33,38 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.formula.SumFormula.createIntSumFormula;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
+import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
+import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitorAdapter;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.server.computation.task.projectanalysis.formula.Formula;
+import org.sonar.server.computation.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.task.projectanalysis.measure.Measure;
+import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
+import org.sonar.server.computation.task.projectanalysis.metric.Metric;
+import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
+import org.sonar.server.computation.task.step.ComputationStep;
+
+import com.google.common.base.Optional;
+
 /**
  * Compute size measures
  */
 public class SizeMeasuresStep implements ComputationStep {
   private static final CounterStackElementFactory COUNTER_STACK_ELEMENT_FACTORY = new CounterStackElementFactory();
-  private static final List<Formula> AGGREGATED_SIZE_MEASURE_FORMULAS = ImmutableList.<Formula>of(
+  private static final List<Formula> AGGREGATED_SIZE_MEASURE_FORMULAS = Collections.unmodifiableList(Arrays.asList(
     createIntSumFormula(GENERATED_LINES_KEY),
     createIntSumFormula(NCLOC_KEY),
     createIntSumFormula(GENERATED_NCLOC_KEY),
     createIntSumFormula(FUNCTIONS_KEY),
     createIntSumFormula(STATEMENTS_KEY),
     createIntSumFormula(CLASSES_KEY),
-    createIntSumFormula(ACCESSORS_KEY));
+    createIntSumFormula(ACCESSORS_KEY)));
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
