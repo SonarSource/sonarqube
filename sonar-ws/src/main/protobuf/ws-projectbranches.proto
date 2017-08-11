@@ -33,6 +33,8 @@ message ListWsResponse {
     optional string name = 1;
     optional bool isMain = 2;
     optional BranchType type = 3;
+    // Merge branch is only present if it's a short living branch
+    optional string mergeBranch = 4;
   }
 
   enum BranchType {
