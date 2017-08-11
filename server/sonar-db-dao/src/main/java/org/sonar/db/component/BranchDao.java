@@ -66,6 +66,11 @@ public class BranchDao implements Dao {
     return executeLargeInputs(uuids, mapper(session)::selectByUuids);
   }
 
+  public Optional<BranchDto> selectByUuid(DbSession session, String uuid) {
+    return Optional.ofNullable(mapper(session).selectByUuid(uuid));
+  }
+
+
   private static BranchMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(BranchMapper.class);
   }
