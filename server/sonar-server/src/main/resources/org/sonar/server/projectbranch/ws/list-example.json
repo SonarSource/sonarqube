@@ -2,11 +2,13 @@
   "branches": [
     {
       "name": "feature/bar",
+      "project": "sonarqube",
       "isMain": false,
       "type": "LONG"
     },
     {
       "name": "feature/foo",
+      "project": "sonarqube",
       "isMain": false,
       "type": "SHORT",
       "mergeBranch": "feature/bar"
