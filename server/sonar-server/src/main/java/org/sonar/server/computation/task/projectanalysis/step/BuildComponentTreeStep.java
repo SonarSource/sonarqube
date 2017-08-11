@@ -79,12 +79,14 @@ public class BuildComponentTreeStep implements ComputationStep {
 
       String rootUuid = componentUuidFactory.getOrCreateForKey(rootKey);
       SnapshotDto baseAnalysis = loadBaseAnalysis(dbSession, rootUuid);
+      boolean skipUnchangedFiles = analysisMetadataHolder.isShortLivingBranch();
 
       ComponentTreeBuilder builder = new ComponentTreeBuilder(keyGenerator,
         componentUuidFactory::getOrCreateForKey,
         reportReader::readComponent,
         analysisMetadataHolder.getProject(),
-        baseAnalysis);
+        baseAnalysis,
+        skipUnchangedFiles);
       Component project = builder.buildProject(reportProject);
 
       treeRootHolder.setRoot(project);

@@ -153,4 +153,9 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
     delegate.setIncrementalAnalysis(isIncrementalAnalysis);
     return this;
   }
+
+  @Override
+  public boolean isShortLivingBranch() {
+    return delegate.isShortLivingBranch();
+  }
 }
