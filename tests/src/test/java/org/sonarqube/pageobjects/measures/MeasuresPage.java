@@ -25,6 +25,7 @@ import org.openqa.selenium.Keys;
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 
 public class MeasuresPage {
   public MeasuresPage() {
@@ -75,9 +76,17 @@ public class MeasuresPage {
     return this;
   }
 
+  public MeasuresPage openFacet(String facet) {
+    SelenideElement facetBox = $$(".search-navigator-facet-box").find(text(facet));
+    if(!facetBox.find("search-navigator-facet-list").isDisplayed()) {
+      facetBox.$(".search-navigator-facet-header a").should(exist).click();
+    }
+    return this;
+  }
+
   public MeasureContent openMeasureContent(String measure) {
     SelenideElement sidebar = this.getSideBar();
-    SelenideElement facetItem = sidebar.$("#measure-" + measure + "-name").should(exist);
+    SelenideElement facetItem = sidebar.$("#measure-" + measure + "-name");
     facetItem.click();
     MeasureContent content = new MeasureContent($("#component-measures .measure-details-content").should(exist));
     content.shouldHaveTitle(facetItem.getText());
