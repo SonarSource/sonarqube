@@ -2,6 +2,10 @@
   margin-right: 4px;
 }
 
+.domain-measures-value span {
+  line-height: 16px;
+}
+
 .domain-measures-value .rating {
   margin-left: -4px;
   margin-right: -4px;
@@ -14,7 +18,7 @@
 }
 
 .facet .domain-measures-leak {
-  padding: 4px 8px;
+  padding: 3px 8px;
   margin: -5px -5px;
 }
 
