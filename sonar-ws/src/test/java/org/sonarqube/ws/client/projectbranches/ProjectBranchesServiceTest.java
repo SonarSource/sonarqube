@@ -23,12 +23,14 @@ package org.sonarqube.ws.client.projectbranches;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.WsBranches.ListWsResponse;
+import org.sonarqube.ws.WsBranches.ShowWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
 
 public class ProjectBranchesServiceTest {
@@ -48,6 +50,20 @@ public class ProjectBranchesServiceTest {
     serviceTester.assertThat(getRequest)
       .hasPath("list")
       .hasParam(PARAM_PROJECT, "projectKey")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void show() {
+    underTest.show("projectKey", "my_branch");
+
+    assertThat(serviceTester.getGetParser()).isSameAs(ShowWsResponse.parser());
+
+    GetRequest getRequest = serviceTester.getGetRequest();
+    serviceTester.assertThat(getRequest)
+      .hasPath("show")
+      .hasParam(PARAM_PROJECT, "projectKey")
+      .hasParam(PARAM_BRANCH, "my_branch")
       .andNoOtherParam();
   }
 
