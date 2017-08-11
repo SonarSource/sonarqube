@@ -8,7 +8,8 @@
     {
       "name": "feature/foo",
       "isMain": false,
-      "type": "LONG"
+      "type": "SHORT",
+      "mergeBranch": "feature/bar"
     }
   ]
 }
