@@ -6,7 +6,7 @@ exports[`should display two facets 1`] = `
 >
   <ProjectOverviewFacet
     onChange={[Function]}
-    selected="foo"
+    selected="duplicated_lines_density"
     value="project_overview"
   />
   <DomainFacet
@@ -51,8 +51,7 @@ exports[`should display two facets 1`] = `
     }
     onChange={[Function]}
     onToggle={[Function]}
-    open={true}
-    selected="foo"
+    selected="duplicated_lines_density"
   />
   <DomainFacet
     domain={
@@ -81,7 +80,7 @@ exports[`should display two facets 1`] = `
     onChange={[Function]}
     onToggle={[Function]}
     open={true}
-    selected="foo"
+    selected="duplicated_lines_density"
   />
 </div>
 `;
