@@ -182,6 +182,7 @@ message Component {
   optional string path = 8;
   optional int64 unusedProjectId = 9;
   optional int64 unusedSubProjectId = 10;
+  optional string branch = 12;
 }
 
 // Response of GET api/issues/changelog
