@@ -114,12 +114,14 @@ export default class FacetHeader extends React.PureComponent {
           </button>}
 
         {this.props.onClick
-          ? <a className="search-navigator-facet-header" href="#" onClick={this.handleClick}>
-              {this.renderCheckbox()}
-              {this.props.name}
+          ? <span className="search-navigator-facet-header">
+              <a href="#" onClick={this.handleClick}>
+                {this.renderCheckbox()}
+                {this.props.name}
+              </a>
               {this.renderHelper()}
               {this.renderValueIndicator()}
-            </a>
+            </span>
           : <span className="search-navigator-facet-header">
               {this.props.name}
               {this.renderHelper()}
