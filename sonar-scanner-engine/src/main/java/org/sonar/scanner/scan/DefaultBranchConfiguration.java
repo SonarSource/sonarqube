@@ -20,7 +20,9 @@
 package org.sonar.scanner.scan;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 public class DefaultBranchConfiguration implements BranchConfiguration {
   @Override
   public BranchType branchType() {
