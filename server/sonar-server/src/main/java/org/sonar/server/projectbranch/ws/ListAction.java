@@ -98,15 +98,15 @@ public class ListAction implements BranchWsAction {
   }
 
   private static void addToProtobuf(WsBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid) {
-    WsBranches.ListWsResponse.Branch.Builder builder = response.addBranchesBuilder();
+    WsBranches.Branch.Builder builder = response.addBranchesBuilder();
     setNullable(branch.getKey(), builder::setName);
     builder.setIsMain(branch.isMain());
-    builder.setType(WsBranches.ListWsResponse.BranchType.valueOf(branch.getBranchType().name()));
+    builder.setType(WsBranches.Branch.BranchType.valueOf(branch.getBranchType().name()));
     String mergeBranchUuid = branch.getMergeBranchUuid();
     if (mergeBranchUuid != null) {
-      BranchDto megeBranch = mergeBranchesByUuid.get(mergeBranchUuid);
-      checkState(megeBranch != null, "Component uuid '%s' cannot be found", megeBranch);
-      setNullable(megeBranch.getKey(), builder::setMergeBranch);
+      BranchDto mergeBranch = mergeBranchesByUuid.get(mergeBranchUuid);
+      checkState(mergeBranch != null, "Component uuid '%s' cannot be found", mergeBranch);
+      setNullable(mergeBranch.getKey(), builder::setMergeBranch);
     }
     builder.build();
   }
