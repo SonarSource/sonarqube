@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
-import org.sonar.db.RowNotFoundException;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.exceptions.NotFoundException;
@@ -34,6 +34,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsBranches.ListWsResponse;
+import org.sonarqube.ws.WsBranches.ListWsResponse.Branch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -118,16 +119,40 @@ public class ListActionTest {
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getBranchesList())
-      .extracting(ListWsResponse.Branch::getName, ListWsResponse.Branch::getType)
+      .extracting(Branch::getName, Branch::getType)
       .containsExactlyInAnyOrder(
-        tuple("feature/foo", ListWsResponse.BranchType.LONG), tuple("feature/bar", ListWsResponse.BranchType.LONG));
+        tuple("feature/foo", ListWsResponse.BranchType.LONG),
+        tuple("feature/bar", ListWsResponse.BranchType.LONG));
+  }
+
+  @Test
+  public void short_living_branches() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project,
+      b -> b.setKey("long").setBranchType(BranchType.LONG));
+    ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
+      b -> b.setKey("short").setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
+    ComponentDto shortLivingBranchOnMaster = db.components().insertProjectBranch(project,
+      b -> b.setKey("short_on_master").setBranchType(BranchType.SHORT).setMergeBranchUuid(project.uuid()));
+
+    ListWsResponse response = tester.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getBranchesList())
+      .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
+      .containsExactlyInAnyOrder(
+        tuple(longLivingBranch.getBranch(), ListWsResponse.BranchType.LONG, ""),
+        tuple(shortLivingBranch.getBranch(), ListWsResponse.BranchType.SHORT, longLivingBranch.getBranch()),
+        tuple(shortLivingBranchOnMaster.getBranch(), ListWsResponse.BranchType.SHORT, ""));
   }
 
   @Test
   public void test_example() {
     ComponentDto project = db.components().insertPrivateProject();
-    db.components().insertProjectBranch(project, b -> b.setKey("feature/bar"));
-    db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(BranchType.LONG));
+    db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     String json = tester.newRequest()
