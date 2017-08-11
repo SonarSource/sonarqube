@@ -89,7 +89,7 @@ public class MemoryTest extends AbstractPerfTest {
       .setProjectDir(baseDir);
 
     BuildResult result = orchestrator.executeBuild(scanner);
-    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 6740L);
+    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 7590L);
 
     // Second execution with a property on server side
     orchestrator.getServer().newHttpCall("/api/settings/set")
@@ -100,7 +100,7 @@ public class MemoryTest extends AbstractPerfTest {
       .setParam("component", "big-module-tree")
       .execute();
     result = orchestrator.executeBuild(scanner);
-    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 6720L);
+    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 7742L);
   }
 
   private void prepareModule(File parentDir, String moduleName, int depth) throws IOException {
