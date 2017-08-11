@@ -196,7 +196,7 @@ export default class MeasureContent extends React.PureComponent {
       const component = this.state.components.find(
         component => component.refKey === componentKey || component.key === componentKey
       );
-      if (component && component.qualifier === 'TRK') {
+      if (component && component.refKey != null) {
         if (this.props.view === 'treemap') {
           this.props.router.push(getProjectUrl(componentKey));
         }
@@ -315,7 +315,8 @@ export default class MeasureContent extends React.PureComponent {
             </div>
           </div>
         </div>
-        {metric == null && <MetricNotFound className="layout-page-main-inner measure-details-content" />}
+        {metric == null &&
+          <MetricNotFound className="layout-page-main-inner measure-details-content" />}
         {metric != null &&
           measure != null &&
           <div className="layout-page-main-inner measure-details-content">

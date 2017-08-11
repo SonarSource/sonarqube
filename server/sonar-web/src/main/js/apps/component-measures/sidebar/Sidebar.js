@@ -21,7 +21,7 @@
 import React from 'react';
 import ProjectOverviewFacet from './ProjectOverviewFacet';
 import DomainFacet from './DomainFacet';
-import { groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW } from '../utils';
+import { getDefaultView, groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW } from '../utils';
 import type { MeasureEnhanced } from '../../../components/measure/types';
 import type { Query } from '../types';
 
@@ -67,9 +67,10 @@ export default class Sidebar extends React.PureComponent {
     }));
   };
 
-  resetSelection = () => ({ selected: null, view: 'list' });
+  resetSelection = (metric: string) => ({ selected: null, view: getDefaultView(metric) });
 
-  changeMetric = (metric: string) => this.props.updateQuery({ metric, ...this.resetSelection() });
+  changeMetric = (metric: string) =>
+    this.props.updateQuery({ metric, ...this.resetSelection(metric) });
 
   render() {
     return (

@@ -27,7 +27,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import FacetMeasureValue from './FacetMeasureValue';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import Tooltip from '../../../components/controls/Tooltip';
-import { filterMeasures, hasBubbleChart, sortMeasures } from '../utils';
+import { filterMeasures, hasBubbleChart, hasFacetStat, sortMeasures } from '../utils';
 import {
   getLocalizedMetricDomain,
   getLocalizedMetricName,
@@ -119,7 +119,9 @@ export default class DomainFacet extends React.PureComponent {
                   </Tooltip>
                 }
                 onClick={this.props.onChange}
-                stat={<FacetMeasureValue measure={measure} />}
+                stat={
+                  hasFacetStat(measure.metric.key) ? <FacetMeasureValue measure={measure} /> : null
+                }
                 value={measure.metric.key}
               />
             )}
