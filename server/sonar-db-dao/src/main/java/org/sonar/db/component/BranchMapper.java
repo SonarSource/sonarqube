@@ -20,6 +20,7 @@
 package org.sonar.db.component;
 
 import java.util.Collection;
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface BranchMapper {
@@ -32,4 +33,6 @@ public interface BranchMapper {
     @Param("keyType") BranchKeyType keyType, @Param("key") String key);
 
   Collection<BranchDto> selectByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  List<BranchDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 }
