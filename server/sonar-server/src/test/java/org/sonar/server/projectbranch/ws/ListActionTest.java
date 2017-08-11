@@ -29,6 +29,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -38,6 +40,7 @@ import org.sonarqube.ws.WsBranches.ListWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ListActionTest {
@@ -162,6 +165,24 @@ public class ListActionTest {
         tuple(longLivingBranch.getBranch(), Branch.BranchType.LONG, ""),
         tuple(shortLivingBranch.getBranch(), Branch.BranchType.SHORT, longLivingBranch.getBranch()),
         tuple(shortLivingBranchOnMaster.getBranch(), Branch.BranchType.SHORT, ""));
+  }
+
+  @Test
+  public void quality_gate_status_on_long_living_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    SnapshotDto branchAnalysis = db.components().insertSnapshot(branch);
+    MetricDto qualityGateStatus = db.measureDbTester().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
+    db.measureDbTester().insertMeasure(branch, branchAnalysis, qualityGateStatus, m -> m.setData("OK"));
+
+    ListWsResponse response = tester.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getBranchesList())
+      .extracting(b -> b.getStatus().hasQualityGateStatus(), b -> b.getStatus().getQualityGateStatus())
+      .containsExactlyInAnyOrder(tuple(false, ""), tuple(true, "OK"));
   }
 
   @Test
