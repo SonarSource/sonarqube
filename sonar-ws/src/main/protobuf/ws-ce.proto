@@ -68,7 +68,6 @@ message WorkerCountResponse {
 }
 
 message Task {
-  optional string organization = 20;
   optional string id = 1;
   optional string type = 2;
   optional string componentId = 3;
@@ -88,6 +87,8 @@ message Task {
   optional string errorStacktrace = 17;
   optional string scannerContext = 18;
   optional bool hasScannerContext = 19;
+  optional string organization = 20;
+  optional bool incremental = 21;
 }
 
 enum TaskStatus {
