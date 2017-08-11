@@ -42,6 +42,9 @@ Thumbs.db
 # Folder config file
 Desktop.ini
 
+# ---- vscode
+.vscode
+
 # ---- Sonar
 .sonar/
 
