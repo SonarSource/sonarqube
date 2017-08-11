@@ -26,6 +26,7 @@ public class BranchWsModule extends Module {
   protected void configureModule() {
     add(
       ListAction.class,
+      ShowAction.class,
       BranchesWs.class);
   }
 }

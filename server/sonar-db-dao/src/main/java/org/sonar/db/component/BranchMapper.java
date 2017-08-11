@@ -32,6 +32,8 @@ public interface BranchMapper {
   BranchDto selectByKey(@Param("projectUuid") String projectUuid,
     @Param("keyType") BranchKeyType keyType, @Param("key") String key);
 
+  BranchDto selectByUuid(@Param("uuid") String uuid);
+
   Collection<BranchDto> selectByProjectUuid(@Param("projectUuid") String projectUuid);
 
   List<BranchDto> selectByUuids(@Param("uuids") Collection<String> uuids);
