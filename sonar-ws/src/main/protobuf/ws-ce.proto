@@ -50,7 +50,7 @@ message ActivityStatusWsResponse {
   optional int32 failing = 2;
 }
 
-// GET api/ce/project
+// GET api/ce/component
 message ProjectResponse {
   repeated Task queue = 1;
   optional Task current = 2;
