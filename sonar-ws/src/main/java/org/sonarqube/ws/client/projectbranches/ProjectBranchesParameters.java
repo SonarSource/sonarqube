@@ -25,9 +25,12 @@ public class ProjectBranchesParameters {
 
   // actions
   public static final String ACTION_LIST = "list";
+  public static final String ACTION_SHOW = "show";
 
   // parameters
   public static final String PARAM_PROJECT = "project";
+  public static final String PARAM_COMPONENT = "component";
+  public static final String PARAM_BRANCH = "branch";
 
   private ProjectBranchesParameters() {
     // static utility class

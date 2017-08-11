@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.projectbranch.ws;
 
 import org.junit.Before;
@@ -29,27 +30,26 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsBranches;
-import org.sonarqube.ws.WsBranches.Branch;
-import org.sonarqube.ws.WsBranches.ListWsResponse;
+import org.sonarqube.ws.WsBranches.ShowWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.WsBranches.Branch.Status;
+import static org.sonarqube.ws.WsBranches.Branch;
 
-public class ListActionTest {
+public class ShowActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -60,12 +60,15 @@ public class ListActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule()
+    .setRootQualifiers(PROJECT);
+
   private MetricDto qualityGateStatus;
   private MetricDto bugs;
   private MetricDto vulnerabilities;
   private MetricDto codeSmells;
 
-  public WsActionTester tester = new WsActionTester(new ListAction(db.getDbClient(), userSession));
+  public WsActionTester ws = new WsActionTester(new ShowAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes)));
 
   @Before
   public void setUp() throws Exception {
@@ -77,90 +80,29 @@ public class ListActionTest {
 
   @Test
   public void test_definition() {
-    WebService.Action definition = tester.getDef();
-    assertThat(definition.key()).isEqualTo("list");
+    WebService.Action definition = ws.getDef();
+    assertThat(definition.key()).isEqualTo("show");
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.isInternal()).isTrue();
-    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("project");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("component", "branch");
     assertThat(definition.since()).isEqualTo("6.6");
   }
 
   @Test
-  public void fail_if_missing_project_parameter() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'project' parameter is missing");
-
-    tester.newRequest().execute();
-  }
-
-  @Test
-  public void fail_if_not_a_reference_on_project() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid project key");
-
-    tester.newRequest()
-      .setParam("project", file.getDbKey())
-      .execute();
-  }
-
-  @Test
-  public void fail_if_project_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project key 'foo' not found");
-
-    tester.newRequest()
-      .setParam("project", "foo")
-      .execute();
-  }
-
-  @Test
-  public void main_branch() {
+  public void long_living_branch() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project,
+      b -> b.setKey("long").setBranchType(BranchType.LONG));
 
-    ListWsResponse response = tester.newRequest()
-      .setParam("project", project.getDbKey())
-      .executeProtobuf(ListWsResponse.class);
+    ShowWsResponse response = ws.newRequest()
+      .setParam("component", longLivingBranch.getKey())
+      .setParam("branch", longLivingBranch.getBranch())
+      .executeProtobuf(ShowWsResponse.class);
 
-    assertThat(response.getBranchesList())
-      .extracting(Branch::hasName, Branch::getIsMain, Branch::getType)
-      .containsExactlyInAnyOrder(tuple(false, true, Branch.BranchType.LONG));
-  }
-
-  @Test
-  public void test_project_with_zero_branches() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-
-    String json = tester.newRequest()
-      .setParam("project", project.getDbKey())
-      .setMediaType(MediaTypes.JSON)
-      .execute()
-      .getInput();
-    assertJson(json).isSimilarTo("{\"branches\": []}");
-  }
-
-  @Test
-  public void test_project_with_branches() {
-    ComponentDto project = db.components().insertMainBranch();
-    db.components().insertProjectBranch(project, b -> b.setKey("feature/bar"));
-    db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-
-    ListWsResponse response = tester.newRequest()
-      .setParam("project", project.getDbKey())
-      .executeProtobuf(ListWsResponse.class);
-
-    assertThat(response.getBranchesList())
-      .extracting(Branch::getName, Branch::getType)
-      .containsExactlyInAnyOrder(
-        tuple("", Branch.BranchType.LONG),
-        tuple("feature/foo", Branch.BranchType.LONG),
-        tuple("feature/bar", Branch.BranchType.LONG));
+    assertThat(response.getBranch())
+      .extracting(Branch::getName, Branch::getProject, Branch::getType, Branch::getMergeBranch)
+      .containsExactlyInAnyOrder(longLivingBranch.getBranch(), project.getKey(), Branch.BranchType.LONG, "");
   }
 
   @Test
@@ -171,20 +113,15 @@ public class ListActionTest {
       b -> b.setKey("long").setBranchType(BranchType.LONG));
     ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
       b -> b.setKey("short").setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
-    ComponentDto shortLivingBranchOnMaster = db.components().insertProjectBranch(project,
-      b -> b.setKey("short_on_master").setBranchType(BranchType.SHORT).setMergeBranchUuid(project.uuid()));
 
-    ListWsResponse response = tester.newRequest()
-      .setParam("project", project.getKey())
-      .executeProtobuf(ListWsResponse.class);
+    ShowWsResponse response = ws.newRequest()
+      .setParam("component", shortLivingBranch.getKey())
+      .setParam("branch", shortLivingBranch.getBranch())
+      .executeProtobuf(ShowWsResponse.class);
 
-    assertThat(response.getBranchesList())
-      .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
-      .containsExactlyInAnyOrder(
-        tuple("", Branch.BranchType.LONG, ""),
-        tuple(longLivingBranch.getBranch(), Branch.BranchType.LONG, ""),
-        tuple(shortLivingBranch.getBranch(), Branch.BranchType.SHORT, longLivingBranch.getBranch()),
-        tuple(shortLivingBranchOnMaster.getBranch(), Branch.BranchType.SHORT, ""));
+    assertThat(response.getBranch())
+      .extracting(Branch::getName, Branch::getProject, Branch::getType, Branch::getMergeBranch)
+      .containsExactlyInAnyOrder(shortLivingBranch.getBranch(), project.getKey(), Branch.BranchType.SHORT, longLivingBranch.getBranch());
   }
 
   @Test
@@ -195,13 +132,14 @@ public class ListActionTest {
     SnapshotDto branchAnalysis = db.components().insertSnapshot(branch);
     db.measureDbTester().insertMeasure(branch, branchAnalysis, qualityGateStatus, m -> m.setData("OK"));
 
-    ListWsResponse response = tester.newRequest()
-      .setParam("project", project.getKey())
-      .executeProtobuf(ListWsResponse.class);
+    ShowWsResponse response = ws.newRequest()
+      .setParam("component", branch.getKey())
+      .setParam("branch", branch.getBranch())
+      .executeProtobuf(ShowWsResponse.class);
 
-    assertThat(response.getBranchesList())
+    assertThat(response.getBranch())
       .extracting(b -> b.getStatus().hasQualityGateStatus(), b -> b.getStatus().getQualityGateStatus())
-      .containsExactlyInAnyOrder(tuple(false, ""), tuple(true, "OK"));
+      .containsExactlyInAnyOrder(true, "OK");
   }
 
   @Test
@@ -216,16 +154,68 @@ public class ListActionTest {
     db.measureDbTester().insertMeasure(shortLivingBranch, branchAnalysis, vulnerabilities, m -> m.setValue(2d));
     db.measureDbTester().insertMeasure(shortLivingBranch, branchAnalysis, codeSmells, m -> m.setValue(3d));
 
-    ListWsResponse response = tester.newRequest()
-      .setParam("project", project.getKey())
-      .executeProtobuf(ListWsResponse.class);
+    ShowWsResponse response = ws.newRequest()
+      .setParam("component", shortLivingBranch.getKey())
+      .setParam("branch", shortLivingBranch.getBranch())
+      .executeProtobuf(ShowWsResponse.class);
 
-    assertThat(response.getBranchesList().stream().map(WsBranches.Branch::getStatus))
-      .extracting(Status::hasBugs, Status::getBugs, Status::hasVulnerabilities, Status::getVulnerabilities, Status::hasCodeSmells, Status::getCodeSmells)
-      .containsExactlyInAnyOrder(
-        tuple(false, 0, false, 0, false, 0),
-        tuple(false, 0, false, 0, false, 0),
-        tuple(true, 1, true, 2, true, 3));
+
+    assertThat(response.getBranch().getStatus())
+      .extracting(Branch.Status::hasBugs, Branch.Status::getBugs, Branch.Status::hasVulnerabilities, Branch.Status::getVulnerabilities, Branch.Status::hasCodeSmells, Branch.Status::getCodeSmells)
+      .containsExactlyInAnyOrder(true, 1, true, 2, true, 3);
+  }
+
+  @Test
+  public void file() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto file = db.components().insertComponent(newFileDto(longLivingBranch));
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam("component", file.getKey())
+      .setParam("branch", file.getBranch())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getBranch())
+      .extracting(Branch::getName, Branch::getProject, Branch::getType, Branch::getMergeBranch)
+      .containsExactlyInAnyOrder(file.getBranch(), project.getKey(), Branch.BranchType.LONG, "");
+  }
+
+  @Test
+  public void fail_if_missing_component_parameter() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'component' parameter is missing");
+
+    ws.newRequest()
+      .setParam("branch", "my_branch")
+      .execute();
+  }
+
+  @Test
+  public void fail_if_missing_branch_parameter() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'branch' parameter is missing");
+
+    ws.newRequest()
+      .setParam("component", "my_project")
+      .execute();
+  }
+
+  @Test
+  public void fail_if_branch_does_not_exist() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    userSession.addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+
+    ws.newRequest()
+      .setParam("component", file.getKey())
+      .setParam("branch", "another_branch")
+      .execute();
   }
 
   @Test
@@ -235,12 +225,13 @@ public class ListActionTest {
     db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    String json = tester.newRequest()
-      .setParam("project", project.getDbKey())
+    String json = ws.newRequest()
+      .setParam("component", longLivingBranch.getKey())
+      .setParam("branch", longLivingBranch.getBranch())
       .execute()
       .getInput();
 
-    assertJson(json).isSimilarTo(tester.getDef().responseExampleAsString());
+    assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
 }
