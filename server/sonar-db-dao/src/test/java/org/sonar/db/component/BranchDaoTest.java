@@ -28,6 +28,8 @@ import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -172,4 +174,19 @@ public class BranchDaoTest {
     assertThat(underTest.selectByKey(dbSession, "U3", BranchKeyType.BRANCH, "feature/foo")).isEmpty();
   }
 
+  @Test
+  public void selectByUuids() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch1 = db.components().insertProjectBranch(project);
+    ComponentDto branch2 = db.components().insertProjectBranch(project);
+    ComponentDto branch3 = db.components().insertProjectBranch(project);
+
+    assertThat(underTest.selectByUuids(db.getSession(), asList(branch1.uuid(), branch2.uuid(), branch3.uuid())))
+      .extracting(BranchDto::getUuid)
+    .containsExactlyInAnyOrder(branch1.uuid(), branch2.uuid(), branch3.uuid());
+    assertThat(underTest.selectByUuids(db.getSession(), singletonList(branch1.uuid())))
+      .extracting(BranchDto::getUuid)
+      .containsExactlyInAnyOrder(branch1.uuid());
+    assertThat(underTest.selectByUuids(db.getSession(), singletonList("unknown"))).isEmpty();
+  }
 }
