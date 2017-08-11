@@ -19,6 +19,7 @@
  */
 package org.sonar.server.projectbranch.ws;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,13 +36,18 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsBranches;
 import org.sonarqube.ws.WsBranches.Branch;
 import org.sonarqube.ws.WsBranches.ListWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
+import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
+import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.WsBranches.Branch.Status;
 
 public class ListActionTest {
 
@@ -54,7 +60,20 @@ public class ListActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
+  private MetricDto qualityGateStatus;
+  private MetricDto bugs;
+  private MetricDto vulnerabilities;
+  private MetricDto codeSmells;
+
   public WsActionTester tester = new WsActionTester(new ListAction(db.getDbClient(), userSession));
+
+  @Before
+  public void setUp() throws Exception {
+    qualityGateStatus = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
+    bugs = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
+    vulnerabilities = db.measures().insertMetric(m -> m.setKey(VULNERABILITIES_KEY));
+    codeSmells = db.measures().insertMetric(m -> m.setKey(CODE_SMELLS_KEY));
+  }
 
   @Test
   public void test_definition() {
@@ -173,7 +192,6 @@ public class ListActionTest {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
     SnapshotDto branchAnalysis = db.components().insertSnapshot(branch);
-    MetricDto qualityGateStatus = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
     db.measures().insertMeasure(branch, branchAnalysis, qualityGateStatus, m -> m.setData("OK"));
 
     ListWsResponse response = tester.newRequest()
@@ -183,6 +201,30 @@ public class ListActionTest {
     assertThat(response.getBranchesList())
       .extracting(b -> b.getStatus().hasQualityGateStatus(), b -> b.getStatus().getQualityGateStatus())
       .containsExactlyInAnyOrder(tuple(false, ""), tuple(true, "OK"));
+  }
+
+  @Test
+  public void bugs_vulnerabilities_and_code_smells_on_short_living_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
+      b -> b.setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
+    SnapshotDto branchAnalysis = db.components().insertSnapshot(shortLivingBranch);
+    db.measures().insertMeasure(shortLivingBranch, branchAnalysis, bugs, m -> m.setValue(1d));
+    db.measures().insertMeasure(shortLivingBranch, branchAnalysis, vulnerabilities, m -> m.setValue(2d));
+    db.measures().insertMeasure(shortLivingBranch, branchAnalysis, codeSmells, m -> m.setValue(3d));
+
+    ListWsResponse response = tester.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getBranchesList().stream().map(WsBranches.Branch::getStatus))
+      .extracting(Status::hasBugs, Status::getBugs, Status::hasVulnerabilities, Status::getVulnerabilities, Status::hasCodeSmells, Status::getCodeSmells)
+      .containsExactlyInAnyOrder(
+        tuple(false, 0, false, 0, false, 0),
+        tuple(false, 0, false, 0, false, 0),
+        tuple(true, 1, true, 2, true, 3));
   }
 
   @Test
