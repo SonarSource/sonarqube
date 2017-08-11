@@ -32,7 +32,7 @@ import type { MeasureEnhanced } from '../../components/measure/types';
 export const PROJECT_OVERVEW = 'project_overview';
 export const DEFAULT_VIEW = 'list';
 export const DEFAULT_METRIC = PROJECT_OVERVEW;
-const KNOWN_DOMAINS = [
+export const KNOWN_DOMAINS = [
   'Releasability',
   'Reliability',
   'Security',

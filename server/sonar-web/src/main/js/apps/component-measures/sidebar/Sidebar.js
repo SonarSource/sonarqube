@@ -21,7 +21,7 @@
 import React from 'react';
 import ProjectOverviewFacet from './ProjectOverviewFacet';
 import DomainFacet from './DomainFacet';
-import { groupByDomains, PROJECT_OVERVEW } from '../utils';
+import { groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW } from '../utils';
 import type { MeasureEnhanced } from '../../../components/measure/types';
 import type { Query } from '../types';
 
@@ -32,7 +32,7 @@ type Props = {|
 |};
 
 type State = {|
-  closedFacets: { [string]: boolean }
+  openFacets: { [string]: boolean }
 |};
 
 export default class Sidebar extends React.PureComponent {
@@ -41,12 +41,29 @@ export default class Sidebar extends React.PureComponent {
 
   constructor(props: Props) {
     super(props);
-    this.state = { closedFacets: {} };
+    this.state = { openFacets: this.getOpenFacets({}, props) };
   }
 
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.selectedMetric !== this.props.selectedMetric) {
+      this.setState(state => this.getOpenFacets(state.openFacets, nextProps));
+    }
+  }
+
+  getOpenFacets = (openFacets: { [string]: boolean }, { measures, selectedMetric }: Props) => {
+    const newOpenFacets = { ...openFacets };
+    const measure = measures.find(measure => measure.metric.key === selectedMetric);
+    if (measure && measure.metric && measure.metric.domain) {
+      newOpenFacets[measure.metric.domain] = true;
+    } else if (KNOWN_DOMAINS.includes(selectedMetric)) {
+      newOpenFacets[selectedMetric] = true;
+    }
+    return newOpenFacets;
+  };
+
   toggleFacet = (name: string) => {
-    this.setState(({ closedFacets }) => ({
-      closedFacets: { ...closedFacets, [name]: !closedFacets[name] }
+    this.setState(({ openFacets }: State) => ({
+      openFacets: { ...openFacets, [name]: !openFacets[name] }
     }));
   };
 
@@ -68,7 +85,7 @@ export default class Sidebar extends React.PureComponent {
             domain={domain}
             onChange={this.changeMetric}
             onToggle={this.toggleFacet}
-            open={!this.state.closedFacets[domain.name]}
+            open={this.state.openFacets[domain.name]}
             selected={this.props.selectedMetric}
           />
         )}
