@@ -111,22 +111,22 @@ export default class MeasureContent extends React.PureComponent {
     const strategy = view === 'list' ? 'leaves' : 'children';
     const metricKeys = [metric.key];
     const opts /*: Object */ = { metricSortFilter: 'withMeasuresOnly' };
+    const isDiff = isDiffMetric(metric.key);
+    if (isDiff) {
+      opts.metricPeriodSort = 1;
+    }
     if (view === 'treemap') {
-      metricKeys.push('ncloc');
+      const sizeMetric = isDiff ? 'new_lines' : 'ncloc';
+      metricKeys.push(sizeMetric);
+      opts.metricSort = sizeMetric;
+      opts.s = isDiff ? 'metricPeriod' : 'metric';
       opts.asc = false;
-      opts.metricSort = 'ncloc';
-      opts.s = 'metric';
     } else {
       metricKeys.push(...(complementary[metric.key] || []));
       opts.asc = metric.direction === 1;
       opts.ps = 100;
       opts.metricSort = metric.key;
-      if (isDiffMetric(metric.key)) {
-        opts.s = 'metricPeriod,name';
-        opts.metricPeriodSort = 1;
-      } else {
-        opts.s = 'metric,name';
-      }
+      opts.s = isDiff ? 'metricPeriod,name' : 'metric,name';
     }
     return { metricKeys, opts: { ...opts, ...options }, strategy };
   };
