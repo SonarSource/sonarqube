@@ -78,6 +78,7 @@ public class ComputeEngineContainerImplTest {
     HazelcastInstance hzInstance = HazelcastTestHelper.createHazelcastCluster(CLUSTER_NAME, port);
 
     Properties properties = getProperties();
+    properties.setProperty(ProcessProperties.CLUSTER_NODE_TYPE, "application");
     properties.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
     properties.setProperty(ProcessProperties.CLUSTER_LOCALENDPOINT, String.format("%s:%d", hzInstance.getCluster().getLocalMember().getAddress().getHost(), port));
     properties.setProperty(ProcessProperties.CLUSTER_NAME, CLUSTER_NAME);

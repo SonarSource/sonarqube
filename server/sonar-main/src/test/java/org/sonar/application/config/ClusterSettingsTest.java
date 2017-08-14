@@ -33,7 +33,7 @@ import static org.sonar.process.ProcessId.ELASTICSEARCH;
 import static org.sonar.process.ProcessId.WEB_SERVER;
 import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
-import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_DISABLED;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.JDBC_URL;
 import static org.sonar.process.ProcessProperties.SEARCH_HOST;
@@ -67,22 +67,53 @@ public class ClusterSettingsTest {
 
   @Test
   public void getEnabledProcesses_returns_all_processes_by_default() {
+    settings.set(CLUSTER_ENABLED, "false");
     assertThat(ClusterSettings.getEnabledProcesses(settings)).containsOnly(COMPUTE_ENGINE, ELASTICSEARCH, WEB_SERVER);
   }
 
   @Test
-  public void getEnabledProcesses_returns_all_processes_by_default_in_cluster_mode() {
+  public void getEnabledProcesses_fails_if_no_node_type_is_set_for_a_cluster_node() {
     settings.set(CLUSTER_ENABLED, "true");
+    settings.set(CLUSTER_NODE_TYPE, "");
 
-    assertThat(ClusterSettings.getEnabledProcesses(settings)).containsOnly(COMPUTE_ENGINE, ELASTICSEARCH, WEB_SERVER);
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Invalid value for [sonar.cluster.node.type]: []");
+
+    ClusterSettings.getEnabledProcesses(settings);
   }
 
   @Test
   public void getEnabledProcesses_returns_configured_processes_in_cluster_mode() {
     settings.set(CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_SEARCH_DISABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
 
     assertThat(ClusterSettings.getEnabledProcesses(settings)).containsOnly(COMPUTE_ENGINE, WEB_SERVER);
+
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "search");
+
+    assertThat(ClusterSettings.getEnabledProcesses(settings)).containsOnly(ELASTICSEARCH);
+  }
+
+  @Test
+  public void accept_throws_MessageException_if_no_node_type_is_configured() {
+    settings.set(CLUSTER_ENABLED, "true");
+    settings.set(CLUSTER_NODE_TYPE, "");
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Property [sonar.cluster.node.type] is mandatory");
+
+    new ClusterSettings().accept(settings.getProps());
+  }
+
+  @Test
+  public void accept_throws_MessageException_if_no_node_type_is_an_illegal_value() {
+    settings.set(CLUSTER_ENABLED, "true");
+    settings.set(CLUSTER_NODE_TYPE, "bla");
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Invalid nodeTypeValue for [sonar.cluster.node.type]: [bla], only [application, search] are allowed");
+
+    new ClusterSettings().accept(settings.getProps());
   }
 
   @Test
@@ -99,7 +130,7 @@ public class ClusterSettingsTest {
   @Test
   public void accept_throws_MessageException_if_search_enabled_with_loopback() {
     settings.set(CLUSTER_ENABLED, "true");
-    settings.set(CLUSTER_SEARCH_DISABLED, "false");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "search");
     settings.set(CLUSTER_SEARCH_HOSTS, "192.168.1.1,192.168.1.2");
     settings.set(SEARCH_HOST, "::1");
 
@@ -112,7 +143,7 @@ public class ClusterSettingsTest {
   @Test
   public void accept_not_throwing_MessageException_if_search_disabled_with_loopback() {
     settings.set(CLUSTER_ENABLED, "true");
-    settings.set(CLUSTER_SEARCH_DISABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
     settings.set(CLUSTER_SEARCH_HOSTS, "192.168.1.1,192.168.1.2");
     settings.set(SEARCH_HOST, "127.0.0.1");
 
@@ -155,14 +186,17 @@ public class ClusterSettingsTest {
   }
 
   @Test
-  public void isLocalElasticsearchEnabled_returns_true_by_default_in_cluster_mode() {
+  public void isLocalElasticsearchEnabled_returns_true_for_a_search_node() {
+    settings.set(CLUSTER_ENABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "search");
+
     assertThat(ClusterSettings.isLocalElasticsearchEnabled(settings)).isTrue();
   }
 
   @Test
-  public void isLocalElasticsearchEnabled_returns_false_if_local_es_node_is_disabled_in_cluster_mode() {
+  public void isLocalElasticsearchEnabled_returns_true_for_a_application_node() {
     settings.set(CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_SEARCH_DISABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
 
     assertThat(ClusterSettings.isLocalElasticsearchEnabled(settings)).isFalse();
   }
@@ -213,6 +247,7 @@ public class ClusterSettingsTest {
   private static TestAppSettings getClusterSettings() {
     TestAppSettings testAppSettings = new TestAppSettings()
       .set(CLUSTER_ENABLED, "true")
+      .set(CLUSTER_NODE_TYPE, "search")
       .set(CLUSTER_SEARCH_HOSTS, "localhost")
       .set(CLUSTER_HOSTS, "192.168.233.1, 192.168.233.2,192.168.233.3")
       .set(SEARCH_HOST, "192.168.233.1")

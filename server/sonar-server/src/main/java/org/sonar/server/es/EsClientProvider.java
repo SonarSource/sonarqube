@@ -34,7 +34,10 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.process.NodeType;
 import org.sonar.process.ProcessProperties;
+
+import static org.sonar.process.NodeType.SEARCH;
 
 @ComputeEngineSide
 @ServerSide
@@ -46,22 +49,21 @@ public class EsClientProvider extends ProviderAdapter {
 
   public EsClient provide(Configuration config) {
     if (cache == null) {
-      TransportClient nativeClient;
       org.elasticsearch.common.settings.Settings.Builder esSettings = org.elasticsearch.common.settings.Settings.builder();
 
       // mandatory property defined by bootstrap process
       esSettings.put("cluster.name", config.get(ProcessProperties.CLUSTER_NAME).get());
 
       boolean clusterEnabled = config.getBoolean(ProcessProperties.CLUSTER_ENABLED).orElse(false);
-      if (clusterEnabled && config.getBoolean(ProcessProperties.CLUSTER_SEARCH_DISABLED).orElse(false)) {
+      boolean searchNode = !clusterEnabled || SEARCH.equals(NodeType.parse(config.get(ProcessProperties.CLUSTER_NODE_TYPE).orElse(null)));
+      final TransportClient nativeClient = new PreBuiltTransportClient(esSettings.build());
+      if (clusterEnabled && !searchNode) {
         esSettings.put("client.transport.sniff", true);
-        nativeClient = new PreBuiltTransportClient(esSettings.build());
         Arrays.stream(config.getStringArray(ProcessProperties.CLUSTER_SEARCH_HOSTS))
           .map(HostAndPort::fromString)
           .forEach(h -> addHostToClient(h, nativeClient));
         LOGGER.info("Connected to remote Elasticsearch: [{}]", displayedAddresses(nativeClient));
       } else {
-        nativeClient = new PreBuiltTransportClient(esSettings.build());
         HostAndPort host = HostAndPort.fromParts(config.get(ProcessProperties.SEARCH_HOST).get(), config.getInt(ProcessProperties.SEARCH_PORT).get());
         addHostToClient(host, nativeClient);
         LOGGER.info("Connected to local Elasticsearch: [{}]", displayedAddresses(nativeClient));

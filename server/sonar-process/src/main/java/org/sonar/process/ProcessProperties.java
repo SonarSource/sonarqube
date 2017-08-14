@@ -30,10 +30,8 @@ import java.util.Properties;
  */
 public class ProcessProperties {
   public static final String CLUSTER_ENABLED = "sonar.cluster.enabled";
-  public static final String CLUSTER_CE_DISABLED = "sonar.cluster.ce.disabled";
-  public static final String CLUSTER_SEARCH_DISABLED = "sonar.cluster.search.disabled";
+  public static final String CLUSTER_NODE_TYPE = "sonar.cluster.node.type";
   public static final String CLUSTER_SEARCH_HOSTS = "sonar.cluster.search.hosts";
-  public static final String CLUSTER_WEB_DISABLED = "sonar.cluster.web.disabled";
   public static final String CLUSTER_HOSTS = "sonar.cluster.hosts";
   public static final String CLUSTER_PORT = "sonar.cluster.port";
   public static final String CLUSTER_NETWORK_INTERFACES = "sonar.cluster.networkInterfaces";
@@ -138,9 +136,6 @@ public class ProcessProperties {
     defaults.put(JDBC_TIME_BETWEEN_EVICTION_RUNS_MILLIS, "30000");
 
     defaults.put(CLUSTER_ENABLED, "false");
-    defaults.put(CLUSTER_CE_DISABLED, "false");
-    defaults.put(CLUSTER_WEB_DISABLED, "false");
-    defaults.put(CLUSTER_SEARCH_DISABLED, "false");
     defaults.put(CLUSTER_NAME, "sonarqube");
     defaults.put(CLUSTER_NETWORK_INTERFACES, "");
     defaults.put(CLUSTER_HOSTS, "");

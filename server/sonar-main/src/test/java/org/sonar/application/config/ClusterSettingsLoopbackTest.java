@@ -37,6 +37,7 @@ import org.sonar.process.MessageException;
 import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
 import static org.sonar.process.ProcessProperties.CLUSTER_NETWORK_INTERFACES;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.JDBC_URL;
 import static org.sonar.process.ProcessProperties.SEARCH_HOST;
@@ -170,6 +171,7 @@ public class ClusterSettingsLoopbackTest {
 
     TestAppSettings testAppSettings = new TestAppSettings()
       .set(CLUSTER_ENABLED, "true")
+      .set(CLUSTER_NODE_TYPE, "search")
       .set(CLUSTER_SEARCH_HOSTS, "192.168.233.1, 192.168.233.2,192.168.233.3")
       .set(CLUSTER_HOSTS, "192.168.233.1, 192.168.233.2,192.168.233.3")
       .set(SEARCH_HOST, localAddress)

@@ -17,37 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.process;
 
-package org.sonarqube.tests.cluster;
+import javax.annotation.Nullable;
 
-import java.util.concurrent.ExecutionException;
+import static java.util.Arrays.stream;
 
-import static org.sonarqube.tests.cluster.Cluster.NodeType.APPLICATION;
-import static org.sonarqube.tests.cluster.Cluster.NodeType.SEARCH;
+public enum NodeType {
+  APPLICATION("application"), SEARCH("search");
 
-public class DataCenterEdition {
+  private final String value;
 
-  private final Cluster cluster;
-
-  public DataCenterEdition() {
-    cluster = Cluster.builder()
-      .addNode(SEARCH)
-      .addNode(SEARCH)
-      .addNode(SEARCH)
-      .addNode(APPLICATION)
-      .addNode(APPLICATION)
-      .build();
+  NodeType(String value) {
+    this.value = value;
   }
 
-  public void stop() throws ExecutionException, InterruptedException {
-    cluster.stop();
+  public String getValue() {
+    return value;
   }
 
-  public void start() throws ExecutionException, InterruptedException {
-    cluster.start();
+  public static NodeType parse(@Nullable String nodeType) {
+    if (nodeType == null) {
+      throw new IllegalStateException("Setting [" + ProcessProperties.CLUSTER_NODE_TYPE + "] is mandatory");
+    }
+    return stream(values())
+      .filter(t -> nodeType.equals(t.value))
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("Invalid value for [" + ProcessProperties.CLUSTER_NODE_TYPE + "]: [" + nodeType + "]"));
   }
 
-  public Cluster getCluster() {
-    return cluster;
+  public static boolean isValid(String nodeType) {
+    return stream(values())
+      .anyMatch(t -> nodeType.equals(t.value));
   }
 }
