@@ -116,7 +116,6 @@ public class IntegrateIssuesVisitorTest {
   ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
 
   ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule);
-  MergeBranchIssuesLoader mergeIssuesLoader = new MergeBranchIssuesLoader(dbTester.getDbClient(), issuesLoader, analysisMetadataHolder);
   IssueTrackingDelegator trackingDelegator;
   TrackerExecution tracker;
   ShortBranchTrackerExecution shortBranchTracker;
@@ -133,7 +132,7 @@ public class IntegrateIssuesVisitorTest {
 
     TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, new CommonRuleEngineImpl(), issueFilter);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbTester.getDbClient(), movedFilesRepository);
-    TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(mergeIssuesLoader, dbTester.getDbClient());
+    TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(issuesLoader, analysisMetadataHolder, dbTester.getDbClient());
     tracker = new TrackerExecution(baseInputFactory, rawInputFactory, new Tracker<>());
     shortBranchTracker = new ShortBranchTrackerExecution(baseInputFactory, rawInputFactory, mergeInputFactory, new Tracker<>());
 
