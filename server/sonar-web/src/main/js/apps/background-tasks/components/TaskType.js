@@ -27,6 +27,7 @@ const TaskType = ({ task }: { task: Task }) => {
     <span className="note nowrap spacer-left">
       {'['}
       {translate('background_task.type', task.type)}
+      {task.incremental && ` - ${translate('incremental')}`}
       {']'}
     </span>
   );

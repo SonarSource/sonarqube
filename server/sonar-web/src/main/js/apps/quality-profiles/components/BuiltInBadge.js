@@ -30,7 +30,7 @@ type Props = {|
 
 export default function BuiltInBadge(props: Props) {
   const badge = (
-    <div className={classNames('built-in-badge', props.className)}>
+    <div className={classNames('outline-badge', 'built-in-badge', props.className)}>
       {translate('quality_profiles.built_in')}
     </div>
   );

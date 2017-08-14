@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export type Task = {
-  incremental: boolean,
-  id: string
-};
+/* @flow */
+import React from 'react';
+import { shallow } from 'enzyme';
+import TaskType from '../TaskType';
+
+it('renders', () => {
+  expect(shallow(<TaskType task={{ id: 'foo' }} />)).toMatchSnapshot();
+  expect(shallow(<TaskType task={{ incremental: true, id: 'foo' }} />)).toMatchSnapshot();
+});

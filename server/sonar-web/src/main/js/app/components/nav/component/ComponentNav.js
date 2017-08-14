@@ -47,7 +47,8 @@ export default class ComponentNav extends React.PureComponent {
         this.setState({
           isPending: r.queue.some(task => task.status === STATUSES.PENDING),
           isInProgress: r.queue.some(task => task.status === STATUSES.IN_PROGRESS),
-          isFailed: r.current && r.current.status === STATUSES.FAILED
+          isFailed: r.current && r.current.status === STATUSES.FAILED,
+          incremental: r.current && r.current.incremental
         });
       }
     });

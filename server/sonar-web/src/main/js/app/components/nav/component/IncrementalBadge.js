@@ -17,7 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export type Task = {
-  incremental: boolean,
-  id: string
-};
+import React from 'react';
+import Tooltip from '../../../../components/controls/Tooltip';
+import { translate } from '../../../../helpers/l10n';
+
+export default function IncrementalBadge() {
+  return (
+    <Tooltip overlay={translate('incremental.project_tooltip')}>
+      <div className="outline-badge">
+        {translate('incremental')}
+      </div>
+    </Tooltip>
+  );
+}

@@ -17,7 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export type Task = {
-  incremental: boolean,
-  id: string
-};
+import React from 'react';
+import { shallow } from 'enzyme';
+import ComponentNavMeta from '../ComponentNavMeta';
+
+it('renders incremental badge', () => {
+  check(true);
+  check(false);
+
+  function check(incremental) {
+    expect(
+      shallow(
+        <ComponentNavMeta component={{ key: 'foo' }} conf={{}} incremental={incremental} />
+      ).find('IncrementalBadge')
+    ).toHaveLength(incremental ? 1 : 0);
+  }
+});
