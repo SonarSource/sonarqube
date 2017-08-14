@@ -140,10 +140,6 @@ export function getDeprecatedActiveRulesUrl(query = {}, organization /*: ?string
   return getRulesUrl({ ...query, ...baseQuery }, organization);
 }
 
-export const getProjectsUrl = () => {
-  return window.baseUrl + '/projects';
-};
+export const getProjectsUrl = () => window.baseUrl + '/projects';
 
-export const getMarkdownHelpUrl = () => {
-  return window.baseUrl + '/markdown/help';
-};
+export const getMarkdownHelpUrl = () => window.baseUrl + '/markdown/help';

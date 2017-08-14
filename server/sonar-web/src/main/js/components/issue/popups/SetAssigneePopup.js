@@ -73,14 +73,14 @@ export default class SetAssigneePopup extends React.PureComponent {
     this.defaultUsersArray = [{ login: '', name: translate('unassigned') }];
 
     const currentUser = getCurrentUserFromStore();
-    if (currentUser != null) {
+    if (currentUser.isLoggedIn) {
       this.defaultUsersArray = [currentUser, ...this.defaultUsersArray];
     }
 
     this.state = {
       query: '',
       users: this.defaultUsersArray,
-      currentUser: currentUser.login
+      currentUser: this.defaultUsersArray.length > 0 ? this.defaultUsersArray[0].login : ''
     };
   }
 
