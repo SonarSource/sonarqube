@@ -38,10 +38,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 
-import static org.sonarqube.tests.cluster.Cluster.NodeType.CE;
-import static org.sonarqube.tests.cluster.Cluster.NodeType.ES;
-import static org.sonarqube.tests.cluster.Cluster.NodeType.WEB;
+import static org.sonarqube.tests.cluster.Cluster.NodeType.APPLICATION;
+import static org.sonarqube.tests.cluster.Cluster.NodeType.SEARCH;
 
 public class Cluster {
 
@@ -65,7 +65,17 @@ public class Cluster {
   protected static final String CE_JAVA_OPTS = "sonar.ce.javaOpts";
 
   public enum NodeType {
-    ES, CE, WEB;
+    SEARCH("search"), APPLICATION("application");
+
+    final String value;
+
+    NodeType(String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
 
     public static final EnumSet<NodeType> ALL = EnumSet.allOf(NodeType.class);
   }
@@ -120,10 +130,9 @@ public class Cluster {
     nodes.stream().forEach(
       node -> {
         node.setHzPort(NetworkUtils.getNextAvailablePort(getNonloopbackIPv4Address()));
-        if (node.getTypes().contains(ES)) {
+        if (node.getType() == SEARCH) {
           node.setEsPort(NetworkUtils.getNextAvailablePort(getNonloopbackIPv4Address()));
-        }
-        if (node.getTypes().contains(WEB)) {
+        } else if (node.getType() == APPLICATION) {
           node.setWebPort(NetworkUtils.getNextAvailablePort(getNonloopbackIPv4Address()));
         }
       }
@@ -161,29 +170,20 @@ public class Cluster {
       .map(node -> HostAndPort.fromParts(inet, node.getHzPort()).toString())
       .collect(Collectors.joining(","));
     String elasticsearchHosts = nodes.stream()
-      .filter(node -> node.getTypes().contains(ES))
+      .filter(node -> node.getType() == SEARCH)
       .map(node -> HostAndPort.fromParts(inet, node.getEsPort()).toString())
       .collect(Collectors.joining(","));
 
-    nodes.stream().forEach(
+    nodes.forEach(
       node -> {
         node.addProperty(CLUSTER_NETWORK_INTERFACES, inet);
         node.addProperty(CLUSTER_HOSTS, clusterHosts);
-        node.addProperty(CLUSTER_PORT, Integer.toString(node.getHzPort()));
+        node.addProperty(CLUSTER_PORT, Integer.toString(node.getHzPort() == null ? -1 : node.getHzPort()));
         node.addProperty(CLUSTER_SEARCH_HOSTS, elasticsearchHosts);
-        node.addProperty(SEARCH_PORT, Integer.toString(node.getEsPort()));
+        node.addProperty(SEARCH_PORT, Integer.toString(node.getEsPort() == null ? -1 : node.getEsPort()));
         node.addProperty(SEARCH_HOST, inet);
-        node.addProperty(WEB_PORT, Integer.toString(node.getWebPort()));
-
-        if (!node.getTypes().contains(CE)) {
-          node.addProperty(CLUSTER_CE_DISABLED, "true");
-        }
-        if (!node.getTypes().contains(WEB)) {
-          node.addProperty(CLUSTER_WEB_DISABLED, "true");
-        }
-        if (!node.getTypes().contains(ES)) {
-          node.addProperty(CLUSTER_SEARCH_DISABLED, "true");
-        }
+        node.addProperty(WEB_PORT, Integer.toString(node.getWebPort() == null ? -1 : node.getWebPort()));
+        node.addProperty(CLUSTER_NODE_TYPE, node.getType().getValue());
       }
     );
   }
@@ -220,8 +220,8 @@ public class Cluster {
       return new Cluster(nodes);
     }
 
-    public Builder addNode(EnumSet<NodeType> types) {
-      nodes.add(new Node(types));
+    public Builder addNode(NodeType type) {
+      nodes.add(new Node(type));
       return this;
     }
   }
@@ -230,15 +230,15 @@ public class Cluster {
    * A cluster node
    */
   public static class Node {
-    private final EnumSet<NodeType> types;
-    private int webPort;
-    private int esPort;
-    private int hzPort;
+    private final NodeType type;
+    private Integer webPort;
+    private Integer esPort;
+    private Integer hzPort;
     private Orchestrator orchestrator = null;
     private Properties properties = new Properties();
 
-    public Node(EnumSet<NodeType> types) {
-      this.types = types;
+    public Node(NodeType type) {
+      this.type = type;
 
       // Default properties
       properties.setProperty(CLUSTER_ENABLED, "true");
@@ -277,31 +277,34 @@ public class Cluster {
       this.orchestrator = orchestrator;
     }
 
-    public EnumSet<NodeType> getTypes() {
-      return types;
+    public NodeType getType() {
+      return type;
     }
 
-    public int getWebPort() {
+    @CheckForNull
+    public Integer getWebPort() {
       return webPort;
     }
 
-    public int getEsPort() {
+    @CheckForNull
+    public Integer getEsPort() {
       return esPort;
     }
 
-    public int getHzPort() {
+    @CheckForNull
+    public Integer getHzPort() {
       return hzPort;
     }
 
-    private void setWebPort(int webPort) {
+    private void setWebPort(Integer webPort) {
       this.webPort = webPort;
     }
 
-    private void setEsPort(int esPort) {
+    private void setEsPort(Integer esPort) {
       this.esPort = esPort;
     }
 
-    private void setHzPort(int hzPort) {
+    private void setHzPort(Integer hzPort) {
       this.hzPort = hzPort;
     }
 

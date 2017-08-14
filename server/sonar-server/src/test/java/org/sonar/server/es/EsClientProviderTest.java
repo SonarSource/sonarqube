@@ -76,7 +76,7 @@ public class EsClientProviderTest {
   @Test
   public void connection_to_remote_es_nodes_when_cluster_mode_is_enabled_and_local_es_is_disabled() throws Exception {
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
-    settings.setProperty(ProcessProperties.CLUSTER_SEARCH_DISABLED, true);
+    settings.setProperty(ProcessProperties.CLUSTER_NODE_TYPE, "application");
     settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, format("%s:8080,%s:8081", localhost, localhost));
 
     EsClient client = underTest.provide(settings.asConfig());
@@ -97,7 +97,7 @@ public class EsClientProviderTest {
   @Test
   public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used_when_search_disabled() throws Exception {
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
-    settings.setProperty(ProcessProperties.CLUSTER_SEARCH_DISABLED, true);
+    settings.setProperty(ProcessProperties.CLUSTER_NODE_TYPE, "application");
     settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, format("%s:100000,%s:8081", localhost, localhost));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -109,6 +109,7 @@ public class EsClientProviderTest {
   @Test
   public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used() throws Exception {
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
+    settings.setProperty(ProcessProperties.CLUSTER_NODE_TYPE, "search");
     settings.setProperty(ProcessProperties.SEARCH_HOST, "localhost");
     settings.setProperty(ProcessProperties.SEARCH_PORT, "100000");
 
@@ -121,7 +122,7 @@ public class EsClientProviderTest {
   @Test
   public void es_client_provider_must_add_default_port_when_not_specified() throws Exception {
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
-    settings.setProperty(ProcessProperties.CLUSTER_SEARCH_DISABLED, true);
+    settings.setProperty(ProcessProperties.CLUSTER_NODE_TYPE, "application");
     settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, format("%s,%s:8081", localhost, localhost));
 
     EsClient client = underTest.provide(settings.asConfig());

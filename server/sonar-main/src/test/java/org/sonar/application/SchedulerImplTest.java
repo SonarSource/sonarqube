@@ -94,7 +94,6 @@ public class SchedulerImplTest {
 
   @Test
   public void start_and_stop_sequence_of_ES_WEB_CE_in_order() throws Exception {
-    enableAllProcesses();
     SchedulerImpl underTest = newScheduler();
     underTest.schedule();
 
@@ -132,7 +131,6 @@ public class SchedulerImplTest {
   }
 
   private void enableAllProcesses() {
-    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
   }
 
   @Test
@@ -152,7 +150,6 @@ public class SchedulerImplTest {
 
   @Test
   public void all_processes_are_stopped_if_one_process_fails_to_start() throws Exception {
-    enableAllProcesses();
     SchedulerImpl underTest = newScheduler();
     processLauncher.makeStartupFail = COMPUTE_ENGINE;
 
@@ -239,21 +236,70 @@ public class SchedulerImplTest {
   }
 
   @Test
-  public void web_follower_starts_only_when_web_leader_is_operational() throws Exception {
-    // leader takes the lock, so underTest won't get it
-    assertThat(appState.tryToLockWebLeader()).isTrue();
-
-    appState.setOperational(ProcessId.ELASTICSEARCH);
-    enableAllProcesses();
+  public void search_node_starts_only_elasticsearch() throws Exception {
+    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "search");
     SchedulerImpl underTest = newScheduler();
     underTest.schedule();
 
     processLauncher.waitForProcessAlive(ProcessId.ELASTICSEARCH);
     assertThat(processLauncher.processes).hasSize(1);
 
+    underTest.terminate();
+  }
+
+  @Test
+  public void application_node_starts_only_web_and_ce() throws Exception {
+    appState.setOperational(ProcessId.ELASTICSEARCH);
+    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    SchedulerImpl underTest = newScheduler();
+    underTest.schedule();
+
+    TestProcess web = processLauncher.waitForProcessAlive(WEB_SERVER);
+    web.operational = true;
+    processLauncher.waitForProcessAlive(COMPUTE_ENGINE);
+    assertThat(processLauncher.processes).hasSize(2);
+
+    underTest.terminate();
+  }
+
+  @Test
+  public void search_node_starts_even_if_web_leader_is_not_yet_operational() throws Exception {
+    // leader takes the lock, so underTest won't get it
+    assertThat(appState.tryToLockWebLeader()).isTrue();
+
+    appState.setOperational(ProcessId.ELASTICSEARCH);
+    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "search");
+    SchedulerImpl underTest = newScheduler();
+    underTest.schedule();
+
+    processLauncher.waitForProcessAlive(ProcessId.ELASTICSEARCH);
+    assertThat(processLauncher.processes).hasSize(1);
+
+    underTest.terminate();
+  }
+
+  @Test
+  public void web_follower_starts_only_when_web_leader_is_operational() throws Exception {
+    // leader takes the lock, so underTest won't get it
+    assertThat(appState.tryToLockWebLeader()).isTrue();
+    appState.setOperational(ProcessId.ELASTICSEARCH);
+
+    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    SchedulerImpl underTest = newScheduler();
+    underTest.schedule();
+
+    assertThat(processLauncher.processes).hasSize(0);
+
     // leader becomes operational -> follower can start
-    appState.setOperational(ProcessId.WEB_SERVER);
+    appState.setOperational(WEB_SERVER);
+
     processLauncher.waitForProcessAlive(WEB_SERVER);
+    processLauncher.waitForProcessAlive(COMPUTE_ENGINE);
+    assertThat(processLauncher.processes).hasSize(2);
 
     underTest.terminate();
   }
@@ -261,7 +307,7 @@ public class SchedulerImplTest {
   @Test
   public void web_server_waits_for_remote_elasticsearch_to_be_started_if_local_es_is_disabled() throws Exception {
     settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_SEARCH_DISABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
     SchedulerImpl underTest = newScheduler();
     underTest.schedule();
 
@@ -276,34 +322,12 @@ public class SchedulerImplTest {
     underTest.terminate();
   }
 
-  @Test
-  public void compute_engine_waits_for_remote_elasticsearch_and_web_leader_to_be_started_if_local_es_is_disabled() throws Exception {
-    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_SEARCH_DISABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_WEB_DISABLED, "true");
-    SchedulerImpl underTest = newScheduler();
-    underTest.schedule();
-
-    // CE waits for ES and WEB leader to be up
-    assertThat(processLauncher.processes).isEmpty();
-
-    // ES and WEB leader become operational on another nodes -> CE can start
-    appState.setRemoteOperational(ProcessId.ELASTICSEARCH);
-    appState.setRemoteOperational(ProcessId.WEB_SERVER);
-
-    processLauncher.waitForProcessAlive(COMPUTE_ENGINE);
-    assertThat(processLauncher.processes).hasSize(1);
-
-    underTest.terminate();
-  }
-
   private SchedulerImpl newScheduler() {
     return new SchedulerImpl(settings, appReloader, javaCommandFactory, processLauncher, appState)
       .setProcessWatcherDelayMs(1L);
   }
 
   private Scheduler startAll() throws InterruptedException {
-    enableAllProcesses();
     SchedulerImpl scheduler = newScheduler();
     scheduler.schedule();
     processLauncher.waitForProcess(ELASTICSEARCH).operational = true;
