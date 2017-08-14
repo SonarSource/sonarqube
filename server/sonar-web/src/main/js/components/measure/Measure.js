@@ -24,15 +24,15 @@ import Level from '../ui/Level';
 import Tooltips from '../controls/Tooltip';
 import { formatMeasure, isDiffMetric } from '../../helpers/measures';
 import { formatLeak, getRatingTooltip } from './utils';
-import type { MeasureEnhanced } from './types';
+/*:: import type { MeasureEnhanced } from './types'; */
 
-type Props = {
+/*:: type Props = {
   className?: string,
   decimals?: ?number,
   measure: MeasureEnhanced
-};
+}; */
 
-export default function Measure({ className, decimals, measure }: Props) {
+export default function Measure({ className, decimals, measure } /*: Props */) {
   const metric = measure.metric;
 
   if (metric.type === 'LEVEL') {

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import type { Measure, MeasureEnhanced } from '../../components/measure/types';
+/*:: import type { Measure, MeasureEnhanced } from '../../components/measure/types'; */
 
-type ComponentIntern = {
+/*:: type ComponentIntern = {
   isFavorite?: boolean,
   isRecentlyBrowsed?: boolean,
   key: string,
@@ -28,31 +28,31 @@ type ComponentIntern = {
   organization?: string,
   project?: string,
   qualifier: string
-};
+}; */
 
-export type Component = ComponentIntern & { measures?: Array<Measure> };
+/*:: export type Component = ComponentIntern & { measures?: Array<Measure> }; */
 
-export type ComponentEnhanced = ComponentIntern & {
+/*:: export type ComponentEnhanced = ComponentIntern & {
   value?: ?string,
   leak?: ?string,
   measures: Array<MeasureEnhanced>
-};
+}; */
 
-export type Paging = {
+/*:: export type Paging = {
   pageIndex: number,
   pageSize: number,
   total: number
-};
+}; */
 
-export type Period = {
+/*:: export type Period = {
   index: number,
   date: string,
   mode: string,
   parameter?: string
-};
+}; */
 
-export type Query = {
+/*:: export type Query = {
   metric: ?string,
   selected: ?string,
   view: string
-};
+}; */

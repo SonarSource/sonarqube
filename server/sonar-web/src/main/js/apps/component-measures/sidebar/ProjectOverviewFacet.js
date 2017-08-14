@@ -25,13 +25,13 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 
-type Props = {|
+/*:: type Props = {|
   onChange: (metric: string) => void,
   selected: string,
   value: string
-|};
+|}; */
 
-export default function ProjectOverviewFacet({ value, selected, onChange }: Props) {
+export default function ProjectOverviewFacet({ value, selected, onChange } /*: Props */) {
   const facetName = translate('component_measures.overview', value, 'facet');
   return (
     <FacetBox>

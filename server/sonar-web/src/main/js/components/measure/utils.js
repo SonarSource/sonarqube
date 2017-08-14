@@ -24,22 +24,24 @@ import {
   getRatingTooltip as nextGetRatingTooltip,
   isDiffMetric
 } from '../../helpers/measures';
-import type { Measure, MeasureEnhanced } from './types';
-import type { Metric } from '../../store/metrics/actions';
+/*:: import type { Measure, MeasureEnhanced } from './types'; */
+/*:: import type { Metric } from '../../store/metrics/actions'; */
 
 const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
 
-export const enhanceMeasure = (
-  measure: Measure,
-  metrics: { [string]: Metric }
-): MeasureEnhanced => ({
-  value: measure.value,
-  periods: measure.periods,
-  metric: metrics[measure.metric],
-  leak: getLeakValue(measure)
-});
+export function enhanceMeasure(
+  measure /*: Measure */,
+  metrics /*: { [string]: Metric } */
+) /*: MeasureEnhanced */ {
+  return {
+    value: measure.value,
+    periods: measure.periods,
+    metric: metrics[measure.metric],
+    leak: getLeakValue(measure)
+  };
+}
 
-export function formatLeak(value: ?string, metric: Metric, options: Object) {
+export function formatLeak(value /*: ?string*/, metric /*: Metric*/, options /*: Object*/) {
   if (isDiffMetric(metric.key)) {
     return formatMeasure(value, metric.type, options);
   } else {
@@ -47,7 +49,7 @@ export function formatLeak(value: ?string, metric: Metric, options: Object) {
   }
 }
 
-export function getLeakValue(measure: ?Measure): ?string {
+export function getLeakValue(measure /*: ?Measure*/) /*: ?string*/ {
   if (!measure || !measure.periods) {
     return null;
   }
@@ -55,7 +57,7 @@ export function getLeakValue(measure: ?Measure): ?string {
   return period ? period.value : null;
 }
 
-export function getRatingTooltip(metricKey: string, value: ?string) {
+export function getRatingTooltip(metricKey /*: string */, value /*: ?string*/) {
   const finalMetricKey = isDiffMetric(metricKey) ? metricKey.substr(4) : metricKey;
   if (KNOWN_RATINGS.includes(finalMetricKey)) {
     return nextGetRatingTooltip(finalMetricKey, value);

@@ -22,35 +22,38 @@ import React from 'react';
 import ProjectOverviewFacet from './ProjectOverviewFacet';
 import DomainFacet from './DomainFacet';
 import { getDefaultView, groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW } from '../utils';
-import type { MeasureEnhanced } from '../../../components/measure/types';
-import type { Query } from '../types';
+/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
+/*:: import type { Query } from '../types'; */
 
-type Props = {|
+/*:: type Props = {|
   measures: Array<MeasureEnhanced>,
   selectedMetric: string,
   updateQuery: Query => void
-|};
+|}; */
 
-type State = {|
+/*:: type State = {|
   openFacets: { [string]: boolean }
-|};
+|}; */
 
 export default class Sidebar extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = { openFacets: this.getOpenFacets({}, props) };
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (nextProps.selectedMetric !== this.props.selectedMetric) {
       this.setState(state => this.getOpenFacets(state.openFacets, nextProps));
     }
   }
 
-  getOpenFacets = (openFacets: { [string]: boolean }, { measures, selectedMetric }: Props) => {
+  getOpenFacets = (
+    openFacets /*: { [string]: boolean } */,
+    { measures, selectedMetric } /*: Props */
+  ) => {
     const newOpenFacets = { ...openFacets };
     const measure = measures.find(measure => measure.metric.key === selectedMetric);
     if (measure && measure.metric && measure.metric.domain) {
@@ -61,15 +64,15 @@ export default class Sidebar extends React.PureComponent {
     return newOpenFacets;
   };
 
-  toggleFacet = (name: string) => {
-    this.setState(({ openFacets }: State) => ({
+  toggleFacet = (name /*: string */) => {
+    this.setState(({ openFacets } /*: State */) => ({
       openFacets: { ...openFacets, [name]: !openFacets[name] }
     }));
   };
 
-  resetSelection = (metric: string) => ({ selected: null, view: getDefaultView(metric) });
+  resetSelection = (metric /*: string */) => ({ selected: null, view: getDefaultView(metric) });
 
-  changeMetric = (metric: string) =>
+  changeMetric = (metric /*: string */) =>
     this.props.updateQuery({ metric, ...this.resetSelection(metric) });
 
   render() {

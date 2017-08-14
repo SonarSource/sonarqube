@@ -27,10 +27,10 @@ import PageActions from './PageActions';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getComponentLeaves } from '../../../api/components';
 import { enhanceComponent, getBubbleMetrics, isFileType } from '../utils';
-import type { Component, ComponentEnhanced, Paging, Period } from '../types';
-import type { Metric } from '../../../store/metrics/actions';
+/*:: import type { Component, ComponentEnhanced, Paging, Period } from '../types'; */
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
 
-type Props = {|
+/*:: type Props = {|
   className?: string,
   component: Component,
   currentUser: { isLoggedIn: boolean },
@@ -41,19 +41,19 @@ type Props = {|
   rootComponent: Component,
   updateLoading: ({ [string]: boolean }) => void,
   updateSelected: string => void
-|};
+|}; */
 
-type State = {
+/*:: type State = {
   components: Array<ComponentEnhanced>,
   paging?: Paging
-};
+}; */
 
 const BUBBLES_LIMIT = 500;
 
 export default class MeasureOverview extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     components: [],
     paging: null
   };
@@ -63,7 +63,7 @@ export default class MeasureOverview extends React.PureComponent {
     this.fetchComponents(this.props);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (
       nextProps.component !== this.props.component ||
       nextProps.metrics !== this.props.metrics ||
@@ -77,7 +77,7 @@ export default class MeasureOverview extends React.PureComponent {
     this.mounted = false;
   }
 
-  fetchComponents = (props: Props) => {
+  fetchComponents = (props /*: Props */) => {
     const { component, domain, metrics } = props;
     if (isFileType(component)) {
       return this.setState({ components: [], paging: null });

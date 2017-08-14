@@ -21,19 +21,19 @@
 import React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
-import type { Component } from '../types';
+/*:: import type { Component } from '../types'; */
 
-type Props = {
+/*:: type Props = {
   canBrowse: boolean,
   component: Component,
   isLast: boolean,
   handleSelect: string => void
-};
+}; */
 
 export default class Breadcrumb extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleClick = (e: Event & { target: HTMLElement }) => {
+  handleClick = (e /*: Event & { target: HTMLElement } */) => {
     e.preventDefault();
     e.target.blur();
     this.props.handleSelect(this.props.component.key);

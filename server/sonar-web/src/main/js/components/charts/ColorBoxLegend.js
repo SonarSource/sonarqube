@@ -22,14 +22,16 @@ import React from 'react';
 import classNames from 'classnames';
 import { formatMeasure } from '../../helpers/measures';
 
-type Props = {
+/*:: type Props = {
   className?: string,
   colorScale: Object,
   colorNA?: string,
   metricType: string
-};
+}; */
 
-export default function ColorBoxLegend({ className, colorScale, colorNA, metricType }: Props) {
+export default function ColorBoxLegend(
+  { className, colorScale, colorNA, metricType } /*: Props */
+) {
   const colorDomain = colorScale.domain();
   const colorRange = colorScale.range();
   return (

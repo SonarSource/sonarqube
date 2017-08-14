@@ -25,17 +25,17 @@ import TreeIcon from '../../../components/icons-components/TreeIcon';
 import TreemapIcon from '../../../components/icons-components/TreemapIcon';
 import { hasList, hasTree, hasTreemap } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import type { Metric } from '../../../store/metrics/actions';
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
 
-type Props = {
+/*:: type Props = {
   className?: string,
   metric: Metric,
   handleViewChange: (view: string) => void,
   view: string
-};
+}; */
 
 export default class MeasureViewSelect extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   getOptions = () => {
     const { metric } = this.props;
@@ -79,9 +79,9 @@ export default class MeasureViewSelect extends React.PureComponent {
     return options;
   };
 
-  handleChange = (option: { value: string }) => this.props.handleViewChange(option.value);
+  handleChange = (option /*: { value: string } */) => this.props.handleViewChange(option.value);
 
-  renderValue = (value: { icon: Element<*> }) => value.icon;
+  renderValue = (value /*: { icon: Element<*> } */) => value.icon;
 
   render() {
     return (

@@ -21,7 +21,7 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default function MetricNotFound({ className }: { className?: string }) {
+export default function MetricNotFound({ className } /*: { className?: string } */) {
   return (
     <div className={className}>
       <div className="alert alert-danger">

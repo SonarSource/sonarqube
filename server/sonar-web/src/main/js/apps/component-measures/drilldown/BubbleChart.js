@@ -31,23 +31,23 @@ import {
 } from '../../../helpers/l10n';
 import { getBubbleMetrics, isProjectOverview } from '../utils';
 import { RATING_COLORS } from '../../../helpers/constants';
-import type { Component, ComponentEnhanced } from '../types';
-import type { Metric } from '../../../store/metrics/actions';
+/*:: import type { Component, ComponentEnhanced } from '../types'; */
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 const HEIGHT = 500;
 
-type Props = {|
+/*:: type Props = {|
   component: Component,
   components: Array<ComponentEnhanced>,
   domain: string,
   metrics: { [string]: Metric },
   updateSelected: string => void
-|};
+|}; */
 
 export default class BubbleChart extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  getMeasureVal = (component: ComponentEnhanced, metric: Metric) => {
+  getMeasureVal = (component /*: ComponentEnhanced */, metric /*: Metric */) => {
     const measure = component.measures.find(measure => measure.metric.key === metric.key);
     if (measure) {
       return Number(isDiffMetric(metric.key) ? measure.leak : measure.value);
@@ -55,15 +55,15 @@ export default class BubbleChart extends React.PureComponent {
   };
 
   getTooltip(
-    componentName: string,
-    x: number,
-    y: number,
-    size: number,
-    colors: ?Array<?number>,
-    xMetric: Metric,
-    yMetric: Metric,
-    sizeMetric: Metric,
-    colorsMetric: ?Array<Metric>
+    componentName /*: string */,
+    x /*: number */,
+    y /*: number */,
+    size /*: number */,
+    colors /*: ?Array<?number> */,
+    xMetric /*: Metric */,
+    yMetric /*: Metric */,
+    sizeMetric /*: Metric */,
+    colorsMetric /*: ?Array<Metric> */
   ) {
     const inner = [
       componentName,
@@ -83,14 +83,14 @@ export default class BubbleChart extends React.PureComponent {
     return `<div class="text-left">${inner.join('<br/>')}</div>`;
   }
 
-  handleBubbleClick = (component: ComponentEnhanced) =>
+  handleBubbleClick = (component /*: ComponentEnhanced */) =>
     this.props.updateSelected(component.refKey || component.key);
 
   renderBubbleChart(
-    xMetric: Metric,
-    yMetric: Metric,
-    sizeMetric: Metric,
-    colorsMetric: ?Array<Metric>
+    xMetric /*: Metric */,
+    yMetric /*: Metric */,
+    sizeMetric /*: Metric */,
+    colorsMetric /*: ?Array<Metric> */
   ) {
     const items = this.props.components
       .map(component => {
@@ -139,7 +139,11 @@ export default class BubbleChart extends React.PureComponent {
     );
   }
 
-  renderChartHeader(domain: string, sizeMetric: Metric, colorsMetric: ?Array<Metric>) {
+  renderChartHeader(
+    domain /*: string */,
+    sizeMetric /*: Metric */,
+    colorsMetric /*: ?Array<Metric> */
+  ) {
     const title = isProjectOverview(domain)
       ? translate('component_measures.overview', domain, 'title')
       : translateWithParameters(
@@ -176,7 +180,7 @@ export default class BubbleChart extends React.PureComponent {
     );
   }
 
-  renderChartFooter(domain: string) {
+  renderChartFooter(domain /*: string */) {
     const description = `component_measures.overview.${domain}.description`;
     const translatedDescription = translate(description);
     if (description === translatedDescription) {

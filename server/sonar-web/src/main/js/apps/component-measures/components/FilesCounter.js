@@ -22,13 +22,13 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
-type Props = {
+/*:: type Props = {
   className?: string,
   current: ?number,
   total: number
-};
+}; */
 
-export default function FilesCounter({ className, current, total }: Props) {
+export default function FilesCounter({ className, current, total } /*: Props */) {
   return (
     <span className={className}>
       <strong>

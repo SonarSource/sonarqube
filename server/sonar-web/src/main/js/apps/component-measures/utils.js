@@ -24,10 +24,10 @@ import { cleanQuery, parseAsString, serializeString } from '../../helpers/query'
 import { domains } from './config/domains';
 import { bubbles } from './config/bubbles';
 import { enhanceMeasure } from '../../components/measure/utils';
-import type { Component, ComponentEnhanced, Query } from './types';
-import type { RawQuery } from '../../helpers/query';
-import type { Metric } from '../../store/metrics/actions';
-import type { MeasureEnhanced } from '../../components/measure/types';
+/*:: import type { Component, ComponentEnhanced, Query } from './types'; */
+/*:: import type { RawQuery } from '../../helpers/query'; */
+/*:: import type { Metric } from '../../store/metrics/actions'; */
+/*:: import type { MeasureEnhanced } from '../../components/measure/types'; */
 
 export const PROJECT_OVERVEW = 'project_overview';
 export const DEFAULT_VIEW = 'list';
@@ -55,14 +55,16 @@ const BANNED_MEASURES = [
   'new_info_violations'
 ];
 
-export function filterMeasures(measures: Array<MeasureEnhanced>): Array<MeasureEnhanced> {
+export function filterMeasures(
+  measures /*: Array<MeasureEnhanced> */
+) /*: Array<MeasureEnhanced> */ {
   return measures.filter(measure => !BANNED_MEASURES.includes(measure.metric.key));
 }
 
 export function sortMeasures(
-  domainName: string,
-  measures: Array<MeasureEnhanced>
-): Array<MeasureEnhanced> {
+  domainName /*: string */,
+  measures /*: Array<MeasureEnhanced> */
+) /*: Array<MeasureEnhanced> */ {
   const config = domains[domainName] || {};
   const configOrder = config.order || [];
   return sortBy(measures, [
@@ -74,29 +76,28 @@ export function sortMeasures(
   ]);
 }
 
-export const enhanceComponent = (
-  component: Component,
-  metric: ?Metric,
-  metrics: { [string]: Metric }
-): ComponentEnhanced => {
+export function enhanceComponent(
+  component /*: Component */,
+  metric /*: ?Metric */,
+  metrics /*: { [string]: Metric } */
+) /*: ComponentEnhanced */ {
   const enhancedMeasures = component.measures.map(measure => enhanceMeasure(measure, metrics));
   // $FlowFixMe metric can't be null since there is a guard for it
   const measure = metric && enhancedMeasures.find(measure => measure.metric.key === metric.key);
   const value = measure ? measure.value : null;
   const leak = measure ? measure.leak : null;
   return { ...component, value, leak, measures: enhancedMeasures };
-};
+}
 
-export const isFileType = (component: Component): boolean =>
-  ['FIL', 'UTS'].includes(component.qualifier);
+export function isFileType(component /*: Component */) /*: boolean */ {
+  return ['FIL', 'UTS'].includes(component.qualifier);
+}
 
-export const isViewType = (component: Component): boolean =>
-  ['VW', 'SVW', 'APP'].includes(component.qualifier);
+export function isViewType(component /*: Component */) /*: boolean */ {
+  return ['VW', 'SVW', 'APP'].includes(component.qualifier);
+}
 
-export const groupByDomains = memoize((measures: Array<MeasureEnhanced>): Array<{
-  name: string,
-  measures: Array<MeasureEnhanced>
-}> => {
+export const groupByDomains = memoize((measures /*: Array<MeasureEnhanced> */) => {
   const domains = toPairs(groupBy(measures, measure => measure.metric.domain)).map(r => {
     const [name, measures] = r;
     const sortedMeasures = sortBy(measures, measure => getLocalizedMetricName(measure.metric));
@@ -112,26 +113,34 @@ export const groupByDomains = memoize((measures: Array<MeasureEnhanced>): Array<
   ]);
 });
 
-export const getDefaultView = (metric: string): string => {
+export function getDefaultView(metric /*: string */) /*: string */ {
   if (!hasList(metric)) {
     return 'tree';
   }
   return DEFAULT_VIEW;
-};
+}
 
-export const hasList = (metric: string): boolean =>
-  !['releasability_rating', 'releasability_effort'].includes(metric);
+export function hasList(metric /*: string */) /*: boolean */ {
+  return !['releasability_rating', 'releasability_effort'].includes(metric);
+}
 
-export const hasTree = (metric: string): boolean => metric !== 'alert_status';
+export function hasTree(metric /*: string */) /*: boolean */ {
+  return metric !== 'alert_status';
+}
 
-export const hasTreemap = (metric: string, type: string): boolean =>
-  ['PERCENT', 'RATING', 'LEVEL'].includes(type) && hasTree(metric);
+export function hasTreemap(metric /*: string */, type /*: string */) /*: boolean */ {
+  return ['PERCENT', 'RATING', 'LEVEL'].includes(type) && hasTree(metric);
+}
 
-export const hasBubbleChart = (domainName: string): boolean => bubbles[domainName] != null;
+export function hasBubbleChart(domainName /*: string */) /*: boolean */ {
+  return bubbles[domainName] != null;
+}
 
-export const hasFacetStat = (metric: string): boolean => metric !== 'alert_status';
+export function hasFacetStat(metric /*: string */) /*: boolean */ {
+  return metric !== 'alert_status';
+}
 
-export const getBubbleMetrics = (domain: string, metrics: { [string]: Metric }) => {
+export function getBubbleMetrics(domain /*: string */, metrics /*: { [string]: Metric } */) {
   const conf = bubbles[domain];
   return {
     xMetric: metrics[conf.x],
@@ -139,11 +148,13 @@ export const getBubbleMetrics = (domain: string, metrics: { [string]: Metric }) 
     sizeMetric: metrics[conf.size],
     colorsMetric: conf.colors ? conf.colors.map(color => metrics[color]) : null
   };
-};
+}
 
-export const isProjectOverview = (metric: string) => metric === PROJECT_OVERVEW;
+export function isProjectOverview(metric /*: string */) {
+  return metric === PROJECT_OVERVEW;
+}
 
-const parseView = memoize((rawView?: string, metric: string) => {
+const parseView = memoize((rawView /*:: ? */ /*: string */, metric /*: string */) => {
   const view = parseAsString(rawView) || DEFAULT_VIEW;
   if (!hasTree(metric)) {
     return 'list';
@@ -153,7 +164,7 @@ const parseView = memoize((rawView?: string, metric: string) => {
   return view;
 });
 
-export const parseQuery = memoize((urlQuery: RawQuery): Query => {
+export const parseQuery = memoize((urlQuery /*: RawQuery */) => {
   const metric = parseAsString(urlQuery['metric']) || DEFAULT_METRIC;
   return {
     metric,
@@ -162,7 +173,7 @@ export const parseQuery = memoize((urlQuery: RawQuery): Query => {
   };
 });
 
-export const serializeQuery = memoize((query: Query): RawQuery => {
+export const serializeQuery = memoize((query /*: Query */) => {
   return cleanQuery({
     metric: query.metric === DEFAULT_METRIC ? null : serializeString(query.metric),
     selected: serializeString(query.selected),

@@ -23,7 +23,7 @@ import { treemap as d3Treemap, hierarchy as d3Hierarchy } from 'd3-hierarchy';
 import TreeMapRect from './TreeMapRect';
 import { translate } from '../../helpers/l10n';
 
-export type TreeMapItem = {
+/*:: export type TreeMapItem = {
   key: string,
   size: number,
   color: string,
@@ -31,19 +31,19 @@ export type TreeMapItem = {
   tooltip?: string | React.Element<*>,
   label: string,
   link?: string
-};
+}; */
 
-type Props = {|
+/*:: type Props = {|
   items: Array<TreeMapItem>,
   onRectangleClick?: string => void,
   height: number,
   width: number
-|};
+|}; */
 
 export default class TreeMap extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  mostCommitPrefix = (labels: Array<string>) => {
+  mostCommitPrefix = (labels /*: Array<string> */) => {
     const sortedLabels = labels.slice(0).sort();
     const firstLabel = sortedLabels[0];
     const firstLabelLength = firstLabel.length;

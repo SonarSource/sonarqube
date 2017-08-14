@@ -22,7 +22,7 @@ import React from 'react';
 
 const DEFAULT_COLOR = '#2D88C0';
 
-const ICONS: Object = {
+const ICONS /*: Object */ = {
   dir: (color = '#F90') =>
     <path
       fill={color}
@@ -91,9 +91,9 @@ ICONS.pac = ICONS.dir;
 ICONS.dev_prj = ICONS.trk;
 ICONS.cla = ICONS.uts;
 
-type Props = { className?: string, color?: string, qualifier: string, size?: number };
+/*:: type Props = { className?: string, color?: string, qualifier: string, size?: number }; */
 
-export default function QualifierIcon({ className, color, qualifier, size = 16 }: Props) {
+export default function QualifierIcon({ className, color, qualifier, size = 16 } /*: Props */) {
   const icon = ICONS[qualifier.toLowerCase()];
   if (!icon) {
     return null;

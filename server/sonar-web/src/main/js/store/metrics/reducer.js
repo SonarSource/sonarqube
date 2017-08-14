@@ -21,20 +21,22 @@
 import { combineReducers } from 'redux';
 import { keyBy } from 'lodash';
 import { RECEIVE_METRICS } from './actions';
-import type { Metric } from './actions';
+/*:: import type { Metric } from './actions'; */
 
+/*::
 type StateByKey = { [string]: Metric };
 type StateKeys = Array<string>;
 type State = { byKey: StateByKey, keys: StateKeys };
+*/
 
-const byKey = (state: StateByKey = {}, action = {}) => {
+const byKey = (state /*: StateByKey */ = {}, action = {}) => {
   if (action.type === RECEIVE_METRICS) {
     return keyBy(action.metrics, 'key');
   }
   return state;
 };
 
-const keys = (state: StateKeys = [], action = {}) => {
+const keys = (state /*: StateKeys */ = [], action = {}) => {
   if (action.type === RECEIVE_METRICS) {
     return action.metrics.map(f => f.key);
   }
@@ -44,6 +46,6 @@ const keys = (state: StateKeys = [], action = {}) => {
 
 export default combineReducers({ byKey, keys });
 
-export const getMetrics = (state: State) => state.byKey;
-export const getMetricByKey = (state: State, key: string) => state.byKey[key];
-export const getMetricsKey = (state: State) => state.keys;
+export const getMetrics = (state /*: State */) => state.byKey;
+export const getMetricByKey = (state /*: State */, key /*: string */) => state.byKey[key];
+export const getMetricsKey = (state /*: State */) => state.keys;

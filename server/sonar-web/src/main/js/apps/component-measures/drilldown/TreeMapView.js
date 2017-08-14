@@ -29,40 +29,40 @@ import TreeMap from '../../../components/charts/TreeMap';
 import { translate, translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getComponentUrl } from '../../../helpers/urls';
-import type { Metric } from '../../../store/metrics/actions';
-import type { ComponentEnhanced } from '../types';
-import type { TreeMapItem } from '../../../components/charts/TreeMap';
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
+/*:: import type { ComponentEnhanced } from '../types'; */
+/*:: import type { TreeMapItem } from '../../../components/charts/TreeMap'; */
 
-type Props = {|
+/*:: type Props = {|
   components: Array<ComponentEnhanced>,
   handleSelect: string => void,
   metric: Metric
-|};
+|}; */
 
-type State = {
+/*:: type State = {
   treemapItems: Array<TreeMapItem>
-};
+}; */
 
 const HEIGHT = 500;
 const COLORS = ['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f'];
 const LEVEL_COLORS = ['#d4333f', '#ed7d20', '#00aa00', '#b4b4b4'];
 
 export default class TreeMapView extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = { treemapItems: this.getTreemapComponents(props) };
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (nextProps.components !== this.props.components || nextProps.metric !== this.props.metric) {
       this.setState({ treemapItems: this.getTreemapComponents(nextProps) });
     }
   }
 
-  getTreemapComponents = ({ components, metric }: Props): Array<TreeMapItem> => {
+  getTreemapComponents = ({ components, metric } /*: Props */) => {
     const colorScale = this.getColorScale(metric);
     return components
       .map(component => {
@@ -102,7 +102,7 @@ export default class TreeMapView extends React.PureComponent {
   getLevelColorScale = () =>
     scaleOrdinal().domain(['ERROR', 'WARN', 'OK', 'NONE']).range(LEVEL_COLORS);
 
-  getPercentColorScale = (metric: Metric) => {
+  getPercentColorScale = (metric /*: Metric */) => {
     const color = scaleLinear().domain([0, 25, 50, 75, 100]);
     color.range(metric.direction === 1 ? COLORS.reverse() : COLORS);
     return color;
@@ -110,7 +110,7 @@ export default class TreeMapView extends React.PureComponent {
 
   getRatingColorScale = () => scaleLinear().domain([1, 2, 3, 4, 5]).range(COLORS);
 
-  getColorScale = (metric: Metric) => {
+  getColorScale = (metric /*: Metric */) => {
     if (metric.type === 'LEVEL') {
       return this.getLevelColorScale();
     }
@@ -121,11 +121,11 @@ export default class TreeMapView extends React.PureComponent {
   };
 
   getTooltip = (
-    componentName: string,
-    colorMetric: Metric,
-    sizeMetric: Metric,
-    colorValue: ?number,
-    sizeValue: number
+    componentName /*: string */,
+    colorMetric /*: Metric */,
+    sizeMetric /*: Metric */,
+    colorValue /*: ?number */,
+    sizeValue /*: number */
   ) => {
     const formatted =
       colorMetric != null && colorValue != null ? formatMeasure(colorValue, colorMetric.type) : '—';

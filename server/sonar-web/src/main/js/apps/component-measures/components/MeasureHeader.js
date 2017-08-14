@@ -31,10 +31,10 @@ import { isFileType } from '../utils';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import { getComponentMeasureHistory } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
-import type { Component, Period } from '../types';
-import type { MeasureEnhanced } from '../../../components/measure/types';
+/*:: import type { Component, Period } from '../types'; */
+/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 
-type Props = {|
+/*:: type Props = {|
   component: Component,
   components: Array<Component>,
   leakPeriod?: Period,
@@ -42,12 +42,12 @@ type Props = {|
   measure: MeasureEnhanced,
   secondaryMeasure: ?MeasureEnhanced,
   selectedIdx: ?number
-|};
+|}; */
 
 export default class MeasureHeader extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleSelectPrevious = (e: Event & { target: HTMLElement }) => {
+  handleSelectPrevious = (e /*: Event & { target: HTMLElement } */) => {
     e.target.blur();
     if (this.props.selectedIdx != null) {
       const prevComponent = this.props.components[this.props.selectedIdx - 1];
@@ -57,7 +57,7 @@ export default class MeasureHeader extends React.PureComponent {
     }
   };
 
-  handleSelectNext = (e: Event & { target: HTMLElement }) => {
+  handleSelectNext = (e /*: Event & { target: HTMLElement } */) => {
     e.target.blur();
     if (this.props.selectedIdx != null) {
       const prevComponent = this.props.components[this.props.selectedIdx + 1];

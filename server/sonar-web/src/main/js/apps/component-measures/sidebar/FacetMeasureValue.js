@@ -21,9 +21,9 @@
 import React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
-import type { MeasureEnhanced } from '../../../components/measure/types';
+/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 
-export default function FacetMeasureValue({ measure }: { measure: MeasureEnhanced }) {
+export default function FacetMeasureValue({ measure } /*: { measure: MeasureEnhanced } */) {
   if (isDiffMetric(measure.metric.key)) {
     return (
       <div

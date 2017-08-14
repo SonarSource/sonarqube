@@ -22,18 +22,18 @@ import React from 'react';
 import classNames from 'classnames';
 import ComponentCell from './ComponentCell';
 import MeasureCell from './MeasureCell';
-import type { ComponentEnhanced } from '../types';
-import type { Metric } from '../../../store/metrics/actions';
+/*:: import type { ComponentEnhanced } from '../types'; */
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
 
-type Props = {|
+/*:: type Props = {|
   component: ComponentEnhanced,
   isSelected: boolean,
   onClick: string => void,
   otherMetrics: Array<Metric>,
   metric: Metric
-|};
+|}; */
 
-export default function ComponentsListRow(props: Props) {
+export default function ComponentsListRow(props /*: Props */) {
   const { component } = props;
   const otherMeasures = props.otherMetrics.map(metric => {
     const measure = component.measures.find(measure => measure.metric.key === metric.key);

@@ -26,13 +26,13 @@ import MeasureOverviewContainer from './MeasureOverviewContainer';
 import Sidebar from '../sidebar/Sidebar';
 import { hasBubbleChart, parseQuery, serializeQuery } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import type { Component, Query, Period } from '../types';
-import type { RawQuery } from '../../../helpers/query';
-import type { Metric } from '../../../store/metrics/actions';
-import type { MeasureEnhanced } from '../../../components/measure/types';
+/*:: import type { Component, Query, Period } from '../types'; */
+/*:: import type { RawQuery } from '../../../helpers/query'; */
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
+/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 import '../style.css';
 
-type Props = {|
+/*:: type Props = {|
   component: Component,
   currentUser: { isLoggedIn: boolean },
   location: { pathname: string, query: RawQuery },
@@ -46,20 +46,20 @@ type Props = {|
   router: {
     push: ({ pathname: string, query?: RawQuery }) => void
   }
-|};
+|}; */
 
-type State = {|
+/*:: type State = {|
   loading: boolean,
   measures: Array<MeasureEnhanced>,
   leakPeriod: ?Period
-|};
+|}; */
 
 export default class App extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       loading: true,
@@ -79,7 +79,7 @@ export default class App extends React.PureComponent {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (
       nextProps.component.key !== this.props.component.key ||
       nextProps.metrics !== this.props.metrics
@@ -97,7 +97,7 @@ export default class App extends React.PureComponent {
     }
   }
 
-  fetchMeasures = ({ component, fetchMeasures, metrics, metricsKey }: Props) => {
+  fetchMeasures = ({ component, fetchMeasures, metrics, metricsKey } /*: Props */) => {
     this.setState({ loading: true });
     const filteredKeys = metricsKey.filter(
       key => !metrics[key].hidden && !['DATA', 'DISTRIB'].includes(metrics[key].type)
@@ -116,7 +116,7 @@ export default class App extends React.PureComponent {
     );
   };
 
-  updateQuery = (newQuery: Query) => {
+  updateQuery = (newQuery /*: Query */) => {
     const query = serializeQuery({
       ...parseQuery(this.props.location.query),
       ...newQuery
