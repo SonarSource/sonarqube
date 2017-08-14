@@ -47,7 +47,7 @@ class SearchData {
       .andTotal(builder.countAnalyses);
   }
 
-  private ListMultimap<String, EventDto> buildEvents(List<EventDto> events) {
+  private static ListMultimap<String, EventDto> buildEvents(List<EventDto> events) {
     return events.stream().collect(MoreCollectors.index(EventDto::getAnalysisUuid));
   }
 
