@@ -37,6 +37,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
+import org.sonar.scanner.scan.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -57,6 +58,7 @@ public class DefaultSensorContextTest {
   private SensorStorage sensorStorage;
   private AnalysisMode analysisMode;
   private SonarRuntime runtime;
+  private BranchConfiguration branchConfig;
 
   @Before
   public void prepare() throws Exception {
@@ -66,10 +68,11 @@ public class DefaultSensorContextTest {
     when(metricFinder.<Integer>findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.<String>findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
     settings = new MapSettings();
+    branchConfig = mock(BranchConfiguration.class);
     sensorStorage = mock(SensorStorage.class);
     analysisMode = mock(AnalysisMode.class);
     runtime = SonarRuntimeImpl.forSonarQube(Version.parse("5.5"), SonarQubeSide.SCANNER);
-    adaptor = new DefaultSensorContext(mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, analysisMode, sensorStorage, runtime);
+    adaptor = new DefaultSensorContext(mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, analysisMode, sensorStorage, runtime, branchConfig);
   }
 
   @Test
@@ -86,4 +89,10 @@ public class DefaultSensorContextTest {
     assertThat(adaptor.isCancelled()).isFalse();
   }
 
+  @Test
+  public void shouldSkipDupsAndCoverageOnShortBranches() {
+    when(branchConfig.branchType()).thenReturn(BranchConfiguration.BranchType.SHORT);
+    assertThat(adaptor.newCpdTokens()).isEqualTo(DefaultSensorContext.NO_OP_NEW_CPD_TOKENS);
+    assertThat(adaptor.newCoverage()).isEqualTo(DefaultSensorContext.NO_OP_NEW_COVERAGE);
+  }
 }
