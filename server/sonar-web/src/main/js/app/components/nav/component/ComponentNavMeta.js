@@ -19,74 +19,77 @@
  */
 import moment from 'moment';
 import React from 'react';
+import IncrementalBadge from './IncrementalBadge';
 import PendingIcon from '../../../../components/shared/pending-icon';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
-export default class ComponentNavMeta extends React.PureComponent {
-  render() {
-    const metaList = [];
-    const canSeeBackgroundTasks = this.props.conf.showBackgroundTasks;
-    const backgroundTasksUrl =
-      window.baseUrl +
-      `/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
+export default function ComponentNavMeta(props) {
+  const metaList = [];
+  const canSeeBackgroundTasks = props.conf.showBackgroundTasks;
+  const backgroundTasksUrl =
+    window.baseUrl + `/project/background_tasks?id=${encodeURIComponent(props.component.key)}`;
 
-    if (this.props.isInProgress) {
-      const tooltip = canSeeBackgroundTasks
-        ? translateWithParameters(
-            'component_navigation.status.in_progress.admin',
-            backgroundTasksUrl
-          )
-        : translate('component_navigation.status.in_progress');
-      metaList.push(
-        <li key="isInProgress" data-toggle="tooltip" title={tooltip}>
-          <i className="spinner" style={{ marginTop: '-1px' }} />{' '}
-          <span className="text-info">{translate('background_task.status.IN_PROGRESS')}</span>
-        </li>
-      );
-    } else if (this.props.isPending) {
-      const tooltip = canSeeBackgroundTasks
-        ? translateWithParameters('component_navigation.status.pending.admin', backgroundTasksUrl)
-        : translate('component_navigation.status.pending');
-      metaList.push(
-        <li key="isPending" data-toggle="tooltip" title={tooltip}>
-          <PendingIcon /> <span>{translate('background_task.status.PENDING')}</span>
-        </li>
-      );
-    } else if (this.props.isFailed) {
-      const tooltip = canSeeBackgroundTasks
-        ? translateWithParameters('component_navigation.status.failed.admin', backgroundTasksUrl)
-        : translate('component_navigation.status.failed');
-      metaList.push(
-        <li key="isFailed" data-toggle="tooltip" title={tooltip}>
-          <span className="badge badge-danger">
-            {translate('background_task.status.FAILED')}
-          </span>
-        </li>
-      );
-    }
-
-    if (this.props.analysisDate) {
-      metaList.push(
-        <li key="analysisDate">
-          {moment(this.props.analysisDate).format('LLL')}
-        </li>
-      );
-    }
-
-    if (this.props.version) {
-      metaList.push(
-        <li key="version">
-          Version {this.props.version}
-        </li>
-      );
-    }
-
-    return (
-      <div className="navbar-context-meta">
-        <ul className="list-inline">
-          {metaList}
-        </ul>
-      </div>
+  if (props.isInProgress) {
+    const tooltip = canSeeBackgroundTasks
+      ? translateWithParameters('component_navigation.status.in_progress.admin', backgroundTasksUrl)
+      : translate('component_navigation.status.in_progress');
+    metaList.push(
+      <li key="isInProgress" data-toggle="tooltip" title={tooltip}>
+        <i className="spinner" style={{ marginTop: '-1px' }} />{' '}
+        <span className="text-info">{translate('background_task.status.IN_PROGRESS')}</span>
+      </li>
+    );
+  } else if (props.isPending) {
+    const tooltip = canSeeBackgroundTasks
+      ? translateWithParameters('component_navigation.status.pending.admin', backgroundTasksUrl)
+      : translate('component_navigation.status.pending');
+    metaList.push(
+      <li key="isPending" data-toggle="tooltip" title={tooltip}>
+        <PendingIcon /> <span>{translate('background_task.status.PENDING')}</span>
+      </li>
+    );
+  } else if (props.isFailed) {
+    const tooltip = canSeeBackgroundTasks
+      ? translateWithParameters('component_navigation.status.failed.admin', backgroundTasksUrl)
+      : translate('component_navigation.status.failed');
+    metaList.push(
+      <li key="isFailed" data-toggle="tooltip" title={tooltip}>
+        <span className="badge badge-danger">
+          {translate('background_task.status.FAILED')}
+        </span>
+      </li>
     );
   }
+
+  if (props.analysisDate) {
+    metaList.push(
+      <li key="analysisDate">
+        {moment(props.analysisDate).format('LLL')}
+      </li>
+    );
+  }
+
+  if (props.version) {
+    metaList.push(
+      <li key="version">
+        Version {props.version}
+      </li>
+    );
+  }
+
+  if (props.incremental) {
+    metaList.push(
+      <li key="incremental">
+        <IncrementalBadge />
+      </li>
+    );
+  }
+
+  return (
+    <div className="navbar-context-meta">
+      <ul className="list-inline">
+        {metaList}
+      </ul>
+    </div>
+  );
 }

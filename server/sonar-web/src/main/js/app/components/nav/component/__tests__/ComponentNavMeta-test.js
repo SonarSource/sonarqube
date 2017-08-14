@@ -17,38 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import React from 'react';
-import classNames from 'classnames';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
+import { shallow } from 'enzyme';
+import ComponentNavMeta from '../ComponentNavMeta';
 
-type Props = {|
-  className?: string,
-  tooltip?: boolean
-|};
+it('renders incremental badge', () => {
+  check(true);
+  check(false);
 
-export default function BuiltInBadge(props: Props) {
-  const badge = (
-    <div className={classNames('outline-badge', props.className)}>
-      {translate('quality_profiles.built_in')}
-    </div>
-  );
-
-  const overlay = (
-    <span>
-      {translate('quality_profiles.built_in.description.1')}{' '}
-      {translate('quality_profiles.built_in.description.2')}
-    </span>
-  );
-
-  return props.tooltip
-    ? <Tooltip overlay={overlay}>
-        {badge}
-      </Tooltip>
-    : badge;
-}
-
-BuiltInBadge.defaultProps = {
-  tooltip: true
-};
+  function check(incremental) {
+    expect(
+      shallow(
+        <ComponentNavMeta component={{ key: 'foo' }} conf={{}} incremental={incremental} />
+      ).find('IncrementalBadge')
+    ).toHaveLength(incremental ? 1 : 0);
+  }
+});
