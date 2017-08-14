@@ -45,6 +45,8 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
 import org.sonar.scanner.report.ReportPublisher;
+import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.BranchConfiguration.BranchType;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.util.ProgressReport;
 
@@ -69,18 +71,25 @@ public class CpdExecutor {
   private final InputComponentStore componentStore;
   private final ProgressReport progressReport;
   private final CpdSettings settings;
+  private final BranchConfiguration branchConfiguration;
   private int count;
   private int total;
 
-  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache) {
+  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache,
+    BranchConfiguration branchConfiguration) {
     this.settings = settings;
     this.index = index;
     this.publisher = publisher;
     this.componentStore = inputComponentCache;
+    this.branchConfiguration = branchConfiguration;
     this.progressReport = new ProgressReport("CPD computation", TimeUnit.SECONDS.toMillis(10));
   }
 
   public void execute() {
+    if (branchConfiguration.branchType() == BranchType.SHORT) {
+      LOG.info("Skipping CPD calculation for short living branch");
+      return;
+    }
     execute(TIMEOUT);
   }
 
