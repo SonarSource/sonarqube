@@ -38,6 +38,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SH
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SUGGESTIONS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.CONTROLLER_COMPONENTS;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
@@ -77,7 +78,8 @@ public class ComponentsService extends BaseService {
   public ShowWsResponse show(ShowWsRequest request) {
     GetRequest get = new GetRequest(path(ACTION_SHOW))
       .setParam(PARAM_COMPONENT_ID, request.getId())
-      .setParam(PARAM_COMPONENT, request.getKey());
+      .setParam(PARAM_COMPONENT, request.getKey())
+      .setParam(PARAM_BRANCH, request.getBranch());
     return call(get, ShowWsResponse.parser());
   }
 
