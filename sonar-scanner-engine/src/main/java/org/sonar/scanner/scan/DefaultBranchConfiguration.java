@@ -34,4 +34,10 @@ public class DefaultBranchConfiguration implements BranchConfiguration {
   public String branchTarget() {
     return null;
   }
+
+  @CheckForNull
+  @Override
+  public String branchName() {
+    return null;
+  }
 }
