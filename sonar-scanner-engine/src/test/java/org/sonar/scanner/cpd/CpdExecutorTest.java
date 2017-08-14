@@ -48,10 +48,13 @@ import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
+import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.BranchConfiguration.BranchType;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class CpdExecutorTest {
@@ -64,6 +67,7 @@ public class CpdExecutorTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  private BranchConfiguration branchConfig;
   private CpdExecutor executor;
   private CpdSettings settings;
   private SonarCpdBlockIndex index;
@@ -80,6 +84,7 @@ public class CpdExecutorTest {
     File outputDir = temp.newFolder();
     baseDir = temp.newFolder();
 
+    branchConfig = mock(BranchConfiguration.class);
     settings = mock(CpdSettings.class);
     publisher = mock(ReportPublisher.class);
     when(publisher.getWriter()).thenReturn(new ScannerReportWriter(outputDir));
@@ -87,12 +92,23 @@ public class CpdExecutorTest {
     index = new SonarCpdBlockIndex(publisher, settings);
     DefaultInputModule inputModule = TestInputFileBuilder.newDefaultInputModule("foo", baseDir);
     componentStore = new InputComponentStore(inputModule, mock(AnalysisMode.class));
-    executor = new CpdExecutor(settings, index, publisher, componentStore);
+    executor = new CpdExecutor(settings, index, publisher, componentStore, branchConfig);
     reader = new ScannerReportReader(outputDir);
 
     batchComponent1 = createComponent("src/Foo.php", 5);
     batchComponent2 = createComponent("src/Foo2.php", 5);
     batchComponent3 = createComponent("src/Foo3.php", 5);
+  }
+
+  @Test
+  public void skipIfShortBranch() {
+    when(branchConfig.branchType()).thenReturn(BranchType.SHORT);
+    index = mock(SonarCpdBlockIndex.class);
+    executor = new CpdExecutor(settings, index, publisher, componentStore, branchConfig);
+
+    executor.execute();
+
+    verifyZeroInteractions(index);
   }
 
   private DefaultInputFile createComponent(String relativePath, int lines) {
