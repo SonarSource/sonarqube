@@ -148,8 +148,7 @@ public class MetadataPublisherTest {
   @Test
   public void write_long_lived_branch_info() throws Exception {
     String branchName = "long-lived";
-    settings.setProperty(ScannerProperties.BRANCH_NAME, branchName);
-
+    when(branches.branchName()).thenReturn(branchName);
     when(branches.branchType()).thenReturn(BranchConfiguration.BranchType.LONG);
 
     File outputDir = temp.newFolder();
@@ -165,9 +164,7 @@ public class MetadataPublisherTest {
   public void write_short_lived_branch_info() throws Exception {
     String branchName = "feature";
     String branchTarget = "short-lived";
-    settings.setProperty(ScannerProperties.BRANCH_NAME, branchName);
-    settings.setProperty(ScannerProperties.BRANCH_TARGET, branchTarget);
-
+    when(branches.branchName()).thenReturn(branchName);
     when(branches.branchTarget()).thenReturn(branchTarget);
 
     File outputDir = temp.newFolder();
