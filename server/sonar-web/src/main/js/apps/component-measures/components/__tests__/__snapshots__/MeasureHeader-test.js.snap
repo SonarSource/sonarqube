@@ -1,0 +1,258 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`shohuld display correctly for open file 1`] = `
+<div
+  className="measure-details-primary-actions"
+>
+  <div
+    className="display-inline-block"
+  >
+    <span
+      className="note spacer-right"
+    >
+      component_measures.x_of_y.2.3
+    </span>
+    <div
+      className="button-group"
+    >
+      <button
+        onClick={[Function]}
+      >
+        &lt;
+      </button>
+      <button
+        onClick={[Function]}
+      >
+        &gt;
+      </button>
+    </div>
+  </div>
+  <LeakPeriodLegend
+    className="spacer-left"
+    component={
+      Object {
+        "key": "bar",
+        "qualifier": "FIL",
+      }
+    }
+    period={
+      Object {
+        "date": "2017-05-16T13:50:02+0200",
+        "index": 1,
+        "mode": "previous_version",
+        "parameter": "6,4",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`shohuld display correctly for open file 2`] = `
+<div
+  className="measure-details-primary-actions"
+>
+  <div
+    className="display-inline-block"
+  >
+    <span
+      className="note spacer-right"
+    >
+      component_measures.x_of_y.2.2
+    </span>
+    <div
+      className="button-group"
+    >
+      <button
+        onClick={[Function]}
+      >
+        &lt;
+      </button>
+    </div>
+  </div>
+  <LeakPeriodLegend
+    className="spacer-left"
+    component={
+      Object {
+        "key": "bar",
+        "qualifier": "FIL",
+      }
+    }
+    period={
+      Object {
+        "date": "2017-05-16T13:50:02+0200",
+        "index": 1,
+        "mode": "previous_version",
+        "parameter": "6,4",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`should render correctly 1`] = `
+<div
+  className="measure-details-header big-spacer-bottom"
+>
+  <div
+    className="measure-details-primary"
+  >
+    <div
+      className="measure-details-metric"
+    >
+      <IssueTypeIcon
+        className="little-spacer-right text-text-bottom"
+        query="reliability_rating"
+      />
+      Reliability Rating
+      <span
+        className="measure-details-value spacer-left"
+      >
+        <strong>
+          <Measure
+            measure={
+              Object {
+                "leak": "0.0",
+                "metric": Object {
+                  "key": "reliability_rating",
+                  "name": "Reliability Rating",
+                  "type": "RATING",
+                },
+                "periods": Array [
+                  Object {
+                    "index": 1,
+                    "value": "0.0",
+                  },
+                ],
+                "value": "3.0",
+              }
+            }
+            metric={
+              Object {
+                "key": "reliability_rating",
+                "name": "Reliability Rating",
+                "type": "RATING",
+              }
+            }
+          />
+        </strong>
+      </span>
+      <Tooltip
+        overlay="component_measures.show_metric_history"
+        placement="right"
+      >
+        <Link
+          className="js-show-history spacer-left button button-small button-compact"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/activity",
+              "query": Object {
+                "custom_metrics": "reliability_rating",
+                "graph": "custom",
+                "id": "foo",
+              },
+            }
+          }
+        >
+          <IconHistory />
+        </Link>
+      </Tooltip>
+    </div>
+    <div
+      className="measure-details-primary-actions"
+    >
+      <LeakPeriodLegend
+        className="spacer-left"
+        component={
+          Object {
+            "key": "foo",
+            "qualifier": "TRK",
+          }
+        }
+        period={
+          Object {
+            "date": "2017-05-16T13:50:02+0200",
+            "index": 1,
+            "mode": "previous_version",
+            "parameter": "6,4",
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for leak 1`] = `
+<div
+  className="measure-details-header big-spacer-bottom"
+>
+  <div
+    className="measure-details-primary"
+  >
+    <div
+      className="measure-details-metric"
+    >
+      <IssueTypeIcon
+        className="little-spacer-right text-text-bottom"
+        query="new_reliability_rating"
+      />
+      Reliability Rating on New Code
+      <span
+        className="measure-details-value spacer-left"
+      >
+        <strong>
+          <Measure
+            className="domain-measures-leak"
+            measure={
+              Object {
+                "leak": "3.0",
+                "metric": Object {
+                  "key": "new_reliability_rating",
+                  "name": "Reliability Rating on New Code",
+                  "type": "RATING",
+                },
+                "periods": Array [
+                  Object {
+                    "index": 1,
+                    "value": "3.0",
+                  },
+                ],
+              }
+            }
+            metric={
+              Object {
+                "key": "new_reliability_rating",
+                "name": "Reliability Rating on New Code",
+                "type": "RATING",
+              }
+            }
+          />
+        </strong>
+      </span>
+    </div>
+    <div
+      className="measure-details-primary-actions"
+    >
+      <LeakPeriodLegend
+        className="spacer-left"
+        component={
+          Object {
+            "key": "foo",
+            "qualifier": "TRK",
+          }
+        }
+        period={
+          Object {
+            "date": "2017-05-16T13:50:02+0200",
+            "index": 1,
+            "mode": "previous_version",
+            "parameter": "6,4",
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;

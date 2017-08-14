@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly show a middle element 1`] = `
+<span>
+  <a
+    href="#"
+    onClick={[Function]}
+  >
+    Foo
+  </a>
+  <span
+    className="slash-separator"
+  />
+</span>
+`;
+
+exports[`should show the last element without clickable link 1`] = `
+<span>
+  <span>
+    Foo
+  </span>
+</span>
+`;

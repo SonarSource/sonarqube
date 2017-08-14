@@ -522,10 +522,6 @@ a:hover > .icon-radio {
   content: "\f067";
   font-size: @iconSmallFontSize;
 }
-.icon-link:before {
-  content: "\f127";
-  font-size: @iconSmallFontSize;
-}
 .icon-move-down:before {
   content: "\f063";
   color: @darkBlue;
@@ -741,6 +737,15 @@ a:hover > .icon-radio {
   border: 2px solid @blue;
   border-radius: 50%;
   animation: spin 0.75s infinite linear;
+}
+
+.spinner-placeholder {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  width: 16px;
+  height: 16px;
+  visibility: hidden;
 }
 
 .spinner:before,

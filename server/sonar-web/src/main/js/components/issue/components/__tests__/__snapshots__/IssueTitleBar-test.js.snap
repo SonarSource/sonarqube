@@ -63,7 +63,7 @@ exports[`should render the titlebar correctly 1`] = `
             className="issue-meta"
           >
             <Link
-              className="js-issue-permalink icon-link"
+              className="js-issue-permalink link-no-underline"
               onClick={[Function]}
               onlyActiveOnIndex={false}
               style={Object {}}
@@ -78,7 +78,9 @@ exports[`should render the titlebar correctly 1`] = `
                   },
                 }
               }
-            />
+            >
+              <LinkIcon />
+            </Link>
           </li>
         </ul>
       </td>
@@ -150,7 +152,7 @@ exports[`should render the titlebar with the filter 1`] = `
             className="issue-meta"
           >
             <Link
-              className="js-issue-permalink icon-link"
+              className="js-issue-permalink link-no-underline"
               onClick={[Function]}
               onlyActiveOnIndex={false}
               style={Object {}}
@@ -165,7 +167,9 @@ exports[`should render the titlebar with the filter 1`] = `
                   },
                 }
               }
-            />
+            >
+              <LinkIcon />
+            </Link>
           </li>
           <li
             className="issue-meta"

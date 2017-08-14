@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import RatingsLegend from './RatingsLegend';
+import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
 import BubbleChart from '../../../components/charts/BubbleChart';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -130,7 +130,7 @@ export default class Risk extends React.PureComponent {
             'component_measures.legend.size_x',
             translate('metric', SIZE_METRIC, 'name')
           )}
-          <RatingsLegend />
+          <ColorRatingsLegend className="big-spacer-top" />
         </div>
       </div>
     );

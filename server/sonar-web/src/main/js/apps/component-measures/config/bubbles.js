@@ -17,12 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const bubblesConfig = {
-  Reliability: { x: 'ncloc', y: 'reliability_remediation_effort', size: 'bugs' },
-  Security: { x: 'ncloc', y: 'security_remediation_effort', size: 'vulnerabilities' },
-  Maintainability: { x: 'ncloc', y: 'sqale_index', size: 'code_smells' },
+// @flow
+export const bubbles = {
+  Reliability: {
+    x: 'ncloc',
+    y: 'reliability_remediation_effort',
+    size: 'bugs',
+    colors: ['reliability_rating']
+  },
+  Security: {
+    x: 'ncloc',
+    y: 'security_remediation_effort',
+    size: 'vulnerabilities',
+    colors: ['security_rating']
+  },
+  Maintainability: {
+    x: 'ncloc',
+    y: 'sqale_index',
+    size: 'code_smells',
+    colors: ['sqale_rating']
+  },
   Coverage: { x: 'complexity', y: 'coverage', size: 'uncovered_lines' },
-  Duplications: { x: 'ncloc', y: 'duplicated_lines', size: 'duplicated_blocks' }
+  Duplications: { x: 'ncloc', y: 'duplicated_lines', size: 'duplicated_blocks' },
+  project_overview: {
+    x: 'sqale_index',
+    y: 'coverage',
+    size: 'ncloc',
+    colors: ['reliability_rating', 'security_rating']
+  }
 };
-
-export default bubblesConfig;

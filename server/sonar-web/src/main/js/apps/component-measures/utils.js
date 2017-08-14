@@ -17,105 +17,155 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import bubbles from './config/bubbles';
-import {
-  formatMeasure,
-  formatMeasureVariation,
-  getRatingTooltip as nextGetRatingTooltip,
-  isDiffMetric
-} from '../../helpers/measures';
+// @flow
+import { groupBy, memoize, sortBy, toPairs } from 'lodash';
+import { getLocalizedMetricName } from '../../helpers/l10n';
+import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
+import { domains } from './config/domains';
+import { bubbles } from './config/bubbles';
+import { enhanceMeasure } from '../../components/measure/utils';
+import type { Component, ComponentEnhanced, Query } from './types';
+import type { RawQuery } from '../../helpers/query';
+import type { Metric } from '../../store/metrics/actions';
+import type { MeasureEnhanced } from '../../components/measure/types';
 
-export function getLeakValue(measure, periodIndex = 1) {
-  if (!measure) {
-    return null;
-  }
+export const PROJECT_OVERVEW = 'project_overview';
+export const DEFAULT_VIEW = 'list';
+export const DEFAULT_METRIC = PROJECT_OVERVEW;
+export const KNOWN_DOMAINS = [
+  'Releasability',
+  'Reliability',
+  'Security',
+  'Maintainability',
+  'Coverage',
+  'Duplications',
+  'Size',
+  'Complexity'
+];
+const BANNED_MEASURES = [
+  'blocker_violations',
+  'new_blocker_violations',
+  'critical_violations',
+  'new_critical_violations',
+  'major_violations',
+  'new_major_violations',
+  'minor_violations',
+  'new_minor_violations',
+  'info_violations',
+  'new_info_violations'
+];
 
-  const period = measure.periods
-    ? measure.periods.find(period => period.index === periodIndex)
-    : null;
-
-  return period ? period.value : null;
+export function filterMeasures(measures: Array<MeasureEnhanced>): Array<MeasureEnhanced> {
+  return measures.filter(measure => !BANNED_MEASURES.includes(measure.metric.key));
 }
 
-export function getSingleMeasureValue(measures) {
-  if (!measures || !measures.length) {
-    return null;
-  }
-
-  return measures[0].value;
+export function sortMeasures(
+  domainName: string,
+  measures: Array<MeasureEnhanced>
+): Array<MeasureEnhanced> {
+  const config = domains[domainName] || {};
+  const configOrder = config.order || [];
+  return sortBy(measures, [
+    measure => {
+      const idx = configOrder.indexOf(measure.metric.key);
+      return idx >= 0 ? idx : configOrder.length;
+    },
+    measure => getLocalizedMetricName(measure.metric)
+  ]);
 }
 
-export function getSingleLeakValue(measures, periodIndex = 1) {
-  if (!measures || !measures.length) {
-    return null;
-  }
+export const enhanceComponent = (
+  component: Component,
+  metric: ?Metric,
+  metrics: { [string]: Metric }
+): ComponentEnhanced => {
+  const enhancedMeasures = component.measures.map(measure => enhanceMeasure(measure, metrics));
+  // $FlowFixMe metric can't be null since there is a guard for it
+  const measure = metric && enhancedMeasures.find(measure => measure.metric.key === metric.key);
+  const value = measure ? measure.value : null;
+  const leak = measure ? measure.leak : null;
+  return { ...component, value, leak, measures: enhancedMeasures };
+};
 
-  const measure = measures[0];
+export const isFileType = (component: Component): boolean =>
+  ['FIL', 'UTS'].includes(component.qualifier);
 
-  const period = measure.periods
-    ? measure.periods.find(period => period.index === periodIndex)
-    : null;
+export const isViewType = (component: Component): boolean =>
+  ['VW', 'SVW', 'APP'].includes(component.qualifier);
 
-  return period ? period.value : null;
-}
-
-export function formatLeak(value, metric, options) {
-  if (isDiffMetric(metric.key)) {
-    return formatMeasure(value, metric.type, options);
-  } else {
-    return formatMeasureVariation(value, metric.type, options);
-  }
-}
-
-export function enhanceWithLeak(measures, periodIndex = 1) {
-  function enhanceSingle(measure) {
-    return { ...measure, leak: getLeakValue(measure, periodIndex) };
-  }
-
-  if (Array.isArray(measures)) {
-    return measures.map(enhanceSingle);
-  } else {
-    return enhanceSingle(measures);
-  }
-}
-
-export function enhanceWithSingleMeasure(components, periodIndex = 1) {
-  return components.map(component => {
-    return {
-      ...component,
-      value: getSingleMeasureValue(component.measures),
-      leak: getSingleLeakValue(component.measures, periodIndex)
-    };
+export const groupByDomains = memoize((measures: Array<MeasureEnhanced>): Array<{
+  name: string,
+  measures: Array<MeasureEnhanced>
+}> => {
+  const domains = toPairs(groupBy(measures, measure => measure.metric.domain)).map(r => {
+    const [name, measures] = r;
+    const sortedMeasures = sortBy(measures, measure => getLocalizedMetricName(measure.metric));
+    return { name, measures: sortedMeasures };
   });
-}
 
-export function enhanceWithMeasure(components, metric, periodIndex = 1) {
-  return components.map(component => {
-    const measuresWithLeak = enhanceWithLeak(component.measures, periodIndex);
-    const measure = measuresWithLeak.find(measure => measure.metric === metric);
-    const value = measure ? measure.value : null;
-    const leak = measure ? measure.leak : null;
-    return { ...component, value, leak, measures: measuresWithLeak };
-  });
-}
+  return sortBy(domains, [
+    domain => {
+      const idx = KNOWN_DOMAINS.indexOf(domain.name);
+      return idx >= 0 ? idx : KNOWN_DOMAINS.length;
+    },
+    'name'
+  ]);
+});
 
-export function hasBubbleChart(domainName) {
-  return !!bubbles[domainName];
-}
-
-export function hasTreemap(metric) {
-  return ['PERCENT', 'RATING', 'LEVEL'].indexOf(metric.type) !== -1;
-}
-
-export function filterOutEmptyMeasures(components) {
-  return components.filter(component => component.value !== null || component.leak !== null);
-}
-
-export function getRatingTooltip(metricKey, value) {
-  const finalMetricKey = metricKey.indexOf('new_') === 0 ? metricKey.substr(4) : metricKey;
-  const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
-  if (KNOWN_RATINGS.includes(finalMetricKey)) {
-    return nextGetRatingTooltip(finalMetricKey, value);
+export const getDefaultView = (metric: string): string => {
+  if (!hasList(metric)) {
+    return 'tree';
   }
-  return null;
-}
+  return DEFAULT_VIEW;
+};
+
+export const hasList = (metric: string): boolean =>
+  !['releasability_rating', 'releasability_effort'].includes(metric);
+
+export const hasTree = (metric: string): boolean => metric !== 'alert_status';
+
+export const hasTreemap = (metric: string, type: string): boolean =>
+  ['PERCENT', 'RATING', 'LEVEL'].includes(type) && hasTree(metric);
+
+export const hasBubbleChart = (domainName: string): boolean => bubbles[domainName] != null;
+
+export const hasFacetStat = (metric: string): boolean => metric !== 'alert_status';
+
+export const getBubbleMetrics = (domain: string, metrics: { [string]: Metric }) => {
+  const conf = bubbles[domain];
+  return {
+    xMetric: metrics[conf.x],
+    yMetric: metrics[conf.y],
+    sizeMetric: metrics[conf.size],
+    colorsMetric: conf.colors ? conf.colors.map(color => metrics[color]) : null
+  };
+};
+
+export const isProjectOverview = (metric: string) => metric === PROJECT_OVERVEW;
+
+const parseView = memoize((rawView?: string, metric: string) => {
+  const view = parseAsString(rawView) || DEFAULT_VIEW;
+  if (!hasTree(metric)) {
+    return 'list';
+  } else if (view === 'list' && !hasList(metric)) {
+    return 'tree';
+  }
+  return view;
+});
+
+export const parseQuery = memoize((urlQuery: RawQuery): Query => {
+  const metric = parseAsString(urlQuery['metric']) || DEFAULT_METRIC;
+  return {
+    metric,
+    selected: parseAsString(urlQuery['selected']),
+    view: parseView(urlQuery['view'], metric)
+  };
+});
+
+export const serializeQuery = memoize((query: Query): RawQuery => {
+  return cleanQuery({
+    metric: query.metric === DEFAULT_METRIC ? null : serializeString(query.metric),
+    selected: serializeString(query.selected),
+    view: query.view === DEFAULT_VIEW ? null : serializeString(query.view)
+  });
+});

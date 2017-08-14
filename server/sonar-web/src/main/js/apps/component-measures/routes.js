@@ -19,83 +19,45 @@
  */
 const routes = [
   {
-    getComponent(_, callback) {
-      import('./app/AppContainer').then(i => callback(null, i.default));
-    },
-    childRoutes: [
-      {
-        getComponent(_, callback) {
-          import('./home/HomeContainer').then(i => callback(null, i.default));
-        },
-        childRoutes: [
-          {
-            getIndexRoute(_, callback) {
-              import('./home/AllMeasuresContainer').then(i =>
-                callback(null, { component: i.default })
-              );
-            }
-          },
-          {
-            path: 'domain/:domainName',
-            getComponent(_, callback) {
-              import('./home/DomainMeasuresContainer').then(i => callback(null, i.default));
-            }
+    getIndexRoute(_, callback) {
+      import('./components/AppContainer').then(i => callback(null, { component: i.default }));
+    }
+  },
+  {
+    path: 'domain/:domainName',
+    onEnter(nextState, replace) {
+      replace({
+        pathname: '/component_measures',
+        query: {
+          ...nextState.location.query,
+          metric: nextState.params.domainName
+        }
+      });
+    }
+  },
+  {
+    path: 'metric/:metricKey(/:view)',
+    onEnter(nextState, replace) {
+      if (nextState.params.view === 'history') {
+        replace({
+          pathname: '/project/activity',
+          query: {
+            id: nextState.location.query.id,
+            graph: 'custom',
+            custom_metrics: nextState.params.metricKey
           }
-        ]
-      },
-      {
-        path: 'metric/:metricKey',
-        getComponent(_, callback) {
-          import('./details/MeasureDetailsContainer').then(i => callback(null, i.default));
-        },
-        childRoutes: [
-          {
-            indexRoute: {
-              onEnter(nextState, replace) {
-                const { params, location } = nextState;
-                replace({
-                  pathname: `/component_measures/metric/${params.metricKey}/list`,
-                  query: location.query
-                });
-              }
-            }
-          },
-          {
-            path: 'list',
-            getComponent(_, callback) {
-              import('./details/drilldown/ListViewContainer').then(i => callback(null, i.default));
-            }
-          },
-          {
-            path: 'tree',
-            getComponent(_, callback) {
-              import('./details/drilldown/TreeViewContainer').then(i => callback(null, i.default));
-            }
-          },
-          {
-            path: 'history',
-            onEnter(nextState, replace) {
-              replace({
-                pathname: '/project/activity',
-                query: {
-                  id: nextState.location.query.id,
-                  graph: 'custom',
-                  custom_metrics: nextState.params.metricKey
-                }
-              });
-            }
-          },
-          {
-            path: 'treemap',
-            getComponent(_, callback) {
-              import('./details/treemap/MeasureTreemapContainer').then(i =>
-                callback(null, i.default)
-              );
-            }
+        });
+      } else {
+        replace({
+          pathname: '/component_measures',
+          query: {
+            ...nextState.location.query,
+            metric: nextState.params.metricKey,
+            view: nextState.params.view
           }
-        ]
+        });
       }
-    ]
+    }
   }
 ];
 

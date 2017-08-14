@@ -32,10 +32,12 @@ import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.pageobjects.Navigation;
 import util.ItUtils;
 
+import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
@@ -120,7 +122,7 @@ public class UiTest {
 
     // on project issues page
     assertThat(url()).contains("/project/issues?id=sample&resolved=false&types=CODE_SMELL");
-    $("[data-property=\"resolutions\"] .facet.active").shouldBe(visible);
+    $$(".facet.active").shouldHaveSize(3).find(text("Unresolved")).should(exist);
 
     $("#global-navigation").find("a[href=\"/profiles\"]").click();
 

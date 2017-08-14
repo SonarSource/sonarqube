@@ -28,14 +28,18 @@ exports[`new_maintainability_rating 1`] = `
         measure={
           Object {
             "leak": "3",
+            "metric": Object {
+              "key": "new_maintainability_rating",
+              "name": "new_maintainability_rating",
+              "type": "RATING",
+            },
+            "periods": Array [
+              Object {
+                "index": 1,
+                "value": "3",
+              },
+            ],
             "value": "3",
-          }
-        }
-        metric={
-          Object {
-            "key": "new_maintainability_rating",
-            "name": "new_maintainability_rating",
-            "type": "RATING",
           }
         }
       />
@@ -80,14 +84,18 @@ exports[`new_open_issues 1`] = `
         measure={
           Object {
             "leak": "10",
+            "metric": Object {
+              "key": "new_open_issues",
+              "name": "new_open_issues",
+              "type": "INT",
+            },
+            "periods": Array [
+              Object {
+                "index": 1,
+                "value": "10",
+              },
+            ],
             "value": "10",
-          }
-        }
-        metric={
-          Object {
-            "key": "new_open_issues",
-            "name": "new_open_issues",
-            "type": "INT",
           }
         }
       />
@@ -143,14 +151,18 @@ exports[`new_reliability_rating 1`] = `
         measure={
           Object {
             "leak": "3",
+            "metric": Object {
+              "key": "new_reliability_rating",
+              "name": "new_reliability_rating",
+              "type": "RATING",
+            },
+            "periods": Array [
+              Object {
+                "index": 1,
+                "value": "3",
+              },
+            ],
             "value": "3",
-          }
-        }
-        metric={
-          Object {
-            "key": "new_reliability_rating",
-            "name": "new_reliability_rating",
-            "type": "RATING",
           }
         }
       />
@@ -206,14 +218,18 @@ exports[`new_security_rating 1`] = `
         measure={
           Object {
             "leak": "3",
+            "metric": Object {
+              "key": "new_security_rating",
+              "name": "new_security_rating",
+              "type": "RATING",
+            },
+            "periods": Array [
+              Object {
+                "index": 1,
+                "value": "3",
+              },
+            ],
             "value": "3",
-          }
-        }
-        metric={
-          Object {
-            "key": "new_security_rating",
-            "name": "new_security_rating",
-            "type": "RATING",
           }
         }
       />
@@ -258,14 +274,12 @@ exports[`open_issues 1`] = `
         measure={
           Object {
             "leak": "10",
+            "metric": Object {
+              "key": "open_issues",
+              "name": "Open open_issues",
+              "type": "INT",
+            },
             "value": "10",
-          }
-        }
-        metric={
-          Object {
-            "key": "open_issues",
-            "name": "Open open_issues",
-            "type": "INT",
           }
         }
       />
@@ -320,14 +334,12 @@ exports[`reliability_rating 1`] = `
         measure={
           Object {
             "leak": "3",
+            "metric": Object {
+              "key": "reliability_rating",
+              "name": "reliability_rating",
+              "type": "RATING",
+            },
             "value": "3",
-          }
-        }
-        metric={
-          Object {
-            "key": "reliability_rating",
-            "name": "reliability_rating",
-            "type": "RATING",
           }
         }
       />
@@ -382,14 +394,12 @@ exports[`security_rating 1`] = `
         measure={
           Object {
             "leak": "3",
+            "metric": Object {
+              "key": "security_rating",
+              "name": "security_rating",
+              "type": "RATING",
+            },
             "value": "3",
-          }
-        }
-        metric={
-          Object {
-            "key": "security_rating",
-            "name": "security_rating",
-            "type": "RATING",
           }
         }
       />
@@ -443,14 +453,12 @@ exports[`sqale_rating 1`] = `
         measure={
           Object {
             "leak": "3",
+            "metric": Object {
+              "key": "sqale_rating",
+              "name": "sqale_rating",
+              "type": "RATING",
+            },
             "value": "3",
-          }
-        }
-        metric={
-          Object {
-            "key": "sqale_rating",
-            "name": "sqale_rating",
-            "type": "RATING",
           }
         }
       />

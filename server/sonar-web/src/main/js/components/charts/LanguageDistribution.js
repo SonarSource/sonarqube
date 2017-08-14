@@ -27,6 +27,7 @@ import { translate } from '../../helpers/l10n';
 
 export default class LanguageDistribution extends React.PureComponent {
   static propTypes = {
+    alignTicks: PropTypes.bool,
     distribution: PropTypes.string.isRequired
   };
 
@@ -75,6 +76,7 @@ export default class LanguageDistribution extends React.PureComponent {
 
     return (
       <Histogram
+        alignTicks={this.props.alignTicks}
         data={data}
         yTicks={yTicks}
         yValues={yValues}

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default {
+// @flow
+export const complementary = {
   coverage: ['uncovered_lines', 'uncovered_conditions'],
   line_coverage: ['uncovered_lines'],
   branch_coverage: ['uncovered_conditions'],

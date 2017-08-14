@@ -17,58 +17,61 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 export const domains = {
   Reliability: {
-    main: ['bugs', 'new_bugs', 'reliability_rating'],
     order: [
-      'bugs',
+      'new_reliability_rating',
       'new_bugs',
+      'new_reliability_remediation_effort',
+
       'reliability_rating',
-      'reliability_remediation_effort',
-      'new_reliability_remediation_effort'
+      'bugs',
+      'reliability_remediation_effort'
     ]
   },
 
   Security: {
-    main: ['vulnerabilities', 'new_vulnerabilities', 'security_rating'],
     order: [
-      'vulnerabilities',
+      'new_security_rating',
       'new_vulnerabilities',
+      'new_security_remediation_effort',
+
       'security_rating',
-      'security_remediation_effort',
-      'new_security_remediation_effort'
+      'vulnerabilities',
+      'security_remediation_effort'
     ]
   },
 
   Maintainability: {
-    main: ['code_smells', 'new_code_smells', 'sqale_rating'],
     order: [
-      'code_smells',
       'new_code_smells',
+      'new_maintainability_rating',
+      'new_technical_debt',
+      'new_sqale_debt_ratio',
+
+      'code_smells',
       'sqale_rating',
       'sqale_index',
-      'new_technical_debt',
       'sqale_debt_ratio',
-      'new_sqale_debt_ratio',
       'effort_to_reach_maintainability_rating_a'
     ]
   },
 
   Coverage: {
-    main: ['coverage', 'new_coverage', 'tests'],
     order: [
-      'coverage',
       'new_coverage',
-      'line_coverage',
       'new_line_coverage',
-      'branch_coverage',
       'new_branch_coverage',
-      'uncovered_lines',
       'new_uncovered_lines',
-      'uncovered_conditions',
       'new_uncovered_conditions',
       'new_lines_to_cover',
 
+      'coverage',
+      'line_coverage',
+      'branch_coverage',
+      'uncovered_lines',
+      'uncovered_conditions',
       'lines_to_cover',
 
       'tests',
@@ -82,24 +85,24 @@ export const domains = {
   },
 
   Duplications: {
-    main: ['duplicated_lines_density', 'new_duplicated_lines_density'],
     order: [
-      'duplicated_lines_density',
       'new_duplicated_lines_density',
-      'duplicated_blocks',
       'new_duplicated_blocks',
-      'duplicated_lines',
       'new_duplicated_lines',
+
+      'duplicated_lines_density',
+      'duplicated_blocks',
+      'duplicated_lines',
       'duplicated_files'
     ]
   },
 
   Size: {
-    main: ['ncloc'],
     order: [
+      'new_lines',
+
       'ncloc',
       'lines',
-      'new_lines',
       'statements',
       'functions',
       'classes',
@@ -109,30 +112,28 @@ export const domains = {
   },
 
   Complexity: {
-    main: ['complexity'],
     order: ['complexity', 'function_complexity', 'file_complexity', 'class_complexity']
   },
 
   Releasability: {
-    main: ['alert_status', 'releasability_rating'],
-    order: ['alert_status']
+    order: ['releasability_rating', 'releasability_effort', 'alert_status']
   },
 
   Issues: {
-    main: ['violations', 'new_violations'],
     order: [
-      'violations',
       'new_violations',
-      'blocker_violations',
       'new_blocker_violations',
-      'critical_violations',
       'new_critical_violations',
-      'major_violations',
       'new_major_violations',
-      'minor_violations',
       'new_minor_violations',
-      'info_violations',
       'new_info_violations',
+
+      'violations',
+      'blocker_violations',
+      'critical_violations',
+      'major_violations',
+      'minor_violations',
+      'info_violations',
       'open_issues',
       'reopened_issues',
       'confirmed_issues',

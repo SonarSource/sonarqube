@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render active 1`] = `
+<a
+  className="facet search-navigator-facet active"
+  href="#"
+  onClick={[Function]}
+>
+  <span
+    className="facet-name"
+  >
+    foo
+  </span>
+</a>
+`;
+
+exports[`should render disabled 1`] = `
+<span
+  className="facet search-navigator-facet"
+>
+  <span
+    className="facet-name"
+  >
+    foo
+  </span>
+</span>
+`;
+
+exports[`should render effort stat 1`] = `
+<a
+  className="facet search-navigator-facet"
+  href="#"
+  onClick={[Function]}
+>
+  <span
+    className="facet-name"
+  >
+    foo
+  </span>
+  <span
+    className="facet-stat"
+  >
+    1234
+  </span>
+</a>
+`;
+
+exports[`should render half width 1`] = `
+<a
+  className="facet search-navigator-facet search-navigator-facet-half"
+  href="#"
+  onClick={[Function]}
+>
+  <span
+    className="facet-name"
+  >
+    foo
+  </span>
+</a>
+`;
+
+exports[`should render inactive 1`] = `
+<a
+  className="facet search-navigator-facet"
+  href="#"
+  onClick={[Function]}
+>
+  <span
+    className="facet-name"
+  >
+    foo
+  </span>
+</a>
+`;
+
+exports[`should render stat 1`] = `
+<a
+  className="facet search-navigator-facet"
+  href="#"
+  onClick={[Function]}
+>
+  <span
+    className="facet-name"
+  >
+    foo
+  </span>
+  <span
+    className="facet-stat"
+  >
+    13
+  </span>
+</a>
+`;

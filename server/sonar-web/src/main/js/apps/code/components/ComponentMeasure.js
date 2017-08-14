@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import Measure from '../../component-measures/components/Measure';
+import Measure from '../../../components/measure/Measure';
 
 const ComponentMeasure = ({ component, metricKey, metricType }) => {
   const isProject = component.qualifier === 'TRK';
@@ -35,7 +35,9 @@ const ComponentMeasure = ({ component, metricKey, metricType }) => {
     return <span />;
   }
 
-  return <Measure measure={measure} metric={{ key: finalMetricKey, type: finalMetricType }} />;
+  return (
+    <Measure measure={{ ...measure, metric: { key: finalMetricKey, type: finalMetricType } }} />
+  );
 };
 
 export default ComponentMeasure;

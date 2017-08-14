@@ -17,23 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
+import classNames from 'classnames';
 import moment from 'moment';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import type { Component, Period } from '../types';
 
-export default function LeakPeriodLegend({ component, period }) {
+type Props = {
+  className?: string,
+  component: Component,
+  period: Period
+};
+
+export default function LeakPeriodLegend({ className, component, period }: Props) {
+  const leakClass = classNames('domain-measures-leak-header', className);
   if (component.qualifier === 'APP') {
     return (
-      <div className="measures-domains-leak-header">
+      <div className={leakClass}>
         {translate('issues.leak_period')}
       </div>
     );
   }
 
   const label = (
-    <div className="measures-domains-leak-header">
+    <div className={leakClass}>
       {translateWithParameters('overview.leak_period_x', getPeriodLabel(period))}
     </div>
   );
@@ -46,7 +56,7 @@ export default function LeakPeriodLegend({ component, period }) {
   const fromNow = moment(date).fromNow();
   const tooltip = fromNow + ', ' + moment(date).format('LL');
   return (
-    <Tooltip placement="bottom" overlay={tooltip}>
+    <Tooltip placement="left" overlay={tooltip}>
       {label}
     </Tooltip>
   );

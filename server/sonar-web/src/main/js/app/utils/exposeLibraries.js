@@ -24,6 +24,7 @@ import Select from 'react-select';
 import Modal from 'react-modal';
 import * as measures from '../../helpers/measures';
 import * as request from '../../helpers/request';
+import * as icons from '../../components/icons-components/icons';
 import FavoriteContainer from '../../components/controls/FavoriteContainer';
 import ListFooter from '../../components/controls/ListFooter';
 import Tooltip from '../../components/controls/Tooltip';
@@ -37,6 +38,7 @@ const exposeLibraries = () => {
   window.moment = moment;
   window.ReactRedux = ReactRedux;
   window.ReactRouter = ReactRouter;
+  window.SonarIcons = icons;
   window.SonarMeasures = measures;
   window.SonarRequest = request;
   window.SonarComponents = {

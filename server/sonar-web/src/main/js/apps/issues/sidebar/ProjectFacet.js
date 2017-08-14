@@ -20,16 +20,17 @@
 // @flow
 import React from 'react';
 import { sortBy, uniq, without } from 'lodash';
-import FacetBox from './components/FacetBox';
-import FacetHeader from './components/FacetHeader';
-import FacetItem from './components/FacetItem';
-import FacetItemsList from './components/FacetItemsList';
-import FacetFooter from './components/FacetFooter';
-import type { ReferencedComponent, Component } from '../utils';
+import FacetBox from '../../../components/facet/FacetBox';
+import FacetHeader from '../../../components/facet/FacetHeader';
+import FacetItem from '../../../components/facet/FacetItem';
+import FacetItemsList from '../../../components/facet/FacetItemsList';
+import FacetFooter from '../../../components/facet/FacetFooter';
 import Organization from '../../../components/shared/Organization';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { searchProjects, getTree } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
+import { formatFacetStat } from '../utils';
+import type { ReferencedComponent, Component } from '../utils';
 
 type Props = {|
   component?: Component,
@@ -144,11 +145,10 @@ export default class ProjectFacet extends React.PureComponent {
         {projects.map(project =>
           <FacetItem
             active={this.props.projects.includes(project)}
-            facetMode={this.props.facetMode}
             key={project}
             name={this.renderName(project)}
             onClick={this.handleItemClick}
-            stat={this.getStat(project)}
+            stat={formatFacetStat(this.getStat(project), this.props.facetMode)}
             value={project}
           />
         )}
@@ -173,7 +173,7 @@ export default class ProjectFacet extends React.PureComponent {
 
   render() {
     return (
-      <FacetBox property={this.property}>
+      <FacetBox>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}

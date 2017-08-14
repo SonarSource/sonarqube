@@ -164,7 +164,7 @@
     top: 0;
     right: 0;
     margin-left: 5px;
-    padding: 4px 5px;
+    padding: 5px 5px;
     background-color: @barBackgroundColor;
     color: @secondFontColor;
     font-size: @smallFontSize;
@@ -357,9 +357,17 @@
 .search-navigator-facet-header {
   display: block;
   padding: 8px 0;
-  border-bottom: none;
   color: @baseFontColor;
   font-weight: 600;
+
+  & > a {
+    border-bottom: none;
+    color: @baseFontColor;
+
+    &:hover {
+      color: @blue;
+    }
+  }
 
   & > .note {
     font-weight: 400;

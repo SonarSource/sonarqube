@@ -61,7 +61,7 @@ export default class PageActions extends React.PureComponent {
 
         <div className="issues-page-actions">
           {this.props.loading
-            ? <i className="issues-main-header-spinner spinner" />
+            ? <i className="issues-main-header-spinner spinner spacer-right" />
             : <ReloadButton className="spacer-right" onClick={this.props.onReload} />}
           {paging != null && <IssuesCounter current={selectedIndex} total={paging.total} />}
         </div>
