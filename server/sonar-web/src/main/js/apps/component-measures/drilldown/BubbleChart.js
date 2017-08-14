@@ -56,25 +56,29 @@ export default class BubbleChart extends React.PureComponent {
 
   getTooltip(
     componentName /*: string */,
-    x /*: number */,
-    y /*: number */,
-    size /*: number */,
-    colors /*: ?Array<?number> */,
-    xMetric /*: Metric */,
-    yMetric /*: Metric */,
-    sizeMetric /*: Metric */,
-    colorsMetric /*: ?Array<Metric> */
+    values /*: {
+      x: number,
+      y: number,
+      size: number,
+      colors: ?Array<?number>
+    }*/,
+    metrics /*: {
+      x: Metric ,
+      y: Metric ,
+      size: Metric ,
+      colors: ?Array<Metric>
+    }*/
   ) {
     const inner = [
       componentName,
-      `${xMetric.name}: ${formatMeasure(x, xMetric.type)}`,
-      `${yMetric.name}: ${formatMeasure(y, yMetric.type)}`,
-      `${sizeMetric.name}: ${formatMeasure(size, sizeMetric.type)}`
+      `${metrics.x.name}: ${formatMeasure(values.x, metrics.x.type)}`,
+      `${metrics.y.name}: ${formatMeasure(values.y, metrics.y.type)}`,
+      `${metrics.size.name}: ${formatMeasure(values.size, metrics.size.type)}`
     ];
-    if (colors && colorsMetric) {
-      colorsMetric.forEach((metric, idx) => {
+    if (values.colors && metrics.colors) {
+      metrics.colors.forEach((metric, idx) => {
         // $FlowFixMe colors is always defined at this point
-        const colorValue = colors[idx];
+        const colorValue = values.colors[idx];
         if (colorValue || colorValue === 0) {
           inner.push(`${metric.name}: ${formatMeasure(colorValue, metric.type)}`);
         }
@@ -87,18 +91,20 @@ export default class BubbleChart extends React.PureComponent {
     this.props.updateSelected(component.refKey || component.key);
 
   renderBubbleChart(
-    xMetric /*: Metric */,
-    yMetric /*: Metric */,
-    sizeMetric /*: Metric */,
-    colorsMetric /*: ?Array<Metric> */
+    metrics /*: {
+      x: Metric ,
+      y: Metric ,
+      size: Metric ,
+      colors: ?Array<Metric>
+    }*/
   ) {
     const items = this.props.components
       .map(component => {
-        const x = this.getMeasureVal(component, xMetric);
-        const y = this.getMeasureVal(component, yMetric);
-        const size = this.getMeasureVal(component, sizeMetric);
+        const x = this.getMeasureVal(component, metrics.x);
+        const y = this.getMeasureVal(component, metrics.y);
+        const size = this.getMeasureVal(component, metrics.size);
         const colors =
-          colorsMetric && colorsMetric.map(metric => this.getMeasureVal(component, metric));
+          metrics.colors && metrics.colors.map(metric => this.getMeasureVal(component, metric));
         if ((!x && x !== 0) || (!y && y !== 0) || (!size && size !== 0)) {
           return null;
         }
@@ -109,23 +115,13 @@ export default class BubbleChart extends React.PureComponent {
           color:
             colors != null ? RATING_COLORS[Math.max(...colors.filter(Boolean)) - 1] : undefined,
           link: component,
-          tooltip: this.getTooltip(
-            component.name,
-            x,
-            y,
-            size,
-            colors,
-            xMetric,
-            yMetric,
-            sizeMetric,
-            colorsMetric
-          )
+          tooltip: this.getTooltip(component.name, { x, y, size, colors }, metrics)
         };
       })
       .filter(Boolean);
 
-    const formatXTick = tick => formatMeasure(tick, xMetric.type);
-    const formatYTick = tick => formatMeasure(tick, yMetric.type);
+    const formatXTick = tick => formatMeasure(tick, metrics.x.type);
+    const formatYTick = tick => formatMeasure(tick, metrics.y.type);
 
     return (
       <OriginalBubbleChart
@@ -198,22 +194,19 @@ export default class BubbleChart extends React.PureComponent {
       return <EmptyResult />;
     }
     const { domain } = this.props;
-    const { xMetric, yMetric, sizeMetric, colorsMetric } = getBubbleMetrics(
-      domain,
-      this.props.metrics
-    );
+    const metrics = getBubbleMetrics(domain, this.props.metrics);
 
     return (
       <div className="measure-overview-bubble-chart">
-        {this.renderChartHeader(domain, sizeMetric, colorsMetric)}
+        {this.renderChartHeader(domain, metrics.size, metrics.colors)}
         <div className="measure-overview-bubble-chart-content">
-          {this.renderBubbleChart(xMetric, yMetric, sizeMetric, colorsMetric)}
+          {this.renderBubbleChart(metrics)}
         </div>
         <div className="measure-overview-bubble-chart-axis x">
-          {getLocalizedMetricName(xMetric)}
+          {getLocalizedMetricName(metrics.x)}
         </div>
         <div className="measure-overview-bubble-chart-axis y">
-          {getLocalizedMetricName(yMetric)}
+          {getLocalizedMetricName(metrics.y)}
         </div>
         {this.renderChartFooter(domain)}
       </div>

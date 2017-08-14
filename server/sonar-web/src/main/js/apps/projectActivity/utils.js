@@ -53,14 +53,14 @@ export const GRAPHS_METRICS = {
   duplications: GRAPHS_METRICS_DISPLAYED['duplications'].concat(['duplicated_lines_density'])
 };
 
+export const datesQueryChanged = (prevQuery /*: Query */, nextQuery /*: Query */) =>
+  !isEqual(prevQuery.from, nextQuery.from) || !isEqual(prevQuery.to, nextQuery.to);
+
 export const activityQueryChanged = (prevQuery /*: Query */, nextQuery /*: Query */) =>
   prevQuery.category !== nextQuery.category || datesQueryChanged(prevQuery, nextQuery);
 
 export const customMetricsChanged = (prevQuery /*: Query */, nextQuery /*: Query */) =>
   !isEqual(prevQuery.customMetrics, nextQuery.customMetrics);
-
-export const datesQueryChanged = (prevQuery /*: Query */, nextQuery /*: Query */) =>
-  !isEqual(prevQuery.from, nextQuery.from) || !isEqual(prevQuery.to, nextQuery.to);
 
 export const hasDataValues = (serie /*: Serie */) =>
   serie.data.some(point => point.y || point.y === 0);

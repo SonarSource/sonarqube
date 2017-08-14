@@ -214,64 +214,63 @@ export default class MeasureContent extends React.PureComponent {
 
   onSelectComponent = (componentKey /*: string */) => this.setState({ selected: componentKey });
 
-  renderContent() {
+  renderCode() {
     const { component, leakPeriod } = this.props;
+    const leakPeriodDate =
+      isDiffMetric(this.props.metric.key) && leakPeriod != null
+        ? moment(leakPeriod.date).toDate()
+        : null;
 
-    if (isFileType(component)) {
-      const leakPeriodDate =
-        isDiffMetric(this.props.metric.key) && leakPeriod != null
-          ? moment(leakPeriod.date).toDate()
-          : null;
-
-      let filterLine;
-      if (leakPeriodDate != null) {
-        filterLine = line => {
-          if (line.scmDate) {
-            const scmDate = moment(line.scmDate).toDate();
-            return scmDate >= leakPeriodDate;
-          } else {
-            return false;
-          }
-        };
-      }
-      return (
-        <div className="measure-details-viewer">
-          <SourceViewer component={component.key} filterLine={filterLine} />
-        </div>
-      );
+    let filterLine;
+    if (leakPeriodDate != null) {
+      filterLine = line => {
+        if (line.scmDate) {
+          const scmDate = moment(line.scmDate).toDate();
+          return scmDate >= leakPeriodDate;
+        } else {
+          return false;
+        }
+      };
     }
+    return (
+      <div className="measure-details-viewer">
+        <SourceViewer component={component.key} filterLine={filterLine} />
+      </div>
+    );
+  }
 
+  renderMeasure() {
     const { metric, view } = this.state;
-    if (metric == null) {
-      return null;
+    if (metric != null) {
+      if (['list', 'tree'].includes(view)) {
+        const selectedIdx = this.getSelectedIndex();
+        return (
+          <FilesView
+            components={this.state.components}
+            fetchMore={this.fetchMoreComponents}
+            handleOpen={this.onOpenComponent}
+            handleSelect={this.onSelectComponent}
+            metric={metric}
+            metrics={this.props.metrics}
+            paging={this.state.paging}
+            selectedKey={selectedIdx != null ? this.state.selected : null}
+            selectedIdx={selectedIdx}
+          />
+        );
+      }
+
+      if (view === 'treemap') {
+        return (
+          <TreeMapView
+            components={this.state.components}
+            handleSelect={this.onOpenComponent}
+            metric={metric}
+          />
+        );
+      }
     }
 
-    if (['list', 'tree'].includes(view)) {
-      const selectedIdx = this.getSelectedIndex();
-      return (
-        <FilesView
-          components={this.state.components}
-          fetchMore={this.fetchMoreComponents}
-          handleOpen={this.onOpenComponent}
-          handleSelect={this.onSelectComponent}
-          metric={metric}
-          metrics={this.props.metrics}
-          paging={this.state.paging}
-          selectedKey={selectedIdx != null ? this.state.selected : null}
-          selectedIdx={selectedIdx}
-        />
-      );
-    }
-
-    if (view === 'treemap') {
-      return (
-        <TreeMapView
-          components={this.state.components}
-          handleSelect={this.onOpenComponent}
-          metric={metric}
-        />
-      );
-    }
+    return null;
   }
 
   render() {
@@ -331,7 +330,7 @@ export default class MeasureContent extends React.PureComponent {
               secondaryMeasure={this.props.secondaryMeasure}
               selectedIdx={selectedIdx}
             />
-            {this.renderContent()}
+            {isFileType(component) ? this.renderCode() : this.renderMeasure()}
           </div>}
       </div>
     );

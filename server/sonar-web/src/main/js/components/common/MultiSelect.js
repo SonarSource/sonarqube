@@ -128,7 +128,7 @@ export default class MultiSelect extends React.PureComponent {
       case 39: // right
         evt.stopPropagation();
         break;
-      case 13: // return
+      case 13: // enter
         if (this.state.activeIdx >= 0) {
           this.toggleSelect(this.getAllElements(this.props, this.state)[this.state.activeIdx]);
         }

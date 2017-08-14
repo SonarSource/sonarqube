@@ -229,12 +229,10 @@ function my(state /*: MyState */ = [], action /*: Action */) {
 }
 
 function groups(state /*: GroupsState */ = {}, action /*: Action */) {
-  switch (action.type) {
-    case 'RECEIVE_ORGANIZATION_GROUPS':
-      return { ...state, [action.key]: action.groups };
-    default:
-      return state;
+  if (action.type === 'RECEIVE_ORGANIZATION_GROUPS') {
+    return { ...state, [action.key]: action.groups };
   }
+  return state;
 }
 
 export default combineReducers({ byKey, my, groups });

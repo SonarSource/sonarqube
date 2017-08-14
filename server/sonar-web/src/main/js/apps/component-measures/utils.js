@@ -143,10 +143,10 @@ export function hasFacetStat(metric /*: string */) /*: boolean */ {
 export function getBubbleMetrics(domain /*: string */, metrics /*: { [string]: Metric } */) {
   const conf = bubbles[domain];
   return {
-    xMetric: metrics[conf.x],
-    yMetric: metrics[conf.y],
-    sizeMetric: metrics[conf.size],
-    colorsMetric: conf.colors ? conf.colors.map(color => metrics[color]) : null
+    x: metrics[conf.x],
+    y: metrics[conf.y],
+    size: metrics[conf.size],
+    colors: conf.colors ? conf.colors.map(color => metrics[color]) : null
   };
 }
 

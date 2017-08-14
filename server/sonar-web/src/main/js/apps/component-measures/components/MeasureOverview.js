@@ -82,14 +82,14 @@ export default class MeasureOverview extends React.PureComponent {
     if (isFileType(component)) {
       return this.setState({ components: [], paging: null });
     }
-    const { xMetric, yMetric, sizeMetric, colorsMetric } = getBubbleMetrics(domain, metrics);
-    const metricsKey = [xMetric.key, yMetric.key, sizeMetric.key];
-    if (colorsMetric) {
-      metricsKey.push(colorsMetric.map(metric => metric.key));
+    const { x, y, size, colors } = getBubbleMetrics(domain, metrics);
+    const metricsKey = [x.key, y.key, size.key];
+    if (colors) {
+      metricsKey.push(colors.map(metric => metric.key));
     }
     const options = {
       s: 'metric',
-      metricSort: sizeMetric.key,
+      metricSort: size.key,
       asc: false,
       ps: BUBBLES_LIMIT
     };

@@ -134,6 +134,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
         graphStartDate: firstValid ? firstValid.x : newDates.from
       };
     }
+    return null;
   };
 
   getMetricsTypeFilter = () => {

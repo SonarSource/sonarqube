@@ -274,18 +274,19 @@ class ProjectActivityAppContainer extends React.PureComponent {
 
   shouldRedirect = () => {
     const locationQuery = this.props.location.query;
-    if (locationQuery) {
-      const filtered = Object.keys(locationQuery).some(
-        key => key !== 'id' && locationQuery[key] !== ''
-      );
-
-      const graph = getGraph();
-      const emptyCustomGraph = isCustomGraph(graph) && getCustomGraph().length <= 0;
-
-      // if there is no filter, but there are saved preferences in the localStorage
-      // also don't redirect to custom if there is no metrics selected for it
-      return !filtered && graph != null && graph !== DEFAULT_GRAPH && !emptyCustomGraph;
+    if (!locationQuery) {
+      return false;
     }
+    const filtered = Object.keys(locationQuery).some(
+      key => key !== 'id' && locationQuery[key] !== ''
+    );
+
+    const graph = getGraph();
+    const emptyCustomGraph = isCustomGraph(graph) && getCustomGraph().length <= 0;
+
+    // if there is no filter, but there are saved preferences in the localStorage
+    // also don't redirect to custom if there is no metrics selected for it
+    return !filtered && graph != null && graph !== DEFAULT_GRAPH && !emptyCustomGraph;
   };
 
   render() {

@@ -31,7 +31,7 @@ import Measure from '../../../components/measure/Measure';
 export default function MeasureCell({ component, metric } /*: Props */) {
   return (
     <td className="thin nowrap text-right">
-      <span id={'component-measures-component-measure-' + component.key + '-' + metric.key}>
+      <span id={`component-measures-component-measure-${component.key}-${metric.key}`}>
         <Measure measure={{ metric, value: component.value, leak: component.leak }} />
       </span>
     </td>
