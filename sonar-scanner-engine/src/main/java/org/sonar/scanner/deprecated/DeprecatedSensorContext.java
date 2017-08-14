@@ -40,6 +40,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.index.DefaultIndex;
+import org.sonar.scanner.scan.BranchConfiguration;
 import org.sonar.scanner.sensor.DefaultSensorContext;
 
 public class DeprecatedSensorContext extends DefaultSensorContext implements SensorContext {
@@ -47,9 +48,9 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   private final InputModule module;
 
   public DeprecatedSensorContext(InputModule module, DefaultIndex index, Configuration config, org.sonar.api.config.Settings mutableSettings,
-    FileSystem fs, ActiveRules activeRules,
-    AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
-    super(module, config, mutableSettings, fs, activeRules, analysisMode, sensorStorage, sonarRuntime);
+    FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime,
+    BranchConfiguration branchConfiguration) {
+    super(module, config, mutableSettings, fs, activeRules, analysisMode, sensorStorage, sonarRuntime, branchConfiguration);
     this.index = index;
     this.module = module;
   }
