@@ -20,47 +20,78 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.annotation.Nullable;
+
+import org.apache.commons.lang.StringUtils;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
 import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 public class TrackerMergeBranchInputFactory {
   private static final LineHashSequence EMPTY_LINE_HASH_SEQUENCE = new LineHashSequence(Collections.<String>emptyList());
 
-  private final MergeBranchIssuesLoader mergeIssuesLoader;
+  private final ComponentIssuesLoader mergeIssuesLoader;
   private final DbClient dbClient;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
+  private Map<String, String> uuidsByKey;
 
-  public TrackerMergeBranchInputFactory(MergeBranchIssuesLoader mergeIssuesLoader, DbClient dbClient) {
+  public TrackerMergeBranchInputFactory(ComponentIssuesLoader mergeIssuesLoader, AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
     this.mergeIssuesLoader = mergeIssuesLoader;
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.dbClient = dbClient;
     // TODO detect file moves?
   }
 
+  private void loadMergeBranchComponents() {
+    String mergeBranchUuid = analysisMetadataHolder.getBranch().get().getMergeBranchUuid().get();
+
+    uuidsByKey = new HashMap<>();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+
+      List<ComponentDto> components = dbClient.componentDao().selectByProjectUuid(mergeBranchUuid, dbSession);
+      for (ComponentDto dto : components) {
+        uuidsByKey.put(removeBranchFromKey(dto.getDbKey()), dto.uuid());
+      }
+    }
+  }
+
   public Input<DefaultIssue> create(Component component) {
-    return new MergeLazyInput(component);
+    if (uuidsByKey == null) {
+      loadMergeBranchComponents();
+    }
+
+    String cleanComponentKey = removeBranchFromKey(component.getKey());
+    String mergeBranchComponentUuid = uuidsByKey.get(cleanComponentKey);
+    return new MergeLazyInput(component.getType(), mergeBranchComponentUuid);
   }
 
   private class MergeLazyInput extends LazyInput<DefaultIssue> {
-    private final Component component;
+    private final Component.Type type;
+    private final String mergeBranchComponentUuid;
 
-    private MergeLazyInput(Component component) {
-      this.component = component;
+    private MergeLazyInput(Component.Type type, @Nullable String mergeBranchComponentUuid) {
+      this.type = type;
+      this.mergeBranchComponentUuid = mergeBranchComponentUuid;
     }
 
     @Override
     protected LineHashSequence loadLineHashSequence() {
-      if (component.getType() != Component.Type.FILE) {
+      if (mergeBranchComponentUuid == null || type != Component.Type.FILE) {
         return EMPTY_LINE_HASH_SEQUENCE;
       }
 
       try (DbSession session = dbClient.openSession(false)) {
-        List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, component.getUuid());
+        List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, mergeBranchComponentUuid);
         if (hashes == null || hashes.isEmpty()) {
           return EMPTY_LINE_HASH_SEQUENCE;
         }
@@ -70,7 +101,14 @@ public class TrackerMergeBranchInputFactory {
 
     @Override
     protected List<DefaultIssue> loadIssues() {
-      return mergeIssuesLoader.loadForKey(component.getUuid());
+      if (mergeBranchComponentUuid == null) {
+        return Collections.emptyList();
+      }
+      return mergeIssuesLoader.loadForComponentUuid(mergeBranchComponentUuid);
     }
+  }
+
+  private static String removeBranchFromKey(String componentKey) {
+    return StringUtils.substringBeforeLast(componentKey, ":BRANCH:");
   }
 }
