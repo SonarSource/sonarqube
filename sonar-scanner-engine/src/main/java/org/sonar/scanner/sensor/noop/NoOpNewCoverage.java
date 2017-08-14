@@ -17,40 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
+package org.sonar.scanner.sensor.noop;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.concurrent.Immutable;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.coverage.CoverageType;
+import org.sonar.api.batch.sensor.coverage.NewCoverage;
 
-@Immutable
-public interface BranchConfiguration {
+public class NoOpNewCoverage implements NewCoverage {
 
-  enum BranchType {
-    SHORT, LONG
+  @Override
+  public NewCoverage onFile(InputFile inputFile) {
+    // no op
+    return this;
   }
 
-  /**
-   * The type of the branch we're on, determined by:
-   *
-   * - If the specified branch exists on the server, then its type
-   * - If the branch name matches the pattern of long-lived branches, then it's long-lived
-   * - Otherwise it's short-lived
-   *
-   * @return type of the current branch
-   */
-  BranchType branchType();
+  @Override
+  public NewCoverage ofType(CoverageType type) {
+    // no op
+    return this;
+  }
 
-  /**
-   * The name of the target branch to merge into, and the base to determine changed files.
-   *
-   * @return name of the target branch
-   */
-  @CheckForNull
-  String branchTarget();
+  @Override
+  public NewCoverage lineHits(int line, int hits) {
+    // no op
+    return this;
+  }
 
-  /**
-   * The name of the branch.
-   */
-  @CheckForNull
-  String branchName();
+  @Override
+  public NewCoverage conditions(int line, int conditions, int coveredConditions) {
+    // no op
+    return this;
+  }
+
+  @Override
+  public void save() {
+    // no op
+  }
 }
