@@ -122,7 +122,6 @@ public class HazelcastClusterTest {
   public void set_operational_is_writing_to_cluster() {
     ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
-
       hzCluster.setOperational(ProcessId.ELASTICSEARCH);
 
       assertThat(hzCluster.isOperational(ProcessId.ELASTICSEARCH)).isTrue();
