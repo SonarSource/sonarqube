@@ -21,6 +21,8 @@ package org.sonarqube.tests.user;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,17 +34,36 @@ import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.user.SearchRequest;
 import org.sonarqube.ws.client.user.UpdateRequest;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.tests.Byteman.Process.WEB;
 import static util.ItUtils.expectHttpError;
 
 public class UserEsResilienceTest {
 
   @ClassRule
   public static final Orchestrator orchestrator;
+  private static final Byteman byteman;
 
   static {
-    orchestrator = Byteman.enableScript(Orchestrator.builderEnv(), "resilience/user_indexer.btm").build();
+    byteman = new Byteman(Orchestrator.builderEnv(), WEB);
+    orchestrator = byteman
+      .getOrchestratorBuilder()
+      .setServerProperty("sonar.search.recovery.delayInMs", "1000")
+      .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
+      .addPlugin(ItUtils.xooPlugin())
+      .build();
+  }
+
+  @Before
+  public void before() throws Exception {
+    byteman.activateScript("resilience/user_indexer.btm");
+  }
+
+  @After
+  public void after() throws Exception {
+    byteman.deactivateAllRules();
   }
 
   @Rule

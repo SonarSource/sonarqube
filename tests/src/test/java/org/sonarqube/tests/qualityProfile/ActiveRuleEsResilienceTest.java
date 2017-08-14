@@ -21,6 +21,8 @@ package org.sonarqube.tests.qualityProfile;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,17 +37,33 @@ import org.sonarqube.ws.client.rule.SearchWsRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.tests.Byteman.Process.WEB;
 
 public class ActiveRuleEsResilienceTest {
   private static final String RULE_ONE_BUG_PER_LINE = "xoo:OneBugIssuePerLine";
 
   @ClassRule
   public static final Orchestrator orchestrator;
+  private static final Byteman byteman;
 
   static {
-    orchestrator = Byteman.enableScript(Orchestrator.builderEnv(), "resilience/active_rule_indexer.btm")
+    byteman = new Byteman(Orchestrator.builderEnv(), WEB);
+    orchestrator = byteman
+      .getOrchestratorBuilder()
+      .setServerProperty("sonar.search.recovery.delayInMs", "1000")
+      .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
       .addPlugin(ItUtils.xooPlugin())
       .build();
+  }
+
+  @Before
+  public void before() throws Exception {
+    byteman.activateScript("resilience/active_rule_indexer.btm");
+  }
+
+  @After
+  public void after() throws Exception {
+    byteman.deactivateAllRules();
   }
 
   @Rule

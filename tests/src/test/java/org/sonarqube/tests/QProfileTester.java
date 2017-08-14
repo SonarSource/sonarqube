@@ -26,8 +26,10 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules;
+import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.qualityprofile.ActivateRuleWsRequest;
+import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import org.sonarqube.ws.client.qualityprofile.CreateRequest;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.rule.SearchWsRequest;
@@ -76,6 +78,14 @@ public class QProfileTester {
 
   public QProfileTester deactivateRule(QualityProfile profile, String ruleKey) {
     service().deactivateRule(profile.getKey(), ruleKey);
+    return this;
+  }
+
+  public QProfileTester assignQProfileToProject(QualityProfile profile, Project project) {
+    service().addProject(AddProjectRequest.builder()
+      .setProjectKey(project.getKey())
+      .setProfileKey(profile.getKey())
+      .build());
     return this;
   }
 

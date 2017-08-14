@@ -21,6 +21,10 @@
 
 import com.sonar.orchestrator.OrchestratorBuilder;
 import java.io.File;
+import java.net.InetAddress;
+import java.util.Collections;
+import org.jboss.byteman.agent.submit.Submit;
+import org.sonar.process.NetworkUtils;
 
 import static java.lang.String.format;
 
@@ -30,14 +34,25 @@ import static java.lang.String.format;
  */
 public class Byteman {
 
-  public static OrchestratorBuilder enableScript(OrchestratorBuilder builder, String filename) {
+  private final int port;
+  private final OrchestratorBuilder builder;
+
+  public enum Process {
+    WEB("sonar.web.javaAdditionalOpts"), CE("sonar.ce.javaAdditionalOpts");
+
+    private final String argument;
+
+    Process(String argument) {
+      this.argument = argument;
+    }
+  }
+
+  public Byteman(OrchestratorBuilder builder, Process process) {
+    this.builder = builder;
     String jar = findBytemanJar();
-    builder
-      .setServerProperty("sonar.web.javaAdditionalOpts",
-        format("-javaagent:%s=script:%s,boot:%s", jar, findBytemanScript(filename), jar))
-      .setServerProperty("sonar.search.recovery.delayInMs", "1000")
-      .setServerProperty("sonar.search.recovery.minAgeInMs", "3000");
-    return builder;
+    port = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
+    String bytemanArg = format("-javaagent:%s=boot:%s,port:%d", jar, jar, port);
+    builder.setServerProperty(process.argument, bytemanArg);
   }
 
   private static String findBytemanJar() {
@@ -49,6 +64,12 @@ public class Byteman {
     return jar.getAbsolutePath();
   }
 
+  public void activateScript(String filename) throws Exception {
+    String bytemanScript = findBytemanScript(filename);
+    Submit submit = new Submit(InetAddress.getLoopbackAddress().getHostAddress(), port);
+    submit.addRulesFromFiles(Collections.singletonList(bytemanScript));
+  }
+
   private static String findBytemanScript(String filename) {
     // see pom.xml, Maven copies and renames the artifact.
     File script = new File( filename);
@@ -57,4 +78,19 @@ public class Byteman {
     }
     return script.getAbsolutePath();
   }
+
+  public void deactivateAllRules() throws Exception {
+    Submit submit = new Submit(InetAddress.getLoopbackAddress().getHostAddress(), port);
+    try {
+      submit.deleteAllRules();
+    } catch (java.lang.Exception e) {
+      if (e.getMessage() == null || !e.getMessage().contains("No rule scripts to remove")) {
+        throw e;
+      }
+    }
+  }
+
+    public OrchestratorBuilder getOrchestratorBuilder() {
+      return builder;
+    }
 }
