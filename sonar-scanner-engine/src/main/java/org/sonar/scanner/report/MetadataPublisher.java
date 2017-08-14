@@ -37,7 +37,6 @@ import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
 import org.sonar.scanner.scan.BranchConfiguration;
 
-import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 
 public class MetadataPublisher implements ReportPublisherStep {
@@ -76,14 +75,15 @@ public class MetadataPublisher implements ReportPublisherStep {
       .setIncremental(mode.isIncremental());
 
     settings.get(ORGANIZATION).ifPresent(builder::setOrganizationKey);
-    settings.get(BRANCH_NAME).ifPresent(branch -> {
-      builder.setBranchName(branch);
+
+    if (branchConfiguration.branchName() != null) {
+      builder.setBranchName(branchConfiguration.branchName());
       builder.setBranchType(toProtobufBranchType(branchConfiguration.branchType()));
       String branchTarget = branchConfiguration.branchTarget();
       if (branchTarget != null) {
         builder.setMergeBranchName(branchTarget);
       }
-    });
+    }
     Optional.ofNullable(rootDef.getBranch()).ifPresent(builder::setDeprecatedBranch);
 
     for (QProfile qp : qProfiles.findAll()) {
