@@ -58,7 +58,7 @@ public class ActiveRuleEsResilienceTest {
 
   @Before
   public void before() throws Exception {
-    byteman.activateScript("resilience/user_indexer.btm");
+    byteman.activateScript("resilience/active_rule_indexer.btm");
   }
 
   @After
