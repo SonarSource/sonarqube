@@ -169,20 +169,28 @@ export default class TreeMapView extends React.PureComponent {
     if (treemapItems.length <= 0) {
       return <EmptyResult />;
     }
-
+    const { components, metric } = this.props;
+    const sizeMeasure =
+      components.length > 0
+        ? components[0].measures.find(measure => measure.metric.key !== metric.key)
+        : null;
     return (
       <div className="measure-details-treemap">
         <ul className="list-inline note spacer-bottom">
           <li>
             {translateWithParameters(
               'component_measures.legend.color_x',
-              getLocalizedMetricName(this.props.metric)
+              getLocalizedMetricName(metric)
             )}
           </li>
           <li>
             {translateWithParameters(
               'component_measures.legend.size_x',
-              translate('metric.ncloc.name')
+              translate(
+                'metric',
+                sizeMeasure && sizeMeasure.metric ? sizeMeasure.metric.key : 'ncloc',
+                'name'
+              )
             )}
           </li>
           <li className="pull-right">
