@@ -44,6 +44,12 @@
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>sonar-process</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-ws</artifactId>
       <version>${project.parent.version}</version>
       <scope>provided</scope>
