@@ -48,7 +48,10 @@ import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Version;
+import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.BranchConfiguration.BranchType;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
+import org.sonar.scanner.sensor.noop.NoOpNewCoverage;
 import org.sonar.scanner.sensor.noop.NoOpNewCpdTokens;
 import org.sonar.scanner.sensor.noop.NoOpNewHighlighting;
 import org.sonar.scanner.sensor.noop.NoOpNewSymbolTable;
@@ -58,8 +61,9 @@ public class DefaultSensorContext implements SensorContext {
 
   private static final NoOpNewHighlighting NO_OP_NEW_HIGHLIGHTING = new NoOpNewHighlighting();
   private static final NoOpNewSymbolTable NO_OP_NEW_SYMBOL_TABLE = new NoOpNewSymbolTable();
-  private static final NoOpNewCpdTokens NO_OP_NEW_CPD_TOKENS = new NoOpNewCpdTokens();
+  static final NoOpNewCpdTokens NO_OP_NEW_CPD_TOKENS = new NoOpNewCpdTokens();
   private static final NoOpNewAnalysisError NO_OP_NEW_ANALYSIS_ERROR = new NoOpNewAnalysisError();
+  static final NoOpNewCoverage NO_OP_NEW_COVERAGE = new NoOpNewCoverage();
 
   private final Settings mutableSettings;
   private final FileSystem fs;
@@ -69,10 +73,10 @@ public class DefaultSensorContext implements SensorContext {
   private final InputModule module;
   private final SonarRuntime sonarRuntime;
   private final Configuration config;
+  private final BranchConfiguration branchConfiguration;
 
   public DefaultSensorContext(InputModule module, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
-    AnalysisMode analysisMode, SensorStorage sensorStorage,
-    SonarRuntime sonarRuntime) {
+    AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration) {
     this.module = module;
     this.config = config;
     this.mutableSettings = mutableSettings;
@@ -81,6 +85,7 @@ public class DefaultSensorContext implements SensorContext {
     this.analysisMode = analysisMode;
     this.sensorStorage = sensorStorage;
     this.sonarRuntime = sonarRuntime;
+    this.branchConfiguration = branchConfiguration;
   }
 
   @Override
@@ -146,12 +151,15 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public NewCoverage newCoverage() {
+    if (branchConfiguration.branchType() == BranchType.SHORT) {
+      return NO_OP_NEW_COVERAGE;
+    }
     return new DefaultCoverage(sensorStorage);
   }
 
   @Override
   public NewCpdTokens newCpdTokens() {
-    if (analysisMode.isIssues()) {
+    if (analysisMode.isIssues() || branchConfiguration.branchType() == BranchType.SHORT) {
       return NO_OP_NEW_CPD_TOKENS;
     }
     return new DefaultCpdTokens(config, sensorStorage);
