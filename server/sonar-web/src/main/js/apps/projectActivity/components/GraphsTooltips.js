@@ -27,9 +27,10 @@ import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
 import GraphsTooltipsContentDuplication from './GraphsTooltipsContentDuplication';
 import GraphsTooltipsContentIssues from './GraphsTooltipsContentIssues';
 import { DEFAULT_GRAPH } from '../utils';
-import type { Event, MeasureHistory } from '../types';
-import type { Serie } from '../../../components/charts/AdvancedTimeline';
+/*:: import type { Event, MeasureHistory } from '../types'; */
+/*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
 
+/*::
 type Props = {
   events: Array<Event>,
   formatValue: (number | string) => string,
@@ -41,11 +42,12 @@ type Props = {
   tooltipIdx: number,
   tooltipPos: number
 };
+*/
 
 const TOOLTIP_WIDTH = 250;
 
 export default class GraphsTooltips extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   renderContent() {
     const { tooltipIdx } = this.props;

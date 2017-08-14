@@ -24,6 +24,7 @@ import Extension from './Extension';
 import ExtensionNotFound from './ExtensionNotFound';
 import { getAppState } from '../../../store/rootReducer';
 
+/*::
 type Props = {
   globalPages: Array<{ key: string }>,
   params: {
@@ -31,8 +32,9 @@ type Props = {
     pluginKey: string
   }
 };
+*/
 
-function GlobalPageExtension(props: Props) {
+function GlobalPageExtension(props /*: Props */) {
   const { extensionKey, pluginKey } = props.params;
   const extension = props.globalPages.find(p => p.key === `${pluginKey}/${extensionKey}`);
   return extension ? <Extension extension={extension} /> : <ExtensionNotFound />;

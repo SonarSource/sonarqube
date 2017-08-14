@@ -36,7 +36,7 @@ import {
   duplicationsByLine,
   symbolsByLine
 } from './helpers/indexing';
-import type { LinearIssueLocation } from './helpers/indexing';
+/*:: import type { LinearIssueLocation } from './helpers/indexing'; */
 import {
   getComponentForSourceViewer,
   getSources,
@@ -45,12 +45,13 @@ import {
 } from '../../api/components';
 import { translate } from '../../helpers/l10n';
 import { scrollToElement } from '../../helpers/scrolling';
-import type { SourceLine } from './types';
-import type { Issue, FlowLocation } from '../issue/types';
+/*:: import type { SourceLine } from './types'; */
+/*:: import type { Issue, FlowLocation } from '../issue/types'; */
 import './styles.css';
 
 // TODO react-virtualized
 
+/*::
 type Props = {
   aroundLine?: number,
   component: string,
@@ -71,7 +72,9 @@ type Props = {
   scroll?: HTMLElement => void,
   selectedIssue?: string
 };
+*/
 
+/*::
 type State = {
   component?: Object,
   displayDuplications: boolean,
@@ -101,22 +104,27 @@ type State = {
   sourceRemoved: boolean,
   symbolsByLine: { [number]: Array<string> }
 };
+*/
 
 const LINES = 500;
 
-const loadComponent = (key: string): Promise<*> => {
+function loadComponent(key /*: string */) /*: Promise<*> */ {
   return getComponentForSourceViewer(key);
-};
+}
 
-const loadSources = (key: string, from?: number, to?: number): Promise<Array<*>> => {
+function loadSources(
+  key /*: string */,
+  from /*: ?number */,
+  to /*: ?number */
+) /*: Promise<Array<*>> */ {
   return getSources(key, from, to);
-};
+}
 
 export default class SourceViewerBase extends React.PureComponent {
-  mounted: boolean;
-  node: HTMLElement;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: node: HTMLElement; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
   static defaultProps = {
     displayAllIssues: false,
@@ -125,7 +133,7 @@ export default class SourceViewerBase extends React.PureComponent {
     loadSources
   };
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       displayDuplications: false,
@@ -155,13 +163,13 @@ export default class SourceViewerBase extends React.PureComponent {
     this.fetchComponent();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (nextProps.onIssueSelect != null && nextProps.selectedIssue !== this.props.selectedIssue) {
       this.setState({ selectedIssue: nextProps.selectedIssue });
     }
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (prevProps.component !== this.props.component) {
       this.fetchComponent();
     } else if (
@@ -187,7 +195,7 @@ export default class SourceViewerBase extends React.PureComponent {
     this.mounted = false;
   }
 
-  scrollToLine(line: number) {
+  scrollToLine(line /*: number */) {
     const lineElement = this.node.querySelector(
       `.source-line-code[data-line-number="${line}"] .source-line-issue-locations`
     );
@@ -196,11 +204,11 @@ export default class SourceViewerBase extends React.PureComponent {
     }
   }
 
-  computeCoverageStatus(lines: Array<SourceLine>): Array<SourceLine> {
+  computeCoverageStatus(lines /*: Array<SourceLine> */) /*: Array<SourceLine> */ {
     return lines.map(line => ({ ...line, coverageStatus: getCoverageStatus(line) }));
   }
 
-  isLineOutsideOfRange(lineNumber: number) {
+  isLineOutsideOfRange(lineNumber /*: number */) {
     const { sources } = this.state;
     if (sources != null && sources.length > 0) {
       const firstLine = sources[0];
@@ -397,7 +405,7 @@ export default class SourceViewerBase extends React.PureComponent {
     });
   };
 
-  loadDuplications = (line: SourceLine) => {
+  loadDuplications = (line /*: SourceLine */) => {
     getDuplications(this.props.component).then(r => {
       if (this.mounted) {
         this.setState(
@@ -423,14 +431,14 @@ export default class SourceViewerBase extends React.PureComponent {
     measuresOverlay.render();
   };
 
-  handleCoverageClick = (line: SourceLine, element: HTMLElement) => {
+  handleCoverageClick = (line /*: SourceLine */, element /*: HTMLElement */) => {
     getTests(this.props.component, line.line).then(tests => {
       const popup = new CoveragePopupView({ line, tests, triggerEl: element });
       popup.render();
     });
   };
 
-  handleDuplicationClick = (index: number, line: number) => {
+  handleDuplicationClick = (index /*: number */, line /*: number */) => {
     const duplication = this.state.duplications && this.state.duplications[index];
     let blocks = (duplication && duplication.blocks) || [];
     const inRemovedComponent = blocks.some(b => b._ref == null);
@@ -462,7 +470,7 @@ export default class SourceViewerBase extends React.PureComponent {
     }
   };
 
-  displayLinePopup(line: number, element: HTMLElement) {
+  displayLinePopup(line /*: number */, element /*: HTMLElement */) {
     const popup = new LineActionsPopupView({
       line,
       triggerEl: element,
@@ -471,14 +479,14 @@ export default class SourceViewerBase extends React.PureComponent {
     popup.render();
   }
 
-  handleLineClick = (line: SourceLine, element: HTMLElement) => {
+  handleLineClick = (line /*: SourceLine */, element /*: HTMLElement */) => {
     this.setState(prevState => ({
       highlightedLine: prevState.highlightedLine === line.line ? null : line
     }));
     this.displayLinePopup(line.line, element);
   };
 
-  handleSymbolClick = (symbols: Array<string>) => {
+  handleSymbolClick = (symbols /*: Array<string> */) => {
     this.setState(state => {
       const shouldDisable = intersection(state.highlightedSymbols, symbols).length > 0;
       const highlightedSymbols = shouldDisable ? [] : symbols;
@@ -486,12 +494,12 @@ export default class SourceViewerBase extends React.PureComponent {
     });
   };
 
-  handleSCMClick = (line: SourceLine, element: HTMLElement) => {
+  handleSCMClick = (line /*: SourceLine */, element /*: HTMLElement */) => {
     const popup = new SCMPopupView({ triggerEl: element, line });
     popup.render();
   };
 
-  handleIssueSelect = (issue: string) => {
+  handleIssueSelect = (issue /*: string */) => {
     if (this.props.onIssueSelect) {
       this.props.onIssueSelect(issue);
     } else {
@@ -507,19 +515,19 @@ export default class SourceViewerBase extends React.PureComponent {
     }
   };
 
-  handleOpenIssues = (line: SourceLine) => {
+  handleOpenIssues = (line /*: SourceLine */) => {
     this.setState(state => ({
       openIssuesByLine: { ...state.openIssuesByLine, [line.line]: true }
     }));
   };
 
-  handleCloseIssues = (line: SourceLine) => {
+  handleCloseIssues = (line /*: SourceLine */) => {
     this.setState(state => ({
       openIssuesByLine: { ...state.openIssuesByLine, [line.line]: false }
     }));
   };
 
-  handleIssueChange = (issue: Issue) => {
+  handleIssueChange = (issue /*: Issue */) => {
     this.setState(state => {
       const issues = state.issues.map(
         candidate => (candidate.key === issue.key ? issue : candidate)
@@ -531,7 +539,7 @@ export default class SourceViewerBase extends React.PureComponent {
     }
   };
 
-  renderCode(sources: Array<SourceLine>) {
+  renderCode(sources /*: Array<SourceLine> */) {
     const hasSourcesBefore = sources.length > 0 && sources[0].line > 1;
     return (
       <SourceViewerCode

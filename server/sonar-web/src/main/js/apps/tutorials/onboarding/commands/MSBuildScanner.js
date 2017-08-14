@@ -21,11 +21,13 @@
 import React from 'react';
 import { translate } from '../../../../helpers/l10n';
 
+/*::
 type Props = {
   className?: string
 };
+*/
 
-export default function MSBuildScanner(props: Props) {
+export default function MSBuildScanner(props /*: Props */) {
   return (
     <div className={props.className}>
       <h4 className="spacer-bottom">

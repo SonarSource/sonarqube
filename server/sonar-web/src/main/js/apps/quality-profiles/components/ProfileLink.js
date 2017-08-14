@@ -22,15 +22,17 @@ import React from 'react';
 import { Link } from 'react-router';
 import { getProfilePath } from '../utils';
 
+/*::
 type Props = {
   children?: React.Element<*>,
   language: string,
   name: string,
   organization: ?string
 };
+*/
 
 export default class ProfileLink extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { name, language, organization, children, ...other } = this.props;

@@ -35,11 +35,14 @@ import { complementary } from '../config/complementary';
 import { enhanceComponent, isFileType, isViewType } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
-import type { Component, ComponentEnhanced, Paging, Period } from '../types';
-import type { MeasureEnhanced } from '../../../components/measure/types';
-import type { Metric } from '../../../store/metrics/actions';
+/*:: import type { Component, ComponentEnhanced, Paging, Period } from '../types'; */
+/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
 
-type Props = {|
+// Switching to the following type will make flow crash with :
+// https://github.com/facebook/flow/issues/3147
+// router: { push: ({ pathname: string, query?: RawQuery }) => void }
+/*:: type Props = {|
   className?: string,
   component: Component,
   currentUser: { isLoggedIn: boolean },
@@ -49,32 +52,27 @@ type Props = {|
   metric: Metric,
   metrics: { [string]: Metric },
   rootComponent: Component,
-  router: Object /*
-  Switching to the following type will make flow crash with :
-  https://github.com/facebook/flow/issues/3147
-  {
-    push: ({ pathname: string, query?: RawQuery }) => void
-  }*/,
+  router: Object,
   secondaryMeasure: ?MeasureEnhanced,
   updateLoading: ({ [string]: boolean }) => void,
   updateSelected: string => void,
   updateView: string => void,
   view: string
-|};
+|}; */
 
-type State = {
+/*:: type State = {
   components: Array<ComponentEnhanced>,
   metric: ?Metric,
   paging?: Paging,
   selected: ?string,
   view: ?string
-};
+}; */
 
 export default class MeasureContent extends React.PureComponent {
-  container: HTMLElement;
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: container: HTMLElement; */
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     components: [],
     metric: null,
     paging: null,
@@ -87,7 +85,7 @@ export default class MeasureContent extends React.PureComponent {
     this.fetchComponents(this.props);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (nextProps.component !== this.props.component || nextProps.metric !== this.props.metric) {
       this.fetchComponents(nextProps);
     }
@@ -97,7 +95,7 @@ export default class MeasureContent extends React.PureComponent {
     this.mounted = false;
   }
 
-  getSelectedIndex = (): ?number => {
+  getSelectedIndex = () => {
     const componentKey = isFileType(this.props.component)
       ? this.props.component.key
       : this.state.selected;
@@ -105,10 +103,14 @@ export default class MeasureContent extends React.PureComponent {
     return index !== -1 ? index : null;
   };
 
-  getComponentRequestParams = (view: string, metric: Metric, options: Object = {}) => {
+  getComponentRequestParams = (
+    view /*: string */,
+    metric /*: Metric */,
+    options /*: Object */ = {}
+  ) => {
     const strategy = view === 'list' ? 'leaves' : 'children';
     const metricKeys = [metric.key];
-    const opts: Object = { metricSortFilter: 'withMeasuresOnly' };
+    const opts /*: Object */ = { metricSortFilter: 'withMeasuresOnly' };
     if (view === 'treemap') {
       metricKeys.push('ncloc');
       opts.asc = false;
@@ -129,7 +131,7 @@ export default class MeasureContent extends React.PureComponent {
     return { metricKeys, opts: { ...opts, ...options }, strategy };
   };
 
-  fetchComponents = ({ component, metric, metrics, view }: Props) => {
+  fetchComponents = ({ component, metric, metrics, view } /*: Props */) => {
     if (isFileType(component)) {
       return this.setState({ metric: null, view: null });
     }
@@ -140,7 +142,7 @@ export default class MeasureContent extends React.PureComponent {
       r => {
         if (metric === this.props.metric) {
           if (this.mounted) {
-            this.setState(({ selected }: State) => ({
+            this.setState(({ selected } /*: State */) => ({
               components: r.components.map(component =>
                 enhanceComponent(component, metric, metrics)
               ),
@@ -191,7 +193,7 @@ export default class MeasureContent extends React.PureComponent {
     );
   };
 
-  onOpenComponent = (componentKey: string) => {
+  onOpenComponent = (componentKey /*: string */) => {
     if (isViewType(this.props.rootComponent)) {
       const component = this.state.components.find(
         component => component.refKey === componentKey || component.key === componentKey
@@ -210,7 +212,7 @@ export default class MeasureContent extends React.PureComponent {
     }
   };
 
-  onSelectComponent = (componentKey: string) => this.setState({ selected: componentKey });
+  onSelectComponent = (componentKey /*: string */) => this.setState({ selected: componentKey });
 
   renderContent() {
     const { component, leakPeriod } = this.props;

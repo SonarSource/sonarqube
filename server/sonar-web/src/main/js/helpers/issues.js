@@ -20,23 +20,30 @@
 // @flow
 import { flatten, sortBy } from 'lodash';
 import { SEVERITIES } from './constants';
-import type { Issue, FlowLocation } from '../components/issue/types';
+/*:: import type { Issue, FlowLocation } from '../components/issue/types'; */
 
+/*::
 type TextRange = {
   startLine: number,
   endLine: number,
   startOffset: number,
   endOffset: number
 };
+*/
 
+/*::
 type Comment = {
   login: string
 };
+*/
 
+/*::
 type User = {
   login: string
 };
+*/
 
+/*::
 type RawIssue = {
   assignee?: string,
   author: string,
@@ -53,16 +60,18 @@ type RawIssue = {
   subProject?: string,
   textRange?: TextRange
 };
+*/
 
-export const sortBySeverity = (issues: Array<*>) =>
-  sortBy(issues, issue => SEVERITIES.indexOf(issue.severity));
+export function sortBySeverity(issues /*: Array<*> */) {
+  return sortBy(issues, issue => SEVERITIES.indexOf(issue.severity));
+}
 
-const injectRelational = (
-  issue: RawIssue | Comment,
-  source?: Array<*>,
-  baseField: string,
-  lookupField: string
-) => {
+function injectRelational(
+  issue /*: RawIssue | Comment */,
+  source /*: ?Array<*> */,
+  baseField /*: string */,
+  lookupField /*: string */
+) {
   const newFields = {};
   const baseValue = issue[baseField];
   if (baseValue != null && source != null) {
@@ -75,9 +84,9 @@ const injectRelational = (
     }
   }
   return newFields;
-};
+}
 
-const injectCommentsRelational = (issue: RawIssue, users?: Array<User>) => {
+function injectCommentsRelational(issue /*: RawIssue */, users /*: ?Array<User> */) {
   if (!issue.comments) {
     return {};
   }
@@ -89,13 +98,13 @@ const injectCommentsRelational = (issue: RawIssue, users?: Array<User>) => {
     };
   });
   return { comments };
-};
+}
 
-const prepareClosed = (issue: RawIssue) => {
+function prepareClosed(issue /*: RawIssue */) {
   return issue.status === 'CLOSED' ? { flows: undefined } : {};
-};
+}
 
-const ensureTextRange = (issue: RawIssue) => {
+function ensureTextRange(issue /*: RawIssue */) {
   return issue.line && !issue.textRange
     ? {
         textRange: {
@@ -106,18 +115,18 @@ const ensureTextRange = (issue: RawIssue) => {
         }
       }
     : {};
-};
+}
 
-const reverseLocations = (locations: Array<*>) => {
+function reverseLocations(locations /*: Array<*> */) {
   const x = [...locations];
   x.reverse();
   return x;
-};
+}
 
-const splitFlows = (
-  issue: RawIssue
+function splitFlows(
+  issue /*: RawIssue */
   // $FlowFixMe textRange is not null
-): { secondaryLocations: Array<FlowLocation>, flows: Array<Array<FlowLocation>> } => {
+) /*: { secondaryLocations: Array<FlowLocation>, flows: Array<Array<FlowLocation>> } */ {
   const parsedFlows = (issue.flows || [])
     .filter(flow => flow.locations != null)
     // $FlowFixMe flow.locations is not null
@@ -128,14 +137,14 @@ const splitFlows = (
   return onlySecondaryLocations
     ? { secondaryLocations: flatten(parsedFlows), flows: [] }
     : { secondaryLocations: [], flows: parsedFlows.map(reverseLocations) };
-};
+}
 
-export const parseIssueFromResponse = (
-  issue: Object,
-  components?: Array<*>,
-  users?: Array<*>,
-  rules?: Array<*>
-): Issue => {
+export function parseIssueFromResponse(
+  issue /*: Object */,
+  components /*: ?Array<*> */,
+  users /*: ?Array<*> */,
+  rules /*: ?Array<*> */
+) /*: Issue */ {
   const { secondaryLocations, flows } = splitFlows(issue);
   return {
     ...issue,
@@ -150,4 +159,4 @@ export const parseIssueFromResponse = (
     secondaryLocations,
     flows
   };
-};
+}

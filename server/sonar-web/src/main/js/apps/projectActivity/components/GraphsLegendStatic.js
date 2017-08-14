@@ -21,11 +21,13 @@
 import React from 'react';
 import GraphsLegendItem from './GraphsLegendItem';
 
+/*::
 type Props = {
   series: Array<{ name: string, translatedName: string }>
 };
+*/
 
-export default function GraphsLegendStatic({ series }: Props) {
+export default function GraphsLegendStatic({ series } /*: Props */) {
   return (
     <div className="project-activity-graph-legends">
       {series.map((serie, idx) =>

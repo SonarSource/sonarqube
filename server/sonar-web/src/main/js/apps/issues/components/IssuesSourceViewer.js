@@ -21,8 +21,9 @@
 import React from 'react';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { scrollToElement } from '../../../helpers/scrolling';
-import type { Issue } from '../../../components/issue/types';
+/*:: import type { Issue } from '../../../components/issue/types'; */
 
+/*::
 type Props = {|
   loadIssues: (string, number, number) => Promise<*>,
   onIssueChange: Issue => void,
@@ -32,12 +33,13 @@ type Props = {|
   selectedFlowIndex: ?number,
   selectedLocationIndex: ?number
 |};
+*/
 
 export default class IssuesSourceViewer extends React.PureComponent {
-  node: HTMLElement;
-  props: Props;
+  /*:: node: HTMLElement; */
+  /*:: props: Props; */
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (
       prevProps.openIssue !== this.props.openIssue &&
       prevProps.openIssue.component === this.props.openIssue.component
@@ -46,14 +48,14 @@ export default class IssuesSourceViewer extends React.PureComponent {
     }
   }
 
-  scrollToIssue = (smooth: boolean = true) => {
+  scrollToIssue = (smooth /*: boolean */ = true) => {
     const element = this.node.querySelector(`[data-issue="${this.props.openIssue.key}"]`);
     if (element) {
       this.handleScroll(element, smooth);
     }
   };
 
-  handleScroll = (element: HTMLElement, smooth: boolean = true) => {
+  handleScroll = (element /*: HTMLElement */, smooth /*: boolean */ = true) => {
     const offset = window.innerHeight / 2;
     scrollToElement(element, { topOffset: offset - 100, bottomOffset: offset, smooth });
   };

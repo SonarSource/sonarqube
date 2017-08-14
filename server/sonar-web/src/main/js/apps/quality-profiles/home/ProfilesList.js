@@ -24,8 +24,9 @@ import ProfilesListRow from './ProfilesListRow';
 import ProfilesListHeader from './ProfilesListHeader';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   canAdmin: boolean,
   languages: Array<{ key: string, name: string }>,
@@ -35,11 +36,12 @@ type Props = {
   profiles: Array<Profile>,
   updateProfiles: () => Promise<*>
 };
+*/
 
 export default class ProfilesList extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  renderProfiles(profiles: Array<Profile>) {
+  renderProfiles(profiles /*: Array<Profile> */) {
     return profiles.map(profile =>
       <ProfilesListRow
         canAdmin={this.props.canAdmin}
@@ -52,7 +54,7 @@ export default class ProfilesList extends React.PureComponent {
     );
   }
 
-  renderHeader(languageKey: string, profilesCount: number) {
+  renderHeader(languageKey /*: string */, profilesCount /*: number */) {
     const language = this.props.languages.find(l => l.key === languageKey);
 
     if (!language) {

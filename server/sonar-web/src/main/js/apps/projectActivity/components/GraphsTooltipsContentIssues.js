@@ -22,8 +22,9 @@ import React from 'react';
 import classNames from 'classnames';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
 import Rating from '../../../components/ui/Rating';
-import type { MeasureHistory } from '../types';
+/*:: import type { MeasureHistory } from '../types'; */
 
+/*::
 type Props = {
   measuresHistory: Array<MeasureHistory>,
   name: string,
@@ -32,6 +33,7 @@ type Props = {
   translatedName: string,
   value: string
 };
+*/
 
 const METRIC_RATING = {
   bugs: 'reliability_rating',
@@ -39,7 +41,7 @@ const METRIC_RATING = {
   code_smells: 'sqale_rating'
 };
 
-export default function GraphsTooltipsContentIssues(props: Props) {
+export default function GraphsTooltipsContentIssues(props /*: Props */) {
   const rating = props.measuresHistory.find(
     measure => measure.metric === METRIC_RATING[props.name]
   );

@@ -21,14 +21,15 @@
 import React from 'react';
 import InternalBadge from './InternalBadge';
 import DeprecatedBadge from './DeprecatedBadge';
-import type { Param } from '../../../api/web-api';
+/*:: import type { Param } from '../../../api/web-api'; */
 
 export default class Params extends React.PureComponent {
-  props: {
+  /*:: props: {
     showDeprecated: boolean,
     showInternal: boolean,
     params: Array<Param>
   };
+*/
 
   render() {
     const { showDeprecated, showInternal, params } = this.props;

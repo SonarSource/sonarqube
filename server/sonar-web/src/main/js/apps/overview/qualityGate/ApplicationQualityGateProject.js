@@ -26,6 +26,7 @@ import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';
 import './ApplicationQualityGateProject.css';
 
+/*::
 type Condition = {
   comparator: string,
   errorThreshold?: string,
@@ -35,7 +36,9 @@ type Condition = {
   value: string,
   warningThreshold?: string
 };
+*/
 
+/*::
 type Props = {
   metrics: {
     [string]: {
@@ -51,11 +54,12 @@ type Props = {
     status: string
   }
 };
+*/
 
 export default class ApplicationQualityGateProject extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  renderCondition = (condition: Condition) => {
+  renderCondition = (condition /*: Condition */) => {
     const metric = this.props.metrics[condition.metric];
     const metricName = getLocalizedMetricName(metric);
     const threshold = condition.errorThreshold || condition.warningThreshold;

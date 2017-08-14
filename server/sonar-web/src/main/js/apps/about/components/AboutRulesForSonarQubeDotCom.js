@@ -22,14 +22,16 @@ import React from 'react';
 import { Link } from 'react-router';
 import { getRulesUrl } from '../../../helpers/urls';
 
+/*::
 type Props = {
   appState: {
     defaultOrganization: string,
     organizationsEnabled: boolean
   }
 };
+*/
 
-export default function AboutRulesForSonarQubeDotCom(props: Props) {
+export default function AboutRulesForSonarQubeDotCom(props /*: Props */) {
   const organization = props.appState.defaultOrganization;
 
   return (

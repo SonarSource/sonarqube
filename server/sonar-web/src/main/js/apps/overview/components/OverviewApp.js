@@ -36,13 +36,16 @@ import { getLeakPeriod } from '../../../helpers/periods';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { METRICS, HISTORY_METRICS_LIST } from '../utils';
 import { DEFAULT_GRAPH, getDisplayedHistoryMetrics } from '../../projectActivity/utils';
-import type { Component, History, MeasuresList, Period } from '../types';
+/*:: import type { Component, History, MeasuresList, Period } from '../types'; */
 import '../styles.css';
 
+/*::
 type Props = {
   component: Component
 };
+*/
 
+/*::
 type State = {
   history?: History,
   historyStartDate?: Date,
@@ -50,11 +53,12 @@ type State = {
   measures: MeasuresList,
   periods?: Array<Period>
 };
+*/
 
 export default class OverviewApp extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     loading: true,
     measures: []
   };
@@ -68,7 +72,7 @@ export default class OverviewApp extends React.PureComponent {
     this.loadMeasures(this.props.component.key).then(() => this.loadHistory(this.props.component));
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (this.props.component.key !== prevProps.component.key) {
       this.loadMeasures(this.props.component.key).then(() =>
         this.loadHistory(this.props.component)
@@ -84,7 +88,7 @@ export default class OverviewApp extends React.PureComponent {
     }
   }
 
-  loadMeasures(componentKey: string) {
+  loadMeasures(componentKey /*: string */) {
     this.setState({ loading: true });
 
     return getMeasuresAndMeta(componentKey, METRICS, {
@@ -100,7 +104,7 @@ export default class OverviewApp extends React.PureComponent {
     }, throwGlobalError);
   }
 
-  loadHistory(component: Component) {
+  loadHistory(component /*: Component */) {
     let graphMetrics = getDisplayedHistoryMetrics(getGraph(), getCustomGraph());
     if (!graphMetrics || graphMetrics.length <= 0) {
       graphMetrics = getDisplayedHistoryMetrics(DEFAULT_GRAPH, []);
@@ -109,7 +113,7 @@ export default class OverviewApp extends React.PureComponent {
     const metrics = uniq(HISTORY_METRICS_LIST.concat(graphMetrics));
     return getAllTimeMachineData(component.key, metrics).then(r => {
       if (this.mounted) {
-        const history: History = {};
+        const history /*: History */ = {};
         r.measures.forEach(measure => {
           const measureHistory = measure.history.map(analysis => ({
             date: moment(analysis.date).toDate(),

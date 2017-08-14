@@ -23,8 +23,9 @@ import ProfileRules from './ProfileRules';
 import ProfileProjects from './ProfileProjects';
 import ProfileInheritance from './ProfileInheritance';
 import ProfileExporters from './ProfileExporters';
-import type { Profile, Exporter } from '../propTypes';
+/*:: import type { Profile, Exporter } from '../propTypes'; */
 
+/*::
 type Props = {
   canAdmin: boolean,
   exporters: Array<Exporter>,
@@ -34,9 +35,10 @@ type Props = {
   profiles: Array<Profile>,
   updateProfiles: () => Promise<*>
 };
+*/
 
 export default class ProfileDetails extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     return (

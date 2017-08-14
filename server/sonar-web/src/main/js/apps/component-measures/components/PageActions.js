@@ -22,17 +22,17 @@ import React from 'react';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import FilesCounter from './FilesCounter';
 import { translate } from '../../../helpers/l10n';
-import type { Paging } from '../types';
+/*:: import type { Paging } from '../types'; */
 
-type Props = {|
+/*:: type Props = {|
   current: ?number,
   loading: boolean,
   isFile: ?boolean,
   paging: ?Paging,
   view?: string
-|};
+|}; */
 
-export default function PageActions(props: Props) {
+export default function PageActions(props /*: Props */) {
   const { isFile, paging } = props;
   const showShortcuts = ['list', 'tree'].includes(props.view);
   return (

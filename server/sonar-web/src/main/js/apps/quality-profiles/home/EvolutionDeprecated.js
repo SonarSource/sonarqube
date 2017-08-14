@@ -24,15 +24,17 @@ import { sortBy } from 'lodash';
 import ProfileLink from '../components/ProfileLink';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   organization: ?string,
   profiles: Array<Profile>
 };
+*/
 
 export default class EvolutionDeprecated extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const profilesWithDeprecations = this.props.profiles.filter(

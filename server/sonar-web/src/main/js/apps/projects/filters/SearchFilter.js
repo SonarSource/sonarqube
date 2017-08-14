@@ -21,28 +21,32 @@
 import React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   className?: string,
   handleSearch: (userString?: string) => void,
   query: { search?: string }
 };
+*/
 
+/*::
 type State = {
   userQuery?: string
 };
+*/
 
 export default class SearchFilter extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       userQuery: props.query.search
     };
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (
       this.props.query.search === this.state.userQuery &&
       nextProps.query.search !== this.props.query.search
@@ -53,7 +57,7 @@ export default class SearchFilter extends React.PureComponent {
     }
   }
 
-  handleQueryChange = ({ target }: { target: HTMLInputElement }) => {
+  handleQueryChange = ({ target } /*: { target: HTMLInputElement } */) => {
     this.setState({ userQuery: target.value });
     if (!target.value || target.value.length >= 2) {
       this.props.handleSearch(target.value);

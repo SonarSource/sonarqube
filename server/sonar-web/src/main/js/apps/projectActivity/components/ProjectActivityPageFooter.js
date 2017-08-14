@@ -20,15 +20,19 @@
 // @flow
 import React from 'react';
 import ListFooter from '../../../components/controls/ListFooter';
-import type { Paging } from '../types';
+/*:: import type { Paging } from '../types'; */
 
+/*::
 type Props = {
   analyses: Array<*>,
   fetchMoreActivity: () => void,
   paging?: Paging
 };
+*/
 
-export default function ProjectActivityPageFooter({ analyses, fetchMoreActivity, paging }: Props) {
+export default function ProjectActivityPageFooter(
+  { analyses, fetchMoreActivity, paging } /*: Props */
+) {
   if (!paging || analyses.length === 0) {
     return null;
   }

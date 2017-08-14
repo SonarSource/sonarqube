@@ -34,25 +34,25 @@ import {
   translate,
   translateWithParameters
 } from '../../../helpers/l10n';
-import type { MeasureEnhanced } from '../../../components/measure/types';
+/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 
-type Props = {|
+/*:: type Props = {|
   onChange: (metric: string) => void,
   onToggle: (property: string) => void,
   open: boolean,
   domain: { name: string, measures: Array<MeasureEnhanced> },
   selected: string
-|};
+|}; */
 
 export default class DomainFacet extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   handleHeaderClick = () => this.props.onToggle(this.props.domain.name);
 
   hasFacetSelected = (
-    domain: { name: string },
-    measures: Array<MeasureEnhanced>,
-    selected: string
+    domain /*: { name: string } */,
+    measures /*: Array<MeasureEnhanced> */,
+    selected /*: string */
   ) => {
     const measureSelected = measures.find(measure => measure.metric.key === selected);
     const overviewSelected = domain.name === selected && hasBubbleChart(domain.name);

@@ -23,10 +23,11 @@ import { translate } from '../../../../helpers/l10n';
 import { isPermissionsAppLoading } from '../../../../store/rootReducer';
 
 class PageHeader extends React.PureComponent {
-  props: {
+  /*:: props: {
     loading?: boolean,
     organization?: {}
   };
+*/
 
   static defaultProps = {
     loading: false

@@ -71,6 +71,6 @@ it('renders "Show More" link', () => {
   ).toMatchSnapshot();
 });
 
-function component(key: string, qualifier: string = 'TRK') {
+function component(key /*: string */, qualifier /*: string */ = 'TRK') {
   return { key, name: key, qualifier };
 }

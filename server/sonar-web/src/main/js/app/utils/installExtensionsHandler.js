@@ -20,7 +20,7 @@
 // @flow
 const extensions = {};
 
-const registerExtension = (key: string, start: Function) => {
+const registerExtension = (key /*: string */, start /*: Function */) => {
   extensions[key] = start;
 };
 
@@ -28,6 +28,6 @@ export default () => {
   window.registerExtension = registerExtension;
 };
 
-export const getExtensionFromCache = (key: string) => {
+export const getExtensionFromCache = (key /*: string */) => {
   return extensions[key];
 };

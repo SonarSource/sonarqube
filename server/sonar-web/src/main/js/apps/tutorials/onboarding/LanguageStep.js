@@ -23,13 +23,16 @@ import NewProjectForm from './NewProjectForm';
 import RadioToggle from '../../../components/controls/RadioToggle';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {|
   onDone: (result: Result) => void,
   onReset: () => void,
   organization?: string,
   sonarCloud: boolean
 |};
+*/
 
+/*::
 type State = {
   language?: string,
   javaBuild?: string,
@@ -37,15 +40,17 @@ type State = {
   os?: string,
   projectKey?: string
 };
+*/
 
-export type Result = State;
+/*::
+export type Result = State; */
 
 export default class LanguageStep extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static defaultProps = { sonarCloud: false };
 
-  state: State = {};
+  state /*: State */ = {};
 
   isConfigured = () => {
     const { language, javaBuild, cFamilyCompiler, os, projectKey } = this.state;
@@ -66,23 +71,23 @@ export default class LanguageStep extends React.PureComponent {
     }
   };
 
-  handleLanguageChange = (language: string) => {
+  handleLanguageChange = (language /*: string */) => {
     this.setState({ language }, this.handleChange);
   };
 
-  handleJavaBuildChange = (javaBuild: string) => {
+  handleJavaBuildChange = (javaBuild /*: string */) => {
     this.setState({ javaBuild }, this.handleChange);
   };
 
-  handleCFamilyCompilerChange = (cFamilyCompiler: string) => {
+  handleCFamilyCompilerChange = (cFamilyCompiler /*: string */) => {
     this.setState({ cFamilyCompiler }, this.handleChange);
   };
 
-  handleOSChange = (os: string) => {
+  handleOSChange = (os /*: string */) => {
     this.setState({ os }, this.handleChange);
   };
 
-  handleProjectKeyDone = (projectKey: string) => {
+  handleProjectKeyDone = (projectKey /*: string */) => {
     this.setState({ projectKey }, this.handleChange);
   };
 

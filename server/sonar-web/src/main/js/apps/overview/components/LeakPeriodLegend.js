@@ -24,42 +24,53 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
 import { translateWithParameters } from '../../../helpers/l10n';
 
+/*::
 type DaysPeriod = {
   date: string,
   mode: 'days',
   parameter: string
 };
+*/
 
+/*::
 type DatePeriod = {
   date: string,
   mode: 'date',
   parameter: string
 };
+*/
 
+/*::
 type VersionPeriod = {
   date: string,
   mode: 'version',
   parameter: string
 };
+*/
 
+/*::
 type PreviousAnalysisPeriod = {
   date: string,
   mode: 'previous_analysis'
 };
+*/
 
+/*::
 type PreviousVersionPeriod = {
   date: string,
   mode: 'previous_version'
 };
+*/
 
+/*::
 type Period =
   | DaysPeriod
   | DatePeriod
   | VersionPeriod
   | PreviousAnalysisPeriod
-  | PreviousVersionPeriod;
+  | PreviousVersionPeriod; */
 
-export default function LeakPeriodLegend({ period }: { period: Period }) {
+export default function LeakPeriodLegend({ period } /*: { period: Period } */) {
   const leakPeriodLabel = getPeriodLabel(period);
 
   if (period.mode === 'days') {

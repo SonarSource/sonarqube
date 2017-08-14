@@ -27,9 +27,10 @@ import { translate } from '../../../helpers/l10n';
 import { fetchNotifications } from './actions';
 
 class Notifications extends React.PureComponent {
-  props: {
+  /*:: props: {
     fetchNotifications: () => void
   };
+*/
 
   componentDidMount() {
     this.props.fetchNotifications();

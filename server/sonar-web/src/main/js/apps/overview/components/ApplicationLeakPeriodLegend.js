@@ -24,18 +24,22 @@ import FormattedDate from '../../../components/ui/FormattedDate';
 import { getApplicationLeak } from '../../../api/application';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   component: { key: string }
 };
+*/
 
+/*::
 type State = {
   leaks: ?Array<{ date: string, project: string, projectName: string }>
 };
+*/
 
 export default class ApplicationLeakPeriodLegend extends React.Component {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     leaks: null
   };
 
@@ -43,7 +47,7 @@ export default class ApplicationLeakPeriodLegend extends React.Component {
     this.mounted = true;
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (nextProps.component.key !== this.props.component.key) {
       this.setState({ leaks: null });
     }
@@ -53,7 +57,7 @@ export default class ApplicationLeakPeriodLegend extends React.Component {
     this.mounted = false;
   }
 
-  fetchLeaks = (visible: boolean) => {
+  fetchLeaks = (visible /*: boolean */) => {
     if (visible && this.state.leaks == null) {
       getApplicationLeak(this.props.component.key).then(
         leaks => {

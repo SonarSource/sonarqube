@@ -22,18 +22,22 @@ import React from 'react';
 import Modal from 'react-modal';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {|
   onFinish: () => void
 |};
+*/
 
+/*::
 type State = {
   OnboardingContainer?: Object
 };
+*/
 
 export default class OnboardingModal extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {};
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {};
 
   componentDidMount() {
     this.mounted = true;
@@ -44,7 +48,7 @@ export default class OnboardingModal extends React.PureComponent {
     this.mounted = false;
   }
 
-  receiveComponent = (OnboardingContainer: Object) => {
+  receiveComponent = (OnboardingContainer /*: Object */) => {
     if (this.mounted) {
       this.setState({ OnboardingContainer });
     }

@@ -21,6 +21,7 @@
 import { getJSON, postJSON, post } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
+/*::
 type GetProjectActivityResponse = {
   analyses: Array<Object>,
   paging: {
@@ -29,19 +30,24 @@ type GetProjectActivityResponse = {
     pageSize: number
   }
 };
+*/
 
+/*::
 type GetProjectActivityOptions = {
   project: string,
   category?: ?string,
   p?: ?number,
   ps?: ?number
 };
+*/
 
-export const getProjectActivity = (
-  data: GetProjectActivityOptions
-): Promise<GetProjectActivityResponse> =>
-  getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
+export function getProjectActivity(
+  data /*: GetProjectActivityOptions */
+) /*: Promise<GetProjectActivityResponse> */ {
+  return getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
+}
 
+/*::
 type CreateEventResponse = {
   analysis: string,
   key: string,
@@ -49,14 +55,15 @@ type CreateEventResponse = {
   category: string,
   description?: string
 };
+*/
 
-export const createEvent = (
-  analysis: string,
-  name: string,
-  category?: string,
-  description?: string
-): Promise<CreateEventResponse> => {
-  const data: Object = { analysis, name };
+export function createEvent(
+  analysis /*: string */,
+  name /*: string */,
+  category /*: ?string */,
+  description /*: ?string */
+) /*: Promise<CreateEventResponse> */ {
+  const data /*: Object */ = { analysis, name };
   if (category) {
     data.category = category;
   }
@@ -64,17 +71,18 @@ export const createEvent = (
     data.description = description;
   }
   return postJSON('/api/project_analyses/create_event', data).then(r => r.event, throwGlobalError);
-};
+}
 
-export const deleteEvent = (event: string): Promise<*> =>
-  post('/api/project_analyses/delete_event', { event }).catch(throwGlobalError);
+export function deleteEvent(event /*: string */) /*: Promise<*> */ {
+  return post('/api/project_analyses/delete_event', { event }).catch(throwGlobalError);
+}
 
-export const changeEvent = (
-  event: string,
-  name: ?string,
-  description: ?string
-): Promise<CreateEventResponse> => {
-  const data: Object = { event };
+export function changeEvent(
+  event /*: string */,
+  name /*: ?string */,
+  description /*: ?string */
+) /*: Promise<CreateEventResponse> */ {
+  const data /*: Object */ = { event };
   if (name) {
     data.name = name;
   }
@@ -82,7 +90,8 @@ export const changeEvent = (
     data.description = description;
   }
   return postJSON('/api/project_analyses/update_event', data).then(r => r.event, throwGlobalError);
-};
+}
 
-export const deleteAnalysis = (analysis: string): Promise<*> =>
-  post('/api/project_analyses/delete', { analysis }).catch(throwGlobalError);
+export function deleteAnalysis(analysis /*: string */) /*: Promise<*> */ {
+  return post('/api/project_analyses/delete', { analysis }).catch(throwGlobalError);
+}

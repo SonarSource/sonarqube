@@ -21,7 +21,7 @@
 import React from 'react';
 import ProjectPageExtension from './ProjectPageExtension';
 
-export default function ViewDashboard(props: Object) {
+export default function ViewDashboard(props /*: Object */) {
   return (
     <ProjectPageExtension
       location={props.location}

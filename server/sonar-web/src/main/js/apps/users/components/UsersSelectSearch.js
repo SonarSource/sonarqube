@@ -25,6 +25,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import UsersSelectSearchOption from './UsersSelectSearchOption';
 import UsersSelectSearchValue from './UsersSelectSearchValue';
 
+/*::
 export type Option = {
   login: string,
   name: string,
@@ -32,7 +33,9 @@ export type Option = {
   avatar?: string,
   groupCount?: number
 };
+*/
 
+/*::
 type Props = {
   autoFocus?: boolean,
   excludedUsers: Array<string>,
@@ -40,21 +43,24 @@ type Props = {
   searchUsers: (string, number) => Promise<*>,
   selectedUser?: Option
 };
+*/
 
+/*::
 type State = {
   isLoading: boolean,
   search: string,
   searchResult: Array<Option>
 };
+*/
 
 const LIST_SIZE = 10;
 
 export default class UsersSelectSearch extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.handleSearch = debounce(this.handleSearch, 250);
     this.state = { searchResult: [], isLoading: false, search: '' };
@@ -64,7 +70,7 @@ export default class UsersSelectSearch extends React.PureComponent {
     this.handleSearch(this.state.search);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (this.props.excludedUsers !== nextProps.excludedUsers) {
       this.handleSearch(this.state.search);
     }
@@ -74,10 +80,10 @@ export default class UsersSelectSearch extends React.PureComponent {
     this.mounted = false;
   }
 
-  filterSearchResult = ({ users }: { users: Array<Option> }) =>
+  filterSearchResult = ({ users } /*: { users: Array<Option> } */) =>
     users.filter(user => !this.props.excludedUsers.includes(user.login)).slice(0, LIST_SIZE);
 
-  handleSearch = (search: string) => {
+  handleSearch = (search /*: string */) => {
     this.props
       .searchUsers(search, Math.min(this.props.excludedUsers.length + LIST_SIZE, 500))
       .then(this.filterSearchResult)
@@ -88,7 +94,7 @@ export default class UsersSelectSearch extends React.PureComponent {
       });
   };
 
-  handleInputChange = (search: string) => {
+  handleInputChange = (search /*: string */) => {
     if (search == null || search.length === 1) {
       this.setState({ search });
     } else {

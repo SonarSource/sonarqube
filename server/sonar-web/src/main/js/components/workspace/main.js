@@ -78,7 +78,7 @@ Workspace.prototype = {
     return this.open({ ...options, __type__: 'component' });
   },
 
-  openRule(options: { key: string, organization: string }) {
+  openRule(options /*: { key: string, organization: string } */) {
     return this.open({ ...options, __type__: 'rule' });
   },
 

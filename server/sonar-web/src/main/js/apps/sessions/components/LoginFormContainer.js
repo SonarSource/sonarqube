@@ -27,7 +27,7 @@ import { getAppState } from '../../../store/rootReducer';
 import { getIdentityProviders } from '../../../api/users';
 
 class LoginFormContainer extends React.PureComponent {
-  mounted: boolean;
+  /*:: mounted: boolean; */
 
   static propTypes = {
     location: PropTypes.object.isRequired
@@ -55,7 +55,7 @@ class LoginFormContainer extends React.PureComponent {
     window.location = returnTo;
   };
 
-  handleSubmit = (login: string, password: string) => {
+  handleSubmit = (login /*: string */, password /*: string */) => {
     this.props.doLogin(login, password).then(this.handleSuccessfulLogin, () => {
       /* do nothing */
     });

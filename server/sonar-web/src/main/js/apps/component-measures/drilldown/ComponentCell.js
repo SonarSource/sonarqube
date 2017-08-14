@@ -22,17 +22,17 @@ import React from 'react';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { splitPath } from '../../../helpers/path';
 import { getComponentUrl } from '../../../helpers/urls';
-import type { ComponentEnhanced } from '../types';
+/*:: import type { ComponentEnhanced } from '../types'; */
 
-type Props = {
+/*:: type Props = {
   component: ComponentEnhanced,
   onClick: string => void
-};
+}; */
 
 export default class ComponentCell extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleClick = (e: MouseEvent) => {
+  handleClick = (e /*: MouseEvent */) => {
     const isLeftClickEvent = e.button === 0;
     const isModifiedEvent = !!(e.metaKey || e.altKey || e.ctrlKey || e.shiftKey);
 

@@ -21,12 +21,14 @@
 import React from 'react';
 import { translate } from '../../../../helpers/l10n';
 
+/*::
 type Props = {
   className?: string,
   os: string
 };
+*/
 
-export default function SQScanner(props: Props) {
+export default function SQScanner(props /*: Props */) {
   return (
     <div className={props.className}>
       <h4 className="spacer-bottom">

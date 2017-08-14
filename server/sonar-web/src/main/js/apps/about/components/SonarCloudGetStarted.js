@@ -22,6 +22,7 @@ import React from 'react';
 import OAuthProviders from '../../sessions/components/OAuthProviders';
 import { getIdentityProviders } from '../../../api/users';
 
+/*::
 type State = {
   identityProviders: Array<{
     backgroundColor: string,
@@ -31,10 +32,11 @@ type State = {
   }>,
   loading: boolean
 };
+*/
 
 export default class SonarCloudGetStarted extends React.PureComponent {
-  mounted: boolean;
-  state: State = {
+  /*:: mounted: boolean; */
+  state /*: State */ = {
     identityProviders: [],
     loading: true
   };
@@ -57,7 +59,7 @@ export default class SonarCloudGetStarted extends React.PureComponent {
     });
   };
 
-  formatLabel = (name: string) => `Start with ${name}`;
+  formatLabel = (name /*: string */) => `Start with ${name}`;
 
   render() {
     if (this.state.loading) {

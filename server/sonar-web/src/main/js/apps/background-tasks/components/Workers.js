@@ -24,16 +24,18 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { getWorkers } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type State = {
   canSetWorkerCount: boolean,
   formOpen: boolean,
   loading: boolean,
   workerCount: number
 };
+*/
 
 export default class Workers extends React.PureComponent {
-  mounted: boolean;
-  state: State = {
+  /*:: mounted: boolean; */
+  state /*: State */ = {
     canSetWorkerCount: false,
     formOpen: false,
     loading: true,
@@ -62,12 +64,12 @@ export default class Workers extends React.PureComponent {
     });
   };
 
-  closeForm = (newWorkerCount?: number) =>
-    (newWorkerCount
+  closeForm = (newWorkerCount /*: ?number */) =>
+    newWorkerCount
       ? this.setState({ formOpen: false, workerCount: newWorkerCount })
-      : this.setState({ formOpen: false }));
+      : this.setState({ formOpen: false });
 
-  handleChangeClick = (event: Event) => {
+  handleChangeClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ formOpen: true });
   };
@@ -87,7 +89,9 @@ export default class Workers extends React.PureComponent {
 
         {loading
           ? <i className="spinner little-spacer-left" />
-          : <strong className="little-spacer-left">{workerCount}</strong>}
+          : <strong className="little-spacer-left">
+              {workerCount}
+            </strong>}
 
         {!loading &&
           (canSetWorkerCount

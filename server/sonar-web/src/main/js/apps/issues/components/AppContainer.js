@@ -20,7 +20,7 @@
 // @flow
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import type { Dispatch } from 'redux';
+/*:: import type { Dispatch } from 'redux'; */
 import { uniq } from 'lodash';
 import App from './App';
 import { onFail } from '../../../store/rootActions';
@@ -29,7 +29,7 @@ import { getOrganizations } from '../../../api/organizations';
 import { receiveOrganizations } from '../../../store/organizations/duck';
 import { searchIssues } from '../../../api/issues';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-import type { RawQuery } from '../../../helpers/query';
+/*:: import type { RawQuery } from '../../../helpers/query'; */
 
 const mapStateToProps = (state, ownProps) => ({
   component: ownProps.location.query.id
@@ -50,7 +50,7 @@ const fetchIssueOrganizations = issues => dispatch => {
   );
 };
 
-const fetchIssues = (query: RawQuery) => dispatch =>
+const fetchIssues = (query /*: RawQuery */) => dispatch =>
   searchIssues({ ...query, additionalFields: '_all' })
     .then(response => {
       const parsedIssues = response.issues.map(issue =>
@@ -61,7 +61,8 @@ const fetchIssues = (query: RawQuery) => dispatch =>
     .then(response => dispatch(fetchIssueOrganizations(response.issues)).then(() => response))
     .catch(onFail(dispatch));
 
-const onRequestFail = (error: Error) => (dispatch: Dispatch<*>) => onFail(dispatch)(error);
+const onRequestFail = (error /*: Error */) => (dispatch /*: Dispatch<*> */) =>
+  onFail(dispatch)(error);
 
 const mapDispatchToProps = { fetchIssues, onRequestFail };
 

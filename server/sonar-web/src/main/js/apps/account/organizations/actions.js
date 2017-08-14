@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import * as api from '../../../api/organizations';
 import { receiveMyOrganizations } from '../../../store/organizations/duck';
 import { getValues } from '../../../api/settings';
 import { receiveValues } from '../../settings/store/values/actions';
 
-export const fetchMyOrganizations = (): Function => (dispatch: Function): Promise<*> => {
+export const fetchMyOrganizations = () => dispatch => {
   return api.getMyOrganizations().then(keys => {
     if (keys.length > 0) {
       return api.getOrganizations(keys).then(({ organizations }) => {
@@ -35,9 +34,7 @@ export const fetchMyOrganizations = (): Function => (dispatch: Function): Promis
   });
 };
 
-export const fetchIfAnyoneCanCreateOrganizations = (): Function => (
-  dispatch: Function
-): Promise<*> => {
+export const fetchIfAnyoneCanCreateOrganizations = () => dispatch => {
   return getValues('sonar.organizations.anyoneCanCreate').then(values => {
     dispatch(receiveValues(values));
   });

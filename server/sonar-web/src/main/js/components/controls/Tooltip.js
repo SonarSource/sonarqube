@@ -22,9 +22,10 @@ import React from 'react';
 import TooltipCore from 'rc-tooltip';
 
 export default class Tooltip extends React.PureComponent {
-  props: {
+  /*:: props: {
     placement?: string
   };
+*/
 
   static defaultProps = {
     placement: 'bottom'

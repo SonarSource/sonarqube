@@ -19,12 +19,12 @@
  */
 /* @flow */
 import React from 'react';
-import { Task } from '../types';
+/*:: import type { Task } from '../types'; */
 import { translateWithParameters } from '../../../helpers/l10n';
 
 const LIMIT = 1000;
 
-const Footer = ({ tasks }: { tasks: Task[] }) => {
+const Footer = ({ tasks } /*: { tasks: Task[] } */) => {
   if (tasks.length < LIMIT) {
     return null;
   }

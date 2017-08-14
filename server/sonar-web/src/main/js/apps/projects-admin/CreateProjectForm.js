@@ -26,15 +26,18 @@ import VisibilitySelector from '../../components/common/VisibilitySelector';
 import { createProject } from '../../api/components';
 import { translate } from '../../helpers/l10n';
 import { getProjectUrl } from '../../helpers/urls';
-import type { Organization } from '../../store/organizations/duck';
+/*:: import type { Organization } from '../../store/organizations/duck'; */
 
+/*::
 type Props = {|
   onClose: () => void,
   onProjectCreated: () => void,
   onRequestFail: Object => void,
   organization?: Organization
 |};
+*/
 
+/*::
 type State = {
   branch: string,
   createdProject?: Object,
@@ -43,13 +46,14 @@ type State = {
   name: string,
   visibility: string
 };
+*/
 
 export default class CreateProjectForm extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       branch: '',
@@ -68,24 +72,24 @@ export default class CreateProjectForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  handleCancelClick = (event: Event) => {
+  handleCancelClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  handleInputChange = (event: { currentTarget: HTMLInputElement }) => {
+  handleInputChange = (event /*: { currentTarget: HTMLInputElement } */) => {
     const { name, value } = event.currentTarget;
     this.setState({ [name]: value });
   };
 
-  handleVisibilityChange = (visibility: string) => {
+  handleVisibilityChange = (visibility /*: string */) => {
     this.setState({ visibility });
   };
 
-  handleFormSubmit = (event: Event) => {
+  handleFormSubmit = (event /*: Event */) => {
     event.preventDefault();
 
-    const data: { [string]: string } = {
+    const data /*: { [string]: string } */ = {
       name: this.state.name,
       branch: this.state.branch,
       project: this.state.key,

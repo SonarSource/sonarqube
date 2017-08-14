@@ -24,6 +24,7 @@ import BuiltInBadge from '../components/BuiltInBadge';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
+/*::
 type Props = {|
   className?: string,
   depth: number,
@@ -40,9 +41,10 @@ type Props = {|
     overridingRuleCount?: number
   }
 |};
+*/
 
 export default class ProfileInheritanceBox extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static defaultProps = {
     displayLink: true

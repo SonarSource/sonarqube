@@ -24,8 +24,9 @@ import ChangeEventForm from './forms/ChangeEventForm';
 import RemoveEventForm from './forms/RemoveEventForm';
 import DeleteIcon from '../../../components/icons-components/DeleteIcon';
 import ChangeIcon from '../../../components/icons-components/ChangeIcon';
-import type { Event as EventType } from '../types';
+/*:: import type { Event as EventType } from '../types'; */
 
+/*::
 type Props = {
   analysis: string,
   canAdmin: boolean,
@@ -34,16 +35,19 @@ type Props = {
   event: EventType,
   isFirst: boolean
 };
+*/
 
+/*::
 type State = {
   changing: boolean,
   deleting: boolean
 };
+*/
 
 export default class Event extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     changing: false,
     deleting: false
   };
@@ -56,7 +60,7 @@ export default class Event extends React.PureComponent {
     this.mounted = false;
   }
 
-  startChanging = (e: MouseEvent) => {
+  startChanging = (e /*: MouseEvent */) => {
     e.stopPropagation();
     this.setState({ changing: true });
   };
@@ -67,7 +71,7 @@ export default class Event extends React.PureComponent {
     }
   };
 
-  startDeleting = (e: MouseEvent) => {
+  startDeleting = (e /*: MouseEvent */) => {
     e.stopPropagation();
     this.setState({ deleting: true });
   };

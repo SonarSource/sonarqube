@@ -22,11 +22,13 @@ import React from 'react';
 import Workers from './Workers';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   component?: Object
 };
+*/
 
-export default function Header(props: Props) {
+export default function Header(props /*: Props */) {
   return (
     <header className="page-header">
       <h1 className="page-title">

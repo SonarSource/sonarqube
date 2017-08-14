@@ -20,8 +20,9 @@
 //@flow
 import React from 'react';
 import classNames from 'classnames';
-import type { Option } from './ProjectsSortingSelect';
+/*:: import type { Option } from './ProjectsSortingSelect'; */
 
+/*::
 type Props = {
   option: Option,
   children?: Element | Text,
@@ -30,21 +31,22 @@ type Props = {
   onFocus: (Option, MouseEvent) => void,
   onSelect: (Option, MouseEvent) => void
 };
+*/
 
 export default class ProjectsSortingSelectOption extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleMouseDown = (event: MouseEvent) => {
+  handleMouseDown = (event /*: MouseEvent */) => {
     event.preventDefault();
     event.stopPropagation();
     this.props.onSelect(this.props.option, event);
   };
 
-  handleMouseEnter = (event: MouseEvent) => {
+  handleMouseEnter = (event /*: MouseEvent */) => {
     this.props.onFocus(this.props.option, event);
   };
 
-  handleMouseMove = (event: MouseEvent) => {
+  handleMouseMove = (event /*: MouseEvent */) => {
     if (this.props.isFocused) {
       return;
     }

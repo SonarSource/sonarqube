@@ -21,8 +21,9 @@
 import React from 'react';
 import Modal from 'react-modal';
 import { translate } from '../../../../helpers/l10n';
-import type { Event } from '../../types';
+/*:: import type { Event } from '../../types'; */
 
+/*::
 type Props = {
   analysis: string,
   deleteEvent: (analysis: string, event: string) => Promise<*>,
@@ -31,15 +32,18 @@ type Props = {
   removeEventQuestion: string,
   onClose: () => void
 };
+*/
 
+/*::
 type State = {
   processing: boolean
 };
+*/
 
 export default class RemoveEventForm extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     processing: false
   };
 
@@ -68,7 +72,7 @@ export default class RemoveEventForm extends React.PureComponent {
     this.props.onClose();
   };
 
-  handleSubmit = (e: Object) => {
+  handleSubmit = (e /*: Object */) => {
     e.preventDefault();
     this.setState({ processing: true });
     this.props

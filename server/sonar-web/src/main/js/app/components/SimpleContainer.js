@@ -22,13 +22,15 @@ import React from 'react';
 import GlobalFooterContainer from './GlobalFooterContainer';
 import NavBar from '../../components/nav/NavBar';
 
+/*::
 type Props = {
   children?: React.Element<*> | Array<React.Element<*>>,
   hideLoggedInInfo?: boolean
 };
+*/
 
 export default class SimpleContainer extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   componentDidMount() {
     const html = document.querySelector('html');

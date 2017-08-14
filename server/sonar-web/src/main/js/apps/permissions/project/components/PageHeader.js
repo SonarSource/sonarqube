@@ -22,6 +22,7 @@ import React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import ApplyTemplateView from '../views/ApplyTemplateView';
 
+/*::
 type Props = {|
   component: {
     configuration?: {
@@ -35,11 +36,12 @@ type Props = {|
   loadHolders: () => void,
   loading: boolean
 |};
+*/
 
 export default class PageHeader extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleApplyTemplate = (e: Event & { target: HTMLButtonElement }) => {
+  handleApplyTemplate = (e /*: Event & { target: HTMLButtonElement } */) => {
     e.preventDefault();
     e.target.blur();
     const { component, loadHolders } = this.props;

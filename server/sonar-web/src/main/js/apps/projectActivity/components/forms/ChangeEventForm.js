@@ -21,26 +21,30 @@
 import React from 'react';
 import Modal from 'react-modal';
 import { translate } from '../../../../helpers/l10n';
-import type { Event } from '../../types';
+/*:: import type { Event } from '../../types'; */
 
+/*::
 type Props = {
   changeEvent: (event: string, name: string) => Promise<*>,
   changeEventButtonText: string,
   event: Event,
   onClose: () => void
 };
+*/
 
+/*::
 type State = {
   processing: boolean,
   name: string
 };
+*/
 
 export default class ChangeEventForm extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       processing: false,
@@ -63,7 +67,7 @@ export default class ChangeEventForm extends React.PureComponent {
     this.props.onClose();
   };
 
-  changeInput = (e: Object) => {
+  changeInput = (e /*: Object */) => {
     if (this.mounted) {
       this.setState({ name: e.target.value });
     }
@@ -82,7 +86,7 @@ export default class ChangeEventForm extends React.PureComponent {
     this.props.onClose();
   };
 
-  handleSubmit = (e: Object) => {
+  handleSubmit = (e /*: Object */) => {
     e.preventDefault();
     this.setState({ processing: true });
     this.props

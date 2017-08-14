@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { getValues } from '../../api/settings';
 import { receiveValues } from '../settings/store/values/actions';
 
-export const fetchAboutPageSettings = (): Function => (dispatch: Function): Promise<*> => {
+export const fetchAboutPageSettings = () => dispatch => {
   const keys = ['sonar.lf.aboutText'];
 
   return getValues(keys.join()).then(values => {

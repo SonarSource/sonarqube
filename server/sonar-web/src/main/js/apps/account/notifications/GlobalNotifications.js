@@ -26,14 +26,15 @@ import {
   getNotificationChannels,
   getNotificationGlobalTypes
 } from '../../../store/rootReducer';
-import type {
+/*:: import type {
   Notification,
   NotificationsState,
   ChannelsState,
   TypesState
-} from '../../../store/notifications/duck';
+} from '../../../store/notifications/duck'; */
 import { addNotification, removeNotification } from './actions';
 
+/*::
 type Props = {
   notifications: NotificationsState,
   channels: ChannelsState,
@@ -41,8 +42,9 @@ type Props = {
   addNotification: (n: Notification) => void,
   removeNotification: (n: Notification) => void
 };
+*/
 
-function GlobalNotifications(props: Props) {
+function GlobalNotifications(props /*: Props */) {
   return (
     <section>
       <h2 className="spacer-bottom">

@@ -38,32 +38,32 @@ export default class Search extends React.PureComponent {
     onReload: PropTypes.func.isRequired
   };
 
-  handleStatusChange(status: string) {
+  handleStatusChange(status /*: string */) {
     this.props.onFilterUpdate({ status });
   }
 
-  handleTypeChange(taskType: string) {
+  handleTypeChange(taskType /*: string */) {
     this.props.onFilterUpdate({ taskType });
   }
 
-  handleCurrentsChange(currents: string) {
+  handleCurrentsChange(currents /*: string */) {
     this.props.onFilterUpdate({ currents });
   }
 
-  handleDateChange(date: string) {
+  handleDateChange(date /*: string */) {
     this.props.onFilterUpdate(date);
   }
 
-  handleQueryChange(query: string) {
+  handleQueryChange(query /*: string */) {
     this.props.onFilterUpdate({ query });
   }
 
-  handleReload(e: Object) {
+  handleReload(e /*: Object */) {
     e.target.blur();
     this.props.onReload();
   }
 
-  handleReset(e: Object) {
+  handleReset(e /*: Object */) {
     e.preventDefault();
     e.target.blur();
     this.props.onFilterUpdate(DEFAULT_FILTERS);

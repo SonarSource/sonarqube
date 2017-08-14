@@ -24,18 +24,20 @@ import BubblePopup from '../../../components/common/BubblePopup';
 import SelectList from '../../../components/common/SelectList';
 import SelectListItem from '../../../components/common/SelectListItem';
 import SeverityIcon from '../../../components/shared/SeverityIcon';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {
   issue: Issue,
   onSelect: string => void,
   popupPosition?: {}
 };
+*/
 
 const SEVERITY = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
 
 export default class SetSeverityPopup extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     return (

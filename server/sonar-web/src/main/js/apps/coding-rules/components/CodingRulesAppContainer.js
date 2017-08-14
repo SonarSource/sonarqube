@@ -27,8 +27,8 @@ import { translate } from '../../../helpers/l10n';
 import init from '../init';
 
 class CodingRulesAppContainer extends React.PureComponent {
-  stop: ?() => void;
-  props: {
+  /*:: stop: ?() => void; */
+  /*:: props: {
     appState: {
       defaultOrganization: string,
       organizationsEnabled: boolean
@@ -40,6 +40,7 @@ class CodingRulesAppContainer extends React.PureComponent {
       replace: string => void
     }
   };
+*/
 
   componentDidMount() {
     if (this.props.appState.organizationsEnabled && !this.props.params.organizationKey) {

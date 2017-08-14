@@ -25,8 +25,9 @@ import ProjectActivityEventSelectValue from './ProjectActivityEventSelectValue';
 import ProjectActivityDateInput from './ProjectActivityDateInput';
 import { EVENT_TYPES, APPLICATION_EVENT_TYPES } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import type { RawQuery } from '../../../helpers/query';
+/*:: import type { RawQuery } from '../../../helpers/query'; */
 
+/*::
 type Props = {
   category?: string,
   from: ?Date,
@@ -34,12 +35,13 @@ type Props = {
   to: ?Date,
   updateQuery: RawQuery => void
 };
+*/
 
 export default class ProjectActivityPageHeader extends React.PureComponent {
-  options: Array<{ label: string, value: string }>;
-  props: Props;
+  /*:: options: Array<{ label: string, value: string }>; */
+  /*:: props: Props; */
 
-  handleCategoryChange = (option: ?{ value: string }) =>
+  handleCategoryChange = (option /*: ?{ value: string } */) =>
     this.props.updateQuery({ category: option ? option.value : '' });
 
   render() {

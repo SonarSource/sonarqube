@@ -23,6 +23,7 @@ import Select from 'react-select';
 import { getFilterUrl } from './utils';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   property: string,
   query: {},
@@ -34,11 +35,12 @@ type Props = {
   isFavorite?: boolean,
   organization?: {}
 };
+*/
 
 export default class SearchableFilterFooter extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleOptionChange: ({ value: string }) => void = ({ value }) => {
+  handleOptionChange /*: ({ value: string }) => void */ = ({ value }) => {
     const urlOptions = (this.props.query[this.props.property] || []).concat(value).join(',');
     const path = getFilterUrl(this.props, { [this.props.property]: urlOptions });
     this.props.router.push(path);

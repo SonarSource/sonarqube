@@ -22,13 +22,15 @@ import React from 'react';
 import Command from './Command';
 import { translate } from '../../../../helpers/l10n';
 
+/*::
 type Props = {|
   host: string,
   organization?: string,
   token: string
 |};
+*/
 
-export default function JavaMaven(props: Props) {
+export default function JavaMaven(props /*: Props */) {
   const command = [
     'mvn sonar:sonar',
     props.organization && `-Dsonar.organization=${props.organization}`,

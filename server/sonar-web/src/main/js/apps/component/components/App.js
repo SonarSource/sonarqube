@@ -22,7 +22,7 @@ import React from 'react';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
 export default class App extends React.PureComponent {
-  props: {
+  /*:: props: {
     location: {
       query: {
         id: string,
@@ -30,6 +30,7 @@ export default class App extends React.PureComponent {
       }
     }
   };
+*/
   scrollToLine = () => {
     const { line } = this.props.location.query;
     if (line) {

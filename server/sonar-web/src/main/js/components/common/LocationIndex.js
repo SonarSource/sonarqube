@@ -22,13 +22,15 @@ import React from 'react';
 import classNames from 'classnames';
 import './LocationIndex.css';
 
+/*::
 type Props = {
   children?: React.Element<*>,
   onClick?: () => void,
   selected?: boolean
 };
+*/
 
-export default function LocationIndex(props: Props) {
+export default function LocationIndex(props /*: Props */) {
   const { children, onClick, selected, ...other } = props;
   const clickAttributes = onClick ? { onClick, role: 'button', tabIndex: 0 } : {};
 

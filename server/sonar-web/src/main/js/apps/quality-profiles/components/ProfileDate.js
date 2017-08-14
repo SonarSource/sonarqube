@@ -22,12 +22,14 @@ import React from 'react';
 import moment from 'moment';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   date?: string
 };
+*/
 
 export default class ProfileDate extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { date } = this.props;

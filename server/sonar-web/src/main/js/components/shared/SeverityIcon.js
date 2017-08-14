@@ -21,7 +21,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
-export default function SeverityIcon(props: { severity: ?string, className?: string }) {
+export default function SeverityIcon(props /*: { severity: ?string, className?: string } */) {
   if (!props.severity) {
     return null;
   }

@@ -22,15 +22,17 @@ import React from 'react';
 import EvolutionDeprecated from './EvolutionDeprecated';
 import EvolutionStagnant from './EvolutionStagnant';
 import EvolutionRules from './EvolutionRules';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   organization: ?string,
   profiles: Array<Profile>
 };
+*/
 
 export default class Evolution extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { organization, profiles } = this.props;

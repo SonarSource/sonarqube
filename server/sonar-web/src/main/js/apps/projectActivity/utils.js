@@ -30,9 +30,9 @@ import {
   serializeString
 } from '../../helpers/query';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
-import type { Analysis, MeasureHistory, Metric, Query } from './types';
-import type { RawQuery } from '../../helpers/query';
-import type { Serie } from '../../components/charts/AdvancedTimeline';
+/*:: import type { Analysis, MeasureHistory, Metric, Query } from './types'; */
+/*:: import type { RawQuery } from '../../helpers/query'; */
+/*:: import type { Serie } from '../../components/charts/AdvancedTimeline'; */
 
 export const EVENT_TYPES = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'];
 export const APPLICATION_EVENT_TYPES = ['QUALITY_GATE', 'OTHER'];
@@ -53,34 +53,36 @@ export const GRAPHS_METRICS = {
   duplications: GRAPHS_METRICS_DISPLAYED['duplications'].concat(['duplicated_lines_density'])
 };
 
-export const activityQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+export const activityQueryChanged = (prevQuery /*: Query */, nextQuery /*: Query */) =>
   prevQuery.category !== nextQuery.category || datesQueryChanged(prevQuery, nextQuery);
 
-export const customMetricsChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+export const customMetricsChanged = (prevQuery /*: Query */, nextQuery /*: Query */) =>
   !isEqual(prevQuery.customMetrics, nextQuery.customMetrics);
 
-export const datesQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+export const datesQueryChanged = (prevQuery /*: Query */, nextQuery /*: Query */) =>
   !isEqual(prevQuery.from, nextQuery.from) || !isEqual(prevQuery.to, nextQuery.to);
 
-export const hasDataValues = (serie: Serie) => serie.data.some(point => point.y || point.y === 0);
+export const hasDataValues = (serie /*: Serie */) =>
+  serie.data.some(point => point.y || point.y === 0);
 
-export const hasHistoryData = (series: Array<Serie>) =>
+export const hasHistoryData = (series /*: Array<Serie> */) =>
   series.some(serie => serie.data && serie.data.length > 1);
 
-export const hasHistoryDataValue = (series: Array<Serie>) =>
+export const hasHistoryDataValue = (series /*: Array<Serie> */) =>
   series.some(serie => serie.data && serie.data.length > 1 && hasDataValues(serie));
 
-export const historyQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
-  prevQuery.graph !== nextQuery.graph;
+export function historyQueryChanged(prevQuery /*: Query */, nextQuery /*: Query */) /*: boolean */ {
+  return prevQuery.graph !== nextQuery.graph;
+}
 
-export const isCustomGraph = (graph: string) => graph === 'custom';
+export const isCustomGraph = (graph /*: string */) => graph === 'custom';
 
-export const selectedDateQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+export const selectedDateQueryChanged = (prevQuery /*: Query */, nextQuery /*: Query */) =>
   !isEqual(prevQuery.selectedDate, nextQuery.selectedDate);
 
 export const generateCoveredLinesMetric = (
-  uncoveredLines: MeasureHistory,
-  measuresHistory: Array<MeasureHistory>
+  uncoveredLines /*: MeasureHistory */,
+  measuresHistory /*: Array<MeasureHistory> */
 ) => {
   const linesToCover = measuresHistory.find(measure => measure.metric === 'lines_to_cover');
   return {
@@ -96,12 +98,12 @@ export const generateCoveredLinesMetric = (
   };
 };
 
-export const generateSeries = (
-  measuresHistory: Array<MeasureHistory>,
-  graph: string,
-  metrics: Array<Metric>,
-  displayedMetrics: Array<string>
-): Array<Serie> => {
+export function generateSeries(
+  measuresHistory /*: Array<MeasureHistory> */,
+  graph /*: string */,
+  metrics /*: Array<Metric> */,
+  displayedMetrics /*: Array<string> */
+) /*: Array<Serie> */ {
   if (displayedMetrics.length <= 0) {
     return [];
   }
@@ -125,27 +127,20 @@ export const generateSeries = (
       }),
     serie => displayedMetrics.indexOf(serie.name)
   );
-};
+}
 
 export const splitSeriesInGraphs = (
-  series: Array<Serie>,
-  maxGraph: number,
-  maxSeries: number
-): Array<Array<Serie>> =>
+  series /*: Array<Serie> */,
+  maxGraph /*: number */,
+  maxSeries /*: number */
+) =>
   flatMap(groupBy(series, serie => serie.type), type => chunk(type, maxSeries)).slice(0, maxGraph);
 
-export const getSeriesMetricType = (series: Array<Serie>): string =>
+export const getSeriesMetricType = (series /*: Array<Serie> */) =>
   series.length > 0 ? series[0].type : 'INT';
 
-export const getAnalysesByVersionByDay = (
-  analyses: Array<Analysis>,
-  query: Query
-): Array<{
-  version: ?string,
-  key: ?string,
-  byDay: { [string]: Array<Analysis> }
-}> =>
-  analyses.reduce((acc, analysis) => {
+export function getAnalysesByVersionByDay(analyses /*: Array<Analysis> */, query /*: Query */) {
+  return analyses.reduce((acc, analysis) => {
     let currentVersion = acc[acc.length - 1];
     const versionEvent = analysis.events.find(event => event.category === 'VERSION');
     if (versionEvent) {
@@ -181,41 +176,45 @@ export const getAnalysesByVersionByDay = (
     }
     return acc;
   }, []);
+}
 
 export const getDisplayedHistoryMetrics = (
-  graph: string,
-  customMetrics: Array<string>
-): Array<string> => (isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS_DISPLAYED[graph]);
+  graph /*: string */,
+  customMetrics /*: Array<string> */
+) => (isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS_DISPLAYED[graph]);
 
-export const getHistoryMetrics = (graph: string, customMetrics: Array<string>): Array<string> =>
+export const getHistoryMetrics = (graph /*: string */, customMetrics /*: Array<string> */) =>
   isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS[graph];
 
-const parseGraph = (value?: string): string => {
+const parseGraph = (value /*: ?string */) => {
   const graph = parseAsString(value);
   return GRAPH_TYPES.includes(graph) ? graph : DEFAULT_GRAPH;
 };
 
-const serializeGraph = (value: string): ?string => (value === DEFAULT_GRAPH ? undefined : value);
+const serializeGraph = (value /*: string */) => (value === DEFAULT_GRAPH ? undefined : value);
 
-export const parseQuery = (urlQuery: RawQuery): Query => ({
-  category: parseAsString(urlQuery['category']),
-  customMetrics: parseAsArray(urlQuery['custom_metrics'], parseAsString),
-  from: parseAsDate(urlQuery['from']),
-  graph: parseGraph(urlQuery['graph']),
-  project: parseAsString(urlQuery['id']),
-  to: parseAsDate(urlQuery['to']),
-  selectedDate: parseAsDate(urlQuery['selected_date'])
-});
+export function parseQuery(urlQuery /*: RawQuery */) /*: Query */ {
+  return {
+    category: parseAsString(urlQuery['category']),
+    customMetrics: parseAsArray(urlQuery['custom_metrics'], parseAsString),
+    from: parseAsDate(urlQuery['from']),
+    graph: parseGraph(urlQuery['graph']),
+    project: parseAsString(urlQuery['id']),
+    to: parseAsDate(urlQuery['to']),
+    selectedDate: parseAsDate(urlQuery['selected_date'])
+  };
+}
 
-export const serializeQuery = (query: Query): RawQuery =>
-  cleanQuery({
+export function serializeQuery(query /*: Query */) /*: RawQuery */ {
+  return cleanQuery({
     category: serializeString(query.category),
     from: serializeDate(query.from),
     project: serializeString(query.project),
     to: serializeDate(query.to)
   });
+}
 
-export const serializeUrlQuery = (query: Query): RawQuery => {
+export function serializeUrlQuery(query /*: Query */) /*: RawQuery */ {
   return cleanQuery({
     category: serializeString(query.category),
     custom_metrics: serializeStringArray(query.customMetrics),
@@ -225,4 +224,4 @@ export const serializeUrlQuery = (query: Query): RawQuery => {
     to: serializeDate(query.to),
     selected_date: serializeDate(query.selectedDate)
   });
-};
+}

@@ -23,12 +23,15 @@ import { getJSON } from './request';
 
 let messages = {};
 
-export function translate(...keys: string[]) {
+export function translate(...keys /*: string[] */) {
   const messageKey = keys.join('.');
   return messages[messageKey] || messageKey;
 }
 
-export function translateWithParameters(messageKey: string, ...parameters: Array<string | number>) {
+export function translateWithParameters(
+  messageKey /*: string */,
+  ...parameters /*: Array<string | number> */
+) {
   const message = messages[messageKey];
   if (message) {
     return parameters
@@ -39,12 +42,12 @@ export function translateWithParameters(messageKey: string, ...parameters: Array
   }
 }
 
-export function hasMessage(...keys: string[]) {
+export function hasMessage(...keys /*: string[] */) {
   const messageKey = keys.join('.');
   return messages[messageKey] != null;
 }
 
-export function configureMoment(language?: string) {
+export function configureMoment(language /*: ?string */) {
   moment.locale(language || getPreferredLanguage());
 }
 
@@ -112,7 +115,7 @@ export function requestMessages() {
   );
 }
 
-export function resetBundle(bundle: Object) {
+export function resetBundle(bundle /*: Object */) {
   messages = bundle;
 }
 
@@ -122,19 +125,19 @@ export function installGlobal() {
   window.requestMessages = requestMessages;
 }
 
-export function getLocalizedDashboardName(baseName: string) {
+export function getLocalizedDashboardName(baseName /*: string */) {
   const l10nKey = `dashboard.${baseName}.name`;
   const l10nLabel = translate(l10nKey);
   return l10nLabel !== l10nKey ? l10nLabel : baseName;
 }
 
-export function getLocalizedMetricName(metric: { key: string, name: string }) {
+export function getLocalizedMetricName(metric /*: { key: string, name: string } */) {
   const bundleKey = `metric.${metric.key}.name`;
   const fromBundle = translate(bundleKey);
   return fromBundle !== bundleKey ? fromBundle : metric.name;
 }
 
-export function getLocalizedMetricDomain(domainName: string) {
+export function getLocalizedMetricDomain(domainName /*: string */) {
   const bundleKey = `metric_domain.${domainName}`;
   const fromBundle = translate(bundleKey);
   return fromBundle !== bundleKey ? fromBundle : domainName;

@@ -23,22 +23,26 @@ import Clipboard from 'clipboard';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { translate } from '../../../../helpers/l10n';
 
+/*::
 type Props = {
   command: string | Array<?string>
 };
+*/
 
+/*::
 type State = {
   tooltipShown: boolean
 };
+*/
 
 const s = ' \\' + '\n  ';
 
 export default class Command extends React.PureComponent {
-  clipboard: Object;
-  copyButton: HTMLButtonElement;
-  mounted: boolean;
-  props: Props;
-  state: State = { tooltipShown: false };
+  /*:: clipboard: Object; */
+  /*:: copyButton: HTMLButtonElement; */
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = { tooltipShown: false };
 
   componentDidMount() {
     this.mounted = true;

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 //@flow
+/*::
 export type Member = {
   login: string,
   name: string,
@@ -25,13 +26,16 @@ export type Member = {
   email?: string,
   groupCount?: number
 };
+*/
 
+/*::
 type MembersState = {
   paging?: number,
   total?: number,
   loading?: boolean,
   query?: string | null
 };
+*/
 
 export const actions = {
   UPDATE_STATE: 'organizations/UPDATE_STATE',
@@ -42,9 +46,9 @@ export const actions = {
 };
 
 export const receiveMembers = (
-  organizationKey: string,
-  members: Array<Member>,
-  stateChanges: MembersState
+  organizationKey /*: string */,
+  members /*: Array<Member> */,
+  stateChanges /*: MembersState */
 ) => ({
   type: actions.RECEIVE_MEMBERS,
   organization: organizationKey,
@@ -53,9 +57,9 @@ export const receiveMembers = (
 });
 
 export const receiveMoreMembers = (
-  organizationKey: string,
-  members: Array<Member>,
-  stateChanges: MembersState
+  organizationKey /*: string */,
+  members /*: Array<Member> */,
+  stateChanges /*: MembersState */
 ) => ({
   type: actions.RECEIVE_MORE_MEMBERS,
   organization: organizationKey,
@@ -63,19 +67,19 @@ export const receiveMoreMembers = (
   stateChanges
 });
 
-export const addMember = (organizationKey: string, member: Member) => ({
+export const addMember = (organizationKey /*: string */, member /*: Member */) => ({
   type: actions.ADD_MEMBER,
   organization: organizationKey,
   member
 });
 
-export const removeMember = (organizationKey: string, member: Member) => ({
+export const removeMember = (organizationKey /*: string */, member /*: Member */) => ({
   type: actions.REMOVE_MEMBER,
   organization: organizationKey,
   member
 });
 
-export const updateState = (organizationKey: string, stateChanges: MembersState) => ({
+export const updateState = (organizationKey /*: string */, stateChanges /*: MembersState */) => ({
   type: actions.UPDATE_STATE,
   organization: organizationKey,
   stateChanges

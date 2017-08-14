@@ -19,10 +19,10 @@
  */
 /* @flow */
 import React from 'react';
-import { Task } from '../types';
+/*:: import type { Task } from '../types'; */
 import { translate } from '../../../helpers/l10n';
 
-const TaskType = ({ task }: { task: Task }) => {
+const TaskType = ({ task } /*: { task: Task } */) => {
   return (
     <span className="note nowrap spacer-left">
       {'['}

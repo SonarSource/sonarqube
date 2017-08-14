@@ -31,8 +31,9 @@ import {
   serializeString,
   serializeStringArray
 } from '../../helpers/query';
-import type { RawQuery } from '../../helpers/query';
+/*:: import type { RawQuery } from '../../helpers/query'; */
 
+/*::
 export type Query = {|
   assigned: boolean,
   assignees: Array<string>,
@@ -58,47 +59,54 @@ export type Query = {|
   tags: Array<string>,
   types: Array<string>
 |};
+*/
 
+/*::
 export type Paging = {
   pageIndex: number,
   pageSize: number,
   total: number
 };
+*/
 
 // allow sorting by CREATION_DATE only
-const parseAsSort = (sort: string): string => (sort === 'CREATION_DATE' ? 'CREATION_DATE' : '');
+const parseAsSort = (sort /*: string */) => (sort === 'CREATION_DATE' ? 'CREATION_DATE' : '');
 
-export const parseQuery = (query: RawQuery): Query => ({
-  assigned: parseAsBoolean(query.assigned),
-  assignees: parseAsArray(query.assignees, parseAsString),
-  authors: parseAsArray(query.authors, parseAsString),
-  createdAfter: parseAsString(query.createdAfter),
-  createdAt: parseAsString(query.createdAt),
-  createdBefore: parseAsString(query.createdBefore),
-  createdInLast: parseAsString(query.createdInLast),
-  directories: parseAsArray(query.directories, parseAsString),
-  facetMode: parseAsFacetMode(query.facetMode),
-  files: parseAsArray(query.fileUuids, parseAsString),
-  issues: parseAsArray(query.issues, parseAsString),
-  languages: parseAsArray(query.languages, parseAsString),
-  modules: parseAsArray(query.moduleUuids, parseAsString),
-  projects: parseAsArray(query.projectUuids, parseAsString),
-  resolved: parseAsBoolean(query.resolved),
-  resolutions: parseAsArray(query.resolutions, parseAsString),
-  rules: parseAsArray(query.rules, parseAsString),
-  sort: parseAsSort(query.s),
-  severities: parseAsArray(query.severities, parseAsString),
-  sinceLeakPeriod: parseAsBoolean(query.sinceLeakPeriod, false),
-  statuses: parseAsArray(query.statuses, parseAsString),
-  tags: parseAsArray(query.tags, parseAsString),
-  types: parseAsArray(query.types, parseAsString)
-});
+export function parseQuery(query /*: RawQuery */) /*: Query */ {
+  return {
+    assigned: parseAsBoolean(query.assigned),
+    assignees: parseAsArray(query.assignees, parseAsString),
+    authors: parseAsArray(query.authors, parseAsString),
+    createdAfter: parseAsString(query.createdAfter),
+    createdAt: parseAsString(query.createdAt),
+    createdBefore: parseAsString(query.createdBefore),
+    createdInLast: parseAsString(query.createdInLast),
+    directories: parseAsArray(query.directories, parseAsString),
+    facetMode: parseAsFacetMode(query.facetMode),
+    files: parseAsArray(query.fileUuids, parseAsString),
+    issues: parseAsArray(query.issues, parseAsString),
+    languages: parseAsArray(query.languages, parseAsString),
+    modules: parseAsArray(query.moduleUuids, parseAsString),
+    projects: parseAsArray(query.projectUuids, parseAsString),
+    resolved: parseAsBoolean(query.resolved),
+    resolutions: parseAsArray(query.resolutions, parseAsString),
+    rules: parseAsArray(query.rules, parseAsString),
+    sort: parseAsSort(query.s),
+    severities: parseAsArray(query.severities, parseAsString),
+    sinceLeakPeriod: parseAsBoolean(query.sinceLeakPeriod, false),
+    statuses: parseAsArray(query.statuses, parseAsString),
+    tags: parseAsArray(query.tags, parseAsString),
+    types: parseAsArray(query.types, parseAsString)
+  };
+}
 
-export const getOpen = (query: RawQuery) => query.open;
+export function getOpen(query /*: RawQuery */) /*: string */ {
+  return query.open;
+}
 
-export const areMyIssuesSelected = (query: RawQuery): boolean => query.myIssues === 'true';
+export const areMyIssuesSelected = (query /*: RawQuery */) => query.myIssues === 'true';
 
-export const serializeQuery = (query: Query): RawQuery => {
+export function serializeQuery(query /*: Query */) /*: RawQuery */ {
   const filter = {
     assigned: query.assigned ? undefined : 'false',
     assignees: serializeStringArray(query.assignees),
@@ -125,28 +133,32 @@ export const serializeQuery = (query: Query): RawQuery => {
     types: serializeStringArray(query.types)
   };
   return cleanQuery(filter);
-};
+}
 
-export const areQueriesEqual = (a: RawQuery, b: RawQuery) =>
+export const areQueriesEqual = (a /*: RawQuery */, b /*: RawQuery */) =>
   queriesEqual(parseQuery(a), parseQuery(b));
 
+/*::
 type RawFacet = {
   property: string,
   values: Array<{ val: string, count: number }>
 };
+*/
 
+/*::
 export type Facet = { [string]: number };
+*/
 
-export const mapFacet = (facet: string): string => {
+export function mapFacet(facet /*: string */) /*: string */ {
   const propertyMapping = {
     files: 'fileUuids',
     modules: 'moduleUuids',
     projects: 'projectUuids'
   };
   return propertyMapping[facet] || facet;
-};
+}
 
-export const parseFacets = (facets: Array<RawFacet>): { [string]: Facet } => {
+export function parseFacets(facets /*: Array<RawFacet> */) /*: { [string]: Facet } */ {
   // for readability purpose
   const propertyMapping = {
     fileUuids: 'files',
@@ -164,42 +176,52 @@ export const parseFacets = (facets: Array<RawFacet>): { [string]: Facet } => {
     result[finalProperty] = values;
   });
   return result;
-};
+}
 
-export const formatFacetStat = (stat: ?number, mode: string): ?string => {
+export function formatFacetStat(stat /*: ?number */, mode /*: string */) /*: string | void */ {
   if (stat != null) {
     return formatMeasure(stat, mode === 'effort' ? 'SHORT_WORK_DUR' : 'SHORT_INT');
   }
-};
+}
 
+/*::
 export type ReferencedComponent = {
   key: string,
   name: string,
   organization: string,
   path: string
 };
+*/
 
+/*::
 export type ReferencedUser = {
   avatar: string,
   name: string
 };
+*/
 
+/*::
 export type ReferencedLanguage = {
   name: string
 };
+*/
 
+/*::
 export type Component = {
   key: string,
   name: string,
   organization: string,
   qualifier: string
 };
+*/
 
+/*::
 export type CurrentUser =
   | { isLoggedIn: false }
   | { isLoggedIn: true, email?: string, login: string, name: string };
+*/
 
-export const searchAssignees = (query: string, organization?: string) => {
+export const searchAssignees = (query /*: string */, organization /*: ?string */) => {
   return organization
     ? searchMembers({ organization, ps: 50, q: query }).then(response =>
         response.users.map(user => ({
@@ -223,12 +245,12 @@ const LOCALSTORAGE_KEY = 'sonarqube.issues.default';
 const LOCALSTORAGE_MY = 'my';
 const LOCALSTORAGE_ALL = 'all';
 
-export const isMySet = (): boolean => {
+export const isMySet = () => {
   const setting = window.localStorage.getItem(LOCALSTORAGE_KEY);
   return setting === LOCALSTORAGE_MY;
 };
 
-const save = (value: string) => {
+const save = (value /*: string */) => {
   try {
     window.localStorage.setItem(LOCALSTORAGE_KEY, value);
   } catch (e) {
@@ -237,5 +259,5 @@ const save = (value: string) => {
   }
 };
 
-export const saveMyIssues = (myIssues: boolean) =>
+export const saveMyIssues = (myIssues /*: boolean */) =>
   save(myIssues ? LOCALSTORAGE_MY : LOCALSTORAGE_ALL);

@@ -24,8 +24,9 @@ import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import CommentPopup from '../popups/CommentPopup';
 import { addIssueComment } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
-import type { Issue } from '../types';
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Props = {|
   commentPlaceholder: string,
   currentPopup: string,
@@ -34,11 +35,12 @@ type Props = {|
   onFail: Error => void,
   toggleComment: (open?: boolean, placeholder?: string) => void
 |};
+*/
 
 export default class IssueCommentAction extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  addComment = (text: string) => {
+  addComment = (text /*: string */) => {
     updateIssue(
       this.props.onChange,
       this.props.onFail,

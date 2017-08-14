@@ -23,14 +23,16 @@ import { IndexLink } from 'react-router';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProfilesPath, getProfilesForLanguagePath } from '../utils';
 
+/*::
 type Props = {
   currentFilter?: string,
   languages: Array<{ key: string, name: string }>,
   organization: ?string
 };
+*/
 
 export default class ProfilesListHeader extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   renderFilterToggle() {
     const { languages, currentFilter } = this.props;

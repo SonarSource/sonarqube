@@ -20,25 +20,29 @@
 // @flow
 import React from 'react';
 import ConciseIssueLocationBadge from './ConciseIssueLocationBadge';
-import type { Issue } from '../../../components/issue/types';
+/*:: import type { Issue } from '../../../components/issue/types'; */
 
+/*::
 type Props = {|
   issue: Issue,
   onFlowSelect: number => void,
   selectedFlowIndex: ?number
 |};
+*/
 
+/*::
 type State = {
   collapsed: boolean
 };
+*/
 
 const LIMIT = 3;
 
 export default class ConciseIssueLocations extends React.PureComponent {
-  props: Props;
-  state: State = { collapsed: true };
+  /*:: props: Props; */
+  state /*: State */ = { collapsed: true };
 
-  handleExpandClick = (event: Event) => {
+  handleExpandClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ collapsed: false });
   };

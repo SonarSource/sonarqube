@@ -22,13 +22,15 @@ import React from 'react';
 import classNames from 'classnames';
 import './NavBar.css';
 
+/*::
 type Props = {
   children?: React.Element<*>,
   className?: string,
   height: number
 };
+*/
 
-export default function NavBar({ children, className, height, ...other }: Props) {
+export default function NavBar({ children, className, height, ...other } /*: Props */) {
   return (
     <nav {...other} className={classNames('navbar', className)} style={{ height }}>
       <div className="navbar-inner" style={{ height }}>

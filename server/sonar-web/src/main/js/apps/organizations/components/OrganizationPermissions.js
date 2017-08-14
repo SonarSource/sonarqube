@@ -22,13 +22,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import GlobalPermissionsApp from '../../permissions/global/components/App';
 import { getOrganizationByKey } from '../../../store/rootReducer';
-import type { Organization } from '../../../store/organizations/duck';
+/*:: import type { Organization } from '../../../store/organizations/duck'; */
 
+/*::
 type Props = {
   organization: Organization
 };
+*/
 
-function OrganizationPermissions(props: Props) {
+function OrganizationPermissions(props /*: Props */) {
   return <GlobalPermissionsApp organization={props.organization} />;
 }
 

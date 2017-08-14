@@ -22,14 +22,16 @@ import React from 'react';
 import { connect } from 'react-redux';
 import AppContainer from '../../permission-templates/components/AppContainer';
 import { getOrganizationByKey } from '../../../store/rootReducer';
-import type { Organization } from '../../../store/organizations/duck';
+/*:: import type { Organization } from '../../../store/organizations/duck'; */
 
+/*::
 type Props = {
   location: {},
   organization: Organization
 };
+*/
 
-function OrganizationPermissionTemplates(props: Props) {
+function OrganizationPermissionTemplates(props /*: Props */) {
   return <AppContainer location={props.location} organization={props.organization} />;
 }
 

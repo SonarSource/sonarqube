@@ -27,7 +27,7 @@ import Tooltip from '../controls/Tooltip';
 
 const SIZE_SCALE = scaleLinear().domain([3, 15]).range([11, 18]).clamp(true);
 
-type Props = {|
+/*:: type Props = {|
   x: number,
   y: number,
   width: number,
@@ -41,12 +41,12 @@ type Props = {|
   link?: string,
   onClick?: string => void,
   placement?: string
-|};
+|}; */
 
 export default class TreeMapRect extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleLinkClick = (e: Event) => e.stopPropagation();
+  handleLinkClick = (e /*: Event */) => e.stopPropagation();
 
   handleRectClick = () => {
     if (this.props.onClick != null) {

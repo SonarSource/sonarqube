@@ -22,19 +22,21 @@ import React from 'react';
 import classNames from 'classnames';
 import SeverityIcon from '../../shared/SeverityIcon';
 import { sortBySeverity } from '../../../helpers/issues';
-import type { SourceLine } from '../types';
-import type { Issue } from '../../issue/types';
+/*:: import type { SourceLine } from '../types'; */
+/*:: import type { Issue } from '../../issue/types'; */
 
+/*::
 type Props = {
   issues: Array<Issue>,
   line: SourceLine,
   onClick: () => void
 };
+*/
 
 export default class LineIssuesIndicator extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleClick = (e: SyntheticInputEvent) => {
+  handleClick = (e /*: SyntheticInputEvent */) => {
     e.preventDefault();
     this.props.onClick();
   };

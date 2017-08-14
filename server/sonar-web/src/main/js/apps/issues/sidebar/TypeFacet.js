@@ -28,6 +28,7 @@ import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { translate } from '../../../helpers/l10n';
 import { formatFacetStat } from '../utils';
 
+/*::
 type Props = {|
   facetMode: string,
   onChange: (changes: { [string]: Array<string> }) => void,
@@ -36,9 +37,10 @@ type Props = {|
   stats?: { [string]: number },
   types: Array<string>
 |};
+*/
 
 export default class TypeFacet extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static defaultProps = {
     open: true
@@ -46,7 +48,7 @@ export default class TypeFacet extends React.PureComponent {
 
   property = 'types';
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue /*: string */) => {
     const { types } = this.props;
     const newValue = orderBy(
       types.includes(itemValue) ? without(types, itemValue) : [...types, itemValue]
@@ -62,12 +64,12 @@ export default class TypeFacet extends React.PureComponent {
     this.props.onChange({ [this.property]: [] });
   };
 
-  getStat(type: string): ?number {
+  getStat(type /*: string */) /*: ?number */ {
     const { stats } = this.props;
     return stats ? stats[type] : null;
   }
 
-  renderItem = (type: string) => {
+  renderItem = (type /*: string */) => {
     const active = this.props.types.includes(type);
     const stat = this.getStat(type);
 

@@ -21,7 +21,7 @@
 import React from 'react';
 import GlobalPageExtension from './GlobalPageExtension';
 
-export default function PortfoliosPage(props: Object) {
+export default function PortfoliosPage(props /*: Object */) {
   return (
     <div>
       <GlobalPageExtension

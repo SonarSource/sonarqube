@@ -25,8 +25,9 @@ import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import { translate } from '../../../helpers/l10n';
-import type { Analysis } from '../types';
+/*:: import type { Analysis } from '../types'; */
 
+/*::
 type Props = {
   addCustomEvent: (analysis: string, name: string, category?: string) => Promise<*>,
   addVersion: (analysis: string, version: string) => Promise<*>,
@@ -40,13 +41,14 @@ type Props = {
   selected: boolean,
   updateSelectedDate: Date => void
 };
+*/
 
 export default class ProjectActivityAnalysis extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   handleClick = () => this.props.updateSelectedDate(this.props.analysis.date);
 
-  stopPropagation = (e: Event) => e.stopPropagation();
+  stopPropagation = (e /*: Event */) => e.stopPropagation();
 
   render() {
     const { analysis, isFirst, canAdmin } = this.props;

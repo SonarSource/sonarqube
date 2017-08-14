@@ -21,6 +21,7 @@
 import { combineReducers } from 'redux';
 import { omit, uniq, without } from 'lodash';
 
+/*::
 export type Organization = {
   adminPages?: Array<{ key: string, name: string }>,
   avatar?: string,
@@ -35,7 +36,9 @@ export type Organization = {
   projectVisibility: string,
   url?: string
 };
+*/
 
+/*::
 export type OrgGroup = {
   id: string,
   default: boolean,
@@ -43,114 +46,153 @@ export type OrgGroup = {
   membersCount: number,
   name: string
 };
+*/
 
+/*::
 type ReceiveOrganizationsAction = {
   type: 'RECEIVE_ORGANIZATIONS',
   organizations: Array<Organization>
 };
+*/
 
+/*::
 type ReceiveMyOrganizationsAction = {
   type: 'RECEIVE_MY_ORGANIZATIONS',
   organizations: Array<Organization>
 };
+*/
 
+/*::
 type ReceiveOrganizationGroups = {
   type: 'RECEIVE_ORGANIZATION_GROUPS',
   key: string,
   groups: Array<OrgGroup>
 };
+*/
 
+/*::
 type CreateOrganizationAction = {
   type: 'CREATE_ORGANIZATION',
   organization: Organization
 };
+*/
 
+/*::
 type UpdateOrganizationAction = {
   type: 'UPDATE_ORGANIZATION',
   key: string,
   changes: {}
 };
+*/
 
+/*::
 type DeleteOrganizationAction = {
   type: 'DELETE_ORGANIZATION',
   key: string
 };
+*/
 
+/*::
 type Action =
   | ReceiveOrganizationsAction
   | ReceiveMyOrganizationsAction
   | ReceiveOrganizationGroups
   | CreateOrganizationAction
   | UpdateOrganizationAction
-  | DeleteOrganizationAction;
+  | DeleteOrganizationAction; */
 
+/*::
 type ByKeyState = {
   [key: string]: Organization
 };
+*/
 
+/*::
 type GroupsState = {
   [key: string]: Array<OrgGroup>
 };
+*/
 
+/*::
 type MyState = Array<string>;
+*/
 
+/*::
 type State = {
   byKey: ByKeyState,
   my: MyState,
   groups: GroupsState
 };
+*/
 
-export const receiveOrganizations = (
-  organizations: Array<Organization>
-): ReceiveOrganizationsAction => ({
-  type: 'RECEIVE_ORGANIZATIONS',
-  organizations
-});
+export function receiveOrganizations(
+  organizations /*: Array<Organization> */
+) /*: ReceiveOrganizationsAction */ {
+  return {
+    type: 'RECEIVE_ORGANIZATIONS',
+    organizations
+  };
+}
 
-export const receiveMyOrganizations = (
-  organizations: Array<Organization>
-): ReceiveMyOrganizationsAction => ({
-  type: 'RECEIVE_MY_ORGANIZATIONS',
-  organizations
-});
+export function receiveMyOrganizations(
+  organizations /*: Array<Organization> */
+) /*: ReceiveMyOrganizationsAction */ {
+  return {
+    type: 'RECEIVE_MY_ORGANIZATIONS',
+    organizations
+  };
+}
 
-export const receiveOrganizationGroups = (
-  key: string,
-  groups: Array<OrgGroup>
-): receiveOrganizationGroups => ({
-  type: 'RECEIVE_ORGANIZATION_GROUPS',
-  key,
-  groups
-});
+export function receiveOrganizationGroups(
+  key /*: string */,
+  groups /*: Array<OrgGroup> */
+) /*: receiveOrganizationGroups */ {
+  return {
+    type: 'RECEIVE_ORGANIZATION_GROUPS',
+    key,
+    groups
+  };
+}
 
-export const createOrganization = (organization: Organization): CreateOrganizationAction => ({
-  type: 'CREATE_ORGANIZATION',
-  organization
-});
+export function createOrganization(
+  organization /*: Organization */
+) /*: CreateOrganizationAction */ {
+  return {
+    type: 'CREATE_ORGANIZATION',
+    organization
+  };
+}
 
-export const updateOrganization = (key: string, changes: {}): UpdateOrganizationAction => ({
-  type: 'UPDATE_ORGANIZATION',
-  key,
-  changes
-});
+export function updateOrganization(
+  key /*: string */,
+  changes /*: {} */
+) /*: UpdateOrganizationAction */ {
+  return {
+    type: 'UPDATE_ORGANIZATION',
+    key,
+    changes
+  };
+}
 
-export const deleteOrganization = (key: string): DeleteOrganizationAction => ({
-  type: 'DELETE_ORGANIZATION',
-  key
-});
+export function deleteOrganization(key /*: string */) /*: DeleteOrganizationAction */ {
+  return {
+    type: 'DELETE_ORGANIZATION',
+    key
+  };
+}
 
-const onReceiveOrganizations = (
-  state: ByKeyState,
-  action: ReceiveOrganizationsAction | ReceiveMyOrganizationsAction
-): ByKeyState => {
+function onReceiveOrganizations(
+  state /*: ByKeyState */,
+  action /*: ReceiveOrganizationsAction | ReceiveMyOrganizationsAction */
+) /*: ByKeyState */ {
   const nextState = { ...state };
   action.organizations.forEach(organization => {
     nextState[organization.key] = { ...state[organization.key], ...organization };
   });
   return nextState;
-};
+}
 
-const byKey = (state: ByKeyState = {}, action: Action) => {
+function byKey(state /*: ByKeyState */ = {}, action /*: Action */) {
   switch (action.type) {
     case 'RECEIVE_ORGANIZATIONS':
     case 'RECEIVE_MY_ORGANIZATIONS':
@@ -171,9 +213,9 @@ const byKey = (state: ByKeyState = {}, action: Action) => {
     default:
       return state;
   }
-};
+}
 
-const my = (state: MyState = [], action: Action) => {
+function my(state /*: MyState */ = [], action /*: Action */) {
   switch (action.type) {
     case 'RECEIVE_MY_ORGANIZATIONS':
       return uniq([...state, ...action.organizations.map(o => o.key)]);
@@ -184,26 +226,34 @@ const my = (state: MyState = [], action: Action) => {
     default:
       return state;
   }
-};
+}
 
-const groups = (state: GroupsState = {}, action: Action) => {
+function groups(state /*: GroupsState */ = {}, action /*: Action */) {
   switch (action.type) {
     case 'RECEIVE_ORGANIZATION_GROUPS':
       return { ...state, [action.key]: action.groups };
     default:
       return state;
   }
-};
+}
 
 export default combineReducers({ byKey, my, groups });
 
-export const getOrganizationByKey = (state: State, key: string): Organization => state.byKey[key];
+export function getOrganizationByKey(state /*: State */, key /*: string */) /*: Organization */ {
+  return state.byKey[key];
+}
 
-export const getOrganizationGroupsByKey = (state: State, key: string): Array<OrgGroup> =>
-  state.groups[key] || [];
+export function getOrganizationGroupsByKey(
+  state /*: State */,
+  key /*: string */
+) /*: Array<OrgGroup> */ {
+  return state.groups[key] || [];
+}
 
-export const getMyOrganizations = (state: State): Array<Organization> =>
-  state.my.map(key => getOrganizationByKey(state, key));
+export function getMyOrganizations(state /*: State */) /*: Array<Organization> */ {
+  return state.my.map(key => getOrganizationByKey(state, key));
+}
 
-export const areThereCustomOrganizations = (state: State): boolean =>
-  Object.keys(state.byKey).length > 1;
+export function areThereCustomOrganizations(state /*: State */) /*: boolean */ {
+  return Object.keys(state.byKey).length > 1;
+}

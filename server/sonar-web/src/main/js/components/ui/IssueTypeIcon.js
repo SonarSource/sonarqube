@@ -24,10 +24,11 @@ import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
 import CodeSmellIcon from '../icons-components/CodeSmellIcon';
 
 export default class IssueTypeIcon extends React.PureComponent {
-  props: {
+  /*:: props: {
     className?: string,
     query: string
   };
+*/
 
   renderIcon() {
     switch (this.props.query.toLowerCase()) {

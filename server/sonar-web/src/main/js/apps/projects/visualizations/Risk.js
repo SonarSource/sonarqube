@@ -26,12 +26,14 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RATING_COLORS } from '../../../helpers/constants';
 import { getProjectUrl } from '../../../helpers/urls';
 
+/*::
 type Project = {
   key: string,
   measures: { [string]: string },
   name: string,
   organization?: { name: string }
 };
+*/
 
 const X_METRIC = 'sqale_index';
 const X_METRIC_TYPE = 'SHORT_WORK_DUR';
@@ -44,24 +46,25 @@ const COLOR_METRIC_2 = 'security_rating';
 const COLOR_METRIC_TYPE = 'RATING';
 
 export default class Risk extends React.PureComponent {
-  props: {
+  /*:: props: {
     displayOrganizations: boolean,
     projects: Array<Project>
   };
+*/
 
-  getMetricTooltip(metric: { key: string, type: string }, value: ?number) {
+  getMetricTooltip(metric /*: { key: string, type: string } */, value /*: ?number */) {
     const name = translate('metric', metric.key, 'name');
     const formattedValue = value != null ? formatMeasure(value, metric.type) : '–';
     return `<div>${name}: ${formattedValue}</div>`;
   }
 
   getTooltip(
-    project: Project,
-    x: ?number,
-    y: ?number,
-    size: ?number,
-    color1: ?number,
-    color2: ?number
+    project /*: Project */,
+    x /*: ?number */,
+    y /*: ?number */,
+    size /*: ?number */,
+    color1 /*: ?number */,
+    color2 /*: ?number */
   ) {
     const fullProjectName =
       this.props.displayOrganizations && project.organization

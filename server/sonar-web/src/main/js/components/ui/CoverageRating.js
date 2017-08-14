@@ -36,11 +36,12 @@ const SIZE_TO_THICKNESS_MAPPING = {
 };
 
 export default class CoverageRating extends React.PureComponent {
-  props: {
+  /*:: props: {
     value: number | string,
     size?: 'small' | 'normal' | 'big' | 'huge',
     muted?: boolean
   };
+*/
 
   static defaultProps = {
     size: 'normal',

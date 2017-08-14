@@ -19,17 +19,17 @@
  */
 // @flow
 import * as api from '../../../api/notifications';
-import type { GetNotificationsResponse } from '../../../api/notifications';
+/*:: import type { GetNotificationsResponse } from '../../../api/notifications'; */
 import { onFail, fetchOrganizations } from '../../../store/rootActions';
 import {
   receiveNotifications,
   addNotification as addNotificationAction,
   removeNotification as removeNotificationAction
 } from '../../../store/notifications/duck';
-import type { Notification } from '../../../store/notifications/duck';
+/*:: import type { Notification } from '../../../store/notifications/duck'; */
 
-export const fetchNotifications = () => (dispatch: Function) => {
-  const onFulfil = (response: GetNotificationsResponse) => {
+export const fetchNotifications = () => (dispatch /*: Function */) => {
+  const onFulfil = (response /*: GetNotificationsResponse */) => {
     const organizations = response.notifications
       .filter(n => n.organization)
       .map(n => n.organization);
@@ -49,12 +49,12 @@ export const fetchNotifications = () => (dispatch: Function) => {
   return api.getNotifications().then(onFulfil, onFail(dispatch));
 };
 
-export const addNotification = (n: Notification) => (dispatch: Function) =>
+export const addNotification = (n /*: Notification */) => (dispatch /*: Function */) =>
   api
     .addNotification(n.channel, n.type, n.project)
     .then(() => dispatch(addNotificationAction(n)), onFail(dispatch));
 
-export const removeNotification = (n: Notification) => (dispatch: Function) =>
+export const removeNotification = (n /*: Notification */) => (dispatch /*: Function */) =>
   api
     .removeNotification(n.channel, n.type, n.project)
     .then(() => dispatch(removeNotificationAction(n)), onFail(dispatch));

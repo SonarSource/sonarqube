@@ -20,17 +20,25 @@
 // @flow
 import { uniqueId } from 'lodash';
 
+/*::
 type Level = 'ERROR' | 'SUCCESS';
+*/
 
+/*::
 type Message = {
   id: string,
   message: string,
   level: Level
 };
+*/
 
+/*::
 export type State = Array<Message>;
+*/
 
+/*::
 type Action = Object;
+*/
 
 export const ERROR = 'ERROR';
 export const SUCCESS = 'SUCCESS';
@@ -40,35 +48,51 @@ const ADD_GLOBAL_MESSAGE = 'ADD_GLOBAL_MESSAGE';
 const CLOSE_GLOBAL_MESSAGE = 'CLOSE_GLOBAL_MESSAGE';
 const CLOSE_ALL_GLOBAL_MESSAGES = 'CLOSE_ALL_GLOBAL_MESSAGES';
 
-const addGlobalMessageActionCreator = (id: string, message: string, level: Level) => ({
-  type: ADD_GLOBAL_MESSAGE,
-  message,
-  level,
-  id
-});
+function addGlobalMessageActionCreator(
+  id /*: string */,
+  message /*: string */,
+  level /*: Level */
+) {
+  return {
+    type: ADD_GLOBAL_MESSAGE,
+    message,
+    level,
+    id
+  };
+}
 
-export const closeGlobalMessage = (id: string) => ({
-  type: CLOSE_GLOBAL_MESSAGE,
-  id
-});
+export function closeGlobalMessage(id /*: string */) {
+  return {
+    type: CLOSE_GLOBAL_MESSAGE,
+    id
+  };
+}
 
-export const closeAllGlobalMessages = (id: string) => ({
-  type: CLOSE_ALL_GLOBAL_MESSAGES,
-  id
-});
+export function closeAllGlobalMessages(id /*: string */) {
+  return {
+    type: CLOSE_ALL_GLOBAL_MESSAGES,
+    id
+  };
+}
 
-const addGlobalMessage = (message: string, level: Level) => (dispatch: Function) => {
-  const id = uniqueId('global-message-');
-  dispatch(addGlobalMessageActionCreator(id, message, level));
-  setTimeout(() => dispatch(closeGlobalMessage(id)), 5000);
-};
+function addGlobalMessage(message /*: string */, level /*: Level */) {
+  return function(dispatch /*: Function */) {
+    const id = uniqueId('global-message-');
+    dispatch(addGlobalMessageActionCreator(id, message, level));
+    setTimeout(() => dispatch(closeGlobalMessage(id)), 5000);
+  };
+}
 
-export const addGlobalErrorMessage = (message: string) => addGlobalMessage(message, ERROR);
+export function addGlobalErrorMessage(message /*: string */) {
+  return addGlobalMessage(message, ERROR);
+}
 
-export const addGlobalSuccessMessage = (message: string) => addGlobalMessage(message, SUCCESS);
+export function addGlobalSuccessMessage(message /*: string */) {
+  return addGlobalMessage(message, SUCCESS);
+}
 
 /* Reducer */
-const globalMessages = (state: State = [], action: Action = {}) => {
+export default function(state /*: State */ = [], action /*: Action */ = {}) {
   switch (action.type) {
     case ADD_GLOBAL_MESSAGE:
       return [
@@ -99,9 +123,9 @@ const globalMessages = (state: State = [], action: Action = {}) => {
     default:
       return state;
   }
-};
-
-export default globalMessages;
+}
 
 /* Selectors */
-export const getGlobalMessages = (state: State) => state;
+export function getGlobalMessages(state /*: State */) {
+  return state;
+}

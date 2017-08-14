@@ -28,8 +28,9 @@ import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
 import { formatFacetStat } from '../utils';
-import type { ReferencedComponent } from '../utils';
+/*:: import type { ReferencedComponent } from '../utils'; */
 
+/*::
 type Props = {|
   facetMode: string,
   onChange: (changes: { [string]: Array<string> }) => void,
@@ -39,9 +40,10 @@ type Props = {|
   referencedComponents: { [string]: ReferencedComponent },
   files: Array<string>
 |};
+*/
 
 export default class FileFacet extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static defaultProps = {
     open: true
@@ -49,7 +51,7 @@ export default class FileFacet extends React.PureComponent {
 
   property = 'files';
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue /*: string */) => {
     const { files } = this.props;
     const newValue = sortBy(
       files.includes(itemValue) ? without(files, itemValue) : [...files, itemValue]
@@ -65,12 +67,12 @@ export default class FileFacet extends React.PureComponent {
     this.props.onChange({ [this.property]: [] });
   };
 
-  getStat(file: string): ?number {
+  getStat(file /*: string */) /*: ?number */ {
     const { stats } = this.props;
     return stats ? stats[file] : null;
   }
 
-  renderName(file: string): React.Element<*> | string {
+  renderName(file /*: string */) /*: React.Element<*> | string */ {
     const { referencedComponents } = this.props;
     const name = referencedComponents[file]
       ? collapsePath(referencedComponents[file].path, 15)

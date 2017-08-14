@@ -21,7 +21,7 @@
 import getStore from './getStore';
 import { onFail } from '../../store/rootActions';
 
-export default function throwGlobalError(error: Object) {
+export default function throwGlobalError(error /*: Object */) {
   const store = getStore();
   onFail(store.dispatch)(error);
   return Promise.reject();

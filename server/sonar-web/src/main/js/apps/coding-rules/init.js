@@ -36,11 +36,13 @@ import { areThereCustomOrganizations } from '../../store/organizations/utils';
 
 const App = new Marionette.Application();
 
-App.on('start', function(options: {
+App.on('start', function(
+  options /*: {
   el: HTMLElement,
   organization: ?string,
   isDefaultOrganization: boolean
-}) {
+} */
+) {
   App.organization = options.organization;
   const data = options.organization ? { organization: options.organization } : {};
   $.get(window.baseUrl + '/api/rules/app', data)
@@ -110,7 +112,11 @@ App.on('start', function(options: {
     });
 });
 
-export default function(el: HTMLElement, organization: ?string, isDefaultOrganization: boolean) {
+export default function(
+  el /*: HTMLElement */,
+  organization /*: ?string */,
+  isDefaultOrganization /*: boolean */
+) {
   App.start({ el, organization, isDefaultOrganization });
 
   return () => {

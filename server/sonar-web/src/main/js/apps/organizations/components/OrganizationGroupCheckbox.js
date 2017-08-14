@@ -20,18 +20,20 @@
 //@flow
 import React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
-import type { OrgGroup } from '../../../store/organizations/duck';
+/*:: import type { OrgGroup } from '../../../store/organizations/duck'; */
 
+/*::
 type Props = {
   group: OrgGroup,
   checked: boolean,
   onCheck: (string, boolean) => void
 };
+*/
 
 export default class OrganizationGroupCheckbox extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  onCheck = (checked: boolean) => {
+  onCheck = (checked /*: boolean */) => {
     const { group } = this.props;
     if (!group.default) {
       this.props.onCheck(group.name, checked);

@@ -20,9 +20,10 @@
 //@flow
 import React from 'react';
 import MembersListItem from './MembersListItem';
-import type { Member } from '../../../store/organizationsMembers/actions';
-import type { Organization, OrgGroup } from '../../../store/organizations/duck';
+/*:: import type { Member } from '../../../store/organizationsMembers/actions'; */
+/*:: import type { Organization, OrgGroup } from '../../../store/organizations/duck'; */
 
+/*::
 type Props = {
   members: Array<Member>,
   organizationGroups: Array<OrgGroup>,
@@ -30,9 +31,10 @@ type Props = {
   removeMember: Member => void,
   updateMemberGroups: (member: Member, add: Array<string>, remove: Array<string>) => void
 };
+*/
 
 export default class MembersList extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     return (

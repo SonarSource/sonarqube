@@ -20,15 +20,15 @@
 // @flow
 import React from 'react';
 import Measure from '../../../components/measure/Measure';
-import type { Component } from '../types';
-import type { Metric } from '../../../store/metrics/actions';
+/*:: import type { Component } from '../types'; */
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
 
-type Props = {
+/*:: type Props = {
   component: Component,
   metric: Metric
-};
+}; */
 
-export default function MeasureCell({ component, metric }: Props) {
+export default function MeasureCell({ component, metric } /*: Props */) {
   return (
     <td className="thin nowrap text-right">
       <span id={'component-measures-component-measure-' + component.key + '-' + metric.key}>

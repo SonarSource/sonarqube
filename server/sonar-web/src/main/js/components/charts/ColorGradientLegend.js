@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 
-type Props = {
+/*:: type Props = {
   className?: string,
   colorScale: Object,
   colorNA?: string,
@@ -28,19 +28,21 @@ type Props = {
   padding?: Array<number>,
   height: number,
   width: number
-};
+}; */
 
 const NA_SPACING = 4;
 
-export default function ColorGradientLegend({
-  className,
-  colorScale,
-  colorNA,
-  direction,
-  padding = [12, 24, 0, 0],
-  height,
-  width
-}: Props) {
+export default function ColorGradientLegend(
+  {
+    className,
+    colorScale,
+    colorNA,
+    direction,
+    padding = [12, 24, 0, 0],
+    height,
+    width
+  } /*: Props */
+) {
   let colorDomain = colorScale.domain();
   let colorRange = colorScale.range();
   if (direction !== 1) {

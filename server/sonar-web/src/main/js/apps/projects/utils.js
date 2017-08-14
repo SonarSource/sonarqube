@@ -70,11 +70,11 @@ export const VISUALIZATIONS = [
   'duplications'
 ];
 
-export const localizeSorting = (sort?: string) => {
+export const localizeSorting = (sort /*: ?string */) => {
   return translate('projects.sort', sort || 'name');
 };
 
-export const parseSorting = (sort: string): { sortValue: string, sortDesc: boolean } => {
+export function parseSorting(sort /*: string */) /*: { sortValue: string, sortDesc: boolean } */ {
   const desc = sort[0] === '-';
   return { sortValue: desc ? sort.substr(1) : sort, sortDesc: desc };
-};
+}

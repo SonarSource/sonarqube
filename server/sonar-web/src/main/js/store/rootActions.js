@@ -45,7 +45,7 @@ export const fetchMetrics = () => dispatch => {
   return getMetrics().then(metrics => dispatch(receiveMetrics(metrics)), onFail(dispatch));
 };
 
-export const fetchOrganizations = (organizations?: Array<string>) => dispatch =>
+export const fetchOrganizations = (organizations /*: Array<string> | void */) => dispatch =>
   getOrganizations(organizations).then(
     r => dispatch(receiveOrganizations(r.organizations)),
     onFail(dispatch)

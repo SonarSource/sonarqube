@@ -22,12 +22,14 @@ import React from 'react';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   severity: ?string
 };
+*/
 
 export default class SeverityChange extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     return (

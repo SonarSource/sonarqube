@@ -22,13 +22,15 @@ import React from 'react';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
+/*::
 export type ChangelogDiff = {
   key: string,
   oldValue?: string,
   newValue?: string
 };
+*/
 
-export default function IssueChangelogDiff(props: { diff: ChangelogDiff }) {
+export default function IssueChangelogDiff(props /*: { diff: ChangelogDiff } */) {
   const { diff } = props;
   if (diff.key === 'file') {
     return (
@@ -42,9 +44,9 @@ export default function IssueChangelogDiff(props: { diff: ChangelogDiff }) {
     );
   }
 
-  let message: string;
+  let message;
   if (diff.newValue != null) {
-    let newValue: string = diff.newValue;
+    let newValue /*: string */ = diff.newValue;
     if (diff.key === 'effort') {
       newValue = formatMeasure(diff.newValue, 'WORK_DUR');
     }
@@ -61,7 +63,7 @@ export default function IssueChangelogDiff(props: { diff: ChangelogDiff }) {
   }
 
   if (diff.oldValue != null) {
-    let oldValue: string = diff.oldValue;
+    let oldValue /*: string */ = diff.oldValue;
     if (diff.key === 'effort') {
       oldValue = formatMeasure(diff.oldValue, 'WORK_DUR');
     }

@@ -22,23 +22,25 @@ import React from 'react';
 import classNames from 'classnames';
 import { translate } from '../../helpers/l10n';
 
+/*::
 type Props = {|
   canTurnToPrivate: boolean,
   className?: string,
   onChange: string => void,
   visibility: string
 |};
+*/
 
 export default class VisibilitySelector extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handlePublicClick = (event: Event & { currentTarget: HTMLElement }) => {
+  handlePublicClick = (event /*: Event & { currentTarget: HTMLElement } */) => {
     event.preventDefault();
     event.currentTarget.blur();
     this.props.onChange('public');
   };
 
-  handlePrivateClick = (event: Event & { currentTarget: HTMLElement }) => {
+  handlePrivateClick = (event /*: Event & { currentTarget: HTMLElement } */) => {
     event.preventDefault();
     event.currentTarget.blur();
     this.props.onChange('private');

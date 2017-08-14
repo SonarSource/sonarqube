@@ -23,7 +23,7 @@ import GlobalLoading from './GlobalLoading';
 import { requestMessages } from '../../helpers/l10n';
 
 export default class LocalizationContainer extends React.PureComponent {
-  mounted: boolean;
+  /*:: mounted: boolean; */
 
   state = {
     loading: true

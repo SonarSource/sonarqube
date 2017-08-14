@@ -27,8 +27,9 @@ import BuiltInBadge from '../components/BuiltInBadge';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { isStagnant } from '../utils';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   canAdmin: boolean,
   onRequestFail: Object => void,
@@ -36,9 +37,10 @@ type Props = {
   profile: Profile,
   updateProfiles: () => Promise<*>
 };
+*/
 
 export default class ProfilesListRow extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   renderName() {
     const { profile } = this.props;

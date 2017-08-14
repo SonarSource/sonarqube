@@ -24,14 +24,14 @@ import {
   areThereCustomOrganizations as customOrganizations
 } from '../rootReducer';
 
-export const getOrganization = (key: string) => {
+export function getOrganization(key /*: string */) {
   const store = getStore();
   const state = store.getState();
   return getOrganizationByKey(state, key);
-};
+}
 
-export const areThereCustomOrganizations = () => {
+export function areThereCustomOrganizations() {
   const store = getStore();
   const state = store.getState();
   return customOrganizations(state);
-};
+}

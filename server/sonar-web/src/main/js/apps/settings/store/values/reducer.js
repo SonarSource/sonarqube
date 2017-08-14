@@ -21,9 +21,11 @@
 import { keyBy } from 'lodash';
 import { RECEIVE_VALUES } from './actions';
 
+/*::
 type State = { [key: string]: {} };
+*/
 
-const reducer = (state: State = {}, action: Object) => {
+const reducer = (state /*: State */ = {}, action /*: Object */) => {
   if (action.type === RECEIVE_VALUES) {
     const settingsByKey = keyBy(action.settings, 'key');
     return { ...state, ...settingsByKey };
@@ -42,4 +44,4 @@ const reducer = (state: State = {}, action: Object) => {
 
 export default reducer;
 
-export const getValue = (state: State, key: string) => state[key];
+export const getValue = (state /*: State */, key /*: string */) => state[key];

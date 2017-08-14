@@ -24,30 +24,34 @@ import { keyBy, pickBy } from 'lodash';
 import { getUserGroups } from '../../../../api/users';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import OrganizationGroupCheckbox from '../OrganizationGroupCheckbox';
-import type { Member } from '../../../../store/organizationsMembers/actions';
-import type { Organization, OrgGroup } from '../../../../store/organizations/duck';
+/*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
+/*:: import type { Organization, OrgGroup } from '../../../../store/organizations/duck'; */
 
+/*::
 type Props = {
   member: Member,
   organization: Organization,
   organizationGroups: Array<OrgGroup>,
   updateMemberGroups: (member: Member, add: Array<string>, remove: Array<string>) => void
 };
+*/
 
+/*::
 type State = {
   open: boolean,
   userGroups?: {},
   loading?: boolean
 };
+*/
 
 export default class ManageMemberGroupsForm extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  state: State = {
+  state /*: State */ = {
     open: false
   };
 
-  openForm = (evt: MouseEvent) => {
+  openForm = (evt /*: MouseEvent */) => {
     evt.preventDefault();
     this.loadUserGroups();
     this.setState({ open: true });
@@ -64,7 +68,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
     });
   };
 
-  isGroupSelected = (groupName: string) => {
+  isGroupSelected = (groupName /*: string */) => {
     if (this.state.userGroups) {
       const group = this.state.userGroups[groupName] || {};
       if (group.status) {
@@ -76,8 +80,8 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
     return false;
   };
 
-  onCheck = (groupName: string, checked: boolean) => {
-    this.setState((prevState: State) => {
+  onCheck = (groupName /*: string */, checked /*: boolean */) => {
+    this.setState((prevState /*: State */) => {
       const userGroups = prevState.userGroups || {};
       const group = userGroups[groupName] || {};
       let status = '';
@@ -90,7 +94,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
     });
   };
 
-  handleSubmit = (e: Object) => {
+  handleSubmit = (e /*: Object */) => {
     e.preventDefault();
     this.props.updateMemberGroups(
       this.props.member,

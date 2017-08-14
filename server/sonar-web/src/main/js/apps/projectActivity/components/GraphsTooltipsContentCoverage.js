@@ -21,19 +21,19 @@
 import React from 'react';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
-import type { MeasureHistory } from '../types';
+/*:: import type { MeasureHistory } from '../types'; */
 
+/*::
 type Props = {
   addSeparator: boolean,
   measuresHistory: Array<MeasureHistory>,
   tooltipIdx: number
 };
+*/
 
-export default function GraphsTooltipsContentCoverage({
-  addSeparator,
-  measuresHistory,
-  tooltipIdx
-}: Props) {
+export default function GraphsTooltipsContentCoverage(
+  { addSeparator, measuresHistory, tooltipIdx } /*: Props */
+) {
   const uncovered = measuresHistory.find(measure => measure.metric === 'uncovered_lines');
   const coverage = measuresHistory.find(measure => measure.metric === 'coverage');
   if (!uncovered || !uncovered.history[tooltipIdx] || !coverage || !coverage.history[tooltipIdx]) {

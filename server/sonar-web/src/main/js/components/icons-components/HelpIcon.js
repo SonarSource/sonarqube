@@ -20,9 +20,11 @@
 // @flow
 import React from 'react';
 
+/*::
 type Props = { className?: string, size?: number };
+*/
 
-export default function HelpIcon({ className, size = 16 }: Props) {
+export default function HelpIcon({ className, size = 16 } /*: Props */) {
   /* eslint-disable max-len */
   return (
     <svg className={className} viewBox="0 0 16 16" width={size} height={size}>

@@ -20,6 +20,7 @@
 // @flow
 import { getJSON, post } from '../helpers/request';
 
+/*::
 export type GetNotificationsResponse = {
   notifications: Array<{
     channel: string,
@@ -32,22 +33,32 @@ export type GetNotificationsResponse = {
   globalTypes: Array<string>,
   perProjectTypes: Array<string>
 };
+*/
 
-export const getNotifications = (): Promise<GetNotificationsResponse> =>
-  getJSON('/api/notifications/list');
+export function getNotifications() /*: Promise<GetNotificationsResponse> */ {
+  return getJSON('/api/notifications/list');
+}
 
-export const addNotification = (channel: string, type: string, project?: string): Promise<*> => {
-  const data: Object = { channel, type };
+export function addNotification(
+  channel /*: string */,
+  type /*: string */,
+  project /*: ?string */
+) /*: Promise<*> */ {
+  const data /*: Object */ = { channel, type };
   if (project) {
     Object.assign(data, { project });
   }
   return post('/api/notifications/add', data);
-};
+}
 
-export const removeNotification = (channel: string, type: string, project?: string): Promise<*> => {
-  const data: Object = { channel, type };
+export function removeNotification(
+  channel /*: string */,
+  type /*: string */,
+  project /*: ?string */
+) /*: Promise<*> */ {
+  const data /*: Object */ = { channel, type };
   if (project) {
     Object.assign(data, { project });
   }
   return post('/api/notifications/remove', data);
-};
+}

@@ -24,15 +24,15 @@ import moment from 'moment';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import type { Component, Period } from '../types';
+/*:: import type { Component, Period } from '../types'; */
 
-type Props = {
+/*:: type Props = {
   className?: string,
   component: Component,
   period: Period
-};
+}; */
 
-export default function LeakPeriodLegend({ className, component, period }: Props) {
+export default function LeakPeriodLegend({ className, component, period } /*: Props */) {
   const leakClass = classNames('domain-measures-leak-header', className);
   if (component.qualifier === 'APP') {
     return (

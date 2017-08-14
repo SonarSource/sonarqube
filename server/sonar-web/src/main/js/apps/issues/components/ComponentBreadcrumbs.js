@@ -23,16 +23,18 @@ import { Link } from 'react-router';
 import Organization from '../../../components/shared/Organization';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
 import { getProjectUrl } from '../../../helpers/urls';
-import type { Component } from '../utils';
+/*:: import type { Component } from '../utils'; */
 
+/*::
 type Props = {
   component?: Component,
   issue: Object,
   organization?: { key: string }
 };
+*/
 
 export default class ComponentBreadcrumbs extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { component, issue, organization } = this.props;

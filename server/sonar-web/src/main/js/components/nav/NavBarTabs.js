@@ -22,12 +22,14 @@ import React from 'react';
 import classNames from 'classnames';
 import './NavBarTabs.css';
 
+/*::
 type Props = {
   children?: React.Element<*>,
   className?: string
 };
+*/
 
-export default function NavBarTabs({ children, className, ...other }: Props) {
+export default function NavBarTabs({ children, className, ...other } /*: Props */) {
   return (
     <ul {...other} className={classNames('navbar-tabs', className)}>
       {children}

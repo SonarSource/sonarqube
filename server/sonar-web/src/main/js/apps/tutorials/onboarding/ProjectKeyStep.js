@@ -22,25 +22,29 @@ import React from 'react';
 import { createProject, deleteProject } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   onDelete: () => void,
   onDone: (projectKey: string) => void,
   organization?: string,
   projectKey?: string
 };
+*/
 
+/*::
 type State = {
   done: boolean,
   loading: boolean,
   projectKey: string
 };
+*/
 
 export default class ProjectKeyStep extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       done: props.projectKey != null,
@@ -63,16 +67,16 @@ export default class ProjectKeyStep extends React.PureComponent {
     }
   };
 
-  sanitizeProjectKey = (projectKey: string) => projectKey.replace(/[^a-zA-Z0-9-_\.:]/, '');
+  sanitizeProjectKey = (projectKey /*: string */) => projectKey.replace(/[^a-zA-Z0-9-_\.:]/, '');
 
-  handleProjectKeyChange = (event: { target: HTMLInputElement }) => {
+  handleProjectKeyChange = (event /*: { target: HTMLInputElement } */) => {
     this.setState({ projectKey: this.sanitizeProjectKey(event.target.value) });
   };
 
-  handleProjectCreate = (event: Event) => {
+  handleProjectCreate = (event /*: Event */) => {
     event.preventDefault();
     const { projectKey } = this.state;
-    const data: { [string]: string } = {
+    const data /*: { [string]: string } */ = {
       name: projectKey,
       project: projectKey
     };
@@ -88,7 +92,7 @@ export default class ProjectKeyStep extends React.PureComponent {
     }, this.stopLoading);
   };
 
-  handleProjectDelete = (event: Event) => {
+  handleProjectDelete = (event /*: Event */) => {
     event.preventDefault();
     const { projectKey } = this.state;
     this.setState({ loading: true });

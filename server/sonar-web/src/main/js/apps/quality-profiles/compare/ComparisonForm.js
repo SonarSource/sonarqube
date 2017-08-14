@@ -21,19 +21,21 @@
 import React from 'react';
 import Select from 'react-select';
 import { translate } from '../../../helpers/l10n';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   profile: Profile,
   profiles: Array<Profile>,
   onCompare: string => void,
   withKey: string
 };
+*/
 
 export default class ComparisonForm extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleChange(option: { value: string }) {
+  handleChange(option /*: { value: string } */) {
     this.props.onCompare(option.value);
   }
 

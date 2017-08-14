@@ -34,15 +34,16 @@ import SeverityFacet from './SeverityFacet';
 import StatusFacet from './StatusFacet';
 import TagFacet from './TagFacet';
 import TypeFacet from './TypeFacet';
-import type {
+/*:: import type {
   Query,
   Facet,
   ReferencedComponent,
   ReferencedUser,
   ReferencedLanguage,
   Component
-} from '../utils';
+} from '../utils'; */
 
+/*::
 type Props = {|
   component?: Component,
   facets: { [string]: Facet },
@@ -57,14 +58,15 @@ type Props = {|
   referencedRules: { [string]: { name: string } },
   referencedUsers: { [string]: ReferencedUser }
 |};
+*/
 
 export default class Sidebar extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { component, facets, openFacets, query } = this.props;
 
-    const displayProjectsFacet: boolean =
+    const displayProjectsFacet /*: boolean */ =
       component == null || !['TRK', 'BRC', 'DIR', 'DEV_PRJ'].includes(component.qualifier);
     const displayModulesFacet = component != null && component.qualifier !== 'DIR';
     const displayDirectoriesFacet = component != null && component.qualifier !== 'DIR';

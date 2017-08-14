@@ -22,24 +22,24 @@ import React from 'react';
 import key from 'keymaster';
 import Breadcrumb from './Breadcrumb';
 import { getBreadcrumbs } from '../../../api/components';
-import type { Component } from '../types';
+/*:: import type { Component } from '../types'; */
 
-type Props = {|
+/*:: type Props = {|
   backToFirst: boolean,
   className?: string,
   component: Component,
   handleSelect: string => void,
   rootComponent: Component
-|};
+|}; */
 
-type State = {
+/*:: type State = {
   breadcrumbs: Array<Component>
-};
+}; */
 
 export default class Breadcrumbs extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     breadcrumbs: []
   };
 
@@ -49,7 +49,7 @@ export default class Breadcrumbs extends React.PureComponent {
     this.attachShortcuts();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (this.props.component !== nextProps.component) {
       this.fetchBreadcrumbs(nextProps);
     }
@@ -75,7 +75,7 @@ export default class Breadcrumbs extends React.PureComponent {
     key.unbind('left', 'measures-files');
   }
 
-  fetchBreadcrumbs = ({ component, rootComponent }: Props) => {
+  fetchBreadcrumbs = ({ component, rootComponent } /*: Props */) => {
     const isRoot = component.key === rootComponent.key;
     if (isRoot) {
       if (this.mounted) {

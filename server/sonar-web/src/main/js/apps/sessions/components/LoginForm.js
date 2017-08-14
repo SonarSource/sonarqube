@@ -23,6 +23,7 @@ import OAuthProviders from './OAuthProviders';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   identityProviders: Array<{
     backgroundColor: string,
@@ -32,18 +33,21 @@ type Props = {
   }>,
   onSubmit: (string, string) => void
 };
+*/
 
+/*::
 type State = {
   collapsed: boolean,
   login: string,
   password: string
 };
+*/
 
 export default class LoginForm extends React.PureComponent {
-  props: Props;
-  state: State;
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       collapsed: props.identityProviders.length > 0,
@@ -52,12 +56,12 @@ export default class LoginForm extends React.PureComponent {
     };
   }
 
-  handleSubmit = (event: Event) => {
+  handleSubmit = (event /*: Event */) => {
     event.preventDefault();
     this.props.onSubmit(this.state.login, this.state.password);
   };
 
-  handleMoreOptionsClick = (event: Event) => {
+  handleMoreOptionsClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ collapsed: false });
   };

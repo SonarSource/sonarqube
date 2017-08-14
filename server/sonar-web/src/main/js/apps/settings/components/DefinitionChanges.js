@@ -28,13 +28,13 @@ export default class DefinitionChanges extends React.PureComponent {
     onCancel: PropTypes.func.isRequired
   };
 
-  handleSaveClick(e: Object) {
+  handleSaveClick(e /*: Object */) {
     e.preventDefault();
     e.target.blur();
     this.props.onSave();
   }
 
-  handleCancelChange(e: Object) {
+  handleCancelChange(e /*: Object */) {
     e.preventDefault();
     e.target.blur();
     this.props.onCancel();

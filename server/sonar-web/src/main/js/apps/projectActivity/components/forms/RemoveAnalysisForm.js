@@ -21,22 +21,26 @@
 import React from 'react';
 import Modal from 'react-modal';
 import { translate } from '../../../../helpers/l10n';
-import type { Analysis } from '../../types';
+/*:: import type { Analysis } from '../../types'; */
 
+/*::
 type Props = {
   analysis: Analysis,
   deleteAnalysis: (analysis: string) => Promise<*>
 };
+*/
 
+/*::
 type State = {
   open: boolean,
   processing: boolean
 };
+*/
 
 export default class RemoveAnalysisForm extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     open: false,
     processing: false
   };
@@ -49,7 +53,7 @@ export default class RemoveAnalysisForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  openForm = (e: Event) => {
+  openForm = (e /*: Event */) => {
     e.preventDefault();
     e.stopPropagation();
     if (this.mounted) {
@@ -75,7 +79,7 @@ export default class RemoveAnalysisForm extends React.PureComponent {
     }
   };
 
-  handleSubmit = (e: Event) => {
+  handleSubmit = (e /*: Event */) => {
     e.preventDefault();
     this.setState({ processing: true });
     this.props

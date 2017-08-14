@@ -20,12 +20,12 @@
 // @flow
 import React from 'react';
 import MeasureContent from './MeasureContent';
-import type { Component, Period, Query } from '../types';
-import type { MeasureEnhanced } from '../../../components/measure/types';
-import type { Metric } from '../../../store/metrics/actions';
-import type { RawQuery } from '../../../helpers/query';
+/*:: import type { Component, Period, Query } from '../types'; */
+/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
+/*:: import type { RawQuery } from '../../../helpers/query'; */
 
-type Props = {|
+/*:: type Props = {|
   className?: string,
   currentUser: { isLoggedIn: boolean },
   rootComponent: Component,
@@ -42,9 +42,9 @@ type Props = {|
   selected: ?string,
   updateQuery: Query => void,
   view: string
-|};
+|}; */
 
-type State = {
+/*:: type State = {
   component: ?Component,
   loading: {
     measure: boolean,
@@ -52,12 +52,12 @@ type State = {
   },
   measure: ?MeasureEnhanced,
   secondaryMeasure: ?MeasureEnhanced
-};
+}; */
 
 export default class MeasureContentContainer extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     component: null,
     loading: {
       measure: false,
@@ -72,7 +72,7 @@ export default class MeasureContentContainer extends React.PureComponent {
     this.fetchMeasure(this.props);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     const { component } = this.state;
     const componentChanged =
       !component ||
@@ -87,7 +87,7 @@ export default class MeasureContentContainer extends React.PureComponent {
     this.mounted = false;
   }
 
-  fetchMeasure = ({ rootComponent, fetchMeasures, metric, selected }: Props) => {
+  fetchMeasure = ({ rootComponent, fetchMeasures, metric, selected } /*: Props */) => {
     this.updateLoading({ measure: true });
 
     const metricKeys = [metric.key];
@@ -112,18 +112,18 @@ export default class MeasureContentContainer extends React.PureComponent {
     );
   };
 
-  updateLoading = (loading: { [string]: boolean }) => {
+  updateLoading = (loading /*: { [string]: boolean } */) => {
     if (this.mounted) {
       this.setState(state => ({ loading: { ...state.loading, ...loading } }));
     }
   };
 
-  updateSelected = (component: string) =>
+  updateSelected = (component /*: string */) =>
     this.props.updateQuery({
       selected: component !== this.props.rootComponent.key ? component : null
     });
 
-  updateView = (view: string) => this.props.updateQuery({ view });
+  updateView = (view /*: string */) => this.props.updateQuery({ view });
 
   render() {
     if (!this.state.component) {

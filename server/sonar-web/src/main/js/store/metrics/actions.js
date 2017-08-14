@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-
-export type Metric = {
+/*:: export type Metric = {
   custom?: boolean,
   decimalScale?: number,
   description?: string,
@@ -30,11 +29,11 @@ export type Metric = {
   name: string,
   qualitative?: boolean,
   type: string
-};
+}; */
 
 export const RECEIVE_METRICS = 'RECEIVE_METRICS';
 
-export const receiveMetrics = (metrics: Array<Metric>) => ({
+export const receiveMetrics = (metrics /*: Array<Metric> */) => ({
   type: RECEIVE_METRICS,
   metrics
 });

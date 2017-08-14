@@ -23,17 +23,19 @@ import Action from './Action';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
 import { getActionKey, actionsFilter } from '../utils';
-import type { Domain as DomainType } from '../../../api/web-api';
+/*:: import type { Domain as DomainType } from '../../../api/web-api'; */
 
+/*::
 type Props = {
   domain: DomainType,
   showDeprecated: boolean,
   showInternal: boolean,
   searchQuery: string
 };
+*/
 
 export default class Domain extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { domain, showInternal, showDeprecated, searchQuery } = this.props;

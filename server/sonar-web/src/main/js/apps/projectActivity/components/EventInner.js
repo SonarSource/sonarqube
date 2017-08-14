@@ -22,9 +22,9 @@ import React from 'react';
 import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
-import type { Event as EventType } from '../types';
+/*:: import type { Event as EventType } from '../types'; */
 
-export default function EventInner(props: { event: EventType }) {
+export default function EventInner(props /*: { event: EventType } */) {
   const { event } = props;
 
   return (

@@ -20,15 +20,15 @@
 import React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
 import { translate } from '../../../helpers/l10n';
-import {
+/*:: import type {
   Notification,
   NotificationsState,
   ChannelsState,
   TypesState
-} from '../../../store/notifications/duck';
+} from '../../../store/notifications/duck'; */
 
 export default class NotificationsList extends React.PureComponent {
-  props: {
+  /*:: props: {
     onAdd: (n: Notification) => void,
     onRemove: (n: Notification) => void,
     channels: ChannelsState,
@@ -36,14 +36,15 @@ export default class NotificationsList extends React.PureComponent {
     types: TypesState,
     notifications: NotificationsState
   };
+*/
 
-  isEnabled(type: string, channel: string): boolean {
+  isEnabled(type /*: string */, channel /*: string */) /*: boolean */ {
     return !!this.props.notifications.find(
       notification => notification.type === type && notification.channel === channel
     );
   }
 
-  handleCheck(type: string, channel: string, checked: boolean) {
+  handleCheck(type /*: string */, channel /*: string */, checked /*: boolean */) {
     if (checked) {
       this.props.onAdd({ type, channel });
     } else {

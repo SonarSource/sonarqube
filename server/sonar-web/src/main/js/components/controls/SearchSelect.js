@@ -23,8 +23,11 @@ import Select from 'react-select';
 import { debounce } from 'lodash';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
+/*::
 type Option = { label: string, value: string };
+*/
 
+/*::
 type Props = {|
   autofocus: boolean,
   minimumQueryLength: number,
@@ -34,17 +37,20 @@ type Props = {|
   resetOnBlur: boolean,
   value?: string
 |};
+*/
 
+/*::
 type State = {
   loading: boolean,
   options: Array<Option>,
   query: string
 };
+*/
 
 export default class SearchSelect extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
   static defaultProps = {
     autofocus: true,
@@ -52,7 +58,7 @@ export default class SearchSelect extends React.PureComponent {
     resetOnBlur: true
   };
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = { loading: false, options: [], query: '' };
     this.search = debounce(this.search, 250);
@@ -66,7 +72,7 @@ export default class SearchSelect extends React.PureComponent {
     this.mounted = false;
   }
 
-  search = (query: string) => {
+  search = (query /*: string */) => {
     this.props.onSearch(query).then(options => {
       if (this.mounted) {
         this.setState({ loading: false, options });
@@ -78,11 +84,11 @@ export default class SearchSelect extends React.PureComponent {
     this.setState({ options: [], query: '' });
   };
 
-  handleChange = (option: Option) => {
+  handleChange = (option /*: Option */) => {
     this.props.onSelect(option.value);
   };
 
-  handleInputChange = (query: string = '') => {
+  handleInputChange = (query /*: string */ = '') => {
     if (query.length >= this.props.minimumQueryLength) {
       this.setState({ loading: true, query });
       this.search(query);

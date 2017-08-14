@@ -22,7 +22,7 @@ import React from 'react';
 import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
 
 export default class OrganizationProjects extends React.PureComponent {
-  props: {
+  /*:: props: {
     children?: React.Element<*>,
     currentUser: { isLoggedIn: boolean },
     location: Object,
@@ -30,6 +30,7 @@ export default class OrganizationProjects extends React.PureComponent {
       key: string
     }
   };
+*/
 
   componentDidMount() {
     const html = document.querySelector('html');

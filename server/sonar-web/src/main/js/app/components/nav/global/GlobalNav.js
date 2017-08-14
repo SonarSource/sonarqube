@@ -33,22 +33,26 @@ import { getCurrentUser, getAppState, getSettingValue } from '../../../../store/
 import { translate } from '../../../../helpers/l10n';
 import './GlobalNav.css';
 
+/*::
 type Props = {
   appState: { organizationsEnabled: boolean },
   currentUser: { isLoggedIn: boolean, showOnboardingTutorial: true },
   sonarCloud: boolean
 };
+*/
 
+/*::
 type State = {
   helpOpen: boolean,
   onboardingTutorialOpen: boolean,
   onboardingTutorialTooltip: boolean
 };
+*/
 
 class GlobalNav extends React.PureComponent {
-  interval: ?number;
-  props: Props;
-  state: State = {
+  /*:: interval: ?number; */
+  /*:: props: Props; */
+  state /*: State */ = {
     helpOpen: false,
     onboardingTutorialOpen: false,
     onboardingTutorialTooltip: false

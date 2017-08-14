@@ -43,8 +43,8 @@ import {
 } from '../../../store/rootReducer';
 
 class Definition extends React.PureComponent {
-  mounted: boolean;
-  timeout: number;
+  /*:: mounted: boolean; */
+  /*:: timeout: number; */
 
   static propTypes = {
     component: PropTypes.object,

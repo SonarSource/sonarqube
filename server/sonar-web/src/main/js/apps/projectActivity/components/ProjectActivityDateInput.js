@@ -23,24 +23,26 @@ import moment from 'moment';
 import DateInput from '../../../components/controls/DateInput';
 import { parseAsDate } from '../../../helpers/query';
 import { translate } from '../../../helpers/l10n';
-import type { RawQuery } from '../../../helpers/query';
+/*:: import type { RawQuery } from '../../../helpers/query'; */
 
+/*::
 type Props = {
   from: ?Date,
   to: ?Date,
   onChange: RawQuery => void
 };
+*/
 
 export default class ProjectActivityDateInput extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleFromDateChange = (from: string) => this.props.onChange({ from: parseAsDate(from) });
+  handleFromDateChange = (from /*: string */) => this.props.onChange({ from: parseAsDate(from) });
 
-  handleToDateChange = (to: string) => this.props.onChange({ to: parseAsDate(to) });
+  handleToDateChange = (to /*: string */) => this.props.onChange({ to: parseAsDate(to) });
 
   handleResetClick = () => this.props.onChange({ from: null, to: null });
 
-  formatDate = (date: ?Date) => (date ? moment(date).format('YYYY-MM-DD') : null);
+  formatDate = (date /*: ?Date */) => (date ? moment(date).format('YYYY-MM-DD') : null);
 
   render() {
     return (

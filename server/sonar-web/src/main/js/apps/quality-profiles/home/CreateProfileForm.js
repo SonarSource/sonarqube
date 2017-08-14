@@ -25,6 +25,7 @@ import { sortBy } from 'lodash';
 import { getImporters, createQualityProfile } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   languages: Array<{ key: string, name: string }>,
   onClose: () => void,
@@ -32,7 +33,9 @@ type Props = {
   onRequestFail: Object => void,
   organization: ?string
 };
+*/
 
+/*::
 type State = {
   importers: Array<{ key: string, languages: Array<string>, name: string }>,
   language?: string,
@@ -40,12 +43,13 @@ type State = {
   name: string,
   preloading: boolean
 };
+*/
 
 export default class CreateProfileForm extends React.PureComponent {
-  form: HTMLFormElement;
-  mounted: boolean;
-  props: Props;
-  state: State = { importers: [], loading: false, name: '', preloading: true };
+  /*:: form: HTMLFormElement; */
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = { importers: [], loading: false, name: '', preloading: true };
 
   componentDidMount() {
     this.mounted = true;
@@ -64,20 +68,20 @@ export default class CreateProfileForm extends React.PureComponent {
     });
   }
 
-  handleCancelClick = (event: Event) => {
+  handleCancelClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  handleNameChange = (event: { currentTarget: HTMLInputElement }) => {
+  handleNameChange = (event /*: { currentTarget: HTMLInputElement } */) => {
     this.setState({ name: event.currentTarget.value });
   };
 
-  handleLanguageChange = (option: { value: string }) => {
+  handleLanguageChange = (option /*: { value: string } */) => {
     this.setState({ language: option.value });
   };
 
-  handleFormSubmit = (event: Event) => {
+  handleFormSubmit = (event /*: Event */) => {
     event.preventDefault();
 
     this.setState({ loading: true });

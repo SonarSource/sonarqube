@@ -21,29 +21,33 @@
 import React from 'react';
 import ChangeVisibilityForm from './ChangeVisibilityForm';
 import { translate } from '../../helpers/l10n';
-import type { Organization } from '../../store/organizations/duck';
+/*:: import type { Organization } from '../../store/organizations/duck'; */
 
+/*::
 type Props = {|
   hasProvisionPermission: boolean,
   onProjectCreate: () => void,
   onVisibilityChange: string => void,
   organization: Organization
 |};
+*/
 
+/*::
 type State = {
   visibilityForm: boolean
 };
+*/
 
 export default class Header extends React.PureComponent {
-  props: Props;
-  state: State = { visibilityForm: false };
+  /*:: props: Props; */
+  state /*: State */ = { visibilityForm: false };
 
-  handleCreateProjectClick = (event: Event) => {
+  handleCreateProjectClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onProjectCreate();
   };
 
-  handleChangeVisibilityClick = (event: Event) => {
+  handleChangeVisibilityClick = (event /*: Event */) => {
     event.preventDefault();
     this.setState({ visibilityForm: true });
   };

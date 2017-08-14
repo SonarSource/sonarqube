@@ -23,6 +23,7 @@ import { translate } from '../../../helpers/l10n';
 import TagsList from '../../../components/tags/TagsList';
 import ProjectTagsSelectorContainer from '../../projects/components/ProjectTagsSelectorContainer';
 
+/*::
 type Props = {
   component: {
     key: string,
@@ -32,18 +33,21 @@ type Props = {
     }
   }
 };
+*/
 
+/*::
 type State = {
   popupOpen: boolean,
   popupPosition: { top: number, right: number }
 };
+*/
 
 export default class MetaTags extends React.PureComponent {
-  card: HTMLElement;
-  tagsList: HTMLElement;
-  tagsSelector: HTMLElement;
-  props: Props;
-  state: State = {
+  /*:: card: HTMLElement; */
+  /*:: tagsList: HTMLElement; */
+  /*:: tagsSelector: HTMLElement; */
+  /*:: props: Props; */
+  state /*: State */ = {
     popupOpen: false,
     popupPosition: {
       top: 0,
@@ -67,20 +71,20 @@ export default class MetaTags extends React.PureComponent {
     window.removeEventListener('click', this.handleOutsideClick);
   }
 
-  handleKey = (evt: KeyboardEvent) => {
+  handleKey = (evt /*: KeyboardEvent */) => {
     // Escape key
     if (evt.keyCode === 27) {
       this.setState({ popupOpen: false });
     }
   };
 
-  handleOutsideClick = (evt: SyntheticInputEvent) => {
+  handleOutsideClick = (evt /*: SyntheticInputEvent */) => {
     if (!this.tagsSelector || !this.tagsSelector.contains(evt.target)) {
       this.setState({ popupOpen: false });
     }
   };
 
-  handleClick = (evt: MouseEvent) => {
+  handleClick = (evt /*: MouseEvent */) => {
     evt.stopPropagation();
     this.setState(state => ({ popupOpen: !state.popupOpen }));
   };
@@ -90,7 +94,10 @@ export default class MetaTags extends React.PureComponent {
     return configuration && configuration.showSettings;
   }
 
-  getPopupPos(eltPos: { height: number, width: number }, containerPos: { width: number }) {
+  getPopupPos(
+    eltPos /*: { height: number, width: number } */,
+    containerPos /*: { width: number } */
+  ) {
     return {
       top: eltPos.height,
       right: containerPos.width - eltPos.width

@@ -24,20 +24,20 @@ import FavoriteContainer from '../../../components/controls/FavoriteContainer';
 import { getComponentForSourceViewer } from '../../../api/components';
 import { receiveFavorites } from '../../../store/favorites/duck';
 
-type FavComponent = { key: string, canMarkAsFavorite: boolean, fav: boolean };
+/*:: type FavComponent = { key: string, canMarkAsFavorite: boolean, fav: boolean }; */
 
-type Props = {
+/*:: type Props = {
   className?: string,
   component: string,
   onReceiveComponent: (component: FavComponent) => void
-};
+}; */
 
-type State = { component: ?FavComponent };
+/*:: type State = { component: ?FavComponent }; */
 
 class MeasureFavoriteContainer extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     component: null
   };
 
@@ -46,7 +46,7 @@ class MeasureFavoriteContainer extends React.PureComponent {
     this.fetchComponentFavorite(this.props);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (nextProps.component !== this.props.component) {
       this.fetchComponentFavorite(nextProps);
     }
@@ -56,7 +56,7 @@ class MeasureFavoriteContainer extends React.PureComponent {
     this.mounted = false;
   }
 
-  fetchComponentFavorite({ component, onReceiveComponent }: Props) {
+  fetchComponentFavorite({ component, onReceiveComponent } /*: Props */) {
     getComponentForSourceViewer(component).then(component => {
       this.setState({ component });
       onReceiveComponent(component);
@@ -77,7 +77,7 @@ class MeasureFavoriteContainer extends React.PureComponent {
 const mapStateToProps = null;
 
 const mapDispatchToProps = {
-  onReceiveComponent: (component: FavComponent) => dispatch => {
+  onReceiveComponent: (component /*: FavComponent */) => dispatch => {
     if (component.canMarkAsFavorite) {
       const favorites = [];
       const notFavorites = [];

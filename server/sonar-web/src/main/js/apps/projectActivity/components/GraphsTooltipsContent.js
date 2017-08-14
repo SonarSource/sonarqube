@@ -22,14 +22,16 @@ import React from 'react';
 import classNames from 'classnames';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
 
+/*::
 type Props = {
   name: string,
   style: string,
   translatedName: string,
   value: string
 };
+*/
 
-export default function GraphsTooltipsContent({ name, style, translatedName, value }: Props) {
+export default function GraphsTooltipsContent({ name, style, translatedName, value } /*: Props */) {
   return (
     <tr key={name} className="project-activity-graph-tooltip-line">
       <td className="thin">

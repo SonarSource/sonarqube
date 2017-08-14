@@ -21,7 +21,7 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default function Header(props: { component: { qualifier: string } }) {
+export default function Header(props /*: { component: { qualifier: string } } */) {
   const { qualifier } = props.component;
   const description = ['VW', 'SVW'].includes(qualifier)
     ? translate('portfolio_deletion.page.description')

@@ -23,10 +23,13 @@ import { connect } from 'react-redux';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../store/rootReducer';
 import OrganizationLink from '../ui/OrganizationLink';
 
+/*::
 type OwnProps = {
   organizationKey: string
 };
+*/
 
+/*::
 type Props = {
   link?: boolean,
   linkClassName?: string,
@@ -34,9 +37,10 @@ type Props = {
   organization: { key: string, name: string } | null,
   shouldBeDisplayed: boolean
 };
+*/
 
 class Organization extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static defaultProps = {
     link: true
@@ -62,7 +66,7 @@ class Organization extends React.PureComponent {
   }
 }
 
-const mapStateToProps = (state, ownProps: OwnProps) => ({
+const mapStateToProps = (state, ownProps /*: OwnProps */) => ({
   organization: getOrganizationByKey(state, ownProps.organizationKey),
   shouldBeDisplayed: areThereCustomOrganizations(state)
 });

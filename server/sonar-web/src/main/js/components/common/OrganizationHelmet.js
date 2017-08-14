@@ -21,12 +21,14 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 
+/*::
 type Props = {
   title: string,
   organization?: ?{ name: string }
 };
+*/
 
-export default function OrganizationHelmet({ title, organization }: Props) {
+export default function OrganizationHelmet({ title, organization } /*: Props */) {
   const defaultTitle = title + (organization ? ' - ' + organization.name : '');
   return <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />;
 }

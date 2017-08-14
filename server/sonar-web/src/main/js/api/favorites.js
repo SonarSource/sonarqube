@@ -20,12 +20,14 @@
 /* @flow */
 import { post, getJSON } from '../helpers/request';
 
-export const getFavorites = (): Promise<Object> => getJSON('/api/favorites/search');
+export function getFavorites() /*: Promise<Object> */ {
+  return getJSON('/api/favorites/search');
+}
 
-export function addFavorite(component: string) {
+export function addFavorite(component /*: string */) {
   return post('/api/favorites/add', { component });
 }
 
-export function removeFavorite(component: string) {
+export function removeFavorite(component /*: string */) {
   return post('/api/favorites/remove', { component });
 }

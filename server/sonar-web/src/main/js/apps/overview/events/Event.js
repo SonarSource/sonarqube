@@ -20,10 +20,10 @@
 // @flow
 import React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
-import type { Event as EventType } from '../../projectActivity/types';
+/*:: import type { Event as EventType } from '../../projectActivity/types'; */
 import { translate } from '../../../helpers/l10n';
 
-export default function Event(props: { event: EventType }) {
+export default function Event(props /*: { event: EventType } */) {
   const { event } = props;
 
   if (event.category === 'VERSION') {

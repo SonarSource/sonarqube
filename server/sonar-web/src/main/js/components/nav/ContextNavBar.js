@@ -23,11 +23,13 @@ import classNames from 'classnames';
 import NavBar from './NavBar';
 import './ContextNavBar.css';
 
+/*::
 type Props = {
   className?: string,
   height: number
 };
+*/
 
-export default function ContextNavBar({ className, ...other }: Props) {
+export default function ContextNavBar({ className, ...other } /*: Props */) {
   return <NavBar className={classNames('navbar-context', className)} {...other} />;
 }

@@ -25,8 +25,9 @@ import IssueView from './IssueView';
 import { updateIssue } from './actions';
 import { setIssueAssignee } from '../../api/issues';
 import { onFail } from '../../store/rootActions';
-import type { Issue } from './types';
+/*:: import type { Issue } from './types'; */
 
+/*::
 type Props = {|
   checked?: boolean,
   issue: Issue,
@@ -36,15 +37,18 @@ type Props = {|
   onFilter?: (property: string, issue: Issue) => void,
   selected: boolean
 |};
+*/
 
+/*::
 type State = {
   currentPopup: string
 };
+*/
 
 export default class BaseIssue extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
   static contextTypes = {
     store: PropTypes.object
@@ -54,7 +58,7 @@ export default class BaseIssue extends React.PureComponent {
     selected: false
   };
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       currentPopup: ''
@@ -68,13 +72,13 @@ export default class BaseIssue extends React.PureComponent {
     }
   }
 
-  componentWillUpdate(nextProps: Props) {
+  componentWillUpdate(nextProps /*: Props */) {
     if (!nextProps.selected && this.props.selected) {
       this.unbindShortcuts();
     }
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (!prevProps.selected && this.props.selected) {
       this.bindShortcuts();
     }
@@ -123,9 +127,9 @@ export default class BaseIssue extends React.PureComponent {
     key.unbind('t', 'issues');
   }
 
-  togglePopup = (popupName: string, open?: boolean) => {
+  togglePopup = (popupName /*: string */, open /*: ?boolean */) => {
     if (this.mounted) {
-      this.setState((prevState: State) => {
+      this.setState((prevState /*: State */) => {
         if (prevState.currentPopup !== popupName && open !== false) {
           return { currentPopup: popupName };
         } else if (prevState.currentPopup === popupName && open !== true) {
@@ -136,7 +140,7 @@ export default class BaseIssue extends React.PureComponent {
     }
   };
 
-  handleAssignement = (login: string) => {
+  handleAssignement = (login /*: string */) => {
     const { issue } = this.props;
     if (issue.assignee !== login) {
       updateIssue(
@@ -148,7 +152,7 @@ export default class BaseIssue extends React.PureComponent {
     this.togglePopup('assign', false);
   };
 
-  handleFail = (error: Error) => {
+  handleFail = (error /*: Error */) => {
     onFail(this.context.store.dispatch)(error);
   };
 

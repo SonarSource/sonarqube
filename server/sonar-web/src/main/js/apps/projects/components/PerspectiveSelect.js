@@ -24,20 +24,24 @@ import PerspectiveSelectOption from './PerspectiveSelectOption';
 import { translate } from '../../../helpers/l10n';
 import { VIEWS, VISUALIZATIONS } from '../utils';
 
+/*::
 export type Option = { label: string, type: string, value: string };
+*/
 
+/*::
 type Props = {|
   className?: string,
   onChange: ({ view: string, visualization?: string }) => void,
   view: string,
   visualization?: string
 |};
+*/
 
 export default class PerspectiveSelect extends React.PureComponent {
-  options: Array<Option>;
-  props: Props;
+  /*:: options: Array<Option>; */
+  /*:: props: Props; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.options = [
       ...VIEWS.map(opt => ({
@@ -53,7 +57,7 @@ export default class PerspectiveSelect extends React.PureComponent {
     ];
   }
 
-  handleChange = (option: Option) => {
+  handleChange = (option /*: Option */) => {
     if (option.type === 'view') {
       this.props.onChange({ view: option.value });
     } else if (option.type === 'visualization') {

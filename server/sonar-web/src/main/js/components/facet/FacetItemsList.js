@@ -20,11 +20,13 @@
 // @flow
 import React from 'react';
 
+/*::
 type Props = {|
   children?: Array<React.Element<*>>
 |};
+*/
 
-export default function FacetItemsList(props: Props) {
+export default function FacetItemsList(props /*: Props */) {
   return (
     <div className="search-navigator-facet-list">
       {props.children}

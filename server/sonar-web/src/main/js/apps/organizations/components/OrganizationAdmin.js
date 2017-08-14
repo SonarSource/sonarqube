@@ -24,10 +24,11 @@ import { getOrganizationByKey } from '../../../store/rootReducer';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 
 class OrganizationAdmin extends React.PureComponent {
-  props: {
+  /*:: props: {
     children?: React.Element<*>,
     organization: { canAdmin: boolean }
   };
+*/
 
   componentDidMount() {
     this.checkPermissions();

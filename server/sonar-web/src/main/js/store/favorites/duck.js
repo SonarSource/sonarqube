@@ -20,27 +20,39 @@
 // @flow
 import { uniq, without } from 'lodash';
 
+/*::
 type Favorite = { key: string };
+*/
 
+/*::
 type ReceiveFavoritesAction = {
   type: 'RECEIVE_FAVORITES',
   favorites: Array<Favorite>,
   notFavorites: Array<Favorite>
 };
+*/
 
+/*::
 type AddFavoriteAction = {
   type: 'ADD_FAVORITE',
   componentKey: string
 };
+*/
 
+/*::
 type RemoveFavoriteAction = {
   type: 'REMOVE_FAVORITE',
   componentKey: string
 };
+*/
 
+/*::
 type Action = ReceiveFavoritesAction | AddFavoriteAction | RemoveFavoriteAction;
+*/
 
+/*::
 type State = Array<string>;
+*/
 
 export const actions = {
   RECEIVE_FAVORITES: 'RECEIVE_FAVORITES',
@@ -48,26 +60,32 @@ export const actions = {
   REMOVE_FAVORITE: 'REMOVE_FAVORITE'
 };
 
-export const receiveFavorites = (
-  favorites: Array<Favorite>,
-  notFavorites: Array<Favorite> = []
-): ReceiveFavoritesAction => ({
-  type: actions.RECEIVE_FAVORITES,
-  favorites,
-  notFavorites
-});
+export function receiveFavorites(
+  favorites /*: Array<Favorite> */,
+  notFavorites /*: Array<Favorite> */ = []
+) /*: ReceiveFavoritesAction */ {
+  return {
+    type: actions.RECEIVE_FAVORITES,
+    favorites,
+    notFavorites
+  };
+}
 
-export const addFavorite = (componentKey: string): AddFavoriteAction => ({
-  type: actions.ADD_FAVORITE,
-  componentKey
-});
+export function addFavorite(componentKey /*: string */) /*: AddFavoriteAction */ {
+  return {
+    type: actions.ADD_FAVORITE,
+    componentKey
+  };
+}
 
-export const removeFavorite = (componentKey: string): RemoveFavoriteAction => ({
-  type: actions.REMOVE_FAVORITE,
-  componentKey
-});
+export function removeFavorite(componentKey /*: string */) /*: RemoveFavoriteAction */ {
+  return {
+    type: actions.REMOVE_FAVORITE,
+    componentKey
+  };
+}
 
-export default (state: State = [], action: Action): State => {
+export default function(state /*: State */ = [], action /*: Action */) /*: State */ {
   if (action.type === actions.RECEIVE_FAVORITES) {
     const toAdd = action.favorites.map(f => f.key);
     const toRemove = action.notFavorites.map(f => f.key);
@@ -83,6 +101,8 @@ export default (state: State = [], action: Action): State => {
   }
 
   return state;
-};
+}
 
-export const isFavorite = (state: State, componentKey: string) => state.includes(componentKey);
+export function isFavorite(state /*: State */, componentKey /*: string */) {
+  return state.includes(componentKey);
+}

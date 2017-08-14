@@ -23,15 +23,17 @@ import moment from 'moment';
 import ProfileLink from '../components/ProfileLink';
 import { translate } from '../../../helpers/l10n';
 import { isStagnant } from '../utils';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   organization: ?string,
   profiles: Array<Profile>
 };
+*/
 
 export default class EvolutionStagnant extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     // TODO filter built-in out

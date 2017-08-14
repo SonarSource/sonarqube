@@ -24,12 +24,13 @@ import { connect } from 'react-redux';
 import init from '../../groups/init';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
-import type { Organization } from '../../../store/organizations/duck';
+/*:: import type { Organization } from '../../../store/organizations/duck'; */
 
 class OrganizationGroups extends React.PureComponent {
-  props: {
+  /*:: props: {
     organization: Organization
   };
+*/
 
   componentDidMount() {
     init(this.refs.container, this.props.organization);

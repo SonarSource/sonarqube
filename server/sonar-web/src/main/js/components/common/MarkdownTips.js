@@ -23,7 +23,7 @@ import { getMarkdownHelpUrl } from '../../helpers/urls';
 import { translate } from '../../helpers/l10n';
 
 export default class MarkdownTips extends React.PureComponent {
-  handleClick(evt: MouseEvent) {
+  handleClick(evt /*: MouseEvent */) {
     evt.preventDefault();
     window.open(getMarkdownHelpUrl(), 'Markdown', 'height=300,width=600,scrollbars=1,resizable=1');
   }

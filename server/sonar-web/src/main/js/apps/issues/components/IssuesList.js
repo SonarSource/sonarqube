@@ -20,9 +20,10 @@
 // @flow
 import React from 'react';
 import ListItem from './ListItem';
-import type { Issue } from '../../../components/issue/types';
-import type { Component } from '../utils';
+/*:: import type { Issue } from '../../../components/issue/types'; */
+/*:: import type { Component } from '../utils'; */
 
+/*::
 type Props = {|
   checked: Array<string>,
   component?: Component,
@@ -34,9 +35,10 @@ type Props = {|
   organization?: { key: string },
   selectedIssue: ?Issue
 |};
+*/
 
 export default class IssuesList extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { checked, component, issues, selectedIssue } = this.props;

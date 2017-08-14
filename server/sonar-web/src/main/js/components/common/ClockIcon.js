@@ -21,12 +21,14 @@
 import React from 'react';
 import classNames from 'classnames';
 
+/*::
 type Props = {
   className?: string,
   size?: number
 };
+*/
 
-export default function ClockIcon(props: Props) {
+export default function ClockIcon(props /*: Props */) {
   /* eslint max-len: 0 */
   return (
     <svg

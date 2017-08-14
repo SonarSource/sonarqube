@@ -23,7 +23,7 @@ import Select from 'react-select';
 import { STATUSES } from '../constants';
 import { translate } from '../../../helpers/l10n';
 
-const StatusFilter = ({ value, onChange }: { value: ?string, onChange: Function }) => {
+const StatusFilter = ({ value, onChange } /*: { value: ?string, onChange: Function } */) => {
   const options = [
     { value: STATUSES.ALL, label: translate('background_task.status.ALL') },
     {

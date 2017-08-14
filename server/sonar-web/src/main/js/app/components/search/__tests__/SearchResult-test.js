@@ -22,7 +22,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import SearchResult from '../SearchResult';
 
-function render(props?: Object) {
+function render(props /*: ?Object */) {
   return shallow(
     // $FlowFixMe
     <SearchResult

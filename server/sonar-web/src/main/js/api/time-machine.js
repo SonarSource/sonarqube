@@ -20,6 +20,7 @@
 // @flow
 import { getJSON } from '../helpers/request';
 
+/*::
 type Response = {
   measures: Array<{
     metric: string,
@@ -34,26 +35,28 @@ type Response = {
     total: number
   }
 };
+*/
 
-export const getTimeMachineData = (
-  component: string,
-  metrics: Array<string>,
-  other?: { p?: number, ps?: number, from?: string, to?: string }
-): Promise<Response> =>
-  getJSON('/api/measures/search_history', {
+export function getTimeMachineData(
+  component /*: string */,
+  metrics /*: Array<string> */,
+  other /*: ?{ p?: number, ps?: number, from?: string, to?: string } */
+) /*: Promise<Response> */ {
+  return getJSON('/api/measures/search_history', {
     component,
     metrics: metrics.join(),
     ps: 1000,
     ...other
   });
+}
 
-export const getAllTimeMachineData = (
-  component: string,
-  metrics: Array<string>,
-  other?: { p?: number, from?: string, to?: string },
-  prev?: Response
-): Promise<Response> =>
-  getTimeMachineData(component, metrics, { ...other, ps: 1000 }).then((r: Response) => {
+export function getAllTimeMachineData(
+  component /*: string */,
+  metrics /*: Array<string> */,
+  other /*: ?{ p?: number, from?: string, to?: string } */,
+  prev /*: ?Response */
+) /*: Promise<Response> */ {
+  return getTimeMachineData(component, metrics, { ...other, ps: 1000 }).then(r => {
     const result = prev
       ? {
           measures: prev.measures.map((measure, idx) => ({
@@ -74,3 +77,4 @@ export const getAllTimeMachineData = (
       result
     );
   });
+}

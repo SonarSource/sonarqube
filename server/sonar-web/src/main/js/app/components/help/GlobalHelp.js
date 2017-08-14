@@ -27,27 +27,31 @@ import ShortcutsHelp from './ShortcutsHelp';
 import TutorialsHelp from './TutorialsHelp';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   currentUser: { isLoggedIn: boolean },
   onClose: () => void,
   onTutorialSelect: () => void,
   sonarCloud?: boolean
 };
+*/
 
+/*::
 type State = {
   section: string
 };
+*/
 
 export default class GlobalHelp extends React.PureComponent {
-  props: Props;
-  state: State = { section: 'shortcuts' };
+  /*:: props: Props; */
+  state /*: State */ = { section: 'shortcuts' };
 
-  handleCloseClick = (event: Event) => {
+  handleCloseClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  handleSectionClick = (event: Event & { currentTarget: HTMLElement }) => {
+  handleSectionClick = (event /*: Event & { currentTarget: HTMLElement } */) => {
     event.preventDefault();
     const { section } = event.currentTarget.dataset;
     this.setState({ section });
@@ -68,7 +72,7 @@ export default class GlobalHelp extends React.PureComponent {
     }
   };
 
-  renderMenuItem = (section: string) =>
+  renderMenuItem = (section /*: string */) =>
     <li key={section}>
       <a
         className={classNames({ active: section === this.state.section })}

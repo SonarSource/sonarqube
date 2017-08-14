@@ -23,19 +23,21 @@ import { sortBy } from 'lodash';
 import Event from './Event';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import { translate } from '../../../helpers/l10n';
-import type { Analysis as AnalysisType, Event as EventType } from '../../projectActivity/types';
+/*:: import type { Analysis as AnalysisType, Event as EventType } from '../../projectActivity/types'; */
 
+/*::
 type Props = {
   analysis: AnalysisType,
   qualifier: string
 };
+*/
 
-export default function Analysis(props: Props) {
+export default function Analysis(props /*: Props */) {
   const { analysis } = props;
-  const sortedEvents: Array<EventType> = sortBy(
+  const sortedEvents /*: Array<EventType> */ = sortBy(
     analysis.events,
     // versions first
-    (event: EventType) => (event.category === 'VERSION' ? 0 : 1),
+    (event /*: EventType */) => (event.category === 'VERSION' ? 0 : 1),
     // then the rest sorted by category
     'category'
   );

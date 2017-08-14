@@ -24,19 +24,18 @@ import GlobalFooterForSonarQubeDotCom from './GlobalFooterForSonarQubeDotCom';
 import GlobalFooterBranding from './GlobalFooterBranding';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
+/*::
 type Props = {
   hideLoggedInInfo?: boolean,
   productionDatabase: boolean,
   sonarqubeDotCom?: { value: string },
   sonarqubeVersion?: string
 };
+*/
 
-export default function GlobalFooter({
-  hideLoggedInInfo,
-  productionDatabase,
-  sonarqubeDotCom,
-  sonarqubeVersion
-}: Props) {
+export default function GlobalFooter(
+  { hideLoggedInInfo, productionDatabase, sonarqubeDotCom, sonarqubeVersion } /*: Props */
+) {
   if (sonarqubeDotCom && sonarqubeDotCom.value === 'true') {
     return <GlobalFooterForSonarQubeDotCom hideLoggedInInfo={hideLoggedInInfo} />;
   }

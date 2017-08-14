@@ -22,13 +22,15 @@ import React from 'react';
 import Command from './Command';
 import { translate } from '../../../../helpers/l10n';
 
+/*::
 type Props = {|
   host: string,
   organization?: string,
   token: string
 |};
+*/
 
-export default function JavaGradle(props: Props) {
+export default function JavaGradle(props /*: Props */) {
   const config = 'plugins {\n  id "org.sonarqube" version "2.5"\n}';
 
   const command = [

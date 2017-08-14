@@ -26,12 +26,12 @@ import OrganizationsList from './OrganizationsList';
 import { translate } from '../../../helpers/l10n';
 import { fetchIfAnyoneCanCreateOrganizations, fetchMyOrganizations } from './actions';
 import { getAppState, getMyOrganizations, getSettingValue } from '../../../store/rootReducer';
-import type { Organization } from '../../../store/organizations/duck';
+/*:: import type { Organization } from '../../../store/organizations/duck'; */
 
 class UserOrganizations extends React.PureComponent {
-  mounted: boolean;
+  /*:: mounted: boolean; */
 
-  props: {
+  /*:: props: {
     anyoneCanCreate?: { value: string },
     canAdmin: boolean,
     children?: React.Element<*>,
@@ -39,8 +39,9 @@ class UserOrganizations extends React.PureComponent {
     fetchIfAnyoneCanCreateOrganizations: () => Promise<*>,
     fetchMyOrganizations: () => Promise<*>
   };
+*/
 
-  state: { loading: boolean } = {
+  state /*: { loading: boolean } */ = {
     loading: true
   };
 

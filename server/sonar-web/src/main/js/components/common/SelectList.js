@@ -23,25 +23,29 @@ import key from 'keymaster';
 import { uniqueId } from 'lodash';
 import SelectListItem from './SelectListItem';
 
+/*::
 type Props = {
   children?: SelectListItem,
   items: Array<string>,
   currentItem: string,
   onSelect: string => void
 };
+*/
 
+/*::
 type State = {
   active: string
 };
+*/
 
 export default class SelectList extends React.PureComponent {
-  currentKeyScope: string;
-  previousFilter: Function;
-  previousKeyScope: string;
-  props: Props;
-  state: State;
+  /*:: currentKeyScope: string; */
+  /*:: previousFilter: Function; */
+  /*:: previousKeyScope: string; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       active: props.currentItem
@@ -52,7 +56,7 @@ export default class SelectList extends React.PureComponent {
     this.attachShortcuts();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     if (
       nextProps.currentItem !== this.props.currentItem &&
       !nextProps.items.includes(this.state.active)
@@ -73,7 +77,7 @@ export default class SelectList extends React.PureComponent {
 
     // sometimes there is a *focused* search field next to the SelectList component
     // we need to allow shortcuts in this case, but only for the used keys
-    key.filter = (event: KeyboardEvent & { target: HTMLElement }) => {
+    key.filter = (event /*: KeyboardEvent & { target: HTMLElement } */) => {
       const tagName = (event.target || event.srcElement).tagName;
       const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
       return [13, 38, 40].includes(event.keyCode) || !isInput;
@@ -103,15 +107,15 @@ export default class SelectList extends React.PureComponent {
     key.filter = this.previousFilter;
   };
 
-  handleSelect = (item: string) => {
+  handleSelect = (item /*: string */) => {
     this.props.onSelect(item);
   };
 
-  handleHover = (item: string) => {
+  handleHover = (item /*: string */) => {
     this.setState({ active: item });
   };
 
-  selectNextElement = (state: State, props: Props) => {
+  selectNextElement = (state /*: State */, props /*: Props */) => {
     const idx = props.items.indexOf(state.active);
     if (idx < 0) {
       return { active: props.items[0] };
@@ -119,7 +123,7 @@ export default class SelectList extends React.PureComponent {
     return { active: props.items[(idx + 1) % props.items.length] };
   };
 
-  selectPreviousElement = (state: State, props: Props) => {
+  selectPreviousElement = (state /*: State */, props /*: Props */) => {
     const idx = props.items.indexOf(state.active);
     if (idx <= 0) {
       return { active: props.items[props.items.length - 1] };

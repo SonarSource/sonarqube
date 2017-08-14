@@ -68,7 +68,7 @@
     "eslint-plugin-react": "^6.8.0",
     "expose-loader": "0.7.3",
     "extract-text-webpack-plugin": "2.1.2",
-    "flow-bin": "0.47.0",
+    "flow-bin": "^0.52.0",
     "fs-extra": "0.30.0",
     "handlebars-loader": "1.5.0",
     "html-webpack-plugin": "2.28.0",

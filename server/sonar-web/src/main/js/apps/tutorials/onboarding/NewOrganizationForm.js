@@ -28,25 +28,29 @@ import {
 } from '../../../api/organizations';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {|
   onDelete: () => void,
   onDone: (organization: string) => void,
   organization?: string
 |};
+*/
 
+/*::
 type State = {
   done: boolean,
   loading: boolean,
   organization: string,
   unique: boolean
 };
+*/
 
 export default class NewOrganizationForm extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = {
       done: props.organization != null,
@@ -71,7 +75,7 @@ export default class NewOrganizationForm extends React.PureComponent {
     }
   };
 
-  validateOrganization = (organization: string) => {
+  validateOrganization = (organization /*: string */) => {
     getOrganization(organization).then(response => {
       if (this.mounted) {
         this.setState({ unique: response == null });
@@ -79,16 +83,16 @@ export default class NewOrganizationForm extends React.PureComponent {
     });
   };
 
-  sanitizeOrganization = (organization: string) =>
+  sanitizeOrganization = (organization /*: string */) =>
     organization.toLowerCase().replace(/[^a-z0-9-]/, '').replace(/^-/, '');
 
-  handleOrganizationChange = (event: { target: HTMLInputElement }) => {
+  handleOrganizationChange = (event /*: { target: HTMLInputElement } */) => {
     const organization = this.sanitizeOrganization(event.target.value);
     this.setState({ organization });
     this.validateOrganization(organization);
   };
 
-  handleOrganizationCreate = (event: Event) => {
+  handleOrganizationCreate = (event /*: Event */) => {
     event.preventDefault();
     const { organization } = this.state;
     if (organization) {
@@ -102,7 +106,7 @@ export default class NewOrganizationForm extends React.PureComponent {
     }
   };
 
-  handleOrganizationDelete = (event: Event) => {
+  handleOrganizationDelete = (event /*: Event */) => {
     event.preventDefault();
     const { organization } = this.state;
     if (organization) {

@@ -27,11 +27,13 @@ import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 import SizeRating from '../../../components/ui/SizeRating';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   measures?: { [string]: string }
 };
+*/
 
-export default function ProjectCardOverallMeasures({ measures }: Props) {
+export default function ProjectCardOverallMeasures({ measures } /*: Props */) {
   if (measures == null) {
     return null;
   }

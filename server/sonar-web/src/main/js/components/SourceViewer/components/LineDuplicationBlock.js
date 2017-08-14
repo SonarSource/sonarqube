@@ -22,19 +22,21 @@ import React from 'react';
 import classNames from 'classnames';
 import Tooltip from '../../controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-import type { SourceLine } from '../types';
+/*:: import type { SourceLine } from '../types'; */
 
+/*::
 type Props = {
   duplicated: boolean,
   index: number,
   line: SourceLine,
   onClick: (index: number, lineNumber: number) => void
 };
+*/
 
 export default class LineDuplicationBlock extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
-  handleClick = (e: SyntheticInputEvent) => {
+  handleClick = (e /*: SyntheticInputEvent */) => {
     e.preventDefault();
     this.props.onClick(this.props.index, this.props.line.line);
   };

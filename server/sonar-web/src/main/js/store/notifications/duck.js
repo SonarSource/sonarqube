@@ -21,6 +21,7 @@
 import { combineReducers } from 'redux';
 import { uniqBy, uniqWith } from 'lodash';
 
+/*::
 export type Notification = {
   channel: string,
   type: string,
@@ -28,21 +29,33 @@ export type Notification = {
   projectName?: string,
   organization?: string
 };
+*/
 
+/*::
 export type NotificationsState = Array<Notification>;
+*/
+/*::
 export type ChannelsState = Array<string>;
+*/
+/*::
 export type TypesState = Array<string>;
+*/
 
+/*::
 type AddNotificationAction = {
   type: 'ADD_NOTIFICATION',
   notification: Notification
 };
+*/
 
+/*::
 type RemoveNotificationAction = {
   type: 'REMOVE_NOTIFICATION',
   notification: Notification
 };
+*/
 
+/*::
 type ReceiveNotificationsAction = {
   type: 'RECEIVE_NOTIFICATIONS',
   notifications: NotificationsState,
@@ -50,52 +63,67 @@ type ReceiveNotificationsAction = {
   globalTypes: TypesState,
   perProjectTypes: TypesState
 };
+*/
 
+/*::
 type Action = AddNotificationAction | RemoveNotificationAction | ReceiveNotificationsAction;
+*/
 
-export const addNotification = (notification: Notification): AddNotificationAction => ({
-  type: 'ADD_NOTIFICATION',
-  notification
-});
+export function addNotification(notification /*: Notification */) /*: AddNotificationAction */ {
+  return {
+    type: 'ADD_NOTIFICATION',
+    notification
+  };
+}
 
-export const removeNotification = (notification: Notification): RemoveNotificationAction => ({
-  type: 'REMOVE_NOTIFICATION',
-  notification
-});
+export function removeNotification(
+  notification /*: Notification */
+) /*: RemoveNotificationAction */ {
+  return {
+    type: 'REMOVE_NOTIFICATION',
+    notification
+  };
+}
 
-export const receiveNotifications = (
-  notifications: NotificationsState,
-  channels: ChannelsState,
-  globalTypes: TypesState,
-  perProjectTypes: TypesState
-): ReceiveNotificationsAction => ({
-  type: 'RECEIVE_NOTIFICATIONS',
-  notifications,
-  channels,
-  globalTypes,
-  perProjectTypes
-});
+export function receiveNotifications(
+  notifications /*: NotificationsState */,
+  channels /*: ChannelsState */,
+  globalTypes /*: TypesState */,
+  perProjectTypes /*: TypesState */
+) /*: ReceiveNotificationsAction */ {
+  return {
+    type: 'RECEIVE_NOTIFICATIONS',
+    notifications,
+    channels,
+    globalTypes,
+    perProjectTypes
+  };
+}
 
-const onAddNotification = (state: NotificationsState, notification: Notification) => {
-  const isNotificationsEqual = (a: Notification, b: Notification) =>
-    a.channel === b.channel && a.type === b.type && a.project === b.project;
+function onAddNotification(state /*: NotificationsState */, notification /*: Notification */) {
+  function isNotificationsEqual(a /*: Notification */, b /*: Notification */) {
+    return a.channel === b.channel && a.type === b.type && a.project === b.project;
+  }
   return uniqWith([...state, notification], isNotificationsEqual);
-};
+}
 
-const onRemoveNotification = (state: NotificationsState, notification: Notification) => {
+function onRemoveNotification(state /*: NotificationsState */, notification /*: Notification */) {
   return state.filter(
     n =>
       n.channel !== notification.channel ||
       n.type !== notification.type ||
       n.project !== notification.project
   );
-};
+}
 
-const onReceiveNotifications = (state: NotificationsState, notifications: NotificationsState) => {
+function onReceiveNotifications(
+  state /*: NotificationsState */,
+  notifications /*: NotificationsState */
+) {
   return [...notifications];
-};
+}
 
-const notifications = (state: NotificationsState = [], action: Action) => {
+function notifications(state /*: NotificationsState */ = [], action /*: Action */) {
   switch (action.type) {
     case 'ADD_NOTIFICATION':
       return onAddNotification(state, action.notification);
@@ -106,45 +134,48 @@ const notifications = (state: NotificationsState = [], action: Action) => {
     default:
       return state;
   }
-};
+}
 
-const channels = (state: ChannelsState = [], action: Action) => {
+function channels(state /*: ChannelsState */ = [], action /*: Action */) {
   if (action.type === 'RECEIVE_NOTIFICATIONS') {
     return action.channels;
   } else {
     return state;
   }
-};
+}
 
-const globalTypes = (state: TypesState = [], action: Action) => {
+function globalTypes(state /*: TypesState */ = [], action /*: Action */) {
   if (action.type === 'RECEIVE_NOTIFICATIONS') {
     return action.globalTypes;
   } else {
     return state;
   }
-};
+}
 
-const perProjectTypes = (state: TypesState = [], action: Action) => {
+function perProjectTypes(state /*: TypesState */ = [], action /*: Action */) {
   if (action.type === 'RECEIVE_NOTIFICATIONS') {
     return action.perProjectTypes;
   } else {
     return state;
   }
-};
+}
 
+/*::
 type State = {
   notifications: NotificationsState,
   channels: ChannelsState,
   globalTypes: TypesState,
   perProjectTypes: TypesState
 };
+*/
 
 export default combineReducers({ notifications, channels, globalTypes, perProjectTypes });
 
-export const getGlobal = (state: State): NotificationsState =>
-  state.notifications.filter(n => !n.project);
+export function getGlobal(state /*: State */) /*: NotificationsState */ {
+  return state.notifications.filter(n => !n.project);
+}
 
-export const getProjects = (state: State): Array<{ key: string, name: string }> => {
+export function getProjects(state /*: State */) /*: Array<{ key: string, name: string }> */ {
   // $FlowFixMe
   const allProjects = state.notifications.filter(n => n.project != null).map(n => ({
     key: n.project,
@@ -153,13 +184,20 @@ export const getProjects = (state: State): Array<{ key: string, name: string }> 
   }));
 
   return uniqBy(allProjects, project => project.key);
-};
+}
 
-export const getForProject = (state: State, project: string): NotificationsState =>
-  state.notifications.filter(n => n.project === project);
+export function getForProject(state /*: State */, project /*: string */) /*: NotificationsState */ {
+  return state.notifications.filter(n => n.project === project);
+}
 
-export const getChannels = (state: State): ChannelsState => state.channels;
+export function getChannels(state /*: State */) /*: ChannelsState */ {
+  return state.channels;
+}
 
-export const getGlobalTypes = (state: State): TypesState => state.globalTypes;
+export function getGlobalTypes(state /*: State */) /*: TypesState */ {
+  return state.globalTypes;
+}
 
-export const getPerProjectTypes = (state: State): TypesState => state.perProjectTypes;
+export function getPerProjectTypes(state /*: State */) /*: TypesState */ {
+  return state.perProjectTypes;
+}

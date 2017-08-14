@@ -23,12 +23,14 @@ import { Link } from 'react-router';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   count: number,
   loading: boolean
 };
+*/
 
-export default function AboutProjects({ count, loading }: Props) {
+export default function AboutProjects({ count, loading } /*: Props */) {
   return (
     <div className="about-page-projects">
       {loading && <i className="spinner" />}

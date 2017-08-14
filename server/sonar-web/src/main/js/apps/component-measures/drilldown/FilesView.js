@@ -24,10 +24,10 @@ import { throttle } from 'lodash';
 import ComponentsList from './ComponentsList';
 import ListFooter from '../../../components/controls/ListFooter';
 import { scrollToElement } from '../../../helpers/scrolling';
-import type { ComponentEnhanced, Paging } from '../types';
-import type { Metric } from '../../../store/metrics/actions';
+/*:: import type { ComponentEnhanced, Paging } from '../types'; */
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
 
-type Props = {|
+/*:: type Props = {|
   components: Array<ComponentEnhanced>,
   fetchMore: () => void,
   handleSelect: string => void,
@@ -37,13 +37,13 @@ type Props = {|
   paging: ?Paging,
   selectedKey: ?string,
   selectedIdx: ?number
-|};
+|}; */
 
 export default class ListView extends React.PureComponent {
-  listContainer: HTMLElement;
-  props: Props;
+  /*:: listContainer: HTMLElement; */
+  /*:: props: Props; */
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.selectNext = throttle(this.selectNext, 100);
     this.selectPrevious = throttle(this.selectPrevious, 100);
@@ -53,7 +53,7 @@ export default class ListView extends React.PureComponent {
     this.attachShortcuts();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (
       this.listContainer &&
       this.props.selectedKey != null &&

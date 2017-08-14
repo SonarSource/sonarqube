@@ -31,6 +31,7 @@ import AboutScanners from './AboutScanners';
 import SonarCloudGetStarted from './SonarCloudGetStarted';
 import '../sonarqube-dot-com-styles.css';
 
+/*::
 type Props = {
   appState: {
     defaultOrganization: string,
@@ -44,8 +45,9 @@ type Props = {
   projectsCount: number,
   vulnerabilities: number
 };
+*/
 
-export default function AboutAppForSonarQubeDotCom(props: Props) {
+export default function AboutAppForSonarQubeDotCom(props /*: Props */) {
   const { customText } = props;
 
   return (

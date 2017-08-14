@@ -20,17 +20,19 @@
 // @flow
 import React from 'react';
 import Issue from '../../issue/Issue';
-import type { Issue as IssueType } from '../../issue/types';
+/*:: import type { Issue as IssueType } from '../../issue/types'; */
 
+/*::
 type Props = {
   issues: Array<IssueType>,
   onIssueChange: IssueType => void,
   onIssueClick: (issueKey: string) => void,
   selectedIssue: string | null
 };
+*/
 
 export default class LineIssuesList extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { issues, onIssueClick, selectedIssue } = this.props;

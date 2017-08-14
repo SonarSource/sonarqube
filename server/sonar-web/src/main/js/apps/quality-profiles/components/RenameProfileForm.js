@@ -20,26 +20,30 @@
 // @flow
 import React from 'react';
 import Modal from 'react-modal';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 import { renameProfile } from '../../../api/quality-profiles';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   onClose: () => void,
   onRename: string => void,
   onRequestFail: Object => void,
   profile: Profile
 };
+*/
 
+/*::
 type State = {
   loading: boolean,
   name: ?string
 };
+*/
 
 export default class RenameProfileForm extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = { loading: false, name: null };
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = { loading: false, name: null };
 
   componentDidMount() {
     this.mounted = true;
@@ -49,16 +53,16 @@ export default class RenameProfileForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  handleCancelClick = (event: Event) => {
+  handleCancelClick = (event /*: Event */) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  handleNameChange = (event: { currentTarget: HTMLInputElement }) => {
+  handleNameChange = (event /*: { currentTarget: HTMLInputElement } */) => {
     this.setState({ name: event.currentTarget.value });
   };
 
-  handleFormSubmit = (event: Event) => {
+  handleFormSubmit = (event /*: Event */) => {
     event.preventDefault();
 
     const { name } = this.state;

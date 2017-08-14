@@ -32,8 +32,8 @@ import { fetchMetrics } from '../../../store/rootActions';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { enhanceMeasure } from '../../../components/measure/utils';
-import type { Component, Period } from '../types';
-import type { Measure, MeasureEnhanced } from '../../../components/measure/types';
+/*:: import type { Component, Period } from '../types'; */
+/*:: import type { Measure, MeasureEnhanced } from '../../../components/measure/types'; */
 
 const mapStateToProps = (state, ownProps) => ({
   component: getComponent(state, ownProps.location.query.id),
@@ -42,7 +42,7 @@ const mapStateToProps = (state, ownProps) => ({
   metricsKey: getMetricsKey(state)
 });
 
-const banQualityGate = (component: Component): Array<Measure> => {
+function banQualityGate(component /*: Component */) /*: Array<Measure> */ {
   const bannedMetrics = [];
   if (!['VW', 'SVW'].includes(component.qualifier)) {
     bannedMetrics.push('alert_status');
@@ -51,18 +51,18 @@ const banQualityGate = (component: Component): Array<Measure> => {
     bannedMetrics.push('releasability_rating', 'releasability_effort');
   }
   return component.measures.filter(measure => !bannedMetrics.includes(measure.metric));
-};
+}
 
-const fetchMeasures = (component: string, metricsKey: Array<string>) => (
+const fetchMeasures = (component /*: string */, metricsKey /*: Array<string> */) => (
   dispatch,
   getState
-): Promise<{ component: Component, measures: Array<MeasureEnhanced>, leakPeriod: ?Period }> => {
+) => {
   if (metricsKey.length <= 0) {
     return Promise.resolve({ component: {}, measures: [], leakPeriod: null });
   }
 
   return getMeasuresAndMeta(component, metricsKey, { additionalFields: 'periods' }).then(r => {
-    const measures: Array<MeasureEnhanced> = banQualityGate(r.component).map(measure =>
+    const measures = banQualityGate(r.component).map(measure =>
       enhanceMeasure(measure, getMetrics(getState()))
     );
 

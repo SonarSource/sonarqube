@@ -24,14 +24,16 @@ import { formatMeasure } from '../../../helpers/measures';
 import { getRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
+/*::
 type Props = {
   count: ?number,
   organization: ?string,
   qprofile: string,
   total: ?number
 };
+*/
 
-export default function ProfileRulesRowTotal(props: Props) {
+export default function ProfileRulesRowTotal(props /*: Props */) {
   const activeRulesUrl = getRulesUrl(
     { qprofile: props.qprofile, activation: 'true' },
     props.organization

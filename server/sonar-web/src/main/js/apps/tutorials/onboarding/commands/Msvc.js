@@ -24,14 +24,16 @@ import MSBuildScanner from './MSBuildScanner';
 import BuildWrapper from './BuildWrapper';
 import { translate } from '../../../../helpers/l10n';
 
+/*::
 type Props = {|
   host: string,
   organization?: string,
   projectKey: string,
   token: string
 |};
+*/
 
-export default function Msvc(props: Props) {
+export default function Msvc(props /*: Props */) {
   const command1 = [
     'SonarQube.Scanner.MSBuild.exe begin',
     `/k:"${props.projectKey}"`,

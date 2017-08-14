@@ -23,11 +23,11 @@ import MeasureOverview from './MeasureOverview';
 import { getComponentShow } from '../../../api/components';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isViewType } from '../utils';
-import type { Component, Period, Query } from '../types';
-import type { RawQuery } from '../../../helpers/query';
-import type { Metric } from '../../../store/metrics/actions';
+/*:: import type { Component, Period, Query } from '../types'; */
+/*:: import type { RawQuery } from '../../../helpers/query'; */
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
 
-type Props = {|
+/*:: type Props = {|
   className?: string,
   rootComponent: Component,
   currentUser: { isLoggedIn: boolean },
@@ -39,20 +39,20 @@ type Props = {|
   },
   selected: ?string,
   updateQuery: Query => void
-|};
+|}; */
 
-type State = {
+/*:: type State = {
   component: ?Component,
   loading: {
     component: boolean,
     bubbles: boolean
   }
-};
+}; */
 
 export default class MeasureOverviewContainer extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     component: null,
     loading: {
       component: false,
@@ -65,7 +65,7 @@ export default class MeasureOverviewContainer extends React.PureComponent {
     this.fetchComponent(this.props);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps /*: Props */) {
     const { component } = this.state;
     const componentChanged =
       !component ||
@@ -80,7 +80,7 @@ export default class MeasureOverviewContainer extends React.PureComponent {
     this.mounted = false;
   }
 
-  fetchComponent = ({ rootComponent, selected }: Props) => {
+  fetchComponent = ({ rootComponent, selected } /*: Props */) => {
     if (!selected || rootComponent.key === selected) {
       this.setState({ component: rootComponent });
       this.updateLoading({ component: false });
@@ -98,13 +98,13 @@ export default class MeasureOverviewContainer extends React.PureComponent {
     );
   };
 
-  updateLoading = (loading: { [string]: boolean }) => {
+  updateLoading = (loading /*: { [string]: boolean } */) => {
     if (this.mounted) {
       this.setState(state => ({ loading: { ...state.loading, ...loading } }));
     }
   };
 
-  updateSelected = (component: string) => {
+  updateSelected = (component /*: string */) => {
     if (this.state.component && isViewType(this.state.component)) {
       this.props.router.push(getProjectUrl(component));
     } else {

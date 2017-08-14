@@ -24,6 +24,7 @@ import OverviewApp from './OverviewApp';
 import EmptyOverview from './EmptyOverview';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
+/*::
 type Props = {
   component: {
     analysisDate?: string,
@@ -34,10 +35,11 @@ type Props = {
   },
   router: Object
 };
+*/
 
 export default class App extends React.PureComponent {
-  props: Props;
-  state: Object;
+  /*:: props: Props; */
+  /*:: state: Object; */
 
   static contextTypes = {
     router: PropTypes.object

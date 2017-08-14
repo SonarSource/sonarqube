@@ -23,22 +23,24 @@ import QualityGateConditions from './QualityGateConditions';
 import EmptyQualityGate from './EmptyQualityGate';
 import { translate } from '../../../helpers/l10n';
 import Level from '../../../components/ui/Level';
-import type { Component, MeasuresList } from '../types';
+/*:: import type { Component, MeasuresList } from '../types'; */
 
-function parseQualityGateDetails(rawDetails: string) {
+function parseQualityGateDetails(rawDetails /*: string */) {
   return JSON.parse(rawDetails);
 }
 
-function isProject(component: Component) {
+function isProject(component /*: Component */) {
   return component.qualifier === 'TRK';
 }
 
+/*::
 type Props = {
   component: Component,
   measures: MeasuresList
 };
+*/
 
-export default function QualityGate({ component, measures }: Props) {
+export default function QualityGate({ component, measures } /*: Props */) {
   const statusMeasure = measures.find(measure => measure.metric.key === 'alert_status');
   const detailsMeasure = measures.find(measure => measure.metric.key === 'quality_gate_details');
 

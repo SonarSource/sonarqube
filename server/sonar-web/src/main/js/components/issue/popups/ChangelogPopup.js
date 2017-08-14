@@ -25,9 +25,10 @@ import { translate } from '../../../helpers/l10n';
 import Avatar from '../../../components/ui/Avatar';
 import BubblePopup from '../../../components/common/BubblePopup';
 import IssueChangelogDiff from '../components/IssueChangelogDiff';
-import type { ChangelogDiff } from '../components/IssueChangelogDiff';
-import type { Issue } from '../types';
+/*:: import type { ChangelogDiff } from '../components/IssueChangelogDiff'; */
+/*:: import type { Issue } from '../types'; */
 
+/*::
 type Changelog = {
   avatar?: string,
   creationDate: string,
@@ -35,21 +36,26 @@ type Changelog = {
   user: string,
   userName: string
 };
+*/
 
+/*::
 type Props = {
   issue: Issue,
   onFail: Error => void,
   popupPosition?: {}
 };
+*/
 
+/*::
 type State = {
   changelogs: Array<Changelog>
 };
+*/
 
 export default class ChangelogPopup extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State = {
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  state /*: State */ = {
     changelogs: []
   };
 

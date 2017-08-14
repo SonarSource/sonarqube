@@ -20,14 +20,16 @@
 //@flow
 import React from 'react';
 
+/*::
 type Props = {
   loading: boolean,
   total?: number,
   children?: React.Element<*>
 };
+*/
 
 export default class MembersPageHeader extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     return (

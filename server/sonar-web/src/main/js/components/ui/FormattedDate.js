@@ -22,12 +22,13 @@ import React from 'react';
 import moment from 'moment';
 
 export default class FormattedDate extends React.PureComponent {
-  props: {
+  /*:: props: {
     className?: string,
     date: string | number,
     format?: string,
     tooltipFormat?: string
   };
+*/
 
   static defaultProps = {
     format: 'LLL'

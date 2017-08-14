@@ -22,12 +22,14 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 import BubblePopup from '../../../components/common/BubblePopup';
 
+/*::
 type Props = {
   onDelete: () => void,
   popupPosition?: {}
 };
+*/
 
-export default function CommentDeletePopup(props: Props) {
+export default function CommentDeletePopup(props /*: Props */) {
   return (
     <BubblePopup position={props.popupPosition} customClass="bubble-popup-bottom-right">
       <div className="text-right">

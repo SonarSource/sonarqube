@@ -24,15 +24,18 @@ import ComparisonForm from './ComparisonForm';
 import ComparisonResults from './ComparisonResults';
 import { compareProfiles } from '../../../api/quality-profiles';
 import { getProfileComparePath } from '../utils';
-import type { Profile } from '../propTypes';
+/*:: import type { Profile } from '../propTypes'; */
 
+/*::
 type Props = {
   location: { query: { withKey?: string } },
   organization: ?string,
   profile: Profile,
   profiles: Array<Profile>
 };
+*/
 
+/*::
 type State = {
   loading: boolean,
   left?: { name: string },
@@ -41,17 +44,18 @@ type State = {
   inRight?: Array<*>,
   modified?: Array<*>
 };
+*/
 
 export default class ComparisonContainer extends React.PureComponent {
-  mounted: boolean;
-  props: Props;
-  state: State;
+  /*:: mounted: boolean; */
+  /*:: props: Props; */
+  /*:: state: State; */
 
   static contextTypes = {
     router: PropTypes.object
   };
 
-  constructor(props: Props) {
+  constructor(props /*: Props */) {
     super(props);
     this.state = { loading: false };
   }
@@ -61,7 +65,7 @@ export default class ComparisonContainer extends React.PureComponent {
     this.loadResults();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps /*: Props */) {
     if (prevProps.profile !== this.props.profile || prevProps.location !== this.props.location) {
       this.loadResults();
     }
@@ -93,7 +97,7 @@ export default class ComparisonContainer extends React.PureComponent {
     });
   }
 
-  handleCompare = (withKey: string) => {
+  handleCompare = (withKey /*: string */) => {
     const path = getProfileComparePath(
       this.props.profile.name,
       this.props.profile.language,

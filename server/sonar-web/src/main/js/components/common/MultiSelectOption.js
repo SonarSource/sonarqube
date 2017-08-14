@@ -21,6 +21,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
+/*::
 type Props = {
   element: string,
   selected: boolean,
@@ -29,9 +30,10 @@ type Props = {
   onSelectChange: (string, boolean) => void,
   onHover: string => void
 };
+*/
 
 export default class MultiSelectOption extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   static defaultProps = {
     selected: false,
@@ -39,7 +41,7 @@ export default class MultiSelectOption extends React.PureComponent {
     active: false
   };
 
-  handleSelect = (evt: SyntheticInputEvent) => {
+  handleSelect = (evt /*: SyntheticInputEvent */) => {
     evt.stopPropagation();
     evt.preventDefault();
     evt.target.blur();

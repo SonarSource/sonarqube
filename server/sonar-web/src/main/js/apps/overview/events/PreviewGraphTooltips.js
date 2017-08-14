@@ -21,9 +21,10 @@ import React from 'react';
 import BubblePopup from '../../../components/common/BubblePopup';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import PreviewGraphTooltipsContent from './PreviewGraphTooltipsContent';
-import type { Metric } from '../types';
-import type { Serie } from '../../../components/charts/AdvancedTimeline';
+/*:: import type { Metric } from '../types'; */
+/*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
 
+/*::
 type Props = {
   formatValue: (number | string) => string,
   graph: string,
@@ -34,11 +35,12 @@ type Props = {
   tooltipIdx: number,
   tooltipPos: number
 };
+*/
 
 const TOOLTIP_WIDTH = 160;
 
 export default class PreviewGraphTooltips extends React.PureComponent {
-  props: Props;
+  /*:: props: Props; */
 
   render() {
     const { tooltipIdx } = this.props;

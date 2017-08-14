@@ -20,9 +20,11 @@
 // @flow
 import React from 'react';
 
+/*::
 type Props = { className?: string, size?: number };
+*/
 
-export default function ProjectEventIcon({ className, size = 14 }: Props) {
+export default function ProjectEventIcon({ className, size = 14 } /*: Props */) {
   /* eslint-disable max-len */
   return (
     <svg
