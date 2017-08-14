@@ -31,7 +31,7 @@ type Props = {
 export default function PrivateBadge({ className, tooltipPlacement = 'bottom' }: Props) {
   return (
     <Tooltip overlay={translate('visibility.private.description')} placement={tooltipPlacement}>
-      <div className={classNames('outline-badge', 'private-badge', className)}>
+      <div className={classNames('outline-badge', className)}>
         {translate('visibility.private')}
       </div>
     </Tooltip>
