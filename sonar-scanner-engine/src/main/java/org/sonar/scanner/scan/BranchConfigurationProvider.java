@@ -36,13 +36,13 @@ public class BranchConfigurationProvider extends ProviderAdapter {
 
   public BranchConfiguration provide(@Nullable BranchConfigurationLoader loader, ProjectKey projectKey, GlobalConfiguration globalConfiguration) {
     if (branchConfiguration == null) {
-      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       if (loader == null) {
         branchConfiguration = new DefaultBranchConfiguration();
       } else {
+        Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
         branchConfiguration = loader.load(projectKey.get(), globalConfiguration);
+        profiler.stopInfo();
       }
-      profiler.stopInfo();
     }
     return branchConfiguration;
   }
