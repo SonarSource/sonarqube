@@ -64,6 +64,8 @@ export default class GraphHistory extends React.PureComponent {
   formatValue = (tick /*: string | number */) =>
     formatMeasure(tick, getShortType(this.props.metricsType));
 
+  formatTooltipValue = (tick /*: string | number */) => formatMeasure(tick, this.props.metricsType);
+
   updateTooltip = (
     selectedDate /*: ?Date */,
     tooltipXPos /*: ?number */,
@@ -106,7 +108,7 @@ export default class GraphHistory extends React.PureComponent {
                   tooltipXPos != null &&
                   <GraphsTooltips
                     events={this.props.events}
-                    formatValue={this.formatValue}
+                    formatValue={this.formatTooltipValue}
                     graph={graph}
                     graphWidth={width}
                     measuresHistory={this.props.measuresHistory}
