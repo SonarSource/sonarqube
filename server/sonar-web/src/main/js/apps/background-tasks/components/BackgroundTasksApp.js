@@ -246,7 +246,6 @@ class BackgroundTasksApp extends React.PureComponent {
         <Tasks
           loading={loading}
           component={component}
-          types={types}
           tasks={tasks}
           onCancelTask={this.handleCancelTask.bind(this)}
           onFilterTask={this.handleFilterTask.bind(this)}

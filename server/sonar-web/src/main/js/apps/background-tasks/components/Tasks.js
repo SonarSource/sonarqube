@@ -27,7 +27,6 @@ import { translate } from '../../../helpers/l10n';
 type Props = {
   tasks: Array<*>,
   component: Object,
-  types: Array<*>,
   loading: boolean,
   onCancelTask: Function,
   onFilterTask: Function
@@ -43,7 +42,7 @@ export default class Tasks extends React.PureComponent {
   /*:: state: State; */
 
   render() {
-    const { tasks, component, types, loading, onCancelTask, onFilterTask } = this.props;
+    const { tasks, component, loading, onCancelTask, onFilterTask } = this.props;
 
     const className = classNames('data zebra zebra-hover background-tasks', {
       'new-loading': loading
@@ -86,7 +85,6 @@ export default class Tasks extends React.PureComponent {
               index={index}
               tasks={tasks}
               component={component}
-              types={types}
               onCancelTask={onCancelTask}
               onFilterTask={onFilterTask}
             />
