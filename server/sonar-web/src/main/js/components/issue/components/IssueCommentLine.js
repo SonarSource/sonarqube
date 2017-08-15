@@ -46,6 +46,12 @@ export default class IssueCommentLine extends React.PureComponent {
     openPopup: ''
   };
 
+  handleCommentClick = (event /*: Event & {target: HTMLElement}*/) => {
+    if (event.target.tagName === 'A') {
+      event.stopPropagation();
+    }
+  };
+
   handleEdit = (text /*: string */) => {
     this.props.onEdit(this.props.comment.key, text);
     this.toggleEditPopup(false);
@@ -87,6 +93,9 @@ export default class IssueCommentLine extends React.PureComponent {
         <div
           className="issue-comment-text markdown"
           dangerouslySetInnerHTML={{ __html: comment.htmlText }}
+          onClick={this.handleCommentClick}
+          role="Listitem"
+          tabIndex={0}
         />
         <div className="issue-comment-age">
           ({moment(comment.createdAt).fromNow()})

@@ -35,6 +35,9 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
         "__html": "<b>test</b>",
       }
     }
+    onClick={[Function]}
+    role="Listitem"
+    tabIndex={0}
   />
   <div
     className="issue-comment-age"
@@ -130,6 +133,9 @@ exports[`should render correctly a comment that is not updatable 1`] = `
         "__html": "<b>test</b>",
       }
     }
+    onClick={[Function]}
+    role="Listitem"
+    tabIndex={0}
   />
   <div
     className="issue-comment-age"
@@ -167,6 +173,9 @@ exports[`should render correctly a comment that is updatable 1`] = `
         "__html": "<b>test</b>",
       }
     }
+    onClick={[Function]}
+    role="Listitem"
+    tabIndex={0}
   />
   <div
     className="issue-comment-age"
