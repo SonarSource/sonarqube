@@ -135,8 +135,7 @@ export default Marionette.ItemView.extend({
     return parent;
   },
 
-  enhanceParameters() {
-    const parent = this.getParent();
+  enhanceParameters(parent) {
     const params = sortBy(this.model.get('params'), 'key');
     if (!parent) {
       return params;
@@ -144,7 +143,7 @@ export default Marionette.ItemView.extend({
     return params.map(p => {
       const parentParam = parent.params.find(param => param.key === p.key);
       if (parentParam != null) {
-        return { ...p, original: parentParam };
+        return { ...p, original: parentParam.value };
       } else {
         return p;
       }
@@ -166,7 +165,7 @@ export default Marionette.ItemView.extend({
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       parent,
       canWrite: this.options.app.canWrite,
-      parameters: this.enhanceParameters(),
+      parameters: this.enhanceParameters(parent),
       templateKey: this.options.rule.get('templateKey'),
       isTemplate: this.options.rule.get('isTemplate'),
       profilePath: this.getProfilePath(this.model.get('lang'), this.model.get('name')),
