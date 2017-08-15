@@ -79,14 +79,12 @@ public class BuildComponentTreeStep implements ComputationStep {
 
       String rootUuid = componentUuidFactory.getOrCreateForKey(rootKey);
       SnapshotDto baseAnalysis = loadBaseAnalysis(dbSession, rootUuid);
-      boolean skipUnchangedFiles = analysisMetadataHolder.isShortLivingBranch();
 
       ComponentTreeBuilder builder = new ComponentTreeBuilder(keyGenerator,
         componentUuidFactory::getOrCreateForKey,
         reportReader::readComponent,
         analysisMetadataHolder.getProject(),
-        baseAnalysis,
-        skipUnchangedFiles);
+        baseAnalysis);
       Component project = builder.buildProject(reportProject);
 
       treeRootHolder.setRoot(project);
@@ -127,7 +125,7 @@ public class BuildComponentTreeStep implements ComputationStep {
   private static class DefaultKeyGenerator implements ComponentKeyGenerator {
     @Override
     public String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir) {
-      String moduleKey =  module.getKey();
+      String moduleKey = module.getKey();
       if (fileOrDir == null || isEmpty(fileOrDir.getPath())) {
         return moduleKey;
       }
