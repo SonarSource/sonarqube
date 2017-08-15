@@ -44,6 +44,8 @@ import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.BranchConfiguration.BranchType;
 import org.sonar.scanner.scan.DefaultComponentTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,9 +60,11 @@ public class ComponentsPublisherTest {
   private InputModuleHierarchy moduleHierarchy;
   private File outputDir;
   private ScannerReportWriter writer;
+  private BranchConfiguration branchConfiguration;
 
   @Before
   public void setUp() throws IOException {
+    branchConfiguration = mock(BranchConfiguration.class);
     tree = new DefaultComponentTree();
     outputDir = temp.newFolder();
     writer = new ScannerReportWriter(outputDir);
@@ -114,7 +118,7 @@ public class ComponentsPublisherTest {
     DefaultInputFile testFile = new TestInputFileBuilder("module1", "test/FooTest.java", 7).setType(Type.TEST).setStatus(InputFile.Status.ADDED).setLines(4).build();
     tree.index(testFile, dir);
 
-    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree);
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree, branchConfiguration);
     publisher.publish(writer);
 
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
@@ -186,7 +190,7 @@ public class ComponentsPublisherTest {
     DefaultInputFile file3 = new TestInputFileBuilder("module1", "src2/Foo3.java", 7).setPublish(false).setLines(2).build();
     tree.index(file3, dir3);
 
-    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree);
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree, branchConfiguration);
     publisher.publish(writer);
 
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
@@ -198,7 +202,72 @@ public class ComponentsPublisherTest {
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isFalse();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isFalse();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isFalse();
+  }
 
+  @Test
+  public void skip_unchanged_components_in_short_branches() throws IOException {
+    when(branchConfiguration.branchType()).thenReturn(BranchType.SHORT);
+    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+
+    ProjectDefinition rootDef = ProjectDefinition.create()
+      .setKey("foo")
+      .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
+      .setName("Root project")
+      .setDescription("Root description")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder());
+    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
+
+    moduleHierarchy = mock(InputModuleHierarchy.class);
+    when(moduleHierarchy.root()).thenReturn(root);
+    when(moduleHierarchy.children(root)).thenReturn(Collections.emptyList());
+
+    // dir with changed files
+    DefaultInputDir dir = new DefaultInputDir("module1", "src", 2);
+    tree.index(dir, root);
+
+    // dir without changed files or issues
+    DefaultInputDir dir2 = new DefaultInputDir("module1", "src2", 3);
+    tree.index(dir2, root);
+
+    // dir without changed files but has issues
+    DefaultInputDir dir3 = new DefaultInputDir("module1", "src3", 4);
+    tree.index(dir3, root);
+    writeIssue(4);
+
+    DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 5)
+      .setLines(2)
+      .setPublish(true)
+      .setStatus(InputFile.Status.ADDED)
+      .build();
+    tree.index(file, dir);
+
+    DefaultInputFile file2 = new TestInputFileBuilder("module1", "src2/Foo2.java", 6)
+      .setPublish(true)
+      .setStatus(InputFile.Status.SAME)
+      .setLines(2)
+      .build();
+    tree.index(file2, dir2);
+
+    DefaultInputFile file3 = new TestInputFileBuilder("module1", "src3/Foo3.java", 7)
+      .setPublish(true)
+      .setStatus(InputFile.Status.SAME)
+      .setLines(2)
+      .build();
+    tree.index(file3, dir3);
+
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree, branchConfiguration);
+    publisher.publish(writer);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 2)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 4)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isTrue();
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isFalse();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isFalse();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isFalse();
   }
 
   @Test
@@ -238,7 +307,7 @@ public class ComponentsPublisherTest {
     DefaultInputFile testFile = new TestInputFileBuilder("module1", "test/FooTest.java", 6).setType(Type.TEST).setStatus(InputFile.Status.SAME).setLines(4).build();
     tree.index(testFile, dir);
 
-    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree);
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree, branchConfiguration);
     publisher.publish(writer);
 
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
@@ -303,7 +372,7 @@ public class ComponentsPublisherTest {
     DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 4).setLines(2).setStatus(InputFile.Status.SAME).build();
     tree.index(file, dir);
 
-    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree);
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree, branchConfiguration);
     publisher.publish(writer);
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);
