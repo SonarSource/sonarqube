@@ -61,7 +61,7 @@ public class ProjectReactorValidator {
 
     String deprecatedBranchName = reactor.getRoot().getBranch();
 
-    branchConfigurationValidator.validate(validationMessages, deprecatedBranchName);
+    branchConfigurationValidator.validate(validationMessages, deprecatedBranchName, mode.isIncremental());
     validateBranch(validationMessages, deprecatedBranchName);
 
     if (!validationMessages.isEmpty()) {
