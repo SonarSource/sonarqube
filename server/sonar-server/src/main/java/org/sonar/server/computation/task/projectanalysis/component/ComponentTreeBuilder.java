@@ -58,22 +58,19 @@ public class ComponentTreeBuilder {
 
   @Nullable
   private final SnapshotDto baseAnalysis;
-  private final boolean skipUnchangedFiles;
 
   public ComponentTreeBuilder(
     ComponentKeyGenerator keyGenerator,
     Function<String, String> uuidSupplier,
     Function<Integer, ScannerReport.Component> scannerComponentSupplier,
     Project project,
-    @Nullable SnapshotDto baseAnalysis,
-    boolean skipUnchangedFiles) {
+    @Nullable SnapshotDto baseAnalysis) {
 
     this.keyGenerator = keyGenerator;
     this.uuidSupplier = uuidSupplier;
     this.scannerComponentSupplier = scannerComponentSupplier;
     this.project = project;
     this.baseAnalysis = baseAnalysis;
-    this.skipUnchangedFiles = skipUnchangedFiles;
   }
 
   public Component buildProject(ScannerReport.Component project) {
@@ -84,7 +81,6 @@ public class ComponentTreeBuilder {
     return component.getChildRefList()
       .stream()
       .map(scannerComponentSupplier::apply)
-      .filter(c -> !skipUnchangedFiles || c.getStatus() != FileStatus.SAME)
       .map(c -> buildComponent(c, parentModule))
       .toArray(Component[]::new);
   }
