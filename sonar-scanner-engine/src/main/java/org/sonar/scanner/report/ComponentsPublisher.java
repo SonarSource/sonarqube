@@ -21,7 +21,9 @@ package org.sonar.scanner.report;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
+
 import javax.annotation.CheckForNull;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -44,20 +46,29 @@ import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLi
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.BranchConfiguration.BranchType;
 
 /**
  * Adds components and analysis metadata to output report
  */
 public class ComponentsPublisher implements ReportPublisherStep {
 
-  private InputComponentTree componentTree;
-  private InputModuleHierarchy moduleHierarchy;
+  private final InputComponentTree componentTree;
+  private final InputModuleHierarchy moduleHierarchy;
+  private final BranchConfiguration branchConfiguration;
+
   private ScannerReportReader reader;
   private ScannerReportWriter writer;
 
-  public ComponentsPublisher(InputModuleHierarchy moduleHierarchy, InputComponentTree inputComponentTree) {
+  public ComponentsPublisher(InputModuleHierarchy moduleHierarchy, InputComponentTree inputComponentTree, BranchConfiguration branchConfiguration) {
     this.moduleHierarchy = moduleHierarchy;
     this.componentTree = inputComponentTree;
+    this.branchConfiguration = branchConfiguration;
+  }
+
+  private boolean isShortLivingBranch() {
+    return branchConfiguration.branchType() == BranchType.SHORT;
   }
 
   @Override
@@ -103,9 +114,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
       }
 
       writeVersion(inputModule, builder);
-    }
-
-    if (component.isFile()) {
+    } else if (component.isFile()) {
       DefaultInputFile file = (DefaultInputFile) component;
       builder.setIsTest(file.type() == InputFile.Type.TEST);
       builder.setLines(file.lines());
@@ -178,7 +187,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     } else if (component instanceof DefaultInputFile) {
       // skip files not marked for publishing
       DefaultInputFile inputFile = (DefaultInputFile) component;
-      return !inputFile.isPublished();
+      return !inputFile.isPublished() || (isShortLivingBranch() && inputFile.status() == Status.SAME);
     }
     return false;
   }
