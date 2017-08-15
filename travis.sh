@@ -39,6 +39,12 @@ function installMaven {
   export PATH=$M2_HOME/bin:$PATH
 }
 
+function installNode {
+  set +u
+  source ~/.nvm/nvm.sh && nvm install 8
+  set -u
+}
+
 #
 # Replaces the version defined in sources, usually x.y-SNAPSHOT,
 # by a version identifying the build.
@@ -115,6 +121,7 @@ BUILD)
 
   installJdk8
   installMaven
+  installNode
   fixBuildVersion
 
   # Minimal Maven settings
@@ -177,8 +184,7 @@ BUILD)
   ;;
 
 WEB_TESTS)
-  set +u
-  source ~/.nvm/nvm.sh && nvm install 6
+  installNode
   curl -o- -L https://yarnpkg.com/install.sh | bash
   export PATH=$HOME/.yarn/bin:$PATH
   cd server/sonar-web && yarn && yarn validate
