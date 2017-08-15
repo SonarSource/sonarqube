@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
@@ -72,8 +73,6 @@ import org.sonar.scanner.scan.BranchConfigurationLoader;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
-import static org.mockito.Mockito.mock;
-
 /**
  * Main utility class for writing scanner medium tests.
  * 
@@ -83,7 +82,8 @@ public class ScannerMediumTester extends ExternalResource {
   private static Path userHome = null;
   private Map<String, String> globalProperties = new HashMap<>();
   private final FakeMetricsRepositoryLoader globalRefProvider = new FakeMetricsRepositoryLoader();
-  private final FakeBranchConfigurationLoader projectBranchesProvider = new FakeBranchConfigurationLoader();
+  private final FakeBranchConfigurationLoader branchConfigurationLoader = new FakeBranchConfigurationLoader();
+  private final FakeBranchConfiguration branchConfiguration = new FakeBranchConfiguration();
   private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
   private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
   private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
@@ -286,7 +286,7 @@ public class ScannerMediumTester extends ExternalResource {
           tester.globalRefProvider,
           tester.qualityProfiles,
           tester.rulesLoader,
-          tester.projectBranchesProvider,
+          tester.branchConfigurationLoader,
           tester.projectRefProvider,
           tester.activeRules,
           tester.serverIssues,
@@ -381,10 +381,49 @@ public class ScannerMediumTester extends ExternalResource {
 
   }
 
-  private static class FakeBranchConfigurationLoader implements BranchConfigurationLoader {
+  private static class FakeBranchConfiguration implements BranchConfiguration {
+
+    private BranchType branchType = BranchType.LONG;
+    private String branchName = "";
+    private String branchTarget = "";
+
+    @Override
+    public BranchType branchType() {
+      return branchType;
+    }
+
+    @CheckForNull
+    @Override
+    public String branchTarget() {
+      return branchTarget;
+    }
+
+    @CheckForNull
+    @Override
+    public String branchName() {
+      return branchName;
+    }
+  }
+
+  public ScannerMediumTester setBranchType(BranchConfiguration.BranchType branchType) {
+    branchConfiguration.branchType = branchType;
+    return this;
+  }
+
+  public ScannerMediumTester setBranchName(String branchName) {
+    this.branchConfiguration.branchName = branchName;
+    return this;
+  }
+
+  public ScannerMediumTester setBranchTarget(String branchTarget) {
+    this.branchConfiguration.branchTarget = branchTarget;
+    return this;
+  }
+
+  private class FakeBranchConfigurationLoader implements BranchConfigurationLoader {
     @Override
     public BranchConfiguration load(String projectKey, GlobalConfiguration settings) {
-      return mock(BranchConfiguration.class);
+      return branchConfiguration;
     }
   }
 
