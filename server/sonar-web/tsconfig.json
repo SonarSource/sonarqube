@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": true,
+    "strict": true,
+    "target": "esnext",
+    "jsx": "react"
+  },
+  "include": ["./src/main/js/**/*"]
+}
