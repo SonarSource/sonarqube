@@ -19,12 +19,12 @@
  */
 // @flow
 import React from 'react';
-import PropTypes from 'prop-types';
 import key from 'keymaster';
+import PropTypes from 'prop-types';
 import IssueView from './IssueView';
-import { updateIssue } from './actions';
-import { setIssueAssignee } from '../../api/issues';
 import { onFail } from '../../store/rootActions';
+import { setIssueAssignee } from '../../api/issues';
+import { updateIssue } from './actions';
 /*:: import type { Issue } from './types'; */
 
 /*::
@@ -116,6 +116,12 @@ export default class BaseIssue extends React.PureComponent {
       this.togglePopup('edit-tags');
       return false;
     });
+    key('space', 'issues', () => {
+      if (this.props.onCheck) {
+        this.props.onCheck(this.props.issue.key);
+        return false;
+      }
+    });
   }
 
   unbindShortcuts() {
@@ -124,6 +130,7 @@ export default class BaseIssue extends React.PureComponent {
     key.unbind('m', 'issues');
     key.unbind('i', 'issues');
     key.unbind('c', 'issues');
+    key.unbind('space', 'issues');
     key.unbind('t', 'issues');
   }
 
