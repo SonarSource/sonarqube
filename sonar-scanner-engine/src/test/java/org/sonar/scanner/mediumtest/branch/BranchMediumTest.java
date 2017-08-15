@@ -22,18 +22,19 @@ package org.sonar.scanner.mediumtest.branch;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.repository.FileData;
+import org.sonar.scanner.scan.BranchConfiguration;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -41,111 +42,67 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BranchMediumTest {
 
+  private File baseDir;
+  private final String relativePath = "HelloJava.xoo";
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
-  @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
+    .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
-    // active a rule just to be sure that xoo files are published
-    .addActiveRule("xoo", "xoo:OneIssuePerFile", null, "One Issue Per File", null, null, null)
-    .addDefaultQProfile("xoo", "Sonar Way");
-
-  private File baseDir;
-
-  private Map<String, String> commonProps;
+    .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo");
 
   @Before
   public void prepare() throws IOException {
-    baseDir = temp.getRoot();
+    baseDir = temp.newFolder();
+    Path filepath = baseDir.toPath().resolve(relativePath);
+    Files.write(filepath, "xoooo".getBytes());
 
-    commonProps = ImmutableMap.<String, String>builder()
-      .put("sonar.task", "scan")
-      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-      .put("sonar.projectKey", "com.foo.project")
-      .put("sonar.projectName", "Foo Project")
-      .put("sonar.projectVersion", "1.0-SNAPSHOT")
-      .put("sonar.projectDescription", "Description of Foo Project")
-      .put("sonar.sources", "src")
-      .build();
+    String md5sum = new FileMetadata()
+      .readMetadata(Files.newInputStream(filepath), StandardCharsets.UTF_8, relativePath)
+      .hash();
+    tester.addFileData("sample", relativePath, new FileData(md5sum, null));
   }
 
   @Test
-  public void scanProjectWithBranch() throws IOException {
-    File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+  public void should_skip_report_for_unchanged_files_in_short_branch() {
+    // sanity check, normally report gets generated
+    TaskResult result = getResult(tester);
+    assertThat(getResult(tester).getReportComponent(result.inputFile(relativePath).key())).isNotNull();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
-
-    TaskResult result = tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .putAll(commonProps)
-        .put("sonar.branch", "branch")
-        .build())
-      .execute();
-
-    assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:src/sample.xoo");
-
-    DefaultInputFile inputfile = (DefaultInputFile) result.inputFile("src/sample.xoo");
-    assertThat(result.getReportReader().readComponent(inputfile.batchId()).getPath()).isEqualTo("src/sample.xoo");
-
-    assertThat(result.getReportReader().readMetadata().getDeprecatedBranch()).isEqualTo("branch");
-
-    result = tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .putAll(commonProps)
-        .put("sonar.branch", "")
-        .build())
-      .execute();
-
-    assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:src/sample.xoo");
+    // file is skipped for short branches (no report, no coverage, no duplications)
+    TaskResult result2 = getResult(tester.setBranchType(BranchConfiguration.BranchType.SHORT));
+    assertThat(result2.getReportComponent(result2.inputFile(relativePath).key())).isNull();
   }
 
   @Test
-  public void scanMultiModuleWithBranch() throws IOException {
-    Path srcDir = baseDir.toPath().resolve("moduleA").resolve("src");
-    Files.createDirectories(srcDir);
+  public void verify_metadata() {
+    String branchName = "feature";
+    String branchTarget = "branch-1.x";
 
-    File xooFile = new File(srcDir.toFile(), "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    TaskResult result = getResult(tester
+      .setBranchName(branchName)
+      .setBranchTarget(branchTarget)
+      .setBranchType(BranchConfiguration.BranchType.SHORT));
 
-    TaskResult result = tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .putAll(commonProps)
-        .put("sonar.branch", "branch")
-        .put("sonar.modules", "moduleA")
-        .build())
-      .execute();
-
-    assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputFile("moduleA/src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA:src/sample.xoo");
-
-    // no branch in the report
-    DefaultInputFile inputfile = (DefaultInputFile) result.inputFile("moduleA/src/sample.xoo");
-    assertThat(result.getReportReader().readComponent(inputfile.batchId()).getPath()).isEqualTo("src/sample.xoo");
-
-    // no branch in InputModule's key or in report
-    assertThat(result.getReportComponent("com.foo.project:moduleA").getKey()).isEqualTo("com.foo.project:moduleA");
-
-    assertThat(result.getReportReader().readMetadata().getDeprecatedBranch()).isEqualTo("branch");
-
-    result = tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .putAll(commonProps)
-        .put("sonar.branch", "")
-        .put("sonar.modules", "moduleA")
-        .build())
-      .execute();
-
-    assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputFile("moduleA/src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA:src/sample.xoo");
+    ScannerReport.Metadata metadata = result.getReportReader().readMetadata();
+    assertThat(metadata.getBranchName()).isEqualTo(branchName);
+    assertThat(metadata.getBranchType()).isEqualTo(ScannerReport.Metadata.BranchType.SHORT);
+    assertThat(metadata.getMergeBranchName()).isEqualTo(branchTarget);
   }
 
+  private TaskResult getResult(ScannerMediumTester tester) {
+    return tester
+      .newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "sample")
+        .put("sonar.sources", ".")
+        .build())
+      .execute();
+  }
 }
