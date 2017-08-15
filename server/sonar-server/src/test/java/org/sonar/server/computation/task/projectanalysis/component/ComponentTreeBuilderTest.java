@@ -718,7 +718,7 @@ public class ComponentTreeBuilderTest {
   }
 
   private ComponentTreeBuilder newUnderTest(@Nullable SnapshotDto baseAnalysis) {
-    return new ComponentTreeBuilder(KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider, projectInDb, baseAnalysis, false);
+    return new ComponentTreeBuilder(KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider, projectInDb, baseAnalysis);
   }
 
   private static Map<Integer, Component> indexComponentByRef(Component root) {
