@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 
 public class DefaultBranchConfigurationValidator implements BranchConfigurationValidator {
   @Override
-  public void validate(List<String> validationMessages, @Nullable String deprecatedBranchName) {
+  public void validate(List<String> validationMessages, @Nullable String deprecatedBranchName, boolean incrementalMode) {
     // no-op
   }
 }
