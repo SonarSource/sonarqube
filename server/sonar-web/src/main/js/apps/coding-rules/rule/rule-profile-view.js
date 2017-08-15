@@ -169,7 +169,7 @@ export default Marionette.ItemView.extend({
       templateKey: this.options.rule.get('templateKey'),
       isTemplate: this.options.rule.get('isTemplate'),
       profilePath: this.getProfilePath(this.model.get('lang'), this.model.get('name')),
-      parentProfilePath: parent && this.getProfilePath(parent.key)
+      parentProfilePath: parent && this.getProfilePath(parent.lang, parent.name)
     };
   }
 });
