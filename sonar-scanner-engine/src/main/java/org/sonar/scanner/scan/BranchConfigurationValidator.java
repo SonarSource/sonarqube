@@ -27,5 +27,5 @@ import org.sonar.api.batch.ScannerSide;
 @ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public interface BranchConfigurationValidator {
-  void validate(List<String> validationMessages, @Nullable String deprecatedBranchName);
+  void validate(List<String> validationMessages, @Nullable String deprecatedBranchName, boolean incrementalMode);
 }
