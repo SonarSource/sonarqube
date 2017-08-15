@@ -10,4 +10,8 @@
 [options]
 module.file_ext=.js
 module.file_ext=.hbs
+module.file_ext=.ts
+module.file_ext=.tsx
 module.name_mapper.extension='hbs' -> 'empty/object'
+module.name_mapper.extension='ts' -> 'empty/object'
+module.name_mapper.extension='tsx' -> 'empty/object'

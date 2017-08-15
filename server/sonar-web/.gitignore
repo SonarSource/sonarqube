@@ -11,6 +11,9 @@ npm.tar.gz
 # VS Code
 .vscode/
 
+#webpack
+.awcache/
+
 # build
 build/
 src/main/webapp/js/

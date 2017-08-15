@@ -42,7 +42,13 @@
     "whatwg-fetch": "1.0.0"
   },
   "devDependencies": {
+    "@types/classnames": "2.2.0",
+    "@types/enzyme": "2.8.6",
+    "@types/jest": "20.0.7",
+    "@types/react": "16.0.2",
+    "@types/react-dom": "15.5.2",
     "autoprefixer": "7.1.1",
+    "awesome-typescript-loader": "3.2.3",
     "babel-core": "^6.22.1",
     "babel-eslint": "7.2.3",
     "babel-jest": "20.0.3",
@@ -63,7 +69,7 @@
     "eslint": "3.14.1",
     "eslint-loader": "1.8.0",
     "eslint-plugin-flowtype": "^2.29.1",
-    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-import": "2.7.0",
     "eslint-plugin-jsx-a11y": "^3.0.2",
     "eslint-plugin-react": "^6.8.0",
     "expose-loader": "0.7.3",
@@ -83,6 +89,8 @@
     "react-test-renderer": "15.6.1",
     "rimraf": "2.5.4",
     "style-loader": "0.18.2",
+    "ts-jest": "20.0.10",
+    "typescript": "2.4.2",
     "webpack": "2.6.1",
     "webpack-bundle-analyzer": "2.8.2",
     "webpack-dev-server": "2.4.5"
@@ -110,15 +118,8 @@
   ],
   "jest": {
     "coverageDirectory": "<rootDir>/target/coverage",
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/node_modules",
-      "<rootDir>/tests"
-    ],
-    "moduleFileExtensions": [
-      "jsx",
-      "js",
-      "json"
-    ],
+    "coveragePathIgnorePatterns": ["<rootDir>/node_modules", "<rootDir>/tests"],
+    "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "moduleNameMapper": {
       "^.+\\.(hbs|jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/config/jest/FileStub.js",
       "^.+\\.css$": "<rootDir>/config/jest/CSSStub.js"
@@ -127,13 +128,16 @@
       "<rootDir>/config/polyfills.js",
       "<rootDir>/config/jest/SetupTestEnvironment.js"
     ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
-    ],
+    "snapshotSerializers": ["enzyme-to-json/serializer"],
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules",
       "<rootDir>/src/main/webapp",
       "<rootDir>/scripts"
-    ]
+    ],
+    "testRegex": "(/__tests__/.*|\\-test)\\.(ts|tsx|js)$",
+    "transform": {
+      "^.+\\.js$": "<rootDir>/node_modules/babel-jest",
+      ".(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    }
   }
 }

@@ -10,8 +10,11 @@ const paths = require('./paths');
 module.exports = ({ production = true, fast = false }) => ({
   bail: production,
 
-  devtool: production ? fast ? false : 'source-map' : 'cheap-module-source-map',
-
+  devtool: production ? (fast ? false : 'source-map') : 'cheap-module-source-map',
+  resolve: {
+    // Add '.ts' and '.tsx' as resolvable extensions.
+    extensions: ['.ts', '.tsx', '.js', '.json']
+  },
   entry: {
     vendor: [
       !production && require.resolve('react-dev-utils/webpackHotDevClient'),
@@ -67,6 +70,18 @@ module.exports = ({ production = true, fast = false }) => ({
         test: /\.js$/,
         loader: 'babel-loader',
         exclude: /(node_modules|libs)/
+      },
+      {
+        test: /\.tsx?$/,
+        use: [
+          {
+            loader: 'awesome-typescript-loader',
+            options: {
+              useBabel: true,
+              useCache: true
+            }
+          }
+        ]
       },
       {
         test: /\.hbs$/,
