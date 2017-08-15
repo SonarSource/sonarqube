@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -429,6 +430,27 @@ public class ComponentTreeActionTest {
 
     assertThat(result.getBaseComponent().getId()).isEqualTo(projectUuid);
     assertThat(result.getComponentsCount()).isEqualTo(0);
+  }
+
+  @Test
+  public void metric_without_a_domain() {
+    ComponentDto project = db.components().insertPrivateProject();
+    SnapshotDto analysis = db.getDbClient().snapshotDao().insert(dbSession, newAnalysis(project));
+    MetricDto metricWithoutDomain = db.measureDbTester().insertMetric(m -> m
+      .setValueType(Metric.ValueType.INT.name())
+      .setDomain(null));
+    db.measureDbTester().insertMeasure(project, analysis, metricWithoutDomain);
+
+    ComponentTreeWsResponse result = ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_KEY, project.getKey())
+      .setParam(PARAM_METRIC_KEYS, metricWithoutDomain.getKey())
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics")
+      .executeProtobuf(ComponentTreeWsResponse.class);
+
+    assertThat(result.getBaseComponent().getMeasures(0).getMetric()).isEqualTo(metricWithoutDomain.getKey());
+    Common.Metric responseMetric = result.getMetrics().getMetrics(0);
+    assertThat(responseMetric.getKey()).isEqualTo(metricWithoutDomain.getKey());
+    assertThat(responseMetric.hasDomain()).isFalse();
   }
 
   @Test

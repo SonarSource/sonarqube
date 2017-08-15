@@ -23,8 +23,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -40,6 +42,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +52,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -80,11 +84,11 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void test_definition_of_web_service() {
+  public void definition() {
     WebService.Action def = ws.getDef();
 
     assertThat(def.since()).isEqualTo("5.4");
-    assertThat(def.params()).extracting(WebService.Param::key)
+    assertThat(def.params()).extracting(Param::key)
       .containsExactlyInAnyOrder("componentId", "componentKey", "metricKeys", "additionalFields", "developerId", "developerKey");
     assertThat(def.param("developerId").deprecatedSince()).isEqualTo("6.4");
     assertThat(def.param("developerKey").deprecatedSince()).isEqualTo("6.4");
@@ -146,6 +150,27 @@ public class ComponentActionTest {
     assertThat(response.getComponent().getId()).isEqualTo("project-uuid-copy");
     assertThat(response.getComponent().getRefId()).isEqualTo("project-uuid");
     assertThat(response.getComponent().getRefKey()).isEqualTo("project-key");
+  }
+
+  @Test
+  public void metric_without_a_domain() {
+    ComponentDto project = db.components().insertPrivateProject();
+    SnapshotDto analysis = db.getDbClient().snapshotDao().insert(dbSession, newAnalysis(project));
+    MetricDto metricWithoutDomain = db.measureDbTester().insertMetric(m -> m
+      .setValueType(ValueType.INT.name())
+      .setDomain(null));
+    db.measureDbTester().insertMeasure(project, analysis, metricWithoutDomain);
+
+    ComponentWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEY, project.getKey())
+      .setParam(PARAM_METRIC_KEYS, metricWithoutDomain.getKey())
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics")
+      .executeProtobuf(ComponentWsResponse.class);
+
+    assertThat(response.getComponent().getMeasures(0).getMetric()).isEqualTo(metricWithoutDomain.getKey());
+    Common.Metric responseMetric = response.getMetrics().getMetrics(0);
+    assertThat(responseMetric.getKey()).isEqualTo(metricWithoutDomain.getKey());
+    assertThat(responseMetric.hasDomain()).isFalse();
   }
 
   @Test
