@@ -24,9 +24,9 @@ export function getGlobalNavigation() {
   return getJSON(url);
 }
 
-export function getComponentNavigation(componentKey) {
+export function getComponentNavigation(componentKey, branch) {
   const url = '/api/navigation/component';
-  const data = { componentKey };
+  const data = { componentKey, branch };
   return getJSON(url, data);
 }
 
