@@ -73,7 +73,9 @@ public class TaskAction implements CeWsAction {
         "Since 6.1, field \"logs\" is deprecated and its value is always false.")
       .setResponseExample(getClass().getResource("task-example.json"))
       .setSince("5.2")
-      .setChangelog(new Change("6.6", "field \"incremental\" is added"))
+      .setChangelog(
+        new Change("6.6", "field \"incremental\" is added"),
+        new Change("6.6", "fields \"branch\" and \"branchType\" added"))
       .setHandler(this);
 
     action
