@@ -40,12 +40,12 @@ public class AppStateClusterImpl implements AppState {
   private final HazelcastCluster hazelcastCluster;
 
   public AppStateClusterImpl(AppSettings appSettings) {
-    ClusterProperties clusterProperties = new ClusterProperties(appSettings);
-    clusterProperties.validate();
-
-    if (!clusterProperties.isEnabled()) {
+    if (!appSettings.getProps().valueAsBoolean(ProcessProperties.CLUSTER_ENABLED)) {
       throw new IllegalStateException("Cluster is not enabled on this instance");
     }
+
+    ClusterProperties clusterProperties = new ClusterProperties(appSettings);
+    clusterProperties.validate();
 
     hazelcastCluster = HazelcastCluster.create(clusterProperties);
     // Add the local endpoint to be used by processes

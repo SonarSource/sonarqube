@@ -237,7 +237,7 @@ public class HazelcastClusterTest {
   @Test
   public void simulate_network_cluster() throws InterruptedException {
     TestAppSettings settings = newClusterSettings();
-    settings.set(ProcessProperties.CLUSTER_NETWORK_INTERFACES, InetAddress.getLoopbackAddress().getHostAddress());
+    settings.set(ProcessProperties.CLUSTER_NODE_HOST, InetAddress.getLoopbackAddress().getHostAddress());
     AppStateListener listener = mock(AppStateListener.class);
 
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {

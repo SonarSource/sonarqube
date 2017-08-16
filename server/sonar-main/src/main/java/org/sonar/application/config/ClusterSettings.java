@@ -45,7 +45,7 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
-import static org.sonar.process.ProcessProperties.CLUSTER_NETWORK_INTERFACES;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
 import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.CLUSTER_WEB_LEADER;
@@ -91,13 +91,13 @@ public class ClusterSettings implements Consumer<Props> {
       throw new MessageException("Embedded database is not supported in cluster mode");
     }
 
-    // Loopback interfaces are forbidden for SEARCH_HOST and CLUSTER_NETWORK_INTERFACES
+    // Loopback interfaces are forbidden for SEARCH_HOST and CLUSTER_NODE_HOST
     ensureNotLoopback(props, CLUSTER_HOSTS);
-    ensureNotLoopback(props, CLUSTER_NETWORK_INTERFACES);
+    ensureNotLoopback(props, CLUSTER_NODE_HOST);
     ensureNotLoopback(props, CLUSTER_SEARCH_HOSTS);
 
     ensureLocalAddress(props, SEARCH_HOST);
-    ensureLocalAddress(props, CLUSTER_NETWORK_INTERFACES);
+    ensureLocalAddress(props, CLUSTER_NODE_HOST);
   }
 
   private static void ensureMandatoryProperty(Props props, String key) {

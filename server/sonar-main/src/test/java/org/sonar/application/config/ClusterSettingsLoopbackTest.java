@@ -36,7 +36,7 @@ import org.sonar.process.MessageException;
 
 import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
-import static org.sonar.process.ProcessProperties.CLUSTER_NETWORK_INTERFACES;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
 import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.JDBC_URL;
@@ -112,7 +112,7 @@ public class ClusterSettingsLoopbackTest {
   @DataPoints("key")
   public static final Key[] KEYS = {
     new Key(SEARCH_HOST, false, false),
-    new Key(CLUSTER_NETWORK_INTERFACES, true, false),
+    new Key(CLUSTER_NODE_HOST, true, false),
     new Key(CLUSTER_SEARCH_HOSTS, true, true),
     new Key(CLUSTER_HOSTS, true, true)
   };

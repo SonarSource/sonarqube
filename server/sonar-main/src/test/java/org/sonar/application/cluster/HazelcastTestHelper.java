@@ -69,6 +69,7 @@ public class HazelcastTestHelper {
     TestAppSettings settings = new TestAppSettings();
     settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
     settings.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
     return settings;
   }
 }

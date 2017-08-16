@@ -41,14 +41,14 @@ public class ClusterPropertiesTest {
 
   @Test
   public void test_default_values() throws Exception {
+    appSettings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
+    appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
     ClusterProperties props = new ClusterProperties(appSettings);
 
     assertThat(props.getNetworkInterfaces())
       .isEqualTo(Collections.emptyList());
     assertThat(props.getPort())
       .isEqualTo(9003);
-    assertThat(props.isEnabled())
-      .isEqualTo(false);
     assertThat(props.getHosts())
       .isEqualTo(Collections.emptyList());
     assertThat(props.getName())
@@ -59,10 +59,11 @@ public class ClusterPropertiesTest {
   public void test_port_parameter() {
     appSettings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
     appSettings.getProps().set(ProcessProperties.CLUSTER_NAME, "sonarqube");
+    appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
 
     Stream.of("-50", "0", "65536", "128563").forEach(
       port -> {
-        appSettings.getProps().set(ProcessProperties.CLUSTER_PORT, port);
+        appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_PORT, port);
 
         ClusterProperties clusterProperties = new ClusterProperties(appSettings);
         expectedException.expect(IllegalArgumentException.class);
@@ -77,7 +78,8 @@ public class ClusterPropertiesTest {
   public void test_interfaces_parameter() {
     appSettings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
     appSettings.getProps().set(ProcessProperties.CLUSTER_NAME, "sonarqube");
-    appSettings.getProps().set(ProcessProperties.CLUSTER_NETWORK_INTERFACES, "8.8.8.8"); // This IP belongs to Google
+    appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_HOST, "8.8.8.8"); // This IP belongs to Google
+    appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
 
     ClusterProperties clusterProperties = new ClusterProperties(appSettings);
     expectedException.expect(IllegalArgumentException.class);
@@ -90,6 +92,7 @@ public class ClusterPropertiesTest {
   public void validate_does_not_fail_if_cluster_enabled_and_name_specified() {
     appSettings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
     appSettings.getProps().set(ProcessProperties.CLUSTER_NAME, "sonarqube");
+    appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
 
     ClusterProperties clusterProperties = new ClusterProperties(appSettings);
     clusterProperties.validate();
@@ -99,6 +102,7 @@ public class ClusterPropertiesTest {
   public void test_members() {
     appSettings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
     appSettings.getProps().set(ProcessProperties.CLUSTER_NAME, "sonarqube");
+    appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
 
     assertThat(
       new ClusterProperties(appSettings).getHosts()).isEqualTo(

@@ -42,17 +42,15 @@ public final class ClusterProperties {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClusterProperties.class);
 
   private final int port;
-  private final boolean enabled;
   private final List<String> hosts;
   private final List<String> networkInterfaces;
   private final String name;
   private final NodeType nodeType;
 
   ClusterProperties(AppSettings appSettings) {
-    port = appSettings.getProps().valueAsInt(ProcessProperties.CLUSTER_PORT);
-    enabled = appSettings.getProps().valueAsBoolean(ProcessProperties.CLUSTER_ENABLED);
+    port = appSettings.getProps().valueAsInt(ProcessProperties.CLUSTER_NODE_PORT);
     networkInterfaces = extractNetworkInterfaces(
-      appSettings.getProps().value(ProcessProperties.CLUSTER_NETWORK_INTERFACES, "")
+      appSettings.getProps().value(ProcessProperties.CLUSTER_NODE_HOST, "")
     );
     name = appSettings.getProps().nonNullValue(ProcessProperties.CLUSTER_NAME);
     hosts = extractHosts(
@@ -63,10 +61,6 @@ public final class ClusterProperties {
 
   int getPort() {
     return port;
-  }
-
-  boolean isEnabled() {
-    return enabled;
   }
 
   public NodeType getNodeType() {
@@ -86,10 +80,6 @@ public final class ClusterProperties {
   }
 
   void validate() {
-    if (!enabled) {
-      return;
-    }
-
     // Test validity of port
     checkArgument(
       port > 0 && port < 65_536,
