@@ -19,28 +19,57 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+
+import java.util.Optional;
 
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracking;
+import org.sonar.db.component.BranchType;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 public class IssueTrackingDelegator {
   private final ShortBranchTrackerExecution shortBranchTracker;
   private final TrackerExecution tracker;
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final MergeBranchTrackerExecution mergeBranchTracker;
 
-  public IssueTrackingDelegator(ShortBranchTrackerExecution shortBranchTracker, TrackerExecution tracker, AnalysisMetadataHolder analysisMetadataHolder) {
+  public IssueTrackingDelegator(ShortBranchTrackerExecution shortBranchTracker, MergeBranchTrackerExecution longBranchTracker,
+    TrackerExecution tracker, AnalysisMetadataHolder analysisMetadataHolder) {
     this.shortBranchTracker = shortBranchTracker;
+    this.mergeBranchTracker = longBranchTracker;
     this.tracker = tracker;
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
-  public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
+  public TrackingResult track(Component component) {
     if (analysisMetadataHolder.isShortLivingBranch()) {
-      return shortBranchTracker.track(component);
+      return standardResult(shortBranchTracker.track(component));
+    } else if (isFirstAnalysisSecondaryLongLivingBranch()) {
+      Tracking<DefaultIssue, DefaultIssue> tracking = mergeBranchTracker.track(component);
+      return new TrackingResult(tracking.getMatchedRaws(), emptyMap(), emptyList(), tracking.getUnmatchedRaws());
     } else {
-      return tracker.track(component);
+      return standardResult(tracker.track(component));
     }
+  }
+
+  private static TrackingResult standardResult(Tracking<DefaultIssue, DefaultIssue> tracking) {
+    return new TrackingResult(emptyMap(), tracking.getMatchedRaws(), tracking.getUnmatchedBases(), tracking.getUnmatchedRaws());
+  }
+
+  /**
+   * Special case where we want to do the issue tracking with the merge branch, and copy matched issue to the current branch.
+   */
+  private boolean isFirstAnalysisSecondaryLongLivingBranch() {
+    if (analysisMetadataHolder.isFirstAnalysis()) {
+      Optional<Branch> branch = analysisMetadataHolder.getBranch();
+      if (branch.isPresent()) {
+        return !branch.get().isMain() && branch.get().getType() == BranchType.LONG;
+      }
+    }
+    return false;
   }
 }
