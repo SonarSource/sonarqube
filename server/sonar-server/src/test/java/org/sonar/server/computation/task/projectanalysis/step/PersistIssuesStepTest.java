@@ -94,6 +94,41 @@ public class PersistIssuesStepTest extends BaseStepTest {
   }
 
   @Test
+  public void insert_copied_issue() {
+    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    dbTester.rules().insert(rule);
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto);
+    dbClient.componentDao().insert(session, project);
+    ComponentDto file = ComponentTesting.newFileDto(project, null);
+    dbClient.componentDao().insert(session, file);
+    session.commit();
+
+    issueCache.newAppender().append(new DefaultIssue()
+      .setKey("ISSUE")
+      .setType(RuleType.CODE_SMELL)
+      .setRuleKey(rule.getKey())
+      .setComponentUuid(file.uuid())
+      .setProjectUuid(project.uuid())
+      .setSeverity(Severity.BLOCKER)
+      .setStatus(Issue.STATUS_OPEN)
+      .setNew(false)
+      .setCopied(true)
+      .setType(RuleType.BUG)).close();
+
+    step.execute();
+
+    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
+    assertThat(result.getKey()).isEqualTo("ISSUE");
+    assertThat(result.getRuleKey()).isEqualTo(rule.getKey());
+    assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
+    assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
+    assertThat(result.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(result.getStatus()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+  }
+
+  @Test
   public void insert_new_issue() {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     dbTester.rules().insert(rule);
