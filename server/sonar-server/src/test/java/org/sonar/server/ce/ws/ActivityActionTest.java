@@ -188,6 +188,17 @@ public class ActivityActionTest {
   }
 
   @Test
+  public void task_without_project() {
+    logInAsSystemAdministrator();
+    insertQueue("T3", null, PENDING);
+
+    ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam("status", "PENDING"));
+
+    assertThat(activityResponse.getTasksList()).hasSize(1);
+  }
+
+  @Test
   public void limit_results() {
     logInAsSystemAdministrator();
     ComponentDto project1 = db.components().insertPrivateProject();
@@ -481,10 +492,10 @@ public class ActivityActionTest {
     userSession.logIn().setSystemAdministrator();
   }
 
-  private CeQueueDto insertQueue(String taskUuid, ComponentDto project, CeQueueDto.Status status) {
+  private CeQueueDto insertQueue(String taskUuid, @Nullable ComponentDto project, CeQueueDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponentUuid(project.uuid());
+    queueDto.setComponentUuid(project == null ? null : project.uuid());
     queueDto.setUuid(taskUuid);
     queueDto.setStatus(status);
     db.getDbClient().ceQueueDao().insert(db.getSession(), queueDto);

@@ -234,12 +234,16 @@ public class ActivityAction implements CeWsAction {
       query.setStatuses(request.getStatus());
     }
 
-    query.setComponentUuids(component == null ? loadComponentUuids(dbSession, request).stream().map(ComponentDto::uuid).collect(toList()) : singletonList(component.uuid()));
+    String componentQuery = request.getQuery();
+    if (component != null) {
+      query.setComponentUuid(component.uuid());
+    } else if (componentQuery != null) {
+      query.setComponentUuids(loadComponents(dbSession, componentQuery).stream().map(ComponentDto::uuid).collect(toList()));
+    }
     return query;
   }
 
-  private List<ComponentDto> loadComponentUuids(DbSession dbSession, ActivityWsRequest request) {
-    String componentQuery = request.getQuery();
+  private List<ComponentDto> loadComponents(DbSession dbSession, String componentQuery) {
     ComponentQuery componentDtoQuery = ComponentQuery.builder()
       .setNameOrKeyQuery(componentQuery)
       .setQualifiers(POSSIBLE_QUALIFIERS)
