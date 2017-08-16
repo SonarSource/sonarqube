@@ -160,6 +160,11 @@ class DeprecatedIssueAdapterForFilter implements Issue {
     throw unsupported();
   }
 
+  @Override
+  public boolean isCopied() {
+    throw unsupported();
+  }
+
   @Deprecated
   @Override
   public Duration debt() {
