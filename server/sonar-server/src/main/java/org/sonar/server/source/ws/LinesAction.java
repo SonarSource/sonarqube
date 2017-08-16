@@ -23,6 +23,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.io.Resources;
 import java.util.Date;
 import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -38,7 +39,9 @@ import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
@@ -48,6 +51,7 @@ public class LinesAction implements SourcesWsAction {
   private static final String PARAM_KEY = "key";
   private static final String PARAM_FROM = "from";
   private static final String PARAM_TO = "to";
+  private static final String PARAM_BRANCH = "branch";
 
   private final ComponentFinder componentFinder;
   private final SourceService sourceService;
@@ -78,12 +82,16 @@ public class LinesAction implements SourcesWsAction {
         "<li>Line hits from coverage</li>" +
         "<li>Number of conditions to cover in tests</li>" +
         "<li>Number of conditions covered by tests</li>" +
-        "</ol>" +
-        "Since 6.2, response fields utLineHits, utConditions and utCoveredConditions has been renamed lineHits, conditions and coveredConditions<br/>" +
-        "Since 6.2, response fields itLineHits, itConditions and itCoveredConditions are no more returned<br/>")
+        "</ol>")
       .setSince("5.0")
       .setInternal(true)
-      .setResponseExample(Resources.getResource(getClass(), "example-lines.json"))
+      .setResponseExample(Resources.getResource(getClass(), "lines-example.json"))
+      .setChangelog(
+        new Change("6.2", "fields \"utLineHits\", \"utConditions\" and \"utCoveredConditions\" " +
+          "has been renamed \"lineHits\", \"conditions\" and \"coveredConditions\""),
+        new Change("6.2", "fields \"itLineHits\", \"itConditions\" and \"itCoveredConditions\" " +
+          "are no more returned"),
+        new Change("6.6", "fields \"branch\" added"))
       .setHandler(this);
 
     action
@@ -95,6 +103,12 @@ public class LinesAction implements SourcesWsAction {
       .createParam(PARAM_KEY)
       .setDescription("File key. Mandatory if param 'uuid' is not set. Available since 5.2")
       .setExampleValue(KEY_FILE_EXAMPLE_001);
+
+    action
+      .createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setInternal(true)
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
 
     action
       .createParam(PARAM_FROM)
@@ -113,7 +127,7 @@ public class LinesAction implements SourcesWsAction {
   @Override
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto file = componentFinder.getByUuidOrKey(dbSession, request.param(PARAM_UUID), request.param(PARAM_KEY), UUID_AND_KEY);
+      ComponentDto file = loadComponent(dbSession, request);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
 
       int from = request.mandatoryParamAsInt(PARAM_FROM);
@@ -126,6 +140,17 @@ public class LinesAction implements SourcesWsAction {
         json.endObject();
       }
     }
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, Request wsRequest) {
+    String componentKey = wsRequest.param(PARAM_KEY);
+    String componentId = wsRequest.param(PARAM_UUID);
+    String branch = wsRequest.param(PARAM_BRANCH);
+    checkArgument(componentId == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", PARAM_UUID,
+      PARAM_BRANCH);
+    return branch == null
+      ? componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, UUID_AND_KEY)
+      : componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
   }
 
   private void writeSource(Iterable<DbFileSources.Line> lines, JsonWriter json) {
