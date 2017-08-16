@@ -101,7 +101,8 @@ public class ActivityAction implements CeWsAction {
       .setChangelog(
         new Change("5.5", "it's no more possible to specify the page parameter.<"),
         new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
-        new Change("6.6", "field \"incremental\" is added"))
+        new Change("6.6", "field \"incremental\" is added"),
+        new Change("6.6", "fields \"branch\" and \"branchType\" added"))
       .setSince("5.2");
 
     action.createParam(PARAM_COMPONENT_ID)
