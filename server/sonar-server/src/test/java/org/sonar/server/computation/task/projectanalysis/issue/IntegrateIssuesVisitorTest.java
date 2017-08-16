@@ -119,6 +119,7 @@ public class IntegrateIssuesVisitorTest {
   IssueTrackingDelegator trackingDelegator;
   TrackerExecution tracker;
   ShortBranchTrackerExecution shortBranchTracker;
+  MergeBranchTrackerExecution mergeBranchTracker;
   IssueCache issueCache;
 
   TypeAwareVisitor underTest;
@@ -135,8 +136,9 @@ public class IntegrateIssuesVisitorTest {
     TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(issuesLoader, analysisMetadataHolder, dbTester.getDbClient());
     tracker = new TrackerExecution(baseInputFactory, rawInputFactory, new Tracker<>());
     shortBranchTracker = new ShortBranchTrackerExecution(baseInputFactory, rawInputFactory, mergeInputFactory, new Tracker<>());
+    mergeBranchTracker = new MergeBranchTrackerExecution(rawInputFactory, mergeInputFactory, new Tracker<>());
 
-    trackingDelegator = new IssueTrackingDelegator(shortBranchTracker, tracker, analysisMetadataHolder);
+    trackingDelegator = new IssueTrackingDelegator(shortBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     when(analysisMetadataHolder.isIncrementalAnalysis()).thenReturn(false);
@@ -163,11 +165,6 @@ public class IntegrateIssuesVisitorTest {
     assertThat(defaultIssueCaptor.getValue().ruleKey().rule()).isEqualTo("x1");
 
     assertThat(newArrayList(issueCache.traverse())).hasSize(1);
-  }
-  
-  @Test
-  public void process_short_branch_issues() {
-    //TODO
   }
 
   @Test
@@ -266,10 +263,6 @@ public class IntegrateIssuesVisitorTest {
       .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile(4851, originalFileUuid, "original file key")));
 
     underTest.visitAny(FILE);
-  }
-  
-  private void addMergeIssue(RuleKey ruleKey) {
-    
   }
 
   private void addBaseIssue(RuleKey ruleKey) {
