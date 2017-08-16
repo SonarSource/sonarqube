@@ -122,7 +122,7 @@ public class ShowAction implements BranchWsAction {
 
   private BranchDto getBranch(DbSession dbSession, String uuid) {
     Optional<BranchDto> branch = dbClient.branchDao().selectByUuid(dbSession, uuid);
-    checkState(branch != null, "Branch uuid '%s' not found", uuid);
+    checkState(branch.isPresent(), "Branch uuid '%s' not found", uuid);
     return branch.get();
   }
 
