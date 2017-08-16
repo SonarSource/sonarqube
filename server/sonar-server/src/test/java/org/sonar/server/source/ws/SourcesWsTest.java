@@ -72,7 +72,7 @@ public class SourcesWsTest {
     assertThat(lines.since()).isEqualTo("5.0");
     assertThat(lines.isInternal()).isTrue();
     assertThat(lines.responseExampleAsString()).isNotEmpty();
-    assertThat(lines.params()).hasSize(4);
+    assertThat(lines.params()).hasSize(5);
 
     WebService.Action hash = controller.action("hash");
     assertThat(hash).isNotNull();
