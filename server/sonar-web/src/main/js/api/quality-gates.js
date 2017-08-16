@@ -18,29 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post, postJSON } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function fetchQualityGatesAppDetails() {
   const url = '/api/qualitygates/app';
-
-  return getJSON(url);
+  return getJSON(url).catch(throwGlobalError);
 }
 
 export function fetchQualityGates() {
   const url = '/api/qualitygates/list';
-
-  return getJSON(url).then(r =>
-    r.qualitygates.map(qualityGate => {
-      return {
-        ...qualityGate,
-        isDefault: qualityGate.id === r.default
-      };
-    })
+  return getJSON(url).then(
+    r =>
+      r.qualitygates.map(qualityGate => {
+        return {
+          ...qualityGate,
+          isDefault: qualityGate.id === r.default
+        };
+      }),
+    throwGlobalError
   );
 }
 
 export function fetchQualityGate(id) {
   const url = '/api/qualitygates/show';
-  return getJSON(url, { id });
+  return getJSON(url, { id }).catch(throwGlobalError);
 }
 
 export function createQualityGate(name) {
@@ -65,12 +66,12 @@ export function copyQualityGate(id, name) {
 
 export function setQualityGateAsDefault(id) {
   const url = '/api/qualitygates/set_as_default';
-  return post(url, { id });
+  return post(url, { id }).catch(throwGlobalError);
 }
 
 export function unsetQualityGateAsDefault(id) {
   const url = '/api/qualitygates/unset_default';
-  return post(url, { id });
+  return post(url, { id }).catch(throwGlobalError);
 }
 
 export function createCondition(gateId, condition) {
@@ -97,13 +98,13 @@ export function getGateForProject(projectKey) {
 export function associateGateWithProject(gateId, projectKey) {
   const url = '/api/qualitygates/select';
   const data = { gateId, projectKey };
-  return post(url, data);
+  return post(url, data).catch(throwGlobalError);
 }
 
 export function dissociateGateWithProject(gateId, projectKey) {
   const url = '/api/qualitygates/deselect';
   const data = { gateId, projectKey };
-  return post(url, data);
+  return post(url, data).catch(throwGlobalError);
 }
 
 export function getApplicationQualityGate(application) {

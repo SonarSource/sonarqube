@@ -94,7 +94,7 @@ export default class Condition extends Component {
         onSaveCondition(condition, newCondition);
         onResetError();
       })
-      .catch(error => onError(error));
+      .catch(onError);
   }
 
   handleUpdateClick(e) {
@@ -123,7 +123,7 @@ export default class Condition extends Component {
         onSaveCondition(condition, newCondition);
         onResetError();
       })
-      .catch(error => onError(error));
+      .catch(onError);
   }
 
   handleDeleteClick(e) {
