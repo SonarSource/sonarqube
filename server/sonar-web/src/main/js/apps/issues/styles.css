@@ -2,6 +2,10 @@
   line-height: 24px;
 }
 
+.issues-main-header-spinner {
+  margin-right: 2px;
+}
+
 .concise-issues-list-header,
 .concise-issues-list-header-inner {
 }

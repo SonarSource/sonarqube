@@ -29,6 +29,7 @@ import MarkdownTips from '../../../components/common/MarkdownTips';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import Avatar from '../../../components/ui/Avatar';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
+import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { searchIssueTags, bulkChangeIssues } from '../../../api/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { searchAssignees } from '../utils';
@@ -42,7 +43,6 @@ type Props = {|
   fetchIssues: ({}) => Promise<*>,
   onClose: () => void,
   onDone: () => void,
-  onRequestFail: Error => void,
   organization?: { key: string }
 |};
 */
@@ -200,7 +200,7 @@ export default class BulkChangeModal extends React.PureComponent {
       },
       (error /*: Error */) => {
         this.setState({ submitting: false });
-        this.props.onRequestFail(error);
+        throwGlobalError(error);
       }
     );
   };

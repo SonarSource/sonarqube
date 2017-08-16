@@ -23,7 +23,7 @@ import { withRouter } from 'react-router';
 /*:: import type { Dispatch } from 'redux'; */
 import { uniq } from 'lodash';
 import App from './App';
-import { onFail } from '../../../store/rootActions';
+import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { getComponent, getCurrentUser } from '../../../store/rootReducer';
 import { getOrganizations } from '../../../api/organizations';
 import { receiveOrganizations } from '../../../store/organizations/duck';
@@ -46,7 +46,7 @@ const fetchIssueOrganizations = issues => dispatch => {
   const organizationKeys = uniq(issues.map(issue => issue.organization));
   return getOrganizations(organizationKeys).then(
     response => dispatch(receiveOrganizations(response.organizations)),
-    onFail(dispatch)
+    throwGlobalError
   );
 };
 
@@ -59,11 +59,8 @@ const fetchIssues = (query /*: RawQuery */) => dispatch =>
       return { ...response, issues: parsedIssues };
     })
     .then(response => dispatch(fetchIssueOrganizations(response.issues)).then(() => response))
-    .catch(onFail(dispatch));
+    .catch(throwGlobalError);
 
-const onRequestFail = (error /*: Error */) => (dispatch /*: Dispatch<*> */) =>
-  onFail(dispatch)(error);
-
-const mapDispatchToProps = { fetchIssues, onRequestFail };
+const mapDispatchToProps = { fetchIssues };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(App));
