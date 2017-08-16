@@ -70,7 +70,7 @@ exports[`should render correctly 1`] = `
         className="boxed-group-inner"
         deleteAnalysis={[Function]}
         deleteEvent={[Function]}
-        loading={false}
+        initializing={false}
         project={
           Object {
             "key": "org.sonarsource.sonarqube:sonarqube",

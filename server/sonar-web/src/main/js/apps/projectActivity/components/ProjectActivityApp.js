@@ -38,7 +38,7 @@ type Props = {
   deleteAnalysis: (analysis: string) => Promise<*>,
   deleteEvent: (analysis: string, event: string) => Promise<*>,
   graphLoading: boolean,
-  loading: boolean,
+  initializing: boolean,
   project: {
     configuration?: { showHistory: boolean },
     key: string,
@@ -80,7 +80,7 @@ export default function ProjectActivityApp(props /*: Props */) {
             changeEvent={props.changeEvent}
             deleteAnalysis={props.deleteAnalysis}
             deleteEvent={props.deleteEvent}
-            loading={props.loading}
+            initializing={props.initializing}
             project={props.project}
             query={props.query}
             updateQuery={props.updateQuery}

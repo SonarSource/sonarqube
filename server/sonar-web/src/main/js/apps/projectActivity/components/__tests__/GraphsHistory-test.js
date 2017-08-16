@@ -103,7 +103,7 @@ it('should correctly filter events', () => {
 
 it('should show a loading view instead of the graph', () => {
   expect(
-    shallow(<GraphsHistory {...DEFAULT_PROPS} loading={true} />).find('.spinner')
+    shallow(<GraphsHistory {...DEFAULT_PROPS} loading={true} />).find('DeferredSpinner')
   ).toHaveLength(1);
 });
 

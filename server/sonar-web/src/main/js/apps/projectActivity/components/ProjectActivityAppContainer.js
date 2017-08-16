@@ -225,36 +225,52 @@ class ProjectActivityAppContainer extends React.PureComponent {
       this.fetchActivity(query.project, 1, 100, serializeQuery(query)),
       this.fetchMetrics(),
       this.fetchMeasuresHistory(graphMetrics)
-    ]).then(response => {
-      if (this.mounted) {
-        this.setState({
-          analyses: response[0].analyses,
-          analysesLoading: true,
-          graphLoading: false,
-          initialized: true,
-          measuresHistory: response[2],
-          metrics: response[1],
-          paging: response[0].paging
-        });
+    ]).then(
+      response => {
+        if (this.mounted) {
+          this.setState({
+            analyses: response[0].analyses,
+            analysesLoading: true,
+            graphLoading: false,
+            initialized: true,
+            measuresHistory: response[2],
+            metrics: response[1],
+            paging: response[0].paging
+          });
 
-        this.loadAllActivities(query.project).then(({ analyses, paging }) => {
-          if (this.mounted) {
-            this.setState({
-              analyses,
-              analysesLoading: false,
-              paging
-            });
-          }
-        });
+          this.loadAllActivities(query.project).then(({ analyses, paging }) => {
+            if (this.mounted) {
+              this.setState({
+                analyses,
+                analysesLoading: false,
+                paging
+              });
+            }
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ initialized: true, analysesLoading: false, graphLoading: false });
+        }
       }
-    });
+    );
   }
 
   updateGraphData = (graph /*: string */, customMetrics /*: Array<string> */) => {
     const graphMetrics = getHistoryMetrics(graph, customMetrics);
     this.setState({ graphLoading: true });
-    this.fetchMeasuresHistory(graphMetrics).then((measuresHistory /*: Array<MeasureHistory> */) =>
-      this.setState({ graphLoading: false, measuresHistory })
+    this.fetchMeasuresHistory(graphMetrics).then(
+      (measuresHistory /*: Array<MeasureHistory> */) => {
+        if (this.mounted) {
+          this.setState({ graphLoading: false, measuresHistory });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ graphLoading: false, measuresHistory: [] });
+        }
+      }
     );
   };
 
@@ -300,7 +316,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
         deleteAnalysis={this.deleteAnalysis}
         deleteEvent={this.deleteEvent}
         graphLoading={!this.state.initialized || this.state.graphLoading}
-        loading={!this.state.initialized}
+        initializing={!this.state.initialized}
         metrics={this.state.metrics}
         measuresHistory={this.state.measuresHistory}
         project={this.props.project}

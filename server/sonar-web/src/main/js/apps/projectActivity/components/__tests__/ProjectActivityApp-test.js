@@ -66,7 +66,7 @@ const DEFAULT_PROPS = {
   deleteAnalysis: () => {},
   deleteEvent: () => {},
   graphLoading: false,
-  loading: false,
+  initializing: false,
   project: {
     key: 'org.sonarsource.sonarqube:sonarqube',
     leakPeriodDate: '2017-05-16T13:50:02+0200'
