@@ -207,6 +207,12 @@ public interface Issue extends Serializable {
   boolean isNew();
 
   /**
+   * During a scan returns true if the issue is copied from another branch.
+   * @since 6.6
+   */
+  boolean isCopied();
+  
+  /**
    * @deprecated since 5.5, replaced by {@link #effort()}
    */
   @Deprecated

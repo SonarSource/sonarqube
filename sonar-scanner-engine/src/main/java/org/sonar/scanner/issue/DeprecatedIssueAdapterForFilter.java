@@ -159,6 +159,11 @@ class DeprecatedIssueAdapterForFilter implements Issue {
   public boolean isNew() {
     throw unsupported();
   }
+  
+  @Override
+  public boolean isCopied() {
+    throw unsupported();
+  }
 
   @Deprecated
   @Override
