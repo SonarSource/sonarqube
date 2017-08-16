@@ -70,7 +70,7 @@ public class ComponentsService extends BaseService {
       .setParam(Param.PAGE, request.getPage())
       .setParam(Param.PAGE_SIZE, request.getPageSize())
       .setParam(Param.TEXT_QUERY, request.getQuery())
-      .setParam(Param.SORT, request.getSort());
+      .setParam(Param.SORT, inlineMultipleParamValue(request.getSort()));
     return call(get, TreeWsResponse.parser());
   }
 
