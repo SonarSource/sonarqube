@@ -27,13 +27,12 @@ import Organization from '../../../components/shared/Organization';
 
 /*::
 type Props = {
-  task: Task,
-  types: Array<string>
+  task: Task
 };
 */
 
 export default function TaskComponent(props /*: Props */) {
-  const { task, types } = props;
+  const { task } = props;
 
   if (!task.componentKey) {
     return (
@@ -41,7 +40,7 @@ export default function TaskComponent(props /*: Props */) {
         <span className="note">
           {task.id}
         </span>
-        {types.length > 1 && <TaskType task={task} />}
+        <TaskType task={task} />
       </td>
     );
   }
@@ -58,7 +57,7 @@ export default function TaskComponent(props /*: Props */) {
         {task.componentName}
       </Link>
 
-      {types.length > 1 && <TaskType task={task} />}
+      <TaskType task={task} />
     </td>
   );
 }

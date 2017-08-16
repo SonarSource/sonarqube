@@ -33,20 +33,19 @@ export default class Task extends React.PureComponent {
     index: PropTypes.number.isRequired,
     tasks: PropTypes.array.isRequired,
     component: PropTypes.object,
-    types: PropTypes.array.isRequired,
     onCancelTask: PropTypes.func.isRequired,
     onFilterTask: PropTypes.func.isRequired
   };
 
   render() {
-    const { task, index, tasks, component, types, onCancelTask, onFilterTask } = this.props;
+    const { task, index, tasks, component, onCancelTask, onFilterTask } = this.props;
 
     const prevTask = index > 0 ? tasks[index - 1] : null;
 
     return (
       <tr>
         <TaskStatus task={task} />
-        <TaskComponent task={task} types={types} />
+        <TaskComponent task={task} />
         <TaskId task={task} />
         <TaskDay task={task} prevTask={prevTask} />
         <TaskDate date={task.submittedAt} baseDate={task.submittedAt} format="LTS" />
