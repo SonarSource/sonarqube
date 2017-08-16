@@ -56,6 +56,7 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
 
@@ -90,7 +91,7 @@ public class ListAction implements BranchWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = WsUtils.checkFoundWithOptional(
+      ComponentDto project = checkFoundWithOptional(
         dbClient.componentDao().selectByKey(dbSession, projectKey),
         "Project key '%s' not found", projectKey);
 
@@ -112,16 +113,15 @@ public class ListAction implements BranchWsAction {
       WsBranches.ListWsResponse.Builder protobufResponse = WsBranches.ListWsResponse.newBuilder();
       branches.stream()
         .filter(b -> b.getKeeType().equals(BranchKeyType.BRANCH))
-        .forEach(b -> addToProtobuf(protobufResponse, b, project, mergeBranchesByUuid, metricIdsByKey, measuresByComponentUuids));
+        .forEach(b -> addToProtobuf(protobufResponse, b, mergeBranchesByUuid, metricIdsByKey, measuresByComponentUuids));
       WsUtils.writeProtobuf(protobufResponse.build(), request, response);
     }
   }
 
-  private static void addToProtobuf(WsBranches.ListWsResponse.Builder response, BranchDto branch, ComponentDto project, Map<String, BranchDto> mergeBranchesByUuid,
+  private static void addToProtobuf(WsBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
     Map<String, Integer> metricIdsByKey, Multimap<String, MeasureDto> measuresByComponentUuids) {
     WsBranches.Branch.Builder builder = response.addBranchesBuilder();
     setNullable(branch.getKey(), builder::setName);
-    builder.setProject(project.getKey());
     builder.setIsMain(branch.isMain());
     builder.setType(WsBranches.Branch.BranchType.valueOf(branch.getBranchType().name()));
     String mergeBranchUuid = branch.getMergeBranchUuid();

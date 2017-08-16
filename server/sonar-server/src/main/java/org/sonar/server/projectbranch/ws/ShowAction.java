@@ -103,7 +103,6 @@ public class ShowAction implements BranchWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByKeyAndBranch(dbSession, projectKey, branchName);
       userSession.checkComponentPermission(UserRole.USER, component);
-      ComponentDto project = componentFinder.getByUuid(dbSession, component.projectUuid());
 
       List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, asList(ALERT_STATUS_KEY, BUGS_KEY, VULNERABILITIES_KEY, CODE_SMELLS_KEY));
       Map<Integer, MetricDto> metricsById = metrics.stream().collect(uniqueIndex(MetricDto::getId));
@@ -117,7 +116,7 @@ public class ShowAction implements BranchWsAction {
         .selectByComponentsAndMetrics(dbSession, Collections.singletonList(branch.getUuid()), metricsById.keySet())
         .stream().collect(index(MeasureDto::getComponentUuid));
 
-      WsUtils.writeProtobuf(buildResponse(branch, project, mergeBranch, metricIdsByKey, measuresByComponentUuids), request, response);
+      WsUtils.writeProtobuf(buildResponse(branch, mergeBranch, metricIdsByKey, measuresByComponentUuids), request, response);
     }
   }
 
@@ -127,11 +126,10 @@ public class ShowAction implements BranchWsAction {
     return branch.get();
   }
 
-  private static ShowWsResponse buildResponse(BranchDto branch, ComponentDto project, @Nullable BranchDto mergeBranch,
+  private static ShowWsResponse buildResponse(BranchDto branch, @Nullable BranchDto mergeBranch,
     Map<String, Integer> metricIdsByKey, Multimap<String, MeasureDto> measuresByComponentUuids) {
     WsBranches.Branch.Builder builder = WsBranches.Branch.newBuilder();
     setNullable(branch.getKey(), builder::setName);
-    builder.setProject(project.getKey());
     builder.setIsMain(branch.isMain());
     builder.setType(WsBranches.Branch.BranchType.valueOf(branch.getBranchType().name()));
     if (mergeBranch != null) {
