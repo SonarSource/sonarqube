@@ -36,15 +36,17 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsCe.ProjectResponse;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 
 public class ComponentAction implements CeWsAction {
-
-  public static final String PARAM_COMPONENT_ID = "componentId";
-  public static final String PARAM_COMPONENT_KEY = "componentKey";
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -69,7 +71,8 @@ public class ComponentAction implements CeWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setChangelog(
         new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
-        new Change("6.6", "field \"incremental\" is added"))
+        new Change("6.6", "field \"incremental\" is added"),
+        new Change("6.6", "fields \"branch\" and \"branchType\" added"))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT_ID)
@@ -79,12 +82,17 @@ public class ComponentAction implements CeWsAction {
     action.createParam(PARAM_COMPONENT_KEY)
       .setRequired(false)
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
+
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setInternal(true)
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByUuidOrKey(dbSession, wsRequest.param(PARAM_COMPONENT_ID), wsRequest.param(PARAM_COMPONENT_KEY), COMPONENT_ID_AND_KEY);
+      ComponentDto component = loadComponent(dbSession, wsRequest);
       userSession.checkComponentPermission(UserRole.USER, component);
       List<CeQueueDto> queueDtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, component.uuid());
       CeTaskQuery activityQuery = new CeTaskQuery()
@@ -99,5 +107,16 @@ public class ComponentAction implements CeWsAction {
       }
       writeProtobuf(wsResponseBuilder.build(), wsRequest, wsResponse);
     }
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, Request wsRequest) {
+    String componentKey = wsRequest.param(PARAM_COMPONENT_KEY);
+    String componentId = wsRequest.param(PARAM_COMPONENT_ID);
+    String branch = wsRequest.param(PARAM_BRANCH);
+    checkArgument(componentId == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", PARAM_COMPONENT_ID,
+      PARAM_BRANCH);
+    return branch == null
+      ? componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_KEY)
+      : componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
   }
 }
