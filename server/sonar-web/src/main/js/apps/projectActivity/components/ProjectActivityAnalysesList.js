@@ -112,31 +112,36 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
   };
 
   updateStickyBadges = (forceBadgeAlignement /*: ?boolean */) => {
-    if (this.scrollContainer && this.badges) {
-      const scrollTop = this.scrollContainer.scrollTop;
-      if (scrollTop != null) {
-        let newScrollTop;
-        for (let i = 1; i < this.badges.length; i++) {
-          const badge = this.badges[i];
-          let originOffsetTop = badge.getAttribute('originOffsetTop');
-          if (originOffsetTop == null) {
-            // Set the originOffsetTop attribute, to avoid using getBoundingClientRect
-            originOffsetTop = badge.offsetTop;
-            badge.setAttribute('originOffsetTop', originOffsetTop.toString());
-          }
-          if (Number(originOffsetTop) < scrollTop + 18 + i * 2) {
-            if (forceBadgeAlignement && !badge.classList.contains('sticky')) {
-              newScrollTop = originOffsetTop;
-            }
-            badge.classList.add('sticky');
-          } else {
-            badge.classList.remove('sticky');
-          }
-        }
-        if (forceBadgeAlignement && newScrollTop != null) {
-          this.scrollContainer.scrollTop = newScrollTop - 6;
-        }
+    if (!this.scrollContainer || !this.badges) {
+      return;
+    }
+
+    const scrollTop = this.scrollContainer.scrollTop;
+    if (scrollTop == null) {
+      return;
+    }
+
+    let newScrollTop;
+    for (let i = 1; i < this.badges.length; i++) {
+      const badge = this.badges[i];
+      let originOffsetTop = badge.getAttribute('originOffsetTop');
+      if (originOffsetTop == null) {
+        // Set the originOffsetTop attribute, to avoid using getBoundingClientRect
+        originOffsetTop = badge.offsetTop;
+        badge.setAttribute('originOffsetTop', originOffsetTop.toString());
       }
+      if (Number(originOffsetTop) < scrollTop + 18 + i * 2) {
+        if (forceBadgeAlignement && !badge.classList.contains('sticky')) {
+          newScrollTop = originOffsetTop;
+        }
+        badge.classList.add('sticky');
+      } else {
+        badge.classList.remove('sticky');
+      }
+    }
+
+    if (forceBadgeAlignement && newScrollTop != null) {
+      this.scrollContainer.scrollTop = newScrollTop - 6;
     }
   };
 

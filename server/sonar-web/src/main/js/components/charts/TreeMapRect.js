@@ -56,13 +56,15 @@ export default class TreeMapRect extends React.PureComponent {
 
   renderLink = () => {
     const { link, height, width } = this.props;
-    if (link != null && width >= 24 && height >= 24 && (width >= 48 || height >= 50)) {
-      return (
-        <Link className="treemap-link" to={link} onClick={this.handleLinkClick}>
-          <LinkIcon />
-        </Link>
-      );
+    const hasMinSize = width >= 24 && height >= 24 && (width >= 48 || height >= 50);
+    if (!hasMinSize || link == null) {
+      return null;
     }
+    return (
+      <Link className="treemap-link" to={link} onClick={this.handleLinkClick}>
+        <LinkIcon />
+      </Link>
+    );
   };
 
   renderCell = () => {
