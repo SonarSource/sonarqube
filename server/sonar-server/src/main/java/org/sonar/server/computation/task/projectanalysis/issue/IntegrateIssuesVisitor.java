@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
@@ -60,13 +59,15 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
       issueVisitors.beforeComponent(component);
 
       if (isIncremental(component)) {
+        // no tracking needed, simply re-use existing issues
         List<DefaultIssue> issues = issuesLoader.loadForComponentUuid(component.getUuid());
-        fillIncrementalOpenIssues(component, issues, cacheAppender);
+        reuseOpenIssues(component, issues, cacheAppender);
       } else {
-        Tracking<DefaultIssue, DefaultIssue> tracking = issueTracking.track(component);
-        fillNewOpenIssues(component, tracking.getUnmatchedRaws(), cacheAppender);
-        fillExistingOpenIssues(component, tracking.getMatchedRaws(), cacheAppender);
-        closeUnmatchedBaseIssues(component, tracking.getUnmatchedBases(), cacheAppender);
+        TrackingResult tracking = issueTracking.track(component);
+        fillNewOpenIssues(component, tracking.newIssues(), cacheAppender);
+        fillExistingOpenIssues(component, tracking.issuesToMerge(), cacheAppender);
+        closeIssues(component, tracking.issuesToClose(), cacheAppender);
+        copyIssues(component, tracking.issuesToCopy(), cacheAppender);
       }
       issueVisitors.afterComponent(component);
     } catch (Exception e) {
@@ -85,7 +86,16 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     }
   }
 
-  private void fillIncrementalOpenIssues(Component component, Collection<DefaultIssue> issues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
+  private void copyIssues(Component component, Map<DefaultIssue, DefaultIssue> matched, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
+    for (Map.Entry<DefaultIssue, DefaultIssue> entry : matched.entrySet()) {
+      DefaultIssue raw = entry.getKey();
+      DefaultIssue base = entry.getValue();
+      issueLifecycle.copyExistingOpenIssue(raw, base);
+      process(component, raw, cacheAppender);
+    }
+  }
+
+  private void reuseOpenIssues(Component component, Collection<DefaultIssue> issues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
     for (DefaultIssue issue : issues) {
       process(component, issue, cacheAppender);
     }
@@ -100,7 +110,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     }
   }
 
-  private void closeUnmatchedBaseIssues(Component component, Iterable<DefaultIssue> issues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
+  private void closeIssues(Component component, Iterable<DefaultIssue> issues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
     for (DefaultIssue issue : issues) {
       // TODO should replace flag "beingClosed" by express call to transition "automaticClose"
       issue.setBeingClosed(true);
