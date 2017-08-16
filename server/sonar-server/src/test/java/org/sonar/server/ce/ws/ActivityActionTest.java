@@ -50,6 +50,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsCe.ActivityResponse;
@@ -65,7 +66,10 @@ import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.INCREMENTAL_KEY;
+import static org.sonar.db.component.BranchType.LONG;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -405,8 +409,46 @@ public class ActivityActionTest {
       .extracting(Task::getId, Task::getIncremental)
       .containsExactlyInAnyOrder(
         tuple("T1", true),
-        tuple("T2", true)
-      );
+        tuple("T2", true));
+  }
+
+  @Test
+  public void long_living_branch_in_past_activity() {
+    logInAsSystemAdministrator();
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    SnapshotDto analysis = db.components().insertSnapshot(longLivingBranch);
+    insertActivity("T1", longLivingBranch, SUCCESS, analysis);
+
+    ActivityResponse response = ws.newRequest().executeProtobuf(ActivityResponse.class);
+
+    assertThat(response.getTasksList())
+      .extracting(Task::getId, WsCe.Task::getBranch, WsCe.Task::getBranchType, WsCe.Task::getStatus, WsCe.Task::getComponentKey)
+      .containsExactlyInAnyOrder(
+        tuple("T1", longLivingBranch.getBranch(), Common.BranchType.LONG, WsCe.TaskStatus.SUCCESS, longLivingBranch.getKey()));
+  }
+
+  @Test
+  public void long_living_branch_in_queue_analysis() {
+    logInAsSystemAdministrator();
+    String branch = "ny_branch";
+    CeQueueDto queue1 = insertQueue("T1", null, IN_PROGRESS);
+    insertCharacteristic(queue1, BRANCH_KEY, branch);
+    insertCharacteristic(queue1, BRANCH_TYPE_KEY, LONG.name());
+    CeQueueDto queue2 = insertQueue("T2", null, PENDING);
+    insertCharacteristic(queue2, BRANCH_KEY, branch);
+    insertCharacteristic(queue2, BRANCH_TYPE_KEY, LONG.name());
+
+    ActivityResponse response = ws.newRequest()
+      .setParam("status", "FAILED,IN_PROGRESS,PENDING")
+      .executeProtobuf(ActivityResponse.class);
+
+    assertThat(response.getTasksList())
+      .extracting(Task::getId, WsCe.Task::getBranch, WsCe.Task::getBranchType, WsCe.Task::getStatus)
+      .containsExactlyInAnyOrder(
+        tuple("T1", branch, Common.BranchType.LONG, WsCe.TaskStatus.IN_PROGRESS),
+        tuple("T2", branch, Common.BranchType.LONG, WsCe.TaskStatus.PENDING));
   }
 
   @Test
