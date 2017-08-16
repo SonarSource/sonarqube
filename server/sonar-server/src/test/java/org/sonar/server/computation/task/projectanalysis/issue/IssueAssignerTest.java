@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import org.junit.Test;
+import org.junit.Rule;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -40,13 +41,13 @@ public class IssueAssignerTest {
   static final int FILE_REF = 1;
   static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").build();
 
-  @org.junit.Rule
+  @Rule
   public LogTester logTester = new LogTester();
 
-  @org.junit.Rule
+  @Rule
   public ScmInfoRepositoryRule scmInfoRepository = new ScmInfoRepositoryRule();
 
-  @org.junit.Rule
+  @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule().setAnalysisDate(123456789L);
 
   ScmAccountToUser scmAccountToUser = mock(ScmAccountToUser.class);
@@ -185,7 +186,7 @@ public class IssueAssignerTest {
         "moduleUuid=<null>,moduleUuidPath=<null>,projectUuid=<null>,projectKey=<null>,ruleKey=<null>,language=<null>,severity=<null>," +
         "manualSeverity=false,message=<null>,line=2,gap=<null>,effort=<null>,status=<null>,resolution=<null>," +
         "assignee=<null>,checksum=<null>,attributes=<null>,authorLogin=<null>,comments=<null>,tags=<null>," +
-        "locations=<null>,creationDate=<null>,updateDate=<null>,closeDate=<null>,currentChange=<null>,changes=<null>,isNew=true," +
+        "locations=<null>,creationDate=<null>,updateDate=<null>,closeDate=<null>,currentChange=<null>,changes=<null>,isNew=true,isCopied=false," +
         "beingClosed=false,onDisabledRule=false,isChanged=false,sendNotifications=false,selectedAt=<null>]");
   }
 
