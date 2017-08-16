@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import IssuesCounter from './IssuesCounter';
 import ReloadButton from './ReloadButton';
 /*:: import type { Paging } from '../utils'; */
@@ -62,10 +63,11 @@ export default class PageActions extends React.PureComponent {
         {this.renderShortcuts()}
 
         <div className="issues-page-actions">
-          {this.props.loading
-            ? <i className="issues-main-header-spinner spinner spacer-right" />
-            : <ReloadButton className="spacer-right" onClick={this.props.onReload} />}
-          {paging != null && <IssuesCounter current={selectedIndex} total={paging.total} />}
+          <DeferredSpinner className="issues-main-header-spinner" loading={this.props.loading}>
+            <ReloadButton onClick={this.props.onReload} />
+          </DeferredSpinner>
+          {paging != null &&
+            <IssuesCounter className="spacer-left" current={selectedIndex} total={paging.total} />}
         </div>
       </div>
     );

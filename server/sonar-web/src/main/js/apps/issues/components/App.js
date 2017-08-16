@@ -67,7 +67,6 @@ export type Props = {
   currentUser: CurrentUser,
   fetchIssues: (query: RawQuery) => Promise<*>,
   location: { pathname: string, query: RawQuery },
-  onRequestFail: Error => void,
   organization?: { key: string },
   router: {
     push: ({ pathname: string, query?: RawQuery }) => void,
@@ -381,27 +380,35 @@ export default class App extends React.PureComponent {
 
   fetchFirstIssues() {
     this.setState({ checked: [], loading: true });
-    return this.fetchIssues({}, true).then(({ facets, issues, paging, ...other }) => {
-      if (this.mounted) {
-        const openIssue = this.getOpenIssue(this.props, issues);
-        this.setState({
-          facets: parseFacets(facets),
-          loading: false,
-          issues,
-          openIssue,
-          paging,
-          referencedComponents: keyBy(other.components, 'uuid'),
-          referencedLanguages: keyBy(other.languages, 'key'),
-          referencedRules: keyBy(other.rules, 'key'),
-          referencedUsers: keyBy(other.users, 'login'),
-          selected:
-            issues.length > 0 ? (openIssue != null ? openIssue.key : issues[0].key) : undefined,
-          selectedFlowIndex: null,
-          selectedLocationIndex: null
-        });
+    return this.fetchIssues({}, true).then(
+      ({ facets, issues, paging, ...other }) => {
+        if (this.mounted) {
+          const openIssue = this.getOpenIssue(this.props, issues);
+          this.setState({
+            facets: parseFacets(facets),
+            loading: false,
+            issues,
+            openIssue,
+            paging,
+            referencedComponents: keyBy(other.components, 'uuid'),
+            referencedLanguages: keyBy(other.languages, 'key'),
+            referencedRules: keyBy(other.rules, 'key'),
+            referencedUsers: keyBy(other.users, 'login'),
+            selected:
+              issues.length > 0 ? (openIssue != null ? openIssue.key : issues[0].key) : undefined,
+            selectedFlowIndex: null,
+            selectedLocationIndex: null
+          });
+        }
+        return issues;
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
+        return Promise.reject();
       }
-      return issues;
-    });
+    );
   }
 
   fetchIssuesPage = (p /*: number */) => {
@@ -433,15 +440,22 @@ export default class App extends React.PureComponent {
     const p = paging.pageIndex + 1;
 
     this.setState({ loading: true });
-    this.fetchIssuesPage(p).then(response => {
-      if (this.mounted) {
-        this.setState(state => ({
-          loading: false,
-          issues: [...state.issues, ...response.issues],
-          paging: response.paging
-        }));
+    this.fetchIssuesPage(p).then(
+      response => {
+        if (this.mounted) {
+          this.setState(state => ({
+            loading: false,
+            issues: [...state.issues, ...response.issues],
+            paging: response.paging
+          }));
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   };
 
   fetchIssuesForComponent = (component /*: string */, from /*: number */, to /*: number */) => {
@@ -469,16 +483,24 @@ export default class App extends React.PureComponent {
     }
 
     this.setState({ loading: true });
-    return this.fetchIssuesUntil(paging.pageIndex + 1, done).then(response => {
-      const nextIssues = [...issues, ...response.issues];
-
-      this.setState({
-        issues: nextIssues,
-        loading: false,
-        paging: response.paging
-      });
-      return nextIssues.filter(isSameComponent);
-    });
+    return this.fetchIssuesUntil(paging.pageIndex + 1, done).then(
+      response => {
+        const nextIssues = [...issues, ...response.issues];
+        if (this.mounted) {
+          this.setState({
+            issues: nextIssues,
+            loading: false,
+            paging: response.paging
+          });
+        }
+        return nextIssues.filter(isSameComponent);
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
+      }
+    );
   };
 
   fetchFacet = (facet /*: string */) => {
@@ -671,7 +693,6 @@ export default class App extends React.PureComponent {
             fetchIssues={bulkChange === 'all' ? this.fetchIssues : this.getCheckedIssues}
             onClose={this.closeBulkChange}
             onDone={this.handleBulkChangeDone}
-            onRequestFail={this.props.onRequestFail}
             organization={this.props.organization}
           />}
       </div>

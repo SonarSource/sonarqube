@@ -24,13 +24,14 @@ import { formatMeasure } from '../../../helpers/measures';
 
 /*::
 type Props = {
+  className? : string,
   current: ?number,
   total: number
 };
 */
 
 const IssuesCounter = (props /*: Props */) =>
-  <span>
+  <span className={props.className}>
     <strong>
       {props.current != null &&
         <span>
