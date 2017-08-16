@@ -40,15 +40,23 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.tuple;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
+import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
+import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.INCREMENTAL_KEY;
-import static org.sonar.server.ce.ws.ComponentAction.PARAM_COMPONENT_ID;
-import static org.sonar.server.ce.ws.ComponentAction.PARAM_COMPONENT_KEY;
+import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 
 public class ComponentActionTest {
 
@@ -86,8 +94,8 @@ public class ComponentActionTest {
     insertActivity("T1", project1, CeActivityDto.Status.SUCCESS, analysisProject1);
     insertActivity("T2", project2, CeActivityDto.Status.FAILED, null);
     insertActivity("T3", project1, CeActivityDto.Status.FAILED, null);
-    insertQueue("T4", project1, CeQueueDto.Status.IN_PROGRESS);
-    insertQueue("T5", project1, CeQueueDto.Status.PENDING);
+    insertQueue("T4", project1, IN_PROGRESS);
+    insertQueue("T5", project1, PENDING);
 
     WsCe.ProjectResponse response = ws.newRequest()
       .setParam("componentId", project1.uuid())
@@ -177,9 +185,9 @@ public class ComponentActionTest {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.addProjectPermission(UserRole.USER, project);
-    CeQueueDto queue1 = insertQueue("T1", project, CeQueueDto.Status.IN_PROGRESS);
+    CeQueueDto queue1 = insertQueue("T1", project, IN_PROGRESS);
     insertCharacteristic(queue1, INCREMENTAL_KEY, "true");
-    CeQueueDto queue2 = insertQueue("T2", project, CeQueueDto.Status.PENDING);
+    CeQueueDto queue2 = insertQueue("T2", project, PENDING);
     insertCharacteristic(queue2, INCREMENTAL_KEY, "true");
 
     WsCe.ProjectResponse response = ws.newRequest()
@@ -190,8 +198,50 @@ public class ComponentActionTest {
       .extracting(WsCe.Task::getId, WsCe.Task::getIncremental)
       .containsOnly(
         tuple("T1", true),
-        tuple("T2", true)
-      );
+        tuple("T2", true));
+  }
+
+  @Test
+  public void long_living_branch_in_activity() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    SnapshotDto analysis = db.components().insertSnapshot(longLivingBranch);
+    insertActivity("T1", longLivingBranch, SUCCESS, analysis);
+
+    WsCe.ProjectResponse response = ws.newRequest()
+      .setParam("componentKey", longLivingBranch.getKey())
+      .setParam("branch", longLivingBranch.getBranch())
+      .executeProtobuf(WsCe.ProjectResponse.class);
+
+    assertThat(response.getCurrent())
+      .extracting(WsCe.Task::getId, WsCe.Task::getBranch, WsCe.Task::getBranchType, WsCe.Task::getStatus, WsCe.Task::getComponentKey)
+      .containsOnly(
+        "T1", longLivingBranch.getBranch(), Common.BranchType.LONG, WsCe.TaskStatus.SUCCESS, longLivingBranch.getKey());
+  }
+
+  @Test
+  public void long_living_branch_in_queue_analysis() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    CeQueueDto queue1 = insertQueue("T1", longLivingBranch, IN_PROGRESS);
+    insertCharacteristic(queue1, BRANCH_KEY, longLivingBranch.getBranch());
+    insertCharacteristic(queue1, BRANCH_TYPE_KEY, LONG.name());
+    CeQueueDto queue2 = insertQueue("T2", longLivingBranch, PENDING);
+    insertCharacteristic(queue2, BRANCH_KEY, longLivingBranch.getBranch());
+    insertCharacteristic(queue2, BRANCH_TYPE_KEY, LONG.name());
+
+    WsCe.ProjectResponse response = ws.newRequest()
+      .setParam("componentKey", longLivingBranch.getKey())
+      .setParam("branch", longLivingBranch.getBranch())
+      .executeProtobuf(WsCe.ProjectResponse.class);
+
+    assertThat(response.getQueueList())
+      .extracting(WsCe.Task::getId, WsCe.Task::getBranch, WsCe.Task::getBranchType, WsCe.Task::getStatus, WsCe.Task::getComponentKey)
+      .containsOnly(
+        tuple("T1", longLivingBranch.getBranch(), Common.BranchType.LONG, WsCe.TaskStatus.IN_PROGRESS, longLivingBranch.getKey()),
+        tuple("T2", longLivingBranch.getBranch(), Common.BranchType.LONG, WsCe.TaskStatus.PENDING, longLivingBranch.getKey()));
   }
 
   @Test
@@ -222,6 +272,38 @@ public class ComponentActionTest {
     logInWithBrowsePermission(db.components().insertPrivateProject());
 
     ws.newRequest().execute();
+  }
+
+  @Test
+  public void fail_if_branch_does_not_exist() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    userSession.addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEY, file.getKey())
+      .setParam(PARAM_BRANCH, "another_branch")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_componentId_and_branch_params_are_used_together() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    userSession.addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'componentId' and 'branch' parameters cannot be used at the same time");
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, file.uuid())
+      .setParam(PARAM_BRANCH, "my_branch")
+      .execute();
   }
 
   private void logInWithBrowsePermission(ComponentDto project) {
