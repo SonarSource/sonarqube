@@ -255,4 +255,11 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
   }
+
+  void deleteBranches(String rootUuid) {
+    profiler.start("deleteBranches (project_branches)");
+    purgeMapper.deleteBranchesByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
 }
