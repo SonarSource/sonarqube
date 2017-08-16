@@ -93,15 +93,23 @@ export default class OverviewApp extends React.PureComponent {
 
     return getMeasuresAndMeta(componentKey, METRICS, {
       additionalFields: 'metrics,periods'
-    }).then(r => {
-      if (this.mounted) {
-        this.setState({
-          loading: false,
-          measures: enhanceMeasuresWithMetrics(r.component.measures, r.metrics),
-          periods: r.periods
-        });
+    }).then(
+      r => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            measures: enhanceMeasuresWithMetrics(r.component.measures, r.metrics),
+            periods: r.periods
+          });
+        }
+      },
+      error => {
+        throwGlobalError(error);
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    }, throwGlobalError);
+    );
   }
 
   loadHistory(component /*: Component */) {

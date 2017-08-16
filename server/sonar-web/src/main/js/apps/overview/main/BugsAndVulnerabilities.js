@@ -138,6 +138,11 @@ class BugsAndVulnerabilities extends React.PureComponent {
   }
 
   render() {
+    const { measures } = this.props;
+    const bugsMeasure = measures.find(measure => measure.metric.key === 'bugs');
+    if (bugsMeasure == null) {
+      return null;
+    }
     return (
       <div className="overview-card overview-card-special">
         {this.renderHeader()}

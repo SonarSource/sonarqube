@@ -148,6 +148,11 @@ class CodeSmells extends React.PureComponent {
   }
 
   render() {
+    const { measures } = this.props;
+    const codeSmellsMeasure = measures.find(measure => measure.metric.key === 'code_smells');
+    if (codeSmellsMeasure == null) {
+      return null;
+    }
     return (
       <div className="overview-card" id="overview-code-smells">
         {this.renderHeader()}
