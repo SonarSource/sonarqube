@@ -17,23 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import TooltipCore from 'rc-tooltip';
 
-export default class Tooltip extends React.PureComponent {
-  /*:: props: {
-    placement?: string
-  };
-*/
-
-  static defaultProps = {
-    placement: 'bottom'
-  };
-
-  render() {
-    return (
-      <TooltipCore destroyTooltipOnHide={true} placement={this.props.placement} {...this.props} />
-    );
-  }
+interface Props {
+  overlay: any;
+  placement?: string;
+  [attr: string]: any;
 }
+
+export default function Tooltip(props: Props) {
+  return <TooltipCore destroyTooltipOnHide={true} placement={props.placement} {...props} />;
+}
+
+(Tooltip as React.StatelessComponent).defaultProps = {
+  placement: 'bottom'
+};
