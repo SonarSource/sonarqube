@@ -33,6 +33,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
@@ -150,8 +151,15 @@ public class PurgeDao implements Dao {
 
   public void deleteRootComponent(DbSession session, String uuid) {
     PurgeProfiler profiler = new PurgeProfiler();
+    PurgeMapper purgeMapper = mapper(session);
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler);
-    deleteRootComponent(uuid, mapper(session), purgeCommands);
+
+    session.getMapper(BranchMapper.class).selectByProjectUuid(uuid)
+      .stream()
+      .filter(branch -> !uuid.equals(branch.getUuid()))
+      .forEach(branch -> deleteRootComponent(branch.getUuid(), purgeMapper, purgeCommands));
+
+    deleteRootComponent(uuid, purgeMapper, purgeCommands);
   }
 
   private static void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
@@ -171,6 +179,7 @@ public class PurgeDao implements Dao {
     commands.deleteCeActivity(rootUuid);
     commands.deleteCeQueue(rootUuid);
     commands.deleteWebhookDeliveries(rootUuid);
+    commands.deleteBranches(rootUuid);
   }
 
   /**
