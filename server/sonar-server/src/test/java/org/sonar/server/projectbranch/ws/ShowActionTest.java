@@ -101,8 +101,8 @@ public class ShowActionTest {
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getBranch())
-      .extracting(Branch::getName, Branch::getProject, Branch::getType, Branch::getMergeBranch)
-      .containsExactlyInAnyOrder(longLivingBranch.getBranch(), project.getKey(), Branch.BranchType.LONG, "");
+      .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
+      .containsExactlyInAnyOrder(longLivingBranch.getBranch(), Branch.BranchType.LONG, "");
   }
 
   @Test
@@ -120,8 +120,8 @@ public class ShowActionTest {
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getBranch())
-      .extracting(Branch::getName, Branch::getProject, Branch::getType, Branch::getMergeBranch)
-      .containsExactlyInAnyOrder(shortLivingBranch.getBranch(), project.getKey(), Branch.BranchType.SHORT, longLivingBranch.getBranch());
+      .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
+      .containsExactlyInAnyOrder(shortLivingBranch.getBranch(), Branch.BranchType.SHORT, longLivingBranch.getBranch());
   }
 
   @Test
@@ -178,8 +178,8 @@ public class ShowActionTest {
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getBranch())
-      .extracting(Branch::getName, Branch::getProject, Branch::getType, Branch::getMergeBranch)
-      .containsExactlyInAnyOrder(file.getBranch(), project.getKey(), Branch.BranchType.LONG, "");
+      .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
+      .containsExactlyInAnyOrder(file.getBranch(), Branch.BranchType.LONG, "");
   }
 
   @Test
