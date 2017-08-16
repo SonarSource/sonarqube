@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.config.AppSettings;
+import org.sonar.process.NodeType;
 import org.sonar.process.ProcessProperties;
 
 /**
@@ -45,6 +46,7 @@ public final class ClusterProperties {
   private final List<String> hosts;
   private final List<String> networkInterfaces;
   private final String name;
+  private final NodeType nodeType;
 
   ClusterProperties(AppSettings appSettings) {
     port = appSettings.getProps().valueAsInt(ProcessProperties.CLUSTER_PORT);
@@ -56,6 +58,7 @@ public final class ClusterProperties {
     hosts = extractHosts(
       appSettings.getProps().value(ProcessProperties.CLUSTER_HOSTS, "")
     );
+    nodeType = NodeType.parse(appSettings.getProps().value(ProcessProperties.CLUSTER_NODE_TYPE));
   }
 
   int getPort() {
@@ -64,6 +67,10 @@ public final class ClusterProperties {
 
   boolean isEnabled() {
     return enabled;
+  }
+
+  public NodeType getNodeType() {
+    return nodeType;
   }
 
   List<String> getHosts() {
