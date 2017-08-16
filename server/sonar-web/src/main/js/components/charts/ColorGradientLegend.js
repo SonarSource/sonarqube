@@ -43,13 +43,12 @@ export default function ColorGradientLegend(
     width
   } /*: Props */
 ) {
-  let colorDomain = colorScale.domain();
-  let colorRange = colorScale.range();
-  if (direction !== 1) {
-    colorDomain = colorDomain.reverse();
-    colorRange = colorRange.reverse();
+  const colorRange = colorScale.range();
+  if (direction === 1) {
+    colorRange.reverse();
   }
 
+  const colorDomain = colorScale.domain();
   const lastColorIdx = colorRange.length - 1;
   const lastDomainIdx = colorDomain.length - 1;
   const widthNoPadding = width - padding[1];
