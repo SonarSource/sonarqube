@@ -112,6 +112,11 @@ public class TrackedIssueAdapter implements Issue {
   public boolean isNew() {
     return issue.isNew();
   }
+  
+  @Override
+  public boolean isCopied() {
+    return false;
+  }
 
   @Override
   public Map<String, String> attributes() {
