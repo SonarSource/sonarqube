@@ -219,6 +219,23 @@ public class ShowActionTest {
   }
 
   @Test
+  public void fail_if_branch_exists_in_projects_table_but_not_in_project_branches_table() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    db.executeDdl("delete from project_branches where uuid = '" + branch.uuid() + "'");
+    db.commit();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Branch uuid '" + branch.uuid() + "' not found");
+
+    ws.newRequest()
+      .setParam("component", branch.getKey())
+      .setParam("branch", branch.getBranch())
+      .execute();
+  }
+
+  @Test
   public void test_example() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(BranchType.LONG));
