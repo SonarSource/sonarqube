@@ -113,3 +113,12 @@ enum RuleType {
   BUG = 2;
   VULNERABILITY = 3;
 }
+
+enum BranchType {
+  // Zero is required in order to not get MAINTAINABILITY as default value
+  // See http://androiddevblog.com/protocol-buffers-pitfall-adding-enum-values/
+  UNKNOWN_BRANCH_TYPE = 0;
+
+  LONG = 1;
+  SHORT = 2;
+}
