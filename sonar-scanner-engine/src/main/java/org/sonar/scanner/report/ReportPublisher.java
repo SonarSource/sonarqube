@@ -47,6 +47,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.BranchConfiguration;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.HttpException;
@@ -74,12 +75,13 @@ public class ReportPublisher implements Startable {
   private final TempFolder temp;
   private final ReportPublisherStep[] publishers;
   private final Server server;
+  private final BranchConfiguration branchConfiguration;
 
   private Path reportDir;
   private ScannerReportWriter writer;
 
   public ReportPublisher(Configuration settings, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
-    InputModuleHierarchy moduleHierarchy, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
+                         InputModuleHierarchy moduleHierarchy, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration) {
     this.settings = settings;
     this.wsClient = wsClient;
     this.server = server;
@@ -88,6 +90,7 @@ public class ReportPublisher implements Startable {
     this.analysisMode = analysisMode;
     this.temp = temp;
     this.publishers = publishers;
+    this.branchConfiguration = branchConfiguration;
   }
 
   @Override
@@ -178,7 +181,11 @@ public class ReportPublisher implements Startable {
       post.setParam("characteristic", "incremental=true");
     }
 
-    settings.get(BRANCH_NAME).ifPresent(b -> post.setParam("characteristic", "branch=" + b));
+    String branchName = branchConfiguration.branchName();
+    if (branchName != null) {
+      post.setParam("characteristic", "branch=" + branchName);
+      post.setParam("characteristic", "branchType=" + branchConfiguration.branchType().name());
+    }
 
     WsResponse response;
     try {
