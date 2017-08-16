@@ -24,6 +24,7 @@ option java_package = "org.sonarqube.ws";
 option java_outer_classname = "WsBranches";
 option optimize_for = SPEED;
 
+import "ws-commons.proto";
 
 // WS api/project_branches/list
 message ListWsResponse {
@@ -38,7 +39,7 @@ message ShowWsResponse {
 message Branch {
   optional string name = 1;
   optional bool isMain = 2;
-  optional BranchType type = 3;
+  optional sonarqube.ws.commons.BranchType type = 3;
   // Merge branch is only present for short living branch
   optional string mergeBranch = 4;
   optional Status status = 5;
@@ -52,14 +53,6 @@ message Branch {
     optional int32 codeSmells = 4;
   }
 
-  enum BranchType {
-    // Zero is required in order to not get MAINTAINABILITY as default value
-    // See http://androiddevblog.com/protocol-buffers-pitfall-adding-enum-values/
-    UNKNOWN = 0;
-
-    LONG = 1;
-    SHORT = 2;
-  }
 }
 
 
