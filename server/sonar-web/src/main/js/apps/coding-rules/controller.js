@@ -22,6 +22,7 @@ import key from 'keymaster';
 import Controller from '../../components/navigator/controller';
 import Rule from './models/rule';
 import RuleDetailsView from './rule-details-view';
+import throwGlobalError from '../../app/utils/throwGlobalError';
 
 export default Controller.extend({
   pageSize: 200,
@@ -59,28 +60,33 @@ export default Controller.extend({
     const that = this;
     const url = window.baseUrl + '/api/rules/search';
     const options = { ...this._searchParameters(), ...this.app.state.get('query') };
-    return $.get(url, options).done(r => {
-      const rules = that.app.list.parseRules(r);
-      if (firstPage) {
-        that.app.list.reset(rules);
-      } else {
-        that.app.list.add(rules);
-      }
-      that.app.list.setIndex();
-      that.app.list.addExtraAttributes(that.app.repositories);
-      that.app.facets.reset(that._allFacets());
-      that.app.facets.add(r.facets, { merge: true });
-      that.enableFacets(that._enabledFacets());
-      that.app.state.set({
-        page: r.p,
-        pageSize: r.ps,
-        total: r.total,
-        maxResultsReached: r.p * r.ps >= r.total
+    return $.get(url, options)
+      .done(r => {
+        const rules = that.app.list.parseRules(r);
+        if (firstPage) {
+          that.app.list.reset(rules);
+        } else {
+          that.app.list.add(rules);
+        }
+        that.app.list.setIndex();
+        that.app.list.addExtraAttributes(that.app.repositories);
+        that.app.facets.reset(that._allFacets());
+        that.app.facets.add(r.facets, { merge: true });
+        that.enableFacets(that._enabledFacets());
+        that.app.state.set({
+          page: r.p,
+          pageSize: r.ps,
+          total: r.total,
+          maxResultsReached: r.p * r.ps >= r.total
+        });
+        if (firstPage && that.isRulePermalink()) {
+          that.showDetails(that.app.list.first());
+        }
+      })
+      .fail(error => {
+        this.app.state.set({ maxResultsReached: true });
+        throwGlobalError(error);
       });
-      if (firstPage && that.isRulePermalink()) {
-        that.showDetails(that.app.list.first());
-      }
-    });
   },
 
   isRulePermalink() {
