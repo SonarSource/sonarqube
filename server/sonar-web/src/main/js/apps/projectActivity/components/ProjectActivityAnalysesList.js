@@ -44,7 +44,7 @@ type Props = {
   changeEvent: (event: string, name: string) => Promise<*>,
   deleteAnalysis: (analysis: string) => Promise<*>,
   deleteEvent: (analysis: string, event: string) => Promise<*>,
-  loading: boolean,
+  initializing: boolean,
   project: { qualifier: string },
   query: Query,
   updateQuery: Object => void
@@ -155,7 +155,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
     if (this.props.analyses.length === 0 || !hasFilteredData) {
       return (
         <div className={this.props.className}>
-          {this.props.loading
+          {this.props.initializing
             ? <div className="text-center">
                 <i className="spinner" />
               </div>

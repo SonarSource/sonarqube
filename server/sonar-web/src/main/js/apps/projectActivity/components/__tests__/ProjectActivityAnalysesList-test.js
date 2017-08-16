@@ -77,7 +77,7 @@ const DEFAULT_PROPS = {
   changeEvent: () => {},
   deleteAnalysis: () => {},
   deleteEvent: () => {},
-  loading: false,
+  inizializing: false,
   project: { qualifier: 'TRK' },
   query: { category: '', graph: DEFAULT_GRAPH, project: 'org.sonarsource.sonarqube:sonarqube' },
   updateQuery: () => {}
