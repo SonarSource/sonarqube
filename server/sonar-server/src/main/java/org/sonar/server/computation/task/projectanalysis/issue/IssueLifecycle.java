@@ -65,6 +65,29 @@ public class IssueLifecycle {
     issue.setEffort(debtCalculator.calculate(issue));
   }
 
+  public void copyExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {
+    raw.setKey(Uuids.create());
+    raw.setNew(false);
+    raw.setCopied(true);
+    raw.setType(base.type());
+    raw.setCreationDate(base.creationDate());
+    raw.setUpdateDate(base.updateDate());
+    raw.setCloseDate(base.closeDate());
+    raw.setResolution(base.resolution());
+    raw.setStatus(base.status());
+    raw.setAssignee(base.assignee());
+    raw.setAuthorLogin(base.authorLogin());
+    raw.setTags(base.tags());
+    raw.setAttributes(base.attributes());
+    raw.setEffort(debtCalculator.calculate(raw));
+    raw.setOnDisabledRule(base.isOnDisabledRule());
+    if (base.manualSeverity()) {
+      raw.setManualSeverity(true);
+      raw.setSeverity(base.severity());
+    }
+    raw.setSelectedAt(base.selectedAt());
+  }
+
   public void mergeExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {
     raw.setNew(false);
     raw.setKey(base.key());
