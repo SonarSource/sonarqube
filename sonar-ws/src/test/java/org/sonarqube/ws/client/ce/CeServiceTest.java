@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_ONLY_CURRENTS;
@@ -140,5 +141,17 @@ public class CeServiceTest {
 
     assertThat(serviceTester.getGetRequest().getPath()).isEqualTo("api/ce/worker_count");
     assertThat(serviceTester.getGetParser()).isSameAs(WsCe.WorkerCountResponse.parser());
+  }
+
+  @Test
+  public void component() {
+    underTest.component("my_component");
+    GetRequest result = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(WsCe.ProjectResponse.parser());
+    serviceTester.assertThat(result)
+      .hasPath("component")
+      .hasParam(PARAM_COMPONENT_KEY, "my_component")
+      .andNoOtherParam();
   }
 }

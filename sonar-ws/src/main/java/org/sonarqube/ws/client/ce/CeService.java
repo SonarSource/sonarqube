@@ -21,6 +21,7 @@ package org.sonarqube.ws.client.ce;
 
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsCe.ActivityResponse;
+import org.sonarqube.ws.WsCe.ProjectResponse;
 import org.sonarqube.ws.WsCe.TaskTypesWsResponse;
 import org.sonarqube.ws.WsCe.WorkerCountResponse;
 import org.sonarqube.ws.client.BaseService;
@@ -93,6 +94,13 @@ public class CeService extends BaseService {
 
   public WorkerCountResponse workerCount() {
     return call(new GetRequest(path(ACTION_WORKER_COUNT)), WorkerCountResponse.parser());
+  }
+
+  public ProjectResponse component(String componentKey) {
+    return call(
+      new GetRequest(path("component"))
+        .setParam(PARAM_COMPONENT_KEY, componentKey),
+      ProjectResponse.parser());
   }
 
 }

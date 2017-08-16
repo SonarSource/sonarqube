@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ce.ws;
 
+import java.util.Collections;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,11 +28,14 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -54,18 +58,18 @@ public class TaskActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private OrganizationDto organizationDto;
   private ComponentDto project;
-  private TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
-  private TaskAction underTest = new TaskAction(dbTester.getDbClient(), formatter, userSession);
+  private TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
+  private TaskAction underTest = new TaskAction(db.getDbClient(), formatter, userSession);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
-    organizationDto = dbTester.organizations().insert();
-    project = dbTester.components().insertPrivateProject(organizationDto);
+    organizationDto = db.organizations().insert();
+    project = db.components().insertPrivateProject(organizationDto);
   }
 
   @Test
@@ -92,6 +96,7 @@ public class TaskActionTest {
     assertThat(taskResponse.getTask().getComponentName()).isEqualTo(project.name());
     assertThat(taskResponse.getTask().hasExecutionTimeMs()).isFalse();
     assertThat(taskResponse.getTask().getLogs()).isFalse();
+    assertThat(taskResponse.getTask().getIncremental()).isFalse();
   }
 
   @Test
@@ -114,6 +119,44 @@ public class TaskActionTest {
     assertThat(task.getAnalysisId()).isEqualTo(activityDto.getAnalysisUuid());
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getLogs()).isFalse();
+  }
+
+  @Test
+  public void incremental_on_queued_task() {
+    logInAsRoot();
+
+    ComponentDto project = db.components().insertPrivateProject();
+    CeQueueDto queueDto = createAndPersistQueueTask(project);
+    insertCharacteristic(queueDto, "incremental", "true");
+
+    WsCe.TaskResponse taskResponse = ws.newRequest()
+      .setParam("id", SOME_TASK_UUID)
+      .executeProtobuf(WsCe.TaskResponse.class);
+
+    assertThat(taskResponse.getTask().getIncremental()).isTrue();
+  }
+
+  @Test
+  public void incremental_on_archived_task() {
+    logInAsRoot();
+
+    ComponentDto project = db.components().insertPrivateProject();
+    SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
+    CeQueueDto queueDto = new CeQueueDto()
+      .setTaskType(CeTaskTypes.REPORT)
+      .setUuid(SOME_TASK_UUID)
+      .setComponentUuid(project.uuid());
+    CeActivityDto activityDto = new CeActivityDto(queueDto)
+      .setStatus(CeActivityDto.Status.FAILED)
+      .setExecutionTimeMs(500L)
+      .setAnalysisUuid(analysis.getUuid());
+    persist(activityDto);
+
+    WsCe.TaskResponse taskResponse = ws.newRequest()
+      .setParam("id", SOME_TASK_UUID)
+      .executeProtobuf(WsCe.TaskResponse.class);
+
+    assertThat(taskResponse.getTask().getIncremental()).isTrue();
   }
 
   @Test
@@ -344,20 +387,31 @@ public class TaskActionTest {
     return dto;
   }
 
+  private CeTaskCharacteristicDto insertCharacteristic(CeQueueDto queueDto, String key, String value) {
+    CeTaskCharacteristicDto dto = new CeTaskCharacteristicDto()
+      .setUuid(Uuids.createFast())
+      .setTaskUuid(queueDto.getUuid())
+      .setKey(key)
+      .setValue(value);
+    db.getDbClient().ceTaskCharacteristicsDao().insert(db.getSession(), Collections.singletonList(dto));
+    db.commit();
+    return dto;
+  }
+
   private void persist(CeQueueDto queueDto) {
-    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
-    dbTester.commit();
+    db.getDbClient().ceQueueDao().insert(db.getSession(), queueDto);
+    db.commit();
   }
 
   private CeActivityDto persist(CeActivityDto activityDto) {
-    dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
-    dbTester.commit();
+    db.getDbClient().ceActivityDao().insert(db.getSession(), activityDto);
+    db.commit();
     return activityDto;
   }
 
   private void persistScannerContext(String taskUuid, String scannerContext) {
-    dbTester.getDbClient().ceScannerContextDao().insert(dbTester.getSession(), taskUuid, CloseableIterator.from(singleton(scannerContext).iterator()));
-    dbTester.commit();
+    db.getDbClient().ceScannerContextDao().insert(db.getSession(), taskUuid, CloseableIterator.from(singleton(scannerContext).iterator()));
+    db.commit();
   }
 
   private void logInAsSystemAdministrator() {

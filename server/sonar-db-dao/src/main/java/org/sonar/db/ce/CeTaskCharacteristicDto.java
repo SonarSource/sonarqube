@@ -20,6 +20,9 @@
 package org.sonar.db.ce;
 
 public class CeTaskCharacteristicDto {
+
+  public static final String INCREMENTAL_KEY = "incremental";
+
   private String uuid;
   private String taskUuid;
   private String key;
@@ -29,31 +32,35 @@ public class CeTaskCharacteristicDto {
     return uuid;
   }
 
-  public void setUuid(String uuid) {
+  public CeTaskCharacteristicDto setUuid(String uuid) {
     this.uuid = uuid;
+    return this;
   }
 
   public String getTaskUuid() {
     return taskUuid;
   }
 
-  public void setTaskUuid(String taskUuid) {
+  public CeTaskCharacteristicDto setTaskUuid(String taskUuid) {
     this.taskUuid = taskUuid;
+    return this;
   }
 
   public String getKey() {
     return key;
   }
 
-  public void setKey(String key) {
+  public CeTaskCharacteristicDto setKey(String key) {
     this.key = key;
+    return this;
   }
 
   public String getValue() {
     return value;
   }
 
-  public void setValue(String value) {
+  public CeTaskCharacteristicDto setValue(String value) {
     this.value = value;
+    return this;
   }
 }

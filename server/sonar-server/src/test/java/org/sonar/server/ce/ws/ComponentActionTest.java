@@ -19,15 +19,18 @@
  */
 package org.sonar.server.ce.ws;
 
+import java.util.Collections;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -41,7 +44,9 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.tuple;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.INCREMENTAL_KEY;
 import static org.sonar.server.ce.ws.ComponentAction.PARAM_COMPONENT_ID;
 import static org.sonar.server.ce.ws.ComponentAction.PARAM_COMPONENT_KEY;
 
@@ -78,11 +83,11 @@ public class ComponentActionTest {
     SnapshotDto analysisProject1 = db.components().insertSnapshot(project1);
     ComponentDto project2 = db.components().insertPrivateProject(organization);
     userSession.addProjectPermission(UserRole.USER, project1);
-    insertActivity("T1", project1,CeActivityDto.Status.SUCCESS, analysisProject1);
+    insertActivity("T1", project1, CeActivityDto.Status.SUCCESS, analysisProject1);
     insertActivity("T2", project2, CeActivityDto.Status.FAILED, null);
-    insertActivity("T3", project1,CeActivityDto.Status.FAILED, null);
-    insertQueue("T4", project1,CeQueueDto.Status.IN_PROGRESS);
-    insertQueue("T5", project1,CeQueueDto.Status.PENDING);
+    insertActivity("T3", project1, CeActivityDto.Status.FAILED, null);
+    insertQueue("T4", project1, CeQueueDto.Status.IN_PROGRESS);
+    insertQueue("T5", project1, CeQueueDto.Status.PENDING);
 
     WsCe.ProjectResponse response = ws.newRequest()
       .setParam("componentId", project1.uuid())
@@ -98,6 +103,7 @@ public class ComponentActionTest {
       .extracting(WsCe.Task::getOrganization)
       .containsOnly(organization.getKey());
     assertThat(response.getCurrent().getOrganization()).isEqualTo(organization.getKey());
+    assertThat(response.getCurrent().getIncremental()).isFalse();
   }
 
   @Test
@@ -167,6 +173,28 @@ public class ComponentActionTest {
   }
 
   @Test
+  public void incremental_on_in_queue_analysis() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    userSession.addProjectPermission(UserRole.USER, project);
+    CeQueueDto queue1 = insertQueue("T1", project, CeQueueDto.Status.IN_PROGRESS);
+    insertCharacteristic(queue1, INCREMENTAL_KEY, "true");
+    CeQueueDto queue2 = insertQueue("T2", project, CeQueueDto.Status.PENDING);
+    insertCharacteristic(queue2, INCREMENTAL_KEY, "true");
+
+    WsCe.ProjectResponse response = ws.newRequest()
+      .setParam("componentId", project.uuid())
+      .executeProtobuf(WsCe.ProjectResponse.class);
+
+    assertThat(response.getQueueList())
+      .extracting(WsCe.Task::getId, WsCe.Task::getIncremental)
+      .containsOnly(
+        tuple("T1", true),
+        tuple("T2", true)
+      );
+  }
+
+  @Test
   public void fail_with_404_when_component_does_not_exist() throws Exception {
     expectedException.expect(NotFoundException.class);
     ws.newRequest()
@@ -227,5 +255,16 @@ public class ComponentActionTest {
     db.getDbClient().ceActivityDao().insert(db.getSession(), activityDto);
     db.getSession().commit();
     return activityDto;
+  }
+
+  private CeTaskCharacteristicDto insertCharacteristic(CeQueueDto queueDto, String key, String value) {
+    CeTaskCharacteristicDto dto = new CeTaskCharacteristicDto()
+      .setUuid(Uuids.createFast())
+      .setTaskUuid(queueDto.getUuid())
+      .setKey(key)
+      .setValue(value);
+    db.getDbClient().ceTaskCharacteristicsDao().insert(db.getSession(), Collections.singletonList(dto));
+    db.commit();
+    return dto;
   }
 }

@@ -19,25 +19,9 @@
  */
 package org.sonar.server.computation.queue;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
-import static org.sonar.db.permission.OrganizationPermission.SCAN;
-
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -56,6 +40,7 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -68,6 +53,22 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
 public class ReportSubmitterTest {
 
@@ -140,8 +141,10 @@ public class ReportSubmitterTest {
     verify(queue).submit(submittedTask.capture());
     String taskUuid = submittedTask.getValue().getUuid();
 
-    Map<String, String> insertedCharacteristics = db.getDbClient().ceTaskCharacteristicsDao().getTaskCharacteristics(db.getSession(), taskUuid);
-    assertThat(insertedCharacteristics).containsOnly(entry("incremental", "true"), entry("pr", "mypr"));
+    List<CeTaskCharacteristicDto> insertedCharacteristics = db.getDbClient().ceTaskCharacteristicsDao().selectByTaskUuid(db.getSession(), taskUuid);
+    assertThat(insertedCharacteristics)
+      .extracting(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue)
+      .containsOnly(tuple("incremental", "true"), tuple("pr", "mypr"));
   }
 
   @Test

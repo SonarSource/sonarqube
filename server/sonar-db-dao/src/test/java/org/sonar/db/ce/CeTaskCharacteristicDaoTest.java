@@ -19,16 +19,16 @@
  */
 package org.sonar.db.ce;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-
-import java.util.Collections;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class CeTaskCharacteristicDaoTest {
   @Rule
@@ -39,21 +39,49 @@ public class CeTaskCharacteristicDaoTest {
   private CeTaskCharacteristicDao underTest = new CeTaskCharacteristicDao();
 
   @Test
-  public void test_insert() {
-    CeTaskCharacteristicDto dto = new CeTaskCharacteristicDto();
-    dto.setKey("key");
-    dto.setValue("value");
-    dto.setUuid("uuid");
-    dto.setTaskUuid("task");
-    underTest.insert(dbTester.getSession(), Collections.singletonList(dto));
+  public void selectByTaskUuid() {
+    CeTaskCharacteristicDto dto1 = new CeTaskCharacteristicDto()
+      .setKey("key1")
+      .setValue("value1")
+      .setUuid("uuid1")
+      .setTaskUuid("task");
+    CeTaskCharacteristicDto dto2 = new CeTaskCharacteristicDto()
+      .setKey("key2")
+      .setValue("value2")
+      .setUuid("uuid2")
+      .setTaskUuid("task");
+    underTest.insert(dbTester.getSession(), asList(dto1, dto2));
     dbTester.getSession().commit();
 
-    assertThat(underTest.getTaskCharacteristics(dbTester.getSession(), "task")).containsOnly(entry("key", "value"));
+    assertThat(underTest.selectByTaskUuid(dbTester.getSession(), "task"))
+      .extracting(CeTaskCharacteristicDto::getTaskUuid, CeTaskCharacteristicDto::getUuid, CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue)
+      .containsOnly(
+        tuple("task", "uuid1", "key1", "value1"),
+        tuple("task", "uuid2", "key2", "value2"));
+    assertThat(underTest.selectByTaskUuid(dbTester.getSession(), "unknown")).isEmpty();
   }
 
   @Test
-  public void test_no_result() {
-    assertThat(underTest.getTaskCharacteristics(dbTester.getSession(), "task")).isEmpty();
+  public void selectByTaskUuids() {
+    CeTaskCharacteristicDto dto1 = new CeTaskCharacteristicDto()
+      .setKey("key1")
+      .setValue("value1")
+      .setUuid("uuid1")
+      .setTaskUuid("task1");
+    CeTaskCharacteristicDto dto2 = new CeTaskCharacteristicDto()
+      .setKey("key2")
+      .setValue("value2")
+      .setUuid("uuid2")
+      .setTaskUuid("task2");
+    underTest.insert(dbTester.getSession(), asList(dto1, dto2));
+    dbTester.getSession().commit();
 
+    assertThat(underTest.selectByTaskUuids(dbTester.getSession(), asList("task1", "task2")))
+      .extracting(CeTaskCharacteristicDto::getTaskUuid, CeTaskCharacteristicDto::getUuid, CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue)
+      .containsOnly(
+        tuple("task1", "uuid1", "key1", "value1"),
+        tuple("task2", "uuid2", "key2", "value2"));
+    assertThat(underTest.selectByTaskUuids(dbTester.getSession(), singletonList("unknown"))).isEmpty();
   }
+
 }
