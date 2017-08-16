@@ -19,45 +19,24 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
-public class ShortBranchTrackerExecution {
-  private final TrackerBaseInputFactory baseInputFactory;
+public class MergeBranchTrackerExecution {
   private final TrackerRawInputFactory rawInputFactory;
   private final TrackerMergeBranchInputFactory mergeInputFactory;
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
 
-  public ShortBranchTrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerRawInputFactory rawInputFactory, TrackerMergeBranchInputFactory mergeInputFactory,
+  public MergeBranchTrackerExecution(TrackerRawInputFactory rawInputFactory, TrackerMergeBranchInputFactory mergeInputFactory,
     Tracker<DefaultIssue, DefaultIssue> tracker) {
-    this.baseInputFactory = baseInputFactory;
     this.rawInputFactory = rawInputFactory;
     this.mergeInputFactory = mergeInputFactory;
     this.tracker = tracker;
   }
 
   public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
-    Input<DefaultIssue> rawInput = rawInputFactory.create(component);
-    Input<DefaultIssue> baseInput = baseInputFactory.create(component);
-    Input<DefaultIssue> mergeInput = mergeInputFactory.create(component);
-
-    Tracking<DefaultIssue, DefaultIssue> mergeTracking = tracker.track(rawInput, mergeInput);
-    List<DefaultIssue> unmatchedRaws = toList(mergeTracking.getUnmatchedRaws());
-    Input<DefaultIssue> unmatchedRawInput = new DefaultTrackingInput(unmatchedRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
-
-    // do second tracking with base branch using raws issues that are still unmatched
-    return tracker.track(unmatchedRawInput, baseInput);
-  }
-
-  private static <T> List<T> toList(Iterable<T> iterable) {
-    List<T> list = new ArrayList<>();
-    iterable.forEach(list::add);
-    return list;
+    return tracker.track(rawInputFactory.create(component), mergeInputFactory.create(component));
   }
 }
