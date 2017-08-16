@@ -37,6 +37,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsBranches.ShowWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,7 +103,7 @@ public class ShowActionTest {
 
     assertThat(response.getBranch())
       .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
-      .containsExactlyInAnyOrder(longLivingBranch.getBranch(), Branch.BranchType.LONG, "");
+      .containsExactlyInAnyOrder(longLivingBranch.getBranch(), Common.BranchType.LONG, "");
   }
 
   @Test
@@ -121,7 +122,7 @@ public class ShowActionTest {
 
     assertThat(response.getBranch())
       .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
-      .containsExactlyInAnyOrder(shortLivingBranch.getBranch(), Branch.BranchType.SHORT, longLivingBranch.getBranch());
+      .containsExactlyInAnyOrder(shortLivingBranch.getBranch(), Common.BranchType.SHORT, longLivingBranch.getBranch());
   }
 
   @Test
@@ -179,7 +180,7 @@ public class ShowActionTest {
 
     assertThat(response.getBranch())
       .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
-      .containsExactlyInAnyOrder(file.getBranch(), Branch.BranchType.LONG, "");
+      .containsExactlyInAnyOrder(file.getBranch(), Common.BranchType.LONG, "");
   }
 
   @Test
