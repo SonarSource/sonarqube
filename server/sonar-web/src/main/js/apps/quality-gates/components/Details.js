@@ -45,11 +45,7 @@ export default class Details extends React.PureComponent {
 
   fetchDetails() {
     const { id } = this.props.params;
-    const { onShow } = this.props;
-
-    fetchQualityGate(id).then(qualityGate => {
-      onShow(qualityGate);
-    });
+    fetchQualityGate(id).then(qualityGate => this.props.onShow(qualityGate));
   }
 
   handleRenameClick() {
