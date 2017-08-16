@@ -47,6 +47,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -59,6 +60,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.webhook.WebhookDbTesting.newWebhookDeliveryDto;
 import static org.sonar.db.webhook.WebhookDbTesting.selectAllDeliveryUuids;
@@ -190,6 +192,39 @@ public class PurgeDaoTest {
 
     assertThat(dbTester.countRowsOfTable("ce_queue")).isEqualTo(1);
     assertThat(dbTester.countSql("select count(*) from ce_queue where component_uuid='" + projectToBeDeleted.uuid() + "'")).isEqualTo(0);
+  }
+
+  private ComponentDto insertProjectWithBranchAndRelatedData() {
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    ComponentDto module = dbTester.components().insertComponent(newModuleDto(branch));
+    ComponentDto subModule = dbTester.components().insertComponent(newModuleDto(module));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(subModule));
+    dbTester.issues().insert(rule, branch, file);
+    dbTester.issues().insert(rule, branch, subModule);
+    dbTester.issues().insert(rule, branch, module);
+    return project;
+  }
+
+  @Test
+  public void delete_branch_content_when_deleting_project() {
+    ComponentDto anotherLivingProject = insertProjectWithBranchAndRelatedData();
+    int projectEntryCount = dbTester.countRowsOfTable("projects");
+    int issueCount = dbTester.countRowsOfTable("issues");
+    int branchCount = dbTester.countRowsOfTable("project_branches");
+
+    ComponentDto projectToDelete = insertProjectWithBranchAndRelatedData();
+    assertThat(dbTester.countRowsOfTable("projects")).isGreaterThan(projectEntryCount);
+    assertThat(dbTester.countRowsOfTable("issues")).isGreaterThan(issueCount);
+    assertThat(dbTester.countRowsOfTable("project_branches")).isGreaterThan(branchCount);
+
+    underTest.deleteRootComponent(dbSession, projectToDelete.uuid());
+    dbSession.commit();
+
+    assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(projectEntryCount);
+    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(issueCount);
+    assertThat(dbTester.countRowsOfTable("project_branches")).isEqualTo(branchCount);
   }
 
   @Test
