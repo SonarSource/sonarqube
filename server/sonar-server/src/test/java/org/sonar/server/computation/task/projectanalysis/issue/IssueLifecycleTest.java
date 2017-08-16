@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
@@ -70,6 +71,66 @@ public class IssueLifecycleTest {
     assertThat(issue.updateDate()).isNotNull();
     assertThat(issue.status()).isEqualTo(STATUS_OPEN);
     assertThat(issue.debt()).isEqualTo(DEFAULT_DURATION);
+    assertThat(issue.isNew()).isTrue();
+    assertThat(issue.isCopied()).isFalse();
+  }
+
+  @Test
+  public void copiedIssue() throws Exception {
+    DefaultIssue raw = new DefaultIssue()
+      .setNew(true)
+      .setKey("RAW_KEY")
+      .setCreationDate(parseDate("2015-10-01"))
+      .setUpdateDate(parseDate("2015-10-02"))
+      .setCloseDate(parseDate("2015-10-03"));
+
+    DbIssues.Locations issueLocations = DbIssues.Locations.newBuilder()
+      .setTextRange(DbCommons.TextRange.newBuilder()
+        .setStartLine(10)
+        .setEndLine(12)
+        .build())
+      .build();
+    DefaultIssue base = new DefaultIssue()
+      .setKey("BASE_KEY")
+      .setCreationDate(parseDate("2015-01-01"))
+      .setUpdateDate(parseDate("2015-01-02"))
+      .setCloseDate(parseDate("2015-01-03"))
+      .setResolution(RESOLUTION_FIXED)
+      .setStatus(STATUS_CLOSED)
+      .setSeverity(BLOCKER)
+      .setAssignee("base assignee")
+      .setAuthorLogin("base author")
+      .setTags(newArrayList("base tag"))
+      .setOnDisabledRule(true)
+      .setSelectedAt(1000L)
+      .setLine(10)
+      .setMessage("message")
+      .setGap(15d)
+      .setEffort(Duration.create(15L))
+      .setManualSeverity(false)
+      .setLocations(issueLocations);
+
+    when(debtCalculator.calculate(raw)).thenReturn(DEFAULT_DURATION);
+
+    underTest.copyExistingOpenIssue(raw, base);
+
+    assertThat(raw.isNew()).isFalse();
+    assertThat(raw.isCopied()).isTrue();
+    assertThat(raw.key()).isNotNull();
+    assertThat(raw.key()).isNotEqualTo(base.key());
+    assertThat(raw.creationDate()).isEqualTo(base.creationDate());
+    assertThat(raw.updateDate()).isEqualTo(base.updateDate());
+    assertThat(raw.closeDate()).isEqualTo(base.closeDate());
+    assertThat(raw.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(raw.status()).isEqualTo(STATUS_CLOSED);
+    assertThat(raw.assignee()).isEqualTo("base assignee");
+    assertThat(raw.authorLogin()).isEqualTo("base author");
+    assertThat(raw.tags()).containsOnly("base tag");
+    assertThat(raw.debt()).isEqualTo(DEFAULT_DURATION);
+    assertThat(raw.isOnDisabledRule()).isTrue();
+    assertThat(raw.selectedAt()).isEqualTo(1000L);
+
+    verifyZeroInteractions(updater);
   }
 
   @Test

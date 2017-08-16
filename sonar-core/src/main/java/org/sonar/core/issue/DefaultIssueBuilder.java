@@ -161,6 +161,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setStatus(Issue.STATUS_OPEN);
     issue.setCloseDate(null);
     issue.setNew(true);
+    issue.setCopied(false);
     issue.setBeingClosed(false);
     issue.setOnDisabledRule(false);
     return issue;
