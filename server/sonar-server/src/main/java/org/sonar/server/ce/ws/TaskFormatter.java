@@ -19,8 +19,8 @@
  */
 package org.sonar.server.ce.ws;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
@@ -37,14 +38,13 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonarqube.ws.WsCe;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -64,20 +64,15 @@ public class TaskFormatter {
   }
 
   public List<WsCe.Task> formatQueue(DbSession dbSession, List<CeQueueDto> dtos) {
-    ComponentDtoCache cache = ComponentDtoCache.forQueueDtos(dbClient, dbSession, dtos);
+    DtoCache cache = DtoCache.forQueueDtos(dbClient, dbSession, dtos);
     return dtos.stream().map(input -> formatQueue(input, cache)).collect(MoreCollectors.toList(dtos.size()));
   }
 
   public WsCe.Task formatQueue(DbSession dbSession, CeQueueDto queue) {
-    return formatQueue(queue, ComponentDtoCache.forQueueDtos(dbClient, dbSession, singletonList(queue)));
+    return formatQueue(queue, DtoCache.forQueueDtos(dbClient, dbSession, singletonList(queue)));
   }
 
-  public WsCe.Task formatQueue(DbSession dbSession, CeQueueDto dto, Optional<ComponentDto> component) {
-    checkArgument(Objects.equals(dto.getComponentUuid(), component.transform(ComponentDto::uuid).orNull()));
-    return formatQueue(dto, ComponentDtoCache.forComponentDto(dbClient, dbSession, component));
-  }
-
-  private WsCe.Task formatQueue(CeQueueDto dto, ComponentDtoCache componentDtoCache) {
+  private WsCe.Task formatQueue(CeQueueDto dto, DtoCache componentDtoCache) {
     WsCe.Task.Builder builder = WsCe.Task.newBuilder();
     String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
     // FIXME organization field should be set from the CeQueueDto rather than from the ComponentDto
@@ -94,26 +89,22 @@ public class TaskFormatter {
     builder.setSubmittedAt(formatDateTime(new Date(dto.getCreatedAt())));
     setNullable(dto.getStartedAt(), builder::setStartedAt, DateUtils::formatDateTime);
     setNullable(computeExecutionTimeMs(dto), builder::setExecutionTimeMs);
+    builder.setIncremental(componentDtoCache.hasIncrementalCharacteristic(dto.getUuid()));
     return builder.build();
   }
 
-  public WsCe.Task formatActivity(DbSession dbSession, CeActivityDto activity) {
-    return formatActivity(activity, ComponentDtoCache.forActivityDtos(dbClient, dbSession, singletonList(activity)), null);
-  }
-
-  public WsCe.Task formatActivity(DbSession dbSession, CeActivityDto dto, Optional<ComponentDto> component,
-    @Nullable String scannerContext) {
-    return formatActivity(dto, ComponentDtoCache.forComponentDto(dbClient, dbSession, component), scannerContext);
+  public WsCe.Task formatActivity(DbSession dbSession, CeActivityDto dto, @Nullable String scannerContext) {
+    return formatActivity(dto, DtoCache.forActivityDtos(dbClient, dbSession, singletonList(dto)), scannerContext);
   }
 
   public List<WsCe.Task> formatActivity(DbSession dbSession, List<CeActivityDto> dtos) {
-    ComponentDtoCache cache = ComponentDtoCache.forActivityDtos(dbClient, dbSession, dtos);
+    DtoCache cache = DtoCache.forActivityDtos(dbClient, dbSession, dtos);
     return dtos.stream()
       .map(input -> formatActivity(input, cache, null))
       .collect(MoreCollectors.toList(dtos.size()));
   }
 
-  private static WsCe.Task formatActivity(CeActivityDto dto, ComponentDtoCache componentDtoCache, @Nullable String scannerContext) {
+  private static WsCe.Task formatActivity(CeActivityDto dto, DtoCache componentDtoCache, @Nullable String scannerContext) {
     WsCe.Task.Builder builder = WsCe.Task.newBuilder();
     String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
     // FIXME organization field should be set from the CeActivityDto rather than from the ComponentDto
@@ -126,8 +117,9 @@ public class TaskFormatter {
     String analysisUuid = dto.getAnalysisUuid();
     if (analysisUuid != null) {
       builder.setAnalysisId(analysisUuid);
-      setNullable(componentDtoCache.getAnalysis(analysisUuid), analysis -> builder.setIncremental(analysis.getIncremental()));
     }
+    SnapshotDto analysis = analysisUuid == null ? null : componentDtoCache.getAnalysis(analysisUuid);
+    builder.setIncremental(analysis != null && analysis.getIncremental());
     setNullable(analysisUuid, builder::setAnalysisId);
     setNullable(dto.getSubmitterLogin(), builder::setSubmitterLogin);
     builder.setSubmittedAt(formatDateTime(new Date(dto.getSubmittedAt())));
@@ -150,22 +142,28 @@ public class TaskFormatter {
     return builder;
   }
 
-  private static class ComponentDtoCache {
+  private static class DtoCache {
     private final Map<String, ComponentDto> componentsByUuid;
     private final Map<String, OrganizationDto> organizationsByUuid;
     private final Map<String, SnapshotDto> analysisByUuid;
+    private final Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid;
 
-    private ComponentDtoCache(Map<String, ComponentDto> componentsByUuid, Map<String, OrganizationDto> organizationsByUuid, Map<String, SnapshotDto> analysisByUuid) {
+    private DtoCache(Map<String, ComponentDto> componentsByUuid, Map<String, OrganizationDto> organizationsByUuid, Map<String, SnapshotDto> analysisByUuid,
+      Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid) {
       this.componentsByUuid = componentsByUuid;
       this.organizationsByUuid = organizationsByUuid;
       this.analysisByUuid = analysisByUuid;
+      this.characteristicsByTaskUuid = characteristicsByTaskUuid;
     }
 
-    static ComponentDtoCache forQueueDtos(DbClient dbClient, DbSession dbSession, Collection<CeQueueDto> ceQueueDtos) {
+    static DtoCache forQueueDtos(DbClient dbClient, DbSession dbSession, Collection<CeQueueDto> ceQueueDtos) {
       Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(dbSession, uuidOfCeQueueDtos(ceQueueDtos))
         .stream()
         .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
-      return new ComponentDtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), Collections.emptyMap());
+      Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid = dbClient.ceTaskCharacteristicsDao()
+        .selectByTaskUuids(dbSession, ceQueueDtos.stream().map(CeQueueDto::getUuid).collect(Collectors.toList()))
+        .stream().collect(MoreCollectors.index(CeTaskCharacteristicDto::getTaskUuid));
+      return new DtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), Collections.emptyMap(), characteristicsByTaskUuid);
     }
 
     private static Set<String> uuidOfCeQueueDtos(Collection<CeQueueDto> ceQueueDtos) {
@@ -176,7 +174,7 @@ public class TaskFormatter {
         .collect(MoreCollectors.toSet(ceQueueDtos.size()));
     }
 
-    static ComponentDtoCache forActivityDtos(DbClient dbClient, DbSession dbSession, Collection<CeActivityDto> ceActivityDtos) {
+    static DtoCache forActivityDtos(DbClient dbClient, DbSession dbSession, Collection<CeActivityDto> ceActivityDtos) {
       Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(
         dbSession,
         uuidOfCeActivityDtos(ceActivityDtos))
@@ -184,7 +182,8 @@ public class TaskFormatter {
         .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
       Set<String> analysisUuids = ceActivityDtos.stream().map(CeActivityDto::getAnalysisUuid).filter(Objects::nonNull).collect(MoreCollectors.toSet());
       Map<String, SnapshotDto> analysisByUuid = dbClient.snapshotDao().selectByUuids(dbSession, analysisUuids).stream().collect(MoreCollectors.uniqueIndex(SnapshotDto::getUuid));
-      return new ComponentDtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), analysisByUuid);
+      return new DtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), analysisByUuid,
+        ImmutableMultimap.<String, CeTaskCharacteristicDto>builder().build());
     }
 
     private static Set<String> uuidOfCeActivityDtos(Collection<CeActivityDto> ceActivityDtos) {
@@ -193,11 +192,6 @@ public class TaskFormatter {
         .map(CeActivityDto::getComponentUuid)
         .filter(Objects::nonNull)
         .collect(MoreCollectors.toSet(ceActivityDtos.size()));
-    }
-
-    static ComponentDtoCache forComponentDto(DbClient dbClient, DbSession dbSession, Optional<ComponentDto> component) {
-      Map<String, ComponentDto> componentsByUuid = component.isPresent() ? ImmutableMap.of(component.get().uuid(), component.get()) : emptyMap();
-      return new ComponentDtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), Collections.emptyMap());
     }
 
     private static Map<String, OrganizationDto> buildOrganizationsByUuid(DbClient dbClient, DbSession dbSession, Map<String, ComponentDto> componentsByUuid) {
@@ -236,6 +230,12 @@ public class TaskFormatter {
     @CheckForNull
     SnapshotDto getAnalysis(String analysisUuid) {
       return analysisByUuid.get(analysisUuid);
+    }
+
+    boolean hasIncrementalCharacteristic(String taskUuid) {
+      return characteristicsByTaskUuid.get(taskUuid).stream()
+        .filter(c -> c.getKey().equals(CeTaskCharacteristicDto.INCREMENTAL_KEY))
+        .anyMatch(c -> c.getValue().equals("true"));
     }
   }
 

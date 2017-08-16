@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ce.ws;
 
-import com.google.common.base.Optional;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
@@ -160,7 +159,7 @@ public class TaskFormatterTest {
   public void formatActivity() {
     CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED);
 
-    WsCe.Task wsTask = underTest.formatActivity(db.getSession(), dto);
+    WsCe.Task wsTask = underTest.formatActivity(db.getSession(), dto, null);
 
     assertThat(wsTask.getType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(wsTask.getId()).isEqualTo("UUID");
@@ -177,7 +176,7 @@ public class TaskFormatterTest {
     CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED);
 
     String expected = "scanner context baby!";
-    WsCe.Task wsTask = underTest.formatActivity(db.getSession(), dto, Optional.absent(), expected);
+    WsCe.Task wsTask = underTest.formatActivity(db.getSession(), dto, expected);
 
     assertThat(wsTask.hasScannerContext()).isTrue();
     assertThat(wsTask.getScannerContext()).isEqualTo(expected);

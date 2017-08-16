@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -72,6 +73,7 @@ public class TaskAction implements CeWsAction {
         "Since 6.1, field \"logs\" is deprecated and its value is always false.")
       .setResponseExample(getClass().getResource("task-example.json"))
       .setSince("5.2")
+      .setChangelog(new Change("6.6", "field \"incremental\" is added"))
       .setHandler(this);
 
     action
@@ -94,7 +96,7 @@ public class TaskAction implements CeWsAction {
       if (queueDto.isPresent()) {
         com.google.common.base.Optional<ComponentDto> component = loadComponent(dbSession, queueDto.get().getComponentUuid());
         checkPermission(component);
-        wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get(), component));
+        wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get()));
       } else {
         CeActivityDto ceActivityDto = WsUtils.checkFoundWithOptional(dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid), "No activity found for task '%s'", taskUuid);
         com.google.common.base.Optional<ComponentDto> component = loadComponent(dbSession, ceActivityDto.getComponentUuid());
@@ -102,7 +104,7 @@ public class TaskAction implements CeWsAction {
         Set<AdditionalField> additionalFields = AdditionalField.getFromRequest(wsRequest);
         maskErrorStacktrace(ceActivityDto, additionalFields);
         wsTaskResponse.setTask(
-          wsTaskFormatter.formatActivity(dbSession, ceActivityDto, component, extractScannerContext(dbSession, ceActivityDto, additionalFields)));
+          wsTaskFormatter.formatActivity(dbSession, ceActivityDto, extractScannerContext(dbSession, ceActivityDto, additionalFields)));
       }
       writeProtobuf(wsTaskResponse.build(), wsRequest, wsResponse);
     }

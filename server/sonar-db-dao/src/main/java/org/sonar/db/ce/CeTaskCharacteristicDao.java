@@ -20,25 +20,26 @@
 package org.sonar.db.ce;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+
 public class CeTaskCharacteristicDao implements Dao {
+
   public void insert(DbSession dbSession, Collection<CeTaskCharacteristicDto> characteristics) {
     for (CeTaskCharacteristicDto dto : characteristics) {
       mapper(dbSession).insert(dto);
     }
   }
 
-  public Map<String, String> getTaskCharacteristics(DbSession dbSession, String taskUuid) {
-    Map<String, String> map = new LinkedHashMap<>();
-    List<CeTaskCharacteristicDto> characteristics = mapper(dbSession).selectTaskCharacteristics(taskUuid);
-    characteristics.stream().forEach(dto -> map.put(dto.getKey(), dto.getValue()));
-    return map;
+  public List<CeTaskCharacteristicDto> selectByTaskUuid(DbSession dbSession, String taskUuid) {
+    return mapper(dbSession).selectByTaskUuid(taskUuid);
+  }
+
+  public List<CeTaskCharacteristicDto> selectByTaskUuids(DbSession dbSession, List<String> taskUuids) {
+    return executeLargeInputs(taskUuids, uuid -> mapper(dbSession).selectByTaskUuids(uuid));
   }
 
   private static CeTaskCharacteristicMapper mapper(DbSession session) {

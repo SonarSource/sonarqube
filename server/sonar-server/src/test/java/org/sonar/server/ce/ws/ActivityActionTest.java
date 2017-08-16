@@ -20,6 +20,7 @@
 package org.sonar.server.ce.ws;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -30,10 +31,12 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeActivityDto.Status;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -60,6 +63,9 @@ import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
+import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
+import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.INCREMENTAL_KEY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -124,7 +130,7 @@ public class ActivityActionTest {
     ComponentDto project2 = db.components().insertPrivateProject();
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
-    insertQueue("T3", project1, CeQueueDto.Status.IN_PROGRESS);
+    insertQueue("T3", project1, IN_PROGRESS);
 
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam("status", "FAILED,IN_PROGRESS"));
@@ -141,7 +147,7 @@ public class ActivityActionTest {
     ComponentDto project2 = db.components().insertPrivateProject();
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
-    insertQueue("T3", project1, CeQueueDto.Status.IN_PROGRESS);
+    insertQueue("T3", project1, IN_PROGRESS);
 
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam("status", "FAILED,IN_PROGRESS,SUCCESS")
@@ -171,7 +177,7 @@ public class ActivityActionTest {
     // T2 is the current activity (the most recent one)
     insertActivity("T1", project, SUCCESS);
     insertActivity("T2", project, FAILED);
-    insertQueue("T3", project, CeQueueDto.Status.PENDING);
+    insertQueue("T3", project, PENDING);
 
     ActivityResponse activityResponse = call(
       ws.newRequest()
@@ -188,7 +194,7 @@ public class ActivityActionTest {
     ComponentDto project2 = db.components().insertPrivateProject();
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
-    insertQueue("T3", project1, CeQueueDto.Status.IN_PROGRESS);
+    insertQueue("T3", project1, IN_PROGRESS);
 
     assertPage(1, asList("T3"));
     assertPage(2, asList("T3", "T2"));
@@ -269,12 +275,12 @@ public class ActivityActionTest {
   public void search_task_id_in_queue_ignoring_other_parameters() throws IOException {
     logInAsSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject();
-    insertQueue("T1", project, CeQueueDto.Status.IN_PROGRESS);
+    insertQueue("T1", project, IN_PROGRESS);
 
     ActivityResponse result = call(
       ws.newRequest()
         .setParam(Param.TEXT_QUERY, "T1")
-        .setParam(PARAM_STATUS, CeQueueDto.Status.PENDING.name()));
+        .setParam(PARAM_STATUS, PENDING.name()));
 
     assertThat(result.getTasksCount()).isEqualTo(1);
     assertThat(result.getTasks(0).getId()).isEqualTo("T1");
@@ -310,7 +316,7 @@ public class ActivityActionTest {
   @Test
   public void search_task_by_component_id() {
     ComponentDto project = db.components().insertPrivateProject();
-    insertQueue("T1", project, CeQueueDto.Status.IN_PROGRESS);
+    insertQueue("T1", project, IN_PROGRESS);
     insertActivity("T1", project, SUCCESS);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
@@ -334,7 +340,7 @@ public class ActivityActionTest {
 
     assertThat(activityResponse.getTasksList())
       .extracting(Task::getId, Task::getIncremental)
-    .containsExactlyInAnyOrder(tuple("T1", true));
+      .containsExactlyInAnyOrder(tuple("T1", true));
   }
 
   @Test
@@ -369,6 +375,27 @@ public class ActivityActionTest {
     assertThat(activityResponse.getTasksList())
       .extracting(Task::getId, Task::getIncremental)
       .containsExactlyInAnyOrder(tuple("T1", true));
+  }
+
+  @Test
+  public void incremental_on_in_queue_analysis() {
+    ComponentDto project = db.components().insertPrivateProject();
+    CeQueueDto queue1 = insertQueue("T1", project, PENDING);
+    insertCharacteristic(queue1, INCREMENTAL_KEY, "true");
+    CeQueueDto queue2 = insertQueue("T2", project, IN_PROGRESS);
+    insertCharacteristic(queue2, INCREMENTAL_KEY, "true");
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, project.uuid())
+      .setParam("status", "PENDING,FAILED,IN_PROGRESS"));
+
+    assertThat(activityResponse.getTasksList())
+      .extracting(Task::getId, Task::getIncremental)
+      .containsExactlyInAnyOrder(
+        tuple("T1", true),
+        tuple("T2", true)
+      );
   }
 
   @Test
@@ -480,9 +507,20 @@ public class ActivityActionTest {
     activityDto.setExecutionTimeMs(500L);
     activityDto.setExecutedAt(EXECUTED_AT);
     activityDto.setAnalysisUuid(analysis == null ? null : analysis.getUuid());
-    db.getDbClient().ceActivityDao(). insert(db.getSession(), activityDto);
+    db.getDbClient().ceActivityDao().insert(db.getSession(), activityDto);
     db.commit();
     return activityDto;
+  }
+
+  private CeTaskCharacteristicDto insertCharacteristic(CeQueueDto queueDto, String key, String value) {
+    CeTaskCharacteristicDto dto = new CeTaskCharacteristicDto()
+      .setUuid(Uuids.createFast())
+      .setTaskUuid(queueDto.getUuid())
+      .setKey(key)
+      .setValue(value);
+    db.getDbClient().ceTaskCharacteristicsDao().insert(db.getSession(), Collections.singletonList(dto));
+    db.commit();
+    return dto;
   }
 
   private static ActivityResponse call(TestRequest request) {

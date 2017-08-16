@@ -2,30 +2,45 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 
 <mapper namespace="org.sonar.db.ce.CeTaskCharacteristicMapper">
-  <insert id="insert" parameterType="CeTaskCharacteristic" useGeneratedKeys="false">
-    insert into ce_task_characteristics (
-      uuid,
-      task_uuid,
-      kee,
-      text_value
-    )
-    values (
-      #{uuid,jdbcType=VARCHAR},
-      #{taskUuid,jdbcType=VARCHAR},
-      #{key,jdbcType=VARCHAR},
-      #{value,jdbcType=VARCHAR}
-    )
-  </insert>
-  
-  <select id="selectTaskCharacteristics" parameterType="map" resultType="CeTaskCharacteristic">
+
+  <sql id="columns">
+    c.uuid as "uuid",
+    c.task_uuid as "taskUuid",
+    c.kee as "key",
+    c.text_value as "value"
+  </sql>
+
+  <select id="selectByTaskUuid" parameterType="map" resultType="CeTaskCharacteristic">
     SELECT
-      c.uuid as "uuid",
-      c.task_uuid as "taskUuid",
-      c.kee as "key",
-      c.text_value as "value"
+      <include refid="columns"/>
     FROM 
       ce_task_characteristics c 
     WHERE
       c.task_uuid = #{taskUuid,jdbcType=VARCHAR}
   </select>
+
+  <select id="selectByTaskUuids" parameterType="map" resultType="CeTaskCharacteristic">
+    SELECT
+      <include refid="columns"/>
+    FROM
+      ce_task_characteristics c
+    WHERE
+      c.task_uuid in <foreach collection="taskUuids" open="(" close=")" item="taskUuid" separator=",">#{taskUuid,jdbcType=VARCHAR}</foreach>
+  </select>
+
+  <insert id="insert" parameterType="CeTaskCharacteristic" useGeneratedKeys="false">
+    insert into ce_task_characteristics (
+    uuid,
+    task_uuid,
+    kee,
+    text_value
+    )
+    values (
+    #{uuid,jdbcType=VARCHAR},
+    #{taskUuid,jdbcType=VARCHAR},
+    #{key,jdbcType=VARCHAR},
+    #{value,jdbcType=VARCHAR}
+    )
+  </insert>
+
 </mapper>

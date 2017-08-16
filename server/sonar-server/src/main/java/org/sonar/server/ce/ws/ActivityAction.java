@@ -217,8 +217,7 @@ public class ActivityAction implements CeWsAction {
     }
 
     java.util.Optional<CeActivityDto> activity = dbClient.ceActivityDao().selectByUuid(dbSession, textQuery);
-    return activity.map(ceActivityDto -> Optional.of(formatter.formatActivity(dbSession, ceActivityDto))).orElseGet(Optional::absent);
-
+    return activity.map(ceActivityDto -> Optional.of(formatter.formatActivity(dbSession, ceActivityDto, null))).orElseGet(Optional::absent);
   }
 
   private CeTaskQuery buildQuery(DbSession dbSession, ActivityWsRequest request, @Nullable ComponentDto component) {

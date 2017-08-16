@@ -20,11 +20,13 @@
 package org.sonar.db.ce;
 
 import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 
 public interface CeTaskCharacteristicMapper {
-  List<CeTaskCharacteristicDto> selectTaskCharacteristics(@Param("taskUuid") String taskUuid);
+
+  List<CeTaskCharacteristicDto> selectByTaskUuid(@Param("taskUuid") String taskUuid);
+
+  List<CeTaskCharacteristicDto> selectByTaskUuids(@Param("taskUuids") List<String> taskUuids);
 
   void insert(CeTaskCharacteristicDto taskCharacteristic);
 

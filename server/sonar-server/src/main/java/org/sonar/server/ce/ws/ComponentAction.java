@@ -20,6 +20,7 @@
 package org.sonar.server.ce.ws;
 
 import java.util.List;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -62,11 +63,13 @@ public class ComponentAction implements CeWsAction {
     WebService.NewAction action = controller.createAction("component")
       .setDescription("Get the pending tasks, in-progress tasks and the last executed task of a given component (usually a project).<br>" +
         "Requires the following permission: 'Browse' on the specified component.<br>" +
-        "Either '%s' or '%s' must be provided, not both.<br>" +
-        "Since 6.1, field \"logs\" is deprecated and its value is always false.",
+        "Either '%s' or '%s' must be provided, not both.",
         PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
       .setSince("5.2")
       .setResponseExample(getClass().getResource("component-example.json"))
+      .setChangelog(
+        new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
+        new Change("6.6", "field \"incremental\" is added"))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT_ID)
@@ -92,7 +95,7 @@ public class ComponentAction implements CeWsAction {
       ProjectResponse.Builder wsResponseBuilder = ProjectResponse.newBuilder();
       wsResponseBuilder.addAllQueue(formatter.formatQueue(dbSession, queueDtos));
       if (activityDtos.size() == 1) {
-        wsResponseBuilder.setCurrent(formatter.formatActivity(dbSession, activityDtos.get(0)));
+        wsResponseBuilder.setCurrent(formatter.formatActivity(dbSession, activityDtos.get(0), null));
       }
       writeProtobuf(wsResponseBuilder.build(), wsRequest, wsResponse);
     }
