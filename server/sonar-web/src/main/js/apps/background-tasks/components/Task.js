@@ -33,7 +33,6 @@ export default class Task extends React.PureComponent {
     index: PropTypes.number.isRequired,
     tasks: PropTypes.array.isRequired,
     component: PropTypes.object,
-    types: PropTypes.array.isRequired,
     onCancelTask: PropTypes.func.isRequired,
     onFilterTask: PropTypes.func.isRequired
   };
