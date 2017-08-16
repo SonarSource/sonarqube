@@ -196,7 +196,7 @@ public class PurgeDaoTest {
 
   private ComponentDto insertProjectWithBranchAndRelatedData() {
     RuleDefinitionDto rule = dbTester.rules().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertMainBranch();
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
     ComponentDto module = dbTester.components().insertComponent(newModuleDto(branch));
     ComponentDto subModule = dbTester.components().insertComponent(newModuleDto(module));
