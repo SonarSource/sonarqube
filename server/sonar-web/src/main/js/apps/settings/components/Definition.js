@@ -152,6 +152,33 @@ class Definition extends React.PureComponent {
         </div>
 
         <div className="settings-definition-right">
+          <div className="settings-definition-state">
+            {loading &&
+              <span className="text-info">
+                <i className="spinner spacer-right" />
+                {translate('settings.state.saving')}
+              </span>}
+
+            {!loading &&
+              this.props.validationMessage != null &&
+              <span className="text-danger">
+                <i className="icon-alert-error spacer-right" />
+                <span>
+                  {translateWithParameters(
+                    'settings.state.validation_failed',
+                    this.props.validationMessage
+                  )}
+                </span>
+              </span>}
+
+            {!loading &&
+              this.state.success &&
+              <span className="text-success">
+                <i className="icon-check spacer-right" />
+                {translate('settings.state.saved')}
+              </span>}
+          </div>
+
           <Input setting={setting} value={effectiveValue} onChange={this.handleChange.bind(this)} />
 
           {!hasValueChanged &&
@@ -166,37 +193,6 @@ class Definition extends React.PureComponent {
               onSave={this.handleSave.bind(this)}
               onCancel={this.handleCancel.bind(this)}
             />}
-
-          <div className="settings-definition-state">
-            {loading &&
-              <span className="text-info">
-                <span className="settings-definition-state-icon">
-                  <i className="spinner" />
-                </span>
-                {translate('settings.state.saving')}
-              </span>}
-
-            {!loading &&
-              this.props.validationMessage != null &&
-              <span className="text-danger">
-                <span className="settings-definition-state-icon">
-                  <i className="icon-alert-error" />
-                </span>
-                {translateWithParameters(
-                  'settings.state.validation_failed',
-                  this.props.validationMessage
-                )}
-              </span>}
-
-            {!loading &&
-              this.state.success &&
-              <span className="text-success">
-                <span className="settings-definition-state-icon">
-                  <i className="icon-check" />
-                </span>
-                {translate('settings.state.saved')}
-              </span>}
-          </div>
         </div>
       </div>
     );

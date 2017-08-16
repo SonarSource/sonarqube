@@ -28,7 +28,6 @@
 .settings-definition-right {
   position: relative;
   width: calc(100% - 330px);
-  padding-top: 35px;
   box-sizing: border-box;
 }
 
@@ -48,29 +47,12 @@
 }
 
 .settings-definition-state {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  line-height: 24px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-height: 32px;
+  padding-bottom: 4px;
 }
 
-.settings-definition-state-icon {
-  display: inline-block;
-  vertical-align: middle;
-  width: 24px;
-  height: 24px;
-  margin-right: 8px;
-  text-align: center;
-}
-
-.settings-definition-state-icon > .icon-alert-error,
-.settings-definition-state-icon > .spinner {
-  position: relative;
-  top: -2px;
+.settings-definition-state > span {
+  display: flex;
 }
 
 .settings-definition-changes {
