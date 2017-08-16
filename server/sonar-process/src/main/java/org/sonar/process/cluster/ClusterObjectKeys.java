@@ -41,6 +41,12 @@ public final class ClusterObjectKeys {
    * The key of the hostname attribute of a member
    */
   public static final String HOSTNAME = "HOSTNAME";
+
+  /**
+   * The role of the sonar-application inside the SonarQube cluster
+   * {@link org.sonar.process.NodeType}
+   */
+  public static final String NODE_TYPE = "NODE_TYPE";
   /**
    * The key of atomic reference holding the SonarQube version of the cluster
    */

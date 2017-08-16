@@ -34,6 +34,9 @@ import com.hazelcast.core.IAtomicReference;
 import com.hazelcast.core.ILock;
 import com.hazelcast.core.MapEvent;
 import com.hazelcast.core.Member;
+import com.hazelcast.core.MemberAttributeEvent;
+import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.nio.Address;
 import java.util.ArrayList;
@@ -43,6 +46,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.AppStateListener;
+import org.sonar.process.NodeType;
 import org.sonar.process.ProcessId;
 
 import static java.util.stream.Collectors.toList;
@@ -50,16 +54,18 @@ import static org.sonar.process.NetworkUtils.getHostName;
 import static org.sonar.process.cluster.ClusterObjectKeys.CLIENT_UUIDS;
 import static org.sonar.process.cluster.ClusterObjectKeys.HOSTNAME;
 import static org.sonar.process.cluster.ClusterObjectKeys.LEADER;
+import static org.sonar.process.cluster.ClusterObjectKeys.NODE_TYPE;
 import static org.sonar.process.cluster.ClusterObjectKeys.OPERATIONAL_PROCESSES;
 import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
 
 public class HazelcastCluster implements AutoCloseable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCluster.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(HazelcastCluster.class);
 
   private final List<AppStateListener> listeners = new ArrayList<>();
   private final ReplicatedMap<ClusterProcess, Boolean> operationalProcesses;
   private final String operationalProcessListenerUUID;
   private final String clientListenerUUID;
+  private final String nodeDisconnectedListenerUUID;
 
   protected final HazelcastInstance hzInstance;
 
@@ -71,6 +77,7 @@ public class HazelcastCluster implements AutoCloseable {
     operationalProcesses = hzInstance.getReplicatedMap(OPERATIONAL_PROCESSES);
     operationalProcessListenerUUID = operationalProcesses.addEntryListener(new OperationalProcessListener());
     clientListenerUUID = hzInstance.getClientService().addClientListener(new ConnectedClientListener());
+    nodeDisconnectedListenerUUID = hzInstance.getCluster().addMembershipListener(new NodeDisconnectedListener());
   }
 
   String getLocalUUID() {
@@ -154,6 +161,7 @@ public class HazelcastCluster implements AutoCloseable {
         // Removing listeners
         operationalProcesses.removeEntryListener(operationalProcessListenerUUID);
         hzInstance.getClientService().removeClientListener(clientListenerUUID);
+      hzInstance.getCluster().removeMembershipListener(nodeDisconnectedListenerUUID);
 
         // Removing the operationalProcess from the replicated map
         operationalProcesses.keySet().forEach(
@@ -207,7 +215,10 @@ public class HazelcastCluster implements AutoCloseable {
       .setProperty("hazelcast.logging.type", "slf4j");
 
     // Trying to resolve the hostname
-    hzConfig.getMemberAttributeConfig().setStringAttribute(HOSTNAME, getHostName());
+    hzConfig.getMemberAttributeConfig()
+      .setStringAttribute(HOSTNAME, getHostName());
+    hzConfig.getMemberAttributeConfig()
+      .setStringAttribute(NODE_TYPE, clusterProperties.getNodeType().getValue());
 
     // We are not using the partition group of Hazelcast, so disabling it
     hzConfig.getPartitionGroupConfig().setEnabled(false);
@@ -275,6 +286,46 @@ public class HazelcastCluster implements AutoCloseable {
     @Override
     public void clientDisconnected(Client client) {
       hzInstance.getSet(CLIENT_UUIDS).remove(client.getUuid());
+    }
+  }
+
+  private class NodeDisconnectedListener implements MembershipListener {
+    @Override
+    public void memberAdded(MembershipEvent membershipEvent) {
+      // Nothing to do
+    }
+
+    @Override
+    public void memberRemoved(MembershipEvent membershipEvent) {
+      removeOperationalProcess(membershipEvent.getMember().getUuid());
+      if (membershipEvent.getMembers().stream()
+        .noneMatch(this::isAppNode)) {
+        purgeSharedMemoryForAppNodes();
+      }
+    }
+
+    @Override
+    public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
+      // Nothing to do
+    }
+
+    private boolean isAppNode(Member member) {
+      return NodeType.APPLICATION.getValue().equals(member.getStringAttribute(NODE_TYPE));
+    }
+
+    private void removeOperationalProcess(String uuid) {
+      for (ClusterProcess clusterProcess : operationalProcesses.keySet()) {
+        if (clusterProcess.getNodeUuid().equals(uuid)) {
+          LOGGER.debug("Set node process off for [{}:{}] : ", clusterProcess.getNodeUuid(), clusterProcess.getProcessId());
+          hzInstance.getReplicatedMap(OPERATIONAL_PROCESSES).put(clusterProcess, Boolean.FALSE);
+        }
+      }
+    }
+
+    private void purgeSharedMemoryForAppNodes() {
+      LOGGER.info("No more application nodes, clearing cluster information about application nodes.");
+      hzInstance.getAtomicReference(LEADER).clear();
+      hzInstance.getAtomicReference(SONARQUBE_VERSION).clear();
     }
   }
 }
