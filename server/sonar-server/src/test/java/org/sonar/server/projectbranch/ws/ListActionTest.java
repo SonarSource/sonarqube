@@ -35,6 +35,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsBranches;
 import org.sonarqube.ws.WsBranches.Branch;
@@ -128,7 +129,7 @@ public class ListActionTest {
 
     assertThat(response.getBranchesList())
       .extracting(Branch::hasName, Branch::getIsMain, Branch::getType)
-      .containsExactlyInAnyOrder(tuple(false, true, Branch.BranchType.LONG));
+      .containsExactlyInAnyOrder(tuple(false, true, Common.BranchType.LONG));
   }
 
   @Test
@@ -158,9 +159,9 @@ public class ListActionTest {
     assertThat(response.getBranchesList())
       .extracting(Branch::getName, Branch::getType)
       .containsExactlyInAnyOrder(
-        tuple("", Branch.BranchType.LONG),
-        tuple("feature/foo", Branch.BranchType.LONG),
-        tuple("feature/bar", Branch.BranchType.LONG));
+        tuple("", Common.BranchType.LONG),
+        tuple("feature/foo", Common.BranchType.LONG),
+        tuple("feature/bar", Common.BranchType.LONG));
   }
 
   @Test
@@ -181,10 +182,10 @@ public class ListActionTest {
     assertThat(response.getBranchesList())
       .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
       .containsExactlyInAnyOrder(
-        tuple("", Branch.BranchType.LONG, ""),
-        tuple(longLivingBranch.getBranch(), Branch.BranchType.LONG, ""),
-        tuple(shortLivingBranch.getBranch(), Branch.BranchType.SHORT, longLivingBranch.getBranch()),
-        tuple(shortLivingBranchOnMaster.getBranch(), Branch.BranchType.SHORT, ""));
+        tuple("", Common.BranchType.LONG, ""),
+        tuple(longLivingBranch.getBranch(), Common.BranchType.LONG, ""),
+        tuple(shortLivingBranch.getBranch(), Common.BranchType.SHORT, longLivingBranch.getBranch()),
+        tuple(shortLivingBranchOnMaster.getBranch(), Common.BranchType.SHORT, ""));
   }
 
   @Test
