@@ -159,6 +159,11 @@ public class DeprecatedIssueWrapper implements Issue {
   public boolean isNew() {
     return false;
   }
+  
+  @Override
+  public boolean isCopied() {
+    return false;
+  }
 
   @Override
   public Duration debt() {
