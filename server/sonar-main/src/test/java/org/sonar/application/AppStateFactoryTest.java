@@ -34,11 +34,12 @@ public class AppStateFactoryTest {
   @Test
   public void create_cluster_implementation_if_cluster_is_enabled() {
     settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
     settings.set(ProcessProperties.CLUSTER_NAME, "foo");
 
     AppState appState = underTest.create();
     assertThat(appState).isInstanceOf(AppStateClusterImpl.class);
-    ((AppStateClusterImpl) appState).close();
+    appState.close();
   }
 
   @Test

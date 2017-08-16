@@ -46,13 +46,11 @@ import static org.sonarqube.tests.cluster.Cluster.NodeType.SEARCH;
 public class Cluster {
 
   protected static final String CLUSTER_ENABLED = "sonar.cluster.enabled";
-  protected static final String CLUSTER_CE_DISABLED = "sonar.cluster.ce.disabled";
-  protected static final String CLUSTER_SEARCH_DISABLED = "sonar.cluster.search.disabled";
+  protected static final String CLUSTER_NODE_TYPE = "sonar.cluster.node.type";
   protected static final String CLUSTER_SEARCH_HOSTS = "sonar.cluster.search.hosts";
-  protected static final String CLUSTER_WEB_DISABLED = "sonar.cluster.web.disabled";
   protected static final String CLUSTER_HOSTS = "sonar.cluster.hosts";
-  protected static final String CLUSTER_PORT = "sonar.cluster.port";
-  protected static final String CLUSTER_NETWORK_INTERFACES = "sonar.cluster.networkInterfaces";
+  protected static final String CLUSTER_NODE_PORT = "sonar.cluster.node.port";
+  protected static final String CLUSTER_NODE_HOST = "sonar.cluster.node.host";
   protected static final String CLUSTER_NAME = "sonar.cluster.name";
 
   protected static final String SEARCH_HOST = "sonar.search.host";
@@ -176,9 +174,9 @@ public class Cluster {
 
     nodes.forEach(
       node -> {
-        node.addProperty(CLUSTER_NETWORK_INTERFACES, inet);
+        node.addProperty(CLUSTER_NODE_HOST, inet);
         node.addProperty(CLUSTER_HOSTS, clusterHosts);
-        node.addProperty(CLUSTER_PORT, Integer.toString(node.getHzPort() == null ? -1 : node.getHzPort()));
+        node.addProperty(CLUSTER_NODE_PORT, Integer.toString(node.getHzPort() == null ? -1 : node.getHzPort()));
         node.addProperty(CLUSTER_SEARCH_HOSTS, elasticsearchHosts);
         node.addProperty(SEARCH_PORT, Integer.toString(node.getEsPort() == null ? -1 : node.getEsPort()));
         node.addProperty(SEARCH_HOST, inet);

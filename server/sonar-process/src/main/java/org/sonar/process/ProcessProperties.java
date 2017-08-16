@@ -33,8 +33,8 @@ public class ProcessProperties {
   public static final String CLUSTER_NODE_TYPE = "sonar.cluster.node.type";
   public static final String CLUSTER_SEARCH_HOSTS = "sonar.cluster.search.hosts";
   public static final String CLUSTER_HOSTS = "sonar.cluster.hosts";
-  public static final String CLUSTER_PORT = "sonar.cluster.port";
-  public static final String CLUSTER_NETWORK_INTERFACES = "sonar.cluster.networkInterfaces";
+  public static final String CLUSTER_NODE_PORT = "sonar.cluster.node.port";
+  public static final String CLUSTER_NODE_HOST = "sonar.cluster.node.host";
   public static final String CLUSTER_NAME = "sonar.cluster.name";
   public static final String HAZELCAST_LOG_LEVEL = "sonar.log.level.app.hazelcast";
   public static final String CLUSTER_WEB_LEADER = "sonar.cluster.web.startupLeader";
@@ -137,9 +137,9 @@ public class ProcessProperties {
 
     defaults.put(CLUSTER_ENABLED, "false");
     defaults.put(CLUSTER_NAME, "sonarqube");
-    defaults.put(CLUSTER_NETWORK_INTERFACES, "");
+    defaults.put(CLUSTER_NODE_HOST, "");
     defaults.put(CLUSTER_HOSTS, "");
-    defaults.put(CLUSTER_PORT, "9003");
+    defaults.put(CLUSTER_NODE_PORT, "9003");
     defaults.put(HAZELCAST_LOG_LEVEL, "WARN");
 
     return defaults;
