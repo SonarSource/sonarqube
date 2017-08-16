@@ -57,6 +57,7 @@ import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonarqube.ws.Common.BranchType;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
 
@@ -123,7 +124,7 @@ public class ListAction implements BranchWsAction {
     WsBranches.Branch.Builder builder = response.addBranchesBuilder();
     setNullable(branch.getKey(), builder::setName);
     builder.setIsMain(branch.isMain());
-    builder.setType(WsBranches.Branch.BranchType.valueOf(branch.getBranchType().name()));
+    builder.setType(BranchType.valueOf(branch.getBranchType().name()));
     String mergeBranchUuid = branch.getMergeBranchUuid();
     if (mergeBranchUuid != null) {
       BranchDto mergeBranch = mergeBranchesByUuid.get(mergeBranchUuid);

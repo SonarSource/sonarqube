@@ -57,6 +57,7 @@ import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_001;
+import static org.sonarqube.ws.Common.BranchType;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_COMPONENT;
@@ -131,7 +132,7 @@ public class ShowAction implements BranchWsAction {
     WsBranches.Branch.Builder builder = WsBranches.Branch.newBuilder();
     setNullable(branch.getKey(), builder::setName);
     builder.setIsMain(branch.isMain());
-    builder.setType(WsBranches.Branch.BranchType.valueOf(branch.getBranchType().name()));
+    builder.setType(BranchType.valueOf(branch.getBranchType().name()));
     if (mergeBranch != null) {
       setNullable(mergeBranch.getKey(), builder::setMergeBranch);
     }
