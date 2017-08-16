@@ -6,8 +6,12 @@
     "noUnusedParameters": true,
     "noImplicitAny": true,
     "strict": true,
-    "target": "esnext",
-    "jsx": "react"
+    "target": "es5",
+    "jsx": "react",
+    "lib": ["es2017", "dom"],
+    "module": "es2015",
+    "moduleResolution": "node",
+    "typeRoots": ["./src/main/js/typings", "./node_modules/@types"]
   },
   "include": ["./src/main/js/**/*"]
 }
