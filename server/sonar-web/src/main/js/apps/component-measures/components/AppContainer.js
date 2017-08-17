@@ -22,12 +22,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import App from './App';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import {
-  getComponent,
-  getCurrentUser,
-  getMetrics,
-  getMetricsKey
-} from '../../../store/rootReducer';
+import { getCurrentUser, getMetrics, getMetricsKey } from '../../../store/rootReducer';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
@@ -35,8 +30,7 @@ import { enhanceMeasure } from '../../../components/measure/utils';
 /*:: import type { Component, Period } from '../types'; */
 /*:: import type { Measure, MeasureEnhanced } from '../../../components/measure/types'; */
 
-const mapStateToProps = (state, ownProps) => ({
-  component: getComponent(state, ownProps.location.query.id),
+const mapStateToProps = state => ({
   currentUser: getCurrentUser(state),
   metrics: getMetrics(state),
   metricsKey: getMetricsKey(state)
