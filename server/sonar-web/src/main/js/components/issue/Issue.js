@@ -35,20 +35,14 @@ type Props = {|
   onCheck?: string => void,
   onClick: string => void,
   onFilter?: (property: string, issue: Issue) => void,
+  onPopupToggle: (issue: string, popupName: string, open: ?boolean ) => void,
+  openPopup: ?string,
   selected: boolean
 |};
 */
 
-/*::
-type State = {
-  currentPopup: string
-};
-*/
-
 export default class BaseIssue extends React.PureComponent {
-  /*:: mounted: boolean; */
   /*:: props: Props; */
-  /*:: state: State; */
 
   static contextTypes = {
     store: PropTypes.object
@@ -58,15 +52,7 @@ export default class BaseIssue extends React.PureComponent {
     selected: false
   };
 
-  constructor(props /*: Props */) {
-    super(props);
-    this.state = {
-      currentPopup: ''
-    };
-  }
-
   componentDidMount() {
-    this.mounted = true;
     if (this.props.selected) {
       this.bindShortcuts();
     }
@@ -85,7 +71,6 @@ export default class BaseIssue extends React.PureComponent {
   }
 
   componentWillUnmount() {
-    this.mounted = false;
     if (this.props.selected) {
       this.unbindShortcuts();
     }
@@ -135,16 +120,7 @@ export default class BaseIssue extends React.PureComponent {
   }
 
   togglePopup = (popupName /*: string */, open /*: ?boolean */) => {
-    if (this.mounted) {
-      this.setState((prevState /*: State */) => {
-        if (prevState.currentPopup !== popupName && open !== false) {
-          return { currentPopup: popupName };
-        } else if (prevState.currentPopup === popupName && open !== true) {
-          return { currentPopup: '' };
-        }
-        return prevState;
-      });
-    }
+    this.props.onPopupToggle(this.props.issue.key, popupName, open);
   };
 
   handleAssignement = (login /*: string */) => {
@@ -175,7 +151,7 @@ export default class BaseIssue extends React.PureComponent {
         onFilter={this.props.onFilter}
         onChange={this.props.onChange}
         togglePopup={this.togglePopup}
-        currentPopup={this.state.currentPopup}
+        currentPopup={this.props.openPopup}
         selected={this.props.selected}
       />
     );

@@ -26,7 +26,7 @@ it('should render correctly', () => {
   const element = shallow(
     <IssueCommentAction
       issueKey="issue-key"
-      currentPopup=""
+      currentPopup={null}
       onFail={jest.fn()}
       onIssueChange={jest.fn()}
       toggleComment={jest.fn()}
@@ -40,7 +40,7 @@ it('should open the popup when the button is clicked', () => {
   const element = shallow(
     <IssueCommentAction
       issueKey="issue-key"
-      currentPopup=""
+      currentPopup={null}
       onFail={jest.fn()}
       onIssueChange={jest.fn()}
       toggleComment={toggle}

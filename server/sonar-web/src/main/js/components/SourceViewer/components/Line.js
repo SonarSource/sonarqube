@@ -62,6 +62,8 @@ type Props = {|
   onSCMClick: (SourceLine, HTMLElement) => void,
   onSymbolClick: (Array<string>) => void,
   openIssues: boolean,
+  onPopupToggle: (issue: string, popupName: string, open: ?boolean ) => void,
+  openPopup: ?{ issue: string, name: string},
   previousLine?: SourceLine,
   scroll?: HTMLElement => void,
   secondaryIssueLocations: Array<{
@@ -150,6 +152,8 @@ export default class Line extends React.PureComponent {
           onIssueSelect={this.props.onIssueSelect}
           onLocationSelect={this.props.onLocationSelect}
           onSymbolClick={this.props.onSymbolClick}
+          onPopupToggle={this.props.onPopupToggle}
+          openPopup={this.props.openPopup}
           scroll={this.props.scroll}
           secondaryIssueLocations={this.props.secondaryIssueLocations}
           selectedIssue={this.props.selectedIssue}

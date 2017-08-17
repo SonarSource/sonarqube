@@ -86,6 +86,10 @@ export type State = {
   myIssues: boolean,
   openFacets: { [string]: boolean },
   openIssue: ?Issue,
+  openPopup: ?{
+    issue: string,
+    name: string
+  },
   paging?: Paging,
   query: Query,
   referencedComponents: { [string]: ReferencedComponent },
@@ -117,6 +121,7 @@ export default class App extends React.PureComponent {
       myIssues: areMyIssuesSelected(props.location.query),
       openFacets: { resolutions: true, types: true },
       openIssue: null,
+      openPopup: null,
       query: parseQuery(props.location.query),
       referencedComponents: {},
       referencedLanguages: {},
@@ -594,6 +599,19 @@ export default class App extends React.PureComponent {
     });
   };
 
+  handlePopupToggle = (issue /*: string */, popupName /*: string */, open /*: ?boolean */) => {
+    this.setState((state /*: State */) => {
+      const samePopup =
+        state.openPopup && state.openPopup.name === popupName && state.openPopup.issue === issue;
+      if (open !== false && !samePopup) {
+        return { openPopup: { issue, name: popupName } };
+      } else if (open !== true && samePopup) {
+        return { openPopup: null };
+      }
+      return state;
+    });
+  };
+
   handleIssueCheck = (issue /*: string */) => {
     this.setState(state => ({
       checked: state.checked.includes(issue)
@@ -792,6 +810,8 @@ export default class App extends React.PureComponent {
             onIssueChange={this.handleIssueChange}
             onIssueCheck={currentUser.isLoggedIn ? this.handleIssueCheck : undefined}
             onIssueClick={this.openIssue}
+            onPopupToggle={this.handlePopupToggle}
+            openPopup={this.state.openPopup}
             organization={organization}
             selectedIssue={selectedIssue}
           />}

@@ -29,7 +29,7 @@ import { translate } from '../../../helpers/l10n';
 /*::
 type Props = {|
   commentPlaceholder: string,
-  currentPopup: string,
+  currentPopup: ?string,
   issueKey: string,
   onChange: Issue => void,
   onFail: Error => void,
