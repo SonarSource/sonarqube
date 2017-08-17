@@ -17,44 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RouterState, IndexRouteProps, RouteComponent } from 'react-router';
+
 const routes = [
   {
-    getComponent(_, callback) {
+    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
       import('./components/Account').then(i => callback(null, i.default));
     },
     childRoutes: [
       {
-        getIndexRoute(_, callback) {
+        getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
           import('./profile/Profile').then(i => callback(null, { component: i.default }));
         }
       },
       {
         path: 'security',
-        getComponent(_, callback) {
+        getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
           import('./components/Security').then(i => callback(null, i.default));
         }
       },
       {
         path: 'projects',
-        getComponent(_, callback) {
+        getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
           import('./projects/ProjectsContainer').then(i => callback(null, i.default));
         }
       },
       {
         path: 'notifications',
-        getComponent(_, callback) {
+        getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
           import('./notifications/Notifications').then(i => callback(null, i.default));
         }
       },
       {
         path: 'organizations',
-        getComponent(_, callback) {
+        getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
           import('./organizations/UserOrganizations').then(i => callback(null, i.default));
         },
         childRoutes: [
           {
             path: 'create',
-            getComponent(_, callback) {
+            getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
               import('./organizations/CreateOrganizationForm').then(i => callback(null, i.default));
             }
           }

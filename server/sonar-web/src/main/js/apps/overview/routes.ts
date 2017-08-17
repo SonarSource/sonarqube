@@ -17,15 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RouterState, IndexRouteProps } from 'react-router';
+
 const routes = [
   {
-    getIndexRoute(_, callback) {
-      Promise.all([
-        import('./components/GroupsAppContainer').then(i => i.default),
-        import('../organizations/forSingleOrganization').then(i => i.default)
-      ]).then(([GroupsAppContainer, forSingleOrganization]) =>
-        callback(null, { component: forSingleOrganization(GroupsAppContainer) })
-      );
+    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+      import('./components/AppContainer').then(i => callback(null, { component: i.default }));
     }
   }
 ];

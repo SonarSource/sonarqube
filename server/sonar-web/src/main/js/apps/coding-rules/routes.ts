@@ -17,36 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RouterState, RouteComponent } from 'react-router';
+
 const routes = [
   {
-    getIndexRoute(_, callback) {
-      import('./components/UpdateCenterAppContainer').then(i =>
-        callback(null, { component: i.default })
-      );
-    }
-  },
-  {
-    path: 'installed',
-    getComponent(_, callback) {
-      import('./components/UpdateCenterAppContainer').then(i => callback(null, i.default));
-    }
-  },
-  {
-    path: 'updates',
-    getComponent(_, callback) {
-      import('./components/UpdateCenterAppContainer').then(i => callback(null, i.default));
-    }
-  },
-  {
-    path: 'available',
-    getComponent(_, callback) {
-      import('./components/UpdateCenterAppContainer').then(i => callback(null, i.default));
-    }
-  },
-  {
-    path: 'system',
-    getComponent(_, callback) {
-      import('./components/UpdateCenterAppContainer').then(i => callback(null, i.default));
+    indexRoute: {
+      getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
+        import('./components/CodingRulesAppContainer').then(i => callback(null, i.default));
+      }
     }
   }
 ];

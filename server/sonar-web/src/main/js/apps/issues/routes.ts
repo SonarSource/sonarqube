@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RouterState, IndexRouteProps } from 'react-router';
+import { onEnter } from './redirects';
+
 const routes = [
   {
-    getIndexRoute(_, callback) {
-      import('./components/CustomMeasuresAppContainer').then(i =>
-        callback(null, { component: i.default })
+    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+      import('./components/AppContainer').then(i =>
+        callback(null, { component: i.default, onEnter })
       );
     }
   }

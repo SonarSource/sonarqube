@@ -17,17 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const routes = [
+import { RouterState, IndexRouteProps } from 'react-router';
+
+export const globalPermissionsRoutes = [
   {
-    getIndexRoute(_, callback) {
+    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
       Promise.all([
-        import('./AppContainer').then(i => i.default),
+        import('./global/components/App').then(i => i.default),
         import('../organizations/forSingleOrganization').then(i => i.default)
-      ]).then(([AppContainer, forSingleOrganization]) =>
-        callback(null, { component: forSingleOrganization(AppContainer) })
+      ]).then(([App, forSingleOrganization]) =>
+        callback(null, { component: forSingleOrganization(App) })
       );
     }
   }
 ];
 
-export default routes;
+export const projectPermissionsRoutes = [
+  {
+    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+      import('./project/components/AppContainer').then(i =>
+        callback(null, { component: i.default })
+      );
+    }
+  }
+];

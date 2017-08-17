@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RouterState, IndexRouteProps, RedirectFunction } from 'react-router';
+
 const routes = [
   {
-    getIndexRoute(_, callback) {
+    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
       import('./components/AppContainer').then(i => callback(null, { component: i.default }));
     }
   },
   {
     path: 'domain/:domainName',
-    onEnter(nextState, replace) {
+    onEnter(nextState: RouterState, replace: RedirectFunction) {
       replace({
         pathname: '/component_measures',
         query: {
@@ -37,7 +39,7 @@ const routes = [
   },
   {
     path: 'metric/:metricKey(/:view)',
-    onEnter(nextState, replace) {
+    onEnter(nextState: RouterState, replace: RedirectFunction) {
       if (nextState.params.view === 'history') {
         replace({
           pathname: '/project/activity',

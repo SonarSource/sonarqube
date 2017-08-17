@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { withRouter } from 'react-router';
+import { withRouter, RouterState, IndexRouteProps, RouteComponent } from 'react-router';
 
 const routes = [
   {
-    getComponent(state, callback) {
+    getComponent(state: RouterState, callback: (err: any, component: RouteComponent) => any) {
       import('./components/AppContainer').then(i => i.default).then(AppContainer => {
         if (state.params.organizationKey) {
           callback(null, AppContainer);
@@ -32,30 +32,30 @@ const routes = [
         }
       });
     },
-    getIndexRoute(_, callback) {
+    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
       import('./home/HomeContainer').then(i => callback(null, { component: i.default }));
     },
     childRoutes: [
       {
-        getComponent(_, callback) {
+        getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
           import('./components/ProfileContainer').then(i => callback(null, withRouter(i.default)));
         },
         childRoutes: [
           {
             path: 'show',
-            getComponent(_, callback) {
+            getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
               import('./details/ProfileDetails').then(i => callback(null, i.default));
             }
           },
           {
             path: 'changelog',
-            getComponent(_, callback) {
+            getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
               import('./changelog/ChangelogContainer').then(i => callback(null, i.default));
             }
           },
           {
             path: 'compare',
-            getComponent(_, callback) {
+            getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
               import('./compare/ComparisonContainer').then(i => callback(null, i.default));
             }
           }

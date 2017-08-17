@@ -17,23 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RouterState, IndexRouteProps } from 'react-router';
+
 const routes = [
   {
-    path: 'new',
-    getComponent(_, callback) {
-      import('./components/LoginFormContainer').then(i => callback(null, i.default));
-    }
-  },
-  {
-    path: 'logout',
-    getComponent(_, callback) {
-      import('./components/Logout').then(i => callback(null, i.default));
-    }
-  },
-  {
-    path: 'unauthorized',
-    getComponent(_, callback) {
-      import('./components/Unauthorized').then(i => callback(null, i.default));
+    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+      import('./components/AboutApp').then(i => callback(null, { component: i.default }));
     }
   }
 ];

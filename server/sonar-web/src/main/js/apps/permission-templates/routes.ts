@@ -17,24 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RouterState, IndexRouteProps } from 'react-router';
+
 const routes = [
   {
-    getComponent(_, callback) {
-      import('./containers/QualityGatesAppContainer').then(i => callback(null, i.default));
-    },
-    childRoutes: [
-      {
-        getIndexRoute(_, callback) {
-          import('./components/Intro').then(i => callback(null, { component: i.default }));
-        }
-      },
-      {
-        path: 'show/:id',
-        getComponent(_, callback) {
-          import('./containers/DetailsContainer').then(i => callback(null, i.default));
-        }
-      }
-    ]
+    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+      Promise.all([
+        import('./components/AppContainer').then(i => i.default),
+        import('../organizations/forSingleOrganization').then(i => i.default)
+      ]).then(([AppContainer, forSingleOrganization]) =>
+        callback(null, { component: forSingleOrganization(AppContainer) })
+      );
+    }
   }
 ];
 

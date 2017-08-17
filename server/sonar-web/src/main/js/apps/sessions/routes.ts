@@ -17,28 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RouterState, RouteComponent } from 'react-router';
+
 const routes = [
   {
-    getIndexRoute(_, callback) {
-      import('./components/AppContainer').then(i => callback(null, { component: i.default }));
+    path: 'new',
+    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
+      import('./components/LoginFormContainer').then(i => callback(null, i.default));
     }
   },
   {
-    path: 'licenses',
-    getComponent(_, callback) {
-      import('./licenses/LicensesApp').then(i => callback(null, i.default));
+    path: 'logout',
+    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
+      import('./components/Logout').then(i => callback(null, i.default));
     }
   },
   {
-    path: 'encryption',
-    getComponent(_, callback) {
-      import('./encryption/EncryptionAppContainer').then(i => callback(null, i.default));
-    }
-  },
-  {
-    path: 'server_id',
-    getComponent(_, callback) {
-      import('./serverId/ServerIdAppContainer').then(i => callback(null, i.default));
+    path: 'unauthorized',
+    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
+      import('./components/Unauthorized').then(i => callback(null, i.default));
     }
   }
 ];

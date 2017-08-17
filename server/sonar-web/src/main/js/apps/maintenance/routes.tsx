@@ -17,14 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const routes = [
-  {
-    indexRoute: {
-      getComponent(_, callback) {
-        import('./components/CodingRulesAppContainer').then(i => callback(null, i.default));
-      }
-    }
-  }
-];
+import * as React from 'react';
+import { IndexRoute } from 'react-router';
+import MaintenanceAppContainer from './components/MaintenanceAppContainer';
+import SetupAppContainer from './components/SetupAppContainer';
 
-export default routes;
+export const maintenanceRoutes = <IndexRoute component={MaintenanceAppContainer} />;
+
+export const setupRoutes = <IndexRoute component={SetupAppContainer} />;
