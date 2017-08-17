@@ -17,20 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavMeta from '../ComponentNavMeta';
+import { Branch, Component } from '../../../../types';
 
 it('renders incremental badge', () => {
   check(true);
   check(false);
 
-  function check(incremental) {
+  function check(incremental: boolean) {
     expect(
       shallow(
         <ComponentNavMeta
-          branch={{}}
-          component={{ key: 'foo' }}
+          branch={{} as Branch}
+          component={{ key: 'foo' } as Component}
           conf={{}}
           incremental={incremental}
         />
