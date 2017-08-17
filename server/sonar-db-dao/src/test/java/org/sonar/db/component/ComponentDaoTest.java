@@ -744,6 +744,24 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void dont_select_branch_ghost_projects() {
+    OrganizationDto organization = db.organizations().insert();
+
+    // ghosts because has at least one snapshot with status U but none with status P
+    ComponentDto ghostProject = db.components().insertPrivateProject(organization);
+    db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
+    db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
+    ComponentDto ghostBranchProject = db.components().insertProjectBranch(ghostProject);
+
+    db.components().insertSnapshot(ghostBranchProject, dto -> dto.setStatus("U"));
+
+    assertThat(underTest.selectGhostProjects(dbSession, organization.getUuid(), null, 0, 10))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(ghostProject.uuid());
+    assertThat(underTest.countGhostProjects(dbSession, organization.getUuid(), null)).isEqualTo(1);
+  }
+
+  @Test
   public void selectByProjectUuid() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
@@ -962,6 +980,23 @@ public class ComponentDaoTest {
       .containsOnly(project2.uuid());
     assertThat(underTest.selectByQuery(dbSession, "non existent organization uuid", ALL_PROJECTS_COMPONENT_QUERY, 0, 2))
       .isEmpty();
+  }
+
+  @Test
+  public void selectByQuery_should_not_return_branches() {
+    ComponentDto main = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(main);
+
+    assertThat(underTest.selectByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY, 0, 2)).hasSize(1);
+    assertThat(underTest.selectByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY, 0, 2).get(0).uuid()).isEqualTo(main.uuid());
+  }
+
+  @Test
+  public void countByQuery_should_not_include_branches() {
+    ComponentDto main = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(main);
+
+    assertThat(underTest.countByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY)).isEqualTo(1);
   }
 
   @Test
@@ -1187,6 +1222,26 @@ public class ComponentDaoTest {
     List<ComponentDto> components = underTest.selectDescendants(dbSession, dbQuery);
     assertThat(components).extracting("uuid").containsOnly("project-copy-uuid", "subview-uuid");
     assertThat(components).extracting("organizationUuid").containsOnly(organizationDto.getUuid());
+  }
+
+  @Test
+  public void select_projects_by_name_ignore_branches() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project1 = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project1"));
+    ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setName("project1"));
+    ComponentDto subModule1 = db.components().insertComponent(newModuleDto(module1).setName("project1"));
+
+    db.components().insertComponent(newFileDto(subModule1).setName("project1"));
+    db.components().insertProjectBranch(project1, b -> b.setKey("branch1"));
+
+    // check that branch is present with same name as main branch
+    assertThat(underTest.selectByKeyAndBranch(dbSession, project1.getKey(), "branch1").get().name()).isEqualTo("project1");
+
+    // branch is not returned
+    assertThat(underTest.selectProjectsByNameQuery(dbSession, null, false)).extracting(ComponentDto::uuid)
+      .containsOnly(project1.uuid());
+    assertThat(underTest.selectProjectsByNameQuery(dbSession, "project", false)).extracting(ComponentDto::uuid)
+      .containsOnly(project1.uuid());
   }
 
   @Test
