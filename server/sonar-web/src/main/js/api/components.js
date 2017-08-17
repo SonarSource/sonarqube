@@ -66,7 +66,7 @@ export function searchProjectTags(data /*: ?{ ps?: number, q?: string } */) {
 
 export function setProjectTags(data /*: { project: string, tags: string } */) {
   const url = '/api/project_tags/set';
-  return post(url, data);
+  return post(url, data).catch(throwGlobalError);
 }
 
 export function getComponentTree(
