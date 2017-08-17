@@ -31,7 +31,9 @@ it('should work with extensions', () => {
     showSettings: true,
     extensions: [{ key: 'foo', name: 'Foo' }]
   };
-  expect(shallow(<ComponentNavMenu component={component} conf={conf} />)).toMatchSnapshot();
+  expect(
+    shallow(<ComponentNavMenu branch={{}} component={component} conf={conf} />)
+  ).toMatchSnapshot();
 });
 
 it('should work with multiple extensions', () => {
@@ -47,5 +49,7 @@ it('should work with multiple extensions', () => {
     showSettings: true,
     extensions: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
   };
-  expect(shallow(<ComponentNavMenu component={component} conf={conf} />)).toMatchSnapshot();
+  expect(
+    shallow(<ComponentNavMenu branch={{}} component={component} conf={conf} />)
+  ).toMatchSnapshot();
 });

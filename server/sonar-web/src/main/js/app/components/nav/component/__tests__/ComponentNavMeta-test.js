@@ -28,7 +28,12 @@ it('renders incremental badge', () => {
   function check(incremental) {
     expect(
       shallow(
-        <ComponentNavMeta component={{ key: 'foo' }} conf={{}} incremental={incremental} />
+        <ComponentNavMeta
+          branch={{}}
+          component={{ key: 'foo' }}
+          conf={{}}
+          incremental={incremental}
+        />
       ).find('IncrementalBadge')
     ).toHaveLength(incremental ? 1 : 0);
   }

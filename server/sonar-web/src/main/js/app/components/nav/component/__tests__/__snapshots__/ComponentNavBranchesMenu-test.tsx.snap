@@ -1,0 +1,157 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders list 1`] = `
+<div
+  className="dropdown-menu dropdown-menu-shadow"
+>
+  <div>
+    <div
+      className="search-box menu-search"
+    >
+      <button
+        className="search-box-submit button-clean"
+      >
+        <i
+          className="icon-search-new"
+        />
+      </button>
+      <input
+        autoFocus={true}
+        className="search-box-input"
+        onChange={[Function]}
+        onKeyDown={[Function]}
+        placeholder="search_verb"
+        type="search"
+        value=""
+      />
+    </div>
+    <ul
+      className="menu"
+    >
+      <ComponentNavBranchesMenuItem
+        branch={
+          Object {
+            "isMain": true,
+            "name": undefined,
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "key": "component",
+          }
+        }
+        onSelect={[Function]}
+        selected={true}
+      />
+      <ComponentNavBranchesMenuItem
+        branch={
+          Object {
+            "isMain": false,
+            "name": "foo",
+            "status": Object {
+              "bugs": 0,
+              "codeSmells": 0,
+              "vulnerabilities": 0,
+            },
+            "type": "SHORT",
+          }
+        }
+        component={
+          Object {
+            "key": "component",
+          }
+        }
+        onSelect={[Function]}
+        selected={false}
+      />
+      <ComponentNavBranchesMenuItem
+        branch={
+          Object {
+            "isMain": false,
+            "name": "bar",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "key": "component",
+          }
+        }
+        onSelect={[Function]}
+        selected={false}
+      />
+    </ul>
+  </div>
+</div>
+`;
+
+exports[`searches 1`] = `
+<div
+  className="dropdown-menu dropdown-menu-shadow"
+>
+  <div>
+    <div
+      className="search-box menu-search"
+    >
+      <button
+        className="search-box-submit button-clean"
+      >
+        <i
+          className="icon-search-new"
+        />
+      </button>
+      <input
+        autoFocus={true}
+        className="search-box-input"
+        onChange={[Function]}
+        onKeyDown={[Function]}
+        placeholder="search_verb"
+        type="search"
+        value="bar"
+      />
+    </div>
+    <ul
+      className="menu"
+    >
+      <ComponentNavBranchesMenuItem
+        branch={
+          Object {
+            "isMain": false,
+            "name": "foobar",
+            "status": Object {
+              "bugs": 0,
+              "codeSmells": 0,
+              "vulnerabilities": 0,
+            },
+            "type": "SHORT",
+          }
+        }
+        component={
+          Object {
+            "key": "component",
+          }
+        }
+        onSelect={[Function]}
+        selected={false}
+      />
+      <ComponentNavBranchesMenuItem
+        branch={
+          Object {
+            "isMain": false,
+            "name": "bar",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "key": "component",
+          }
+        }
+        onSelect={[Function]}
+        selected={false}
+      />
+    </ul>
+  </div>
+</div>
+`;

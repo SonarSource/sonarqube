@@ -17,10 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { Link } from 'react-router';
-import classNames from 'classnames';
+import * as classNames from 'classnames';
+import {
+  Branch,
+  BranchType,
+  Component,
+  ComponentExtension,
+  ComponentConfiguration
+} from '../../../types';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
 import { translate } from '../../../../helpers/l10n';
 
@@ -38,12 +44,13 @@ const SETTINGS_URLS = [
   '/project/deletion'
 ];
 
-export default class ComponentNavMenu extends React.PureComponent {
-  static propTypes = {
-    component: PropTypes.object.isRequired,
-    conf: PropTypes.object.isRequired
-  };
+interface Props {
+  branch: Branch;
+  component: Component;
+  conf: ComponentConfiguration;
+}
 
+export default class ComponentNavMenu extends React.PureComponent<Props> {
   isProject() {
     return this.props.component.qualifier === 'TRK';
   }
@@ -61,7 +68,15 @@ export default class ComponentNavMenu extends React.PureComponent {
     return this.props.component.qualifier === 'APP';
   }
 
+  isShortLivingBranch() {
+    return this.props.branch.type === BranchType.SHORT;
+  }
+
   renderDashboardLink() {
+    if (this.isShortLivingBranch()) {
+      return null;
+    }
+
     const pathname = this.isView() ? '/portfolio' : '/dashboard';
     return (
       <li>
@@ -80,7 +95,10 @@ export default class ComponentNavMenu extends React.PureComponent {
     return (
       <li>
         <Link
-          to={{ pathname: '/code', query: { id: this.props.component.key } }}
+          to={{
+            pathname: '/code',
+            query: { branch: this.props.branch.name, id: this.props.component.key }
+          }}
           activeClassName="active">
           {this.isView() || this.isApplication()
             ? translate('view_projects.page')
@@ -92,6 +110,10 @@ export default class ComponentNavMenu extends React.PureComponent {
 
   renderActivityLink() {
     if (!this.isProject() && !this.isApplication()) {
+      return null;
+    }
+
+    if (this.isShortLivingBranch()) {
       return null;
     }
 
@@ -112,7 +134,11 @@ export default class ComponentNavMenu extends React.PureComponent {
         <Link
           to={{
             pathname: '/project/issues',
-            query: { id: this.props.component.key, resolved: 'false' }
+            query: {
+              branch: this.props.branch.name,
+              id: this.props.component.key,
+              resolved: 'false'
+            }
           }}
           activeClassName="active">
           {translate('issues.page')}
@@ -122,6 +148,10 @@ export default class ComponentNavMenu extends React.PureComponent {
   }
 
   renderComponentMeasuresLink() {
+    if (this.isShortLivingBranch()) {
+      return null;
+    }
+
     return (
       <li>
         <Link
@@ -134,6 +164,10 @@ export default class ComponentNavMenu extends React.PureComponent {
   }
 
   renderAdministration() {
+    if (this.isShortLivingBranch()) {
+      return null;
+    }
+
     const adminLinks = this.renderAdministrationLinks();
     if (!adminLinks.some(link => link != null)) {
       return null;
@@ -314,7 +348,7 @@ export default class ComponentNavMenu extends React.PureComponent {
     );
   }
 
-  renderExtension = ({ key, name }, isAdmin) => {
+  renderExtension = ({ key, name }: ComponentExtension, isAdmin: boolean) => {
     const pathname = isAdmin ? `/project/admin/extension/${key}` : `/project/extension/${key}`;
     return (
       <li key={key}>

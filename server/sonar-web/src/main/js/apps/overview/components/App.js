@@ -22,10 +22,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import OverviewApp from './OverviewApp';
 import EmptyOverview from './EmptyOverview';
+import { isShortLivingBranch } from '../../../helpers/branches';
+import { getProjectBranchUrl } from '../../../helpers/urls';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
 /*::
 type Props = {
+  branch: {},
   component: {
     analysisDate?: string,
     id: string,
@@ -52,6 +55,9 @@ export default class App extends React.PureComponent {
         query: { id: this.props.component.key }
       });
     }
+    if (isShortLivingBranch(this.props.branch)) {
+      this.context.router.replace(getProjectBranchUrl(this.props.component.key, this.props.branch));
+    }
   }
 
   isPortfolio() {
@@ -59,7 +65,7 @@ export default class App extends React.PureComponent {
   }
 
   render() {
-    if (this.isPortfolio()) {
+    if (this.isPortfolio() || isShortLivingBranch(this.props.branch)) {
       return null;
     }
 
