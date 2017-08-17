@@ -95,13 +95,15 @@ public class ComponentsServiceTest {
     String id = randomAlphanumeric(20);
     underTest.show(new ShowWsRequest()
       .setKey(key)
-      .setId(id));
+      .setId(id)
+      .setBranch("my_branch"));
 
     assertThat(serviceTester.getGetParser()).isSameAs(WsComponents.ShowWsResponse.parser());
     serviceTester.assertThat(serviceTester.getGetRequest())
       .hasPath("show")
       .hasParam("component", key)
       .hasParam("componentId", id)
+      .hasParam("branch", "my_branch")
       .andNoOtherParam();
   }
 
@@ -137,8 +139,7 @@ public class ComponentsServiceTest {
       .setQualifiers(asList("q1", "q2"))
       .setPage(page)
       .setPageSize(pageSize)
-      .setQuery(textQuery)
-    );
+      .setQuery(textQuery));
 
     assertThat(serviceTester.getGetParser()).isSameAs(WsComponents.SearchWsResponse.parser());
     serviceTester.assertThat(serviceTester.getGetRequest())
@@ -162,6 +163,7 @@ public class ComponentsServiceTest {
     underTest.tree(new TreeWsRequest()
       .setBaseComponentId(componentId)
       .setBaseComponentKey(componentKey)
+      .setBranch("my_branch")
       .setQualifiers(asList("q1", "q2"))
       .setStrategy(strategy)
       .setPage(page)
@@ -174,6 +176,7 @@ public class ComponentsServiceTest {
       .hasPath("tree")
       .hasParam("componentId", componentId)
       .hasParam("component", componentKey)
+      .hasParam("branch", "my_branch")
       .hasParam("qualifiers", "q1,q2")
       .hasParam("strategy", strategy)
       .hasParam("p", page)
