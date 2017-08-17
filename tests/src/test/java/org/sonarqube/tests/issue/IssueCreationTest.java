@@ -19,7 +19,6 @@
  */
 package org.sonarqube.tests.issue;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
@@ -75,24 +74,5 @@ public class IssueCreationTest extends AbstractIssueTest {
     for (Issue issue : issues.list()) {
       assertThat(issue.severity()).isEqualTo("BLOCKER");
     }
-  }
-
-  /**
-   * Test the maximum size of DB column issues.message, even if UTF8 characters
-   * are 3-bytes long
-   *
-   * SONAR-7493
-   */
-  @Test
-  public void issue_message_should_support_4000_utf8_characters() {
-    ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationTest/with-custom-message.xml"));
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "with-custom-message");
-
-    String longMessage = StringUtils.repeat("を", 4_000);
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample", "sonar.customMessage.message", longMessage);
-
-    Issue issue = issueClient().find(IssueQuery.create()).list().get(0);
-    assertThat(issue.message()).isEqualTo(longMessage);
   }
 }
