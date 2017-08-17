@@ -27,8 +27,6 @@ exports[`renders 2`] = `
     overview.quality_gate
     <Level
       level="ERROR"
-      muted={false}
-      small={false}
     />
   </h2>
   <div

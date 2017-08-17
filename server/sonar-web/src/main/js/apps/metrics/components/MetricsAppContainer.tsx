@@ -17,35 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { formatMeasure } from '../../helpers/measures';
-import './Level.css';
+import * as React from 'react';
+import Helmet from 'react-helmet';
+import init from '../init';
+import { translate } from '../../../helpers/l10n';
 
-export default class Level extends React.PureComponent {
-  static propTypes = {
-    className: PropTypes.string,
-    level: PropTypes.oneOf(['ERROR', 'WARN', 'OK', 'NONE']).isRequired,
-    small: PropTypes.bool,
-    muted: PropTypes.bool
-  };
-
-  static defaultProps = {
-    small: false,
-    muted: false
-  };
+export default class MetricsAppContainer extends React.PureComponent {
+  componentDidMount() {
+    init(this.refs.container);
+  }
 
   render() {
-    const formatted = formatMeasure(this.props.level, 'LEVEL');
-    const className = classNames(this.props.className, 'level', 'level-' + this.props.level, {
-      'level-small': this.props.small,
-      'level-muted': this.props.muted
-    });
     return (
-      <span className={className}>
-        {formatted}
-      </span>
+      <div>
+        <Helmet title={translate('custom_metrics.page')} />
+        <div ref="container" />
+      </div>
     );
   }
 }

@@ -17,29 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
+import * as React from 'react';
+import init from '../init';
 
-export default class App extends React.PureComponent {
+export default class SetupAppContainer extends React.PureComponent {
   componentDidMount() {
-    const elem = document.querySelector('html');
-    if (elem) {
-      elem.classList.add('dashboard-page');
-    }
-  }
-
-  componentWillUnmount() {
-    const elem = document.querySelector('html');
-    if (elem) {
-      elem.classList.remove('dashboard-page');
-    }
+    init(this.refs.container, true);
   }
 
   render() {
-    return (
-      <div id="projects-page">
-        {this.props.children}
-      </div>
-    );
+    return <div ref="container" />;
   }
 }

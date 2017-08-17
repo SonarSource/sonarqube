@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import init from '../init';
-
-export default class SetupAppContainer extends React.PureComponent {
-  componentDidMount() {
-    init(this.refs.container, true);
-  }
-
-  render() {
-    return <div ref="container" />;
-  }
+export interface IProject {
+  id: string;
+  key: string;
+  name: string;
+  lastAnalysisDate: string;
+  description: string;
+  links: Array<{
+    href: string;
+    name: string;
+    type: string;
+  }>;
+  qualityGate: string;
 }

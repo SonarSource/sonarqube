@@ -17,18 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import init from '../init';
 
-const { shape, string, array, arrayOf } = PropTypes;
+export default class MaintenanceAppContainer extends React.PureComponent {
+  componentDidMount() {
+    init(this.refs.container, false);
+  }
 
-export const projectType = shape({
-  id: string.isRequired,
-  key: string.isRequired,
-  name: string.isRequired,
-  lastAnalysisDate: string,
-  description: string,
-  links: array.isRequired,
-  qualityGate: string
-});
-
-export const projectsListType = arrayOf(projectType);
+  render() {
+    return <div ref="container" />;
+  }
+}

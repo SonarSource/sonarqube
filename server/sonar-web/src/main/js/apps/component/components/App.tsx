@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
-export default class App extends React.PureComponent {
-  /*:: props: {
-    location: {
-      query: {
-        id: string,
-        line?: string
-      }
-    }
+interface Props {
+  location: {
+    query: {
+      id: string;
+      line?: string;
+    };
   };
-*/
+}
+
+export default class App extends React.PureComponent<Props> {
   scrollToLine = () => {
     const { line } = this.props.location.query;
     if (line) {
