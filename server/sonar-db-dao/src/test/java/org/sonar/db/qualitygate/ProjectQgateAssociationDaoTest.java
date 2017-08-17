@@ -19,8 +19,11 @@
  */
 package org.sonar.db.qualitygate;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 import java.util.Optional;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -29,8 +32,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectQgateAssociationDaoTest {
 
