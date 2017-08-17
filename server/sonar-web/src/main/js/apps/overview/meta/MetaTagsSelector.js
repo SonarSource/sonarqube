@@ -19,18 +19,16 @@
  */
 //@flow
 import React from 'react';
-import { connect } from 'react-redux';
 import { debounce, without } from 'lodash';
 import TagsSelector from '../../../components/tags/TagsSelector';
 import { searchProjectTags } from '../../../api/components';
-import { setProjectTags } from '../store/actions';
 
 /*::
 type Props = {
   position: {},
   project: string,
   selectedTags: Array<string>,
-  setProjectTags: (string, Array<string>) => void
+  setProjectTags: (Array<string>) => void
 };
 */
 
@@ -42,7 +40,7 @@ type State = {
 
 const LIST_SIZE = 10;
 
-class ProjectTagsSelectorContainer extends React.PureComponent {
+export default class MetaTagsSelector extends React.PureComponent {
   /*:: props: Props; */
   /*:: state: State; */
 
@@ -68,11 +66,11 @@ class ProjectTagsSelectorContainer extends React.PureComponent {
   };
 
   onSelect = (tag /*: string */) => {
-    this.props.setProjectTags(this.props.project, [...this.props.selectedTags, tag]);
+    this.props.setProjectTags([...this.props.selectedTags, tag]);
   };
 
   onUnselect = (tag /*: string */) => {
-    this.props.setProjectTags(this.props.project, without(this.props.selectedTags, tag));
+    this.props.setProjectTags(without(this.props.selectedTags, tag));
   };
 
   render() {
@@ -89,5 +87,3 @@ class ProjectTagsSelectorContainer extends React.PureComponent {
     );
   }
 }
-
-export default connect(null, { setProjectTags })(ProjectTagsSelectorContainer);

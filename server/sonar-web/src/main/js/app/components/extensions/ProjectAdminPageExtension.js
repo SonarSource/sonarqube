@@ -22,7 +22,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Extension from './Extension';
 import ExtensionNotFound from './ExtensionNotFound';
-import { getComponent } from '../../../store/rootReducer';
 import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 
 /*::
@@ -51,10 +50,6 @@ function ProjectAdminPageExtension(props /*: Props */) {
     : <ExtensionNotFound />;
 }
 
-const mapStateToProps = (state, ownProps /*: Props */) => ({
-  component: getComponent(state, ownProps.location.query.id)
-});
-
 const mapDispatchToProps = { onFail: addGlobalErrorMessage };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectAdminPageExtension);
+export default connect(null, mapDispatchToProps)(ProjectAdminPageExtension);

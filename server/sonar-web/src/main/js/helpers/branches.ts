@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
-import throwGlobalError from '../app/utils/throwGlobalError';
+import { Branch, BranchType, ShortLivingBranch } from '../app/types';
 
-export function getGlobalNavigation(): Promise<any> {
-  return getJSON('/api/navigation/global');
+export const MAIN_BRANCH: Branch = {
+  isMain: true,
+  name: undefined,
+  type: BranchType.LONG
+};
+
+const MAIN_BRANCH_DISPLAY_NAME = 'master';
+
+export function isShortLivingBranch(branch: Branch | null): branch is ShortLivingBranch {
+  return branch != null && branch.type === BranchType.SHORT;
 }
 
-export function getComponentNavigation(componentKey: string, branch?: string): Promise<any> {
-  return getJSON('/api/navigation/component', { componentKey, branch }).catch(throwGlobalError);
-}
-
-export function getSettingsNavigation(): Promise<any> {
-  return getJSON('/api/navigation/settings').catch(throwGlobalError);
+export function getBranchDisplayName(branch: Branch): string {
+  return branch.isMain ? MAIN_BRANCH_DISPLAY_NAME : branch.name;
 }
