@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +32,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +105,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
     try {
       IOUtils.copy(getClass().getResourceAsStream("elasticsearch.yml"), new FileOutputStream(new File(confDir, "elasticsearch.yml")));
-      IOUtils.copy(getClass().getResourceAsStream("jvm.options"), new FileOutputStream(new File(confDir, "jvm.options")));
+      writeJvmOptions(esCommand, new File(confDir, "jvm.options"));
       esCommand.getLog4j2Properties().store(new FileOutputStream(new File(confDir, "log4j2.properties")), "log42 properties file for ES bundled in SonarQube");
     } catch (IOException e) {
       throw new IllegalStateException("Failed to write ES configuration files", e);
@@ -141,13 +139,10 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     commands.add(esCommand.getExecutable().getAbsolutePath());
     commands.addAll(esCommand.getEsOptions());
 
-    writeJvmOptions(esCommand);
-
     return create(esCommand, commands);
   }
 
-  private static void writeJvmOptions(EsCommand esCommand) {
-    Path jvmOptionsFile = esCommand.getJvmOptionsFile();
+  private static void writeJvmOptions(EsCommand esCommand, File jvmOptionsFile) {
     String jvmOptions = esCommand.getJvmOptions()
       .stream()
 
@@ -157,7 +152,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       .collect(Collectors.joining("\n"));
     String jvmOptionsContent = ELASTICSEARCH_JVM_OPTIONS_HEADER + jvmOptions;
     try {
-      Files.write(jvmOptionsFile, jvmOptionsContent.getBytes(Charset.forName("UTF-8")));
+      Files.write(jvmOptionsFile.toPath(), jvmOptionsContent.getBytes(Charset.forName("UTF-8")));
     } catch (IOException e) {
       throw new IllegalStateException("Cannot write Elasticsearch jvm options file", e);
     }
