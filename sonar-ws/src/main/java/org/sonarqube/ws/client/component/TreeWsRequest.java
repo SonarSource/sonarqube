@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 public class TreeWsRequest {
   private String baseComponentId;
   private String baseComponentKey;
+  private String component;
   private String branch;
   private String strategy;
   private List<String> qualifiers;
@@ -35,24 +36,50 @@ public class TreeWsRequest {
   private Integer page;
   private Integer pageSize;
 
+  /**
+   * @deprecated since 6.4, please use {@link #getComponent()} instead
+   */
+  @Deprecated
   @CheckForNull
   public String getBaseComponentId() {
     return baseComponentId;
   }
 
+  /**
+   * @deprecated since 6.4, please use {@link #setComponent(String)} instead
+   */
+  @Deprecated
   public TreeWsRequest setBaseComponentId(@Nullable String baseComponentId) {
     this.baseComponentId = baseComponentId;
     return this;
   }
 
+  /**
+   * @deprecated since 6.4, please use {@link #getComponent()} instead
+   */
+  @Deprecated
   @CheckForNull
   public String getBaseComponentKey() {
     return baseComponentKey;
   }
 
+  /**
+   * @deprecated since 6.4, please use {@link #setComponent(String)} instead
+   */
+  @Deprecated
   public TreeWsRequest setBaseComponentKey(@Nullable String baseComponentKey) {
     this.baseComponentKey = baseComponentKey;
     return this;
+  }
+
+  public TreeWsRequest setComponent(@Nullable String component) {
+    this.component = component;
+    return this;
+  }
+
+  @CheckForNull
+  public String getComponent() {
+    return component;
   }
 
   @CheckForNull
