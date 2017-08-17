@@ -166,7 +166,6 @@ public class ComponentTesting {
   public static ComponentDto newProjectCopy(String uuid, ComponentDto project, ComponentDto view) {
     checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
     return newChildComponent(uuid, view, view)
-      .setUuid(uuid)
       .setDbKey(view.getDbKey() + project.getDbKey())
       .setName(project.name())
       .setLongName(project.longName())

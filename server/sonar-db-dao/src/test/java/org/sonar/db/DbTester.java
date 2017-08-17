@@ -42,6 +42,7 @@ import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.qualitygate.QualityGateDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.rule.RuleDbTester;
+import org.sonar.db.source.FileSourceTester;
 import org.sonar.db.user.RootFlagAssertions;
 import org.sonar.db.user.UserDbTester;
 
@@ -76,6 +77,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
   private final RootFlagAssertions rootFlagAssertions;
   private final QualityProfileDbTester qualityProfileDbTester;
   private final MeasureDbTester measureDbTester;
+  private final FileSourceTester fileSourceTester;
 
   public DbTester(System2 system2, @Nullable String schemaPath) {
     super(TestDb.create(schemaPath));
@@ -96,6 +98,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     this.rootFlagAssertions = new RootFlagAssertions(this);
     this.qualityProfileDbTester = new QualityProfileDbTester(this);
     this.measureDbTester = new MeasureDbTester(this);
+    this.fileSourceTester = new FileSourceTester(this);
   }
 
   public static DbTester create() {
@@ -224,6 +227,10 @@ public class DbTester extends AbstractDbTester<TestDb> {
 
   public MeasureDbTester measureDbTester() {
     return measureDbTester;
+  }
+
+  public FileSourceTester fileSourceTester() {
+    return fileSourceTester;
   }
 
   @Override
