@@ -89,7 +89,7 @@ export default class Sidebar extends React.PureComponent {
             domain={domain}
             onChange={this.changeMetric}
             onToggle={this.toggleFacet}
-            open={this.state.openFacets[domain.name]}
+            open={this.state.openFacets[domain.name] === true}
             selected={this.props.selectedMetric}
           />
         )}

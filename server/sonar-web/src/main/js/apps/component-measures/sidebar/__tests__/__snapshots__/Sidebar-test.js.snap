@@ -51,6 +51,7 @@ exports[`should display two facets 1`] = `
     }
     onChange={[Function]}
     onToggle={[Function]}
+    open={false}
     selected="duplicated_lines_density"
   />
   <DomainFacet
