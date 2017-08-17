@@ -120,7 +120,7 @@ function getMetrics(isPortfolio) {
  * @param {boolean} isPortfolio
  * @returns {Promise}
  */
-function retrieveComponentBase(componentKey, isPortfolio) {
+function retrieveComponentBase(componentKey, isPortfolio, branch) {
   const existing = getComponentFromBucket(componentKey);
   if (existing) {
     return Promise.resolve(existing);
@@ -128,7 +128,7 @@ function retrieveComponentBase(componentKey, isPortfolio) {
 
   const metrics = getMetrics(isPortfolio);
 
-  return getComponent(componentKey, metrics).then(component => {
+  return getComponent(componentKey, metrics, branch).then(component => {
     addComponent(component);
     return component;
   });
@@ -139,7 +139,7 @@ function retrieveComponentBase(componentKey, isPortfolio) {
  * @param {boolean} isPortfolio
  * @returns {Promise}
  */
-export function retrieveComponentChildren(componentKey, isPortfolio) {
+export function retrieveComponentChildren(componentKey, isPortfolio, branch) {
   const existing = getComponentChildren(componentKey);
   if (existing) {
     return Promise.resolve({
@@ -151,7 +151,7 @@ export function retrieveComponentChildren(componentKey, isPortfolio) {
 
   const metrics = getMetrics(isPortfolio);
 
-  return getChildren(componentKey, metrics, { ps: PAGE_SIZE, s: 'qualifier,name' })
+  return getChildren(componentKey, metrics, { branch, ps: PAGE_SIZE, s: 'qualifier,name' })
     .then(prepareChildren)
     .then(expandRootDir(metrics))
     .then(r => {
@@ -162,13 +162,13 @@ export function retrieveComponentChildren(componentKey, isPortfolio) {
     });
 }
 
-function retrieveComponentBreadcrumbs(componentKey) {
+function retrieveComponentBreadcrumbs(componentKey, branch) {
   const existing = getComponentBreadcrumbs(componentKey);
   if (existing) {
     return Promise.resolve(existing);
   }
 
-  return getBreadcrumbs(componentKey).then(skipRootDir).then(breadcrumbs => {
+  return getBreadcrumbs(componentKey, branch).then(skipRootDir).then(breadcrumbs => {
     addComponentBreadcrumbs(componentKey, breadcrumbs);
     return breadcrumbs;
   });
@@ -179,11 +179,11 @@ function retrieveComponentBreadcrumbs(componentKey) {
  * @param {boolean} isPortfolio
  * @returns {Promise}
  */
-export function retrieveComponent(componentKey, isPortfolio) {
+export function retrieveComponent(componentKey, isPortfolio, branch) {
   return Promise.all([
-    retrieveComponentBase(componentKey, isPortfolio),
-    retrieveComponentChildren(componentKey, isPortfolio),
-    retrieveComponentBreadcrumbs(componentKey)
+    retrieveComponentBase(componentKey, isPortfolio, branch),
+    retrieveComponentChildren(componentKey, isPortfolio, branch),
+    retrieveComponentBreadcrumbs(componentKey, branch)
   ]).then(r => {
     return {
       component: r[0],
@@ -195,10 +195,10 @@ export function retrieveComponent(componentKey, isPortfolio) {
   });
 }
 
-export function loadMoreChildren(componentKey, page, isPortfolio) {
+export function loadMoreChildren(componentKey, page, isPortfolio, branch) {
   const metrics = getMetrics(isPortfolio);
 
-  return getChildren(componentKey, metrics, { ps: PAGE_SIZE, p: page })
+  return getChildren(componentKey, metrics, { branch, ps: PAGE_SIZE, p: page })
     .then(prepareChildren)
     .then(expandRootDir(metrics))
     .then(r => {

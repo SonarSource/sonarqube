@@ -17,19 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
-import NavBar from './NavBar';
-import './ContextNavBar.css';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import ProjectContainer from '../ProjectContainer';
 
-/*::
-type Props = {
-  className?: string,
-  height: number
-};
-*/
+it('changes component', () => {
+  const Inner = () => <div />;
 
-export default function ContextNavBar({ className, ...other } /*: Props */) {
-  return <NavBar className={classNames('navbar-context', className)} {...other} />;
-}
+  const wrapper = shallow(
+    <ProjectContainer location={{ query: { id: 'foo' } }}>
+      <Inner />
+    </ProjectContainer>
+  );
+  (wrapper.instance() as ProjectContainer).mounted = true;
+  wrapper.setState({
+    branch: { isMain: true },
+    component: { qualifier: 'TRK', visibility: 'public' },
+    loading: false
+  });
+
+  (wrapper.find(Inner).prop('onComponentChange') as Function)({ visibility: 'private' });
+  expect(wrapper.state().component).toEqual({ qualifier: 'TRK', visibility: 'private' });
+});

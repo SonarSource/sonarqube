@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,30 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const routes = [
-  {
-    getIndexRoute(_, callback) {
-      import('./components/App').then(i => callback(null, { component: i.default }));
-    }
-  },
-  {
-    path: 'licenses',
-    getComponent(_, callback) {
-      import('./licenses/LicensesApp').then(i => callback(null, i.default));
-    }
-  },
-  {
-    path: 'encryption',
-    getComponent(_, callback) {
-      import('./encryption/EncryptionAppContainer').then(i => callback(null, i.default));
-    }
-  },
-  {
-    path: 'server_id',
-    getComponent(_, callback) {
-      import('./serverId/ServerIdAppContainer').then(i => callback(null, i.default));
-    }
-  }
-];
+import { Branch, BranchType, ShortLivingBranch } from '../app/types';
 
-export default routes;
+export const MAIN_BRANCH: Branch = {
+  isMain: true,
+  name: undefined,
+  type: BranchType.LONG
+};
+
+const MAIN_BRANCH_DISPLAY_NAME = 'master';
+
+export function isShortLivingBranch(branch: Branch | null): branch is ShortLivingBranch {
+  return branch != null && branch.type === BranchType.SHORT;
+}
+
+export function getBranchDisplayName(branch: Branch): string {
+  return branch.isMain ? MAIN_BRANCH_DISPLAY_NAME : branch.name;
+}

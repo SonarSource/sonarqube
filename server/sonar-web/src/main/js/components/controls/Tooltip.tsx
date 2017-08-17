@@ -17,27 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
-import './NavBar.css';
+import * as React from 'react';
+import TooltipCore from 'rc-tooltip';
 
-/*::
-type Props = {
-  children?: React.Element<*>,
-  className?: string,
-  height: number
-};
-*/
-
-export default function NavBar({ children, className, height, ...other } /*: Props */) {
-  return (
-    <nav {...other} className={classNames('navbar', className)} style={{ height }}>
-      <div className="navbar-inner" style={{ height }}>
-        <div className="navbar-limited clearfix">
-          {children}
-        </div>
-      </div>
-    </nav>
-  );
+interface Props {
+  overlay: any;
+  placement?: string;
+  [attr: string]: any;
 }
+
+export default function Tooltip(props: Props) {
+  return <TooltipCore destroyTooltipOnHide={true} placement={props.placement} {...props} />;
+}
+
+(Tooltip as React.StatelessComponent).defaultProps = {
+  placement: 'bottom'
+};

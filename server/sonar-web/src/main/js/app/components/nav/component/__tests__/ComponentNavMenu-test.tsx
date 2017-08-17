@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavMenu from '../ComponentNavMenu';
+import { Branch, Component } from '../../../../types';
 
 it('should work with extensions', () => {
   const component = {
@@ -31,7 +32,11 @@ it('should work with extensions', () => {
     showSettings: true,
     extensions: [{ key: 'foo', name: 'Foo' }]
   };
-  expect(shallow(<ComponentNavMenu component={component} conf={conf} />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <ComponentNavMenu branch={{} as Branch} component={component as Component} conf={conf} />
+    )
+  ).toMatchSnapshot();
 });
 
 it('should work with multiple extensions', () => {
@@ -47,5 +52,9 @@ it('should work with multiple extensions', () => {
     showSettings: true,
     extensions: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
   };
-  expect(shallow(<ComponentNavMenu component={component} conf={conf} />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <ComponentNavMenu branch={{} as Branch} component={component as Component} conf={conf} />
+    )
+  ).toMatchSnapshot();
 });

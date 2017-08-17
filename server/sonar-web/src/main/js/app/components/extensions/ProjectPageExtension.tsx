@@ -17,22 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
-import './NavBarTabs.css';
+import * as React from 'react';
+import Extension from './Extension';
+import ExtensionNotFound from './ExtensionNotFound';
+import { Component } from '../../types';
 
-/*::
-type Props = {
-  children?: React.Element<*>,
-  className?: string
-};
-*/
+interface Props {
+  component: Component;
+  location: { query: { id: string } };
+  params: {
+    extensionKey: string;
+    pluginKey: string;
+  };
+}
 
-export default function NavBarTabs({ children, className, ...other } /*: Props */) {
-  return (
-    <ul {...other} className={classNames('navbar-tabs', className)}>
-      {children}
-    </ul>
-  );
+export default function ProjectPageExtension(props: Props) {
+  const { extensionKey, pluginKey } = props.params;
+  const { component } = props;
+  const extension =
+    component.extensions &&
+    component.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
+  return extension
+    ? <Extension extension={extension} options={{ component }} />
+    : <ExtensionNotFound />;
 }

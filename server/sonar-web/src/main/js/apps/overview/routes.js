@@ -20,7 +20,7 @@
 const routes = [
   {
     getIndexRoute(_, callback) {
-      import('./components/AppContainer').then(i => callback(null, { component: i.default }));
+      import('./components/App').then(i => callback(null, { component: i.default }));
     }
   }
 ];

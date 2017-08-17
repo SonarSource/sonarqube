@@ -17,23 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import TooltipCore from 'rc-tooltip';
+import { getJSON } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
-export default class Tooltip extends React.PureComponent {
-  /*:: props: {
-    placement?: string
-  };
-*/
+export function getBranches(project) {
+  return getJSON('/api/project_branches/list', { project }).then(r => r.branches, throwGlobalError);
+}
 
-  static defaultProps = {
-    placement: 'bottom'
-  };
-
-  render() {
-    return (
-      <TooltipCore destroyTooltipOnHide={true} placement={this.props.placement} {...this.props} />
-    );
-  }
+export function getBranch(project, branch) {
+  return getJSON('/api/project_branches/show', { component: project, branch }).then(
+    r => r.branch,
+    throwGlobalError
+  );
 }

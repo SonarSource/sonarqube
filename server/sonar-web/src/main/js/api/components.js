@@ -66,7 +66,7 @@ export function searchProjectTags(data /*: ?{ ps?: number, q?: string } */) {
 
 export function setProjectTags(data /*: { project: string, tags: string } */) {
   const url = '/api/project_tags/set';
-  return post(url, data);
+  return post(url, data).catch(throwGlobalError);
 }
 
 export function getComponentTree(
@@ -100,9 +100,13 @@ export function getComponentLeaves(
   return getComponentTree('leaves', componentKey, metrics, additional);
 }
 
-export function getComponent(componentKey /*: string */, metrics /*: Array<string> */ = []) {
+export function getComponent(
+  componentKey /*: string */,
+  metrics /*: Array<string> */ = [],
+  branch /*: string | void */
+) {
   const url = '/api/measures/component';
-  const data = { componentKey, metricKeys: metrics.join(',') };
+  const data = { branch, componentKey, metricKeys: metrics.join(',') };
   return getJSON(url, data).then(r => r.component);
 }
 
@@ -112,24 +116,24 @@ export function getTree(component /*: string */, options /*: ?Object */ = {}) {
   return getJSON(url, data);
 }
 
-export function getComponentShow(component /*: string */) {
+export function getComponentShow(component /*: string */, branch /*: string | void */) {
   const url = '/api/components/show';
-  return getJSON(url, { component });
+  return getJSON(url, { component, branch });
 }
 
 export function getParents(component /*: string */) {
   return getComponentShow(component).then(r => r.ancestors);
 }
 
-export function getBreadcrumbs(component /*: string */) {
-  return getComponentShow(component).then(r => {
+export function getBreadcrumbs(component /*: string */, branch /*: string | void */) {
+  return getComponentShow(component, branch).then(r => {
     const reversedAncestors = [...r.ancestors].reverse();
     return [...reversedAncestors, r.component];
   });
 }
 
-export function getComponentData(component /*: string */) {
-  return getComponentShow(component).then(r => r.component);
+export function getComponentData(component /*: string */, branch /*: string | void */) {
+  return getComponentShow(component, branch).then(r => r.component);
 }
 
 export function getMyProjects(data /*: ?Object */) {
@@ -222,16 +226,20 @@ export function getSuggestions(
   return getJSON('/api/components/suggestions', data);
 }
 
-export function getComponentForSourceViewer(component /*: string */) /*: Promise<*> */ {
-  return getJSON('/api/components/app', { component });
+export function getComponentForSourceViewer(
+  component /*: string */,
+  branch /*: string | void */
+) /*: Promise<*> */ {
+  return getJSON('/api/components/app', { component, branch });
 }
 
 export function getSources(
   component /*: string */,
   from /*: ?number */,
-  to /*: ?number */
+  to /*: ?number */,
+  branch /*: string | void */
 ) /*: Promise<Array<*>> */ {
-  const data /*: Object */ = { key: component };
+  const data /*: Object */ = { key: component, branch };
   if (from) {
     Object.assign(data, { from });
   }

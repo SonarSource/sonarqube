@@ -17,16 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Tooltip from '../../../../components/controls/Tooltip';
-import { translate } from '../../../../helpers/l10n';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import './NavBarTabs.css';
 
-export default function IncrementalBadge() {
+interface Props {
+  children?: any;
+  className?: string;
+  [attr: string]: any;
+}
+
+export default function NavBarTabs({ children, className, ...other }: Props) {
   return (
-    <Tooltip overlay={translate('incremental.project_tooltip')}>
-      <div className="outline-badge">
-        {translate('incremental')}
-      </div>
-    </Tooltip>
+    <ul {...other} className={classNames('navbar-tabs', className)}>
+      {children}
+    </ul>
   );
 }
