@@ -32,7 +32,6 @@ import java.util.stream.Stream;
 import org.sonar.process.ProcessId;
 
 import static java.util.Objects.requireNonNull;
-import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
 public final class LogLevelConfig {
   private static final String SONAR_LOG_LEVEL_PROPERTY = "sonar.log.level";
@@ -42,11 +41,13 @@ public final class LogLevelConfig {
   private final Map<String, List<String>> configuredByProperties;
   private final Map<String, Level> configuredByHardcodedLevel;
   private final Set<String> offUnlessTrace;
+  private final String rootLoggerName;
 
   private LogLevelConfig(Builder builder) {
     this.configuredByProperties = Collections.unmodifiableMap(builder.configuredByProperties);
     this.configuredByHardcodedLevel = Collections.unmodifiableMap(builder.configuredByHardcodedLevel);
     this.offUnlessTrace = Collections.unmodifiableSet(builder.offUnlessTrace);
+    this.rootLoggerName = builder.rootLoggerName;
   }
 
   Map<String, List<String>> getConfiguredByProperties() {
@@ -57,21 +58,26 @@ public final class LogLevelConfig {
     return configuredByHardcodedLevel;
   }
 
-  public Set<String> getOffUnlessTrace() {
+  Set<String> getOffUnlessTrace() {
     return offUnlessTrace;
   }
 
-  public static Builder newBuilder() {
-    return new Builder();
+  String getRootLoggerName() {
+    return rootLoggerName;
+  }
+
+  public static Builder newBuilder(String rootLoggerName) {
+    return new Builder(rootLoggerName);
   }
 
   public static final class Builder {
     private final Map<String, List<String>> configuredByProperties = new HashMap<>();
     private final Map<String, Level> configuredByHardcodedLevel = new HashMap<>();
     private final Set<String> offUnlessTrace = new HashSet<>();
+    private final String rootLoggerName;
 
-    private Builder() {
-      // use static factory method
+    private Builder(String rootLoggerName) {
+      this.rootLoggerName = requireNonNull(rootLoggerName, "rootLoggerName can't be null");
     }
 
     /**
@@ -81,7 +87,7 @@ public final class LogLevelConfig {
     public Builder rootLevelFor(ProcessId processId) {
       checkProcessId(processId);
 
-      levelByProperty(ROOT_LOGGER_NAME, SONAR_LOG_LEVEL_PROPERTY, SONAR_PROCESS_LOG_LEVEL_PROPERTY.replace(PROCESS_NAME_PLACEHOLDER, processId.getKey()));
+      levelByProperty(rootLoggerName, SONAR_LOG_LEVEL_PROPERTY, SONAR_PROCESS_LOG_LEVEL_PROPERTY.replace(PROCESS_NAME_PLACEHOLDER, processId.getKey()));
       return this;
     }
 
