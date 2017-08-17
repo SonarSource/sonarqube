@@ -21,6 +21,7 @@ package org.sonar.process.logging;
 
 import ch.qos.logback.classic.Level;
 import java.util.Collections;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,18 +29,35 @@ import org.sonar.process.ProcessId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
-import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.process.logging.LogLevelConfig.newBuilder;
 
 public class LogLevelConfigTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private LogLevelConfig.Builder underTest = newBuilder();
+  private final String rootLoggerName = RandomStringUtils.randomAlphabetic(20);
+  private LogLevelConfig.Builder underTest = newBuilder(rootLoggerName);
+
+  @Test
+  public void newBuilder_throws_NPE_if_rootLoggerName_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("rootLoggerName can't be null");
+
+    newBuilder(null);
+  }
+
+  @Test
+  public void getLoggerName_returns_name_passed_to_builder() {
+    String rootLoggerName = RandomStringUtils.randomAlphabetic(32);
+
+    LogLevelConfig logLevelConfig = newBuilder(rootLoggerName).build();
+
+    assertThat(logLevelConfig.getRootLoggerName()).isEqualTo(rootLoggerName);
+  }
 
   @Test
   public void build_can_create_empty_config_and_returned_maps_are_unmodifiable() {
-    LogLevelConfig underTest = newBuilder().build();
+    LogLevelConfig underTest = newBuilder(rootLoggerName).build();
 
     expectUnsupportedOperationException(() -> underTest.getConfiguredByProperties().put("1", Collections.emptyList()));
     expectUnsupportedOperationException(() -> underTest.getConfiguredByHardcodedLevel().put("1", Level.ERROR));
@@ -47,10 +65,10 @@ public class LogLevelConfigTest {
 
   @Test
   public void builder_rootLevelFor_add_global_and_process_property_in_order_for_root_logger() {
-    LogLevelConfig underTest = newBuilder().rootLevelFor(ProcessId.ELASTICSEARCH).build();
+    LogLevelConfig underTest = newBuilder(rootLoggerName).rootLevelFor(ProcessId.ELASTICSEARCH).build();
 
     assertThat(underTest.getConfiguredByProperties()).hasSize(1);
-    assertThat(underTest.getConfiguredByProperties().get(ROOT_LOGGER_NAME))
+    assertThat(underTest.getConfiguredByProperties().get(rootLoggerName))
       .containsExactly("sonar.log.level", "sonar.log.level.es");
     assertThat(underTest.getConfiguredByHardcodedLevel()).hasSize(0);
   }
@@ -68,7 +86,7 @@ public class LogLevelConfigTest {
     underTest.rootLevelFor(ProcessId.ELASTICSEARCH);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Configuration by property already registered for " + ROOT_LOGGER_NAME);
+    expectedException.expectMessage("Configuration by property already registered for " + rootLoggerName);
 
     underTest.rootLevelFor(ProcessId.WEB_SERVER);
   }
@@ -107,7 +125,7 @@ public class LogLevelConfigTest {
 
   @Test
   public void builder_levelByDomain_adds_global_process_and_domain_properties_in_order_for_specified_logger() {
-    LogLevelConfig underTest = newBuilder()
+    LogLevelConfig underTest = newBuilder(rootLoggerName)
       .levelByDomain("foo", ProcessId.WEB_SERVER, LogDomain.SQL)
       .build();
 

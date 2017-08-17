@@ -17,34 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.search;
+package org.sonar.application.process;
 
-import ch.qos.logback.classic.LoggerContext;
-import org.sonar.process.logging.LogLevelConfig;
-import org.sonar.process.logging.LogbackHelper;
+import ch.qos.logback.classic.Level;
+import java.io.File;
+import java.util.Properties;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
+import org.sonar.process.logging.Log4JPropertiesBuilder;
+import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.RootLoggerConfig;
 
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 
-public class SearchLogging {
+public class EsLogging {
 
-  private LogbackHelper helper = new LogbackHelper();
-
-  public LoggerContext configure(Props props) {
-    LoggerContext ctx = helper.getRootContext();
-    ctx.reset();
-
+  public Properties createProperties(Props props, File logDir) {
+    Log4JPropertiesBuilder log4JPropertiesBuilder = new Log4JPropertiesBuilder(props);
     RootLoggerConfig config = newRootLoggerConfigBuilder().setProcessId(ProcessId.ELASTICSEARCH).build();
+    String logPattern = log4JPropertiesBuilder.buildLogPattern(config);
 
-    String logPattern = helper.buildLogPattern(config);
-    helper.configureGlobalFileLog(props, config, logPattern);
-    helper.configureForSubprocessGobbler(props, logPattern);
+    log4JPropertiesBuilder.internalLogLevel(Level.ERROR);
+    log4JPropertiesBuilder.configureGlobalFileLog(config, logDir, logPattern);
+    log4JPropertiesBuilder.apply(
+      LogLevelConfig.newBuilder(log4JPropertiesBuilder.getRootLoggerName())
+        .rootLevelFor(ProcessId.ELASTICSEARCH)
+        .build());
 
-    helper.apply(LogLevelConfig.newBuilder(helper.getRootLoggerName()).rootLevelFor(ProcessId.ELASTICSEARCH).build(), props);
-
-    return ctx;
+    return log4JPropertiesBuilder.get();
   }
 
 }
