@@ -47,11 +47,14 @@ import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsMeasures.Measure;
+import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
+import org.sonarqube.ws.WsQualityGates;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
+import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -257,23 +260,37 @@ public class QualityGateTest {
 
   @Test
   public void does_not_fail_when_condition_is_on_removed_metric() throws Exception {
+
+    // create project
+    Project project = tester.projects().generate(null);
+    String projectKey = project.getKey();
+
+    // create custom metric
     String customMetricKey = randomAlphabetic(10);
     createCustomIntMetric(customMetricKey);
-    QualityGate simple = qgClient().create("OnCustomMetric");
-    qgClient().setDefault(simple.id());
-    qgClient().createCondition(NewCondition.create(simple.id()).metricKey(customMetricKey).operator("GT").warningThreshold("40"));
     try {
-      deleteCustomMetric(customMetricKey);
-      String projectKey = newProjectKey();
-      BuildResult buildResult = executeAnalysis(projectKey);
 
-      verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_OK);
+      // create quality gate
+      WsQualityGates.CreateWsResponse simple = tester.wsClient().qualityGates().create("OnCustomMetric");
+      Long qualityGateId = simple.getId();
+      try {
+        qgClient().createCondition(NewCondition.create(qualityGateId).metricKey(customMetricKey).operator("GT").warningThreshold("40"));
 
-      assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
+        // delete custom metric
+        deleteCustomMetric(customMetricKey);
+
+        // run analysis
+        tester.wsClient().qualityGates().associateProject(new SelectWsRequest().setProjectKey(projectKey).setGateId(qualityGateId));
+        BuildResult buildResult = executeAnalysis(projectKey);
+
+        // verify quality gate
+        verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_OK);
+        assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
+      } finally {
+        qgClient().destroy(qualityGateId);
+      }
     } finally {
       deleteCustomMetric(customMetricKey);
-      qgClient().unsetDefault();
-      qgClient().destroy(simple.id());
     }
   }
 
