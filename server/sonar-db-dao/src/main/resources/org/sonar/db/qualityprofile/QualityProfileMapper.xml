@@ -297,6 +297,7 @@
     where
       pj.scope = 'PRJ'
       and pj.qualifier = 'TRK'
+      and pj.main_branch_project_uuid is null
       and upper(pj.name) like #{nameQuery, jdbcType=VARCHAR}
       and pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     order by pj.name ASC
@@ -307,7 +308,7 @@
     FROM projects pj
     LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
     AND pp.profile_key = #{profileUuid, jdbcType=VARCHAR}
-    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
+    WHERE pj.scope='PRJ' AND pj.qualifier='TRK' AND pj.main_branch_project_uuid is null
       AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
       AND pp.profile_key IS NULL
       AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
@@ -319,7 +320,7 @@
     FROM projects pj
     LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
     AND pp.profile_key = #{profileUuid, jdbcType=VARCHAR}
-    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
+    WHERE pj.scope='PRJ' AND pj.qualifier='TRK' AND pj.main_branch_project_uuid is null
       AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
       AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY pj.name ASC
