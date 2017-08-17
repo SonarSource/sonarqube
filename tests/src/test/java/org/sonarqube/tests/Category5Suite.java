@@ -28,6 +28,7 @@ import org.sonarqube.tests.rule.RuleEsResilienceTest;
 import org.sonarqube.tests.serverSystem.ClusterTest;
 import org.sonarqube.tests.serverSystem.RestartTest;
 import org.sonarqube.tests.serverSystem.ServerSystemRestartingOrchestrator;
+import org.sonarqube.tests.settings.ElasticsearchSettingsTest;
 import org.sonarqube.tests.settings.LicensesPageTest;
 import org.sonarqube.tests.settings.SettingsTestRestartingOrchestrator;
 import org.sonarqube.tests.telemetry.TelemetryOptOutTest;
@@ -62,7 +63,9 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
   TelemetryUploadTest.class,
   TelemetryOptOutTest.class,
   // ce
-  CeWorkersTest.class
+  CeWorkersTest.class,
+  // elasticsearch
+  ElasticsearchSettingsTest.class
 })
 public class Category5Suite {
 
