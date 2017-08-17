@@ -10,6 +10,7 @@
     where
     proj.qualifier = 'TRK'
     and proj.enabled = ${_true}
+    and proj.main_branch_project_uuid is null
     and proj.copy_component_uuid is null
     <choose>
       <when test="query.membership() == 'selected'">
