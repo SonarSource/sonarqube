@@ -17,12 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import App from './App';
-import { getComponent } from '../../../store/rootReducer';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import './NavBarTabs.css';
 
-const mapStateToProps = (state, ownProps) => ({
-  component: getComponent(state, ownProps.location.query.id)
-});
+interface Props {
+  children?: any;
+  className?: string;
+  [attr: string]: any;
+}
 
-export default connect(mapStateToProps)(App);
+export default function NavBarTabs({ children, className, ...other }: Props) {
+  return (
+    <ul {...other} className={classNames('navbar-tabs', className)}>
+      {children}
+    </ul>
+  );
+}

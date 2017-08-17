@@ -10,6 +10,7 @@
 }
 
 .navbar-context-header {
+  float: left;
   line-height: 30px;
   font-size: 15px;
 }

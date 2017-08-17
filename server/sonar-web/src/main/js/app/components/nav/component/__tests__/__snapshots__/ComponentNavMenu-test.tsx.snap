@@ -28,6 +28,7 @@ exports[`should work with extensions 1`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
+            "branch": undefined,
             "id": "foo",
             "resolved": "false",
           },
@@ -63,6 +64,7 @@ exports[`should work with extensions 1`] = `
         Object {
           "pathname": "/code",
           "query": Object {
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -227,6 +229,7 @@ exports[`should work with multiple extensions 1`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
+            "branch": undefined,
             "id": "foo",
             "resolved": "false",
           },
@@ -262,6 +265,7 @@ exports[`should work with multiple extensions 1`] = `
         Object {
           "pathname": "/code",
           "query": Object {
+            "branch": undefined,
             "id": "foo",
           },
         }
