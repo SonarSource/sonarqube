@@ -22,7 +22,7 @@ import { searchIssues } from '../../../api/issues';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 
 /*::
-export type Query = { [string]: string };
+export type Query = { [string]: string | void };
 */
 
 /*::
@@ -31,11 +31,12 @@ export type Issues = Array<*>; */
 // maximum possible value
 const PAGE_SIZE = 500;
 
-function buildQuery(component /*: string */) /*: Query */ {
+function buildQuery(component /*: string */, branch /*: string | void */) /*: Query */ {
   return {
     additionalFields: '_all',
     resolved: 'false',
     componentKeys: component,
+    branch,
     s: 'FILE_LINE'
   };
 }
@@ -80,17 +81,16 @@ export function loadPageAndNext(
   });
 }
 
-function loadIssues(
+export default function loadIssues(
   component /*: string */,
   fromLine /*: number */,
-  toLine /*: number */
+  toLine /*: number */,
+  branch /*: string | void */
 ) /*: Promise<Issues> */ {
-  const query = buildQuery(component);
+  const query = buildQuery(component, branch);
   return new Promise(resolve => {
     loadPageAndNext(query, toLine, 1).then(issues => {
       resolve(issues);
     });
   });
 }
-
-export default loadIssues;

@@ -20,12 +20,9 @@
 import { connect } from 'react-redux';
 import App from './App';
 import { fetchSettings } from '../store/actions';
-import { getComponent, getSettingsAppDefaultCategory } from '../../../store/rootReducer';
+import { getSettingsAppDefaultCategory } from '../../../store/rootReducer';
 
-const mapStateToProps = (state, ownProps) => ({
-  component: ownProps.location.query.id
-    ? getComponent(state, ownProps.location.query.id)
-    : undefined,
+const mapStateToProps = state => ({
   defaultCategory: getSettingsAppDefaultCategory(state)
 });
 

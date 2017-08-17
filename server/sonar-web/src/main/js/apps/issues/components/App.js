@@ -63,6 +63,7 @@ import '../styles.css';
 
 /*::
 export type Props = {
+  branch?: { name: string },
   component?: Component,
   currentUser: CurrentUser,
   fetchIssues: (query: RawQuery) => Promise<*>,
@@ -171,6 +172,7 @@ export default class App extends React.PureComponent {
     const { query } = this.props.location;
     const { query: prevQuery } = prevProps.location;
     if (
+      prevProps.component !== this.props.component ||
       !areQueriesEqual(prevQuery, query) ||
       areMyIssuesSelected(prevQuery) !== areMyIssuesSelected(query)
     ) {
@@ -306,6 +308,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery(this.state.query),
+        branch: this.props.branch && this.props.branch.name,
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined,
         open: issue
@@ -324,6 +327,7 @@ export default class App extends React.PureComponent {
         pathname: this.props.location.pathname,
         query: {
           ...serializeQuery(this.state.query),
+          branch: this.props.branch && this.props.branch.name,
           id: this.props.component && this.props.component.key,
           myIssues: this.state.myIssues ? 'true' : undefined,
           open: undefined
@@ -359,6 +363,8 @@ export default class App extends React.PureComponent {
       : undefined;
 
     const parameters = {
+      branch: this.props.branch && this.props.branch.name,
+      componentKeys: component && component.key,
       s: 'FILE_LINE',
       ...serializeQuery(query),
       ps: '100',
@@ -366,10 +372,6 @@ export default class App extends React.PureComponent {
       facets,
       ...additional
     };
-
-    if (component) {
-      Object.assign(parameters, { componentKeys: component.key });
-    }
 
     // only sorting by CREATION_DATE is allowed, so let's sort DESC
     if (query.sort) {
@@ -552,6 +554,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery({ ...this.state.query, ...changes }),
+        branch: this.props.branch && this.props.branch.name,
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined
       }
@@ -567,6 +570,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery({ ...this.state.query, assigned: true, assignees: [] }),
+        branch: this.props.branch && this.props.branch.name,
         id: this.props.component && this.props.component.key,
         myIssues: myIssues ? 'true' : undefined
       }
@@ -593,6 +597,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...DEFAULT_QUERY,
+        branch: this.props.branch && this.props.branch.name,
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined
       }
@@ -885,6 +890,8 @@ export default class App extends React.PureComponent {
             <div>
               {openIssue
                 ? <IssuesSourceViewer
+                    branch={this.props.branch}
+                    component={component}
                     openIssue={openIssue}
                     loadIssues={this.fetchIssuesForComponent}
                     onIssueChange={this.handleIssueChange}

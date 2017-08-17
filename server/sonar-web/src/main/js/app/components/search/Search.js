@@ -354,7 +354,7 @@ export default class Search extends React.PureComponent {
         {this.state.open &&
           Object.keys(this.state.results).length > 0 &&
           <div
-            className="dropdown-menu dropdown-menu-right global-navbar-search-dropdown"
+            className="dropdown-menu dropdown-menu-shadow dropdown-menu-right global-navbar-search-dropdown"
             ref={node => (this.node = node)}>
             <SearchResults
               allowMore={this.state.query.length !== 1}
