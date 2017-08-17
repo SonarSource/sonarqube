@@ -23,7 +23,7 @@ const routes = [
   {
     getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
       import('./components/ProjectActivityAppContainer').then(i =>
-        callback(null, { component: i.default })
+        callback(null, { component: (i as any).default })
       );
     }
   }

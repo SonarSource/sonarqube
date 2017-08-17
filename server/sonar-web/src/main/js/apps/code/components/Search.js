@@ -46,7 +46,7 @@ export default class Search extends React.PureComponent {
   };
 
   componentWillMount() {
-    this.handleSearch = debounce(this.handleSearch.bind(this), 250);
+    this.handleSearch = debounce(this.handleSearch, 250);
   }
 
   componentDidMount() {
@@ -100,6 +100,7 @@ export default class Search extends React.PureComponent {
         this.context.router.push({
           pathname: '/code',
           query: {
+            branch: component.branch,
             id: component.key,
             selected: selected.key
           }
@@ -126,7 +127,7 @@ export default class Search extends React.PureComponent {
     }
   }
 
-  handleSearch(query) {
+  handleSearch = query => {
     // first time check if value has changed due to debounce
     if (this.mounted && this.checkInputValue(query)) {
       const { component, onError } = this.props;
@@ -135,7 +136,12 @@ export default class Search extends React.PureComponent {
       const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
       const qualifiers = isPortfolio ? 'SVW,TRK' : 'BRC,UTS,FIL';
 
-      getTree(component.key, { q: query, s: 'qualifier,name', qualifiers })
+      getTree(component.key, {
+        branch: component.branch,
+        q: query,
+        s: 'qualifier,name',
+        qualifiers
+      })
         .then(r => {
           // second time check if value has change due to api request
           if (this.mounted && this.checkInputValue(query)) {
@@ -154,7 +160,7 @@ export default class Search extends React.PureComponent {
           }
         });
     }
-  }
+  };
 
   handleQueryChange(query) {
     this.setState({ query });

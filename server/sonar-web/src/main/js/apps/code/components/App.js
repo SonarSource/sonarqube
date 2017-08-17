@@ -20,7 +20,6 @@
 import classNames from 'classnames';
 import React from 'react';
 import Helmet from 'react-helmet';
-import { connect } from 'react-redux';
 import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
 import SourceViewer from './../../../components/SourceViewer/SourceViewer';
@@ -33,11 +32,10 @@ import {
   parseError
 } from '../utils';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
-import { getComponent } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import '../code.css';
 
-class App extends React.PureComponent {
+export default class App extends React.PureComponent {
   state = {
     loading: true,
     baseComponent: null,
@@ -75,7 +73,7 @@ class App extends React.PureComponent {
 
     this.setState({ loading: true });
     const isPortfolio = ['VW', 'SVW'].includes(component.qualifier);
-    retrieveComponentChildren(component.key, isPortfolio)
+    retrieveComponentChildren(component.key, isPortfolio, component.branch)
       .then(r => {
         addComponent(r.baseComponent);
         this.handleUpdate();
@@ -92,7 +90,7 @@ class App extends React.PureComponent {
     this.setState({ loading: true });
 
     const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
-    retrieveComponent(componentKey, isPortfolio)
+    retrieveComponent(componentKey, isPortfolio, this.props.component.branch)
       .then(r => {
         if (this.mounted) {
           if (['FIL', 'UTS'].includes(r.component.qualifier)) {
@@ -132,10 +130,10 @@ class App extends React.PureComponent {
     this.loadComponent(finalKey);
   }
 
-  handleLoadMore() {
+  handleLoadMore = () => {
     const { baseComponent, page } = this.state;
     const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
-    loadMoreChildren(baseComponent.key, page + 1, isPortfolio)
+    loadMoreChildren(baseComponent.key, page + 1, isPortfolio, this.props.component.branch)
       .then(r => {
         if (this.mounted) {
           this.setState({
@@ -148,16 +146,16 @@ class App extends React.PureComponent {
       .catch(e => {
         if (this.mounted) {
           this.setState({ loading: false });
-          parseError(e).then(this.handleError.bind(this));
+          parseError(e).then(this.handleError);
         }
       });
-  }
+  };
 
-  handleError(error) {
+  handleError = error => {
     if (this.mounted) {
       this.setState({ error });
     }
-  }
+  };
 
   render() {
     const { component, location } = this.props;
@@ -186,7 +184,7 @@ class App extends React.PureComponent {
             {error}
           </div>}
 
-        <Search location={location} component={component} onError={this.handleError.bind(this)} />
+        <Search location={location} component={component} onError={this.handleError} />
 
         <div className="code-components">
           {shouldShowBreadcrumbs &&
@@ -202,24 +200,14 @@ class App extends React.PureComponent {
             </div>}
 
           {shouldShowComponents &&
-            <ListFooter
-              count={components.length}
-              total={total}
-              loadMore={this.handleLoadMore.bind(this)}
-            />}
+            <ListFooter count={components.length} total={total} loadMore={this.handleLoadMore} />}
 
           {shouldShowSourceViewer &&
             <div className="spacer-top">
-              <SourceViewer component={sourceViewer.key} />
+              <SourceViewer branch={component.branch} component={sourceViewer.key} />
             </div>}
         </div>
       </div>
     );
   }
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  component: getComponent(state, ownProps.location.query.id)
-});
-
-export default connect(mapStateToProps)(App);

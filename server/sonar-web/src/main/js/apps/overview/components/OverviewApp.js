@@ -41,7 +41,8 @@ import '../styles.css';
 
 /*::
 type Props = {
-  component: Component
+  component: Component,
+  onComponentChange: {} => void
 };
 */
 
@@ -175,7 +176,12 @@ export default class OverviewApp extends React.PureComponent {
           </div>
 
           <div className="page-sidebar-fixed">
-            <Meta component={component} history={history} measures={measures} />
+            <Meta
+              component={component}
+              history={history}
+              measures={measures}
+              onComponentChange={this.props.onComponentChange}
+            />
           </div>
         </div>
       </div>
