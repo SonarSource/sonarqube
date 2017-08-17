@@ -35,11 +35,11 @@ import {
 import { parseError } from '../../code/utils';
 import { reloadUpdateKeyPage } from './utils';
 import RecentHistory from '../../../app/components/RecentHistory';
-import { getProjectAdminProjectModules, getComponent } from '../../../store/rootReducer';
+import { getProjectAdminProjectModules } from '../../../store/rootReducer';
 
 class Key extends React.PureComponent {
   static propTypes = {
-    component: PropTypes.object.isRequired,
+    component: PropTypes.object,
     fetchProjectModules: PropTypes.func.isRequired,
     changeKey: PropTypes.func.isRequired,
     addGlobalErrorMessage: PropTypes.func.isRequired,
@@ -141,7 +141,6 @@ class Key extends React.PureComponent {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  component: getComponent(state, ownProps.location.query.id),
   modules: getProjectAdminProjectModules(state, ownProps.location.query.id)
 });
 

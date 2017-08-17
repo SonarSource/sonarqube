@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
-import throwGlobalError from '../app/utils/throwGlobalError';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import NavBar from './NavBar';
+import './ContextNavBar.css';
 
-export function getGlobalNavigation(): Promise<any> {
-  return getJSON('/api/navigation/global');
+interface Props {
+  className?: string;
+  height: number;
+  [attr: string]: any;
 }
 
-export function getComponentNavigation(componentKey: string, branch?: string): Promise<any> {
-  return getJSON('/api/navigation/component', { componentKey, branch }).catch(throwGlobalError);
-}
-
-export function getSettingsNavigation(): Promise<any> {
-  return getJSON('/api/navigation/settings').catch(throwGlobalError);
+export default function ContextNavBar({ className, ...other }: Props) {
+  return <NavBar className={classNames('navbar-context', className)} {...other} />;
 }
