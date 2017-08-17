@@ -26,7 +26,14 @@ it('render issues list', () => {
   const issues = [{ key: 'foo' }, { key: 'bar' }];
   const onIssueClick = jest.fn();
   const wrapper = shallow(
-    <LineIssuesList issues={issues} line={line} onIssueClick={onIssueClick} selectedIssue="foo" />
+    <LineIssuesList
+      issues={issues}
+      line={line}
+      onIssueClick={onIssueClick}
+      onPopupToggle={jest.fn()}
+      openPopup={null}
+      selectedIssue="foo"
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });

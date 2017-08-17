@@ -41,7 +41,7 @@ const issue = {
 
 it('should render the titlebar correctly', () => {
   const element = shallow(
-    <IssueTitleBar issue={issue} currentPopup="" onFail={jest.fn()} togglePopup={jest.fn()} />
+    <IssueTitleBar issue={issue} currentPopup={null} onFail={jest.fn()} togglePopup={jest.fn()} />
   );
   expect(element).toMatchSnapshot();
 });
@@ -50,7 +50,7 @@ it('should render the titlebar with the filter', () => {
   const element = shallow(
     <IssueTitleBar
       issue={issue}
-      currentPopup=""
+      currentPopup={null}
       onFail={jest.fn()}
       onFilter={jest.fn()}
       togglePopup={jest.fn()}

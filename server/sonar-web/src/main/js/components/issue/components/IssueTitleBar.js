@@ -34,7 +34,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 /*::
 type Props = {|
   issue: Issue,
-  currentPopup: string,
+  currentPopup: ?string,
   onFail: Error => void,
   onFilter?: (property: string, issue: Issue) => void,
   togglePopup: (string, boolean | void) => void

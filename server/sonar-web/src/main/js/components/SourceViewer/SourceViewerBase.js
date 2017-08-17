@@ -99,6 +99,10 @@ type State = {
   notAccessible: boolean,
   notExist: boolean,
   openIssuesByLine: { [number]: boolean },
+  openPopup: ?{
+    issue: string,
+    name: string
+  },
   selectedIssue?: string,
   sources?: Array<SourceLine>,
   sourceRemoved: boolean,
@@ -151,6 +155,7 @@ export default class SourceViewerBase extends React.PureComponent {
       notAccessible: false,
       notExist: false,
       openIssuesByLine: {},
+      openPopup: null,
       selectedIssue: props.selectedIssue,
       selectedIssueLocation: null,
       sourceRemoved: false,
@@ -470,6 +475,19 @@ export default class SourceViewerBase extends React.PureComponent {
     }
   };
 
+  handlePopupToggle = (issue /*: string */, popupName /*: string */, open /*: ?boolean */) => {
+    this.setState((state /*: State */) => {
+      const samePopup =
+        state.openPopup && state.openPopup.name === popupName && state.openPopup.issue === issue;
+      if (open !== false && !samePopup) {
+        return { openPopup: { issue, name: popupName } };
+      } else if (open !== true && samePopup) {
+        return { openPopup: null };
+      }
+      return state;
+    });
+  };
+
   displayLinePopup(line /*: number */, element /*: HTMLElement */) {
     const popup = new LineActionsPopupView({
       line,
@@ -571,6 +589,8 @@ export default class SourceViewerBase extends React.PureComponent {
         onIssuesClose={this.handleCloseIssues}
         onLineClick={this.handleLineClick}
         onLocationSelect={this.props.onLocationSelect}
+        onPopupToggle={this.handlePopupToggle}
+        openPopup={this.state.openPopup}
         onSCMClick={this.handleSCMClick}
         onSymbolClick={this.handleSymbolClick}
         openIssuesByLine={this.state.openIssuesByLine}

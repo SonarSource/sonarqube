@@ -36,6 +36,8 @@ it('render code', () => {
       onIssueSelect={jest.fn()}
       onSelectLocation={jest.fn()}
       onSymbolClick={jest.fn()}
+      onPopupToggle={jest.fn()}
+      openPopup={null}
       selectedIssue="issue-1"
       showIssues={true}
     />

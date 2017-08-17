@@ -33,6 +33,8 @@ type Props = {|
   onCheck?: string => void,
   onClick: string => void,
   onFilterChange: (changes: {}) => void,
+  onPopupToggle: (issue: string, popupName: string, open: ?boolean ) => void,
+  openPopup: ?string,
   organization?: { key: string },
   previousIssue: ?Object,
   selected: boolean
@@ -107,6 +109,8 @@ export default class ListItem extends React.PureComponent {
           onCheck={this.props.onCheck}
           onClick={this.props.onClick}
           onFilter={this.handleFilter}
+          onPopupToggle={this.props.onPopupToggle}
+          openPopup={this.props.openPopup}
           selected={this.props.selected}
         />
       </div>

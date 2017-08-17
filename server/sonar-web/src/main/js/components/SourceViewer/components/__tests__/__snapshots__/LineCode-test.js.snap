@@ -43,6 +43,8 @@ exports[`render code 1`] = `
       ]
     }
     onIssueClick={[Function]}
+    onPopupToggle={[Function]}
+    openPopup={null}
     selectedIssue="issue-1"
   />
 </td>

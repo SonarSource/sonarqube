@@ -30,7 +30,7 @@ import { deleteIssueComment, editIssueComment } from '../../api/issues';
 /*::
 type Props = {|
   checked?: boolean,
-  currentPopup: string,
+  currentPopup: ?string,
   issue: Issue,
   onAssign: string => void,
   onChange: Issue => void,

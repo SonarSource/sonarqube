@@ -68,6 +68,8 @@ export default class SourceViewerCode extends React.PureComponent {
     onSCMClick: (SourceLine, HTMLElement) => void,
     onSymbolClick: (Array<string>) => void,
     openIssuesByLine: { [number]: boolean },
+    onPopupToggle: (issue: string, popupName: string, open: ?boolean ) => void,
+    openPopup: ?{ issue: string, name: string},
     scroll?: HTMLElement => void,
     selectedIssue: string | null,
     sources: Array<SourceLine>,
@@ -174,6 +176,8 @@ export default class SourceViewerCode extends React.PureComponent {
         onSCMClick={this.props.onSCMClick}
         onSymbolClick={this.props.onSymbolClick}
         openIssues={this.props.openIssuesByLine[line.line] || false}
+        onPopupToggle={this.props.onPopupToggle}
+        openPopup={this.props.openPopup}
         previousLine={index > 0 ? sources[index - 1] : undefined}
         scroll={this.props.scroll}
         secondaryIssueLocations={optimizedSecondaryIssueLocations}

@@ -40,6 +40,8 @@ type Props = {|
   onIssueSelect: (issueKey: string) => void,
   onLocationSelect?: number => void,
   onSymbolClick: (Array<string>) => void,
+  onPopupToggle: (issue: string, popupName: string, open: ?boolean ) => void,
+  openPopup: ?{ issue: string, name: string},
   scroll?: HTMLElement => void,
   secondaryIssueLocations: Array<{
     from: number,
@@ -221,6 +223,8 @@ export default class LineCode extends React.PureComponent {
             issues={issues}
             onIssueChange={this.props.onIssueChange}
             onIssueClick={onIssueSelect}
+            onPopupToggle={this.props.onPopupToggle}
+            openPopup={this.props.openPopup}
             selectedIssue={selectedIssue}
           />}
       </td>

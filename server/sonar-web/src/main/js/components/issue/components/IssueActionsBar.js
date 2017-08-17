@@ -32,7 +32,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 /*::
 type Props = {
   issue: Issue,
-  currentPopup: string,
+  currentPopup: ?string,
   onAssign: string => void,
   onChange: Issue => void,
   onFail: Error => void,

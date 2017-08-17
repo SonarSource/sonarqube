@@ -11,6 +11,8 @@ exports[`render issues list 1`] = `
       }
     }
     onClick={[Function]}
+    onPopupToggle={[Function]}
+    openPopup={null}
     selected={true}
   />
   <BaseIssue
@@ -20,6 +22,8 @@ exports[`render issues list 1`] = `
       }
     }
     onClick={[Function]}
+    onPopupToggle={[Function]}
+    openPopup={null}
     selected={false}
   />
 </div>
