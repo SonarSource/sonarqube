@@ -29,6 +29,7 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.ce.CeWsParameters.ACTION_WORKER_COUNT;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -96,10 +97,11 @@ public class CeService extends BaseService {
     return call(new GetRequest(path(ACTION_WORKER_COUNT)), WorkerCountResponse.parser());
   }
 
-  public ProjectResponse component(String componentKey) {
+  public ProjectResponse component(String componentKey, String branch) {
     return call(
       new GetRequest(path("component"))
-        .setParam(PARAM_COMPONENT_KEY, componentKey),
+        .setParam(PARAM_COMPONENT_KEY, componentKey)
+        .setParam(PARAM_BRANCH, branch),
       ProjectResponse.parser());
   }
 
