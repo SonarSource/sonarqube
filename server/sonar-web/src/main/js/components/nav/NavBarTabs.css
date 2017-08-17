@@ -1,6 +1,7 @@
 .navbar-tabs {
   display: flex;
   align-items: center;
+  clear: left;
 }
 
 .navbar-tabs > li + li {

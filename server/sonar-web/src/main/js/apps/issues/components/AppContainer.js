@@ -24,17 +24,14 @@ import { withRouter } from 'react-router';
 import { uniq } from 'lodash';
 import App from './App';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import { getComponent, getCurrentUser } from '../../../store/rootReducer';
+import { getCurrentUser } from '../../../store/rootReducer';
 import { getOrganizations } from '../../../api/organizations';
 import { receiveOrganizations } from '../../../store/organizations/duck';
 import { searchIssues } from '../../../api/issues';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 /*:: import type { RawQuery } from '../../../helpers/query'; */
 
-const mapStateToProps = (state, ownProps) => ({
-  component: ownProps.location.query.id
-    ? getComponent(state, ownProps.location.query.id)
-    : undefined,
+const mapStateToProps = state => ({
   currentUser: getCurrentUser(state)
 });
 

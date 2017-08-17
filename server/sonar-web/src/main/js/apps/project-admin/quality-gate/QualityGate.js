@@ -24,16 +24,12 @@ import { connect } from 'react-redux';
 import Header from './Header';
 import Form from './Form';
 import { fetchProjectGate, setProjectGate } from '../store/actions';
-import {
-  getProjectAdminAllGates,
-  getProjectAdminProjectGate,
-  getComponent
-} from '../../../store/rootReducer';
+import { getProjectAdminAllGates, getProjectAdminProjectGate } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
 class QualityGate extends React.PureComponent {
   static propTypes = {
-    component: PropTypes.object.isRequired,
+    component: PropTypes.object,
     allGates: PropTypes.array,
     gate: PropTypes.object
   };
@@ -62,7 +58,6 @@ class QualityGate extends React.PureComponent {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  component: getComponent(state, ownProps.location.query.id),
   allGates: getProjectAdminAllGates(state),
   gate: getProjectAdminProjectGate(state, ownProps.location.query.id)
 });
