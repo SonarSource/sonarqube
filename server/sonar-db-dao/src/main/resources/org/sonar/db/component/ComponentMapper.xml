@@ -272,6 +272,7 @@
     from projects p
     where
       p.enabled=${_true}
+      AND p.main_branch_project_uuid is null
       AND p.copy_component_uuid is null
       <if test="organizationUuid!=null">
         and p.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
@@ -428,6 +429,7 @@
     where
     s2.id is null
     and p.qualifier='TRK'
+    and p.main_branch_project_uuid is null
     and p.copy_component_uuid is null
     <if test="query!=null">
       and (
@@ -456,6 +458,7 @@
     from projects p
     <where>
       p.enabled=${_true}
+      AND p.main_branch_project_uuid is null
       AND p.copy_component_uuid is null
       <if test="includeModules == false">
         AND p.qualifier = 'TRK'
