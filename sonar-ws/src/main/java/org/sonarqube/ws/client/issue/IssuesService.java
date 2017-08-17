@@ -58,6 +58,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHORS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMMENT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
@@ -176,6 +177,7 @@ public class IssuesService extends BaseService {
         .setParam(PARAM_CREATED_BEFORE, request.getCreatedBefore())
         .setParam(PARAM_CREATED_IN_LAST, request.getCreatedInLast())
         .setParam(PARAM_DIRECTORIES, inlineMultipleParamValue(request.getDirectories()))
+        .setParam(PARAM_BRANCH, request.getBranch())
         .setParam(FACET_MODE, request.getFacetMode())
         .setParam(FACETS, inlineMultipleParamValue(request.getFacets()))
         .setParam(PARAM_FILE_UUIDS, inlineMultipleParamValue(request.getFileUuids()))
