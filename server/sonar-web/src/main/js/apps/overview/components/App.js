@@ -36,6 +36,7 @@ type Props = {
     qualifier: string,
     tags: Array<string>
   },
+  onComponentChange: {} => void,
   router: Object
 };
 */
@@ -83,6 +84,6 @@ export default class App extends React.PureComponent {
       return <EmptyOverview component={component} />;
     }
 
-    return <OverviewApp component={component} />;
+    return <OverviewApp component={component} onComponentChange={this.props.onComponentChange} />;
   }
 }
