@@ -17,40 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { connect } from 'react-redux';
+import * as React from 'react';
 import Extension from './Extension';
 import ExtensionNotFound from './ExtensionNotFound';
-import { getComponent } from '../../../store/rootReducer';
-import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
+import { Component } from '../../types';
 
-/*::
-type Props = {
-  component: {
-    extensions: Array<{ key: string }>
-  },
-  location: { query: { id: string } },
+interface Props {
+  component: Component;
+  location: { query: { id: string } };
   params: {
-    extensionKey: string,
-    pluginKey: string
-  }
-};
-*/
+    extensionKey: string;
+    pluginKey: string;
+  };
+}
 
-function ProjectPageExtension(props /*: Props */) {
+export default function ProjectPageExtension(props: Props) {
   const { extensionKey, pluginKey } = props.params;
   const { component } = props;
-  const extension = component.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
+  const extension =
+    component.extensions &&
+    component.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
   return extension
     ? <Extension extension={extension} options={{ component }} />
     : <ExtensionNotFound />;
 }
-
-const mapStateToProps = (state, ownProps /*: Props */) => ({
-  component: getComponent(state, ownProps.location.query.id)
-});
-
-const mapDispatchToProps = { onFail: addGlobalErrorMessage };
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectPageExtension);

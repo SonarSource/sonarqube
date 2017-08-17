@@ -38,7 +38,6 @@ import {
 } from '../../../api/ce';
 import { updateTask, mapFiltersToParameters } from '../utils';
 /*:: import type { Task } from '../types'; */
-import { getComponent } from '../../../store/rootReducer';
 import '../background-tasks.css';
 import { fetchOrganizations } from '../../../store/rootActions';
 import { translate } from '../../../helpers/l10n';
@@ -257,12 +256,6 @@ class BackgroundTasksApp extends React.PureComponent {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  component: ownProps.location.query.id
-    ? getComponent(state, ownProps.location.query.id)
-    : undefined
-});
-
 const mapDispatchToProps = { fetchOrganizations };
 
-export default connect(mapStateToProps, mapDispatchToProps)(BackgroundTasksApp);
+export default connect(null, mapDispatchToProps)(BackgroundTasksApp);

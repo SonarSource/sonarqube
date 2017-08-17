@@ -30,7 +30,14 @@ import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
 import { areThereCustomOrganizations } from '../../../store/rootReducer';
 
-const Meta = ({ component, history, measures, areThereCustomOrganizations, router }) => {
+const Meta = ({
+  component,
+  history,
+  measures,
+  areThereCustomOrganizations,
+  onComponentChange,
+  router
+}) => {
   const { qualifier, description, qualityProfiles, qualityGate } = component;
 
   const isProject = qualifier === 'TRK';
@@ -53,7 +60,7 @@ const Meta = ({ component, history, measures, areThereCustomOrganizations, route
 
       <MetaSize component={component} measures={measures} />
 
-      {isProject && <MetaTags component={component} />}
+      {isProject && <MetaTags component={component} onComponentChange={onComponentChange} />}
 
       {(isProject || isApplication) &&
         <AnalysesList
