@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Properties;
 import org.sonar.process.ProcessId;
 import org.sonar.process.es.EsFileSystem;
+import org.sonar.process.es.EsYmlSettings;
 import org.sonar.process.jmvoptions.EsJvmOptions;
 
 public class EsCommand extends AbstractCommand<EsCommand> {
@@ -35,6 +36,7 @@ public class EsCommand extends AbstractCommand<EsCommand> {
   private Properties log4j2Properties;
   private List<String> esOptions = new ArrayList<>();
   private EsJvmOptions esJvmOptions;
+  private EsYmlSettings esYmlSettings;
 
   public EsCommand(ProcessId id, File workDir) {
     super(id, workDir);
@@ -103,5 +105,14 @@ public class EsCommand extends AbstractCommand<EsCommand> {
 
   public EsJvmOptions getEsJvmOptions() {
     return esJvmOptions;
+  }
+
+  public EsCommand setEsYmlSettings(EsYmlSettings esYmlSettings) {
+    this.esYmlSettings = esYmlSettings;
+    return this;
+  }
+
+  public EsYmlSettings getEsYmlSettings() {
+    return esYmlSettings;
   }
 }

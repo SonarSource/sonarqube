@@ -28,6 +28,7 @@ import org.sonar.process.Props;
 import org.sonar.process.es.EsFileSystem;
 import org.sonar.process.es.EsLogging;
 import org.sonar.process.es.EsSettings;
+import org.sonar.process.es.EsYmlSettings;
 import org.sonar.process.jmvoptions.CeJvmOptions;
 import org.sonar.process.jmvoptions.EsJvmOptions;
 import org.sonar.process.jmvoptions.JvmOptions;
@@ -68,22 +69,20 @@ public class CommandFactoryImpl implements CommandFactory {
     }
     Map<String, String> settingsMap = new EsSettings(props, esFileSystem).build();
 
-    EsCommand res = new EsCommand(ProcessId.ELASTICSEARCH, esFileSystem.getHomeDirectory())
+    return new EsCommand(ProcessId.ELASTICSEARCH, esFileSystem.getHomeDirectory())
       .setFileSystem(esFileSystem)
       .setLog4j2Properties(new EsLogging().createProperties(props, esFileSystem.getLogDirectory()))
       .setArguments(props.rawProperties())
       .setClusterName(settingsMap.get("cluster.name"))
       .setHost(settingsMap.get("network.host"))
       .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")))
+      .addEsOption("-Epath.conf="+esFileSystem.getConfDirectory().getAbsolutePath())
       .setEsJvmOptions(new EsJvmOptions()
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
+      .setEsYmlSettings(new EsYmlSettings(settingsMap))
       .setEnvVariable("ES_JVM_OPTIONS", esFileSystem.getJvmOptions().getAbsolutePath())
       .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"));
-
-    settingsMap.forEach((key, value) -> res.addEsOption("-E" + key + "=" + value));
-
-    return res;
   }
 
   @Override

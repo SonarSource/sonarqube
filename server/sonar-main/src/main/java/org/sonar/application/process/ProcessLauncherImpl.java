@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Supplier;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessId;
@@ -90,7 +89,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
   }
 
-  private void writeConfFiles(EsCommand esCommand) {
+  private static void writeConfFiles(EsCommand esCommand) {
     EsFileSystem esFileSystem = esCommand.getFileSystem();
     File confDir = esFileSystem.getConfDirectory();
     if (!confDir.exists() && !confDir.mkdirs()) {
@@ -100,7 +99,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
 
     try {
-      IOUtils.copy(getClass().getResourceAsStream("elasticsearch.yml"), new FileOutputStream(esFileSystem.getElasticsearchYml()));
+      esCommand.getEsYmlSettings().writeToYmlSettingsFile(esFileSystem.getElasticsearchYml());
       esCommand.getEsJvmOptions().writeToJvmOptionFile(esFileSystem.getJvmOptions());
       esCommand.getLog4j2Properties().store(new FileOutputStream(esFileSystem.getLog4j2Properties()), "log4j2 properties file for ES bundled in SonarQube");
     } catch (IOException e) {
