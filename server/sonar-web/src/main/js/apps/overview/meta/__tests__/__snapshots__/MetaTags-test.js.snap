@@ -40,7 +40,7 @@ exports[`should open the tag selector on click 2`] = `
     />
   </button>
   <div>
-    <Connect(ProjectTagsSelectorContainer)
+    <MetaTagsSelector
       position={
         Object {
           "right": 0,
@@ -54,6 +54,7 @@ exports[`should open the tag selector on click 2`] = `
           "bar",
         ]
       }
+      setProjectTags={[Function]}
     />
   </div>
 </div>
