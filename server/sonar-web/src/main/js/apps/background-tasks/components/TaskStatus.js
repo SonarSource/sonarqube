@@ -20,7 +20,7 @@
 /* @flow */
 import React from 'react';
 import { STATUSES } from './../constants';
-import PendingIcon from '../../../components/shared/pending-icon';
+import PendingIcon from '../../../components/icons-components/PendingIcon';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Task } from '../types'; */
 

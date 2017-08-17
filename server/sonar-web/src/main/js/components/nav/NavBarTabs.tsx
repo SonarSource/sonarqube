@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
-import NavBar from './NavBar';
-import './ContextNavBar.css';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import './NavBarTabs.css';
 
-/*::
-type Props = {
-  className?: string,
-  height: number
-};
-*/
+interface Props {
+  children?: any;
+  className?: string;
+  [attr: string]: any;
+}
 
-export default function ContextNavBar({ className, ...other } /*: Props */) {
-  return <NavBar className={classNames('navbar-context', className)} {...other} />;
+export default function NavBarTabs({ children, className, ...other }: Props) {
+  return (
+    <ul {...other} className={classNames('navbar-tabs', className)}>
+      {children}
+    </ul>
+  );
 }
