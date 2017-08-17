@@ -20,14 +20,9 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import {
-  Branch,
-  BranchType,
-  Component,
-  ComponentExtension,
-  ComponentConfiguration
-} from '../../../types';
+import { Branch, Component, ComponentExtension, ComponentConfiguration } from '../../../types';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
+import { isShortLivingBranch } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 
 const SETTINGS_URLS = [
@@ -68,12 +63,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return this.props.component.qualifier === 'APP';
   }
 
-  isShortLivingBranch() {
-    return this.props.branch.type === BranchType.SHORT;
-  }
-
   renderDashboardLink() {
-    if (this.isShortLivingBranch()) {
+    if (isShortLivingBranch(this.props.branch)) {
       return null;
     }
 
@@ -113,7 +104,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
       return null;
     }
 
-    if (this.isShortLivingBranch()) {
+    if (isShortLivingBranch(this.props.branch)) {
       return null;
     }
 
@@ -148,7 +139,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderComponentMeasuresLink() {
-    if (this.isShortLivingBranch()) {
+    if (isShortLivingBranch(this.props.branch)) {
       return null;
     }
 
@@ -164,7 +155,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderAdministration() {
-    if (this.isShortLivingBranch()) {
+    if (isShortLivingBranch(this.props.branch)) {
       return null;
     }
 
