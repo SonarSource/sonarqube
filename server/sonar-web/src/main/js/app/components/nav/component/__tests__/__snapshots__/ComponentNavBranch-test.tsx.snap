@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders main branch 1`] = `
+<div
+  className="navbar-context-branches dropdown"
+>
+  <a
+    className="link-base-color link-no-underline"
+    href="#"
+    onClick={[Function]}
+  >
+    <BranchIcon
+      className="little-spacer-right"
+    />
+    master
+    <i
+      className="icon-dropdown little-spacer-left"
+    />
+  </a>
+</div>
+`;
+
+exports[`renders short-living branch 1`] = `
+<div
+  className="navbar-context-branches dropdown"
+>
+  <a
+    className="link-base-color link-no-underline"
+    href="#"
+    onClick={[Function]}
+  >
+    <BranchIcon
+      className="little-spacer-right"
+    />
+    foo
+    <i
+      className="icon-dropdown little-spacer-left"
+    />
+  </a>
+</div>
+`;

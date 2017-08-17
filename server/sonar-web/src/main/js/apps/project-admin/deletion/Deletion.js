@@ -18,36 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
-import { connect } from 'react-redux';
 import Header from './Header';
 import Form from './Form';
-import { getComponent } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
-class Deletion extends React.PureComponent {
-  static propTypes = {
-    component: PropTypes.object
-  };
-
-  render() {
-    if (!this.props.component) {
-      return null;
-    }
-
-    return (
-      <div className="page page-limited">
-        <Helmet title={translate('deletion.page')} />
-        <Header component={this.props.component} />
-        <Form component={this.props.component} />
-      </div>
-    );
-  }
+export default function Deletion(props) {
+  return (
+    <div className="page page-limited">
+      <Helmet title={translate('deletion.page')} />
+      <Header component={props.component} />
+      <Form component={props.component} />
+    </div>
+  );
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  component: getComponent(state, ownProps.location.query.id)
-});
-
-export default connect(mapStateToProps)(Deletion);
