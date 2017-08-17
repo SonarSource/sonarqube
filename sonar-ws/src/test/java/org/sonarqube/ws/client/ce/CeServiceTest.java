@@ -31,6 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -145,13 +146,14 @@ public class CeServiceTest {
 
   @Test
   public void component() {
-    underTest.component("my_component");
+    underTest.component("my_component", "my_branch");
     GetRequest result = serviceTester.getGetRequest();
 
     assertThat(serviceTester.getGetParser()).isSameAs(WsCe.ProjectResponse.parser());
     serviceTester.assertThat(result)
       .hasPath("component")
       .hasParam(PARAM_COMPONENT_KEY, "my_component")
+      .hasParam(PARAM_BRANCH, "my_branch")
       .andNoOtherParam();
   }
 }
