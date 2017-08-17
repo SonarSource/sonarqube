@@ -19,12 +19,10 @@
  */
 import React from 'react';
 import Helmet from 'react-helmet';
-import { connect } from 'react-redux';
 import init from '../init';
-import { getComponent } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
-class CustomMeasuresAppContainer extends React.PureComponent {
+export default class CustomMeasuresAppContainer extends React.PureComponent {
   componentDidMount() {
     init(this.refs.container, this.props.component);
   }
@@ -38,9 +36,3 @@ class CustomMeasuresAppContainer extends React.PureComponent {
     );
   }
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  component: getComponent(state, ownProps.location.query.id)
-});
-
-export default connect(mapStateToProps)(CustomMeasuresAppContainer);

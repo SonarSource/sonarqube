@@ -22,10 +22,10 @@ import Workspace from '../../../components/workspace/main';
 import PinIcon from '../../../components/shared/pin-icon';
 import { translate } from '../../../helpers/l10n';
 
-const ComponentPin = ({ component }) => {
+const ComponentPin = ({ branch, component }) => {
   const handleClick = e => {
     e.preventDefault();
-    Workspace.openComponent({ key: component.key });
+    Workspace.openComponent({ branch, key: component.key });
   };
 
   return (

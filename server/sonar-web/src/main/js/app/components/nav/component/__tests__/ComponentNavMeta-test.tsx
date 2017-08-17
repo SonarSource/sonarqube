@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavMeta from '../ComponentNavMeta';
+import { Branch, Component } from '../../../../types';
 
 it('renders incremental badge', () => {
   check(true);
@@ -28,7 +29,12 @@ it('renders incremental badge', () => {
   function check(incremental: boolean) {
     expect(
       shallow(
-        <ComponentNavMeta component={{ key: 'foo' }} conf={{}} incremental={incremental} />
+        <ComponentNavMeta
+          branch={{} as Branch}
+          component={{ key: 'foo' } as Component}
+          conf={{}}
+          incremental={incremental}
+        />
       ).find('IncrementalBadge')
     ).toHaveLength(incremental ? 1 : 0);
   }

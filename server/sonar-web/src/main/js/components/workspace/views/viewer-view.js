@@ -49,13 +49,14 @@ export default BaseView.extend({
   },
 
   showViewer() {
-    const { key, line } = this.model.toJSON();
+    const { branch, key, line } = this.model.toJSON();
 
     const el = document.querySelector(this.viewerRegion.el);
 
     render(
       <WithStore>
         <SourceViewer
+          branch={branch}
           component={key}
           fromWorkspace={true}
           highlightedLine={line}
