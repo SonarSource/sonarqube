@@ -137,7 +137,7 @@ public class AppLogging {
       configureWithWrapperWritingToFile(ctx);
     }
     helper.apply(
-      LogLevelConfig.newBuilder()
+      LogLevelConfig.newBuilder(helper.getRootLoggerName())
         .rootLevelFor(ProcessId.APP)
         .immutableLevel("com.hazelcast",
           Level.toLevel(

@@ -25,6 +25,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -52,6 +53,7 @@ public class ServerLoggingTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private final String rootLoggerName = RandomStringUtils.randomAlphabetic(20);
   private LogbackHelper logbackHelper = spy(new LogbackHelper());
   private MapSettings settings = new MapSettings();
   private ServerLogging underTest = new ServerLogging(logbackHelper, settings.asConfig());
@@ -77,7 +79,7 @@ public class ServerLoggingTest {
   @UseDataProvider("supportedSonarApiLevels")
   public void changeLevel_calls_changeRoot_with_LogLevelConfig_and_level_converted_to_logback_class_then_log_INFO_message(LoggerLevel level) {
     ServerProcessLogging serverProcessLogging = mock(ServerProcessLogging.class);
-    LogLevelConfig logLevelConfig = LogLevelConfig.newBuilder().build();
+    LogLevelConfig logLevelConfig = LogLevelConfig.newBuilder(rootLoggerName).build();
     when(serverProcessLogging.getLogLevelConfig()).thenReturn(logLevelConfig);
 
     underTest.changeLevel(serverProcessLogging, level);

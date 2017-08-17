@@ -64,7 +64,7 @@ public abstract class ServerProcessLogging {
   }
 
   private LogLevelConfig createLogLevelConfiguration(ProcessId processId) {
-    LogLevelConfig.Builder builder = LogLevelConfig.newBuilder();
+    LogLevelConfig.Builder builder = LogLevelConfig.newBuilder(helper.getRootLoggerName());
     builder.rootLevelFor(processId);
     builder.immutableLevel("org.apache.ibatis", Level.WARN);
     builder.immutableLevel("java.sql", Level.WARN);
