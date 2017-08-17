@@ -37,7 +37,7 @@ interface State {
   branches: Branch[];
   loading: boolean;
   query: string;
-  selected: string | null | undefined;
+  selected: string | null;
 }
 
 export default class ComponentNavBranchesMenu extends React.PureComponent<Props, State> {
@@ -93,6 +93,11 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       branch => getBranchDisplayName(branch) // then by name
     );
 
+  getFilteredBranches = () =>
+    this.state.branches.filter(branch =>
+      getBranchDisplayName(branch).toLowerCase().includes(this.state.query.toLowerCase())
+    );
+
   handleClickOutside = (event: Event) => {
     if (!this.node || !this.node.contains(event.target as HTMLElement)) {
       this.props.onClose();
@@ -100,7 +105,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
   };
 
   handleSearchChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
-    this.setState({ query: event.currentTarget.value });
+    this.setState({ query: event.currentTarget.value, selected: null });
 
   handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     switch (event.keyCode) {
@@ -125,7 +130,9 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
 
   openSelected = () => {
     const selected = this.getSelected();
-    const branch = this.state.branches.find(branch => getBranchDisplayName(branch) === selected);
+    const branch = this.getFilteredBranches().find(
+      branch => getBranchDisplayName(branch) === selected
+    );
     if (branch) {
       this.context.router.push(this.getProjectBranchUrl(branch));
     }
@@ -133,21 +140,19 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
 
   selectPrevious = () => {
     const selected = this.getSelected();
-    const index = this.state.branches.findIndex(
-      branch => getBranchDisplayName(branch) === selected
-    );
+    const branches = this.getFilteredBranches();
+    const index = branches.findIndex(branch => getBranchDisplayName(branch) === selected);
     if (index > 0) {
-      this.setState({ selected: getBranchDisplayName(this.state.branches[index - 1]) });
+      this.setState({ selected: getBranchDisplayName(branches[index - 1]) });
     }
   };
 
   selectNext = () => {
     const selected = this.getSelected();
-    const index = this.state.branches.findIndex(
-      branch => getBranchDisplayName(branch) === selected
-    );
-    if (index >= 0 && index < this.state.branches.length - 1) {
-      this.setState({ selected: getBranchDisplayName(this.state.branches[index + 1]) });
+    const branches = this.getFilteredBranches();
+    const index = branches.findIndex(branch => getBranchDisplayName(branch) === selected);
+    if (index >= 0 && index < branches.length - 1) {
+      this.setState({ selected: getBranchDisplayName(branches[index + 1]) });
     }
   };
 
@@ -155,7 +160,10 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     this.setState({ selected: getBranchDisplayName(branch) });
   };
 
-  getSelected = () => this.state.selected || getBranchDisplayName(this.props.branch);
+  getSelected = () => {
+    const branches = this.getFilteredBranches();
+    return this.state.selected || (branches.length > 0 && getBranchDisplayName(branches[0]));
+  };
 
   getProjectBranchUrl = (branch: Branch) => getProjectBranchUrl(this.props.project.key, branch);
 
@@ -178,15 +186,13 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     </div>;
 
   renderBranchesList = () => {
-    const filteredBranches = this.state.branches.filter(branch =>
-      getBranchDisplayName(branch).toLowerCase().includes(this.state.query.toLowerCase())
-    );
+    const branches = this.getFilteredBranches();
 
     const selected = this.getSelected();
 
-    return filteredBranches.length > 0
+    return branches.length > 0
       ? <ul className="menu">
-          {filteredBranches.map(branch =>
+          {branches.map(branch =>
             <ComponentNavBranchesMenuItem
               branch={branch}
               component={this.props.project}

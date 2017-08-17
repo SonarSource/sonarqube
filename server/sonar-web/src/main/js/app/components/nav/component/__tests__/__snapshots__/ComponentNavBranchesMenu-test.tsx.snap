@@ -133,7 +133,7 @@ exports[`searches 1`] = `
           }
         }
         onSelect={[Function]}
-        selected={false}
+        selected={true}
       />
       <ComponentNavBranchesMenuItem
         branch={
