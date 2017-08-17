@@ -51,6 +51,12 @@
     "@types/node" "*"
     "@types/react" "*"
 
+"@types/react-helmet@5.0.3":
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/@types/react-helmet/-/react-helmet-5.0.3.tgz#614e706cb73120936c7c067404809f8c2f1a840c"
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-redux@5.0.3":
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-5.0.3.tgz#cd68de0c49c516b940fdc6f688535596b5d6eca4"
