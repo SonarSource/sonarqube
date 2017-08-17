@@ -121,8 +121,8 @@ public class ProcessProperties {
     Properties defaults = new Properties();
     defaults.put(SEARCH_HOST, InetAddress.getLoopbackAddress().getHostAddress());
     defaults.put(SEARCH_PORT, "9001");
-    defaults.put(SEARCH_JAVA_OPTS, "-Xms1g" +
-      " -Xmx1g"  +
+    defaults.put(SEARCH_JAVA_OPTS, "-Xms512m" +
+      " -Xmx512m"  +
       " -XX:+UseConcMarkSweepGC"  +
       " -XX:CMSInitiatingOccupancyFraction=75"  +
       " -XX:+UseCMSInitiatingOccupancyOnly"  +
