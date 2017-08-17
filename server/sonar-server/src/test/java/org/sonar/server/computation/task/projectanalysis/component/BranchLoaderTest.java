@@ -81,7 +81,7 @@ public class BranchLoaderTest {
   }
 
   @Test
-  public void special_support_of_branch_is_enabled_if_delegate_is_present() {
+  public void default_support_of_branches_is_enabled_if_delegate_is_present() {
     ScannerReport.Metadata metadata = ScannerReport.Metadata.newBuilder()
       .setDeprecatedBranch("foo")
       .build();
@@ -90,7 +90,10 @@ public class BranchLoaderTest {
     new BranchLoader(metadataHolder, delegate).load(metadata);
 
     assertThat(metadataHolder.getBranch()).isPresent();
-    assertThat(metadataHolder.getBranch().get()).isSameAs(delegate.branch);
+
+    Branch branch = metadataHolder.getBranch().get();
+    assertThat(branch.isMain()).isTrue();
+    assertThat(branch.getName()).hasValue("foo");
   }
 
   private class FakeDelegate implements BranchLoaderDelegate {
