@@ -489,6 +489,7 @@ public class QualityProfileDaoTest {
     QProfileDto profileWithProjects = db.qualityProfiles().insert(organization);
     ComponentDto project1 = db.components().insertPrivateProject(organization);
     ComponentDto project2 = db.components().insertPrivateProject(organization);
+    
     db.qualityProfiles().associateWithProject(project1, profileWithProjects);
     db.qualityProfiles().associateWithProject(project2, profileWithProjects);
 
@@ -580,6 +581,7 @@ public class QualityProfileDaoTest {
     ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
     OrganizationDto organization2 = db.organizations().insert();
     ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto branch = db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
     db.qualityProfiles().insert(profile1);
@@ -608,6 +610,7 @@ public class QualityProfileDaoTest {
     ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
     OrganizationDto organization2 = db.organizations().insert();
     ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto branch = db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
     db.qualityProfiles().insert(profile1);
@@ -635,6 +638,7 @@ public class QualityProfileDaoTest {
     ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
     OrganizationDto organization2 = db.organizations().insert();
     ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto branch = db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
     db.qualityProfiles().insert(profile1);
