@@ -17,21 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import ComponentNavFavorite from './ComponentNavFavorite';
 import ComponentNavBreadcrumbs from './ComponentNavBreadcrumbs';
 import ComponentNavMeta from './ComponentNavMeta';
 import ComponentNavMenu from './ComponentNavMenu';
+import ComponentNavBranch from './ComponentNavBranch';
 import RecentHistory from '../../RecentHistory';
+import { Branch, Component, ComponentConfiguration } from '../../../types';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
 import { getTasksForComponent } from '../../../../api/ce';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import './ComponentNav.css';
 
-export default class ComponentNav extends React.PureComponent {
+interface Props {
+  branch: Branch;
+  component: Component;
+  conf: ComponentConfiguration;
+  location: {};
+}
+
+interface State {
+  incremental?: boolean;
+  isFailed?: boolean;
+  isInProgress?: boolean;
+  isPending?: boolean;
+}
+
+export default class ComponentNav extends React.PureComponent<Props, State> {
+  mounted: boolean;
+
+  state: State = {};
+
   componentDidMount() {
     this.mounted = true;
-
     this.loadStatus();
     this.populateRecentHistory();
   }
@@ -41,11 +60,11 @@ export default class ComponentNav extends React.PureComponent {
   }
 
   loadStatus = () => {
-    getTasksForComponent(this.props.component.key).then(r => {
+    getTasksForComponent(this.props.component.key).then((r: any) => {
       if (this.mounted) {
         this.setState({
-          isPending: r.queue.some(task => task.status === STATUSES.PENDING),
-          isInProgress: r.queue.some(task => task.status === STATUSES.IN_PROGRESS),
+          isPending: r.queue.some((task: any) => task.status === STATUSES.PENDING),
+          isInProgress: r.queue.some((task: any) => task.status === STATUSES.IN_PROGRESS),
           isFailed: r.current && r.current.status === STATUSES.FAILED,
           incremental: r.current && r.current.incremental
         });
@@ -79,17 +98,19 @@ export default class ComponentNav extends React.PureComponent {
           breadcrumbs={this.props.component.breadcrumbs}
         />
 
+        <ComponentNavBranch branch={this.props.branch} project={this.props.component} />
+
         <ComponentNavMeta
-          {...this.props}
-          {...this.state}
-          version={this.props.component.version}
-          analysisDate={this.props.component.analysisDate}
+          branch={this.props.branch}
+          component={this.props.component}
+          conf={this.props.conf}
+          incremental={this.state.incremental}
         />
 
         <ComponentNavMenu
+          branch={this.props.branch}
           component={this.props.component}
           conf={this.props.conf}
-          location={this.props.location}
         />
       </ContextNavBar>
     );

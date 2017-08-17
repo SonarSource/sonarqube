@@ -21,10 +21,10 @@ import React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
-export default function ComponentDetach({ component }) {
+export default function ComponentDetach({ component, branch }) {
   return (
     <Link
-      to={{ pathname: '/dashboard', query: { id: component.refKey || component.key } }}
+      to={{ pathname: '/dashboard', query: { branch, id: component.refKey || component.key } }}
       className="icon-detach"
       title={translate('code.open_component_page')}
     />

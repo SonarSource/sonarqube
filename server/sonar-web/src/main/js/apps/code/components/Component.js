@@ -70,10 +70,10 @@ export default class Component extends React.PureComponent {
       switch (component.qualifier) {
         case 'FIL':
         case 'UTS':
-          componentAction = <ComponentPin component={component} />;
+          componentAction = <ComponentPin branch={rootComponent.branch} component={component} />;
           break;
         default:
-          componentAction = <ComponentDetach component={component} />;
+          componentAction = <ComponentDetach branch={rootComponent.branch} component={component} />;
       }
     }
 
