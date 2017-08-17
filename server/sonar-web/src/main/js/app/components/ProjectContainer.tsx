@@ -109,7 +109,7 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
 
   handleProjectChange = (changes: {}) => {
     if (this.mounted) {
-      this.setState(state => ({ project: { ...state.component, ...changes } }));
+      this.setState(state => ({ component: { ...state.component, ...changes } }));
     }
   };
 
