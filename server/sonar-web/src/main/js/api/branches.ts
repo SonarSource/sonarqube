@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Tooltip from '../../../../components/controls/Tooltip';
-import { translate } from '../../../../helpers/l10n';
+import { getJSON } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
-export default function IncrementalBadge() {
-  return (
-    <Tooltip overlay={translate('incremental.project_tooltip')}>
-      <div className="outline-badge">
-        {translate('incremental')}
-      </div>
-    </Tooltip>
+export function getBranches(project: string): Promise<any> {
+  return getJSON('/api/project_branches/list', { project }).then(r => r.branches, throwGlobalError);
+}
+
+export function getBranch(project: string, branch: string): Promise<any> {
+  return getJSON('/api/project_branches/show', { component: project, branch }).then(
+    r => r.branch,
+    throwGlobalError
   );
 }

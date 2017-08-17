@@ -25,12 +25,12 @@ import Header from './Header';
 import Table from './Table';
 import DeletionModal from './views/DeletionModal';
 import { fetchProjectLinks, deleteProjectLink, createProjectLink } from '../store/actions';
-import { getProjectAdminProjectLinks, getComponent } from '../../../store/rootReducer';
+import { getProjectAdminProjectLinks } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
 class Links extends React.PureComponent {
   static propTypes = {
-    component: PropTypes.object.isRequired,
+    component: PropTypes.object,
     links: PropTypes.array
   };
 
@@ -67,7 +67,6 @@ class Links extends React.PureComponent {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  component: getComponent(state, ownProps.location.query.id),
   links: getProjectAdminProjectLinks(state, ownProps.location.query.id)
 });
 
