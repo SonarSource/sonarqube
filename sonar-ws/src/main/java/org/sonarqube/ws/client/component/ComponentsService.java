@@ -65,7 +65,8 @@ public class ComponentsService extends BaseService {
   public TreeWsResponse tree(TreeWsRequest request) {
     GetRequest get = new GetRequest(path(ACTION_TREE))
       .setParam(PARAM_COMPONENT_ID, request.getBaseComponentId())
-      .setParam(PARAM_COMPONENT, request.getBaseComponentKey())
+      .setParam("baseComponentKey", request.getBaseComponentKey())
+      .setParam(PARAM_COMPONENT, request.getComponent())
       .setParam(PARAM_BRANCH, request.getBranch())
       .setParam(PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers()))
       .setParam(PARAM_STRATEGY, request.getStrategy())
