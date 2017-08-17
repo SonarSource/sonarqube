@@ -71,7 +71,7 @@ const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
       </Link>
     );
   } else if (canBrowse) {
-    const query = { id: rootComponent.key };
+    const query = { id: rootComponent.key, branch: rootComponent.branch };
     if (component.key !== rootComponent.key) {
       Object.assign(query, { selected: component.key });
     }

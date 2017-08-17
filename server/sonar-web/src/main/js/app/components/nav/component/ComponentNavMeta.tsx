@@ -17,18 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
+import * as React from 'react';
 import IncrementalBadge from './IncrementalBadge';
-import PendingIcon from '../../../../components/shared/pending-icon';
+import BranchStatus from './BranchStatus';
+import { Branch, Component, ComponentConfiguration } from '../../../types';
 import Tooltip from '../../../../components/controls/Tooltip';
+import PendingIcon from '../../../../components/icons-components/PendingIcon';
+import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
-export default function ComponentNavMeta(props) {
+interface Props {
+  branch: Branch;
+  component: Component;
+  conf: ComponentConfiguration;
+  incremental?: boolean;
+  isInProgress?: boolean;
+  isFailed?: boolean;
+  isPending?: boolean;
+}
+
+export default function ComponentNavMeta(props: Props) {
   const metaList = [];
   const canSeeBackgroundTasks = props.conf.showBackgroundTasks;
   const backgroundTasksUrl =
-    window.baseUrl + `/project/background_tasks?id=${encodeURIComponent(props.component.key)}`;
+    (window as any).baseUrl +
+    `/project/background_tasks?id=${encodeURIComponent(props.component.key)}`;
 
   if (props.isInProgress) {
     const tooltip = canSeeBackgroundTasks
@@ -76,18 +89,19 @@ export default function ComponentNavMeta(props) {
       </Tooltip>
     );
   }
-  if (props.analysisDate) {
+
+  if (props.component.analysisDate && props.branch.isMain) {
     metaList.push(
       <li key="analysisDate">
-        <DateTimeFormatter date={props.analysisDate} />
+        <DateTimeFormatter date={props.component.analysisDate} />
       </li>
     );
   }
 
-  if (props.version) {
+  if (props.component.version && props.branch.isMain) {
     metaList.push(
       <li key="version">
-        Version {props.version}
+        Version {props.component.version}
       </li>
     );
   }
@@ -96,6 +110,14 @@ export default function ComponentNavMeta(props) {
     metaList.push(
       <li key="incremental">
         <IncrementalBadge />
+      </li>
+    );
+  }
+
+  if (!props.branch.isMain) {
+    metaList.push(
+      <li className="navbar-context-meta-branch" key="branch-status">
+        <BranchStatus branch={props.branch} />
       </li>
     );
   }

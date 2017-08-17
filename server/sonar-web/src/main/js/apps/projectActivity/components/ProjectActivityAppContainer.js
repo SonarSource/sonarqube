@@ -19,11 +19,9 @@
  */
 // @flow
 import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import PropTypes from 'prop-types';
 import ProjectActivityApp from './ProjectActivityApp';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import { getComponent } from '../../../store/rootReducer';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import { getMetrics } from '../../../api/metrics';
 import * as api from '../../../api/projectActivity';
@@ -45,15 +43,11 @@ import {
 /*::
 type Props = {
   location: { pathname: string, query: RawQuery },
-  project: {
+  component: {
     configuration?: { showHistory: boolean },
     key: string,
     leakPeriodDate: string,
     qualifier: string
-  },
-  router: {
-    push: ({ pathname: string, query?: RawQuery }) => void,
-    replace: ({ pathname: string, query?: RawQuery }) => void
   }
 };
 */
@@ -71,10 +65,14 @@ export type State = {
 };
 */
 
-class ProjectActivityAppContainer extends React.PureComponent {
+export default class ProjectActivityAppContainer extends React.PureComponent {
   /*:: mounted: boolean; */
   /*:: props: Props; */
   /*:: state: State; */
+
+  static contextTypes = {
+    router: PropTypes.object
+  };
 
   constructor(props /*: Props */) {
     super(props);
@@ -93,7 +91,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
       if (isCustomGraph(newQuery.graph)) {
         newQuery.customMetrics = getCustomGraph();
       }
-      this.props.router.replace({
+      this.context.router.replace({
         pathname: props.location.pathname,
         query: serializeUrlQuery(newQuery)
       });
@@ -182,7 +180,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
     if (metrics.length <= 0) {
       return Promise.resolve([]);
     }
-    return getAllTimeMachineData(this.props.project.key, metrics).then(
+    return getAllTimeMachineData(this.props.component.key, metrics).then(
       ({ measures }) =>
         measures.map(measure => ({
           metric: measure.metric,
@@ -279,11 +277,11 @@ class ProjectActivityAppContainer extends React.PureComponent {
       ...this.state.query,
       ...newQuery
     });
-    this.props.router.push({
+    this.context.router.push({
       pathname: this.props.location.pathname,
       query: {
         ...query,
-        id: this.props.project.key
+        id: this.props.component.key
       }
     });
   };
@@ -319,16 +317,10 @@ class ProjectActivityAppContainer extends React.PureComponent {
         initializing={!this.state.initialized}
         metrics={this.state.metrics}
         measuresHistory={this.state.measuresHistory}
-        project={this.props.project}
+        project={this.props.component}
         query={this.state.query}
         updateQuery={this.updateQuery}
       />
     );
   }
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  project: getComponent(state, ownProps.location.query.id)
-});
-
-export default connect(mapStateToProps)(withRouter(ProjectActivityAppContainer));

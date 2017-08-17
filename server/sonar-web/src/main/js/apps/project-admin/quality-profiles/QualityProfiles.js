@@ -27,8 +27,7 @@ import { fetchProjectProfiles, setProjectProfile } from '../store/actions';
 import {
   areThereCustomOrganizations,
   getProjectAdminAllProfiles,
-  getProjectAdminProjectProfiles,
-  getComponent
+  getProjectAdminProjectProfiles
 } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
@@ -80,7 +79,6 @@ class QualityProfiles extends React.PureComponent {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  component: getComponent(state, ownProps.location.query.id),
   customOrganizations: areThereCustomOrganizations(state),
   allProfiles: getProjectAdminAllProfiles(state),
   profiles: getProjectAdminProjectProfiles(state, ownProps.location.query.id)

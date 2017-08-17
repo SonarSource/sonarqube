@@ -17,16 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Tooltip from '../../../../components/controls/Tooltip';
-import { translate } from '../../../../helpers/l10n';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import ProjectContainer from '../ProjectContainer';
 
-export default function IncrementalBadge() {
-  return (
-    <Tooltip overlay={translate('incremental.project_tooltip')}>
-      <div className="outline-badge">
-        {translate('incremental')}
-      </div>
-    </Tooltip>
+it('changes component', () => {
+  const Inner = () => <div />;
+
+  const wrapper = shallow(
+    <ProjectContainer location={{ query: { id: 'foo' } }}>
+      <Inner />
+    </ProjectContainer>
   );
-}
+  (wrapper.instance() as ProjectContainer).mounted = true;
+  wrapper.setState({
+    branch: { isMain: true },
+    component: { qualifier: 'TRK', visibility: 'public' },
+    loading: false
+  });
+
+  (wrapper.find(Inner).prop('onComponentChange') as Function)({ visibility: 'private' });
+  expect(wrapper.state().component).toEqual({ qualifier: 'TRK', visibility: 'private' });
+});

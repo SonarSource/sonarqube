@@ -215,6 +215,10 @@ export default class CreationDateFacet extends React.PureComponent {
 
   renderPredefinedPeriods() {
     const { component, createdInLast, sinceLeakPeriod } = this.props;
+    if (component != null && component.branch != null) {
+      // FIXME handle long-living branches
+      return null;
+    }
     return (
       <div className="spacer-top issues-predefined-periods">
         <FacetItem
