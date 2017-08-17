@@ -147,6 +147,11 @@ public class ComponentDbTester {
     return insertComponentImpl(newSubView(view), false, dtoPopulator);
   }
 
+  @SafeVarargs
+  public final ComponentDto insertSubView(ComponentDto view, Consumer<ComponentDto>... dtoPopulators) {
+    return insertComponentImpl(newSubView(view), false, dtoPopulators);
+  }
+
   private static <T> Consumer<T> noExtraConfiguration() {
     return (t) -> {
     };

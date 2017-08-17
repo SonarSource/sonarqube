@@ -120,11 +120,11 @@ public class ComponentDao implements Dao {
     return countByQueryImpl(session, organizationUuid, query);
   }
 
-  public List<ComponentDto> selectSubProjectsByComponentUuids(DbSession session, Collection<String> keys) {
-    if (keys.isEmpty()) {
+  public List<ComponentDto> selectSubProjectsByComponentUuids(DbSession session, Collection<String> uuids) {
+    if (uuids.isEmpty()) {
       return emptyList();
     }
-    return mapper(session).selectSubProjectsByComponentUuids(keys);
+    return mapper(session).selectSubProjectsByComponentUuids(uuids);
   }
 
   public List<ComponentDto> selectDescendantModules(DbSession session, String rootComponentUuid) {
