@@ -17,12 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import App from './App';
-import { getComponent } from '../../../store/rootReducer';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import ComponentNavMeta from '../ComponentNavMeta';
+import { Branch, Component } from '../../../../types';
 
-const mapStateToProps = (state, ownProps) => ({
-  component: getComponent(state, ownProps.location.query.id)
+it('renders incremental badge', () => {
+  check(true);
+  check(false);
+
+  function check(incremental: boolean) {
+    expect(
+      shallow(
+        <ComponentNavMeta
+          branch={{} as Branch}
+          component={{ key: 'foo' } as Component}
+          conf={{}}
+          incremental={incremental}
+        />
+      ).find('IncrementalBadge')
+    ).toHaveLength(incremental ? 1 : 0);
+  }
 });
-
-export default connect(mapStateToProps)(App);

@@ -17,19 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { shallow } from 'enzyme';
-import ComponentNavMeta from '../ComponentNavMeta';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import NavBar from './NavBar';
+import './ContextNavBar.css';
 
-it('renders incremental badge', () => {
-  check(true);
-  check(false);
+interface Props {
+  className?: string;
+  height: number;
+  [attr: string]: any;
+}
 
-  function check(incremental) {
-    expect(
-      shallow(
-        <ComponentNavMeta component={{ key: 'foo' }} conf={{}} incremental={incremental} />
-      ).find('IncrementalBadge')
-    ).toHaveLength(incremental ? 1 : 0);
-  }
-});
+export default function ContextNavBar({ className, ...other }: Props) {
+  return <NavBar className={classNames('navbar-context', className)} {...other} />;
+}

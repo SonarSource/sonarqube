@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { stringify } from 'querystring';
+import { isShortLivingBranch } from './branches';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 
 /**
@@ -30,10 +31,18 @@ export function getComponentUrl(componentKey) {
 }
 
 export function getProjectUrl(key) {
-  return {
-    pathname: '/dashboard',
-    query: { id: key }
-  };
+  return { pathname: '/dashboard', query: { id: key } };
+}
+
+export function getProjectBranchUrl(key, branch) {
+  if (isShortLivingBranch(branch)) {
+    return {
+      pathname: '/project/issues',
+      query: { branch: branch.name, id: key, resolved: 'false' }
+    };
+  } else {
+    return { pathname: '/dashboard', query: { id: key } };
+  }
 }
 
 /**
