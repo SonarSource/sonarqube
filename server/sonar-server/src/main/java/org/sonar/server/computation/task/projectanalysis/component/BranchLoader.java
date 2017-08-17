@@ -48,7 +48,7 @@ public class BranchLoader {
       throw MessageException.of("Properties sonar.branch and sonar.branch.name can't be set together");
     }
 
-    if (delegate != null) {
+    if (delegate != null && deprecatedBranch == null) {
       delegate.load(metadata);
     } else {
       metadataHolder.setBranch(new DefaultBranchImpl(deprecatedBranch));
