@@ -37,17 +37,6 @@
     </dependencySet>
 
     <dependencySet>
-      <outputDirectory>lib/search</outputDirectory>
-      <useProjectArtifact>false</useProjectArtifact>
-      <useTransitiveDependencies>true</useTransitiveDependencies>
-      <useTransitiveFiltering>false</useTransitiveFiltering>
-      <includes>
-        <include>org.sonarsource.sonarqube:sonar-search</include>
-      </includes>
-      <scope>provided</scope>
-    </dependencySet>
-
-    <dependencySet>
       <outputDirectory>lib/server</outputDirectory>
       <useProjectArtifact>false</useProjectArtifact>
       <useTransitiveDependencies>true</useTransitiveDependencies>
