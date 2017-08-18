@@ -60,7 +60,6 @@ message Operation {
 }
 
 message Issue {
-  optional string organization = 29;
   optional string key = 1;
   optional string rule = 2;
   optional sonarqube.ws.commons.Severity severity = 3;
@@ -105,6 +104,9 @@ message Issue {
   optional string closeDate = 26;
 
   optional sonarqube.ws.commons.RuleType type = 27;
+
+  optional string organization = 29;
+  optional string branch = 30;
 }
 
 message Transitions {
