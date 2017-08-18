@@ -27,7 +27,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-process-monitor</artifactId>
+      <artifactId>sonar-main</artifactId>
       <version>${project.version}</version>
     </dependency>
     <!--must declare this dependency of sonar-process-monitor here, again,-->
