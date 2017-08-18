@@ -21,7 +21,7 @@ import * as React from 'react';
 import TooltipCore from 'rc-tooltip';
 
 interface Props {
-  overlay: any;
+  overlay: React.ReactNode;
   placement?: string;
   [attr: string]: any;
 }
