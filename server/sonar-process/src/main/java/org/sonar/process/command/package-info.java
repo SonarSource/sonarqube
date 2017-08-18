@@ -17,16 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.process;
+@ParametersAreNonnullByDefault
+package org.sonar.process.command;
 
-import org.sonar.application.config.AppSettings;
-
-public interface CommandFactory {
-
-  EsCommand createEsCommand(AppSettings settings);
-
-  JavaCommand createWebCommand(boolean leader);
-
-  JavaCommand createCeCommand();
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

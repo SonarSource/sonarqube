@@ -30,9 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.ClusterSettings;
-import org.sonar.application.process.CommandFactory;
-import org.sonar.application.process.EsCommand;
-import org.sonar.application.process.JavaCommand;
+import org.sonar.process.command.CommandFactory;
+import org.sonar.process.command.EsCommand;
+import org.sonar.process.command.JavaCommand;
 import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.Lifecycle;
 import org.sonar.application.process.ProcessEventListener;
@@ -107,7 +107,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private void tryToStartEs() {
     SQProcess process = processesById.get(ProcessId.ELASTICSEARCH);
     if (process != null) {
-      tryToStartEsProcess(process, () -> commandFactory.createEsCommand(settings));
+      tryToStartEsProcess(process, commandFactory::createEsCommand);
     }
   }
 
