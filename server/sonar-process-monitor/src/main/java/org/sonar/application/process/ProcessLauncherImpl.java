@@ -35,12 +35,12 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.ProcessId;
 import org.sonar.process.command.AbstractCommand;
 import org.sonar.process.command.EsCommand;
 import org.sonar.process.command.JavaCommand;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
-import org.sonar.process.ProcessId;
 
 import static java.lang.String.format;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
@@ -82,9 +82,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     try {
       writeConfFiles(esCommand);
       ProcessBuilder processBuilder = create(esCommand);
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Launch process[{}]: {}", processId.getKey(), String.join(" ", processBuilder.command()));
-      }
+      logLaunchedCommand(esCommand, processBuilder);
 
       process = processBuilder.start();
 
@@ -123,9 +121,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
 
       ProcessBuilder processBuilder = create(javaCommand);
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Launch process[{}]: {}", processId.getKey(), String.join(" ", processBuilder.command()));
-      }
+      logLaunchedCommand(javaCommand, processBuilder);
       process = processBuilder.start();
       return new ProcessCommandsProcessMonitor(process, processId, commands);
     } catch (Exception e) {
@@ -134,6 +130,15 @@ public class ProcessLauncherImpl implements ProcessLauncher {
         process.destroyForcibly();
       }
       throw new IllegalStateException(format("Fail to launch process [%s]", processId.getKey()), e);
+    }
+  }
+
+  private static <T extends AbstractCommand> void logLaunchedCommand(AbstractCommand<T> command, ProcessBuilder processBuilder) {
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Launch process[{}] from [{}]: {}",
+        command.getProcessId(),
+        command.getWorkDir().getAbsolutePath(),
+        String.join(" ", processBuilder.command()));
     }
   }
 
