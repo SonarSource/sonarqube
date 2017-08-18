@@ -22,7 +22,6 @@ package org.sonar.db.component;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -30,10 +29,9 @@ import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.sonar.db.component.BranchKeyType.BRANCH;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.ComponentTesting.newApplication;
+import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectBranch;
 import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
@@ -209,12 +207,7 @@ public class ComponentDbTester {
   @SafeVarargs
   public final ComponentDto insertMainBranch(OrganizationDto organization, Consumer<ComponentDto>... dtoPopulators) {
     ComponentDto project = newPrivateProjectDto(organization);
-    BranchDto branchDto = new BranchDto()
-      .setKey(null)
-      .setUuid(project.uuid())
-      .setProjectUuid(project.projectUuid())
-      .setKeeType(BRANCH)
-      .setBranchType(LONG);
+    BranchDto branchDto = newBranchDto(project, LONG);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(project));
     insertComponent(project);
     dbClient.branchDao().insert(dbSession, branchDto);
@@ -224,14 +217,8 @@ public class ComponentDbTester {
 
   @SafeVarargs
   public final ComponentDto insertProjectBranch(ComponentDto project, Consumer<BranchDto>... dtoPopulators) {
-    String uuid = Uuids.createFast();
-    BranchDto branchDto = new BranchDto()
-      .setKey("branch_" + randomAlphanumeric(248))
-      .setUuid(uuid)
-      // MainBranchProjectUuid will be null if it's a main branch
-      .setProjectUuid(firstNonNull(project.getMainBranchProjectUuid(), project.projectUuid()))
-      .setKeeType(BRANCH)
-      .setBranchType(LONG);
+    // MainBranchProjectUuid will be null if it's a main branch
+    BranchDto branchDto = newBranchDto(firstNonNull(project.getMainBranchProjectUuid(), project.projectUuid()), LONG);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(branchDto));
     ComponentDto branch = newProjectBranch(project, branchDto);
     insertComponent(branch);

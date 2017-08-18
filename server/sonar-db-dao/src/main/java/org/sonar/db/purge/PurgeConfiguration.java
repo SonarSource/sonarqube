@@ -22,6 +22,7 @@ package org.sonar.db.purge;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.config.Configuration;
@@ -34,16 +35,18 @@ public class PurgeConfiguration {
   private final IdUuidPair rootProjectIdUuid;
   private final String[] scopesWithoutHistoricalData;
   private final int maxAgeInDaysOfClosedIssues;
+  private final Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches;
   private final System2 system2;
   private final Collection<String> disabledComponentUuids;
 
   public PurgeConfiguration(IdUuidPair rootProjectId, String[] scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues,
-    System2 system2, Collection<String> disabledComponentUuids) {
+    Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches, System2 system2, Collection<String> disabledComponentUuids) {
     this.rootProjectIdUuid = rootProjectId;
     this.scopesWithoutHistoricalData = scopesWithoutHistoricalData;
     this.maxAgeInDaysOfClosedIssues = maxAgeInDaysOfClosedIssues;
     this.system2 = system2;
     this.disabledComponentUuids = disabledComponentUuids;
+    this.maxAgeInDaysOfInactiveShortLivingBranches = maxAgeInDaysOfInactiveShortLivingBranches;
   }
 
   public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, IdUuidPair idUuidPair, Collection<String> disabledComponentUuids) {
@@ -51,7 +54,8 @@ public class PurgeConfiguration {
     if (config.getBoolean(PurgeConstants.PROPERTY_CLEAN_DIRECTORY).orElse(false)) {
       scopes = new String[] {Scopes.DIRECTORY, Scopes.FILE};
     }
-    return new PurgeConfiguration(idUuidPair, scopes, config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(), System2.INSTANCE, disabledComponentUuids);
+    return new PurgeConfiguration(idUuidPair, scopes, config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
+      config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_SHORT_LIVING_BRANCHES), System2.INSTANCE, disabledComponentUuids);
   }
 
   public IdUuidPair rootProjectIdUuid() {
@@ -69,6 +73,10 @@ public class PurgeConfiguration {
   @CheckForNull
   public Date maxLiveDateOfClosedIssues() {
     return maxLiveDateOfClosedIssues(new Date(system2.now()));
+  }
+
+  public Optional<Date> maxLiveDateOfInactiveShortLivingBranches() {
+    return maxAgeInDaysOfInactiveShortLivingBranches.map(age -> DateUtils.addDays(new Date(system2.now()), -age));
   }
 
   @VisibleForTesting
