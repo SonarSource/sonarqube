@@ -19,12 +19,14 @@
  */
 package org.sonar.ce.container;
 
-import org.sonar.process.Props;
+public interface ComputeEngineStatus {
 
-public interface ComputeEngineContainer {
-  void setComputeEngineStatus(ComputeEngineStatus computeEngineStatus);
+  /**
+   * This status will be consumed by multiple processes, hence the implementation of the method must be threadsafe
+   */
+  Status getStatus();
 
-  ComputeEngineContainer start(Props props);
-
-  ComputeEngineContainer stop();
+  enum Status {
+    INIT, STARTING, STARTED, STOPPING, STOPPED;
+  }
 }

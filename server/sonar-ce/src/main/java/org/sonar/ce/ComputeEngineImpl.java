@@ -19,12 +19,13 @@
  */
 package org.sonar.ce;
 
+import org.sonar.ce.container.ComputeEngineStatus;
 import org.sonar.ce.container.ComputeEngineContainer;
 import org.sonar.process.Props;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public class ComputeEngineImpl implements ComputeEngine {
+public class ComputeEngineImpl implements ComputeEngine, ComputeEngineStatus {
   private final Props props;
   private final ComputeEngineContainer computeEngineContainer;
 
@@ -33,6 +34,7 @@ public class ComputeEngineImpl implements ComputeEngine {
   public ComputeEngineImpl(Props props, ComputeEngineContainer computeEngineContainer) {
     this.props = props;
     this.computeEngineContainer = computeEngineContainer;
+    computeEngineContainer.setComputeEngineStatus(this);
   }
 
   @Override
@@ -63,7 +65,8 @@ public class ComputeEngineImpl implements ComputeEngine {
     checkState(currentStatus.ordinal() <= Status.STOPPING.ordinal(), "shutdown() can not be called multiple times");
   }
 
-  private enum Status {
-    INIT, STARTING, STARTED, STOPPING, STOPPED
+  @Override
+  public Status getStatus() {
+    return status;
   }
 }

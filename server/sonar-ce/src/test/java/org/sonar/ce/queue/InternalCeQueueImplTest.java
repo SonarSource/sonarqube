@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
+import org.sonar.ce.container.ComputeEngineStatus;
 import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.ce.monitoring.CEQueueStatusImpl;
 import org.sonar.core.util.UuidFactory;
@@ -53,6 +54,8 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.container.ComputeEngineStatus.Status.STARTED;
+import static org.sonar.ce.container.ComputeEngineStatus.Status.STOPPING;
 
 public class InternalCeQueueImplTest {
 
@@ -72,7 +75,8 @@ public class InternalCeQueueImplTest {
   private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
   private CEQueueStatus queueStatus = new CEQueueStatusImpl(dbTester.getDbClient());
   private DefaultOrganizationProvider defaultOrganizationProvider = mock(DefaultOrganizationProvider.class);
-  private InternalCeQueue underTest = new InternalCeQueueImpl(system2, dbTester.getDbClient(), uuidFactory, queueStatus, defaultOrganizationProvider);
+  private ComputeEngineStatus computeEngineStatus = mock(ComputeEngineStatus.class);
+  private InternalCeQueue underTest = new InternalCeQueueImpl(system2, dbTester.getDbClient(), uuidFactory, queueStatus, defaultOrganizationProvider, computeEngineStatus);
 
   @Before
   public void setUp() throws Exception {
@@ -84,6 +88,7 @@ public class InternalCeQueueImplTest {
       .setCreatedAt(defaultOrganization.getCreatedAt())
       .setUpdatedAt(defaultOrganization.getUpdatedAt())
       .build());
+    when(computeEngineStatus.getStatus()).thenReturn(STARTED);
   }
 
   @Test
@@ -298,6 +303,15 @@ public class InternalCeQueueImplTest {
   public void peek_nothing_if_paused() throws Exception {
     submit(CeTaskTypes.REPORT, "PROJECT_1");
     underTest.pausePeek();
+
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
+    assertThat(peek.isPresent()).isFalse();
+  }
+
+  @Test
+  public void peek_nothing_if_application_status_stopping() throws Exception {
+    submit(CeTaskTypes.REPORT, "PROJECT_1");
+    when(computeEngineStatus.getStatus()).thenReturn(STOPPING);
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
     assertThat(peek.isPresent()).isFalse();

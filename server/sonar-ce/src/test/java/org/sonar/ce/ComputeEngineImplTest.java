@@ -23,6 +23,7 @@ import java.util.Properties;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.ce.container.ComputeEngineStatus;
 import org.sonar.ce.container.ComputeEngineContainer;
 import org.sonar.process.Props;
 
@@ -63,6 +64,10 @@ public class ComputeEngineImplTest {
   }
 
   private static class NoOpComputeEngineContainer implements ComputeEngineContainer {
+    @Override
+    public void setComputeEngineStatus(ComputeEngineStatus computeEngineStatus) {
+    }
+
     @Override
     public ComputeEngineContainer start(Props props) {
       return this;

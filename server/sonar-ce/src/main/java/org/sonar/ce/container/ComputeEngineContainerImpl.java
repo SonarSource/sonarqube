@@ -148,12 +148,20 @@ import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonarqube.ws.Rules;
 
+import static java.util.Objects.requireNonNull;
+
 public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
+  private ComputeEngineStatus computeEngineStatus;
   @CheckForNull
   private ComponentContainer level1;
   @CheckForNull
   private ComponentContainer level4;
+
+  @Override
+  public void setComputeEngineStatus(ComputeEngineStatus computeEngineStatus) {
+    this.computeEngineStatus = computeEngineStatus;
+  }
 
   @Override
   public ComputeEngineContainer start(Props props) {
@@ -161,7 +169,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     this.level1
       .add(props.rawProperties())
       .add(level1Components())
-      .add(toArray(CorePropertyDefinitions.all()));
+      .add(toArray(CorePropertyDefinitions.all()))
+      .add(requireNonNull(computeEngineStatus));
     configureFromModules(this.level1);
     this.level1.startComponents();
 
