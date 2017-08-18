@@ -33,11 +33,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.application.config.TestAppSettings;
-import org.sonar.process.AllProcessesCommands;
+import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.process.ProcessCommands.MAX_PROCESSES;
+import static org.sonar.process.sharedmemoryfile.ProcessCommands.MAX_PROCESSES;
 
 public class AppFileSystemTest {
 

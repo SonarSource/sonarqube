@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.process.ProcessCommands;
+import org.sonar.process.sharedmemoryfile.ProcessCommands;
 import org.sonar.process.ProcessId;
 
 import static org.assertj.core.api.Assertions.assertThat;

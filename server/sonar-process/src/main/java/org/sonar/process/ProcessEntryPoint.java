@@ -22,6 +22,8 @@ package org.sonar.process;
 import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
+import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 public class ProcessEntryPoint implements Stoppable {
 

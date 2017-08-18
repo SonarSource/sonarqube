@@ -29,7 +29,7 @@ import org.junit.rules.Timeout;
 import org.sonar.application.FileSystem;
 import org.sonar.application.Scheduler;
 import org.sonar.application.config.AppSettings;
-import org.sonar.process.ProcessCommands;
+import org.sonar.process.sharedmemoryfile.ProcessCommands;
 import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -21,7 +21,7 @@ package org.sonar.server.app;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
-import org.sonar.process.DefaultProcessCommands;
+import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;

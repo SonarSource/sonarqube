@@ -35,7 +35,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.process.DefaultProcessCommands;
+import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
