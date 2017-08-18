@@ -115,7 +115,7 @@ enum RuleType {
 }
 
 enum BranchType {
-  // Zero is required in order to not get MAINTAINABILITY as default value
+  // Zero is required in order to not get LONG as default value
   // See http://androiddevblog.com/protocol-buffers-pitfall-adding-enum-values/
   UNKNOWN_BRANCH_TYPE = 0;
 
