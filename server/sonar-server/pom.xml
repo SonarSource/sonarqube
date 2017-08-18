@@ -85,11 +85,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-process</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.sonarsource.update-center</groupId>
       <artifactId>sonar-update-center-common</artifactId>
     </dependency>
