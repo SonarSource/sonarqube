@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.source;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;

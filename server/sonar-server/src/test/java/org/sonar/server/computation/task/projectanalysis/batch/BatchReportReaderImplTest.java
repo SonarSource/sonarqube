@@ -32,7 +32,6 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 public class BatchReportReaderImplTest {
   private static final int COMPONENT_REF = 1;
@@ -275,7 +274,7 @@ public class BatchReportReaderImplTest {
 
   @Test
   public void readFileSource_returns_absent_optional_when_file_does_not_exist() {
-    assertThat(underTest.readFileSource(COMPONENT_REF)).isAbsent();
+    assertThat(underTest.readFileSource(COMPONENT_REF)).isEmpty();
   }
 
   @Test
