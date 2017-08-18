@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.process.command.JavaCommand;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 import org.sonar.process.ProcessId;
 

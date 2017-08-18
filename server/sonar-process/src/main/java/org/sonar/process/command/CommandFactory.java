@@ -17,28 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.process;
+package org.sonar.process.command;
 
-import java.io.Closeable;
-import org.sonar.process.command.EsCommand;
-import org.sonar.process.command.JavaCommand;
+public interface CommandFactory {
 
-public interface ProcessLauncher extends Closeable {
+  EsCommand createEsCommand();
 
-  @Override
-  void close();
+  JavaCommand createWebCommand(boolean leader);
 
-  /**
-   * Launch an ES command.
-   *
-   * @throws IllegalStateException if an error occurs
-   */
-  ProcessMonitor launch(EsCommand esCommand);
+  JavaCommand createCeCommand();
 
-  /**
-   * Launch a Java command.
-   * 
-   * @throws IllegalStateException if an error occurs
-   */
-  ProcessMonitor launch(JavaCommand javaCommand);
 }
