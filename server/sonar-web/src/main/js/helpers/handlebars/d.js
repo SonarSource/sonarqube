@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const moment = require('moment');
-
 module.exports = function(date) {
-  return moment(date).format('LL');
+  return new Intl.DateTimeFormat(localStorage.getItem('l10n.locale') || 'en', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(new Date(date));
 };

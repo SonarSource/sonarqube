@@ -35,14 +35,13 @@ exports[`should display the leak measures and quality gate 1`] = `
     <div
       className="project-card-dates note text-right pull-right"
     >
-      <span
-        className="project-card-leak-date pull-right"
-      >
-        projects.leak_period_x.a month ago
-      </span>
-      <span>
-        projects.last_analysis_on_x.March 1, 2017 9:36 AM
-      </span>
+      <FormattedRelative
+        updateInterval={10000}
+        value="2016-12-01"
+      />
+      <DateTimeFormatter
+        date="2017-01-01"
+      />
     </div>
   </div>
   <div

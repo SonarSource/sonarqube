@@ -9,7 +9,7 @@ exports[`should render a version correctly 1`] = `
 `;
 
 exports[`should render an event correctly 1`] = `
-<div
+<span
   className="overview-analysis-event"
 >
   <span
@@ -19,12 +19,8 @@ exports[`should render an event correctly 1`] = `
     :
   </span>
    
-  <Tooltip
-    placement="left"
-  >
-    <strong>
-      test
-    </strong>
-  </Tooltip>
-</div>
+  <strong>
+    test
+  </strong>
+</span>
 `;

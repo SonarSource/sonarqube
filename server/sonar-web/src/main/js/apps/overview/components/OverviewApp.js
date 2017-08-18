@@ -20,7 +20,6 @@
 // @flow
 import React from 'react';
 import { uniq } from 'lodash';
-import moment from 'moment';
 import QualityGate from '../qualityGate/QualityGate';
 import ApplicationQualityGate from '../qualityGate/ApplicationQualityGate';
 import BugsAndVulnerabilities from '../main/BugsAndVulnerabilities';
@@ -124,7 +123,7 @@ export default class OverviewApp extends React.PureComponent {
         const history /*: History */ = {};
         r.measures.forEach(measure => {
           const measureHistory = measure.history.map(analysis => ({
-            date: moment(analysis.date).toDate(),
+            date: new Date(analysis.date),
             value: analysis.value
           }));
           history[measure.metric] = measureHistory;

@@ -17,37 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import GlobalLoading from './GlobalLoading';
-import { requestMessages } from '../../helpers/l10n';
+import * as React from 'react';
+import TimeFormatter from './TimeFormatter';
+import Tooltip from '../controls/Tooltip';
 
-export default class LocalizationContainer extends React.PureComponent {
-  /*:: mounted: boolean; */
+interface Props {
+  className?: string;
+  date: Date | string | number;
+  placement?: string;
+}
 
-  state = {
-    loading: true
-  };
-
-  componentDidMount() {
-    this.mounted = true;
-    requestMessages().then(this.finishLoading, this.finishLoading);
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  finishLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
-  };
-
-  render() {
-    if (this.state.loading) {
-      return <GlobalLoading />;
-    }
-    return this.props.children;
-  }
+export default function TimeTooltipFormatter({ className, date, placement }: Props) {
+  return (
+    <TimeFormatter date={date} long={false}>
+      {formattedTime =>
+        <Tooltip
+          overlay={<TimeFormatter date={date} long={true} />}
+          placement={placement}
+          mouseEnterDelay={0.5}>
+          <time className={className} dateTime={new Date(date as Date).toISOString()}>
+            {formattedTime}
+          </time>
+        </Tooltip>}
+    </TimeFormatter>
+  );
 }

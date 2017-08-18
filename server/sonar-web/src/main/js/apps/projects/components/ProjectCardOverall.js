@@ -20,8 +20,8 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import moment from 'moment';
 import { Link } from 'react-router';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardOverallMeasures from './ProjectCardOverallMeasures';
 import FavoriteContainer from '../../../components/controls/FavoriteContainer';
@@ -87,12 +87,12 @@ export default function ProjectCardOverall({ measures, organization, project } /
         </div>
         {isProjectAnalyzed &&
           <div className="project-card-dates note text-right">
-            <span className="big-spacer-left">
-              {translateWithParameters(
-                'projects.last_analysis_on_x',
-                moment(project.analysisDate).format('LLL')
-              )}
-            </span>
+            <DateTimeFormatter date={project.analysisDate}>
+              {formattedDate =>
+                <span className="big-spacer-left">
+                  {translateWithParameters('projects.last_analysis_on_x', formattedDate)}
+                </span>}
+            </DateTimeFormatter>
           </div>}
       </div>
 

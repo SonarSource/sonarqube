@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ShallowWrapper } from 'enzyme';
+import { shallow, ShallowWrapper } from 'enzyme';
+import { IntlProvider } from 'react-intl';
 
 export const mockEvent = {
   target: { blur() {} },
@@ -68,4 +69,10 @@ export function doAsync(fn: Function): Promise<void> {
       resolve();
     }, 0);
   });
+}
+
+const intlProvider = new IntlProvider({ locale: 'en' }, {});
+const { intl } = intlProvider.getChildContext();
+export function shallowWithIntl(node, options = {}) {
+  return shallow(node, { ...options, context: { intl, ...options.context } });
 }

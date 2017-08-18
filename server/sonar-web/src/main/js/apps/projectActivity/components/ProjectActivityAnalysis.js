@@ -23,7 +23,7 @@ import classNames from 'classnames';
 import Events from './Events';
 import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
-import FormattedDate from '../../../components/ui/FormattedDate';
+import TimeTooltipFormatter from '../../../components/intl/TimeTooltipFormatter';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Analysis } from '../types'; */
 
@@ -65,7 +65,7 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
         role="listitem"
         tabIndex="0">
         <div className="project-activity-time spacer-right">
-          <FormattedDate className="text-middle" date={date} format="LT" tooltipFormat="LTS" />
+          <TimeTooltipFormatter className="text-middle" date={date} placement="right" />
         </div>
         <div className="project-activity-analysis-icon big-spacer-right" title={analysisTitle} />
 

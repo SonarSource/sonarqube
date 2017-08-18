@@ -21,8 +21,6 @@ import { shallow } from 'enzyme';
 import React from 'react';
 import ChangelogPopup from '../ChangelogPopup';
 
-jest.mock('moment', () => () => ({ format: () => 'March 1, 2017 9:36 AM' }));
-
 it('should render the changelog popup correctly', () => {
   const element = shallow(
     <ChangelogPopup

@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import $ from 'jquery';
-import moment from 'moment';
 import React, { Component } from 'react';
-import { DATE_FORMAT } from '../constants';
+import { toShortNotSoISOString, isValidDate } from '../../../helpers/dates';
 
 export default class DateFilter extends Component {
   componentDidMount() {
@@ -47,17 +45,15 @@ export default class DateFilter extends Component {
 
   handleChange() {
     const date = {};
-    const minDateRaw = this.refs.minDate.value;
-    const maxDateRaw = this.refs.maxDate.value;
-    const minDate = moment(minDateRaw, DATE_FORMAT, true);
-    const maxDate = moment(maxDateRaw, DATE_FORMAT, true);
+    const minDate = new Date(this.refs.minDate.value);
+    const maxDate = new Date(this.refs.maxDate.value);
 
-    if (minDate.isValid()) {
-      date.minSubmittedAt = minDate.format(DATE_FORMAT);
+    if (isValidDate(minDate)) {
+      date.minSubmittedAt = toShortNotSoISOString(minDate);
     }
 
-    if (maxDate.isValid()) {
-      date.maxExecutedAt = maxDate.format(DATE_FORMAT);
+    if (isValidDate(maxDate)) {
+      date.maxExecutedAt = toShortNotSoISOString(maxDate);
     }
 
     this.props.onChange(date);

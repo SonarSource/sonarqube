@@ -19,9 +19,11 @@
  */
 // @flow
 import React from 'react';
-import moment from 'moment';
+import { FormattedRelative } from 'react-intl';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import ChangelogPopup from '../popups/ChangelogPopup';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
+import Tooltip from '../../../components/controls/Tooltip';
 /*:: import type { Issue } from '../types'; */
 
 /*::
@@ -47,22 +49,25 @@ export default class IssueChangelog extends React.PureComponent {
   };
 
   render() {
-    const momentCreationDate = moment(this.props.creationDate);
     return (
       <BubblePopupHelper
         isOpen={this.props.isOpen}
         position="bottomright"
         togglePopup={this.toggleChangelog}
         popup={<ChangelogPopup issue={this.props.issue} onFail={this.props.onFail} />}>
-        <button
-          className="button-link issue-action issue-action-with-options js-issue-show-changelog"
-          title={momentCreationDate.format('LLL')}
-          onClick={this.handleClick}>
-          <span className="issue-meta-label">
-            {momentCreationDate.fromNow()}
-          </span>
-          <i className="icon-dropdown little-spacer-left" />
-        </button>
+        <Tooltip
+          overlay={<DateTimeFormatter date={this.props.creationDate} />}
+          placement="left"
+          mouseEnterDelay={0.5}>
+          <button
+            className="button-link issue-action issue-action-with-options js-issue-show-changelog"
+            onClick={this.handleClick}>
+            <span className="issue-meta-label">
+              <FormattedRelative value={this.props.creationDate} />
+            </span>
+            <i className="icon-dropdown little-spacer-left" />
+          </button>
+        </Tooltip>
       </BubblePopupHelper>
     );
   }

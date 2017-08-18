@@ -17,28 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import moment from 'moment';
-import React from 'react';
+import * as React from 'react';
+import { DateSource, FormattedDate } from 'react-intl';
 
-const TaskDate = (
-  { date, baseDate, format } /*: {
-  date: string,
-  baseDate: string,
-  format: string
-} */
-) => {
-  const m = moment(date);
-  const baseM = moment(baseDate);
-  const diff = date && baseDate ? m.diff(baseM, 'days') : 0;
+interface Props {
+  children?: (formattedDate: string) => React.ReactNode;
+  date: DateSource;
+  long?: boolean;
+}
 
+export const formatterOption = { year: 'numeric', month: '2-digit', day: '2-digit' };
+
+export const longFormatterOption = { year: 'numeric', month: 'long', day: 'numeric' };
+
+export default function DateFormatter({ children, date, long }: Props) {
   return (
-    <td className="thin nowrap text-right">
-      {diff > 0 && <span className="text-warning little-spacer-right">{`(+${diff}d)`}</span>}
-
-      {date ? moment(date).format(format) : ''}
-    </td>
+    <FormattedDate
+      children={children}
+      value={date}
+      {...(long ? longFormatterOption : formatterOption)}
+    />
   );
-};
-
-export default TaskDate;
+}

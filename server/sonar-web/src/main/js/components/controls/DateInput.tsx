@@ -45,7 +45,7 @@ export default class DateInput extends React.PureComponent<Props> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.value != null) {
+    if (nextProps.value != null && this.input) {
       this.input.value = nextProps.value;
     }
   }
@@ -63,8 +63,8 @@ export default class DateInput extends React.PureComponent<Props> {
       onSelect: this.handleChange.bind(this)
     };
 
-    if ($.fn && ($.fn as any).datepicker) {
-      ($(this.refs.input) as any).datepicker(opts);
+    if ($.fn && ($.fn as any).datepicker && this.input) {
+      ($(this.input) as any).datepicker(opts);
     }
   }
 

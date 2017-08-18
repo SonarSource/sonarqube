@@ -20,10 +20,9 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import moment from 'moment';
 import { throttle } from 'lodash';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
-import FormattedDate from '../../../components/ui/FormattedDate';
+import DateFormatter from '../../../components/intl/DateFormatter';
 import { translate } from '../../../helpers/l10n';
 import {
   activityQueryChanged,
@@ -191,12 +190,9 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
                 </div>}
               <ul className="project-activity-days-list">
                 {days.map(day =>
-                  <li
-                    key={day}
-                    className="project-activity-day"
-                    data-day={moment(Number(day)).format('YYYY-MM-DD')}>
+                  <li key={day} className="project-activity-day">
                     <div className="project-activity-date">
-                      <FormattedDate date={Number(day)} format="LL" />
+                      <DateFormatter date={Number(day)} long={true} />
                     </div>
                     <ul className="project-activity-analyses-list">
                       {version.byDay[day] != null &&

@@ -48,9 +48,9 @@ export default class Task extends React.PureComponent {
         <TaskComponent task={task} />
         <TaskId task={task} />
         <TaskDay task={task} prevTask={prevTask} />
-        <TaskDate date={task.submittedAt} baseDate={task.submittedAt} format="LTS" />
-        <TaskDate date={task.startedAt} baseDate={task.submittedAt} format="LTS" />
-        <TaskDate date={task.executedAt} baseDate={task.submittedAt} format="LTS" />
+        <TaskDate date={task.submittedAt} baseDate={task.submittedAt} />
+        <TaskDate date={task.startedAt} baseDate={task.submittedAt} />
+        <TaskDate date={task.executedAt} baseDate={task.submittedAt} />
         <TaskExecutionTime task={task} />
         <TaskActions
           component={component}

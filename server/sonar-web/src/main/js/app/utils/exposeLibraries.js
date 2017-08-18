@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import moment from 'moment';
 import * as ReactRedux from 'react-redux';
 import * as ReactRouter from 'react-router';
 import Select from 'react-select';
@@ -35,7 +34,6 @@ import DuplicationsRating from '../../components/ui/DuplicationsRating';
 import Level from '../../components/ui/Level';
 
 const exposeLibraries = () => {
-  window.moment = moment;
   window.ReactRedux = ReactRedux;
   window.ReactRouter = ReactRouter;
   window.SonarIcons = icons;

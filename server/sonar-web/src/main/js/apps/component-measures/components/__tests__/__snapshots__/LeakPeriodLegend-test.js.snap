@@ -2,7 +2,19 @@
 
 exports[`should render correctly 1`] = `
 <Tooltip
-  overlay="a month ago, March 1, 2017 9:36 AM"
+  overlay={
+    <div>
+      <FormattedRelative
+        updateInterval={10000}
+        value={2017-05-16T11:50:02.000Z}
+      />
+      , 
+      <DateFormatter
+        date={2017-05-16T11:50:02.000Z}
+        long={true}
+      />
+    </div>
+  }
   placement="left"
 >
   <div

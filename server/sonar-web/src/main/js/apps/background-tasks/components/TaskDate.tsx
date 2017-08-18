@@ -17,19 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { shallow } from 'enzyme';
-import ComponentNavMeta from '../ComponentNavMeta';
+import * as React from 'react';
+import TimeFormatter from '../../../components/intl/TimeFormatter';
+import { differenceInDays, isValidDate } from '../../../helpers/dates';
 
-it('renders incremental badge', () => {
-  check(true);
-  check(false);
+interface Props {
+  date: string;
+  baseDate: string;
+}
 
-  function check(incremental) {
-    expect(
-      shallow(
-        <ComponentNavMeta component={{ key: 'foo' }} conf={{}} incremental={incremental} />
-      ).find('IncrementalBadge')
-    ).toHaveLength(incremental ? 1 : 0);
-  }
-});
+export default function TaskDate({ date, baseDate }: Props) {
+  const parsedDate = new Date(date);
+  const parsedBaseDate = new Date(baseDate);
+  const diff =
+    date && baseDate && isValidDate(parsedDate) && isValidDate(parsedBaseDate)
+      ? differenceInDays(parsedDate, parsedBaseDate)
+      : 0;
+
+  return (
+    <td className="thin nowrap text-right">
+      {diff > 0 && <span className="text-warning little-spacer-right">{`(+${diff}d)`}</span>}
+
+      {date && isValidDate(parsedDate) ? <TimeFormatter date={parsedDate} long={true} /> : ''}
+    </td>
+  );
+}

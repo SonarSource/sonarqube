@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const moment = require('moment');
+const IntlRelativeFormat = require('intl-relativeformat');
 
 module.exports = function(date) {
-  return moment(date).fromNow();
+  return new IntlRelativeFormat(localStorage.getItem('l10n.locale') || 'en').format(date);
 };

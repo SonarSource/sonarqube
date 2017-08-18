@@ -19,11 +19,11 @@
  */
 // @flow
 import React from 'react';
-import moment from 'moment';
 import { getIssueChangelog } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
 import Avatar from '../../../components/ui/Avatar';
 import BubblePopup from '../../../components/common/BubblePopup';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import IssueChangelogDiff from '../components/IssueChangelogDiff';
 /*:: import type { ChangelogDiff } from '../components/IssueChangelogDiff'; */
 /*:: import type { Issue } from '../types'; */
@@ -86,7 +86,7 @@ export default class ChangelogPopup extends React.PureComponent {
             <tbody>
               <tr>
                 <td className="thin text-left text-top nowrap">
-                  {moment(issue.creationDate).format('LLL')}
+                  <DateTimeFormatter date={issue.creationDate} />
                 </td>
                 <td className="text-left text-top">
                   {author ? `${translate('created_by')} ${author}` : translate('created')}
@@ -96,7 +96,7 @@ export default class ChangelogPopup extends React.PureComponent {
               {this.state.changelogs.map((item, idx) =>
                 <tr key={idx}>
                   <td className="thin text-left text-top nowrap">
-                    {moment(item.creationDate).format('LLL')}
+                    <DateTimeFormatter date={item.creationDate} />
                   </td>
                   <td className="text-left text-top">
                     {item.userName &&

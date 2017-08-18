@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import moment from 'moment';
 import React from 'react';
 import { Link } from 'react-router';
+import { FormattedRelative } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import enhance from './enhance';
 import { getMetricName } from '../helpers/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -43,9 +44,14 @@ class CodeSmells extends React.PureComponent {
       Object.assign(params, { sinceLeakPeriod: 'true' });
     }
 
-    const formattedAnalysisDate = moment(component.analysisDate).format('LLL');
-    const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate);
-
+    const tooltip = (
+      <DateTimeFormatter date={component.analysisDate}>
+        {formattedAnalysisDate =>
+          <span>
+            {translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate)}
+          </span>}
+      </DateTimeFormatter>
+    );
     return (
       <Tooltip overlay={tooltip} placement="top">
         <Link to={getComponentIssuesUrl(component.key, params)}>
@@ -56,12 +62,16 @@ class CodeSmells extends React.PureComponent {
   }
 
   renderTimelineStartDate() {
-    const momentDate = moment(this.props.historyStartDate);
-    const fromNow = momentDate.fromNow();
+    if (!this.props.historyStartDate) {
+      return null;
+    }
     return (
-      <span className="overview-domain-timeline-date">
-        {translateWithParameters('overview.started_x', fromNow)}
-      </span>
+      <FormattedRelative value={this.props.historyStartDate}>
+        {fromNow =>
+          <span className="overview-domain-timeline-date">
+            {translateWithParameters('overview.started_x', fromNow)}
+          </span>}
+      </FormattedRelative>
     );
   }
 

@@ -18,23 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedRelative } from 'react-intl';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
+import DateFormatter from '../../../components/intl/DateFormatter';
+import { isSameDay } from '../../../helpers/dates';
+import { ITask } from '../types';
 
 interface Props {
-  date?: string;
+  task: ITask;
+  prevTask?: ITask;
 }
 
-export default function ProfileDate({ date }: Props) {
-  return date
-    ? <Tooltip overlay={<DateTimeFormatter date={date} />}>
-        <span>
-          <FormattedRelative value={date} />
-        </span>
-      </Tooltip>
-    : <span>
-        {translate('never')}
-      </span>;
+export default function TaskDay({ task, prevTask }: Props) {
+  const shouldDisplay =
+    !prevTask || !isSameDay(new Date(task.submittedAt), new Date(prevTask.submittedAt));
+
+  return (
+    <td className="thin nowrap text-right">
+      {shouldDisplay ? <DateFormatter date={task.submittedAt} long={true} /> : ''}
+    </td>
+  );
 }

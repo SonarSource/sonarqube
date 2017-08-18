@@ -9,33 +9,15 @@ exports[`check note 10 days 1`] = `
 `;
 
 exports[`check note date 1`] = `
-<span
-  className="note"
->
-  overview.last_analysis_x.4 years ago
-</span>
-`;
-
-exports[`check note previous_analysis 1`] = `
-<span
-  className="note"
->
-  overview.started_x.4 years ago
-</span>
-`;
-
-exports[`check note previous_version 1`] = `
-<span
-  className="note"
->
-  overview.started_x.4 years ago
-</span>
+<FormattedRelative
+  updateInterval={10000}
+  value={2013-09-21T22:00:00.000Z}
+/>
 `;
 
 exports[`check note version 1`] = `
-<span
-  className="note"
->
-  overview.started_x.4 years ago
-</span>
+<FormattedRelative
+  updateInterval={10000}
+  value={2013-09-21T22:00:00.000Z}
+/>
 `;

@@ -17,9 +17,9 @@ exports[`should render correctly 1`] = `
     <div
       className="overview-analysis-graph-tooltip-title"
     >
-      <FormattedDate
+      <DateFormatter
         date={2011-10-25T10:27:41.000Z}
-        format="LL"
+        long={true}
       />
     </div>
     <table

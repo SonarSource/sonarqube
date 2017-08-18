@@ -17,9 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/*::
-export type Task = {
-  incremental: boolean,
-  id: string
-};
-*/
+import * as React from 'react';
+import { DateSource, FormattedTime } from 'react-intl';
+
+interface Props {
+  children?: (formattedDate: string) => React.ReactNode;
+  date: DateSource;
+  long?: boolean;
+}
+
+export const formatterOption = { hour: 'numeric', minute: 'numeric' };
+
+export const longFormatterOption = { hour: 'numeric', minute: 'numeric', second: 'numeric' };
+
+export default function TimeFormatter({ children, date, long }: Props) {
+  return (
+    <FormattedTime
+      children={children}
+      value={date}
+      {...(long ? longFormatterOption : formatterOption)}
+    />
+  );
+}

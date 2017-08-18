@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import moment from 'moment';
 import { chunk, flatMap, groupBy, isEqual, sortBy } from 'lodash';
 import {
   cleanQuery,
@@ -29,6 +28,7 @@ import {
   serializeDate,
   serializeString
 } from '../../helpers/query';
+import { startOfDay } from '../../helpers/dates';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 /*:: import type { Analysis, MeasureHistory, Metric, Query } from './types'; */
 /*:: import type { RawQuery } from '../../helpers/query'; */
@@ -157,7 +157,7 @@ export function getAnalysesByVersionByDay(analyses /*: Array<Analysis> */, query
       acc.push(currentVersion);
     }
 
-    const day = moment(analysis.date).startOf('day').valueOf().toString();
+    const day = startOfDay(new Date(analysis.date)).getTime().toString();
 
     let matchFilters = true;
     if (query.category || query.from || query.to) {

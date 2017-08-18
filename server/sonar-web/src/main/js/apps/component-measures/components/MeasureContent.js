@@ -20,7 +20,6 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import moment from 'moment';
 import Breadcrumbs from './Breadcrumbs';
 import FilesView from '../drilldown/FilesView';
 import MeasureFavoriteContainer from './MeasureFavoriteContainer';
@@ -217,15 +216,13 @@ export default class MeasureContent extends React.PureComponent {
   renderCode() {
     const { component, leakPeriod } = this.props;
     const leakPeriodDate =
-      isDiffMetric(this.props.metric.key) && leakPeriod != null
-        ? moment(leakPeriod.date).toDate()
-        : null;
+      isDiffMetric(this.props.metric.key) && leakPeriod != null ? new Date(leakPeriod.date) : null;
 
     let filterLine;
     if (leakPeriodDate != null) {
       filterLine = line => {
         if (line.scmDate) {
-          const scmDate = moment(line.scmDate).toDate();
+          const scmDate = new Date(line.scmDate);
           return scmDate >= leakPeriodDate;
         } else {
           return false;

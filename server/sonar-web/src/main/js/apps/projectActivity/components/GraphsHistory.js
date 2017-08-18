@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import moment from 'moment';
 import { isEqual, sortBy } from 'lodash';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import GraphHistory from './GraphHistory';
@@ -87,7 +86,7 @@ export default class GraphsHistory extends React.PureComponent {
       return acc.concat({
         className: event.category,
         name: event.name,
-        date: moment(analysis.date).toDate()
+        date: new Date(analysis.date)
       });
     }, []);
     return sortBy(filteredEvents, 'date');

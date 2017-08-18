@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import * as moment from 'moment';
 import ChangesList from './ChangesList';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
+import { differenceInSeconds } from '../../../helpers/dates';
 import { ProfileChangelogEvent } from '../types';
 
 interface Props {
@@ -35,7 +36,8 @@ export default function Changelog(props: Props) {
 
   const rows = props.events.map((event, index) => {
     const prev = index > 0 ? props.events[index - 1] : null;
-    const isSameDate = prev != null && moment(prev.date).diff(event.date, 'seconds') < 10;
+    const isSameDate =
+      prev != null && differenceInSeconds(new Date(prev.date), new Date(event.date)) < 10;
     const isBulkChange =
       prev != null &&
       isSameDate &&
@@ -51,7 +53,7 @@ export default function Changelog(props: Props) {
     return (
       <tr key={index} className={className}>
         <td className="thin nowrap">
-          {!isBulkChange && moment(event.date).format('LLL')}
+          {!isBulkChange && <DateTimeFormatter date={event.date} />}
         </td>
 
         <td className="thin nowrap">

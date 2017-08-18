@@ -35,15 +35,11 @@ const MEASURES = {
   new_bugs: 12
 };
 
-jest.mock('moment', () => () => ({
-  format: () => 'March 1, 2017 9:36 AM',
-  fromNow: () => 'a month ago'
-}));
-
 it('should display analysis date and leak start date', () => {
   const card = shallow(<ProjectCardLeak type="leak" measures={MEASURES} project={PROJECT} />);
   expect(card.find('.project-card-dates').exists()).toBeTruthy();
-  expect(card.find('.project-card-dates').find('span').getNodes()).toHaveLength(2);
+  expect(card.find('.project-card-dates').find('FormattedRelative').getNodes()).toHaveLength(1);
+  expect(card.find('.project-card-dates').find('DateTimeFormatter').getNodes()).toHaveLength(1);
 });
 
 it('should not display analysis date or leak start date', () => {

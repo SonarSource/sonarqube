@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import BubblePopup from '../../../components/common/BubblePopup';
-import FormattedDate from '../../../components/ui/FormattedDate';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import GraphsTooltipsContent from './GraphsTooltipsContent';
 import GraphsTooltipsContentEvents from './GraphsTooltipsContentEvents';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
@@ -98,7 +98,7 @@ export default class GraphsTooltips extends React.PureComponent {
       <BubblePopup customClass={customClass} position={{ top, left, width: TOOLTIP_WIDTH }}>
         <div className="project-activity-graph-tooltip">
           <div className="project-activity-graph-tooltip-title spacer-bottom">
-            <FormattedDate date={this.props.selectedDate} format="LL" />
+            <DateTimeFormatter date={this.props.selectedDate} />
           </div>
           <table className="width-100">
             <tbody>
