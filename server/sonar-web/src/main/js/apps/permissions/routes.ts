@@ -21,7 +21,7 @@ import { RouterState, IndexRouteProps } from 'react-router';
 
 export const globalPermissionsRoutes = [
   {
-    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
       Promise.all([
         import('./global/components/App').then(i => i.default),
         import('../organizations/forSingleOrganization').then(i => i.default)
@@ -34,7 +34,7 @@ export const globalPermissionsRoutes = [
 
 export const projectPermissionsRoutes = [
   {
-    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
       import('./project/components/AppContainer').then(i =>
         callback(null, { component: i.default })
       );

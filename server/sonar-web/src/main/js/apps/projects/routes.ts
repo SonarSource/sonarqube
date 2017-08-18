@@ -27,7 +27,7 @@ const routes = [
     },
     childRoutes: [
       {
-        getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+        getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
           import('./components/DefaultPageSelector').then(i =>
             callback(null, { component: i.default })
           );

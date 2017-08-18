@@ -32,7 +32,7 @@ const routes = [
         }
       });
     },
-    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
       import('./home/HomeContainer').then(i => callback(null, { component: i.default }));
     },
     childRoutes: [

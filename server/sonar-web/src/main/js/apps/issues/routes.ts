@@ -22,7 +22,7 @@ import { onEnter } from './redirects';
 
 const routes = [
   {
-    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
       import('./components/AppContainer').then(i =>
         callback(null, { component: i.default, onEnter })
       );

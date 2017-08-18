@@ -21,7 +21,7 @@ import { RouterState, RouteComponent, IndexRouteProps } from 'react-router';
 
 const routes = [
   {
-    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
       import('./components/UpdateCenterAppContainer').then(i =>
         callback(null, { component: i.default })
       );

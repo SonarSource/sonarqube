@@ -21,7 +21,7 @@ import { RouterState, IndexRouteProps } from 'react-router';
 
 const routes = [
   {
-    getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
       Promise.all([
         import('./AppContainer').then(i => i.default),
         import('../organizations/forSingleOrganization').then(i => i.default)
