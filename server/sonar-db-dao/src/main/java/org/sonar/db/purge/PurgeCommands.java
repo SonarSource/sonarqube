@@ -55,7 +55,7 @@ class PurgeCommands {
   List<IdUuidPair> selectSnapshotIdUuids(PurgeSnapshotQuery query) {
     return purgeMapper.selectAnalysisIdsAndUuids(query);
   }
-
+  
   void deleteAnalyses(String rootUuid) {
     profiler.start("deleteAnalyses (events)");
     purgeMapper.deleteEventsByComponentUuid(rootUuid);
