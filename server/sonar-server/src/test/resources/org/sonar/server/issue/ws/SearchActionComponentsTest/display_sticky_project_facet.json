@@ -1,18 +1,4 @@
 {
-  "issues": [
-    {
-      "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "component": "FK1",
-      "project": "PK1",
-      "rule": "xoo:x1"
-    }
-  ],
-  "components": [
-    { "key": "PK1" },
-    { "key": "PK2" },
-    { "key": "PK3" },
-    { "key": "FK1" }
-  ],
   "facets": [
     {
       "property": "projectUuids",
