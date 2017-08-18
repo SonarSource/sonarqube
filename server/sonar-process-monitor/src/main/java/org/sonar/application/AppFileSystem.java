@@ -32,7 +32,7 @@ import java.util.EnumSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.config.AppSettings;
-import org.sonar.process.AllProcessesCommands;
+import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 
 import static java.lang.String.format;
 import static java.nio.file.FileVisitResult.CONTINUE;

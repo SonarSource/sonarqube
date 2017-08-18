@@ -20,6 +20,7 @@
 package org.sonar.process;
 
 import org.slf4j.LoggerFactory;
+import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 /**
  * This watchdog asks for graceful termination of process when the file

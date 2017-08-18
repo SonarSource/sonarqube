@@ -22,8 +22,8 @@ package org.sonar.application.process;
 import org.sonar.application.FileSystem;
 import org.sonar.application.Scheduler;
 import org.sonar.application.config.AppSettings;
-import org.sonar.process.DefaultProcessCommands;
-import org.sonar.process.ProcessCommands;
+import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
+import org.sonar.process.sharedmemoryfile.ProcessCommands;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 

@@ -28,7 +28,7 @@ import okhttp3.RequestBody;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.process.DefaultProcessCommands;
+import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static java.util.Objects.requireNonNull;
