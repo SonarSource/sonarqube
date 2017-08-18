@@ -17,10 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { post } from '../helpers/request';
+import { getJSON } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
-export function toggleIssueFilter(id) {
-  const url = '/issues/toggle_fav';
-  const data = { id };
-  return post(url, data);
+export interface IApplicationLeak {
+  date: string;
+  project: string;
+  projectName: string;
+}
+
+export function getApplicationLeak(application: string): Promise<Array<IApplicationLeak>> {
+  return getJSON('/api/views/show_leak', { application }).then(r => r.leaks, throwGlobalError);
 }

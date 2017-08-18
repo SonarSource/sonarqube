@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
+import { post } from '../helpers/request';
 
-export function getLanguages() {
-  const url = '/api/languages/list';
-  return getJSON(url).then(r => r.languages);
+export function toggleIssueFilter(id: string): Promise<void> {
+  return post('/issues/toggle_fav', { id });
 }

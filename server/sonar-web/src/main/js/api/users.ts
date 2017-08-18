@@ -17,53 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import { getJSON, post } from '../helpers/request';
+import { getJSON, post, RequestData } from '../helpers/request';
 
-export function getCurrentUser() {
-  const url = '/api/users/current';
-  return getJSON(url);
+export function getCurrentUser(): Promise<any> {
+  return getJSON('/api/users/current');
 }
 
 export function changePassword(
-  login /*: string */,
-  password /*: string */,
-  previousPassword /*: ?string */
-) {
-  const url = '/api/users/change_password';
-  const data /*: { login: string, password: string, previousPassword?: string } */ = {
-    login,
-    password
-  };
+  login: string,
+  password: string,
+  previousPassword?: string
+): Promise<void> {
+  const data: RequestData = { login, password };
   if (previousPassword != null) {
     data.previousPassword = previousPassword;
   }
-  return post(url, data);
+  return post('/api/users/change_password', data);
 }
 
-export function getUserGroups(login /*: string */, organization /*: ?string */) {
-  const url = '/api/users/groups';
-  const data /*: { login: string, organization?: string, q?: string } */ = { login };
+export function getUserGroups(login: string, organization?: string): Promise<any> {
+  const data: RequestData = { login };
   if (organization) {
     data.organization = organization;
   }
-  return getJSON(url, data);
+  return getJSON('/api/users/groups', data);
 }
 
-export function getIdentityProviders() {
-  const url = '/api/users/identity_providers';
-  return getJSON(url);
+export function getIdentityProviders(): Promise<any> {
+  return getJSON('/api/users/identity_providers');
 }
 
-export function searchUsers(query /*: string */, pageSize /*: ?number */) {
-  const url = '/api/users/search';
-  const data /*: { q: string, ps?: number } */ = { q: query };
+export function searchUsers(query: string, pageSize?: number): Promise<any> {
+  const data: RequestData = { q: query };
   if (pageSize != null) {
     data.ps = pageSize;
   }
-  return getJSON(url, data);
+  return getJSON('/api/users/search', data);
 }
 
-export function skipOnboarding() /*: Promise<void> */ {
+export function skipOnboarding(): Promise<void> {
   return post('/api/users/skip_onboarding_tutorial');
 }

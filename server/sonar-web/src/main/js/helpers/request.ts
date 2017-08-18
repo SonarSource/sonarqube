@@ -17,23 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { stringify } from 'querystring';
 import { omitBy, isNil } from 'lodash';
 import { getCookie } from './cookies';
 
-/*::
-type Response = {
-  json: () => Promise<Object>,
-  status: number
-};
-*/
-
-export function getCSRFTokenName() /*: string */ {
+export function getCSRFTokenName(): string {
   return 'X-XSRF-TOKEN';
 }
 
-export function getCSRFTokenValue() /*: string */ {
+export function getCSRFTokenValue(): string {
   const cookieName = 'XSRF-TOKEN';
   const cookieValue = getCookie(cookieName);
   if (!cookieValue) {
@@ -44,59 +36,53 @@ export function getCSRFTokenValue() /*: string */ {
 
 /**
  * Return an object containing a special http request header used to prevent CSRF attacks.
- * @returns {Object}
  */
-export function getCSRFToken() /*: Object */ {
+export function getCSRFToken(): { [x: string]: string } {
   // Fetch API in Edge doesn't work with empty header,
   // so we ensure non-empty value
   const value = getCSRFTokenValue();
   return value ? { [getCSRFTokenName()]: value } : {};
 }
 
-export function omitNil(obj /*: Object */) /*: Object */ {
+export function omitNil(obj: { [x: string]: any }): { [x: string]: any } {
   return omitBy(obj, isNil);
 }
 
 /**
  * Default options for any request
  */
-const DEFAULT_OPTIONS /*: {
-  credentials: string,
-  method: string
-} */ = {
-  method: 'GET',
-  credentials: 'same-origin'
+const DEFAULT_OPTIONS: {
+  credentials: RequestCredentials;
+  method: string;
+} = {
+  credentials: 'same-origin',
+  method: 'GET'
 };
 
 /**
  * Default request headers
  */
-const DEFAULT_HEADERS /*: {
-  'Accept': string
-} */ = {
+const DEFAULT_HEADERS = {
   Accept: 'application/json'
 };
+
+export interface RequestData {
+  [x: string]: any;
+}
 
 /**
  * Request
  */
 class Request {
-  /*:: url: string; */
-  /*:: options: { method?: string }; */
-  /*:: headers: Object; */
-  /*:: data: ?Object; */
+  private data: RequestData;
 
-  constructor(url /*: string */) /*: void */ {
-    this.url = url;
-    this.options = {};
-    this.headers = {};
-  }
+  constructor(private url: string, private options: { method?: string } = {}) {}
 
-  submit() {
-    let url /*: string */ = this.url;
+  submit(): Promise<Response> {
+    let url = this.url;
 
-    const options = { ...DEFAULT_OPTIONS, ...this.options };
-    const customHeaders = {};
+    const options: RequestInit = { ...DEFAULT_OPTIONS, ...this.options };
+    const customHeaders: any = {};
 
     if (this.data) {
       if (this.data instanceof FormData) {
@@ -115,44 +101,36 @@ class Request {
     options.headers = {
       ...DEFAULT_HEADERS,
       ...customHeaders,
-      ...this.headers,
       ...getCSRFToken()
     };
 
-    return window.fetch(window.baseUrl + url, options);
+    return window.fetch((window as any).baseUrl + url, options);
   }
 
-  setMethod(method /*: string */) /*: Request */ {
+  setMethod(method: string): Request {
     this.options.method = method;
     return this;
   }
 
-  setData(data /*: ?Object */) /*: Request */ {
-    this.data = data;
-    return this;
-  }
-
-  setHeader(name /*: string */, value /*: string */) /*: Request */ {
-    this.headers[name] = value;
+  setData(data?: RequestData): Request {
+    if (data) {
+      this.data = data;
+    }
     return this;
   }
 }
 
 /**
  * Make a request
- * @param {string} url
- * @returns {Request}
  */
-export function request(url /*: string */) /*: Request */ {
+export function request(url: string): Request {
   return new Request(url);
 }
 
 /**
  * Check that response status is ok
- * @param response
- * @returns {*}
  */
-export function checkStatus(response /*: Response */) /*: Promise<Object> */ {
+export function checkStatus(response: Response): Promise<Response> {
   return new Promise((resolve, reject) => {
     if (response.status === 401) {
       // workaround cyclic dependencies
@@ -169,54 +147,46 @@ export function checkStatus(response /*: Response */) /*: Promise<Object> */ {
 
 /**
  * Parse response as JSON
- * @param response
- * @returns {object}
  */
-export function parseJSON(response /*: Response */) /*: Promise<Object> */ {
+export function parseJSON(response: Response): Promise<any> {
   return response.json();
 }
 
 /**
  * Shortcut to do a GET request and return response json
- * @param url
- * @param data
  */
-export function getJSON(url /*: string */, data /*: ?Object */) /*: Promise<Object> */ {
+export function getJSON(url: string, data?: RequestData): Promise<any> {
   return request(url).setData(data).submit().then(checkStatus).then(parseJSON);
 }
 
 /**
  * Shortcut to do a POST request and return response json
- * @param url
- * @param data
  */
-export function postJSON(url /*: string */, data /*: ?Object */) /*: Promise<Object> */ {
+export function postJSON(url: string, data?: RequestData): Promise<any> {
   return request(url).setMethod('POST').setData(data).submit().then(checkStatus).then(parseJSON);
 }
 
 /**
  * Shortcut to do a POST request
- * @param url
- * @param data
  */
-export function post(url /*: string */, data /*: ?Object */) /*: Promise<void> */ {
-  return request(url).setMethod('POST').setData(data).submit().then(checkStatus);
+export function post(url: string, data?: RequestData): Promise<void> {
+  return new Promise(resolve => {
+    request(url).setMethod('POST').setData(data).submit().then(checkStatus).then(() => {
+      resolve();
+    });
+  });
 }
 
 /**
  * Shortcut to do a POST request and return response json
- * @param url
- * @param data
  */
-export function requestDelete(url /*: string */, data /*: ?Object */) /*: Promise<Object> */ {
+export function requestDelete(url: string, data?: RequestData): Promise<any> {
   return request(url).setMethod('DELETE').setData(data).submit().then(checkStatus);
 }
 
 /**
  * Delay promise for testing purposes
- * @param response
- * @returns {Promise}
  */
-export function delay(response /*: * */) /*: Promise<*> */ {
+export function delay(response: any): Promise<any> {
   return new Promise(resolve => setTimeout(() => resolve(response), 1200));
 }

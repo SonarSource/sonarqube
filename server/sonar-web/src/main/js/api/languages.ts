@@ -19,18 +19,6 @@
  */
 import { getJSON } from '../helpers/request';
 
-export function getGlobalNavigation() {
-  const url = '/api/navigation/global';
-  return getJSON(url);
-}
-
-export function getComponentNavigation(componentKey) {
-  const url = '/api/navigation/component';
-  const data = { componentKey };
-  return getJSON(url, data);
-}
-
-export function getSettingsNavigation() {
-  const url = '/api/navigation/settings';
-  return getJSON(url);
+export function getLanguages(): Promise<any> {
+  return getJSON('/api/languages/list').then(r => r.languages);
 }

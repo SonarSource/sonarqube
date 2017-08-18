@@ -19,47 +19,18 @@
  */
 import { getJSON, post } from '../helpers/request';
 
-export function setLogLevel(level) {
-  const url = '/api/system/change_log_level';
-  const data = { level };
+export function getLicenses(): Promise<any> {
+  return getJSON('/api/licenses/list').then(r => r.licenses);
+}
+
+export function setLicense(key: string, value: string): Promise<void> {
+  const url = '/api/settings/set';
+  const data = { key, value };
   return post(url, data);
 }
 
-export function getSystemInfo() {
-  const url = '/api/system/info';
-  return getJSON(url);
-}
-
-export function getSystemStatus() {
-  const url = '/api/system/status';
-  return getJSON(url);
-}
-
-export function restart() {
-  const url = '/api/system/restart';
-  return post(url);
-}
-
-const POLLING_INTERVAL = 2000;
-
-function pollStatus(cb) {
-  setTimeout(() => {
-    getSystemStatus()
-      .then(r => {
-        if (r.status === 'UP') {
-          cb();
-        } else {
-          pollStatus(cb);
-        }
-      })
-      .catch(() => pollStatus(cb));
-  }, POLLING_INTERVAL);
-}
-
-function promiseStatus() {
-  return new Promise(resolve => pollStatus(resolve));
-}
-
-export function restartAndWait() {
-  return restart().then(promiseStatus);
+export function resetLicense(key: string): Promise<void> {
+  const url = '/api/settings/reset';
+  const data = { keys: key };
+  return post(url, data);
 }

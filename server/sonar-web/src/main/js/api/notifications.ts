@@ -17,46 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import { getJSON, post } from '../helpers/request';
+import { getJSON, post, RequestData } from '../helpers/request';
 
-/*::
-export type GetNotificationsResponse = {
+export interface IGetNotificationsResponse {
   notifications: Array<{
-    channel: string,
-    type: string,
-    organization?: string,
-    project?: string,
-    projectName?: string
-  }>,
-  channels: Array<string>,
-  globalTypes: Array<string>,
-  perProjectTypes: Array<string>
-};
-*/
+    channel: string;
+    type: string;
+    organization?: string;
+    project?: string;
+    projectName?: string;
+  }>;
+  channels: Array<string>;
+  globalTypes: Array<string>;
+  perProjectTypes: Array<string>;
+}
 
-export function getNotifications() /*: Promise<GetNotificationsResponse> */ {
+export function getNotifications(): Promise<IGetNotificationsResponse> {
   return getJSON('/api/notifications/list');
 }
 
-export function addNotification(
-  channel /*: string */,
-  type /*: string */,
-  project /*: ?string */
-) /*: Promise<*> */ {
-  const data /*: Object */ = { channel, type };
+export function addNotification(channel: string, type: string, project?: string): Promise<void> {
+  const data: RequestData = { channel, type };
   if (project) {
     Object.assign(data, { project });
   }
   return post('/api/notifications/add', data);
 }
 
-export function removeNotification(
-  channel /*: string */,
-  type /*: string */,
-  project /*: ?string */
-) /*: Promise<*> */ {
-  const data /*: Object */ = { channel, type };
+export function removeNotification(channel: string, type: string, project?: string): Promise<void> {
+  const data: RequestData = { channel, type };
   if (project) {
     Object.assign(data, { project });
   }

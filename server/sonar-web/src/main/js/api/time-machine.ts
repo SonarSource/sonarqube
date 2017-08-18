@@ -17,31 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { getJSON } from '../helpers/request';
 
-/*::
-type Response = {
+interface ITimeMachineResponse {
   measures: Array<{
-    metric: string,
-    history: Array<{
-      date: string,
-      value: string
-    }>
-  }>,
-  paging: {
-    pageIndex: number,
-    pageSize: number,
-    total: number
-  }
-};
-*/
+    metric: string;
+    history: Array<{ date: string; value: string }>;
+  }>;
+  paging: { pageIndex: number; pageSize: number; total: number };
+}
 
 export function getTimeMachineData(
-  component /*: string */,
-  metrics /*: Array<string> */,
-  other /*: ?{ p?: number, ps?: number, from?: string, to?: string } */
-) /*: Promise<Response> */ {
+  component: string,
+  metrics: string[],
+  other?: { p?: number; ps?: number; from?: string; to?: string }
+): Promise<ITimeMachineResponse> {
   return getJSON('/api/measures/search_history', {
     component,
     metrics: metrics.join(),
@@ -51,11 +41,11 @@ export function getTimeMachineData(
 }
 
 export function getAllTimeMachineData(
-  component /*: string */,
-  metrics /*: Array<string> */,
-  other /*: ?{ p?: number, from?: string, to?: string } */,
-  prev /*: ?Response */
-) /*: Promise<Response> */ {
+  component: string,
+  metrics: Array<string>,
+  other?: { p?: number; from?: string; to?: string },
+  prev?: ITimeMachineResponse
+): Promise<ITimeMachineResponse> {
   return getTimeMachineData(component, metrics, { ...other, ps: 1000 }).then(r => {
     const result = prev
       ? {

@@ -17,42 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
 import { getJSON, post } from '../helpers/request';
 
-export function searchUsersGroups(
-  data /*: {
-  f?: string,
-  organization?: string,
-  p?: number,
-  ps?: number,
-  q?: string
-} */
-) {
-  const url = '/api/user_groups/search';
-  return getJSON(url, data);
+export function setLogLevel(level: string): Promise<void> {
+  return post('/api/system/change_log_level', { level });
 }
 
-export function addUserToGroup(
-  data /*: {
-  id?: string,
-  name?: string,
-  login?: string,
-  organization?: string
-} */
-) {
-  const url = '/api/user_groups/add_user';
-  return post(url, data);
+export function getSystemInfo(): Promise<any> {
+  return getJSON('/api/system/info');
 }
 
-export function removeUserFromGroup(
-  data /*: {
-  id?: string,
-  name?: string,
-  login?: string,
-  organization?: string
-} */
-) {
-  const url = '/api/user_groups/remove_user';
-  return post(url, data);
+export function getSystemStatus(): Promise<any> {
+  return getJSON('/api/system/status');
+}
+
+export function restart(): Promise<void> {
+  return post('/api/system/restart');
+}
+
+const POLLING_INTERVAL = 2000;
+
+function pollStatus(cb: Function): void {
+  setTimeout(() => {
+    getSystemStatus()
+      .then(r => {
+        if (r.status === 'UP') {
+          cb();
+        } else {
+          pollStatus(cb);
+        }
+      })
+      .catch(() => pollStatus(cb));
+  }, POLLING_INTERVAL);
+}
+
+function promiseStatus(): Promise<any> {
+  return new Promise(resolve => pollStatus(resolve));
+}
+
+export function restartAndWait(): Promise<any> {
+  return restart().then(promiseStatus);
 }

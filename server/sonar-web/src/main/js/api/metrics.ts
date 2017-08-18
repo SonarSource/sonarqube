@@ -17,12 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import getStore from './getStore';
-import { onFail } from '../../store/rootActions';
+import { getJSON } from '../helpers/request';
 
-export default function throwGlobalError(error /*: Object */) {
-  const store = getStore();
-  onFail(store.dispatch)(error);
-  return Promise.reject();
+export function getMetrics(): Promise<any> {
+  return getJSON('/api/metrics/search', { ps: 9999 }).then(r => r.metrics);
 }

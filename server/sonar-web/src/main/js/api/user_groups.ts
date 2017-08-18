@@ -17,24 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { request } from '../helpers/request';
+import { getJSON, post } from '../helpers/request';
 
-const basicCheckStatus = response => {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  } else {
-    const error = new Error(response.status);
-    error.response = response;
-    throw error;
-  }
-};
+export function searchUsersGroups(data: {
+  f?: string;
+  organization?: string;
+  p?: number;
+  ps?: number;
+  q?: string;
+}) {
+  return getJSON('/api/user_groups/search', data);
+}
 
-export const login = (login, password) =>
-  request('/api/authentication/login')
-    .setMethod('POST')
-    .setData({ login, password })
-    .submit()
-    .then(basicCheckStatus);
+export function addUserToGroup(data: {
+  id?: string;
+  name?: string;
+  login?: string;
+  organization?: string;
+}) {
+  return post('/api/user_groups/add_user', data);
+}
 
-export const logout = () =>
-  request('/api/authentication/logout').setMethod('POST').submit().then(basicCheckStatus);
+export function removeUserFromGroup(data: {
+  id?: string;
+  name?: string;
+  login?: string;
+  organization?: string;
+}) {
+  return post('/api/user_groups/remove_user', data);
+}
