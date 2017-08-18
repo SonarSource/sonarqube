@@ -20,6 +20,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
+import * as dates from '../../../../helpers/dates';
 import { DEFAULT_GRAPH } from '../../utils';
 
 const ANALYSES = [
@@ -83,17 +84,13 @@ const DEFAULT_PROPS = {
   updateQuery: () => {}
 };
 
-jest.mock('moment', () => date => ({
-  startOf: () => {
-    return {
-      valueOf: () => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
-    };
-  },
-  toDate: () => new Date(date),
-  format: format => `Formated.${format}:${date}`
-}));
-
 window.Number = val => val;
+
+dates.startOfDay = jest.fn(date => {
+  const startDay = new Date(date);
+  startDay.setUTCHours(0, 0, 0, 0);
+  return startDay;
+});
 
 it('should render correctly', () => {
   expect(shallow(<ProjectActivityAnalysesList {...DEFAULT_PROPS} />)).toMatchSnapshot();

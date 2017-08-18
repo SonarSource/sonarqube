@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import moment from 'moment';
 import React from 'react';
+import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import IncrementalBadge from './IncrementalBadge';
 import PendingIcon from '../../../../components/shared/pending-icon';
+import Tooltip from '../../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 export default function ComponentNavMeta(props) {
@@ -34,37 +35,51 @@ export default function ComponentNavMeta(props) {
       ? translateWithParameters('component_navigation.status.in_progress.admin', backgroundTasksUrl)
       : translate('component_navigation.status.in_progress');
     metaList.push(
-      <li key="isInProgress" data-toggle="tooltip" title={tooltip}>
-        <i className="spinner" style={{ marginTop: '-1px' }} />{' '}
-        <span className="text-info">{translate('background_task.status.IN_PROGRESS')}</span>
-      </li>
+      <Tooltip
+        key="isInProgress"
+        overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
+        mouseLeaveDelay={2}>
+        <li>
+          <i className="spinner" style={{ marginTop: '-1px' }} />{' '}
+          <span className="text-info">{translate('background_task.status.IN_PROGRESS')}</span>
+        </li>
+      </Tooltip>
     );
   } else if (props.isPending) {
     const tooltip = canSeeBackgroundTasks
       ? translateWithParameters('component_navigation.status.pending.admin', backgroundTasksUrl)
       : translate('component_navigation.status.pending');
     metaList.push(
-      <li key="isPending" data-toggle="tooltip" title={tooltip}>
-        <PendingIcon /> <span>{translate('background_task.status.PENDING')}</span>
-      </li>
+      <Tooltip
+        key="isPending"
+        overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
+        mouseLeaveDelay={2}>
+        <li>
+          <PendingIcon /> <span>{translate('background_task.status.PENDING')}</span>
+        </li>
+      </Tooltip>
     );
   } else if (props.isFailed) {
     const tooltip = canSeeBackgroundTasks
       ? translateWithParameters('component_navigation.status.failed.admin', backgroundTasksUrl)
       : translate('component_navigation.status.failed');
     metaList.push(
-      <li key="isFailed" data-toggle="tooltip" title={tooltip}>
-        <span className="badge badge-danger">
-          {translate('background_task.status.FAILED')}
-        </span>
-      </li>
+      <Tooltip
+        key="isFailed"
+        overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
+        mouseLeaveDelay={2}>
+        <li>
+          <span className="badge badge-danger">
+            {translate('background_task.status.FAILED')}
+          </span>
+        </li>
+      </Tooltip>
     );
   }
-
   if (props.analysisDate) {
     metaList.push(
       <li key="analysisDate">
-        {moment(props.analysisDate).format('LLL')}
+        <DateTimeFormatter date={props.analysisDate} />
       </li>
     );
   }

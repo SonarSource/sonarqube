@@ -49,9 +49,7 @@ it('should not render optional fields', () => {
 it('should render analysis date', () => {
   const project = { ...BASE, lastAnalysisDate: '2016-05-17' };
   const output = shallow(<ProjectCard project={project} />);
-  expect(output.find('.account-project-analysis').text()).toContain(
-    'my_account.projects.analyzed_x'
-  );
+  expect(output.find('.account-project-analysis FormattedRelative')).toHaveLength(1);
 });
 
 it('should not render analysis date', () => {

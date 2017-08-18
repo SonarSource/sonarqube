@@ -28,17 +28,15 @@ exports[`renders 2`] = `
       <li>
         Foo
         : 
-        <FormattedDate
+        <DateTooltipFormatter
           date="2017-01-01T11:39:03+0100"
-          format="LL"
         />
       </li>
       <li>
         Bar
         : 
-        <FormattedDate
+        <DateTooltipFormatter
           date="2017-02-01T11:39:03+0100"
-          format="LL"
         />
       </li>
     </ul>

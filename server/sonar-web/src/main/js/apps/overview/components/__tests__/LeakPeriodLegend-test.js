@@ -37,7 +37,9 @@ describe('check note', () => {
       mode: 'date',
       parameter: '2013-01-01'
     };
-    expect(shallow(<LeakPeriodLegend period={period} />).find('.note')).toMatchSnapshot();
+    expect(
+      shallow(<LeakPeriodLegend period={period} />).find('FormattedRelative')
+    ).toMatchSnapshot();
   });
 
   it('version', () => {
@@ -46,7 +48,9 @@ describe('check note', () => {
       mode: 'version',
       parameter: '0.1'
     };
-    expect(shallow(<LeakPeriodLegend period={period} />).find('.note')).toMatchSnapshot();
+    expect(
+      shallow(<LeakPeriodLegend period={period} />).find('FormattedRelative')
+    ).toMatchSnapshot();
   });
 
   it('previous_version', () => {
@@ -54,7 +58,7 @@ describe('check note', () => {
       date: '2013-09-22T00:00:00+0200',
       mode: 'previous_version'
     };
-    expect(shallow(<LeakPeriodLegend period={period} />).find('.note')).toMatchSnapshot();
+    expect(shallow(<LeakPeriodLegend period={period} />).find('FormattedRelative')).toHaveLength(1);
   });
 
   it('previous_analysis', () => {
@@ -62,6 +66,6 @@ describe('check note', () => {
       date: '2013-09-22T00:00:00+0200',
       mode: 'previous_analysis'
     };
-    expect(shallow(<LeakPeriodLegend period={period} />).find('.note')).toMatchSnapshot();
+    expect(shallow(<LeakPeriodLegend period={period} />).find('FormattedRelative')).toHaveLength(1);
   });
 });

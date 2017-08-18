@@ -45,7 +45,7 @@ it('should render events', () => {
 it('should render event date', () => {
   const events = [createEvent()];
   const changelog = shallow(<Changelog events={events} organization={null} />);
-  expect(changelog.text()).toContain('2016');
+  expect(changelog.find('DateTimeFormatter')).toHaveLength(1);
 });
 
 it('should render author', () => {

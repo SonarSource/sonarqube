@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import moment from 'moment';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import ProjectActivityApp from './ProjectActivityApp';
@@ -173,7 +172,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
     return api
       .getProjectActivity({ ...parameters, ...additional })
       .then(({ analyses, paging }) => ({
-        analyses: analyses.map(analysis => ({ ...analysis, date: moment(analysis.date).toDate() })),
+        analyses: analyses.map(analysis => ({ ...analysis, date: new Date(analysis.date) })),
         paging
       }));
   };
@@ -187,7 +186,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
         measures.map(measure => ({
           metric: measure.metric,
           history: measure.history.map(analysis => ({
-            date: moment(analysis.date).toDate(),
+            date: new Date(analysis.date),
             value: analysis.value
           }))
         })),

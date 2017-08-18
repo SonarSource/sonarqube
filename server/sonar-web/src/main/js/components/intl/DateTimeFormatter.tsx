@@ -17,23 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import moment from 'moment';
-import React from 'react';
-/*:: import type { Task } from '../types'; */
+import * as React from 'react';
+import { DateSource, FormattedDate } from 'react-intl';
 
-function isAnotherDay(a, b) {
-  return !moment(a).isSame(moment(b), 'day');
+interface Props {
+  children?: (formattedDate: string) => React.ReactNode;
+  date: DateSource;
 }
 
-const TaskDay = ({ task, prevTask } /*: { task: Task, prevTask: ?Task } */) => {
-  const shouldDisplay = !prevTask || isAnotherDay(task.submittedAt, prevTask.submittedAt);
-
-  return (
-    <td className="thin nowrap text-right">
-      {shouldDisplay ? moment(task.submittedAt).format('LL') : ''}
-    </td>
-  );
+export const formatterOption = {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric'
 };
 
-export default TaskDay;
+export default function DateTimeFormatter({ children, date }: Props) {
+  return <FormattedDate children={children} value={date} {...formatterOption} />;
+}

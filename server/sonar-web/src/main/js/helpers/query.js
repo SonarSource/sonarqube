@@ -19,7 +19,7 @@
  */
 // @flow
 import { isNil, omitBy } from 'lodash';
-import moment from 'moment';
+import { isValidDate, toNotSoISOString } from './dates';
 
 /*::
 export type RawQuery = { [string]: any };
@@ -65,9 +65,11 @@ export function parseAsBoolean(
 }
 
 export function parseAsDate(value /*: ?string */) /*: Date | void */ {
-  const date = moment(value);
-  if (value && date) {
-    return date.toDate();
+  if (value) {
+    const date = new Date(value);
+    if (isValidDate(date)) {
+      return date;
+    }
   }
 }
 
@@ -85,7 +87,7 @@ export function parseAsArray(value /*: ?string */, itemParser /*: string => * */
 
 export function serializeDate(value /*: ?Date */) /*: string | void */ {
   if (value != null && value.toISOString) {
-    return moment(value).format('YYYY-MM-DDTHH:mm:ssZZ');
+    return toNotSoISOString(value);
   }
 }
 

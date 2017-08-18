@@ -17,9 +17,8 @@ exports[`should not add separators if not needed 1`] = `
     <div
       className="project-activity-graph-tooltip-title spacer-bottom"
     >
-      <FormattedDate
+      <DateTimeFormatter
         date={2011-10-01T22:01:00.000Z}
-        format="LL"
       />
     </div>
     <table
@@ -53,9 +52,8 @@ exports[`should render correctly for issues graphs 1`] = `
     <div
       className="project-activity-graph-tooltip-title spacer-bottom"
     >
-      <FormattedDate
+      <DateTimeFormatter
         date={2011-10-01T22:01:00.000Z}
-        format="LL"
       />
     </div>
     <table
@@ -109,9 +107,8 @@ exports[`should render correctly for random graphs 1`] = `
     <div
       className="project-activity-graph-tooltip-title spacer-bottom"
     >
-      <FormattedDate
+      <DateTimeFormatter
         date={2011-10-25T10:27:41.000Z}
-        format="LL"
       />
     </div>
     <table

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as moment from 'moment';
+import DateFormatter from '../../../components/intl/DateFormatter';
 import ProfileLink from '../components/ProfileLink';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isStagnant } from '../utils';
 import { Profile } from '../types';
 
@@ -29,7 +29,7 @@ interface Props {
   profiles: Profile[];
 }
 
-export default function EvolutionStagnan(props: Props) {
+export default function EvolutionStagnant(props: Props) {
   // TODO filter built-in out
 
   const outdated = props.profiles.filter(isStagnant);
@@ -60,11 +60,16 @@ export default function EvolutionStagnan(props: Props) {
                 {profile.name}
               </ProfileLink>
             </div>
-            <div className="note">
-              {profile.languageName}
-              {', '}
-              updated on {moment(profile.rulesUpdatedAt).format('LL')}
-            </div>
+            <DateFormatter date={profile.rulesUpdatedAt} long={true}>
+              {formattedDate =>
+                <div className="note">
+                  {translateWithParameters(
+                    'quality_profiles.x_updated_on_y',
+                    profile.languageName,
+                    formattedDate
+                  )}
+                </div>}
+            </DateFormatter>
           </li>
         )}
       </ul>

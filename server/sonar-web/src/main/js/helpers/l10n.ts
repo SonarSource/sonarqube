@@ -17,21 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import moment from 'moment';
 import { getJSON } from './request';
+import { toNotSoISOString } from './dates';
 
-let messages = {};
+interface LanguageBundle {
+  [name: string]: string;
+}
 
-export function translate(...keys /*: string[] */) {
+interface BundleRequestParams {
+  locale?: string;
+  ts?: string;
+}
+
+interface BundleRequestResponse {
+  effectiveLocale: string;
+  messages: LanguageBundle;
+}
+
+let messages: LanguageBundle = {};
+
+export const DEFAULT_LANGUAGE = 'en';
+
+export function translate(...keys: string[]): string {
   const messageKey = keys.join('.');
   return messages[messageKey] || messageKey;
 }
 
 export function translateWithParameters(
-  messageKey /*: string */,
-  ...parameters /*: Array<string | number> */
-) {
+  messageKey: string,
+  ...parameters: Array<string | number>
+): string {
   const message = messages[messageKey];
   if (message) {
     return parameters
@@ -42,20 +57,16 @@ export function translateWithParameters(
   }
 }
 
-export function hasMessage(...keys /*: string[] */) {
+export function hasMessage(...keys: string[]): boolean {
   const messageKey = keys.join('.');
   return messages[messageKey] != null;
 }
 
-export function configureMoment(language /*: ?string */) {
-  moment.locale(language || getPreferredLanguage());
-}
-
-function getPreferredLanguage() {
+function getPreferredLanguage(): string | undefined {
   return window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
 }
 
-function checkCachedBundle() {
+function checkCachedBundle(): boolean {
   const cached = localStorage.getItem('l10n.bundle');
 
   if (!cached) {
@@ -70,20 +81,20 @@ function checkCachedBundle() {
   }
 }
 
-function getL10nBundle(params) {
+function getL10nBundle(params: BundleRequestParams): Promise<BundleRequestResponse> {
   const url = '/api/l10n/index';
   return getJSON(url, params);
 }
 
-export function requestMessages() {
+export function requestMessages(): Promise<string> {
   const browserLocale = getPreferredLanguage();
   const cachedLocale = localStorage.getItem('l10n.locale');
-  const params = {};
+  const params: BundleRequestParams = {};
 
   if (browserLocale) {
     params.locale = browserLocale;
 
-    if (browserLocale.startsWith(cachedLocale)) {
+    if (cachedLocale && browserLocale.startsWith(cachedLocale)) {
       const bundleTimestamp = localStorage.getItem('l10n.timestamp');
       if (bundleTimestamp !== null && checkCachedBundle()) {
         params.ts = bundleTimestamp;
@@ -92,52 +103,52 @@ export function requestMessages() {
   }
 
   return getL10nBundle(params).then(
-    ({ effectiveLocale, messages }) => {
+    ({ effectiveLocale, messages }: BundleRequestResponse) => {
       try {
-        const currentTimestamp = moment().format('YYYY-MM-DDTHH:mm:ssZZ');
+        const currentTimestamp = toNotSoISOString(new Date());
         localStorage.setItem('l10n.timestamp', currentTimestamp);
         localStorage.setItem('l10n.locale', effectiveLocale);
         localStorage.setItem('l10n.bundle', JSON.stringify(messages));
       } catch (e) {
         // do nothing
       }
-      configureMoment(effectiveLocale);
       resetBundle(messages);
+      return effectiveLocale || browserLocale || DEFAULT_LANGUAGE;
     },
     ({ response }) => {
       if (response && response.status === 304) {
-        configureMoment(cachedLocale || browserLocale);
         resetBundle(JSON.parse(localStorage.getItem('l10n.bundle') || '{}'));
       } else {
         throw new Error('Unexpected status code: ' + response.status);
       }
+      return cachedLocale || browserLocale || DEFAULT_LANGUAGE;
     }
   );
 }
 
-export function resetBundle(bundle /*: Object */) {
+export function resetBundle(bundle: LanguageBundle) {
   messages = bundle;
 }
 
 export function installGlobal() {
-  window.t = translate;
-  window.tp = translateWithParameters;
-  window.requestMessages = requestMessages;
+  (window as any).t = translate;
+  (window as any).tp = translateWithParameters;
+  (window as any).requestMessages = requestMessages;
 }
 
-export function getLocalizedDashboardName(baseName /*: string */) {
+export function getLocalizedDashboardName(baseName: string) {
   const l10nKey = `dashboard.${baseName}.name`;
   const l10nLabel = translate(l10nKey);
   return l10nLabel !== l10nKey ? l10nLabel : baseName;
 }
 
-export function getLocalizedMetricName(metric /*: { key: string, name: string } */) {
+export function getLocalizedMetricName(metric: { key: string; name: string }) {
   const bundleKey = `metric.${metric.key}.name`;
   const fromBundle = translate(bundleKey);
   return fromBundle !== bundleKey ? fromBundle : metric.name;
 }
 
-export function getLocalizedMetricDomain(domainName /*: string */) {
+export function getLocalizedMetricDomain(domainName: string) {
   const bundleKey = `metric_domain.${domainName}`;
   const fromBundle = translate(bundleKey);
   return fromBundle !== bundleKey ? fromBundle : domainName;

@@ -18,23 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedRelative } from 'react-intl';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
+import { shallow } from 'enzyme';
+import ComponentNavMeta from '../ComponentNavMeta';
 
-interface Props {
-  date?: string;
-}
+it('renders incremental badge', () => {
+  check(true);
+  check(false);
 
-export default function ProfileDate({ date }: Props) {
-  return date
-    ? <Tooltip overlay={<DateTimeFormatter date={date} />}>
-        <span>
-          <FormattedRelative value={date} />
-        </span>
-      </Tooltip>
-    : <span>
-        {translate('never')}
-      </span>;
-}
+  function check(incremental: boolean) {
+    expect(
+      shallow(
+        <ComponentNavMeta component={{ key: 'foo' }} conf={{}} incremental={incremental} />
+      ).find('IncrementalBadge')
+    ).toHaveLength(incremental ? 1 : 0);
+  }
+});

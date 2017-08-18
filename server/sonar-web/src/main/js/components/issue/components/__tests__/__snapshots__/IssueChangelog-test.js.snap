@@ -27,20 +27,32 @@ exports[`should open the popup when the button is clicked 2`] = `
   position="bottomright"
   togglePopup={[Function]}
 >
-  <button
-    className="button-link issue-action issue-action-with-options js-issue-show-changelog"
-    onClick={[Function]}
-    title="March 1, 2017 9:36 AM"
+  <Tooltip
+    mouseEnterDelay={0.5}
+    overlay={
+      <DateTimeFormatter
+        date="2017-03-01T09:36:01+0100"
+      />
+    }
+    placement="left"
   >
-    <span
-      className="issue-meta-label"
+    <button
+      className="button-link issue-action issue-action-with-options js-issue-show-changelog"
+      onClick={[Function]}
     >
-      a month ago
-    </span>
-    <i
-      className="icon-dropdown little-spacer-left"
-    />
-  </button>
+      <span
+        className="issue-meta-label"
+      >
+        <FormattedRelative
+          updateInterval={10000}
+          value="2017-03-01T09:36:01+0100"
+        />
+      </span>
+      <i
+        className="icon-dropdown little-spacer-left"
+      />
+    </button>
+  </Tooltip>
 </BubblePopupHelper>
 `;
 
@@ -62,19 +74,31 @@ exports[`should render correctly 1`] = `
   position="bottomright"
   togglePopup={[Function]}
 >
-  <button
-    className="button-link issue-action issue-action-with-options js-issue-show-changelog"
-    onClick={[Function]}
-    title="March 1, 2017 9:36 AM"
+  <Tooltip
+    mouseEnterDelay={0.5}
+    overlay={
+      <DateTimeFormatter
+        date="2017-03-01T09:36:01+0100"
+      />
+    }
+    placement="left"
   >
-    <span
-      className="issue-meta-label"
+    <button
+      className="button-link issue-action issue-action-with-options js-issue-show-changelog"
+      onClick={[Function]}
     >
-      a month ago
-    </span>
-    <i
-      className="icon-dropdown little-spacer-left"
-    />
-  </button>
+      <span
+        className="issue-meta-label"
+      >
+        <FormattedRelative
+          updateInterval={10000}
+          value="2017-03-01T09:36:01+0100"
+        />
+      </span>
+      <i
+        className="icon-dropdown little-spacer-left"
+      />
+    </button>
+  </Tooltip>
 </BubblePopupHelper>
 `;

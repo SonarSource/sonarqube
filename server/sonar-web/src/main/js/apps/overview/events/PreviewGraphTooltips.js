@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import BubblePopup from '../../../components/common/BubblePopup';
-import FormattedDate from '../../../components/ui/FormattedDate';
+import DateFormatter from '../../../components/intl/DateFormatter';
 import PreviewGraphTooltipsContent from './PreviewGraphTooltipsContent';
 /*:: import type { Metric } from '../types'; */
 /*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
@@ -56,7 +56,7 @@ export default class PreviewGraphTooltips extends React.PureComponent {
       <BubblePopup customClass={customClass} position={{ top, left, width: TOOLTIP_WIDTH }}>
         <div className="overview-analysis-graph-tooltip">
           <div className="overview-analysis-graph-tooltip-title">
-            <FormattedDate date={this.props.selectedDate} format="LL" />
+            <DateFormatter date={this.props.selectedDate} long={true} />
           </div>
           <table className="width-100">
             <tbody>

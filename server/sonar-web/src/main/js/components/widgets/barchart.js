@@ -18,16 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import moment from 'moment';
 import { max } from 'd3-array';
 import { select } from 'd3-selection';
 import { scaleLinear, scaleBand } from 'd3-scale';
+import { isSameDay, toNotSoISOString } from '../../helpers/dates';
 
 function trans(left, top) {
   return `translate(${left}, ${top})`;
 }
-
-const DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ssZZ';
 
 const defaults = function() {
   return {
@@ -53,7 +51,7 @@ $.fn.barchart = function(data) {
     const options = { ...defaults(), ...$(this).data() };
     Object.assign(options, {
       width: options.width || $(this).width(),
-      endDate: options.endDate ? moment(options.endDate) : null
+      endDate: options.endDate ? new Date(options.endDate) : null
     });
 
     const container = select(this);
@@ -93,26 +91,28 @@ $.fn.barchart = function(data) {
         .attr('width', barWidth)
         .attr('height', d => Math.floor(yScale(d.count)))
         .style('cursor', 'pointer')
-        .attr('data-period-start', d => moment(d.val).format(DATE_FORMAT))
+        .attr('data-period-start', d => toNotSoISOString(new Date(d.val)))
         .attr('data-period-end', (d, i) => {
-          const ending = i < data.length - 1 ? moment(data[i + 1].val) : options.endDate;
+          const ending = i < data.length - 1 ? new Date(data[i + 1].val) : options.endDate;
           if (ending) {
-            return ending.format(DATE_FORMAT);
+            return toNotSoISOString(ending);
           } else {
             return '';
           }
         })
         .attr('title', (d, i) => {
-          const beginning = moment(d.val);
-          const ending =
-            i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate;
+          const beginning = new Date(d.val);
+          let ending = options.endDate;
+          if (i < data.length - 1) {
+            ending = new Date(data[i + 1].val);
+            ending.setDate(ending.getDate() - 1);
+          }
           if (ending) {
-            const isSameDay = ending.diff(beginning, 'days') <= 1;
             return (
               d.text +
               '<br>' +
               beginning.format('LL') +
-              (isSameDay ? '' : ' – ' + ending.format('LL'))
+              (isSameDay(ending, beginning) ? '' : ' – ' + ending.format('LL'))
             );
           } else {
             return d.text + '<br>' + beginning.format('LL');

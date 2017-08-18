@@ -19,8 +19,9 @@
  */
 // @flow
 import React from 'react';
-import moment from 'moment';
+import { intlShape } from 'react-intl';
 import DateInput from '../../../components/controls/DateInput';
+import { formatterOption } from '../../../components/intl/DateFormatter';
 import { parseAsDate } from '../../../helpers/query';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { RawQuery } from '../../../helpers/query'; */
@@ -36,13 +37,18 @@ type Props = {
 export default class ProjectActivityDateInput extends React.PureComponent {
   /*:: props: Props; */
 
+  static contextTypes = {
+    intl: intlShape
+  };
+
   handleFromDateChange = (from /*: string */) => this.props.onChange({ from: parseAsDate(from) });
 
   handleToDateChange = (to /*: string */) => this.props.onChange({ to: parseAsDate(to) });
 
   handleResetClick = () => this.props.onChange({ from: null, to: null });
 
-  formatDate = (date /*: ?Date */) => (date ? moment(date).format('YYYY-MM-DD') : null);
+  formatDate = (date /*: ?Date */) =>
+    date ? this.context.intl.formatDate(date, formatterOption) : undefined;
 
   render() {
     return (

@@ -18,23 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedRelative } from 'react-intl';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
+import DateFormatter from './DateFormatter';
+import DateTimeFormatter from './DateTimeFormatter';
+import Tooltip from '../controls/Tooltip';
 
 interface Props {
-  date?: string;
+  className?: string;
+  date: Date | string | number;
+  placement?: string;
 }
 
-export default function ProfileDate({ date }: Props) {
-  return date
-    ? <Tooltip overlay={<DateTimeFormatter date={date} />}>
-        <span>
-          <FormattedRelative value={date} />
-        </span>
-      </Tooltip>
-    : <span>
-        {translate('never')}
-      </span>;
+export default function DateTooltipFormatter({ className, date, placement }: Props) {
+  return (
+    <DateFormatter date={date} long={true}>
+      {formattedDate =>
+        <Tooltip
+          overlay={<DateTimeFormatter date={date} />}
+          placement={placement}
+          mouseEnterDelay={0.5}>
+          <time className={className} dateTime={new Date(date as Date).toISOString()}>
+            {formattedDate}
+          </time>
+        </Tooltip>}
+    </DateFormatter>
+  );
 }

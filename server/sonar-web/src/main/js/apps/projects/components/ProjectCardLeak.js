@@ -20,8 +20,9 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import moment from 'moment';
 import { Link } from 'react-router';
+import { FormattedRelative } from 'react-intl';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter.tsx';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
 import FavoriteContainer from '../../../components/controls/FavoriteContainer';
@@ -90,19 +91,19 @@ export default function ProjectCardLeak({ measures, organization, project } /*: 
           hasLeakPeriodStart &&
           <div className="project-card-dates note text-right pull-right">
             {hasLeakPeriodStart &&
-              <span className="project-card-leak-date pull-right">
-                {translateWithParameters(
-                  'projects.leak_period_x',
-                  moment(project.leakPeriodDate).fromNow()
-                )}
-              </span>}
+              <FormattedRelative value={project.leakPeriodDate}>
+                {fromNow =>
+                  <span className="project-card-leak-date pull-right">
+                    {translateWithParameters('projects.leak_period_x', fromNow)}
+                  </span>}
+              </FormattedRelative>}
             {isProjectAnalyzed &&
-              <span>
-                {translateWithParameters(
-                  'projects.last_analysis_on_x',
-                  moment(project.analysisDate).format('LLL')
-                )}
-              </span>}
+              <DateTimeFormatter date={project.analysisDate}>
+                {formattedDate =>
+                  <span>
+                    {translateWithParameters('projects.last_analysis_on_x', formattedDate)}
+                  </span>}
+              </DateTimeFormatter>}
           </div>}
       </div>
 

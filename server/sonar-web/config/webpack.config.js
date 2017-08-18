@@ -32,7 +32,6 @@ module.exports = ({ production = true, fast = false }) => ({
       'react-dom',
       'backbone',
       'backbone.marionette',
-      'moment',
       'handlebars/runtime',
       './src/main/js/libs/third-party/jquery-ui.js',
       './src/main/js/libs/third-party/select2.js',

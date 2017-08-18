@@ -8,9 +8,9 @@ exports[`should sort the events with version first 1`] = `
     className="small little-spacer-bottom"
   >
     <strong>
-      <FormattedDate
+      <DateTooltipFormatter
         date="2017-06-10T16:10:59+0200"
-        format="LL"
+        placement="right"
       />
     </strong>
   </div>

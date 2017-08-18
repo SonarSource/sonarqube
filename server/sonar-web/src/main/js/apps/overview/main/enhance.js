@@ -19,9 +19,9 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
-import moment from 'moment';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import BubblesIcon from '../../../components/icons-components/BubblesIcon';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import Rating from './../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
@@ -157,8 +157,16 @@ export default function enhance(ComposedComponent) {
       if (isDiffMetric(metric)) {
         Object.assign(params, { sinceLeakPeriod: 'true' });
       }
-      const formattedAnalysisDate = moment(component.analysisDate).format('LLL');
-      const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate);
+
+      const tooltip = (
+        <DateTimeFormatter date={component.analysisDate}>
+          {formattedAnalysisDate =>
+            <span>
+              {translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate)}
+            </span>}
+        </DateTimeFormatter>
+      );
+
       return (
         <Tooltip overlay={tooltip} placement="top">
           <Link to={getComponentIssuesUrl(component.key, params)}>

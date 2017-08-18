@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import moment from 'moment';
+import { FormattedRelative } from 'react-intl';
 import Avatar from '../../../components/ui/Avatar';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
@@ -98,7 +98,7 @@ export default class IssueCommentLine extends React.PureComponent {
           tabIndex={0}
         />
         <div className="issue-comment-age">
-          ({moment(comment.createdAt).fromNow()})
+          <FormattedRelative value={comment.createdAt} />
         </div>
         <div className="issue-comment-actions">
           {comment.updatable &&

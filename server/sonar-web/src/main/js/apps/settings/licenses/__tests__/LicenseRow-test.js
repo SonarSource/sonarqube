@@ -73,7 +73,7 @@ it('should render expiration', () => {
     '.js-expiration'
   );
   expect(licenseExpiration.length).toBe(1);
-  expect(licenseExpiration.text()).toContain('2015');
+  expect(licenseExpiration.find('DateFormatter')).toHaveLength(1);
 });
 
 it('should render invalid expiration', () => {

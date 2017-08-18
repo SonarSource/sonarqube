@@ -8,7 +8,7 @@ exports[`should render correctly the date inputs 1`] = `
     name="from"
     onChange={[Function]}
     placeholder="from"
-    value="2016-10-27"
+    value="10/27/2016"
   />
   —
   <DateInput
@@ -17,7 +17,7 @@ exports[`should render correctly the date inputs 1`] = `
     name="to"
     onChange={[Function]}
     placeholder="to"
-    value="2016-12-27"
+    value="12/27/2016"
   />
   <button
     className="spacer-left"

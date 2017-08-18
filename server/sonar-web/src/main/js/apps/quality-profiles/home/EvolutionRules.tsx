@@ -19,16 +19,14 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import * as moment from 'moment';
 import { sortBy } from 'lodash';
 import { searchRules } from '../../../api/rules';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
+import { toShortNotSoISOString } from '../../../helpers/dates';
 import { formatMeasure } from '../../../helpers/measures';
 
 const RULES_LIMIT = 10;
-
-const PERIOD_START_MOMENT = moment().subtract(1, 'year');
 
 function parseRules(r: any) {
   const { rules, actives } = r;
@@ -55,8 +53,16 @@ interface State {
 }
 
 export default class EvolutionRules extends React.PureComponent<Props, State> {
+  periodStartDate: string;
   mounted: boolean;
-  state: State = {};
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {};
+    const startDate = new Date();
+    startDate.setFullYear(startDate.getFullYear() - 1);
+    this.periodStartDate = toShortNotSoISOString(startDate);
+  }
 
   componentDidMount() {
     this.mounted = true;
@@ -69,7 +75,7 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
 
   loadLatestRules() {
     const data = {
-      available_since: PERIOD_START_MOMENT.format('YYYY-MM-DD'),
+      available_since: this.periodStartDate,
       s: 'createdAt',
       asc: false,
       ps: RULES_LIMIT,
@@ -92,9 +98,7 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
     }
 
     const newRulesUrl = getRulesUrl(
-      {
-        available_since: PERIOD_START_MOMENT.format('YYYY-MM-DD')
-      },
+      { available_since: this.periodStartDate },
       this.props.organization
     );
 

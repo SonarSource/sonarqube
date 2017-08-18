@@ -31,8 +31,6 @@ const comment = {
   updatable: true
 };
 
-jest.mock('moment', () => () => ({ fromNow: () => 'a month ago' }));
-
 it('should render correctly a comment that is not updatable', () => {
   const element = shallow(
     <IssueCommentLine

@@ -18,35 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as moment from 'moment';
 import { sortBy } from 'lodash';
+import { FormattedRelative } from 'react-intl';
 import { Link } from 'react-router';
 import { Project } from './types';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Level from '../../../components/ui/Level';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 
 interface Props {
   project: Project;
 }
 
-export default function ProjectCard(props: Props) {
-  const { project } = props;
+export default function ProjectCard({ project }: Props) {
   const isAnalyzed = project.lastAnalysisDate != null;
-  const analysisMoment = isAnalyzed && moment(project.lastAnalysisDate);
   const links = sortBy(project.links, 'type');
 
   return (
     <div className="account-project-card clearfix">
       <aside className="account-project-side">
         {isAnalyzed
-          ? <div
-              className="account-project-analysis"
-              title={analysisMoment ? analysisMoment.format('LLL') : undefined}>
-              {translateWithParameters(
-                'my_account.projects.analyzed_x',
-                analysisMoment ? analysisMoment.fromNow() : undefined
-              )}
-            </div>
+          ? <Tooltip
+              overlay={<DateTimeFormatter date={project.lastAnalysisDate} />}
+              placement="right">
+              <div className="account-project-analysis">
+                <FormattedRelative value={project.lastAnalysisDate}>
+                  {(relativeDate: string) =>
+                    <span>
+                      {translateWithParameters('my_account.projects.analyzed_x', relativeDate)}
+                    </span>}
+                </FormattedRelative>
+              </div>
+            </Tooltip>
           : <div className="account-project-analysis">
               {translate('my_account.projects.never_analyzed')}
             </div>}

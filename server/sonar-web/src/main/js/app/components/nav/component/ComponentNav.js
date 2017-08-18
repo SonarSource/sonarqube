@@ -24,7 +24,6 @@ import ComponentNavMeta from './ComponentNavMeta';
 import ComponentNavMenu from './ComponentNavMenu';
 import RecentHistory from '../../RecentHistory';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
-import { TooltipsContainer } from '../../../../components/mixins/tooltips-mixin';
 import { getTasksForComponent } from '../../../../api/ce';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import './ComponentNav.css';
@@ -80,14 +79,12 @@ export default class ComponentNav extends React.PureComponent {
           breadcrumbs={this.props.component.breadcrumbs}
         />
 
-        <TooltipsContainer options={{ delay: { show: 0, hide: 2000 } }}>
-          <ComponentNavMeta
-            {...this.props}
-            {...this.state}
-            version={this.props.component.version}
-            analysisDate={this.props.component.analysisDate}
-          />
-        </TooltipsContainer>
+        <ComponentNavMeta
+          {...this.props}
+          {...this.state}
+          version={this.props.component.version}
+          analysisDate={this.props.component.analysisDate}
+        />
 
         <ComponentNavMenu
           component={this.props.component}

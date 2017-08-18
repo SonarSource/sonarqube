@@ -35,11 +35,6 @@ const MEASURES = {
   new_bugs: 12
 };
 
-jest.mock('moment', () => () => ({
-  format: () => 'March 1, 2017 9:36 AM',
-  fromNow: () => 'a month ago'
-}));
-
 it('should display analysis date (and not leak period) when defined', () => {
   expect(
     shallow(<ProjectCardOverall measures={{}} project={PROJECT} />)

@@ -17,34 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import moment from 'moment';
 
-export default class FormattedDate extends React.PureComponent {
-  /*:: props: {
-    className?: string,
-    date: string | number,
-    format?: string,
-    tooltipFormat?: string
-  };
-*/
-
-  static defaultProps = {
-    format: 'LLL'
-  };
-
-  render() {
-    const { className, date, format, tooltipFormat } = this.props;
-
-    const m = moment(date);
-
-    const title = tooltipFormat ? m.format(tooltipFormat) : undefined;
-
-    return (
-      <time className={className} dateTime={m.format()} title={title}>
-        {m.format(format)}
-      </time>
-    );
-  }
+export interface ITask {
+  incremental: boolean;
+  id: string;
+  submittedAt: string;
 }

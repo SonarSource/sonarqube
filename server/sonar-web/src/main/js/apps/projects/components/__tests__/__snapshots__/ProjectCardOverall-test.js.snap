@@ -35,11 +35,9 @@ exports[`should display the overall measures and quality gate 1`] = `
     <div
       className="project-card-dates note text-right"
     >
-      <span
-        className="big-spacer-left"
-      >
-        projects.last_analysis_on_x.March 1, 2017 9:36 AM
-      </span>
+      <DateTimeFormatter
+        date="2017-01-01"
+      />
     </div>
   </div>
   <div

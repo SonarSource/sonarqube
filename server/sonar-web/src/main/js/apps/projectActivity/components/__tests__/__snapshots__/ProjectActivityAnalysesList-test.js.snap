@@ -25,14 +25,13 @@ exports[`should correctly filter analyses by category 1`] = `
     >
       <li
         className="project-activity-day"
-        data-day="Formated.YYYY-MM-DD:2016-9-24"
       >
         <div
           className="project-activity-date"
         >
-          <FormattedDate
-            date="2016-9-24"
-            format="LL"
+          <DateFormatter
+            date="1477267200000"
+            long={true}
           />
         </div>
         <ul
@@ -95,14 +94,13 @@ exports[`should correctly filter analyses by date range 1`] = `
     >
       <li
         className="project-activity-day"
-        data-day="Formated.YYYY-MM-DD:2016-9-27"
       >
         <div
           className="project-activity-date"
         >
-          <FormattedDate
-            date="2016-9-27"
-            format="LL"
+          <DateFormatter
+            date="1477526400000"
+            long={true}
           />
         </div>
         <ul
@@ -165,14 +163,13 @@ exports[`should render correctly 1`] = `
     >
       <li
         className="project-activity-day"
-        data-day="Formated.YYYY-MM-DD:2016-9-27"
       >
         <div
           className="project-activity-date"
         >
-          <FormattedDate
-            date="2016-9-27"
-            format="LL"
+          <DateFormatter
+            date="1477526400000"
+            long={true}
           />
         </div>
         <ul
@@ -241,14 +238,13 @@ exports[`should render correctly 1`] = `
     >
       <li
         className="project-activity-day"
-        data-day="Formated.YYYY-MM-DD:2016-9-26"
       >
         <div
           className="project-activity-date"
         >
-          <FormattedDate
-            date="2016-9-26"
-            format="LL"
+          <DateFormatter
+            date="1477440000000"
+            long={true}
           />
         </div>
         <ul
@@ -288,14 +284,13 @@ exports[`should render correctly 1`] = `
       </li>
       <li
         className="project-activity-day"
-        data-day="Formated.YYYY-MM-DD:2016-9-24"
       >
         <div
           className="project-activity-date"
         >
-          <FormattedDate
-            date="2016-9-24"
-            format="LL"
+          <DateFormatter
+            date="1477267200000"
+            long={true}
           />
         </div>
         <ul

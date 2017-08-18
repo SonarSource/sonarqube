@@ -15,7 +15,9 @@ exports[`should render the changelog popup correctly 1`] = `
           <td
             className="thin text-left text-top nowrap"
           >
-            March 1, 2017 9:36 AM
+            <DateTimeFormatter
+              date="2017-03-01T09:36:01+0100"
+            />
           </td>
           <td
             className="text-left text-top"
@@ -27,7 +29,9 @@ exports[`should render the changelog popup correctly 1`] = `
           <td
             className="thin text-left text-top nowrap"
           >
-            March 1, 2017 9:36 AM
+            <DateTimeFormatter
+              date="2017-03-01T09:36:01+0100"
+            />
           </td>
           <td
             className="text-left text-top"
