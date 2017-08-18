@@ -22,13 +22,13 @@ import { RouterState, RouteComponent, IndexRouteProps } from 'react-router';
 const routes = [
   {
     getIndexRouteProps(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/WebApiApp').then(i => callback(null, { component: i.default }));
+      import('./components/WebApiApp').then(i => callback(null, { component: (i as any).default }));
     }
   },
   {
     path: '**',
     getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./components/WebApiApp').then(i => callback(null, i.default));
+      import('./components/WebApiApp').then(i => callback(null, (i as any).default));
     }
   }
 ];
