@@ -36,7 +36,6 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -146,16 +145,9 @@ public class TaskActionTest {
     logInAsRoot();
 
     ComponentDto project = db.components().insertPrivateProject();
-    SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    CeQueueDto queueDto = new CeQueueDto()
-      .setTaskType(CeTaskTypes.REPORT)
-      .setUuid(SOME_TASK_UUID)
-      .setComponentUuid(project.uuid());
-    CeActivityDto activityDto = new CeActivityDto(queueDto)
-      .setStatus(CeActivityDto.Status.FAILED)
-      .setExecutionTimeMs(500L)
-      .setAnalysisUuid(analysis.getUuid());
-    persist(activityDto);
+    db.components().insertSnapshot(project, s -> s.setIncremental(true));
+    CeActivityDto activity = createAndPersistArchivedTask(project);
+    insertCharacteristic(activity, "incremental", "true");
 
     WsCe.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
@@ -170,16 +162,10 @@ public class TaskActionTest {
     ComponentDto project = db.components().insertMainBranch();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
-    SnapshotDto analysis = db.components().insertSnapshot(longLivingBranch);
-    CeQueueDto queueDto = new CeQueueDto()
-      .setTaskType(CeTaskTypes.REPORT)
-      .setUuid(SOME_TASK_UUID)
-      .setComponentUuid(longLivingBranch.uuid());
-    CeActivityDto activityDto = new CeActivityDto(queueDto)
-      .setStatus(CeActivityDto.Status.FAILED)
-      .setExecutionTimeMs(500L)
-      .setAnalysisUuid(analysis.getUuid());
-    persist(activityDto);
+    db.components().insertSnapshot(longLivingBranch);
+    CeActivityDto activity = createAndPersistArchivedTask(project);
+    insertCharacteristic(activity, BRANCH_KEY, longLivingBranch.getBranch());
+    insertCharacteristic(activity, BRANCH_TYPE_KEY, LONG.name());
 
     WsCe.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
@@ -436,9 +422,17 @@ public class TaskActionTest {
   }
 
   private CeTaskCharacteristicDto insertCharacteristic(CeQueueDto queueDto, String key, String value) {
+    return insertCharacteristic(queueDto.getUuid(), key, value);
+  }
+
+  private CeTaskCharacteristicDto insertCharacteristic(CeActivityDto activityDto, String key, String value) {
+    return insertCharacteristic(activityDto.getUuid(), key, value);
+  }
+
+  private CeTaskCharacteristicDto insertCharacteristic(String taskUuid, String key, String value) {
     CeTaskCharacteristicDto dto = new CeTaskCharacteristicDto()
       .setUuid(Uuids.createFast())
-      .setTaskUuid(queueDto.getUuid())
+      .setTaskUuid(taskUuid)
       .setKey(key)
       .setValue(value);
     db.getDbClient().ceTaskCharacteristicsDao().insert(db.getSession(), Collections.singletonList(dto));

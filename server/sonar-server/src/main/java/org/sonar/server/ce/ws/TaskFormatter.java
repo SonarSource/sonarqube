@@ -19,10 +19,8 @@
  */
 package org.sonar.server.ce.ws;
 
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsCe;
@@ -83,7 +79,7 @@ public class TaskFormatter {
     setNullable(organizationKey, builder::setOrganization);
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
-      buildComponent(builder, dto.getComponentUuid(), componentDtoCache);
+      setComponent(builder, dto.getComponentUuid(), componentDtoCache);
     }
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
@@ -93,13 +89,8 @@ public class TaskFormatter {
     builder.setSubmittedAt(formatDateTime(new Date(dto.getCreatedAt())));
     setNullable(dto.getStartedAt(), builder::setStartedAt, DateUtils::formatDateTime);
     setNullable(computeExecutionTimeMs(dto), builder::setExecutionTimeMs);
-    builder.setIncremental(componentDtoCache.hasIncrementalCharacteristic(dto.getUuid()));
-    componentDtoCache.getBranchName(dto.getUuid()).ifPresent(
-      b -> {
-        builder.setBranch(b);
-        builder.setBranchType(componentDtoCache.getBranchType(dto.getUuid())
-          .orElseThrow(() -> new IllegalStateException(format("Could not find branch type of '%s'", dto.getUuid()))));
-      });
+    setIncremental(builder, dto.getUuid(), componentDtoCache);
+    setBranch(builder, dto.getUuid(), componentDtoCache);
     return builder.build();
   }
 
@@ -123,13 +114,13 @@ public class TaskFormatter {
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
     builder.setLogs(false);
-    setNullable(dto.getComponentUuid(), uuid -> buildComponent(builder, uuid, componentDtoCache).setComponentId(uuid));
+    setNullable(dto.getComponentUuid(), uuid -> setComponent(builder, uuid, componentDtoCache).setComponentId(uuid));
     String analysisUuid = dto.getAnalysisUuid();
     if (analysisUuid != null) {
       builder.setAnalysisId(analysisUuid);
     }
-    SnapshotDto analysis = analysisUuid == null ? null : componentDtoCache.getAnalysis(analysisUuid);
-    builder.setIncremental(analysis != null && analysis.getIncremental());
+    setIncremental(builder, dto.getUuid(), componentDtoCache);
+    setBranch(builder, dto.getUuid(), componentDtoCache);
     setNullable(analysisUuid, builder::setAnalysisId);
     setNullable(dto.getSubmitterLogin(), builder::setSubmitterLogin);
     builder.setSubmittedAt(formatDateTime(new Date(dto.getSubmittedAt())));
@@ -143,7 +134,7 @@ public class TaskFormatter {
     return builder.build();
   }
 
-  private static WsCe.Task.Builder buildComponent(WsCe.Task.Builder builder, @Nullable String componentUuid, DtoCache componentDtoCache) {
+  private static WsCe.Task.Builder setComponent(WsCe.Task.Builder builder, @Nullable String componentUuid, DtoCache componentDtoCache) {
     ComponentDto componentDto = componentDtoCache.getComponent(componentUuid);
     if (componentDto == null) {
       return builder;
@@ -151,29 +142,34 @@ public class TaskFormatter {
     builder.setComponentKey(componentDto.getKey());
     builder.setComponentName(componentDto.name());
     builder.setComponentQualifier(componentDto.qualifier());
-    String branch = componentDto.getBranch();
-    if (branch == null) {
-      return builder;
-    }
-    builder.setBranch(branch);
-    builder.setBranchType(Common.BranchType.valueOf(componentDtoCache.getBranch(componentUuid).getBranchType().name()));
+    return builder;
+  }
+
+  private static WsCe.Task.Builder setIncremental(WsCe.Task.Builder builder, String taskUuid, DtoCache componentDtoCache) {
+    builder.setIncremental(componentDtoCache.hasIncrementalCharacteristic(taskUuid));
+    return builder;
+  }
+
+  private static WsCe.Task.Builder setBranch(WsCe.Task.Builder builder, String taskUuid, DtoCache componentDtoCache) {
+    componentDtoCache.getBranchName(taskUuid).ifPresent(
+      b -> {
+        builder.setBranch(b);
+        builder.setBranchType(componentDtoCache.getBranchType(taskUuid)
+          .orElseThrow(() -> new IllegalStateException(format("Could not find branch type of task '%s'", taskUuid))));
+      });
     return builder;
   }
 
   private static class DtoCache {
     private final Map<String, ComponentDto> componentsByUuid;
     private final Map<String, OrganizationDto> organizationsByUuid;
-    private final Map<String, SnapshotDto> analysisByUuid;
-    private final Map<String, BranchDto> branchesByUuid;
     private final Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid;
 
-    private DtoCache(Map<String, ComponentDto> componentsByUuid, Map<String, OrganizationDto> organizationsByUuid, Map<String, SnapshotDto> analysisByUuid,
-      Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid, Map<String, BranchDto> branchesByUuid) {
+    private DtoCache(Map<String, ComponentDto> componentsByUuid, Map<String, OrganizationDto> organizationsByUuid,
+      Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid) {
       this.componentsByUuid = componentsByUuid;
       this.organizationsByUuid = organizationsByUuid;
-      this.analysisByUuid = analysisByUuid;
       this.characteristicsByTaskUuid = characteristicsByTaskUuid;
-      this.branchesByUuid = branchesByUuid;
     }
 
     static DtoCache forQueueDtos(DbClient dbClient, DbSession dbSession, Collection<CeQueueDto> ceQueueDtos) {
@@ -183,10 +179,7 @@ public class TaskFormatter {
       Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid = dbClient.ceTaskCharacteristicsDao()
         .selectByTaskUuids(dbSession, ceQueueDtos.stream().map(CeQueueDto::getUuid).collect(Collectors.toList()))
         .stream().collect(MoreCollectors.index(CeTaskCharacteristicDto::getTaskUuid));
-      Map<String, BranchDto> branchesByUuid = dbClient.branchDao().selectByUuids(dbSession, componentsByUuid.keySet()).stream()
-        .collect(MoreCollectors.uniqueIndex(BranchDto::getUuid));
-      return new DtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), Collections.emptyMap(), characteristicsByTaskUuid,
-        branchesByUuid);
+      return new DtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), characteristicsByTaskUuid);
     }
 
     private static Set<String> uuidOfCeQueueDtos(Collection<CeQueueDto> ceQueueDtos) {
@@ -203,12 +196,10 @@ public class TaskFormatter {
         uuidOfCeActivityDtos(ceActivityDtos))
         .stream()
         .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
-      Set<String> analysisUuids = ceActivityDtos.stream().map(CeActivityDto::getAnalysisUuid).filter(Objects::nonNull).collect(MoreCollectors.toSet());
-      Map<String, SnapshotDto> analysisByUuid = dbClient.snapshotDao().selectByUuids(dbSession, analysisUuids).stream().collect(MoreCollectors.uniqueIndex(SnapshotDto::getUuid));
-      Map<String, BranchDto> branchesByUuid = dbClient.branchDao().selectByUuids(dbSession, componentsByUuid.keySet()).stream()
-        .collect(MoreCollectors.uniqueIndex(BranchDto::getUuid));
-      return new DtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), analysisByUuid,
-        ImmutableMultimap.<String, CeTaskCharacteristicDto>builder().build(), branchesByUuid);
+      Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid = dbClient.ceTaskCharacteristicsDao()
+        .selectByTaskUuids(dbSession, ceActivityDtos.stream().map(CeActivityDto::getUuid).collect(Collectors.toList()))
+        .stream().collect(MoreCollectors.index(CeTaskCharacteristicDto::getTaskUuid));
+      return new DtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), characteristicsByTaskUuid);
     }
 
     private static Set<String> uuidOfCeActivityDtos(Collection<CeActivityDto> ceActivityDtos) {
@@ -250,16 +241,6 @@ public class TaskFormatter {
       OrganizationDto organizationDto = organizationsByUuid.get(organizationUuid);
       checkState(organizationDto != null, "Organization with uuid '%s' not found", organizationUuid);
       return organizationDto.getKey();
-    }
-
-    @CheckForNull
-    SnapshotDto getAnalysis(String analysisUuid) {
-      return analysisByUuid.get(analysisUuid);
-    }
-
-    @CheckForNull
-    BranchDto getBranch(String componentUuid) {
-      return branchesByUuid.get(componentUuid);
     }
 
     boolean hasIncrementalCharacteristic(String taskUuid) {
