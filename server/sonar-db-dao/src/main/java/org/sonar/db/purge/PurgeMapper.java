@@ -78,6 +78,8 @@ public interface PurgeMapper {
 
   List<String> selectOldClosedIssueKeys(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
 
+  List<String> selectStaleShortLivingBranches(@Param("mainBranchProjectUuid") String mainBranchProjectUuid, @Param("toDate") Long toDate);
+
   void deleteIssuesFromKeys(@Param("keys") List<String> keys);
 
   void deleteIssueChangesFromIssueKeys(@Param("issueKeys") List<String> issueKeys);
