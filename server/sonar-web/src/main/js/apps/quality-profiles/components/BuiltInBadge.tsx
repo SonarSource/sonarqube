@@ -17,21 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import App from './App';
-import { getLanguages, getCurrentUser, getOrganizationByKey } from '../../../store/rootReducer';
-import { onFail } from '../../../store/rootActions';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import Tooltip from '../../../components/controls/Tooltip';
+import { translate } from '../../../helpers/l10n';
 
-const mapStateToProps = (state, ownProps) => ({
-  currentUser: getCurrentUser(state),
-  languages: getLanguages(state),
-  organization: ownProps.params.organizationKey
-    ? getOrganizationByKey(state, ownProps.params.organizationKey)
-    : null
-});
+interface Props {
+  className?: string;
+  tooltip?: boolean;
+}
 
-const mapDispatchToProps = dispatch => ({
-  onRequestFail: error => onFail(dispatch)(error)
-});
+export default function BuiltInBadge({ className, tooltip = true }: Props) {
+  const badge = (
+    <div className={classNames('outline-badge', className)}>
+      {translate('quality_profiles.built_in')}
+    </div>
+  );
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+  const overlay = (
+    <span>
+      {translate('quality_profiles.built_in.description.1')}{' '}
+      {translate('quality_profiles.built_in.description.2')}
+    </span>
+  );
+
+  return tooltip
+    ? <Tooltip overlay={overlay}>
+        {badge}
+      </Tooltip>
+    : badge;
+}

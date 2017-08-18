@@ -109,6 +109,18 @@ Array [
   Object {
     "childrenCount": 0,
     "depth": 1,
+    "key": "foo",
+    "name": "foo",
+    "parentKey": "bar",
+  },
+]
+`;
+
+exports[`#sortProfiles sorts partial set of inherited profiles 2`] = `
+Array [
+  Object {
+    "childrenCount": 0,
+    "depth": 1,
     "key": "profile1",
     "name": "profile1",
     "parentKey": "x",

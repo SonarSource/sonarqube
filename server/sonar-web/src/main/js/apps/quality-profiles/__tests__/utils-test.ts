@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortProfiles } from '../utils';
+import { IProfile } from '../types';
 
-function createProfile(key, parentKey) {
-  return { name: key, key, parentKey };
+function createProfile(key: string, parentKey?: string) {
+  return { name: key, key, parentKey } as IProfile;
 }
 
 describe('#sortProfiles', () => {
@@ -54,7 +55,7 @@ describe('#sortProfiles', () => {
 
   it('sorts partial set of inherited profiles', () => {
     const foo = createProfile('foo', 'bar');
-    expect(sortProfiles([foo]), ['foo']);
+    expect(sortProfiles([foo])).toMatchSnapshot();
 
     const profile1 = createProfile('profile1', 'x');
     const profile2 = createProfile('profile2');

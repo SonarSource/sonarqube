@@ -17,22 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { sortBy } from 'lodash';
-import moment from 'moment';
-/*:: import type { Profile } from './propTypes'; */
+import * as moment from 'moment';
+import { IProfile } from './types';
 
-export function sortProfiles(profiles /*: Array<Profile> */) {
-  const result = [];
+export function sortProfiles(profiles: IProfile[]) {
+  const result: IProfile[] = [];
   const sorted = sortBy(profiles, 'name');
 
-  function retrieveChildren(parent) {
+  function retrieveChildren(parent: IProfile | null) {
     return sorted.filter(
       p => (parent == null && p.parentKey == null) || (parent != null && p.parentKey === parent.key)
     );
   }
 
-  function putProfile(profile = null, depth = 1) {
+  function putProfile(profile: IProfile | null = null, depth: number = 1) {
     const children = retrieveChildren(profile);
 
     if (profile != null) {
@@ -51,7 +50,7 @@ export function sortProfiles(profiles /*: Array<Profile> */) {
   return result;
 }
 
-export function createFakeProfile(overrides /*: {} */) {
+export function createFakeProfile(overrides?: any) {
   return {
     key: 'key',
     name: 'name',
@@ -66,37 +65,30 @@ export function createFakeProfile(overrides /*: {} */) {
   };
 }
 
-export function isStagnant(profile /*: Profile */) {
+export function isStagnant(profile: IProfile) {
   return moment().diff(moment(profile.userUpdatedAt), 'years') >= 1;
 }
 
-export const getProfilesPath = (organization /*: ?string */) =>
+export const getProfilesPath = (organization: string | null) =>
   organization ? `/organizations/${organization}/quality_profiles` : '/profiles';
 
-export const getProfilesForLanguagePath = (
-  language /*: string */,
-  organization /*: ?string */
-) => ({
+export const getProfilesForLanguagePath = (language: string, organization: string | null) => ({
   pathname: getProfilesPath(organization),
   query: { language }
 });
 
-export const getProfilePath = (
-  name /*: string */,
-  language /*: string */,
-  organization /*: ?string */
-) => ({
+export const getProfilePath = (name: string, language: string, organization: string | null) => ({
   pathname: getProfilesPath(organization) + '/show',
   query: { name, language }
 });
 
 export const getProfileComparePath = (
-  name /*: string */,
-  language /*: string */,
-  organization /*: ?string */,
-  withKey /*: ?string */
+  name: string,
+  language: string,
+  organization: string | null,
+  withKey?: string
 ) => {
-  const query /*: Object */ = { language, name };
+  const query = { language, name };
   if (withKey) {
     Object.assign(query, { withKey });
   }
@@ -107,12 +99,12 @@ export const getProfileComparePath = (
 };
 
 export const getProfileChangelogPath = (
-  name /*: string */,
-  language /*: string */,
-  organization /*: ?string */,
-  filter /*: ?{ since?: string, to?: string } */
+  name: string,
+  language: string,
+  organization: string | null,
+  filter?: { since?: string; to?: string }
 ) => {
-  const query /*: Object */ = { language, name };
+  const query = { language, name };
   if (filter) {
     if (filter.since) {
       Object.assign(query, { since: filter.since });

@@ -17,37 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { searchQualityProfiles, getExporters } from '../../../api/quality-profiles';
 import { sortProfiles } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
-/*:: import type { Exporter } from '../propTypes'; */
 import '../styles.css';
+import { IExporter, IProfile } from '../types';
 
-/*::
-type Props = {
-  children: React.Element<*>,
-  currentUser: { permissions: { global: Array<string> } },
-  languages: Array<*>,
-  onRequestFail: Object => void,
-  organization: { name: string, canAdmin?: boolean, key: string } | null
-};
-*/
+interface Props {
+  children: React.ReactElement<any>;
+  currentUser: { permissions: { global: Array<string> } };
+  languages: Array<{}>;
+  onRequestFail: (reasong: any) => void;
+  organization: { name: string; canAdmin?: boolean; key: string } | null;
+}
 
-/*::
-type State = {
-  loading: boolean,
-  exporters?: Array<Exporter>,
-  profiles?: Array<*>
-};
-*/
+interface State {
+  loading: boolean;
+  exporters?: IExporter[];
+  profiles?: IProfile[];
+}
 
-export default class App extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = { loading: true };
+export default class App extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = { loading: true };
 
   componentWillMount() {
     const html = document.querySelector('html');
@@ -90,7 +84,7 @@ export default class App extends React.PureComponent {
   }
 
   updateProfiles = () => {
-    return this.fetchProfiles().then(profiles => {
+    return this.fetchProfiles().then((profiles: any) => {
       if (this.mounted) {
         this.setState({ profiles: sortProfiles(profiles) });
       }
