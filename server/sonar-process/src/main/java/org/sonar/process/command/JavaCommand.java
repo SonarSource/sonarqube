@@ -19,37 +19,30 @@
  */
 package org.sonar.process.command;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.process.ProcessId;
+import org.sonar.process.jmvoptions.JvmOptions;
 
-public class JavaCommand extends AbstractCommand<JavaCommand> {
+public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaCommand<T>> {
   // entry point
   private String className;
-  // for example -Xmx1G
-  private final List<String> javaOptions = new ArrayList<>();
+  private JvmOptions<T> jvmOptions;
   // relative path to JAR files
   private final List<String> classpath = new ArrayList<>();
 
-  public JavaCommand(ProcessId id) {
-    super(id);
+  public JavaCommand(ProcessId id, File workDir) {
+    super(id, workDir);
   }
 
-  public List<String> getJavaOptions() {
-    return javaOptions;
+  public JvmOptions<T> getJvmOptions() {
+    return jvmOptions;
   }
 
-  public JavaCommand addJavaOption(String s) {
-    if (!s.isEmpty()) {
-      javaOptions.add(s);
-    }
-    return this;
-  }
+  public JavaCommand<T> setJvmOptions(JvmOptions<T> jvmOptions) {
+    this.jvmOptions = jvmOptions;
 
-  public JavaCommand addJavaOptions(String s) {
-    for (String opt : s.split(" ")) {
-      addJavaOption(opt);
-    }
     return this;
   }
 
@@ -57,7 +50,7 @@ public class JavaCommand extends AbstractCommand<JavaCommand> {
     return className;
   }
 
-  public JavaCommand setClassName(String className) {
+  public JavaCommand<T> setClassName(String className) {
     this.className = className;
     return this;
   }
@@ -66,21 +59,19 @@ public class JavaCommand extends AbstractCommand<JavaCommand> {
     return classpath;
   }
 
-  public JavaCommand addClasspath(String s) {
+  public JavaCommand<T> addClasspath(String s) {
     classpath.add(s);
     return this;
   }
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("JavaCommand{");
-    sb.append("workDir=").append(getWorkDir());
-    sb.append(", javaOptions=").append(javaOptions);
-    sb.append(", className='").append(className).append('\'');
-    sb.append(", classpath=").append(classpath);
-    sb.append(", arguments=").append(getArguments());
-    sb.append(", envVariables=").append(getEnvVariables());
-    sb.append('}');
-    return sb.toString();
+    return "JavaCommand{" + "workDir=" + getWorkDir() +
+      ", jvmOptions=" + jvmOptions +
+      ", className='" + className + '\'' +
+      ", classpath=" + classpath +
+      ", arguments=" + getArguments() +
+      ", envVariables=" + getEnvVariables() +
+      '}';
   }
 }

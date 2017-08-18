@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.sonar.process.ProcessId;
+import org.sonar.process.jmvoptions.EsJvmOptions;
 
 public class EsCommand extends AbstractCommand<EsCommand> {
   private File executable;
@@ -33,10 +34,10 @@ public class EsCommand extends AbstractCommand<EsCommand> {
   private int port;
   private Properties log4j2Properties;
   private List<String> esOptions = new ArrayList<>();
-  private List<String> jvmOptions = new ArrayList<>();
+  private EsJvmOptions esJvmOptions;
 
-  public EsCommand(ProcessId id) {
-    super(id);
+  public EsCommand(ProcessId id, File workDir) {
+    super(id, workDir);
   }
 
   public File getExecutable() {
@@ -104,15 +105,12 @@ public class EsCommand extends AbstractCommand<EsCommand> {
     return this;
   }
 
-  public List<String> getJvmOptions() {
-    return jvmOptions;
-  }
-
-  public EsCommand addJvmOption(String s) {
-    if (!s.isEmpty()) {
-      jvmOptions.add(s);
-    }
+  public EsCommand setEsJvmOptions(EsJvmOptions esJvmOptions) {
+    this.esJvmOptions = esJvmOptions;
     return this;
   }
 
+  public EsJvmOptions getEsJvmOptions() {
+    return esJvmOptions;
+  }
 }

@@ -49,8 +49,8 @@ public class App {
     try (AppState appState = new AppStateFactory(settings).create()) {
       appState.registerSonarQubeVersion(getSonarqubeVersion());
       AppReloader appReloader = new AppReloaderImpl(settingsLoader, fileSystem, appState, logging);
-      CommandFactory commandFactory = new CommandFactoryImpl(settings.getProps());
       fileSystem.reset();
+      CommandFactory commandFactory = new CommandFactoryImpl(settings.getProps(), fileSystem.getTempDir());
 
       try (ProcessLauncher processLauncher = new ProcessLauncherImpl(fileSystem.getTempDir())) {
         Scheduler scheduler = new SchedulerImpl(settings, appReloader, commandFactory, processLauncher, appState);

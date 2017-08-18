@@ -30,9 +30,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.process.command.JavaCommand;
-import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 import org.sonar.process.ProcessId;
+import org.sonar.process.command.JavaCommand;
+import org.sonar.process.jmvoptions.JvmOptions;
+import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
@@ -54,13 +55,15 @@ public class ProcessLauncherImplTest {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
-    JavaCommand command = new JavaCommand(ProcessId.ELASTICSEARCH);
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
     command.addClasspath("lib/*.class");
     command.addClasspath("lib/*.jar");
     command.setArgument("foo", "bar");
     command.setClassName("org.sonarqube.Main");
     command.setEnvVariable("VAR1", "valueOfVar1");
-    command.setWorkDir(temp.newFolder());
+    command.setJvmOptions(new JvmOptions<>()
+      .add("-Dfoo=bar")
+      .add("-Dfoo2=bar2"));
 
     ProcessMonitor monitor = underTest.launch(command);
 
@@ -68,7 +71,8 @@ public class ProcessLauncherImplTest {
     assertThat(processBuilder.started).isTrue();
     assertThat(processBuilder.commands.get(0)).endsWith("java");
     assertThat(processBuilder.commands).containsSequence(
-      "-Djava.io.tmpdir=" + tempDir.getAbsolutePath(),
+      "-Dfoo=bar",
+      "-Dfoo2=bar2",
       "-cp",
       "lib/*.class" + System.getProperty("path.separator") + "lib/*.jar",
       "org.sonarqube.Main");
@@ -84,9 +88,10 @@ public class ProcessLauncherImplTest {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
-    JavaCommand command = new JavaCommand(ProcessId.ELASTICSEARCH);
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
     command.setArgument("foo", "bar");
     command.setArgument("baz", "woo");
+    command.setJvmOptions(new JvmOptions<>());
 
     underTest.launch(command);
 
@@ -116,7 +121,7 @@ public class ProcessLauncherImplTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Fail to launch process [es]");
 
-    underTest.launch(new JavaCommand(ProcessId.ELASTICSEARCH));
+    underTest.launch(new JavaCommand(ProcessId.ELASTICSEARCH, temp.newFolder()));
   }
 
   private static class TestProcessBuilder implements ProcessLauncherImpl.ProcessBuilder {
