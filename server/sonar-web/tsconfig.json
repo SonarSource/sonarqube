@@ -9,7 +9,7 @@
     "target": "es5",
     "jsx": "react",
     "lib": ["es2017", "dom"],
-    "module": "es2015",
+    "module": "esnext",
     "moduleResolution": "node",
     "typeRoots": ["./src/main/js/typings", "./node_modules/@types"]
   },

@@ -1,0 +1,143 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`#sortProfiles should sort by name 1`] = `
+Array [
+  Object {
+    "childrenCount": 0,
+    "depth": 1,
+    "key": "profile1",
+    "name": "profile1",
+    "parentKey": undefined,
+  },
+  Object {
+    "childrenCount": 0,
+    "depth": 1,
+    "key": "profile2",
+    "name": "profile2",
+    "parentKey": undefined,
+  },
+  Object {
+    "childrenCount": 0,
+    "depth": 1,
+    "key": "profile3",
+    "name": "profile3",
+    "parentKey": undefined,
+  },
+]
+`;
+
+exports[`#sortProfiles should sort single branch 1`] = `
+Array [
+  Object {
+    "childrenCount": 1,
+    "depth": 1,
+    "key": "profile1",
+    "name": "profile1",
+    "parentKey": undefined,
+  },
+  Object {
+    "childrenCount": 1,
+    "depth": 2,
+    "key": "profile3",
+    "name": "profile3",
+    "parentKey": "profile1",
+  },
+  Object {
+    "childrenCount": 0,
+    "depth": 3,
+    "key": "profile2",
+    "name": "profile2",
+    "parentKey": "profile3",
+  },
+]
+`;
+
+exports[`#sortProfiles should sort when no parents 1`] = `
+Array [
+  Object {
+    "childrenCount": 0,
+    "depth": 1,
+    "key": "profile1",
+    "name": "profile1",
+    "parentKey": undefined,
+  },
+  Object {
+    "childrenCount": 0,
+    "depth": 1,
+    "key": "profile2",
+    "name": "profile2",
+    "parentKey": undefined,
+  },
+  Object {
+    "childrenCount": 0,
+    "depth": 1,
+    "key": "profile3",
+    "name": "profile3",
+    "parentKey": undefined,
+  },
+]
+`;
+
+exports[`#sortProfiles should sort with children 1`] = `
+Array [
+  Object {
+    "childrenCount": 2,
+    "depth": 1,
+    "key": "parent",
+    "name": "parent",
+    "parentKey": undefined,
+  },
+  Object {
+    "childrenCount": 0,
+    "depth": 2,
+    "key": "child1",
+    "name": "child1",
+    "parentKey": "parent",
+  },
+  Object {
+    "childrenCount": 0,
+    "depth": 2,
+    "key": "child2",
+    "name": "child2",
+    "parentKey": "parent",
+  },
+]
+`;
+
+exports[`#sortProfiles sorts partial set of inherited profiles 1`] = `
+Array [
+  Object {
+    "childrenCount": 0,
+    "depth": 1,
+    "key": "foo",
+    "name": "foo",
+    "parentKey": "bar",
+  },
+]
+`;
+
+exports[`#sortProfiles sorts partial set of inherited profiles 2`] = `
+Array [
+  Object {
+    "childrenCount": 0,
+    "depth": 1,
+    "key": "profile1",
+    "name": "profile1",
+    "parentKey": "x",
+  },
+  Object {
+    "childrenCount": 1,
+    "depth": 1,
+    "key": "profile2",
+    "name": "profile2",
+    "parentKey": undefined,
+  },
+  Object {
+    "childrenCount": 0,
+    "depth": 2,
+    "key": "profile3",
+    "name": "profile3",
+    "parentKey": "profile2",
+  },
+]
+`;
