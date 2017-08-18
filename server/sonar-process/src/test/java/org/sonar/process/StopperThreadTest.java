@@ -22,6 +22,7 @@ package org.sonar.process;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 import static org.mockito.Mockito.*;
 

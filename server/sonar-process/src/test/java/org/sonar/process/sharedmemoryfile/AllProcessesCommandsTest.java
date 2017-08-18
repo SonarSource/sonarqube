@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process;
+package org.sonar.process.sharedmemoryfile;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.sonar.process.ProcessCommands.MAX_PROCESSES;
+import static org.sonar.process.sharedmemoryfile.ProcessCommands.MAX_PROCESSES;
 
 public class AllProcessesCommandsTest {
 

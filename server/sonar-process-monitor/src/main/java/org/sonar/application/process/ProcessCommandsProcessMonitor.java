@@ -19,7 +19,7 @@
  */
 package org.sonar.application.process;
 
-import org.sonar.process.ProcessCommands;
+import org.sonar.process.sharedmemoryfile.ProcessCommands;
 import org.sonar.process.ProcessId;
 
 import static java.util.Objects.requireNonNull;

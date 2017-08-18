@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;

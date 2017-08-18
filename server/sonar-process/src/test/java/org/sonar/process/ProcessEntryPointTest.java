@@ -28,6 +28,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.process.Lifecycle.State;
+import org.sonar.process.sharedmemoryfile.ProcessCommands;
 import org.sonar.process.test.StandardProcess;
 
 import java.io.File;

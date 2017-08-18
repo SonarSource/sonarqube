@@ -21,8 +21,8 @@ package org.sonar.server.app;
 
 import java.io.File;
 import org.sonar.api.config.Configuration;
-import org.sonar.process.DefaultProcessCommands;
-import org.sonar.process.ProcessCommands;
+import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
+import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;

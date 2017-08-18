@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.DefaultProcessCommands;
+import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
