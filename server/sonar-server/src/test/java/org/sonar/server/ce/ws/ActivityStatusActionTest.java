@@ -46,8 +46,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.ce.CeQueueTesting.newCeQueueDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.ce.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 
 public class ActivityStatusActionTest {
 
@@ -191,7 +191,7 @@ public class ActivityStatusActionTest {
       request.setParam(PARAM_COMPONENT_ID, componentUuid);
     }
     if (componentKey != null) {
-      request.setParam(PARAM_COMPONENT_KEY, componentKey);
+      request.setParam(DEPRECATED_PARAM_COMPONENT_KEY, componentKey);
     }
     return request.executeProtobuf(WsCe.ActivityStatusWsResponse.class);
   }
