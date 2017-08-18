@@ -17,14 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
+import { request } from '../helpers/request';
 
-export function searchRules(data) {
-  const url = '/api/rules/search';
-  return getJSON(url, data);
+export function login(login: string, password: string): Promise<Response> {
+  return request('/api/authentication/login')
+    .setMethod('POST')
+    .setData({ login, password })
+    .submit()
+    .then(basicCheckStatus);
 }
 
-export function takeFacet(response, property) {
-  const facet = response.facets.find(facet => facet.property === property);
-  return facet ? facet.values : [];
+export function logout(): Promise<Response> {
+  return request('/api/authentication/logout').setMethod('POST').submit().then(basicCheckStatus);
+}
+
+function basicCheckStatus(response: Response): Promise<Response> {
+  if (response.status >= 200 && response.status < 300) {
+    return Promise.resolve(response);
+  } else {
+    return Promise.reject(response);
+  }
 }

@@ -18,38 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { omitBy } from 'lodash';
-import { getJSON, post, postJSON } from '../helpers/request';
+import { getJSON, RequestData, post, postJSON } from '../helpers/request';
 import { TYPE_PROPERTY_SET } from '../apps/settings/constants';
 
-export function getDefinitions(componentKey) {
-  const url = '/api/settings/list_definitions';
-  const data = {};
+export function getDefinitions(componentKey: string): Promise<any> {
+  const data: RequestData = {};
   if (componentKey) {
     data.component = componentKey;
   }
-  return getJSON(url, data).then(r => r.definitions);
+  return getJSON('/api/settings/list_definitions', data).then(r => r.definitions);
 }
 
-export function getValues(keys, componentKey) {
-  const url = '/api/settings/values';
-  const data = { keys };
+export function getValues(keys: string, componentKey: string): Promise<any> {
+  const data: RequestData = { keys };
   if (componentKey) {
     data.component = componentKey;
   }
-  return getJSON(url, data).then(r => r.settings);
+  return getJSON('/api/settings/values', data).then(r => r.settings);
 }
 
-export function setSettingValue(definition, value, componentKey) {
-  const url = '/api/settings/set';
-
+export function setSettingValue(definition: any, value: any, componentKey: string): Promise<void> {
   const { key } = definition;
-  const data = { key };
+  const data: RequestData = { key };
 
   if (definition.multiValues) {
     data.values = value;
   } else if (definition.type === TYPE_PROPERTY_SET) {
     data.fieldValues = value
-      .map(fields => omitBy(fields, value => value == null))
+      .map((fields: any) => omitBy(fields, value => value == null))
       .map(JSON.stringify);
   } else {
     data.value = value;
@@ -59,40 +55,37 @@ export function setSettingValue(definition, value, componentKey) {
     data.component = componentKey;
   }
 
-  return post(url, data);
+  return post('/api/settings/set', data);
 }
 
-export function resetSettingValue(key, componentKey) {
-  const url = '/api/settings/reset';
-  const data = { keys: key };
+export function resetSettingValue(key: string, componentKey: string): Promise<void> {
+  const data: RequestData = { keys: key };
   if (componentKey) {
     data.component = componentKey;
   }
-  return post(url, data);
+  return post('/api/settings/reset', data);
 }
 
-export function sendTestEmail(to, subject, message) {
-  const url = '/api/emails/send';
-  const data = { to, subject, message };
-  return post(url, data);
+export function sendTestEmail(to: string, subject: string, message: string): Promise<void> {
+  return post('/api/emails/send', { to, subject, message });
 }
 
-export function checkSecretKey() {
+export function checkSecretKey(): Promise<any> {
   return getJSON('/api/settings/check_secret_key');
 }
 
-export function generateSecretKey() {
+export function generateSecretKey(): Promise<any> {
   return postJSON('/api/settings/generate_secret_key');
 }
 
-export function encryptValue(value) {
+export function encryptValue(value: string): Promise<any> {
   return postJSON('/api/settings/encrypt', { value });
 }
 
-export function getServerId() {
+export function getServerId(): Promise<any> {
   return getJSON('/api/server_id/show');
 }
 
-export function generateServerId(organization, ip) {
+export function generateServerId(organization: string, ip: string): Promise<any> {
   return postJSON('/api/server_id/generate', { organization, ip });
 }

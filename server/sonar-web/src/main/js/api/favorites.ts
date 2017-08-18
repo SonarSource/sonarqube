@@ -17,17 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
 import { post, getJSON } from '../helpers/request';
 
-export function getFavorites() /*: Promise<Object> */ {
+export function getFavorites(): Promise<any> {
   return getJSON('/api/favorites/search');
 }
 
-export function addFavorite(component /*: string */) {
+export function addFavorite(component: string): Promise<void> {
   return post('/api/favorites/add', { component });
 }
 
-export function removeFavorite(component /*: string */) {
+export function removeFavorite(component: string): Promise<void> {
   return post('/api/favorites/remove', { component });
 }

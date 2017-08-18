@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post, postJSON } from '../helpers/request';
+import { getJSON, RequestData } from '../helpers/request';
 
-export function getProjectLinks(projectKey) {
-  const url = '/api/project_links/search';
-  const data = { projectKey };
-  return getJSON(url, data).then(r => r.links);
+export function getMeasures(componentKey: string, metrics: string[]): Promise<any> {
+  const url = '/api/measures/component';
+  const data = { componentKey, metricKeys: metrics.join(',') };
+  return getJSON(url, data).then(r => r.component.measures);
 }
 
-export function deleteLink(linkId) {
-  const url = '/api/project_links/delete';
-  const data = { id: linkId };
-  return post(url, data);
+export function getMeasuresAndMeta(
+  componentKey: string,
+  metrics: string[],
+  additional: RequestData = {}
+): Promise<any> {
+  const data = { ...additional, componentKey, metricKeys: metrics.join(',') };
+  return getJSON('/api/measures/component', data);
 }
 
-export function createLink(projectKey, name, url) {
-  const apiURL = '/api/project_links/create';
-  const data = { projectKey, name, url };
-  return postJSON(apiURL, data).then(r => r.link);
+export function getMeasuresForProjects(projectKeys: string[], metricKeys: string[]): Promise<any> {
+  return getJSON('/api/measures/search', {
+    projectKeys: projectKeys.join(),
+    metricKeys: metricKeys.join()
+  });
 }

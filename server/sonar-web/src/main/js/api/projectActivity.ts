@@ -17,53 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import { getJSON, postJSON, post } from '../helpers/request';
+import { getJSON, postJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-/*::
-type GetProjectActivityResponse = {
-  analyses: Array<Object>,
+interface IGetProjectActivityResponse {
+  analyses: any[];
   paging: {
-    total: number,
-    pageIndex: number,
-    pageSize: number
-  }
-};
-*/
+    total: number;
+    pageIndex: number;
+    pageSize: number;
+  };
+}
 
-/*::
-type GetProjectActivityOptions = {
-  project: string,
-  category?: ?string,
-  p?: ?number,
-  ps?: ?number
-};
-*/
-
-export function getProjectActivity(
-  data /*: GetProjectActivityOptions */
-) /*: Promise<GetProjectActivityResponse> */ {
+export function getProjectActivity(data: {
+  project: string;
+  category?: string;
+  p?: number;
+  ps?: number;
+}): Promise<IGetProjectActivityResponse> {
   return getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
 }
 
-/*::
-type CreateEventResponse = {
-  analysis: string,
-  key: string,
-  name: string,
-  category: string,
-  description?: string
-};
-*/
+interface ICreateEventResponse {
+  analysis: string;
+  key: string;
+  name: string;
+  category: string;
+  description?: string;
+}
 
 export function createEvent(
-  analysis /*: string */,
-  name /*: string */,
-  category /*: ?string */,
-  description /*: ?string */
-) /*: Promise<CreateEventResponse> */ {
-  const data /*: Object */ = { analysis, name };
+  analysis: string,
+  name: string,
+  category?: string,
+  description?: string
+): Promise<ICreateEventResponse> {
+  const data: RequestData = { analysis, name };
   if (category) {
     data.category = category;
   }
@@ -73,16 +62,16 @@ export function createEvent(
   return postJSON('/api/project_analyses/create_event', data).then(r => r.event, throwGlobalError);
 }
 
-export function deleteEvent(event /*: string */) /*: Promise<*> */ {
+export function deleteEvent(event: string): Promise<void | Response> {
   return post('/api/project_analyses/delete_event', { event }).catch(throwGlobalError);
 }
 
 export function changeEvent(
-  event /*: string */,
-  name /*: ?string */,
-  description /*: ?string */
-) /*: Promise<CreateEventResponse> */ {
-  const data /*: Object */ = { event };
+  event: string,
+  name?: string,
+  description?: string
+): Promise<ICreateEventResponse> {
+  const data: RequestData = { event };
   if (name) {
     data.name = name;
   }
@@ -92,6 +81,6 @@ export function changeEvent(
   return postJSON('/api/project_analyses/update_event', data).then(r => r.event, throwGlobalError);
 }
 
-export function deleteAnalysis(analysis /*: string */) /*: Promise<*> */ {
+export function deleteAnalysis(analysis: string): Promise<void | Response> {
   return post('/api/project_analyses/delete', { analysis }).catch(throwGlobalError);
 }

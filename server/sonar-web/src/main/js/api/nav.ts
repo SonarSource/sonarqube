@@ -17,18 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from '../helpers/request';
+import { getJSON } from '../helpers/request';
 
-export const getLicenses = () => getJSON('/api/licenses/list').then(r => r.licenses);
+export function getGlobalNavigation(): Promise<any> {
+  return getJSON('/api/navigation/global');
+}
 
-export const setLicense = (key, value) => {
-  const url = '/api/settings/set';
-  const data = { key, value };
-  return post(url, data);
-};
+export function getComponentNavigation(componentKey: string): Promise<any> {
+  return getJSON('/api/navigation/component', { componentKey });
+}
 
-export const resetLicense = key => {
-  const url = '/api/settings/reset';
-  const data = { keys: key };
-  return post(url, data);
-};
+export function getSettingsNavigation(): Promise<any> {
+  return getJSON('/api/navigation/settings');
+}

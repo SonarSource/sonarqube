@@ -17,25 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
+import { getJSON, RequestData } from '../helpers/request';
 
-export function getMeasures(componentKey, metrics) {
-  const url = '/api/measures/component';
-  const data = { componentKey, metricKeys: metrics.join(',') };
-  return getJSON(url, data).then(r => r.component.measures);
+export function searchRules(data: RequestData) {
+  return getJSON('/api/rules/search', data);
 }
 
-export function getMeasuresAndMeta(componentKey, metrics, additional = {}) {
-  const url = '/api/measures/component';
-  const data = Object.assign({}, additional, {
-    componentKey,
-    metricKeys: metrics.join(',')
-  });
-  return getJSON(url, data);
+export function takeFacet(response: any, property: string) {
+  const facet = response.facets.find((facet: any) => facet.property === property);
+  return facet ? facet.values : [];
 }
-
-export const getMeasuresForProjects = (projectKeys, metricKeys) =>
-  getJSON('/api/measures/search', {
-    projectKeys: projectKeys.join(),
-    metricKeys: metricKeys.join()
-  });

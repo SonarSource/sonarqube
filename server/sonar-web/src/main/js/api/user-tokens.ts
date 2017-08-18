@@ -17,20 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import { getJSON } from '../helpers/request';
+import { getJSON, postJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-/*::
-type GetApplicationLeakResponse = Array<{
-  date: string,
-  project: string,
-  projectName: string
-}>;
-*/
+/**
+ * List tokens for given user login
+ */
+export function getTokens(login: string): Promise<any> {
+  return getJSON('/api/user_tokens/search', { login }).then(r => r.userTokens);
+}
 
-export function getApplicationLeak(
-  application /*: string */
-) /*: Promise<GetApplicationLeakResponse> */ {
-  return getJSON('/api/views/show_leak', { application }).then(r => r.leaks, throwGlobalError);
+/**
+ * Generate a user token
+ */
+export function generateToken(
+  tokenName: string,
+  userLogin?: string
+): Promise<{ name: string; token: string }> {
+  const data: RequestData = { name: tokenName };
+  if (userLogin) {
+    data.login = userLogin;
+  }
+  return postJSON('/api/user_tokens/generate', data).catch(throwGlobalError);
+}
+
+/**
+ * Revoke a user token
+ */
+export function revokeToken(tokenName: string, userLogin?: string): Promise<void | Response> {
+  const data: RequestData = { name: tokenName };
+  if (userLogin) {
+    data.login = userLogin;
+  }
+  return post('/api/user_tokens/revoke', data).catch(throwGlobalError);
 }

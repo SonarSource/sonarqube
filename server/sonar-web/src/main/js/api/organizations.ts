@@ -17,85 +17,73 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import { getJSON, post, postJSON } from '../helpers/request';
-/*:: import type { Organization } from '../store/organizations/duck'; */
+import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export function getOrganizations(organizations /*: ?Array<string> */) {
-  const data = {};
+export function getOrganizations(organizations?: string[]): Promise<any> {
+  const data: RequestData = {};
   if (organizations) {
     Object.assign(data, { organizations: organizations.join() });
   }
   return getJSON('/api/organizations/search', data);
 }
 
-export function getMyOrganizations() {
+export function getMyOrganizations(): Promise<any> {
   return getJSON('/api/organizations/search_my_organizations').then(r => r.organizations);
 }
 
-/*::
-type GetOrganizationType = null | Organization;
-*/
-
-/*::
-type GetOrganizationNavigation = {
-  canAdmin: boolean,
-  canDelete: boolean,
-  canProvisionProjects: boolean,
-  isDefault: boolean,
-  pages: Array<{ key: string, name: string }>,
-  adminPages: Array<{ key: string, name: string }>
-};
-*/
-
-export function getOrganization(key /*: string */) /*: Promise<GetOrganizationType> */ {
+export function getOrganization(key: string): Promise<any> {
   return getOrganizations([key])
-    .then(r => r.organizations.find(o => o.key === key))
+    .then(r => r.organizations.find((o: any) => o.key === key))
     .catch(throwGlobalError);
 }
 
-export function getOrganizationNavigation(
-  key /*: string */
-) /*: Promise<GetOrganizationNavigation> */ {
+interface GetOrganizationNavigation {
+  canAdmin: boolean;
+  canDelete: boolean;
+  canProvisionProjects: boolean;
+  isDefault: boolean;
+  pages: Array<{ key: string; name: string }>;
+  adminPages: Array<{ key: string; name: string }>;
+}
+
+export function getOrganizationNavigation(key: string): Promise<GetOrganizationNavigation> {
   return getJSON('/api/navigation/organization', { organization: key }).then(r => r.organization);
 }
 
-export function createOrganization(fields /*: {} */) /*: Promise<Organization> */ {
-  return postJSON('/api/organizations/create', fields).then(r => r.organization, throwGlobalError);
+export function createOrganization(data: RequestData): Promise<any> {
+  return postJSON('/api/organizations/create', data).then(r => r.organization, throwGlobalError);
 }
 
-export function updateOrganization(key /*: string */, changes /*: {} */) {
+export function updateOrganization(key: string, changes: RequestData): Promise<void> {
   return post('/api/organizations/update', { key, ...changes });
 }
 
-export function deleteOrganization(key /*: string */) {
+export function deleteOrganization(key: string): Promise<void | Response> {
   return post('/api/organizations/delete', { key }).catch(throwGlobalError);
 }
 
-export function searchMembers(
-  data /*: {
-  organization?: string,
-  p?: number,
-  ps?: number,
-  q?: string,
-  selected?: string
-} */
-) {
+export function searchMembers(data: {
+  organization?: string;
+  p?: number;
+  ps?: number;
+  q?: string;
+  selected?: string;
+}): Promise<any> {
   return getJSON('/api/organizations/search_members', data);
 }
 
-export function addMember(data /*: { login: string, organization: string } */) {
+export function addMember(data: { login: string; organization: string }): Promise<any> {
   return postJSON('/api/organizations/add_member', data).then(r => r.user);
 }
 
-export function removeMember(data /*: { login: string, organization: string } */) {
+export function removeMember(data: { login: string; organization: string }): Promise<void> {
   return post('/api/organizations/remove_member', data);
 }
 
 export function changeProjectVisibility(
-  organization /*: string */,
-  projectVisibility /*: string */
-) {
+  organization: string,
+  projectVisibility: string
+): Promise<void> {
   return post('/api/organizations/update_project_visibility', { organization, projectVisibility });
 }
