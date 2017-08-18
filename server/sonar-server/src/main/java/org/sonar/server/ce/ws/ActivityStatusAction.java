@@ -38,8 +38,8 @@ import org.sonarqube.ws.client.ce.ActivityStatusWsRequest;
 
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.ce.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 
 public class ActivityStatusAction implements CeWsAction {
   private final UserSession userSession;
@@ -66,7 +66,7 @@ public class ActivityStatusAction implements CeWsAction {
     action.createParam(PARAM_COMPONENT_ID)
       .setDescription("Id of the component (project) to filter on")
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
-    action.createParam(PARAM_COMPONENT_KEY)
+    action.createParam(DEPRECATED_PARAM_COMPONENT_KEY)
       .setDescription("Key of the component (project) to filter on")
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
   }
@@ -115,7 +115,7 @@ public class ActivityStatusAction implements CeWsAction {
   private static ActivityStatusWsRequest toWsRequest(Request request) {
     return ActivityStatusWsRequest.newBuilder()
       .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setComponentKey(request.param(PARAM_COMPONENT_KEY))
+      .setComponentKey(request.param(DEPRECATED_PARAM_COMPONENT_KEY))
       .build();
   }
 }

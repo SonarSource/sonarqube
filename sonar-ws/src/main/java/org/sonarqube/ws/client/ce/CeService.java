@@ -29,9 +29,9 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.ce.CeWsParameters.ACTION_WORKER_COUNT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.ce.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_ONLY_CURRENTS;
@@ -89,7 +89,7 @@ public class CeService extends BaseService {
     return call(
       new GetRequest(path("activity_status"))
         .setParam(PARAM_COMPONENT_ID, request.getComponentId())
-        .setParam(PARAM_COMPONENT_KEY, request.getComponentKey()),
+        .setParam(DEPRECATED_PARAM_COMPONENT_KEY, request.getComponentKey()),
       WsCe.ActivityStatusWsResponse.parser());
   }
 
@@ -97,11 +97,10 @@ public class CeService extends BaseService {
     return call(new GetRequest(path(ACTION_WORKER_COUNT)), WorkerCountResponse.parser());
   }
 
-  public ProjectResponse component(String componentKey, String branch) {
+  public ProjectResponse component(String componentKey) {
     return call(
       new GetRequest(path("component"))
-        .setParam(PARAM_COMPONENT_KEY, componentKey)
-        .setParam(PARAM_BRANCH, branch),
+        .setParam(PARAM_COMPONENT, componentKey),
       ProjectResponse.parser());
   }
 
