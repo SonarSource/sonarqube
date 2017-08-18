@@ -19,6 +19,7 @@
  */
 package org.sonar.application;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -26,11 +27,13 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
@@ -56,15 +59,17 @@ import static org.sonar.process.ProcessId.WEB_SERVER;
 
 public class SchedulerImplTest {
 
-  private static final EsCommand ES_COMMAND = new EsCommand(ELASTICSEARCH);
-  private static final JavaCommand WEB_LEADER_COMMAND = new JavaCommand(WEB_SERVER);
-  private static final JavaCommand WEB_FOLLOWER_COMMAND = new JavaCommand(WEB_SERVER);
-  private static final JavaCommand CE_COMMAND = new JavaCommand(COMPUTE_ENGINE);
-
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  private EsCommand esCommand;
+  private JavaCommand webLeaderCommand;
+  private JavaCommand webFollowerCommand;
+  private JavaCommand ceCommand;
 
   private AppReloader appReloader = mock(AppReloader.class);
   private TestAppSettings settings = new TestAppSettings();
@@ -72,6 +77,15 @@ public class SchedulerImplTest {
   private TestProcessLauncher processLauncher = new TestProcessLauncher();
   private TestAppState appState = new TestAppState();
   private List<ProcessId> orderedStops = synchronizedList(new ArrayList<>());
+
+  @Before
+  public void setUp() throws Exception {
+    File tempDir = temporaryFolder.newFolder();
+    esCommand = new EsCommand(ELASTICSEARCH, tempDir);
+    webLeaderCommand = new JavaCommand(WEB_SERVER, tempDir);
+    webFollowerCommand = new JavaCommand(WEB_SERVER, tempDir);
+    ceCommand = new JavaCommand(COMPUTE_ENGINE, tempDir);
+  }
 
   @After
   public void tearDown() throws Exception {
@@ -95,7 +109,7 @@ public class SchedulerImplTest {
     TestProcess web = processLauncher.waitForProcess(WEB_SERVER);
     assertThat(web.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(2);
-    assertThat(processLauncher.commands).containsExactly(ES_COMMAND, WEB_LEADER_COMMAND);
+    assertThat(processLauncher.commands).containsExactly(esCommand, webLeaderCommand);
 
     // web becomes operational -> CE is starting
     web.operational = true;
@@ -103,7 +117,7 @@ public class SchedulerImplTest {
     TestProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE);
     assertThat(ce.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(3);
-    assertThat(processLauncher.commands).containsExactly(ES_COMMAND, WEB_LEADER_COMMAND, CE_COMMAND);
+    assertThat(processLauncher.commands).containsExactly(esCommand, webLeaderCommand, ceCommand);
 
     // all processes are up
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isTrue());
@@ -307,20 +321,20 @@ public class SchedulerImplTest {
     }
   }
 
-  private static class TestCommandFactory implements CommandFactory {
+  private class TestCommandFactory implements CommandFactory {
     @Override
     public EsCommand createEsCommand() {
-      return ES_COMMAND;
+      return esCommand;
     }
 
     @Override
     public JavaCommand createWebCommand(boolean leader) {
-      return leader ? WEB_LEADER_COMMAND : WEB_FOLLOWER_COMMAND;
+      return leader ? webLeaderCommand : webFollowerCommand;
     }
 
     @Override
     public JavaCommand createCeCommand() {
-      return CE_COMMAND;
+      return ceCommand;
     }
   }
 

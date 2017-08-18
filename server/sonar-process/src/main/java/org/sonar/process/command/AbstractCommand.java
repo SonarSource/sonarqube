@@ -27,16 +27,19 @@ import java.util.Properties;
 import javax.annotation.Nullable;
 import org.sonar.process.ProcessId;
 
+import static java.util.Objects.requireNonNull;
+
 public abstract class AbstractCommand<T extends AbstractCommand> {
   // unique key among the group of commands to launch
   private final ProcessId id;
   // program arguments
   private final Map<String, String> arguments = new LinkedHashMap<>();
   private final Map<String, String> envVariables = new HashMap<>(System.getenv());
-  private File workDir;
+  private final File workDir;
 
-  protected AbstractCommand(ProcessId id) {
-    this.id = id;
+  protected AbstractCommand(ProcessId id, File workDir) {
+    this.id = requireNonNull(id, "ProcessId can't be null");
+    this.workDir = requireNonNull(workDir, "workDir can't be null");
   }
 
   public ProcessId getProcessId() {
@@ -45,11 +48,6 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
 
   public File getWorkDir() {
     return workDir;
-  }
-
-  public T setWorkDir(File workDir) {
-    this.workDir = workDir;
-    return castThis();
   }
 
   @SuppressWarnings("unchecked")
