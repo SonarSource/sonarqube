@@ -17,33 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Link } from 'react-router';
 
-export default class Unauthorized extends React.PureComponent {
-  static propTypes = {
-    location: PropTypes.object.isRequired
+interface Props {
+  location: {
+    query: {
+      message: string;
+    };
   };
+}
 
-  render() {
-    const { message } = this.props.location.query;
+export default function Unauthorized(props: Props) {
+  const { message } = props.location.query;
 
-    return (
-      <div className="text-center">
-        <p id="unauthorized">
-          {"You're not authorized to access this page. Please contact the administrator."}
-        </p>
+  return (
+    <div className="text-center">
+      <p id="unauthorized">
+        {"You're not authorized to access this page. Please contact the administrator."}
+      </p>
 
-        {!!message &&
-          <p className="spacer-top">
-            Reason : {message}
-          </p>}
+      {!!message &&
+        <p className="spacer-top">
+          Reason : {message}
+        </p>}
 
-        <div className="big-spacer-top">
-          <a href={window.baseUrl + '/'}>Home</a>
-        </div>
+      <div className="big-spacer-top">
+        <Link to="/">Home</Link>
       </div>
-    );
-  }
+    </div>
+  );
 }
