@@ -44,6 +44,7 @@
   "devDependencies": {
     "@types/classnames": "2.2.0",
     "@types/enzyme": "2.8.6",
+    "@types/escape-html": "0.0.19",
     "@types/jest": "20.0.7",
     "@types/jquery": "3.2.11",
     "@types/lodash": "4.14.73",

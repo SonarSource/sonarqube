@@ -24,6 +24,10 @@
     "@types/cheerio" "*"
     "@types/react" "*"
 
+"@types/escape-html@0.0.19":
+  version "0.0.19"
+  resolved "https://registry.yarnpkg.com/@types/escape-html/-/escape-html-0.0.19.tgz#595ff7bd7ee510af54517819de24abdcea6f3507"
+
 "@types/history@^3":
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/@types/history/-/history-3.2.1.tgz#0039ab0e0be2a0cc22bac171d27a44588103d123"
