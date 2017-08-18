@@ -347,7 +347,8 @@ public class ActivityActionTest {
   public void incremental_analysis_on_single_project() {
     ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    CeActivityDto activity = insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    insertCharacteristic(activity, INCREMENTAL_KEY, "true");
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     ActivityResponse activityResponse = call(ws.newRequest()
@@ -363,7 +364,8 @@ public class ActivityActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
     SnapshotDto standardAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(false));
-    insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    CeActivityDto incrementalTask = insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    insertCharacteristic(incrementalTask, INCREMENTAL_KEY, "true");
     insertActivity("T2", project, SUCCESS, standardAnalysis);
     logInAsSystemAdministrator();
 
@@ -381,7 +383,8 @@ public class ActivityActionTest {
   public void incremental_analysis_on_search_uuid() {
     ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    CeActivityDto activity = insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    insertCharacteristic(activity, INCREMENTAL_KEY, "true");
     logInAsSystemAdministrator();
 
     ActivityResponse activityResponse = call(ws.newRequest()
@@ -419,7 +422,9 @@ public class ActivityActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
     SnapshotDto analysis = db.components().insertSnapshot(longLivingBranch);
-    insertActivity("T1", longLivingBranch, SUCCESS, analysis);
+    CeActivityDto activity = insertActivity("T1", project, SUCCESS, analysis);
+    insertCharacteristic(activity, BRANCH_KEY, longLivingBranch.getBranch());
+    insertCharacteristic(activity, BRANCH_TYPE_KEY, LONG.name());
 
     ActivityResponse response = ws.newRequest().executeProtobuf(ActivityResponse.class);
 
@@ -566,9 +571,17 @@ public class ActivityActionTest {
   }
 
   private CeTaskCharacteristicDto insertCharacteristic(CeQueueDto queueDto, String key, String value) {
+    return insertCharacteristic(queueDto.getUuid(), key, value);
+  }
+
+  private CeTaskCharacteristicDto insertCharacteristic(CeActivityDto activityDto, String key, String value) {
+    return insertCharacteristic(activityDto.getUuid(), key, value);
+  }
+
+  private CeTaskCharacteristicDto insertCharacteristic(String taskUuid, String key, String value) {
     CeTaskCharacteristicDto dto = new CeTaskCharacteristicDto()
       .setUuid(Uuids.createFast())
-      .setTaskUuid(queueDto.getUuid())
+      .setTaskUuid(taskUuid)
       .setKey(key)
       .setValue(value);
     db.getDbClient().ceTaskCharacteristicsDao().insert(db.getSession(), Collections.singletonList(dto));
