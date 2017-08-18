@@ -106,6 +106,38 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
+  public void bulk_updateKey_updates_branches_too() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto module = db.components().insertComponent(prefixDbKeyWithKey(newModuleDto(branch), project.getKey()));
+    db.components().insertComponent(prefixDbKeyWithKey(newFileDto(module), module.getKey()));
+    db.components().insertComponent(prefixDbKeyWithKey(newFileDto(module), module.getKey()));
+    int branchComponentCount = 4;
+
+    String oldProjectKey = project.getKey();
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).hasSize(1);
+
+    String oldBranchKey = branch.getDbKey();
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).hasSize(branchComponentCount);
+
+    String newProjectKey = "newKey";
+    String newBranchKey = ComponentDto.generateBranchKey(newProjectKey, branch.getBranch());
+    underTest.bulkUpdateKey(dbSession, project.uuid(), oldProjectKey, newProjectKey);
+
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).isEmpty();
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).isEmpty();
+
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newProjectKey)).hasSize(1);
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newBranchKey)).hasSize(branchComponentCount);
+    db.select(dbSession, "select kee from projects")
+      .forEach(map -> map.values().forEach(k -> assertThat(k.toString()).startsWith(newProjectKey)));
+  }
+
+  private ComponentDto prefixDbKeyWithKey(ComponentDto componentDto, String key) {
+    return componentDto.setDbKey(key + ":" + componentDto.getDbKey());
+  }
+
+  @Test
   public void updateKey_throws_IAE_if_component_with_specified_key_does_not_exist() {
     db.prepareDbUnit(getClass(), "shared.xml");
 

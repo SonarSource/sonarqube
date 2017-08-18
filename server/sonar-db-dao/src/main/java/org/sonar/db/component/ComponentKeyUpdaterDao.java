@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +110,18 @@ public class ComponentKeyUpdaterDao implements Dao {
     ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
     // must SELECT first everything
     Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper);
+
+    // add branches
+    Map<String, String> branchBaseKeys = new HashMap<>();
+    session.getMapper(BranchMapper.class).selectByProjectUuid(projectUuid)
+      .stream()
+      .filter(branch -> !projectUuid.equals(branch.getUuid()))
+      .forEach(branch -> {
+        Set<ResourceDto> branchModules = collectAllModules(branch.getUuid(), stringToReplace, mapper);
+        modules.addAll(branchModules);
+        branchModules.forEach(module -> branchBaseKeys.put(module.getKey(), branchBaseKey(module.getKey())));
+      });
+
     checkNewNameOfAllModules(modules, stringToReplace, replacementString, mapper);
     Map<ResourceDto, List<ResourceDto>> allResourcesByModuleMap = Maps.newHashMap();
     for (ResourceDto module : modules) {
@@ -118,11 +131,20 @@ public class ComponentKeyUpdaterDao implements Dao {
     // and then proceed with the batch UPDATE at once
     for (ResourceDto module : modules) {
       String oldModuleKey = module.getKey();
-      String newModuleKey = computeNewKey(module.getKey(), stringToReplace, replacementString);
+      oldModuleKey = branchBaseKeys.getOrDefault(oldModuleKey, oldModuleKey);
+      String newModuleKey = computeNewKey(oldModuleKey, stringToReplace, replacementString);
       Collection<ResourceDto> resources = Lists.newArrayList(module);
       resources.addAll(allResourcesByModuleMap.get(module));
       runBatchUpdateForAllResources(resources, oldModuleKey, newModuleKey, mapper);
     }
+  }
+
+  private String branchBaseKey(String key) {
+    int index = key.lastIndexOf(ComponentDto.BRANCH_KEY_SEPARATOR);
+    if (index == -1) {
+      return key;
+    }
+    return key.substring(0, index);
   }
 
   private static void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ComponentKeyUpdaterMapper mapper) {
