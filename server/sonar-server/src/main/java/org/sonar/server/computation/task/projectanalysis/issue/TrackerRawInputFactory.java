@@ -77,7 +77,9 @@ public class TrackerRawInputFactory {
     protected LineHashSequence loadLineHashSequence() {
       List<String> lines;
       if (component.getType() == Component.Type.FILE) {
-        lines = newArrayList(sourceLinesRepository.readLines(component));
+        try (CloseableIterator<String> linesIt = sourceLinesRepository.readLines(component)) {
+          lines = newArrayList(linesIt);
+        }
       } else {
         lines = Collections.emptyList();
       }
