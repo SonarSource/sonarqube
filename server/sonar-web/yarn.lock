@@ -57,6 +57,12 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-modal@2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@types/react-modal/-/react-modal-2.2.0.tgz#e92bb8454e53030581f263e3fb7e7d27e3eb85b8"
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-redux@5.0.3":
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-5.0.3.tgz#cd68de0c49c516b940fdc6f688535596b5d6eca4"
@@ -69,6 +75,12 @@
   resolved "https://registry.yarnpkg.com/@types/react-router/-/react-router-3.0.5.tgz#ef5eea33f067d877586d06c464a5f864860be09d"
   dependencies:
     "@types/history" "^3"
+    "@types/react" "*"
+
+"@types/react-select@1.0.51":
+  version "1.0.51"
+  resolved "https://registry.yarnpkg.com/@types/react-select/-/react-select-1.0.51.tgz#47e7787b068c34395251e95a0981cff8034eddcc"
+  dependencies:
     "@types/react" "*"
 
 "@types/react@*", "@types/react@16.0.2":
