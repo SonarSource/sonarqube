@@ -729,10 +729,11 @@ public class SearchActionComponentsTest {
       .setParam(PARAM_BRANCH, branch.getBranch())
       .executeProtobuf(SearchWsResponse.class);
 
-    assertThat(result.getIssuesList()).extracting(Issues.Issue::getKey)
-      .containsExactlyInAnyOrder(branchIssue.getKey())
-      .doesNotContain(projectIssue.getKey());
-    assertThat(result.getComponentsList()).extracting(Issues.Component::getKey, Issues.Component::getBranch)
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
+      .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
+    assertThat(result.getComponentsList())
+      .extracting(Issues.Component::getKey, Issues.Component::getBranch)
       .containsExactlyInAnyOrder(
         tuple(branchFile.getKey(), branchFile.getBranch()),
         tuple(branch.getKey(), branch.getBranch()));
@@ -752,7 +753,7 @@ public class SearchActionComponentsTest {
 
     SearchWsResponse result = ws.newRequest().executeProtobuf(SearchWsResponse.class);
 
-    assertThat(result.getIssuesList()).extracting(Issues.Issue::getKey)
+    assertThat(result.getIssuesList()).extracting(Issue::getKey)
       .containsExactlyInAnyOrder(projectIssue.getKey())
       .doesNotContain(branchIssue.getKey());
   }
