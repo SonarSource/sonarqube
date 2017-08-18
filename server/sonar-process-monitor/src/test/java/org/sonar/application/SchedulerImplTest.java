@@ -34,16 +34,15 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
-import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.TestAppSettings;
-import org.sonar.application.process.AbstractCommand;
-import org.sonar.application.process.CommandFactory;
-import org.sonar.application.process.EsCommand;
-import org.sonar.application.process.JavaCommand;
 import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.ProcessMonitor;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
+import org.sonar.process.command.AbstractCommand;
+import org.sonar.process.command.CommandFactory;
+import org.sonar.process.command.EsCommand;
+import org.sonar.process.command.JavaCommand;
 
 import static java.util.Collections.synchronizedList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -310,7 +309,7 @@ public class SchedulerImplTest {
 
   private static class TestCommandFactory implements CommandFactory {
     @Override
-    public EsCommand createEsCommand(AppSettings settings) {
+    public EsCommand createEsCommand() {
       return ES_COMMAND;
     }
 

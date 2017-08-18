@@ -23,8 +23,8 @@ import java.io.IOException;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.AppSettingsLoader;
 import org.sonar.application.config.AppSettingsLoaderImpl;
-import org.sonar.application.process.CommandFactory;
-import org.sonar.application.process.CommandFactoryImpl;
+import org.sonar.process.command.CommandFactory;
+import org.sonar.process.command.CommandFactoryImpl;
 import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.ProcessLauncherImpl;
 import org.sonar.application.process.StopRequestWatcher;
@@ -49,7 +49,7 @@ public class App {
     try (AppState appState = new AppStateFactory(settings).create()) {
       appState.registerSonarQubeVersion(getSonarqubeVersion());
       AppReloader appReloader = new AppReloaderImpl(settingsLoader, fileSystem, appState, logging);
-      CommandFactory commandFactory = new CommandFactoryImpl(settings);
+      CommandFactory commandFactory = new CommandFactoryImpl(settings.getProps());
       fileSystem.reset();
 
       try (ProcessLauncher processLauncher = new ProcessLauncherImpl(fileSystem.getTempDir())) {

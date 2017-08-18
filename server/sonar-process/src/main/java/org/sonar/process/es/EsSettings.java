@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.process;
+package org.sonar.process.es;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -49,7 +49,7 @@ public class EsSettings {
   private final String clusterName;
   private final String nodeName;
 
-  EsSettings(Props props) {
+  public EsSettings(Props props) {
     this.props = props;
 
     this.clusterName = props.nonNullValue(ProcessProperties.CLUSTER_NAME);
@@ -61,7 +61,7 @@ public class EsSettings {
     }
   }
 
-  Map<String, String> build() {
+  public Map<String, String> build() {
     Map<String, String> builder = new HashMap<>();
     configureFileSystem(builder);
     configureNetwork(builder);
