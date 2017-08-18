@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
-import moment from 'moment';
+import * as moment from 'moment';
 import { sortBy } from 'lodash';
 import { searchRules } from '../../../api/rules';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
@@ -31,24 +30,33 @@ const RULES_LIMIT = 10;
 
 const PERIOD_START_MOMENT = moment().subtract(1, 'year');
 
-function parseRules(r) {
+function parseRules(r: any) {
   const { rules, actives } = r;
-  return rules.map(rule => {
+  return rules.map((rule: any) => {
     const activations = actives[rule.key];
     return { ...rule, activations: activations ? activations.length : 0 };
   });
 }
 
-/*::
-type Props = {
-  organization: ?string
-};
-*/
+interface Props {
+  organization: string | null;
+}
 
-export default class EvolutionRules extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state = {};
+interface IRule {
+  activations: number;
+  key: string;
+  langName: string;
+  name: string;
+}
+
+interface State {
+  latestRules?: Array<IRule>;
+  latestRulesTotal?: number;
+}
+
+export default class EvolutionRules extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = {};
 
   componentDidMount() {
     this.mounted = true;
@@ -68,10 +76,10 @@ export default class EvolutionRules extends React.PureComponent {
       f: 'name,langName,actives'
     };
 
-    searchRules(data).then(r => {
+    searchRules(data).then((r: any) => {
       if (this.mounted) {
         this.setState({
-          latestRules: sortBy(parseRules(r), 'langName'),
+          latestRules: sortBy<IRule>(parseRules(r), 'langName'),
           latestRulesTotal: r.total
         });
       }
@@ -79,7 +87,7 @@ export default class EvolutionRules extends React.PureComponent {
   }
 
   render() {
-    if (!this.state.latestRulesTotal) {
+    if (!this.state.latestRulesTotal || !this.state.latestRules) {
       return null;
     }
 
@@ -125,7 +133,7 @@ export default class EvolutionRules extends React.PureComponent {
         {this.state.latestRulesTotal > RULES_LIMIT &&
           <div className="spacer-top">
             <Link to={newRulesUrl} className="small">
-              {translate('see_all')} {formatMeasure(this.state.latestRulesTotal, 'SHORT_INT')}
+              {translate('see_all')} {formatMeasure(this.state.latestRulesTotal, 'SHORT_INT', null)}
             </Link>
           </div>}
       </div>

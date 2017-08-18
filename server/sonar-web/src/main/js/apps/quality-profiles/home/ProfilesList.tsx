@@ -17,31 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { groupBy, pick, sortBy } from 'lodash';
 import ProfilesListRow from './ProfilesListRow';
 import ProfilesListHeader from './ProfilesListHeader';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
-/*:: import type { Profile } from '../propTypes'; */
+import { IProfile } from '../types';
 
-/*::
-type Props = {
-  canAdmin: boolean,
-  languages: Array<{ key: string, name: string }>,
-  location: { query: { [string]: string } },
-  onRequestFail: Object => void,
-  organization: ?string,
-  profiles: Array<Profile>,
-  updateProfiles: () => Promise<*>
-};
-*/
+interface Props {
+  canAdmin: boolean;
+  languages: Array<{ key: string; name: string }>;
+  location: { query: { [p: string]: string } };
+  onRequestFail: (reason: any) => void;
+  organization: string | null;
+  profiles: IProfile[];
+  updateProfiles: () => Promise<void>;
+}
 
-export default class ProfilesList extends React.PureComponent {
-  /*:: props: Props; */
-
-  renderProfiles(profiles /*: Array<Profile> */) {
+export default class ProfilesList extends React.PureComponent<Props> {
+  renderProfiles(profiles: IProfile[]) {
     return profiles.map(profile =>
       <ProfilesListRow
         canAdmin={this.props.canAdmin}
@@ -54,7 +48,7 @@ export default class ProfilesList extends React.PureComponent {
     );
   }
 
-  renderHeader(languageKey /*: string */, profilesCount /*: number */) {
+  renderHeader(languageKey: string, profilesCount: number) {
     const language = this.props.languages.find(l => l.key === languageKey);
 
     if (!language) {
@@ -91,8 +85,14 @@ export default class ProfilesList extends React.PureComponent {
     const { profiles, languages } = this.props;
     const { language } = this.props.location.query;
 
-    const profilesIndex = groupBy(profiles, profile => profile.language);
-    const profilesToShow = language ? pick(profilesIndex, language) : profilesIndex;
+    const profilesIndex: { [language: string]: IProfile[] } = groupBy<IProfile>(
+      profiles,
+      profile => profile.language
+    );
+
+    const profilesToShow: { [language: string]: IProfile[] } = language
+      ? pick(profilesIndex, language)
+      : profilesIndex;
 
     const languagesToShow = sortBy(Object.keys(profilesToShow));
 
@@ -115,12 +115,10 @@ export default class ProfilesList extends React.PureComponent {
               {profilesToShow[languageKey] != null &&
                 this.renderHeader(languageKey, profilesToShow[languageKey].length)}
 
-              <TooltipsContainer>
-                <tbody>
-                  {profilesToShow[languageKey] != null &&
-                    this.renderProfiles(profilesToShow[languageKey])}
-                </tbody>
-              </TooltipsContainer>
+              <tbody>
+                {profilesToShow[languageKey] != null &&
+                  this.renderProfiles(profilesToShow[languageKey])}
+              </tbody>
             </table>
           </div>
         )}

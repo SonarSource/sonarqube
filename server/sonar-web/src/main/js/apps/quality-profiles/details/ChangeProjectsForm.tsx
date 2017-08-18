@@ -17,27 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Modal from 'react-modal';
-import escapeHtml from 'escape-html';
-/*:: import type { Profile } from '../propTypes'; */
+import * as escapeHtml from 'escape-html';
 import SelectList from '../../../components/SelectList';
 import { translate } from '../../../helpers/l10n';
+import { IProfile } from '../types';
 
-/*::
-type Props = {
-  onClose: () => void,
-  organization: ?string,
-  profile: Profile
-};
-*/
+interface Props {
+  onClose: () => void;
+  organization: string | null;
+  profile: IProfile;
+}
 
-export default class ChangeProjectsForm extends React.PureComponent {
-  /*:: container: HTMLElement; */
-  /*:: props: Props; */
+export default class ChangeProjectsForm extends React.PureComponent<Props> {
+  container: HTMLElement;
 
-  handleCloseClick = (event /*: Event */) => {
+  handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
     this.props.onClose();
   };
@@ -46,17 +42,17 @@ export default class ChangeProjectsForm extends React.PureComponent {
     const { key } = this.props.profile;
 
     const searchUrl =
-      window.baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key);
+      (window as any).baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key);
 
-    new SelectList({
+    new (SelectList as any)({
       searchUrl,
       el: this.container,
       width: '100%',
       readOnly: false,
       focusSearch: false,
-      dangerouslyUnescapedHtmlFormat: item => escapeHtml(item.name),
-      selectUrl: window.baseUrl + '/api/qualityprofiles/add_project',
-      deselectUrl: window.baseUrl + '/api/qualityprofiles/remove_project',
+      dangerouslyUnescapedHtmlFormat: (item: { name: string }) => escapeHtml(item.name),
+      selectUrl: (window as any).baseUrl + '/api/qualityprofiles/add_project',
+      deselectUrl: (window as any).baseUrl + '/api/qualityprofiles/remove_project',
       extra: { profileKey: key },
       selectParameter: 'projectUuid',
       selectParameterValue: 'uuid',
@@ -91,7 +87,7 @@ export default class ChangeProjectsForm extends React.PureComponent {
         </div>
 
         <div className="modal-body">
-          <div id="profile-projects" ref={node => (this.container = node)} />
+          <div id="profile-projects" ref={node => (this.container = node as HTMLElement)} />
         </div>
 
         <div className="modal-foot">

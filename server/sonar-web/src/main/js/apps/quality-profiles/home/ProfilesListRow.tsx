@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
 import ProfileLink from '../components/ProfileLink';
 import ProfileDate from '../components/ProfileDate';
@@ -27,21 +26,18 @@ import BuiltInBadge from '../components/BuiltInBadge';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { isStagnant } from '../utils';
-/*:: import type { Profile } from '../propTypes'; */
+import { IProfile } from '../types';
+import Tooltip from '../../../components/controls/Tooltip';
 
-/*::
-type Props = {
-  canAdmin: boolean,
-  onRequestFail: Object => void,
-  organization: ?string,
-  profile: Profile,
-  updateProfiles: () => Promise<*>
-};
-*/
+interface Props {
+  canAdmin: boolean;
+  onRequestFail: (reason: any) => void;
+  organization: string | null;
+  profile: IProfile;
+  updateProfiles: () => Promise<void>;
+}
 
-export default class ProfilesListRow extends React.PureComponent {
-  /*:: props: Props; */
-
+export default class ProfilesListRow extends React.PureComponent<Props> {
   renderName() {
     const { profile } = this.props;
     const offset = 25 * (profile.depth - 1);
@@ -100,13 +96,11 @@ export default class ProfilesListRow extends React.PureComponent {
       <div>
         {profile.activeDeprecatedRuleCount > 0 &&
           <span className="spacer-right">
-            <Link
-              to={deprecatedRulesUrl}
-              className="badge badge-normal-size badge-danger-light"
-              title={translate('quality_profiles.deprecated_rules')}
-              data-toggle="tooltip">
-              {profile.activeDeprecatedRuleCount}
-            </Link>
+            <Tooltip overlay={translate('quality_profiles.deprecated_rules')}>
+              <Link to={deprecatedRulesUrl} className="badge badge-normal-size badge-danger-light">
+                {profile.activeDeprecatedRuleCount}
+              </Link>
+            </Tooltip>
           </span>}
 
         <Link to={activeRulesUrl}>

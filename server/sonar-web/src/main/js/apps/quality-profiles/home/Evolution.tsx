@@ -17,29 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import EvolutionDeprecated from './EvolutionDeprecated';
+import EvolutionStagnant from './EvolutionStagnant';
+import EvolutionRules from './EvolutionRules';
+import { IProfile } from '../types';
 
-/*::
-type Props = {
-  className?: string,
-  qualifier: ?string
-};
-*/
+interface Props {
+  organization: string | null;
+  profiles: IProfile[];
+}
 
-export default class QualifierIcon extends React.PureComponent {
-  /*:: props: Props; */
-
-  render() {
-    if (!this.props.qualifier) {
-      return null;
-    }
-
-    const className = classNames(
-      'icon-qualifier-' + this.props.qualifier.toLowerCase(),
-      this.props.className
-    );
-
-    return <i className={className} />;
-  }
+export default function Evolution({ organization, profiles }: Props) {
+  return (
+    <div className="quality-profiles-evolution">
+      <EvolutionDeprecated organization={organization} profiles={profiles} />
+      <EvolutionStagnant organization={organization} profiles={profiles} />
+      <EvolutionRules organization={organization} />
+    </div>
+  );
 }

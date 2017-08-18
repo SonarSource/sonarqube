@@ -36,7 +36,7 @@ interface State {
   formOpen: boolean;
   loading: boolean;
   more?: boolean;
-  projects: Array<{ key: string; uuid: string }> | null;
+  projects: Array<{ key: string; name: string; uuid: string }> | null;
 }
 
 export default class ProfileProjects extends React.PureComponent<Props, State> {

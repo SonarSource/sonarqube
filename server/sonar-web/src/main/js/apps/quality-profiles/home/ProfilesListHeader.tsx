@@ -17,23 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { IndexLink } from 'react-router';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProfilesPath, getProfilesForLanguagePath } from '../utils';
 
-/*::
-type Props = {
-  currentFilter?: string,
-  languages: Array<{ key: string, name: string }>,
-  organization: ?string
-};
-*/
+interface Props {
+  currentFilter?: string;
+  languages: Array<{ key: string; name: string }>;
+  organization: string | null;
+}
 
-export default class ProfilesListHeader extends React.PureComponent {
-  /*:: props: Props; */
-
+export default class ProfilesListHeader extends React.PureComponent<Props> {
   renderFilterToggle() {
     const { languages, currentFilter } = this.props;
     const currentLanguage = currentFilter && languages.find(l => l.key === currentFilter);
