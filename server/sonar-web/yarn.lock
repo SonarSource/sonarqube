@@ -32,6 +32,10 @@
   version "20.0.7"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-20.0.7.tgz#39cd215db8bda03928dceb933a1e63eb2cbd210e"
 
+"@types/jquery@3.2.11":
+  version "3.2.11"
+  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.2.11.tgz#9119f91bb103b16ae8c4375b019a9b341b409f50"
+
 "@types/lodash@4.14.73":
   version "4.14.73"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.73.tgz#9837e47db8643ba5bcef2c7921f37d90f9c24213"
