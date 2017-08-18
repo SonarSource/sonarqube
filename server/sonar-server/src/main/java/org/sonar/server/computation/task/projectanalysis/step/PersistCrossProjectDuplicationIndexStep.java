@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -28,19 +30,15 @@ import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
-
-import java.util.List;
-
-import javax.annotation.Nullable;
 
 /**
  * Persist cross project duplications text blocks into DUPLICATIONS_INDEX table
@@ -106,8 +104,7 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
 
     private void readFromReport(Component component) {
       int indexInFile = 0;
-      CloseableIterator<ScannerReport.CpdTextBlock> blocks = reportReader.readCpdTextBlocks(component.getReportAttributes().getRef());
-      try {
+      try (CloseableIterator<ScannerReport.CpdTextBlock> blocks = reportReader.readCpdTextBlocks(component.getReportAttributes().getRef())) {
         while (blocks.hasNext()) {
           ScannerReport.CpdTextBlock block = blocks.next();
           dbClient.duplicationDao().insert(
@@ -121,8 +118,6 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
               .setComponentUuid(component.getUuid()));
           indexInFile++;
         }
-      } finally {
-        blocks.close();
       }
     }
 
