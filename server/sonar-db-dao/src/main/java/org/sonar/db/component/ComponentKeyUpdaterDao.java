@@ -139,7 +139,7 @@ public class ComponentKeyUpdaterDao implements Dao {
     }
   }
 
-  private String branchBaseKey(String key) {
+  private static String branchBaseKey(String key) {
     int index = key.lastIndexOf(ComponentDto.BRANCH_KEY_SEPARATOR);
     if (index == -1) {
       return key;
