@@ -46,12 +46,23 @@
       and s.status='P'
       and not exists(select e.id from events e where e.analysis_uuid=s.uuid)
   </select>
+  
+    <select id="selectStaleShortLivingBranches" parameterType="map" resultType="String">
+    select
+      pb.uuid
+    from
+      project_branches pb
+    where
+        pb.project_uuid=#{mainBranchProjectUuid,jdbcType=VARCHAR}
+        and pb.branch_type='SHORT'
+        and pb.updated_at &lt; #{toDate}
+  </select>
 
   <select id="selectMetricIdsWithoutHistoricalData" resultType="long">
     select id from metrics where delete_historical_data=${_true}
   </select>
 
-  <select id="selectRootAndModulesOrSubviewsByProjectUuid" resultType="org.sonar.db.purge.IdUuidPair" parameterType="String">
+  <select id="selectRootAndModulesOrSubviewsByProjectUuid" resultType="IdUuidPair" parameterType="String">
     select
       p.id, p.uuid
     from
