@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
@@ -67,6 +68,22 @@ public class PurgeDao implements Dao {
     purgeAnalyses(commands, rootUuid);
     purgeDisabledComponents(session, conf, listener);
     deleteOldClosedIssues(conf, mapper, listener);
+    purgeStaleBranches(commands, conf, mapper, rootUuid);
+  }
+
+  private static void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
+    Optional<Date> maxDate = conf.maxLiveDateOfInactiveShortLivingBranches();
+    if (!maxDate.isPresent()) {
+      // not available if branch plugin is not installed
+      return;
+    }
+    LOG.debug("<- Purge stale branches");
+
+    List<String> branchUuids = mapper.selectStaleShortLivingBranches(rootUuid, dateToLong(maxDate.get()));
+
+    for (String branchUuid : branchUuids) {
+      deleteRootComponent(branchUuid, mapper, commands);
+    }
   }
 
   private static void purgeAnalyses(PurgeCommands commands, String rootUuid) {

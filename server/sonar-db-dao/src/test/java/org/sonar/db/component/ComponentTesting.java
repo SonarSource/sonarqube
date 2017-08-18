@@ -28,6 +28,8 @@ import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.sonar.db.component.BranchKeyType.BRANCH;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 
 public class ComponentTesting {
@@ -198,6 +200,31 @@ public class ComponentTesting {
       .setCreatedAt(new Date())
       .setEnabled(true)
       .setPrivate(moduleOrProject.isPrivate());
+  }
+
+  public static BranchDto newBranchDto(@Nullable String projectUuid, BranchType branchType) {
+    String key = projectUuid == null ? null : "branch_" + randomAlphanumeric(248);
+    return new BranchDto()
+      .setKey(key)
+      .setUuid(Uuids.createFast())
+      // MainBranchProjectUuid will be null if it's a main branch
+      .setProjectUuid(projectUuid)
+      .setKeeType(BRANCH)
+      .setBranchType(branchType);
+  }
+
+  public static BranchDto newBranchDto(ComponentDto branchComponent, BranchType branchType) {
+    boolean isMain = branchComponent.getMainBranchProjectUuid() == null;
+    String projectUuid = isMain ? branchComponent.uuid() : branchComponent.getMainBranchProjectUuid();
+    String key = isMain ? null : "branch_" + randomAlphanumeric(248);
+    
+    return new BranchDto()
+      .setKey(key)
+      .setUuid(branchComponent.uuid())
+      // MainBranchProjectUuid will be null if it's a main branch
+      .setProjectUuid(projectUuid)
+      .setKeeType(BRANCH)
+      .setBranchType(branchType);
   }
 
   public static ComponentDto newProjectBranch(ComponentDto project, BranchDto branchDto) {
