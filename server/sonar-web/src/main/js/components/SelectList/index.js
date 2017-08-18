@@ -107,10 +107,9 @@ const SelectListItemView = Backbone.View.extend({
 
   remove(postpone) {
     if (postpone) {
-      const that = this;
-      that.$el.addClass(this.model.get('selected') ? 'added' : 'removed');
-      setTimeout(function() {
-        Backbone.View.prototype.remove.call(that, arguments);
+      this.$el.addClass(this.model.get('selected') ? 'added' : 'removed');
+      setTimeout(() => {
+        Backbone.View.prototype.remove.call(this, arguments);
       }, 500);
     } else {
       Backbone.View.prototype.remove.call(this, arguments);
