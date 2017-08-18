@@ -31,9 +31,8 @@ import org.sonarqube.ws.client.WsConnector;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_ONLY_CURRENTS;
@@ -108,9 +107,9 @@ public class CeServiceTest {
   @Test
   public void task_with_stacktrace_and_scanner_context() {
     underTest.task(TaskWsRequest.newBuilder("task_id")
-        .withErrorStacktrace()
-        .withScannerContext()
-        .build());
+      .withErrorStacktrace()
+      .withScannerContext()
+      .build());
 
     assertThat(serviceTester.getGetRequest().getPath()).isEqualTo("api/ce/task");
     assertThat(serviceTester.getGetRequest().getParams()).containsOnly(entry("id", "task_id"), entry("additionalFields", "stacktrace,scannerContext"));
@@ -119,8 +118,8 @@ public class CeServiceTest {
   @Test
   public void task_with_scanner_context_only() {
     underTest.task(TaskWsRequest.newBuilder("task_id")
-        .withScannerContext()
-        .build());
+      .withScannerContext()
+      .build());
 
     assertThat(serviceTester.getGetRequest().getPath()).isEqualTo("api/ce/task");
     assertThat(serviceTester.getGetRequest().getParams()).containsOnly(entry("id", "task_id"), entry("additionalFields", "scannerContext"));
@@ -129,8 +128,8 @@ public class CeServiceTest {
   @Test
   public void task_with_stacktrace_only() {
     underTest.task(TaskWsRequest.newBuilder("task_id")
-        .withErrorStacktrace()
-        .build());
+      .withErrorStacktrace()
+      .build());
 
     assertThat(serviceTester.getGetRequest().getPath()).isEqualTo("api/ce/task");
     assertThat(serviceTester.getGetRequest().getParams()).containsOnly(entry("id", "task_id"), entry("additionalFields", "stacktrace"));
@@ -146,14 +145,13 @@ public class CeServiceTest {
 
   @Test
   public void component() {
-    underTest.component("my_component", "my_branch");
+    underTest.component("my_component");
     GetRequest result = serviceTester.getGetRequest();
 
     assertThat(serviceTester.getGetParser()).isSameAs(WsCe.ProjectResponse.parser());
     serviceTester.assertThat(result)
       .hasPath("component")
-      .hasParam(PARAM_COMPONENT_KEY, "my_component")
-      .hasParam(PARAM_BRANCH, "my_branch")
+      .hasParam(PARAM_COMPONENT, "my_component")
       .andNoOtherParam();
   }
 }

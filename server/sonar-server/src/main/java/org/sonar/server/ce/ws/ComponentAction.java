@@ -36,15 +36,13 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.Pagination.forPage;
-import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
-import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsCe.ProjectResponse;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.ce.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 
 public class ComponentAction implements CeWsAction {
 
@@ -66,7 +64,7 @@ public class ComponentAction implements CeWsAction {
       .setDescription("Get the pending tasks, in-progress tasks and the last executed task of a given component (usually a project).<br>" +
         "Requires the following permission: 'Browse' on the specified component.<br>" +
         "Either '%s' or '%s' must be provided, not both.",
-        PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
+        PARAM_COMPONENT_ID, DEPRECATED_PARAM_COMPONENT_KEY)
       .setSince("5.2")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setChangelog(
@@ -77,16 +75,13 @@ public class ComponentAction implements CeWsAction {
 
     action.createParam(PARAM_COMPONENT_ID)
       .setRequired(false)
-      .setExampleValue(Uuids.UUID_EXAMPLE_01);
+      .setExampleValue(Uuids.UUID_EXAMPLE_01)
+      .setDeprecatedSince("6.6");
 
-    action.createParam(PARAM_COMPONENT_KEY)
+    action.createParam(PARAM_COMPONENT)
       .setRequired(false)
-      .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
-
-    action.createParam(PARAM_BRANCH)
-      .setDescription("Branch key")
-      .setInternal(true)
-      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+      .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001)
+      .setDeprecatedKey("componentKey", "6.6");
   }
 
   @Override
@@ -110,13 +105,8 @@ public class ComponentAction implements CeWsAction {
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request wsRequest) {
-    String componentKey = wsRequest.param(PARAM_COMPONENT_KEY);
+    String componentKey = wsRequest.param(PARAM_COMPONENT);
     String componentId = wsRequest.param(PARAM_COMPONENT_ID);
-    String branch = wsRequest.param(PARAM_BRANCH);
-    checkArgument(componentId == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", PARAM_COMPONENT_ID,
-      PARAM_BRANCH);
-    return branch == null
-      ? componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_KEY)
-      : componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
+    return componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_COMPONENT);
   }
 }
