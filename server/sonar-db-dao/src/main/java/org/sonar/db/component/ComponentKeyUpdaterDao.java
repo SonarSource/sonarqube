@@ -60,6 +60,15 @@ public class ComponentKeyUpdaterDao implements Dao {
     List<ResourceDto> resources = mapper.selectProjectResources(projectOrModuleUuid);
     resources.add(project);
 
+    // add branch components
+    dbSession.getMapper(BranchMapper.class).selectByProjectUuid(projectOrModuleUuid)
+      .stream()
+      .filter(branch -> !projectOrModuleUuid.equals(branch.getUuid()))
+      .forEach(branch -> {
+        resources.addAll(mapper.selectProjectResources(branch.getUuid()));
+        resources.add(mapper.selectProject(branch.getUuid()));
+      });
+
     // and then proceed with the batch UPDATE at once
     runBatchUpdateForAllResources(resources, projectOldKey, newKey, mapper);
   }

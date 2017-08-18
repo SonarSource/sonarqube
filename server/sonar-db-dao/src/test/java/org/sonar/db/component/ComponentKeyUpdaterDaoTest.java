@@ -62,7 +62,7 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
-  public void updateKey_does_not_updated_inactive_components() {
+  public void updateKey_does_not_update_inactive_components() {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "A").setDbKey("my_project"));
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "/directory").setDbKey("my_project:directory"));
@@ -76,6 +76,33 @@ public class ComponentKeyUpdaterDaoTest {
     List<ComponentDto> result = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, "your_project");
     assertThat(result).hasSize(5).extracting(ComponentDto::getDbKey)
       .containsOnlyOnce("your_project", "your_project:directory", "your_project:directory/file", "my_project:inactive_directory", "my_project:inactive_directory/file");
+  }
+
+  @Test
+  public void updateKey_updates_branches_too() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    db.components().insertComponent(newFileDto(branch));
+    db.components().insertComponent(newFileDto(branch));
+    int branchComponentCount = 3;
+
+    String oldProjectKey = project.getKey();
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).hasSize(1);
+
+    String oldBranchKey = branch.getDbKey();
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).hasSize(branchComponentCount);
+
+    String newProjectKey = "newKey";
+    String newBranchKey = ComponentDto.generateBranchKey(newProjectKey, branch.getBranch());
+    underTest.updateKey(dbSession, project.uuid(), newProjectKey);
+
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).isEmpty();
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).isEmpty();
+
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newProjectKey)).hasSize(1);
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newBranchKey)).hasSize(branchComponentCount);
+    db.select(dbSession, "select kee from projects")
+      .forEach(map -> map.values().forEach(k -> assertThat(k.toString()).startsWith(newProjectKey)));
   }
 
   @Test
