@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProfileRules from '../ProfileRules';
 import { doAsync } from '../../../../helpers/testUtils';
@@ -68,11 +68,9 @@ const apiResponseActive = {
 };
 
 // Mock api some api functions
-// eslint-disable-next-line
-apiRules.searchRules = data =>
+(apiRules as any).searchRules = (data: any) =>
   Promise.resolve(data.activation === 'true' ? apiResponseActive : apiResponseAll);
-// eslint-disable-next-line
-apiQP.getQualityProfiles = () =>
+(apiQP as any).getQualityProfiles = () =>
   Promise.resolve({
     compareToSonarWay: {
       profile: 'sonarway',
@@ -83,8 +81,9 @@ apiQP.getQualityProfiles = () =>
 
 it('should render the quality profiles rules with sonarway comparison', () => {
   const wrapper = shallow(<ProfileRules canAdmin={false} organization="foo" profile={PROFILE} />);
-  wrapper.instance().mounted = true;
-  wrapper.instance().loadRules();
+  const instance = wrapper.instance() as any;
+  instance.mounted = true;
+  instance.loadRules();
   return doAsync(() => {
     wrapper.update();
     expect(wrapper.find('ProfileRulesSonarWayComparison')).toHaveLength(1);
@@ -123,13 +122,13 @@ it('should not show a button to activate more rules on built in profiles', () =>
 });
 
 it('should not show sonarway comparison for built in profiles', () => {
-  // eslint-disable-next-line
-  apiQP.getQualityProfiles = jest.fn(() => Promise.resolve());
+  (apiQP as any).getQualityProfiles = jest.fn(() => Promise.resolve());
   const wrapper = shallow(
     <ProfileRules canAdmin={true} organization={null} profile={{ ...PROFILE, isBuiltIn: true }} />
   );
-  wrapper.instance().mounted = true;
-  wrapper.instance().loadRules();
+  const instance = wrapper.instance() as any;
+  instance.mounted = true;
+  instance.loadRules();
   return doAsync(() => {
     wrapper.update();
     expect(apiQP.getQualityProfiles).toHaveBeenCalledTimes(0);
@@ -138,8 +137,7 @@ it('should not show sonarway comparison for built in profiles', () => {
 });
 
 it('should not show sonarway comparison if there is no missing rules', () => {
-  // eslint-disable-next-line
-  apiQP.getQualityProfiles = jest.fn(() =>
+  (apiQP as any).getQualityProfiles = jest.fn(() =>
     Promise.resolve({
       compareToSonarWay: {
         profile: 'sonarway',
@@ -149,8 +147,9 @@ it('should not show sonarway comparison if there is no missing rules', () => {
     })
   );
   const wrapper = shallow(<ProfileRules canAdmin={true} organization={null} profile={PROFILE} />);
-  wrapper.instance().mounted = true;
-  wrapper.instance().loadRules();
+  const instance = wrapper.instance() as any;
+  instance.mounted = true;
+  instance.loadRules();
   return doAsync(() => {
     wrapper.update();
     expect(apiQP.getQualityProfiles).toHaveBeenCalledTimes(1);

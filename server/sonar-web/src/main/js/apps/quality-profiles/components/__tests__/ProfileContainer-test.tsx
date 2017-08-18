@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import React from 'react';
+import * as React from 'react';
 import Helmet from 'react-helmet';
 import ProfileContainer from '../ProfileContainer';
 import ProfileNotFound from '../ProfileNotFound';
@@ -31,9 +31,12 @@ it('should render ProfileHeader', () => {
   const updateProfiles = jest.fn();
   const output = shallow(
     <ProfileContainer
-      location={{ query: { language: 'js', name: 'fake' } }}
-      profiles={profiles}
       canAdmin={false}
+      location={{ pathname: '', query: { language: 'js', name: 'fake' } }}
+      onRequestFail={jest.fn()}
+      organization={null}
+      profiles={profiles}
+      router={{} as any}
       updateProfiles={updateProfiles}>
       <div />
     </ProfileContainer>
@@ -52,10 +55,13 @@ it('should render ProfileNotFound', () => {
   ];
   const output = shallow(
     <ProfileContainer
-      location={{ query: { language: 'js', name: 'random' } }}
-      profiles={profiles}
       canAdmin={false}
-      updateProfiles={() => true}>
+      location={{ pathname: '', query: { language: 'js', name: 'random' } }}
+      onRequestFail={jest.fn()}
+      organization={null}
+      profiles={profiles}
+      router={{} as any}
+      updateProfiles={jest.fn()}>
       <div />
     </ProfileContainer>
   );
@@ -67,9 +73,12 @@ it('should render Helmet', () => {
   const updateProfiles = jest.fn();
   const output = shallow(
     <ProfileContainer
-      location={{ query: { language: 'js', name: 'First Profile' } }}
-      profiles={profiles}
       canAdmin={false}
+      location={{ pathname: '', query: { language: 'js', name: 'First Profile' } }}
+      onRequestFail={jest.fn()}
+      organization={null}
+      profiles={profiles}
+      router={{} as any}
       updateProfiles={updateProfiles}>
       <div />
     </ProfileContainer>

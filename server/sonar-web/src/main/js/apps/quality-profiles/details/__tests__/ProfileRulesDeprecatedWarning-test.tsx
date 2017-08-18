@@ -17,21 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import ProfileRulesSonarWayComparison from '../ProfileRulesSonarWayComparison';
+import ProfileRulesDeprecatedWarning from '../ProfileRulesDeprecatedWarning';
 
 it('should render correctly', () => {
   expect(
     shallow(
-      <ProfileRulesSonarWayComparison
-        language="Java"
-        organization="foo"
-        profile="bar"
-        sonarway="baz"
-        sonarWayMissingRules={158}
-      />
+      <ProfileRulesDeprecatedWarning activeDeprecatedRules={18} organization="foo" profile="bar" />
     )
   ).toMatchSnapshot();
 });
