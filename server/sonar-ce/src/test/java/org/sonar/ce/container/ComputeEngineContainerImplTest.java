@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -49,6 +50,7 @@ import org.sonar.process.Props;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
@@ -65,7 +67,13 @@ public class ComputeEngineContainerImplTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private ComputeEngineContainerImpl underTest = new ComputeEngineContainerImpl();
+  private ComputeEngineContainerImpl underTest;
+
+  @Before
+  public void setUp() throws Exception {
+    underTest = new ComputeEngineContainerImpl();
+    underTest.setComputeEngineStatus(mock(ComputeEngineStatus.class));
+  }
 
   @Test
   public void constructor_does_not_create_container() {
@@ -139,6 +147,7 @@ public class ComputeEngineContainerImplTest {
         + 47 // content of DaoModule
         + 3 // content of EsSearchModule
         + 61 // content of CorePropertyDefinitions
+        + 1 // StopFlagContainer
     );
     assertThat(
       picoContainer.getComponentAdapters().stream()
