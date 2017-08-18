@@ -160,7 +160,8 @@ public class SearchResponseFormat {
 
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setOrganization(data.getOrganizationKey(component.getOrganizationUuid()));
-    issueBuilder.setComponent(component.getDbKey());
+    issueBuilder.setComponent(component.getKey());
+    setNullable(component.getBranch(), issueBuilder::setBranch);
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
     if (project != null) {
       issueBuilder.setProject(project.getDbKey());
