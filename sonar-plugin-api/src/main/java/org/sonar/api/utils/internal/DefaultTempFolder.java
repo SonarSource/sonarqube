@@ -95,7 +95,7 @@ public class DefaultTempFolder implements TempFolder {
     try {
       Files.walkFileTree(tempDir.toPath(), DeleteRecursivelyFileVisitor.INSTANCE);
     } catch (IOException e) {
-      LOG.trace("Failed to delete temp folder", e);
+      LOG.error("Failed to delete temp folder", e);
     }
   }
 
