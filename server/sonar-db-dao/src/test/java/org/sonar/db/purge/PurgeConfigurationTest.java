@@ -21,6 +21,7 @@ package org.sonar.db.purge;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.Optional;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
@@ -35,10 +36,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PurgeConfigurationTest {
   @Test
   public void should_delete_all_closed_issues() {
-    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 0, System2.INSTANCE, Collections.emptyList());
+    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 0, Optional.empty(), System2.INSTANCE, Collections.emptyList());
     assertThat(conf.maxLiveDateOfClosedIssues()).isNull();
 
-    conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], -1, System2.INSTANCE, Collections.emptyList());
+    conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], -1, Optional.empty(), System2.INSTANCE, Collections.emptyList());
     assertThat(conf.maxLiveDateOfClosedIssues()).isNull();
   }
 
@@ -46,12 +47,26 @@ public class PurgeConfigurationTest {
   public void should_delete_only_old_closed_issues() {
     Date now = DateUtils.parseDate("2013-05-18");
 
-    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30, System2.INSTANCE, Collections.emptyList());
+    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30, Optional.empty(), System2.INSTANCE, Collections.emptyList());
     Date toDate = conf.maxLiveDateOfClosedIssues(now);
 
     assertThat(toDate.getYear()).isEqualTo(113);// =2013
     assertThat(toDate.getMonth()).isEqualTo(3); // means April
     assertThat(toDate.getDate()).isEqualTo(18);
+  }
+
+  @Test
+  public void should_have_empty_branch_purge_date() {
+    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30, Optional.of(10), System2.INSTANCE, Collections.emptyList());
+    assertThat(conf.maxLiveDateOfInactiveShortLivingBranches()).isNotEmpty();
+    long tenDaysAgo = DateUtils.addDays(new Date(System2.INSTANCE.now()), -10).getTime();
+    assertThat(conf.maxLiveDateOfInactiveShortLivingBranches().get().getTime()).isBetween(tenDaysAgo - 5000, tenDaysAgo + 5000);
+  }
+
+  @Test
+  public void should_calculate_branch_purge_date() {
+    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30, Optional.empty(), System2.INSTANCE, Collections.emptyList());
+    assertThat(conf.maxLiveDateOfInactiveShortLivingBranches()).isEmpty();
   }
 
   @Test

@@ -23,11 +23,14 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -41,6 +44,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeQueueDto.Status;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -100,10 +104,36 @@ public class PurgeDaoTest {
   }
 
   @Test
+  public void should_purge_inactive_short_living_branches() {
+    when(system2.now()).thenReturn(new Date().getTime());
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto longBranch = dbTester.components().insertProjectBranch(project);
+    ComponentDto recentShortBranch = dbTester.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.SHORT));
+
+    // short branch with other components and issues, updated 31 days ago
+    when(system2.now()).thenReturn(DateUtils.addDays(new Date(), -31).getTime());
+    ComponentDto shortBranch = dbTester.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.SHORT));
+    ComponentDto module = dbTester.components().insertComponent(newModuleDto(shortBranch));
+    ComponentDto subModule = dbTester.components().insertComponent(newModuleDto(module));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(subModule));
+    dbTester.issues().insert(rule, shortBranch, file);
+    dbTester.issues().insert(rule, shortBranch, subModule);
+    dbTester.issues().insert(rule, shortBranch, module);
+
+    // back to present
+    when(system2.now()).thenReturn(new Date().getTime());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    dbSession.commit();
+
+    assertThat(getUuidsInTableProjects()).containsOnly(project.uuid(), longBranch.uuid(), recentShortBranch.uuid());
+  }
+
+  @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
-    PurgeConfiguration conf = new PurgeConfiguration(
-      new IdUuidPair(THE_PROJECT_ID, "ABCD"), new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30, System2.INSTANCE, Collections.emptyList());
+    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "ABCD"), new String[] {Scopes.DIRECTORY, Scopes.FILE},
+      30, Optional.of(30), System2.INSTANCE, Collections.emptyList());
 
     underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
@@ -115,7 +145,7 @@ public class PurgeDaoTest {
   public void close_issues_clean_index_and_file_sources_of_disabled_components_specified_by_uuid_in_configuration() {
     dbTester.prepareDbUnit(getClass(), "close_issues_clean_index_and_files_sources_of_specified_components.xml");
     when(system2.now()).thenReturn(1450000000000L);
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, "P1", "EFGH", "GHIJ"), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, THE_PROJECT_UUID, "P1", "EFGH", "GHIJ"), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
     dbTester.assertDbUnit(getClass(), "close_issues_clean_index_and_files_sources_of_specified_components-result.xml",
       new String[] {"issue_close_date", "issue_update_date"},
@@ -313,7 +343,8 @@ public class PurgeDaoTest {
   @Test
   public void should_delete_all_closed_issues() {
     dbTester.prepareDbUnit(getClass(), "should_delete_all_closed_issues.xml");
-    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[0], 0, System2.INSTANCE, Collections.emptyList());
+    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[0],
+      0, Optional.empty(), System2.INSTANCE, Collections.emptyList());
     underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
     dbTester.assertDbUnit(getClass(), "should_delete_all_closed_issues-result.xml", "issues", "issue_changes");
@@ -582,11 +613,11 @@ public class PurgeDaoTest {
   }
 
   private static PurgeConfiguration newConfigurationWith30Days() {
-    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, System2.INSTANCE, Collections.emptyList());
+    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, Optional.of(30), System2.INSTANCE, Collections.emptyList());
   }
 
-  private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String... disabledComponentUuids) {
-    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, system2, asList(disabledComponentUuids));
+  private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String rootProjectUuid, String... disabledComponentUuids) {
+    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, rootProjectUuid), new String[0], 30, Optional.of(30), system2, asList(disabledComponentUuids));
   }
 
 }
