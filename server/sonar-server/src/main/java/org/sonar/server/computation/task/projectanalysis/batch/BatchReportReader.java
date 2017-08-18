@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.batch;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;

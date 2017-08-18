@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.batch;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
@@ -246,7 +246,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   public Optional<CloseableIterator<String>> readFileSource(int fileRef) {
     List<String> lines = fileSources.get(fileRef);
     if (lines == null) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     return Optional.of(CloseableIterator.from(lines.iterator()));
