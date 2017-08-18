@@ -27,6 +27,10 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.es.EsLogging;
 import org.sonar.process.es.EsSettings;
+import org.sonar.process.jmvoptions.CeJvmOptions;
+import org.sonar.process.jmvoptions.EsJvmOptions;
+import org.sonar.process.jmvoptions.JvmOptions;
+import org.sonar.process.jmvoptions.WebJvmOptions;
 
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_PORT;
@@ -48,9 +52,11 @@ public class CommandFactoryImpl implements CommandFactory {
     "socksProxyPort"};
 
   private final Props props;
+  private final File tempDir;
 
-  public CommandFactoryImpl(Props props) {
+  public CommandFactoryImpl(Props props, File tempDir) {
     this.props = props;
+    this.tempDir = tempDir;
   }
 
   @Override
@@ -65,8 +71,7 @@ public class CommandFactoryImpl implements CommandFactory {
 
     File logDir = new File(settingsMap.get("path.logs"));
     File confDir = new File(settingsMap.get("path.conf"));
-    EsCommand res = new EsCommand(ProcessId.ELASTICSEARCH)
-      .setWorkDir(executable.getParentFile().getParentFile())
+    EsCommand res = new EsCommand(ProcessId.ELASTICSEARCH, executable.getParentFile().getParentFile())
       .setExecutable(executable)
       .setConfDir(confDir)
       .setLog4j2Properties(new EsLogging().createProperties(props, logDir))
@@ -74,8 +79,9 @@ public class CommandFactoryImpl implements CommandFactory {
       .setClusterName(settingsMap.get("cluster.name"))
       .setHost(settingsMap.get("network.host"))
       .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")))
-      .addJvmOption(props.nonNullValue(ProcessProperties.SEARCH_JAVA_OPTS))
-      .addJvmOption(props.nonNullValue(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
+      .setEsJvmOptions(new EsJvmOptions()
+        .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
+        .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
       .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"));
 
     settingsMap.forEach((key, value) -> res.addEsOption("-E" + key + "=" + value));
@@ -93,10 +99,15 @@ public class CommandFactoryImpl implements CommandFactory {
   @Override
   public JavaCommand createWebCommand(boolean leader) {
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
-    JavaCommand command = newJavaCommand(ProcessId.WEB_SERVER, homeDir)
-      .addJavaOptions(ProcessProperties.WEB_ENFORCED_JVM_ARGS)
-      .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_OPTS))
-      .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS))
+
+    WebJvmOptions jvmOptions = new WebJvmOptions(tempDir)
+      .addFromMandatoryProperty(props, ProcessProperties.WEB_JAVA_OPTS)
+      .addFromMandatoryProperty(props, ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS);
+    addProxyJvmOptions(jvmOptions);
+
+    JavaCommand<WebJvmOptions> command = new JavaCommand<WebJvmOptions>(ProcessId.WEB_SERVER, homeDir)
+      .setArguments(props.rawProperties())
+      .setJvmOptions(jvmOptions)
       // required for logback tomcat valve
       .setEnvVariable(ProcessProperties.PATH_LOGS, props.nonNullValue(ProcessProperties.PATH_LOGS))
       .setArgument("sonar.cluster.web.startupLeader", Boolean.toString(leader))
@@ -113,10 +124,15 @@ public class CommandFactoryImpl implements CommandFactory {
   @Override
   public JavaCommand createCeCommand() {
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
-    JavaCommand command = newJavaCommand(ProcessId.COMPUTE_ENGINE, homeDir)
-      .addJavaOptions(ProcessProperties.CE_ENFORCED_JVM_ARGS)
-      .addJavaOptions(props.nonNullValue(ProcessProperties.CE_JAVA_OPTS))
-      .addJavaOptions(props.nonNullValue(ProcessProperties.CE_JAVA_ADDITIONAL_OPTS))
+
+    CeJvmOptions jvmOptions = new CeJvmOptions(tempDir)
+      .addFromMandatoryProperty(props, ProcessProperties.CE_JAVA_OPTS)
+      .addFromMandatoryProperty(props, ProcessProperties.CE_JAVA_ADDITIONAL_OPTS);
+    addProxyJvmOptions(jvmOptions);
+
+    JavaCommand<CeJvmOptions> command = new JavaCommand<CeJvmOptions>(ProcessId.COMPUTE_ENGINE, homeDir)
+      .setArguments(props.rawProperties())
+      .setJvmOptions(jvmOptions)
       .setClassName("org.sonar.ce.app.CeServer")
       .addClasspath("./lib/common/*")
       .addClasspath("./lib/server/*")
@@ -128,27 +144,22 @@ public class CommandFactoryImpl implements CommandFactory {
     return command;
   }
 
-  private JavaCommand newJavaCommand(ProcessId id, File homeDir) {
-    JavaCommand command = new JavaCommand(id)
-      .setWorkDir(homeDir)
-      .setArguments(props.rawProperties());
-
+  private <T extends JvmOptions> void addProxyJvmOptions(JvmOptions<T> jvmOptions) {
     for (String key : PROXY_PROPERTY_KEYS) {
-      getPropsValue(key).ifPresent(val -> command.addJavaOption("-D" + key + "=" + val));
+      getPropsValue(key).ifPresent(val -> jvmOptions.add("-D" + key + "=" + val));
     }
 
     // defaults of HTTPS are the same than HTTP defaults
-    setSystemPropertyToDefaultIfNotSet(command, HTTPS_PROXY_HOST, HTTP_PROXY_HOST);
-    setSystemPropertyToDefaultIfNotSet(command, HTTPS_PROXY_PORT, HTTP_PROXY_PORT);
-    return command;
+    setSystemPropertyToDefaultIfNotSet(jvmOptions, HTTPS_PROXY_HOST, HTTP_PROXY_HOST);
+    setSystemPropertyToDefaultIfNotSet(jvmOptions, HTTPS_PROXY_PORT, HTTP_PROXY_PORT);
   }
 
-  private void setSystemPropertyToDefaultIfNotSet(JavaCommand command,
+  private void setSystemPropertyToDefaultIfNotSet(JvmOptions jvmOptions,
     String httpsProperty, String httpProperty) {
     Optional<String> httpValue = getPropsValue(httpProperty);
     Optional<String> httpsValue = getPropsValue(httpsProperty);
     if (!httpsValue.isPresent() && httpValue.isPresent()) {
-      command.addJavaOption("-D" + httpsProperty + "=" + httpValue.get());
+      jvmOptions.add("-D" + httpsProperty + "=" + httpValue.get());
     }
   }
 

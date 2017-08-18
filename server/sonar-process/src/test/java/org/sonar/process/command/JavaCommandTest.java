@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.ProcessId;
+import org.sonar.process.jmvoptions.JvmOptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +36,8 @@ public class JavaCommandTest {
 
   @Test
   public void test_command_with_complete_information() throws Exception {
-    JavaCommand command = new JavaCommand(ProcessId.ELASTICSEARCH);
+    File workDir = temp.newFolder();
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.ELASTICSEARCH, workDir);
 
     command.setArgument("first_arg", "val1");
     Properties args = new Properties();
@@ -44,15 +46,14 @@ public class JavaCommandTest {
 
     command.setClassName("org.sonar.ElasticSearch");
     command.setEnvVariable("JAVA_COMMAND_TEST", "1000");
-    File workDir = temp.newFolder();
-    command.setWorkDir(workDir);
     command.addClasspath("lib/*.jar");
     command.addClasspath("conf/*.xml");
-    command.addJavaOption("-Xmx128m");
+    JvmOptions<JvmOptions> jvmOptions = new JvmOptions<JvmOptions>() {};
+    command.setJvmOptions(jvmOptions);
 
     assertThat(command.toString()).isNotNull();
     assertThat(command.getClasspath()).containsOnly("lib/*.jar", "conf/*.xml");
-    assertThat(command.getJavaOptions()).containsOnly("-Xmx128m");
+    assertThat(command.getJvmOptions()).isSameAs(jvmOptions);
     assertThat(command.getWorkDir()).isSameAs(workDir);
     assertThat(command.getClassName()).isEqualTo("org.sonar.ElasticSearch");
 
@@ -61,15 +62,4 @@ public class JavaCommandTest {
     assertThat(command.getEnvVariables().size()).isEqualTo(System.getenv().size() + 1);
   }
 
-  @Test
-  public void addJavaOptions_adds_jvm_options() {
-    JavaCommand command = new JavaCommand(ProcessId.ELASTICSEARCH);
-    assertThat(command.getJavaOptions()).isEmpty();
-
-    command.addJavaOptions("");
-    assertThat(command.getJavaOptions()).isEmpty();
-
-    command.addJavaOptions("-Xmx512m -Xms256m -Dfoo");
-    assertThat(command.getJavaOptions()).containsOnly("-Xmx512m", "-Xms256m", "-Dfoo");
-  }
 }

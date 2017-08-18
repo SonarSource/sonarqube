@@ -20,9 +20,11 @@
 package org.sonar.process.command;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.ProcessId;
 
@@ -32,10 +34,33 @@ public class AbstractCommandTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Test
+  public void constructor_throws_NPE_of_ProcessId_is_null() throws IOException {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("ProcessId can't be null");
+
+    new AbstractCommand<AbstractCommand>(null, temp.newFolder()) {
+
+    };
+  }
+
+  @Test
+  public void constructor_throws_NPE_of_workDir_is_null() throws IOException {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("workDir can't be null");
+
+    new AbstractCommand<AbstractCommand>(ProcessId.WEB_SERVER, null) {
+
+    };
+  }
 
   @Test
   public void test_command_with_complete_information() throws Exception {
-    AbstractCommand command = new AbstractCommand(ProcessId.ELASTICSEARCH) {
+    File workDir = temp.newFolder();
+    AbstractCommand command = new AbstractCommand(ProcessId.ELASTICSEARCH, workDir) {
 
     };
 
@@ -45,8 +70,6 @@ public class AbstractCommandTest {
     command.setArguments(args);
 
     command.setEnvVariable("JAVA_COMMAND_TEST", "1000");
-    File workDir = temp.newFolder();
-    command.setWorkDir(workDir);
 
     assertThat(command.toString()).isNotNull();
     assertThat(command.getWorkDir()).isSameAs(workDir);
