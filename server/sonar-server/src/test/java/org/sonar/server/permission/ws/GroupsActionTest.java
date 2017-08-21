@@ -28,8 +28,10 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -286,6 +288,40 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .setParam(PARAM_PROJECT_ID, "project-uuid")
       .setParam(PARAM_PROJECT_KEY, "project-key")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_uuid() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization());
+    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+    loginAsAdmin(db.getDefaultOrganization());
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Project id '%s' not found", branch.uuid()));
+
+    newRequest()
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PROJECT_ID, branch.uuid())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization());
+    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+    loginAsAdmin(db.getDefaultOrganization());
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Project key '%s' not found", branch.getDbKey()));
+
+    newRequest()
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
       .execute();
   }
 

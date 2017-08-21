@@ -114,6 +114,28 @@ public class UpdateKeyActionTest {
   }
 
   @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
+
+    callByKey(branch.getDbKey(), ANOTHER_KEY);
+  }
+
+  @Test
+  public void fail_when_using_branch_uuid() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component id '%s' not found", branch.uuid()));
+
+    callByUuid(branch.uuid(), ANOTHER_KEY);
+  }
+
+  @Test
   public void api_definition() {
     WebService.Action definition = ws.getDef();
 

@@ -602,6 +602,25 @@ public class SuggestionsActionTest {
   }
 
   @Test
+  public void does_not_return_branches() {
+    ComponentDto project = db.components().insertMainBranch();
+    authorizationIndexerTester.allowOnlyAnyone(project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    componentIndexer.indexOnStartup(null);
+    authorizationIndexerTester.allowOnlyAnyone(project);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_QUERY, project.name())
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getResultsList())
+      .filteredOn(c -> "TRK".equals(c.getQ()))
+      .extracting(Category::getItemsList)
+      .hasSize(1);
+  }
+
+  @Test
   public void should_not_propose_to_show_more_results_if_0_projects_are_found() {
     check_proposal_to_show_more_results(0, 0, 0L, null, true);
   }
