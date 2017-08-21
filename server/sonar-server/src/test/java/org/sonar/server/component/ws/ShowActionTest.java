@@ -263,7 +263,7 @@ public class ShowActionTest {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertMainBranch();
     userSession.addProjectPermission(UserRole.USER, project);
     String branchKey = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
@@ -344,6 +344,34 @@ public class ShowActionTest {
       .setParam(PARAM_COMPONENT, file.getKey())
       .setParam(PARAM_BRANCH, "another_branch")
       .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT, branch.getDbKey())
+      .executeProtobuf(ShowWsResponse.class);
+  }
+
+  @Test
+  public void fail_when_using_branch_uuid() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component id '%s' not found", branch.uuid()));
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, branch.uuid())
+      .executeProtobuf(ShowWsResponse.class);
   }
 
   private ShowWsResponse newRequest(@Nullable String uuid, @Nullable String key) {
