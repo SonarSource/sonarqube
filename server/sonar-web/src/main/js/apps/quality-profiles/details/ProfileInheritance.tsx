@@ -23,14 +23,14 @@ import ProfileInheritanceBox from './ProfileInheritanceBox';
 import ChangeParentForm from './ChangeParentForm';
 import { translate } from '../../../helpers/l10n';
 import { getProfileInheritance } from '../../../api/quality-profiles';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   canAdmin: boolean;
   onRequestFail: (reason: any) => void;
   organization: string | null;
-  profile: IProfile;
-  profiles: IProfile[];
+  profile: Profile;
+  profiles: Profile[];
   updateProfiles: () => Promise<void>;
 }
 

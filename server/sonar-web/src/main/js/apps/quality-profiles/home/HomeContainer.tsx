@@ -21,7 +21,7 @@ import * as React from 'react';
 import PageHeader from './PageHeader';
 import Evolution from './Evolution';
 import ProfilesList from './ProfilesList';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   canAdmin: boolean;
@@ -29,7 +29,7 @@ interface Props {
   location: { query: { [p: string]: string } };
   onRequestFail: (reason: any) => void;
   organization: string | null;
-  profiles: Array<IProfile>;
+  profiles: Array<Profile>;
   updateProfiles: () => Promise<void>;
 }
 

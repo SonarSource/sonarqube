@@ -21,13 +21,13 @@ import * as React from 'react';
 import Modal from 'react-modal';
 import { renameProfile } from '../../../api/quality-profiles';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   onClose: () => void;
   onRename: (name: string) => void;
   onRequestFail: (reason: any) => void;
-  profile: IProfile;
+  profile: Profile;
 }
 
 interface State {

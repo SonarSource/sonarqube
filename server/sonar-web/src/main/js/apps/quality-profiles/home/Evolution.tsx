@@ -21,11 +21,11 @@ import * as React from 'react';
 import EvolutionDeprecated from './EvolutionDeprecated';
 import EvolutionStagnant from './EvolutionStagnant';
 import EvolutionRules from './EvolutionRules';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   organization: string | null;
-  profiles: IProfile[];
+  profiles: Profile[];
 }
 
 export default function Evolution({ organization, profiles }: Props) {

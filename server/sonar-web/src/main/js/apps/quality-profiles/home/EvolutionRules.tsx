@@ -42,7 +42,7 @@ interface Props {
   organization: string | null;
 }
 
-interface IRule {
+interface Rule {
   activations: number;
   key: string;
   langName: string;
@@ -50,7 +50,7 @@ interface IRule {
 }
 
 interface State {
-  latestRules?: Array<IRule>;
+  latestRules?: Array<Rule>;
   latestRulesTotal?: number;
 }
 
@@ -79,7 +79,7 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
     searchRules(data).then((r: any) => {
       if (this.mounted) {
         this.setState({
-          latestRules: sortBy<IRule>(parseRules(r), 'langName'),
+          latestRules: sortBy<Rule>(parseRules(r), 'langName'),
           latestRulesTotal: r.total
         });
       }

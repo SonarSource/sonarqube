@@ -23,14 +23,14 @@ import * as Select from 'react-select';
 import { sortBy } from 'lodash';
 import { changeProfileParent } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   onChange: () => void;
   onClose: () => void;
   onRequestFail: (reasong: any) => void;
-  profile: IProfile;
-  profiles: IProfile[];
+  profile: Profile;
+  profiles: Profile[];
 }
 
 interface State {

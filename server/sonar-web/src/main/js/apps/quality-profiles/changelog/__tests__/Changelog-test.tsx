@@ -21,9 +21,9 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Changelog from '../Changelog';
 import ChangesList from '../ChangesList';
-import { IProfileChangelogEvent } from '../../types';
+import { ProfileChangelogEvent } from '../../types';
 
-function createEvent(overrides?: { [p: string]: any }): IProfileChangelogEvent {
+function createEvent(overrides?: { [p: string]: any }): ProfileChangelogEvent {
   return {
     date: '2016-01-01',
     authorName: 'John',

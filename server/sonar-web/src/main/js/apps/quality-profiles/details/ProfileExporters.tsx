@@ -20,16 +20,16 @@
 import { stringify } from 'querystring';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { IProfile, IExporter } from '../types';
+import { Profile, Exporter } from '../types';
 
 interface Props {
-  exporters: IExporter[];
+  exporters: Exporter[];
   organization: string | null;
-  profile: IProfile;
+  profile: Profile;
 }
 
 export default class ProfileExporters extends React.PureComponent<Props> {
-  getExportUrl(exporter: IExporter) {
+  getExportUrl(exporter: Exporter) {
     const { organization, profile } = this.props;
 
     const path = '/api/qualityprofiles/export';

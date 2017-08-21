@@ -22,15 +22,15 @@ import ProfileRules from './ProfileRules';
 import ProfileProjects from './ProfileProjects';
 import ProfileInheritance from './ProfileInheritance';
 import ProfileExporters from './ProfileExporters';
-import { IExporter, IProfile } from '../types';
+import { Exporter, Profile } from '../types';
 
 interface Props {
   canAdmin: boolean;
-  exporters: IExporter[];
+  exporters: Exporter[];
   onRequestFail: (reasong: any) => void;
   organization: string | null;
-  profile: IProfile;
-  profiles: IProfile[];
+  profile: Profile;
+  profiles: Profile[];
   updateProfiles: () => Promise<void>;
 }
 

@@ -21,13 +21,13 @@ import * as React from 'react';
 import Modal from 'react-modal';
 import { copyProfile } from '../../../api/quality-profiles';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   onClose: () => void;
   onCopy: (name: string) => void;
   onRequestFail: (reasong: any) => void;
-  profile: IProfile;
+  profile: Profile;
 }
 
 interface State {

@@ -20,11 +20,11 @@
 import * as React from 'react';
 import * as Select from 'react-select';
 import { translate } from '../../../helpers/l10n';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
-  profile: IProfile;
-  profiles: IProfile[];
+  profile: Profile;
+  profiles: Profile[];
   onCompare: (rule: string) => void;
   withKey?: string;
 }

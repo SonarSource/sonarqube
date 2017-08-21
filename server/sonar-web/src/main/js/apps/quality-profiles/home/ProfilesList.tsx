@@ -22,7 +22,7 @@ import { groupBy, pick, sortBy } from 'lodash';
 import ProfilesListRow from './ProfilesListRow';
 import ProfilesListHeader from './ProfilesListHeader';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   canAdmin: boolean;
@@ -30,12 +30,12 @@ interface Props {
   location: { query: { [p: string]: string } };
   onRequestFail: (reason: any) => void;
   organization: string | null;
-  profiles: IProfile[];
+  profiles: Profile[];
   updateProfiles: () => Promise<void>;
 }
 
 export default class ProfilesList extends React.PureComponent<Props> {
-  renderProfiles(profiles: IProfile[]) {
+  renderProfiles(profiles: Profile[]) {
     return profiles.map(profile =>
       <ProfilesListRow
         canAdmin={this.props.canAdmin}
@@ -85,12 +85,12 @@ export default class ProfilesList extends React.PureComponent<Props> {
     const { profiles, languages } = this.props;
     const { language } = this.props.location.query;
 
-    const profilesIndex: { [language: string]: IProfile[] } = groupBy<IProfile>(
+    const profilesIndex: { [language: string]: Profile[] } = groupBy<Profile>(
       profiles,
       profile => profile.language
     );
 
-    const profilesToShow: { [language: string]: IProfile[] } = language
+    const profilesToShow: { [language: string]: Profile[] } = language
       ? pick(profilesIndex, language)
       : profilesIndex;
 

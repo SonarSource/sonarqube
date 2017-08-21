@@ -22,11 +22,11 @@ import * as moment from 'moment';
 import ProfileLink from '../components/ProfileLink';
 import { translate } from '../../../helpers/l10n';
 import { isStagnant } from '../utils';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   organization: string | null;
-  profiles: IProfile[];
+  profiles: Profile[];
 }
 
 export default function EvolutionStagnan(props: Props) {

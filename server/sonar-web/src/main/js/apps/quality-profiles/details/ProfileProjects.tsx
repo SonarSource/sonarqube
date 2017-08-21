@@ -23,12 +23,12 @@ import ChangeProjectsForm from './ChangeProjectsForm';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { getProfileProjects } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   canAdmin: boolean;
   organization: string | null;
-  profile: IProfile;
+  profile: Profile;
   updateProfiles: () => Promise<void>;
 }
 

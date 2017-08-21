@@ -157,7 +157,7 @@ export function bulkChangeKey(
   return postJSON(url, data);
 }
 
-export interface ISuggestionsResponse {
+export interface SuggestionsResponse {
   organizations: Array<{ key: string; name: string }>;
   projects: Array<{ key: string; name: string }>;
   results: Array<{
@@ -180,7 +180,7 @@ export function getSuggestions(
   query?: string,
   recentlyBrowsed?: string[],
   more?: string
-): Promise<ISuggestionsResponse> {
+): Promise<SuggestionsResponse> {
   const data: RequestData = {};
   if (query) {
     data.s = query;

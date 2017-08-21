@@ -23,11 +23,11 @@ import { sortBy } from 'lodash';
 import ProfileLink from '../components/ProfileLink';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   organization: string | null;
-  profiles: IProfile[];
+  profiles: Profile[];
 }
 
 export default function EvolutionDeprecated(props: Props) {

@@ -27,14 +27,14 @@ import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { setDefaultProfile } from '../../../api/quality-profiles';
 import { getProfilePath, getProfileComparePath, getProfilesPath } from '../utils';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   canAdmin: boolean;
   fromList?: boolean;
   onRequestFail: (reasong: any) => void;
   organization: string | null;
-  profile: IProfile;
+  profile: Profile;
   updateProfiles: () => Promise<void>;
 }
 

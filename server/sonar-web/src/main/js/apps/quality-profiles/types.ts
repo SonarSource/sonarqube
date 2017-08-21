@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface IProfile {
+export interface Profile {
   key: string;
   name: string;
   isBuiltIn: boolean;
@@ -37,13 +37,13 @@ export interface IProfile {
   childrenCount: number;
 }
 
-export interface IExporter {
+export interface Exporter {
   key: string;
   name: string;
   languages: string[];
 }
 
-export interface IProfileChangelogEvent {
+export interface ProfileChangelogEvent {
   action: string;
   authorName: string;
   date: string;

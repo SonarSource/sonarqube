@@ -23,7 +23,7 @@ import CreateProfileForm from './CreateProfileForm';
 import RestoreProfileForm from './RestoreProfileForm';
 import { getProfilePath } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   canAdmin: boolean;
@@ -54,7 +54,7 @@ export default class PageHeader extends React.PureComponent<Props, State> {
     this.setState({ createFormOpen: true });
   };
 
-  handleCreate = (profile: IProfile) => {
+  handleCreate = (profile: Profile) => {
     this.props.updateProfiles().then(() => {
       this.context.router.push(
         getProfilePath(profile.name, profile.language, this.props.organization)
