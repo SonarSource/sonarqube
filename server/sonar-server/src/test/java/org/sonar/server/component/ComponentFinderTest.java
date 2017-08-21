@@ -36,7 +36,6 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 
-
 public class ComponentFinderTest {
 
   @Rule
@@ -96,6 +95,28 @@ public class ComponentFinderTest {
   }
 
   @Test
+  public void fail_to_getByUuidOrKey_when_using_branch_uuid() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
+
+    underTest.getByUuidOrKey(dbSession, branch.uuid(), null, ID_AND_KEY);
+  }
+
+  @Test
+  public void fail_to_getByUuidOrKey_when_using_branch_key() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    underTest.getByUuidOrKey(dbSession, null, branch.getDbKey(), ID_AND_KEY);
+  }
+
+  @Test
   public void fail_when_component_uuid_is_removed() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
     db.components().insertComponent(newFileDto(project, null, "file-uuid").setEnabled(false));
@@ -107,6 +128,17 @@ public class ComponentFinderTest {
   }
 
   @Test
+  public void fail_to_getByUuid_on_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
+
+    underTest.getByUuid(dbSession, branch.uuid());
+  }
+
+  @Test
   public void fail_when_component_key_is_removed() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
     db.components().insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
@@ -115,6 +147,17 @@ public class ComponentFinderTest {
     expectedException.expectMessage("Component key 'file-key' not found");
 
     underTest.getByKey(dbSession, "file-key");
+  }
+
+  @Test
+  public void fail_getByKey_on_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    underTest.getByKey(dbSession, branch.getDbKey());
   }
 
   @Test
