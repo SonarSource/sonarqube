@@ -34,8 +34,11 @@ interface Location {
 /**
  * Generate URL for a component's home page
  */
-export function getComponentUrl(componentKey: string): string {
-  return (window as any).baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey);
+export function getComponentUrl(componentKey: string, branch?: string): string {
+  const branchQuery = branch ? `&branch=${encodeURIComponent(branch)}` : '';
+  return (
+    (window as any).baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey) + branchQuery
+  );
 }
 
 export function getProjectUrl(key: string): Location {
