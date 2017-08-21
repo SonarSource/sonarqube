@@ -91,6 +91,20 @@ public class ComponentCleanerServiceTest {
   }
 
   @Test
+  public void delete_branch() {
+    DbData data1 = insertData(1);
+    DbData data2 = insertData(2);
+    DbData data3 = insertData(3);
+
+    underTest.deleteBranch(dbSession, data1.project);
+    dbSession.commit();
+
+    assertNotExists(data1);
+    assertExists(data2);
+    assertExists(data3);
+  }
+
+  @Test
   public void fail_with_IAE_if_not_a_project() throws Exception {
     mockResourceTypeAsValidProject();
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());

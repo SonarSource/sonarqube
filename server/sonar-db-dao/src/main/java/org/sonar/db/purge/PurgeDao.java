@@ -166,7 +166,14 @@ public class PurgeDao implements Dao {
     return result;
   }
 
-  public void deleteRootComponent(DbSession session, String uuid) {
+  public void deleteBranch(DbSession session, String uuid) {
+    PurgeProfiler profiler = new PurgeProfiler();
+    PurgeMapper purgeMapper = mapper(session);
+    PurgeCommands purgeCommands = new PurgeCommands(session, profiler);
+    deleteRootComponent(uuid, purgeMapper, purgeCommands);
+  }
+
+  public void deleteProject(DbSession session, String uuid) {
     PurgeProfiler profiler = new PurgeProfiler();
     PurgeMapper purgeMapper = mapper(session);
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler);
@@ -196,7 +203,7 @@ public class PurgeDao implements Dao {
     commands.deleteCeActivity(rootUuid);
     commands.deleteCeQueue(rootUuid);
     commands.deleteWebhookDeliveries(rootUuid);
-    commands.deleteBranches(rootUuid);
+    commands.deleteBranch(rootUuid);
   }
 
   /**
