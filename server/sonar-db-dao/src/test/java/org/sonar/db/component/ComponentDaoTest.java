@@ -1313,6 +1313,26 @@ public class ComponentDaoTest {
     assertThat(privateFlagOfUuid(uuids[4])).isFalse();
   }
 
+  @Test
+  public void setPrivateForRootComponentUuid_updates_branches_too() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    // test projects (and their branches) are private by default
+    assertThat(privateFlagOfUuid(project.uuid())).isTrue();
+    assertThat(privateFlagOfUuid(branch.uuid())).isTrue();
+
+    underTest.setPrivateForRootComponentUuid(db.getSession(), project.uuid(), false);
+
+    assertThat(privateFlagOfUuid(project.uuid())).isFalse();
+    assertThat(privateFlagOfUuid(branch.uuid())).isFalse();
+
+    underTest.setPrivateForRootComponentUuid(db.getSession(), project.uuid(), true);
+
+    assertThat(privateFlagOfUuid(project.uuid())).isTrue();
+    assertThat(privateFlagOfUuid(branch.uuid())).isTrue();
+  }
+
   private boolean privateFlagOfUuid(String uuid) {
     return underTest.selectByUuid(db.getSession(), uuid).get().isPrivate();
   }
