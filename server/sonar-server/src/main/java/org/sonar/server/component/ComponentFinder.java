@@ -99,19 +99,11 @@ public class ComponentFinder {
   }
 
   private static ComponentDto checkComponent(Optional<ComponentDto> componentDto, String message, Object... messageArguments) {
-    if (componentDto.isPresent() && componentDto.get().isEnabled()) {
+    if (componentDto.isPresent() && componentDto.get().isEnabled() && componentDto.get().getMainBranchProjectUuid() == null) {
       return componentDto.get();
     }
     throw new NotFoundException(format(message, messageArguments));
   }
-
-  private static ComponentDto checkComponent(java.util.Optional<ComponentDto> componentDto, String message, Object... messageArguments) {
-    if (componentDto.isPresent() && componentDto.get().isEnabled()) {
-      return componentDto.get();
-    }
-    throw new NotFoundException(format(message, messageArguments));
-  }
-
 
   public ComponentDto getRootComponentByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey) {
     ComponentDto project;
@@ -155,7 +147,11 @@ public class ComponentFinder {
    * Components of the main branch won't be found
    */
   public ComponentDto getByKeyAndBranch(DbSession dbSession, String key, String branch) {
-    return checkComponent(dbClient.componentDao().selectByKeyAndBranch(dbSession, key, branch), "Component '%s' on branch '%s' not found", key, branch);
+    java.util.Optional<ComponentDto> componentDto = dbClient.componentDao().selectByKeyAndBranch(dbSession, key, branch);
+    if (componentDto.isPresent() && componentDto.get().isEnabled()) {
+      return componentDto.get();
+    }
+    throw new NotFoundException(format("Component '%s' on branch '%s' not found", key, branch));
   }
 
   public enum ParamNames {
