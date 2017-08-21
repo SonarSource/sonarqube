@@ -178,7 +178,7 @@ public class PurgeDaoTest {
   public void delete_project_and_associated_data() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteProject.xml");
 
-    underTest.deleteRootComponent(dbSession, "A");
+    underTest.deleteProject(dbSession, "A");
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
@@ -186,6 +186,17 @@ public class PurgeDaoTest {
     assertThat(dbTester.countRowsOfTable("issues")).isZero();
     assertThat(dbTester.countRowsOfTable("issue_changes")).isZero();
     assertThat(dbTester.countRowsOfTable("file_sources")).isZero();
+  }
+
+  @Test
+  public void delete_branch_and_associated_data() {
+    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+
+    underTest.deleteBranch(dbSession, project.uuid());
+    dbSession.commit();
+    assertThat(dbTester.countRowsOfTable("project_branches")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(1);
   }
 
   @Test
@@ -199,7 +210,7 @@ public class PurgeDaoTest {
     insertCeActivity(anotherLivingProject);
     dbSession.commit();
 
-    underTest.deleteRootComponent(dbSession, projectToBeDeleted.uuid());
+    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable("ce_activity")).isEqualTo(1);
@@ -217,7 +228,7 @@ public class PurgeDaoTest {
     dbClient.ceQueueDao().insert(dbSession, createCeQueue(anotherLivingProject, Status.PENDING));
     dbSession.commit();
 
-    underTest.deleteRootComponent(dbSession, projectToBeDeleted.uuid());
+    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable("ce_queue")).isEqualTo(1);
@@ -249,7 +260,7 @@ public class PurgeDaoTest {
     assertThat(dbTester.countRowsOfTable("issues")).isGreaterThan(issueCount);
     assertThat(dbTester.countRowsOfTable("project_branches")).isGreaterThan(branchCount);
 
-    underTest.deleteRootComponent(dbSession, projectToDelete.uuid());
+    underTest.deleteProject(dbSession, projectToDelete.uuid());
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(projectEntryCount);
@@ -261,7 +272,7 @@ public class PurgeDaoTest {
   public void delete_view_and_child() {
     dbTester.prepareDbUnit(getClass(), "view_sub_view_and_tech_project.xml");
 
-    underTest.deleteRootComponent(dbSession, "A");
+    underTest.deleteProject(dbSession, "A");
     dbSession.commit();
     assertThat(dbTester.countSql("select count(1) from projects where uuid='A'")).isZero();
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
@@ -275,7 +286,7 @@ public class PurgeDaoTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Couldn't find root component with uuid " + module.uuid());
 
-    underTest.deleteRootComponent(dbSession, module.uuid());
+    underTest.deleteProject(dbSession, module.uuid());
   }
 
   @Test
@@ -286,7 +297,7 @@ public class PurgeDaoTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Couldn't find root component with uuid " + directory.uuid());
 
-    underTest.deleteRootComponent(dbSession, directory.uuid());
+    underTest.deleteProject(dbSession, directory.uuid());
   }
 
   @Test
@@ -297,7 +308,7 @@ public class PurgeDaoTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Couldn't find root component with uuid " + file.uuid());
 
-    underTest.deleteRootComponent(dbSession, file.uuid());
+    underTest.deleteProject(dbSession, file.uuid());
   }
 
   @Test
@@ -308,7 +319,7 @@ public class PurgeDaoTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Couldn't find root component with uuid " + subview.uuid());
 
-    underTest.deleteRootComponent(dbSession, subview.uuid());
+    underTest.deleteProject(dbSession, subview.uuid());
   }
 
   @Test
@@ -316,7 +327,7 @@ public class PurgeDaoTest {
     dbTester.prepareDbUnit(getClass(), "view_sub_view_and_tech_project.xml");
 
     // view
-    underTest.deleteRootComponent(dbSession, "A");
+    underTest.deleteProject(dbSession, "A");
     dbSession.commit();
     assertThat(dbTester.countSql("select count(1) from projects where uuid='A'")).isZero();
   }
@@ -356,7 +367,7 @@ public class PurgeDaoTest {
     dbClient.webhookDeliveryDao().insert(dbSession, newWebhookDeliveryDto().setComponentUuid(project.uuid()).setUuid("D1"));
     dbClient.webhookDeliveryDao().insert(dbSession, newWebhookDeliveryDto().setComponentUuid("P2").setUuid("D2"));
 
-    underTest.deleteRootComponent(dbSession, project.uuid());
+    underTest.deleteProject(dbSession, project.uuid());
 
     assertThat(selectAllDeliveryUuids(dbTester, dbSession)).containsOnly("D2");
   }

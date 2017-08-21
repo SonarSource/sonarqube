@@ -221,7 +221,6 @@ public class ComponentTesting {
     return new BranchDto()
       .setKey(key)
       .setUuid(branchComponent.uuid())
-      // MainBranchProjectUuid will be null if it's a main branch
       .setProjectUuid(projectUuid)
       .setKeeType(BRANCH)
       .setBranchType(branchType);

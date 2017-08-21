@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonarqube.ws.WsBranches.ListWsResponse;
 import org.sonarqube.ws.WsBranches.ShowWsResponse;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
@@ -62,6 +63,18 @@ public class ProjectBranchesServiceTest {
     GetRequest getRequest = serviceTester.getGetRequest();
     serviceTester.assertThat(getRequest)
       .hasPath("show")
+      .hasParam(PARAM_PROJECT, "projectKey")
+      .hasParam(PARAM_BRANCH, "my_branch")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void delete() {
+    underTest.delete("projectKey", "my_branch");
+
+    PostRequest postRequest = serviceTester.getPostRequest();
+    serviceTester.assertThat(postRequest)
+      .hasPath("delete")
       .hasParam(PARAM_PROJECT, "projectKey")
       .hasParam(PARAM_BRANCH, "my_branch")
       .andNoOtherParam();
