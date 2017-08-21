@@ -22,6 +22,7 @@ import { Branch, BranchType, ShortLivingBranch } from '../app/types';
 export const MAIN_BRANCH: Branch = {
   isMain: true,
   name: undefined,
+  status: { qualityGateStatus: 'OK' },
   type: BranchType.LONG
 };
 

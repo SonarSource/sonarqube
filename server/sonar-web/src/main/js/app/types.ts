@@ -25,12 +25,18 @@ export enum BranchType {
 export interface MainBranch {
   isMain: true;
   name: undefined;
+  status?: {
+    qualityGateStatus: string;
+  };
   type: BranchType.LONG;
 }
 
 export interface LongLivingBranch {
   isMain: boolean;
   name: string;
+  status?: {
+    qualityGateStatus: string;
+  };
   type: BranchType.LONG;
 }
 
