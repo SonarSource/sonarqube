@@ -19,13 +19,11 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.lang.StringUtils;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.File;
 import java.util.Properties;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 
 public class Props {
 
@@ -43,7 +41,7 @@ public class Props {
 
   @CheckForNull
   public String value(String key) {
-    String value = properties.getProperty(key);
+    String value = valueImpl(key);
     if (value != null && encryption.isEncrypted(value)) {
       value = encryption.decrypt(value);
     }
@@ -112,9 +110,22 @@ public class Props {
   }
 
   public void setDefault(String key, String value) {
-    String s = properties.getProperty(key);
+    String s = valueImpl(key);
     if (StringUtils.isBlank(s)) {
       properties.setProperty(key, value);
     }
+  }
+
+  @CheckForNull
+  private String valueImpl(String key) {
+    String value = properties.getProperty(key);
+    if (value == null) {
+      return null;
+    }
+    String trimmed = value.trim();
+    if (trimmed.isEmpty()) {
+      return null;
+    }
+    return trimmed;
   }
 }

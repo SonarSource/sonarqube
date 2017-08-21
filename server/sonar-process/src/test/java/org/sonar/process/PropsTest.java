@@ -19,47 +19,83 @@
  */
 package org.sonar.process;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+@RunWith(DataProviderRunner.class)
 public class PropsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void value() {
+  @UseDataProvider("beforeAndAfterBlanks")
+  public void value(String blankBefore, String blankAfter) {
     Properties p = new Properties();
-    p.setProperty("foo", "bar");
+    p.setProperty("foo", blankBefore + "bar" + blankAfter);
+    p.setProperty("blank", blankBefore + blankAfter);
     Props props = new Props(p);
 
     assertThat(props.value("foo")).isEqualTo("bar");
     assertThat(props.value("foo", "default value")).isEqualTo("bar");
+    assertThat(props.value("blank")).isNull();
+    assertThat(props.value("blank", "default value")).isEqualTo("default value");
     assertThat(props.value("unknown")).isNull();
     assertThat(props.value("unknown", "default value")).isEqualTo("default value");
-
-    assertThat(props.nonNullValue("foo")).isEqualTo("bar");
-    try {
-      props.nonNullValue("other");
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Missing property: other");
-    }
   }
 
   @Test
-  public void valueAsInt() {
+  @UseDataProvider("beforeAndAfterBlanks")
+  public void nonNullValue(String blankBefore, String blankAfter) {
     Properties p = new Properties();
-    p.setProperty("foo", "33");
-    p.setProperty("blank", "");
+    p.setProperty("foo", blankBefore + "bar" + blankAfter);
+    Props props = new Props(p);
+
+    assertThat(props.nonNullValue("foo")).isEqualTo("bar");
+  }
+
+  @Test
+  public void nonNullValue_throws_IAE_on_non_existing_key() {
+    Props props = new Props(new Properties());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Missing property: other");
+
+    props.nonNullValue("other");
+  }
+
+  @Test
+  @UseDataProvider("beforeAndAfterBlanks")
+  public void nonNullValue_throws_IAE_on_existing_key_with_blank_value(String blankBefore, String blankAfter) {
+    Properties p = new Properties();
+    p.setProperty("blank", blankBefore + blankAfter);
+    Props props = new Props(p);
+
+    expectedException.expect(IllegalArgumentException.class);
+
+    props.nonNullValue("blank");
+  }
+
+  @Test
+  @UseDataProvider("beforeAndAfterBlanks")
+  public void valueAsInt(String blankBefore, String blankAfter) {
+    Properties p = new Properties();
+    p.setProperty("foo", blankBefore + "33" + blankAfter);
+    p.setProperty("blank", blankBefore + blankAfter);
     Props props = new Props(p);
 
     assertThat(props.valueAsInt("foo")).isEqualTo(33);
@@ -71,9 +107,10 @@ public class PropsTest {
   }
 
   @Test
-  public void valueAsInt_not_integer() {
+  @UseDataProvider("beforeAndAfterBlanks")
+  public void valueAsInt_not_integer(String blankBefore, String blankAfter) {
     Properties p = new Properties();
-    p.setProperty("foo", "bar");
+    p.setProperty("foo", blankBefore + "bar" + blankAfter);
     Props props = new Props(p);
 
     try {
@@ -85,28 +122,20 @@ public class PropsTest {
   }
 
   @Test
-  public void booleanOf() {
+  @UseDataProvider("beforeAndAfterBlanks")
+  public void booleanOf(String blankBefore, String blankAfter) {
     Properties p = new Properties();
-    p.setProperty("foo", "True");
-    p.setProperty("bar", "false");
+    p.setProperty("foo", blankBefore + "True" + blankAfter);
+    p.setProperty("bar", blankBefore + "false" + blankAfter);
     Props props = new Props(p);
 
     assertThat(props.valueAsBoolean("foo")).isTrue();
     assertThat(props.valueAsBoolean("bar")).isFalse();
-    assertThat(props.valueAsBoolean("unknown")).isFalse();
-  }
-
-  @Test
-  public void booleanOf_default_value() {
-    Properties p = new Properties();
-    p.setProperty("foo", "true");
-    p.setProperty("bar", "false");
-    Props props = new Props(p);
-
-    assertThat(props.valueAsBoolean("unset", false)).isFalse();
-    assertThat(props.valueAsBoolean("unset", true)).isTrue();
     assertThat(props.valueAsBoolean("foo", false)).isTrue();
     assertThat(props.valueAsBoolean("bar", true)).isFalse();
+    assertThat(props.valueAsBoolean("unknown")).isFalse();
+    assertThat(props.valueAsBoolean("unset", false)).isFalse();
+    assertThat(props.valueAsBoolean("unset", true)).isTrue();
   }
 
   @Test
@@ -161,5 +190,15 @@ public class PropsTest {
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Property other_path is not set");
     }
+  }
+
+  @DataProvider
+  public static Object[][] beforeAndAfterBlanks() {
+    return new Object[][] {
+      {"", ""},
+      {" ", ""},
+      {"", " "},
+      {" ", " "},
+    };
   }
 }
