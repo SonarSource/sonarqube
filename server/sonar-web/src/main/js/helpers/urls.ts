@@ -77,8 +77,8 @@ export function getComponentIssuesUrlAsString(componentKey: string, query?: Quer
 /**
  * Generate URL for a component's drilldown page
  */
-export function getComponentDrilldownUrl(componentKey: string, metric: string): Location {
-  return { pathname: '/component_measures', query: { id: componentKey, metric } };
+export function getComponentDrilldownUrl(componentKey: string, metric: string, branch?: string) {
+  return { pathname: '/component_measures', query: { id: componentKey, metric, branch } };
 }
 
 /**

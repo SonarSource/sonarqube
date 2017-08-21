@@ -35,3 +35,7 @@ export function isShortLivingBranch(branch: Branch | null): branch is ShortLivin
 export function getBranchDisplayName(branch: Branch): string {
   return branch.isMain ? MAIN_BRANCH_DISPLAY_NAME : branch.name;
 }
+
+export function getBranchName(branch: Branch): string | null {
+  return branch.isMain ? null : branch.name;
+}

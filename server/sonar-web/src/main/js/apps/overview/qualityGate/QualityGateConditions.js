@@ -22,6 +22,7 @@ import { sortBy } from 'lodash';
 import QualityGateCondition from './QualityGateCondition';
 import { ComponentType, ConditionsListType } from '../propTypes';
 import { getMeasuresAndMeta } from '../../../api/measures';
+import { getBranchName } from '../../../helpers/branches';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 
 const LEVEL_ORDER = ['ERROR', 'WARN'];
@@ -35,6 +36,7 @@ function enhanceConditions(conditions, measures) {
 
 export default class QualityGateConditions extends React.PureComponent {
   static propTypes = {
+    // branch
     component: ComponentType.isRequired,
     conditions: ConditionsListType.isRequired
   };
@@ -50,6 +52,7 @@ export default class QualityGateConditions extends React.PureComponent {
 
   componentDidUpdate(prevProps) {
     if (
+      prevProps.branch !== this.props.branch ||
       prevProps.conditions !== this.props.conditions ||
       prevProps.component !== this.props.component
     ) {
@@ -62,11 +65,14 @@ export default class QualityGateConditions extends React.PureComponent {
   }
 
   loadFailedMeasures() {
-    const { component, conditions } = this.props;
+    const { branch, component, conditions } = this.props;
     const failedConditions = conditions.filter(c => c.level !== 'OK');
     if (failedConditions.length > 0) {
       const metrics = failedConditions.map(condition => condition.metric);
-      getMeasuresAndMeta(component.key, metrics, { additionalFields: 'metrics' }).then(r => {
+      getMeasuresAndMeta(component.key, metrics, {
+        additionalFields: 'metrics',
+        branch: getBranchName(branch)
+      }).then(r => {
         if (this.mounted) {
           const measures = enhanceMeasuresWithMetrics(r.component.measures, r.metrics);
           this.setState({
@@ -81,7 +87,7 @@ export default class QualityGateConditions extends React.PureComponent {
   }
 
   render() {
-    const { component } = this.props;
+    const { branch, component } = this.props;
     const { loading, conditions } = this.state;
 
     if (loading) {
@@ -101,6 +107,7 @@ export default class QualityGateConditions extends React.PureComponent {
         {sortedConditions.map(condition =>
           <QualityGateCondition
             key={condition.measure.metric.key}
+            branch={branch}
             component={component}
             condition={condition}
           />
