@@ -62,6 +62,7 @@ const DEFAULT_PROPS = {
   addVersion: () => {},
   analyses: ANALYSES,
   analysesLoading: false,
+  branch: { isMain: true },
   changeEvent: () => {},
   deleteAnalysis: () => {},
   deleteEvent: () => {},
