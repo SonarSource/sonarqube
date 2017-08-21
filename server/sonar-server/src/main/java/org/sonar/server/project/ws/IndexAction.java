@@ -29,6 +29,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -94,7 +95,10 @@ public class IndexAction implements ProjectsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<ComponentDto> projects = getAuthorizedComponents(searchComponents(dbSession, request));
+      List<ComponentDto> projects = getAuthorizedComponents(searchComponents(dbSession, request))
+        .stream()
+        .filter(p -> p.getMainBranchProjectUuid() == null)
+        .collect(MoreCollectors.toList());
       JsonWriter json = response.newJsonWriter();
       json.beginArray();
       for (ComponentDto project : projects) {
@@ -102,15 +106,6 @@ public class IndexAction implements ProjectsWsAction {
       }
       json.endArray();
       json.close();
-    }
-  }
-
-  private Optional<ComponentDto> getProjectByKeyOrId(DbSession dbSession, String component) {
-    try {
-      Long componentId = Long.parseLong(component);
-      return ofNullable(dbClient.componentDao().selectById(dbSession, componentId).orNull());
-    } catch (NumberFormatException e) {
-      return ofNullable(dbClient.componentDao().selectByKey(dbSession, component).orNull());
     }
   }
 
@@ -125,6 +120,15 @@ public class IndexAction implements ProjectsWsAction {
       projects.addAll(dbClient.componentDao().selectProjectsByNameQuery(dbSession, nameQuery, includeModules));
     }
     return projects;
+  }
+
+  private Optional<ComponentDto> getProjectByKeyOrId(DbSession dbSession, String component) {
+    try {
+      Long componentId = Long.parseLong(component);
+      return ofNullable(dbClient.componentDao().selectById(dbSession, componentId).orNull());
+    } catch (NumberFormatException e) {
+      return ofNullable(dbClient.componentDao().selectByKey(dbSession, component).orNull());
+    }
   }
 
   private List<ComponentDto> getAuthorizedComponents(List<ComponentDto> components) {

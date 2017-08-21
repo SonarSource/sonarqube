@@ -173,7 +173,7 @@ public class SearchMyProjectsActionTest {
   }
 
   @Test
-  public void do_not_return_views() {
+  public void does_not_return_views() {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto jdk7 = insertJdk7(organizationDto);
     ComponentDto view = insertView(organizationDto);
@@ -185,6 +185,19 @@ public class SearchMyProjectsActionTest {
 
     assertThat(result.getProjectsCount()).isEqualTo(1);
     assertThat(result.getProjects(0).getId()).isEqualTo(jdk7.uuid());
+  }
+
+  @Test
+  public void does_not_return_branches() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
+
+    SearchMyProjectsWsResponse result = call_ws();
+
+    assertThat(result.getProjectsList())
+      .extracting(Project::getKey)
+      .containsExactlyInAnyOrder(project.getDbKey());
   }
 
   @Test

@@ -191,6 +191,32 @@ public class IndexActionTest {
   }
 
   @Test
+  public void does_not_return_branches_when_searching_all_components() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    userSession.setRoot();
+
+    String result = call(null, null, null);
+
+    assertJson(result).isSimilarTo("[" +
+      "  {" +
+      "  \"id\":" + project.getId() + "," +
+      "  }" +
+      "]");
+  }
+
+  @Test
+  public void does_not_return_branches_when_searching_by_key() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    userSession.setRoot();
+
+    String result = call(branch.getDbKey(), null, null);
+
+    assertJson(result).isSimilarTo("[]");
+  }
+
+  @Test
   public void test_example() {
     insertProjectsAuthorizedForUser(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.jenkins-ci.plugins:sonar").setName("Jenkins Sonar Plugin"),
