@@ -29,7 +29,6 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -57,7 +56,6 @@ import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
 import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
 
-import static java.lang.String.format;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -278,14 +276,8 @@ public class QualityGateTest {
       try {
         qgClient().createCondition(NewCondition.create(qualityGateId).metricKey(customMetricKey).operator("GT").warningThreshold("40"));
 
-        List<Map<String, String>> metric = orchestrator.getDatabase().executeSql("SELECT * FROM metrics WHERE name = '" + customMetricKey + "'");
-        System.out.println(format("Metric[%s] (after creation): %s", customMetricKey, metric));
-
         // delete custom metric
         deleteCustomMetric(customMetricKey);
-
-        List<Map<String, String>> metric2 = orchestrator.getDatabase().executeSql("SELECT * FROM metrics WHERE name = '" + customMetricKey + "'");
-        System.out.println(format("Metric[%s] (after deletion): %s", customMetricKey, metric2));
 
         // run analysis
         tester.wsClient().qualityGates().associateProject(new SelectWsRequest().setProjectKey(projectKey).setGateId(qualityGateId));
