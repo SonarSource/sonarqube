@@ -103,7 +103,9 @@ public class DateUtilsTest {
   @Test
   public void shouldFormatDate() {
     assertThat(DateUtils.formatDate(new Date())).startsWith("20");
+    assertThat(DateUtils.formatDate(new Date().getTime())).startsWith("20");
     assertThat(DateUtils.formatDate(new Date()).length()).isEqualTo(10);
+    assertThat(DateUtils.formatDate(new Date().getTime()).length()).isEqualTo(10);
   }
 
   @Test
