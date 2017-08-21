@@ -353,12 +353,7 @@ public class ComponentDao implements Dao {
   }
 
   public void setPrivateForRootComponentUuid(DbSession session, String projectUuid, boolean isPrivate) {
-    ComponentMapper mapper = mapper(session);
-    mapper.setPrivateForRootComponentUuid(projectUuid, isPrivate);
-    session.getMapper(BranchMapper.class).selectByProjectUuid(projectUuid)
-      .stream()
-      .filter(branch -> !projectUuid.equals(branch.getUuid()))
-      .forEach(branch -> mapper.setPrivateForRootComponentUuid(branch.getUuid(), isPrivate));
+    mapper(session).setPrivateForRootComponentUuid(projectUuid, isPrivate);
   }
 
   public void delete(DbSession session, long componentId) {
