@@ -256,9 +256,9 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteBranches(String rootUuid) {
-    profiler.start("deleteBranches (project_branches)");
-    purgeMapper.deleteBranchesByProjectUuid(rootUuid);
+  void deleteBranch(String rootUuid) {
+    profiler.start("deleteBranch (project_branches)");
+    purgeMapper.deleteBranchByUuid(rootUuid);
     session.commit();
     profiler.stop();
   }
