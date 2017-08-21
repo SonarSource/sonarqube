@@ -127,6 +127,9 @@ public class Category1Suite {
 
     .addPlugin(pluginArtifact("posttask-plugin"))
 
+    // reduce memory for Elasticsearch to 128M
+    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+
     .addPlugin(xooPlugin())
     .build();
 

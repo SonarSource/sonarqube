@@ -86,5 +86,8 @@ public class Category3Suite {
     // used by ProjectBuilderTest
     .addPlugin(pluginArtifact("project-builder-plugin"))
 
+    // reduce memory for Elasticsearch to 128M
+    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+
     .build();
 }
