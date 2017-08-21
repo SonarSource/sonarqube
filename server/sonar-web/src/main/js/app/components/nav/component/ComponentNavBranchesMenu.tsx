@@ -19,11 +19,10 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { sortBy } from 'lodash';
 import ComponentNavBranchesMenuItem from './ComponentNavBranchesMenuItem';
 import { Branch, Component } from '../../../types';
 import { getBranches } from '../../../../api/branches';
-import { isShortLivingBranch, getBranchDisplayName } from '../../../../helpers/branches';
+import { getBranchDisplayName, sortBranchesAsTree } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectBranchUrl } from '../../../../helpers/urls';
 
@@ -74,7 +73,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     getBranches(this.props.project.key).then(
       (branches: Branch[]) => {
         if (this.mounted) {
-          this.setState({ branches: this.sortBranches(branches), loading: false });
+          this.setState({ branches: sortBranchesAsTree(branches), loading: false });
         }
       },
       () => {
@@ -84,14 +83,6 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       }
     );
   };
-
-  sortBranches = (branches: Branch[]): Branch[] =>
-    sortBy(
-      branches,
-      branch => !branch.isMain, // main branch first
-      branch => !isShortLivingBranch(branch), // then short-living branches
-      branch => getBranchDisplayName(branch) // then by name
-    );
 
   getFilteredBranches = () =>
     this.state.branches.filter(branch =>

@@ -33,6 +33,7 @@ export interface MainBranch {
 
 export interface LongLivingBranch {
   isMain: boolean;
+  mergeBranch?: string;
   name: string;
   status?: {
     qualityGateStatus: string;
@@ -42,6 +43,7 @@ export interface LongLivingBranch {
 
 export interface ShortLivingBranch {
   isMain: false;
+  mergeBranch?: string;
   name: string;
   status: {
     bugs: number;

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Branch, BranchType, ShortLivingBranch } from '../app/types';
+import { sortBy } from 'lodash';
+import { Branch, BranchType, ShortLivingBranch, LongLivingBranch } from '../app/types';
 
 export const MAIN_BRANCH: Branch = {
   isMain: true,
@@ -38,4 +39,32 @@ export function getBranchDisplayName(branch: Branch): string {
 
 export function getBranchName(branch: Branch): string | null {
   return branch.isMain ? null : branch.name;
+}
+
+export function sortBranchesAsTree(branches: Branch[]): Branch[] {
+  const result: Branch[] = [];
+
+  // main branch is always first
+  const mainBranch = branches.find(branch => branch.isMain);
+  if (mainBranch) {
+    result.push(mainBranch);
+  }
+
+  // then process all branches where merge branch is empty
+  getChildren().forEach(processBranch);
+
+  return result;
+
+  function getChildren(mergeBranch?: string): Branch[] {
+    return sortBy(
+      branches.filter(branch => !branch.isMain && branch.mergeBranch === mergeBranch),
+      branch => !isShortLivingBranch(branch),
+      'name'
+    );
+  }
+
+  function processBranch(branch: ShortLivingBranch | LongLivingBranch) {
+    result.push(branch);
+    getChildren(branch.name).forEach(processBranch);
+  }
 }
