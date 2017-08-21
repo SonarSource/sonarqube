@@ -22,8 +22,6 @@ exports[`renders main branch 1`] = `
         branch={
           Object {
             "isMain": true,
-            "name": undefined,
-            "type": "LONG",
           }
         }
         className="little-spacer-right"
@@ -37,8 +35,6 @@ exports[`renders main branch 1`] = `
         branch={
           Object {
             "isMain": true,
-            "name": undefined,
-            "type": "LONG",
           }
         }
         concise={true}

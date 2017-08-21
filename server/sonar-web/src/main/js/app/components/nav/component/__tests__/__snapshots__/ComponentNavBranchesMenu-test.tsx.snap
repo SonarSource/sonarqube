@@ -32,8 +32,6 @@ exports[`renders list 1`] = `
         branch={
           Object {
             "isMain": true,
-            "name": undefined,
-            "type": "LONG",
           }
         }
         component={

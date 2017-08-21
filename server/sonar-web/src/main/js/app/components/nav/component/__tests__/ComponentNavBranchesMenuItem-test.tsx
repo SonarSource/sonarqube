@@ -24,7 +24,7 @@ import { BranchType, MainBranch, ShortLivingBranch, Component } from '../../../.
 
 it('renders main branch', () => {
   const component = { key: 'component' } as Component;
-  const mainBranch: MainBranch = { isMain: true, name: undefined, type: BranchType.LONG };
+  const mainBranch: MainBranch = { isMain: true };
   expect(
     shallow(
       <ComponentNavBranchesMenuItem

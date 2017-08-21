@@ -30,7 +30,7 @@ export const MAIN_BRANCH: Branch = {
 const MAIN_BRANCH_DISPLAY_NAME = 'master';
 
 export function isShortLivingBranch(branch: Branch | null): branch is ShortLivingBranch {
-  return branch != null && branch.type === BranchType.SHORT;
+  return branch != null && !branch.isMain && branch.type === BranchType.SHORT;
 }
 
 export function getBranchDisplayName(branch: Branch): string {

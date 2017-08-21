@@ -75,7 +75,7 @@ it('selects next & previous', () => {
 });
 
 function mainBranch(): MainBranch {
-  return { isMain: true, name: undefined, type: BranchType.LONG };
+  return { isMain: true };
 }
 
 function shortBranch(name: string): ShortLivingBranch {

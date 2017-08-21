@@ -34,6 +34,10 @@ interface Props {
 
 export default function BranchStatus({ branch, concise = false }: Props) {
   if (isShortLivingBranch(branch)) {
+    if (!branch.status) {
+      return null;
+    }
+
     const totalIssues =
       branch.status.bugs + branch.status.vulnerabilities + branch.status.codeSmells;
 

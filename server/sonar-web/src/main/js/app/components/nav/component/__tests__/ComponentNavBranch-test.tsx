@@ -24,7 +24,7 @@ import { BranchType, ShortLivingBranch, MainBranch, Component } from '../../../.
 import { click } from '../../../../../helpers/testUtils';
 
 it('renders main branch', () => {
-  const branch: MainBranch = { isMain: true, name: undefined, type: BranchType.LONG };
+  const branch: MainBranch = { isMain: true };
   const component = {} as Component;
   expect(shallow(<ComponentNavBranch branch={branch} project={component} />)).toMatchSnapshot();
 });
@@ -41,7 +41,7 @@ it('renders short-living branch', () => {
 });
 
 it('opens menu', () => {
-  const branch: MainBranch = { isMain: true, name: undefined, type: BranchType.LONG };
+  const branch: MainBranch = { isMain: true };
   const component = {} as Component;
   const wrapper = shallow(<ComponentNavBranch branch={branch} project={component} />);
   expect(wrapper.find('ComponentNavBranchesMenu')).toHaveLength(0);
