@@ -1318,19 +1318,18 @@ public class ComponentDaoTest {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    // test projects (and their branches) are private by default
-    assertThat(privateFlagOfUuid(project.uuid())).isTrue();
-    assertThat(privateFlagOfUuid(branch.uuid())).isTrue();
+    boolean initiallyPrivate = privateFlagOfUuid(project.uuid());
+    assertThat(privateFlagOfUuid(branch.uuid())).isEqualTo(initiallyPrivate);
 
-    underTest.setPrivateForRootComponentUuid(db.getSession(), project.uuid(), false);
+    underTest.setPrivateForRootComponentUuid(db.getSession(), project.uuid(), !initiallyPrivate);
 
-    assertThat(privateFlagOfUuid(project.uuid())).isFalse();
-    assertThat(privateFlagOfUuid(branch.uuid())).isFalse();
+    assertThat(privateFlagOfUuid(project.uuid())).isEqualTo(!initiallyPrivate);
+    assertThat(privateFlagOfUuid(branch.uuid())).isEqualTo(!initiallyPrivate);
 
-    underTest.setPrivateForRootComponentUuid(db.getSession(), project.uuid(), true);
+    underTest.setPrivateForRootComponentUuid(db.getSession(), project.uuid(), initiallyPrivate);
 
-    assertThat(privateFlagOfUuid(project.uuid())).isTrue();
-    assertThat(privateFlagOfUuid(branch.uuid())).isTrue();
+    assertThat(privateFlagOfUuid(project.uuid())).isEqualTo(initiallyPrivate);
+    assertThat(privateFlagOfUuid(branch.uuid())).isEqualTo(initiallyPrivate);
   }
 
   private boolean privateFlagOfUuid(String uuid) {
