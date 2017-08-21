@@ -68,7 +68,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     return (
       <div className={classNames('navbar-context-branches', 'dropdown', { open: this.state.open })}>
         <a className="link-base-color link-no-underline" href="#" onClick={this.handleClick}>
-          <BranchIcon className="little-spacer-right" />
+          <BranchIcon branch={this.props.branch} className="little-spacer-right" />
           {getBranchDisplayName(this.props.branch)}
           <i className="icon-dropdown little-spacer-left" />
         </a>

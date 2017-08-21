@@ -10,6 +10,13 @@ exports[`renders main branch 1`] = `
     onClick={[Function]}
   >
     <BranchIcon
+      branch={
+        Object {
+          "isMain": true,
+          "name": undefined,
+          "type": "LONG",
+        }
+      }
       className="little-spacer-right"
     />
     master
@@ -30,6 +37,18 @@ exports[`renders short-living branch 1`] = `
     onClick={[Function]}
   >
     <BranchIcon
+      branch={
+        Object {
+          "isMain": false,
+          "name": "foo",
+          "status": Object {
+            "bugs": 0,
+            "codeSmells": 0,
+            "vulnerabilities": 0,
+          },
+          "type": "SHORT",
+        }
+      }
       className="little-spacer-right"
     />
     foo

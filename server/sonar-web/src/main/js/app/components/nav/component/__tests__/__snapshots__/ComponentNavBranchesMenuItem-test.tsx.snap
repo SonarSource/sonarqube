@@ -19,6 +19,13 @@ exports[`renders main branch 1`] = `
   >
     <div>
       <BranchIcon
+        branch={
+          Object {
+            "isMain": true,
+            "name": undefined,
+            "type": "LONG",
+          }
+        }
         className="little-spacer-right"
       />
       master
@@ -62,6 +69,18 @@ exports[`renders short-living branch 1`] = `
   >
     <div>
       <BranchIcon
+        branch={
+          Object {
+            "isMain": false,
+            "name": "foo",
+            "status": Object {
+              "bugs": 1,
+              "codeSmells": 2,
+              "vulnerabilities": 3,
+            },
+            "type": "SHORT",
+          }
+        }
         className="little-spacer-right big-spacer-left"
       />
       foo

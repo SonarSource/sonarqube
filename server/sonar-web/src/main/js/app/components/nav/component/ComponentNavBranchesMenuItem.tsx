@@ -49,6 +49,7 @@ export default function ComponentNavBranchesMenuItem({ branch, ...props }: Props
         to={getProjectBranchUrl(props.component.key, branch)}>
         <div>
           <BranchIcon
+            branch={branch}
             className={classNames('little-spacer-right', {
               'big-spacer-left': isShortLivingBranch(branch)
             })}
