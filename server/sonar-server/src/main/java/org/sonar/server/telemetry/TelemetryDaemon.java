@@ -21,6 +21,7 @@ package org.sonar.server.telemetry;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.StringWriter;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,25 +29,33 @@ import org.picocontainer.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.property.InternalProperties;
+
+import static org.sonar.api.utils.DateUtils.formatDate;
+import static org.sonar.api.utils.DateUtils.parseDate;
 
 @ServerSide
 public class TelemetryDaemon implements Startable {
   private static final String THREAD_NAME_PREFIX = "sq-telemetry-service-";
-  private static final Logger LOG = Loggers.get(TelemetryDaemon.class);
+  private static final int SEVEN_DAYS = 7 * 24 * 60 * 60 * 1_000;
+  private static final String I_PROP_LAST_PING = "sonar.telemetry.lastPing";
 
   private final TelemetryClient telemetryClient;
+  private final InternalProperties internalProperties;
   private final Server server;
+  private final System2 system2;
   private final TelemetryFrequency frequencyInSeconds;
 
   private ScheduledExecutorService executorService;
 
-  public TelemetryDaemon(TelemetryClient telemetryClient, Server server, Configuration config) {
+  public TelemetryDaemon(TelemetryClient telemetryClient, InternalProperties internalProperties, Server server, System2 system2, Configuration config) {
     this.telemetryClient = telemetryClient;
+    this.internalProperties = internalProperties;
     this.server = server;
     this.frequencyInSeconds = new TelemetryFrequency(config);
+    this.system2 = system2;
   }
 
   @Override
@@ -58,6 +67,12 @@ public class TelemetryDaemon implements Startable {
         .build());
     executorService.scheduleWithFixedDelay(() -> {
       try {
+        Optional<Long> lastPing = internalProperties.read(I_PROP_LAST_PING).map(Long::valueOf);
+        long now = system2.now();
+        if (lastPing.isPresent() && now - lastPing.get() < SEVEN_DAYS) {
+          return;
+        }
+
         StringWriter json = new StringWriter();
         try (JsonWriter writer = JsonWriter.of(json)) {
           writer.beginObject();
@@ -65,6 +80,7 @@ public class TelemetryDaemon implements Startable {
           writer.endObject();
         }
         telemetryClient.send(json.toString());
+        internalProperties.write(I_PROP_LAST_PING, String.valueOf(startOfDay(now)));
       } catch (Exception e) {
         // fail silently
       }
@@ -80,5 +96,9 @@ public class TelemetryDaemon implements Startable {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
+  }
+
+  private static long startOfDay(long now) {
+    return parseDate(formatDate(now)).getTime();
   }
 }
