@@ -236,7 +236,7 @@ public class ComponentDto {
    * @return the key of the branch. It will be null on the main branch and when the component is not on a branch
    */
   @CheckForNull
-  public String getBranch(){
+  public String getBranch() {
     List<String> split = BRANCH_KEY_SPLITTER.splitToList(kee);
     return split.size() == 2 ? split.get(1) : null;
   }
