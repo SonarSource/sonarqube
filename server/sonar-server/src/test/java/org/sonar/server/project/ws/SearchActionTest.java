@@ -205,6 +205,17 @@ public class SearchActionTest {
   }
 
   @Test
+  public void does_not_return_branches_when_searching_by_key() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+
+    SearchWsResponse response = call(SearchWsRequest.builder().build());
+
+    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(project.getDbKey());
+  }
+
+  @Test
   public void result_is_paginated() throws IOException {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     List<ComponentDto> componentDtoList = new ArrayList<>();

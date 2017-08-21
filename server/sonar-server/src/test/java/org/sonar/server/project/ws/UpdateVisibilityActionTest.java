@@ -489,6 +489,20 @@ public class UpdateVisibilityActionTest {
       .execute();
   }
 
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    ComponentDto project = dbTester.components().insertMainBranch();
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
+
+    request.setParam(PARAM_PROJECT, branch.getDbKey())
+      .setParam(PARAM_VISIBILITY, PUBLIC)
+      .execute();
+  }
+
   private void unsafeGiveAllPermissionsToRootComponent(ComponentDto component, UserDto user, GroupDto group, OrganizationDto organization) {
     Arrays.stream(OrganizationPermission.values())
       .forEach(organizationPermission -> {
