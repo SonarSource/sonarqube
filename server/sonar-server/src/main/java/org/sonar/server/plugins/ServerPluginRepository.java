@@ -20,7 +20,6 @@
 package org.sonar.server.plugins;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -36,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.annotation.Nonnull;
+import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
@@ -56,6 +55,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.io.FileUtils.copyFile;
 import static org.apache.commons.io.FileUtils.moveFile;
 import static org.apache.commons.io.FileUtils.moveFileToDirectory;
@@ -93,6 +93,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   // following fields are available after startup
   private final Map<String, PluginInfo> pluginInfosByKeys = new HashMap<>();
   private final Map<String, Plugin> pluginInstancesByKeys = new HashMap<>();
+  private final Map<ClassLoader, String> keysByClassLoader = new HashMap<>();
 
   public ServerPluginRepository(SonarRuntime runtime, ServerUpgradeStatus upgradeStatus,
     ServerFileSystem fs, PluginLoader loader) {
@@ -124,7 +125,16 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     loader.unload(pluginInstancesByKeys.values());
     pluginInstancesByKeys.clear();
     pluginInfosByKeys.clear();
+    keysByClassLoader.clear();
     started.set(true);
+  }
+
+  /**
+   * Return the key of the plugin the extension (in the sense of {@link Plugin.Context#addExtension(Object)} is coming from.
+   */
+  @CheckForNull
+  public String getPluginKey(Object extension) {
+    return keysByClassLoader.get(extension.getClass().getClassLoader());
   }
 
   /**
@@ -286,6 +296,10 @@ public class ServerPluginRepository implements PluginRepository, Startable {
 
   private void loadInstances() {
     pluginInstancesByKeys.putAll(loader.load(pluginInfosByKeys));
+
+    for (Map.Entry<String, Plugin> e : pluginInstancesByKeys.entrySet()) {
+      keysByClassLoader.put(e.getValue().getClass().getClassLoader(), e.getKey());
+    }
   }
 
   /**
@@ -325,7 +339,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   }
 
   public List<String> getUninstalledPluginFilenames() {
-    return newArrayList(transform(listJarFiles(uninstalledPluginsDir()), FileToName.INSTANCE));
+    return listJarFiles(uninstalledPluginsDir()).stream().map(File::getName).collect(toList());
   }
 
   /**
@@ -377,16 +391,6 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   public boolean hasPlugin(String key) {
     checkState(started.get(), NOT_STARTED_YET);
     return pluginInfosByKeys.containsKey(key);
-  }
-
-  private enum FileToName implements Function<File, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull File file) {
-      return file.getName();
-    }
-
   }
 
   /**

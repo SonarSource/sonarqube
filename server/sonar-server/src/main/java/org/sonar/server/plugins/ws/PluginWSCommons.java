@@ -22,6 +22,7 @@ package org.sonar.server.plugins.ws;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
@@ -34,6 +35,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.db.plugin.PluginDto;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.Artifact;
 import org.sonar.updatecenter.common.Plugin;
@@ -51,6 +53,9 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 public class PluginWSCommons {
   static final String PROPERTY_KEY = "key";
   static final String PROPERTY_NAME = "name";
+  static final String PROPERTY_HASH = "hash";
+  static final String PROPERTY_FILENAME = "filename";
+  static final String PROPERTY_SONARLINT_SUPPORTED = "sonarLintSupported";
   static final String PROPERTY_DESCRIPTION = "description";
   static final String PROPERTY_LICENSE = "license";
   static final String PROPERTY_VERSION = "version";
@@ -58,6 +63,7 @@ public class PluginWSCommons {
   static final String PROPERTY_ORGANIZATION_NAME = "organizationName";
   static final String PROPERTY_ORGANIZATION_URL = "organizationUrl";
   static final String PROPERTY_DATE = "date";
+  static final String PROPERTY_UPDATED_AT = "updatedAt";
   static final String PROPERTY_STATUS = "status";
   static final String PROPERTY_HOMEPAGE_URL = "homepageUrl";
   static final String PROPERTY_ISSUE_TRACKER_URL = "issueTrackerUrl";
@@ -81,11 +87,17 @@ public class PluginWSCommons {
   public static final Comparator<PluginUpdate> NAME_KEY_PLUGIN_UPDATE_ORDERING = Ordering.from(NAME_KEY_PLUGIN_ORDERING)
     .onResultOf(PluginUpdateToPlugin.INSTANCE);
 
-  void writePluginInfo(JsonWriter json, PluginInfo pluginInfo, @Nullable String category) {
+  void writePluginInfo(JsonWriter json, PluginInfo pluginInfo, @Nullable String category, @Nullable PluginDto pluginDto) {
     json.beginObject();
 
     json.prop(PROPERTY_KEY, pluginInfo.getKey());
     json.prop(PROPERTY_NAME, pluginInfo.getName());
+    if (pluginDto != null) {
+      json.prop(PROPERTY_FILENAME, pluginInfo.getNonNullJarFile().getName());
+      json.prop(PROPERTY_SONARLINT_SUPPORTED, pluginInfo.isSonarLintSupported());
+      json.prop(PROPERTY_HASH, pluginDto.getHash());
+      json.prop(PROPERTY_UPDATED_AT, pluginDto.getUpdatedAt());
+    }
     json.prop(PROPERTY_DESCRIPTION, pluginInfo.getDescription());
     Version version = pluginInfo.getVersion();
     if (version != null) {
@@ -103,12 +115,18 @@ public class PluginWSCommons {
     json.endObject();
   }
 
-  public void writePluginInfoList(JsonWriter json, Iterable<PluginInfo> plugins, Map<String, Plugin> compatiblePluginsByKey, String propertyName) {
+  public void writePluginInfoList(JsonWriter json, Iterable<PluginInfo> plugins, Map<String, Plugin> compatiblePluginsByKey, String propertyName,
+    @Nullable Map<String, PluginDto> pluginDtos) {
     json.name(propertyName);
     json.beginArray();
     for (PluginInfo pluginInfo : copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, plugins)) {
+      PluginDto pluginDto = null;
+      if (pluginDtos != null) {
+        pluginDto = pluginDtos.get(pluginInfo.getKey());
+        Preconditions.checkNotNull(pluginDto, "Plugin %s is installed but not in DB", pluginInfo.getKey());
+      }
       Plugin plugin = compatiblePluginsByKey.get(pluginInfo.getKey());
-      writePluginInfo(json, pluginInfo, categoryOrNull(plugin));
+      writePluginInfo(json, pluginInfo, categoryOrNull(plugin), pluginDto);
     }
     json.endArray();
   }

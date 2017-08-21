@@ -91,6 +91,7 @@ public class RuleCreatorTest {
     RuleDto rule = dbTester.getDbClient().ruleDao().selectOrFailByKey(dbSession, dbTester.getDefaultOrganization(), customRuleKey);
     assertThat(rule).isNotNull();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("java", "CUSTOM_RULE"));
+    assertThat(rule.getPluginKey()).isEqualTo("sonarjava");
     assertThat(rule.getTemplateId()).isEqualTo(templateRule.getId());
     assertThat(rule.getName()).isEqualTo("My custom");
     assertThat(rule.getDescription()).isEqualTo("Some description");
@@ -461,6 +462,7 @@ public class RuleCreatorTest {
     RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
       .setIsTemplate(true)
       .setLanguage("java")
+      .setPluginKey("sonarjava")
       .setConfigKey("S001")
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1h")
@@ -489,7 +491,8 @@ public class RuleCreatorTest {
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
     dbTester.rules().insert(templateRule);
-    dbTester.rules().insertRuleParam(templateRule, param -> param.setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1"));
+    dbTester.rules().insertRuleParam(templateRule,
+      param -> param.setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1"));
     ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getKey());
     return templateRule;
   }

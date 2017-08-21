@@ -19,10 +19,9 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import java.util.List;
 import java.util.Map;
-import org.sonar.api.Plugin;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.core.platform.PluginInfo;
 
 @ScannerSide
 public interface PluginInstaller {
@@ -32,11 +31,11 @@ public interface PluginInstaller {
    * already in local cache.
    * @return information about all installed plugins, grouped by key
    */
-  Map<String, PluginInfo> installRemotes();
+  Map<String, ScannerPlugin> installRemotes();
 
   /**
-   * Used only by tests.
+   * Used only by medium tests.
    * @see org.sonar.scanner.mediumtest.ScannerMediumTester
    */
-  Map<String, Plugin> installLocals();
+  List<Object[]> installLocals();
 }

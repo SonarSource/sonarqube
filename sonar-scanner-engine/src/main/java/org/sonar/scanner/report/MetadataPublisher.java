@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.report;
 
+import java.util.Map.Entry;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -26,6 +27,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Configuration;
 import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.bootstrap.ScannerPlugin;
+import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -40,15 +43,17 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final InputModuleHierarchy moduleHierarchy;
   private final CpdSettings cpdSettings;
   private final AnalysisMode mode;
+  private final ScannerPluginRepository pluginRepository;
 
   public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings,
-    ModuleQProfiles qProfiles, CpdSettings cpdSettings, AnalysisMode mode) {
+    ModuleQProfiles qProfiles, CpdSettings cpdSettings, AnalysisMode mode, ScannerPluginRepository pluginRepository) {
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
     this.qProfiles = qProfiles;
     this.cpdSettings = cpdSettings;
     this.mode = mode;
+    this.pluginRepository = pluginRepository;
   }
 
   @Override
@@ -75,6 +80,11 @@ public class MetadataPublisher implements ReportPublisherStep {
         .setLanguage(qp.getLanguage())
         .setName(qp.getName())
         .setRulesUpdatedAt(qp.getRulesUpdatedAt().getTime()).build());
+    }
+    for (Entry<String, ScannerPlugin> pluginEntry : pluginRepository.getPluginsByKey().entrySet()) {
+      builder.getMutablePluginsByKey().put(pluginEntry.getKey(), ScannerReport.Metadata.Plugin.newBuilder()
+        .setKey(pluginEntry.getKey())
+        .setUpdatedAt(pluginEntry.getValue().getUpdatedAt()).build());
     }
     writer.writeMetadata(builder.build());
   }

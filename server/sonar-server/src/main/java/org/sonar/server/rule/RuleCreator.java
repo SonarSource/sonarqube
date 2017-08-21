@@ -155,6 +155,7 @@ public class RuleCreator {
   private RuleKey createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
     RuleDefinitionDto ruleDefinition = new RuleDefinitionDto()
       .setRuleKey(ruleKey)
+      .setPluginKey(templateRuleDto.getPluginKey())
       .setTemplateId(templateRuleDto.getId())
       .setConfigKey(templateRuleDto.getConfigKey())
       .setName(newRule.name())

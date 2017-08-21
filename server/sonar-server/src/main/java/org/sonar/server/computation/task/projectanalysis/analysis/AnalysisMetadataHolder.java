@@ -53,7 +53,7 @@ public interface AnalysisMetadataHolder {
    * @throws IllegalStateException if baseProjectSnapshot has not been set
    */
   boolean isFirstAnalysis();
-  
+
   /**
    * Whether this is an incremental analysis or a full analysis.
    */
@@ -85,5 +85,10 @@ public interface AnalysisMetadataHolder {
   int getRootComponentRef();
 
   Map<String, QualityProfile> getQProfilesByLanguage();
+
+  /**
+   * Plugins used during the analysis on scanner side
+   */
+  Map<String, ScannerPlugin> getScannerPluginsByKey();
 
 }

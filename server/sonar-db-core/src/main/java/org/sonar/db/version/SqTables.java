@@ -75,6 +75,7 @@ public final class SqTables {
     "perm_templates_users",
     "perm_templates_groups",
     "perm_tpl_characteristics",
+    "plugins",
     "projects",
     "project_links",
     "project_measures",

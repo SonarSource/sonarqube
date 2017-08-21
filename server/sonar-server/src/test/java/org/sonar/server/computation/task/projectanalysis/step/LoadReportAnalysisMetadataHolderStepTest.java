@@ -27,12 +27,15 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeTask;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.analysis.Organization;
+import org.sonar.server.computation.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.organization.BillingValidations;
@@ -42,6 +45,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -66,6 +70,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   private DbClient dbClient = dbTester.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
+  private PluginRepository pluginRepository = mock(PluginRepository.class);
   private ComputationStep underTest;
 
   @Before
@@ -147,7 +152,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isEqualTo(false);
   }
-  
+
   @Test
   public void set_incremental_analysis_to_true() {
     reportReader.setMetadata(
@@ -159,19 +164,18 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     assertThat(analysisMetadataHolder.isIncrementalAnalysis()).isTrue();
   }
-  
+
   @Test
   public void set_incremental_analysis_to_false() {
     reportReader.setMetadata(
       newBatchReportBuilder()
-      .setIncremental(false)
+        .setIncremental(false)
         .build());
 
     underTest.execute();
 
     assertThat(analysisMetadataHolder.isIncrementalAnalysis()).isFalse();
   }
-
 
   @Test
   public void set_cross_project_duplication_to_false_when_nothing_in_the_report() {
@@ -373,8 +377,28 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     assertThat(argumentCaptor.getValue().getUuid()).isEqualTo(organization.getUuid());
   }
 
+  @Test
+  public void execute_read_plugins_from_report() {
+    ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
+    metadataBuilder.getMutablePluginsByKey().put("java", ScannerReport.Metadata.Plugin.newBuilder().setKey("java").setUpdatedAt(12345L).build());
+    metadataBuilder.getMutablePluginsByKey().put("php", ScannerReport.Metadata.Plugin.newBuilder().setKey("php").setUpdatedAt(678910L).build());
+    metadataBuilder.getMutablePluginsByKey().put("customjava", ScannerReport.Metadata.Plugin.newBuilder().setKey("customjava").setUpdatedAt(111111L).build());
+    when(pluginRepository.getPluginInfo("customjava")).thenReturn(new PluginInfo("customjava").setBasePlugin("java"));
+
+    reportReader.setMetadata(metadataBuilder.build());
+
+    underTest.execute();
+
+    assertThat(analysisMetadataHolder.getScannerPluginsByKey()).containsOnlyKeys("java", "php", "customjava");
+    assertThat(analysisMetadataHolder.getScannerPluginsByKey().values()).extracting(ScannerPlugin::getKey, ScannerPlugin::getBasePluginKey, ScannerPlugin::getUpdatedAt)
+      .containsOnly(
+        tuple("java", null, 12345L),
+        tuple("customjava", "java", 111111L),
+        tuple("php", null, 678910L));
+  }
+
   private LoadReportAnalysisMetadataHolderStep createStep(CeTask ceTask) {
-    return new LoadReportAnalysisMetadataHolderStep(ceTask, reportReader, analysisMetadataHolder, defaultOrganizationProvider, dbClient, billingValidations);
+    return new LoadReportAnalysisMetadataHolderStep(ceTask, reportReader, analysisMetadataHolder, defaultOrganizationProvider, dbClient, billingValidations, pluginRepository);
   }
 
   private static ScannerReport.Metadata.Builder newBatchReportBuilder() {

@@ -40,6 +40,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   private final InitializedProperty<String> branch = new InitializedProperty<>();
   private final InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
+  private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
 
   @Override
   public MutableAnalysisMetadataHolder setOrganization(Organization organization) {
@@ -169,6 +170,19 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   public Map<String, QualityProfile> getQProfilesByLanguage() {
     checkState(qProfilesPerLanguage.isInitialized(), "QProfiles by language has not been set");
     return qProfilesPerLanguage.getProperty();
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolder setScannerPluginsByKey(Map<String, ScannerPlugin> pluginsByKey) {
+    checkState(!this.pluginsByKey.isInitialized(), "Plugins by key has already been set");
+    this.pluginsByKey.setProperty(ImmutableMap.copyOf(pluginsByKey));
+    return this;
+  }
+
+  @Override
+  public Map<String, ScannerPlugin> getScannerPluginsByKey() {
+    checkState(pluginsByKey.isInitialized(), "Plugins by key has not been set");
+    return pluginsByKey.getProperty();
   }
 
 }
