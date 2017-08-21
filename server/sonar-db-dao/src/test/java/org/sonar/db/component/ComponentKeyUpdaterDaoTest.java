@@ -273,27 +273,6 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
-  public void simulate_bulk_update_key_with_branches() {
-    ComponentDto project = db.components().insertMainBranch();
-    ComponentDto projectModule = db.components().insertComponent(prefixDbKeyWithKey(newModuleDto(project), project.getKey()));
-
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto branchModule = db.components().insertComponent(prefixDbKeyWithKey(newModuleDto(branch), project.getKey()));
-
-    String oldKey = project.getKey();
-    String newKey = "new-key";
-    Map<String, String> result = underTest.simulateBulkUpdateKey(dbSession, project.projectUuid(), oldKey, newKey);
-
-    assertThat(result)
-      .hasSize(4)
-      .containsOnly(
-        entry(project.getKey(), newKey),
-        entry(projectModule.getKey(), projectModule.getKey().replace(oldKey, newKey)),
-        entry(branch.getDbKey(), branch.getDbKey().replace(oldKey, newKey)),
-        entry(branchModule.getDbKey(), branchModule.getDbKey().replace(oldKey, newKey)));
-  }
-
-  @Test
   public void simulate_bulk_update_key_fails_if_invalid_componentKey() {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "A").setDbKey("project"));

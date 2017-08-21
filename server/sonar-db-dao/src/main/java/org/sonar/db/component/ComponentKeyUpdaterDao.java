@@ -80,12 +80,10 @@ public class ComponentKeyUpdaterDao implements Dao {
 
   /**
    *
-   * @return a map with currentKey/newKey when a bulk update was executed
+   * @return a map with currentKey/newKey is a bulk update was executed
    */
   public Map<String, String> simulateBulkUpdateKey(DbSession dbSession, String projectUuid, String stringToReplace, String replacementString) {
-    ComponentKeyUpdaterMapper mapper = mapper(dbSession);
-
-    Map<String, String> renames = collectAllModules(projectUuid, stringToReplace, mapper)
+    return collectAllModules(projectUuid, stringToReplace, mapper(dbSession))
       .stream()
       .collect(Collectors.toMap(
         ResourceDto::getKey,
@@ -94,18 +92,6 @@ public class ComponentKeyUpdaterDao implements Dao {
           checkModuleKey(newKey);
           return newKey;
         }));
-
-    dbSession.getMapper(BranchMapper.class).selectByProjectUuid(projectUuid)
-      .stream()
-      .filter(branch -> !projectUuid.equals(branch.getUuid()))
-      .forEach(branch -> collectAllModules(branch.getUuid(), stringToReplace, mapper)
-        .forEach(module -> {
-          String oldKey = module.getKey();
-          String newKey = computeNewKey(oldKey, stringToReplace, replacementString);
-          checkModuleKey(newKey);
-          renames.put(oldKey, newKey);
-        }));
-    return renames;
   }
 
   /**
