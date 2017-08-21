@@ -343,6 +343,34 @@ public class TreeActionTest {
   }
 
   @Test
+  public void fail_when_using_branch_db_key() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT, branch.getDbKey())
+      .executeProtobuf(WsComponents.ShowWsResponse.class);
+  }
+
+  @Test
+  public void fail_when_using_branch_uuid() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component id '%s' not found", branch.uuid()));
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, branch.uuid())
+      .executeProtobuf(WsComponents.ShowWsResponse.class);
+  }
+
+  @Test
   public void fail_when_not_enough_privileges() {
     ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
     userSession.logIn()
