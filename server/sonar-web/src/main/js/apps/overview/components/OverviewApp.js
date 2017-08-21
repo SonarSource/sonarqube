@@ -163,7 +163,7 @@ export default class OverviewApp extends React.PureComponent {
 
     const leakPeriod =
       component.qualifier === 'APP' ? this.getApplicationLeakPeriod() : getLeakPeriod(periods);
-    const domainProps = { component, measures, leakPeriod, history, historyStartDate };
+    const domainProps = { branch, component, measures, leakPeriod, history, historyStartDate };
 
     return (
       <div className="page page-limited">

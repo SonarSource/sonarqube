@@ -23,7 +23,7 @@ import { getProfilePath } from '../apps/quality-profiles/utils';
 import { Branch } from '../app/types';
 
 interface Query {
-  [x: string]: string;
+  [x: string]: string | undefined;
 }
 
 interface Location {
@@ -84,10 +84,14 @@ export function getComponentDrilldownUrl(componentKey: string, metric: string, b
 /**
  * Generate URL for a component's measure history
  */
-export function getComponentMeasureHistory(componentKey: string, metric: string): Location {
+export function getComponentMeasureHistory(
+  componentKey: string,
+  metric: string,
+  branch?: string
+): Location {
   return {
     pathname: '/project/activity',
-    query: { id: componentKey, graph: 'custom', custom_metrics: metric }
+    query: { id: componentKey, graph: 'custom', custom_metrics: metric, branch }
   };
 }
 

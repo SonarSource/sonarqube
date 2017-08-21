@@ -27,6 +27,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
+import { getBranchName } from '../../../helpers/branches';
 
 class CodeSmells extends React.PureComponent {
   renderHeader() {
@@ -34,10 +35,15 @@ class CodeSmells extends React.PureComponent {
   }
 
   renderDebt(metric, type) {
-    const { measures, component } = this.props;
+    const { branch, measures, component } = this.props;
     const measure = measures.find(measure => measure.metric.key === metric);
     const value = this.props.getValue(measure);
-    const params = { resolved: 'false', facetMode: 'effort', types: type };
+    const params = {
+      branch: getBranchName(branch),
+      resolved: 'false',
+      facetMode: 'effort',
+      types: type
+    };
 
     if (isDiffMetric(metric)) {
       Object.assign(params, { sinceLeakPeriod: 'true' });
