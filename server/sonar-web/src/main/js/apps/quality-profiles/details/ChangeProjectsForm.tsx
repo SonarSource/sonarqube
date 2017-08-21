@@ -22,12 +22,12 @@ import Modal from 'react-modal';
 import * as escapeHtml from 'escape-html';
 import SelectList from '../../../components/SelectList';
 import { translate } from '../../../helpers/l10n';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   onClose: () => void;
   organization: string | null;
-  profile: IProfile;
+  profile: Profile;
 }
 
 export default class ChangeProjectsForm extends React.PureComponent<Props> {

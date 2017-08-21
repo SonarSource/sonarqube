@@ -23,13 +23,13 @@ import ComparisonForm from './ComparisonForm';
 import ComparisonResults from './ComparisonResults';
 import { compareProfiles } from '../../../api/quality-profiles';
 import { getProfileComparePath } from '../utils';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   location: { query: { withKey?: string } };
   organization: string | null;
-  profile: IProfile;
-  profiles: IProfile[];
+  profile: Profile;
+  profiles: Profile[];
 }
 
 type Params = { [p: string]: string };

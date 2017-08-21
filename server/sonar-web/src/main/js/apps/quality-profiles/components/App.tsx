@@ -23,7 +23,7 @@ import { sortProfiles } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
 import '../styles.css';
-import { IExporter, IProfile } from '../types';
+import { Exporter, Profile } from '../types';
 
 interface Props {
   children: React.ReactElement<any>;
@@ -35,8 +35,8 @@ interface Props {
 
 interface State {
   loading: boolean;
-  exporters?: IExporter[];
-  profiles?: IProfile[];
+  exporters?: Exporter[];
+  profiles?: Profile[];
 }
 
 export default class App extends React.PureComponent<Props, State> {

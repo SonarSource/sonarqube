@@ -26,14 +26,14 @@ import BuiltInBadge from '../components/BuiltInBadge';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { isStagnant } from '../utils';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 import Tooltip from '../../../components/controls/Tooltip';
 
 interface Props {
   canAdmin: boolean;
   onRequestFail: (reason: any) => void;
   organization: string | null;
-  profile: IProfile;
+  profile: Profile;
   updateProfiles: () => Promise<void>;
 }
 

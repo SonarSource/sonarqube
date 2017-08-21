@@ -19,7 +19,7 @@
  */
 import { getJSON, post, RequestData } from '../helpers/request';
 
-export interface IGetNotificationsResponse {
+export interface GetNotificationsResponse {
   notifications: Array<{
     channel: string;
     type: string;
@@ -32,7 +32,7 @@ export interface IGetNotificationsResponse {
   perProjectTypes: Array<string>;
 }
 
-export function getNotifications(): Promise<IGetNotificationsResponse> {
+export function getNotifications(): Promise<GetNotificationsResponse> {
   return getJSON('/api/notifications/list');
 }
 

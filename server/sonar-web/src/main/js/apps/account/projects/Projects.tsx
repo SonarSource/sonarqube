@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import ProjectCard from './ProjectCard';
-import { IProject } from './types';
+import { Project } from './types';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   loading: boolean;
   loadMore: () => void;
-  projects: IProject[];
+  projects: Project[];
   search: (query: string) => void;
   total?: number;
 }

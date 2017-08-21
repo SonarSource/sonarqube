@@ -19,7 +19,7 @@
  */
 import { getJSON } from '../helpers/request';
 
-interface ITimeMachineResponse {
+interface TimeMachineResponse {
   measures: Array<{
     metric: string;
     history: Array<{ date: string; value: string }>;
@@ -31,7 +31,7 @@ export function getTimeMachineData(
   component: string,
   metrics: string[],
   other?: { p?: number; ps?: number; from?: string; to?: string }
-): Promise<ITimeMachineResponse> {
+): Promise<TimeMachineResponse> {
   return getJSON('/api/measures/search_history', {
     component,
     metrics: metrics.join(),
@@ -44,8 +44,8 @@ export function getAllTimeMachineData(
   component: string,
   metrics: Array<string>,
   other?: { p?: number; from?: string; to?: string },
-  prev?: ITimeMachineResponse
-): Promise<ITimeMachineResponse> {
+  prev?: TimeMachineResponse
+): Promise<TimeMachineResponse> {
   return getTimeMachineData(component, metrics, { ...other, ps: 1000 }).then(r => {
     const result = prev
       ? {

@@ -44,7 +44,11 @@ export function getCSRFToken(): { [x: string]: string } {
   return value ? { [getCSRFTokenName()]: value } : {};
 }
 
-export function omitNil(obj: { [x: string]: any }): { [x: string]: any } {
+export interface RequestData {
+  [x: string]: any;
+}
+
+export function omitNil(obj: RequestData): RequestData {
   return omitBy(obj, isNil);
 }
 
@@ -65,10 +69,6 @@ const DEFAULT_OPTIONS: {
 const DEFAULT_HEADERS = {
   Accept: 'application/json'
 };
-
-export interface RequestData {
-  [x: string]: any;
-}
 
 /**
  * Request

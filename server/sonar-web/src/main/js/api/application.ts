@@ -20,12 +20,12 @@
 import { getJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export interface IApplicationLeak {
+export interface ApplicationLeak {
   date: string;
   project: string;
   projectName: string;
 }
 
-export function getApplicationLeak(application: string): Promise<Array<IApplicationLeak>> {
+export function getApplicationLeak(application: string): Promise<Array<ApplicationLeak>> {
   return getJSON('/api/views/show_leak', { application }).then(r => r.leaks, throwGlobalError);
 }

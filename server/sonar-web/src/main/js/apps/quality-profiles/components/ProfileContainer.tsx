@@ -21,7 +21,7 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import ProfileNotFound from './ProfileNotFound';
 import ProfileHeader from '../details/ProfileHeader';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   canAdmin: boolean;
@@ -32,7 +32,7 @@ interface Props {
   };
   onRequestFail: (reasong: any) => void;
   organization: string | null;
-  profiles: IProfile[];
+  profiles: Profile[];
   router: { replace: ({}) => void };
   updateProfiles: () => Promise<void>;
 }

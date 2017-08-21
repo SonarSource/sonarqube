@@ -23,10 +23,10 @@ import * as moment from 'moment';
 import ChangesList from './ChangesList';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
-import { IProfileChangelogEvent } from '../types';
+import { ProfileChangelogEvent } from '../types';
 
 interface Props {
-  events: IProfileChangelogEvent[];
+  events: ProfileChangelogEvent[];
   organization: string | null;
 }
 

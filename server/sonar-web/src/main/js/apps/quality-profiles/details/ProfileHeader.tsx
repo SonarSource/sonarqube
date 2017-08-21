@@ -30,12 +30,12 @@ import {
   getProfilesForLanguagePath,
   getProfileChangelogPath
 } from '../utils';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 interface Props {
   canAdmin: boolean;
   onRequestFail: (reasong: any) => void;
-  profile: IProfile;
+  profile: Profile;
   organization: string | null;
   updateProfiles: () => Promise<void>;
 }

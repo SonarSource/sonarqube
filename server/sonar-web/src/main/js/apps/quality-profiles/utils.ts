@@ -19,19 +19,19 @@
  */
 import { sortBy } from 'lodash';
 import * as moment from 'moment';
-import { IProfile } from './types';
+import { Profile } from './types';
 
-export function sortProfiles(profiles: IProfile[]) {
-  const result: IProfile[] = [];
+export function sortProfiles(profiles: Profile[]) {
+  const result: Profile[] = [];
   const sorted = sortBy(profiles, 'name');
 
-  function retrieveChildren(parent: IProfile | null) {
+  function retrieveChildren(parent: Profile | null) {
     return sorted.filter(
       p => (parent == null && p.parentKey == null) || (parent != null && p.parentKey === parent.key)
     );
   }
 
-  function putProfile(profile: IProfile | null = null, depth: number = 1) {
+  function putProfile(profile: Profile | null = null, depth: number = 1) {
     const children = retrieveChildren(profile);
 
     if (profile != null) {
@@ -65,7 +65,7 @@ export function createFakeProfile(overrides?: any) {
   };
 }
 
-export function isStagnant(profile: IProfile) {
+export function isStagnant(profile: Profile) {
   return moment().diff(moment(profile.userUpdatedAt), 'years') >= 1;
 }
 

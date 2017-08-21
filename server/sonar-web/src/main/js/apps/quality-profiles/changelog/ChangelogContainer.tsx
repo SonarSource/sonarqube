@@ -25,7 +25,7 @@ import ChangelogEmpty from './ChangelogEmpty';
 import { getProfileChangelog } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
 import { getProfileChangelogPath } from '../utils';
-import { IProfile, IProfileChangelogEvent } from '../types';
+import { Profile, ProfileChangelogEvent } from '../types';
 
 interface Props {
   location: {
@@ -35,11 +35,11 @@ interface Props {
     };
   };
   organization: string | null;
-  profile: IProfile;
+  profile: Profile;
 }
 
 interface State {
-  events?: IProfileChangelogEvent[];
+  events?: ProfileChangelogEvent[];
   loading: boolean;
   page?: number;
   total?: number;

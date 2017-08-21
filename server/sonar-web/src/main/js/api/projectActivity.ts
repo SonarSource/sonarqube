@@ -20,7 +20,7 @@
 import { getJSON, postJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-interface IGetProjectActivityResponse {
+interface GetProjectActivityResponse {
   analyses: any[];
   paging: {
     total: number;
@@ -34,11 +34,11 @@ export function getProjectActivity(data: {
   category?: string;
   p?: number;
   ps?: number;
-}): Promise<IGetProjectActivityResponse> {
+}): Promise<GetProjectActivityResponse> {
   return getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
 }
 
-interface ICreateEventResponse {
+interface CreateEventResponse {
   analysis: string;
   key: string;
   name: string;
@@ -51,7 +51,7 @@ export function createEvent(
   name: string,
   category?: string,
   description?: string
-): Promise<ICreateEventResponse> {
+): Promise<CreateEventResponse> {
   const data: RequestData = { analysis, name };
   if (category) {
     data.category = category;
@@ -70,7 +70,7 @@ export function changeEvent(
   event: string,
   name?: string,
   description?: string
-): Promise<ICreateEventResponse> {
+): Promise<CreateEventResponse> {
   const data: RequestData = { event };
   if (name) {
     data.name = name;

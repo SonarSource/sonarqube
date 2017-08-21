@@ -21,12 +21,12 @@ import * as React from 'react';
 import * as moment from 'moment';
 import { sortBy } from 'lodash';
 import { Link } from 'react-router';
-import { IProject } from './types';
+import { Project } from './types';
 import Level from '../../../components/ui/Level';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 
 interface Props {
-  project: IProject;
+  project: Project;
 }
 
 export default function ProjectCard(props: Props) {

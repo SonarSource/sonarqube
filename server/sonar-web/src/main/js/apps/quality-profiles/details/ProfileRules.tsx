@@ -28,14 +28,14 @@ import { searchRules, takeFacet } from '../../../api/rules';
 import { getQualityProfiles } from '../../../api/quality-profiles';
 import { getRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
 
 interface Props {
   canAdmin: boolean;
   organization: string | null;
-  profile: IProfile;
+  profile: Profile;
 }
 
 interface ByType {

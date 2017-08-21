@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortProfiles } from '../utils';
-import { IProfile } from '../types';
+import { Profile } from '../types';
 
 function createProfile(key: string, parentKey?: string) {
-  return { name: key, key, parentKey } as IProfile;
+  return { name: key, key, parentKey } as Profile;
 }
 
 describe('#sortProfiles', () => {
