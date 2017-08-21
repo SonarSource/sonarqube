@@ -225,6 +225,18 @@ public class SearchActionTest {
   }
 
   @Test
+  public void does_not_return_branches() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    userSession.logIn().setRoot();
+
+    SearchWsResponse response = call(new SearchWsRequest().setQualifiers(asList(PROJECT, MODULE, FILE)));
+
+    assertThat(response.getComponentsList()).extracting(Component::getKey)
+      .containsOnly(project.getDbKey());
+  }
+
+  @Test
   public void fail_if_unknown_qualifier_provided() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value of parameter 'qualifiers' (Unknown-Qualifier) must be one of: [BRC, DIR, FIL, TRK]");

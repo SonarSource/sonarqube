@@ -1059,6 +1059,19 @@ public class SearchProjectsActionTest {
   }
 
   @Test
+  public void does_not_return_branches() {
+    ComponentDto project = db.components().insertMainBranch();
+    authorizationIndexerTester.allowOnlyAnyone(project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    projectMeasuresIndexer.indexOnStartup(null);
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey)
+      .containsExactlyInAnyOrder(project.getDbKey());
+  }
+
+  @Test
   public void fail_when_filter_metrics_are_unknown() {
     userSession.logIn();
     expectedException.expect(IllegalArgumentException.class);
