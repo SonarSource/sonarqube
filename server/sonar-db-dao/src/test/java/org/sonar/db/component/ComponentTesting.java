@@ -251,4 +251,20 @@ public class ComponentTesting {
       .setEnabled(true)
       .setPrivate(project.isPrivate());
   }
+
+  public static BranchDto newBranchDto(ComponentDto project) {
+    return newBranchDto(project, BranchType.LONG);
+  }
+
+  public static BranchDto newBranchDto(ComponentDto project, BranchType branchType) {
+    String mainBranchProjectUuid = project.getMainBranchProjectUuid();
+    String projectUuid = mainBranchProjectUuid != null ? mainBranchProjectUuid : project.uuid();
+
+    return new BranchDto()
+      .setKey("branch_" + randomAlphanumeric(248))
+      .setUuid(Uuids.createFast())
+      .setProjectUuid(projectUuid)
+      .setKeeType(BRANCH)
+      .setBranchType(branchType);
+  }
 }
