@@ -26,6 +26,7 @@ public class ProjectBranchesParameters {
   // actions
   public static final String ACTION_LIST = "list";
   public static final String ACTION_SHOW = "show";
+  public static final String ACTION_DELETE = "delete";
 
   // parameters
   public static final String PARAM_PROJECT = "project";
