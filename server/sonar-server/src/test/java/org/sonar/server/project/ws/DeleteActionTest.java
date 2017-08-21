@@ -34,6 +34,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -143,6 +144,30 @@ public class DeleteActionTest {
     expectedException.expect(UnauthorizedException.class);
 
     call(newRequest().setParam(PARAM_PROJECT_ID, project.uuid()));
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
+
+    call(newRequest().setParam(PARAM_PROJECT, branch.getDbKey()));
+  }
+
+  @Test
+  public void fail_when_using_branch_uuid() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component id '%s' not found", branch.uuid()));
+
+    call(newRequest().setParam(PARAM_PROJECT_ID, branch.uuid()));
   }
 
   private WsTester.TestRequest newRequest() {

@@ -141,6 +141,16 @@ public class ComponentCleanerServiceTest {
     underTest.delete(dbSession, project);
   }
 
+  @Test
+  public void fail_to_delete_project_when_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(IllegalArgumentException.class);
+
+    underTest.delete(dbSession, branch);
+  }
+
   private DbData insertData(int id) {
     String suffix = String.valueOf(id);
     ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid-" + suffix)
