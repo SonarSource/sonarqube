@@ -48,6 +48,8 @@ export function getProjectBranchUrl(key: string, branch: Branch) {
       pathname: '/project/issues',
       query: { branch: branch.name, id: key, resolved: 'false' }
     };
+  } else if (!branch.isMain) {
+    return { pathname: '/dashboard', query: { branch: branch.name, id: key } };
   } else {
     return { pathname: '/dashboard', query: { id: key } };
   }
