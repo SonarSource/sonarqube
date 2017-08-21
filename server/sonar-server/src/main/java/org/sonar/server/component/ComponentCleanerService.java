@@ -51,11 +51,17 @@ public class ComponentCleanerService {
     }
   }
 
+  public void deleteBranch(DbSession dbSession, ComponentDto branch) {
+    // TODO: detect if other branches depend on it?
+    dbClient.purgeDao().deleteBranch(dbSession, branch.uuid());
+    projectIndexers.commitAndIndex(dbSession, singletonList(branch), ProjectIndexer.Cause.PROJECT_DELETION);
+  }
+
   public void delete(DbSession dbSession, ComponentDto project) {
     if (hasNotProjectScope(project) || isNotDeletable(project)) {
       throw new IllegalArgumentException("Only projects can be deleted");
     }
-    dbClient.purgeDao().deleteRootComponent(dbSession, project.uuid());
+    dbClient.purgeDao().deleteProject(dbSession, project.uuid());
     projectIndexers.commitAndIndex(dbSession, singletonList(project), ProjectIndexer.Cause.PROJECT_DELETION);
   }
 
