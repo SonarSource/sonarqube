@@ -191,6 +191,30 @@ public class GhostsActionTest {
   }
 
   @Test
+  public void does_not_return_branches() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto ghostProject = db.components().insertMainBranch(organization);
+    db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
+    ComponentDto ghostBranchProject = db.components().insertProjectBranch(ghostProject);
+    userSessionRule.logIn().addPermission(ADMINISTER, organization);
+
+    TestResponse result = underTest.newRequest()
+      .setParam("organization", organization.getKey())
+      .execute();
+
+    assertJson(result.getInput()).isSimilarTo("{" +
+      "  \"projects\": [" +
+      "    {" +
+      "      \"uuid\": \"" + ghostProject.uuid() + "\"," +
+      "      \"key\": \"" + ghostProject.getDbKey() + "\"," +
+      "      \"name\": \"" + ghostProject.name() + "\"," +
+      "      \"visibility\": \"private\"" +
+      "    }" +
+      "  ]" +
+      "}");
+  }
+
+  @Test
   public void ghost_projects_base_on_json_example() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto hBaseProject = ComponentTesting.newPrivateProjectDto(organization, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")

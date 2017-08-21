@@ -39,6 +39,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -53,6 +54,7 @@ import org.sonarqube.ws.client.measure.SearchHistoryRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Double.parseDouble;
+import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -296,6 +298,22 @@ public class SearchHistoryActionTest {
     assertThat(historyMeasure.getHistoryList())
       .extracting(m -> parseDouble(m.getValue()))
       .containsExactlyInAnyOrder(measure.getValue());
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT, branch.getDbKey())
+      .setParam(PARAM_METRICS, "ncloc")
+      .execute();
   }
 
   @Test

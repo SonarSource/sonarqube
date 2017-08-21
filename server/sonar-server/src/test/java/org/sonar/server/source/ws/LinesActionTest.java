@@ -43,6 +43,7 @@ import org.sonar.server.source.index.FileSourceTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import static java.lang.String.format;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -289,6 +290,34 @@ public class LinesActionTest {
     wsTester.newGetRequest("api/sources", "lines")
       .setParam("uuid", file.uuid())
       .setParam("branch", "another_branch")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    wsTester.newGetRequest("api/sources", "lines")
+      .setParam("key", branch.getDbKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_uuid() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
+
+    wsTester.newGetRequest("api/sources", "lines")
+      .setParam("uuid", branch.uuid())
       .execute();
   }
 
