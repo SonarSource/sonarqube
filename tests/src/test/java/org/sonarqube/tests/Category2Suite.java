@@ -109,6 +109,9 @@ public class Category2Suite {
     // 1 second. Required for notification test.
     .setServerProperty("sonar.notifications.delay", "1")
 
+    // reduce memory for Elasticsearch to 128M
+    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+
     .build();
 
 }
