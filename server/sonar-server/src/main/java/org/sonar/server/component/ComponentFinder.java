@@ -151,6 +151,9 @@ public class ComponentFinder {
     return checkFoundWithOptional(organizationDto, "Organization with uuid '%s' not found", organizationUuid);
   }
 
+  /**
+   * Components of the main branch won't be found
+   */
   public ComponentDto getByKeyAndBranch(DbSession dbSession, String key, String branch) {
     return checkComponent(dbClient.componentDao().selectByKeyAndBranch(dbSession, key, branch), "Component '%s' on branch '%s' not found", key, branch);
   }
