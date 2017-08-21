@@ -141,18 +141,18 @@ BUILD)
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
           $MAVEN_ARGS \
           -Pdeploy-sonarsource,release
+        
+    INCREMENTAL=true          
+    # Triggers a full analysis for every build number ending with 0
     if [[ "$TRAVIS_BUILD_NUMBER" == *0 ]]; then
-      mvn sonar:sonar \
-          -Dsonar.host.url=$SONAR_HOST_URL \
-          -Dsonar.login=$SONAR_TOKEN \
-          -Dsonar.projectVersion=$INITIAL_VERSION
-    else
-      mvn sonar:sonar \
-          -Dsonar.incremental=true \
-          -Dsonar.host.url=$SONAR_HOST_URL \
-          -Dsonar.login=$SONAR_TOKEN \
-          -Dsonar.projectVersion=$INITIAL_VERSION
+      INCREMENTAL=false
     fi
+
+    mvn sonar:sonar \
+          -Dsonar.incremental=$INCREMENTAL \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.login=$SONAR_TOKEN \
+          -Dsonar.projectVersion=$INITIAL_VERSION
 
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build release branch'
