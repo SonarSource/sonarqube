@@ -38,8 +38,14 @@ public interface Issue extends Serializable {
 
   /**
    * Maximum number of characters in the message.
+   * In theory it should be 4_000 UTF-8 characters but unfortunately
+   * Oracle DB does not support more than 4_000 bytes, even if column
+   * issues.message is created with type VARCHAR2(4000 CHAR).
+   * In order to have the same behavior on all databases, message
+   * is truncated to 4_000 / 3 (maximum bytes per UTF-8 character)
+   * = 1_333 characters.
    */
-  int MESSAGE_MAX_SIZE = 4000;
+  int MESSAGE_MAX_SIZE = 1_333;
 
   /**
    * Default status when creating an issue.
