@@ -95,35 +95,18 @@ public class ListActionTest {
   }
 
   @Test
-  public void fail_if_missing_project_parameter() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'project' parameter is missing");
-
-    ws.newRequest().execute();
-  }
-
-  @Test
-  public void fail_if_not_a_reference_on_project() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+  public void test_example() {
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(BranchType.LONG));
+    db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid project key");
+    String json = ws.newRequest()
+      .setParam("project", project.getDbKey())
+      .execute()
+      .getInput();
 
-    ws.newRequest()
-      .setParam("project", file.getDbKey())
-      .execute();
-  }
-
-  @Test
-  public void fail_if_project_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'foo' not found");
-
-    ws.newRequest()
-      .setParam("project", "foo")
-      .execute();
+    assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   @Test
@@ -228,6 +211,24 @@ public class ListActionTest {
   }
 
   @Test
+  public void short_living_branch_on_removed_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
+      b -> b.setKey("short").setBranchType(BranchType.SHORT).setMergeBranchUuid("unknown"));
+
+    ListWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getBranchesList())
+      .extracting(Branch::getName, Branch::getType, Branch::hasMergeBranch, Branch::getIsOrphan)
+      .containsExactlyInAnyOrder(
+        tuple("master", Common.BranchType.LONG, false, false),
+        tuple(shortLivingBranch.getBranch(), Common.BranchType.SHORT, false, true));
+  }
+
+  @Test
   public void quality_gate_status_on_long_living_branch() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
@@ -284,18 +285,35 @@ public class ListActionTest {
   }
 
   @Test
-  public void test_example() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
-    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(BranchType.LONG));
-    db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
+  public void fail_if_missing_project_parameter() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'project' parameter is missing");
+
+    ws.newRequest().execute();
+  }
+
+  @Test
+  public void fail_if_not_a_reference_on_project() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    String json = ws.newRequest()
-      .setParam("project", project.getDbKey())
-      .execute()
-      .getInput();
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Invalid project key");
 
-    assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
+    ws.newRequest()
+      .setParam("project", file.getDbKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_if_project_does_not_exist() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'foo' not found");
+
+    ws.newRequest()
+      .setParam("project", "foo")
+      .execute();
   }
 
 }
