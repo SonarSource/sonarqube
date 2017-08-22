@@ -101,8 +101,8 @@ public class ShowActionTest {
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getBranch())
-      .extracting(Branch::hasName, Branch::getType, Branch::getIsMain, Branch::hasMergeBranch)
-      .containsExactlyInAnyOrder(false, Common.BranchType.LONG, true, false);
+      .extracting(Branch::getName, Branch::getType, Branch::getIsMain, Branch::hasMergeBranch)
+      .containsExactlyInAnyOrder("master", Common.BranchType.LONG, true, false);
   }
 
   @Test
@@ -134,8 +134,8 @@ public class ShowActionTest {
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getBranch())
-      .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
-      .containsExactlyInAnyOrder(longLivingBranch.getBranch(), Common.BranchType.LONG, "");
+      .extracting(Branch::getName, Branch::getType, Branch::hasMergeBranch)
+      .containsExactlyInAnyOrder(longLivingBranch.getBranch(), Common.BranchType.LONG, false);
   }
 
   @Test
@@ -155,6 +155,23 @@ public class ShowActionTest {
     assertThat(response.getBranch())
       .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
       .containsExactlyInAnyOrder(shortLivingBranch.getBranch(), Common.BranchType.SHORT, longLivingBranch.getBranch());
+  }
+
+  @Test
+  public void mergeBranch_is_using_default_main_name_when_main_branch_has_no_name() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
+      b -> b.setKey("short").setBranchType(BranchType.SHORT).setMergeBranchUuid(project.uuid()));
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam("component", shortLivingBranch.getKey())
+      .setParam("branch", shortLivingBranch.getBranch())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getBranch())
+      .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
+      .containsExactlyInAnyOrder(shortLivingBranch.getBranch(), Common.BranchType.SHORT, "master");
   }
 
   @Test
@@ -211,8 +228,8 @@ public class ShowActionTest {
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getBranch())
-      .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
-      .containsExactlyInAnyOrder(file.getBranch(), Common.BranchType.LONG, "");
+      .extracting(Branch::getName, Branch::getType, Branch::hasMergeBranch)
+      .containsExactlyInAnyOrder(file.getBranch(), Common.BranchType.LONG, false);
   }
 
   @Test
