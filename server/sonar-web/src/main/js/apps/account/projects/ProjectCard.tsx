@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
-import { FormattedRelative } from 'react-intl';
 import { Link } from 'react-router';
 import { Project } from './types';
+import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Level from '../../../components/ui/Level';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -43,12 +43,12 @@ export default function ProjectCard({ project }: Props) {
               overlay={<DateTimeFormatter date={project.lastAnalysisDate} />}
               placement="right">
               <div className="account-project-analysis">
-                <FormattedRelative value={project.lastAnalysisDate}>
-                  {(relativeDate: string) =>
+                <DateFromNow date={project.lastAnalysisDate}>
+                  {(fromNow: string) =>
                     <span>
-                      {translateWithParameters('my_account.projects.analyzed_x', relativeDate)}
+                      {translateWithParameters('my_account.projects.analyzed_x', fromNow)}
                     </span>}
-                </FormattedRelative>
+                </DateFromNow>
               </div>
             </Tooltip>
           : <div className="account-project-analysis">

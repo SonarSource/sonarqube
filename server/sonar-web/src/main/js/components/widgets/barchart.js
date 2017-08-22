@@ -21,7 +21,7 @@ import $ from 'jquery';
 import { max } from 'd3-array';
 import { select } from 'd3-selection';
 import { scaleLinear, scaleBand } from 'd3-scale';
-import { isSameDay, toNotSoISOString } from '../../helpers/dates';
+import { isSameDay, parseDate, toNotSoISOString } from '../../helpers/dates';
 
 function trans(left, top) {
   return `translate(${left}, ${top})`;
@@ -51,7 +51,7 @@ $.fn.barchart = function(data) {
     const options = { ...defaults(), ...$(this).data() };
     Object.assign(options, {
       width: options.width || $(this).width(),
-      endDate: options.endDate ? new Date(options.endDate) : null
+      endDate: options.endDate ? parseDate(options.endDate) : null
     });
 
     const container = select(this);
@@ -91,9 +91,9 @@ $.fn.barchart = function(data) {
         .attr('width', barWidth)
         .attr('height', d => Math.floor(yScale(d.count)))
         .style('cursor', 'pointer')
-        .attr('data-period-start', d => toNotSoISOString(new Date(d.val)))
+        .attr('data-period-start', d => toNotSoISOString(d.val))
         .attr('data-period-end', (d, i) => {
-          const ending = i < data.length - 1 ? new Date(data[i + 1].val) : options.endDate;
+          const ending = i < data.length - 1 ? data[i + 1].val : options.endDate;
           if (ending) {
             return toNotSoISOString(ending);
           } else {
@@ -101,10 +101,10 @@ $.fn.barchart = function(data) {
           }
         })
         .attr('title', (d, i) => {
-          const beginning = new Date(d.val);
+          const beginning = parseDate(d.val);
           let ending = options.endDate;
           if (i < data.length - 1) {
-            ending = new Date(data[i + 1].val);
+            ending = parseDate(data[i + 1].val);
             ending.setDate(ending.getDate() - 1);
           }
           if (ending) {

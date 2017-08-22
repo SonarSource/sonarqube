@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow, ShallowWrapper } from 'enzyme';
+import { shallow, ShallowRendererProps, ShallowWrapper } from 'enzyme';
 import { IntlProvider } from 'react-intl';
 
 export const mockEvent = {
@@ -71,8 +71,9 @@ export function doAsync(fn: Function): Promise<void> {
   });
 }
 
+// Create the IntlProvider to retrieve context for wrapping around.
 const intlProvider = new IntlProvider({ locale: 'en' }, {});
 const { intl } = intlProvider.getChildContext();
-export function shallowWithIntl(node, options = {}) {
+export function shallowWithIntl(node: React.ReactElement<any>, options: ShallowRendererProps = {}) {
   return shallow(node, { ...options, context: { intl, ...options.context } });
 }

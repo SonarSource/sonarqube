@@ -18,23 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DateFromNow from '../../../components/intl/DateFromNow';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
+import { DateSource, FormattedRelative } from 'react-intl';
+import { parseDate } from '../../helpers/dates';
 
 interface Props {
-  date?: string;
+  children?: (formattedDate: string) => React.ReactNode;
+  date: DateSource;
 }
 
-export default function ProfileDate({ date }: Props) {
-  return date
-    ? <Tooltip overlay={<DateTimeFormatter date={date} />}>
-        <span>
-          <DateFromNow date={date} />
-        </span>
-      </Tooltip>
-    : <span>
-        {translate('never')}
-      </span>;
+export default function DateFromNow({ children, date }: Props) {
+  return <FormattedRelative children={children} value={parseDate(date)} />;
 }

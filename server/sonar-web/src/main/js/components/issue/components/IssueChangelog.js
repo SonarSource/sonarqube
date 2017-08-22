@@ -19,9 +19,9 @@
  */
 // @flow
 import React from 'react';
-import { FormattedRelative } from 'react-intl';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import ChangelogPopup from '../popups/ChangelogPopup';
+import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Tooltip from '../../../components/controls/Tooltip';
 /*:: import type { Issue } from '../types'; */
@@ -63,7 +63,7 @@ export default class IssueChangelog extends React.PureComponent {
             className="button-link issue-action issue-action-with-options js-issue-show-changelog"
             onClick={this.handleClick}>
             <span className="issue-meta-label">
-              <FormattedRelative value={this.props.creationDate} />
+              <DateFromNow date={this.props.creationDate} />
             </span>
             <i className="icon-dropdown little-spacer-left" />
           </button>

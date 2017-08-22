@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import { FormattedRelative } from 'react-intl';
+import DateFromNow from '../../../components/intl/DateFromNow';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
@@ -56,7 +56,7 @@ export default function LeakPeriodLegend({ className, component, period } /*: Pr
   const date = getPeriodDate(period);
   const tooltip = (
     <div>
-      <FormattedRelative value={date} />
+      <DateFromNow date={date} />
       {', '}
       <DateFormatter date={date} long={true} />
     </div>

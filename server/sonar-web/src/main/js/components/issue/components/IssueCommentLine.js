@@ -19,11 +19,11 @@
  */
 // @flow
 import React from 'react';
-import { FormattedRelative } from 'react-intl';
 import Avatar from '../../../components/ui/Avatar';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';
+import DateFromNow from '../../../components/intl/DateFromNow';
 /*:: import type { IssueComment } from '../types'; */
 
 /*::
@@ -98,7 +98,7 @@ export default class IssueCommentLine extends React.PureComponent {
           tabIndex={0}
         />
         <div className="issue-comment-age">
-          <FormattedRelative value={comment.createdAt} />
+          <DateFromNow date={comment.createdAt} />
         </div>
         <div className="issue-comment-actions">
           {comment.updatable &&

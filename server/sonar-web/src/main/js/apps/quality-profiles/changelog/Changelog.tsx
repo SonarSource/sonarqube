@@ -23,7 +23,7 @@ import ChangesList from './ChangesList';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
-import { differenceInSeconds } from '../../../helpers/dates';
+import { differenceInSeconds, parseDate } from '../../../helpers/dates';
 import { ProfileChangelogEvent } from '../types';
 
 interface Props {
@@ -37,7 +37,7 @@ export default function Changelog(props: Props) {
   const rows = props.events.map((event, index) => {
     const prev = index > 0 ? props.events[index - 1] : null;
     const isSameDate =
-      prev != null && differenceInSeconds(new Date(prev.date), new Date(event.date)) < 10;
+      prev != null && differenceInSeconds(parseDate(prev.date), parseDate(event.date)) < 10;
     const isBulkChange =
       prev != null &&
       isSameDate &&

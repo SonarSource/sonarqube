@@ -21,11 +21,12 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import ProjectActivityApp from '../ProjectActivityApp';
 import { DEFAULT_GRAPH } from '../../utils';
+import { parseDate } from '../../../../helpers/dates';
 
 const ANALYSES = [
   {
     key: 'A1',
-    date: new Date('2016-10-27T16:33:50+0200'),
+    date: parseDate('2016-10-27T16:33:50+0200'),
     events: [
       {
         key: 'E1',
@@ -36,12 +37,12 @@ const ANALYSES = [
   },
   {
     key: 'A2',
-    date: new Date('2016-10-27T12:21:15+0200'),
+    date: parseDate('2016-10-27T12:21:15+0200'),
     events: []
   },
   {
     key: 'A3',
-    date: new Date('2016-10-26T12:17:29+0200'),
+    date: parseDate('2016-10-26T12:17:29+0200'),
     events: [
       {
         key: 'E2',
@@ -76,8 +77,8 @@ const DEFAULT_PROPS = {
     {
       metric: 'code_smells',
       history: [
-        { date: new Date('Fri Mar 04 2016 10:40:12 GMT+0100 (CET)'), value: '1749' },
-        { date: new Date('Fri Mar 04 2016 18:40:16 GMT+0100 (CET)'), value: '2286' }
+        { date: parseDate('Fri Mar 04 2016 10:40:12 GMT+0100 (CET)'), value: '1749' },
+        { date: parseDate('Fri Mar 04 2016 18:40:16 GMT+0100 (CET)'), value: '2286' }
       ]
     }
   ],

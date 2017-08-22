@@ -9,15 +9,13 @@ exports[`check note 10 days 1`] = `
 `;
 
 exports[`check note date 1`] = `
-<FormattedRelative
-  updateInterval={10000}
-  value={2013-09-21T22:00:00.000Z}
+<DateFromNow
+  date={2013-09-21T22:00:00.000Z}
 />
 `;
 
 exports[`check note version 1`] = `
-<FormattedRelative
-  updateInterval={10000}
-  value={2013-09-21T22:00:00.000Z}
+<DateFromNow
+  date={2013-09-21T22:00:00.000Z}
 />
 `;

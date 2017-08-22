@@ -28,6 +28,7 @@ import { getAllTimeMachineData } from '../../../api/time-machine';
 import { getMetrics } from '../../../api/metrics';
 import * as api from '../../../api/projectActivity';
 import * as actions from '../actions';
+import { parseDate } from '../../../helpers/dates';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import {
   customMetricsChanged,
@@ -172,7 +173,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
     return api
       .getProjectActivity({ ...parameters, ...additional })
       .then(({ analyses, paging }) => ({
-        analyses: analyses.map(analysis => ({ ...analysis, date: new Date(analysis.date) })),
+        analyses: analyses.map(analysis => ({ ...analysis, date: parseDate(analysis.date) })),
         paging
       }));
   };
@@ -186,7 +187,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
         measures.map(measure => ({
           metric: measure.metric,
           history: measure.history.map(analysis => ({
-            date: new Date(analysis.date),
+            date: parseDate(analysis.date),
             value: analysis.value
           }))
         })),

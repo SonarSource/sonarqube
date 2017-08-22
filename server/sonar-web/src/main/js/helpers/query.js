@@ -19,7 +19,7 @@
  */
 // @flow
 import { isNil, omitBy } from 'lodash';
-import { isValidDate, toNotSoISOString } from './dates';
+import { isValidDate, parseDate, toNotSoISOString } from './dates';
 
 /*::
 export type RawQuery = { [string]: any };
@@ -66,7 +66,7 @@ export function parseAsBoolean(
 
 export function parseAsDate(value /*: ?string */) /*: Date | void */ {
   if (value) {
-    const date = new Date(value);
+    const date = parseDate(value);
     if (isValidDate(date)) {
       return date;
     }

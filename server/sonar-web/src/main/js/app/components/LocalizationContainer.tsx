@@ -46,12 +46,14 @@ export default class LocalizationContainer extends React.PureComponent<Props, St
   }
 
   bundleLoaded = (lang: string) => {
-    import('react-intl/locale-data/' + (lang || DEFAULT_LANGUAGE)).then(
-      i => this.updateLang(lang, i),
-      () => {
-        import('react-intl/locale-data/en').then(i => this.updateLang(lang, i));
-      }
-    );
+    const langToLoad = lang || DEFAULT_LANGUAGE;
+
+    // No need to load english bundle, it's coming wiht react-intl
+    if (langToLoad !== 'en') {
+      import('react-intl/locale-data/' + langToLoad).then(i => this.updateLang(langToLoad, i));
+    } else {
+      this.setState({ loading: false, lang: langToLoad });
+    }
   };
 
   updateLang = (lang: string, intlBundle: Locale[]) => {

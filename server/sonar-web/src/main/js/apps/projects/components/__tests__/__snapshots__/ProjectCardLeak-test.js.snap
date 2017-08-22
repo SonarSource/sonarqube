@@ -35,9 +35,8 @@ exports[`should display the leak measures and quality gate 1`] = `
     <div
       className="project-card-dates note text-right pull-right"
     >
-      <FormattedRelative
-        updateInterval={10000}
-        value="2016-12-01"
+      <DateFromNow
+        date="2016-12-01"
       />
       <DateTimeFormatter
         date="2017-01-01"

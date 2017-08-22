@@ -20,13 +20,14 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import Timeline from '../Timeline';
+import { parseDate } from '../../../../helpers/dates';
 
-const range = new Date('2017-05-01T00:00:00.000Z');
+const range = parseDate('2017-05-01T00:00:00.000Z');
 const history = [
-  { date: new Date('2017-04-08T00:00:00.000Z'), value: '29.6' },
-  { date: new Date('2017-04-09T00:00:00.000Z'), value: '170.8' },
-  { date: new Date('2017-05-08T00:00:00.000Z'), value: '360' },
-  { date: new Date('2017-05-09T00:00:00.000Z'), value: '39' }
+  { date: parseDate('2017-04-08T00:00:00.000Z'), value: '29.6' },
+  { date: parseDate('2017-04-09T00:00:00.000Z'), value: '170.8' },
+  { date: parseDate('2017-05-08T00:00:00.000Z'), value: '360' },
+  { date: parseDate('2017-05-09T00:00:00.000Z'), value: '39' }
 ];
 
 it('should render correctly with an "after" range', () => {
@@ -38,7 +39,7 @@ it('should render correctly with a "before" range', () => {
 });
 
 it('should have a correct domain with strings or numbers', () => {
-  const date = new Date('2017-05-08T00:00:00.000Z');
+  const date = parseDate('2017-05-08T00:00:00.000Z');
   const wrapper = shallow(<Timeline after={range} history={history} />);
   expect(wrapper.find('LineChart').props().domain).toEqual([0, 360]);
 

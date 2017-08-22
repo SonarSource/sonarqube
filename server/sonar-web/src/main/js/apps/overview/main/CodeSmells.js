@@ -19,8 +19,8 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
-import { FormattedRelative } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';
+import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import enhance from './enhance';
 import { getMetricName } from '../helpers/metrics';
@@ -66,12 +66,12 @@ class CodeSmells extends React.PureComponent {
       return null;
     }
     return (
-      <FormattedRelative value={this.props.historyStartDate}>
+      <DateFromNow date={this.props.historyStartDate}>
         {fromNow =>
           <span className="overview-domain-timeline-date">
             {translateWithParameters('overview.started_x', fromNow)}
           </span>}
-      </FormattedRelative>
+      </DateFromNow>
     );
   }
 

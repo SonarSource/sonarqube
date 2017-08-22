@@ -20,13 +20,13 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
-import * as dates from '../../../../helpers/dates';
 import { DEFAULT_GRAPH } from '../../utils';
+import * as dates from '../../../../helpers/dates';
 
 const ANALYSES = [
   {
     key: 'A1',
-    date: new Date('2016-10-27T16:33:50+0000'),
+    date: dates.parseDate('2016-10-27T16:33:50+0000'),
     events: [
       {
         key: 'E1',
@@ -37,12 +37,12 @@ const ANALYSES = [
   },
   {
     key: 'A2',
-    date: new Date('2016-10-27T12:21:15+0000'),
+    date: dates.parseDate('2016-10-27T12:21:15+0000'),
     events: []
   },
   {
     key: 'A3',
-    date: new Date('2016-10-26T12:17:29+0000'),
+    date: dates.parseDate('2016-10-26T12:17:29+0000'),
     events: [
       {
         key: 'E2',
@@ -58,7 +58,7 @@ const ANALYSES = [
   },
   {
     key: 'A4',
-    date: new Date('2016-10-24T16:33:50+0000'),
+    date: dates.parseDate('2016-10-24T16:33:50+0000'),
     events: [
       {
         key: 'E1',
@@ -92,6 +92,8 @@ dates.startOfDay = jest.fn(date => {
   return startDay;
 });
 
+dates.toShortNotSoISOString = date => 'ISO.' + date;
+
 it('should render correctly', () => {
   expect(shallow(<ProjectActivityAnalysesList {...DEFAULT_PROPS} />)).toMatchSnapshot();
 });
@@ -107,8 +109,8 @@ it('should correctly filter analyses by date range', () => {
   wrapper.setProps({
     query: {
       ...DEFAULT_PROPS.query,
-      from: new Date('2016-10-27T16:33:50+0000'),
-      to: new Date('2016-10-27T16:33:50+0000')
+      from: dates.parseDate('2016-10-27T16:33:50+0000'),
+      to: dates.parseDate('2016-10-27T16:33:50+0000')
     }
   });
   expect(wrapper).toMatchSnapshot();

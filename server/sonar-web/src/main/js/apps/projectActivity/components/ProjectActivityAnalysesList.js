@@ -24,6 +24,7 @@ import { throttle } from 'lodash';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import { translate } from '../../../helpers/l10n';
+import { toShortNotSoISOString } from '../../../helpers/dates';
 import {
   activityQueryChanged,
   getAnalysesByVersionByDay,
@@ -190,7 +191,10 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
                 </div>}
               <ul className="project-activity-days-list">
                 {days.map(day =>
-                  <li key={day} className="project-activity-day">
+                  <li
+                    key={day}
+                    className="project-activity-day"
+                    data-day={toShortNotSoISOString(Number(day))}>
                     <div className="project-activity-date">
                       <DateFormatter date={Number(day)} long={true} />
                     </div>

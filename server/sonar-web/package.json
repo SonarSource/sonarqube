@@ -17,6 +17,7 @@
     "d3-scale": "1.0.5",
     "d3-selection": "1.0.5",
     "d3-shape": "1.0.6",
+    "date-fns": "1.28.5",
     "escape-html": "1.0.3",
     "handlebars": "2.0.0",
     "history": "3.3.0",
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "@types/classnames": "2.2.0",
+    "@types/date-fns": "2.6.0",
     "@types/enzyme": "2.8.6",
     "@types/escape-html": "0.0.19",
     "@types/jest": "20.0.7",
@@ -129,16 +131,8 @@
   ],
   "jest": {
     "coverageDirectory": "<rootDir>/target/coverage",
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/node_modules",
-      "<rootDir>/tests"
-    ],
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json"
-    ],
+    "coveragePathIgnorePatterns": ["<rootDir>/node_modules", "<rootDir>/tests"],
+    "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "moduleNameMapper": {
       "^.+\\.(hbs|jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/config/jest/FileStub.js",
       "^.+\\.css$": "<rootDir>/config/jest/CSSStub.js"
@@ -147,9 +141,7 @@
       "<rootDir>/config/polyfills.js",
       "<rootDir>/config/jest/SetupTestEnvironment.js"
     ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
-    ],
+    "snapshotSerializers": ["enzyme-to-json/serializer"],
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules",
       "<rootDir>/src/main/webapp",

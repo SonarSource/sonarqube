@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import DateFormatter from '../../../components/intl/DateFormatter';
-import { isSameDay } from '../../../helpers/dates';
+import { isSameDay, parseDate } from '../../../helpers/dates';
 import { ITask } from '../types';
 
 interface Props {
@@ -29,7 +29,7 @@ interface Props {
 
 export default function TaskDay({ task, prevTask }: Props) {
   const shouldDisplay =
-    !prevTask || !isSameDay(new Date(task.submittedAt), new Date(prevTask.submittedAt));
+    !prevTask || !isSameDay(parseDate(task.submittedAt), parseDate(prevTask.submittedAt));
 
   return (
     <td className="thin nowrap text-right">

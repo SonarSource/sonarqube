@@ -17,6 +17,12 @@
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@types/classnames/-/classnames-2.2.0.tgz#f2312039e780bdf89d7d4102a26ec11de5ec58aa"
 
+"@types/date-fns@2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@types/date-fns/-/date-fns-2.6.0.tgz#b062ca46562002909be0c63a6467ed173136acc1"
+  dependencies:
+    date-fns "*"
+
 "@types/enzyme@2.8.6":
   version "2.8.6"
   resolved "https://registry.yarnpkg.com/@types/enzyme/-/enzyme-2.8.6.tgz#b508da0860b4fcda2ab851d600e5bfaf695775dd"
@@ -1974,6 +1980,10 @@ dashdash@^1.12.0:
   resolved "https://registry.yarnpkg.com/dashdash/-/dashdash-1.14.1.tgz#853cfa0f7cbe2fed5de20326b8dd581035f6e2f0"
   dependencies:
     assert-plus "^1.0.0"
+
+date-fns@*, date-fns@1.28.5:
+  version "1.28.5"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-1.28.5.tgz#257cfc45d322df45ef5658665967ee841cd73faf"
 
 date-now@^0.1.4:
   version "0.1.4"
