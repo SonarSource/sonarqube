@@ -34,7 +34,6 @@ type Props = {
   addVersion: (analysis: string, version: string) => Promise<*>,
   analyses: Array<Analysis>,
   analysesLoading: boolean,
-  branch: {},
   changeEvent: (event: string, name: string) => Promise<*>,
   deleteAnalysis: (analysis: string) => Promise<*>,
   deleteEvent: (analysis: string, event: string) => Promise<*>,
@@ -54,10 +53,9 @@ type Props = {
 */
 
 export default function ProjectActivityApp(props /*: Props */) {
-  const { analyses, branch, measuresHistory, query } = props;
+  const { analyses, measuresHistory, query } = props;
   const { configuration } = props.project;
-  // always disable all actions for non-main branch
-  const canAdmin = branch.isMain && configuration ? configuration.showHistory : false;
+  const canAdmin = configuration ? configuration.showHistory : false;
   return (
     <div id="project-activity" className="page page-limited">
       <Helmet title={translate('project_activity.page')} />

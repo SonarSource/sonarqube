@@ -315,7 +315,6 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
         addVersion={this.addVersion}
         analyses={this.state.analyses}
         analysesLoading={this.state.analysesLoading}
-        branch={this.props.branch}
         changeEvent={this.changeEvent}
         deleteAnalysis={this.deleteAnalysis}
         deleteEvent={this.deleteEvent}
