@@ -26,7 +26,7 @@ exports[`renders main branch 1`] = `
         }
         className="little-spacer-right"
       />
-      master
+      [main branch]
     </div>
     <div
       className="big-spacer-left note"
