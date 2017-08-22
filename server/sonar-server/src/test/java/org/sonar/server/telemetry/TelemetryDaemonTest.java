@@ -55,7 +55,7 @@ public class TelemetryDaemonTest {
     settings = new MapSettings(new PropertyDefinitions(TelemetryProperties.class));
     system2.setNow(System.currentTimeMillis());
 
-    underTest = new TelemetryDaemon(client, internalProperties, server, system2, settings.asConfig());
+    underTest = new TelemetryDaemon(client, settings.asConfig(), internalProperties, server, system2);
   }
 
   @Test
@@ -63,7 +63,7 @@ public class TelemetryDaemonTest {
     settings.setProperty("sonar.telemetry.frequency", "1");
     underTest.start();
 
-    verify(client, timeout(2_000).atLeastOnce()).send(anyString());
+    verify(client, timeout(1_000).atLeastOnce()).send(anyString());
   }
 
   @Test
@@ -73,7 +73,6 @@ public class TelemetryDaemonTest {
     long sevenDaysAgo = now - (ONE_DAY * 7L);
     internalProperties.write("sonar.telemetry.lastPing", String.valueOf(sixDaysAgo));
     settings.setProperty("sonar.telemetry.frequency", "1");
-    underTest = new TelemetryDaemon(client, internalProperties, server, system2, settings.asConfig());
     underTest.start();
     verify(client, timeout(1_000).never()).send(anyString());
     internalProperties.write("sonar.telemetry.lastPing", String.valueOf(sevenDaysAgo));
@@ -114,7 +113,19 @@ public class TelemetryDaemonTest {
 
     underTest.start();
 
-    verify(client, timeout(2_000)).send(anyString());
+    verify(client, timeout(1_000).atLeastOnce()).send(anyString());
     assertThat(internalProperties.read("sonar.telemetry.lastPing").get()).isEqualTo(String.valueOf(today));
+  }
+
+  @Test
+  public void opt_out_sent_once() {
+    settings.setProperty("sonar.telemetry.frequency", "1");
+    settings.setProperty("sonar.telemetry.enable", "false");
+    underTest.start();
+    underTest.start();
+
+
+    verify(client, timeout(1_000).never()).send(anyString());
+    verify(client, timeout(1_000).times(1)).optOut(anyString());
   }
 }

@@ -25,6 +25,11 @@ import org.sonar.api.Property;
 
 @Properties({
   @Property(
+    key = TelemetryProperties.PROP_ENABLE,
+    defaultValue = "true",
+    name = "Share SonarQube statistics",
+    global = false),
+   @Property(
     key = TelemetryProperties.PROP_FREQUENCY,
     // 6 hours in seconds
     defaultValue = "21600",
@@ -37,6 +42,7 @@ import org.sonar.api.Property;
     global = false)
 })
 public class TelemetryProperties {
+  static final String PROP_ENABLE = "sonar.telemetry.enable";
   static final String PROP_FREQUENCY = "sonar.telemetry.frequency";
   static final String PROP_URL = "sonar.telemetry.url";
 }

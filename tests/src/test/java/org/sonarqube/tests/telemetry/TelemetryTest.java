@@ -70,4 +70,25 @@ public class TelemetryTest {
 
     orchestrator.stop();
   }
+
+  @Test
+  public void opt_out_of_telemetry() throws Exception {
+    String serverId = randomAlphanumeric(40);
+    orchestrator = Orchestrator.builderEnv()
+      .addPlugin(xooPlugin())
+      .setServerProperty("sonar.telemetry.enable", "false")
+      .setServerProperty("sonar.telemetry.url", url)
+      .setServerProperty("sonar.telemetry.frequency", "1")
+      .setServerProperty("sonar.core.id", serverId)
+      .build();
+    orchestrator.start();
+
+    RecordedRequest request = server.takeRequest(1, TimeUnit.SECONDS);
+
+    assertThat(request.getMethod()).isEqualTo("DELETE");
+    assertThat(request.getBody().readUtf8()).contains(serverId);
+    assertThat(request.getHeader(HttpHeaders.USER_AGENT)).contains("SonarQube");
+
+    orchestrator.stop();
+  }
 }
