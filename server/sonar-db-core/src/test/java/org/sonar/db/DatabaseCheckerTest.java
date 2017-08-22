@@ -27,6 +27,7 @@ import org.mockito.Mockito;
 import org.sonar.api.utils.MessageException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
+import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 
@@ -103,6 +104,23 @@ public class DatabaseCheckerTest {
   @Test
   public void test_mysql() throws Exception {
     Database db = mockDb(new MySql(), 5, 7, "5.7");
+    new DatabaseChecker(db).start();
+    // no error
+  }
+
+  @Test
+  public void mssql_2012_is_not_supported() throws Exception {
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Unsupported mssql version: 11.0. Minimal supported version is 12.0.");
+
+    Database db = mockDb(new MsSql(), 11, 0, "6.1");
+    new DatabaseChecker(db).start();
+    // no error
+  }
+
+  @Test
+  public void mssql_2014_is_supported() throws Exception {
+    Database db = mockDb(new MsSql(), 12, 0, "6.1");
     new DatabaseChecker(db).start();
     // no error
   }

@@ -3,7 +3,6 @@
 
 RUN_ACTIVITY:
   - run-db-unit-tests-mysql56
-  - run-db-unit-tests-mssql2012
   - run-db-unit-tests-mssql2014
   - run-db-unit-tests-oracle11g
   - run-db-unit-tests-oracle12c
@@ -41,8 +40,6 @@ RUN_ACTIVITY:
 
 exclude:
   - RUN_ACTIVITY: run-db-unit-tests-mysql56
-    SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-db-unit-tests-mssql2012
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-db-unit-tests-mssql2014
     SLAVE_TYPE: performance
@@ -115,8 +112,6 @@ exclude:
     SLAVE_TYPE: dblinux
 
   - RUN_ACTIVITY: run-db-unit-tests-mysql56
-    SLAVE_TYPE: windows
-  - RUN_ACTIVITY: run-db-unit-tests-mssql2012
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-db-unit-tests-mssql2014
     SLAVE_TYPE: windows
