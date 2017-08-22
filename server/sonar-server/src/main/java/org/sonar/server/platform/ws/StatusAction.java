@@ -24,12 +24,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.IsAliveMapper;
 import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
@@ -39,20 +34,16 @@ import org.sonar.server.platform.db.migration.DatabaseMigrationState;
  */
 public class StatusAction implements SystemWsAction {
 
-  private static final Logger LOGGER = Loggers.get(StatusAction.class);
-
   private final Server server;
   private final DatabaseMigrationState migrationState;
   private final Platform platform;
-  private final DbClient dbClient;
   private final RestartFlagHolder restartFlagHolder;
 
   public StatusAction(Server server, DatabaseMigrationState migrationState,
-    Platform platform, DbClient dbClient, RestartFlagHolder restartFlagHolder) {
+    Platform platform, RestartFlagHolder restartFlagHolder) {
     this.server = server;
     this.migrationState = migrationState;
     this.platform = platform;
-    this.dbClient = dbClient;
     this.restartFlagHolder = restartFlagHolder;
   }
 
@@ -64,7 +55,7 @@ public class StatusAction implements SystemWsAction {
         "<li>STARTING: SonarQube Web Server is up and serving some Web Services (eg. api/system/status) " +
         "but initialization is still ongoing</li>" +
         "<li>UP: SonarQube instance is up and running</li>" +
-        "<li>DOWN: SonarQube instance is up but not running because SQ can not connect to database or " +
+        "<li>DOWN: SonarQube instance is up but not running because " +
         "migration has failed (refer to WS /api/system/migrate_db for details) or some other reason (check logs).</li>" +
         "<li>RESTARTING: SonarQube instance is still up but a restart has been requested " +
         "(refer to WS /api/system/restart for details).</li>" +
@@ -94,10 +85,6 @@ public class StatusAction implements SystemWsAction {
   }
 
   private Status computeStatus() {
-    if (!isConnectedToDB()) {
-      return Status.DOWN;
-    }
-
     Platform.Status platformStatus = platform.status();
     switch (platformStatus) {
       case BOOTING:
@@ -112,15 +99,6 @@ public class StatusAction implements SystemWsAction {
         return computeStatusInSafemode();
       default:
         throw new IllegalArgumentException("Unsupported Platform.Status " + platformStatus);
-    }
-  }
-
-  private boolean isConnectedToDB() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbSession.getMapper(IsAliveMapper.class).isAlive() == IsAliveMapper.IS_ALIVE_RETURNED_VALUE;
-    } catch (RuntimeException e) {
-      LOGGER.error("DB connection is down", e);
-      return false;
     }
   }
 
