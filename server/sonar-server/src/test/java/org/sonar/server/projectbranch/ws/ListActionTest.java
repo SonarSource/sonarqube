@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -30,8 +31,11 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -41,12 +45,14 @@ import org.sonarqube.ws.WsBranches;
 import org.sonarqube.ws.WsBranches.Branch;
 import org.sonarqube.ws.WsBranches.ListWsResponse;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.WsBranches.Branch.Status;
 
@@ -61,12 +67,14 @@ public class ListActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
+  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
+
   private MetricDto qualityGateStatus;
   private MetricDto bugs;
   private MetricDto vulnerabilities;
   private MetricDto codeSmells;
 
-  public WsActionTester tester = new WsActionTester(new ListAction(db.getDbClient(), userSession));
+  public WsActionTester tester = new WsActionTester(new ListAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes)));
 
   @Before
   public void setUp() throws Exception {
@@ -111,7 +119,7 @@ public class ListActionTest {
   @Test
   public void fail_if_project_does_not_exist() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project key 'foo' not found");
+    expectedException.expectMessage("Component key 'foo' not found");
 
     tester.newRequest()
       .setParam("project", "foo")
@@ -227,6 +235,21 @@ public class ListActionTest {
         tuple(false, 0, false, 0, false, 0),
         tuple(false, 0, false, 0, false, 0),
         tuple(true, 1, true, 2, true, 3));
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    tester.newRequest()
+      .setParam("project", branch.getDbKey())
+      .execute();
   }
 
   @Test
