@@ -20,7 +20,6 @@
 
 package org.sonar.server.telemetry;
 
-import com.google.common.base.Throwables;
 import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -46,13 +45,9 @@ public class TelemetryClient {
     this.config = config;
   }
 
-  void send(String json) {
-    try {
-      Request request = buildHttpRequest(json);
-      okHttpClient.newCall(request).execute();
-    } catch (IOException e) {
-      Throwables.propagate(e);
-    }
+  void send(String json) throws IOException {
+    Request request = buildHttpRequest(json);
+    okHttpClient.newCall(request).execute();
   }
 
   void optOut(String json) {

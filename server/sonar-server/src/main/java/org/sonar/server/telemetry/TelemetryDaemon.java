@@ -111,7 +111,7 @@ public class TelemetryDaemon implements Startable {
         telemetryClient.send(json.toString());
         internalProperties.write(I_PROP_LAST_PING, String.valueOf(startOfDay(now)));
       } catch (Exception e) {
-        // fail silently
+        LOG.debug("Error while checking SonarQube statistics: {}", e.getMessage());
       }
     // do not check at start up to exclude test instance which are not up for a long time
     }, frequencyInSeconds, frequencyInSeconds, TimeUnit.SECONDS);
