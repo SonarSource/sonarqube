@@ -78,7 +78,8 @@ public class ShowActionTest {
       tuple("6.4", "Analysis date has been added to the response"),
       tuple("6.4", "The field 'id' is deprecated in the response"),
       tuple("6.4", "The 'visibility' field is added to the response"),
-      tuple("6.5", "Leak period date is added to the response"));
+      tuple("6.5", "Leak period date is added to the response"),
+      tuple("6.6", "'branch' is added to the response"));
     assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("component", "componentId", "branch");
 
     WebService.Param componentId = action.param(PARAM_COMPONENT_ID);
