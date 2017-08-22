@@ -116,7 +116,7 @@ public class ShowAction implements BranchWsAction {
 
       BranchDto branch = getBranch(dbSession, component.projectUuid());
       String mergeBranchUuid = branch.getMergeBranchUuid();
-      BranchDto mergeBranch = mergeBranchUuid == null ? null : getBranch(dbSession, mergeBranchUuid);
+      Optional<BranchDto> mergeBranch = mergeBranchUuid == null ? Optional.empty() : dbClient.branchDao().selectByUuid(dbSession, branch.getMergeBranchUuid());
 
       Collection<MeasureDto> measures = dbClient.measureDao()
         .selectByComponentsAndMetrics(dbSession, Collections.singletonList(branch.getUuid()), metricsById.keySet())
@@ -131,10 +131,7 @@ public class ShowAction implements BranchWsAction {
   }
 
   private ComponentDto loadComponent(DbSession dbSession, String projectKey, @Nullable String branchName) {
-    if (branchName == null) {
-      return componentFinder.getByKey(dbSession, projectKey);
-    }
-    return componentFinder.getByKeyAndBranch(dbSession, projectKey, branchName);
+    return branchName == null ? componentFinder.getByKey(dbSession, projectKey) : componentFinder.getByKeyAndBranch(dbSession, projectKey, branchName);
   }
 
   private BranchDto getBranch(DbSession dbSession, String uuid) {
