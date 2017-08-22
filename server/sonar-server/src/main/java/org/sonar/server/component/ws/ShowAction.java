@@ -75,7 +75,8 @@ public class ShowAction implements ComponentsWsAction {
         new Change("6.4", "Analysis date has been added to the response"),
         new Change("6.4", "The field 'id' is deprecated in the response"),
         new Change("6.4", "The 'visibility' field is added to the response"),
-        new Change("6.5", "Leak period date is added to the response"))
+        new Change("6.5", "Leak period date is added to the response"),
+        new Change("6.6", "'branch' is added to the response"))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT_ID)
