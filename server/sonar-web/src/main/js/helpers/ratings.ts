@@ -17,40 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const checkNumberRating = coverageRating => {
+function checkNumberRating(coverageRating: number): void {
   if (!(typeof coverageRating === 'number' && coverageRating > 0 && coverageRating < 6)) {
     throw new Error(`Unknown number rating: "${coverageRating}"`);
   }
-};
+}
 
-export const getCoverageRatingLabel = rating => {
+export function getCoverageRatingLabel(rating: number): string {
   checkNumberRating(rating);
-
   const mapping = ['≥ 80%', '< 80%', '< 70%', '< 50%', '< 30%'];
   return mapping[rating - 1];
-};
-export const getCoverageRatingAverageValue = rating => {
+}
+
+export function getCoverageRatingAverageValue(rating: number): number {
   checkNumberRating(rating);
   const mapping = [90, 75, 60, 40, 15];
   return mapping[rating - 1];
-};
-export const getDuplicationsRatingLabel = rating => {
+}
+
+export function getDuplicationsRatingLabel(rating: number): string {
   checkNumberRating(rating);
   const mapping = ['< 3%', '≥ 3%', '> 5%', '> 10%', '> 20%'];
   return mapping[rating - 1];
-};
-export const getDuplicationsRatingAverageValue = rating => {
+}
+
+export function getDuplicationsRatingAverageValue(rating: number): number {
   checkNumberRating(rating);
   const mapping = [1.5, 4, 7.5, 15, 30];
   return mapping[rating - 1];
-};
-export const getSizeRatingLabel = rating => {
+}
+
+export function getSizeRatingLabel(rating: number): string {
   checkNumberRating(rating);
   const mapping = ['< 1k', '≥ 1k', '> 10k', '> 100k', '> 500k'];
   return mapping[rating - 1];
-};
-export const getSizeRatingAverageValue = rating => {
+}
+
+export function getSizeRatingAverageValue(rating: number): number {
   checkNumberRating(rating);
   const mapping = [500, 5000, 50000, 250000, 750000];
   return mapping[rating - 1];
-};
+}
