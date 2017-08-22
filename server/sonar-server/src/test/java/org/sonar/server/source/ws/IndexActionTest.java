@@ -37,6 +37,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -113,6 +114,20 @@ public class IndexActionTest {
 
     tester.newRequest()
       .setParam("resource", "unknown")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    userSession.addProjectPermission(USER, project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    tester.newRequest()
+      .setParam("resource", branch.getDbKey())
       .execute();
   }
 
