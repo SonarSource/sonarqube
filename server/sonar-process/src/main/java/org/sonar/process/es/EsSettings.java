@@ -34,12 +34,12 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.lang.String.valueOf;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_NAME;
+import static org.sonar.process.ProcessProperties.SEARCH_MARVEL_HOSTS;
 
 public class EsSettings {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EsSettings.class);
-  private static final String PROP_MARVEL_HOSTS = "sonar.search.marvelHosts";
-  private static final String CLUSTER_SEARCH_NODE_NAME = "sonar.cluster.search.nodeName";
   private static final String STANDALONE_NODE_NAME = "sonarqube";
 
   private final Props props;
@@ -56,7 +56,7 @@ public class EsSettings {
     this.clusterName = props.nonNullValue(ProcessProperties.CLUSTER_NAME);
     this.clusterEnabled = props.valueAsBoolean(ProcessProperties.CLUSTER_ENABLED);
     if (this.clusterEnabled) {
-      this.nodeName = props.value(CLUSTER_SEARCH_NODE_NAME, "sonarqube-" + UUID.randomUUID().toString());
+      this.nodeName = props.value(CLUSTER_NODE_NAME, "sonarqube-" + UUID.randomUUID().toString());
     } else {
       this.nodeName = STANDALONE_NODE_NAME;
     }
@@ -141,7 +141,7 @@ public class EsSettings {
 
   private void configureMarvel(Map<String, String> builder) {
     Set<String> marvels = new TreeSet<>();
-    marvels.addAll(Arrays.asList(StringUtils.split(props.value(PROP_MARVEL_HOSTS, ""), ",")));
+    marvels.addAll(Arrays.asList(StringUtils.split(props.value(SEARCH_MARVEL_HOSTS, ""), ",")));
 
     // If we're collecting indexing data send them to the Marvel host(s)
     if (!marvels.isEmpty()) {
