@@ -44,6 +44,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.client.notification.RemoveRequest;
 
+import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -266,6 +267,17 @@ public class RemoveActionTest {
     expectedException.expect(UnauthorizedException.class);
 
     call(request);
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    call(request.setProject(branch.getDbKey()));
   }
 
   private TestResponse call(RemoveRequest.Builder wsRequestBuilder) {
