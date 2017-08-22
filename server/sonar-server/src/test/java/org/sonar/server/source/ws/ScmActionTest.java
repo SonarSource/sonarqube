@@ -23,6 +23,7 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -35,10 +36,13 @@ import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
+
+import static java.lang.String.format;
 
 public class ScmActionTest {
 
@@ -48,7 +52,8 @@ public class ScmActionTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -185,6 +190,20 @@ public class ScmActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY);
     request.execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    tester.newGetRequest("api/sources", "scm")
+      .setParam("key", branch.getDbKey())
+      .execute();
   }
 
   private DbFileSources.Line newSourceLine(String author, String revision, Date date, int line) {
