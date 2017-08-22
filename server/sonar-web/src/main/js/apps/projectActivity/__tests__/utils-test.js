@@ -24,18 +24,18 @@ import * as dates from '../../../helpers/dates';
 const ANALYSES = [
   {
     key: 'AVyMjlK1HjR_PLDzRbB9',
-    date: new Date('2017-06-09T13:06:10.000Z'),
+    date: dates.parseDate('2017-06-09T13:06:10.000Z'),
     events: [{ key: 'AVyM9oI1HjR_PLDzRciU', category: 'VERSION', name: '1.1-SNAPSHOT' }]
   },
-  { key: 'AVyM9n3cHjR_PLDzRciT', date: new Date('2017-06-09T11:12:27.000Z'), events: [] },
+  { key: 'AVyM9n3cHjR_PLDzRciT', date: dates.parseDate('2017-06-09T11:12:27.000Z'), events: [] },
   {
     key: 'AVyMjlK1HjR_PLDzRbB9',
-    date: new Date('2017-06-09T11:12:27.000Z'),
+    date: dates.parseDate('2017-06-09T11:12:27.000Z'),
     events: [{ key: 'AVyM9oI1HjR_PLDzRciU', category: 'VERSION', name: '1.1' }]
   },
   {
     key: 'AVxZtCpH7841nF4RNEMI',
-    date: new Date('2017-05-18T14:13:07.000Z'),
+    date: dates.parseDate('2017-05-18T14:13:07.000Z'),
     events: [
       {
         key: 'AVxZtC-N7841nF4RNEMJ',
@@ -44,10 +44,10 @@ const ANALYSES = [
       }
     ]
   },
-  { key: 'AVwaa1qkpbBde8B6UhYI', date: new Date('2017-05-18T07:17:32.000Z'), events: [] },
+  { key: 'AVwaa1qkpbBde8B6UhYI', date: dates.parseDate('2017-05-18T07:17:32.000Z'), events: [] },
   {
     key: 'AVwQF7kwl-nNFgFWOJ3V',
-    date: new Date('2017-05-16T07:09:59.000Z'),
+    date: dates.parseDate('2017-05-16T07:09:59.000Z'),
     events: [
       { key: 'AVyM9oI1HjR_PLDzRciU', category: 'VERSION', name: '1.0' },
       {
@@ -57,22 +57,22 @@ const ANALYSES = [
       }
     ]
   },
-  { key: 'AVvtGF3IY6vCuQNDdwxI', date: new Date('2017-05-09T12:03:59.000Z'), events: [] }
+  { key: 'AVvtGF3IY6vCuQNDdwxI', date: dates.parseDate('2017-05-09T12:03:59.000Z'), events: [] }
 ];
 
 const HISTORY = [
   {
     metric: 'lines_to_cover',
     history: [
-      { date: new Date('2017-04-27T08:21:32.000Z'), value: '100' },
-      { date: new Date('2017-04-30T23:06:24.000Z'), value: '100' }
+      { date: dates.parseDate('2017-04-27T08:21:32.000Z'), value: '100' },
+      { date: dates.parseDate('2017-04-30T23:06:24.000Z'), value: '100' }
     ]
   },
   {
     metric: 'uncovered_lines',
     history: [
-      { date: new Date('2017-04-27T08:21:32.000Z'), value: '12' },
-      { date: new Date('2017-04-30T23:06:24.000Z'), value: '50' }
+      { date: dates.parseDate('2017-04-27T08:21:32.000Z'), value: '12' },
+      { date: dates.parseDate('2017-04-30T23:06:24.000Z'), value: '50' }
     ]
   }
 ];
@@ -84,7 +84,7 @@ const METRICS = [
 
 const QUERY = {
   category: '',
-  from: new Date('2017-04-27T08:21:32.000Z'),
+  from: dates.parseDate('2017-04-27T08:21:32.000Z'),
   graph: utils.DEFAULT_GRAPH,
   project: 'foo',
   to: undefined,
@@ -112,7 +112,6 @@ describe('getAnalysesByVersionByDay', () => {
     startDay.setUTCHours(0, 0, 0, 0);
     return startDay;
   });
-
   it('should correctly map analysis by versions and by days', () => {
     expect(
       utils.getAnalysesByVersionByDay(ANALYSES, {
@@ -138,8 +137,8 @@ describe('getAnalysesByVersionByDay', () => {
         customMetrics: [],
         graph: utils.DEFAULT_GRAPH,
         project: 'foo',
-        to: new Date('2017-06-09T11:12:27.000Z'),
-        from: new Date('2017-05-18T14:13:07.000Z')
+        to: dates.parseDate('2017-06-09T11:12:27.000Z'),
+        from: dates.parseDate('2017-05-18T14:13:07.000Z')
       })
     ).toMatchSnapshot();
   });
@@ -147,10 +146,26 @@ describe('getAnalysesByVersionByDay', () => {
     expect(
       utils.getAnalysesByVersionByDay(
         [
-          { key: 'AVyMjlK1HjR_PLDzRbB9', date: new Date('2017-06-09T13:06:10.000Z'), events: [] },
-          { key: 'AVyM9n3cHjR_PLDzRciT', date: new Date('2017-06-09T11:12:27.000Z'), events: [] },
-          { key: 'AVyMjlK1HjR_PLDzRbB9', date: new Date('2017-06-09T11:12:27.000Z'), events: [] },
-          { key: 'AVxZtCpH7841nF4RNEMI', date: new Date('2017-05-18T14:13:07.000Z'), events: [] }
+          {
+            key: 'AVyMjlK1HjR_PLDzRbB9',
+            date: dates.parseDate('2017-06-09T13:06:10.000Z'),
+            events: []
+          },
+          {
+            key: 'AVyM9n3cHjR_PLDzRciT',
+            date: dates.parseDate('2017-06-09T11:12:27.000Z'),
+            events: []
+          },
+          {
+            key: 'AVyMjlK1HjR_PLDzRbB9',
+            date: dates.parseDate('2017-06-09T11:12:27.000Z'),
+            events: []
+          },
+          {
+            key: 'AVxZtCpH7841nF4RNEMI',
+            date: dates.parseDate('2017-05-18T14:13:07.000Z'),
+            events: []
+          }
         ],
         {
           category: '',
@@ -253,8 +268,8 @@ describe('hasHistoryData', () => {
           name: 'foo',
           type: 'INT',
           data: [
-            { x: new Date('2017-04-27T08:21:32.000Z'), y: 2 },
-            { x: new Date('2017-04-30T23:06:24.000Z'), y: 2 }
+            { x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 },
+            { x: dates.parseDate('2017-04-30T23:06:24.000Z'), y: 2 }
           ]
         }
       ])
@@ -270,8 +285,8 @@ describe('hasHistoryData', () => {
           name: 'bar',
           type: 'INT',
           data: [
-            { x: new Date('2017-04-27T08:21:32.000Z'), y: 2 },
-            { x: new Date('2017-04-30T23:06:24.000Z'), y: 2 }
+            { x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 },
+            { x: dates.parseDate('2017-04-30T23:06:24.000Z'), y: 2 }
           ]
         }
       ])
@@ -281,7 +296,7 @@ describe('hasHistoryData', () => {
         {
           name: 'bar',
           type: 'INT',
-          data: [{ x: new Date('2017-04-27T08:21:32.000Z'), y: 2 }]
+          data: [{ x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 }]
         }
       ])
     ).toBeFalsy();

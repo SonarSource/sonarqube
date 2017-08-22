@@ -4,9 +4,8 @@ exports[`should render correctly 1`] = `
 <Tooltip
   overlay={
     <div>
-      <FormattedRelative
-        updateInterval={10000}
-        value={2017-05-16T11:50:02.000Z}
+      <DateFromNow
+        date={2017-05-16T11:50:02.000Z}
       />
       , 
       <DateFormatter

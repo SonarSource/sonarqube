@@ -17,9 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-const MILLISECONDS_IN_MINUTE = 60 * 1000;
-const MILLISECONDS_IN_DAY = MILLISECONDS_IN_MINUTE * 60 * 24;
+import {
+  differenceInDays as _differenceInDays,
+  differenceInSeconds as _differenceInSeconds,
+  differenceInYears as _differenceInYears,
+  isSameDay as _isSameDay,
+  parse,
+  startOfDay as _startOfDay
+} from 'date-fns';
 
 function pad(number: number) {
   if (number < 10) {
@@ -28,31 +33,24 @@ function pad(number: number) {
   return number;
 }
 
-function compareDateAsc(dateLeft: Date, dateRight: Date): number {
-  var timeLeft = dateLeft.getTime();
-  var timeRight = dateRight.getTime();
+type ParsableDate = string | number | Date;
 
-  if (timeLeft < timeRight) {
-    return -1;
-  } else if (timeLeft > timeRight) {
-    return 1;
-  } else {
-    return 0;
-  }
+export function parseDate(rawDate: ParsableDate): Date {
+  return parse(rawDate);
 }
 
-export function toShortNotSoISOString(date: Date): string {
+export function toShortNotSoISOString(rawDate: ParsableDate): string {
+  const date = parseDate(rawDate);
   return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
 }
 
-export function toNotSoISOString(date: Date): string {
+export function toNotSoISOString(rawDate: ParsableDate): string {
+  const date = parseDate(rawDate);
   return date.toISOString().replace(/\..+Z$/, '+0000');
 }
 
 export function startOfDay(date: Date): Date {
-  const startDay = new Date(date);
-  startDay.setHours(0, 0, 0, 0);
-  return startDay;
+  return _startOfDay(date);
 }
 
 export function isValidDate(date: Date): boolean {
@@ -60,31 +58,17 @@ export function isValidDate(date: Date): boolean {
 }
 
 export function isSameDay(dateLeft: Date, dateRight: Date): boolean {
-  const startDateLeft = startOfDay(dateLeft);
-  const startDateRight = startOfDay(dateRight);
-  return startDateLeft.getTime() === startDateRight.getTime();
+  return _isSameDay(dateLeft, dateRight);
 }
 
 export function differenceInYears(dateLeft: Date, dateRight: Date): number {
-  const sign = compareDateAsc(dateLeft, dateRight);
-  const diff = Math.abs(dateLeft.getFullYear() - dateRight.getFullYear());
-  const tmpLeftDate = new Date(dateLeft);
-  tmpLeftDate.setFullYear(dateLeft.getFullYear() - sign * diff);
-  const isLastYearNotFull = compareDateAsc(tmpLeftDate, dateRight) === -sign;
-  return sign * (diff - (isLastYearNotFull ? 1 : 0));
+  return _differenceInYears(dateLeft, dateRight);
 }
 
 export function differenceInDays(dateLeft: Date, dateRight: Date): number {
-  const startDateLeft = startOfDay(dateLeft);
-  const startDateRight = startOfDay(dateRight);
-  const timestampLeft =
-    startDateLeft.getTime() - startDateLeft.getTimezoneOffset() * MILLISECONDS_IN_MINUTE;
-  const timestampRight =
-    startDateRight.getTime() - startDateRight.getTimezoneOffset() * MILLISECONDS_IN_MINUTE;
-  return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_DAY);
+  return _differenceInDays(dateLeft, dateRight);
 }
 
 export function differenceInSeconds(dateLeft: Date, dateRight: Date): number {
-  const diff = (dateLeft.getTime() - dateRight.getTime()) / 1000;
-  return diff > 0 ? Math.floor(diff) : Math.ceil(diff);
+  return _differenceInSeconds(dateLeft, dateRight);
 }

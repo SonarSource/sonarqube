@@ -21,7 +21,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router';
-import { FormattedRelative } from 'react-intl';
+import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter.tsx';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
@@ -91,12 +91,12 @@ export default function ProjectCardLeak({ measures, organization, project } /*: 
           hasLeakPeriodStart &&
           <div className="project-card-dates note text-right pull-right">
             {hasLeakPeriodStart &&
-              <FormattedRelative value={project.leakPeriodDate}>
+              <DateFromNow date={project.leakPeriodDate}>
                 {fromNow =>
                   <span className="project-card-leak-date pull-right">
                     {translateWithParameters('projects.leak_period_x', fromNow)}
                   </span>}
-              </FormattedRelative>}
+              </DateFromNow>}
             {isProjectAnalyzed &&
               <DateTimeFormatter date={project.analysisDate}>
                 {formattedDate =>

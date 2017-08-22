@@ -113,7 +113,7 @@ export function requestMessages(): Promise<string> {
         // do nothing
       }
       resetBundle(messages);
-      return effectiveLocale || browserLocale || DEFAULT_LANGUAGE;
+      return effectiveLocale;
     },
     ({ response }) => {
       if (response && response.status === 304) {

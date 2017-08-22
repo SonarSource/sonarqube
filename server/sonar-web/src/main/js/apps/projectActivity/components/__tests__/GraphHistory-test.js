@@ -21,15 +21,16 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import GraphHistory from '../GraphHistory';
 import { DEFAULT_GRAPH } from '../../utils';
+import { parseDate } from '../../../../helpers/dates';
 
 const SERIES = [
   {
     name: 'bugs',
     translatedName: 'metric.bugs.name',
     data: [
-      { x: new Date('2016-10-27T16:33:50+0200'), y: 5 },
-      { x: new Date('2016-10-27T12:21:15+0200'), y: 16 },
-      { x: new Date('2016-10-26T12:17:29+0200'), y: 12 }
+      { x: parseDate('2016-10-27T16:33:50+0200'), y: 5 },
+      { x: parseDate('2016-10-27T12:21:15+0200'), y: 16 },
+      { x: parseDate('2016-10-26T12:17:29+0200'), y: 12 }
     ]
   }
 ];

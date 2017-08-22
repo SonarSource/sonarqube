@@ -23,6 +23,7 @@ import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import GraphHistory from './GraphHistory';
 import { EVENT_TYPES, getSeriesMetricType, hasHistoryData, isCustomGraph } from '../utils';
 import { translate } from '../../../helpers/l10n';
+import { parseDate } from '../../../helpers/dates';
 /*:: import type { Analysis, MeasureHistory } from '../types'; */
 /*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
 
@@ -86,7 +87,7 @@ export default class GraphsHistory extends React.PureComponent {
       return acc.concat({
         className: event.category,
         name: event.name,
-        date: new Date(analysis.date)
+        date: parseDate(analysis.date)
       });
     }, []);
     return sortBy(filteredEvents, 'date');

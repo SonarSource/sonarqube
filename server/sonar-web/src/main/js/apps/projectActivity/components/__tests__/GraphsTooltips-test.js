@@ -21,6 +21,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import GraphsTooltips from '../GraphsTooltips';
 import { DEFAULT_GRAPH } from '../../utils';
+import { parseDate } from '../../../../helpers/dates';
 
 const SERIES_ISSUES = [
   {
@@ -72,7 +73,7 @@ const DEFAULT_PROPS = {
   graph: DEFAULT_GRAPH,
   graphWidth: 500,
   measuresHistory: [],
-  selectedDate: new Date('2011-10-01T22:01:00.000Z'),
+  selectedDate: parseDate('2011-10-01T22:01:00.000Z'),
   series: SERIES_ISSUES,
   tooltipIdx: 0,
   tooltipPos: 666
@@ -88,7 +89,7 @@ it('should render correctly for random graphs', () => {
       <GraphsTooltips
         {...DEFAULT_PROPS}
         graph="random"
-        selectedDate={new Date('2011-10-25T10:27:41.000Z')}
+        selectedDate={parseDate('2011-10-25T10:27:41.000Z')}
         tooltipIdx={1}
       />
     )

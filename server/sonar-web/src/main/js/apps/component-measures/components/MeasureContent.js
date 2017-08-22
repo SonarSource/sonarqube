@@ -34,6 +34,7 @@ import { complementary } from '../config/complementary';
 import { enhanceComponent, isFileType, isViewType } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
+import { parseDate } from '../../../helpers/dates';
 /*:: import type { Component, ComponentEnhanced, Paging, Period } from '../types'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
@@ -216,13 +217,13 @@ export default class MeasureContent extends React.PureComponent {
   renderCode() {
     const { component, leakPeriod } = this.props;
     const leakPeriodDate =
-      isDiffMetric(this.props.metric.key) && leakPeriod != null ? new Date(leakPeriod.date) : null;
+      isDiffMetric(this.props.metric.key) && leakPeriod != null ? parseDate(leakPeriod.date) : null;
 
     let filterLine;
     if (leakPeriodDate != null) {
       filterLine = line => {
         if (line.scmDate) {
-          const scmDate = new Date(line.scmDate);
+          const scmDate = parseDate(line.scmDate);
           return scmDate >= leakPeriodDate;
         } else {
           return false;

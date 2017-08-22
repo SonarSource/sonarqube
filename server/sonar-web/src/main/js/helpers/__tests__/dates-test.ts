@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as dates from '../dates';
+import { parseDate } from '../../helpers/dates';
 
-const recentDate = new Date('2017-08-16T12:00:00.000Z');
-const recentDate2 = new Date('2016-12-16T12:00:00.000Z');
-const oldDate = new Date('2014-01-12T12:00:00.000Z');
+const recentDate = parseDate('2017-08-16T12:00:00.000Z');
+const recentDate2 = parseDate('2016-12-16T12:00:00.000Z');
+const oldDate = parseDate('2014-01-12T12:00:00.000Z');
 
 it('toShortNotSoISOString', () => {
   expect(dates.toShortNotSoISOString(recentDate)).toBe('2017-08-16');
@@ -39,14 +40,14 @@ it('startOfDay', () => {
 it('isValidDate', () => {
   expect(dates.isValidDate(recentDate)).toBeTruthy();
   expect(dates.isValidDate(new Date())).toBeTruthy();
-  expect(dates.isValidDate(new Date('foo'))).toBeFalsy();
+  expect(dates.isValidDate(parseDate('foo'))).toBeFalsy();
 });
 
 it('isSameDay', () => {
-  expect(dates.isSameDay(recentDate, new Date(recentDate))).toBeTruthy();
+  expect(dates.isSameDay(recentDate, parseDate(recentDate))).toBeTruthy();
   expect(dates.isSameDay(recentDate, recentDate2)).toBeFalsy();
   expect(dates.isSameDay(recentDate, oldDate)).toBeFalsy();
-  expect(dates.isSameDay(recentDate, new Date('2016-08-16T12:00:00.000Z'))).toBeFalsy();
+  expect(dates.isSameDay(recentDate, parseDate('2016-08-16T12:00:00.000Z'))).toBeFalsy();
 });
 
 it('differenceInYears', () => {
@@ -56,14 +57,14 @@ it('differenceInYears', () => {
 });
 
 it('differenceInDays', () => {
-  expect(dates.differenceInDays(recentDate, new Date('2017-08-01T12:00:00.000Z'))).toBe(15);
-  expect(dates.differenceInDays(recentDate, new Date('2017-08-15T23:00:00.000Z'))).toBe(0);
+  expect(dates.differenceInDays(recentDate, parseDate('2017-08-01T12:00:00.000Z'))).toBe(15);
+  expect(dates.differenceInDays(recentDate, parseDate('2017-08-15T23:00:00.000Z'))).toBe(0);
   expect(dates.differenceInDays(recentDate, recentDate2)).toBe(243);
   expect(dates.differenceInDays(recentDate, oldDate)).toBe(1312);
 });
 
 it('differenceInSeconds', () => {
-  expect(dates.differenceInSeconds(recentDate, new Date('2017-08-16T10:00:00.000Z'))).toBe(7200);
-  expect(dates.differenceInSeconds(recentDate, new Date('2017-08-16T12:00:00.500Z'))).toBe(0);
+  expect(dates.differenceInSeconds(recentDate, parseDate('2017-08-16T10:00:00.000Z'))).toBe(7200);
+  expect(dates.differenceInSeconds(recentDate, parseDate('2017-08-16T12:00:00.500Z'))).toBe(0);
   expect(dates.differenceInSeconds(recentDate, oldDate)).toBe(113356800);
 });

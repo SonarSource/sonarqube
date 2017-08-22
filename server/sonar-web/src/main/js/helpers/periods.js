@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate, translateWithParameters } from './l10n';
+import { parseDate } from './dates';
 
 export function getPeriod(periods, index) {
   if (!Array.isArray(periods)) {
@@ -50,7 +51,7 @@ export function getPeriodDate(period) {
     return null;
   }
 
-  return new Date(period.date);
+  return parseDate(period.date);
 }
 
 export function getLeakPeriodLabel(periods) {

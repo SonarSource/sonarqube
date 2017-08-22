@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as query from '../query';
+import { parseDate } from '../dates';
 
 describe('queriesEqual', () => {
   it('should correctly test equality of two queries', () => {
@@ -78,7 +79,7 @@ describe('parseAsDate', () => {
 });
 
 describe('serializeDate', () => {
-  const date = new Date('2016-06-20T13:09:48.256Z');
+  const date = parseDate('2016-06-20T13:09:48.256Z');
   it('should serialize string correctly', () => {
     expect(query.serializeDate(date)).toBe('2016-06-20T13:09:48+0000');
     expect(query.serializeDate('')).toBeUndefined();

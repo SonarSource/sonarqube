@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { DateSource, FormattedDate } from 'react-intl';
+import { parseDate } from '../../helpers/dates';
 
 interface Props {
   children?: (formattedDate: string) => React.ReactNode;
@@ -34,7 +35,7 @@ export default function DateFormatter({ children, date, long }: Props) {
   return (
     <FormattedDate
       children={children}
-      value={date}
+      value={parseDate(date)}
       {...(long ? longFormatterOption : formatterOption)}
     />
   );

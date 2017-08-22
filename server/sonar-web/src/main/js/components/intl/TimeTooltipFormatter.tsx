@@ -20,6 +20,7 @@
 import * as React from 'react';
 import TimeFormatter from './TimeFormatter';
 import Tooltip from '../controls/Tooltip';
+import { parseDate } from '../../helpers/dates';
 
 interface Props {
   className?: string;
@@ -28,14 +29,15 @@ interface Props {
 }
 
 export default function TimeTooltipFormatter({ className, date, placement }: Props) {
+  const parsedDate = parseDate(date);
   return (
-    <TimeFormatter date={date} long={false}>
+    <TimeFormatter date={parsedDate} long={false}>
       {formattedTime =>
         <Tooltip
-          overlay={<TimeFormatter date={date} long={true} />}
+          overlay={<TimeFormatter date={parsedDate} long={true} />}
           placement={placement}
           mouseEnterDelay={0.5}>
-          <time className={className} dateTime={new Date(date as Date).toISOString()}>
+          <time className={className} dateTime={parsedDate.toISOString()}>
             {formattedTime}
           </time>
         </Tooltip>}

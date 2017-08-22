@@ -28,7 +28,7 @@ import {
   serializeDate,
   serializeString
 } from '../../helpers/query';
-import { startOfDay } from '../../helpers/dates';
+import { parseDate, startOfDay } from '../../helpers/dates';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 /*:: import type { Analysis, MeasureHistory, Metric, Query } from './types'; */
 /*:: import type { RawQuery } from '../../helpers/query'; */
@@ -157,7 +157,7 @@ export function getAnalysesByVersionByDay(analyses /*: Array<Analysis> */, query
       acc.push(currentVersion);
     }
 
-    const day = startOfDay(new Date(analysis.date)).getTime().toString();
+    const day = startOfDay(parseDate(analysis.date)).getTime().toString();
 
     let matchFilters = true;
     if (query.category || query.from || query.to) {

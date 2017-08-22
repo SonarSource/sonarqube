@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortBy } from 'lodash';
-import { differenceInYears, isValidDate } from '../../helpers/dates';
+import { differenceInYears, isValidDate, parseDate } from '../../helpers/dates';
 import { Profile } from './types';
 
 export function sortProfiles(profiles: Profile[]) {
@@ -67,7 +67,7 @@ export function createFakeProfile(overrides?: any) {
 
 export function isStagnant(profile: Profile): boolean {
   if (profile.userUpdatedAt) {
-    const updateDate = new Date(profile.userUpdatedAt);
+    const updateDate = parseDate(profile.userUpdatedAt);
     if (isValidDate(updateDate)) {
       return differenceInYears(new Date(), updateDate) >= 1;
     }

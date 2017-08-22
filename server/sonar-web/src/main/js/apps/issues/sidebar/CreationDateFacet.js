@@ -20,15 +20,16 @@
 // @flow
 import React from 'react';
 import { max } from 'lodash';
-import { FormattedRelative, intlShape } from 'react-intl';
-import { formatterOption, longFormatterOption } from '../../../components/intl/DateFormatter';
+import { intlShape } from 'react-intl';
+import DateFromNow from '../../../components/intl/DateFromNow';
+import { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import { BarChart } from '../../../components/charts/bar-chart';
 import DateInput from '../../../components/controls/DateInput';
-import { isSameDay, toShortNotSoISOString } from '../../../helpers/dates';
+import { isSameDay, parseDate, toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 /*:: import type { Component } from '../utils'; */
@@ -105,7 +106,7 @@ export default class CreationDateFacet extends React.PureComponent {
       createdAt: undefined,
       createdInLast: undefined,
       sinceLeakPeriod: undefined,
-      [property]: toShortNotSoISOString(new Date(value))
+      [property]: toShortNotSoISOString(parseDate(value))
     });
   };
 
@@ -134,12 +135,12 @@ export default class CreationDateFacet extends React.PureComponent {
     const { formatDate } = this.context.intl;
     const beforeDate = createdBefore ? createdBefore : undefined;
     const data = periods.map((start, index) => {
-      const startDate = new Date(start);
+      const startDate = parseDate(start);
       let nextStartDate = index < periods.length - 1 ? periods[index + 1] : beforeDate;
       let endDate;
       if (nextStartDate) {
-        nextStartDate = new Date(nextStartDate);
-        endDate = new Date(nextStartDate);
+        nextStartDate = parseDate(nextStartDate);
+        endDate = parseDate(nextStartDate);
         endDate.setDate(endDate.getDate() - 1);
       }
 
@@ -186,7 +187,7 @@ export default class CreationDateFacet extends React.PureComponent {
         <DateTimeFormatter date={this.props.createdAt} />
         <br />
         <span className="note">
-          <FormattedRelative value={this.props.createdAt} />
+          <DateFromNow date={this.props.createdAt} />
         </span>
       </div>
     );
@@ -194,20 +195,19 @@ export default class CreationDateFacet extends React.PureComponent {
 
   renderPeriodSelectors() {
     const { createdAfter, createdBefore } = this.props;
-    const { formatDate } = this.context.intl;
     return (
       <div className="search-navigator-date-facet-selection">
         <DateInput
           className="search-navigator-date-facet-selection-dropdown-left"
           onChange={this.handlePeriodChangeAfter}
           placeholder={translate('from')}
-          value={createdAfter ? formatDate(createdAfter, formatterOption) : undefined}
+          value={createdAfter ? toShortNotSoISOString(createdAfter) : undefined}
         />
         <DateInput
           className="search-navigator-date-facet-selection-dropdown-right"
           onChange={this.handlePeriodChangeBefore}
           placeholder={translate('to')}
-          value={createdBefore ? formatDate(createdBefore, formatterOption) : undefined}
+          value={createdBefore ? toShortNotSoISOString(createdBefore) : undefined}
         />
       </div>
     );

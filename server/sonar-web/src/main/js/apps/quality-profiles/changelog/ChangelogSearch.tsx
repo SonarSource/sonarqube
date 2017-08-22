@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import DateInput from '../../../components/controls/DateInput';
+import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -36,19 +37,21 @@ export default class ChangelogSearch extends React.PureComponent<Props> {
     this.props.onReset();
   }
 
+  formatDate = (date?: string) => (date ? toShortNotSoISOString(date) : undefined);
+
   render() {
     return (
       <div className="display-inline-block" id="quality-profile-changelog-form">
         <DateInput
           name="since"
-          value={this.props.fromDate}
+          value={this.formatDate(this.props.fromDate)}
           placeholder="From"
           onChange={this.props.onFromDateChange}
         />
         {' — '}
         <DateInput
           name="to"
-          value={this.props.toDate}
+          value={this.formatDate(this.props.toDate)}
           placeholder="To"
           onChange={this.props.onToDateChange}
         />

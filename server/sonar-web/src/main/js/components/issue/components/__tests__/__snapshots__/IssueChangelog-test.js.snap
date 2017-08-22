@@ -43,9 +43,8 @@ exports[`should open the popup when the button is clicked 2`] = `
       <span
         className="issue-meta-label"
       >
-        <FormattedRelative
-          updateInterval={10000}
-          value="2017-03-01T09:36:01+0100"
+        <DateFromNow
+          date="2017-03-01T09:36:01+0100"
         />
       </span>
       <i
@@ -90,9 +89,8 @@ exports[`should render correctly 1`] = `
       <span
         className="issue-meta-label"
       >
-        <FormattedRelative
-          updateInterval={10000}
-          value="2017-03-01T09:36:01+0100"
+        <DateFromNow
+          date="2017-03-01T09:36:01+0100"
         />
       </span>
       <i

@@ -25,6 +25,7 @@ exports[`should correctly filter analyses by category 1`] = `
     >
       <li
         className="project-activity-day"
+        data-day="ISO.1477267200000"
       >
         <div
           className="project-activity-date"
@@ -94,6 +95,7 @@ exports[`should correctly filter analyses by date range 1`] = `
     >
       <li
         className="project-activity-day"
+        data-day="ISO.1477526400000"
       >
         <div
           className="project-activity-date"
@@ -163,6 +165,7 @@ exports[`should render correctly 1`] = `
     >
       <li
         className="project-activity-day"
+        data-day="ISO.1477526400000"
       >
         <div
           className="project-activity-date"
@@ -238,6 +241,7 @@ exports[`should render correctly 1`] = `
     >
       <li
         className="project-activity-day"
+        data-day="ISO.1477440000000"
       >
         <div
           className="project-activity-date"
@@ -284,6 +288,7 @@ exports[`should render correctly 1`] = `
       </li>
       <li
         className="project-activity-day"
+        data-day="ISO.1477267200000"
       >
         <div
           className="project-activity-date"

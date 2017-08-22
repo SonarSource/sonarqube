@@ -21,6 +21,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import PreviewGraphTooltips from '../PreviewGraphTooltips';
 import { DEFAULT_GRAPH } from '../../../projectActivity/utils';
+import { parseDate } from '../../../../helpers/dates';
 
 const SERIES_ISSUES = [
   {
@@ -78,7 +79,7 @@ const DEFAULT_PROPS = {
   graph: DEFAULT_GRAPH,
   graphWidth: 150,
   metrics: METRICS,
-  selectedDate: new Date('2011-10-01T22:01:00.000Z'),
+  selectedDate: parseDate('2011-10-01T22:01:00.000Z'),
   series: SERIES_ISSUES,
   tooltipIdx: 0,
   tooltipPos: 25
@@ -90,7 +91,7 @@ it('should render correctly', () => {
       <PreviewGraphTooltips
         {...DEFAULT_PROPS}
         graph="random"
-        selectedDate={new Date('2011-10-25T10:27:41.000Z')}
+        selectedDate={parseDate('2011-10-25T10:27:41.000Z')}
         tooltipIdx={1}
       />
     )

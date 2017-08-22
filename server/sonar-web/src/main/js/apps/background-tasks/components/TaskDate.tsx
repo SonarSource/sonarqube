@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
-import { differenceInDays, isValidDate } from '../../../helpers/dates';
+import { differenceInDays, isValidDate, parseDate } from '../../../helpers/dates';
 
 interface Props {
   date: string;
@@ -27,8 +27,8 @@ interface Props {
 }
 
 export default function TaskDate({ date, baseDate }: Props) {
-  const parsedDate = new Date(date);
-  const parsedBaseDate = new Date(baseDate);
+  const parsedDate = parseDate(date);
+  const parsedBaseDate = parseDate(baseDate);
   const diff =
     date && baseDate && isValidDate(parsedDate) && isValidDate(parsedBaseDate)
       ? differenceInDays(parsedDate, parsedBaseDate)

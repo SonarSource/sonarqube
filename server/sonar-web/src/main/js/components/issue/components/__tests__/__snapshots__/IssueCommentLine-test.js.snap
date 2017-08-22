@@ -42,9 +42,8 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
   <div
     className="issue-comment-age"
   >
-    <FormattedRelative
-      updateInterval={10000}
-      value="2017-03-01T09:36:01+0100"
+    <DateFromNow
+      date="2017-03-01T09:36:01+0100"
     />
   </div>
   <div
@@ -141,9 +140,8 @@ exports[`should render correctly a comment that is not updatable 1`] = `
   <div
     className="issue-comment-age"
   >
-    <FormattedRelative
-      updateInterval={10000}
-      value="2017-03-01T09:36:01+0100"
+    <DateFromNow
+      date="2017-03-01T09:36:01+0100"
     />
   </div>
   <div
@@ -182,9 +180,8 @@ exports[`should render correctly a comment that is updatable 1`] = `
   <div
     className="issue-comment-age"
   >
-    <FormattedRelative
-      updateInterval={10000}
-      value="2017-03-01T09:36:01+0100"
+    <DateFromNow
+      date="2017-03-01T09:36:01+0100"
     />
   </div>
   <div

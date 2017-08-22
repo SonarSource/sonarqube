@@ -18,7 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 const IntlRelativeFormat = require('intl-relativeformat');
+const { DEFAULT_LANGUAGE } = require('../../helpers/l10n');
 
 module.exports = function(date) {
-  return new IntlRelativeFormat(localStorage.getItem('l10n.locale') || 'en').format(date);
+  return new IntlRelativeFormat(localStorage.getItem('l10n.locale') || DEFAULT_LANGUAGE).format(
+    date
+  );
 };

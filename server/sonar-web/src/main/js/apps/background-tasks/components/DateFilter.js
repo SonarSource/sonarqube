@@ -19,7 +19,7 @@
  */
 import $ from 'jquery';
 import React, { Component } from 'react';
-import { toShortNotSoISOString, isValidDate } from '../../../helpers/dates';
+import { isValidDate, parseDate, toShortNotSoISOString } from '../../../helpers/dates';
 
 export default class DateFilter extends Component {
   componentDidMount() {
@@ -45,8 +45,8 @@ export default class DateFilter extends Component {
 
   handleChange() {
     const date = {};
-    const minDate = new Date(this.refs.minDate.value);
-    const maxDate = new Date(this.refs.maxDate.value);
+    const minDate = parseDate(this.refs.minDate.value);
+    const maxDate = parseDate(this.refs.maxDate.value);
 
     if (isValidDate(minDate)) {
       date.minSubmittedAt = toShortNotSoISOString(minDate);

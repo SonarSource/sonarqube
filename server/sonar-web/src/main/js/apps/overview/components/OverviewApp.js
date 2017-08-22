@@ -30,6 +30,7 @@ import Meta from '../meta/Meta';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getAllTimeMachineData } from '../../../api/time-machine';
+import { parseDate } from '../../../helpers/dates';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
@@ -123,7 +124,7 @@ export default class OverviewApp extends React.PureComponent {
         const history /*: History */ = {};
         r.measures.forEach(measure => {
           const measureHistory = measure.history.map(analysis => ({
-            date: new Date(analysis.date),
+            date: parseDate(analysis.date),
             value: analysis.value
           }));
           history[measure.metric] = measureHistory;
