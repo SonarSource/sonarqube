@@ -26,7 +26,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
@@ -97,7 +99,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
         OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, component.getOrganizationUuid())
           .orElseThrow(() -> new IllegalStateException(format("Could not find organization with uuid '%s' of project '%s'", component.getOrganizationUuid(), projectKey)));
         projectsWsSupport.checkCanUpdateProjectsVisibility(organization, changeToPrivate);
-        dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, component.uuid(), changeToPrivate);
+        setPrivateForRootComponentUuid(dbSession, component.uuid(), changeToPrivate);
         if (changeToPrivate) {
           updatePermissionsToPrivate(dbSession, component);
         } else {
@@ -106,6 +108,15 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
         projectIndexers.commitAndIndex(dbSession, singletonList(component), ProjectIndexer.Cause.PERMISSION_CHANGE);
       }
     }
+  }
+
+  private void setPrivateForRootComponentUuid(DbSession dbSession, String uuid, boolean isPrivate) {
+    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, uuid, isPrivate);
+    ComponentMapper mapper = dbSession.getMapper(ComponentMapper.class);
+    dbSession.getMapper(BranchMapper.class).selectByProjectUuid(uuid)
+      .stream()
+      .filter(branch -> !uuid.equals(branch.getUuid()))
+      .forEach(branch -> mapper.setPrivateForRootComponentUuid(branch.getUuid(), isPrivate));
   }
 
   private boolean noPendingTask(DbSession dbSession, ComponentDto rootComponent) {
