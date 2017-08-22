@@ -91,6 +91,36 @@ public class ShowActionTest {
   }
 
   @Test
+  public void main_branch_when_no_branch_parameter() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam("component", project.getKey())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getBranch())
+      .extracting(Branch::hasName, Branch::getType, Branch::getIsMain, Branch::hasMergeBranch)
+      .containsExactlyInAnyOrder(false, Common.BranchType.LONG, true, false);
+  }
+
+  @Test
+  public void main_branch_with_name() {
+    OrganizationDto organizationD = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organizationD, "head");
+
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam("component", project.getKey())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getBranch())
+      .extracting(Branch::getName, Branch::getType, Branch::getIsMain)
+      .containsExactlyInAnyOrder("head", Common.BranchType.LONG, true);
+  }
+
+  @Test
   public void long_living_branch() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
@@ -161,9 +191,9 @@ public class ShowActionTest {
       .setParam("branch", shortLivingBranch.getBranch())
       .executeProtobuf(ShowWsResponse.class);
 
-
     assertThat(response.getBranch().getStatus())
-      .extracting(Branch.Status::hasBugs, Branch.Status::getBugs, Branch.Status::hasVulnerabilities, Branch.Status::getVulnerabilities, Branch.Status::hasCodeSmells, Branch.Status::getCodeSmells)
+      .extracting(Branch.Status::hasBugs, Branch.Status::getBugs, Branch.Status::hasVulnerabilities, Branch.Status::getVulnerabilities, Branch.Status::hasCodeSmells,
+        Branch.Status::getCodeSmells)
       .containsExactlyInAnyOrder(true, 1, true, 2, true, 3);
   }
 
@@ -191,16 +221,6 @@ public class ShowActionTest {
 
     ws.newRequest()
       .setParam("branch", "my_branch")
-      .execute();
-  }
-
-  @Test
-  public void fail_if_missing_branch_parameter() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'branch' parameter is missing");
-
-    ws.newRequest()
-      .setParam("component", "my_project")
       .execute();
   }
 
