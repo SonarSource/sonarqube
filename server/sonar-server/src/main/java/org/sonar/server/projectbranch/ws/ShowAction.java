@@ -19,13 +19,13 @@
  */
 package org.sonar.server.projectbranch.ws;
 
-import com.google.common.collect.Multimap;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -40,9 +40,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsBranches;
-import org.sonarqube.ws.WsBranches.Branch.Status;
 import org.sonarqube.ws.WsBranches.ShowWsResponse;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -51,14 +49,12 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.db.component.BranchType.LONG;
-import static org.sonar.db.component.BranchType.SHORT;
+import static org.sonar.server.projectbranch.ws.BranchDtoToWsBranch.toBranchBuilder;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_001;
-import static org.sonarqube.ws.Common.BranchType;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_COMPONENT;
@@ -105,7 +101,7 @@ public class ShowAction implements BranchWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     if (!isBranchFeatureSupported) {
-      WsUtils.writeProtobuf(WsBranches.Branch.newBuilder().build(), request, response);
+      writeProtobuf(WsBranches.Branch.newBuilder().build(), request, response);
       return;
     }
     String projectKey = request.mandatoryParam(PARAM_COMPONENT);
@@ -117,17 +113,20 @@ public class ShowAction implements BranchWsAction {
 
       List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, asList(ALERT_STATUS_KEY, BUGS_KEY, VULNERABILITIES_KEY, CODE_SMELLS_KEY));
       Map<Integer, MetricDto> metricsById = metrics.stream().collect(uniqueIndex(MetricDto::getId));
-      Map<String, Integer> metricIdsByKey = metrics.stream().collect(uniqueIndex(MetricDto::getKey, MetricDto::getId));
 
       BranchDto branch = getBranch(dbSession, component.projectUuid());
       String mergeBranchUuid = branch.getMergeBranchUuid();
       BranchDto mergeBranch = mergeBranchUuid == null ? null : getBranch(dbSession, mergeBranchUuid);
 
-      Multimap<String, MeasureDto> measuresByComponentUuids = dbClient.measureDao()
+      Collection<MeasureDto> measures = dbClient.measureDao()
         .selectByComponentsAndMetrics(dbSession, Collections.singletonList(branch.getUuid()), metricsById.keySet())
-        .stream().collect(index(MeasureDto::getComponentUuid));
+        .stream().collect(index(MeasureDto::getComponentUuid))
+        .get(branch.getUuid());
 
-      WsUtils.writeProtobuf(buildResponse(branch, mergeBranch, metricIdsByKey, measuresByComponentUuids), request, response);
+      writeProtobuf(ShowWsResponse.newBuilder()
+        .setBranch(
+          toBranchBuilder(branch, mergeBranch, measures.stream().collect(uniqueIndex(m -> metricsById.get(m.getMetricId()).getKey(), Function.identity()))))
+        .build(), request, response);
     }
   }
 
@@ -142,42 +141,6 @@ public class ShowAction implements BranchWsAction {
     Optional<BranchDto> branch = dbClient.branchDao().selectByUuid(dbSession, uuid);
     checkState(branch.isPresent(), "Branch uuid '%s' not found", uuid);
     return branch.get();
-  }
-
-  private static ShowWsResponse buildResponse(BranchDto branch, @Nullable BranchDto mergeBranch,
-    Map<String, Integer> metricIdsByKey, Multimap<String, MeasureDto> measuresByComponentUuids) {
-    WsBranches.Branch.Builder builder = WsBranches.Branch.newBuilder();
-    setNullable(branch.getKey(), builder::setName);
-    builder.setIsMain(branch.isMain());
-    builder.setType(BranchType.valueOf(branch.getBranchType().name()));
-    if (mergeBranch != null) {
-      setNullable(mergeBranch.getKey(), builder::setMergeBranch);
-    }
-
-    Status.Builder statusBuilder = Status.newBuilder();
-    Collection<MeasureDto> componentMeasures = measuresByComponentUuids.get(branch.getUuid());
-    if (branch.getBranchType().equals(LONG)) {
-      int qualityGateStatusMetricId = metricIdsByKey.get(ALERT_STATUS_KEY);
-      componentMeasures.stream().filter(m -> m.getMetricId() == qualityGateStatusMetricId).findAny()
-        .ifPresent(measure -> statusBuilder.setQualityGateStatus(measure.getData()));
-    }
-
-    if (branch.getBranchType().equals(SHORT)) {
-      int bugsMetricId = metricIdsByKey.get(BUGS_KEY);
-      componentMeasures.stream().filter(m -> m.getMetricId() == bugsMetricId).findAny()
-        .ifPresent(measure -> statusBuilder.setBugs(measure.getValue().intValue()));
-
-      int vulnerabilitiesMetricId = metricIdsByKey.get(VULNERABILITIES_KEY);
-      componentMeasures.stream().filter(m -> m.getMetricId() == vulnerabilitiesMetricId).findAny()
-        .ifPresent(measure -> statusBuilder.setVulnerabilities(measure.getValue().intValue()));
-
-      int codeSmellMetricId = metricIdsByKey.get(CODE_SMELLS_KEY);
-      componentMeasures.stream().filter(m -> m.getMetricId() == codeSmellMetricId).findAny()
-        .ifPresent(measure -> statusBuilder.setCodeSmells(measure.getValue().intValue()));
-    }
-
-    builder.setStatus(statusBuilder);
-    return ShowWsResponse.newBuilder().setBranch(builder).build();
   }
 
 }
