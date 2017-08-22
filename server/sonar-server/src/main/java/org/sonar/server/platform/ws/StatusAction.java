@@ -50,18 +50,20 @@ public class StatusAction implements SystemWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("status")
-      .setDescription("Get the server status:" +
-        "<ul>" +
-        "<li>STARTING: SonarQube Web Server is up and serving some Web Services (eg. api/system/status) " +
+      .setDescription("Get state information about SonarQube." +
+        "<p>status: the running status" +
+        " <ul>" +
+        " <li>STARTING: SonarQube Web Server is up and serving some Web Services (eg. api/system/status) " +
         "but initialization is still ongoing</li>" +
-        "<li>UP: SonarQube instance is up and running</li>" +
-        "<li>DOWN: SonarQube instance is up but not running because " +
+        " <li>UP: SonarQube instance is up and running</li>" +
+        " <li>DOWN: SonarQube instance is up but not running because " +
         "migration has failed (refer to WS /api/system/migrate_db for details) or some other reason (check logs).</li>" +
-        "<li>RESTARTING: SonarQube instance is still up but a restart has been requested " +
+        " <li>RESTARTING: SonarQube instance is still up but a restart has been requested " +
         "(refer to WS /api/system/restart for details).</li>" +
-        "<li>DB_MIGRATION_NEEDED: database migration is required. DB migration can be started using WS /api/system/migrate_db.</li>" +
-        "<li>DB_MIGRATION_RUNNING: DB migration is running (refer to WS /api/system/migrate_db for details)</li>" +
-        "</ul>")
+        " <li>DB_MIGRATION_NEEDED: database migration is required. DB migration can be started using WS /api/system/migrate_db.</li>" +
+        " <li>DB_MIGRATION_RUNNING: DB migration is running (refer to WS /api/system/migrate_db for details)</li>" +
+        " </ul>" +
+        "</p>")
       .setSince("5.2")
       .setResponseExample(Resources.getResource(this.getClass(), "example-status.json"))
       .setHandler(this);
