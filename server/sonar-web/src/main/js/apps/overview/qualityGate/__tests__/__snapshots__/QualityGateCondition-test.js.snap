@@ -9,7 +9,7 @@ exports[`new_maintainability_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": null,
+        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "sinceLeakPeriod": "true",
@@ -69,7 +69,6 @@ exports[`new_maintainability_rating 1`] = `
 
 exports[`new_open_issues 1`] = `
 <DrilldownLink
-  branch={null}
   className="overview-quality-gate-condition overview-quality-gate-condition-error overview-quality-gate-condition-leak"
   component="abcd-key"
   metric="new_open_issues"
@@ -133,7 +132,7 @@ exports[`new_reliability_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": null,
+        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
@@ -201,7 +200,7 @@ exports[`new_security_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": null,
+        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
@@ -262,7 +261,6 @@ exports[`new_security_rating 1`] = `
 
 exports[`open_issues 1`] = `
 <DrilldownLink
-  branch={null}
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   component="abcd-key"
   metric="open_issues"
@@ -320,7 +318,7 @@ exports[`reliability_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": null,
+        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
@@ -381,7 +379,7 @@ exports[`security_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": null,
+        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
@@ -503,7 +501,7 @@ exports[`sqale_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": null,
+        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "types": "CODE_SMELL",

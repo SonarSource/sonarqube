@@ -37,8 +37,8 @@ export function getBranchDisplayName(branch: Branch): string {
   return branch.isMain ? MAIN_BRANCH_DISPLAY_NAME : branch.name;
 }
 
-export function getBranchName(branch: Branch): string | null {
-  return branch.isMain ? null : branch.name;
+export function getBranchName(branch: Branch): string | undefined {
+  return branch.isMain ? undefined : branch.name;
 }
 
 export function sortBranchesAsTree(branches: Branch[]): Branch[] {

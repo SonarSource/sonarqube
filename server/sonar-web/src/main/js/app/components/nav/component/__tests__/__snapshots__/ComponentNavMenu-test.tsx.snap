@@ -149,7 +149,7 @@ exports[`should work with extensions 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": null,
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -167,7 +167,7 @@ exports[`should work with extensions 1`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "branch": null,
+            "branch": undefined,
             "id": "foo",
             "resolved": "false",
           },
@@ -186,7 +186,7 @@ exports[`should work with extensions 1`] = `
         Object {
           "pathname": "/component_measures",
           "query": Object {
-            "branch": null,
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -204,7 +204,7 @@ exports[`should work with extensions 1`] = `
         Object {
           "pathname": "/code",
           "query": Object {
-            "branch": null,
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -222,7 +222,7 @@ exports[`should work with extensions 1`] = `
         Object {
           "pathname": "/project/activity",
           "query": Object {
-            "branch": null,
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -353,7 +353,7 @@ exports[`should work with multiple extensions 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": null,
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -371,7 +371,7 @@ exports[`should work with multiple extensions 1`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "branch": null,
+            "branch": undefined,
             "id": "foo",
             "resolved": "false",
           },
@@ -390,7 +390,7 @@ exports[`should work with multiple extensions 1`] = `
         Object {
           "pathname": "/component_measures",
           "query": Object {
-            "branch": null,
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -408,7 +408,7 @@ exports[`should work with multiple extensions 1`] = `
         Object {
           "pathname": "/code",
           "query": Object {
-            "branch": null,
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -426,7 +426,7 @@ exports[`should work with multiple extensions 1`] = `
         Object {
           "pathname": "/project/activity",
           "query": Object {
-            "branch": null,
+            "branch": undefined,
             "id": "foo",
           },
         }
