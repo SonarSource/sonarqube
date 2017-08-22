@@ -38,6 +38,7 @@ import org.sonar.server.property.InternalProperties;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.core.config.TelemetryProperties.PROP_ENABLE;
+import static org.sonar.core.config.TelemetryProperties.PROP_FREQUENCY;
 import static org.sonar.core.config.TelemetryProperties.PROP_URL;
 
 @ServerSide
@@ -53,14 +54,12 @@ public class TelemetryDaemon implements Startable {
   private final InternalProperties internalProperties;
   private final Server server;
   private final System2 system2;
-  private final TelemetryFrequency frequencyInSeconds;
 
   private ScheduledExecutorService executorService;
 
   public TelemetryDaemon(TelemetryClient telemetryClient, Configuration config, InternalProperties internalProperties, Server server, System2 system2) {
     this.telemetryClient = telemetryClient;
     this.config = config;
-    this.frequencyInSeconds = new TelemetryFrequency(config);
     this.internalProperties = internalProperties;
     this.server = server;
     this.system2 = system2;
@@ -94,6 +93,7 @@ public class TelemetryDaemon implements Startable {
         .setNameFormat(THREAD_NAME_PREFIX + "%d")
         .setPriority(Thread.MIN_PRIORITY)
         .build());
+    int frequencyInSeconds = frequency();
     executorService.scheduleWithFixedDelay(() -> {
       try {
         Optional<Long> lastPing = internalProperties.read(I_PROP_LAST_PING).map(Long::valueOf);
@@ -114,7 +114,7 @@ public class TelemetryDaemon implements Startable {
         // fail silently
       }
     // do not check at start up to exclude test instance which are not up for a long time
-    }, frequencyInSeconds.get(), frequencyInSeconds.get(), TimeUnit.SECONDS);
+    }, frequencyInSeconds, frequencyInSeconds, TimeUnit.SECONDS);
   }
 
   @Override
@@ -129,5 +129,9 @@ public class TelemetryDaemon implements Startable {
 
   private static long startOfDay(long now) {
     return parseDate(formatDate(now)).getTime();
+  }
+
+  private int frequency() {
+    return config.getInt(PROP_FREQUENCY).orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", PROP_FREQUENCY)));
   }
 }

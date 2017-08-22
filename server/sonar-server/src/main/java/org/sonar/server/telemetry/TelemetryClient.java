@@ -31,17 +31,19 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import static org.sonar.core.config.TelemetryProperties.PROP_URL;
+
 @ServerSide
 public class TelemetryClient {
   private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
   private static final Logger LOG = Loggers.get(TelemetryClient.class);
 
   private final OkHttpClient okHttpClient;
-  private final TelemetryUrl serverUrl;
+  private final Configuration config;
 
   public TelemetryClient(OkHttpClient okHttpClient, Configuration config) {
     this.okHttpClient = okHttpClient;
-    this.serverUrl = new TelemetryUrl(config);
+    this.config = config;
   }
 
   void send(String json) {
@@ -55,7 +57,7 @@ public class TelemetryClient {
 
   void optOut(String json) {
     Request.Builder request = new Request.Builder();
-    request.url(serverUrl.get());
+    request.url(serverUrl());
     RequestBody body = RequestBody.create(JSON, json);
     request.delete(body);
 
@@ -68,10 +70,14 @@ public class TelemetryClient {
 
   private Request buildHttpRequest(String json) {
     Request.Builder request = new Request.Builder();
-    request.url(serverUrl.get());
+    request.url(serverUrl());
     RequestBody body = RequestBody.create(JSON, json);
     request.post(body);
     return request.build();
+  }
+
+  private String serverUrl() {
+    return config.get(PROP_URL).orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", PROP_URL)));
   }
 
 }
