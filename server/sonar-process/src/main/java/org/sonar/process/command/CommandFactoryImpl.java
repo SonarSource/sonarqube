@@ -78,6 +78,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setEsJvmOptions(new EsJvmOptions()
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
+      .setEnvVariable("ES_JVM_OPTIONS", esFileSystem.getJvmOptions().getAbsolutePath())
       .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"));
 
     settingsMap.forEach((key, value) -> res.addEsOption("-E" + key + "=" + value));
