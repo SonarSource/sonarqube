@@ -148,6 +148,23 @@ public class IssueChangesEmailTemplateTest {
   }
 
   @Test
+  public void test_email_with_issue_on_branch() throws Exception {
+    Notification notification = generateNotification()
+      .setFieldValue("branch", "feature1");
+
+    EmailMessage email = underTest.format(notification);
+    assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
+    assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
+
+    String message = email.getMessage();
+    String expected = Resources.toString(Resources.getResource(
+      "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_with_issue_on_branch.txt"),
+      StandardCharsets.UTF_8);
+    expected = StringUtils.remove(expected, '\r');
+    assertThat(message).isEqualTo(expected);
+  }
+
+  @Test
   public void notification_sender_should_be_the_author_of_change() {
     db.users().insertUser(newUserDto().setLogin("simon").setName("Simon"));
 
