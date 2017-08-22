@@ -52,8 +52,8 @@ public class PropsTest {
 
     assertThat(props.value("foo")).isEqualTo("bar");
     assertThat(props.value("foo", "default value")).isEqualTo("bar");
-    assertThat(props.value("blank")).isNull();
-    assertThat(props.value("blank", "default value")).isEqualTo("default value");
+    assertThat(props.value("blank")).isEmpty();
+    assertThat(props.value("blank", "default value")).isEmpty();
     assertThat(props.value("unknown")).isNull();
     assertThat(props.value("unknown", "default value")).isEqualTo("default value");
   }
@@ -80,14 +80,12 @@ public class PropsTest {
 
   @Test
   @UseDataProvider("beforeAndAfterBlanks")
-  public void nonNullValue_throws_IAE_on_existing_key_with_blank_value(String blankBefore, String blankAfter) {
+  public void nonNullValue_return_empty_string_IAE_on_existing_key_with_blank_value(String blankBefore, String blankAfter) {
     Properties p = new Properties();
     p.setProperty("blank", blankBefore + blankAfter);
     Props props = new Props(p);
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    props.nonNullValue("blank");
+    assertThat(props.nonNullValue("blank")).isEmpty();
   }
 
   @Test

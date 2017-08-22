@@ -122,10 +122,6 @@ public class Props {
     if (value == null) {
       return null;
     }
-    String trimmed = value.trim();
-    if (trimmed.isEmpty()) {
-      return null;
-    }
-    return trimmed;
+    return value.trim();
   }
 }
