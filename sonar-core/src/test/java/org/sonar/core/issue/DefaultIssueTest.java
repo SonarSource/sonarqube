@@ -36,7 +36,7 @@ import static org.mockito.Mockito.mock;
 
 public class DefaultIssueTest {
 
-  DefaultIssue issue = new DefaultIssue();
+  private DefaultIssue issue = new DefaultIssue();
 
   @Test
   public void test_setters_and_getters() throws Exception {
@@ -152,8 +152,8 @@ public class DefaultIssueTest {
 
   @Test
   public void message_should_be_abbreviated_if_too_long() {
-    issue.setMessage(StringUtils.repeat("a", 5000));
-    assertThat(issue.message()).hasSize(4000);
+    issue.setMessage(StringUtils.repeat("a", 5_000));
+    assertThat(issue.message()).hasSize(1_333);
   }
 
   @Test

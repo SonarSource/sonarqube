@@ -19,6 +19,7 @@
  */
 package org.sonarqube.tests.issue;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
@@ -32,6 +33,7 @@ import static util.ItUtils.runProjectAnalysis;
 public class IssueCreationTest extends AbstractIssueTest {
 
   private static final String SAMPLE_PROJECT_KEY = "sample";
+  private static final int ISSUE_MESSAGE_MAX_LENGTH = 1_333;
 
   @Before
   public void resetData() {
@@ -74,5 +76,41 @@ public class IssueCreationTest extends AbstractIssueTest {
     for (Issue issue : issues.list()) {
       assertThat(issue.severity()).isEqualTo("BLOCKER");
     }
+  }
+
+  /**
+   * SONAR-7493
+   */
+  @Test
+  public void issue_message_should_support_1_333_utf8_characters_encoded_on_3_bytes() {
+    String longMessage = StringUtils.repeat("を", ISSUE_MESSAGE_MAX_LENGTH);
+
+    assertThat(generateIssueWithMessage(longMessage)).isEqualTo(longMessage);
+  }
+
+  /**
+   * Test the maximum size of DB column issues.message, when all characters
+   * are encoded on 3-bytes
+   *
+   * SONAR-7493
+   */
+  @Test
+  public void issue_message_should_be_abbreviated_if_longer_than_1333_utf8_characters_encoded_on_3_bytes() {
+    String character = "を";
+    String message = generateIssueWithMessage(StringUtils.repeat(character, 10_000));
+
+    String abbreviatedMessage = StringUtils.repeat(character, ISSUE_MESSAGE_MAX_LENGTH - 3) + "...";
+    assertThat(message).isEqualTo(abbreviatedMessage);
+  }
+
+  private String generateIssueWithMessage(String longMessage) {
+    ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
+    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationTest/with-custom-message.xml"));
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "with-custom-message");
+
+    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample", "sonar.customMessage.message", longMessage);
+
+    Issue issue = issueClient().find(IssueQuery.create()).list().get(0);
+    return issue.message();
   }
 }
