@@ -53,7 +53,7 @@ public class AppStateClusterImpl implements AppState {
     appSettings.getProps().set(ProcessProperties.CLUSTER_MEMBERUUID, hazelcastCluster.getLocalUUID());
 
     String members = hazelcastCluster.getMembers().stream().collect(Collectors.joining(","));
-    LOGGER.info("Joined the cluster [{}] that contains the following hosts : [{}]", hazelcastCluster.getName(), members);
+    LOGGER.info("Joined a SonarQube cluster that contains the following hosts : [{}]", members);
   }
 
   @Override
@@ -93,6 +93,11 @@ public class AppStateClusterImpl implements AppState {
   @Override
   public void registerSonarQubeVersion(String sonarqubeVersion) {
     hazelcastCluster.registerSonarQubeVersion(sonarqubeVersion);
+  }
+
+  @Override
+  public void registerClusterName(String clusterName) {
+    hazelcastCluster.registerClusterName(clusterName);
   }
 
   @Override

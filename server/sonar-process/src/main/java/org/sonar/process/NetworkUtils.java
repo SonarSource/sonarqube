@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
 import static java.util.Collections.list;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
@@ -49,29 +48,39 @@ public final class NetworkUtils {
 
   /**
    * Identifying the localhost machine
-   * It will try to retrieve the hostname and the IPv4 addresses
+   * It will try to retrieve the hostname
    *
-   * @return "hostname (ipv4_1, ipv4_2...)"
+   * @return "hostname"
    */
-  public static String getHostName() {
+  public static String getHostname() {
     String hostname;
-    String ips;
     try {
       hostname = InetAddress.getLocalHost().getHostName();
     } catch (UnknownHostException e) {
       hostname = "unresolved hostname";
     }
 
+    return hostname;
+  }
+
+  /**
+   * Identifying the IPs addresses
+   *
+   * @return "ipv4_1, ipv4_2"
+   */
+  public static String getIPAddresses() {
+    String ips;
+
     try {
       ips = list(NetworkInterface.getNetworkInterfaces()).stream()
         .flatMap(netif -> list(netif.getInetAddresses()).stream()
           .filter(inetAddress ->
-          // Removing IPv6 for the time being
-          inetAddress instanceof Inet4Address &&
-          // Removing loopback addresses, useless for identifying a server
-            !inetAddress.isLoopbackAddress() &&
-            // Removing interfaces without IPs
-            !isBlank(inetAddress.getHostAddress()))
+            // Removing IPv6 for the time being
+            inetAddress instanceof Inet4Address &&
+              // Removing loopback addresses, useless for identifying a server
+              !inetAddress.isLoopbackAddress() &&
+              // Removing interfaces without IPs
+              !isBlank(inetAddress.getHostAddress()))
           .map(InetAddress::getHostAddress))
         .filter(p -> !isBlank(p))
         .collect(Collectors.joining(","));
@@ -79,7 +88,7 @@ public final class NetworkUtils {
       ips = "unresolved IPs";
     }
 
-    return format("%s (%s)", hostname, ips);
+    return ips;
   }
 
   /**

@@ -40,11 +40,11 @@ import org.sonar.process.ProcessProperties;
 public final class ClusterProperties {
   static final String DEFAULT_PORT = "9003";
   private static final Logger LOGGER = LoggerFactory.getLogger(ClusterProperties.class);
+  public static final String HAZELCAST_CLUSTER_NAME = "sonarqube";
 
   private final int port;
   private final List<String> hosts;
   private final List<String> networkInterfaces;
-  private final String name;
   private final NodeType nodeType;
 
   ClusterProperties(AppSettings appSettings) {
@@ -52,7 +52,6 @@ public final class ClusterProperties {
     networkInterfaces = extractNetworkInterfaces(
       appSettings.getProps().value(ProcessProperties.CLUSTER_NODE_HOST, "")
     );
-    name = appSettings.getProps().nonNullValue(ProcessProperties.CLUSTER_NAME);
     hosts = extractHosts(
       appSettings.getProps().value(ProcessProperties.CLUSTER_HOSTS, "")
     );
@@ -73,10 +72,6 @@ public final class ClusterProperties {
 
   List<String> getNetworkInterfaces() {
     return networkInterfaces;
-  }
-
-  String getName() {
-    return name;
   }
 
   void validate() {

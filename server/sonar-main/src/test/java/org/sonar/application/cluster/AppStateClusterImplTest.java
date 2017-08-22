@@ -30,9 +30,11 @@ import org.junit.rules.Timeout;
 import org.slf4j.Logger;
 import org.sonar.application.AppStateListener;
 import org.sonar.application.config.TestAppSettings;
+import org.sonar.process.MessageException;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -41,6 +43,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.sonar.application.cluster.HazelcastTestHelper.createHazelcastClient;
 import static org.sonar.application.cluster.HazelcastTestHelper.newClusterSettings;
+import static org.sonar.process.cluster.ClusterObjectKeys.CLUSTER_NAME;
 import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
 
 public class AppStateClusterImplTest {
@@ -82,8 +85,7 @@ public class AppStateClusterImplTest {
 
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
       verify(logger).info(
-        eq("Joined the cluster [{}] that contains the following hosts : [{}]"),
-        eq("sonarqube"),
+        eq("Joined a SonarQube cluster that contains the following hosts : [{}]"),
         anyString()
       );
     }
@@ -121,6 +123,22 @@ public class AppStateClusterImplTest {
   }
 
   @Test
+  public void registerClusterName_publishes_clusterName_on_first_call() {
+    TestAppSettings settings = newClusterSettings();
+    String clusterName = randomAlphanumeric(20);
+
+    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+      appStateCluster.registerClusterName(clusterName);
+
+      HazelcastInstance hzInstance = createHazelcastClient(appStateCluster);
+      assertThat(hzInstance.getAtomicReference(CLUSTER_NAME).get())
+        .isNotNull()
+        .isInstanceOf(String.class)
+        .isEqualTo(clusterName);
+    }
+  }
+
+  @Test
   public void reset_throws_always_ISE() {
     TestAppSettings settings = newClusterSettings();
 
@@ -145,6 +163,23 @@ public class AppStateClusterImplTest {
 
       // Registering a second different version must trigger an exception
       appStateCluster.registerSonarQubeVersion("2.0.0");
+    }
+  }
+
+  @Test
+  public void registerClusterName_throws_MessageException_if_clusterName_is_different() throws Exception {
+    // Now launch an instance that try to be part of the hzInstance cluster
+    TestAppSettings settings = newClusterSettings();
+
+    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+      // Register first version
+      appStateCluster.registerClusterName("goodClusterName");
+
+      expectedException.expect(MessageException.class);
+      expectedException.expectMessage("This node has a cluster name [badClusterName], which does not match [goodClusterName] from the cluster");
+
+      // Registering a second different cluster name must trigger an exception
+      appStateCluster.registerClusterName("badClusterName");
     }
   }
 }

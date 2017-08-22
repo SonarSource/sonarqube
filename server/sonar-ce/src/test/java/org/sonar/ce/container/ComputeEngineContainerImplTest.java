@@ -60,7 +60,6 @@ import static org.sonar.process.ProcessProperties.PATH_TEMP;
 public class ComputeEngineContainerImplTest {
   private static final int CONTAINER_ITSELF = 1;
   private static final int COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION = CONTAINER_ITSELF + 1;
-  private static final String CLUSTER_NAME = "test";
 
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -83,13 +82,12 @@ public class ComputeEngineContainerImplTest {
   @Test
   public void real_start_with_cluster() throws IOException {
     int port = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
-    HazelcastInstance hzInstance = HazelcastTestHelper.createHazelcastCluster(CLUSTER_NAME, port);
+    HazelcastInstance hzInstance = HazelcastTestHelper.createHazelcastCluster(port);
 
     Properties properties = getProperties();
     properties.setProperty(ProcessProperties.CLUSTER_NODE_TYPE, "application");
     properties.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
     properties.setProperty(ProcessProperties.CLUSTER_LOCALENDPOINT, String.format("%s:%d", hzInstance.getCluster().getLocalMember().getAddress().getHost(), port));
-    properties.setProperty(ProcessProperties.CLUSTER_NAME, CLUSTER_NAME);
 
     // required persisted properties
     insertProperty(CoreProperties.SERVER_ID, "a_startup_id");

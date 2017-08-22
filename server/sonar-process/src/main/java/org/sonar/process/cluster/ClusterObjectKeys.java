@@ -41,6 +41,14 @@ public final class ClusterObjectKeys {
    * The key of the hostname attribute of a member
    */
   public static final String HOSTNAME = "HOSTNAME";
+  /**
+   * The key of the ips list attribute of a member
+   */
+  public static final String IP_ADDRESSES = "IP_ADDRESSES";
+  /**
+   * The key of the node name attribute of a member
+   */
+  public static final String NODE_NAME = "NODE_NAME";
 
   /**
    * The role of the sonar-application inside the SonarQube cluster
@@ -51,6 +59,10 @@ public final class ClusterObjectKeys {
    * The key of atomic reference holding the SonarQube version of the cluster
    */
   public static final String SONARQUBE_VERSION = "SONARQUBE_VERSION";
+  /**
+   * The key of atomic reference holding the name of the cluster (used for precondition checks)
+   */
+  public static final String CLUSTER_NAME = "CLUSTER_NAME";
   /**
    * The key of the Set holding the UUIDs of clients
    */

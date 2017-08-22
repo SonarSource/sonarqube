@@ -46,13 +46,19 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.AppStateListener;
+import org.sonar.process.MessageException;
 import org.sonar.process.NodeType;
 import org.sonar.process.ProcessId;
 
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
-import static org.sonar.process.NetworkUtils.getHostName;
+import static org.sonar.application.cluster.ClusterProperties.HAZELCAST_CLUSTER_NAME;
+import static org.sonar.process.NetworkUtils.getHostname;
+import static org.sonar.process.NetworkUtils.getIPAddresses;
 import static org.sonar.process.cluster.ClusterObjectKeys.CLIENT_UUIDS;
+import static org.sonar.process.cluster.ClusterObjectKeys.CLUSTER_NAME;
 import static org.sonar.process.cluster.ClusterObjectKeys.HOSTNAME;
+import static org.sonar.process.cluster.ClusterObjectKeys.IP_ADDRESSES;
 import static org.sonar.process.cluster.ClusterObjectKeys.LEADER;
 import static org.sonar.process.cluster.ClusterObjectKeys.NODE_TYPE;
 import static org.sonar.process.cluster.ClusterObjectKeys.OPERATIONAL_PROCESSES;
@@ -91,7 +97,7 @@ public class HazelcastCluster implements AutoCloseable {
   List<String> getMembers() {
     return hzInstance.getCluster().getMembers().stream()
       .filter(m -> !m.localMember())
-      .map(m -> m.getStringAttribute(HOSTNAME))
+      .map(m -> format("%s (%s)", m.getStringAttribute(HOSTNAME), m.getStringAttribute(IP_ADDRESSES)))
       .collect(toList());
   }
 
@@ -149,7 +155,29 @@ public class HazelcastCluster implements AutoCloseable {
     String clusterVersion = sqVersion.get();
     if (!sqVersion.get().equals(sonarqubeVersion)) {
       throw new IllegalStateException(
-        String.format("The local version %s is not the same as the cluster %s", sonarqubeVersion, clusterVersion)
+        format("The local version %s is not the same as the cluster %s", sonarqubeVersion, clusterVersion)
+      );
+    }
+  }
+
+  public void registerClusterName(String nodeValue) {
+    IAtomicReference<String> property = hzInstance.getAtomicReference(CLUSTER_NAME);
+    if (property.get() == null) {
+      ILock lock = hzInstance.getLock(CLUSTER_NAME);
+      lock.lock();
+      try {
+        if (property.get() == null) {
+          property.set(nodeValue);
+        }
+      } finally {
+        lock.unlock();
+      }
+    }
+
+    String clusterValue = property.get();
+    if (!property.get().equals(nodeValue)) {
+      throw new MessageException(
+        format("This node has a cluster name [%s], which does not match [%s] from the cluster", nodeValue, clusterValue)
       );
     }
   }
@@ -182,7 +210,7 @@ public class HazelcastCluster implements AutoCloseable {
 
   public static HazelcastCluster create(ClusterProperties clusterProperties) {
     Config hzConfig = new Config();
-    hzConfig.getGroupConfig().setName(clusterProperties.getName());
+    hzConfig.getGroupConfig().setName(HAZELCAST_CLUSTER_NAME);
 
     // Configure the network instance
     NetworkConfig netConfig = hzConfig.getNetworkConfig();
@@ -216,7 +244,9 @@ public class HazelcastCluster implements AutoCloseable {
 
     // Trying to resolve the hostname
     hzConfig.getMemberAttributeConfig()
-      .setStringAttribute(HOSTNAME, getHostName());
+      .setStringAttribute(HOSTNAME, getHostname());
+    hzConfig.getMemberAttributeConfig()
+      .setStringAttribute(IP_ADDRESSES, getIPAddresses());
     hzConfig.getMemberAttributeConfig()
       .setStringAttribute(NODE_TYPE, clusterProperties.getNodeType().getValue());
 
@@ -230,7 +260,8 @@ public class HazelcastCluster implements AutoCloseable {
     if (leaderId != null) {
       Optional<Member> leader = hzInstance.getCluster().getMembers().stream().filter(m -> m.getUuid().equals(leaderId)).findFirst();
       if (leader.isPresent()) {
-        return Optional.of(leader.get().getStringAttribute(HOSTNAME));
+        return Optional.of(
+          format("%s (%s)", leader.get().getStringAttribute(HOSTNAME), leader.get().getStringAttribute(IP_ADDRESSES)));
       }
     }
     return Optional.empty();
@@ -238,7 +269,7 @@ public class HazelcastCluster implements AutoCloseable {
 
   String getLocalEndPoint() {
     Address localAddress = hzInstance.getCluster().getLocalMember().getAddress();
-    return String.format("%s:%d", localAddress.getHost(), localAddress.getPort());
+    return format("%s:%d", localAddress.getHost(), localAddress.getPort());
   }
 
   private class OperationalProcessListener implements EntryListener<ClusterProcess, Boolean> {

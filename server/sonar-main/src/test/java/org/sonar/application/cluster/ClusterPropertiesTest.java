@@ -51,8 +51,6 @@ public class ClusterPropertiesTest {
       .isEqualTo(9003);
     assertThat(props.getHosts())
       .isEqualTo(Collections.emptyList());
-    assertThat(props.getName())
-      .isEqualTo("sonarqube");
   }
 
   @Test

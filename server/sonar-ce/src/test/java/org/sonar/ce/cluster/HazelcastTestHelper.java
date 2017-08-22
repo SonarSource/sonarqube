@@ -29,14 +29,14 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import java.net.InetAddress;
 
-import static org.sonar.process.NetworkUtils.getHostName;
+import static org.sonar.process.NetworkUtils.getHostname;
 import static org.sonar.process.cluster.ClusterObjectKeys.CLIENT_UUIDS;
 
 public class HazelcastTestHelper {
 
-  public static HazelcastInstance createHazelcastCluster(String clusterName, int port) {
+  public static HazelcastInstance createHazelcastCluster(int port) {
     Config hzConfig = new Config();
-    hzConfig.getGroupConfig().setName(clusterName);
+    hzConfig.getGroupConfig().setName("sonarqube");
 
     // Configure the network instance
     NetworkConfig netConfig = hzConfig.getNetworkConfig();
@@ -66,7 +66,7 @@ public class HazelcastTestHelper {
       .setProperty("hazelcast.logging.type", "slf4j");
 
     // Trying to resolve the hostname
-    hzConfig.getMemberAttributeConfig().setStringAttribute("HOSTNAME", getHostName());
+    hzConfig.getMemberAttributeConfig().setStringAttribute("HOSTNAME", getHostname());
 
     // We are not using the partition group of Hazelcast, so disabling it
     hzConfig.getPartitionGroupConfig().setEnabled(false);
