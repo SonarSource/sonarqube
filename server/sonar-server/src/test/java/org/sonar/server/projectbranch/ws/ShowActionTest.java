@@ -175,6 +175,23 @@ public class ShowActionTest {
   }
 
   @Test
+  public void short_living_branch_on_removed_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
+      b -> b.setKey("short").setBranchType(BranchType.SHORT).setMergeBranchUuid("unknown"));
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam("component", shortLivingBranch.getKey())
+      .setParam("branch", shortLivingBranch.getBranch())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getBranch())
+      .extracting(Branch::getIsOrphan)
+      .containsExactlyInAnyOrder(true);
+  }
+
+  @Test
   public void quality_gate_status_on_long_living_branch() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
