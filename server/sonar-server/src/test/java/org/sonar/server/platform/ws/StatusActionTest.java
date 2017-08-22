@@ -22,19 +22,14 @@ package org.sonar.server.platform.ws;
 import java.io.File;
 import java.util.Date;
 import java.util.Set;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.IsAliveMapper;
 import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.app.RestartFlagHolderImpl;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;
@@ -42,14 +37,11 @@ import static com.google.common.collect.ImmutableSet.of;
 import static com.google.common.collect.Iterables.filter;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class StatusActionTest {
-  private static final String DUMMY_CONTROLLER_KEY = "dummy";
-
   private static final String SERVER_ID = "20150504120436";
   private static final String SERVER_VERSION = "5.1";
   private static final String STATUS_UP = "UP";
@@ -65,32 +57,13 @@ public class StatusActionTest {
   private static Server server = new Dummy51Server();
   private DatabaseMigrationState migrationState = mock(DatabaseMigrationState.class);
   private Platform platform = mock(Platform.class);
-  private DbClient dbClient = mock(DbClient.class);
-  private DbSession dbSession = mock(DbSession.class);
-  private IsAliveMapper isAliveMapper = mock(IsAliveMapper.class);
   private RestartFlagHolder restartFlagHolder = new RestartFlagHolderImpl();
-  private StatusAction underTest = new StatusAction(server, migrationState, platform, dbClient, restartFlagHolder);
 
-  private Request request = mock(Request.class);
-
-  @Before
-  public void wireMocks() {
-    when(dbClient.openSession(anyBoolean())).thenReturn(dbSession);
-    when(dbSession.getMapper(IsAliveMapper.class)).thenReturn(isAliveMapper);
-  }
+  private WsActionTester underTest = new WsActionTester(new StatusAction(server, migrationState, platform, restartFlagHolder));
 
   @Test
   public void action_status_is_defined() {
-    WsTester wsTester = new WsTester();
-    WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
-
-    underTest.define(newController);
-    newController.done();
-
-    WebService.Controller controller = wsTester.controller(DUMMY_CONTROLLER_KEY);
-    assertThat(controller.actions()).extracting("key").containsExactly("status");
-
-    WebService.Action action = controller.actions().iterator().next();
+    WebService.Action action = underTest.getDef();
     assertThat(action.isPost()).isFalse();
     assertThat(action.description()).isNotEmpty();
     assertThat(action.responseExample()).isNotNull();
@@ -100,14 +73,10 @@ public class StatusActionTest {
 
   @Test
   public void verify_example() throws Exception {
-    when(isAliveMapper.isAlive()).thenReturn(IsAliveMapper.IS_ALIVE_RETURNED_VALUE);
     when(platform.status()).thenReturn(Platform.Status.UP);
     restartFlagHolder.unset();
 
-    WsTester.TestResponse response = new WsTester.TestResponse();
-    underTest.handle(request, response);
-
-    assertJson(response.outputAsString()).isSimilarTo(getClass().getResource("example-status.json"));
+    assertJson(underTest.newRequest().execute().getInput()).isSimilarTo(getClass().getResource("example-status.json"));
   }
 
   @Test
@@ -174,34 +143,6 @@ public class StatusActionTest {
   }
 
   @Test
-  public void status_is_DOWN_if_any_error_occurs_when_checking_DB() throws Exception {
-    when(isAliveMapper.isAlive()).thenThrow(new RuntimeException("simulated runtime exception when querying DB"));
-
-    WsTester.TestResponse response = new WsTester.TestResponse();
-    underTest.handle(request, response);
-
-    assertJson(response.outputAsString()).isSimilarTo("{" +
-      "  \"status\": \"DOWN\"\n" +
-      "}");
-  }
-
-  /**
-   * By contract {@link IsAliveMapper#isAlive()} can not return anything but 1. Still we write this test as a
-   * protection against change in this contract.
-   */
-  @Test
-  public void status_is_DOWN_if_isAlive_does_not_return_1() throws Exception {
-    when(isAliveMapper.isAlive()).thenReturn(12);
-
-    WsTester.TestResponse response = new WsTester.TestResponse();
-    underTest.handle(request, response);
-
-    assertJson(response.outputAsString()).isSimilarTo("{" +
-      "  \"status\": \"" + STATUS_DOWN + "\"\n" +
-      "}");
-  }
-
-  @Test
   public void safety_test_for_new_platform_status() throws Exception {
     for (Platform.Status platformStatus : filter(asList(Platform.Status.values()), not(in(SUPPORTED_PLATFORM_STATUSES)))) {
       for (DatabaseMigrationState.Status databaseMigrationStatus : DatabaseMigrationState.Status.values()) {
@@ -216,20 +157,15 @@ public class StatusActionTest {
       when(platform.status()).thenReturn(Platform.Status.SAFEMODE);
       when(migrationState.getStatus()).thenReturn(databaseMigrationStatus);
 
-      WsTester.TestResponse response = new WsTester.TestResponse();
-      underTest.handle(request, response);
+      underTest.newRequest().execute();
     }
   }
 
   private void verifyStatus(Platform.Status platformStatus, DatabaseMigrationState.Status databaseMigrationStatus, String expectedStatus) throws Exception {
-    when(isAliveMapper.isAlive()).thenReturn(IsAliveMapper.IS_ALIVE_RETURNED_VALUE);
     when(platform.status()).thenReturn(platformStatus);
     when(migrationState.getStatus()).thenReturn(databaseMigrationStatus);
 
-    WsTester.TestResponse response = new WsTester.TestResponse();
-    underTest.handle(request, response);
-
-    assertJson(response.outputAsString()).isSimilarTo("{" +
+    assertJson(underTest.newRequest().execute().getInput()).isSimilarTo("{" +
       "  \"status\": \"" + expectedStatus + "\"\n" +
       "}");
   }
