@@ -528,7 +528,7 @@ public class CreateTableBuilderTest {
 
   @Test
   public void build_adds_DEFAULT_clause_on_varchar_column_on_Oracle() {
-    verifyDefaultClauseOnVarcharColumn(ORACLE, "CREATE TABLE table_42 (status VARCHAR (1 CHAR) DEFAULT 'P' NOT NULL)");
+    verifyDefaultClauseOnVarcharColumn(ORACLE, "CREATE TABLE table_42 (status VARCHAR2 (1 CHAR) DEFAULT 'P' NOT NULL)");
   }
 
   @Test

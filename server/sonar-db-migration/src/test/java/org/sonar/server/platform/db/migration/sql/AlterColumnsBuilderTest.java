@@ -100,13 +100,13 @@ public class AlterColumnsBuilderTest {
     assertThat(createSampleBuilder(new Oracle()).build())
       .containsOnly(
         "ALTER TABLE issues MODIFY (value NUMERIC (30,20) NULL)",
-        "ALTER TABLE issues MODIFY (name VARCHAR (10 CHAR) NULL)");
+        "ALTER TABLE issues MODIFY (name VARCHAR2 (10 CHAR) NULL)");
   }
 
   @Test
   public void update_not_nullable_column_on_oracle() {
     assertThat(createNotNullableBuilder(new Oracle()).build())
-      .containsOnly("ALTER TABLE issues MODIFY (name VARCHAR (10 CHAR) NOT NULL)");
+      .containsOnly("ALTER TABLE issues MODIFY (name VARCHAR2 (10 CHAR) NOT NULL)");
   }
 
   @Test

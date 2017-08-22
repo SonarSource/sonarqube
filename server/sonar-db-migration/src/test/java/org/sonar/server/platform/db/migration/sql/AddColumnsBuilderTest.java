@@ -57,7 +57,7 @@ public class AddColumnsBuilderTest {
   @Test
   public void add_columns_on_oracle() {
     assertThat(createSampleBuilder(new Oracle()).build())
-      .isEqualTo("ALTER TABLE issues ADD (date_in_ms NUMBER (38) NULL, name VARCHAR (10 CHAR) NOT NULL, col_with_default NUMBER(1) DEFAULT 0 NOT NULL, varchar_col_with_default VARCHAR (3 CHAR) DEFAULT 'foo' NOT NULL)");
+      .isEqualTo("ALTER TABLE issues ADD (date_in_ms NUMBER (38) NULL, name VARCHAR2 (10 CHAR) NOT NULL, col_with_default NUMBER(1) DEFAULT 0 NOT NULL, varchar_col_with_default VARCHAR2 (3 CHAR) DEFAULT 'foo' NOT NULL)");
   }
 
   @Test
