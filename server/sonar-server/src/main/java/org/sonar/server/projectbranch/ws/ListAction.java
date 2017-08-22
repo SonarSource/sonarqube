@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -43,7 +44,6 @@ import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsBranches;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
@@ -116,15 +116,8 @@ public class ListAction implements BranchWsAction {
 
   private static void addBranch(WsBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
     Map<Integer, MetricDto> metricsById, Collection<MeasureDto> measures) {
-
-    BranchDto mergeBranch = null;
-    String mergeBranchUuid = branch.getMergeBranchUuid();
-    if (mergeBranchUuid != null) {
-      mergeBranch = mergeBranchesByUuid.get(mergeBranchUuid);
-      checkState(mergeBranch != null, "Component uuid '%s' cannot be found", mergeBranch);
-    }
     response.addBranches(
-      toBranchBuilder(branch, mergeBranch,
+      toBranchBuilder(branch, Optional.ofNullable(mergeBranchesByUuid.get(branch.getMergeBranchUuid())),
         measures.stream().collect(uniqueIndex(m -> metricsById.get(m.getMetricId()).getKey(), Function.identity()))));
   }
 
