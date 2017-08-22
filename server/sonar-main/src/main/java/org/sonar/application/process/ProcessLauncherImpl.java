@@ -36,6 +36,7 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.command.AbstractCommand;
 import org.sonar.process.command.EsCommand;
 import org.sonar.process.command.JavaCommand;
+import org.sonar.process.es.EsFileSystem;
 import org.sonar.process.jmvoptions.JvmOptions;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
@@ -90,7 +91,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   }
 
   private void writeConfFiles(EsCommand esCommand) {
-    File confDir = esCommand.getConfDir();
+    EsFileSystem esFileSystem = esCommand.getFileSystem();
+    File confDir = esFileSystem.getConfDirectory();
     if (!confDir.exists() && !confDir.mkdirs()) {
       String error = format("Failed to create temporary configuration directory [%s]", confDir.getAbsolutePath());
       LOG.error(error);
@@ -98,9 +100,9 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
 
     try {
-      IOUtils.copy(getClass().getResourceAsStream("elasticsearch.yml"), new FileOutputStream(new File(confDir, "elasticsearch.yml")));
-      esCommand.getEsJvmOptions().writeToJvmOptionFile(new File(confDir, "jvm.options"));
-      esCommand.getLog4j2Properties().store(new FileOutputStream(new File(confDir, "log4j2.properties")), "log42 properties file for ES bundled in SonarQube");
+      IOUtils.copy(getClass().getResourceAsStream("elasticsearch.yml"), new FileOutputStream(esFileSystem.getElasticsearchYml()));
+      esCommand.getEsJvmOptions().writeToJvmOptionFile(esFileSystem.getJvmOptions());
+      esCommand.getLog4j2Properties().store(new FileOutputStream(esFileSystem.getLog4j2Properties()), "log4j2 properties file for ES bundled in SonarQube");
     } catch (IOException e) {
       throw new IllegalStateException("Failed to write ES configuration files", e);
     }
@@ -137,7 +139,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
   private ProcessBuilder create(EsCommand esCommand) {
     List<String> commands = new ArrayList<>();
-    commands.add(esCommand.getExecutable().getAbsolutePath());
+    commands.add(esCommand.getFileSystem().getExecutable().getAbsolutePath());
     commands.addAll(esCommand.getEsOptions());
 
     return create(esCommand, commands);
