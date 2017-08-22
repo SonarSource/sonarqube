@@ -36,6 +36,7 @@ import org.sonar.db.component.BranchKeyType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsBranches;
@@ -56,7 +57,6 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonarqube.ws.Common.BranchType;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
@@ -65,10 +65,12 @@ public class ListAction implements BranchWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public ListAction(DbClient dbClient, UserSession userSession) {
+  public ListAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -92,10 +94,7 @@ public class ListAction implements BranchWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = checkFoundWithOptional(
-        dbClient.componentDao().selectByKey(dbSession, projectKey),
-        "Project key '%s' not found", projectKey);
-
+      ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
       userSession.checkComponentPermission(UserRole.USER, project);
       checkArgument(project.isEnabled() && PROJECT.equals(project.qualifier()), "Invalid project key");
 
