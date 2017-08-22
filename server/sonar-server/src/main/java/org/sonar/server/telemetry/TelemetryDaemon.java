@@ -37,15 +37,15 @@ import org.sonar.server.property.InternalProperties;
 
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.parseDate;
-import static org.sonar.server.telemetry.TelemetryProperties.PROP_ENABLE;
-import static org.sonar.server.telemetry.TelemetryProperties.PROP_URL;
+import static org.sonar.core.config.TelemetryProperties.PROP_ENABLE;
+import static org.sonar.core.config.TelemetryProperties.PROP_URL;
 
 @ServerSide
 public class TelemetryDaemon implements Startable {
   private static final String THREAD_NAME_PREFIX = "sq-telemetry-service-";
   private static final int SEVEN_DAYS = 7 * 24 * 60 * 60 * 1_000;
-  private static final String I_PROP_LAST_PING = "sonar.telemetry.lastPing";
-  private static final String I_PROP_OPT_OUT = "sonar.telemetry.optOut";
+  static final String I_PROP_LAST_PING = "telemetry.lastPing";
+  static final String I_PROP_OPT_OUT = "telemetry.optOut";
   private static final Logger LOG = Loggers.get(TelemetryDaemon.class);
 
   private final TelemetryClient telemetryClient;

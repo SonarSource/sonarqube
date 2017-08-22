@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.core.config.TelemetryProperties;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
 
@@ -36,6 +37,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.sonar.core.config.TelemetryProperties.PROP_ENABLE;
+import static org.sonar.core.config.TelemetryProperties.PROP_FREQUENCY;
+import static org.sonar.server.telemetry.TelemetryDaemon.I_PROP_LAST_PING;
 
 public class TelemetryDaemonTest {
 
@@ -52,7 +56,7 @@ public class TelemetryDaemonTest {
 
   @Before
   public void setUp() throws Exception {
-    settings = new MapSettings(new PropertyDefinitions(TelemetryProperties.class));
+    settings = new MapSettings(new PropertyDefinitions(TelemetryProperties.all()));
     system2.setNow(System.currentTimeMillis());
 
     underTest = new TelemetryDaemon(client, settings.asConfig(), internalProperties, server, system2);
@@ -60,7 +64,7 @@ public class TelemetryDaemonTest {
 
   @Test
   public void send_data_via_client_at_startup_after_initial_delay() {
-    settings.setProperty("sonar.telemetry.frequency", "1");
+    settings.setProperty(PROP_FREQUENCY, "1");
     underTest.start();
 
     verify(client, timeout(1_000).atLeastOnce()).send(anyString());
@@ -71,18 +75,18 @@ public class TelemetryDaemonTest {
     long now = system2.now();
     long sixDaysAgo = now - (ONE_DAY * 6L);
     long sevenDaysAgo = now - (ONE_DAY * 7L);
-    internalProperties.write("sonar.telemetry.lastPing", String.valueOf(sixDaysAgo));
-    settings.setProperty("sonar.telemetry.frequency", "1");
+    internalProperties.write(I_PROP_LAST_PING, String.valueOf(sixDaysAgo));
+    settings.setProperty(PROP_FREQUENCY, "1");
     underTest.start();
     verify(client, timeout(1_000).never()).send(anyString());
-    internalProperties.write("sonar.telemetry.lastPing", String.valueOf(sevenDaysAgo));
+    internalProperties.write(I_PROP_LAST_PING, String.valueOf(sevenDaysAgo));
 
     verify(client, timeout(1_000).atLeastOnce()).send(anyString());
   }
 
   @Test
   public void send_server_id() {
-    settings.setProperty("sonar.telemetry.frequency", "1");
+    settings.setProperty(PROP_FREQUENCY, "1");
     String id = randomAlphanumeric(40);
     server.setId(id);
     underTest.start();
@@ -92,11 +96,11 @@ public class TelemetryDaemonTest {
 
   @Test
   public void do_not_send_data_if_last_ping_earlier_than_one_week_ago() {
-    settings.setProperty("sonar.telemetry.frequency", "1");
+    settings.setProperty(PROP_FREQUENCY, "1");
     long now = system2.now();
     long sixDaysAgo = now - (ONE_DAY * 6L);
 
-    internalProperties.write("sonar.telemetry.lastPing", String.valueOf(sixDaysAgo));
+    internalProperties.write(I_PROP_LAST_PING, String.valueOf(sixDaysAgo));
     underTest.start();
 
     verify(client, timeout(2_000).never()).send(anyString());
@@ -104,23 +108,23 @@ public class TelemetryDaemonTest {
 
   @Test
   public void send_data_if_last_ping_is_one_week_ago() {
-    settings.setProperty("sonar.telemetry.frequency", "1");
+    settings.setProperty(PROP_FREQUENCY, "1");
     long today = parseDate("2017-08-01").getTime();
     system2.setNow(today + 15 * ONE_HOUR);
     long now = system2.now();
     long sevenDaysAgo = now - (ONE_DAY * 7L);
-    internalProperties.write("sonar.telemetry.lastPing", String.valueOf(sevenDaysAgo));
+    internalProperties.write(I_PROP_LAST_PING, String.valueOf(sevenDaysAgo));
 
     underTest.start();
 
     verify(client, timeout(1_000).atLeastOnce()).send(anyString());
-    assertThat(internalProperties.read("sonar.telemetry.lastPing").get()).isEqualTo(String.valueOf(today));
+    assertThat(internalProperties.read(I_PROP_LAST_PING).get()).isEqualTo(String.valueOf(today));
   }
 
   @Test
   public void opt_out_sent_once() {
-    settings.setProperty("sonar.telemetry.frequency", "1");
-    settings.setProperty("sonar.telemetry.enable", "false");
+    settings.setProperty(PROP_FREQUENCY, "1");
+    settings.setProperty(PROP_ENABLE, "false");
     underTest.start();
     underTest.start();
 

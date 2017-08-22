@@ -22,7 +22,7 @@ package org.sonar.server.telemetry;
 
 import org.sonar.api.config.Configuration;
 
-import static org.sonar.server.telemetry.TelemetryProperties.PROP_URL;
+import static org.sonar.core.config.TelemetryProperties.PROP_URL;
 
 class TelemetryUrl {
   private final Configuration config;

@@ -32,8 +32,8 @@ class TelemetryFrequency {
 
   long get() {
     if (frequency == null) {
-      frequency = config.getLong(TelemetryProperties.PROP_FREQUENCY)
-        .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", TelemetryProperties.PROP_FREQUENCY)));
+      frequency = config.getLong(org.sonar.core.config.TelemetryProperties.PROP_FREQUENCY)
+        .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", org.sonar.core.config.TelemetryProperties.PROP_FREQUENCY)));
     }
 
     return frequency;
