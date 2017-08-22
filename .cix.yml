@@ -139,17 +139,17 @@ exclude:
   - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category6
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category1
-    SLAVE_TYPE: windows
+    SLAVE_TYPE: dblinux
   - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category2
-    SLAVE_TYPE: windows
+    SLAVE_TYPE: dblinux
   - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category3
-    SLAVE_TYPE: windows
+    SLAVE_TYPE: dblinux
   - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category4
-    SLAVE_TYPE: windows
+    SLAVE_TYPE: dblinux
   - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category5
-    SLAVE_TYPE: windows
+    SLAVE_TYPE: dblinux
   - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category6
-    SLAVE_TYPE: windows
+    SLAVE_TYPE: dblinux
   - RUN_ACTIVITY: run-db-integration-tests-oracle12c-Category1
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-db-integration-tests-oracle12c-Category2
