@@ -21,7 +21,7 @@
 package org.sonar.server.projectbranch.ws;
 
 import java.util.Map;
-import javax.annotation.Nullable;
+import java.util.Optional;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonarqube.ws.Common;
@@ -42,19 +42,19 @@ public class BranchDtoToWsBranch {
     // static methods only
   }
 
-  public static WsBranches.Branch.Builder toBranchBuilder(BranchDto branch, @Nullable BranchDto mergeBranch, Map<String, MeasureDto> measuresByMetricKey) {
+  static WsBranches.Branch.Builder toBranchBuilder(BranchDto branch, Optional<BranchDto> mergeBranch, Map<String, MeasureDto> measuresByMetricKey) {
     WsBranches.Branch.Builder builder = WsBranches.Branch.newBuilder();
     String branchKey = branch.getKey();
     String effectiveBranchKey = branchKey == null && branch.isMain() ? DEFAULT_MAIN_BRANCH_NAME : branchKey;
     setNullable(effectiveBranchKey, builder::setName);
     builder.setIsMain(branch.isMain());
     builder.setType(Common.BranchType.valueOf(branch.getBranchType().name()));
-    if (mergeBranch != null) {
-      String mergeBranchKey = mergeBranch.getKey();
-      if (mergeBranchKey == null && branch.getBranchType().equals(SHORT)) {
-        builder.setMergeBranch(DEFAULT_MAIN_BRANCH_NAME);
+    if (branch.getBranchType().equals(SHORT)) {
+      if (mergeBranch.isPresent()) {
+        String mergeBranchKey = mergeBranch.get().getKey();
+        builder.setMergeBranch(mergeBranchKey == null ? DEFAULT_MAIN_BRANCH_NAME : mergeBranchKey);
       } else {
-        setNullable(mergeBranchKey, builder::setMergeBranch);
+        builder.setIsOrphan(true);
       }
     }
 
