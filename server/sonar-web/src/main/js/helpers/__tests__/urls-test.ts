@@ -30,14 +30,14 @@ const COMPLEX_COMPONENT_KEY = 'org.sonarsource.sonarqube:sonarqube';
 const COMPLEX_COMPONENT_KEY_ENCODED = encodeURIComponent(COMPLEX_COMPONENT_KEY);
 const METRIC = 'coverage';
 
-let oldBaseUrl;
+let oldBaseUrl: string;
 
 beforeEach(() => {
-  oldBaseUrl = window.baseUrl;
+  oldBaseUrl = (window as any).baseUrl;
 });
 
 afterEach(() => {
-  window.baseUrl = oldBaseUrl;
+  (window as any).baseUrl = oldBaseUrl;
 });
 
 describe('#getComponentUrl', () => {
@@ -52,7 +52,7 @@ describe('#getComponentUrl', () => {
   });
 
   it('should take baseUrl into account', () => {
-    window.baseUrl = '/context';
+    (window as any).baseUrl = '/context';
     expect(getComponentUrl(COMPLEX_COMPONENT_KEY)).toBe(
       '/context/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED
     );
