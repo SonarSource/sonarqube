@@ -37,7 +37,6 @@ import { RATING_COLORS } from '../../../helpers/constants';
 const HEIGHT = 500;
 
 /*:: type Props = {|
-  branch: {},
   component: Component,
   components: Array<ComponentEnhanced>,
   domain: string,

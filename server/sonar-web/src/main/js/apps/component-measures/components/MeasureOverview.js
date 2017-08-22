@@ -126,7 +126,6 @@ export default class MeasureOverview extends React.PureComponent {
 
     return (
       <BubbleChart
-        branch={this.props.branch}
         component={this.props.component}
         components={this.state.components}
         domain={this.props.domain}

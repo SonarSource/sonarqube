@@ -117,6 +117,7 @@ export default class AnalysesList extends React.PureComponent {
         </h4>
 
         <PreviewGraph
+          branch={this.props.branch}
           history={this.props.history}
           project={this.props.project}
           metrics={this.state.metrics}
