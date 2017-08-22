@@ -38,7 +38,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.ActionFinder;
 import org.sonar.server.issue.IssueFieldsSetter;
@@ -57,14 +56,12 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsResponseCommonFormat;
-import org.sonarqube.ws.Issues.Component;
 import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Issues.Component;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.addDays;
@@ -756,6 +753,26 @@ public class SearchActionComponentsTest {
     assertThat(result.getIssuesList()).extracting(Issue::getKey)
       .containsExactlyInAnyOrder(projectIssue.getKey())
       .doesNotContain(branchIssue.getKey());
+  }
+
+  @Test
+  public void does_not_return_branch_issues_when_using_db_key() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
+    IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
+    IssueDto branchIssue = db.issues().insertIssue(newIssue(rule, branch, branchFile));
+    allowAnyoneOnProjects(project);
+    indexIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, branch.getDbKey())
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList()).isEmpty();
   }
 
   private void allowAnyoneOnProjects(ComponentDto... projects) {
