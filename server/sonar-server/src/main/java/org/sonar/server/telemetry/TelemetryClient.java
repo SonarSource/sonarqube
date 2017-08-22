@@ -28,10 +28,13 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 @ServerSide
 public class TelemetryClient {
   private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+  private static final Logger LOG = Loggers.get(TelemetryClient.class);
 
   private final OkHttpClient okHttpClient;
   private final TelemetryUrl serverUrl;
@@ -50,6 +53,19 @@ public class TelemetryClient {
     }
   }
 
+  void optOut(String json) {
+    Request.Builder request = new Request.Builder();
+    request.url(serverUrl.get());
+    RequestBody body = RequestBody.create(JSON, json);
+    request.delete(body);
+
+    try {
+      okHttpClient.newCall(request.build()).execute();
+    } catch (IOException e) {
+      LOG.debug("Error when sending opt-out usage statistics: %s", e.getMessage());
+    }
+  }
+
   private Request buildHttpRequest(String json) {
     Request.Builder request = new Request.Builder();
     request.url(serverUrl.get());
@@ -57,4 +73,5 @@ public class TelemetryClient {
     request.post(body);
     return request.build();
   }
+
 }
