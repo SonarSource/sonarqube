@@ -47,7 +47,7 @@ public class EsSettingsTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void test_default_settings() throws Exception {
+  public void test_default_settings_for_standalone_mode() throws Exception {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
     props.set(ProcessProperties.SEARCH_PORT, "1234");
@@ -55,7 +55,6 @@ public class EsSettingsTest {
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
-    props.set(ProcessProperties.CLUSTER_NODE_NAME, "node-1");
 
     EsSettings esSettings = new EsSettings(props, new EsFileSystem(props));
 
@@ -65,7 +64,7 @@ public class EsSettingsTest {
 
     // no cluster, but cluster and node names are set though
     assertThat(generated.get("cluster.name")).isEqualTo("sonarqube");
-    assertThat(generated.get("node.name")).isEqualTo("sonar-1");
+    assertThat(generated.get("node.name")).isEqualTo("sonarqube");
 
     assertThat(generated.get("path.data")).isNotNull();
     assertThat(generated.get("path.logs")).isNotNull();
@@ -80,6 +79,25 @@ public class EsSettingsTest {
     assertThat(generated.get("discovery.initial_state_timeout")).isEqualTo("30s");
 
     assertThat(generated.get("action.auto_create_index")).isEqualTo("false");
+  }
+
+  @Test
+  public void test_default_settings_for_cluster_mode() throws Exception {
+    File homeDir = temp.newFolder();
+    Props props = new Props(new Properties());
+    props.set(ProcessProperties.SEARCH_PORT, "1234");
+    props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
+    props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
+    props.set(ProcessProperties.CLUSTER_NAME, "sonarqube-1");
+    props.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    props.set(ProcessProperties.CLUSTER_NODE_NAME, "node-1");
+
+    EsSettings esSettings = new EsSettings(props, new EsFileSystem(props));
+
+    Map<String, String> generated = esSettings.build();
+    assertThat(generated.get("cluster.name")).isEqualTo("sonarqube-1");
+    assertThat(generated.get("node.name")).isEqualTo("node-1");
   }
 
   @Test
