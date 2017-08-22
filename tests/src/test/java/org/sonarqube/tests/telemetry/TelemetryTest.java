@@ -57,7 +57,7 @@ public class TelemetryTest {
     orchestrator = Orchestrator.builderEnv()
       .addPlugin(xooPlugin())
       .setServerProperty("sonar.telemetry.url", url)
-      .setServerProperty("sonar.telemetry.frequency", "1")
+      .setServerProperty("sonar.telemetry.frequencyInSeconds", "1")
       .setServerProperty("sonar.core.id", serverId)
       .build();
     orchestrator.start();
@@ -78,7 +78,7 @@ public class TelemetryTest {
       .addPlugin(xooPlugin())
       .setServerProperty("sonar.telemetry.enable", "false")
       .setServerProperty("sonar.telemetry.url", url)
-      .setServerProperty("sonar.telemetry.frequency", "1")
+      .setServerProperty("sonar.telemetry.frequencyInSeconds", "1")
       .setServerProperty("sonar.core.id", serverId)
       .build();
     orchestrator.start();

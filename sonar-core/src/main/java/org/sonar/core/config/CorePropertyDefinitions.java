@@ -62,6 +62,7 @@ public class CorePropertyDefinitions {
     defs.addAll(PurgeProperties.all());
     defs.addAll(EmailSettings.definitions());
     defs.addAll(WebhookProperties.all());
+    defs.addAll(TelemetryProperties.all());
 
     defs.addAll(ImmutableList.of(
       PropertyDefinition.builder(PROP_PASSWORD)

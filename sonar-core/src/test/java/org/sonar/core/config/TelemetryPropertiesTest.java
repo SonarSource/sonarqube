@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.telemetry;
+package org.sonar.core.config;
 
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
@@ -29,15 +29,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TelemetryPropertiesTest {
 
-  Configuration underTest = new MapSettings(new PropertyDefinitions(TelemetryProperties.class)).asConfig();
+  private Configuration underTest = new MapSettings(new PropertyDefinitions(TelemetryProperties.all())).asConfig();
 
   @Test
-  public void default_frequency_is_6_hours_in_seconds() {
-    assertThat(underTest.getInt("sonar.telemetry.frequency")).contains(6 * 60 * 60);
-  }
-
-  @Test
-  public void default_url_point_to_telemetry_server() {
+  public void default_telemetry_properties() {
+    assertThat(underTest.getBoolean("sonar.telemetry.enable")).contains(true);
+    assertThat(underTest.getInt("sonar.telemetry.frequencyInSeconds")).contains(6 * 60 * 60);
     assertThat(underTest.get("sonar.telemetry.url")).contains("https://telemetry.sonarsource.com/sonarqube");
   }
 }
