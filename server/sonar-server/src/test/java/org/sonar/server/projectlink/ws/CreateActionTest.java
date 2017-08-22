@@ -45,6 +45,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsProjectLinks;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -228,6 +229,40 @@ public class CreateActionTest {
     ComponentDto view = db.components().insertView();
     ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubView(view));
     failIfNotAProject(view, subview);
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Project key '%s' not found", branch.getDbKey()));
+
+    ws.newRequest()
+      .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+      .setParam(PARAM_NAME, "Custom")
+      .setParam(PARAM_URL, "http://example.org")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_db_uuid() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Project id '%s' not found", branch.uuid()));
+
+    ws.newRequest()
+      .setParam(PARAM_PROJECT_ID, branch.uuid())
+      .setParam(PARAM_NAME, "Custom")
+      .setParam(PARAM_URL, "http://example.org")
+      .execute();
   }
 
   private void failIfNotAProject(ComponentDto root, ComponentDto component) {
