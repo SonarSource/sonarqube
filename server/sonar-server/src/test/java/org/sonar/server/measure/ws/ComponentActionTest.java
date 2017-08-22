@@ -31,6 +31,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.exceptions.BadRequestException;
@@ -38,15 +39,13 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.Component;
-import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.Component;
 import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 
 import static java.lang.Double.parseDouble;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -336,6 +335,40 @@ public class ComponentActionTest {
     ws.newRequest()
       .setParam(DEPRECATED_PARAM_COMPONENT_ID, file.uuid())
       .setParam(PARAM_BRANCH, "my_branch")
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    insertNclocMetric();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT, branch.getDbKey())
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_uuid() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    insertNclocMetric();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
+
+    ws.newRequest()
+      .setParam(DEPRECATED_PARAM_COMPONENT_ID, branch.uuid())
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       .execute();
   }
