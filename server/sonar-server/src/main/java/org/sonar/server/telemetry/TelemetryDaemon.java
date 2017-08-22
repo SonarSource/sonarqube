@@ -20,10 +20,12 @@
 package org.sonar.server.telemetry;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Configuration;
@@ -68,53 +70,22 @@ public class TelemetryDaemon implements Startable {
   @Override
   public void start() {
     boolean isTelemetryActivated = config.getBoolean(PROP_ENABLE).orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", PROP_URL)));
-    if (!internalProperties.read(I_PROP_OPT_OUT).isPresent()) {
-      if (!isTelemetryActivated) {
-        StringWriter json = new StringWriter();
-        try (JsonWriter writer = JsonWriter.of(json)) {
-          writer.beginObject();
-          writer.prop("id", server.getId());
-          writer.endObject();
-        }
-        telemetryClient.optOut(json.toString());
-        internalProperties.write(I_PROP_OPT_OUT, String.valueOf(system2.now()));
-        LOG.info("Sharing of SonarQube statistics is disabled.");
-      } else {
-        internalProperties.write(I_PROP_OPT_OUT, null);
-      }
+    boolean hasOptOut = internalProperties.read(I_PROP_OPT_OUT).isPresent();
+    if (!isTelemetryActivated && !hasOptOut) {
+      optOut();
+      internalProperties.write(I_PROP_OPT_OUT, String.valueOf(system2.now()));
+      LOG.info("Sharing of SonarQube statistics is disabled.");
     }
-
+    if (isTelemetryActivated && hasOptOut) {
+      internalProperties.write(I_PROP_OPT_OUT, null);
+    }
     if (!isTelemetryActivated) {
       return;
     }
     LOG.info("Sharing of SonarQube statistics is enabled.");
-    executorService = Executors.newSingleThreadScheduledExecutor(
-      new ThreadFactoryBuilder()
-        .setNameFormat(THREAD_NAME_PREFIX + "%d")
-        .setPriority(Thread.MIN_PRIORITY)
-        .build());
+    executorService = Executors.newSingleThreadScheduledExecutor(newThreadFactory());
     int frequencyInSeconds = frequency();
-    executorService.scheduleWithFixedDelay(() -> {
-      try {
-        Optional<Long> lastPing = internalProperties.read(I_PROP_LAST_PING).map(Long::valueOf);
-        long now = system2.now();
-        if (lastPing.isPresent() && now - lastPing.get() < SEVEN_DAYS) {
-          return;
-        }
-
-        StringWriter json = new StringWriter();
-        try (JsonWriter writer = JsonWriter.of(json)) {
-          writer.beginObject();
-          writer.prop("id", server.getId());
-          writer.endObject();
-        }
-        telemetryClient.send(json.toString());
-        internalProperties.write(I_PROP_LAST_PING, String.valueOf(startOfDay(now)));
-      } catch (Exception e) {
-        LOG.debug("Error while checking SonarQube statistics: {}", e.getMessage());
-      }
-    // do not check at start up to exclude test instance which are not up for a long time
-    }, frequencyInSeconds, frequencyInSeconds, TimeUnit.SECONDS);
+    executorService.scheduleWithFixedDelay(telemetryCommand(), frequencyInSeconds, frequencyInSeconds, TimeUnit.SECONDS);
   }
 
   @Override
@@ -125,6 +96,53 @@ public class TelemetryDaemon implements Startable {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
+  }
+
+  private static ThreadFactory newThreadFactory() {
+    return new ThreadFactoryBuilder()
+      .setNameFormat(THREAD_NAME_PREFIX + "%d")
+      .setPriority(Thread.MIN_PRIORITY)
+      .build();
+  }
+
+  private Runnable telemetryCommand() {
+    return () -> {
+      try {
+        long now = system2.now();
+        if (shouldUploadStatistics(now)) {
+          uploadStatistics();
+          internalProperties.write(I_PROP_LAST_PING, String.valueOf(startOfDay(now)));
+        }
+      } catch (Exception e) {
+        LOG.debug("Error while checking SonarQube statistics: {}", e.getMessage());
+      }
+      // do not check at start up to exclude test instance which are not up for a long time
+    };
+  }
+
+  private void optOut() {
+    StringWriter json = new StringWriter();
+    try (JsonWriter writer = JsonWriter.of(json)) {
+      writer.beginObject();
+      writer.prop("id", server.getId());
+      writer.endObject();
+    }
+    telemetryClient.optOut(json.toString());
+  }
+
+  private void uploadStatistics() throws IOException {
+    StringWriter json = new StringWriter();
+    try (JsonWriter writer = JsonWriter.of(json)) {
+      writer.beginObject();
+      writer.prop("id", server.getId());
+      writer.endObject();
+    }
+    telemetryClient.upload(json.toString());
+  }
+
+  private boolean shouldUploadStatistics(long now) {
+    Optional<Long> lastPing = internalProperties.read(I_PROP_LAST_PING).map(Long::valueOf);
+    return !lastPing.isPresent() || now - lastPing.get() >= SEVEN_DAYS;
   }
 
   private static long startOfDay(long now) {

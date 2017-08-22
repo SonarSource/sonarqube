@@ -45,7 +45,7 @@ public class TelemetryClient {
     this.config = config;
   }
 
-  void send(String json) throws IOException {
+  void upload(String json) throws IOException {
     Request request = buildHttpRequest(json);
     okHttpClient.newCall(request).execute();
   }
