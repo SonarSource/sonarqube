@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-let cookies;
+let cookies: { [key: string]: string };
 
-export function getCookie(name /*: string */) {
+export function getCookie(name: string): string | undefined {
   if (cookies) {
     return cookies[name];
   }
