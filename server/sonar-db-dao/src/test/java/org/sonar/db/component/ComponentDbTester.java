@@ -216,6 +216,17 @@ public class ComponentDbTester {
   }
 
   @SafeVarargs
+  public final ComponentDto insertMainBranch(OrganizationDto organization, String mainBranchName, Consumer<ComponentDto>... dtoPopulators) {
+    ComponentDto project = newPrivateProjectDto(organization);
+    BranchDto branchDto = newBranchDto(project, LONG).setKey(mainBranchName);
+    Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(project));
+    insertComponent(project);
+    dbClient.branchDao().insert(dbSession, branchDto);
+    db.commit();
+    return project;
+  }
+
+  @SafeVarargs
   public final ComponentDto insertProjectBranch(ComponentDto project, Consumer<BranchDto>... dtoPopulators) {
     // MainBranchProjectUuid will be null if it's a main branch
     BranchDto branchDto = newBranchDto(firstNonNull(project.getMainBranchProjectUuid(), project.projectUuid()), LONG);

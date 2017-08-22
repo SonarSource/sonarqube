@@ -92,17 +92,16 @@ public class ShowAction implements BranchWsAction {
     action
       .createParam(PARAM_BRANCH)
       .setDescription("Branch key")
-      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
-      .setRequired(true);
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String projectKey = request.mandatoryParam(PARAM_COMPONENT);
-    String branchName = request.mandatoryParam(PARAM_BRANCH);
+    String branchName = request.param(PARAM_BRANCH);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByKeyAndBranch(dbSession, projectKey, branchName);
+      ComponentDto component = loadComponent(dbSession, projectKey, branchName);
       userSession.checkComponentPermission(UserRole.USER, component);
 
       List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, asList(ALERT_STATUS_KEY, BUGS_KEY, VULNERABILITIES_KEY, CODE_SMELLS_KEY));
@@ -119,6 +118,13 @@ public class ShowAction implements BranchWsAction {
 
       WsUtils.writeProtobuf(buildResponse(branch, mergeBranch, metricIdsByKey, measuresByComponentUuids), request, response);
     }
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, String projectKey, @Nullable String branchName){
+    if (branchName == null) {
+      return componentFinder.getByKey(dbSession, projectKey);
+    }
+    return componentFinder.getByKeyAndBranch(dbSession, projectKey, branchName);
   }
 
   private BranchDto getBranch(DbSession dbSession, String uuid) {
