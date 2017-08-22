@@ -25,7 +25,6 @@ import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.pageobjects.LoginPage;
@@ -133,9 +132,18 @@ public class LocalAuthenticationTest {
   }
 
   @Test
-  @Ignore
   public void web_login_form_should_support_utf8_passwords() {
-    // TODO selenium
+    String login = "user_with_utf8_password";
+    // see http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
+    String password = "κόσμε";
+
+    // create user with a UTF-8 password
+    tester.users().generate(u -> u.setLogin(login).setPassword(password));
+
+    tester.openBrowser()
+      .logIn()
+      .submitCredentials(login, password)
+      .shouldBeLoggedIn();
   }
 
   @Test
