@@ -34,6 +34,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -45,6 +46,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsProjectLinks.Link;
 import org.sonarqube.ws.WsProjectLinks.SearchWsResponse;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
@@ -262,6 +264,36 @@ public class SearchActionTest {
     ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
       .setParam(PARAM_PROJECT_ID, PROJECT_UUID)
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Project key '%s' not found", branch.getDbKey()));
+
+    ws.newRequest()
+      .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_db_uuid() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Project id '%s' not found", branch.uuid()));
+
+    ws.newRequest()
+      .setParam(PARAM_PROJECT_ID, branch.uuid())
       .execute();
   }
 
