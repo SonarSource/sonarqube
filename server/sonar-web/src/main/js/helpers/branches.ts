@@ -45,6 +45,10 @@ export function getBranchName(branch: Branch): string | undefined {
   return branch.isMain ? undefined : branch.name;
 }
 
+export function getMergeBranchDisplayName(branch: ShortLivingBranch): string {
+  return branch.mergeBranch || MAIN_BRANCH_DISPLAY_NAME;
+}
+
 export function sortBranchesAsTree(branches: Branch[]): Branch[] {
   const result: Branch[] = [];
 

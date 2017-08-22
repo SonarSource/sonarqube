@@ -54,5 +54,14 @@ exports[`renders short-living branch 1`] = `
       className="icon-dropdown little-spacer-left"
     />
   </a>
+  <span
+    className="note big-spacer-left text-lowercase"
+  >
+    from
+     
+    <strong>
+      [main branch]
+    </strong>
+  </span>
 </div>
 `;
