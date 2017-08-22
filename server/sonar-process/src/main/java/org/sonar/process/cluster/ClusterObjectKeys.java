@@ -49,7 +49,6 @@ public final class ClusterObjectKeys {
    * The key of the node name attribute of a member
    */
   public static final String NODE_NAME = "NODE_NAME";
-
   /**
    * The role of the sonar-application inside the SonarQube cluster
    * {@link org.sonar.process.NodeType}
