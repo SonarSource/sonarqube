@@ -74,7 +74,7 @@ public class ListActionTest {
   private MetricDto vulnerabilities;
   private MetricDto codeSmells;
 
-  public WsActionTester tester = new WsActionTester(new ListAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes)));
+  public WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes)));
 
   @Before
   public void setUp() throws Exception {
@@ -86,7 +86,7 @@ public class ListActionTest {
 
   @Test
   public void test_definition() {
-    WebService.Action definition = tester.getDef();
+    WebService.Action definition = ws.getDef();
     assertThat(definition.key()).isEqualTo("list");
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.isInternal()).isTrue();
@@ -99,7 +99,7 @@ public class ListActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'project' parameter is missing");
 
-    tester.newRequest().execute();
+    ws.newRequest().execute();
   }
 
   @Test
@@ -111,7 +111,7 @@ public class ListActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Invalid project key");
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("project", file.getDbKey())
       .execute();
   }
@@ -121,7 +121,7 @@ public class ListActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'foo' not found");
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("project", "foo")
       .execute();
   }
@@ -131,13 +131,28 @@ public class ListActionTest {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    ListWsResponse response = tester.newRequest()
+    ListWsResponse response = ws.newRequest()
       .setParam("project", project.getDbKey())
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getBranchesList())
-      .extracting(Branch::hasName, Branch::getIsMain, Branch::getType)
-      .containsExactlyInAnyOrder(tuple(false, true, Common.BranchType.LONG));
+      .extracting(Branch::getName, Branch::getIsMain, Branch::getType)
+      .containsExactlyInAnyOrder(tuple("master", true, Common.BranchType.LONG));
+  }
+
+  @Test
+  public void main_branch_with_specified_name() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization, "head");
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+
+    ListWsResponse response = ws.newRequest()
+      .setParam("project", project.getDbKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getBranchesList())
+      .extracting(Branch::getName, Branch::getIsMain, Branch::getType)
+      .containsExactlyInAnyOrder(tuple("head", true, Common.BranchType.LONG));
   }
 
   @Test
@@ -145,7 +160,7 @@ public class ListActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    String json = tester.newRequest()
+    String json = ws.newRequest()
       .setParam("project", project.getDbKey())
       .setMediaType(MediaTypes.JSON)
       .execute()
@@ -160,14 +175,14 @@ public class ListActionTest {
     db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    ListWsResponse response = tester.newRequest()
+    ListWsResponse response = ws.newRequest()
       .setParam("project", project.getDbKey())
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getBranchesList())
       .extracting(Branch::getName, Branch::getType)
       .containsExactlyInAnyOrder(
-        tuple("", Common.BranchType.LONG),
+        tuple("master", Common.BranchType.LONG),
         tuple("feature/foo", Common.BranchType.LONG),
         tuple("feature/bar", Common.BranchType.LONG));
   }
@@ -183,17 +198,33 @@ public class ListActionTest {
     ComponentDto shortLivingBranchOnMaster = db.components().insertProjectBranch(project,
       b -> b.setKey("short_on_master").setBranchType(BranchType.SHORT).setMergeBranchUuid(project.uuid()));
 
-    ListWsResponse response = tester.newRequest()
+    ListWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getBranchesList())
       .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
       .containsExactlyInAnyOrder(
-        tuple("", Common.BranchType.LONG, ""),
+        tuple("master", Common.BranchType.LONG, ""),
         tuple(longLivingBranch.getBranch(), Common.BranchType.LONG, ""),
         tuple(shortLivingBranch.getBranch(), Common.BranchType.SHORT, longLivingBranch.getBranch()),
-        tuple(shortLivingBranchOnMaster.getBranch(), Common.BranchType.SHORT, ""));
+        tuple(shortLivingBranchOnMaster.getBranch(), Common.BranchType.SHORT, "master"));
+  }
+
+  @Test
+  public void mergeBranch_is_using_default_main_name_when_main_branch_has_no_name() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
+      b -> b.setKey("short").setBranchType(BranchType.SHORT).setMergeBranchUuid(project.uuid()));
+
+    WsBranches.ShowWsResponse response = ws.newRequest()
+      .setParam("project", shortLivingBranch.getKey())
+      .executeProtobuf(WsBranches.ShowWsResponse.class);
+
+    assertThat(response.getBranch())
+      .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
+      .containsExactlyInAnyOrder(shortLivingBranch.getBranch(), Common.BranchType.SHORT, "master");
   }
 
   @Test
@@ -204,7 +235,7 @@ public class ListActionTest {
     SnapshotDto branchAnalysis = db.components().insertSnapshot(branch);
     db.measures().insertMeasure(branch, branchAnalysis, qualityGateStatus, m -> m.setData("OK"));
 
-    ListWsResponse response = tester.newRequest()
+    ListWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .executeProtobuf(ListWsResponse.class);
 
@@ -225,7 +256,7 @@ public class ListActionTest {
     db.measures().insertMeasure(shortLivingBranch, branchAnalysis, vulnerabilities, m -> m.setValue(2d));
     db.measures().insertMeasure(shortLivingBranch, branchAnalysis, codeSmells, m -> m.setValue(3d));
 
-    ListWsResponse response = tester.newRequest()
+    ListWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .executeProtobuf(ListWsResponse.class);
 
@@ -247,7 +278,7 @@ public class ListActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("project", branch.getDbKey())
       .execute();
   }
@@ -259,12 +290,12 @@ public class ListActionTest {
     db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    String json = tester.newRequest()
+    String json = ws.newRequest()
       .setParam("project", project.getDbKey())
       .execute()
       .getInput();
 
-    assertJson(json).isSimilarTo(tester.getDef().responseExampleAsString());
+    assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
 }
