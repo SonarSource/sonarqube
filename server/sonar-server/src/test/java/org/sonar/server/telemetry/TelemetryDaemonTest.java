@@ -20,6 +20,7 @@
 
 package org.sonar.server.telemetry;
 
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
@@ -63,39 +64,39 @@ public class TelemetryDaemonTest {
   }
 
   @Test
-  public void send_data_via_client_at_startup_after_initial_delay() {
+  public void send_data_via_client_at_startup_after_initial_delay() throws IOException {
     settings.setProperty(PROP_FREQUENCY, "1");
     underTest.start();
 
-    verify(client, timeout(1_000).atLeastOnce()).send(anyString());
+    verify(client, timeout(1_000).atLeastOnce()).upload(anyString());
   }
 
   @Test
-  public void check_if_should_send_data_periodically() {
+  public void check_if_should_send_data_periodically() throws IOException {
     long now = system2.now();
     long sixDaysAgo = now - (ONE_DAY * 6L);
     long sevenDaysAgo = now - (ONE_DAY * 7L);
     internalProperties.write(I_PROP_LAST_PING, String.valueOf(sixDaysAgo));
     settings.setProperty(PROP_FREQUENCY, "1");
     underTest.start();
-    verify(client, timeout(1_000).never()).send(anyString());
+    verify(client, timeout(1_000).never()).upload(anyString());
     internalProperties.write(I_PROP_LAST_PING, String.valueOf(sevenDaysAgo));
 
-    verify(client, timeout(1_000).atLeastOnce()).send(anyString());
+    verify(client, timeout(1_000).atLeastOnce()).upload(anyString());
   }
 
   @Test
-  public void send_server_id() {
+  public void send_server_id() throws IOException {
     settings.setProperty(PROP_FREQUENCY, "1");
     String id = randomAlphanumeric(40);
     server.setId(id);
     underTest.start();
 
-    verify(client, timeout(2_000).atLeastOnce()).send(contains(id));
+    verify(client, timeout(2_000).atLeastOnce()).upload(contains(id));
   }
 
   @Test
-  public void do_not_send_data_if_last_ping_earlier_than_one_week_ago() {
+  public void do_not_send_data_if_last_ping_earlier_than_one_week_ago() throws IOException {
     settings.setProperty(PROP_FREQUENCY, "1");
     long now = system2.now();
     long sixDaysAgo = now - (ONE_DAY * 6L);
@@ -103,11 +104,11 @@ public class TelemetryDaemonTest {
     internalProperties.write(I_PROP_LAST_PING, String.valueOf(sixDaysAgo));
     underTest.start();
 
-    verify(client, timeout(2_000).never()).send(anyString());
+    verify(client, timeout(2_000).never()).upload(anyString());
   }
 
   @Test
-  public void send_data_if_last_ping_is_one_week_ago() {
+  public void send_data_if_last_ping_is_one_week_ago() throws IOException {
     settings.setProperty(PROP_FREQUENCY, "1");
     long today = parseDate("2017-08-01").getTime();
     system2.setNow(today + 15 * ONE_HOUR);
@@ -117,19 +118,19 @@ public class TelemetryDaemonTest {
 
     underTest.start();
 
-    verify(client, timeout(1_000).atLeastOnce()).send(anyString());
+    verify(client, timeout(1_000).atLeastOnce()).upload(anyString());
     assertThat(internalProperties.read(I_PROP_LAST_PING).get()).isEqualTo(String.valueOf(today));
   }
 
   @Test
-  public void opt_out_sent_once() {
+  public void opt_out_sent_once() throws IOException {
     settings.setProperty(PROP_FREQUENCY, "1");
     settings.setProperty(PROP_ENABLE, "false");
     underTest.start();
     underTest.start();
 
 
-    verify(client, timeout(1_000).never()).send(anyString());
+    verify(client, timeout(1_000).never()).upload(anyString());
     verify(client, timeout(1_000).times(1)).optOut(anyString());
   }
 }
