@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,12 +32,14 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class EsSettingsTest {
 
   private static final boolean CLUSTER_ENABLED = true;
   private static final boolean CLUSTER_DISABLED = false;
-  
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -50,9 +53,10 @@ public class EsSettingsTest {
     props.set(ProcessProperties.SEARCH_PORT, "1234");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
 
-    EsSettings esSettings = new EsSettings(props);
+    EsSettings esSettings = new EsSettings(props, new EsFileSystem(props));
 
     Map<String, String> generated = esSettings.build();
     assertThat(generated.get("transport.tcp.port")).isEqualTo("1234");
@@ -78,28 +82,26 @@ public class EsSettingsTest {
   }
 
   @Test
-  public void override_dirs() throws Exception {
-    File dataDir = temp.newFolder();
-    File logDir = temp.newFolder();
-    File tempDir = temp.newFolder();
-    Props props = minProps(CLUSTER_DISABLED);
-    props.set(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
+  public void path_properties_are_values_from_EsFileSystem_argument() throws IOException {
+    EsFileSystem mockedEsFileSystem = mock(EsFileSystem.class);
+    when(mockedEsFileSystem.getHomeDirectory()).thenReturn(new File("/foo/home"));
+    when(mockedEsFileSystem.getConfDirectory()).thenReturn(new File("/foo/conf"));
+    when(mockedEsFileSystem.getLogDirectory()).thenReturn(new File("/foo/log"));
+    when(mockedEsFileSystem.getDataDirectory()).thenReturn(new File("/foo/data"));
 
-    Map<String, String> settings = new EsSettings(props).build();
+    EsSettings underTest = new EsSettings(minProps(new Random().nextBoolean()), mockedEsFileSystem);
 
-    assertThat(settings.get("path.data")).isEqualTo(new File(dataDir, "es").getAbsolutePath());
-    assertThat(settings.get("path.logs")).isEqualTo(logDir.getAbsolutePath());
-    assertThat(settings.get("path.home")).isNull();
-    assertThat(settings.get("path.conf")).isEqualTo(new File(tempDir, "conf/es").getAbsolutePath());
+    Map<String, String> generated = underTest.build();
+    assertThat(generated.get("path.data")).isEqualTo("/foo/data");
+    assertThat(generated.get("path.logs")).isEqualTo("/foo/log");
+    assertThat(generated.get("path.conf")).isEqualTo("/foo/conf");
   }
 
   @Test
   public void set_discovery_settings_if_cluster_is_enabled() throws Exception {
     Props props = minProps(CLUSTER_ENABLED);
     props.set(ProcessProperties.CLUSTER_SEARCH_HOSTS, "1.2.3.4:9000,1.2.3.5:8080");
-    Map<String, String> settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
 
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("1.2.3.4:9000,1.2.3.5:8080");
     assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("2");
@@ -111,7 +113,7 @@ public class EsSettingsTest {
     Props props = minProps(CLUSTER_ENABLED);
     props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "ꝱꝲꝳପ");
 
-    EsSettings underTest = new EsSettings(props);
+    EsSettings underTest = new EsSettings(props, new EsFileSystem(props));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Value of property sonar.search.minimumMasterNodes is not an integer:");
@@ -122,7 +124,7 @@ public class EsSettingsTest {
   public void cluster_is_enabled_with_defined_minimum_master_nodes() throws Exception {
     Props props = minProps(CLUSTER_ENABLED);
     props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "5");
-    Map<String, String> settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
 
     assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("5");
   }
@@ -131,7 +133,7 @@ public class EsSettingsTest {
   public void cluster_is_enabled_with_defined_initialTimeout() throws Exception {
     Props props = minProps(CLUSTER_ENABLED);
     props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "10s");
-    Map<String, String> settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
 
     assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("10s");
   }
@@ -140,7 +142,7 @@ public class EsSettingsTest {
   public void in_standalone_initialTimeout_is_not_overridable() throws Exception {
     Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "10s");
-    Map<String, String> settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
 
     assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("30s");
   }
@@ -149,18 +151,16 @@ public class EsSettingsTest {
   public void in_standalone_minimumMasterNodes_is_not_overridable() throws Exception {
     Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "5");
-    Map<String, String> settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
 
     assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("1");
   }
-
-
 
   @Test
   public void enable_marvel() throws Exception {
     Props props = minProps(CLUSTER_DISABLED);
     props.set("sonar.search.marvelHosts", "127.0.0.2,127.0.0.3");
-    Map<String, String> settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
 
     assertThat(settings.get("marvel.agent.exporter.es.hosts")).isEqualTo("127.0.0.2,127.0.0.3");
   }
@@ -169,7 +169,7 @@ public class EsSettingsTest {
   public void enable_http_connector() throws Exception {
     Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
-    Map<String, String> settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.1");
@@ -181,7 +181,7 @@ public class EsSettingsTest {
     Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.2");
-    Map<String, String> settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.2");

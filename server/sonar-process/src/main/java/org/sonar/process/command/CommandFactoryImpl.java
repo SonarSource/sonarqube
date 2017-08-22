@@ -25,6 +25,7 @@ import java.util.Optional;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.process.es.EsFileSystem;
 import org.sonar.process.es.EsLogging;
 import org.sonar.process.es.EsSettings;
 import org.sonar.process.jmvoptions.CeJvmOptions;
@@ -61,20 +62,15 @@ public class CommandFactoryImpl implements CommandFactory {
 
   @Override
   public EsCommand createEsCommand() {
-    File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
-    File executable = new File(homeDir, getExecutable());
-    if (!executable.exists()) {
+    EsFileSystem esFileSystem = new EsFileSystem(props);
+    if (!esFileSystem.getExecutable().exists()) {
       throw new IllegalStateException("Cannot find elasticsearch binary");
     }
+    Map<String, String> settingsMap = new EsSettings(props, esFileSystem).build();
 
-    Map<String, String> settingsMap = new EsSettings(props).build();
-
-    File logDir = new File(settingsMap.get("path.logs"));
-    File confDir = new File(settingsMap.get("path.conf"));
-    EsCommand res = new EsCommand(ProcessId.ELASTICSEARCH, executable.getParentFile().getParentFile())
-      .setExecutable(executable)
-      .setConfDir(confDir)
-      .setLog4j2Properties(new EsLogging().createProperties(props, logDir))
+    EsCommand res = new EsCommand(ProcessId.ELASTICSEARCH, esFileSystem.getHomeDirectory())
+      .setFileSystem(esFileSystem)
+      .setLog4j2Properties(new EsLogging().createProperties(props, esFileSystem.getLogDirectory()))
       .setArguments(props.rawProperties())
       .setClusterName(settingsMap.get("cluster.name"))
       .setHost(settingsMap.get("network.host"))
@@ -87,13 +83,6 @@ public class CommandFactoryImpl implements CommandFactory {
     settingsMap.forEach((key, value) -> res.addEsOption("-E" + key + "=" + value));
 
     return res;
-  }
-
-  private static String getExecutable() {
-    if (System.getProperty("os.name").startsWith("Windows")) {
-      return "elasticsearch/bin/elasticsearch.bat";
-    }
-    return "elasticsearch/bin/elasticsearch";
   }
 
   @Override

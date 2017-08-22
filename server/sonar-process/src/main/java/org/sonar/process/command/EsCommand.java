@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.sonar.process.ProcessId;
+import org.sonar.process.es.EsFileSystem;
 import org.sonar.process.jmvoptions.EsJvmOptions;
 
 public class EsCommand extends AbstractCommand<EsCommand> {
-  private File executable;
-  private File confDir;
+  private EsFileSystem fileSystem;
   private String clusterName;
   private String host;
   private int port;
@@ -40,21 +40,12 @@ public class EsCommand extends AbstractCommand<EsCommand> {
     super(id, workDir);
   }
 
-  public File getExecutable() {
-    return executable;
+  public EsFileSystem getFileSystem() {
+    return fileSystem;
   }
 
-  public EsCommand setExecutable(File executable) {
-    this.executable = executable;
-    return this;
-  }
-
-  public File getConfDir() {
-    return confDir;
-  }
-
-  public EsCommand setConfDir(File confDir) {
-    this.confDir = confDir;
+  public EsCommand setFileSystem(EsFileSystem fileSystem) {
+    this.fileSystem = fileSystem;
     return this;
   }
 

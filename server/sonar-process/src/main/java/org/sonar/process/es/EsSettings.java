@@ -19,7 +19,6 @@
  */
 package org.sonar.process.es;
 
-import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -44,13 +43,15 @@ public class EsSettings {
   private static final String STANDALONE_NODE_NAME = "sonarqube";
 
   private final Props props;
+  private final EsFileSystem fileSystem;
 
   private final boolean clusterEnabled;
   private final String clusterName;
   private final String nodeName;
 
-  public EsSettings(Props props) {
+  public EsSettings(Props props, EsFileSystem fileSystem) {
     this.props = props;
+    this.fileSystem = fileSystem;
 
     this.clusterName = props.nonNullValue(ProcessProperties.CLUSTER_NAME);
     this.clusterEnabled = props.valueAsBoolean(ProcessProperties.CLUSTER_ENABLED);
@@ -72,32 +73,9 @@ public class EsSettings {
   }
 
   private void configureFileSystem(Map<String, String> builder) {
-    File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
-
-    builder.put("path.data", buildDataPath(homeDir).getAbsolutePath());
-    builder.put("path.conf", buildConfDir().getAbsolutePath());
-    builder.put("path.logs", buildLogPath(homeDir).getAbsolutePath());
-  }
-
-  private File buildDataPath(File homeDir) {
-    String dataPath = props.value(ProcessProperties.PATH_DATA);
-    if (StringUtils.isNotEmpty(dataPath)) {
-      return new File(dataPath, "es");
-    }
-    return new File(homeDir, "data/es");
-  }
-
-  private File buildLogPath(File homeDir) {
-    String logPath = props.value(ProcessProperties.PATH_LOGS);
-    if (StringUtils.isNotEmpty(logPath)) {
-      return new File(logPath);
-    }
-    return new File(homeDir, "log");
-  }
-
-  private File buildConfDir() {
-    String tempPath = props.value(ProcessProperties.PATH_TEMP);
-    return new File(new File(tempPath, "conf"), "es");
+    builder.put("path.data", fileSystem.getDataDirectory().getAbsolutePath());
+    builder.put("path.conf", fileSystem.getConfDirectory().getAbsolutePath());
+    builder.put("path.logs", fileSystem.getLogDirectory().getAbsolutePath());
   }
 
   private void configureNetwork(Map<String, String> builder) {
