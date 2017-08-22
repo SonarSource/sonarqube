@@ -213,6 +213,10 @@ public class ComponentTesting {
       .setBranchType(branchType);
   }
 
+  public static BranchDto newBranchDto(ComponentDto project) {
+    return newBranchDto(project.projectUuid(), BranchType.LONG);
+  }
+
   public static BranchDto newBranchDto(ComponentDto branchComponent, BranchType branchType) {
     boolean isMain = branchComponent.getMainBranchProjectUuid() == null;
     String projectUuid = isMain ? branchComponent.uuid() : branchComponent.getMainBranchProjectUuid();
