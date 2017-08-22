@@ -33,6 +33,10 @@ export function isShortLivingBranch(branch: Branch | null): branch is ShortLivin
   return branch != null && !branch.isMain && branch.type === BranchType.SHORT;
 }
 
+export function isLongLivingBranch(branch: Branch | null): branch is LongLivingBranch {
+  return branch != null && !branch.isMain && branch.type === BranchType.LONG;
+}
+
 export function getBranchDisplayName(branch: Branch): string {
   return branch.isMain ? MAIN_BRANCH_DISPLAY_NAME : branch.name;
 }
@@ -44,27 +48,34 @@ export function getBranchName(branch: Branch): string | undefined {
 export function sortBranchesAsTree(branches: Branch[]): Branch[] {
   const result: Branch[] = [];
 
+  const shortLivingBranches = branches.filter(isShortLivingBranch);
+
   // main branch is always first
   const mainBranch = branches.find(branch => branch.isMain);
   if (mainBranch) {
-    result.push(mainBranch);
+    result.push(mainBranch, ...getNestedShortLivingBranches());
   }
 
-  // then process all branches where merge branch is empty
-  getChildren().forEach(processBranch);
+  // the all long-living branches
+  sortBy(branches.filter(isLongLivingBranch), 'name').forEach(longLivingBranch => {
+    result.push(longLivingBranch, ...getNestedShortLivingBranches(longLivingBranch.name));
+  });
 
   return result;
 
-  function getChildren(mergeBranch?: string): Branch[] {
-    return sortBy(
-      branches.filter(branch => !branch.isMain && branch.mergeBranch === mergeBranch),
-      branch => !isShortLivingBranch(branch),
-      'name'
+  /** Get all short-living branches (possibly nested) which should be merged to a given branch */
+  function getNestedShortLivingBranches(mergeBranch?: string): ShortLivingBranch[] {
+    const found: ShortLivingBranch[] = shortLivingBranches.filter(
+      branch => branch.mergeBranch === mergeBranch
     );
-  }
 
-  function processBranch(branch: ShortLivingBranch | LongLivingBranch) {
-    result.push(branch);
-    getChildren(branch.name).forEach(processBranch);
+    let i = 0;
+    while (i < found.length) {
+      const current = found[i];
+      found.push(...shortLivingBranches.filter(branch => branch.mergeBranch === current.name));
+      i++;
+    }
+
+    return sortBy(found, 'name');
   }
 }

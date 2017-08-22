@@ -39,23 +39,20 @@ describe('#sortBranchesAsTree', () => {
     const main = mainBranch();
     const shortFoo = shortLivingBranch('shortFoo');
     const shortBar = shortLivingBranch('shortBar', 'longBaz');
+    const shortPre = shortLivingBranch('shortPre', 'shortFoo');
     const longBaz = longLivingBranch('longBaz');
     const longQux = longLivingBranch('longQux');
     const longQwe = longLivingBranch('longQwe', 'longBaz');
-    // - main
-    //    - shortFoo
-    //    - longBaz
-    //       - shortBar
-    //       - longQwe
-    //    - longQux
-    expect(sortBranchesAsTree([main, shortFoo, shortBar, longBaz, longQux, longQwe])).toEqual([
-      main,
-      shortFoo,
-      longBaz,
-      shortBar,
-      longQwe,
-      longQux
-    ]);
+    // - main                     - main
+    //    - shortFoo                - shortFoo
+    //      - shortPre              - shortPre
+    //    - longBaz       ---->   - longBaz
+    //       - shortBar             - shortBar
+    //       - longQwe            - longQwe
+    //    - longQux               - longQux
+    expect(
+      sortBranchesAsTree([main, shortFoo, shortBar, shortPre, longBaz, longQux, longQwe])
+    ).toEqual([main, shortFoo, shortPre, longBaz, shortBar, longQux, longQwe]);
   });
 });
 
