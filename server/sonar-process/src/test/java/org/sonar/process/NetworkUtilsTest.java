@@ -80,7 +80,12 @@ public class NetworkUtilsTest {
   }
 
   @Test
-  public void getHostName_must_return_a_value() {
-    assertThat(NetworkUtils.getHostName()).containsPattern(".* \\(.*\\)");
+  public void getHostname_must_return_a_value() {
+    assertThat(NetworkUtils.getHostname()).containsPattern(".+");
+  }
+
+  @Test
+  public void getIPAddresses_must_return_a_value() {
+    assertThat(NetworkUtils.getIPAddresses()).matches("(\\d+\\.\\d+\\.\\d+\\.\\d+,?)+");
   }
 }

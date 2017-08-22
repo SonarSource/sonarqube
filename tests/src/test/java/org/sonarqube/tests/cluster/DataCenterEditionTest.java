@@ -91,6 +91,26 @@ public class DataCenterEditionTest {
     dce.stop();
   }
 
+  @Test
+  public void using_different_cluster_names_should_fail() throws ExecutionException, InterruptedException, SQLException {
+    Cluster cluster = Cluster.builder()
+      .addNode(SEARCH, n -> n.getProperties().setProperty(Cluster.CLUSTER_NAME, "goodClusterName"))
+      .addNode(SEARCH, n -> n.getProperties().setProperty(Cluster.CLUSTER_NAME, "goodClusterName"))
+      .addNode(SEARCH, n -> n.getProperties().setProperty(Cluster.CLUSTER_NAME, "goodClusterName"))
+      .addNode(APPLICATION, n -> n.getProperties().setProperty(Cluster.CLUSTER_NAME, "goodClusterName"))
+      .addNode(APPLICATION, n -> n.getProperties().setProperty(Cluster.CLUSTER_NAME, "badClusterName"))
+      .build();
+    cluster.startAll(n -> "goodClusterName".equals(n.getProperties().getProperty(Cluster.CLUSTER_NAME)));
+
+    try {
+      cluster.startAll(n -> "badClusterName".equals(n.getProperties().getProperty(Cluster.CLUSTER_NAME)));
+      fail("A node with a bad cluster name was able to join the cluster");
+    } catch (Exception e) {
+      // we expect, that joining the cluster fails
+      System.out.println(e);
+    }
+  }
+
   private void assertDatabaseInitialized(Database database) {
     assertThat(countRowsOfMigration(database)).isGreaterThan(0);
   }

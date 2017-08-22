@@ -32,6 +32,7 @@ import org.sonar.application.process.StopRequestWatcherImpl;
 import org.sonar.process.SystemExit;
 
 import static org.sonar.application.config.SonarQubeVersionHelper.getSonarqubeVersion;
+import static org.sonar.process.ProcessProperties.CLUSTER_NAME;
 
 public class App {
 
@@ -48,6 +49,7 @@ public class App {
 
     try (AppState appState = new AppStateFactory(settings).create()) {
       appState.registerSonarQubeVersion(getSonarqubeVersion());
+      appState.registerClusterName(settings.getProps().value(CLUSTER_NAME, "sonarqube"));
       AppReloader appReloader = new AppReloaderImpl(settingsLoader, fileSystem, appState, logging);
       fileSystem.reset();
       CommandFactory commandFactory = new CommandFactoryImpl(settings.getProps(), fileSystem.getTempDir());

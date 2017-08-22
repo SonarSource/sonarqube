@@ -29,6 +29,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Enumeration;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -218,8 +220,10 @@ public class Cluster {
       return new Cluster(nodes);
     }
 
-    public Builder addNode(NodeType type) {
-      nodes.add(new Node(type));
+    public Builder addNode(NodeType type, Consumer<Node>... consumers) {
+      Node node = new Node(type);
+      Arrays.stream(consumers).forEach(c -> c.accept(node));
+      nodes.add(node);
       return this;
     }
   }

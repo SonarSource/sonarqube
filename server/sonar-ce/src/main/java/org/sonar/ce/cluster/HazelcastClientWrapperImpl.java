@@ -41,6 +41,7 @@ import static org.sonar.process.cluster.ClusterObjectKeys.CLIENT_UUIDS;
  */
 public class HazelcastClientWrapperImpl implements Startable, HazelcastClientWrapper {
 
+  private static final String HAZELCAST_CLUSTER_NAME = "sonarqube";
   private final ClientConfig hzConfig;
 
   @VisibleForTesting
@@ -48,15 +49,13 @@ public class HazelcastClientWrapperImpl implements Startable, HazelcastClientWra
 
   public HazelcastClientWrapperImpl(Configuration config) {
     boolean clusterEnabled = config.getBoolean(ProcessProperties.CLUSTER_ENABLED).orElse(false);
-    String clusterName = config.get(ProcessProperties.CLUSTER_NAME).orElse(null);
     String clusterLocalEndPoint = config.get(ProcessProperties.CLUSTER_LOCALENDPOINT).orElse(null);
 
     checkState(clusterEnabled, "Cluster is not enabled");
     checkState(isNotEmpty(clusterLocalEndPoint), "LocalEndPoint have not been set");
-    checkState(isNotEmpty(clusterName), "sonar.cluster.name is missing");
 
     hzConfig = new ClientConfig();
-    hzConfig.getGroupConfig().setName(clusterName);
+    hzConfig.getGroupConfig().setName(HAZELCAST_CLUSTER_NAME);
     hzConfig.getNetworkConfig().addAddress(clusterLocalEndPoint);
 
     // Tweak HazelCast configuration

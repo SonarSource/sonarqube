@@ -52,6 +52,8 @@ public interface AppState extends AutoCloseable {
 
   void registerSonarQubeVersion(String sonarqubeVersion);
 
+  void registerClusterName(String clusterName);
+
   Optional<String> getLeaderHostName();
 
   @Override

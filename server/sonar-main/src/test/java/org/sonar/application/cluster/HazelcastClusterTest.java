@@ -48,6 +48,7 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.cluster.ClusterObjectKeys;
 
+import static java.lang.String.format;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -106,7 +107,8 @@ public class HazelcastClusterTest {
     ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       assertThat(hzCluster.tryToLockWebLeader()).isTrue();
-      assertThat(hzCluster.getLeaderHostName().get()).isEqualTo(NetworkUtils.getHostName());
+      assertThat(hzCluster.getLeaderHostName().get()).isEqualTo(
+        format("%s (%s)", NetworkUtils.getHostname(), NetworkUtils.getIPAddresses()));
     }
   }
 
@@ -137,12 +139,12 @@ public class HazelcastClusterTest {
   }
 
   @Test
-  public void cluster_name_comes_from_configuration() {
+  public void hazelcast_cluster_name_is_hardcoded_and_not_affected_by_settings() {
     TestAppSettings testAppSettings = newClusterSettings();
     testAppSettings.set(CLUSTER_NAME, "a_cluster_");
     ClusterProperties clusterProperties = new ClusterProperties(testAppSettings);
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
-      assertThat(hzCluster.getName()).isEqualTo("a_cluster_");
+      assertThat(hzCluster.getName()).isEqualTo("sonarqube");
     }
   }
 
