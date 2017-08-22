@@ -66,7 +66,7 @@ public class VarcharColumnDef extends AbstractColumnDef {
       case MsSql.ID:
         return format("NVARCHAR (%d)", columnSize);
       case Oracle.ID:
-        return format("VARCHAR (%d%s)", columnSize, ignoreOracleUnit ? "" : " CHAR");
+        return format("VARCHAR2 (%d%s)", columnSize, ignoreOracleUnit ? "" : " CHAR");
       default:
         return format("VARCHAR (%d)", columnSize);
     }
