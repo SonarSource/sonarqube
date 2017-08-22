@@ -42,6 +42,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsBranches.ShowWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
@@ -62,15 +63,15 @@ public class ShowActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule()
-    .setRootQualifiers(PROJECT);
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
 
   private MetricDto qualityGateStatus;
   private MetricDto bugs;
   private MetricDto vulnerabilities;
   private MetricDto codeSmells;
 
-  public WsActionTester ws = new WsActionTester(new ShowAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes)));
+  public WsActionTester ws = new WsActionTester(new ShowAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes),
+    mock(org.sonar.server.computation.task.projectanalysis.analysis.Branch.class)));
 
   @Before
   public void setUp() throws Exception {
@@ -289,4 +290,18 @@ public class ShowActionTest {
     assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
+  @Test
+  public void empty_response_when_branch_feature_not_supported() {
+    ws = new WsActionTester(new ShowAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes)));
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    String response = ws.newRequest()
+      .setParam("component", branch.getKey())
+      .setParam("branch", branch.getBranch())
+      .execute().getInput();
+
+    assertThat(response).isEqualTo("{}");
+  }
 }
