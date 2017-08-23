@@ -87,6 +87,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
             project={this.props.project}
           />}
         {isShortLivingBranch(currentBranch) &&
+          !currentBranch.isOrphan &&
           <span className="note big-spacer-left text-lowercase">
             {translate('from')} <strong>{currentBranch.mergeBranch}</strong>
           </span>}
