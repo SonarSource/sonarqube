@@ -49,6 +49,11 @@ public class BranchDao implements Dao {
     }
   }
 
+  public int updateMainBranchName(DbSession dbSession, String projectUuid, String newBranchKey) {
+    long now = system2.now();
+    return mapper(dbSession).updateMainBranchName(projectUuid, newBranchKey, now);
+  }
+
   public Optional<BranchDto> selectByKey(DbSession dbSession, String projectUuid, BranchKeyType keyType, @Nullable String key) {
     String keyInDb = BranchDto.convertKeyToDb(key);
     return Optional.ofNullable(mapper(dbSession).selectByKey(projectUuid, keyType, keyInDb));
@@ -69,7 +74,6 @@ public class BranchDao implements Dao {
   public Optional<BranchDto> selectByUuid(DbSession session, String uuid) {
     return Optional.ofNullable(mapper(session).selectByUuid(uuid));
   }
-
 
   private static BranchMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(BranchMapper.class);
