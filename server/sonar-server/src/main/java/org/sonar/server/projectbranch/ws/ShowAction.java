@@ -38,9 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsBranches;
 import org.sonarqube.ws.WsBranches.ShowWsResponse;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -64,17 +62,11 @@ public class ShowAction implements BranchWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
-  private final boolean isBranchFeatureSupported;
 
   public ShowAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
-    this(dbClient, userSession, componentFinder, null);
-  }
-
-  public ShowAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, @Nullable Branch branch) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
-    this.isBranchFeatureSupported = branch != null;
   }
 
   @Override
@@ -100,10 +92,6 @@ public class ShowAction implements BranchWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    if (!isBranchFeatureSupported) {
-      writeProtobuf(WsBranches.Branch.newBuilder().build(), request, response);
-      return;
-    }
     String projectKey = request.mandatoryParam(PARAM_COMPONENT);
     String branchName = request.param(PARAM_BRANCH);
 
