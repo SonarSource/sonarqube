@@ -28,6 +28,7 @@ public class BranchWsModule extends Module {
       ListAction.class,
       ShowAction.class,
       DeleteAction.class,
+      RenameAction.class,
       BranchesWs.class);
   }
 }

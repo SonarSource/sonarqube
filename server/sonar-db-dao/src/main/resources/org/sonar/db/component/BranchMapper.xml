@@ -35,6 +35,15 @@
       #{now, jdbcType=BIGINT}
     )
   </insert>
+  
+  <update id="updateMainBranchName" parameterType="map">
+    update project_branches
+    set
+      kee = #{newBranchName, jdbcType=VARCHAR},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      uuid = #{projectUuid, jdbcType=VARCHAR}
+  </update>
 
   <update id="update" parameterType="map" useGeneratedKeys="false">
     update project_branches
