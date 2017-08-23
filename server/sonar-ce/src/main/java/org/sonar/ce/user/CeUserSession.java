@@ -68,6 +68,11 @@ public class CeUserSession implements UserSession {
   }
 
   @Override
+  public UserSession checkIsRoot() {
+    throw notImplemented();
+  }
+
+  @Override
   public UserSession checkLoggedIn() {
     throw notImplemented();
   }

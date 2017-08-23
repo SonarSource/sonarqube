@@ -138,6 +138,22 @@ public class ServerUserSessionTest {
   }
 
   @Test
+  public void checkIsRoot_throws_IPFE_if_flag_root_is_false_on_UserDto() {
+    UserSession underTest = newUserSession(NON_ROOT_USER_DTO);
+
+    expectInsufficientPrivilegesForbiddenException();
+
+    underTest.checkIsRoot();
+  }
+
+  @Test
+  public void checkIsRoot_does_not_fail_if_flag_root_is_true_on_UserDto() {
+    UserSession underTest = newUserSession(ROOT_USER_DTO);
+
+    assertThat(underTest.checkIsRoot()).isSameAs(underTest);
+  }
+
+  @Test
   public void hasComponentUuidPermission_returns_true_when_flag_root_is_true_on_UserDto_no_matter_if_user_has_project_permission_for_given_uuid() {
     UserSession underTest = newUserSession(ROOT_USER_DTO);
 

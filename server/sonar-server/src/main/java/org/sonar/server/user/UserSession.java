@@ -68,6 +68,12 @@ public interface UserSession {
   boolean isRoot();
 
   /**
+   * Ensures that {@link #isRoot()} returns {@code true} otherwise throws a
+   * {@link org.sonar.server.exceptions.ForbiddenException}.
+   */
+  UserSession checkIsRoot();
+
+  /**
    * Ensures that user is logged in otherwise throws {@link org.sonar.server.exceptions.UnauthorizedException}.
    */
   UserSession checkLoggedIn();
