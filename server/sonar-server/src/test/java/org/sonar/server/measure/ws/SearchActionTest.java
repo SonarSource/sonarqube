@@ -270,7 +270,7 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    db.measureDbTester().insertMeasure(branch, analysis, coverage, m -> m.setValue(10d));
+    db.measures().insertMeasure(branch, analysis, coverage, m -> m.setValue(10d));
     setBrowsePermissionOnUser(project);
 
     SearchWsResponse result = call(asList(branch.getDbKey()), singletonList(coverage.getKey()));
