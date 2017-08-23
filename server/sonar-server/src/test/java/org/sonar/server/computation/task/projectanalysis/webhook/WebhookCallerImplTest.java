@@ -62,7 +62,7 @@ public class WebhookCallerImplTest {
     server.enqueue(new MockResponse().setBody("pong").setResponseCode(201));
     WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
 
-    assertThat(delivery.getHttpStatus().get()).isEqualTo(201);
+    assertThat(delivery.getHttpStatus()).hasValue(201);
     assertThat(delivery.getDurationInMs().get()).isGreaterThanOrEqualTo(0);
     assertThat(delivery.getError()).isEmpty();
     assertThat(delivery.getAt()).isEqualTo(NOW);
