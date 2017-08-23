@@ -21,6 +21,7 @@ package org.sonarqube.tests;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.sonarqube.tests.authorisation.SystemPasscodeTest;
 import org.sonarqube.tests.ce.CeShutdownTest;
 import org.sonarqube.tests.ce.CeWorkersTest;
 import org.sonarqube.tests.cluster.ClusterTest;
@@ -70,7 +71,9 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
   CeWorkersTest.class,
 
   // elasticsearch
-  ElasticsearchSettingsTest.class
+  ElasticsearchSettingsTest.class,
+
+  SystemPasscodeTest.class
 })
 public class Category5Suite {
 
