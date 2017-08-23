@@ -36,6 +36,7 @@ public class DbVersion66 implements DbVersion {
       .add(1806, "Create table project_branches", CreateTableProjectBranches.class)
       .add(1807, "Add on project_branches key", AddIndexOnProjectBranchesKey.class)
       .add(1808, "Add branch column to projects table", AddBranchColumnToProjectsTable.class)
+      .add(1809, "Populate project_branches with existing main branches", PopulateMainProjectBranches.class)
     ;
   }
 }

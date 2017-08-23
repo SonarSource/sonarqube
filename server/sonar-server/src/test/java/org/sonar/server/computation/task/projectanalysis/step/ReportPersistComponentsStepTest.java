@@ -40,7 +40,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.analysis.Project;
-import org.sonar.server.computation.task.projectanalysis.component.BranchPersisterDelegate;
+import org.sonar.server.computation.task.projectanalysis.component.BranchPersister;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
@@ -88,7 +88,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   private Date now;
   private MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
   private PersistComponentsStep underTest;
-  private BranchPersisterDelegate branchPersister;
+  private BranchPersister branchPersister;
 
   @Before
   public void setup() throws Exception {
@@ -96,6 +96,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(now.getTime());
 
     db.organizations().insertForUuid(ORGANIZATION_UUID);
+    branchPersister = mock(BranchPersister.class);
     underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister);
   }
 
