@@ -127,7 +127,7 @@ public class ComponentActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     MetricDto complexity = insertComplexityMetric();
-    MeasureDto measure = db.measureDbTester().insertMeasure(file, analysis, complexity, m -> m.setValue(12.0d).setVariation(2.0d));
+    MeasureDto measure = db.measures().insertMeasure(file, analysis, complexity, m -> m.setValue(12.0d).setVariation(2.0d));
 
     ComponentWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -387,17 +387,17 @@ public class ComponentActionTest {
       .setLanguage("java")
       .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"));
     MetricDto complexity = insertComplexityMetric();
-    db.measureDbTester().insertMeasure(file, analysis, complexity,
+    db.measures().insertMeasure(file, analysis, complexity,
       m -> m.setValue(12.0d)
         .setVariation(2.0d)
         .setData(null));
     MetricDto ncloc = insertNclocMetric();
-    db.measureDbTester().insertMeasure(file, analysis, ncloc,
+    db.measures().insertMeasure(file, analysis, ncloc,
       m -> m.setValue(114.0d)
         .setVariation(3.0d)
         .setData(null));
     MetricDto newViolations = insertNewViolationMetric();
-    db.measureDbTester().insertMeasure(file, analysis, newViolations,
+    db.measures().insertMeasure(file, analysis, newViolations,
       m -> m.setVariation(25.0d)
         .setValue(null)
         .setData(null));
@@ -421,7 +421,7 @@ public class ComponentActionTest {
   }
 
   private MetricDto insertNclocMetric() {
-    return db.measureDbTester().insertMetric(m -> m.setKey("ncloc")
+    return db.measures().insertMetric(m -> m.setKey("ncloc")
       .setShortName("Lines of code")
       .setDescription("Non Commenting Lines of Code")
       .setDomain("Size")
@@ -433,7 +433,7 @@ public class ComponentActionTest {
   }
 
   private MetricDto insertComplexityMetric() {
-    return db.measureDbTester().insertMetric(m -> m.setKey("complexity")
+    return db.measures().insertMetric(m -> m.setKey("complexity")
       .setShortName("Complexity")
       .setDescription("Cyclomatic complexity")
       .setDomain("Complexity")
@@ -445,7 +445,7 @@ public class ComponentActionTest {
   }
 
   private MetricDto insertNewViolationMetric() {
-    return db.measureDbTester().insertMetric(m -> m.setKey("new_violations")
+    return db.measures().insertMetric(m -> m.setKey("new_violations")
       .setShortName("New issues")
       .setDescription("New Issues")
       .setDomain("Issues")
