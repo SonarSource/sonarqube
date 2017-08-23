@@ -27,7 +27,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -36,7 +35,9 @@ import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.protobuf.DbFileSources.Data;
 import static org.sonar.db.protobuf.DbFileSources.Line;
 
@@ -59,7 +60,7 @@ public class RawActionTest {
   public void raw_from_file() throws Exception {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     db.fileSources().insertFileSource(file, s -> s.setSourceData(
       Data.newBuilder()
         .addLines(Line.newBuilder().setLine(1).setSource("public class HelloWorld {").build())
@@ -68,6 +69,26 @@ public class RawActionTest {
 
     String result = ws.newRequest()
       .setParam("key", file.getKey())
+      .execute().getInput();
+
+    assertThat(result).isEqualTo("public class HelloWorld {\n}\n");
+  }
+
+  @Test
+  public void raw_from_branch_file() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.CODEVIEWER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    db.fileSources().insertFileSource(file, s -> s.setSourceData(
+      Data.newBuilder()
+        .addLines(Line.newBuilder().setLine(1).setSource("public class HelloWorld {").build())
+        .addLines(Line.newBuilder().setLine(2).setSource("}").build())
+        .build()));
+
+    String result = ws.newRequest()
+      .setParam("key", file.getKey())
+      .setParam("branch", file.getBranch())
       .execute().getInput();
 
     assertThat(result).isEqualTo("public class HelloWorld {\n}\n");
@@ -84,10 +105,43 @@ public class RawActionTest {
   }
 
   @Test
+  public void fail_on_unknown_branch() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.CODEVIEWER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    db.fileSources().insertFileSource(file);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component '%s' on branch 'unknown' not found", file.getKey()));
+
+    ws.newRequest()
+      .setParam("key", file.getKey())
+      .setParam("branch", "unknown")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.CODEVIEWER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    db.fileSources().insertFileSource(file);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", file.getDbKey()));
+
+    ws.newRequest()
+      .setParam("key", file.getDbKey())
+      .execute();
+  }
+
+  @Test
   public void fail_when_wrong_permission() throws Exception {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.ISSUE_ADMIN, project);
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     expectedException.expect(ForbiddenException.class);
 
