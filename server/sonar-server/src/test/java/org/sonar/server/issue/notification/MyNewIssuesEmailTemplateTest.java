@@ -95,7 +95,7 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    assertStartsWithFile(message.getMessage(), getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_all_details.txt"));
+    assertStartsWithFile(message.getMessage(), "MyNewIssuesEmailTemplateTest/email_with_all_details.txt");
   }
 
   @Test
@@ -123,7 +123,7 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    assertStartsWithFile(message.getMessage(), getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_no_assignee_tags_components.txt"));
+    assertStartsWithFile(message.getMessage(), "MyNewIssuesEmailTemplateTest/email_with_no_assignee_tags_components.txt");
   }
 
   @Test
@@ -134,7 +134,7 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    assertStartsWithFile(message.getMessage(), getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_issue_on_branch.txt"));
+    assertStartsWithFile(message.getMessage(), "MyNewIssuesEmailTemplateTest/email_with_issue_on_branch.txt");
   }
 
   @Test
@@ -187,8 +187,8 @@ public class MyNewIssuesEmailTemplateTest {
       .setFieldValue(RULE + ".2.count", "5");
   }
 
-  private static void assertStartsWithFile(String message, URL file) throws IOException {
-    String fileContent = IOUtils.toString(file, StandardCharsets.UTF_8);
+  private void assertStartsWithFile(String message, String resourcePath) throws IOException {
+    String fileContent = IOUtils.toString(getClass().getResource(resourcePath), StandardCharsets.UTF_8);
     assertThat(sanitizeString(message)).startsWith(sanitizeString(fileContent));
   }
 
