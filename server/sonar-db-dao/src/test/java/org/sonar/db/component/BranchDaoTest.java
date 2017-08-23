@@ -69,8 +69,34 @@ public class BranchDaoTest {
       entry("mergeBranchUuid", null),
       entry("pullRequestTitle", null),
       entry("createdAt", 1_000L),
-      entry("updatedAt", 1_000L)
-    );
+      entry("updatedAt", 1_000L));
+  }
+
+  @Test
+  public void update_main_branch_name() {
+    BranchDto dto = new BranchDto();
+    dto.setProjectUuid("U1");
+    dto.setUuid("U1");
+    dto.setBranchType(BranchType.LONG);
+    dto.setKeeType(BranchKeyType.BRANCH);
+    dto.setKey(null);
+    underTest.insert(dbSession, dto);
+
+    BranchDto dto2 = new BranchDto();
+    dto2.setProjectUuid("U2");
+    dto2.setUuid("U2");
+    dto2.setBranchType(BranchType.LONG);
+    dto2.setKeeType(BranchKeyType.BRANCH);
+    dto2.setKey("branch");
+    underTest.insert(dbSession, dto2);
+
+    underTest.updateMainBranchName(dbSession, "U1", "master");
+    BranchDto loaded = underTest.selectByKey(dbSession, "U1", BranchKeyType.BRANCH, "master").get();
+    assertThat(loaded.getMergeBranchUuid()).isNull();
+    assertThat(loaded.getPullRequestTitle()).isNull();
+    assertThat(loaded.getProjectUuid()).isEqualTo("U1");
+    assertThat(loaded.getBranchType()).isEqualTo(BranchType.LONG);
+    assertThat(loaded.getKeeType()).isEqualTo(BranchKeyType.BRANCH);
   }
 
   @Test
@@ -87,11 +113,11 @@ public class BranchDaoTest {
     underTest.insert(dbSession, dto);
 
     Map<String, Object> map = db.selectFirst(dbSession, SELECT_FROM + " where uuid='" + dto.getUuid() + "'");
-    assertThat((String)map.get("projectUuid")).contains("a").isEqualTo(dto.getProjectUuid());
-    assertThat((String)map.get("uuid")).contains("b").isEqualTo(dto.getUuid());
-    assertThat((String)map.get("kee")).contains("c").isEqualTo(dto.getKey());
-    assertThat((String)map.get("mergeBranchUuid")).contains("d").isEqualTo(dto.getMergeBranchUuid());
-    assertThat((String)map.get("pullRequestTitle")).contains("e").isEqualTo(dto.getPullRequestTitle());
+    assertThat((String) map.get("projectUuid")).contains("a").isEqualTo(dto.getProjectUuid());
+    assertThat((String) map.get("uuid")).contains("b").isEqualTo(dto.getUuid());
+    assertThat((String) map.get("kee")).contains("c").isEqualTo(dto.getKey());
+    assertThat((String) map.get("mergeBranchUuid")).contains("d").isEqualTo(dto.getMergeBranchUuid());
+    assertThat((String) map.get("pullRequestTitle")).contains("e").isEqualTo(dto.getPullRequestTitle());
   }
 
   @Test
@@ -183,7 +209,7 @@ public class BranchDaoTest {
 
     assertThat(underTest.selectByUuids(db.getSession(), asList(branch1.uuid(), branch2.uuid(), branch3.uuid())))
       .extracting(BranchDto::getUuid)
-    .containsExactlyInAnyOrder(branch1.uuid(), branch2.uuid(), branch3.uuid());
+      .containsExactlyInAnyOrder(branch1.uuid(), branch2.uuid(), branch3.uuid());
     assertThat(underTest.selectByUuids(db.getSession(), singletonList(branch1.uuid())))
       .extracting(BranchDto::getUuid)
       .containsExactlyInAnyOrder(branch1.uuid());
