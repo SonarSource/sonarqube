@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import NotFound from './NotFound';
+import ProjectContainerNotFound from './ProjectContainerNotFound';
 import ComponentNav from './nav/component/ComponentNav';
 import { Branch, Component } from '../types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
@@ -109,7 +109,7 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
     const branch = branches.find(b => (query.branch ? b.name === query.branch : b.isMain));
 
     if (!component || !branch) {
-      return <NotFound />;
+      return <ProjectContainerNotFound />;
     }
 
     const isFile = ['FIL', 'UTS'].includes(component.qualifier);
