@@ -69,10 +69,4 @@ public interface InternalCeQueue extends CeQueue {
   void cancelWornOuts();
 
   void resetTasksWithUnknownWorkerUUIDs(Set<String> knownWorkerUUIDs);
-
-  void pausePeek();
-
-  void resumePeek();
-
-  boolean isPeekPaused();
 }
