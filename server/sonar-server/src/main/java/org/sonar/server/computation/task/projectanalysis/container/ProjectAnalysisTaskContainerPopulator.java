@@ -40,6 +40,7 @@ import org.sonar.server.computation.task.projectanalysis.component.BranchPersist
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DisabledComponentsHolderImpl;
+import org.sonar.server.computation.task.projectanalysis.component.MergeBranchComponentUuids;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationMeasures;
@@ -172,6 +173,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       MeasureComputersHolderImpl.class,
       MutableTaskResultHolderImpl.class,
       BatchReportReaderImpl.class,
+      MergeBranchComponentUuids.class,
 
       // repositories
       LanguageRepositoryImpl.class,

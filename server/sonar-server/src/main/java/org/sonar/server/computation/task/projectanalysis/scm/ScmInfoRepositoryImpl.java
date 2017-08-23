@@ -24,15 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.source.FileSourceDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
-import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepository;
 
 import static java.util.Objects.requireNonNull;
 
@@ -41,17 +35,12 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   private static final Logger LOGGER = Loggers.get(ScmInfoRepositoryImpl.class);
 
   private final BatchReportReader batchReportReader;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final DbClient dbClient;
-  private final SourceHashRepository sourceHashRepository;
-
   private final Map<Component, ScmInfo> scmInfoCache = new HashMap<>();
+  private final ScmInfoDbLoader scmInfoDbLoader;
 
-  public ScmInfoRepositoryImpl(BatchReportReader batchReportReader, AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient, SourceHashRepository sourceHashRepository) {
+  public ScmInfoRepositoryImpl(BatchReportReader batchReportReader, ScmInfoDbLoader scmInfoDbLoader) {
     this.batchReportReader = batchReportReader;
-    this.analysisMetadataHolder = analysisMetadataHolder;
-    this.dbClient = dbClient;
-    this.sourceHashRepository = sourceHashRepository;
+    this.scmInfoDbLoader = scmInfoDbLoader;
   }
 
   @Override
@@ -88,31 +77,9 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
       return NoScmInfo.INSTANCE;
     }
     if (changesets.getCopyFromPrevious()) {
-      return getScmInfoFromDb(component);
+      return scmInfoDbLoader.getScmInfoFromDb(component);
     }
     return getScmInfoFromReport(component, changesets);
-  }
-
-  private ScmInfo getScmInfoFromDb(Component file) {
-    if (analysisMetadataHolder.isFirstAnalysis()) {
-      return NoScmInfo.INSTANCE;
-    }
-
-    LOGGER.trace("Reading SCM info from db for file '{}'", file.getKey());
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      FileSourceDto dto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, file.getUuid());
-      if (dto == null || !isDtoValid(file, dto)) {
-        return NoScmInfo.INSTANCE;
-      }
-      return DbScmInfo.create(file, dto.getSourceData().getLinesList()).or(NoScmInfo.INSTANCE);
-    }
-  }
-
-  private boolean isDtoValid(Component file, FileSourceDto dto) {
-    if (analysisMetadataHolder.isIncrementalAnalysis() && file.getStatus() == Status.SAME) {
-      return true;
-    }
-    return sourceHashRepository.getRawSourceHash(file).equals(dto.getSrcHash());
   }
 
   private static ScmInfo getScmInfoFromReport(Component file, ScannerReport.Changesets changesets) {
@@ -123,7 +90,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   /**
    * Internally used to populate cache when no ScmInfo exist.
    */
-  private enum NoScmInfo implements ScmInfo {
+  enum NoScmInfo implements ScmInfo {
     INSTANCE {
       @Override
       public Changeset getLatestChangeset() {
