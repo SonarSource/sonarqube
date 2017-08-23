@@ -1,4 +1,3 @@
-
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -20,6 +19,7 @@
  */
 
 import org.sonar.api.Plugin;
+import systemPasscode.SystemPasscodeWebService;
 import workerCount.FakeWorkerCountProviderImpl;
 import workerCount.RefreshWorkerCountAction;
 import workerlatch.LatchControllerWorkerMeasureComputer;
@@ -35,6 +35,7 @@ public class FakeGovernancePlugin implements Plugin {
       context.addExtension(WorkerLatchMetrics.class);
       context.addExtension(LatchControllerWorkerMeasureComputer.class);
       context.addExtension(RefreshWorkerCountAction.class);
+      context.addExtension(SystemPasscodeWebService.class);
     }
   }
 

@@ -53,6 +53,7 @@ import org.sonar.server.platform.db.EmbeddedDatabaseFactory;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.setting.ThreadLocalSettings;
+import org.sonar.server.user.SystemPasscodeImpl;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.util.OkHttpClientProvider;
 
@@ -101,6 +102,7 @@ public class PlatformLevel1 extends PlatformLevel {
 
       // user session
       ThreadLocalUserSession.class,
+      SystemPasscodeImpl.class,
 
       // DB
       DBSessionsImpl.class,
