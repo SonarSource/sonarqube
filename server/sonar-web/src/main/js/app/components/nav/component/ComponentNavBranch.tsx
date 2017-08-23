@@ -20,10 +20,13 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
+import SingleBranchHelperPopup from './SingleBranchHelperPopup';
 import { Branch, Component } from '../../../types';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
 import { isShortLivingBranch } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
+import HelpIcon from '../../../../components/icons-components/HelpIcon';
+import BubblePopupHelper from '../../../../components/common/BubblePopupHelper';
 
 interface Props {
   branches: Branch[];
@@ -32,12 +35,13 @@ interface Props {
 }
 
 interface State {
-  open: boolean;
+  dropdownOpen: boolean;
+  singleBranchPopupOpen: boolean;
 }
 
 export default class ComponentNavBranch extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = { open: false };
+  state: State = { dropdownOpen: false, singleBranchPopupOpen: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -48,7 +52,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
       nextProps.project !== this.props.project ||
       nextProps.currentBranch !== this.props.currentBranch
     ) {
-      this.setState({ open: false });
+      this.setState({ dropdownOpen: false, singleBranchPopupOpen: false });
     }
   }
 
@@ -60,38 +64,82 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     event.preventDefault();
     event.stopPropagation();
     event.currentTarget.blur();
-    this.setState({ open: true });
+    this.setState({ dropdownOpen: true });
   };
 
   closeDropdown = () => {
     if (this.mounted) {
-      this.setState({ open: false });
+      this.setState({ dropdownOpen: false });
     }
   };
 
-  render() {
-    const { currentBranch } = this.props;
+  togglePopup = (show?: boolean) => {
+    if (show != undefined) {
+      this.setState({ singleBranchPopupOpen: show });
+    } else {
+      this.setState(state => ({ singleBranchPopupOpen: !state.singleBranchPopupOpen }));
+    }
+  };
 
-    return (
-      <div className={classNames('navbar-context-branches', 'dropdown', { open: this.state.open })}>
-        <a className="link-base-color link-no-underline" href="#" onClick={this.handleClick}>
+  handleSingleBranchClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    this.togglePopup();
+  };
+
+  renderDropdown = () => {
+    return this.state.dropdownOpen
+      ? <ComponentNavBranchesMenu
+          branches={this.props.branches}
+          currentBranch={this.props.currentBranch}
+          onClose={this.closeDropdown}
+          project={this.props.project}
+        />
+      : null;
+  };
+
+  renderMergeBranch = () => {
+    const { currentBranch } = this.props;
+    return isShortLivingBranch(currentBranch) && !currentBranch.isOrphan
+      ? <span className="note big-spacer-left text-lowercase">
+          {translate('from')} <strong>{currentBranch.mergeBranch}</strong>
+        </span>
+      : null;
+  };
+
+  renderSingleBranchPopup = () =>
+    <div className="display-inline-block spacer-left">
+      <a className="link-no-underline" href="#" onClick={this.handleSingleBranchClick}>
+        <HelpIcon className="" fill="#cdcdcd" />
+      </a>
+      <BubblePopupHelper
+        isOpen={this.state.singleBranchPopupOpen}
+        position="bottomleft"
+        popup={<SingleBranchHelperPopup />}
+        togglePopup={this.togglePopup}
+      />
+    </div>;
+
+  render() {
+    const { branches, currentBranch } = this.props;
+
+    return branches.length > 1
+      ? <div
+          className={classNames('navbar-context-branches', 'dropdown', {
+            open: this.state.dropdownOpen
+          })}>
+          <a className="link-base-color link-no-underline" href="#" onClick={this.handleClick}>
+            <BranchIcon branch={currentBranch} className="little-spacer-right" />
+            {currentBranch.name}
+            <i className="icon-dropdown little-spacer-left" />
+          </a>
+          {this.renderDropdown()}
+          {this.renderMergeBranch()}
+        </div>
+      : <div className="navbar-context-branches">
           <BranchIcon branch={currentBranch} className="little-spacer-right" />
           {currentBranch.name}
-          <i className="icon-dropdown little-spacer-left" />
-        </a>
-        {this.state.open &&
-          <ComponentNavBranchesMenu
-            branches={this.props.branches}
-            currentBranch={currentBranch}
-            onClose={this.closeDropdown}
-            project={this.props.project}
-          />}
-        {isShortLivingBranch(currentBranch) &&
-          !currentBranch.isOrphan &&
-          <span className="note big-spacer-left text-lowercase">
-            {translate('from')} <strong>{currentBranch.mergeBranch}</strong>
-          </span>}
-      </div>
-    );
+          {this.renderSingleBranchPopup()}
+        </div>;
   }
 }
