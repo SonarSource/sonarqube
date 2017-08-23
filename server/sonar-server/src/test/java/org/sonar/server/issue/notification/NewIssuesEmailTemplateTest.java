@@ -113,8 +113,7 @@ public class NewIssuesEmailTemplateTest {
     EmailMessage message = template.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    String expectedContent = IOUtils.toString(getClass().getResource("NewIssuesEmailTemplateTest/email_with_all_details.txt"), StandardCharsets.UTF_8);
-    assertThat(message.getMessage()).startsWith(StringUtils.remove(expectedContent, '\r'));
+    assertStartsWithFile(message.getMessage(), "NewIssuesEmailTemplateTest/email_with_all_details.txt");
   }
 
   @Test
@@ -124,8 +123,7 @@ public class NewIssuesEmailTemplateTest {
     EmailMessage message = template.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    String expectedContent = IOUtils.toString(getClass().getResource("NewIssuesEmailTemplateTest/email_with_partial_details.txt"), StandardCharsets.UTF_8);
-    assertThat(message.getMessage()).startsWith(StringUtils.remove(expectedContent, '\r'));
+    assertStartsWithFile(message.getMessage(), "NewIssuesEmailTemplateTest/email_with_partial_details.txt");
   }
 
   @Test
