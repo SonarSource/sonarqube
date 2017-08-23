@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.notification;
 
+import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
@@ -128,6 +129,17 @@ public class NewIssuesEmailTemplateTest {
   }
 
   @Test
+  public void format_email_with_issue_on_branch() throws Exception {
+    Notification notification = newNotification()
+      .setFieldValue("branch", "feature1");
+
+    EmailMessage message = template.format(notification);
+
+    // TODO datetime to be completed when test is isolated from JVM timezone
+    assertStartsWithFile(message.getMessage(), "NewIssuesEmailTemplateTest/email_with_issue_on_branch.txt");
+  }
+
+  @Test
   public void do_not_add_footer_when_properties_missing() {
     Notification notification = new Notification(NewIssuesNotification.TYPE)
       .setFieldValue(SEVERITY + ".count", "32")
@@ -183,5 +195,17 @@ public class NewIssuesEmailTemplateTest {
       .setFieldValue(RULE + ".1.count", "42")
       .setFieldValue(RULE + ".2.label", "Rule the World (Java)")
       .setFieldValue(RULE + ".2.count", "5");
+  }
+
+  private void assertStartsWithFile(String message, String resourcePath) throws IOException {
+    String fileContent = IOUtils.toString(getClass().getResource(resourcePath), StandardCharsets.UTF_8);
+    assertThat(sanitizeString(message)).startsWith(sanitizeString(fileContent));
+  }
+
+  /**
+   * sanitize EOL and tabs if git clone is badly configured
+   */
+  private static String sanitizeString(String s) {
+    return s.replaceAll("\\r\\n|\\r|\\s+", "");
   }
 }
