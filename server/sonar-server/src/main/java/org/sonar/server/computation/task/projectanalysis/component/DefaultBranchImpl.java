@@ -71,7 +71,7 @@ public class DefaultBranchImpl implements Branch {
 
   @Override
   public boolean isLegacyFeature() {
-    return true;
+    return isLegacyBranch;
   }
 
   @Override

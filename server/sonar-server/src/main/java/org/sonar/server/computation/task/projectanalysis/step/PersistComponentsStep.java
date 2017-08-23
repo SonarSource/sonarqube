@@ -50,7 +50,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
-import org.sonar.server.computation.task.projectanalysis.component.BranchPersisterDelegate;
+import org.sonar.server.computation.task.projectanalysis.component.BranchPersister;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.DbIdsRepositoryImpl;
@@ -75,19 +75,12 @@ public class PersistComponentsStep implements ComputationStep {
   private final System2 system2;
   private final MutableDisabledComponentsHolder disabledComponentsHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  @Nullable
-  private final BranchPersisterDelegate branchPersister;
-
-  public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder,
-    MutableDbIdsRepository dbIdsRepository, System2 system2,
-    MutableDisabledComponentsHolder disabledComponentsHolder, AnalysisMetadataHolder analysisMetadataHolder) {
-    this(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, analysisMetadataHolder, null);
-  }
+  private final BranchPersister branchPersister;
 
   public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder,
     MutableDbIdsRepository dbIdsRepository, System2 system2,
     MutableDisabledComponentsHolder disabledComponentsHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    @Nullable BranchPersisterDelegate branchPersister) {
+    BranchPersister branchPersister) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.dbIdsRepository = dbIdsRepository;
@@ -105,7 +98,7 @@ public class PersistComponentsStep implements ComputationStep {
   @Override
   public void execute() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ofNullable(branchPersister).ifPresent(p -> p.persist(dbSession));
+      branchPersister.persist(dbSession);
 
       String projectUuid = treeRootHolder.getRoot().getUuid();
 
