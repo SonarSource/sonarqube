@@ -41,8 +41,8 @@ export function getComponentUrl(componentKey: string, branch?: string): string {
   );
 }
 
-export function getProjectUrl(key: string): Location {
-  return { pathname: '/dashboard', query: { id: key } };
+export function getProjectUrl(key: string, branch?: string): Location {
+  return { pathname: '/dashboard', query: { id: key, branch } };
 }
 
 export function getProjectBranchUrl(key: string, branch: Branch) {
