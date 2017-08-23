@@ -124,6 +124,33 @@ public class IssueUpdaterTest {
   }
 
   @Test
+  public void verify_notification_on_branch() throws Exception {
+    RuleDto rule = ruleDbTester.insertRule(newRuleDto());
+    ComponentDto project = componentDbTester.insertMainBranch();
+    ComponentDto branch = componentDbTester.insertProjectBranch(project);
+    ComponentDto file = componentDbTester.insertComponent(newFileDto(branch));
+    DefaultIssue issue = issueDbTester.insertIssue(IssueTesting.newIssue(rule.getDefinition(), branch, file)).setSeverity(MAJOR).toDefaultIssue();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
+    issueFieldsSetter.setSeverity(issue, BLOCKER, context);
+
+    underTest.saveIssue(dbTester.getSession(), issue, context, "increase severity");
+
+    verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
+    IssueChangeNotification issueChangeNotification = notificationArgumentCaptor.getValue();
+    assertThat(issueChangeNotification.getFieldValue("key")).isEqualTo(issue.key());
+    assertThat(issueChangeNotification.getFieldValue("old.severity")).isEqualTo(MAJOR);
+    assertThat(issueChangeNotification.getFieldValue("new.severity")).isEqualTo(BLOCKER);
+    assertThat(issueChangeNotification.getFieldValue("componentKey")).isEqualTo(file.getDbKey());
+    assertThat(issueChangeNotification.getFieldValue("componentName")).isEqualTo(file.longName());
+    assertThat(issueChangeNotification.getFieldValue("projectKey")).isEqualTo(project.getDbKey());
+    assertThat(issueChangeNotification.getFieldValue("projectName")).isEqualTo(project.name());
+    assertThat(issueChangeNotification.getFieldValue("ruleName")).isEqualTo(rule.getName());
+    assertThat(issueChangeNotification.getFieldValue("changeAuthor")).isEqualTo("john");
+    assertThat(issueChangeNotification.getFieldValue("comment")).isEqualTo("increase severity");
+    assertThat(issueChangeNotification.getFieldValue("branch")).isEqualTo(branch.getBranch());
+  }
+
+  @Test
   public void verify_notification_when_issue_is_linked_on_removed_rule() throws Exception {
     RuleDto rule = ruleDbTester.insertRule(newRuleDto().setStatus(RuleStatus.REMOVED));
     ComponentDto project = componentDbTester.insertPrivateProject();

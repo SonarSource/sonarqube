@@ -22,10 +22,12 @@ package org.sonar.server.computation.task.projectanalysis.step;
 import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
@@ -105,7 +107,8 @@ public class SendIssueNotificationsStep implements ComputationStep {
     IssueChangeNotification changeNotification = new IssueChangeNotification();
     changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
     changeNotification.setIssue(issue);
-    changeNotification.setProject(project.getKey(), project.getName());
+    String branchName = analysisMetadataHolder.getBranch().map(Branch::getName).orElse(Optional.empty()).orElse(null);
+    changeNotification.setProject(project.getKey(), project.getName(), branchName);
     service.deliver(changeNotification);
   }
 
