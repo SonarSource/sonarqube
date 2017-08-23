@@ -1,0 +1,9 @@
+{
+  "id": "AU-TpxcB-iU5OvuD2FL7",
+  "version": "7.5.4",
+  "plugins": {
+    "java": "4.12.0.11033",
+    "scmgit": "1.2",
+    "other": "undefined"
+  }
+}

@@ -27,6 +27,7 @@ import org.sonar.api.platform.Server;
 
 class FakeServer extends Server {
   private String id;
+  private String version;
 
   @Override
   public String getId() {
@@ -46,7 +47,12 @@ class FakeServer extends Server {
 
   @Override
   public String getVersion() {
-    return null;
+    return this.version;
+  }
+
+  public FakeServer setVersion(String version) {
+    this.version = version;
+    return this;
   }
 
   @Override

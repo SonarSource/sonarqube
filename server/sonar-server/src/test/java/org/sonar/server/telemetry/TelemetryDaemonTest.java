@@ -21,26 +21,33 @@
 package org.sonar.server.telemetry;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.core.config.TelemetryProperties;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
+import org.sonar.updatecenter.common.Version;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.core.config.TelemetryProperties.PROP_ENABLE;
 import static org.sonar.core.config.TelemetryProperties.PROP_FREQUENCY;
 import static org.sonar.server.telemetry.TelemetryDaemon.I_PROP_LAST_PING;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class TelemetryDaemonTest {
 
@@ -50,6 +57,7 @@ public class TelemetryDaemonTest {
   private TelemetryClient client = mock(TelemetryClient.class);
   private InternalProperties internalProperties = new MapInternalProperties();
   private FakeServer server = new FakeServer();
+  private PluginRepository pluginRepository = mock(PluginRepository.class);
   private TestSystem2 system2 = new TestSystem2();
   private MapSettings settings;
 
@@ -60,7 +68,25 @@ public class TelemetryDaemonTest {
     settings = new MapSettings(new PropertyDefinitions(TelemetryProperties.all()));
     system2.setNow(System.currentTimeMillis());
 
-    underTest = new TelemetryDaemon(client, settings.asConfig(), internalProperties, server, system2);
+    underTest = new TelemetryDaemon(client, settings.asConfig(), internalProperties, server, pluginRepository, system2);
+  }
+
+  @Test
+  public void send_telemetry_data() throws IOException {
+    settings.setProperty(PROP_FREQUENCY, "1");
+    String id = "AU-TpxcB-iU5OvuD2FL7";
+    String version = "7.5.4";
+    server.setId(id);
+    server.setVersion(version);
+    List<PluginInfo> plugins = Arrays.asList(newPlugin("java", "4.12.0.11033"), newPlugin("scmgit", "1.2"), new PluginInfo("other"));
+    when(pluginRepository.getPluginInfos()).thenReturn(plugins);
+    underTest.start();
+
+    ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
+    verify(client, timeout(1_000).atLeastOnce()).upload(jsonCaptor.capture());
+    String json = jsonCaptor.getValue();
+    assertJson(json).isSimilarTo(getClass().getResource("telemetry-example.json"));
+    assertJson(getClass().getResource("telemetry-example.json")).isSimilarTo(json);
   }
 
   @Test
@@ -86,13 +112,17 @@ public class TelemetryDaemonTest {
   }
 
   @Test
-  public void send_server_id() throws IOException {
+  public void send_server_id_and_version() throws IOException {
     settings.setProperty(PROP_FREQUENCY, "1");
     String id = randomAlphanumeric(40);
+    String version = randomAlphanumeric(10);
     server.setId(id);
+    server.setVersion(version);
     underTest.start();
 
-    verify(client, timeout(2_000).atLeastOnce()).upload(contains(id));
+    ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
+    verify(client, timeout(1_000).atLeastOnce()).upload(json.capture());
+    assertThat(json.getValue()).contains(id, version);
   }
 
   @Test
@@ -132,5 +162,10 @@ public class TelemetryDaemonTest {
 
     verify(client, timeout(1_000).never()).upload(anyString());
     verify(client, timeout(1_000).times(1)).optOut(anyString());
+  }
+
+  private PluginInfo newPlugin(String key, String version) {
+    return new PluginInfo(key)
+      .setVersion(Version.create(version));
   }
 }
