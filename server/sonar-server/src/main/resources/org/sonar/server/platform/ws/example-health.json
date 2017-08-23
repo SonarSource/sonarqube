@@ -1,0 +1,8 @@
+{
+  "health": "YELLOW",
+  "causes": [
+    {
+      "message": "Elasticsearch status is YELLOW"
+    }
+  ]
+}
