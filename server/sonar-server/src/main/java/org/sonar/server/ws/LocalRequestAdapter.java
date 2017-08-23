@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 
@@ -76,5 +77,10 @@ public class LocalRequestAdapter extends ValidatingRequest {
   @Override
   public String getMediaType() {
     return localRequest.getMediaType();
+  }
+
+  @Override
+  public Optional<String> header(String name) {
+    return localRequest.getHeader(name);
   }
 }

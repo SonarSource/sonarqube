@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
+import java.util.Optional;
 import org.sonar.api.server.ws.LocalConnector;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -56,11 +57,9 @@ class LocalWsConnector implements WsConnector {
 
   private static class DefaultLocalRequest implements LocalConnector.LocalRequest {
     private final WsRequest wsRequest;
-    private final Parameters parameters;
 
     public DefaultLocalRequest(WsRequest wsRequest) {
       this.wsRequest = wsRequest;
-      this.parameters = wsRequest.getParameters();
     }
 
     @Override
@@ -80,17 +79,22 @@ class LocalWsConnector implements WsConnector {
 
     @Override
     public boolean hasParam(String key) {
-      return !parameters.getValues(key).isEmpty();
+      return !wsRequest.getParameters().getValues(key).isEmpty();
     }
 
     @Override
     public String getParam(String key) {
-      return parameters.getValue(key);
+      return wsRequest.getParameters().getValue(key);
     }
 
     @Override
     public List<String> getMultiParam(String key) {
-      return parameters.getValues(key);
+      return wsRequest.getParameters().getValues(key);
+    }
+
+    @Override
+    public Optional<String> getHeader(String name) {
+      return wsRequest.getHeaders().getValue(name);
     }
   }
 

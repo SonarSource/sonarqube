@@ -19,33 +19,18 @@
  */
 package org.sonarqube.ws.client;
 
-import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
- * @since 5.3
+ * HTTP headers
+ *
+ * @since 6.6
  */
-public interface WsRequest {
+public interface Headers {
 
-  Method getMethod();
+  Optional<String> getValue(String name);
 
-  String getPath();
+  Set<String> getNames();
 
-  String getMediaType();
-
-  /**
-   *
-   * In case of multi value parameters, returns the first value
-   *
-   * @deprecated since 6.1. Use {@link #getParameters()} instead
-   */
-  @Deprecated
-  Map<String, String> getParams();
-
-  Parameters getParameters();
-
-  Headers getHeaders();
-
-  enum Method {
-    GET, POST
-  }
 }
