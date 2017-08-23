@@ -26,7 +26,8 @@ import { isShortLivingBranch } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
-  branch: Branch;
+  branches: Branch[];
+  currentBranch: Branch;
   project: Component;
 }
 
@@ -43,7 +44,10 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.project !== this.props.project || nextProps.branch !== this.props.branch) {
+    if (
+      nextProps.project !== this.props.project ||
+      nextProps.currentBranch !== this.props.currentBranch
+    ) {
       this.setState({ open: false });
     }
   }
@@ -66,24 +70,25 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   };
 
   render() {
-    const { branch } = this.props;
+    const { currentBranch } = this.props;
 
     return (
       <div className={classNames('navbar-context-branches', 'dropdown', { open: this.state.open })}>
         <a className="link-base-color link-no-underline" href="#" onClick={this.handleClick}>
-          <BranchIcon branch={branch} className="little-spacer-right" />
-          {branch.name}
+          <BranchIcon branch={currentBranch} className="little-spacer-right" />
+          {currentBranch.name}
           <i className="icon-dropdown little-spacer-left" />
         </a>
         {this.state.open &&
           <ComponentNavBranchesMenu
-            branch={branch}
+            branches={this.props.branches}
+            currentBranch={currentBranch}
             onClose={this.closeDropdown}
             project={this.props.project}
           />}
-        {isShortLivingBranch(branch) &&
+        {isShortLivingBranch(currentBranch) &&
           <span className="note big-spacer-left text-lowercase">
-            {translate('from')} <strong>{branch.mergeBranch}</strong>
+            {translate('from')} <strong>{currentBranch.mergeBranch}</strong>
           </span>}
       </div>
     );

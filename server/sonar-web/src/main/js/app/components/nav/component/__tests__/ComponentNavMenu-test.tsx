@@ -20,8 +20,18 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavMenu from '../ComponentNavMenu';
-import { Component, ShortLivingBranch, BranchType, LongLivingBranch } from '../../../../types';
-import { MAIN_BRANCH } from '../../../../../helpers/branches';
+import {
+  Component,
+  ShortLivingBranch,
+  BranchType,
+  LongLivingBranch,
+  MainBranch
+} from '../../../../types';
+
+const mainBranch: MainBranch = {
+  isMain: true,
+  name: 'master'
+};
 
 it('should work with extensions', () => {
   const component = {
@@ -34,9 +44,7 @@ it('should work with extensions', () => {
     extensions: [{ key: 'foo', name: 'Foo' }]
   };
   expect(
-    shallow(
-      <ComponentNavMenu branch={MAIN_BRANCH} component={component as Component} conf={conf} />
-    )
+    shallow(<ComponentNavMenu branch={mainBranch} component={component as Component} conf={conf} />)
   ).toMatchSnapshot();
 });
 
@@ -54,9 +62,7 @@ it('should work with multiple extensions', () => {
     extensions: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
   };
   expect(
-    shallow(
-      <ComponentNavMenu branch={MAIN_BRANCH} component={component as Component} conf={conf} />
-    )
+    shallow(<ComponentNavMenu branch={mainBranch} component={component as Component} conf={conf} />)
   ).toMatchSnapshot();
 });
 

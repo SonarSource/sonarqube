@@ -21,7 +21,6 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ComponentNavBranchesMenuItem from './ComponentNavBranchesMenuItem';
 import { Branch, Component } from '../../../types';
-import { getBranches } from '../../../../api/branches';
 import {
   sortBranchesAsTree,
   isLongLivingBranch,
@@ -31,65 +30,35 @@ import { translate } from '../../../../helpers/l10n';
 import { getProjectBranchUrl } from '../../../../helpers/urls';
 
 interface Props {
-  branch: Branch;
+  branches: Branch[];
+  currentBranch: Branch;
   onClose: () => void;
   project: Component;
 }
 
 interface State {
-  branches: Branch[];
-  loading: boolean;
   query: string;
   selected: string | null;
 }
 
 export default class ComponentNavBranchesMenu extends React.PureComponent<Props, State> {
-  private mounted: boolean;
   private node: HTMLElement | null;
+  state = { query: '', selected: null };
 
   static contextTypes = {
     router: PropTypes.object
   };
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      branches: [],
-      loading: true,
-      query: '',
-      selected: null
-    };
-  }
-
   componentDidMount() {
-    this.mounted = true;
-    this.fetchBranches();
     window.addEventListener('click', this.handleClickOutside);
   }
 
   componentWillUnmount() {
-    this.mounted = false;
     window.removeEventListener('click', this.handleClickOutside);
   }
 
-  fetchBranches = () => {
-    this.setState({ loading: true });
-    getBranches(this.props.project.key).then(
-      (branches: Branch[]) => {
-        if (this.mounted) {
-          this.setState({ branches: sortBranchesAsTree(branches), loading: false });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
-  };
-
   getFilteredBranches = () =>
-    this.state.branches.filter(branch =>
+    sortBranchesAsTree(this.props.branches).filter(branch =>
       branch.name.toLowerCase().includes(this.state.query.toLowerCase())
     );
 
@@ -219,12 +188,8 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
   render() {
     return (
       <div className="dropdown-menu dropdown-menu-shadow" ref={node => (this.node = node)}>
-        {this.state.loading
-          ? <i className="spinner" />
-          : <div>
-              {this.renderSearch()}
-              {this.renderBranchesList()}
-            </div>}
+        {this.renderSearch()}
+        {this.renderBranchesList()}
       </div>
     );
   }

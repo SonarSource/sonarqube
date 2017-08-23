@@ -26,7 +26,9 @@ import { click } from '../../../../../helpers/testUtils';
 it('renders main branch', () => {
   const branch: MainBranch = { isMain: true, name: 'master' };
   const component = {} as Component;
-  expect(shallow(<ComponentNavBranch branch={branch} project={component} />)).toMatchSnapshot();
+  expect(
+    shallow(<ComponentNavBranch branches={[]} currentBranch={branch} project={component} />)
+  ).toMatchSnapshot();
 });
 
 it('renders short-living branch', () => {
@@ -38,13 +40,17 @@ it('renders short-living branch', () => {
     type: BranchType.SHORT
   };
   const component = {} as Component;
-  expect(shallow(<ComponentNavBranch branch={branch} project={component} />)).toMatchSnapshot();
+  expect(
+    shallow(<ComponentNavBranch branches={[]} currentBranch={branch} project={component} />)
+  ).toMatchSnapshot();
 });
 
 it('opens menu', () => {
   const branch: MainBranch = { isMain: true, name: 'master' };
   const component = {} as Component;
-  const wrapper = shallow(<ComponentNavBranch branch={branch} project={component} />);
+  const wrapper = shallow(
+    <ComponentNavBranch branches={[]} currentBranch={branch} project={component} />
+  );
   expect(wrapper.find('ComponentNavBranchesMenu')).toHaveLength(0);
   click(wrapper.find('a'));
   expect(wrapper.find('ComponentNavBranchesMenu')).toHaveLength(1);

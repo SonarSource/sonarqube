@@ -31,7 +31,7 @@ it('changes component', () => {
   );
   (wrapper.instance() as ProjectContainer).mounted = true;
   wrapper.setState({
-    branch: { isMain: true },
+    branches: [{ isMain: true }],
     component: { qualifier: 'TRK', visibility: 'public' },
     loading: false
   });

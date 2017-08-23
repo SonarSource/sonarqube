@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import NotFound from './NotFound';
 import ComponentNav from './nav/component/ComponentNav';
 import { Branch, Component } from '../types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
-import { getBranch } from '../../api/branches';
+import { getBranches } from '../../api/branches';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
-import { MAIN_BRANCH } from '../../helpers/branches';
 
 interface Props {
   children: any;
@@ -34,7 +34,7 @@ interface Props {
 }
 
 interface State {
-  branch: Branch | null;
+  branches: Branch[];
   loading: boolean;
   component: Component | null;
 }
@@ -44,7 +44,7 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
 
   constructor(props: Props) {
     super(props);
-    this.state = { branch: null, loading: true, component: null };
+    this.state = { branches: [], loading: true, component: null };
   }
 
   componentDidMount() {
@@ -52,19 +52,8 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
     this.fetchProject();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    // if the current branch has been changed, reset `branch` in state
-    // it prevents unwanted redirect in `overview/App#componentDidMount`
-    if (nextProps.location.query.branch !== this.props.location.query.branch) {
-      this.setState({ branch: null });
-    }
-  }
-
   componentDidUpdate(prevProps: Props) {
-    if (
-      prevProps.location.query.id !== this.props.location.query.id ||
-      prevProps.location.query.branch !== this.props.location.query.branch
-    ) {
+    if (prevProps.location.query.id !== this.props.location.query.id) {
       this.fetchProject();
     }
   }
@@ -81,16 +70,12 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
   fetchProject() {
     const { branch, id } = this.props.location.query;
     this.setState({ loading: true });
-    Promise.all([
-      getComponentNavigation(id),
-      getComponentData(id, branch),
-      branch && getBranch(id, branch)
-    ]).then(
-      ([nav, data, branch]) => {
+    Promise.all([getComponentNavigation(id), getComponentData(id, branch), getBranches(id)]).then(
+      ([nav, data, branches]) => {
         if (this.mounted) {
           this.setState({
             loading: false,
-            branch: branch || MAIN_BRANCH,
+            branches,
             component: this.addQualifier({ ...nav, ...data })
           });
         }
@@ -114,10 +99,17 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
   };
 
   render() {
-    const { branch, component } = this.state;
+    const { query } = this.props.location;
+    const { branches, component, loading } = this.state;
+
+    if (loading) {
+      return <i className="spinner" />;
+    }
+
+    const branch = branches.find(b => (query.branch ? b.name === query.branch : b.isMain));
 
     if (!component || !branch) {
-      return null;
+      return <NotFound />;
     }
 
     const isFile = ['FIL', 'UTS'].includes(component.qualifier);
@@ -127,7 +119,8 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
       <div>
         {!isFile &&
           <ComponentNav
-            branch={branch}
+            branches={branches}
+            currentBranch={branch}
             component={component}
             conf={configuration}
             location={this.props.location}

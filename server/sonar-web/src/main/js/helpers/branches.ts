@@ -20,13 +20,6 @@
 import { sortBy } from 'lodash';
 import { Branch, BranchType, ShortLivingBranch, LongLivingBranch } from '../app/types';
 
-export const MAIN_BRANCH: Branch = {
-  isMain: true,
-  name: '',
-  status: { qualityGateStatus: 'OK' },
-  type: BranchType.LONG
-};
-
 export function isShortLivingBranch(branch: Branch | null): branch is ShortLivingBranch {
   return branch != null && !branch.isMain && branch.type === BranchType.SHORT;
 }

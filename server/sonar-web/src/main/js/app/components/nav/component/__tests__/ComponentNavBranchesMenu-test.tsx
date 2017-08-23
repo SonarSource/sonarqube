@@ -29,40 +29,43 @@ import {
 } from '../../../../types';
 import { elementKeydown } from '../../../../../helpers/testUtils';
 
+const project = { key: 'component' } as Component;
+
 it('renders list', () => {
-  const component = { key: 'component' } as Component;
-  const wrapper = shallow(
-    <ComponentNavBranchesMenu branch={mainBranch()} onClose={jest.fn()} project={component} />
-  );
-  wrapper.setState({
-    branches: [mainBranch(), shortBranch('foo'), longBranch('bar'), shortBranch('baz', true)],
-    loading: false
-  });
-  expect(wrapper).toMatchSnapshot();
+  expect(
+    shallow(
+      <ComponentNavBranchesMenu
+        branches={[mainBranch(), shortBranch('foo'), longBranch('bar'), shortBranch('baz', true)]}
+        currentBranch={mainBranch()}
+        onClose={jest.fn()}
+        project={project}
+      />
+    )
+  ).toMatchSnapshot();
 });
 
 it('searches', () => {
-  const component = { key: 'component' } as Component;
   const wrapper = shallow(
-    <ComponentNavBranchesMenu branch={mainBranch()} onClose={jest.fn()} project={component} />
+    <ComponentNavBranchesMenu
+      branches={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
+      currentBranch={mainBranch()}
+      onClose={jest.fn()}
+      project={project}
+    />
   );
-  wrapper.setState({
-    branches: [mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')],
-    loading: false,
-    query: 'bar'
-  });
+  wrapper.setState({ query: 'bar' });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('selects next & previous', () => {
-  const component = { key: 'component' } as Component;
   const wrapper = shallow(
-    <ComponentNavBranchesMenu branch={mainBranch()} onClose={jest.fn()} project={component} />
+    <ComponentNavBranchesMenu
+      branches={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
+      currentBranch={mainBranch()}
+      onClose={jest.fn()}
+      project={project}
+    />
   );
-  wrapper.setState({
-    branches: [mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')],
-    loading: false
-  });
   elementKeydown(wrapper.find('input'), 40);
   wrapper.update();
   expect(wrapper.state().selected).toBe('foo');

@@ -32,6 +32,7 @@ import {
   parseError
 } from '../utils';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
+import { getBranchName } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import '../code.css';
 
@@ -53,7 +54,7 @@ export default class App extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.component !== this.props.component) {
+    if (prevProps.component !== this.props.component || prevProps.branch !== this.props.branch) {
       this.handleComponentChange();
     } else if (prevProps.location !== this.props.location) {
       this.handleUpdate();
@@ -66,14 +67,14 @@ export default class App extends React.PureComponent {
   }
 
   handleComponentChange() {
-    const { component } = this.props;
+    const { branch, component } = this.props;
 
     // we already know component's breadcrumbs,
     addComponentBreadcrumbs(component.key, component.breadcrumbs);
 
     this.setState({ loading: true });
     const isPortfolio = ['VW', 'SVW'].includes(component.qualifier);
-    retrieveComponentChildren(component.key, isPortfolio, component.branch)
+    retrieveComponentChildren(component.key, isPortfolio, getBranchName(branch))
       .then(r => {
         addComponent(r.baseComponent);
         this.handleUpdate();
@@ -90,7 +91,7 @@ export default class App extends React.PureComponent {
     this.setState({ loading: true });
 
     const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
-    retrieveComponent(componentKey, isPortfolio, this.props.component.branch)
+    retrieveComponent(componentKey, isPortfolio, getBranchName(this.props.branch))
       .then(r => {
         if (this.mounted) {
           if (['FIL', 'UTS'].includes(r.component.qualifier)) {
@@ -133,7 +134,7 @@ export default class App extends React.PureComponent {
   handleLoadMore = () => {
     const { baseComponent, page } = this.state;
     const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
-    loadMoreChildren(baseComponent.key, page + 1, isPortfolio, this.props.component.branch)
+    loadMoreChildren(baseComponent.key, page + 1, isPortfolio, getBranchName(this.props.branch))
       .then(r => {
         if (this.mounted) {
           this.setState({
@@ -158,7 +159,7 @@ export default class App extends React.PureComponent {
   };
 
   render() {
-    const { component, location } = this.props;
+    const { branch, component, location } = this.props;
     const {
       loading,
       error,
@@ -204,7 +205,7 @@ export default class App extends React.PureComponent {
 
           {shouldShowSourceViewer &&
             <div className="spacer-top">
-              <SourceViewer branch={component.branch} component={sourceViewer.key} />
+              <SourceViewer branch={getBranchName(branch)} component={sourceViewer.key} />
             </div>}
         </div>
       </div>
