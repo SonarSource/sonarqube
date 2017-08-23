@@ -21,6 +21,7 @@ package org.sonar.api.server.ws;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 
 /**
@@ -92,6 +93,12 @@ public interface LocalConnector {
      * @see Request#multiParam(String)
      */
     List<String> getMultiParam(String key);
+
+    /**
+     * @see Request#header(String)
+     * @since 6.6
+     */
+    Optional<String> getHeader(String name);
   }
 
   interface LocalResponse {

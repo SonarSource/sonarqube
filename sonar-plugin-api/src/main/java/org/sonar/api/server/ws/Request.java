@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -300,6 +301,14 @@ public abstract class Request {
     }
     return AbsentStringParam.absent();
   }
+
+  /**
+   * Optional value of the HTTP header with specified name.
+   * If present, the result can have an empty string value ({@code ""}).
+   *
+   * @since 6.6
+   */
+  public abstract Optional<String> header(String name);
 
   /**
    * Allows a web service to call another web service.

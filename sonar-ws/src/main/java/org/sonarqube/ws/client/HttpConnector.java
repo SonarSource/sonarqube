@@ -159,11 +159,13 @@ public class HttpConnector implements WsConnector {
   private Request.Builder prepareOkRequestBuilder(WsRequest getRequest, HttpUrl.Builder urlBuilder) {
     Request.Builder okHttpRequestBuilder = new Request.Builder()
       .url(urlBuilder.build())
-      .addHeader("Accept", getRequest.getMediaType())
-      .addHeader("Accept-Charset", "UTF-8");
+      .header("Accept", getRequest.getMediaType())
+      .header("Accept-Charset", "UTF-8");
     if (credentials != null) {
       okHttpRequestBuilder.header("Authorization", credentials);
     }
+    getRequest.getHeaders().getNames().forEach(name ->
+      okHttpRequestBuilder.header(name, getRequest.getHeaders().getValue(name).get()));
     return okHttpRequestBuilder;
   }
 
@@ -199,6 +201,7 @@ public class HttpConnector implements WsConnector {
 
     /**
      * Private since 5.5.
+     *
      * @see HttpConnector#newBuilder()
      */
     private Builder() {

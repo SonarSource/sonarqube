@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
@@ -44,6 +45,7 @@ public class SimpleGetRequest extends Request {
 
   private final Map<String, String> params = new HashMap<>();
   private final Map<String, Part> parts = new HashMap<>();
+  private final Map<String, String> headers = new HashMap<>();
   private String mediaType = "application/json";
   private String path;
 
@@ -130,4 +132,13 @@ public class SimpleGetRequest extends Request {
     return this;
   }
 
+  @Override
+  public Optional<String> header(String name) {
+    return Optional.ofNullable(headers.get(name));
+  }
+
+  public SimpleGetRequest setHeader(String name, String value) {
+    headers.put(name, value);
+    return this;
+  }
 }

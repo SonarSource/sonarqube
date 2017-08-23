@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
@@ -40,6 +41,7 @@ public class TestRequest extends ValidatingRequest {
 
   private final ListMultimap<String, String> multiParams = ArrayListMultimap.create();
   private final Map<String, String> params = new HashMap<>();
+  private final Map<String, String> headers = new HashMap<>();
   private final Map<String, Part> parts = Maps.newHashMap();
   private String method = "GET";
   private String mimeType = "application/octet-stream";
@@ -124,6 +126,16 @@ public class TestRequest extends ValidatingRequest {
 
     multiParams.putAll(key, values);
 
+    return this;
+  }
+
+  @Override
+  public Optional<String> header(String name) {
+    return Optional.ofNullable(headers.get(name));
+  }
+
+  public TestRequest setHeader(String name, String value) {
+    this.headers.put(requireNonNull(name), requireNonNull(value));
     return this;
   }
 
