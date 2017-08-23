@@ -127,6 +127,17 @@ public class MyNewIssuesEmailTemplateTest {
   }
 
   @Test
+  public void format_email_with_issue_on_branch() throws Exception {
+    Notification notification = newNotification()
+      .setFieldValue("branch", "feature1");
+
+    EmailMessage message = underTest.format(notification);
+
+    // TODO datetime to be completed when test is isolated from JVM timezone
+    assertStartsWithFile(message.getMessage(), getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_issue_on_branch.txt"));
+  }
+
+  @Test
   public void do_not_add_footer_when_properties_missing() {
     Notification notification = new Notification(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE)
       .setFieldValue(SEVERITY + ".count", "32")
