@@ -300,15 +300,6 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void peek_nothing_if_paused() throws Exception {
-    submit(CeTaskTypes.REPORT, "PROJECT_1");
-    underTest.pausePeek();
-
-    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
-    assertThat(peek.isPresent()).isFalse();
-  }
-
-  @Test
   public void peek_nothing_if_application_status_stopping() throws Exception {
     submit(CeTaskTypes.REPORT, "PROJECT_1");
     when(computeEngineStatus.getStatus()).thenReturn(STOPPING);
@@ -686,15 +677,6 @@ public class InternalCeQueueImplTest {
     assertThat(underTest.isSubmitPaused()).isTrue();
     underTest.resumeSubmit();
     assertThat(underTest.isSubmitPaused()).isFalse();
-  }
-
-  @Test
-  public void pause_and_resume_peeks() throws Exception {
-    assertThat(underTest.isPeekPaused()).isFalse();
-    underTest.pausePeek();
-    assertThat(underTest.isPeekPaused()).isTrue();
-    underTest.resumePeek();
-    assertThat(underTest.isPeekPaused()).isFalse();
   }
 
   private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto) {

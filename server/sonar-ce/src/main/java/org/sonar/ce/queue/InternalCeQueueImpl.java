@@ -26,7 +26,6 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.log4j.Logger;
@@ -57,9 +56,6 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   private final CEQueueStatus queueStatus;
   private final ComputeEngineStatus computeEngineStatus;
 
-  // state
-  private AtomicBoolean peekPaused = new AtomicBoolean(false);
-
   public InternalCeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory, CEQueueStatus queueStatus,
     DefaultOrganizationProvider defaultOrganizationProvider, ComputeEngineStatus computeEngineStatus) {
     super(dbClient, uuidFactory, defaultOrganizationProvider);
@@ -73,7 +69,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   public Optional<CeTask> peek(String workerUuid) {
     requireNonNull(workerUuid, "workerUuid can't be null");
 
-    if (peekPaused.get() || computeEngineStatus.getStatus() != ComputeEngineStatus.Status.STARTED) {
+    if (computeEngineStatus.getStatus() != ComputeEngineStatus.Status.STARTED) {
       return Optional.empty();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -178,21 +174,6 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       dbClient.ceQueueDao().resetTasksWithUnknownWorkerUUIDs(dbSession, knownWorkerUUIDs);
       dbSession.commit();
     }
-  }
-
-  @Override
-  public void pausePeek() {
-    this.peekPaused.set(true);
-  }
-
-  @Override
-  public void resumePeek() {
-    this.peekPaused.set(false);
-  }
-
-  @Override
-  public boolean isPeekPaused() {
-    return peekPaused.get();
   }
 
   /**
