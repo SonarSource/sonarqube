@@ -496,7 +496,7 @@ public class ComponentTreeActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     MetricDto complexity = insertComplexityMetric();
-    MeasureDto measure = db.measureDbTester().insertMeasure(file, analysis, complexity, m -> m.setValue(12.0d));
+    MeasureDto measure = db.measures().insertMeasure(file, analysis, complexity, m -> m.setValue(12.0d));
 
     ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -517,7 +517,7 @@ public class ComponentTreeActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(project);
     ComponentDto file = componentDb.insertComponent(newFileDto(project));
     MetricDto ncloc = insertNclocMetric();
-    db.measureDbTester().insertMeasure(file, analysis, ncloc, m -> m.setValue(2d));
+    db.measures().insertMeasure(file, analysis, ncloc, m -> m.setValue(2d));
 
     ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
