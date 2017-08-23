@@ -284,7 +284,7 @@ public class SearchHistoryActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    MeasureDto measure = db.measureDbTester().insertMeasure(file, analysis, nclocMetric, m -> m.setValue(2d));
+    MeasureDto measure = db.measures().insertMeasure(file, analysis, nclocMetric, m -> m.setValue(2d));
 
     SearchHistoryResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
