@@ -49,6 +49,7 @@ it('renders incremental badge', () => {
 it('renders status of short-living branch', () => {
   const branch: ShortLivingBranch = {
     isMain: false,
+    mergeBranch: 'master',
     name: 'feature',
     status: { bugs: 0, codeSmells: 2, vulnerabilities: 3 },
     type: BranchType.SHORT

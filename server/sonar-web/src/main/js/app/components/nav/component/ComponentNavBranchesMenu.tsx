@@ -22,7 +22,11 @@ import * as PropTypes from 'prop-types';
 import ComponentNavBranchesMenuItem from './ComponentNavBranchesMenuItem';
 import { Branch, Component } from '../../../types';
 import { getBranches } from '../../../../api/branches';
-import { getBranchDisplayName, sortBranchesAsTree } from '../../../../helpers/branches';
+import {
+  sortBranchesAsTree,
+  isLongLivingBranch,
+  isShortLivingBranch
+} from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectBranchUrl } from '../../../../helpers/urls';
 
@@ -86,7 +90,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
 
   getFilteredBranches = () =>
     this.state.branches.filter(branch =>
-      getBranchDisplayName(branch).toLowerCase().includes(this.state.query.toLowerCase())
+      branch.name.toLowerCase().includes(this.state.query.toLowerCase())
     );
 
   handleClickOutside = (event: Event) => {
@@ -121,9 +125,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
 
   openSelected = () => {
     const selected = this.getSelected();
-    const branch = this.getFilteredBranches().find(
-      branch => getBranchDisplayName(branch) === selected
-    );
+    const branch = this.getFilteredBranches().find(branch => branch.name === selected);
     if (branch) {
       this.context.router.push(this.getProjectBranchUrl(branch));
     }
@@ -132,33 +134,33 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
   selectPrevious = () => {
     const selected = this.getSelected();
     const branches = this.getFilteredBranches();
-    const index = branches.findIndex(branch => getBranchDisplayName(branch) === selected);
+    const index = branches.findIndex(branch => branch.name === selected);
     if (index > 0) {
-      this.setState({ selected: getBranchDisplayName(branches[index - 1]) });
+      this.setState({ selected: branches[index - 1].name });
     }
   };
 
   selectNext = () => {
     const selected = this.getSelected();
     const branches = this.getFilteredBranches();
-    const index = branches.findIndex(branch => getBranchDisplayName(branch) === selected);
+    const index = branches.findIndex(branch => branch.name === selected);
     if (index >= 0 && index < branches.length - 1) {
-      this.setState({ selected: getBranchDisplayName(branches[index + 1]) });
+      this.setState({ selected: branches[index + 1].name });
     }
   };
 
   handleSelect = (branch: Branch) => {
-    this.setState({ selected: getBranchDisplayName(branch) });
+    this.setState({ selected: branch.name });
   };
 
   getSelected = () => {
     const branches = this.getFilteredBranches();
-    return this.state.selected || (branches.length > 0 && getBranchDisplayName(branches[0]));
+    return this.state.selected || (branches.length > 0 && branches[0].name);
   };
 
   getProjectBranchUrl = (branch: Branch) => getProjectBranchUrl(this.props.project.key, branch);
 
-  isSelected = (branch: Branch) => getBranchDisplayName(branch) === this.getSelected();
+  isSelected = (branch: Branch) => branch.name === this.getSelected();
 
   renderSearch = () =>
     <div className="search-box menu-search">
@@ -178,24 +180,40 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
 
   renderBranchesList = () => {
     const branches = this.getFilteredBranches();
-
     const selected = this.getSelected();
 
-    return branches.length > 0
-      ? <ul className="menu">
-          {branches.map(branch =>
-            <ComponentNavBranchesMenuItem
-              branch={branch}
-              component={this.props.project}
-              key={getBranchDisplayName(branch)}
-              onSelect={this.handleSelect}
-              selected={getBranchDisplayName(branch) === selected}
-            />
-          )}
-        </ul>
-      : <div className="menu-message note">
+    if (branches.length === 0) {
+      return (
+        <div className="menu-message note">
           {translate('no_results')}
-        </div>;
+        </div>
+      );
+    }
+
+    const menu: JSX.Element[] = [];
+    branches.forEach((branch, index) => {
+      const isOrphan = isShortLivingBranch(branch) && branch.isOrphan;
+      const previous = index > 0 ? branches[index - 1] : null;
+      const isPreviousOrphan = isShortLivingBranch(previous) ? previous.isOrphan : false;
+      if (isLongLivingBranch(branch) || (isOrphan && !isPreviousOrphan)) {
+        menu.push(<li key={`divider-${branch.name}`} className="divider" />);
+      }
+      menu.push(
+        <ComponentNavBranchesMenuItem
+          branch={branch}
+          component={this.props.project}
+          key={branch.name}
+          onSelect={this.handleSelect}
+          selected={branch.name === selected}
+        />
+      );
+    });
+
+    return (
+      <ul className="menu">
+        {menu}
+      </ul>
+    );
   };
 
   render() {

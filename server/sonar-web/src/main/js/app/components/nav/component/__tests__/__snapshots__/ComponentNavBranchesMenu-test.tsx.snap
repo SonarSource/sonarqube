@@ -32,6 +32,7 @@ exports[`renders list 1`] = `
         branch={
           Object {
             "isMain": true,
+            "name": "master",
           }
         }
         component={
@@ -46,6 +47,8 @@ exports[`renders list 1`] = `
         branch={
           Object {
             "isMain": false,
+            "isOrphan": undefined,
+            "mergeBranch": "master",
             "name": "foo",
             "status": Object {
               "bugs": 0,
@@ -63,12 +66,41 @@ exports[`renders list 1`] = `
         onSelect={[Function]}
         selected={false}
       />
+      <li
+        className="divider"
+      />
       <ComponentNavBranchesMenuItem
         branch={
           Object {
             "isMain": false,
             "name": "bar",
             "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "key": "component",
+          }
+        }
+        onSelect={[Function]}
+        selected={false}
+      />
+      <li
+        className="divider"
+      />
+      <ComponentNavBranchesMenuItem
+        branch={
+          Object {
+            "isMain": false,
+            "isOrphan": true,
+            "mergeBranch": "master",
+            "name": "baz",
+            "status": Object {
+              "bugs": 0,
+              "codeSmells": 0,
+              "vulnerabilities": 0,
+            },
+            "type": "SHORT",
           }
         }
         component={
@@ -116,6 +148,8 @@ exports[`searches 1`] = `
         branch={
           Object {
             "isMain": false,
+            "isOrphan": undefined,
+            "mergeBranch": "master",
             "name": "foobar",
             "status": Object {
               "bugs": 0,
@@ -132,6 +166,9 @@ exports[`searches 1`] = `
         }
         onSelect={[Function]}
         selected={true}
+      />
+      <li
+        className="divider"
       />
       <ComponentNavBranchesMenuItem
         branch={

@@ -33,6 +33,7 @@ it('renders status of short-living branches', () => {
         <BranchStatus
           branch={{
             isMain: false,
+            mergeBranch: 'master',
             name: 'foo',
             status: { bugs, codeSmells, vulnerabilities },
             type: BranchType.SHORT

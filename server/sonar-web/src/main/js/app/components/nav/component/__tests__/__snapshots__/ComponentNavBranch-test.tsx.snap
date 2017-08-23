@@ -13,11 +13,12 @@ exports[`renders main branch 1`] = `
       branch={
         Object {
           "isMain": true,
+          "name": "master",
         }
       }
       className="little-spacer-right"
     />
-    [main branch]
+    master
     <i
       className="icon-dropdown little-spacer-left"
     />
@@ -38,6 +39,7 @@ exports[`renders short-living branch 1`] = `
       branch={
         Object {
           "isMain": false,
+          "mergeBranch": "master",
           "name": "foo",
           "status": Object {
             "bugs": 0,
@@ -60,7 +62,7 @@ exports[`renders short-living branch 1`] = `
     from
      
     <strong>
-      [main branch]
+      master
     </strong>
   </span>
 </div>

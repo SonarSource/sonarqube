@@ -24,7 +24,7 @@ import { BranchType, MainBranch, ShortLivingBranch, Component } from '../../../.
 
 it('renders main branch', () => {
   const component = { key: 'component' } as Component;
-  const mainBranch: MainBranch = { isMain: true };
+  const mainBranch: MainBranch = { isMain: true, name: 'master' };
   expect(
     shallow(
       <ComponentNavBranchesMenuItem
@@ -41,6 +41,29 @@ it('renders short-living branch', () => {
   const component = { key: 'component' } as Component;
   const shortBranch: ShortLivingBranch = {
     isMain: false,
+    mergeBranch: 'master',
+    name: 'foo',
+    status: { bugs: 1, codeSmells: 2, vulnerabilities: 3 },
+    type: BranchType.SHORT
+  };
+  expect(
+    shallow(
+      <ComponentNavBranchesMenuItem
+        branch={shortBranch}
+        component={component}
+        onSelect={jest.fn()}
+        selected={false}
+      />
+    )
+  ).toMatchSnapshot();
+});
+
+it('renders short-living orhpan branch', () => {
+  const component = { key: 'component' } as Component;
+  const shortBranch: ShortLivingBranch = {
+    isMain: false,
+    isOrphan: true,
+    mergeBranch: 'master',
     name: 'foo',
     status: { bugs: 1, codeSmells: 2, vulnerabilities: 3 },
     type: BranchType.SHORT

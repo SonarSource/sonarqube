@@ -22,12 +22,10 @@ import { Branch, BranchType, ShortLivingBranch, LongLivingBranch } from '../app/
 
 export const MAIN_BRANCH: Branch = {
   isMain: true,
-  name: undefined,
+  name: '',
   status: { qualityGateStatus: 'OK' },
   type: BranchType.LONG
 };
-
-const MAIN_BRANCH_DISPLAY_NAME = '[main branch]';
 
 export function isShortLivingBranch(branch: Branch | null): branch is ShortLivingBranch {
   return branch != null && !branch.isMain && branch.type === BranchType.SHORT;
@@ -37,16 +35,8 @@ export function isLongLivingBranch(branch: Branch | null): branch is LongLivingB
   return branch != null && !branch.isMain && branch.type === BranchType.LONG;
 }
 
-export function getBranchDisplayName(branch: Branch): string {
-  return branch.isMain ? MAIN_BRANCH_DISPLAY_NAME : branch.name;
-}
-
 export function getBranchName(branch: Branch): string | undefined {
   return branch.isMain ? undefined : branch.name;
-}
-
-export function getMergeBranchDisplayName(branch: ShortLivingBranch): string {
-  return branch.mergeBranch || MAIN_BRANCH_DISPLAY_NAME;
 }
 
 export function sortBranchesAsTree(branches: Branch[]): Branch[] {
@@ -57,7 +47,7 @@ export function sortBranchesAsTree(branches: Branch[]): Branch[] {
   // main branch is always first
   const mainBranch = branches.find(branch => branch.isMain);
   if (mainBranch) {
-    result.push(mainBranch, ...getNestedShortLivingBranches());
+    result.push(mainBranch, ...getNestedShortLivingBranches(mainBranch.name));
   }
 
   // the all long-living branches
@@ -65,10 +55,13 @@ export function sortBranchesAsTree(branches: Branch[]): Branch[] {
     result.push(longLivingBranch, ...getNestedShortLivingBranches(longLivingBranch.name));
   });
 
+  // finally all orhpan branches
+  result.push(...shortLivingBranches.filter(branch => branch.isOrphan));
+
   return result;
 
   /** Get all short-living branches (possibly nested) which should be merged to a given branch */
-  function getNestedShortLivingBranches(mergeBranch?: string): ShortLivingBranch[] {
+  function getNestedShortLivingBranches(mergeBranch: string): ShortLivingBranch[] {
     const found: ShortLivingBranch[] = shortLivingBranches.filter(
       branch => branch.mergeBranch === mergeBranch
     );

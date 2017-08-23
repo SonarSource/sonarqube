@@ -63,6 +63,7 @@ it('should work with multiple extensions', () => {
 it('should work for short-living branches', () => {
   const branch: ShortLivingBranch = {
     isMain: false,
+    mergeBranch: 'master',
     name: 'feature',
     status: { bugs: 0, codeSmells: 2, vulnerabilities: 3 },
     type: BranchType.SHORT

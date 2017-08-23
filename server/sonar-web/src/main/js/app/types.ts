@@ -24,14 +24,14 @@ export enum BranchType {
 
 export interface MainBranch {
   isMain: true;
+  name: string;
   status?: {
     qualityGateStatus: string;
   };
 }
 
 export interface LongLivingBranch {
-  isMain: boolean;
-  mergeBranch?: string;
+  isMain: false;
   name: string;
   status?: {
     qualityGateStatus: string;
@@ -41,7 +41,8 @@ export interface LongLivingBranch {
 
 export interface ShortLivingBranch {
   isMain: false;
-  mergeBranch?: string;
+  isOrphan?: true;
+  mergeBranch: string;
   name: string;
   status?: {
     bugs: number;

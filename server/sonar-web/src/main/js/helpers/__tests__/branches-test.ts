@@ -23,8 +23,8 @@ import { MainBranch, BranchType, ShortLivingBranch, LongLivingBranch } from '../
 describe('#sortBranchesAsTree', () => {
   it('sorts main branch and short-living branches', () => {
     const main = mainBranch();
-    const foo = shortLivingBranch('foo');
-    const bar = shortLivingBranch('bar');
+    const foo = shortLivingBranch('foo', 'master');
+    const bar = shortLivingBranch('bar', 'master');
     expect(sortBranchesAsTree([main, foo, bar])).toEqual([main, bar, foo]);
   });
 
@@ -37,12 +37,12 @@ describe('#sortBranchesAsTree', () => {
 
   it('sorts all types of branches', () => {
     const main = mainBranch();
-    const shortFoo = shortLivingBranch('shortFoo');
+    const shortFoo = shortLivingBranch('shortFoo', 'master');
     const shortBar = shortLivingBranch('shortBar', 'longBaz');
     const shortPre = shortLivingBranch('shortPre', 'shortFoo');
     const longBaz = longLivingBranch('longBaz');
     const longQux = longLivingBranch('longQux');
-    const longQwe = longLivingBranch('longQwe', 'longBaz');
+    const longQwe = longLivingBranch('longQwe');
     // - main                     - main
     //    - shortFoo                - shortFoo
     //      - shortPre              - shortPre
@@ -57,15 +57,15 @@ describe('#sortBranchesAsTree', () => {
 });
 
 function mainBranch(): MainBranch {
-  return { isMain: true };
+  return { isMain: true, name: 'master' };
 }
 
-function shortLivingBranch(name: string, mergeBranch?: string): ShortLivingBranch {
+function shortLivingBranch(name: string, mergeBranch: string): ShortLivingBranch {
   const status = { bugs: 0, codeSmells: 0, vulnerabilities: 0 };
   return { isMain: false, mergeBranch, name, status, type: BranchType.SHORT };
 }
 
-function longLivingBranch(name: string, mergeBranch?: string): LongLivingBranch {
+function longLivingBranch(name: string): LongLivingBranch {
   const status = { qualityGateStatus: 'OK' };
-  return { isMain: false, mergeBranch, name, status, type: BranchType.LONG };
+  return { isMain: false, name, status, type: BranchType.LONG };
 }

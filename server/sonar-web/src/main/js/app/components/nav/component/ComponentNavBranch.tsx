@@ -22,11 +22,7 @@ import * as classNames from 'classnames';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
 import { Branch, Component } from '../../../types';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
-import {
-  getBranchDisplayName,
-  getMergeBranchDisplayName,
-  isShortLivingBranch
-} from '../../../../helpers/branches';
+import { isShortLivingBranch } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
@@ -76,7 +72,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
       <div className={classNames('navbar-context-branches', 'dropdown', { open: this.state.open })}>
         <a className="link-base-color link-no-underline" href="#" onClick={this.handleClick}>
           <BranchIcon branch={branch} className="little-spacer-right" />
-          {getBranchDisplayName(branch)}
+          {branch.name}
           <i className="icon-dropdown little-spacer-left" />
         </a>
         {this.state.open &&
@@ -87,7 +83,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
           />}
         {isShortLivingBranch(branch) &&
           <span className="note big-spacer-left text-lowercase">
-            {translate('from')} <strong>{getMergeBranchDisplayName(branch)}</strong>
+            {translate('from')} <strong>{branch.mergeBranch}</strong>
           </span>}
       </div>
     );

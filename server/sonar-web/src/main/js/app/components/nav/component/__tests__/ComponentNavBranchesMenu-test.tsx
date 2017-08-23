@@ -35,7 +35,7 @@ it('renders list', () => {
     <ComponentNavBranchesMenu branch={mainBranch()} onClose={jest.fn()} project={component} />
   );
   wrapper.setState({
-    branches: [mainBranch(), shortBranch('foo'), longBranch('bar')],
+    branches: [mainBranch(), shortBranch('foo'), longBranch('bar'), shortBranch('baz', true)],
     loading: false
   });
   expect(wrapper).toMatchSnapshot();
@@ -75,12 +75,14 @@ it('selects next & previous', () => {
 });
 
 function mainBranch(): MainBranch {
-  return { isMain: true };
+  return { isMain: true, name: 'master' };
 }
 
-function shortBranch(name: string): ShortLivingBranch {
+function shortBranch(name: string, isOrphan?: true): ShortLivingBranch {
   return {
     isMain: false,
+    isOrphan,
+    mergeBranch: 'master',
     name,
     status: { bugs: 0, codeSmells: 0, vulnerabilities: 0 },
     type: BranchType.SHORT

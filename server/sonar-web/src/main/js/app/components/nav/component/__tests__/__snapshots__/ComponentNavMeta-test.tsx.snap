@@ -24,6 +24,7 @@ exports[`renders status of short-living branch 1`] = `
         branch={
           Object {
             "isMain": false,
+            "mergeBranch": "master",
             "name": "feature",
             "status": Object {
               "bugs": 0,
