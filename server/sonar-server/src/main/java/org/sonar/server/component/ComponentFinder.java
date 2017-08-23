@@ -154,6 +154,10 @@ public class ComponentFinder {
     throw new NotFoundException(format("Component '%s' on branch '%s' not found", key, branch));
   }
 
+  public ComponentDto getByKeyAndOptionalBranch(DbSession dbSession, String key, @Nullable String branch) {
+    return branch == null ? getByKey(dbSession, key) : getByKeyAndBranch(dbSession, key, branch);
+  }
+
   public enum ParamNames {
     PROJECT_ID_AND_KEY("projectId", "projectKey"),
     PROJECT_UUID_AND_KEY("projectUuid", "projectKey"),
