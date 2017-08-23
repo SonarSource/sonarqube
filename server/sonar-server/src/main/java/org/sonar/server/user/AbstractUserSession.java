@@ -37,6 +37,14 @@ public abstract class AbstractUserSession implements UserSession {
   private static final String AUTHENTICATION_IS_REQUIRED_MESSAGE = "Authentication is required";
 
   @Override
+  public UserSession checkIsRoot() {
+    if (!isRoot()) {
+      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+    }
+    return this;
+  }
+
+  @Override
   public final UserSession checkLoggedIn() {
     if (!isLoggedIn()) {
       throw new UnauthorizedException(AUTHENTICATION_IS_REQUIRED_MESSAGE);
