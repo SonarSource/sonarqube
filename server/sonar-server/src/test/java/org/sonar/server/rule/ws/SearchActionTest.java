@@ -21,6 +21,7 @@
 package org.sonar.server.rule.ws;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -65,12 +66,14 @@ import org.sonar.server.util.StringTypeValidation;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Rule;
 import org.sonarqube.ws.Rules.SearchResponse;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -687,6 +690,116 @@ public class SearchActionTest {
       tuple(ruleParam.getName(), ruleParam.getDefaultValue()),
       tuple(activeRuleParam.getKey(), "")
     );
+  }
+
+  /**
+   * When the user searches for inactive rules (for example for to "activate more"), then
+   * only rules of the quality profiles' language are relevant
+   */
+  @Test
+  public void facet_filtering_when_searching_for_inactive_rules() {
+    OrganizationDto organization = db.organizations().insert();
+
+    QProfileDto profile = db.qualityProfiles().insert(organization, q -> q
+      .setLanguage("language1")
+    );
+
+    // on same language, not activated => match
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r
+      .setLanguage(profile.getLanguage())
+      .setRepositoryKey("repositoryKey1")
+      .setSystemTags(new HashSet<>(singletonList("tag1")))
+      .setSeverity("CRITICAL")
+      .setStatus(RuleStatus.BETA)
+      .setType(RuleType.CODE_SMELL));
+
+    // on same language, activated => no match
+    RuleDefinitionDto rule2 = db.rules().insert(r -> r
+      .setLanguage(profile.getLanguage())
+      .setRepositoryKey("repositoryKey2")
+      .setSystemTags(new HashSet<>(singletonList("tag2")))
+      .setSeverity("MAJOR")
+      .setStatus(RuleStatus.DEPRECATED)
+      .setType(RuleType.VULNERABILITY));
+    RuleActivation activation = RuleActivation.create(rule2.getKey(), null, null);
+    ruleActivator.activate(db.getSession(), activation, profile);
+
+    // on other language, not activated => no match
+    RuleDefinitionDto rule3 = db.rules().insert(r -> r
+      .setLanguage("language3")
+      .setRepositoryKey("repositoryKey3")
+      .setSystemTags(new HashSet<>(singletonList("tag3")))
+      .setSeverity("BLOCKER")
+      .setStatus(RuleStatus.READY)
+      .setType(RuleType.BUG));
+
+    indexRules();
+    indexActiveRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam("facets", "languages,repositories,tags,severities,statuses,types")
+      .setParam("organization", organization.getKey())
+      .setParam("activation", "false")
+      .setParam("qprofile", profile.getKee())
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(result.getRulesList())
+      .extracting(Rule::getKey)
+      .containsExactlyInAnyOrder(
+        rule1.getKey().toString());
+
+    assertThat(result.getFacets().getFacetsList().stream().filter(f -> "languages".equals(f.getProperty())).findAny().get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .as("Facet languages")
+      .containsExactlyInAnyOrder(
+        tuple(rule1.getLanguage(), 1L),
+
+        // known limitation: irrelevant languages are shown in this case (SONAR-9683)
+        tuple(rule3.getLanguage(), 1L)
+      );
+
+    assertThat(result.getFacets().getFacetsList().stream().filter(f -> "tags".equals(f.getProperty())).findAny().get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .as("Facet tags")
+      .containsExactlyInAnyOrder(
+        tuple(rule1.getSystemTags().iterator().next(), 1L)
+      );
+
+    assertThat(result.getFacets().getFacetsList().stream().filter(f -> "repositories".equals(f.getProperty())).findAny().get().getValuesList())
+        .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+        .as("Facet repositories")
+        .containsExactlyInAnyOrder(
+          tuple(rule1.getRepositoryKey(), 1L)
+        );
+
+      assertThat(result.getFacets().getFacetsList().stream().filter(f -> "severities".equals(f.getProperty())).findAny().get().getValuesList())
+        .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+        .as("Facet severities")
+        .containsExactlyInAnyOrder(
+          tuple("BLOCKER" /*rule2*/, 0L),
+          tuple("CRITICAL"/*rule1*/, 1L),
+          tuple("MAJOR", 0L),
+          tuple("MINOR", 0L),
+          tuple("INFO", 0L)
+        );
+
+      assertThat(result.getFacets().getFacetsList().stream().filter(f -> "statuses".equals(f.getProperty())).findAny().get().getValuesList())
+        .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+        .as("Facet statuses")
+        .containsExactlyInAnyOrder(
+          tuple("READY"/*rule2*/, 0L),
+          tuple("BETA" /*rule1*/, 1L),
+          tuple("DEPRECATED", 0L)
+        );
+
+      assertThat(result.getFacets().getFacetsList().stream().filter(f -> "types".equals(f.getProperty())).findAny().get().getValuesList())
+        .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+        .as("Facet types")
+        .containsExactlyInAnyOrder(
+          tuple("BUG"       /*rule2*/, 0L),
+          tuple("CODE_SMELL"/*rule1*/, 1L),
+          tuple("VULNERABILITY", 0L)
+        );
   }
 
   @Test
