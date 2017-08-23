@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import React from 'react';
+import * as classNames from 'classnames';
+import * as React from 'react';
 import Helmet from 'react-helmet';
 import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
+import { Component as CodeComponent } from '../types';
 import SourceViewer from './../../../components/SourceViewer/SourceViewer';
 import Search from './Search';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -35,17 +36,33 @@ import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import { getBranchName } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import '../code.css';
+import { Component, Branch } from '../../../app/types';
 
-export default class App extends React.PureComponent {
-  state = {
+interface Props {
+  branch: Branch;
+  component: Component;
+  location: { query: { [x: string]: string } };
+}
+
+interface State {
+  baseComponent?: CodeComponent;
+  breadcrumbs: Array<CodeComponent>;
+  components?: Array<CodeComponent>;
+  error?: string;
+  loading: boolean;
+  page: number;
+  searchResults?: Array<CodeComponent>;
+  sourceViewer?: CodeComponent;
+  total: number;
+}
+
+export default class App extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = {
     loading: true,
-    baseComponent: null,
-    components: null,
     breadcrumbs: [],
     total: 0,
-    page: 0,
-    sourceViewer: null,
-    error: null
+    page: 0
   };
 
   componentDidMount() {
@@ -53,7 +70,7 @@ export default class App extends React.PureComponent {
     this.handleComponentChange();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.component !== this.props.component || prevProps.branch !== this.props.branch) {
       this.handleComponentChange();
     } else if (prevProps.location !== this.props.location) {
@@ -75,19 +92,19 @@ export default class App extends React.PureComponent {
     this.setState({ loading: true });
     const isPortfolio = ['VW', 'SVW'].includes(component.qualifier);
     retrieveComponentChildren(component.key, isPortfolio, getBranchName(branch))
-      .then(r => {
-        addComponent(r.baseComponent);
+      .then(() => {
+        addComponent(component);
         this.handleUpdate();
       })
       .catch(e => {
         if (this.mounted) {
           this.setState({ loading: false });
-          parseError(e).then(this.handleError.bind(this));
+          parseError(e).then(this.handleError);
         }
       });
   }
 
-  loadComponent(componentKey) {
+  loadComponent(componentKey: string) {
     this.setState({ loading: true });
 
     const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
@@ -99,7 +116,7 @@ export default class App extends React.PureComponent {
               loading: false,
               sourceViewer: r.component,
               breadcrumbs: r.breadcrumbs,
-              searchResults: null
+              searchResults: undefined
             });
           } else {
             this.setState({
@@ -109,8 +126,8 @@ export default class App extends React.PureComponent {
               breadcrumbs: r.breadcrumbs,
               total: r.total,
               page: r.page,
-              sourceViewer: null,
-              searchResults: null
+              sourceViewer: undefined,
+              searchResults: undefined
             });
           }
         }
@@ -118,7 +135,7 @@ export default class App extends React.PureComponent {
       .catch(e => {
         if (this.mounted) {
           this.setState({ loading: false });
-          parseError(e).then(this.handleError.bind(this));
+          parseError(e).then(this.handleError);
         }
       });
   }
@@ -132,13 +149,16 @@ export default class App extends React.PureComponent {
   }
 
   handleLoadMore = () => {
-    const { baseComponent, page } = this.state;
+    const { baseComponent, components, page } = this.state;
+    if (!baseComponent || !components) {
+      return;
+    }
     const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
     loadMoreChildren(baseComponent.key, page + 1, isPortfolio, getBranchName(this.props.branch))
       .then(r => {
         if (this.mounted) {
           this.setState({
-            components: [...this.state.components, ...r.components],
+            components: [...components, ...r.components],
             page: r.page,
             total: r.total
           });
@@ -152,7 +172,7 @@ export default class App extends React.PureComponent {
       });
   };
 
-  handleError = error => {
+  handleError = (error: string) => {
     if (this.mounted) {
       this.setState({ error });
     }
@@ -169,10 +189,9 @@ export default class App extends React.PureComponent {
       total,
       sourceViewer
     } = this.state;
+    const branchName = getBranchName(branch);
 
-    const shouldShowSourceViewer = !!sourceViewer;
-    const shouldShowComponents = !shouldShowSourceViewer && components;
-    const shouldShowBreadcrumbs = Array.isArray(breadcrumbs) && breadcrumbs.length > 1;
+    const shouldShowBreadcrumbs = breadcrumbs.length > 1;
 
     const componentsClassName = classNames('spacer-top', { 'new-loading': loading });
 
@@ -185,27 +204,35 @@ export default class App extends React.PureComponent {
             {error}
           </div>}
 
-        <Search location={location} component={component} onError={this.handleError} />
+        <Search
+          branch={branchName}
+          component={component}
+          location={location}
+          onError={this.handleError}
+        />
 
         <div className="code-components">
           {shouldShowBreadcrumbs &&
-            <Breadcrumbs rootComponent={component} breadcrumbs={breadcrumbs} />}
+            <Breadcrumbs branch={branchName} breadcrumbs={breadcrumbs} rootComponent={component} />}
 
-          {shouldShowComponents &&
+          {sourceViewer == undefined &&
+            components != undefined &&
             <div className={componentsClassName}>
               <Components
-                rootComponent={component}
                 baseComponent={baseComponent}
+                branch={branchName}
                 components={components}
+                rootComponent={component}
               />
             </div>}
 
-          {shouldShowComponents &&
+          {sourceViewer == undefined &&
+            components != undefined &&
             <ListFooter count={components.length} total={total} loadMore={this.handleLoadMore} />}
 
-          {shouldShowSourceViewer &&
+          {sourceViewer != undefined &&
             <div className="spacer-top">
-              <SourceViewer branch={getBranchName(branch)} component={sourceViewer.key} />
+              <SourceViewer branch={branchName} component={sourceViewer.key} />
             </div>}
         </div>
       </div>

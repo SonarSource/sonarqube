@@ -17,36 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-let bucket = {};
-let childrenBucket = {};
-let breadcrumbsBucket = {};
+import * as React from 'react';
+import Workspace from '../../../components/workspace/main';
+import PinIcon from '../../../components/shared/pin-icon';
+import { translate } from '../../../helpers/l10n';
+import { Component } from '../types';
 
-export function addComponent(component) {
-  bucket[component.key] = component;
+interface Props {
+  branch?: string;
+  component: Component;
 }
 
-export function getComponent(componentKey) {
-  return bucket[componentKey];
-}
+export default function ComponentPin({ branch, component }: Props) {
+  const handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    Workspace.openComponent({ branch, key: component.key });
+  };
 
-export function addComponentChildren(componentKey, children, total, page) {
-  childrenBucket[componentKey] = { children, total, page };
-}
-
-export function getComponentChildren(componentKey) {
-  return childrenBucket[componentKey];
-}
-
-export function addComponentBreadcrumbs(componentKey, breadcrumbs) {
-  breadcrumbsBucket[componentKey] = breadcrumbs;
-}
-
-export function getComponentBreadcrumbs(componentKey) {
-  return breadcrumbsBucket[componentKey];
-}
-
-export function clearBucket() {
-  bucket = {};
-  childrenBucket = {};
-  breadcrumbsBucket = {};
+  return (
+    <a
+      className="link-no-underline"
+      onClick={handleClick}
+      title={translate('component_viewer.open_in_workspace')}
+      href="#">
+      <PinIcon />
+    </a>
+  );
 }

@@ -17,11 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import ComponentName from './ComponentName';
+import { Component } from '../types';
 
-export default function Breadcrumb({ rootComponent, component, canBrowse }) {
+interface Props {
+  branch?: string;
+  breadcrumbs: Component[];
+  rootComponent: Component;
+}
+
+export default function Breadcrumbs({ branch, breadcrumbs, rootComponent }: Props) {
   return (
-    <ComponentName rootComponent={rootComponent} component={component} canBrowse={canBrowse} />
+    <ul className="code-breadcrumbs">
+      {breadcrumbs.map((component, index) =>
+        <li key={component.key}>
+          <ComponentName
+            branch={branch}
+            canBrowse={index < breadcrumbs.length - 1}
+            component={component}
+            rootComponent={rootComponent}
+          />
+        </li>
+      )}
+    </ul>
   );
 }

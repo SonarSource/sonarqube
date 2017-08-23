@@ -62,15 +62,19 @@ export interface ComponentExtension {
 export interface Component {
   analysisDate: string;
   breadcrumbs: Array<{
+    key: string;
+    name: string;
     qualifier: string;
   }>;
   configuration: {};
   extensions?: ComponentExtension[];
   isFavorite: boolean;
   key: string;
-  organization: string;
   name: string;
+  organization: string;
+  path?: string;
   qualifier: string;
+  refKey?: string;
   version: string;
 }
 
