@@ -75,10 +75,10 @@ public class ShowActionTest {
 
   @Before
   public void setUp() throws Exception {
-    qualityGateStatus = db.measureDbTester().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
-    bugs = db.measureDbTester().insertMetric(m -> m.setKey(BUGS_KEY));
-    vulnerabilities = db.measureDbTester().insertMetric(m -> m.setKey(VULNERABILITIES_KEY));
-    codeSmells = db.measureDbTester().insertMetric(m -> m.setKey(CODE_SMELLS_KEY));
+    qualityGateStatus = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
+    bugs = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
+    vulnerabilities = db.measures().insertMetric(m -> m.setKey(VULNERABILITIES_KEY));
+    codeSmells = db.measures().insertMetric(m -> m.setKey(CODE_SMELLS_KEY));
   }
 
   @Test
@@ -197,7 +197,7 @@ public class ShowActionTest {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
     SnapshotDto branchAnalysis = db.components().insertSnapshot(branch);
-    db.measureDbTester().insertMeasure(branch, branchAnalysis, qualityGateStatus, m -> m.setData("OK"));
+    db.measures().insertMeasure(branch, branchAnalysis, qualityGateStatus, m -> m.setData("OK"));
 
     ShowWsResponse response = ws.newRequest()
       .setParam("component", branch.getKey())
@@ -217,9 +217,9 @@ public class ShowActionTest {
     ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
       b -> b.setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
     SnapshotDto branchAnalysis = db.components().insertSnapshot(shortLivingBranch);
-    db.measureDbTester().insertMeasure(shortLivingBranch, branchAnalysis, bugs, m -> m.setValue(1d));
-    db.measureDbTester().insertMeasure(shortLivingBranch, branchAnalysis, vulnerabilities, m -> m.setValue(2d));
-    db.measureDbTester().insertMeasure(shortLivingBranch, branchAnalysis, codeSmells, m -> m.setValue(3d));
+    db.measures().insertMeasure(shortLivingBranch, branchAnalysis, bugs, m -> m.setValue(1d));
+    db.measures().insertMeasure(shortLivingBranch, branchAnalysis, vulnerabilities, m -> m.setValue(2d));
+    db.measures().insertMeasure(shortLivingBranch, branchAnalysis, codeSmells, m -> m.setValue(3d));
 
     ShowWsResponse response = ws.newRequest()
       .setParam("component", shortLivingBranch.getKey())
