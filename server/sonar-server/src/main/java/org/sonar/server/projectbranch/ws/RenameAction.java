@@ -19,7 +19,7 @@
  */
 package org.sonar.server.projectbranch.ws;
 
-import com.google.common.io.Resources;
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,35 +30,31 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchKeyType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_DELETE;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_RENAME;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
 
-public class DeleteAction implements BranchWsAction {
-  private final DbClient dbClient;
-  private final UserSession userSession;
-  private final ComponentCleanerService componentCleanerService;
+public class RenameAction implements BranchWsAction {
   private final ComponentFinder componentFinder;
+  private final UserSession userSession;
+  private final DbClient dbClient;
 
-  public DeleteAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, ComponentCleanerService componentCleanerService) {
+  public RenameAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
-    this.componentCleanerService = componentCleanerService;
   }
 
   @Override
   public void define(NewController context) {
-    WebService.NewAction action = context.createAction(ACTION_DELETE)
+    WebService.NewAction action = context.createAction(ACTION_RENAME)
       .setSince("6.6")
-      .setDescription("Delete a non-main branch of a project. Requires permission to administer the project.")
-      .setResponseExample(Resources.getResource(getClass(), "list-example.json"))
+      .setDescription("Rename the main branch of a project. <br />"
+        + "Requires 'Administer' permission on the specified project.")
       .setInternal(true)
       .setPost(true)
       .setHandler(this);
@@ -70,8 +66,8 @@ public class DeleteAction implements BranchWsAction {
       .setRequired(true);
     action
       .createParam(PARAM_BRANCH)
-      .setDescription("Name of the branch to delete. Can't be the main branch of the project.")
-      .setExampleValue("branch1")
+      .setDescription("New name of the main branch")
+      .setExampleValue("master")
       .setRequired(true);
   }
 
@@ -85,15 +81,13 @@ public class DeleteAction implements BranchWsAction {
       ComponentDto project = componentFinder.getRootComponentByUuidOrKey(dbSession, null, projectKey);
       checkPermission(project);
 
-      BranchDto branch = checkFoundWithOptional(
-        dbClient.branchDao().selectByKey(dbSession, project.uuid(), BranchKeyType.BRANCH, branchKey),
-        "Branch '%s' not found for project '%s'", branchKey, projectKey);
-
-      if (branch.isMain()) {
-        throw new IllegalArgumentException("Only non-main branches can be deleted");
+      Optional<BranchDto> branch = dbClient.branchDao().selectByKey(dbSession, project.uuid(), BranchKeyType.BRANCH, branchKey);
+      if (branch.isPresent() && !branch.get().isMain()) {
+        throw new IllegalArgumentException("Impossible to update branch name: a branch with name \"" + branchKey + "\" already exists in the project.");
       }
-      ComponentDto branchComponent = componentFinder.getByKeyAndBranch(dbSession, projectKey, branchKey);
-      componentCleanerService.deleteBranch(dbSession, branchComponent);
+
+      dbClient.branchDao().updateMainBranchName(dbSession, project.uuid(), branchKey);
+      dbSession.commit();
       response.noContent();
     }
   }
