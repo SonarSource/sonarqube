@@ -310,7 +310,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery(this.state.query),
-        branch: getBranchName(this.props.branch),
+        branch: this.props.branch && getBranchName(this.props.branch),
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined,
         open: issue
@@ -329,7 +329,7 @@ export default class App extends React.PureComponent {
         pathname: this.props.location.pathname,
         query: {
           ...serializeQuery(this.state.query),
-          branch: getBranchName(this.props.branch),
+          branch: this.props.branch && getBranchName(this.props.branch),
           id: this.props.component && this.props.component.key,
           myIssues: this.state.myIssues ? 'true' : undefined,
           open: undefined
@@ -365,7 +365,7 @@ export default class App extends React.PureComponent {
       : undefined;
 
     const parameters = {
-      branch: getBranchName(this.props.branch),
+      branch: this.props.branch && getBranchName(this.props.branch),
       componentKeys: component && component.key,
       s: 'FILE_LINE',
       ...serializeQuery(query),
@@ -556,7 +556,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery({ ...this.state.query, ...changes }),
-        branch: getBranchName(this.props.branch),
+        branch: this.props.branch && getBranchName(this.props.branch),
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined
       }
@@ -572,7 +572,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery({ ...this.state.query, assigned: true, assignees: [] }),
-        branch: getBranchName(this.props.branch),
+        branch: this.props.branch && getBranchName(this.props.branch),
         id: this.props.component && this.props.component.key,
         myIssues: myIssues ? 'true' : undefined
       }
@@ -599,7 +599,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...DEFAULT_QUERY,
-        branch: getBranchName(this.props.branch),
+        branch: this.props.branch && getBranchName(this.props.branch),
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined
       }
@@ -892,7 +892,7 @@ export default class App extends React.PureComponent {
             <div>
               {openIssue
                 ? <IssuesSourceViewer
-                    branch={getBranchName(this.props.branch)}
+                    branch={this.props.branch && getBranchName(this.props.branch)}
                     component={component}
                     openIssue={openIssue}
                     loadIssues={this.fetchIssuesForComponent}
