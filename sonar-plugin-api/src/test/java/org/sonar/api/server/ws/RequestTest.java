@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
@@ -469,7 +470,7 @@ public class RequestTest {
 
   @DataProvider
   public static Object[][] date_times() {
-    return new Object[][] {
+    return new Object[][]{
       {"2014-05-27", parseDate("2014-05-27")},
       {"2014-05-27T15:50:45+0100", parseDateTime("2014-05-27T15:50:45+0100")},
       {null, null}
@@ -584,6 +585,7 @@ public class RequestTest {
     private final ListMultimap<String, String> multiParams = ArrayListMultimap.create();
     private final Map<String, String> params = new HashMap<>();
     private final Map<String, Part> parts = new HashMap<>();
+    private final Map<String, String> headers = new HashMap<>();
 
     @Override
     public String method() {
@@ -642,6 +644,16 @@ public class RequestTest {
 
     public FakeRequest setPart(String key, InputStream input, String fileName) {
       parts.put(key, new PartImpl(input, fileName));
+      return this;
+    }
+
+    @Override
+    public Optional<String> header(String name) {
+      return Optional.ofNullable(headers.get(name));
+    }
+
+    public FakeRequest setHeader(String name, String value) {
+      headers.put(name, value);
       return this;
     }
   }

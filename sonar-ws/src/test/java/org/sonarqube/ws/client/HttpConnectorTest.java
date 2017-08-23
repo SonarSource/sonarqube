@@ -96,6 +96,21 @@ public class HttpConnectorTest {
   }
 
   @Test
+  public void add_headers_to_GET_request() throws Exception {
+    answerHelloWorld();
+    GetRequest request = new GetRequest("api/issues/search")
+      .setHeader("X-Foo", "fooz")
+      .setHeader("X-Bar", "barz");
+
+    underTest = HttpConnector.newBuilder().url(serverUrl).build();
+    underTest.call(request);
+
+    RecordedRequest recordedRequest = server.takeRequest();
+    assertThat(recordedRequest.getHeader("X-Foo")).isEqualTo("fooz");
+    assertThat(recordedRequest.getHeader("X-Bar")).isEqualTo("barz");
+  }
+
+  @Test
   public void use_basic_authentication() throws Exception {
     answerHelloWorld();
     underTest = HttpConnector.newBuilder()
@@ -256,6 +271,22 @@ public class HttpConnectorTest {
     assertThat(recordedRequest.getMethod()).isEqualTo("POST");
     assertThat(recordedRequest.getPath()).isEqualTo("/api/issues/search");
     assertThat(recordedRequest.getBody().readUtf8()).isEqualTo("severity=MAJOR");
+    assertThat(recordedRequest.getHeader("Accept")).isEqualTo("application/x-protobuf");
+  }
+
+  @Test
+  public void add_header_to_POST_request() throws Exception {
+    answerHelloWorld();
+    PostRequest request = new PostRequest("api/issues/search")
+      .setHeader("X-Foo", "fooz")
+      .setHeader("X-Bar", "barz");
+
+    underTest = HttpConnector.newBuilder().url(serverUrl).build();
+    underTest.call(request);
+
+    RecordedRequest recordedRequest = server.takeRequest();
+    assertThat(recordedRequest.getHeader("X-Foo")).isEqualTo("fooz");
+    assertThat(recordedRequest.getHeader("X-Bar")).isEqualTo("barz");
   }
 
   @Test

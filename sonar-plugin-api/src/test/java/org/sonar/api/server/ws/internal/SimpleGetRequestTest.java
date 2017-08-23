@@ -88,4 +88,21 @@ public class SimpleGetRequestTest {
 
     assertThat(underTest.getParams()).containsOnly(entry("foo", "bar"), entry("fee", "beer"));
   }
+
+  @Test
+  public void header_returns_empty_if_header_is_not_present() {
+    assertThat(underTest.header("foo")).isEmpty();
+  }
+
+  @Test
+  public void header_returns_value_of_header_if_present() {
+    underTest.setHeader("foo", "bar");
+    assertThat(underTest.header("foo")).hasValue("bar");
+  }
+
+  @Test
+  public void header_returns_empty_string_value_if_header_is_present_without_value() {
+    underTest.setHeader("foo", "");
+    assertThat(underTest.header("foo")).hasValue("");
+  }
 }

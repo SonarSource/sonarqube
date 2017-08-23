@@ -38,7 +38,7 @@ public class BaseRequestTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  FakeRequest underTest = new FakeRequest("api/foo");
+  private FakeRequest underTest = new FakeRequest("api/foo");
 
   @Test
   public void test_defaults() {
@@ -94,6 +94,22 @@ public class BaseRequestTest {
   public void fail_if_null_param_key() {
     expectedException.expect(IllegalArgumentException.class);
     underTest.setParam(null, "val");
+  }
+
+  @Test
+  public void headers_are_empty_by_default() {
+    assertThat(underTest.getHeaders().getNames()).isEmpty();
+  }
+
+  @Test
+  public void set_and_get_headers() {
+    underTest.setHeader("foo", "fooz");
+    underTest.setHeader("bar", "barz");
+
+    assertThat(underTest.getHeaders().getNames()).containsExactlyInAnyOrder("foo", "bar");
+    assertThat(underTest.getHeaders().getValue("foo")).hasValue("fooz");
+    assertThat(underTest.getHeaders().getValue("bar")).hasValue("barz");
+    assertThat(underTest.getHeaders().getValue("xxx")).isEmpty();
   }
 
   private void assertParameters(MapEntry<String, String>... values) {
