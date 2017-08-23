@@ -29,6 +29,7 @@ import org.sonarqube.ws.client.WsConnector;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_DELETE;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_RENAME;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.CONTROLLER;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
@@ -54,6 +55,13 @@ public class ProjectBranchesService extends BaseService {
 
   public void delete(String project, String branch) {
     PostRequest post = new PostRequest(path(ACTION_DELETE))
+      .setParam(PARAM_PROJECT, project)
+      .setParam(PARAM_BRANCH, branch);
+    call(post);
+  }
+  
+  public void rename(String project, String branch) {
+    PostRequest post = new PostRequest(path(ACTION_RENAME))
       .setParam(PARAM_PROJECT, project)
       .setParam(PARAM_BRANCH, branch);
     call(post);
