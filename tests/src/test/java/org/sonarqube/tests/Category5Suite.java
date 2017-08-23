@@ -22,6 +22,7 @@ package org.sonarqube.tests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.sonarqube.tests.ce.CeWorkersTest;
+import org.sonarqube.tests.cluster.DataCenterEditionTest;
 import org.sonarqube.tests.qualityProfile.ActiveRuleEsResilienceTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesNotificationTest;
 import org.sonarqube.tests.rule.RuleEsResilienceTest;
@@ -58,7 +59,8 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
   RuleEsResilienceTest.class,
   UserEsResilienceTest.class,
   // ce
-  CeWorkersTest.class
+  CeWorkersTest.class,
+  DataCenterEditionTest.class
 })
 public class Category5Suite {
 
