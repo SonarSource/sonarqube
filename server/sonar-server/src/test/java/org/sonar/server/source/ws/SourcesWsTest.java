@@ -64,7 +64,7 @@ public class SourcesWsTest {
     assertThat(raw.since()).isEqualTo("5.0");
     assertThat(raw.isInternal()).isFalse();
     assertThat(raw.responseExampleAsString()).isNotEmpty();
-    assertThat(raw.params()).hasSize(1);
+    assertThat(raw.params()).hasSize(2);
 
     WebService.Action lines = controller.action("lines");
     assertThat(lines).isNotNull();
