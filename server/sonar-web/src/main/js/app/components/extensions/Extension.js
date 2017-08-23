@@ -22,6 +22,7 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
+import { injectIntl } from 'react-intl';
 import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 import { getCurrentUser } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
@@ -35,6 +36,7 @@ type Props = {
     key: string,
     name: string
   },
+  intl: Object,
   location: { hash: string },
   onFail: string => void,
   options?: {},
@@ -74,6 +76,7 @@ class Extension extends React.PureComponent {
       store,
       el: this.container,
       currentUser: this.props.currentUser,
+      intl: this.props.intl,
       location: this.props.location,
       router: this.props.router,
       ...this.props.options
@@ -110,4 +113,4 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = { onFail: addGlobalErrorMessage };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Extension));
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withRouter(Extension)));
