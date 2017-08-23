@@ -225,7 +225,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     return qualityProfileDbTester;
   }
 
-  public MeasureDbTester measureDbTester() {
+  public MeasureDbTester measures() {
     return measureDbTester;
   }
 

@@ -156,10 +156,10 @@ public class ComponentActionTest {
   public void metric_without_a_domain() {
     ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto analysis = db.getDbClient().snapshotDao().insert(dbSession, newAnalysis(project));
-    MetricDto metricWithoutDomain = db.measureDbTester().insertMetric(m -> m
+    MetricDto metricWithoutDomain = db.measures().insertMetric(m -> m
       .setValueType(ValueType.INT.name())
       .setDomain(null));
-    db.measureDbTester().insertMeasure(project, analysis, metricWithoutDomain);
+    db.measures().insertMeasure(project, analysis, metricWithoutDomain);
 
     ComponentWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEY, project.getKey())
