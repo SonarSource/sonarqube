@@ -32,6 +32,7 @@ public class DbVersion66 implements DbVersion {
       .add(1802, "Add branch column to projects table", AddBranchColumnToProjectsTable.class)
       .add(1803, "Add incremental column to snapthots table", AddIncrementalColumnToSnapshotsTable.class)
       .add(1804, "Create table CE task characteristics", CreateTableCeTaskCharacteristics.class)
+      .add(1805, "Populate project_branches with existing main branches", PopulateMainProjectBranches.class)
     ;
   }
 }
