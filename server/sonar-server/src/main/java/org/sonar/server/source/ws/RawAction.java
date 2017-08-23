@@ -35,6 +35,8 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+
 public class RawAction implements SourcesWsAction {
 
   private final DbClient dbClient;
@@ -62,14 +64,20 @@ public class RawAction implements SourcesWsAction {
       .setRequired(true)
       .setDescription("File key")
       .setExampleValue("my_project:src/foo/Bar.php");
+
+    action
+      .createParam("branch")
+      .setDescription("Branch key")
+      .setInternal(true)
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
-
+    String branch = request.param("branch");
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
+      ComponentDto file = componentFinder.getByKeyAndOptionalBranch(dbSession, fileKey, branch);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
 
       Optional<Iterable<String>> lines = sourceService.getLinesAsRawText(dbSession, file.uuid(), 1, Integer.MAX_VALUE);
