@@ -35,6 +35,7 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.batch.BatchWsModule;
+import org.sonar.server.branch.BranchFeatureProxyImpl;
 import org.sonar.server.ce.ws.CeWsModule;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
@@ -508,6 +509,9 @@ public class PlatformLevel4 extends PlatformLevel {
       UninstallAction.class,
       CancelAllAction.class,
       PluginsWs.class,
+
+      // Branch
+      BranchFeatureProxyImpl.class,
 
       // privileged plugins
       PrivilegedPluginsBootstraper.class,
