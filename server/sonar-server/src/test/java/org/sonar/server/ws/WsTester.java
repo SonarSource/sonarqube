@@ -20,18 +20,17 @@
 package org.sonar.server.ws;
 
 import com.google.common.collect.Maps;
-import com.google.protobuf.GeneratedMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
@@ -47,6 +46,7 @@ import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.ws.RequestVerifier.verifyRequest;
 
@@ -64,6 +64,7 @@ public class WsTester {
     private String mediaType = MediaTypes.JSON;
 
     private Map<String, String> params = Maps.newHashMap();
+    private Map<String, String> headers = Maps.newHashMap();
     private final Map<String, Part> parts = Maps.newHashMap();
 
     private TestRequest(String method) {
@@ -88,6 +89,16 @@ public class WsTester {
     @Override
     public boolean hasParam(String key) {
       return params.keySet().contains(key);
+    }
+
+    @Override
+    public Optional<String> header(String name) {
+      return Optional.ofNullable(headers.get(name));
+    }
+
+    public TestRequest setHeader(String name, String value) {
+      this.headers.put(requireNonNull(name), requireNonNull(value));
+      return this;
     }
 
     @Override

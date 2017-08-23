@@ -25,6 +25,7 @@ import com.google.common.net.HttpHeaders;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.server.ws.internal.PartImpl;
@@ -136,4 +137,8 @@ public class ServletRequest extends ValidatingRequest {
     return source.getRequestURI().replaceFirst(source.getContextPath(), "");
   }
 
+  @Override
+  public Optional<String> header(String name) {
+    return Optional.ofNullable(source.getHeader(name));
+  }
 }

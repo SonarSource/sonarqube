@@ -41,9 +41,9 @@ public class ServletRequestTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  HttpServletRequest source = mock(HttpServletRequest.class);
+  private HttpServletRequest source = mock(HttpServletRequest.class);
 
-  ServletRequest underTest = new ServletRequest(source);
+  private ServletRequest underTest = new ServletRequest(source);
 
   @Test
   public void call_method() {
@@ -184,4 +184,23 @@ public class ServletRequestTest {
 
     assertThat(underTest.toString()).isEqualTo("http:localhost:9000/api/issues?components=sonar");
   }
+
+  @Test
+  public void header_returns_the_value_of_http_header() {
+    when(source.getHeader("Accept")).thenReturn("text/plain");
+    assertThat(underTest.header("Accept")).hasValue("text/plain");
+  }
+
+  @Test
+  public void header_is_empty_if_absent_from_request() {
+    when(source.getHeader("Accept")).thenReturn(null);
+    assertThat(underTest.header("Accept")).isEmpty();
+  }
+
+  @Test
+  public void header_has_empty_value_if_present_in_request_without_value() {
+    when(source.getHeader("Accept")).thenReturn("");
+    assertThat(underTest.header("Accept")).hasValue("");
+  }
+
 }

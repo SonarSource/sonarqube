@@ -22,10 +22,12 @@ package org.sonarqube.ws.client;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -36,6 +38,7 @@ import org.sonarqube.ws.MediaTypes;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 
 abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
@@ -45,6 +48,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
   private String mediaType = MediaTypes.JSON;
 
   private final DefaultParameters parameters = new DefaultParameters();
+  private final DefaultHeaders headers = new DefaultHeaders();
 
   BaseRequest(String path) {
     this.path = path;
@@ -131,6 +135,17 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
     return parameters;
   }
 
+  @Override
+  public Headers getHeaders() {
+    return headers;
+  }
+
+  public SELF setHeader(String name, @Nullable String value) {
+    requireNonNull(name, "Header name can't be null");
+    headers.setValue(name, value);
+    return (SELF) this;
+  }
+
   private static class DefaultParameters implements Parameters {
     // preserve insertion order
     private final ListMultimap<String, String> keyValues = LinkedListMultimap.create();
@@ -166,6 +181,31 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
       this.keyValues.putAll(key, values.stream().map(Object::toString).filter(Objects::nonNull).collect(Collectors.toList()));
 
       return this;
+    }
+  }
+
+  private static class DefaultHeaders implements Headers {
+    private final Map<String, String> keyValues = new HashMap<>();
+
+    @Override
+    public Optional<String> getValue(String name) {
+      return Optional.ofNullable(keyValues.get(name));
+    }
+
+    private DefaultHeaders setValue(String name, @Nullable String value) {
+      checkArgument(!isNullOrEmpty(name));
+
+      if (value == null) {
+        keyValues.remove(name);
+      } else {
+        keyValues.put(name, value);
+      }
+      return this;
+    }
+
+    @Override
+    public Set<String> getNames() {
+      return unmodifiableSet(keyValues.keySet());
     }
   }
 }
