@@ -24,6 +24,9 @@ import Modal from 'react-modal';
 import * as measures from '../../helpers/measures';
 import * as request from '../../helpers/request';
 import * as icons from '../../components/icons-components/icons';
+import DateFromNow from '../../components/intl/DateFromNow';
+import DateFormatter from '../../components/intl/DateFormatter';
+import DateTimeFormatter from '../../components/intl/DateTimeFormatter';
 import FavoriteContainer from '../../components/controls/FavoriteContainer';
 import ListFooter from '../../components/controls/ListFooter';
 import Tooltip from '../../components/controls/Tooltip';
@@ -40,6 +43,9 @@ const exposeLibraries = () => {
   window.SonarMeasures = measures;
   window.SonarRequest = request;
   window.SonarComponents = {
+    DateFromNow,
+    DateFormatter,
+    DateTimeFormatter,
     FavoriteContainer,
     ListFooter,
     Modal,
