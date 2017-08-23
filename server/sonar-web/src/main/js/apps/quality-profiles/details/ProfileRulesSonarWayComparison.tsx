@@ -35,7 +35,7 @@ export default function ProfileRulesSonarWayComparison(props: Props) {
   const url = getRulesUrl(
     {
       qprofile: props.profile,
-      activation: false,
+      activation: 'false',
       compareToProfile: props.sonarway,
       languages: props.language
     },

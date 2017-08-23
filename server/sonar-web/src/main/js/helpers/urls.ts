@@ -20,58 +20,56 @@
 import { stringify } from 'querystring';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 
-/**
- * Generate URL for a component's home page
- * @param {string} componentKey
- * @returns {string}
- */
-export function getComponentUrl(componentKey) {
-  return window.baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey);
+interface Query {
+  [x: string]: string;
 }
 
-export function getProjectUrl(key) {
-  return {
-    pathname: '/dashboard',
-    query: { id: key }
-  };
+interface Location {
+  pathname: string;
+  query?: Query;
+}
+
+/**
+ * Generate URL for a component's home page
+ */
+export function getComponentUrl(componentKey: string): string {
+  return (window as any).baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey);
+}
+
+export function getProjectUrl(key: string): Location {
+  return { pathname: '/dashboard', query: { id: key } };
 }
 
 /**
  * Generate URL for a global issues page
  */
-export function getIssuesUrl(query) {
+export function getIssuesUrl(query: Query): Location {
   return { pathname: '/issues', query };
 }
 
 /**
  * Generate URL for a component's issues page
  */
-export function getComponentIssuesUrl(componentKey, query) {
-  return { pathname: '/project/issues', query: { ...query, id: componentKey } };
+export function getComponentIssuesUrl(componentKey: string, query?: Query): Location {
+  return { pathname: '/project/issues', query: { ...query || {}, id: componentKey } };
 }
 
-export function getComponentIssuesUrlAsString(componentKey, query) {
+export function getComponentIssuesUrlAsString(componentKey: string, query?: Query): string {
   const path = getComponentIssuesUrl(componentKey, query);
-  return `${window.baseUrl}${path.pathname}?${stringify(path.query)}`;
+  return `${(window as any).baseUrl}${path.pathname}?${stringify(path.query)}`;
 }
 
 /**
  * Generate URL for a component's drilldown page
- * @param {string} componentKey
- * @param {string} metric
- * @returns {Object}
  */
-export function getComponentDrilldownUrl(componentKey, metric) {
+export function getComponentDrilldownUrl(componentKey: string, metric: string): Location {
   return { pathname: '/component_measures', query: { id: componentKey, metric } };
 }
 
 /**
  * Generate URL for a component's measure history
- * @param {string} componentKey
- * @param {string} metric
- * @returns {Object}
  */
-export function getComponentMeasureHistory(componentKey, metric) {
+export function getComponentMeasureHistory(componentKey: string, metric: string): Location {
   return {
     pathname: '/project/activity',
     query: { id: componentKey, graph: 'custom', custom_metrics: metric }
@@ -80,30 +78,29 @@ export function getComponentMeasureHistory(componentKey, metric) {
 
 /**
  * Generate URL for a component's permissions page
- * @param {string} componentKey
- * @returns {Object}
  */
-export function getComponentPermissionsUrl(componentKey) {
-  return {
-    pathname: '/project_roles',
-    query: { id: componentKey }
-  };
+export function getComponentPermissionsUrl(componentKey: string): Location {
+  return { pathname: '/project_roles', query: { id: componentKey } };
 }
 
 /**
  * Generate URL for a quality profile
  */
-export function getQualityProfileUrl(name, language, organization) {
+export function getQualityProfileUrl(
+  name: string,
+  language: string,
+  organization?: string | null
+): Location {
   return getProfilePath(name, language, organization);
 }
 
-export function getQualityGateUrl(key /*: string */, organization /*: ?string */) {
+export function getQualityGateUrl(key: string, organization?: string | null): Location {
   return {
     pathname: getQualityGatesUrl(organization).pathname + '/show/' + encodeURIComponent(key)
   };
 }
 
-export function getQualityGatesUrl(organization /*: ?string */) {
+export function getQualityGatesUrl(organization?: string | null): Location {
   return {
     pathname:
       (organization ? '/organizations/' + encodeURIComponent(organization) : '') + '/quality_gates'
@@ -112,10 +109,8 @@ export function getQualityGatesUrl(organization /*: ?string */) {
 
 /**
  * Generate URL for the rules page
- * @param {object} query
- * @returns {string}
  */
-export function getRulesUrl(query, organization /*: ?string */) {
+export function getRulesUrl(query: { [x: string]: string }, organization?: string | null): string {
   const path = organization ? `/organizations/${organization}/rules` : '/coding_rules';
 
   if (query) {
@@ -132,14 +127,16 @@ export function getRulesUrl(query, organization /*: ?string */) {
 
 /**
  * Generate URL for the rules page filtering only active deprecated rules
- * @param {object} query
- * @returns {string}
  */
-export function getDeprecatedActiveRulesUrl(query = {}, organization /*: ?string */) {
+export function getDeprecatedActiveRulesUrl(query = {}, organization?: string | null): string {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
   return getRulesUrl({ ...query, ...baseQuery }, organization);
 }
 
-export const getProjectsUrl = () => window.baseUrl + '/projects';
+export function getProjectsUrl(): string {
+  return (window as any).baseUrl + '/projects';
+}
 
-export const getMarkdownHelpUrl = () => window.baseUrl + '/markdown/help';
+export function getMarkdownHelpUrl(): string {
+  return (window as any).baseUrl + '/markdown/help';
+}

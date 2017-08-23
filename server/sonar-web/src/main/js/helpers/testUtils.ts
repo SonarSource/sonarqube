@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ShallowWrapper } from 'enzyme';
+
 export const mockEvent = {
   target: { blur() {} },
   currentTarget: { blur() {} },
@@ -24,41 +26,46 @@ export const mockEvent = {
   stopPropagation() {}
 };
 
-export const click = (element, event = {}) => element.simulate('click', { ...mockEvent, ...event });
+export function click(element: ShallowWrapper, event = {}): void {
+  element.simulate('click', { ...mockEvent, ...event });
+}
 
-export const clickOutside = (event = {}) => {
+export function clickOutside(event = {}): void {
   const dispatchedEvent = new MouseEvent('click', event);
   window.dispatchEvent(dispatchedEvent);
-};
+}
 
-export const submit = element =>
+export function submit(element: ShallowWrapper): void {
   element.simulate('submit', {
     preventDefault() {}
   });
+}
 
-export const change = (element, value) =>
+export function change(element: ShallowWrapper, value: string): void {
   element.simulate('change', {
     target: { value },
     currentTarget: { value }
   });
+}
 
-export const keydown = keyCode => {
-  const event = new KeyboardEvent('keydown', { keyCode });
+export function keydown(keyCode: number): void {
+  const event = new KeyboardEvent('keydown', { keyCode } as KeyboardEventInit);
   document.dispatchEvent(event);
-};
+}
 
-export const elementKeydown = (element, keyCode) => {
+export function elementKeydown(element: ShallowWrapper, keyCode: number): void {
   element.simulate('keydown', {
     currentTarget: { element },
     keyCode,
     preventDefault() {}
   });
-};
+}
 
-export const doAsync = fn =>
-  new Promise(resolve => {
+export function doAsync(fn: Function): Promise<void> {
+  return new Promise(resolve => {
     setTimeout(() => {
       fn();
       resolve();
     }, 0);
   });
+}

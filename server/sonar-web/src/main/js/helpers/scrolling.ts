@@ -17,26 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { debounce } from 'lodash';
 
 const SCROLLING_DURATION = 100;
 const SCROLLING_INTERVAL = 10;
 const SCROLLING_STEPS = SCROLLING_DURATION / SCROLLING_INTERVAL;
 
-function getScrollPosition(element /*: HTMLElement */) /*: number */ {
-  return element === window ? window.scrollY : element.scrollTop;
+function isWindow(element: HTMLElement | Window): element is Window {
+  return element === window;
 }
 
-function scrollElement(element /*: HTMLElement */, position /*: number */) {
-  if (element === window) {
+function getScrollPosition(element: HTMLElement | Window): number {
+  return isWindow(element) ? window.scrollY : element.scrollTop;
+}
+
+function scrollElement(element: HTMLElement | Window, position: number): void {
+  if (isWindow(element)) {
     window.scrollTo(0, position);
   } else {
     element.scrollTop = position;
   }
 }
 
-let smoothScrollTop = (y /*: number */, parent) => {
+let smoothScrollTop = (y: number, parent: HTMLElement | Window) => {
   let scrollTop = getScrollPosition(parent);
   const scrollingDown = y > scrollTop;
   const step = Math.ceil(Math.abs(y - scrollTop) / SCROLLING_STEPS);
@@ -61,15 +64,15 @@ let smoothScrollTop = (y /*: number */, parent) => {
 
 smoothScrollTop = debounce(smoothScrollTop, SCROLLING_DURATION, { leading: true });
 
-export const scrollToElement = (
-  element /*: HTMLElement */,
-  options /*: {
-    topOffset?: number,
-    bottomOffset?: number,
-    parent?: HTMLElement,
-    smooth?: boolean
-  } */
-) => {
+export function scrollToElement(
+  element: HTMLElement,
+  options: {
+    topOffset?: number;
+    bottomOffset?: number;
+    parent?: HTMLElement;
+    smooth?: boolean;
+  }
+): void {
   const opts = { topOffset: 0, bottomOffset: 0, parent: window, smooth: true, ...options };
   const { parent } = opts;
 
@@ -77,10 +80,11 @@ export const scrollToElement = (
 
   const scrollTop = getScrollPosition(parent);
 
-  const height /*: number */ =
-    parent === window ? window.innerHeight : parent.getBoundingClientRect().height;
+  const height: number = isWindow(parent)
+    ? window.innerHeight
+    : parent.getBoundingClientRect().height;
 
-  const parentTop = parent === window ? 0 : parent.getBoundingClientRect().top;
+  const parentTop = isWindow(parent) ? 0 : parent.getBoundingClientRect().top;
 
   if (top - parentTop < opts.topOffset) {
     const goal = scrollTop - opts.topOffset + top - parentTop;
@@ -99,4 +103,4 @@ export const scrollToElement = (
       scrollElement(parent, goal);
     }
   }
-};
+}

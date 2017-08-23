@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function collapsePath(path, limit = 30) {
+export function collapsePath(path: string, limit = 30): string {
   if (typeof path !== 'string') {
     return '';
   }
@@ -38,7 +38,7 @@ export function collapsePath(path, limit = 30) {
     cut = true;
   }
 
-  const body = [].concat(head, cut ? ['...'] : [], middle, tail);
+  const body = [head, ...(cut ? ['...'] : []), ...middle, tail];
   return body.join('/');
 }
 
@@ -47,10 +47,8 @@ export function collapsePath(path, limit = 30) {
  * @example
  * // returns 'src/.../js/components/navigator/app/models/'
  * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
- * @param {string} path
- * @returns {string|null}
  */
-export function collapsedDirFromPath(path) {
+export function collapsedDirFromPath(path: string | null): string | null {
   const limit = 30;
   if (typeof path === 'string') {
     const tokens = path.split('/').slice(0, -1);
@@ -64,7 +62,7 @@ export function collapsedDirFromPath(path) {
         middle.shift();
         cut = true;
       }
-      const body = [].concat(head, cut ? ['...'] : [], middle, tail);
+      const body = [head, ...(cut ? ['...'] : []), ...middle, tail];
       return body.join('/') + '/';
     } else {
       return tokens.join('/') + '/';
@@ -79,10 +77,8 @@ export function collapsedDirFromPath(path) {
  * * @example
  * // returns 'state.js'
  * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
- * @param {string} path
- * @returns {string|null}
  */
-export function fileFromPath(path) {
+export function fileFromPath(path: string | null): string | null {
   if (typeof path === 'string') {
     const tokens = path.split('/');
     return tokens[tokens.length - 1];
@@ -91,7 +87,7 @@ export function fileFromPath(path) {
   }
 }
 
-export function splitPath(path) {
+export function splitPath(path: string): { head: string; tail: string } | null {
   if (typeof path === 'string') {
     const tokens = path.split('/');
     return {
@@ -103,7 +99,7 @@ export function splitPath(path) {
   }
 }
 
-export function limitComponentName(str, limit = 30) {
+export function limitComponentName(str: string, limit = 30): string {
   if (typeof str === 'string') {
     return str.length > limit ? str.substr(0, limit) + '...' : str;
   } else {

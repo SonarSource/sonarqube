@@ -21,8 +21,6 @@
  * Latinize string by removing all diacritics
  * From http://stackoverflow.com/questions/990904/javascript-remove-accents-in-strings
  */
-/* eslint max-len: 0 */
-/* jscs:disable maximumLineLength */
 const defaultDiacriticsRemovalap = [
   {
     base: 'A',
@@ -395,7 +393,7 @@ const defaultDiacriticsRemovalap = [
   }
 ];
 
-const diacriticsMap = {};
+const diacriticsMap: { [x: string]: string } = {};
 for (let i = 0; i < defaultDiacriticsRemovalap.length; i++) {
   const letters = defaultDiacriticsRemovalap[i].letters.split('');
   for (let j = 0; j < letters.length; j++) {
@@ -404,8 +402,6 @@ for (let i = 0; i < defaultDiacriticsRemovalap.length; i++) {
 }
 
 // "what?" version ... http://jsperf.com/diacritics/12
-function removeDiacritics(str) {
+export default function removeDiacritics(str: string): string {
   return str.replace(/[^\u0000-\u007E]/g, a => diacriticsMap[a] || a);
 }
-
-export default removeDiacritics;
