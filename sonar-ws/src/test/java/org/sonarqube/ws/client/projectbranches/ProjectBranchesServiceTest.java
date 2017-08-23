@@ -79,5 +79,17 @@ public class ProjectBranchesServiceTest {
       .hasParam(PARAM_BRANCH, "my_branch")
       .andNoOtherParam();
   }
+  
+  @Test
+  public void rename() {
+    underTest.rename("projectKey", "my_branch");
+
+    PostRequest postRequest = serviceTester.getPostRequest();
+    serviceTester.assertThat(postRequest)
+      .hasPath("rename")
+      .hasParam(PARAM_PROJECT, "projectKey")
+      .hasParam(PARAM_BRANCH, "my_branch")
+      .andNoOtherParam();
+  }
 
 }
