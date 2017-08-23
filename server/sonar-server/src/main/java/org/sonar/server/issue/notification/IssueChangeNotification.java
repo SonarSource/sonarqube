@@ -61,7 +61,9 @@ public class IssueChangeNotification extends Notification {
   public IssueChangeNotification setProject(String projectKey, String projectName, @Nullable String branch) {
     setFieldValue("projectName", projectName);
     setFieldValue("projectKey", projectKey);
-    setFieldValue("branch", branch);
+    if (branch != null) {
+      setFieldValue("branch", branch);
+    }
     return this;
   }
 
