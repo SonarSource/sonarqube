@@ -36,6 +36,7 @@ import org.sonar.server.computation.task.projectanalysis.api.posttask.PostProjec
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.task.projectanalysis.component.BranchLoader;
+import org.sonar.server.computation.task.projectanalysis.component.BranchPersister;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DisabledComponentsHolderImpl;
@@ -244,6 +245,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       ComponentIssuesLoader.class,
       BaseIssuesLoader.class,
       IssueTrackingDelegator.class,
+      BranchPersister.class,
 
       // filemove
       SourceSimilarityImpl.class,
