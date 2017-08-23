@@ -229,7 +229,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     return measureDbTester;
   }
 
-  public FileSourceTester fileSourceTester() {
+  public FileSourceTester fileSources() {
     return fileSourceTester;
   }
 

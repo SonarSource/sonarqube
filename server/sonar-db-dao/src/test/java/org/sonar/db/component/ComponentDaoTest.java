@@ -462,11 +462,11 @@ public class ComponentDaoTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto fileDirectlyOnModule = db.components().insertComponent(newFileDto(module));
-    FileSourceDto fileSourceDirectlyOnModule = db.fileSourceTester().insertFileSource(fileDirectlyOnModule);
+    FileSourceDto fileSourceDirectlyOnModule = db.fileSources().insertFileSource(fileDirectlyOnModule);
     ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
     ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-    FileSourceDto fileSource = db.fileSourceTester().insertFileSource(file);
+    FileSourceDto fileSource = db.fileSources().insertFileSource(file);
 
     // From root project
     assertThat(underTest.selectEnabledDescendantFiles(dbSession, project.uuid()))
@@ -499,11 +499,11 @@ public class ComponentDaoTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto fileDirectlyOnModule = db.components().insertComponent(newFileDto(module));
-    FileSourceDto fileSourceDirectlyOnModule = db.fileSourceTester().insertFileSource(fileDirectlyOnModule);
+    FileSourceDto fileSourceDirectlyOnModule = db.fileSources().insertFileSource(fileDirectlyOnModule);
     ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
     ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-    FileSourceDto fileSource = db.fileSourceTester().insertFileSource(file);
+    FileSourceDto fileSource = db.fileSources().insertFileSource(file);
 
     // From root project
     assertThat(underTest.selectEnabledFilesFromProject(dbSession, project.uuid()))
