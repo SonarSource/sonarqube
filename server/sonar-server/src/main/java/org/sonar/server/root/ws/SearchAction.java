@@ -30,7 +30,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsRoot;
 
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements RootsWsAction {
@@ -45,25 +44,25 @@ public class SearchAction implements RootsWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("search")
-      .setInternal(true)
-      .setPost(false)
-      .setDescription("Search for root users.<br/>" +
-        "Requires to be root.")
-      .setSince("6.2")
-      .setResponseExample(getClass().getResource("search-example.json"))
-      .setHandler(this);
+        .setInternal(true)
+        .setPost(false)
+        .setDescription("Search for root users.<br/>" +
+            "Requires to be root.")
+        .setSince("6.2")
+        .setResponseExample(getClass().getResource("search-example.json"))
+        .setHandler(this);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    checkIsRoot();
+    userSession.checkIsRoot();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<UserDto> userDtos = dbClient.userDao().selectUsers(
-        dbSession,
-        UserQuery.builder()
-          .mustBeRoot()
-          .build());
+          dbSession,
+          UserQuery.builder()
+              .mustBeRoot()
+              .build());
 
       writeResponse(request, response, userDtos);
     }
@@ -87,12 +86,5 @@ public class SearchAction implements RootsWsAction {
     }
     return builder.build();
   }
-
-  private void checkIsRoot() {
-    if (!userSession.isRoot()) {
-      throw insufficientPrivilegesException();
-    }
-  }
-
 
 }
