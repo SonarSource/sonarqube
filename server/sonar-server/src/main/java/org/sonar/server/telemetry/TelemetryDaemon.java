@@ -35,6 +35,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.property.InternalProperties;
 
 import static org.sonar.api.utils.DateUtils.formatDate;
@@ -55,15 +56,18 @@ public class TelemetryDaemon implements Startable {
   private final Configuration config;
   private final InternalProperties internalProperties;
   private final Server server;
+  private final PluginRepository pluginRepository;
   private final System2 system2;
 
   private ScheduledExecutorService executorService;
 
-  public TelemetryDaemon(TelemetryClient telemetryClient, Configuration config, InternalProperties internalProperties, Server server, System2 system2) {
+  public TelemetryDaemon(TelemetryClient telemetryClient, Configuration config, InternalProperties internalProperties, Server server, PluginRepository pluginRepository,
+    System2 system2) {
     this.telemetryClient = telemetryClient;
     this.config = config;
     this.internalProperties = internalProperties;
     this.server = server;
+    this.pluginRepository = pluginRepository;
     this.system2 = system2;
   }
 
@@ -135,6 +139,14 @@ public class TelemetryDaemon implements Startable {
     try (JsonWriter writer = JsonWriter.of(json)) {
       writer.beginObject();
       writer.prop("id", server.getId());
+      writer.prop("version", server.getVersion());
+      writer.name("plugins");
+      writer.beginObject();
+      pluginRepository.getPluginInfos().forEach(plugin -> {
+        String version = plugin.getVersion() == null ? "undefined" : plugin.getVersion().getName();
+        writer.prop(plugin.getKey(), version);
+      });
+      writer.endObject();
       writer.endObject();
     }
     telemetryClient.upload(json.toString());
