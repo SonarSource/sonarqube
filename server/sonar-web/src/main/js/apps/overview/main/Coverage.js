@@ -132,6 +132,7 @@ class Coverage extends React.PureComponent {
       </div>
     );
   }
+
   renderNutshell() {
     return (
       <div className="overview-domain-nutshell">
@@ -144,6 +145,7 @@ class Coverage extends React.PureComponent {
       </div>
     );
   }
+
   renderLeak() {
     const { leakPeriod } = this.props;
     if (leakPeriod == null) {
@@ -159,6 +161,7 @@ class Coverage extends React.PureComponent {
       </div>
     );
   }
+
   render() {
     const { measures } = this.props;
     const coverageMeasure = measures.find(measure => measure.metric.key === 'coverage');

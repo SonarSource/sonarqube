@@ -190,7 +190,7 @@
   display: flex;
   flex: 1;
   align-items: center;
-  padding: 0 10%;
+  padding: 0;
 }
 
 .overview-domain-measures + .overview-domain-measures {
@@ -208,10 +208,7 @@
 
 .overview-domain-measure {
   flex: 1;
-}
-
-.overview-domain-measure + .overview-domain-measure {
-  padding-left: 15%;
+  text-align: center;
 }
 
 .overview-domain-measure-value {
@@ -227,20 +224,16 @@
   font-weight: 300;
 }
 
-.overview-domain-leak .overview-domain-measure-value {
-  text-align: center;
-}
-
 .overview-domain-measure-label {
   margin-top: 10px;
 }
 
-.overview-domain-measure-label > svg {
-  margin-top: 3px;
+.overview-domain-measure-label.offset-left {
+  margin-right: -30px;
 }
 
-.overview-domain-leak .overview-domain-measure-label {
-  text-align: center;
+.overview-domain-measure-label > svg {
+  margin-top: 3px;
 }
 
 .overview-domain-leak .overview-domain-measure-label > svg {

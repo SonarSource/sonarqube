@@ -94,7 +94,7 @@ export default function enhance(ComposedComponent) {
             </DrilldownLink>
           </div>
 
-          <div className="overview-domain-measure-label">
+          <div className="overview-domain-measure-label offset-left">
             {measure.metric.name}
             {this.renderHistoryLink(measure.metric.key)}
           </div>
