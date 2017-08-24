@@ -26,6 +26,7 @@
   "version": "6.2",
   "productionDatabase": true,
   "organizationsEnabled": false,
+  "branchesEnabled": false,
   "defaultOrganization": "key_foo",
   "canAdmin": false
 }
