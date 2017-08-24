@@ -356,6 +356,7 @@ export default class AdvancedTimeline extends React.PureComponent {
     }
     return (
       <rect
+        className="leak-chart-rect"
         x={this.state.xScale(this.props.leakPeriodDate)}
         y={yRange[yRange.length - 1]}
         width={leakWidth}
