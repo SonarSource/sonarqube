@@ -17,9 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+jest.mock('../../../api/branches', () => ({ getBranches: jest.fn() }));
+jest.mock('../../../api/components', () => ({ getComponentData: jest.fn() }));
+jest.mock('../../../api/nav', () => ({ getComponentNavigation: jest.fn() }));
+
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import ProjectContainer from '../ProjectContainer';
+import { getBranches } from '../../../api/branches';
+import { getComponentData } from '../../../api/components';
+import { getComponentNavigation } from '../../../api/nav';
+import { doAsync } from '../../../helpers/testUtils';
+
+beforeEach(() => {
+  (getBranches as jest.Mock<any>).mockClear();
+  (getComponentData as jest.Mock<any>).mockClear();
+  (getComponentNavigation as jest.Mock<any>).mockClear();
+});
 
 it('changes component', () => {
   const Inner = () => <div />;
@@ -38,4 +52,51 @@ it('changes component', () => {
 
   (wrapper.find(Inner).prop('onComponentChange') as Function)({ visibility: 'private' });
   expect(wrapper.state().component).toEqual({ qualifier: 'TRK', visibility: 'private' });
+});
+
+it("loads branches for module's project", () => {
+  (getBranches as jest.Mock<any>).mockImplementation(() => Promise.resolve([]));
+  (getComponentData as jest.Mock<any>).mockImplementation(() => Promise.resolve({}));
+  (getComponentNavigation as jest.Mock<any>).mockImplementation(() =>
+    Promise.resolve({
+      breadcrumbs: [
+        { key: 'projectKey', name: 'project', qualifier: 'TRK' },
+        { key: 'moduleKey', name: 'module', qualifier: 'BRC' }
+      ]
+    })
+  );
+
+  mount(
+    <ProjectContainer location={{ query: { id: 'moduleKey' } }}>
+      <div />
+    </ProjectContainer>
+  );
+
+  return doAsync().then(() => {
+    expect(getBranches).toBeCalledWith('projectKey');
+    expect(getComponentData).toBeCalledWith('moduleKey', undefined);
+    expect(getComponentNavigation).toBeCalledWith('moduleKey');
+  });
+});
+
+it("doesn't load branches portfolio", () => {
+  (getBranches as jest.Mock<any>).mockImplementation(() => Promise.resolve([]));
+  (getComponentData as jest.Mock<any>).mockImplementation(() => Promise.resolve({}));
+  (getComponentNavigation as jest.Mock<any>).mockImplementation(() =>
+    Promise.resolve({
+      breadcrumbs: [{ key: 'portfolioKey', name: 'portfolio', qualifier: 'VW' }]
+    })
+  );
+
+  mount(
+    <ProjectContainer location={{ query: { id: 'portfolioKey' } }}>
+      <div />
+    </ProjectContainer>
+  );
+
+  return doAsync().then(() => {
+    expect(getBranches).not.toBeCalled();
+    expect(getComponentData).toBeCalledWith('portfolioKey', undefined);
+    expect(getComponentNavigation).toBeCalledWith('portfolioKey');
+  });
 });

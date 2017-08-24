@@ -70,26 +70,27 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
   fetchProject() {
     const { branch, id } = this.props.location.query;
     this.setState({ loading: true });
-    Promise.all([getComponentNavigation(id), getComponentData(id, branch), getBranches(id)]).then(
-      ([nav, data, branches]) => {
-        if (this.mounted) {
-          this.setState({
-            loading: false,
-            branches,
-            component: this.addQualifier({ ...nav, ...data })
-          });
-        }
-      },
-      error => {
-        if (this.mounted) {
-          if (error.response && error.response.status === 403) {
-            handleRequiredAuthorization();
-          } else {
-            this.setState({ loading: false });
-          }
+
+    const onError = (error: any) => {
+      if (this.mounted) {
+        if (error.response && error.response.status === 403) {
+          handleRequiredAuthorization();
+        } else {
+          this.setState({ loading: false });
         }
       }
-    );
+    };
+
+    Promise.all([getComponentNavigation(id), getComponentData(id, branch)]).then(([nav, data]) => {
+      const component = this.addQualifier({ ...nav, ...data });
+      const project = component.breadcrumbs.find((c: Component) => c.qualifier === 'TRK');
+      const branchesRequest = project ? getBranches(project.key) : Promise.resolve([]);
+      branchesRequest.then(branches => {
+        if (this.mounted) {
+          this.setState({ loading: false, branches, component });
+        }
+      }, onError);
+    }, onError);
   }
 
   handleProjectChange = (changes: {}) => {
