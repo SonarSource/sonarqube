@@ -32,6 +32,7 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MySql;
+import org.sonar.server.branch.BranchFeatureRule;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
@@ -56,9 +57,11 @@ public class GlobalActionTest {
   private Server server = mock(Server.class);
   private DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
 
-  private WsActionTester ws;
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("foo");
+  private BranchFeatureRule branchFeature = new BranchFeatureRule();
+
+  private WsActionTester ws;
 
   @Test
   public void empty_call() throws Exception {
@@ -162,6 +165,16 @@ public class GlobalActionTest {
   }
 
   @Test
+  public void branch_support() throws Exception {
+    init();
+    branchFeature.setEnabled(true);
+    assertJson(call()).isSimilarTo("{\"branchesEnabled\":true}");
+
+    branchFeature.setEnabled(false);
+    assertJson(call()).isSimilarTo("{\"branchesEnabled\":false}");
+  }
+
+  @Test
   public void can_admin_on_global_level() {
     init();
     userSession.logIn().setRoot();
@@ -212,7 +225,7 @@ public class GlobalActionTest {
     }});
     pageRepository.start();
     ws = new WsActionTester(new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
-      dbClient, organizationFlags, defaultOrganizationProvider, userSession));
+      dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession));
   }
 
   private void executeAndVerify(String json) {
