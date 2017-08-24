@@ -36,7 +36,7 @@ export default class MetaLinks extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.component !== this.props.component) {
+    if (prevProps.component.key !== this.props.component.key) {
       this.loadLinks();
     }
   }

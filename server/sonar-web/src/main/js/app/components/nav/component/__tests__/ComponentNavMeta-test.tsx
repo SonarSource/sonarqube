@@ -20,7 +20,13 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavMeta from '../ComponentNavMeta';
-import { Branch, Component } from '../../../../types';
+import {
+  Branch,
+  Component,
+  BranchType,
+  ShortLivingBranch,
+  LongLivingBranch
+} from '../../../../types';
 
 it('renders incremental badge', () => {
   check(true);
@@ -38,4 +44,29 @@ it('renders incremental badge', () => {
       ).find('IncrementalBadge')
     ).toHaveLength(incremental ? 1 : 0);
   }
+});
+
+it('renders status of short-living branch', () => {
+  const branch: ShortLivingBranch = {
+    isMain: false,
+    mergeBranch: 'master',
+    name: 'feature',
+    status: { bugs: 0, codeSmells: 2, vulnerabilities: 3 },
+    type: BranchType.SHORT
+  };
+  expect(
+    shallow(<ComponentNavMeta branch={branch} component={{ key: 'foo' } as Component} conf={{}} />)
+  ).toMatchSnapshot();
+});
+
+it('renders nothing for long-living branch', () => {
+  const branch: LongLivingBranch = {
+    isMain: false,
+    name: 'release',
+    status: { qualityGateStatus: 'OK' },
+    type: BranchType.LONG
+  };
+  expect(
+    shallow(<ComponentNavMeta branch={branch} component={{ key: 'foo' } as Component} conf={{}} />)
+  ).toMatchSnapshot();
 });

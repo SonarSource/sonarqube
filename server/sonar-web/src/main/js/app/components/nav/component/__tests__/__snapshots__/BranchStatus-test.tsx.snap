@@ -1,6 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders 1`] = `
+exports[`renders status of long-living branches 1`] = `null`;
+
+exports[`renders status of long-living branches 2`] = `
+<Level
+  level="OK"
+  small={true}
+/>
+`;
+
+exports[`renders status of long-living branches 3`] = `
+<Level
+  level="ERROR"
+  small={true}
+/>
+`;
+
+exports[`renders status of short-living branches 1`] = `
 <ul
   className="list-inline branch-status"
 >
@@ -30,7 +46,7 @@ exports[`renders 1`] = `
 </ul>
 `;
 
-exports[`renders 2`] = `
+exports[`renders status of short-living branches 2`] = `
 <ul
   className="list-inline branch-status"
 >
@@ -60,7 +76,7 @@ exports[`renders 2`] = `
 </ul>
 `;
 
-exports[`renders 3`] = `
+exports[`renders status of short-living branches 3`] = `
 <ul
   className="list-inline branch-status"
 >

@@ -49,6 +49,7 @@ const ISSUE_MEASURES = [
 
 export class DrilldownLink extends React.PureComponent {
   static propTypes = {
+    branch: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf(PropTypes.node)]),
     className: PropTypes.string,
     component: PropTypes.string.isRequired,
@@ -118,7 +119,10 @@ export class DrilldownLink extends React.PureComponent {
   };
 
   renderIssuesLink = () => {
-    const url = getComponentIssuesUrl(this.props.component, this.propsToIssueParams());
+    const url = getComponentIssuesUrl(this.props.component, {
+      ...this.propsToIssueParams(),
+      branch: this.props.branch
+    });
 
     return (
       <Link to={url} className={this.props.className}>
@@ -132,7 +136,11 @@ export class DrilldownLink extends React.PureComponent {
       return this.renderIssuesLink();
     }
 
-    const url = getComponentDrilldownUrl(this.props.component, this.props.metric);
+    const url = getComponentDrilldownUrl(
+      this.props.component,
+      this.props.metric,
+      this.props.branch
+    );
     return (
       <Link to={url} className={this.props.className}>
         {this.props.children}
