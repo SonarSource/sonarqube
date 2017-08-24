@@ -1,6 +1,0 @@
-<duplications>
-  <g>
-    <b s="20" l="5" r="org.codehaus.sonar:sonar-plugin-api:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java"/>
-    <b s="31" l="5" r="org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/utils/command/CommandExecutor.java"/>
-  </g>
-</duplications>

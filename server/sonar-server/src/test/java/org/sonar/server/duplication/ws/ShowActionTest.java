@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -39,6 +40,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
@@ -64,6 +66,17 @@ public class ShowActionTest {
   public void setUp() {
     db.getDbClient().metricDao().insert(db.getSession(), dataMetric);
     db.commit();
+  }
+
+  @Test
+  public void define_ws() {
+    WebService.Action show = ws.getDef();
+    assertThat(show).isNotNull();
+    assertThat(show.handler()).isNotNull();
+    assertThat(show.since()).isEqualTo("4.4");
+    assertThat(show.isInternal()).isFalse();
+    assertThat(show.responseExampleAsString()).isNotEmpty();
+    assertThat(show.params()).hasSize(2);
   }
 
   @Test
