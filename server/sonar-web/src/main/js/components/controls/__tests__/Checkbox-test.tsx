@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import React from 'react';
+import * as React from 'react';
 import Checkbox from '../Checkbox';
 import { click } from '../../../helpers/testUtils';
 
@@ -42,6 +42,16 @@ it('should render checked  third state', () => {
   const checkbox = shallow(<Checkbox checked={true} thirdState={true} onCheck={() => true} />);
   expect(checkbox.is('.icon-checkbox-single')).toBe(true);
   expect(checkbox.is('.icon-checkbox-checked')).toBe(true);
+});
+
+it('should render children', () => {
+  const checkbox = shallow(
+    <Checkbox checked={false} onCheck={() => true}>
+      <span>foo</span>
+    </Checkbox>
+  );
+  expect(checkbox.hasClass('link-checkbox')).toBeTruthy();
+  expect(checkbox.find('span')).toHaveLength(1);
 });
 
 it('should call onCheck', () => {

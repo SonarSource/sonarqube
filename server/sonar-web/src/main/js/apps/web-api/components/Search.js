@@ -21,7 +21,8 @@
 import React from 'react';
 import { debounce } from 'lodash';
 import Checkbox from '../../../components/controls/Checkbox';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import HelpIcon from '../../../components/icons-components/HelpIcon';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 
 /*::
@@ -78,53 +79,31 @@ export default class Search extends React.PureComponent {
           />
         </div>
 
-        <TooltipsContainer>
-          <div className="big-spacer-top">
-            <Checkbox
-              checked={showInternal}
-              className="little-spacer-right"
-              onCheck={onToggleInternal}
-            />
-            <span
-              style={{ cursor: 'pointer' }}
-              title={translate('api_documentation.internal_tooltip')}
-              tabIndex="0"
-              role="checkbox"
-              aria-checked={showInternal ? 'true' : 'false'}
-              onClick={onToggleInternal}>
-              Show Internal API
+        <div className="big-spacer-top">
+          <Checkbox checked={showInternal} onCheck={onToggleInternal}>
+            <span className="little-spacer-left">
+              {translate('api_documentation.show_deprecated')}
             </span>
-            <i
-              className="icon-help spacer-left"
-              title={translate('api_documentation.internal_tooltip')}
-              data-toggle="tooltip"
-            />
-          </div>
-        </TooltipsContainer>
+          </Checkbox>
+          <Tooltip overlay={translate('api_documentation.internal_tooltip')} placement="right">
+            <span>
+              <HelpIcon className="spacer-left text-info" />
+            </span>
+          </Tooltip>
+        </div>
 
-        <TooltipsContainer>
-          <div className="spacer-top">
-            <Checkbox
-              checked={showDeprecated}
-              className="little-spacer-right"
-              onCheck={onToggleDeprecated}
-            />
-            <span
-              style={{ cursor: 'pointer' }}
-              title={translate('api_documentation.deprecation_tooltip')}
-              tabIndex="0"
-              role="checkbox"
-              aria-checked={showDeprecated ? 'true' : 'false'}
-              onClick={onToggleDeprecated}>
-              Show Deprecated API
+        <div className="spacer-top">
+          <Checkbox checked={showDeprecated} onCheck={onToggleDeprecated}>
+            <span className="little-spacer-left">
+              {translate('api_documentation.show_internal')}
             </span>
-            <i
-              className="icon-help spacer-left"
-              title={translate('api_documentation.deprecation_tooltip')}
-              data-toggle="tooltip"
-            />
-          </div>
-        </TooltipsContainer>
+          </Checkbox>
+          <Tooltip overlay={translate('api_documentation.deprecation_tooltip')} placement="right">
+            <span>
+              <HelpIcon className="spacer-left text-info" />
+            </span>
+          </Tooltip>
+        </div>
       </div>
     );
   }
