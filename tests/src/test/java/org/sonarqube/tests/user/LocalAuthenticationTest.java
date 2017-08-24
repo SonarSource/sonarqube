@@ -167,18 +167,26 @@ public class LocalAuthenticationTest {
   }
 
   @Test
-  public void authentication_through_ui() {
+  public void test_authentication_in_ui() {
     tester.runHtmlTests(
       "/user/LocalAuthenticationTest/login_successful.html",
       "/user/LocalAuthenticationTest/login_wrong_password.html",
-      "/user/LocalAuthenticationTest/should_not_be_unlogged_when_going_to_login_page.html",
-      "/user/LocalAuthenticationTest/redirect_to_login_when_not_enough_privilege.html",
+      "/user/LocalAuthenticationTest/should_not_be_unlogged_when_going_to_login_page.html");
+  }
+
+  @Test
+  public void test_authentication_redirects_in_ui() {
+    tester.runHtmlTests(
+    "/user/LocalAuthenticationTest/redirect_to_login_when_not_enough_privilege.html",
       // SONAR-2132
       "/user/LocalAuthenticationTest/redirect_to_original_url_after_direct_login.html",
       "/user/LocalAuthenticationTest/redirect_to_original_url_with_parameters_after_direct_login.html",
       // SONAR-2009
       "/user/LocalAuthenticationTest/redirect_to_original_url_after_indirect_login.html");
+  }
 
+  @Test
+  public void force_authentication_in_ui() {
     setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
 
     tester.runHtmlTests(
