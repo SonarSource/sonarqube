@@ -22,68 +22,38 @@ package org.sonar.server.duplication.ws;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Before;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.ProtobufJsonFormat;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.test.JsonAssert;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class ShowResponseBuilderTest {
 
   @Rule
   public DbTester db = DbTester.create();
-  private DbSession dbSession = db.getSession();
-  private ComponentDao componentDao = spy(db.getDbClient().componentDao());
 
-  private ComponentDto project;
-  private OrganizationDto organization = OrganizationTesting.newOrganizationDto();
-
-  private ShowResponseBuilder underTest = new ShowResponseBuilder(componentDao);
-
-  @Before
-  public void setUp() {
-    project = newPrivateProjectDto(organization)
-      .setName("SonarQube")
-      .setLongName("SonarQube")
-      .setDbKey("org.codehaus.sonar:sonar");
-    db.components().insertComponent(project);
-  }
+  private ShowResponseBuilder underTest = new ShowResponseBuilder(db.getDbClient().componentDao());
 
   @Test
   public void write_duplications() {
-    String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setDbKey(key1).setLongName("PropertyDeleteQuery").setRootUuid("uuid_5");
-    String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
-    ComponentDto file2 = ComponentTesting.newFileDto(project, null).setQualifier("FIL").setDbKey(key2).setLongName("PropertyUpdateQuery").setRootUuid("uuid_5");
-    ComponentDto project2 = db.components().insertPrivateProject(organization, p -> p.setUuid("uuid_5").setDbKey("org.codehaus.sonar:sonar-ws-client")
-      .setLongName("SonarQube :: Web Service Client"));
-
-    db.components().insertComponent(file1);
-    db.components().insertComponent(file2);
-
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(module));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(module));
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
       new DuplicationsParser.Duplication(file1, 57, 12),
-      new DuplicationsParser.Duplication(file2, 73, 12)
-    )));
+      new DuplicationsParser.Duplication(file2, 73, 12))));
 
-    test(blocks,
+    test(blocks, null,
       "{\n" +
         "  \"duplications\": [\n" +
         "    {\n" +
@@ -99,47 +69,36 @@ public class ShowResponseBuilderTest {
         "  ],\n" +
         "  \"files\": {\n" +
         "    \"1\": {\n" +
-        "      \"key\": \"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java\",\n" +
-        "      \"name\": \"PropertyDeleteQuery\",\n" +
-        "      \"project\": \"org.codehaus.sonar:sonar\",\n" +
-        "      \"projectName\": \"SonarQube\",\n" +
-        "      \"subProject\": \"org.codehaus.sonar:sonar-ws-client\",\n" +
-        "      \"subProjectName\": \"SonarQube :: Web Service Client\"\n" +
+        "      \"key\": \"" + file1.getKey() + "\",\n" +
+        "      \"name\": \"" + file1.longName() + "\",\n" +
+        "      \"project\": \"" + project.getKey() + "\",\n" +
+        "      \"projectName\": \"" + project.longName() + "\",\n" +
+        "      \"subProject\": \"" + module.getKey() + "\",\n" +
+        "      \"subProjectName\": \"" + module.longName() + "\"\n" +
         "    },\n" +
         "    \"2\": {\n" +
-        "      \"key\": \"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java\",\n" +
-        "      \"name\": \"PropertyUpdateQuery\",\n" +
-        "      \"project\": \"org.codehaus.sonar:sonar\",\n" +
-        "      \"projectName\": \"SonarQube\",\n" +
-        "      \"subProject\": \"org.codehaus.sonar:sonar-ws-client\",\n" +
-        "      \"subProjectName\": \"SonarQube :: Web Service Client\"\n" +
+        "      \"key\": \"" + file2.getKey() + "\",\n" +
+        "      \"name\": \"" + file2.longName() + "\",\n" +
+        "      \"project\": \"" + project.getKey() + "\",\n" +
+        "      \"projectName\": \"" + project.longName() + "\",\n" +
+        "      \"subProject\": \"" + module.getKey() + "\",\n" +
+        "      \"subProjectName\": \"" + module.longName() + "\"\n" +
         "    }\n" +
         "  }" +
         "}");
-
-    verify(componentDao, times(2)).selectByKey(eq(dbSession), anyString());
-    // Verify call to dao is cached when searching for project / sub project
-    verify(componentDao, times(1)).selectByUuid(eq(dbSession), eq(project.uuid()));
-    verify(componentDao, times(1)).selectByUuid(eq(dbSession), eq("uuid_5"));
   }
 
   @Test
   public void write_duplications_without_sub_project() {
-    String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setId(10L).setDbKey(key1).setLongName("PropertyDeleteQuery");
-    String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
-    ComponentDto file2 = ComponentTesting.newFileDto(project, null).setId(11L).setDbKey(key2).setLongName("PropertyUpdateQuery");
-
-    db.components().insertComponent(file1);
-    db.components().insertComponent(file2);
-
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
       new DuplicationsParser.Duplication(file1, 57, 12),
-      new DuplicationsParser.Duplication(file2, 73, 12)
-    )));
+      new DuplicationsParser.Duplication(file2, 73, 12))));
 
-    test(blocks,
+    test(blocks, null,
       "{\n" +
         "  \"duplications\": [\n" +
         "    {\n" +
@@ -155,16 +114,16 @@ public class ShowResponseBuilderTest {
         "  ],\n" +
         "  \"files\": {\n" +
         "    \"1\": {\n" +
-        "      \"key\": \"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java\",\n" +
-        "      \"name\": \"PropertyDeleteQuery\",\n" +
-        "      \"project\": \"org.codehaus.sonar:sonar\",\n" +
-        "      \"projectName\": \"SonarQube\"\n" +
+        "      \"key\": \"" + file1.getKey() + "\",\n" +
+        "      \"name\": \"" + file1.longName() + "\",\n" +
+        "      \"project\": \"" + project.getKey() + "\",\n" +
+        "      \"projectName\": \"" + project.longName() + "\",\n" +
         "    },\n" +
         "    \"2\": {\n" +
-        "      \"key\": \"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java\",\n" +
-        "      \"name\": \"PropertyUpdateQuery\",\n" +
-        "      \"project\": \"org.codehaus.sonar:sonar\",\n" +
-        "      \"projectName\": \"SonarQube\"\n" +
+        "      \"key\": \"" + file2.getKey() + "\",\n" +
+        "      \"name\": \"" + file2.longName() + "\",\n" +
+        "      \"project\": \"" + project.getKey() + "\",\n" +
+        "      \"projectName\": \"" + project.longName() + "\",\n" +
         "    }\n" +
         "  }" +
         "}");
@@ -172,19 +131,15 @@ public class ShowResponseBuilderTest {
 
   @Test
   public void write_duplications_with_a_removed_component() {
-    String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setId(10L).setDbKey(key1).setLongName("PropertyDeleteQuery");
-    db.components().insertComponent(file1);
-
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = newArrayList();
-
     blocks.add(new DuplicationsParser.Block(newArrayList(
-      new DuplicationsParser.Duplication(file1, 57, 12),
+      new DuplicationsParser.Duplication(file, 57, 12),
       // Duplication on a removed file
-      new DuplicationsParser.Duplication(null, 73, 12)
-    )));
+      new DuplicationsParser.Duplication(null, 73, 12))));
 
-    test(blocks,
+    test(blocks, null,
       "{\n" +
         "  \"duplications\": [\n" +
         "    {\n" +
@@ -200,10 +155,54 @@ public class ShowResponseBuilderTest {
         "  ],\n" +
         "  \"files\": {\n" +
         "    \"1\": {\n" +
-        "      \"key\": \"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java\",\n" +
-        "      \"name\": \"PropertyDeleteQuery\",\n" +
-        "      \"project\": \"org.codehaus.sonar:sonar\",\n" +
-        "      \"projectName\": \"SonarQube\"\n" +
+        "      \"key\": \"" + file.getKey() + "\",\n" +
+        "      \"name\": \"" + file.longName() + "\",\n" +
+        "      \"project\": \"" + project.getKey() + "\",\n" +
+        "      \"projectName\": \"" + project.longName() + "\",\n" +
+        "    }\n" +
+        "  }" +
+        "}");
+  }
+
+  @Test
+  public void write_duplications_on_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file1 = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(branch));
+    List<DuplicationsParser.Block> blocks = newArrayList();
+    blocks.add(new DuplicationsParser.Block(newArrayList(
+      new DuplicationsParser.Duplication(file1, 57, 12),
+      new DuplicationsParser.Duplication(file2, 73, 12))));
+
+    test(blocks, branch.getBranch(),
+      "{\n" +
+        "  \"duplications\": [\n" +
+        "    {\n" +
+        "      \"blocks\": [\n" +
+        "        {\n" +
+        "          \"from\": 57, \"size\": 12, \"_ref\": \"1\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"from\": 73, \"size\": 12, \"_ref\": \"2\"\n" +
+        "        }\n" +
+        "      ]\n" +
+        "    }," +
+        "  ],\n" +
+        "  \"files\": {\n" +
+        "    \"1\": {\n" +
+        "      \"key\": \"" + file1.getKey() + "\",\n" +
+        "      \"name\": \"" + file1.longName() + "\",\n" +
+        "      \"project\": \"" + branch.getKey() + "\",\n" +
+        "      \"projectName\": \"" + branch.longName() + "\",\n" +
+        "      \"branch\": \"" + branch.getBranch() + "\",\n" +
+        "    },\n" +
+        "    \"2\": {\n" +
+        "      \"key\": \"" + file2.getKey() + "\",\n" +
+        "      \"name\": \"" + file2.longName() + "\",\n" +
+        "      \"project\": \"" + branch.getKey() + "\",\n" +
+        "      \"projectName\": \"" + branch.longName() + "\",\n" +
+        "      \"branch\": \"" + branch.getBranch() + "\",\n" +
         "    }\n" +
         "  }" +
         "}");
@@ -211,13 +210,13 @@ public class ShowResponseBuilderTest {
 
   @Test
   public void write_nothing_when_no_data() {
-    test(Collections.emptyList(), "{\"duplications\": [], \"files\": {}}");
+    test(Collections.emptyList(), null, "{\"duplications\": [], \"files\": {}}");
   }
 
-  private void test(List<DuplicationsParser.Block> blocks, String expected) {
+  private void test(List<DuplicationsParser.Block> blocks, @Nullable String branch, String expected) {
     StringWriter output = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(output);
-    ProtobufJsonFormat.write(underTest.build(blocks, dbSession), jsonWriter);
+    ProtobufJsonFormat.write(underTest.build(db.getSession(), blocks, branch), jsonWriter);
     JsonAssert.assertJson(output.toString()).isSimilarTo(expected);
   }
 

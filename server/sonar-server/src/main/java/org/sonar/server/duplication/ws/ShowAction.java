@@ -35,8 +35,11 @@ import org.sonar.db.measure.MeasureQuery;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 
 public class ShowAction implements DuplicationsWsAction {
 
@@ -75,17 +78,34 @@ public class ShowAction implements DuplicationsWsAction {
       .setDeprecatedSince("6.5")
       .setDescription("File ID. If provided, 'key' must not be provided.")
       .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
+
+    action
+      .createParam("branch")
+      .setDescription("Branch key")
+      .setInternal(true)
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.param("uuid"), request.param("key"), UUID_AND_KEY);
+      ComponentDto component = loadComponent(dbSession, request);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
       String duplications = findDataFromComponent(dbSession, component);
-      List<DuplicationsParser.Block> blocks = parser.parse(dbSession, component, duplications);
-      writeProtobuf(responseBuilder.build(blocks, dbSession), request, response);
+      String branch = component.getBranch();
+      List<DuplicationsParser.Block> blocks = parser.parse(dbSession, component, branch, duplications);
+      writeProtobuf(responseBuilder.build(dbSession, blocks, branch), request, response);
     }
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, Request request) {
+    String componentUuid = request.param("uuid");
+    String branch = request.param("branch");
+    checkArgument(componentUuid == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", "uuid", PARAM_BRANCH);
+    if (branch == null) {
+      return componentFinder.getByUuidOrKey(dbSession, componentUuid, request.param("key"), UUID_AND_KEY);
+    }
+    return componentFinder.getByKeyAndOptionalBranch(dbSession, request.mandatoryParam("key"), branch);
   }
 
   @CheckForNull
