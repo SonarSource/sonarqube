@@ -797,7 +797,7 @@ export default class App extends React.PureComponent {
   }
 
   renderList() {
-    const { component, currentUser, organization } = this.props;
+    const { branch, component, currentUser, organization } = this.props;
     const { issues, openIssue, paging } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex != null ? issues[selectedIndex] : null;
@@ -810,6 +810,7 @@ export default class App extends React.PureComponent {
       <div>
         {paging.total > 0 &&
           <IssuesList
+            branch={getBranchName(branch)}
             checked={this.state.checked}
             component={component}
             issues={issues}
@@ -872,6 +873,7 @@ export default class App extends React.PureComponent {
                 {openIssue != null
                   ? <div className="pull-left width-60">
                       <ComponentBreadcrumbs
+                        branch={getBranchName(this.props.branch)}
                         component={component}
                         issue={openIssue}
                         organization={this.props.organization}
