@@ -31,7 +31,8 @@ import { STATUSES } from '../../../../apps/background-tasks/constants';
 import './ComponentNav.css';
 
 interface Props {
-  branch: Branch;
+  branches: Branch[];
+  currentBranch: Branch;
   component: Component;
   conf: ComponentConfiguration;
   location: {};
@@ -98,17 +99,21 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
           breadcrumbs={this.props.component.breadcrumbs}
         />
 
-        <ComponentNavBranch branch={this.props.branch} project={this.props.component} />
+        <ComponentNavBranch
+          branches={this.props.branches}
+          currentBranch={this.props.currentBranch}
+          project={this.props.component}
+        />
 
         <ComponentNavMeta
-          branch={this.props.branch}
+          branch={this.props.currentBranch}
           component={this.props.component}
           conf={this.props.conf}
           incremental={this.state.incremental}
         />
 
         <ComponentNavMenu
-          branch={this.props.branch}
+          branch={this.props.currentBranch}
           component={this.props.component}
           conf={this.props.conf}
         />

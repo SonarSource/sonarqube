@@ -20,7 +20,18 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavMenu from '../ComponentNavMenu';
-import { Branch, Component } from '../../../../types';
+import {
+  Component,
+  ShortLivingBranch,
+  BranchType,
+  LongLivingBranch,
+  MainBranch
+} from '../../../../types';
+
+const mainBranch: MainBranch = {
+  isMain: true,
+  name: 'master'
+};
 
 it('should work with extensions', () => {
   const component = {
@@ -33,9 +44,7 @@ it('should work with extensions', () => {
     extensions: [{ key: 'foo', name: 'Foo' }]
   };
   expect(
-    shallow(
-      <ComponentNavMenu branch={{} as Branch} component={component as Component} conf={conf} />
-    )
+    shallow(<ComponentNavMenu branch={mainBranch} component={component as Component} conf={conf} />)
   ).toMatchSnapshot();
 });
 
@@ -53,8 +62,30 @@ it('should work with multiple extensions', () => {
     extensions: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
   };
   expect(
-    shallow(
-      <ComponentNavMenu branch={{} as Branch} component={component as Component} conf={conf} />
-    )
+    shallow(<ComponentNavMenu branch={mainBranch} component={component as Component} conf={conf} />)
+  ).toMatchSnapshot();
+});
+
+it('should work for short-living branches', () => {
+  const branch: ShortLivingBranch = {
+    isMain: false,
+    mergeBranch: 'master',
+    name: 'feature',
+    status: { bugs: 0, codeSmells: 2, vulnerabilities: 3 },
+    type: BranchType.SHORT
+  };
+  const component = { key: 'foo', qualifier: 'TRK' } as Component;
+  const conf = { showSettings: true };
+  expect(
+    shallow(<ComponentNavMenu branch={branch} component={component} conf={conf} />)
+  ).toMatchSnapshot();
+});
+
+it('should work for long-living branches', () => {
+  const branch: LongLivingBranch = { isMain: false, name: 'release', type: BranchType.LONG };
+  const component = { key: 'foo', qualifier: 'TRK' } as Component;
+  const conf = { showSettings: true };
+  expect(
+    shallow(<ComponentNavMenu branch={branch} component={component} conf={conf} />)
   ).toMatchSnapshot();
 });

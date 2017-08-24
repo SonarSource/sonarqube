@@ -23,10 +23,3 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 export function getBranches(project: string): Promise<any> {
   return getJSON('/api/project_branches/list', { project }).then(r => r.branches, throwGlobalError);
 }
-
-export function getBranch(project: string, branch: string): Promise<any> {
-  return getJSON('/api/project_branches/show', { component: project, branch }).then(
-    r => r.branch,
-    throwGlobalError
-  );
-}

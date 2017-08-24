@@ -29,6 +29,7 @@ import { formatMeasure } from '../../helpers/measures';
 
 export default class SourceViewerHeader extends React.PureComponent {
   /*:: props: {
+    branch?: string,
     component: {
       canMarkAsFavorite: boolean,
       key: string,
@@ -60,7 +61,7 @@ export default class SourceViewerHeader extends React.PureComponent {
     e.preventDefault();
     const { key } = this.props.component;
     const Workspace = require('../workspace/main').default;
-    Workspace.openComponent({ key });
+    Workspace.openComponent({ key, branch: this.props.branch });
   };
 
   render() {
@@ -78,8 +79,11 @@ export default class SourceViewerHeader extends React.PureComponent {
     const isUnitTest = q === 'UTS';
     // TODO check if source viewer is displayed inside workspace
     const workspace = false;
-    const rawSourcesLink =
+    let rawSourcesLink =
       window.baseUrl + `/api/sources/raw?key=${encodeURIComponent(this.props.component.key)}`;
+    if (this.props.branch) {
+      rawSourcesLink += `&branch=${encodeURIComponent(this.props.branch)}`;
+    }
 
     // TODO favorite
     return (
@@ -87,14 +91,14 @@ export default class SourceViewerHeader extends React.PureComponent {
         <div className="source-viewer-header-component">
           <div className="component-name">
             <div className="component-name-parent">
-              <Link to={getProjectUrl(project)} className="link-with-icon">
+              <Link to={getProjectUrl(project, this.props.branch)} className="link-with-icon">
                 <QualifierIcon qualifier="TRK" /> <span>{projectName}</span>
               </Link>
             </div>
 
             {subProject != null &&
               <div className="component-name-parent">
-                <Link to={getProjectUrl(subProject)} className="link-with-icon">
+                <Link to={getProjectUrl(subProject, this.props.branch)} className="link-with-icon">
                   <QualifierIcon qualifier="BRC" /> <span>{subProjectName}</span>
                 </Link>
               </div>}
@@ -124,7 +128,10 @@ export default class SourceViewerHeader extends React.PureComponent {
               <Link
                 className="js-new-window"
                 target="_blank"
-                to={{ pathname: '/component', query: { id: this.props.component.key } }}>
+                to={{
+                  pathname: '/component',
+                  query: { branch: this.props.branch, id: this.props.component.key }
+                }}>
                 {translate('component_viewer.new_window')}
               </Link>
             </li>
@@ -166,7 +173,11 @@ export default class SourceViewerHeader extends React.PureComponent {
           <div className="source-viewer-header-measure">
             <span className="source-viewer-header-measure-value">
               <Link
-                to={getComponentIssuesUrl(project, { resolved: 'false', fileUuids: uuid })}
+                to={getComponentIssuesUrl(project, {
+                  resolved: 'false',
+                  fileUuids: uuid,
+                  branch: this.props.branch
+                })}
                 className="source-viewer-header-external-link"
                 target="_blank">
                 {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}{' '}
