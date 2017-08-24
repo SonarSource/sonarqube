@@ -52,7 +52,7 @@ public class DuplicationsParser {
     this.componentDao = componentDao;
   }
 
-  public List<Block> parse(ComponentDto component, @Nullable String duplicationsData, DbSession session) {
+  public List<Block> parse(DbSession session, ComponentDto component, @Nullable String duplicationsData) {
     Map<String, ComponentDto> componentsByKey = newHashMap();
     List<Block> blocks = newArrayList();
     if (duplicationsData != null) {

@@ -83,8 +83,7 @@ public class ShowAction implements DuplicationsWsAction {
       ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.param("uuid"), request.param("key"), UUID_AND_KEY);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
       String duplications = findDataFromComponent(dbSession, component);
-      List<DuplicationsParser.Block> blocks = parser.parse(component, duplications, dbSession);
-
+      List<DuplicationsParser.Block> blocks = parser.parse(dbSession, component, duplications);
       writeProtobuf(responseBuilder.build(blocks, dbSession), request, response);
     }
   }
