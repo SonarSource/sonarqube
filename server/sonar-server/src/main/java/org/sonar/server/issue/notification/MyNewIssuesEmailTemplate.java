@@ -58,13 +58,17 @@ public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
     String projectUuid = notification.getFieldValue(FIELD_PROJECT_UUID);
     String dateString = notification.getFieldValue(FIELD_PROJECT_DATE);
     String assignee = notification.getFieldValue(FIELD_ASSIGNEE);
+    String branch = notification.getFieldValue(FIELD_BRANCH);
     if (projectUuid != null && dateString != null && assignee != null) {
       Date date = DateUtils.parseDateTime(dateString);
-      String url = String.format("%s/issues?projectUuids=%s&assignees=%s&createdAt=%s",
+      String url = String.format("%s/issues?projectUuids=%s&assignees=%s",
         settings.getServerBaseURL(),
         encode(projectUuid),
-        encode(assignee),
-        encode(DateUtils.formatDateTime(date)));
+        encode(assignee));
+      if (branch != null) {
+        url += "&branch=" + encode(branch);
+      }
+      url += "&createdAt=" + encode(DateUtils.formatDateTime(date));
       message.append("See it in SonarQube: ").append(url).append(NEW_LINE);
     }
   }

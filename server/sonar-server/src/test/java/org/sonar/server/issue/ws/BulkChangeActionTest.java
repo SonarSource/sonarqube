@@ -123,7 +123,7 @@ public class BulkChangeActionTest {
     issueWorkflow.start();
     rule = db.rules().insertRule(newRuleDto());
     organization = db.organizations().insert();
-    project = db.components().insertPrivateProject(organization);
+    project = db.components().insertMainBranch(organization);
     file = db.components().insertComponent(newFileDto(project));
     user = db.users().insertUser("john");
     when(system2.now()).thenReturn(NOW);
@@ -241,7 +241,6 @@ public class BulkChangeActionTest {
   public void send_notification() throws Exception {
     setUserProjectPermissions(USER);
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setType(BUG));
-    ArgumentCaptor<IssueChangeNotification> issueChangeNotificationCaptor = ArgumentCaptor.forClass(IssueChangeNotification.class);
 
     BulkChangeWsResponse response = call(BulkChangeRequest.builder()
       .setIssues(singletonList(issueDto.getKey()))
@@ -250,6 +249,8 @@ public class BulkChangeActionTest {
       .build());
 
     checkResponse(response, 1, 1, 0, 0);
+
+    ArgumentCaptor<IssueChangeNotification> issueChangeNotificationCaptor = ArgumentCaptor.forClass(IssueChangeNotification.class);
     verify(notificationManager).scheduleForSending(issueChangeNotificationCaptor.capture());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("key")).isEqualTo(issueDto.getKey());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("componentName")).isEqualTo(file.longName());
@@ -257,6 +258,35 @@ public class BulkChangeActionTest {
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectKey")).isEqualTo(project.getDbKey());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("ruleName")).isEqualTo(rule.getName());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("changeAuthor")).isEqualTo(user.getLogin());
+    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("branch")).isNull();
+  }
+
+  @Test
+  public void send_notification_on_branch() throws Exception {
+    setUserProjectPermissions(USER);
+
+    String branchName = "feature1";
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch));
+    IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue(rule, fileOnBranch, branch).setType(BUG));
+
+    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+      .setIssues(singletonList(issueDto.getKey()))
+      .setDoTransition("confirm")
+      .setSendNotifications(true)
+      .build());
+
+    checkResponse(response, 1, 1, 0, 0);
+
+    ArgumentCaptor<IssueChangeNotification> issueChangeNotificationCaptor = ArgumentCaptor.forClass(IssueChangeNotification.class);
+    verify(notificationManager).scheduleForSending(issueChangeNotificationCaptor.capture());
+    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("key")).isEqualTo(issueDto.getKey());
+    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("componentName")).isEqualTo(fileOnBranch.longName());
+    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectName")).isEqualTo(project.longName());
+    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectKey")).isEqualTo(project.getDbKey());
+    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("ruleName")).isEqualTo(rule.getName());
+    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("changeAuthor")).isEqualTo(user.getLogin());
+    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("branch")).isEqualTo(branchName);
   }
 
   @Test
