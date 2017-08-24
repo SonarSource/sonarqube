@@ -36,8 +36,15 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.measure.index.ProjectMeasuresIndex;
+import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 import org.sonar.server.property.InternalProperties;
+import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserQuery;
 
+import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.core.config.TelemetryProperties.PROP_ENABLE;
@@ -58,17 +65,21 @@ public class TelemetryDaemon implements Startable {
   private final Server server;
   private final PluginRepository pluginRepository;
   private final System2 system2;
+  private final UserIndex userIndex;
+  private final ProjectMeasuresIndex projectMeasuresIndex;
 
   private ScheduledExecutorService executorService;
 
   public TelemetryDaemon(TelemetryClient telemetryClient, Configuration config, InternalProperties internalProperties, Server server, PluginRepository pluginRepository,
-    System2 system2) {
+                         System2 system2, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex) {
     this.telemetryClient = telemetryClient;
     this.config = config;
     this.internalProperties = internalProperties;
     this.server = server;
     this.pluginRepository = pluginRepository;
     this.system2 = system2;
+    this.userIndex = userIndex;
+    this.projectMeasuresIndex = projectMeasuresIndex;
   }
 
   @Override
@@ -147,6 +158,14 @@ public class TelemetryDaemon implements Startable {
         writer.prop(plugin.getKey(), version);
       });
       writer.endObject();
+      long userCount = userIndex.search(UserQuery.builder().build(), new SearchOptions().setLimit(1)).getTotal();
+      writer.prop("userCount", userCount);
+      ProjectMeasuresStatistics statistics = projectMeasuresIndex.searchTelemetryStatistics();
+      writer.prop("projectCount", statistics.getProjectCount());
+      writer.prop(LINES_KEY, statistics.getLines());
+      writer.prop(NCLOC_KEY, statistics.getNcloc());
+      writer.name("projectLanguageDistribution");
+      writer.valueObject(statistics.getProjectLanguageDistribution());
       writer.endObject();
     }
     telemetryClient.upload(json.toString());

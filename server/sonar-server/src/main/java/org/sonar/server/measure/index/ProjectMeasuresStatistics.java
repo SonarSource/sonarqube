@@ -1,0 +1,103 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.measure.index;
+
+import java.util.Map;
+
+import static java.util.Objects.requireNonNull;
+import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+
+public class ProjectMeasuresStatistics {
+  private final long projectCount;
+  private final long lines;
+  private final long ncloc;
+  private final Map<String, Long> projectLanguageDistribution;
+
+  private ProjectMeasuresStatistics(Builder builder) {
+    projectCount = builder.projectCount;
+    lines = builder.lines;
+    ncloc = builder.ncloc;
+    projectLanguageDistribution = builder.projectLanguageDistribution;
+  }
+
+  public long getProjectCount() {
+    return projectCount;
+  }
+
+  public long getLines() {
+    return lines;
+  }
+
+  public long getNcloc() {
+    return ncloc;
+  }
+
+  public Map<String, Long> getProjectLanguageDistribution() {
+    return projectLanguageDistribution;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private Map<String, Long> projectLanguageDistribution;
+    private Long projectCount;
+    private Long lines;
+    private Long ncloc;
+
+    private Builder() {
+      // enforce static factory method
+    }
+
+    public Builder setProjectCount(long projectCount) {
+      this.projectCount = projectCount;
+      return this;
+    }
+
+    public Builder setSum(String metric, long value) {
+      switch (metric) {
+        case LINES_KEY:
+          this.lines = value;
+          break;
+        case NCLOC_KEY:
+          this.ncloc = value;
+          break;
+        default:
+          throw new IllegalStateException("Metric not supported: " + metric);
+      }
+      return this;
+    }
+
+    public void setProjectLanguageDistribution(Map<String, Long> projectLanguageDistribution) {
+      this.projectLanguageDistribution = projectLanguageDistribution;
+    }
+
+    public ProjectMeasuresStatistics build() {
+      requireNonNull(projectCount);
+      requireNonNull(lines);
+      requireNonNull(ncloc);
+      requireNonNull(projectLanguageDistribution);
+      return new ProjectMeasuresStatistics(this);
+    }
+  }
+}

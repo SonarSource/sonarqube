@@ -5,5 +5,14 @@
     "java": "4.12.0.11033",
     "scmgit": "1.2",
     "other": "undefined"
+  },
+  "userCount": 3,
+  "projectCount": 2,
+  "lines": 500,
+  "ncloc": 300,
+  "projectLanguageDistribution": {
+    "java": 2,
+    "kotlin": 1,
+    "js": 1
   }
 }

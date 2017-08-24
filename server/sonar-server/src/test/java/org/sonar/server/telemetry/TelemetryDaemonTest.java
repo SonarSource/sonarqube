@@ -20,20 +20,32 @@
 
 package org.sonar.server.telemetry;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.core.config.TelemetryProperties;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.measure.index.ProjectMeasuresDoc;
+import org.sonar.server.measure.index.ProjectMeasuresIndex;
+import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.index.UserDoc;
+import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.updatecenter.common.Version;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -53,6 +65,12 @@ public class TelemetryDaemonTest {
 
   private static final long ONE_HOUR = 60 * 60 * 1_000L;
   private static final long ONE_DAY = 24 * ONE_HOUR;
+  private static final Configuration emptyConfig = new MapSettings().asConfig();
+
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+  @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(emptyConfig), new ProjectMeasuresIndexDefinition(emptyConfig));
 
   private TelemetryClient client = mock(TelemetryClient.class);
   private InternalProperties internalProperties = new MapInternalProperties();
@@ -68,7 +86,8 @@ public class TelemetryDaemonTest {
     settings = new MapSettings(new PropertyDefinitions(TelemetryProperties.all()));
     system2.setNow(System.currentTimeMillis());
 
-    underTest = new TelemetryDaemon(client, settings.asConfig(), internalProperties, server, pluginRepository, system2);
+    underTest = new TelemetryDaemon(client, settings.asConfig(), internalProperties, server, pluginRepository, system2, new UserIndex(es.client()),
+      new ProjectMeasuresIndex(es.client(), null));
   }
 
   @Test
@@ -80,6 +99,19 @@ public class TelemetryDaemonTest {
     server.setVersion(version);
     List<PluginInfo> plugins = Arrays.asList(newPlugin("java", "4.12.0.11033"), newPlugin("scmgit", "1.2"), new PluginInfo("other"));
     when(pluginRepository.getPluginInfos()).thenReturn(plugins);
+    es.putDocuments(UserIndexDefinition.INDEX_TYPE_USER,
+      new UserDoc().setLogin(randomAlphanumeric(30)).setActive(true),
+      new UserDoc().setLogin(randomAlphanumeric(30)).setActive(true),
+      new UserDoc().setLogin(randomAlphanumeric(30)).setActive(true),
+      new UserDoc().setLogin(randomAlphanumeric(30)).setActive(false));
+    es.putDocuments(ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES,
+      new ProjectMeasuresDoc().setId(randomAlphanumeric(20))
+        .setMeasures(Arrays.asList(newMeasure("lines", 200), newMeasure("ncloc", 100), newMeasure("coverage", 80)))
+        .setLanguages(Arrays.asList("java", "js")),
+      new ProjectMeasuresDoc().setId(randomAlphanumeric(20))
+        .setMeasures(Arrays.asList(newMeasure("lines", 300), newMeasure("ncloc", 200), newMeasure("coverage", 80)))
+        .setLanguages(Arrays.asList("java", "kotlin")));
+
     underTest.start();
 
     ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
@@ -142,8 +174,7 @@ public class TelemetryDaemonTest {
     settings.setProperty(PROP_FREQUENCY, "1");
     long today = parseDate("2017-08-01").getTime();
     system2.setNow(today + 15 * ONE_HOUR);
-    long now = system2.now();
-    long sevenDaysAgo = now - (ONE_DAY * 7L);
+    long sevenDaysAgo = today - (ONE_DAY * 7L);
     internalProperties.write(I_PROP_LAST_PING, String.valueOf(sevenDaysAgo));
 
     underTest.start();
@@ -159,7 +190,6 @@ public class TelemetryDaemonTest {
     underTest.start();
     underTest.start();
 
-
     verify(client, timeout(1_000).never()).upload(anyString());
     verify(client, timeout(1_000).times(1)).optOut(anyString());
   }
@@ -167,5 +197,9 @@ public class TelemetryDaemonTest {
   private PluginInfo newPlugin(String key, String version) {
     return new PluginInfo(key)
       .setVersion(Version.create(version));
+  }
+
+  private static Map<String, Object> newMeasure(String key, Object value) {
+    return ImmutableMap.of("key", key, "value", value);
   }
 }

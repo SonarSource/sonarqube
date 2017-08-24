@@ -20,6 +20,7 @@
 package org.sonarqube.tests.telemetry;
 
 import com.sonar.orchestrator.Orchestrator;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.HttpHeaders;
 import okhttp3.mockwebserver.MockWebServer;
@@ -30,6 +31,7 @@ import org.junit.Test;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.jsonToMap;
 import static util.ItUtils.xooPlugin;
 
 public class TelemetryTest {
@@ -65,8 +67,14 @@ public class TelemetryTest {
     RecordedRequest request = server.takeRequest(1, TimeUnit.SECONDS);
 
     assertThat(request.getMethod()).isEqualTo("POST");
-    assertThat(request.getBody().readUtf8()).contains(serverId);
     assertThat(request.getHeader(HttpHeaders.USER_AGENT)).contains("SonarQube");
+    String body = request.getBody().readUtf8();
+    System.out.println(body);
+    Map<String, Object> json = jsonToMap(body);
+    assertThat(json.get("id")).isEqualTo(serverId);
+    assertThat(json.get("ncloc")).isEqualTo(0.0d);
+    assertThat(json.get("lines")).isEqualTo(0.0d);
+    assertThat(((Map)json.get("plugins")).keySet()).contains("xoo");
 
     orchestrator.stop();
   }

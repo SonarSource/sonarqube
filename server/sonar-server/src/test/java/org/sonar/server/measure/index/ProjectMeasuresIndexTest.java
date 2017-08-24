@@ -1371,6 +1371,21 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void search_statistics() {
+    es.putDocuments(INDEX_TYPE_PROJECT_MEASURES,
+      newDoc("lines", 10, "ncloc", 20, "coverage", 80).setLanguages(Arrays.asList("java", "cs", "js")),
+      newDoc("lines", 20, "ncloc", 30, "coverage", 80).setLanguages(Arrays.asList("java", "python", "kotlin")));
+
+    ProjectMeasuresStatistics result = underTest.searchTelemetryStatistics();
+
+    assertThat(result.getProjectCount()).isEqualTo(2);
+    assertThat(result.getLines()).isEqualTo(30);
+    assertThat(result.getNcloc()).isEqualTo(50);
+    assertThat(result.getProjectLanguageDistribution()).containsOnly(
+      entry("java", 2L), entry("cs", 1L), entry("js", 1L), entry("python", 1L), entry("kotlin", 1L));
+  }
+
+  @Test
   public void fail_if_page_size_greater_than_500() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Page size must be lower than or equals to 500");
