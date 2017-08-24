@@ -77,7 +77,7 @@ it('should render correctly for leak', () => {
 });
 
 it('should render with branch', () => {
-  expect(shallow(<MeasureHeader branch="feature" {...PROPS} />)).toMatchSnapshot();
+  expect(shallow(<MeasureHeader branch="feature" {...PROPS} />).find('Link')).toMatchSnapshot();
 });
 
 it('should display secondary measure too', () => {
