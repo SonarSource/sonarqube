@@ -41,12 +41,10 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
-import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ShowActionTest {
@@ -79,7 +77,7 @@ public class ShowActionTest {
     assertThat(show.since()).isEqualTo("4.4");
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(2);
+    assertThat(show.params()).hasSize(3);
   }
 
   @Test
@@ -108,6 +106,59 @@ public class ShowActionTest {
       "  \"duplications\": [],\n" +
       "  \"files\": {}\n" +
       "}");
+  }
+
+  @Test
+  public void duplications_by_file_key_and_branch() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    db.measures().insertMeasure(file, analysis, dataMetric, m -> m.setData(format("<duplications>\n" +
+      "  <g>\n" +
+      "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
+      "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
+      "  </g>\n" +
+      "</duplications>\n", file.getDbKey(), file.getDbKey())));
+
+    String result = ws.newRequest()
+      .setParam("key", file.getKey())
+      .setParam("branch", branch.getBranch())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo(
+      format("{\n" +
+        "  \"duplications\": [\n" +
+        "    {\n" +
+        "      \"blocks\": [\n" +
+        "        {\n" +
+        "          \"from\": 20,\n" +
+        "          \"size\": 5,\n" +
+        "          \"_ref\": \"1\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"from\": 31,\n" +
+        "          \"size\": 5,\n" +
+        "          \"_ref\": \"1\"\n" +
+        "        }\n" +
+        "      ]\n" +
+        "    }\n" +
+        "  ],\n" +
+        "  \"files\": {\n" +
+        "    \"1\": {\n" +
+        "      \"key\": \"%s\",\n" +
+        "      \"name\": \"%s\",\n" +
+        "      \"uuid\": \"%s\",\n" +
+        "      \"project\": \"%s\",\n" +
+        "      \"projectUuid\": \"%s\",\n" +
+        "      \"projectName\": \"%s\"\n" +
+        "      \"branch\": \"%s\"\n" +
+        "    }\n" +
+        "  }\n" +
+        "}",
+        file.getKey(), file.longName(), file.uuid(), branch.getKey(), branch.uuid(), project.longName(), file.getBranch()));
   }
 
   @Test
@@ -171,6 +222,7 @@ public class ShowActionTest {
 
   private void verifyCallToFileWithDuplications(Function<ComponentDto, TestRequest> requestFactory) throws Exception {
     ComponentDto project = db.components().insertPrivateProject();
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project).setDbKey("foo.js"));
     SnapshotDto snapshot = db.components().insertSnapshot(newAnalysis(project));
     String xml = "<duplications>\n" +
@@ -179,10 +231,7 @@ public class ShowActionTest {
       "    <b s=\"20\" l=\"5\" r=\"foo.js\"/>\n" +
       "  </g>\n" +
       "</duplications>\n";
-    db.getDbClient().measureDao().insert(db.getSession(), newMeasureDto(dataMetric, file, snapshot).setData(xml));
-    db.commit();
-
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    db.measures().insertMeasure(file, snapshot, dataMetric, m -> m.setData(xml));
 
     TestRequest request = requestFactory.apply(file);
     TestResponse result = request.execute();
