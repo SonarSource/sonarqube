@@ -28,7 +28,7 @@ import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
 /*::
 type Props = {
-  branch: {},
+  branch: { name: string },
   component: {
     analysisDate?: string,
     id: string,
@@ -84,6 +84,12 @@ export default class App extends React.PureComponent {
       return <EmptyOverview component={component} />;
     }
 
-    return <OverviewApp component={component} onComponentChange={this.props.onComponentChange} />;
+    return (
+      <OverviewApp
+        branch={this.props.branch}
+        component={component}
+        onComponentChange={this.props.onComponentChange}
+      />
+    );
   }
 }

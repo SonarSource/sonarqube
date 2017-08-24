@@ -24,6 +24,7 @@ import { Link } from 'react-router';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import Measure from '../../../components/measure/Measure';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
+import { getBranchName } from '../../../helpers/branches';
 import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
@@ -32,6 +33,7 @@ import { getComponentIssuesUrl } from '../../../helpers/urls';
 
 export default class QualityGateCondition extends React.PureComponent {
   /*:: props: {
+    branch: { name: string },
     component: Component,
     condition: {
       level: string,
@@ -52,16 +54,17 @@ export default class QualityGateCondition extends React.PureComponent {
     }
   }
 
-  getIssuesUrl(sinceLeakPeriod /*: boolean */, customQuery /*: {} */) {
+  getIssuesUrl = (sinceLeakPeriod /*: boolean */, customQuery /*: {} */) => {
     const query /*: Object */ = {
       resolved: 'false',
+      branch: getBranchName(this.props.branch),
       ...customQuery
     };
     if (sinceLeakPeriod) {
       Object.assign(query, { sinceLeakPeriod: 'true' });
     }
     return getComponentIssuesUrl(this.props.component.key, query);
-  }
+  };
 
   getUrlForCodeSmells(sinceLeakPeriod /*: boolean */) {
     return this.getIssuesUrl(sinceLeakPeriod, { types: 'CODE_SMELL' });
@@ -91,7 +94,7 @@ export default class QualityGateCondition extends React.PureComponent {
   }
 
   wrapWithLink(children /*: React.Element<*> */) {
-    const { component, condition } = this.props;
+    const { branch, component, condition } = this.props;
 
     const className = classNames(
       'overview-quality-gate-condition',
@@ -115,6 +118,7 @@ export default class QualityGateCondition extends React.PureComponent {
           {children}
         </Link>
       : <DrilldownLink
+          branch={getBranchName(branch)}
           className={className}
           component={component.key}
           metric={condition.measure.metric.key}
