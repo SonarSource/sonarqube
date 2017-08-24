@@ -20,58 +20,33 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import javax.annotation.Nullable;
-
-import org.apache.commons.lang.StringUtils;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
 import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.MergeBranchComponentUuids;
 
 public class TrackerMergeBranchInputFactory {
   private static final LineHashSequence EMPTY_LINE_HASH_SEQUENCE = new LineHashSequence(Collections.<String>emptyList());
 
   private final ComponentIssuesLoader mergeIssuesLoader;
   private final DbClient dbClient;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
-  private Map<String, String> uuidsByKey;
+  private final MergeBranchComponentUuids mergeBranchComponentUuids;
 
-  public TrackerMergeBranchInputFactory(ComponentIssuesLoader mergeIssuesLoader, AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
+  public TrackerMergeBranchInputFactory(ComponentIssuesLoader mergeIssuesLoader, MergeBranchComponentUuids mergeBranchComponentUuids, DbClient dbClient) {
     this.mergeIssuesLoader = mergeIssuesLoader;
-    this.analysisMetadataHolder = analysisMetadataHolder;
+    this.mergeBranchComponentUuids = mergeBranchComponentUuids;
     this.dbClient = dbClient;
     // TODO detect file moves?
   }
 
-  private void loadMergeBranchComponents() {
-    String mergeBranchUuid = analysisMetadataHolder.getBranch().get().getMergeBranchUuid().get();
-
-    uuidsByKey = new HashMap<>();
-    try (DbSession dbSession = dbClient.openSession(false)) {
-
-      List<ComponentDto> components = dbClient.componentDao().selectByProjectUuid(mergeBranchUuid, dbSession);
-      for (ComponentDto dto : components) {
-        uuidsByKey.put(removeBranchFromKey(dto.getDbKey()), dto.uuid());
-      }
-    }
-  }
-
   public Input<DefaultIssue> create(Component component) {
-    if (uuidsByKey == null) {
-      loadMergeBranchComponents();
-    }
-
-    String cleanComponentKey = removeBranchFromKey(component.getKey());
-    String mergeBranchComponentUuid = uuidsByKey.get(cleanComponentKey);
+    String mergeBranchComponentUuid = mergeBranchComponentUuids.getUuid(component.getKey());
     return new MergeLazyInput(component.getType(), mergeBranchComponentUuid);
   }
 
@@ -108,7 +83,4 @@ public class TrackerMergeBranchInputFactory {
     }
   }
 
-  private static String removeBranchFromKey(String componentKey) {
-    return StringUtils.substringBeforeLast(componentKey, ":BRANCH:");
-  }
 }
