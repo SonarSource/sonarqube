@@ -23,14 +23,13 @@ import classNames from 'classnames';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import SizeRating from '../../../components/ui/SizeRating';
-import { getBranchName } from '../../../helpers/branches';
 import { formatMeasure } from '../../../helpers/measures';
 import { getMetricName } from '../helpers/metrics';
 import { translate } from '../../../helpers/l10n';
 
 export default class MetaSize extends React.PureComponent {
   static propTypes = {
-    branch: PropTypes.object.isRequired,
+    branch: PropTypes.string,
     component: PropTypes.object.isRequired,
     measures: PropTypes.array.isRequired
   };
@@ -44,10 +43,7 @@ export default class MetaSize extends React.PureComponent {
       <span className="spacer-right">
         <SizeRating value={ncloc.value} />
       </span>
-      <DrilldownLink
-        branch={getBranchName(this.props.branch)}
-        component={this.props.component.key}
-        metric="ncloc">
+      <DrilldownLink branch={this.props.branch} component={this.props.component.key} metric="ncloc">
         {formatMeasure(ncloc.value, 'SHORT_INT')}
       </DrilldownLink>
       <div className="overview-domain-measure-label text-muted">
@@ -75,7 +71,7 @@ export default class MetaSize extends React.PureComponent {
           id="overview-projects"
           className="overview-meta-size-ncloc is-half-width bordered-left">
           <DrilldownLink
-            branch={getBranchName(this.props.branch)}
+            branch={this.props.branch}
             component={this.props.component.key}
             metric="projects">
             {formatMeasure(projects.value, 'SHORT_INT')}
