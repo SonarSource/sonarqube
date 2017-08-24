@@ -35,6 +35,7 @@ import org.sonarqube.ws.WsDuplications.ShowResponse;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.core.util.Protobuf.setNullable;
 
+// TODO Add UT on branch
 public class ShowResponseBuilder {
 
   private final ComponentDao componentDao;
@@ -48,14 +49,14 @@ public class ShowResponseBuilder {
     this.componentDao = componentDao;
   }
 
-  ShowResponse build(List<DuplicationsParser.Block> blocks, DbSession session) {
+  ShowResponse build(DbSession session, List<DuplicationsParser.Block> blocks, @Nullable String branch) {
     ShowResponse.Builder response = ShowResponse.newBuilder();
     Map<String, String> refByComponentKey = newHashMap();
     blocks.stream()
       .map(block -> toWsDuplication(block, refByComponentKey))
       .forEach(response::addDuplications);
 
-    writeFiles(response, refByComponentKey, session);
+    writeFiles(session, response, refByComponentKey, branch);
 
     return response.build();
   }
@@ -89,30 +90,31 @@ public class ShowResponseBuilder {
     return block;
   }
 
-  private static WsDuplications.File toWsFile(ComponentDto file, @Nullable ComponentDto project, @Nullable ComponentDto subProject) {
+  private static WsDuplications.File toWsFile(ComponentDto file, @Nullable ComponentDto project, @Nullable ComponentDto subProject, @Nullable String branch) {
     WsDuplications.File.Builder wsFile = WsDuplications.File.newBuilder();
-    wsFile.setKey(file.getDbKey());
+    wsFile.setKey(file.getKey());
     wsFile.setUuid(file.uuid());
     wsFile.setName(file.longName());
-
-    if (project != null) {
-      wsFile.setProject(project.getDbKey());
-      wsFile.setProjectUuid(project.uuid());
-      wsFile.setProjectName(project.longName());
-
+    setNullable(project, p -> {
+      wsFile.setProject(p.getKey());
+      wsFile.setProjectUuid(p.uuid());
+      wsFile.setProjectName(p.longName());
       // Do not return sub project if sub project and project are the same
       boolean displaySubProject = subProject != null && !subProject.uuid().equals(project.uuid());
       if (displaySubProject) {
-        wsFile.setSubProject(subProject.getDbKey());
+        wsFile.setSubProject(subProject.getKey());
         wsFile.setSubProjectUuid(subProject.uuid());
         wsFile.setSubProjectName(subProject.longName());
       }
-    }
-
+      if (branch != null) {
+        wsFile.setBranch(branch);
+      }
+      return wsFile;
+    });
     return wsFile.build();
   }
 
-  private void writeFiles(ShowResponse.Builder response, Map<String, String> refByComponentKey, DbSession session) {
+  private void writeFiles(DbSession session, ShowResponse.Builder response, Map<String, String> refByComponentKey, @Nullable String branch) {
     Map<String, ComponentDto> projectsByUuid = newHashMap();
     Map<String, ComponentDto> parentModulesByUuid = newHashMap();
     Map<String, WsDuplications.File> filesByRef = response.getMutableFiles();
@@ -126,7 +128,7 @@ public class ShowResponseBuilder {
 
         ComponentDto project = getProject(file.projectUuid(), projectsByUuid, session);
         ComponentDto parentModule = getParentProject(file.getRootUuid(), parentModulesByUuid, session);
-        filesByRef.put(ref, toWsFile(file, project, parentModule));
+        filesByRef.put(ref, toWsFile(file, project, parentModule, branch));
       }
     }
   }
