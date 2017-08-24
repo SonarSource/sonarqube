@@ -251,11 +251,64 @@ public class AppActionTest {
   }
 
   @Test
+  public void branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn("john").addProjectPermission(USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(module, directory));
+    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
+    db.measures().insertMeasure(file, analysis, coverage, m -> m.setValue(95.4d));
+
+    String result = ws.newRequest()
+      .setParam("component", file.getKey())
+      .setParam("branch", file.getBranch())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"key\": \"" + file.getKey() + "\",\n" +
+      "  \"branch\": \"" + file.getBranch() + "\",\n" +
+      "  \"uuid\": \"" + file.uuid() + "\",\n" +
+      "  \"path\": \"" + file.path() + "\",\n" +
+      "  \"name\": \"" + file.name() + "\",\n" +
+      "  \"longName\": \"" + file.longName() + "\",\n" +
+      "  \"q\": \"" + file.qualifier() + "\",\n" +
+      "  \"subProject\": \"" + module.getKey() + "\",\n" +
+      "  \"subProjectName\": \"" + module.longName() + "\",\n" +
+      "  \"project\": \"" + project.getKey() + "\",\n" +
+      "  \"projectName\": \"" + project.longName() + "\",\n" +
+      "  \"fav\": false,\n" +
+      "  \"canMarkAsFavorite\": true,\n" +
+      "  \"measures\": {\n" +
+      "    \"coverage\": \"95.4\"\n" +
+      "  }\n" +
+      "}\n");
+  }
+
+  @Test
   public void fail_if_no_parameter_provided() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either 'componentId' or 'component' must be provided, not both");
 
     ws.newRequest().execute();
+  }
+
+  @Test
+  public void fail_if_both_componentId_and_branch_parameters_provided() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'componentId' and 'branch' parameters cannot be used at the same time");
+
+    ws.newRequest()
+      .setParam("uuid", file.uuid())
+      .setParam("branch", file.getBranch())
+      .execute();
   }
 
   @Test
@@ -267,6 +320,20 @@ public class AppActionTest {
 
     ws.newRequest()
       .setParam("component", "unknown")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_branch_not_found() throws Exception {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    expectedException.expect(NotFoundException.class);
+
+    ws.newRequest()
+      .setParam("component", file.getKey())
+      .setParam("branch", "unknown")
       .execute();
   }
 
@@ -289,7 +356,7 @@ public class AppActionTest {
     assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isNotNull();
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
   }
 
 }
