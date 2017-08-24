@@ -57,6 +57,7 @@ import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
+import org.sonar.server.computation.task.projectanalysis.component.MergeBranchComponentUuids;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitor;
 import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepository;
@@ -112,6 +113,8 @@ public class IntegrateIssuesVisitorTest {
   private IssueLifecycle issueLifecycle;
   @Mock
   private IssueVisitor issueVisitor;
+  @Mock
+  private MergeBranchComponentUuids mergeBranchComponentsUuids;
 
   ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
 
@@ -133,7 +136,7 @@ public class IntegrateIssuesVisitorTest {
 
     TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, new CommonRuleEngineImpl(), issueFilter);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbTester.getDbClient(), movedFilesRepository);
-    TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(issuesLoader, analysisMetadataHolder, dbTester.getDbClient());
+    TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbTester.getDbClient());
     tracker = new TrackerExecution(baseInputFactory, rawInputFactory, new Tracker<>());
     shortBranchTracker = new ShortBranchTrackerExecution(baseInputFactory, rawInputFactory, mergeInputFactory, new Tracker<>());
     mergeBranchTracker = new MergeBranchTrackerExecution(rawInputFactory, mergeInputFactory, new Tracker<>());
