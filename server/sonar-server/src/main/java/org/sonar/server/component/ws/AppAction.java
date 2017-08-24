@@ -43,7 +43,6 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -58,7 +57,6 @@ import static org.sonar.api.measures.CoreMetrics.TESTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.component.ComponentFinder.ParamNames.*;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -68,7 +66,6 @@ public class AppAction implements ComponentsWsAction {
 
   private static final String PARAM_COMPONENT_ID = "componentId";
   private static final String PARAM_COMPONENT = "component";
-  private static final String PARAM_PERIOD = "period";
   private static final List<String> METRIC_KEYS = ImmutableList.of(
     LINES_KEY,
     VIOLATIONS_KEY,
@@ -108,15 +105,18 @@ public class AppAction implements ComponentsWsAction {
       .setDescription("Component key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setSince("6.4");
+
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setSince("6.6")
+      .setInternal(true)
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request request, Response response) {
     try (DbSession session = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByUuidOrKey(session,
-        request.param(PARAM_COMPONENT_ID),
-        request.param(PARAM_COMPONENT),
-        COMPONENT_ID_AND_COMPONENT);
+      ComponentDto component = loadComponent(session, request);
       userSession.checkComponentPermission(UserRole.USER, component);
 
       JsonWriter json = response.newJsonWriter();
@@ -128,6 +128,16 @@ public class AppAction implements ComponentsWsAction {
       json.endObject();
       json.close();
     }
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, Request request) {
+    String componentUuid = request.param(PARAM_COMPONENT_ID);
+    String branch = request.param("branch");
+    checkArgument(componentUuid == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", PARAM_COMPONENT_ID, PARAM_BRANCH);
+    if (branch == null) {
+      return componentFinder.getByUuidOrKey(dbSession, componentUuid, request.param(PARAM_COMPONENT), COMPONENT_ID_AND_COMPONENT);
+    }
+    return componentFinder.getByKeyAndOptionalBranch(dbSession, request.mandatoryParam(PARAM_COMPONENT), branch);
   }
 
   private void appendComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session) {
