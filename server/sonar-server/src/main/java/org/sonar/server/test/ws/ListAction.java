@@ -28,10 +28,10 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -50,7 +50,8 @@ import org.sonarqube.ws.WsTests;
 
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
-import static org.sonar.api.web.UserRole.*;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
@@ -96,6 +97,7 @@ public class ListAction implements TestsWsAction {
       .setResponseExample(Resources.getResource(getClass(), "tests-example-list.json"))
       .setDeprecatedSince("5.6")
       .setHandler(this)
+      .setChangelog(new Change("6.6", "\"fileBranch\" field is now returned"))
       .addPagingParams(100, MAX_LIMIT);
 
     action
@@ -170,8 +172,9 @@ public class ListAction implements TestsWsAction {
       testBuilder.setFileId(testDoc.fileUuid());
       ComponentDto component = componentsByTestFileUuid.get(testDoc.fileUuid());
       if (component != null) {
-        testBuilder.setFileKey(component.getDbKey());
+        testBuilder.setFileKey(component.getKey());
         testBuilder.setFileName(component.longName());
+        setNullable(component.getBranch(), testBuilder::setFileBranch);
       }
       testBuilder.setStatus(WsTests.TestStatus.valueOf(testDoc.status()));
       if (testDoc.durationInMs() != null) {
