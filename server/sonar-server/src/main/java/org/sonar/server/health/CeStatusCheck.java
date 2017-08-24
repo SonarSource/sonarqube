@@ -17,27 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.server.health;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.health.CeStatusCheck;
-import org.sonar.server.health.DbConnectionCheck;
-import org.sonar.server.health.EsStatusCheck;
-import org.sonar.server.health.HealthCheckerImpl;
-import org.sonar.server.health.WebServerStatusCheck;
+import org.sonar.server.app.ProcessCommandWrapper;
 
-public class HealthActionModule extends Module {
+import static org.sonar.server.health.Health.newHealthCheckBuilder;
+
+public class CeStatusCheck implements HealthCheck {
+  private static final Health RED_HEALTH = newHealthCheckBuilder()
+    .setStatus(Health.Status.RED)
+    .addCause("Compute Engine is not operational")
+    .build();
+
+  private final ProcessCommandWrapper processCommandWrapper;
+
+  public CeStatusCheck(ProcessCommandWrapper processCommandWrapper) {
+    this.processCommandWrapper = processCommandWrapper;
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      // HealthCheck implementations
-      WebServerStatusCheck.class,
-      DbConnectionCheck.class,
-      EsStatusCheck.class,
-      CeStatusCheck.class,
+  public Health check() {
+    if (processCommandWrapper.isCeOperational()) {
+      return Health.GREEN;
+    }
 
-      HealthCheckerImpl.class,
-
-      HealthAction.class);
+    return RED_HEALTH;
   }
 }

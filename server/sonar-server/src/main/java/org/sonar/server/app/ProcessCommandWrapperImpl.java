@@ -23,11 +23,27 @@ import java.io.File;
 import org.sonar.api.config.Configuration;
 import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.ProcessCommands;
+import org.sonar.process.ProcessId;
 
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 
 public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
+
+  private static final ProcessMethod<Void> SET_OPERATIONAL = processCommands -> {
+    processCommands.setOperational();
+    return null;
+  };
+  private static final ProcessMethod<Void> ASK_FOR_RESTART = processCommands -> {
+    processCommands.askForRestart();
+    return null;
+  };
+  private static final ProcessMethod<Void> ASK_FOR_STOP = processCommands -> {
+    processCommands.askForStop();
+    return null;
+  };
+  private static final ProcessMethod<Boolean> IS_OPERATIONAL = ProcessCommands::isOperational;
+
   private final Configuration config;
 
   public ProcessCommandWrapperImpl(Configuration config) {
@@ -36,53 +52,37 @@ public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
 
   @Override
   public void requestSQRestart() {
-    call(VoidMethod.ASK_FOR_RESTART, selfProcessNumber());
+    call(ASK_FOR_RESTART, selfProcessNumber());
   }
 
   @Override
   public void requestStop() {
-    call(VoidMethod.ASK_FOR_STOP, selfProcessNumber());
+    call(ASK_FOR_STOP, selfProcessNumber());
   }
 
   @Override
   public void notifyOperational() {
-    call(VoidMethod.SET_OPERATIONAL, selfProcessNumber());
+    call(SET_OPERATIONAL, selfProcessNumber());
+  }
+
+  @Override
+  public boolean isCeOperational() {
+    return call(IS_OPERATIONAL, ProcessId.COMPUTE_ENGINE.getIpcIndex());
   }
 
   private int selfProcessNumber() {
     return nonNullAsInt(PROPERTY_PROCESS_INDEX);
   }
 
-  private <T> T call(VoidMethod command, int processNumber) {
+  private <T> T call(ProcessMethod<T> command, int processNumber) {
     File shareDir = nonNullValueAsFile(PROPERTY_SHARED_PATH);
     try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(shareDir, processNumber)) {
       return command.callOn(commands);
     }
   }
 
-  private enum VoidMethod {
-    SET_OPERATIONAL() {
-      @Override
-      <T> T callOn(ProcessCommands processCommands) {
-        processCommands.setOperational();
-        return null;
-      }
-    },
-    ASK_FOR_RESTART() {
-      @Override
-      <T> T callOn(ProcessCommands processCommands) {
-        processCommands.askForRestart();
-        return null;
-      }
-    },
-    ASK_FOR_STOP() {
-      @Override
-      <T> T callOn(ProcessCommands processCommands) {
-        processCommands.askForStop();
-        return null;
-      }
-    };
-    abstract <T> T callOn(ProcessCommands processCommands);
+  private interface ProcessMethod<T> {
+    T callOn(ProcessCommands processCommands);
   }
 
   private int nonNullAsInt(String key) {
