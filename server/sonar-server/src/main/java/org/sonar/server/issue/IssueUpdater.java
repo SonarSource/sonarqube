@@ -80,7 +80,7 @@ public class IssueUpdater {
       .setIssue(issue)
       .setChangeAuthorLogin(context.login())
       .setRuleName(rule.map(RuleDefinitionDto::getName).orElse(null))
-      .setProject(project.getDbKey(), project.name())
+      .setProject(project.getKey(), project.name(), project.getBranch())
       .setComponent(component)
       .setComment(comment));
     return issueDto;
