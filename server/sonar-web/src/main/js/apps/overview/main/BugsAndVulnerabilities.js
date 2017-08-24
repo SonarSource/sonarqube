@@ -26,14 +26,12 @@ import BugIcon from '../../../components/icons-components/BugIcon';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import { getMetricName } from '../helpers/metrics';
-import { getBranchName } from '../../../helpers/branches';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
 class BugsAndVulnerabilities extends React.PureComponent {
   renderHeader() {
     const { branch, component } = this.props;
-    const branchName = getBranchName(branch);
 
     return (
       <div className="overview-card-header">
@@ -43,7 +41,7 @@ class BugsAndVulnerabilities extends React.PureComponent {
           </span>
           <Link
             className="button button-small button-compact spacer-left text-text-bottom"
-            to={getComponentDrilldownUrl(component.key, 'Reliability', branchName)}>
+            to={getComponentDrilldownUrl(component.key, 'Reliability', branch)}>
             <BubblesIcon size={14} />
           </Link>
           <span className="big-spacer-left">
@@ -51,7 +49,7 @@ class BugsAndVulnerabilities extends React.PureComponent {
           </span>
           <Link
             className="button button-small button-compact spacer-left text-text-bottom"
-            to={getComponentDrilldownUrl(component.key, 'Security', branchName)}>
+            to={getComponentDrilldownUrl(component.key, 'Security', branch)}>
             <BubblesIcon size={14} />
           </Link>
         </div>

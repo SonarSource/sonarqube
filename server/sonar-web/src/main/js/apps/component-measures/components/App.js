@@ -41,7 +41,7 @@ import '../style.css';
   fetchMeasures: (
     component: string,
     metricsKey: Array<string>,
-    branch: string | null
+    branch?: string
   ) => Promise<{ component: Component, measures: Array<MeasureEnhanced>, leakPeriod: ?Period }>,
   fetchMetrics: () => void,
   metrics: { [string]: Metric },
@@ -127,11 +127,7 @@ export default class App extends React.PureComponent {
     });
     this.props.router.push({
       pathname: this.props.location.pathname,
-      query: {
-        ...query,
-        branch: getBranchName(this.props.branch),
-        id: this.props.component.key
-      }
+      query: { ...query, branch: getBranchName(this.props.branch), id: this.props.component.key }
     });
   };
 
@@ -164,7 +160,7 @@ export default class App extends React.PureComponent {
 
         {metric != null &&
           <MeasureContentContainer
-            branch={branch}
+            branch={getBranchName(branch)}
             className="layout-page-main"
             currentUser={this.props.currentUser}
             rootComponent={component}
@@ -180,7 +176,7 @@ export default class App extends React.PureComponent {
         {metric == null &&
           hasBubbleChart(query.metric) &&
           <MeasureOverviewContainer
-            branch={branch}
+            branch={getBranchName(branch)}
             className="layout-page-main"
             rootComponent={component}
             currentUser={this.props.currentUser}
