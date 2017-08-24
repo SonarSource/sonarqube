@@ -21,6 +21,7 @@
 package org.sonarqube.tests.branch;
 
 import com.sonar.orchestrator.Orchestrator;
+import java.util.Map;
 import org.assertj.core.groups.Tuple;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -29,6 +30,9 @@ import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsBranches;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsResponse;
+import util.ItUtils;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static util.ItUtils.runProjectAnalysis;
@@ -50,5 +54,13 @@ public class BranchTest {
     assertThat(result.getBranchesList())
       .extracting(WsBranches.Branch::getName, WsBranches.Branch::getType, WsBranches.Branch::getIsMain)
       .containsExactlyInAnyOrder(Tuple.tuple("master", Common.BranchType.LONG, true));
+  }
+
+  @Test
+  public void navigation_global_return_branches_support_to_false() {
+    WsResponse status =tester.wsClient().wsConnector().call(new GetRequest("api/navigation/global"));
+    Map<String, Object> statusMap = ItUtils.jsonToMap(status.content());
+
+    assertThat(statusMap.get("branchesEnabled")).isEqualTo(false);
   }
 }
