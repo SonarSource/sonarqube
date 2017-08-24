@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="page page-limited"
+>
+  <Connect(SourceViewerBase)
+    aroundLine={7}
+    branch="b"
+    component="foo"
+    highlightedLine={7}
+    onLoaded={[Function]}
+  />
+</div>
+`;
