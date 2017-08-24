@@ -26,6 +26,48 @@ exports[`renders main branch 1`] = `
 </div>
 `;
 
+exports[`renders no branch support popup 1`] = `
+<div
+  className="navbar-context-branches"
+>
+  <BranchIcon
+    branch={
+      Object {
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    className="little-spacer-right"
+    color="#cdcdcd"
+  />
+  <span
+    className="note"
+  >
+    master
+  </span>
+  <div
+    className="display-inline-block spacer-left"
+  >
+    <a
+      className="link-no-underline"
+      href="#"
+      onClick={[Function]}
+    >
+      <HelpIcon
+        className=""
+        fill="#cdcdcd"
+      />
+    </a>
+    <BubblePopupHelper
+      isOpen={false}
+      popup={<NoBranchSupportPopup />}
+      position="bottomleft"
+      togglePopup={[Function]}
+    />
+  </div>
+</div>
+`;
+
 exports[`renders short-living branch 1`] = `
 <div
   className="navbar-context-branches dropdown"
@@ -80,8 +122,13 @@ exports[`renders single branch popup 1`] = `
       }
     }
     className="little-spacer-right"
+    color="#cdcdcd"
   />
-  master
+  <span
+    className="note"
+  >
+    master
+  </span>
   <div
     className="display-inline-block spacer-left"
   >

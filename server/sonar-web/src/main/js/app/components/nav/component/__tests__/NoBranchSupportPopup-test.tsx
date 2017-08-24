@@ -18,30 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BubblePopup from '../../../../components/common/BubblePopup';
-import { translate } from '../../../../helpers/l10n';
+import { shallow } from 'enzyme';
+import NoBranchSupportPopup from '../NoBranchSupportPopup';
 
-interface Props {
-  popupPosition?: any;
-}
-
-export default function SingleBranchHelperPopup(props: Props) {
-  return (
-    <BubblePopup position={props.popupPosition} customClass="bubble-popup-bottom">
-      <div className="abs-width-400">
-        <h6 className="spacer-bottom">
-          {translate('branches.learn_how_to_analyze')}
-        </h6>
-        <p className="big-spacer-bottom markdown">
-          {translate('branches.learn_how_to_analyze.text')}
-        </p>
-        <a
-          className="button"
-          href="https://redirect.sonarsource.com/doc/branches.html"
-          target="_blank">
-          {translate('about_page.read_documentation')}
-        </a>
-      </div>
-    </BubblePopup>
-  );
-}
+it('renders', () => {
+  expect(shallow(<NoBranchSupportPopup />)).toMatchSnapshot();
+});

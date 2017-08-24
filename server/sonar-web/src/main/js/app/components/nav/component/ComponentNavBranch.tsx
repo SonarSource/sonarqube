@@ -19,8 +19,10 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import * as PropTypes from 'prop-types';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
 import SingleBranchHelperPopup from './SingleBranchHelperPopup';
+import NoBranchSupportPopup from './NoBranchSupportPopup';
 import { Branch, Component } from '../../../types';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
 import { isShortLivingBranch } from '../../../../helpers/branches';
@@ -36,12 +38,21 @@ interface Props {
 
 interface State {
   dropdownOpen: boolean;
+  noBranchSupportPopupOpen: boolean;
   singleBranchPopupOpen: boolean;
 }
 
 export default class ComponentNavBranch extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = { dropdownOpen: false, singleBranchPopupOpen: false };
+  state: State = {
+    dropdownOpen: false,
+    noBranchSupportPopupOpen: false,
+    singleBranchPopupOpen: false
+  };
+
+  static contextTypes = {
+    branchesEnabled: PropTypes.bool.isRequired
+  };
 
   componentDidMount() {
     this.mounted = true;
@@ -73,7 +84,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     }
   };
 
-  togglePopup = (show?: boolean) => {
+  toggleSingleBranchPopup = (show?: boolean) => {
     if (show != undefined) {
       this.setState({ singleBranchPopupOpen: show });
     } else {
@@ -81,10 +92,24 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     }
   };
 
+  toggleNoBranchSupportPopup = (show?: boolean) => {
+    if (show != undefined) {
+      this.setState({ noBranchSupportPopupOpen: show });
+    } else {
+      this.setState(state => ({ noBranchSupportPopupOpen: !state.noBranchSupportPopupOpen }));
+    }
+  };
+
   handleSingleBranchClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    this.togglePopup();
+    this.toggleSingleBranchPopup();
+  };
+
+  handleNoBranchSupportClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    this.toggleNoBranchSupportPopup();
   };
 
   renderDropdown = () => {
@@ -116,30 +141,63 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
         isOpen={this.state.singleBranchPopupOpen}
         position="bottomleft"
         popup={<SingleBranchHelperPopup />}
-        togglePopup={this.togglePopup}
+        togglePopup={this.toggleSingleBranchPopup}
+      />
+    </div>;
+
+  renderNoBranchSupportPopup = () =>
+    <div className="display-inline-block spacer-left">
+      <a className="link-no-underline" href="#" onClick={this.handleNoBranchSupportClick}>
+        <HelpIcon className="" fill="#cdcdcd" />
+      </a>
+      <BubblePopupHelper
+        isOpen={this.state.noBranchSupportPopupOpen}
+        position="bottomleft"
+        popup={<NoBranchSupportPopup />}
+        togglePopup={this.toggleNoBranchSupportPopup}
       />
     </div>;
 
   render() {
     const { branches, currentBranch } = this.props;
 
-    return branches.length > 1
-      ? <div
-          className={classNames('navbar-context-branches', 'dropdown', {
-            open: this.state.dropdownOpen
-          })}>
-          <a className="link-base-color link-no-underline" href="#" onClick={this.handleClick}>
-            <BranchIcon branch={currentBranch} className="little-spacer-right" />
+    if (!this.context.branchesEnabled) {
+      return (
+        <div className="navbar-context-branches">
+          <BranchIcon branch={currentBranch} className="little-spacer-right" color="#cdcdcd" />
+          <span className="note">
             {currentBranch.name}
-            <i className="icon-dropdown little-spacer-left" />
-          </a>
-          {this.renderDropdown()}
-          {this.renderMergeBranch()}
+          </span>
+          {this.renderNoBranchSupportPopup()}
         </div>
-      : <div className="navbar-context-branches">
+      );
+    }
+
+    if (branches.length < 2) {
+      return (
+        <div className="navbar-context-branches">
+          <BranchIcon branch={currentBranch} className="little-spacer-right" color="#cdcdcd" />
+          <span className="note">
+            {currentBranch.name}
+          </span>
+          {this.renderSingleBranchPopup()}
+        </div>
+      );
+    }
+
+    return (
+      <div
+        className={classNames('navbar-context-branches', 'dropdown', {
+          open: this.state.dropdownOpen
+        })}>
+        <a className="link-base-color link-no-underline" href="#" onClick={this.handleClick}>
           <BranchIcon branch={currentBranch} className="little-spacer-right" />
           {currentBranch.name}
-          {this.renderSingleBranchPopup()}
-        </div>;
+          <i className="icon-dropdown little-spacer-left" />
+        </a>
+        {this.renderDropdown()}
+        {this.renderMergeBranch()}
+      </div>
+    );
   }
 }

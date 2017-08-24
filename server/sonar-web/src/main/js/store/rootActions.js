@@ -33,7 +33,10 @@ export const onFail = dispatch => error =>
   parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
 
 export const fetchAppState = () => dispatch =>
-  getGlobalNavigation().then(appState => dispatch(setAppState(appState)), onFail(dispatch));
+  getGlobalNavigation().then(appState => {
+    dispatch(setAppState(appState));
+    return appState;
+  }, onFail(dispatch));
 
 export const fetchLanguages = () => dispatch =>
   getLanguages().then(languages => dispatch(receiveLanguages(languages)), onFail(dispatch));

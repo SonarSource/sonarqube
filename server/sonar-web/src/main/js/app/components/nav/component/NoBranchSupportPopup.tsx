@@ -25,22 +25,27 @@ interface Props {
   popupPosition?: any;
 }
 
-export default function SingleBranchHelperPopup(props: Props) {
+export default function NoBranchSupportPopup(props: Props) {
   return (
     <BubblePopup position={props.popupPosition} customClass="bubble-popup-bottom">
       <div className="abs-width-400">
         <h6 className="spacer-bottom">
-          {translate('branches.learn_how_to_analyze')}
+          {translate('branches.no_support.header')}
         </h6>
         <p className="big-spacer-bottom markdown">
-          {translate('branches.learn_how_to_analyze.text')}
+          {translate('branches.no_support.header.text')}
         </p>
-        <a
-          className="button"
-          href="https://redirect.sonarsource.com/doc/branches.html"
-          target="_blank">
-          {translate('about_page.read_documentation')}
-        </a>
+        <p>
+          <a href="https://redirect.sonarsource.com/doc/branches.html" target="_blank">
+            {translate('learn_more')}
+          </a>
+          <a
+            className="button spacer-left"
+            href="https://www.sonarsource.com/company/contact/"
+            target="_blank">
+            {translate('buy_developer_pack')}
+          </a>
+        </p>
       </div>
     </BubblePopup>
   );

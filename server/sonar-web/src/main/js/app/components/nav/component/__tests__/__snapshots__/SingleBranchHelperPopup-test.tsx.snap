@@ -13,7 +13,7 @@ exports[`renders 1`] = `
       branches.learn_how_to_analyze
     </h6>
     <p
-      className="big-spacer-bottom"
+      className="big-spacer-bottom markdown"
     >
       branches.learn_how_to_analyze.text
     </p>
