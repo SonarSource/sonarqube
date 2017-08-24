@@ -17,32 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
+import * as classNames from 'classnames';
 import { debounce } from 'lodash';
 import Components from './Components';
 import { getTree } from '../../../api/components';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../utils';
-import { getComponentUrl } from '../../../helpers/urls';
+import { getProjectUrl } from '../../../helpers/urls';
+import { Component } from '../types';
 
-export default class Search extends React.PureComponent {
+interface Props {
+  branch?: string;
+  component: Component;
+  location: {};
+  onError: (error: string) => void;
+}
+
+interface State {
+  query: string;
+  loading: boolean;
+  results?: Component[];
+  selectedIndex?: number;
+}
+
+export default class Search extends React.PureComponent<Props, State> {
+  input: HTMLInputElement;
+  mounted: boolean;
+
   static contextTypes = {
     router: PropTypes.object.isRequired
   };
 
-  static propTypes = {
-    component: PropTypes.object.isRequired,
-    location: PropTypes.object.isRequired,
-    onError: PropTypes.func.isRequired
-  };
-
-  state = {
+  state: State = {
     query: '',
-    loading: false,
-    results: null,
-    selectedIndex: null
+    loading: false
   };
 
   componentWillMount() {
@@ -51,17 +61,17 @@ export default class Search extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
-    this.refs.input.focus();
+    this.input.focus();
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     // if the url has change, reset the current state
     if (nextProps.location !== this.props.location) {
       this.setState({
         query: '',
         loading: false,
-        results: null,
-        selectedIndex: null
+        results: undefined,
+        selectedIndex: undefined
       });
     }
   }
@@ -70,8 +80,8 @@ export default class Search extends React.PureComponent {
     this.mounted = false;
   }
 
-  checkInputValue(query) {
-    return this.refs.input.value === query;
+  checkInputValue(query: string) {
+    return this.input.value === query;
   }
 
   handleSelectNext() {
@@ -89,27 +99,23 @@ export default class Search extends React.PureComponent {
   }
 
   handleSelectCurrent() {
-    const { component } = this.props;
+    const { branch, component } = this.props;
     const { results, selectedIndex } = this.state;
     if (results != null && selectedIndex != null) {
       const selected = results[selectedIndex];
 
       if (selected.refKey) {
-        window.location = getComponentUrl(selected.refKey);
+        this.context.router.push(getProjectUrl(selected.refKey));
       } else {
         this.context.router.push({
           pathname: '/code',
-          query: {
-            branch: component.branch,
-            id: component.key,
-            selected: selected.key
-          }
+          query: { branch, id: component.key, selected: selected.key }
         });
       }
     }
   }
 
-  handleKeyDown(e) {
+  handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     switch (e.keyCode) {
       case 13:
         e.preventDefault();
@@ -127,27 +133,22 @@ export default class Search extends React.PureComponent {
     }
   }
 
-  handleSearch = query => {
+  handleSearch = (query: string) => {
     // first time check if value has changed due to debounce
     if (this.mounted && this.checkInputValue(query)) {
-      const { component, onError } = this.props;
+      const { branch, component, onError } = this.props;
       this.setState({ loading: true });
 
       const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
       const qualifiers = isPortfolio ? 'SVW,TRK' : 'BRC,UTS,FIL';
 
-      getTree(component.key, {
-        branch: component.branch,
-        q: query,
-        s: 'qualifier,name',
-        qualifiers
-      })
+      getTree(component.key, { branch, q: query, s: 'qualifier,name', qualifiers })
         .then(r => {
           // second time check if value has change due to api request
           if (this.mounted && this.checkInputValue(query)) {
             this.setState({
               results: r.components,
-              selectedIndex: r.components.length > 0 ? 0 : null,
+              selectedIndex: r.components.length > 0 ? 0 : undefined,
               loading: false
             });
           }
@@ -162,30 +163,30 @@ export default class Search extends React.PureComponent {
     }
   };
 
-  handleQueryChange(query) {
+  handleQueryChange(query: string) {
     this.setState({ query });
     if (query.length < 3) {
-      this.setState({ results: null });
+      this.setState({ results: undefined });
     } else {
       this.handleSearch(query);
     }
   }
 
-  handleInputChange(e) {
-    const query = e.target.value;
+  handleInputChange(event: React.SyntheticEvent<HTMLInputElement>) {
+    const query = event.currentTarget.value;
     this.handleQueryChange(query);
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-    const query = this.refs.input.value;
+  handleSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const query = this.input.value;
     this.handleQueryChange(query);
   }
 
   render() {
     const { component } = this.props;
     const { query, loading, selectedIndex, results } = this.state;
-    const selected = selectedIndex != null && results != null ? results[selectedIndex] : null;
+    const selected = selectedIndex != null && results != null ? results[selectedIndex] : undefined;
     const containerClassName = classNames('code-search', {
       'code-search-with-results': results != null
     });
@@ -201,7 +202,7 @@ export default class Search extends React.PureComponent {
           </button>
 
           <input
-            ref="input"
+            ref={node => (this.input = node as HTMLInputElement)}
             onKeyDown={this.handleKeyDown.bind(this)}
             onChange={this.handleInputChange.bind(this)}
             value={query}
@@ -209,7 +210,7 @@ export default class Search extends React.PureComponent {
             type="search"
             name="q"
             placeholder={translate('search_verb')}
-            maxLength="100"
+            maxLength={100}
             autoComplete="off"
           />
 
@@ -221,7 +222,12 @@ export default class Search extends React.PureComponent {
         </form>
 
         {results != null &&
-          <Components rootComponent={component} components={results} selected={selected} />}
+          <Components
+            branch={this.props.branch}
+            components={results}
+            rootComponent={component}
+            selected={selected}
+          />}
       </div>
     );
   }

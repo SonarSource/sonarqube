@@ -24,12 +24,14 @@ import Analysis from './Analysis';
 import PreviewGraph from './PreviewGraph';
 import { getMetrics } from '../../../api/metrics';
 import { getProjectActivity } from '../../../api/projectActivity';
+import { getBranchName } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Analysis as AnalysisType } from '../../projectActivity/types'; */
 /*:: import type { History, Metric } from '../types'; */
 
 /*::
 type Props = {
+  branch: {},
   history: ?History,
   project: string,
   qualifier: string,
@@ -70,7 +72,11 @@ export default class AnalysesList extends React.PureComponent {
   fetchData() {
     this.setState({ loading: true });
     Promise.all([
-      getProjectActivity({ project: this.props.project, ps: PAGE_SIZE }),
+      getProjectActivity({
+        branch: getBranchName(this.props.branch),
+        project: this.props.project,
+        ps: PAGE_SIZE
+      }),
       getMetrics()
     ]).then(response => {
       if (this.mounted) {
@@ -111,6 +117,7 @@ export default class AnalysesList extends React.PureComponent {
         </h4>
 
         <PreviewGraph
+          branch={this.props.branch}
           history={this.props.history}
           project={this.props.project}
           metrics={this.state.metrics}
@@ -120,7 +127,11 @@ export default class AnalysesList extends React.PureComponent {
         {this.renderList(analyses)}
 
         <div className="spacer-top small">
-          <Link to={{ pathname: '/project/activity', query: { id: this.props.project } }}>
+          <Link
+            to={{
+              pathname: '/project/activity',
+              query: { id: this.props.project, branch: getBranchName(this.props.branch) }
+            }}>
             {translate('show_more')}
           </Link>
         </div>
