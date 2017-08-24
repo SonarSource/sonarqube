@@ -35,4 +35,9 @@ public interface ProcessCommandWrapper {
    */
   void notifyOperational();
 
+  /**
+   * Checks whether the Compute Engine is operational.
+   */
+  boolean isCeOperational();
+
 }
