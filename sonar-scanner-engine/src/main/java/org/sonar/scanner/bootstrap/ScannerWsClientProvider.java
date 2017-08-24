@@ -68,7 +68,7 @@ public class ScannerWsClientProvider extends ProviderAdapter {
       if (!proxyUser.isEmpty()) {
         connectorBuilder.proxyCredentials(proxyUser, System.getProperty("http.proxyPassword"));
       }
-      if(Boolean.valueOf( System.getProperty( "sonar.http.ssl.insecure", "false" ) )) {
+      if(Boolean.getBoolean("sonar.http.ssl.insecure")) {
         try {
           // Create a trust manager that does not validate certificate chains
           X509TrustManager easyTrust =
@@ -100,7 +100,7 @@ public class ScannerWsClientProvider extends ProviderAdapter {
           throw new RuntimeException( e.getMessage(), e );
         }
       }
-      if(Boolean.valueOf( System.getProperty( "sonar.http.ssl.allowall", "false" ) )) {
+      if(Boolean.getBoolean("sonar.http.ssl.allowall")) {
         connectorBuilder.hostnameVerifier( ( s, sslSession ) -> true );
       }
       wsClient = new ScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null, globalMode);
