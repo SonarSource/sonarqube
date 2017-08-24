@@ -39,6 +39,7 @@ const METRICS = {
 };
 
 const PROPS = {
+  branch: { isMain: true, name: 'master' },
   component: { key: 'foo' },
   location: { pathname: '/component_measures', query: { metric: 'coverage' } },
   fetchMeasures: () => {},

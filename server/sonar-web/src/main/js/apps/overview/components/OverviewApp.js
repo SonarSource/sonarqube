@@ -76,7 +76,10 @@ export default class OverviewApp extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps /*: Props */) {
-    if (this.props.component.key !== prevProps.component.key || this.props.branch !== prevProps.branch) {
+    if (
+      this.props.component.key !== prevProps.component.key ||
+      this.props.branch !== prevProps.branch
+    ) {
       this.loadMeasures().then(this.loadHistory);
     }
   }
@@ -163,7 +166,15 @@ export default class OverviewApp extends React.PureComponent {
 
     const leakPeriod =
       component.qualifier === 'APP' ? this.getApplicationLeakPeriod() : getLeakPeriod(periods);
-    const domainProps = { branch, component, measures, leakPeriod, history, historyStartDate };
+    const branchName = getBranchName(branch);
+    const domainProps = {
+      branch: branchName,
+      component,
+      measures,
+      leakPeriod,
+      history,
+      historyStartDate
+    };
 
     return (
       <div className="page page-limited">
@@ -171,7 +182,7 @@ export default class OverviewApp extends React.PureComponent {
           <div className="overview-main page-main">
             {component.qualifier === 'APP'
               ? <ApplicationQualityGate component={component} />
-              : <QualityGate branch={branch} component={component} measures={measures} />}
+              : <QualityGate branch={branchName} component={component} measures={measures} />}
 
             <div className="overview-domains-list">
               <BugsAndVulnerabilities {...domainProps} />
@@ -183,7 +194,7 @@ export default class OverviewApp extends React.PureComponent {
 
           <div className="page-sidebar-fixed">
             <Meta
-              branch={branch}
+              branch={branchName}
               component={component}
               history={history}
               measures={measures}

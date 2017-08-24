@@ -32,7 +32,6 @@ import TreeMapView from '../drilldown/TreeMapView';
 import { getComponentTree } from '../../../api/components';
 import { complementary } from '../config/complementary';
 import { enhanceComponent, isFileType, isViewType } from '../utils';
-import { getBranchName } from '../../../helpers/branches';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
 import { parseDate } from '../../../helpers/dates';
@@ -44,7 +43,7 @@ import { parseDate } from '../../../helpers/dates';
 // https://github.com/facebook/flow/issues/3147
 // router: { push: ({ pathname: string, query?: RawQuery }) => void }
 /*:: type Props = {|
-  branch: {},
+  branch?: string,
   className?: string,
   component: Component,
   currentUser: { isLoggedIn: boolean },
@@ -117,7 +116,7 @@ export default class MeasureContent extends React.PureComponent {
     const strategy = view === 'list' ? 'leaves' : 'children';
     const metricKeys = [metric.key];
     const opts /*: Object */ = {
-      branch: getBranchName(this.props.branch),
+      branch: this.props.branch,
       metricSortFilter: 'withMeasuresOnly'
     };
     const isDiff = isDiffMetric(metric.key);
@@ -241,11 +240,7 @@ export default class MeasureContent extends React.PureComponent {
     }
     return (
       <div className="measure-details-viewer">
-        <SourceViewer
-          branch={getBranchName(branch)}
-          component={component.key}
-          filterLine={filterLine}
-        />
+        <SourceViewer branch={branch} component={component.key} filterLine={filterLine} />
       </div>
     );
   }
@@ -336,6 +331,7 @@ export default class MeasureContent extends React.PureComponent {
           measure != null &&
           <div className="layout-page-main-inner measure-details-content">
             <MeasureHeader
+              branch={branch}
               component={component}
               components={this.state.components}
               handleSelect={this.props.updateSelected}

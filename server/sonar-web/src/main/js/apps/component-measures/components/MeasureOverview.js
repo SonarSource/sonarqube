@@ -26,13 +26,12 @@ import MeasureFavoriteContainer from './MeasureFavoriteContainer';
 import PageActions from './PageActions';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getComponentLeaves } from '../../../api/components';
-import { getBranchName } from '../../../helpers/branches';
 import { enhanceComponent, getBubbleMetrics, isFileType } from '../utils';
 /*:: import type { Component, ComponentEnhanced, Paging, Period } from '../types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
-  branch: {},
+  branch?: string,
   className?: string,
   component: Component,
   currentUser: { isLoggedIn: boolean },
@@ -90,7 +89,7 @@ export default class MeasureOverview extends React.PureComponent {
       metricsKey.push(colors.map(metric => metric.key));
     }
     const options = {
-      branch: getBranchName(branch),
+      branch,
       s: 'metric',
       metricSort: size.key,
       asc: false,
@@ -119,7 +118,7 @@ export default class MeasureOverview extends React.PureComponent {
     if (isFileType(component)) {
       return (
         <div className="measure-details-viewer">
-          <SourceViewer branch={getBranchName(branch)} component={component.key} />
+          <SourceViewer branch={branch} component={component.key} />
         </div>
       );
     }

@@ -28,7 +28,7 @@ import { scrollToElement } from '../../../helpers/scrolling';
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
-  branch: {},
+  branch?: string,
   components: Array<ComponentEnhanced>,
   fetchMore: () => void,
   handleSelect: string => void,

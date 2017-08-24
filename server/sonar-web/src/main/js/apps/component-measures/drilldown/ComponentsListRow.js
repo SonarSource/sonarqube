@@ -26,7 +26,7 @@ import MeasureCell from './MeasureCell';
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
-  branch: {},
+  branch?: string,
   component: ComponentEnhanced,
   isSelected: boolean,
   onClick: string => void,
