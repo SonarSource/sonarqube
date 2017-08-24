@@ -886,12 +886,14 @@
         <version>5.1.42</version>
       </dependency>
       <dependency>
-        <groupId>com.oracle</groupId>
-        <artifactId>ojdbc6</artifactId>
-        <!-- SonarSource internal tests: -->
-        <!-- This version should be the same as at http://infra.internal.sonarsource.com/jenkins/orch-oracle*.properties -->
-        <version>11.2.0.3.0</version>
-      </dependency>
+        <groupId>com.oracle.jdbc</groupId>
+        <artifactId>ojdbc8</artifactId>
+        <!--
+             This version is compatible with Oracle 11g and 12c :
+             http://www.oracle.com/technetwork/database/enterprise-edition/jdbc-faq-090281.html#01_02
+        -->
+        <version>12.2.0.1.0</version>
+     </dependency>
       <dependency>
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
