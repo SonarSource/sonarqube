@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import * as classNames from 'classnames';
 import { Branch, Component, ComponentExtension, ComponentConfiguration } from '../../../types';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
-import { isShortLivingBranch } from '../../../../helpers/branches';
+import { isShortLivingBranch, getBranchName } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 
 const SETTINGS_URLS = [
@@ -71,7 +71,12 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     const pathname = this.isView() ? '/portfolio' : '/dashboard';
     return (
       <li>
-        <Link to={{ pathname, query: { id: this.props.component.key } }} activeClassName="active">
+        <Link
+          to={{
+            pathname,
+            query: { branch: getBranchName(this.props.branch), id: this.props.component.key }
+          }}
+          activeClassName="active">
           {translate('overview.page')}
         </Link>
       </li>
@@ -88,7 +93,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
         <Link
           to={{
             pathname: '/code',
-            query: { branch: this.props.branch.name, id: this.props.component.key }
+            query: { branch: getBranchName(this.props.branch), id: this.props.component.key }
           }}
           activeClassName="active">
           {this.isView() || this.isApplication()
@@ -111,7 +116,10 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li>
         <Link
-          to={{ pathname: '/project/activity', query: { id: this.props.component.key } }}
+          to={{
+            pathname: '/project/activity',
+            query: { branch: getBranchName(this.props.branch), id: this.props.component.key }
+          }}
           activeClassName="active">
           {translate('project_activity.page')}
         </Link>
@@ -126,7 +134,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           to={{
             pathname: '/project/issues',
             query: {
-              branch: this.props.branch.name,
+              branch: getBranchName(this.props.branch),
               id: this.props.component.key,
               resolved: 'false'
             }
@@ -146,7 +154,10 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li>
         <Link
-          to={{ pathname: '/component_measures', query: { id: this.props.component.key } }}
+          to={{
+            pathname: '/component_measures',
+            query: { branch: getBranchName(this.props.branch), id: this.props.component.key }
+          }}
           activeClassName="active">
           {translate('layout.measures')}
         </Link>
@@ -155,7 +166,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderAdministration() {
-    if (isShortLivingBranch(this.props.branch)) {
+    if (!this.props.branch.isMain) {
       return null;
     }
 

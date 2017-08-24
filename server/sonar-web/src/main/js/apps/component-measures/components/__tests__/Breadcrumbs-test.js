@@ -34,6 +34,7 @@ jest.mock('../../../../api/components', () => ({
 it('should display correctly for the list view', () => {
   const wrapper = mount(
     <Breadcrumbs
+      branch={{ isMain: true }}
       component={{ key: 'bar', name: 'Bar' }}
       handleSelect={() => {}}
       rootComponent={{ key: 'foo', name: 'Foo' }}
@@ -46,6 +47,7 @@ it('should display correctly for the list view', () => {
 it('should display only the root component', () => {
   const wrapper = mount(
     <Breadcrumbs
+      branch={{ isMain: true }}
       component={{ key: 'foo', name: 'Foo' }}
       handleSelect={() => {}}
       rootComponent={{ key: 'foo', name: 'Foo' }}
@@ -58,6 +60,7 @@ it('should display only the root component', () => {
 it.only('should load the breadcrumb from the api', () => {
   const wrapper = mount(
     <Breadcrumbs
+      branch={{ isMain: true }}
       component={{ key: 'bar', name: 'Bar' }}
       handleSelect={() => {}}
       rootComponent={{ key: 'foo', name: 'Foo' }}

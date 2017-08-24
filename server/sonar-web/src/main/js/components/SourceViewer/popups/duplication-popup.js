@@ -34,7 +34,7 @@ export default Popup.extend({
     const key = $(e.currentTarget).data('key');
     const line = $(e.currentTarget).data('line');
     const Workspace = require('../../workspace/main').default;
-    Workspace.openComponent({ key, line });
+    Workspace.openComponent({ key, line, branch: this.options.branch });
   },
 
   serializeData() {

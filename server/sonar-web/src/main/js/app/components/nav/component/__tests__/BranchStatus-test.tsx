@@ -20,25 +20,44 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import BranchStatus from '../BranchStatus';
-import { BranchType } from '../../../../types';
+import { BranchType, LongLivingBranch } from '../../../../types';
 
-it('renders', () => {
-  check(0, 0, 0);
-  check(0, 1, 0);
-  check(7, 3, 6);
+it('renders status of short-living branches', () => {
+  checkShort(0, 0, 0);
+  checkShort(0, 1, 0);
+  checkShort(7, 3, 6);
+
+  function checkShort(bugs: number, codeSmells: number, vulnerabilities: number) {
+    expect(
+      shallow(
+        <BranchStatus
+          branch={{
+            isMain: false,
+            mergeBranch: 'master',
+            name: 'foo',
+            status: { bugs, codeSmells, vulnerabilities },
+            type: BranchType.SHORT
+          }}
+        />
+      )
+    ).toMatchSnapshot();
+  }
 });
 
-function check(bugs: number, codeSmells: number, vulnerabilities: number) {
-  expect(
-    shallow(
-      <BranchStatus
-        branch={{
-          isMain: false,
-          name: 'foo',
-          status: { bugs, codeSmells, vulnerabilities },
-          type: BranchType.SHORT
-        }}
-      />
-    )
-  ).toMatchSnapshot();
-}
+it('renders status of long-living branches', () => {
+  checkLong();
+  checkLong('OK');
+  checkLong('ERROR');
+
+  function checkLong(qualityGateStatus?: string) {
+    const branch: LongLivingBranch = {
+      isMain: false,
+      name: 'foo',
+      type: BranchType.LONG
+    };
+    if (qualityGateStatus) {
+      branch.status = { qualityGateStatus };
+    }
+    expect(shallow(<BranchStatus branch={branch} />)).toMatchSnapshot();
+  }
+});

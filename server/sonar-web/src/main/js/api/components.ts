@@ -218,11 +218,11 @@ export function getSources(
   return getJSON('/api/sources/lines', data).then(r => r.sources);
 }
 
-export function getDuplications(component: string): Promise<any> {
-  return getJSON('/api/duplications/show', { key: component });
+export function getDuplications(component: string, branch?: string): Promise<any> {
+  return getJSON('/api/duplications/show', { key: component, branch });
 }
 
-export function getTests(component: string, line: number | string): Promise<any> {
-  const data = { sourceFileKey: component, sourceFileLineNumber: line };
+export function getTests(component: string, line: number | string, branch?: string): Promise<any> {
+  const data = { sourceFileKey: component, sourceFileLineNumber: line, branch };
   return getJSON('/api/tests/list', data).then(r => r.tests);
 }
