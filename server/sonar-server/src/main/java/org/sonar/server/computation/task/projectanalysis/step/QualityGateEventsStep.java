@@ -25,6 +25,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
@@ -52,15 +53,17 @@ public class QualityGateEventsStep implements ComputationStep {
   private final MeasureRepository measureRepository;
   private final EventRepository eventRepository;
   private final NotificationService notificationService;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
   public QualityGateEventsStep(TreeRootHolder treeRootHolder,
     MetricRepository metricRepository, MeasureRepository measureRepository, EventRepository eventRepository,
-    NotificationService notificationService) {
+    NotificationService notificationService, AnalysisMetadataHolder analysisMetadataHolder) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.eventRepository = eventRepository;
     this.notificationService = notificationService;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
@@ -129,6 +132,7 @@ public class QualityGateEventsStep implements ComputationStep {
       .setFieldValue("alertText", rawStatus.getText())
       .setFieldValue("alertLevel", rawStatus.getStatus().toString())
       .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));
+    analysisMetadataHolder.getBranch().ifPresent(branch -> notification.setFieldValue("branch", branch.getName().orElse(null)));
     notificationService.deliver(notification);
   }
 
