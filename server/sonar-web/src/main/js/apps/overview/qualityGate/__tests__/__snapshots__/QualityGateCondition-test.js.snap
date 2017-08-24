@@ -9,6 +9,7 @@ exports[`new_maintainability_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
+        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "sinceLeakPeriod": "true",
@@ -131,6 +132,7 @@ exports[`new_reliability_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
+        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
@@ -198,6 +200,7 @@ exports[`new_security_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
+        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
@@ -315,6 +318,7 @@ exports[`reliability_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
+        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
@@ -375,6 +379,7 @@ exports[`security_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
+        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
@@ -426,6 +431,67 @@ exports[`security_rating 1`] = `
 </Link>
 `;
 
+exports[`should work with branch 1`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/project/issues",
+      "query": Object {
+        "branch": "feature",
+        "id": "abcd-key",
+        "resolved": "false",
+        "sinceLeakPeriod": "true",
+        "types": "CODE_SMELL",
+      },
+    }
+  }
+>
+  <div
+    className="overview-quality-gate-condition-container"
+  >
+    <div
+      className="overview-quality-gate-condition-value"
+    >
+      <Measure
+        decimals={null}
+        measure={
+          Object {
+            "leak": "3",
+            "metric": Object {
+              "key": "new_maintainability_rating",
+              "name": "new_maintainability_rating",
+              "type": "RATING",
+            },
+            "value": "3",
+          }
+        }
+      />
+    </div>
+    <div>
+      <div
+        className="overview-quality-gate-condition-metric"
+      >
+        <IssueTypeIcon
+          className="little-spacer-right"
+          query="new_maintainability_rating"
+        />
+        new_maintainability_rating
+      </div>
+      <div
+        className="overview-quality-gate-threshold"
+      >
+        quality_gates.operator.GT.rating
+
+        A
+      </div>
+    </div>
+  </div>
+</Link>
+`;
+
 exports[`sqale_rating 1`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
@@ -435,6 +501,7 @@ exports[`sqale_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
+        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "types": "CODE_SMELL",

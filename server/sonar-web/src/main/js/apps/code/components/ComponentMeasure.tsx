@@ -17,10 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
+import { Component } from '../types';
 
-const ComponentMeasure = ({ component, metricKey, metricType }) => {
+interface Props {
+  component: Component;
+  metricKey: string;
+  metricType: string;
+}
+
+export default function ComponentMeasure({ component, metricKey, metricType }: Props) {
   const isProject = component.qualifier === 'TRK';
   const isReleasability = metricKey === 'releasability_rating';
 
@@ -35,9 +42,10 @@ const ComponentMeasure = ({ component, metricKey, metricType }) => {
     return <span />;
   }
 
-  return (
-    <Measure measure={{ ...measure, metric: { key: finalMetricKey, type: finalMetricType } }} />
-  );
-};
+  // TODO
+  const AnyMeasure = Measure as any;
 
-export default ComponentMeasure;
+  return (
+    <AnyMeasure measure={{ ...measure, metric: { key: finalMetricKey, type: finalMetricType } }} />
+  );
+}

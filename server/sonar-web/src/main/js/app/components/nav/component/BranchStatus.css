@@ -1,4 +1,6 @@
 .branch-status {
+  min-width: 64px;
+  text-align: right;
 }
 
 .branch-status-indicator {

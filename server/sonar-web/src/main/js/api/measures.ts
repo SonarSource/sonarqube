@@ -19,9 +19,13 @@
  */
 import { getJSON, RequestData } from '../helpers/request';
 
-export function getMeasures(componentKey: string, metrics: string[]): Promise<any> {
+export function getMeasures(
+  componentKey: string,
+  metrics: string[],
+  branch?: string
+): Promise<any> {
   const url = '/api/measures/component';
-  const data = { componentKey, metricKeys: metrics.join(',') };
+  const data = { componentKey, metricKeys: metrics.join(','), branch };
   return getJSON(url, data).then(r => r.component.measures);
 }
 

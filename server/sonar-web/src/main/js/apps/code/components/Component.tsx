@@ -17,18 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import React from 'react';
-import ReactDOM from 'react-dom';
+import * as classNames from 'classnames';
+import * as React from 'react';
 import ComponentName from './ComponentName';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentDetach from './ComponentDetach';
 import ComponentPin from './ComponentPin';
+import { Component as IComponent } from '../types';
 
 const TOP_OFFSET = 200;
 const BOTTOM_OFFSET = 10;
 
-export default class Component extends React.PureComponent {
+interface Props {
+  branch?: string;
+  canBrowse?: boolean;
+  component: IComponent;
+  previous?: IComponent;
+  rootComponent: IComponent;
+  selected?: boolean;
+}
+
+export default class Component extends React.PureComponent<Props> {
+  node: HTMLElement;
+
   componentDidMount() {
     this.handleUpdate();
   }
@@ -49,8 +60,7 @@ export default class Component extends React.PureComponent {
   }
 
   handleScroll() {
-    const node = ReactDOM.findDOMNode(this);
-    const position = node.getBoundingClientRect();
+    const position = this.node.getBoundingClientRect();
     const { top, bottom } = position;
     if (bottom > window.innerHeight - BOTTOM_OFFSET) {
       window.scrollTo(0, bottom - window.innerHeight + window.scrollY + BOTTOM_OFFSET);
@@ -60,7 +70,14 @@ export default class Component extends React.PureComponent {
   }
 
   render() {
-    const { component, rootComponent, selected, previous, canBrowse } = this.props;
+    const {
+      branch,
+      component,
+      rootComponent,
+      selected = false,
+      previous,
+      canBrowse = false
+    } = this.props;
     const isPortfolio = ['VW', 'SVW'].includes(rootComponent.qualifier);
     const isApplication = rootComponent.qualifier === 'APP';
 
@@ -70,10 +87,10 @@ export default class Component extends React.PureComponent {
       switch (component.qualifier) {
         case 'FIL':
         case 'UTS':
-          componentAction = <ComponentPin branch={rootComponent.branch} component={component} />;
+          componentAction = <ComponentPin branch={branch} component={component} />;
           break;
         default:
-          componentAction = <ComponentDetach branch={rootComponent.branch} component={component} />;
+          componentAction = <ComponentDetach branch={branch} component={component} />;
       }
     }
 
@@ -93,10 +110,10 @@ export default class Component extends React.PureComponent {
           { metric: 'code_smells', type: 'SHORT_INT' },
           { metric: 'coverage', type: 'PERCENT' },
           { metric: 'duplicated_lines_density', type: 'PERCENT' }
-        ].filter(Boolean);
+        ].filter(Boolean) as Array<{ metric: string; type: string }>;
 
     return (
-      <tr className={classNames({ selected })}>
+      <tr className={classNames({ selected })} ref={node => (this.node = node as HTMLElement)}>
         <td className="thin nowrap">
           <span className="spacer-right">
             {componentAction}
@@ -104,6 +121,7 @@ export default class Component extends React.PureComponent {
         </td>
         <td className="code-name-cell">
           <ComponentName
+            branch={branch}
             component={component}
             rootComponent={rootComponent}
             previous={previous}

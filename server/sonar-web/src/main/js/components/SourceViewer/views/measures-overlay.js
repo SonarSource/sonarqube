@@ -141,7 +141,11 @@ export default ModalView.extend({
         .filter(metric => metric.type !== 'DATA' && !metric.hidden)
         .map(metric => metric.key);
 
-      return getMeasures(this.options.component.key, metricsToRequest).then(measures => {
+      return getMeasures(
+        this.options.component.key,
+        metricsToRequest,
+        this.options.branch
+      ).then(measures => {
         let nextMeasures = this.options.component.measures || {};
         measures.forEach(measure => {
           const metric = metrics.find(metric => metric.key === measure.metric);
@@ -160,6 +164,7 @@ export default ModalView.extend({
     return new Promise(resolve => {
       const url = window.baseUrl + '/api/issues/search';
       const options = {
+        branch: this.options.branch,
         componentKeys: this.options.component.key,
         resolved: false,
         ps: 1,
@@ -191,7 +196,7 @@ export default ModalView.extend({
   requestTests() {
     return new Promise(resolve => {
       const url = window.baseUrl + '/api/tests/list';
-      const options = { testFileKey: this.options.component.key };
+      const options = { branch: this.options.branch, testFileKey: this.options.component.key };
 
       $.get(url, options).done(data => {
         this.tests = data.tests;
