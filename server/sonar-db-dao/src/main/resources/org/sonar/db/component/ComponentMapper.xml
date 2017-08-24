@@ -83,6 +83,7 @@
     from projects p
     where
       p.enabled=${_true}
+      and p.main_branch_project_uuid is null
       and p.kee in
       <foreach collection="keys" open="(" close=")" item="key" separator=",">
         #{key,jdbcType=VARCHAR}
