@@ -27,7 +27,7 @@ import { getLocalizedMetricName } from '../../../helpers/l10n';
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
-  branch: {},
+  branch?: string,
   components: Array<ComponentEnhanced>,
   onClick: string => void,
   metric: Metric,

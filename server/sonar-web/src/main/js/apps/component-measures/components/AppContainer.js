@@ -50,7 +50,7 @@ function banQualityGate(component /*: Component */) /*: Array<Measure> */ {
 const fetchMeasures = (
   component /*: string */,
   metricsKey /*: Array<string> */,
-  branch /*: string | null */
+  branch /*: string | void */
 ) => (dispatch, getState) => {
   if (metricsKey.length <= 0) {
     return Promise.resolve({ component: {}, measures: [], leakPeriod: null });
