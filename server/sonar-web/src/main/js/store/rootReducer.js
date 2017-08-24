@@ -153,7 +153,8 @@ export const getPermissionsAppSelectedPermission = state =>
 
 export const getPermissionsAppError = state => fromPermissionsApp.getError(state.permissionsApp);
 
-export const getSettingValue = (state, key) => fromSettingsApp.getValue(state.settingsApp, key);
+export const getGlobalSettingValue = (state, key) =>
+  fromSettingsApp.getValue(state.settingsApp, key);
 
 export const getSettingsAppDefinition = (state, key) =>
   fromSettingsApp.getDefinition(state.settingsApp, key);
@@ -164,8 +165,8 @@ export const getSettingsAppAllCategories = state =>
 export const getSettingsAppDefaultCategory = state =>
   fromSettingsApp.getDefaultCategory(state.settingsApp);
 
-export const getSettingsAppSettingsForCategory = (state, category) =>
-  fromSettingsApp.getSettingsForCategory(state.settingsApp, category);
+export const getSettingsAppSettingsForCategory = (state, category, componentKey) =>
+  fromSettingsApp.getSettingsForCategory(state.settingsApp, category, componentKey);
 
 export const getSettingsAppChangedValue = (state, key) =>
   fromSettingsApp.getChangedValue(state.settingsApp, key);

@@ -20,7 +20,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import { getSettingValue } from '../../store/rootReducer';
+import { getGlobalSettingValue } from '../../store/rootReducer';
 
 function DefaultHelmetContainer({ children, sonarqubeDotCom }) {
   return (
@@ -36,7 +36,7 @@ function DefaultHelmetContainer({ children, sonarqubeDotCom }) {
 }
 
 const mapStateToProps = state => ({
-  sonarqubeDotCom: getSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
+  sonarqubeDotCom: getGlobalSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
 });
 
 export default connect(mapStateToProps)(DefaultHelmetContainer);

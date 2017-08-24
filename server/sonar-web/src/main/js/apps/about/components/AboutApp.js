@@ -33,7 +33,7 @@ import AboutStandards from './AboutStandards';
 import AboutScanners from './AboutScanners';
 import { searchProjects } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
-import { getAppState, getCurrentUser, getSettingValue } from '../../../store/rootReducer';
+import { getAppState, getCurrentUser, getGlobalSettingValue } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { fetchAboutPageSettings } from '../actions';
 import AboutAppForSonarQubeDotComLazyLoader from './AboutAppForSonarQubeDotComLazyLoader';
@@ -202,8 +202,8 @@ class AboutApp extends React.PureComponent {
 const mapStateToProps = state => ({
   appState: getAppState(state),
   currentUser: getCurrentUser(state),
-  customText: getSettingValue(state, 'sonar.lf.aboutText'),
-  sonarqubeDotCom: getSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
+  customText: getGlobalSettingValue(state, 'sonar.lf.aboutText'),
+  sonarqubeDotCom: getGlobalSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
 });
 
 const mapDispatchToProps = { fetchAboutPageSettings };

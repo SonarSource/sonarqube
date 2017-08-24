@@ -27,7 +27,8 @@ export const RECEIVE_VALUES /*: string */ = 'RECEIVE_VALUES';
  * @param {Array} settings
  * @returns {Object}
  */
-export const receiveValues = (settings /*: SettingValue[] */) => ({
+export const receiveValues = (settings /*: SettingValue[] */, componentKey /*: ?string */) => ({
   type: RECEIVE_VALUES,
-  settings
+  settings,
+  componentKey
 });

@@ -29,7 +29,7 @@ import NavBar from '../../../../components/nav/NavBar';
 import Tooltip from '../../../../components/controls/Tooltip';
 import HelpIcon from '../../../../components/icons-components/HelpIcon';
 import OnboardingModal from '../../../../apps/tutorials/onboarding/OnboardingModal';
-import { getCurrentUser, getAppState, getSettingValue } from '../../../../store/rootReducer';
+import { getCurrentUser, getAppState, getGlobalSettingValue } from '../../../../store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
 import './GlobalNav.css';
 
@@ -140,7 +140,7 @@ class GlobalNav extends React.PureComponent {
 }
 
 const mapStateToProps = state => {
-  const sonarCloudSetting = getSettingValue(state, 'sonar.lf.sonarqube.com.enabled');
+  const sonarCloudSetting = getGlobalSettingValue(state, 'sonar.lf.sonarqube.com.enabled');
 
   return {
     currentUser: getCurrentUser(state),

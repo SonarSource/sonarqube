@@ -24,8 +24,9 @@ import values, * as fromValues from './values/reducer';
 import settingsPage, * as fromSettingsPage from './settingsPage/reducer';
 import licenses, * as fromLicenses from './licenses/reducer';
 import globalMessages, * as fromGlobalMessages from '../../../store/globalMessages/duck';
-/*:: import type { State as GlobalMessagesState } from '../../../store/globalMessages/duck'; */
 import encryptionPage from './encryptionPage/reducer';
+/*:: import type { State as GlobalMessagesState } from '../../../store/globalMessages/duck'; */
+/*:: import type { State as ValuesState } from './values/reducer'; */
 
 /*::
 type State = {
@@ -34,7 +35,7 @@ type State = {
   globalMessages: GlobalMessagesState,
   licenses: {},
   settingsPage: {},
-  values: {}
+  values: ValuesState
 };
 */
 
@@ -58,12 +59,16 @@ export const getAllCategories = (state /*: State */) =>
 export const getDefaultCategory = (state /*: State */) =>
   fromDefinitions.getDefaultCategory(state.definitions);
 
-export const getValue = (state /*: State */, key /*: string */) =>
-  fromValues.getValue(state.values, key);
+export const getValue = (state /*: State */, key /*: string */, componentKey /*: ?string */) =>
+  fromValues.getValue(state.values, key, componentKey);
 
-export const getSettingsForCategory = (state /*: State */, category /*: string */) =>
+export const getSettingsForCategory = (
+  state /*: State */,
+  category /*: string */,
+  componentKey /*: ?string */
+) =>
   fromDefinitions.getDefinitionsForCategory(state.definitions, category).map(definition => ({
-    ...getValue(state, definition.key),
+    ...getValue(state, definition.key, componentKey),
     definition
   }));
 

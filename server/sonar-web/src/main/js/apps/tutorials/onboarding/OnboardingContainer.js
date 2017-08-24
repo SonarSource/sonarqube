@@ -23,11 +23,11 @@ import Onboarding from './Onboarding';
 import {
   getCurrentUser,
   areThereCustomOrganizations,
-  getSettingValue
+  getGlobalSettingValue
 } from '../../../store/rootReducer';
 
 const mapStateToProps = state => {
-  const sonarCloudSetting = getSettingValue(state, 'sonar.lf.sonarqube.com.enabled');
+  const sonarCloudSetting = getGlobalSettingValue(state, 'sonar.lf.sonarqube.com.enabled');
 
   return {
     currentUser: getCurrentUser(state),
