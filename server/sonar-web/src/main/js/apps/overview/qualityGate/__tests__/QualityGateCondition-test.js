@@ -56,13 +56,7 @@ it('open_issues', () => {
     op: 'GT'
   };
   expect(
-    shallow(
-      <QualityGateCondition
-        branch={{ isMain: true }}
-        component={{ key: 'abcd-key' }}
-        condition={condition}
-      />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
@@ -85,52 +79,28 @@ it('new_open_issues', () => {
     period: 1
   };
   expect(
-    shallow(
-      <QualityGateCondition
-        branch={{ isMain: true }}
-        component={{ key: 'abcd-key' }}
-        condition={condition}
-      />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
 it('reliability_rating', () => {
   const condition = mockRatingCondition('reliability_rating');
   expect(
-    shallow(
-      <QualityGateCondition
-        branch={{ isMain: true }}
-        component={{ key: 'abcd-key' }}
-        condition={condition}
-      />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
 it('security_rating', () => {
   const condition = mockRatingCondition('security_rating');
   expect(
-    shallow(
-      <QualityGateCondition
-        branch={{ isMain: true }}
-        component={{ key: 'abcd-key' }}
-        condition={condition}
-      />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
 it('sqale_rating', () => {
   const condition = mockRatingCondition('sqale_rating');
   expect(
-    shallow(
-      <QualityGateCondition
-        branch={{ isMain: true }}
-        component={{ key: 'abcd-key' }}
-        condition={condition}
-      />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
@@ -139,13 +109,7 @@ it('new_reliability_rating', () => {
   condition.period = 1;
   condition.measure.periods = periods;
   expect(
-    shallow(
-      <QualityGateCondition
-        branch={{ isMain: true }}
-        component={{ key: 'abcd-key' }}
-        condition={condition}
-      />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
@@ -154,13 +118,7 @@ it('new_security_rating', () => {
   condition.period = 1;
   condition.measure.periods = periods;
   expect(
-    shallow(
-      <QualityGateCondition
-        branch={{ isMain: true }}
-        component={{ key: 'abcd-key' }}
-        condition={condition}
-      />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
@@ -169,24 +127,14 @@ it('new_maintainability_rating', () => {
   condition.period = 1;
   condition.measure.periods = periods;
   expect(
-    shallow(
-      <QualityGateCondition
-        branch={{ isMain: true }}
-        component={{ key: 'abcd-key' }}
-        condition={condition}
-      />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
 it('should be able to correctly decide how much decimals to show', () => {
   const condition = mockRatingCondition('new_maintainability_rating');
   const instance = shallow(
-    <QualityGateCondition
-      branch={{ isMain: true }}
-      component={{ key: 'abcd-key' }}
-      condition={condition}
-    />
+    <QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />
   ).instance();
   expect(instance.getDecimalsNumber(85, 80)).toBe(undefined);
   expect(instance.getDecimalsNumber(85, 85)).toBe(undefined);
@@ -202,7 +150,7 @@ it('should work with branch', () => {
   expect(
     shallow(
       <QualityGateCondition
-        branch={{ isMain: false, name: 'feature' }}
+        branch="feature"
         component={{ key: 'abcd-key' }}
         condition={condition}
       />

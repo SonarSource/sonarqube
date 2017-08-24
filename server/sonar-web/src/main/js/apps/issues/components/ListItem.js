@@ -26,6 +26,7 @@ import Issue from '../../../components/issue/Issue';
 
 /*::
 type Props = {|
+  branch?: string,
   checked: boolean,
   component?: Component,
   issue: IssueType,
@@ -88,7 +89,7 @@ export default class ListItem extends React.PureComponent {
   };
 
   render() {
-    const { component, issue, previousIssue } = this.props;
+    const { branch, component, issue, previousIssue } = this.props;
 
     const displayComponent = previousIssue == null || previousIssue.component !== issue.component;
 
@@ -97,6 +98,7 @@ export default class ListItem extends React.PureComponent {
         {displayComponent &&
           <div className="issues-workspace-list-component">
             <ComponentBreadcrumbs
+              branch={branch}
               component={component}
               issue={this.props.issue}
               organization={this.props.organization}

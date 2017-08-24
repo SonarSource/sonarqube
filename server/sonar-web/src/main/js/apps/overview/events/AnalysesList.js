@@ -24,14 +24,13 @@ import Analysis from './Analysis';
 import PreviewGraph from './PreviewGraph';
 import { getMetrics } from '../../../api/metrics';
 import { getProjectActivity } from '../../../api/projectActivity';
-import { getBranchName } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Analysis as AnalysisType } from '../../projectActivity/types'; */
 /*:: import type { History, Metric } from '../types'; */
 
 /*::
 type Props = {
-  branch: {},
+  branch?: string,
   history: ?History,
   project: string,
   qualifier: string,
@@ -73,7 +72,7 @@ export default class AnalysesList extends React.PureComponent {
     this.setState({ loading: true });
     Promise.all([
       getProjectActivity({
-        branch: getBranchName(this.props.branch),
+        branch: this.props.branch,
         project: this.props.project,
         ps: PAGE_SIZE
       }),
@@ -130,7 +129,7 @@ export default class AnalysesList extends React.PureComponent {
           <Link
             to={{
               pathname: '/project/activity',
-              query: { id: this.props.project, branch: getBranchName(this.props.branch) }
+              query: { id: this.props.project, branch: this.props.branch }
             }}>
             {translate('show_more')}
           </Link>

@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,26 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import App from '../App';
-import OverviewApp from '../OverviewApp';
-import EmptyOverview from '../EmptyOverview';
 
-it('should render OverviewApp', () => {
-  const component = { key: 'foo', analysisDate: '2016-01-01' };
-  const output = shallow(<App component={component} />);
-  expect(output.type()).toBe(OverviewApp);
-});
-
-it('should render EmptyOverview', () => {
-  const component = { key: 'foo' };
-  const output = shallow(<App component={component} />);
-  expect(output.type()).toBe(EmptyOverview);
-});
-
-it('renders SourceViewer with branch', () => {
-  const branch = { isMain: false, name: 'b' };
-  const component = { key: 'foo', qualifier: 'FIL' };
-  expect(shallow(<App branch={branch} component={component} />)).toMatchSnapshot();
+it('renders', () => {
+  expect(
+    shallow(<App location={{ query: { branch: 'b', id: 'foo', line: '7' } }} />)
+  ).toMatchSnapshot();
 });
