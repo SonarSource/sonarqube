@@ -51,4 +51,5 @@ message File {
   string subProject = 7;
   string subProjectUuid = 8;
   string subProjectName = 9;
+  string branch = 10;
 }
