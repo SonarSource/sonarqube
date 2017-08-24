@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.health.CeStatusCheck;
 import org.sonar.server.health.DbConnectionCheck;
 import org.sonar.server.health.EsStatusCheck;
 import org.sonar.server.health.HealthCheck;
@@ -43,9 +44,9 @@ public class HealthActionModuleTest {
     underTest.configure(container);
 
     assertThat(classesAddedToContainer(container))
-        .contains(HealthCheckerImpl.class)
-        .contains(HealthAction.class)
-        .doesNotContain(SafeModeHealthAction.class);
+      .contains(HealthCheckerImpl.class)
+      .contains(HealthAction.class)
+      .doesNotContain(SafeModeHealthAction.class);
   }
 
   @Test
@@ -56,10 +57,11 @@ public class HealthActionModuleTest {
 
     List<Class<?>> checks = classesAddedToContainer(container).stream().filter(HealthCheck.class::isAssignableFrom).collect(Collectors.toList());
     assertThat(checks)
-      .hasSize(3)
+      .hasSize(4)
       .contains(WebServerStatusCheck.class)
       .contains(DbConnectionCheck.class)
-      .contains(EsStatusCheck.class);
+      .contains(EsStatusCheck.class)
+      .contains(CeStatusCheck.class);
   }
 
   private List<Class<?>> classesAddedToContainer(ComponentContainer container) {
