@@ -58,11 +58,13 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StickyFacetBuilder;
+import org.sonar.server.es.textsearch.JavaTokenizer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Boolean.FALSE;
@@ -72,8 +74,9 @@ import static java.util.Optional.ofNullable;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
@@ -192,11 +195,21 @@ public class RuleIndex {
     BoolQueryBuilder qb = boolQuery();
     String queryString = query.getQueryText();
 
-    // Human readable type of querying
-    qb.should(simpleQueryStringQuery(query.getQueryText())
-      .field(SEARCH_WORDS_ANALYZER.subField(FIELD_RULE_NAME), 20f)
-      .field(FIELD_RULE_HTML_DESCRIPTION, 3f)
-      .defaultOperator(Operator.AND)).boost(20f);
+    if (queryString != null && !queryString.isEmpty()) {
+      BoolQueryBuilder textQuery = boolQuery();
+      JavaTokenizer.split(queryString)
+        .stream().map(token -> boolQuery().should(
+          matchQuery(
+            SEARCH_GRAMS_ANALYZER.subField(FIELD_RULE_NAME),
+            StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)
+          ).boost(20f)).should(
+          matchQuery(
+            ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION),
+            StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)
+          ).boost(3f))
+      ).forEach(textQuery::must);
+      qb.should(textQuery.boost(20f));
+    }
 
     // Match and partial Match queries
     // Search by key uses the "sortable" sub-field as it requires to be case-insensitive (lower-case filtering)

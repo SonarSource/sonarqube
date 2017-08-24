@@ -177,6 +177,67 @@ public class SearchActionTest {
   }
 
   @Test
+  public void filter_by_rule_name() {
+    RuleDefinitionDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever"));
+    RuleDefinitionDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff"));
+    indexRules();
+
+    verify(r -> r.setParam("q", "Be"), rule1);
+    verify(r -> r.setParam("q", "Bes"), rule1);
+    verify(r -> r.setParam("q", "Best"), rule1);
+    verify(r -> r.setParam("q", "Best "), rule1);
+    verify(r -> r.setParam("q", "Best rule"), rule1);
+    verify(r -> r.setParam("q", "Best rule eve"), rule1);
+    verify(r -> r.setParam("q", "Best rule ever"), rule1);
+    verify(r -> r.setParam("q", "ru ev"), rule1);
+    verify(r -> r.setParam("q", "ru ever"), rule1);
+    verify(r -> r.setParam("q", "ev ve ver ru le"), rule1);
+    verify(r -> r.setParam("q", "other"), rule2);
+  }
+
+  @Test
+  public void filter_by_rule_name_requires_all_words_to_match() {
+    RuleDefinitionDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever"));
+    RuleDefinitionDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff"));
+    indexRules();
+
+    verify(r -> r.setParam("q", "Best other"), new RuleDefinitionDto[0]);
+    verify(r -> r.setParam("q", "Best rule"), rule1);
+    verify(r -> r.setParam("q", "rule ever"), rule1);
+  }
+
+  @Test
+  public void filter_by_rule_name_does_not_interpret_query() {
+    RuleDefinitionDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule for-ever"));
+    RuleDefinitionDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff"));
+    indexRules();
+
+    // do not interpret "-" as a "not"
+    verify(r -> r.setParam("q", "-ever"), rule1);
+  }
+
+  @Test
+  public void filter_by_rule_description() {
+    RuleDefinitionDto rule1 = db.rules().insert(r1 -> r1.setDescription("This is the <bold>best</bold> rule now&amp;for<b>ever</b>"));
+    RuleDefinitionDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff"));
+    indexRules();
+
+    verify(r -> r.setParam("q", "Best "), rule1);
+    verify(r -> r.setParam("q", "bold"), new RuleDefinitionDto[0]);
+    verify(r -> r.setParam("q", "now&forever"), rule1);
+  }
+
+  @Test
+  public void filter_by_rule_name_or_descriptions_requires_all_words_to_match_anywhere() {
+    RuleDefinitionDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever").setDescription("This is a good rule"));
+    RuleDefinitionDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff").setDescription("Another thing"));
+    indexRules();
+
+    verify(r -> r.setParam("q", "Best good"), rule1);
+    verify(r -> r.setParam("q", "Best Another"), new RuleDefinitionDto[0]);
+  }
+
+  @Test
   public void return_all_rule_fields_by_default() {
     RuleDefinitionDto rule = createJavaRule();
     indexRules();
@@ -883,12 +944,12 @@ public class SearchActionTest {
       .executeProtobuf(Rules.SearchResponse.class);
 
     assertThat(response.getP()).isEqualTo(1);
-    assertThat(response.getTotal()).isEqualTo(expectedRules.length);
-    assertThat(response.getRulesCount()).isEqualTo(expectedRules.length);
     RuleKey[] expectedRuleKeys = stream(expectedRules).map(RuleDefinitionDto::getKey).collect(MoreCollectors.toList()).toArray(new RuleKey[0]);
     assertThat(response.getRulesList())
       .extracting(r -> RuleKey.parse(r.getKey()))
       .containsExactlyInAnyOrder(expectedRuleKeys);
+    assertThat(response.getTotal()).isEqualTo(expectedRules.length);
+    assertThat(response.getRulesCount()).isEqualTo(expectedRules.length);
   }
 
   private void indexRules() {

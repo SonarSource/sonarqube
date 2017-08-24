@@ -32,10 +32,12 @@ import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_REPOSITORY;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
 
 public class RuleIndexDefinitionTest {
 
@@ -72,18 +74,21 @@ public class RuleIndexDefinitionTest {
 
   @Test
   public void support_long_html_description() throws Exception {
-    String longText = StringUtils.repeat("hello  ", 10_000);
+    String longText = StringUtils.repeat("The quick brown fox jumps over the lazy dog ", 700);
+
+    List<AnalyzeResponse.AnalyzeToken> tokens = analyzeIndexedTokens(longText);
+    assertThat(tokens).extracting(AnalyzeResponse.AnalyzeToken::getTerm).containsOnly(
+      "quick", "brown", "fox", "jump", "over", "lazi", "dog"
+    );
+
     // the following method fails if PUT fails
     tester.putDocuments(INDEX_TYPE_RULE, new RuleDoc(ImmutableMap.of(
       FIELD_RULE_HTML_DESCRIPTION, longText,
       FIELD_RULE_REPOSITORY, "squid",
       FIELD_RULE_KEY, "squid:S001")));
     assertThat(tester.countDocuments(INDEX_TYPE_RULE)).isEqualTo(1);
-
-    List<AnalyzeResponse.AnalyzeToken> tokens = analyzeIndexedTokens(longText);
-    for (AnalyzeResponse.AnalyzeToken token : tokens) {
-      assertThat(token.getTerm().length()).isEqualTo("hello".length());
-    }
+    assertThat(tester.client().prepareSearch(INDEX_TYPE_RULE.getIndex()).setQuery(matchQuery(ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION), "brown fox jumps lazy"))
+      .get().getHits().getTotalHits()).isEqualTo(1);
   }
 
   @Test
@@ -106,7 +111,7 @@ public class RuleIndexDefinitionTest {
   private List<AnalyzeResponse.AnalyzeToken> analyzeIndexedTokens(String text) {
     return tester.client().nativeClient().admin().indices().prepareAnalyze(INDEX_TYPE_RULE.getIndex(),
       text)
-      .setField(FIELD_RULE_HTML_DESCRIPTION)
+      .setField(ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION))
       .execute().actionGet().getTokens();
   }
 }

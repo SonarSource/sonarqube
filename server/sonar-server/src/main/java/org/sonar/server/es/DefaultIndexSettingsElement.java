@@ -29,11 +29,13 @@ import org.elasticsearch.common.settings.Settings.Builder;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYSIS;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettings.ASCIIFOLDING;
+import static org.sonar.server.es.DefaultIndexSettings.CHAR_FILTER;
 import static org.sonar.server.es.DefaultIndexSettings.DELIMITER;
-import static org.sonar.server.es.DefaultIndexSettings.FIELD_FIELDDATA;
 import static org.sonar.server.es.DefaultIndexSettings.FIELDDATA_ENABLED;
+import static org.sonar.server.es.DefaultIndexSettings.FIELD_FIELDDATA;
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_TEXT;
 import static org.sonar.server.es.DefaultIndexSettings.FILTER;
+import static org.sonar.server.es.DefaultIndexSettings.HTML_STRIP;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE;
 import static org.sonar.server.es.DefaultIndexSettings.KEYWORD;
@@ -263,7 +265,15 @@ public enum DefaultIndexSettingsElement {
     protected void setup() {
       set(TOKENIZER, STANDARD);
       setArray(FILTER, STANDARD, LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
-      setArray("char_filter", "html_strip");
+      setArray(CHAR_FILTER, HTML_STRIP);
+    }
+
+    @Override
+    public SortedMap<String, String> fieldMapping() {
+      return ImmutableSortedMap.of(
+        TYPE, FIELD_TYPE_TEXT,
+        INDEX, INDEX_SEARCHABLE,
+        ANALYZER, getName());
     }
   },
   PATH_ANALYZER(ANALYZER) {
