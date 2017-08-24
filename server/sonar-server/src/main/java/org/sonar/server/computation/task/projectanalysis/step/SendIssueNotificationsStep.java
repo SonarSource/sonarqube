@@ -22,7 +22,6 @@ package org.sonar.server.computation.task.projectanalysis.step;
 import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
