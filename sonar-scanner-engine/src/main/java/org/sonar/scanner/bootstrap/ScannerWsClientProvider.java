@@ -72,25 +72,22 @@ public class ScannerWsClientProvider extends ProviderAdapter {
         try {
           // Create a trust manager that does not validate certificate chains
           X509TrustManager easyTrust =
-              new X509TrustManager() {
-                @Override
-                public void checkClientTrusted(X509Certificate[] chain, String authType)
-                    throws CertificateException
-                {
-                  // no op
-                }
+            new X509TrustManager() {
+              @Override
+              public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                // no op
+              }
 
-                @Override
-                public void checkServerTrusted(X509Certificate[] chain, String authType)
-                    throws CertificateException {
-                  // no op
-                }
+              @Override
+              public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                // no op
+              }
 
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                  return new X509Certificate[0];
-                }
-              };
+              @Override
+              public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[0];
+              }
+            };
 
           // Init the ezy trusting trust manager
           SSLContext sslContext = SSLContext.getInstance( "SSL");
