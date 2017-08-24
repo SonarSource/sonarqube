@@ -56,7 +56,7 @@ class Duplications extends React.PureComponent {
             </DrilldownLink>
           </div>
 
-          <div className="overview-domain-measure-label">
+          <div className="overview-domain-measure-label offset-left">
             {getMetricName('duplications')}
             {this.props.renderHistoryLink('duplicated_lines_density')}
           </div>
@@ -116,6 +116,7 @@ class Duplications extends React.PureComponent {
       </div>
     );
   }
+
   renderNutshell() {
     return (
       <div className="overview-domain-nutshell">
@@ -128,6 +129,7 @@ class Duplications extends React.PureComponent {
       </div>
     );
   }
+
   renderLeak() {
     const { leakPeriod } = this.props;
     if (leakPeriod == null) {
@@ -143,6 +145,7 @@ class Duplications extends React.PureComponent {
       </div>
     );
   }
+
   render() {
     const { measures } = this.props;
     const duplications = measures.find(

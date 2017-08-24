@@ -83,7 +83,6 @@ class BugsAndVulnerabilities extends React.PureComponent {
               {getMetricName('new_bugs')}
             </div>
           </div>
-
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
               <span style={{ marginLeft: 30 }}>
@@ -106,30 +105,25 @@ class BugsAndVulnerabilities extends React.PureComponent {
       <div className="overview-domain-nutshell">
         <div className="overview-domain-measures">
           <div className="overview-domain-measure">
-            <div className="display-inline-block text-middle" style={{ paddingLeft: 56 }}>
-              <div className="overview-domain-measure-value">
-                {this.props.renderIssues('bugs', 'BUG')}
-                {this.props.renderRating('reliability_rating')}
-              </div>
-              <div className="overview-domain-measure-label">
-                <BugIcon className="little-spacer-right " />
-                {getMetricName('bugs')}
-                {this.props.renderHistoryLink('bugs')}
-              </div>
+            <div className="overview-domain-measure-value">
+              {this.props.renderIssues('bugs', 'BUG')}
+              {this.props.renderRating('reliability_rating')}
+            </div>
+            <div className="overview-domain-measure-label">
+              <BugIcon className="little-spacer-right " />
+              {getMetricName('bugs')}
+              {this.props.renderHistoryLink('bugs')}
             </div>
           </div>
-
           <div className="overview-domain-measure">
-            <div className="display-inline-block text-middle">
-              <div className="overview-domain-measure-value">
-                {this.props.renderIssues('vulnerabilities', 'VULNERABILITY')}
-                {this.props.renderRating('security_rating')}
-              </div>
-              <div className="overview-domain-measure-label">
-                <VulnerabilityIcon className="little-spacer-right " />
-                {getMetricName('vulnerabilities')}
-                {this.props.renderHistoryLink('vulnerabilities')}
-              </div>
+            <div className="overview-domain-measure-value">
+              {this.props.renderIssues('vulnerabilities', 'VULNERABILITY')}
+              {this.props.renderRating('security_rating')}
+            </div>
+            <div className="overview-domain-measure-label">
+              <VulnerabilityIcon className="little-spacer-right " />
+              {getMetricName('vulnerabilities')}
+              {this.props.renderHistoryLink('vulnerabilities')}
             </div>
           </div>
         </div>
