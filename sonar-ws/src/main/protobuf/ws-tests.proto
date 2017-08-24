@@ -41,6 +41,7 @@ message CoveredFilesResponse {
     optional string key = 2;
     optional string longName = 3;
     optional int32 coveredLines = 4;
+    optional string branch = 5;
   }
 }
 
