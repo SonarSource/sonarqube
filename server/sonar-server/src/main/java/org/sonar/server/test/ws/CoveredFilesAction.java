@@ -26,6 +26,7 @@ import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -40,6 +41,7 @@ import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsTests;
 
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -65,6 +67,7 @@ public class CoveredFilesAction implements TestsWsAction {
       .setResponseExample(Resources.getResource(getClass(), "tests-example-covered-files.json"))
       .setDeprecatedSince("5.6")
       .setHandler(this)
+      .setChangelog(new Change("6.6", "\"branch\" field is now returned"))
       .addPagingParams(100);
 
     action
@@ -91,8 +94,9 @@ public class CoveredFilesAction implements TestsWsAction {
         fileBuilder.setCoveredLines(doc.coveredLines().size());
         ComponentDto component = componentsByUuid.get(doc.fileUuid());
         if (component != null) {
-          fileBuilder.setKey(component.getDbKey());
+          fileBuilder.setKey(component.getKey());
           fileBuilder.setLongName(component.longName());
+          setNullable(component.getBranch(), fileBuilder::setBranch);
         }
 
         responseBuilder.addFiles(fileBuilder);
