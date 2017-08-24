@@ -172,6 +172,7 @@
 .measure-overview-bubble-chart-axis.y {
   position: absolute;
   top: 50%;
-  left: 5px;
-  transform: rotate(-90deg);
+  left: 30px;
+  transform: rotate(-90deg) translateX(-50%);
+  transform-origin: left;
 }
