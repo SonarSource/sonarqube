@@ -47,6 +47,7 @@ import org.sonarqube.ws.WsTests.ListResponse;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
@@ -200,8 +201,10 @@ public class ListActionTest {
       .setParam("branch", testFile.getBranch()));
 
     assertThat(request.getTestsList())
-      .extracting(WsTests.Test::getId)
-      .containsOnly(test1.getUuid(), test2.getUuid());
+      .extracting(WsTests.Test::getId, WsTests.Test::getFileKey, WsTests.Test::getFileBranch)
+      .containsOnly(
+        tuple(test1.getUuid(), testFile.getKey(), testFile.getBranch()),
+        tuple(test2.getUuid(), testFile.getKey(), testFile.getBranch()));
   }
 
   @Test
@@ -258,8 +261,10 @@ public class ListActionTest {
       .setParam("branch", testFile.getBranch()));
 
     assertThat(request.getTestsList())
-      .extracting(WsTests.Test::getId)
-      .containsOnly(test1.getUuid(), test3.getUuid());
+      .extracting(WsTests.Test::getId, WsTests.Test::getFileKey, WsTests.Test::getFileBranch)
+      .containsOnly(
+        tuple(test1.getUuid(), testFile.getKey(), testFile.getBranch()),
+        tuple(test3.getUuid(), testFile.getKey(), testFile.getBranch()));
   }
 
   @Test
