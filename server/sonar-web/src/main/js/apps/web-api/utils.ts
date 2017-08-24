@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-/*:: import type { Domain, Action } from '../../api/web-api'; */
+import { Domain, Action } from '../../api/web-api';
 
 export function actionsFilter(
-  showDeprecated /*: boolean */,
-  showInternal /*: boolean */,
-  searchQuery /*: string */,
-  domain /*: Domain */,
-  action /*: Action */
+  showDeprecated: boolean,
+  showInternal: boolean,
+  searchQuery: string,
+  domain: Domain,
+  action: Action
 ) {
   const lowSearchQuery = searchQuery.toLowerCase();
   return (
@@ -36,11 +35,11 @@ export function actionsFilter(
   );
 }
 
-export function getActionKey(domainPath /*: string */, actionKey /*: string */) {
+export function getActionKey(domainPath: string, actionKey: string) {
   return domainPath + '/' + actionKey;
 }
 
-export const isDomainPathActive = (path /*: string */, splat /*: string */) => {
+export const isDomainPathActive = (path: string, splat: string) => {
   const pathTokens = path.split('/');
   const splatTokens = splat.split('/');
 

@@ -1,0 +1,160 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display the changelog 1`] = `
+<ActionChangelog
+  changelog={
+    Array [
+      Object {
+        "description": "Changelog desc",
+        "version": "5.0",
+      },
+    ]
+  }
+/>
+`;
+
+exports[`should display the params 1`] = `
+<Params
+  params={
+    Array [
+      Object {
+        "description": "Param desc",
+        "internal": true,
+        "key": "param",
+        "required": true,
+      },
+    ]
+  }
+  showDeprecated={false}
+  showInternal={false}
+/>
+`;
+
+exports[`should display the response example 1`] = `
+<ResponseExample
+  action={
+    Object {
+      "changelog": Array [
+        Object {
+          "description": "Changelog desc",
+          "version": "5.0",
+        },
+      ],
+      "description": "Foo Desc",
+      "hasResponseExample": true,
+      "internal": false,
+      "key": "foo",
+      "params": Array [
+        Object {
+          "description": "Param desc",
+          "internal": true,
+          "key": "param",
+          "required": true,
+        },
+      ],
+      "post": false,
+    }
+  }
+  domain={
+    Object {
+      "actions": Array [
+        Object {
+          "changelog": Array [
+            Object {
+              "description": "Changelog desc",
+              "version": "5.0",
+            },
+          ],
+          "description": "Foo Desc",
+          "hasResponseExample": true,
+          "internal": false,
+          "key": "foo",
+          "params": Array [
+            Object {
+              "description": "Param desc",
+              "internal": true,
+              "key": "param",
+              "required": true,
+            },
+          ],
+          "post": false,
+        },
+      ],
+      "deprecated": false,
+      "description": "API Foo",
+      "internal": false,
+      "path": "foo",
+    }
+  }
+/>
+`;
+
+exports[`should render correctly 1`] = `
+<div
+  className="web-api-action"
+  id="foo/foo"
+>
+  <header
+    className="web-api-action-header"
+  >
+    <Link
+      className="spacer-right link-no-underline"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/web_api/foo/foo",
+        }
+      }
+    >
+      <LinkIcon />
+    </Link>
+    <h3
+      className="web-api-action-title"
+    >
+      GET
+       
+      foo/foo
+    </h3>
+  </header>
+  <div
+    className="web-api-action-description markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "Foo Desc",
+      }
+    }
+  />
+  <ul
+    className="web-api-action-actions tabs"
+  >
+    <li>
+      <a
+        className=""
+        href="#"
+        onClick={[Function]}
+      >
+        api_documentation.parameters
+      </a>
+    </li>
+    <li>
+      <a
+        className=""
+        href="#"
+        onClick={[Function]}
+      >
+        api_documentation.response_example
+      </a>
+    </li>
+    <li>
+      <a
+        className=""
+        href="#"
+        onClick={[Function]}
+      >
+        api_documentation.changelog
+      </a>
+    </li>
+  </ul>
+</div>
+`;

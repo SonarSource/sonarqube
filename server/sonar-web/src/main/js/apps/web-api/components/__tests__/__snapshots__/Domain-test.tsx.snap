@@ -1,0 +1,369 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should also render actions with a description matching the query 1`] = `
+<div
+  className="web-api-domain"
+>
+  <header
+    className="web-api-domain-header"
+  >
+    <h2
+      className="web-api-domain-title"
+    >
+      api
+    </h2>
+  </header>
+  <div
+    className="web-api-domain-description markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "API Desc",
+      }
+    }
+  />
+  <div
+    className="web-api-domain-actions"
+  >
+    <Action
+      action={
+        Object {
+          "changelog": Array [],
+          "description": "Foo Desc",
+          "hasResponseExample": false,
+          "internal": false,
+          "key": "foo",
+          "post": false,
+        }
+      }
+      domain={
+        Object {
+          "actions": Array [
+            Object {
+              "changelog": Array [],
+              "description": "Foo Desc",
+              "hasResponseExample": false,
+              "internal": false,
+              "key": "foo",
+              "post": false,
+            },
+            Object {
+              "changelog": Array [],
+              "description": "Bar desc",
+              "hasResponseExample": false,
+              "internal": false,
+              "key": "bar",
+              "post": false,
+            },
+            Object {
+              "changelog": Array [],
+              "description": "foobar",
+              "hasResponseExample": false,
+              "internal": false,
+              "key": "baz",
+              "post": false,
+            },
+          ],
+          "deprecated": false,
+          "description": "API Desc",
+          "internal": false,
+          "path": "api",
+        }
+      }
+      showDeprecated={false}
+      showInternal={false}
+    />
+    <Action
+      action={
+        Object {
+          "changelog": Array [],
+          "description": "foobar",
+          "hasResponseExample": false,
+          "internal": false,
+          "key": "baz",
+          "post": false,
+        }
+      }
+      domain={
+        Object {
+          "actions": Array [
+            Object {
+              "changelog": Array [],
+              "description": "Foo Desc",
+              "hasResponseExample": false,
+              "internal": false,
+              "key": "foo",
+              "post": false,
+            },
+            Object {
+              "changelog": Array [],
+              "description": "Bar desc",
+              "hasResponseExample": false,
+              "internal": false,
+              "key": "bar",
+              "post": false,
+            },
+            Object {
+              "changelog": Array [],
+              "description": "foobar",
+              "hasResponseExample": false,
+              "internal": false,
+              "key": "baz",
+              "post": false,
+            },
+          ],
+          "deprecated": false,
+          "description": "API Desc",
+          "internal": false,
+          "path": "api",
+        }
+      }
+      showDeprecated={false}
+      showInternal={false}
+    />
+  </div>
+</div>
+`;
+
+exports[`should not render deprecated actions 1`] = `
+<div
+  className="web-api-domain"
+>
+  <header
+    className="web-api-domain-header"
+  >
+    <h2
+      className="web-api-domain-title"
+    >
+      api
+    </h2>
+  </header>
+  <div
+    className="web-api-domain-description markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "API Desc",
+      }
+    }
+  />
+  <div
+    className="web-api-domain-actions"
+  />
+</div>
+`;
+
+exports[`should not render internal actions 1`] = `
+<div
+  className="web-api-domain"
+>
+  <header
+    className="web-api-domain-header"
+  >
+    <h2
+      className="web-api-domain-title"
+    >
+      api
+    </h2>
+  </header>
+  <div
+    className="web-api-domain-description markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "API Desc",
+      }
+    }
+  />
+  <div
+    className="web-api-domain-actions"
+  />
+</div>
+`;
+
+exports[`should render deprecated actions 1`] = `
+<div
+  className="web-api-domain"
+>
+  <header
+    className="web-api-domain-header"
+  >
+    <h2
+      className="web-api-domain-title"
+    >
+      api
+    </h2>
+  </header>
+  <div
+    className="web-api-domain-description markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "API Desc",
+      }
+    }
+  />
+  <div
+    className="web-api-domain-actions"
+  >
+    <Action
+      action={
+        Object {
+          "changelog": Array [],
+          "deprecatedSince": "5.0",
+          "description": "Foo Desc",
+          "hasResponseExample": false,
+          "internal": false,
+          "key": "foo",
+          "post": false,
+        }
+      }
+      domain={
+        Object {
+          "actions": Array [
+            Object {
+              "changelog": Array [],
+              "deprecatedSince": "5.0",
+              "description": "Foo Desc",
+              "hasResponseExample": false,
+              "internal": false,
+              "key": "foo",
+              "post": false,
+            },
+          ],
+          "deprecated": false,
+          "description": "API Desc",
+          "internal": false,
+          "path": "api",
+        }
+      }
+      showDeprecated={true}
+      showInternal={false}
+    />
+  </div>
+</div>
+`;
+
+exports[`should render internal actions 1`] = `
+<div
+  className="web-api-domain"
+>
+  <header
+    className="web-api-domain-header"
+  >
+    <h2
+      className="web-api-domain-title"
+    >
+      api
+    </h2>
+  </header>
+  <div
+    className="web-api-domain-description markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "API Desc",
+      }
+    }
+  />
+  <div
+    className="web-api-domain-actions"
+  >
+    <Action
+      action={
+        Object {
+          "changelog": Array [],
+          "description": "Foo Desc",
+          "hasResponseExample": false,
+          "internal": true,
+          "key": "foo",
+          "post": false,
+        }
+      }
+      domain={
+        Object {
+          "actions": Array [
+            Object {
+              "changelog": Array [],
+              "description": "Foo Desc",
+              "hasResponseExample": false,
+              "internal": true,
+              "key": "foo",
+              "post": false,
+            },
+          ],
+          "deprecated": false,
+          "description": "API Desc",
+          "internal": false,
+          "path": "api",
+        }
+      }
+      showDeprecated={false}
+      showInternal={true}
+    />
+  </div>
+</div>
+`;
+
+exports[`should render only actions matching the query 1`] = `
+<div
+  className="web-api-domain"
+>
+  <header
+    className="web-api-domain-header"
+  >
+    <h2
+      className="web-api-domain-title"
+    >
+      api
+    </h2>
+  </header>
+  <div
+    className="web-api-domain-description markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "API Desc",
+      }
+    }
+  />
+  <div
+    className="web-api-domain-actions"
+  >
+    <Action
+      action={
+        Object {
+          "changelog": Array [],
+          "description": "Foo Desc",
+          "hasResponseExample": false,
+          "internal": false,
+          "key": "foo",
+          "post": false,
+        }
+      }
+      domain={
+        Object {
+          "actions": Array [
+            Object {
+              "changelog": Array [],
+              "description": "Foo Desc",
+              "hasResponseExample": false,
+              "internal": false,
+              "key": "foo",
+              "post": false,
+            },
+            Object {
+              "changelog": Array [],
+              "description": "Bar desc",
+              "hasResponseExample": false,
+              "internal": false,
+              "key": "bar",
+              "post": false,
+            },
+          ],
+          "deprecated": false,
+          "description": "API Desc",
+          "internal": false,
+          "path": "api",
+        }
+      }
+      showDeprecated={false}
+      showInternal={false}
+    />
+  </div>
+</div>
+`;

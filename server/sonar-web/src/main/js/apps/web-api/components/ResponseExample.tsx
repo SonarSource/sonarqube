@@ -17,18 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { fetchResponseExample as fetchResponseExampleApi } from '../../../api/web-api';
+import * as React from 'react';
+import {
+  Action,
+  Domain,
+  Example,
+  fetchResponseExample as fetchResponseExampleApi
+} from '../../../api/web-api';
 
-export default class ResponseExample extends React.PureComponent {
-  state = {};
+interface Props {
+  action: Action;
+  domain: Domain;
+}
+
+interface State {
+  responseExample?: Example;
+}
+
+export default class ResponseExample extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = {};
 
   componentDidMount() {
     this.mounted = true;
     this.fetchResponseExample();
   }
 
-  componentDidUpdate(nextProps) {
+  componentDidUpdate(nextProps: Props) {
     if (nextProps.action !== this.props.action) {
       this.fetchResponseExample();
     }

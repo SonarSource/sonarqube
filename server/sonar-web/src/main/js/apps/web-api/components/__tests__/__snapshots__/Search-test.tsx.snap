@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="web-api-search"
+>
+  <div>
+    <i
+      className="icon-search"
+    />
+    <input
+      className="spacer-left input-large"
+      onChange={[Function]}
+      placeholder="search_verb"
+      type="search"
+      value=""
+    />
+  </div>
+  <div
+    className="big-spacer-top"
+  >
+    <Checkbox
+      checked={false}
+      onCheck={[Function]}
+      thirdState={false}
+    >
+      <span
+        className="little-spacer-left"
+      >
+        api_documentation.show_internal
+      </span>
+    </Checkbox>
+    <Tooltip
+      overlay="api_documentation.internal_tooltip"
+      placement="right"
+    >
+      <span>
+        <HelpIcon
+          className="spacer-left text-info"
+        />
+      </span>
+    </Tooltip>
+  </div>
+  <div
+    className="spacer-top"
+  >
+    <Checkbox
+      checked={false}
+      onCheck={[Function]}
+      thirdState={false}
+    >
+      <span
+        className="little-spacer-left"
+      >
+        api_documentation.show_deprecated
+      </span>
+    </Checkbox>
+    <Tooltip
+      overlay="api_documentation.deprecation_tooltip"
+      placement="right"
+    >
+      <span>
+        <HelpIcon
+          className="spacer-left text-info"
+        />
+      </span>
+    </Tooltip>
+  </div>
+</div>
+`;
