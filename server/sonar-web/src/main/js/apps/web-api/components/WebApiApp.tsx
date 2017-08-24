@@ -17,37 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
-import { fetchWebApi } from '../../../api/web-api';
+import { Domain as DomainType, fetchWebApi } from '../../../api/web-api';
 import Menu from './Menu';
 import Search from './Search';
 import Domain from './Domain';
 import { getActionKey, isDomainPathActive } from '../utils';
+import { scrollToElement } from '../../../helpers/scrolling';
 import { translate } from '../../../helpers/l10n';
-/*:: import type { Domain as DomainType } from '../../../api/web-api'; */
 import '../styles/web-api.css';
 
-/*::
-type State = {
-  domains: Array<DomainType>,
-  searchQuery: string,
-  showDeprecated: boolean,
-  showInternal: boolean
-};
-*/
+interface Props {
+  params: { splat?: string };
+}
 
-export default class WebApiApp extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: scrollToAction: () => void; */
-  state /*: State */ = {
+interface State {
+  domains: DomainType[];
+  searchQuery: string;
+  showDeprecated: boolean;
+  showInternal: boolean;
+}
+
+export default class WebApiApp extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = {
     domains: [],
     searchQuery: '',
     showDeprecated: false,
     showInternal: false
+  };
+
+  static contextTypes = {
+    router: PropTypes.object.isRequired
   };
 
   componentDidMount() {
@@ -72,7 +76,7 @@ export default class WebApiApp extends React.PureComponent {
     }
   }
 
-  fetchList(cb /*: void | () => void */) {
+  fetchList(cb?: () => void) {
     fetchWebApi().then(domains => {
       if (this.mounted) {
         this.setState({ domains }, cb);
@@ -82,21 +86,13 @@ export default class WebApiApp extends React.PureComponent {
 
   scrollToAction = () => {
     const splat = this.props.params.splat || '';
-    this.scrollToElement(splat);
-  };
-
-  scrollToElement(id /*: string */) {
-    const element = document.getElementById(id);
-
-    if (element) {
-      const rect = element.getBoundingClientRect();
-      const top = rect.top + window.pageYOffset - 20;
-
-      window.scrollTo(0, top);
+    const action = document.getElementById(splat);
+    if (action) {
+      scrollToElement(action, { topOffset: 20, bottomOffset: 20 });
     } else {
       window.scrollTo(0, 0);
     }
-  }
+  };
 
   toggleInternalInitially() {
     const splat = this.props.params.splat || '';
@@ -117,9 +113,7 @@ export default class WebApiApp extends React.PureComponent {
     }
   }
 
-  handleSearch = (searchQuery /*: string */) => {
-    this.setState({ searchQuery });
-  };
+  handleSearch = (searchQuery: string) => this.setState({ searchQuery });
 
   handleToggleInternal = () => {
     const splat = this.props.params.splat || '';
@@ -135,9 +129,8 @@ export default class WebApiApp extends React.PureComponent {
     this.setState({ showInternal });
   };
 
-  handleToggleDeprecated = () => {
+  handleToggleDeprecated = () =>
     this.setState(state => ({ showDeprecated: !state.showDeprecated }));
-  };
 
   render() {
     const splat = this.props.params.splat || '';
@@ -196,7 +189,3 @@ export default class WebApiApp extends React.PureComponent {
     );
   }
 }
-
-WebApiApp.contextTypes = {
-  router: PropTypes.object.isRequired
-};

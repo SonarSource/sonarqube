@@ -17,33 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import { Changelog } from '../../../api/web-api';
 
-/*::
-type Props = {
-  changelog: Array<{
-    description: string,
-    version: string
-  }>
-};
-*/
+interface Props {
+  changelog: Changelog[];
+}
 
-export default class ActionChangelog extends React.PureComponent {
-  /*:: props: Props; */
-
-  render() {
-    return (
-      <ul className="big-spacer-top">
-        {this.props.changelog.map((item, index) =>
-          <li key={index} className="spacer-top">
-            <span className="spacer-right badge">
-              {item.version}
-            </span>
-            {item.description}
-          </li>
-        )}
-      </ul>
-    );
-  }
+export default function ActionChangelog({ changelog }: Props) {
+  return (
+    <ul className="big-spacer-top">
+      {changelog.map((item, index) =>
+        <li key={index} className="spacer-top">
+          <span className="spacer-right badge">
+            {item.version}
+          </span>
+          {item.description}
+        </li>
+      )}
+    </ul>
+  );
 }

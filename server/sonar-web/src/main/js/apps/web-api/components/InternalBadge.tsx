@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 
 export default function InternalBadge() {
   return (
-    <span
-      className="badge badge-danger"
-      title={translate('api_documentation.internal_tooltip')}
-      data-toggle="tooltip">
-      internal
-    </span>
+    <Tooltip overlay={translate('api_documentation.internal_tooltip')}>
+      <span className="badge badge-danger">
+        {translate('internal')}
+      </span>
+    </Tooltip>
   );
 }

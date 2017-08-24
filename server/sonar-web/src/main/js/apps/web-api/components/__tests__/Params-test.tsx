@@ -17,37 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import Params from '../Params';
 
-it('should render deprecated parameters', () => {
+const DEFAULT_PARAM = {
+  key: 'foo',
+  description: 'Foo desc',
+  internal: false,
+  required: false
+};
+
+it('should render deprecated and internal parameters', () => {
   const params = [
-    {
-      key: 'foo',
-      deprecatedSince: '5.0'
-    }
+    { ...DEFAULT_PARAM, deprecatedSince: '5.0' },
+    { ...DEFAULT_PARAM, deprecatedSince: '5.0', internal: true }
   ];
-  expect(shallow(<Params params={params} showDeprecated={true} />)).toMatchSnapshot();
+  expect(
+    shallow(<Params params={params} showDeprecated={true} showInternal={true} />)
+  ).toMatchSnapshot();
 });
 
 it('should not render deprecated parameters', () => {
-  const params = [
-    {
-      key: 'foo',
-      deprecatedSince: '5.0'
-    }
-  ];
-  expect(shallow(<Params params={params} showDeprecated={false} />)).toMatchSnapshot();
+  const params = [{ ...DEFAULT_PARAM, deprecatedSince: '5.0' }];
+  expect(
+    shallow(<Params params={params} showDeprecated={false} showInternal={false} />)
+  ).toMatchSnapshot();
 });
 
 it('should render deprecated key', () => {
   const params = [
-    {
-      key: 'foo',
-      deprecatedKey: 'foo-deprecated',
-      deprecatedKeySince: '5.0'
-    }
+    { ...DEFAULT_PARAM, deprecatedKey: 'foo-deprecated', deprecatedSince: '5.0' },
+    { ...DEFAULT_PARAM, deprecatedSince: '5.0', internal: true }
   ];
-  expect(shallow(<Params params={params} showDeprecated={true} />)).toMatchSnapshot();
+  expect(
+    shallow(<Params params={params} showDeprecated={true} showInternal={false} />)
+  ).toMatchSnapshot();
 });

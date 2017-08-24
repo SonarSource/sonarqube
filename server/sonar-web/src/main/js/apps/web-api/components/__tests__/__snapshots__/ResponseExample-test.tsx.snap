@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly after fetching an example 1`] = `
+<div
+  className="web-api-response"
+/>
+`;
+
+exports[`should render correctly after fetching an example 2`] = `
+<div
+  className="web-api-response"
+>
+  <pre
+    style={
+      Object {
+        "whiteSpace": "pre-wrap",
+      }
+    }
+  >
+    my example
+  </pre>
+</div>
+`;

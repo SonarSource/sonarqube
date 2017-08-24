@@ -1,0 +1,248 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should also render domains with an actions description matching the query 1`] = `
+<div
+  className="api-documentation-results panel"
+>
+  <div
+    className="list-group"
+  >
+    <Link
+      className="list-group-item"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/web_api/bar"
+    >
+      <h3
+        className="list-group-item-heading"
+      >
+        bar
+      </h3>
+      <div
+        className="list-group-item-text markdown"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "API Bar",
+          }
+        }
+      />
+    </Link>
+    <Link
+      className="list-group-item"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/web_api/baz"
+    >
+      <h3
+        className="list-group-item-heading"
+      >
+        baz
+      </h3>
+      <div
+        className="list-group-item-text markdown"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "API Baz",
+          }
+        }
+      />
+    </Link>
+  </div>
+</div>
+`;
+
+exports[`should not render deprecated domains 1`] = `
+<div
+  className="api-documentation-results panel"
+>
+  <div
+    className="list-group"
+  >
+    <Link
+      className="list-group-item"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/web_api/foo"
+    >
+      <h3
+        className="list-group-item-heading"
+      >
+        foo
+      </h3>
+      <div
+        className="list-group-item-text markdown"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "API Foo",
+          }
+        }
+      />
+    </Link>
+  </div>
+</div>
+`;
+
+exports[`should not render internal domains 1`] = `
+<div
+  className="api-documentation-results panel"
+>
+  <div
+    className="list-group"
+  >
+    <Link
+      className="list-group-item"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/web_api/foo"
+    >
+      <h3
+        className="list-group-item-heading"
+      >
+        foo
+      </h3>
+      <div
+        className="list-group-item-text markdown"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "API Foo",
+          }
+        }
+      />
+    </Link>
+  </div>
+</div>
+`;
+
+exports[`should render deprecated domains 1`] = `
+<div
+  className="api-documentation-results panel"
+>
+  <div
+    className="list-group"
+  >
+    <Link
+      className="list-group-item"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/web_api/foo"
+    >
+      <h3
+        className="list-group-item-heading"
+      >
+        foo
+      </h3>
+      <div
+        className="list-group-item-text markdown"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "API Foo",
+          }
+        }
+      />
+    </Link>
+    <Link
+      className="list-group-item"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/web_api/bar"
+    >
+      <h3
+        className="list-group-item-heading"
+      >
+        bar
+      </h3>
+      <div
+        className="list-group-item-text markdown"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "API Bar",
+          }
+        }
+      />
+    </Link>
+  </div>
+</div>
+`;
+
+exports[`should render internal domains 1`] = `
+<div
+  className="api-documentation-results panel"
+>
+  <div
+    className="list-group"
+  >
+    <Link
+      className="list-group-item"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/web_api/foo"
+    >
+      <h3
+        className="list-group-item-heading"
+      >
+        foo
+      </h3>
+      <div
+        className="list-group-item-text markdown"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "API Foo",
+          }
+        }
+      />
+    </Link>
+    <Link
+      className="list-group-item"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/web_api/bar"
+    >
+      <h3
+        className="list-group-item-heading"
+      >
+        bar
+        <InternalBadge />
+      </h3>
+      <div
+        className="list-group-item-text markdown"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "API Bar",
+          }
+        }
+      />
+    </Link>
+  </div>
+</div>
+`;
+
+exports[`should render only domains with an action matching the query 1`] = `
+<div
+  className="api-documentation-results panel"
+>
+  <div
+    className="list-group"
+  >
+    <Link
+      className="list-group-item"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/web_api/foo"
+    >
+      <h3
+        className="list-group-item-heading"
+      >
+        foo
+      </h3>
+      <div
+        className="list-group-item-text markdown"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "API Foo",
+          }
+        }
+      />
+    </Link>
+  </div>
+</div>
+`;

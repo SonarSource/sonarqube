@@ -10,6 +10,108 @@ exports[`should not render deprecated parameters 1`] = `
 </div>
 `;
 
+exports[`should render deprecated and internal parameters 1`] = `
+<div
+  className="web-api-params"
+>
+  <table>
+    <tbody>
+      <tr>
+        <td
+          className="markdown"
+          style={
+            Object {
+              "width": 180,
+            }
+          }
+        >
+          <code>
+            foo
+          </code>
+          <div
+            className="little-spacer-top"
+          >
+            <DeprecatedBadge
+              since="5.0"
+            />
+          </div>
+          <div
+            className="note little-spacer-top"
+          >
+            optional
+          </div>
+        </td>
+        <td>
+          <div
+            className="markdown"
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Foo desc",
+              }
+            }
+          />
+        </td>
+        <td
+          style={
+            Object {
+              "width": 250,
+            }
+          }
+        />
+      </tr>
+      <tr>
+        <td
+          className="markdown"
+          style={
+            Object {
+              "width": 180,
+            }
+          }
+        >
+          <code>
+            foo
+          </code>
+          <div
+            className="little-spacer-top"
+          >
+            <InternalBadge />
+          </div>
+          <div
+            className="little-spacer-top"
+          >
+            <DeprecatedBadge
+              since="5.0"
+            />
+          </div>
+          <div
+            className="note little-spacer-top"
+          >
+            optional
+          </div>
+        </td>
+        <td>
+          <div
+            className="markdown"
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Foo desc",
+              }
+            }
+          />
+        </td>
+        <td
+          style={
+            Object {
+              "width": 250,
+            }
+          }
+        />
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
 exports[`should render deprecated key 1`] = `
 <div
   className="web-api-params"
@@ -31,18 +133,18 @@ exports[`should render deprecated key 1`] = `
           <div
             className="little-spacer-top"
           >
+            <DeprecatedBadge
+              since="5.0"
+            />
+          </div>
+          <div
+            className="little-spacer-top"
+          >
             <code>
               foo-deprecated
             </code>
           </div>
           <div
-            className="little-spacer-top"
-          >
-            <DeprecatedBadge
-              since="5.0"
-            />
-          </div>
-          <div
             className="note little-spacer-top"
           >
             optional
@@ -53,61 +155,7 @@ exports[`should render deprecated key 1`] = `
             className="markdown"
             dangerouslySetInnerHTML={
               Object {
-                "__html": undefined,
-              }
-            }
-          />
-        </td>
-        <td
-          style={
-            Object {
-              "width": 250,
-            }
-          }
-        />
-      </tr>
-    </tbody>
-  </table>
-</div>
-`;
-
-exports[`should render deprecated parameters 1`] = `
-<div
-  className="web-api-params"
->
-  <table>
-    <tbody>
-      <tr>
-        <td
-          className="markdown"
-          style={
-            Object {
-              "width": 180,
-            }
-          }
-        >
-          <code>
-            foo
-          </code>
-          <div
-            className="little-spacer-top"
-          >
-            <DeprecatedBadge
-              since="5.0"
-            />
-          </div>
-          <div
-            className="note little-spacer-top"
-          >
-            optional
-          </div>
-        </td>
-        <td>
-          <div
-            className="markdown"
-            dangerouslySetInnerHTML={
-              Object {
-                "__html": undefined,
+                "__html": "Foo desc",
               }
             }
           />

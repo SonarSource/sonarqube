@@ -17,14 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { shallow } from 'enzyme';
-import ActionChangelog from '../ActionChangelog';
+import * as React from 'react';
+import Tooltip from '../../../components/controls/Tooltip';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-it('should render', () => {
-  const changelog = [
-    { version: '5.0', description: 'foo' },
-    { version: '5.1', description: 'bar' }
-  ];
-  expect(shallow(<ActionChangelog changelog={changelog} />)).toMatchSnapshot();
-});
+export default function DeprecatedBadge({ since }: { since?: string }) {
+  const label = since
+    ? translateWithParameters('api_documentation.depracated_since_x', since)
+    : translate('api_documentation.depracated');
+  return (
+    <Tooltip overlay={translate('api_documentation.deprecation_tooltip')}>
+      <span className="badge badge-warning">
+        {label}
+      </span>
+    </Tooltip>
+  );
+}

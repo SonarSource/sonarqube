@@ -19,6 +19,11 @@
  */
 import { getJSON } from '../helpers/request';
 
+export interface Changelog {
+  description: string;
+  version: string;
+}
+
 export interface Param {
   key: string;
   defaultValue?: string;
@@ -28,20 +33,22 @@ export interface Param {
   deprecatedSince?: string;
   exampleValue?: string;
   internal: boolean;
+  maxValuesAllowed?: number;
   possibleValues?: string[];
   required: boolean;
+  since?: string;
 }
 
 export interface Action {
   key: string;
+  changelog: Changelog[];
   description: string;
   deprecatedSince?: string;
-  since?: string;
-  internal: boolean;
-  post: boolean;
   hasResponseExample: boolean;
-  changelog: Array<{ version: string; description: string }>;
+  internal: boolean;
   params?: Param[];
+  post: boolean;
+  since?: string;
 }
 
 export interface Domain {
@@ -50,6 +57,12 @@ export interface Domain {
   deprecated: boolean;
   internal: boolean;
   path: string;
+  since?: string;
+}
+
+export interface Example {
+  example: string;
+  format: string;
 }
 
 export function fetchWebApi(showInternal: boolean = true): Promise<Array<Domain>> {
@@ -62,6 +75,6 @@ export function fetchWebApi(showInternal: boolean = true): Promise<Array<Domain>
   );
 }
 
-export function fetchResponseExample(domain: string, action: string): Promise<{ example: string }> {
+export function fetchResponseExample(domain: string, action: string): Promise<Example> {
   return getJSON('/api/webservices/response_example', { controller: domain, action });
 }

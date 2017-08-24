@@ -17,18 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import ResponseExample from '../ResponseExample';
 
-export default function DeprecatedBadge({ since }) {
-  const label = since ? `deprecated since ${since}` : 'deprecated';
+const ACTION = {
+  key: 'foo',
+  changelog: [],
+  description: 'Foo Desc',
+  hasResponseExample: false,
+  internal: false,
+  post: false
+};
+const DOMAIN = {
+  actions: [ACTION],
+  path: 'foo',
+  description: 'API Foo',
+  deprecated: false,
+  internal: false
+};
 
-  return (
-    <span
-      className="badge badge-warning"
-      title={translate('api_documentation.deprecation_tooltip')}
-      data-toggle="tooltip">
-      {label}
-    </span>
-  );
-}
+const PROPS = {
+  action: ACTION,
+  domain: DOMAIN
+};
+
+it('should render correctly after fetching an example', () => {
+  const wrapper = shallow(<ResponseExample {...PROPS} />);
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setState({ responseExample: { format: 'json', example: 'my example' } });
+  expect(wrapper).toMatchSnapshot();
+});

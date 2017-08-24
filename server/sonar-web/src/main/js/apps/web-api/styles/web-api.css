@@ -48,6 +48,11 @@
   margin-top: 10px;
 }
 
+.web-api-action hr {
+  margin: 10px 0 0;
+  background-color: #ddd;
+}
+
 .web-api-params,
 .web-api-response {
   margin-top: 10px;
