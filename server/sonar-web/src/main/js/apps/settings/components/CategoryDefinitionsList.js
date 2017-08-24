@@ -28,7 +28,11 @@ function CategoryDefinitionsList(props) {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  settings: getSettingsAppSettingsForCategory(state, ownProps.category)
+  settings: getSettingsAppSettingsForCategory(
+    state,
+    ownProps.category,
+    ownProps.component ? ownProps.component.key : null
+  )
 });
 
 export default connect(mapStateToProps)(CategoryDefinitionsList);

@@ -19,13 +19,13 @@
  */
 // @flow
 import { connect } from 'react-redux';
-import { getAppState, getSettingValue } from '../../store/rootReducer';
+import { getAppState, getGlobalSettingValue } from '../../store/rootReducer';
 import GlobalFooter from './GlobalFooter';
 
 const mapStateToProps = state => ({
   sonarqubeVersion: getAppState(state).version,
   productionDatabase: getAppState(state).productionDatabase,
-  sonarqubeDotCom: getSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
+  sonarqubeDotCom: getGlobalSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
 });
 
 export default connect(mapStateToProps)(GlobalFooter);

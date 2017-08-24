@@ -101,7 +101,8 @@ class Definition extends React.PureComponent {
   }
 
   handleCancel() {
-    this.props.cancelChange(this.props.setting.definition.key);
+    const componentKey = this.props.component ? this.props.component.key : null;
+    this.props.cancelChange(this.props.setting.definition.key, componentKey);
     this.props.passValidation(this.props.setting.definition.key);
   }
 

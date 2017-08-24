@@ -18,14 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
+import { combineReducers } from 'redux';
 import { keyBy } from 'lodash';
 import { RECEIVE_VALUES } from './actions';
 
 /*::
-type State = { [key: string]: {} };
+type SettingsState = { [key: string]: {} };
+type ComponentsState = { [key: string]: SettingsState };
+export type State = { components: ComponentsState, global: SettingsState };
 */
 
-const reducer = (state /*: State */ = {}, action /*: Object */) => {
+const componentsSettings = (state /*: ComponentsState */ = {}, action /*: Object */) => {
+  if (!action.componentKey) {
+    return state;
+  }
+
+  const key = action.componentKey;
+  if (action.type === RECEIVE_VALUES) {
+    const settingsByKey = keyBy(action.settings, 'key');
+    return { ...state, [key]: { ...(state[key] || {}), ...settingsByKey } };
+  }
+
+  return state;
+};
+
+const globalSettings = (state /*: SettingsState */ = {}, action /*: Object */) => {
+  if (action.componentKey) {
+    return state;
+  }
+
   if (action.type === RECEIVE_VALUES) {
     const settingsByKey = keyBy(action.settings, 'key');
     return { ...state, ...settingsByKey };
@@ -42,6 +63,12 @@ const reducer = (state /*: State */ = {}, action /*: Object */) => {
   return state;
 };
 
-export default reducer;
+export default combineReducers({ components: componentsSettings, global: globalSettings });
 
-export const getValue = (state /*: State */, key /*: string */) => state[key];
+export const getValue = (state /*: State */, key /*: string */, componentKey /*: ?string */) => {
+  let settings = state.global;
+  if (componentKey) {
+    settings = state.components[componentKey];
+  }
+  return settings && settings[key];
+};

@@ -21,7 +21,7 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import init from '../init';
-import { getSettingValue } from '../../../store/rootReducer';
+import { getGlobalSettingValue } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
 class UpdateCenterAppContainer extends React.PureComponent {
@@ -48,7 +48,7 @@ class UpdateCenterAppContainer extends React.PureComponent {
 }
 
 const mapStateToProps = state => ({
-  updateCenterActive: (getSettingValue(state, 'sonar.updatecenter.activate') || {}).value
+  updateCenterActive: (getGlobalSettingValue(state, 'sonar.updatecenter.activate') || {}).value
 });
 
 export default connect(mapStateToProps)(UpdateCenterAppContainer);

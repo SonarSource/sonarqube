@@ -25,7 +25,7 @@ import { Link } from 'react-router';
 import OrganizationsList from './OrganizationsList';
 import { translate } from '../../../helpers/l10n';
 import { fetchIfAnyoneCanCreateOrganizations, fetchMyOrganizations } from './actions';
-import { getAppState, getMyOrganizations, getSettingValue } from '../../../store/rootReducer';
+import { getAppState, getMyOrganizations, getGlobalSettingValue } from '../../../store/rootReducer';
 /*:: import type { Organization } from '../../../store/organizations/duck'; */
 
 class UserOrganizations extends React.PureComponent {
@@ -101,7 +101,7 @@ class UserOrganizations extends React.PureComponent {
 }
 
 const mapStateToProps = state => ({
-  anyoneCanCreate: getSettingValue(state, 'sonar.organizations.anyoneCanCreate'),
+  anyoneCanCreate: getGlobalSettingValue(state, 'sonar.organizations.anyoneCanCreate'),
   canAdmin: getAppState(state).canAdmin,
   organizations: getMyOrganizations(state)
 });

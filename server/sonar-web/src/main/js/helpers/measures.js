@@ -351,10 +351,10 @@ function shortDurationVariationFormatter(value) {
 function getRatingGrid() {
   // workaround cyclic dependencies
   const getStore = require('../app/utils/getStore').default;
-  const { getSettingValue } = require('../store/rootReducer');
+  const { getGlobalSettingValue } = require('../store/rootReducer');
 
   const store = getStore();
-  const settingValue = getSettingValue(store.getState(), 'sonar.technicalDebt.ratingGrid');
+  const settingValue = getGlobalSettingValue(store.getState(), 'sonar.technicalDebt.ratingGrid');
   return settingValue ? settingValue.value : '';
 }
 

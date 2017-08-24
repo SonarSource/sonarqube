@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import md5 from 'blueimp-md5';
 import classNames from 'classnames';
-import { getSettingValue } from '../../store/rootReducer';
+import { getGlobalSettingValue } from '../../store/rootReducer';
 
 function stringToColor(str) {
   let hash = 0;
@@ -114,8 +114,8 @@ class Avatar extends React.PureComponent {
 }
 
 const mapStateToProps = state => ({
-  enableGravatar: (getSettingValue(state, 'sonar.lf.enableGravatar') || {}).value === 'true',
-  gravatarServerUrl: (getSettingValue(state, 'sonar.lf.gravatarServerUrl') || {}).value
+  enableGravatar: (getGlobalSettingValue(state, 'sonar.lf.enableGravatar') || {}).value === 'true',
+  gravatarServerUrl: (getGlobalSettingValue(state, 'sonar.lf.gravatarServerUrl') || {}).value
 });
 
 export default connect(mapStateToProps)(Avatar);

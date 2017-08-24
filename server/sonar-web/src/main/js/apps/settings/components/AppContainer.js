@@ -19,12 +19,16 @@
  */
 import { connect } from 'react-redux';
 import App from './App';
-import { getComponent } from '../../../store/rootReducer';
+import { fetchSettings } from '../store/actions';
+import { getComponent, getSettingsAppDefaultCategory } from '../../../store/rootReducer';
 
 const mapStateToProps = (state, ownProps) => ({
   component: ownProps.location.query.id
     ? getComponent(state, ownProps.location.query.id)
-    : undefined
+    : undefined,
+  defaultCategory: getSettingsAppDefaultCategory(state)
 });
 
-export default connect(mapStateToProps)(App);
+const mapdispatchToProps = { fetchSettings };
+
+export default connect(mapStateToProps, mapdispatchToProps)(App);

@@ -21,6 +21,7 @@ package org.sonarqube.tests.projectAdministration;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import org.openqa.selenium.By;
 import org.sonarqube.pageobjects.ProjectsManagementPage;
 import org.sonarqube.tests.Category1Suite;
 import java.io.UnsupportedEncodingException;
@@ -47,6 +48,7 @@ import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
 import org.sonarqube.ws.client.permission.UsersWsRequest;
 
+import static com.codeborne.selenide.Selenide.$;
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getComponent;
@@ -190,6 +192,22 @@ public class ProjectAdministrationTest {
       .assertBooleanSettingValue("sonar.dbcleaner.cleanDirectory", true)
       .setStringValue("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "1")
       .assertStringSettingValue("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "1");
+  }
+
+  @Test
+  public void display_correct_global_setting () throws UnsupportedEncodingException {
+    scanSample(null, null);
+    SettingsPage page = nav.logIn().submitCredentials(adminUser).openSettings("sample")
+      .openCategory("Analysis Scope")
+      .assertSettingDisplayed("sonar.coverage.exclusions")
+      .setStringValue("sonar.coverage.exclusions", "foo")
+      .assertStringSettingValue("sonar.coverage.exclusions", "foo");
+
+    $(".global-navbar-menu ").$(By.linkText("Administration")).click();
+    page
+      .openCategory("Analysis Scope")
+      .assertSettingDisplayed("sonar.coverage.exclusions")
+      .assertStringSettingValue("sonar.coverage.exclusions", "");
   }
 
   @Test
