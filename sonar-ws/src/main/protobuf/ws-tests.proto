@@ -56,6 +56,7 @@ message Test {
   optional int32 coveredLines = 8;
   optional string message = 9;
   optional string stacktrace = 10;
+  optional string fileBranch = 11;
 }
 
 enum TestStatus {
