@@ -19,60 +19,49 @@
  */
 package org.sonar.server.test.ws;
 
-import com.google.common.base.Optional;
-import java.util.Arrays;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import org.sonar.core.util.Uuids;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.db.protobuf.DbFileSources.Test.CoveredFile;
+import org.sonar.db.source.FileSourceDto;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.test.index.CoveredFileDoc;
-import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
+import org.sonar.server.test.index.TestIndexDefinition;
+import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.test.ws.CoveredFilesAction.TEST_ID;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class CoveredFilesActionTest {
 
-  private static final String FILE_1_ID = "FILE1";
-  private static final String FILE_2_ID = "FILE2";
-
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings().asConfig()));
+  @Rule
+  public DbTester db = DbTester.create();
 
-  private WsActionTester ws;
-  private DbClient dbClient;
-  private TestIndex testIndex;
+  private TestIndex testIndex = new TestIndex(es.client());
+  private TestIndexer testIndexer = new TestIndexer(db.getDbClient(), es.client());
 
-  @Before
-  public void setUp() {
-    dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
-    testIndex = mock(TestIndex.class, RETURNS_DEEP_STUBS);
-
-    ws = new WsActionTester(new CoveredFilesAction(dbClient, testIndex, userSessionRule));
-  }
+  private WsActionTester ws = new WsActionTester(new CoveredFilesAction(db.getDbClient(), testIndex, userSession));
 
   @Test
   public void define_covered_files() {
@@ -87,44 +76,85 @@ public class CoveredFilesActionTest {
 
   @Test
   public void covered_files() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), "SonarQube");
-    ComponentDto file = ComponentTesting.newFileDto(project, null, "test-file-uuid");
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto mainFile1 = db.components().insertComponent(newFileDto(project));
+    ComponentDto mainFile2 = db.components().insertComponent(newFileDto(project));
+    ComponentDto testFile = db.components().insertComponent(newFileDto(project).setQualifier(UNIT_TEST_FILE));
+    userSession.addProjectPermission(CODEVIEWER, project, testFile);
 
-    when(testIndex.getNullableByTestUuid(anyString())).thenReturn(Optional.of(new TestDoc().setFileUuid("test-file-uuid")));
-    when(testIndex.coveredFiles("test-uuid")).thenReturn(Arrays.asList(
-      new CoveredFileDoc().setFileUuid(FILE_1_ID).setCoveredLines(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)),
-      new CoveredFileDoc().setFileUuid(FILE_2_ID).setCoveredLines(Arrays.asList(1, 2, 3))));
-    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
-    when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
-      Arrays.asList(
-        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_1_ID).setDbKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
-        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_2_ID).setDbKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
+    DbFileSources.Test test = DbFileSources.Test.newBuilder().setUuid(Uuids.create())
+      .addCoveredFile(CoveredFile.newBuilder()
+        .setFileUuid(mainFile1.uuid())
+        .addAllCoveredLine(asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)))
+      .addCoveredFile(CoveredFile.newBuilder()
+        .setFileUuid(mainFile2.uuid())
+        .addAllCoveredLine(asList(1, 2, 3)))
+      .build();
+    insertTests(testFile, test);
 
-    TestRequest request = ws.newRequest().setParam(TEST_ID, "test-uuid");
+    TestRequest request = ws.newRequest().setParam(TEST_ID, test.getUuid());
 
-    assertJson(request.execute().getInput()).isSimilarTo(getClass().getResource("CoveredFilesActionTest/tests-covered-files.json"));
+    assertJson(request.execute().getInput()).isSimilarTo("{\n" +
+      "  \"files\": [\n" +
+      "    {\n" +
+      "      \"id\": \"" + mainFile1.uuid() + "\",\n" +
+      "      \"key\": \"" + mainFile1.getKey() + "\",\n" +
+      "      \"longName\": \"" + mainFile1.longName() + "\",\n" +
+      "      \"coveredLines\": 10\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"id\": \"" + mainFile2.uuid() + "\",\n" +
+      "      \"key\": \"" + mainFile2.getKey() + "\",\n" +
+      "      \"longName\": \"" + mainFile2.longName() + "\",\n" +
+      "      \"coveredLines\": 3\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}");
+  }
+
+  @Test
+  public void covered_files_on_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto mainFile = db.components().insertComponent(newFileDto(branch));
+    ComponentDto testFile = db.components().insertComponent(newFileDto(branch).setQualifier(UNIT_TEST_FILE));
+    userSession.addProjectPermission(CODEVIEWER, project, testFile);
+    DbFileSources.Test test = DbFileSources.Test.newBuilder().setUuid(Uuids.create())
+      .addCoveredFile(CoveredFile.newBuilder()
+        .setFileUuid(mainFile.uuid())
+        .addAllCoveredLine(asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)))
+      .build();
+    insertTests(testFile, test);
+
+    TestRequest request = ws.newRequest().setParam(TEST_ID, test.getUuid());
+
+    assertJson(request.execute().getInput()).isSimilarTo("{\n" +
+      "  \"files\": [\n" +
+      "    {\n" +
+      "      \"id\": \"" + mainFile.uuid() + "\",\n" +
+      "      \"key\": \"" + mainFile.getKey() + "\",\n" +
+      "      \"branch\": \"" + mainFile.getBranch() + "\",\n" +
+      "      \"longName\": \"" + mainFile.longName() + "\",\n" +
+      "      \"coveredLines\": 10\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}");
   }
 
   @Test
   public void fail_when_test_uuid_is_unknown() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), "SonarQube");
-    ComponentDto file = ComponentTesting.newFileDto(project);
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
-
-    when(testIndex.getNullableByTestUuid(anyString())).thenReturn(Optional.<TestDoc>absent());
-    when(testIndex.coveredFiles("test-uuid")).thenReturn(Arrays.asList(
-      new CoveredFileDoc().setFileUuid(FILE_1_ID).setCoveredLines(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)),
-      new CoveredFileDoc().setFileUuid(FILE_2_ID).setCoveredLines(Arrays.asList(1, 2, 3))));
-    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
-    when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
-      Arrays.asList(
-        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_1_ID).setDbKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
-        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_2_ID).setDbKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
-
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Test with id 'test-uuid' is not found");
+    expectedException.expectMessage("Test with id 'unknown' is not found");
 
-    ws.newRequest().setParam(TEST_ID, "test-uuid").execute();
+    ws.newRequest().setParam(TEST_ID, "unknown").execute();
+  }
+
+  private void insertTests(ComponentDto testFile, DbFileSources.Test... tests) {
+    db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
+      .setProjectUuid(testFile.projectUuid())
+      .setFileUuid(testFile.uuid())
+      .setTestData(asList(tests)));
+    db.commit();
+    testIndexer.indexOnStartup(null);
   }
 }

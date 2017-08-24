@@ -79,7 +79,7 @@ public class TestTesting {
     return tests;
   }
 
-  public static DbFileSources.Test.Builder newTest(ComponentDto mainFile, Integer... coveredLines) throws IOException {
+  public static DbFileSources.Test.Builder newTest(ComponentDto mainFile, Integer... coveredLines) {
     DbFileSources.Test.Builder test = DbFileSources.Test.newBuilder()
       .setUuid(Uuids.create())
       .setName(RandomStringUtils.randomAlphanumeric(20))
