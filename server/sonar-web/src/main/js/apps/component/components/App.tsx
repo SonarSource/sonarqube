@@ -23,6 +23,7 @@ import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 interface Props {
   location: {
     query: {
+      branch?: string;
       id: string;
       line?: string;
     };
@@ -44,7 +45,7 @@ export default class App extends React.PureComponent<Props> {
   };
 
   render() {
-    const { id, line } = this.props.location.query;
+    const { branch, id, line } = this.props.location.query;
 
     const finalLine = line != null ? Number(line) : null;
 
@@ -52,6 +53,7 @@ export default class App extends React.PureComponent<Props> {
       <div className="page page-limited">
         <SourceViewer
           aroundLine={finalLine}
+          branch={branch}
           component={id}
           highlightedLine={finalLine}
           onLoaded={this.scrollToLine}

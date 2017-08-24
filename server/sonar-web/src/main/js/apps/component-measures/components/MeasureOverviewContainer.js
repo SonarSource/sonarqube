@@ -21,7 +21,6 @@
 import React from 'react';
 import MeasureOverview from './MeasureOverview';
 import { getComponentShow } from '../../../api/components';
-import { getBranchName } from '../../../helpers/branches';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isViewType } from '../utils';
 /*:: import type { Component, Period, Query } from '../types'; */
@@ -29,7 +28,7 @@ import { isViewType } from '../utils';
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
-  branch: {},
+  branch?: string,
   className?: string,
   rootComponent: Component,
   currentUser: { isLoggedIn: boolean },
@@ -89,7 +88,7 @@ export default class MeasureOverviewContainer extends React.PureComponent {
       return;
     }
     this.updateLoading({ component: true });
-    getComponentShow(selected, getBranchName(branch)).then(
+    getComponentShow(selected, branch).then(
       ({ component }) => {
         if (this.mounted) {
           this.setState({ component });

@@ -1,0 +1,209 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="component-name text-ellipsis"
+>
+  <Connect(Organization)
+    linkClassName="link-no-underline"
+    organizationKey="org"
+  />
+  <span
+    title="proj-name"
+  >
+    <Link
+      className="link-no-underline"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": undefined,
+            "id": "proj",
+          },
+        }
+      }
+    >
+      proj-name
+    </Link>
+    <span
+      className="slash-separator"
+    />
+  </span>
+  <Link
+    className="link-no-underline"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/dashboard",
+        "query": Object {
+          "branch": undefined,
+          "id": "comp",
+        },
+      }
+    }
+  >
+    <span
+      title="comp-name"
+    >
+      comp-name
+    </span>
+  </Link>
+</div>
+`;
+
+exports[`renders with branch 1`] = `
+<div
+  className="component-name text-ellipsis"
+>
+  <Connect(Organization)
+    linkClassName="link-no-underline"
+    organizationKey="org"
+  />
+  <span
+    title="proj-name"
+  >
+    <Link
+      className="link-no-underline"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": "feature",
+            "id": "proj",
+          },
+        }
+      }
+    >
+      proj-name
+    </Link>
+    <span
+      className="slash-separator"
+    />
+  </span>
+  <span
+    title="sub-proj-name"
+  >
+    <Link
+      className="link-no-underline"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": "feature",
+            "id": "sub-proj",
+          },
+        }
+      }
+    >
+      sub-proj-name
+    </Link>
+    <span
+      className="slash-separator"
+    />
+  </span>
+  <Link
+    className="link-no-underline"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/dashboard",
+        "query": Object {
+          "branch": "feature",
+          "id": "comp",
+        },
+      }
+    }
+  >
+    <span
+      title="comp-name"
+    >
+      comp-name
+    </span>
+  </Link>
+</div>
+`;
+
+exports[`renders with sub-project 1`] = `
+<div
+  className="component-name text-ellipsis"
+>
+  <Connect(Organization)
+    linkClassName="link-no-underline"
+    organizationKey="org"
+  />
+  <span
+    title="proj-name"
+  >
+    <Link
+      className="link-no-underline"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": undefined,
+            "id": "proj",
+          },
+        }
+      }
+    >
+      proj-name
+    </Link>
+    <span
+      className="slash-separator"
+    />
+  </span>
+  <span
+    title="sub-proj-name"
+  >
+    <Link
+      className="link-no-underline"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": undefined,
+            "id": "sub-proj",
+          },
+        }
+      }
+    >
+      sub-proj-name
+    </Link>
+    <span
+      className="slash-separator"
+    />
+  </span>
+  <Link
+    className="link-no-underline"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/dashboard",
+        "query": Object {
+          "branch": undefined,
+          "id": "comp",
+        },
+      }
+    }
+  >
+    <span
+      title="comp-name"
+    >
+      comp-name
+    </span>
+  </Link>
+</div>
+`;
