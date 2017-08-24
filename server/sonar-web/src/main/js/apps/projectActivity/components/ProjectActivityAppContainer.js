@@ -26,6 +26,7 @@ import { getAllTimeMachineData } from '../../../api/time-machine';
 import { getMetrics } from '../../../api/metrics';
 import * as api from '../../../api/projectActivity';
 import * as actions from '../actions';
+import { getBranchName } from '../../../helpers/branches';
 import { parseDate } from '../../../helpers/dates';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import {
@@ -42,6 +43,7 @@ import {
 
 /*::
 type Props = {
+  branch: {},
   location: { pathname: string, query: RawQuery },
   component: {
     configuration?: { showHistory: boolean },
@@ -93,7 +95,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
       }
       this.context.router.replace({
         pathname: props.location.pathname,
-        query: serializeUrlQuery(newQuery)
+        query: { ...serializeUrlQuery(newQuery), branch: getBranchName(props.branch) }
       });
     }
   }
@@ -167,7 +169,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
       [string]: string
     } */
   ) => {
-    const parameters = { project, p, ps };
+    const parameters = { project, p, ps, branch: getBranchName(this.props.branch) };
     return api
       .getProjectActivity({ ...parameters, ...additional })
       .then(({ analyses, paging }) => ({
@@ -180,7 +182,9 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
     if (metrics.length <= 0) {
       return Promise.resolve([]);
     }
-    return getAllTimeMachineData(this.props.component.key, metrics).then(
+    return getAllTimeMachineData(this.props.component.key, metrics, {
+      branch: getBranchName(this.props.branch)
+    }).then(
       ({ measures }) =>
         measures.map(measure => ({
           metric: measure.metric,
@@ -281,6 +285,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...query,
+        branch: getBranchName(this.props.branch),
         id: this.props.component.key
       }
     });

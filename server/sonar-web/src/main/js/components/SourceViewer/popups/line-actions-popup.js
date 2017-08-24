@@ -24,9 +24,12 @@ export default Popup.extend({
   template: Template,
 
   serializeData() {
-    const { component, line } = this.options;
-    return {
-      permalink: window.baseUrl + `/component?id=${encodeURIComponent(component.key)}&line=${line}`
-    };
+    const { component, line, branch } = this.options;
+    let permalink =
+      window.baseUrl + `/component?id=${encodeURIComponent(component.key)}&line=${line}`;
+    if (branch) {
+      permalink += `&branch=${encodeURIComponent(branch)}`;
+    }
+    return { permalink };
   }
 });

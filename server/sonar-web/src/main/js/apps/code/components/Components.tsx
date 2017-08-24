@@ -17,36 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
+import { Component as IComponent } from '../types';
 
-export default function Components({ rootComponent, baseComponent, components, selected }) {
+interface Props {
+  baseComponent?: IComponent;
+  branch?: string;
+  components: IComponent[];
+  rootComponent: IComponent;
+  selected?: IComponent;
+}
+
+export default function Components(props: Props) {
+  const { baseComponent, branch, components, rootComponent, selected } = props;
   return (
     <table className="data zebra">
       <ComponentsHeader baseComponent={baseComponent} rootComponent={rootComponent} />
       {baseComponent &&
         <tbody>
           <Component
+            branch={branch}
+            component={baseComponent}
             key={baseComponent.key}
             rootComponent={rootComponent}
-            component={baseComponent}
           />
           <tr className="blank">
-            <td colSpan="8">&nbsp;</td>
+            <td colSpan={8}>&nbsp;</td>
           </tr>
         </tbody>}
       <tbody>
         {components.length
           ? components.map((component, index, list) =>
               <Component
-                key={component.key}
-                rootComponent={rootComponent}
-                component={component}
-                selected={component === selected}
-                previous={index > 0 ? list[index - 1] : null}
+                branch={branch}
                 canBrowse={true}
+                component={component}
+                key={component.key}
+                previous={index > 0 ? list[index - 1] : undefined}
+                rootComponent={rootComponent}
+                selected={component === selected}
               />
             )
           : <ComponentsEmpty />}

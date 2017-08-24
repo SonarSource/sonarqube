@@ -26,6 +26,7 @@ import ColorGradientLegend from '../../../components/charts/ColorGradientLegend'
 import EmptyResult from './EmptyResult';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import TreeMap from '../../../components/charts/TreeMap';
+import { getBranchName } from '../../../helpers/branches';
 import { translate, translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getComponentUrl } from '../../../helpers/urls';
@@ -34,6 +35,7 @@ import { getComponentUrl } from '../../../helpers/urls';
 /*:: import type { TreeMapItem } from '../../../components/charts/TreeMap'; */
 
 /*:: type Props = {|
+  branch: {},
   components: Array<ComponentEnhanced>,
   handleSelect: string => void,
   metric: Metric
@@ -62,7 +64,7 @@ export default class TreeMapView extends React.PureComponent {
     }
   }
 
-  getTreemapComponents = ({ components, metric } /*: Props */) => {
+  getTreemapComponents = ({ branch, components, metric } /*: Props */) => {
     const colorScale = this.getColorScale(metric);
     return components
       .map(component => {
@@ -93,7 +95,7 @@ export default class TreeMapView extends React.PureComponent {
             sizeValue
           ),
           label: component.name,
-          link: getComponentUrl(component.refKey || component.key)
+          link: getComponentUrl(component.refKey || component.key, getBranchName(branch))
         };
       })
       .filter(Boolean);

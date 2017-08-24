@@ -24,20 +24,27 @@ export enum BranchType {
 
 export interface MainBranch {
   isMain: true;
-  name: undefined;
-  type: BranchType.LONG;
+  name: string;
+  status?: {
+    qualityGateStatus: string;
+  };
 }
 
 export interface LongLivingBranch {
-  isMain: boolean;
+  isMain: false;
   name: string;
+  status?: {
+    qualityGateStatus: string;
+  };
   type: BranchType.LONG;
 }
 
 export interface ShortLivingBranch {
   isMain: false;
+  isOrphan?: true;
+  mergeBranch: string;
   name: string;
-  status: {
+  status?: {
     bugs: number;
     codeSmells: number;
     vulnerabilities: number;
@@ -55,15 +62,19 @@ export interface ComponentExtension {
 export interface Component {
   analysisDate: string;
   breadcrumbs: Array<{
+    key: string;
+    name: string;
     qualifier: string;
   }>;
   configuration: {};
   extensions?: ComponentExtension[];
   isFavorite: boolean;
   key: string;
-  organization: string;
   name: string;
+  organization: string;
+  path?: string;
   qualifier: string;
+  refKey?: string;
   version: string;
 }
 

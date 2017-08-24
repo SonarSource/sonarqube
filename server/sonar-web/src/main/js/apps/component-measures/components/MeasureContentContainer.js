@@ -20,18 +20,21 @@
 // @flow
 import React from 'react';
 import MeasureContent from './MeasureContent';
+import { getBranchName } from '../../../helpers/branches';
 /*:: import type { Component, Period, Query } from '../types'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 /*:: import type { RawQuery } from '../../../helpers/query'; */
 
 /*:: type Props = {|
+  branch: {},
   className?: string,
   currentUser: { isLoggedIn: boolean },
   rootComponent: Component,
   fetchMeasures: (
     component: string,
-    metricsKey: Array<string>
+    metricsKey: Array<string>,
+    branch: string | null
   ) => Promise<{ component: Component, measures: Array<MeasureEnhanced> }>,
   leakPeriod?: Period,
   metric: Metric,
@@ -87,7 +90,7 @@ export default class MeasureContentContainer extends React.PureComponent {
     this.mounted = false;
   }
 
-  fetchMeasure = ({ rootComponent, fetchMeasures, metric, selected } /*: Props */) => {
+  fetchMeasure = ({ branch, rootComponent, fetchMeasures, metric, selected } /*: Props */) => {
     this.updateLoading({ measure: true });
 
     const metricKeys = [metric.key];
@@ -99,7 +102,7 @@ export default class MeasureContentContainer extends React.PureComponent {
       metricKeys.push('file_complexity_distribution');
     }
 
-    fetchMeasures(selected || rootComponent.key, metricKeys).then(
+    fetchMeasures(selected || rootComponent.key, metricKeys, getBranchName(branch)).then(
       ({ component, measures }) => {
         if (this.mounted) {
           const measure = measures.find(measure => measure.metric.key === metric.key);
@@ -132,6 +135,7 @@ export default class MeasureContentContainer extends React.PureComponent {
 
     return (
       <MeasureContent
+        branch={this.props.branch}
         className={this.props.className}
         component={this.state.component}
         currentUser={this.props.currentUser}
