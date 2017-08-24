@@ -26,7 +26,6 @@ import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import Rating from './../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
 import Tooltip from '../../../components/controls/Tooltip';
-import { getBranchName } from '../../../helpers/branches';
 import {
   formatMeasure,
   formatMeasureVariation,
@@ -69,7 +68,7 @@ export default function enhance(ComposedComponent) {
             </span>
             <Link
               className="button button-small button-compact spacer-left text-text-bottom"
-              to={getComponentDrilldownUrl(component.key, domain, getBranchName(branch))}>
+              to={getComponentDrilldownUrl(component.key, domain, branch)}>
               <BubblesIcon size={14} />
             </Link>
           </div>
@@ -88,10 +87,7 @@ export default function enhance(ComposedComponent) {
       return (
         <div className="overview-domain-measure">
           <div className="overview-domain-measure-value">
-            <DrilldownLink
-              branch={getBranchName(branch)}
-              component={component.key}
-              metric={metricKey}>
+            <DrilldownLink branch={branch} component={component.key} metric={metricKey}>
               <span className="js-overview-main-tests">
                 {formatMeasure(measure.value, getShortType(measure.metric.type))}
               </span>
@@ -140,7 +136,7 @@ export default function enhance(ComposedComponent) {
         <Tooltip overlay={title} placement="top">
           <div className="overview-domain-measure-sup">
             <DrilldownLink
-              branch={getBranchName(branch)}
+              branch={branch}
               className="link-no-underline"
               component={component.key}
               metric={metricKey}>
@@ -155,11 +151,7 @@ export default function enhance(ComposedComponent) {
       const { branch, measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metric);
       const value = this.getValue(measure);
-      const params = {
-        branch: getBranchName(branch),
-        resolved: 'false',
-        types: type
-      };
+      const params = { branch, resolved: 'false', types: type };
       if (isDiffMetric(metric)) {
         Object.assign(params, { sinceLeakPeriod: 'true' });
       }
@@ -180,11 +172,7 @@ export default function enhance(ComposedComponent) {
       return (
         <Link
           className={linkClass}
-          to={getComponentMeasureHistory(
-            this.props.component.key,
-            metricKey,
-            getBranchName(this.props.branch)
-          )}>
+          to={getComponentMeasureHistory(this.props.component.key, metricKey, this.props.branch)}>
           <HistoryIcon />
         </Link>
       );

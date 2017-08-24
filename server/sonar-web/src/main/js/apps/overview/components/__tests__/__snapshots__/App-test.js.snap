@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders SourceViewer with branch 1`] = `
+<div
+  className="page page-limited"
+>
+  <Connect(SourceViewerBase)
+    branch="b"
+    component="foo"
+  />
+</div>
+`;
