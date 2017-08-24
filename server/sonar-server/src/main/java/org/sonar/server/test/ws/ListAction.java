@@ -48,7 +48,11 @@ import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsTests;
 
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.web.UserRole.*;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class ListAction implements TestsWsAction {
@@ -58,6 +62,7 @@ public class ListAction implements TestsWsAction {
   public static final String SOURCE_FILE_ID = "sourceFileId";
   public static final String SOURCE_FILE_KEY = "sourceFileKey";
   public static final String SOURCE_FILE_LINE_NUMBER = "sourceFileLineNumber";
+  public static final String PARAM_BRANCH = "branch";
 
   private final DbClient dbClient;
   private final TestIndex testIndex;
@@ -123,6 +128,12 @@ public class ListAction implements TestsWsAction {
       .createParam(SOURCE_FILE_LINE_NUMBER)
       .setDescription("Source file line number. Must be provided with the source file ID or key.")
       .setExampleValue("10");
+
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setSince("6.6")
+      .setInternal(true)
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 
   @Override
@@ -132,15 +143,16 @@ public class ListAction implements TestsWsAction {
     String testFileKey = request.param(TEST_FILE_KEY);
     String sourceFileUuid = request.param(SOURCE_FILE_ID);
     String sourceFileKey = request.param(SOURCE_FILE_KEY);
+    String branch = request.param(PARAM_BRANCH);
     Integer sourceFileLineNumber = request.paramAsInt(SOURCE_FILE_LINE_NUMBER);
     SearchOptions searchOptions = new SearchOptions().setPage(
-      request.mandatoryParamAsInt(WebService.Param.PAGE),
-      request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE));
+      request.mandatoryParamAsInt(PAGE),
+      request.mandatoryParamAsInt(PAGE_SIZE));
 
     SearchResult<TestDoc> tests;
     Map<String, ComponentDto> componentsByTestFileUuid;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      tests = searchTests(dbSession, testUuid, testFileUuid, testFileKey, sourceFileUuid, sourceFileKey, sourceFileLineNumber, searchOptions);
+      tests = searchTests(dbSession, testUuid, testFileUuid, testFileKey, sourceFileUuid, sourceFileKey, branch, sourceFileLineNumber, searchOptions);
       componentsByTestFileUuid = buildComponentsByTestFileUuid(dbSession, tests.getDocs());
     }
 
@@ -194,22 +206,30 @@ public class ListAction implements TestsWsAction {
   }
 
   private SearchResult<TestDoc> searchTests(DbSession dbSession, @Nullable String testUuid, @Nullable String testFileUuid, @Nullable String testFileKey,
-    @Nullable String sourceFileUuid, @Nullable String sourceFileKey, @Nullable Integer sourceFileLineNumber, SearchOptions searchOptions) {
+    @Nullable String sourceFileUuid, @Nullable String sourceFileKey, @Nullable String branch, @Nullable Integer sourceFileLineNumber, SearchOptions searchOptions) {
     if (testUuid != null) {
-      return searchTestsByTestUuid(dbSession, testUuid, searchOptions);
+      TestDoc testDoc = checkFoundWithOptional(testIndex.getNullableByTestUuid(testUuid), "Test with id '%s' is not found", testUuid);
+      checkComponentUuidPermission(dbSession, testDoc.fileUuid());
+      return testIndex.searchByTestUuid(testUuid, searchOptions);
     }
     if (testFileUuid != null) {
-      return searchTestsByTestFileUuid(dbSession, testFileUuid, searchOptions);
+      checkComponentUuidPermission(dbSession, testFileUuid);
+      return testIndex.searchByTestFileUuid(testFileUuid, searchOptions);
     }
     if (testFileKey != null) {
-      return searchTestsByTestFileKey(dbSession, testFileKey, searchOptions);
+      ComponentDto testFile = componentFinder.getByKeyAndOptionalBranch(dbSession, testFileKey, branch);
+      userSession.checkComponentPermission(CODEVIEWER, testFile);
+      return testIndex.searchByTestFileUuid(testFile.uuid(), searchOptions);
     }
     if (sourceFileUuid != null && sourceFileLineNumber != null) {
-      return searchTestsBySourceFileUuidAndLineNumber(dbSession, sourceFileUuid, sourceFileLineNumber, searchOptions);
+      ComponentDto sourceFile = componentFinder.getByUuid(dbSession, sourceFileUuid);
+      userSession.checkComponentPermission(CODEVIEWER, sourceFile);
+      return testIndex.searchBySourceFileUuidAndLineNumber(sourceFile.uuid(), sourceFileLineNumber, searchOptions);
     }
     if (sourceFileKey != null && sourceFileLineNumber != null) {
-      ComponentDto component = componentFinder.getByKey(dbSession, sourceFileKey);
-      return searchTestsBySourceFileUuidAndLineNumber(dbSession, component.uuid(), sourceFileLineNumber, searchOptions);
+      ComponentDto sourceFile = componentFinder.getByKeyAndOptionalBranch(dbSession, sourceFileKey, branch);
+      userSession.checkComponentPermission(CODEVIEWER, sourceFile);
+      return testIndex.searchBySourceFileUuidAndLineNumber(sourceFile.uuid(), sourceFileLineNumber, searchOptions);
     }
 
     throw new IllegalArgumentException(
@@ -217,31 +237,9 @@ public class ListAction implements TestsWsAction {
         "3) test file key. 4) source file ID or key with a source file line number.");
   }
 
-  private SearchResult<TestDoc> searchTestsBySourceFileUuidAndLineNumber(DbSession dbSession, String sourceFileUuid, Integer sourceFileLineNumber, SearchOptions searchOptions) {
-    checkComponentUuidPermission(dbSession, sourceFileUuid);
-    return testIndex.searchBySourceFileUuidAndLineNumber(sourceFileUuid, sourceFileLineNumber, searchOptions);
-  }
-
-  private SearchResult<TestDoc> searchTestsByTestFileKey(DbSession dbSession, String testFileKey, SearchOptions searchOptions) {
-    ComponentDto testFile = componentFinder.getByKey(dbSession, testFileKey);
-    userSession.checkComponentPermission(UserRole.CODEVIEWER, testFile);
-    return testIndex.searchByTestFileUuid(testFile.uuid(), searchOptions);
-  }
-
-  private SearchResult<TestDoc> searchTestsByTestFileUuid(DbSession dbSession, String testFileUuid, SearchOptions searchOptions) {
-    checkComponentUuidPermission(dbSession, testFileUuid);
-    return testIndex.searchByTestFileUuid(testFileUuid, searchOptions);
-  }
-
-  private SearchResult<TestDoc> searchTestsByTestUuid(DbSession dbSession, String testUuid, SearchOptions searchOptions) {
-    TestDoc testDoc = checkFoundWithOptional(testIndex.getNullableByTestUuid(testUuid), "Test with id '%s' is not found", testUuid);
-    checkComponentUuidPermission(dbSession, testDoc.fileUuid());
-    return testIndex.searchByTestUuid(testUuid, searchOptions);
-  }
-
   private void checkComponentUuidPermission(DbSession dbSession, String componentUuid) {
     ComponentDto component = componentFinder.getByUuid(dbSession, componentUuid);
-    userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
+    userSession.checkComponentPermission(CODEVIEWER, component);
   }
 
   private static class TestToFileUuidFunction implements Function<TestDoc, String> {

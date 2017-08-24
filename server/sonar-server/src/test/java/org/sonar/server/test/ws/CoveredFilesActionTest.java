@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -40,6 +41,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
@@ -70,6 +72,17 @@ public class CoveredFilesActionTest {
     testIndex = mock(TestIndex.class, RETURNS_DEEP_STUBS);
 
     ws = new WsActionTester(new CoveredFilesAction(dbClient, testIndex, userSessionRule));
+  }
+
+  @Test
+  public void define_covered_files() {
+    WebService.Action action = ws.getDef();
+    assertThat(action).isNotNull();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test
