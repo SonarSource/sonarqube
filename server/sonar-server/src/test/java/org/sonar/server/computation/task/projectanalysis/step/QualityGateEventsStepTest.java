@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.notifications.Notification;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
@@ -64,6 +64,9 @@ public class QualityGateEventsStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
+  @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
+
   private ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
   private ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
 
@@ -73,13 +76,12 @@ public class QualityGateEventsStepTest {
   private MeasureRepository measureRepository = mock(MeasureRepository.class);
   private EventRepository eventRepository = mock(EventRepository.class);
   private NotificationService notificationService = mock(NotificationService.class);
-  private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
   private QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationService, analysisMetadataHolder);
 
   @Before
   public void setUp() {
     when(metricRepository.getByKey(ALERT_STATUS_KEY)).thenReturn(alertStatusMetric);
-    when(analysisMetadataHolder.getBranch()).thenReturn(java.util.Optional.empty());
+    analysisMetadataHolder.setBranch(null);
     treeRootHolder.setRoot(PROJECT_COMPONENT);
   }
 
@@ -248,7 +250,7 @@ public class QualityGateEventsStepTest {
   @Test
   public void verify_branch_name_is_set_in_notification() {
     String branchName = "feature1";
-    when(analysisMetadataHolder.getBranch()).thenReturn(java.util.Optional.of(new DefaultBranchImpl(branchName)));
+    analysisMetadataHolder.setBranch(new DefaultBranchImpl(branchName));
 
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(WARN_QUALITY_GATE_STATUS).createNoValue()));
     when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(
