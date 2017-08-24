@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
 import Truncated from './Truncated';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
+import { Component } from '../types';
 
-function getTooltip(component) {
+function getTooltip(component: Component) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
   if (isFile && component.path) {
     return component.path + '\n\n' + component.key;
@@ -31,7 +32,7 @@ function getTooltip(component) {
   }
 }
 
-function mostCommitPrefix(strings) {
+function mostCommitPrefix(strings: string[]) {
   const sortedStrings = strings.slice(0).sort();
   const firstString = sortedStrings[0];
   const firstStringLength = firstString.length;
@@ -46,9 +47,21 @@ function mostCommitPrefix(strings) {
   return prefix.substr(0, prefix.length - lastPrefixPart.length);
 }
 
-const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
+interface Props {
+  branch?: string;
+  canBrowse?: boolean;
+  component: Component;
+  previous?: Component;
+  rootComponent: Component;
+}
+
+export default function ComponentName(props: Props) {
+  const { branch, component, rootComponent, previous, canBrowse = false } = props;
   const areBothDirs = component.qualifier === 'DIR' && previous && previous.qualifier === 'DIR';
-  const prefix = areBothDirs ? mostCommitPrefix([component.name + '/', previous.name + '/']) : '';
+  const prefix =
+    areBothDirs && previous != undefined
+      ? mostCommitPrefix([component.name + '/', previous.name + '/'])
+      : '';
   const name = prefix
     ? <span>
         <span style={{ color: '#777' }}>
@@ -71,7 +84,7 @@ const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
       </Link>
     );
   } else if (canBrowse) {
-    const query = { id: rootComponent.key, branch: rootComponent.branch };
+    const query = { id: rootComponent.key, branch };
     if (component.key !== rootComponent.key) {
       Object.assign(query, { selected: component.key });
     }
@@ -93,6 +106,4 @@ const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
       {inner}
     </Truncated>
   );
-};
-
-export default ComponentName;
+}

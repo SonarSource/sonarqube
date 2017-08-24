@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Branch } from '../../../types';
+import Level from '../../../../components/ui/Level';
 import BugIcon from '../../../../components/icons-components/BugIcon';
 import CodeSmellIcon from '../../../../components/icons-components/CodeSmellIcon';
 import VulnerabilityIcon from '../../../../components/icons-components/VulnerabilityIcon';
@@ -32,42 +33,50 @@ interface Props {
 }
 
 export default function BranchStatus({ branch, concise = false }: Props) {
-  // TODO handle long-living branches
-  if (!isShortLivingBranch(branch)) {
-    return null;
+  if (isShortLivingBranch(branch)) {
+    if (!branch.status) {
+      return null;
+    }
+
+    const totalIssues =
+      branch.status.bugs + branch.status.vulnerabilities + branch.status.codeSmells;
+
+    return (
+      <ul className="list-inline branch-status">
+        <li>
+          <i
+            className={classNames('branch-status-indicator', {
+              'is-failed': totalIssues > 0,
+              'is-passed': totalIssues === 0
+            })}
+          />
+        </li>
+        {concise &&
+          <li>
+            {totalIssues}
+          </li>}
+        {!concise &&
+          <li>
+            {branch.status.bugs}
+            <BugIcon className="little-spacer-left" />
+          </li>}
+        {!concise &&
+          <li>
+            {branch.status.vulnerabilities}
+            <VulnerabilityIcon className="little-spacer-left" />
+          </li>}
+        {!concise &&
+          <li>
+            {branch.status.codeSmells}
+            <CodeSmellIcon className="little-spacer-left" />
+          </li>}
+      </ul>
+    );
+  } else {
+    if (!branch.status) {
+      return null;
+    }
+
+    return <Level level={branch.status.qualityGateStatus} small={true} />;
   }
-
-  const totalIssues = branch.status.bugs + branch.status.vulnerabilities + branch.status.codeSmells;
-
-  return (
-    <ul className="list-inline branch-status">
-      <li>
-        <i
-          className={classNames('branch-status-indicator', {
-            'is-failed': totalIssues > 0,
-            'is-passed': totalIssues === 0
-          })}
-        />
-      </li>
-      {concise &&
-        <li>
-          {totalIssues}
-        </li>}
-      {!concise &&
-        <li>
-          {branch.status.bugs}
-          <BugIcon className="little-spacer-left" />
-        </li>}
-      {!concise &&
-        <li>
-          {branch.status.vulnerabilities}
-          <VulnerabilityIcon className="little-spacer-left" />
-        </li>}
-      {!concise &&
-        <li>
-          {branch.status.codeSmells}
-          <CodeSmellIcon className="little-spacer-left" />
-        </li>}
-    </ul>
-  );
 }

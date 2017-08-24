@@ -17,26 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Workspace from '../../../components/workspace/main';
-import PinIcon from '../../../components/shared/pin-icon';
-import { translate } from '../../../helpers/l10n';
+import * as React from 'react';
 
-const ComponentPin = ({ branch, component }) => {
-  const handleClick = e => {
-    e.preventDefault();
-    Workspace.openComponent({ branch, key: component.key });
-  };
+interface Props {
+  children: React.ReactNode;
+  title: string;
+}
 
+export default function Truncated({ children, title }: Props) {
   return (
-    <a
-      className="link-no-underline"
-      onClick={handleClick}
-      title={translate('component_viewer.open_in_workspace')}
-      href="#">
-      <PinIcon />
-    </a>
+    <span className="code-truncated" title={title}>
+      {children}
+    </span>
   );
-};
-
-export default ComponentPin;
+}

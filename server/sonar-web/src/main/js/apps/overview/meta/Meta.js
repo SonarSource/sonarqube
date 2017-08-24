@@ -31,6 +31,7 @@ import MetaTags from './MetaTags';
 import { areThereCustomOrganizations } from '../../../store/rootReducer';
 
 const Meta = ({
+  branch,
   component,
   history,
   measures,
@@ -58,12 +59,13 @@ const Meta = ({
           {description}
         </div>}
 
-      <MetaSize component={component} measures={measures} />
+      <MetaSize branch={branch} component={component} measures={measures} />
 
       {isProject && <MetaTags component={component} onComponentChange={onComponentChange} />}
 
       {(isProject || isApplication) &&
         <AnalysesList
+          branch={branch}
           project={component.key}
           qualifier={component.qualifier}
           history={history}

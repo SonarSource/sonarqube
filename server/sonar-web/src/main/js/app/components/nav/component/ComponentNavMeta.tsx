@@ -25,6 +25,7 @@ import { Branch, Component, ComponentConfiguration } from '../../../types';
 import Tooltip from '../../../../components/controls/Tooltip';
 import PendingIcon from '../../../../components/icons-components/PendingIcon';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { isShortLivingBranch } from '../../../../helpers/branches';
 
 interface Props {
   branch: Branch;
@@ -105,7 +106,7 @@ export default function ComponentNavMeta(props: Props) {
     );
   }
 
-  if (!props.branch.isMain) {
+  if (isShortLivingBranch(props.branch)) {
     metaList.push(
       <li className="navbar-context-meta-branch" key="branch-status">
         <BranchStatus branch={props.branch} />

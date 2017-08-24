@@ -20,6 +20,7 @@
 import React from 'react';
 import enhance from './enhance';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
+import { getBranchName } from '../../../helpers/branches';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure, getPeriodValue } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
@@ -55,7 +56,7 @@ class Coverage extends React.PureComponent {
   }
 
   renderCoverage() {
-    const { component } = this.props;
+    const { branch, component } = this.props;
     const metric = 'coverage';
     const coverage = this.getCoverage();
 
@@ -67,7 +68,7 @@ class Coverage extends React.PureComponent {
 
         <div className="display-inline-block text-middle">
           <div className="overview-domain-measure-value">
-            <DrilldownLink component={component.key} metric={metric}>
+            <DrilldownLink branch={getBranchName(branch)} component={component.key} metric={metric}>
               <span className="js-overview-main-coverage">
                 {formatMeasure(coverage, 'PERCENT')}
               </span>
@@ -84,7 +85,8 @@ class Coverage extends React.PureComponent {
   }
 
   renderNewCoverage() {
-    const { component, leakPeriod } = this.props;
+    const { branch, component, leakPeriod } = this.props;
+    const branchName = getBranchName(branch);
     const newCoverageMeasure = this.getNewCoverageMeasure();
     const newLinesToCover = this.getNewLinesToCover();
 
@@ -98,7 +100,10 @@ class Coverage extends React.PureComponent {
     const formattedValue =
       newCoverageValue != null
         ? <div>
-            <DrilldownLink component={component.key} metric={newCoverageMeasure.metric.key}>
+            <DrilldownLink
+              branch={branchName}
+              component={component.key}
+              metric={newCoverageMeasure.metric.key}>
               <span className="js-overview-main-new-coverage">
                 {formatMeasure(newCoverageValue, 'PERCENT')}
               </span>
@@ -111,6 +116,7 @@ class Coverage extends React.PureComponent {
             {translate('overview.coverage_on')}
             <br />
             <DrilldownLink
+              branch={branchName}
               className="spacer-right overview-domain-secondary-measure-value"
               component={component.key}
               metric={newLinesToCover.metric.key}>
@@ -132,6 +138,7 @@ class Coverage extends React.PureComponent {
       </div>
     );
   }
+
   renderNutshell() {
     return (
       <div className="overview-domain-nutshell">
@@ -144,6 +151,7 @@ class Coverage extends React.PureComponent {
       </div>
     );
   }
+
   renderLeak() {
     const { leakPeriod } = this.props;
     if (leakPeriod == null) {

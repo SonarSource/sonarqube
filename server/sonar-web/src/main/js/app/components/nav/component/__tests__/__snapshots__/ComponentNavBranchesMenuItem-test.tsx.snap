@@ -19,6 +19,12 @@ exports[`renders main branch 1`] = `
   >
     <div>
       <BranchIcon
+        branch={
+          Object {
+            "isMain": true,
+            "name": "master",
+          }
+        }
         className="little-spacer-right"
       />
       master
@@ -30,8 +36,7 @@ exports[`renders main branch 1`] = `
         branch={
           Object {
             "isMain": true,
-            "name": undefined,
-            "type": "LONG",
+            "name": "master",
           }
         }
         concise={true}
@@ -62,6 +67,19 @@ exports[`renders short-living branch 1`] = `
   >
     <div>
       <BranchIcon
+        branch={
+          Object {
+            "isMain": false,
+            "mergeBranch": "master",
+            "name": "foo",
+            "status": Object {
+              "bugs": 1,
+              "codeSmells": 2,
+              "vulnerabilities": 3,
+            },
+            "type": "SHORT",
+          }
+        }
         className="little-spacer-right big-spacer-left"
       />
       foo
@@ -73,6 +91,71 @@ exports[`renders short-living branch 1`] = `
         branch={
           Object {
             "isMain": false,
+            "mergeBranch": "master",
+            "name": "foo",
+            "status": Object {
+              "bugs": 1,
+              "codeSmells": 2,
+              "vulnerabilities": 3,
+            },
+            "type": "SHORT",
+          }
+        }
+        concise={true}
+      />
+    </div>
+  </Link>
+</li>
+`;
+
+exports[`renders short-living orhpan branch 1`] = `
+<li
+  onMouseEnter={[Function]}
+>
+  <Link
+    className="navbar-context-meta-branch-menu-item"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "branch": "foo",
+          "id": "component",
+          "resolved": "false",
+        },
+      }
+    }
+  >
+    <div>
+      <BranchIcon
+        branch={
+          Object {
+            "isMain": false,
+            "isOrphan": true,
+            "mergeBranch": "master",
+            "name": "foo",
+            "status": Object {
+              "bugs": 1,
+              "codeSmells": 2,
+              "vulnerabilities": 3,
+            },
+            "type": "SHORT",
+          }
+        }
+        className="little-spacer-right"
+      />
+      foo
+    </div>
+    <div
+      className="big-spacer-left note"
+    >
+      <BranchStatus
+        branch={
+          Object {
+            "isMain": false,
+            "isOrphan": true,
+            "mergeBranch": "master",
             "name": "foo",
             "status": Object {
               "bugs": 1,
