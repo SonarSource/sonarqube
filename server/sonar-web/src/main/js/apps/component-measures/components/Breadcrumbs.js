@@ -22,12 +22,11 @@ import React from 'react';
 import key from 'keymaster';
 import Breadcrumb from './Breadcrumb';
 import { getBreadcrumbs } from '../../../api/components';
-import { getBranchName } from '../../../helpers/branches';
 /*:: import type { Component } from '../types'; */
 
 /*:: type Props = {|
   backToFirst: boolean,
-  branch: {},
+  branch?: string,
   className?: string,
   component: Component,
   handleSelect: string => void,
@@ -85,7 +84,7 @@ export default class Breadcrumbs extends React.PureComponent {
       }
       return;
     }
-    getBreadcrumbs(component.key, getBranchName(branch)).then(breadcrumbs => {
+    getBreadcrumbs(component.key, branch).then(breadcrumbs => {
       if (this.mounted) {
         this.setState({ breadcrumbs });
       }

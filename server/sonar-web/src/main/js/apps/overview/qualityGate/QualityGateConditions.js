@@ -22,7 +22,6 @@ import { sortBy } from 'lodash';
 import QualityGateCondition from './QualityGateCondition';
 import { ComponentType, ConditionsListType } from '../propTypes';
 import { getMeasuresAndMeta } from '../../../api/measures';
-import { getBranchName } from '../../../helpers/branches';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 
 const LEVEL_ORDER = ['ERROR', 'WARN'];
@@ -71,7 +70,7 @@ export default class QualityGateConditions extends React.PureComponent {
       const metrics = failedConditions.map(condition => condition.metric);
       getMeasuresAndMeta(component.key, metrics, {
         additionalFields: 'metrics',
-        branch: getBranchName(branch)
+        branch
       }).then(r => {
         if (this.mounted) {
           const measures = enhanceMeasuresWithMetrics(r.component.measures, r.metrics);
