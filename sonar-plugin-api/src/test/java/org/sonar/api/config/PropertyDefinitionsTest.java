@@ -21,22 +21,29 @@ package org.sonar.api.config;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.IntStream;
+import org.apache.commons.lang.RandomStringUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.resources.Qualifiers;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PropertyDefinitionsTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void should_build_with_predefined_list_of_definitions() {
     List<PropertyDefinition> list = Arrays.asList(
       PropertyDefinition.builder("foo").name("Foo").build(),
       PropertyDefinition.builder("one").name("One").build(),
-      PropertyDefinition.builder("two").name("Two").defaultValue("2").build()
-    );
+      PropertyDefinition.builder("two").name("Two").defaultValue("2").build());
     PropertyDefinitions def = new PropertyDefinitions(list);
 
     assertProperties(def);
@@ -47,8 +54,7 @@ public class PropertyDefinitionsTest {
     PropertyDefinitions def = new PropertyDefinitions(
       PropertyDefinition.builder("foo").name("Foo").build(),
       PropertyDefinition.builder("one").name("One").build(),
-      PropertyDefinition.builder("two").name("Two").defaultValue("2").build()
-    );
+      PropertyDefinition.builder("two").name("Two").defaultValue("2").build());
 
     assertProperties(def);
   }
@@ -71,8 +77,7 @@ public class PropertyDefinitionsTest {
   public void test_categories() {
     PropertyDefinitions def = new PropertyDefinitions(
       PropertyDefinition.builder("inCateg").name("In Categ").category("categ").build(),
-      PropertyDefinition.builder("noCateg").name("No categ").build()
-    );
+      PropertyDefinition.builder("noCateg").name("No categ").build());
 
     assertThat(def.getCategory("inCateg")).isEqualTo("categ");
     assertThat(def.getCategory("noCateg")).isEmpty();
@@ -125,8 +130,7 @@ public class PropertyDefinitionsTest {
       PropertyDefinition.builder("project").name("Project").category("catProject").onlyOnQualifiers(Qualifiers.PROJECT).build(),
       PropertyDefinition.builder("module").name("Module").category("catModule").onlyOnQualifiers(Qualifiers.MODULE).build(),
       PropertyDefinition.builder("view").name("View").category("catView").onlyOnQualifiers(Qualifiers.VIEW).build(),
-      PropertyDefinition.builder("app").name("Application").category("catApp").onlyOnQualifiers(Qualifiers.APP).build()
-    );
+      PropertyDefinition.builder("app").name("Application").category("catApp").onlyOnQualifiers(Qualifiers.APP).build());
 
     assertThat(def.propertiesByCategory(null).keySet()).contains(new Category("catGlobal1"), new Category("catGlobal2"));
     assertThat(def.propertiesByCategory(Qualifiers.PROJECT).keySet()).containsOnly(new Category("catProject"));
@@ -142,8 +146,7 @@ public class PropertyDefinitionsTest {
       PropertyDefinition.builder("global1").name("Global1").category("catGlobal1").subCategory("sub1").build(),
       PropertyDefinition.builder("global2").name("Global2").category("catGlobal1").subCategory("sub2").build(),
       PropertyDefinition.builder("global3").name("Global3").category("catGlobal1").build(),
-      PropertyDefinition.builder("global4").name("Global4").category("catGlobal2").build()
-    );
+      PropertyDefinition.builder("global4").name("Global4").category("catGlobal2").build());
 
     assertThat(def.propertiesByCategory(null).get(new Category("catGlobal1")).keySet()).containsOnly(new SubCategory("catGlobal1"), new SubCategory("sub1"),
       new SubCategory("sub2"));
@@ -169,6 +172,48 @@ public class PropertyDefinitionsTest {
     assertThat(definitions.getDefaultValue("two")).isEqualTo("2");
 
     assertThat(definitions.getAll().size()).isEqualTo(3);
+  }
+
+  @Test
+  public void validKey_throws_NPE_if_key_is_null() {
+    PropertyDefinitions underTest = new PropertyDefinitions();
+
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("key can't be null");
+
+    underTest.validKey(null);
+  }
+
+  @Test
+  public void get_throws_NPE_if_key_is_null() {
+    PropertyDefinitions underTest = new PropertyDefinitions();
+
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("key can't be null");
+
+    underTest.get(null);
+  }
+
+  @Test
+  public void get_trims_key_before_looking_for_replacement() {
+    Random random = new Random();
+    String key = RandomStringUtils.randomAlphanumeric(4);
+    String deprecatedKey = RandomStringUtils.randomAlphanumeric(4);
+    PropertyDefinitions underTest = new PropertyDefinitions(singletonList(
+      PropertyDefinition.builder(key)
+        .deprecatedKey(deprecatedKey)
+        .build()));
+
+    String untrimmedKey = blank(random) + deprecatedKey + blank(random);
+    assertThat(underTest.get(untrimmedKey).key())
+        .describedAs("expecting key %s being returned for get(%s)", key, untrimmedKey)
+        .isEqualTo(key);
+  }
+
+  private static String blank(Random random) {
+    StringBuilder b = new StringBuilder();
+    IntStream.range(0, random.nextInt(3)).mapToObj(s -> " ").forEach(b::append);
+    return b.toString();
   }
 
   @Property(key = "foo", name = "Foo")

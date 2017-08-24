@@ -53,16 +53,22 @@ public abstract class DefaultConfiguration implements Configuration {
   private final PropertyDefinitions definitions;
   private final Encryption encryption;
   private final GlobalAnalysisMode mode;
-  private final Map<String, String> properties = new HashMap<>();
+  private final Map<String, String> properties;
 
   public DefaultConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, GlobalAnalysisMode mode, Map<String, String> props) {
     this.definitions = requireNonNull(propertyDefinitions);
     this.encryption = encryption;
     this.mode = mode;
+    this.properties = unmodifiableMapWithTrimmedValues(definitions, props);
+  }
+
+  protected static Map<String, String> unmodifiableMapWithTrimmedValues(PropertyDefinitions definitions, Map<String, String> props) {
+    Map<String, String> map = new HashMap<>(props.size());
     props.forEach((k, v) -> {
       String validKey = definitions.validKey(k);
-      properties.put(validKey, trim(v));
+      map.put(validKey, trim(v));
     });
+    return Collections.unmodifiableMap(map);
   }
 
   public GlobalAnalysisMode getMode() {
@@ -78,7 +84,7 @@ public abstract class DefaultConfiguration implements Configuration {
   }
 
   public Map<String, String> getProperties() {
-    return Collections.unmodifiableMap(properties);
+    return properties;
   }
 
   @Override

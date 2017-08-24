@@ -35,6 +35,8 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.AnnotationUtils;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Metadata of all the properties declared by plugins
  *
@@ -127,7 +129,9 @@ public final class PropertyDefinitions {
   }
 
   public String validKey(String key) {
-    return StringUtils.defaultString(deprecatedKeys.get(key), key);
+    requireNonNull(key, "key can't be null");
+    String trimmedKey = key.trim();
+    return StringUtils.defaultString(deprecatedKeys.get(trimmedKey), trimmedKey);
   }
 
   /**

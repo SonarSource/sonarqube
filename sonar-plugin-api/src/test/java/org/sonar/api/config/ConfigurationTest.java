@@ -82,7 +82,7 @@ public class ConfigurationTest {
     private final Map<String, String> keyValues = new HashMap<>();
 
     public Configuration put(String key, String value) {
-      keyValues.put(key, value);
+      keyValues.put(key, value.trim());
       return this;
     }
 

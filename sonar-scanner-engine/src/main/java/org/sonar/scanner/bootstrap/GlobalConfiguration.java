@@ -20,7 +20,6 @@
 package org.sonar.scanner.bootstrap;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 import org.slf4j.Logger;
@@ -50,14 +49,14 @@ public class GlobalConfiguration extends DefaultConfiguration {
   public GlobalConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, GlobalAnalysisMode mode,
     Map<String, String> settings, Map<String, String> serverSideSettings) {
     super(propertyDefinitions, encryption, mode, settings);
-    this.serverSideSettings = serverSideSettings;
+    this.serverSideSettings = unmodifiableMapWithTrimmedValues(propertyDefinitions, serverSideSettings);
 
     get(CoreProperties.PERMANENT_SERVER_ID).ifPresent(v -> LOG.info("Server id: {}", v));
     new DroppedPropertyChecker(getProperties(), DROPPED_PROPERTIES).checkDroppedProperties();
   }
 
   public Map<String, String> getServerSideSettings() {
-    return Collections.unmodifiableMap(serverSideSettings);
+    return serverSideSettings;
   }
 
 }

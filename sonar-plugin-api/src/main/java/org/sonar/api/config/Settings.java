@@ -60,6 +60,11 @@ public abstract class Settings {
 
   protected abstract Optional<String> get(String key);
 
+  /**
+   * Add the settings with the specified key and value, both are trimmed and neither can be null.
+   *
+   * @throws NullPointerException if {@code key} and/or {@code value} is {@code null}.
+   */
   protected abstract void set(String key, String value);
 
   protected abstract void remove(String key);
@@ -265,7 +270,8 @@ public abstract class Settings {
    * </ul>
    */
   public String[] getStringArray(String key) {
-    Optional<PropertyDefinition> def = getDefinition(key);
+    String effectiveKey = definitions.validKey(key);
+    Optional<PropertyDefinition> def = getDefinition(effectiveKey);
     if ((def.isPresent()) && (def.get().multiValues())) {
       String value = getString(key);
       if (value == null) {
@@ -324,7 +330,9 @@ public abstract class Settings {
   }
 
   public Settings setProperty(String key, @Nullable String[] values) {
-    Optional<PropertyDefinition> def = getDefinition(key);
+    requireNonNull(key, "key can't be null");
+    String effectiveKey = key.trim();
+    Optional<PropertyDefinition> def = getDefinition(effectiveKey);
     if (!def.isPresent() || (!def.get().multiValues())) {
       throw new IllegalStateException("Fail to set multiple values on a single value property " + key);
     }
@@ -361,7 +369,6 @@ public abstract class Settings {
     String validKey = definitions.validKey(key);
     if (value == null) {
       removeProperty(validKey);
-
     } else {
       set(validKey, trim(value));
     }

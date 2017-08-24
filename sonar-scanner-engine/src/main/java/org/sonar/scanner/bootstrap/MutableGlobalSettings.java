@@ -25,6 +25,8 @@ import java.util.Optional;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * @deprecated since 6.5 {@link GlobalConfiguration} used to be mutable, so keep a mutable copy for backward compatibility.
  */
@@ -56,7 +58,9 @@ public class MutableGlobalSettings extends Settings {
 
   @Override
   protected void set(String key, String value) {
-    mutableProperties.put(key, value);
+    mutableProperties.put(
+      requireNonNull(key, "key can't be null"),
+      requireNonNull(value, "value can't be null").trim());
   }
 
   @Override

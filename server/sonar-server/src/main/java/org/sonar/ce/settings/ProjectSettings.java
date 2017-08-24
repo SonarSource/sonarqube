@@ -25,6 +25,8 @@ import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Settings;
 
+import static java.util.Objects.requireNonNull;
+
 @ComputeEngineSide
 public class ProjectSettings extends Settings {
 
@@ -47,7 +49,9 @@ public class ProjectSettings extends Settings {
 
   @Override
   protected void set(String key, String value) {
-    projectProps.put(key, value);
+    projectProps.put(
+      requireNonNull(key, "key can't be null"),
+      requireNonNull(value, "value can't be null").trim());
   }
 
   @Override

@@ -30,6 +30,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.MutableGlobalSettings;
 import org.sonar.scanner.repository.ProjectRepositories;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * @deprecated since 6.5 {@link ModuleSettings} used to be mutable, so keep a mutable copy for backward compatibility.
  */
@@ -84,7 +86,9 @@ public class MutableModuleSettings extends Settings {
 
   @Override
   protected void set(String key, String value) {
-    properties.put(key, value);
+    properties.put(
+      requireNonNull(key, "key can't be null"),
+      requireNonNull(value, "value can't be null").trim());
   }
 
   @Override

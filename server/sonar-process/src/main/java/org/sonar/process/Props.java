@@ -31,7 +31,8 @@ public class Props {
   private final Encryption encryption;
 
   public Props(Properties props) {
-    this.properties = props;
+    this.properties = new Properties();
+    props.forEach((k, v) -> this.properties.put(k.toString().trim(), v == null ? null : v.toString().trim()));
     this.encryption = new Encryption(props.getProperty(AesCipher.ENCRYPTION_SECRET_KEY_PATH));
   }
 
@@ -41,7 +42,7 @@ public class Props {
 
   @CheckForNull
   public String value(String key) {
-    String value = valueImpl(key);
+    String value = properties.getProperty(key);
     if (value != null && encryption.isEncrypted(value)) {
       value = encryption.decrypt(value);
     }
@@ -110,18 +111,10 @@ public class Props {
   }
 
   public void setDefault(String key, String value) {
-    String s = valueImpl(key);
+    String s = properties.getProperty(key);
     if (StringUtils.isBlank(s)) {
       properties.setProperty(key, value);
     }
   }
 
-  @CheckForNull
-  private String valueImpl(String key) {
-    String value = properties.getProperty(key);
-    if (value == null) {
-      return null;
-    }
-    return value.trim();
-  }
 }

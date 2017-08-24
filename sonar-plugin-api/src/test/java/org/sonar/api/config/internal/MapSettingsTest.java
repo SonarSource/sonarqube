@@ -19,23 +19,37 @@
  */
 package org.sonar.api.config.internal;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
 import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
+import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.DateUtils;
 
+import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@RunWith(DataProviderRunner.class)
 public class MapSettingsTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private PropertyDefinitions definitions;
 
@@ -66,9 +80,130 @@ public class MapSettingsTest {
   }
 
   @Test
+  public void set_throws_NPE_if_key_is_null() {
+    MapSettings underTest = new MapSettings();
+
+    expectKeyNullNPE();
+
+    underTest.set(null, randomAlphanumeric(3));
+  }
+
+  @Test
+  public void set_throws_NPE_if_value_is_null() {
+    MapSettings underTest = new MapSettings();
+
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("value can't be null");
+
+    underTest.set(randomAlphanumeric(3), null);
+  }
+
+  @Test
+  public void set_accepts_empty_value_and_trims_it() {
+    MapSettings underTest = new MapSettings();
+    Random random = new Random();
+    String key = randomAlphanumeric(3);
+
+    underTest.set(key, blank(random));
+
+    assertThat(underTest.getString(key)).isEmpty();
+  }
+
+  @Test
   public void default_values_should_be_loaded_from_definitions() {
     Settings settings = new MapSettings(definitions);
     assertThat(settings.getDefaultValue("hello")).isEqualTo("world");
+  }
+
+  @Test
+  @UseDataProvider("setPropertyCalls")
+  public void all_setProperty_methods_throws_NPE_if_key_is_null(BiConsumer<Settings, String> setPropertyCaller) {
+    Settings settings = new MapSettings();
+
+    expectKeyNullNPE();
+
+    setPropertyCaller.accept(settings, null);
+  }
+
+  @Test
+  public void set_property_string_throws_NPE_if_key_is_null() {
+    String key = randomAlphanumeric(3);
+
+    Settings underTest = new MapSettings(new PropertyDefinitions(singletonList(PropertyDefinition.builder(key).multiValues(true).build())));
+
+    expectKeyNullNPE();
+
+    underTest.setProperty(null, new String[] {"1", "2"});
+  }
+
+  private void expectKeyNullNPE() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("key can't be null");
+  }
+
+  @Test
+  @UseDataProvider("setPropertyCalls")
+  public void all_set_property_methods_trims_key(BiConsumer<Settings, String> setPropertyCaller) {
+    Settings underTest = new MapSettings();
+
+    Random random = new Random();
+    String blankBefore = blank(random);
+    String blankAfter = blank(random);
+    String key = randomAlphanumeric(3);
+
+    setPropertyCaller.accept(underTest, blankBefore + key + blankAfter);
+
+    assertThat(underTest.hasKey(key)).isTrue();
+  }
+
+  @Test
+  public void set_property_string_array_trims_key() {
+    String key = randomAlphanumeric(3);
+
+    Settings underTest = new MapSettings(new PropertyDefinitions(singletonList(PropertyDefinition.builder(key).multiValues(true).build())));
+
+    Random random = new Random();
+    String blankBefore = blank(random);
+    String blankAfter = blank(random);
+
+    underTest.setProperty(blankBefore + key + blankAfter, new String[] {"1", "2"});
+
+    assertThat(underTest.hasKey(key)).isTrue();
+  }
+
+  private static String blank(Random random) {
+    StringBuilder b = new StringBuilder();
+    IntStream.range(0, random.nextInt(3)).mapToObj(s -> " ").forEach(b::append);
+    return b.toString();
+  }
+
+  @DataProvider
+  public static Object[][] setPropertyCalls() {
+    List<BiConsumer<Settings, String>> callers = Arrays.asList(
+      (settings, key) -> settings.setProperty(key, 123),
+      (settings, key) -> settings.setProperty(key, 123L),
+      (settings, key) -> settings.setProperty(key, 123.2F),
+      (settings, key) -> settings.setProperty(key, 123.2D),
+      (settings, key) -> settings.setProperty(key, false),
+      (settings, key) -> settings.setProperty(key, new Date()),
+      (settings, key) -> settings.setProperty(key, new Date(), true));
+
+    return callers.stream().map(t -> new Object[] {t}).toArray(Object[][]::new);
+  }
+
+  @Test
+  public void setProperty_methods_trims_value() {
+    Settings underTest = new MapSettings();
+
+    Random random = new Random();
+    String blankBefore = blank(random);
+    String blankAfter = blank(random);
+    String key = randomAlphanumeric(3);
+    String value = randomAlphanumeric(3);
+
+    underTest.setProperty(key, blankBefore + value + blankAfter);
+
+    assertThat(underTest.getString(key)).isEqualTo(value);
   }
 
   @Test

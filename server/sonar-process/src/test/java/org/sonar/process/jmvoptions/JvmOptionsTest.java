@@ -56,7 +56,6 @@ public class JvmOptionsTest {
   private final String randomPrefix = "-" + randomAlphabetic(5).toLowerCase(Locale.ENGLISH);
   private final String randomValue = randomAlphanumeric(4).toLowerCase(Locale.ENGLISH);
   private final Properties properties = new Properties();
-  private final Props props = new Props(properties);
   private final JvmOptions underTest = new JvmOptions();
 
   @Test
@@ -230,14 +229,14 @@ public class JvmOptionsTest {
   public void addFromMandatoryProperty_fails_with_IAE_if_property_does_not_exist() {
     expectMissingPropertyIAE(this.randomPropertyName);
 
-    underTest.addFromMandatoryProperty(props, this.randomPropertyName);
+    underTest.addFromMandatoryProperty(new Props(properties), this.randomPropertyName);
   }
 
   @Test
   public void addFromMandatoryProperty_fails_with_IAE_if_property_contains_an_empty_value() {
     expectMissingPropertyIAE(this.randomPropertyName);
 
-    underTest.addFromMandatoryProperty(props, randomPropertyName);
+    underTest.addFromMandatoryProperty(new Props(properties), randomPropertyName);
   }
 
   @Test
@@ -245,7 +244,7 @@ public class JvmOptionsTest {
   public void addFromMandatoryProperty_adds_single_option_of_property_with_trimming(String emptyString) {
     properties.put(randomPropertyName, emptyString + "-foo" + emptyString);
 
-    underTest.addFromMandatoryProperty(props, randomPropertyName);
+    underTest.addFromMandatoryProperty(new Props(properties), randomPropertyName);
 
     assertThat(underTest.getAll()).containsOnly("-foo");
   }
@@ -257,7 +256,7 @@ public class JvmOptionsTest {
 
     expectJvmOptionNotEmptyAndStartByDashMessageException(randomPropertyName, "foo");
 
-    underTest.addFromMandatoryProperty(props, randomPropertyName);
+    underTest.addFromMandatoryProperty(new Props(properties), randomPropertyName);
   }
 
   @Test
@@ -265,7 +264,7 @@ public class JvmOptionsTest {
   public void addFromMandatoryProperty_adds_options_of_property_with_trimming(String emptyString) {
     properties.put(randomPropertyName, emptyString + "-foo" + emptyString + " -bar" + emptyString + " -duck" + emptyString);
 
-    underTest.addFromMandatoryProperty(props, randomPropertyName);
+    underTest.addFromMandatoryProperty(new Props(properties), randomPropertyName);
 
     assertThat(underTest.getAll()).containsOnly("-foo", "-bar", "-duck");
   }
@@ -274,7 +273,7 @@ public class JvmOptionsTest {
   public void addFromMandatoryProperty_supports_spaces_inside_options() {
     properties.put(randomPropertyName, "-foo bar -duck");
 
-    underTest.addFromMandatoryProperty(props, randomPropertyName);
+    underTest.addFromMandatoryProperty(new Props(properties), randomPropertyName);
 
     assertThat(underTest.getAll()).containsOnly("-foo bar", "-duck");
   }
@@ -298,7 +297,7 @@ public class JvmOptionsTest {
     for (String optionOverride : optionOverrides) {
       try {
         properties.put(randomPropertyName, optionOverride);
-        underTest.addFromMandatoryProperty(props, randomPropertyName);
+        underTest.addFromMandatoryProperty(new Props(properties), randomPropertyName);
         fail("an MessageException should have been thrown");
       } catch (MessageException e) {
         assertThat(e.getMessage())
@@ -326,7 +325,7 @@ public class JvmOptionsTest {
 
     for (String optionOverride : optionOverrides) {
       properties.setProperty(randomPropertyName, optionOverride.toUpperCase(Locale.ENGLISH));
-      underTest.addFromMandatoryProperty(props, randomPropertyName);
+      underTest.addFromMandatoryProperty(new Props(properties), randomPropertyName);
     }
   }
 
@@ -343,7 +342,7 @@ public class JvmOptionsTest {
       "The following JVM options defined by property '" + randomPropertyName + "' are invalid: " +
       overriding1 + " overwrites " + randomPrefix + randomValue + ", " + overriding2 + " overwrites " + randomPrefix + randomValue);
 
-    underTest.addFromMandatoryProperty(props, randomPropertyName);
+    underTest.addFromMandatoryProperty(new Props(properties), randomPropertyName);
   }
 
   @Test
@@ -351,7 +350,7 @@ public class JvmOptionsTest {
     JvmOptions underTest = new JvmOptions(ImmutableMap.of(randomPrefix, randomValue));
 
     properties.put(randomPropertyName, randomPrefix + randomValue);
-    underTest.addFromMandatoryProperty(props, randomPropertyName);
+    underTest.addFromMandatoryProperty(new Props(properties), randomPropertyName);
 
     assertThat(underTest.getAll()).containsOnly(randomPrefix + randomValue);
   }

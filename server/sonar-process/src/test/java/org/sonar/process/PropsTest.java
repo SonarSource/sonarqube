@@ -25,6 +25,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -44,9 +45,25 @@ public class PropsTest {
 
   @Test
   @UseDataProvider("beforeAndAfterBlanks")
+  public void constructor_trims_key_and_values_from_Properties_argument(String blankBefore, String blankAfter) {
+    Properties properties = new Properties();
+    String key = RandomStringUtils.randomAlphanumeric(3);
+    String value = RandomStringUtils.randomAlphanumeric(3);
+    properties.put(blankBefore + key + blankAfter, blankBefore + value + blankAfter);
+
+    Props underTest = new Props(properties);
+
+    if (!blankBefore.isEmpty() || !blankAfter.isEmpty()) {
+      assertThat(underTest.contains(blankBefore + key + blankAfter)).isFalse();
+    }
+    assertThat(underTest.value(key)).isEqualTo(value);
+  }
+
+  @Test
+  @UseDataProvider("beforeAndAfterBlanks")
   public void value(String blankBefore, String blankAfter) {
     Properties p = new Properties();
-    p.setProperty("foo", blankBefore + "bar" + blankAfter);
+    p.setProperty(blankBefore + "foo" + blankAfter, blankBefore + "bar" + blankAfter);
     p.setProperty("blank", blankBefore + blankAfter);
     Props props = new Props(p);
 

@@ -28,6 +28,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 
 import static java.util.Collections.unmodifiableMap;
+import static java.util.Objects.requireNonNull;
 
 /**
  * In-memory map-based implementation of {@link Settings}. It must be used
@@ -58,7 +59,9 @@ public class MapSettings extends Settings {
 
   @Override
   protected void set(String key, String value) {
-    props.put(key, value);
+    props.put(
+      requireNonNull(key, "key can't be null"),
+      requireNonNull(value, "value can't be null").trim());
   }
 
   @Override

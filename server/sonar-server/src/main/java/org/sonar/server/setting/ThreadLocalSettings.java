@@ -34,6 +34,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Merge of {@link SystemSettings} and the global properties stored in the db table "properties". These
@@ -65,7 +66,8 @@ public class ThreadLocalSettings extends Settings {
   ThreadLocalSettings(PropertyDefinitions definitions, Properties props, SettingLoader settingLoader) {
     super(definitions, new Encryption(null));
     this.settingLoader = settingLoader;
-    this.systemProps = props;
+    this.systemProps = new Properties();
+    props.forEach((k, v) -> systemProps.put(k, v == null ? null : v.toString().trim()));
 
     // TODO something wrong about lifecycle here. It could be improved
     getEncryption().setPathToSecretKey(props.getProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
@@ -114,9 +116,11 @@ public class ThreadLocalSettings extends Settings {
 
   @Override
   protected void set(String key, String value) {
+    requireNonNull(key, "key can't be null");
+    requireNonNull(value, "value can't be null");
     Map<String, String> dbProps = CACHE.get();
     if (dbProps != null) {
-      dbProps.put(key, value);
+      dbProps.put(key, value.trim());
     }
   }
 
