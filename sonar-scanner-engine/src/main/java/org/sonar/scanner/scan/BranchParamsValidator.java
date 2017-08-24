@@ -21,10 +21,11 @@ package org.sonar.scanner.scan;
 
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 
-public class DefaultBranchConfigurationValidator implements BranchConfigurationValidator {
-  @Override
-  public void validate(List<String> validationMessages, @Nullable String deprecatedBranchName, boolean incrementalMode) {
-    // no-op
-  }
+@ScannerSide
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+public interface BranchParamsValidator {
+  void validate(List<String> validationMessages, @Nullable String deprecatedBranchName, boolean incrementalMode);
 }
