@@ -22,7 +22,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import OverviewApp from './OverviewApp';
 import EmptyOverview from './EmptyOverview';
-import { isShortLivingBranch } from '../../../helpers/branches';
+import { getBranchName, isShortLivingBranch } from '../../../helpers/branches';
 import { getProjectBranchUrl } from '../../../helpers/urls';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
@@ -66,16 +66,16 @@ export default class App extends React.PureComponent {
   }
 
   render() {
-    if (this.isPortfolio() || isShortLivingBranch(this.props.branch)) {
+    const { branch, component } = this.props;
+
+    if (this.isPortfolio() || isShortLivingBranch(branch)) {
       return null;
     }
-
-    const { component } = this.props;
 
     if (['FIL', 'UTS'].includes(component.qualifier)) {
       return (
         <div className="page page-limited">
-          <SourceViewer component={component.key} />
+          <SourceViewer branch={getBranchName(branch)} component={component.key} />
         </div>
       );
     }
@@ -86,7 +86,7 @@ export default class App extends React.PureComponent {
 
     return (
       <OverviewApp
-        branch={this.props.branch}
+        branch={branch}
         component={component}
         onComponentChange={this.props.onComponentChange}
       />

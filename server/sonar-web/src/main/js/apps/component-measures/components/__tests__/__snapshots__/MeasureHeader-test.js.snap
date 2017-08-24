@@ -257,3 +257,24 @@ exports[`should render correctly for leak 1`] = `
   </div>
 </div>
 `;
+
+exports[`should render with branch 1`] = `
+<Link
+  className="js-show-history spacer-left button button-small button-compact"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/project/activity",
+      "query": Object {
+        "branch": "feature",
+        "custom_metrics": "reliability_rating",
+        "graph": "custom",
+        "id": "foo",
+      },
+    }
+  }
+>
+  <IconHistory />
+</Link>
+`;
