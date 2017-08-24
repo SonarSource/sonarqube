@@ -129,7 +129,7 @@ public abstract class AbstractUserSession implements UserSession {
   protected List<ComponentDto> doKeepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
     boolean allowPublicComponent = ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission);
     return components.stream()
-      .filter(c -> (allowPublicComponent && !c.isPrivate()) || hasProjectUuidPermission(permission, c.projectUuid()))
+      .filter(c -> (allowPublicComponent && !c.isPrivate()) || hasComponentPermission(permission, c))
       .collect(MoreCollectors.toList());
   }
 

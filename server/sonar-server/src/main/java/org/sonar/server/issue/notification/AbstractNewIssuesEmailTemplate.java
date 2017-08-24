@@ -52,6 +52,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
   static final String FIELD_PROJECT_DATE = "projectDate";
   static final String FIELD_PROJECT_UUID = "projectUuid";
   static final String FIELD_ASSIGNEE = "assignee";
+  static final String FIELD_BRANCH = "branch";
 
   protected final EmailSettings settings;
   protected final I18n i18n;
@@ -175,8 +176,13 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
     String dateString = notification.getFieldValue(FIELD_PROJECT_DATE);
     if (projectKey != null && dateString != null) {
       Date date = DateUtils.parseDateTime(dateString);
-      String url = String.format("%s/project/issues?id=%s&createdAt=%s",
-        settings.getServerBaseURL(), encode(projectKey), encode(DateUtils.formatDateTime(date)));
+      String url = String.format("%s/project/issues?id=%s",
+        settings.getServerBaseURL(), encode(projectKey));
+      String branchName = notification.getFieldValue("branch");
+      if (branchName != null) {
+        url += "&branch=" + encode(branchName);
+      }
+      url += "&createdAt=" + encode(DateUtils.formatDateTime(date));
       message
         .append("See it in SonarQube: ")
         .append(url)
