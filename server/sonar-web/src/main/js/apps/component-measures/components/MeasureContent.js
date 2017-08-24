@@ -338,6 +338,7 @@ export default class MeasureContent extends React.PureComponent {
           measure != null &&
           <div className="layout-page-main-inner measure-details-content">
             <MeasureHeader
+              branch={getBranchName(branch)}
               component={component}
               components={this.state.components}
               handleSelect={this.props.updateSelected}

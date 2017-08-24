@@ -76,6 +76,10 @@ it('should render correctly for leak', () => {
   expect(shallow(<MeasureHeader {...PROPS} measure={LEAK_MEASURE} />)).toMatchSnapshot();
 });
 
+it('should render with branch', () => {
+  expect(shallow(<MeasureHeader branch="feature" {...PROPS} />)).toMatchSnapshot();
+});
+
 it('should display secondary measure too', () => {
   const wrapper = shallow(<MeasureHeader {...PROPS} secondaryMeasure={SECONDARY} />);
   expect(wrapper.find('LanguageDistribution')).toHaveLength(1);
