@@ -20,11 +20,13 @@
 // @flow
 import React from 'react';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
+import { getBranchName } from '../../../helpers/branches';
 import { splitPath } from '../../../helpers/path';
 import { getComponentUrl } from '../../../helpers/urls';
 /*:: import type { ComponentEnhanced } from '../types'; */
 
 /*:: type Props = {
+  branch: {},
   component: ComponentEnhanced,
   onClick: string => void
 }; */
@@ -66,22 +68,22 @@ export default class ComponentCell extends React.PureComponent {
   }
 
   render() {
-    const { component } = this.props;
+    const { branch, component } = this.props;
     return (
       <td className="measure-details-component-cell">
         <div className="text-ellipsis">
-          {component.refId == null
+          {component.refKey == null
             ? <a
                 id={'component-measures-component-link-' + component.key}
                 className="link-no-underline"
-                href={getComponentUrl(component.key)}
+                href={getComponentUrl(component.key, getBranchName(branch))}
                 onClick={this.handleClick}>
                 {this.renderInner()}
               </a>
             : <a
                 id={'component-measures-component-link-' + component.key}
                 className="link-no-underline"
-                href={getComponentUrl(component.refKey || component.key)}>
+                href={getComponentUrl(component.refKey, getBranchName(branch))}>
                 <span className="big-spacer-right">
                   <i className="icon-detach" />
                 </span>

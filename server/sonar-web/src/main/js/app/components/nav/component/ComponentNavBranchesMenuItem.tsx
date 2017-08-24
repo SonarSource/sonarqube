@@ -23,7 +23,7 @@ import * as classNames from 'classnames';
 import BranchStatus from './BranchStatus';
 import { Branch, Component } from '../../../types';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
-import { isShortLivingBranch, getBranchDisplayName } from '../../../../helpers/branches';
+import { isShortLivingBranch } from '../../../../helpers/branches';
 import { getProjectBranchUrl } from '../../../../helpers/urls';
 
 interface Props {
@@ -34,14 +34,12 @@ interface Props {
 }
 
 export default function ComponentNavBranchesMenuItem({ branch, ...props }: Props) {
-  const displayName = getBranchDisplayName(branch);
-
   const handleMouseEnter = () => {
     props.onSelect(branch);
   };
 
   return (
-    <li key={displayName} onMouseEnter={handleMouseEnter}>
+    <li key={branch.name} onMouseEnter={handleMouseEnter}>
       <Link
         className={classNames('navbar-context-meta-branch-menu-item', {
           active: props.selected
@@ -49,11 +47,12 @@ export default function ComponentNavBranchesMenuItem({ branch, ...props }: Props
         to={getProjectBranchUrl(props.component.key, branch)}>
         <div>
           <BranchIcon
+            branch={branch}
             className={classNames('little-spacer-right', {
-              'big-spacer-left': isShortLivingBranch(branch)
+              'big-spacer-left': isShortLivingBranch(branch) && !branch.isOrphan
             })}
           />
-          {displayName}
+          {branch.name}
         </div>
         <div className="big-spacer-left note">
           <BranchStatus branch={branch} concise={true} />
