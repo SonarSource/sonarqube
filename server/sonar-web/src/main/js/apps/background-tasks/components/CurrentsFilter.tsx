@@ -17,42 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
+import * as React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
 import { CURRENTS } from '../constants';
+import { translate } from '../../../helpers/l10n';
 
-const CurrentsFilter = (
-  { value, onChange } /*: { value: ?string, onChange: string => void } */
-) => {
-  function handleChange(value) {
+interface Props {
+  value?: string;
+  onChange: (value: string) => void;
+}
+
+export default class CurrentsFilter extends React.PureComponent<Props> {
+  handleChange = (value: boolean) => {
     const newValue = value ? CURRENTS.ONLY_CURRENTS : CURRENTS.ALL;
-    onChange(newValue);
+    this.props.onChange(newValue);
+  };
+
+  render() {
+    const checked = this.props.value === CURRENTS.ONLY_CURRENTS;
+    return (
+      <div className="bt-search-form-field">
+        <Checkbox checked={checked} onCheck={this.handleChange}>
+          <span className="little-spacer-left">
+            {translate('yes')}
+          </span>
+        </Checkbox>
+      </div>
+    );
   }
-
-  function handleLabelClick(e) {
-    const newValue = value === CURRENTS.ALL ? CURRENTS.ONLY_CURRENTS : CURRENTS.ALL;
-
-    e.preventDefault();
-    onChange(newValue);
-  }
-
-  const checked = value === CURRENTS.ONLY_CURRENTS;
-
-  return (
-    <div className="bt-search-form-field">
-      <Checkbox checked={checked} onCheck={handleChange} />
-      &nbsp;
-      <label
-        style={{ cursor: 'pointer' }}
-        role="checkbox"
-        tabIndex="0"
-        aria-checked={checked ? 'true' : 'false'}
-        onClick={handleLabelClick}>
-        Yes
-      </label>
-    </div>
-  );
-};
-
-export default CurrentsFilter;
+}

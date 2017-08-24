@@ -17,39 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 
-export default class Checkbox extends React.PureComponent {
-  static propTypes = {
-    id: PropTypes.string,
-    onCheck: PropTypes.func.isRequired,
-    checked: PropTypes.bool.isRequired,
-    thirdState: PropTypes.bool,
-    className: PropTypes.any
-  };
+interface Props {
+  checked: boolean;
+  children?: React.ReactElement<any>;
+  className?: string;
+  id?: string;
+  onCheck: (checked: boolean, id?: string) => void;
+  thirdState?: boolean;
+}
 
+export default class Checkbox extends React.PureComponent<Props> {
   static defaultProps = {
     thirdState: false
   };
 
-  componentWillMount() {
-    this.handleClick = this.handleClick.bind(this);
-  }
-
-  handleClick(e) {
+  handleClick = (e: React.SyntheticEvent<HTMLElement>) => {
     e.preventDefault();
-    e.target.blur();
+    e.currentTarget.blur();
     this.props.onCheck(!this.props.checked, this.props.id);
-  }
+  };
 
   render() {
-    const className = classNames('icon-checkbox', this.props.className, {
+    const className = classNames('icon-checkbox', {
       'icon-checkbox-checked': this.props.checked,
       'icon-checkbox-single': this.props.thirdState
     });
 
-    return <a id={this.props.id} className={className} href="#" onClick={this.handleClick} />;
+    if (this.props.children) {
+      return (
+        <a
+          id={this.props.id}
+          className={classNames('link-checkbox', this.props.className)}
+          href="#"
+          onClick={this.handleClick}>
+          <i className={className} />
+          {this.props.children}
+        </a>
+      );
+    }
+
+    return (
+      <a
+        id={this.props.id}
+        className={classNames(className, this.props.className)}
+        href="#"
+        onClick={this.handleClick}
+      />
+    );
   }
 }
