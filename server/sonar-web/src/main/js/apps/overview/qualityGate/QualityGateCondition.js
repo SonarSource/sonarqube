@@ -24,7 +24,6 @@ import { Link } from 'react-router';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import Measure from '../../../components/measure/Measure';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
-import { getBranchName } from '../../../helpers/branches';
 import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
@@ -33,7 +32,7 @@ import { getComponentIssuesUrl } from '../../../helpers/urls';
 
 export default class QualityGateCondition extends React.PureComponent {
   /*:: props: {
-    branch: { name: string },
+    branch?: string,
     component: Component,
     condition: {
       level: string,
@@ -55,11 +54,7 @@ export default class QualityGateCondition extends React.PureComponent {
   }
 
   getIssuesUrl = (sinceLeakPeriod /*: boolean */, customQuery /*: {} */) => {
-    const query /*: Object */ = {
-      resolved: 'false',
-      branch: getBranchName(this.props.branch),
-      ...customQuery
-    };
+    const query /*: Object */ = { resolved: 'false', branch: this.props.branch, ...customQuery };
     if (sinceLeakPeriod) {
       Object.assign(query, { sinceLeakPeriod: 'true' });
     }
@@ -118,7 +113,7 @@ export default class QualityGateCondition extends React.PureComponent {
           {children}
         </Link>
       : <DrilldownLink
-          branch={getBranchName(branch)}
+          branch={branch}
           className={className}
           component={component.key}
           metric={condition.measure.metric.key}
