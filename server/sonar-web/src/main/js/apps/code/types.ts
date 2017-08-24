@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,16 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { Link } from 'react-router';
-import { translate } from '../../../helpers/l10n';
+interface Measure {
+  metric: string;
+  value: string;
+  periods?: Period[];
+}
 
-export default function ComponentDetach({ component, branch }) {
-  return (
-    <Link
-      to={{ pathname: '/dashboard', query: { branch, id: component.refKey || component.key } }}
-      className="icon-detach"
-      title={translate('code.open_component_page')}
-    />
-  );
+interface Period {
+  index: number;
+  value: string;
+}
+
+export interface Component extends Breadcrumb {
+  measures?: Measure[];
+  path?: string;
+  refKey?: string;
+}
+
+export interface Breadcrumb {
+  key: string;
+  name: string;
+  qualifier: string;
 }

@@ -62,12 +62,14 @@ export function elementKeydown(element: ShallowWrapper, keyCode: number): void {
   });
 }
 
-export function doAsync(fn: Function): Promise<void> {
+export function doAsync(fn?: Function): Promise<void> {
   return new Promise(resolve => {
-    setTimeout(() => {
-      fn();
+    setImmediate(() => {
+      if (fn) {
+        fn();
+      }
       resolve();
-    }, 0);
+    });
   });
 }
 

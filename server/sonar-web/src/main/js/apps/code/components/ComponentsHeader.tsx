@@ -17,10 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { Component } from '../types';
 
-const ComponentsHeader = ({ baseComponent, rootComponent }) => {
+interface Props {
+  baseComponent?: Component;
+  rootComponent: Component;
+}
+
+export default function ComponentsHeader({ baseComponent, rootComponent }: Props) {
   const isPortfolio = rootComponent.qualifier === 'VW' || rootComponent.qualifier === 'SVW';
   const isApplication = rootComponent.qualifier === 'APP';
 
@@ -40,7 +46,7 @@ const ComponentsHeader = ({ baseComponent, rootComponent }) => {
         translate('metric', 'code_smells', 'name'),
         translate('metric', 'coverage', 'name'),
         translate('metric', 'duplicated_lines_density', 'short_name')
-      ].filter(Boolean);
+      ].filter(Boolean) as string[];
 
   return (
     <thead>
@@ -55,6 +61,4 @@ const ComponentsHeader = ({ baseComponent, rootComponent }) => {
       </tr>
     </thead>
   );
-};
-
-export default ComponentsHeader;
+}

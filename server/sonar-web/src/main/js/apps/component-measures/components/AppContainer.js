@@ -47,15 +47,19 @@ function banQualityGate(component /*: Component */) /*: Array<Measure> */ {
   return component.measures.filter(measure => !bannedMetrics.includes(measure.metric));
 }
 
-const fetchMeasures = (component /*: string */, metricsKey /*: Array<string> */) => (
-  dispatch,
-  getState
-) => {
+const fetchMeasures = (
+  component /*: string */,
+  metricsKey /*: Array<string> */,
+  branch /*: string | null */
+) => (dispatch, getState) => {
   if (metricsKey.length <= 0) {
     return Promise.resolve({ component: {}, measures: [], leakPeriod: null });
   }
 
-  return getMeasuresAndMeta(component, metricsKey, { additionalFields: 'periods' }).then(r => {
+  return getMeasuresAndMeta(component, metricsKey, {
+    additionalFields: 'periods',
+    branch
+  }).then(r => {
     const measures = banQualityGate(r.component).map(measure =>
       enhanceMeasure(measure, getMetrics(getState()))
     );

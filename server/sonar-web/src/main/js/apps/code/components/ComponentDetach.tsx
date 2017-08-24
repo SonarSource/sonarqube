@@ -17,16 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
+import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
+import { Component } from '../types';
 
-export default function ComponentsEmpty() {
+interface Props {
+  branch?: string;
+  component: Component;
+}
+
+export default function ComponentDetach({ component, branch }: Props) {
   return (
-    <tr>
-      <td colSpan="2">
-        {translate('no_results')}
-      </td>
-      <td colSpan="6" />
-    </tr>
+    <Link
+      to={{ pathname: '/dashboard', query: { branch, id: component.refKey || component.key } }}
+      className="icon-detach"
+      title={translate('code.open_component_page')}
+    />
   );
 }

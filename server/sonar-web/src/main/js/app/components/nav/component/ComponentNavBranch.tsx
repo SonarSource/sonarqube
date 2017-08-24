@@ -22,10 +22,12 @@ import * as classNames from 'classnames';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
 import { Branch, Component } from '../../../types';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
-import { getBranchDisplayName } from '../../../../helpers/branches';
+import { isShortLivingBranch } from '../../../../helpers/branches';
+import { translate } from '../../../../helpers/l10n';
 
 interface Props {
-  branch: Branch;
+  branches: Branch[];
+  currentBranch: Branch;
   project: Component;
 }
 
@@ -42,7 +44,10 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.project !== this.props.project || nextProps.branch !== this.props.branch) {
+    if (
+      nextProps.project !== this.props.project ||
+      nextProps.currentBranch !== this.props.currentBranch
+    ) {
       this.setState({ open: false });
     }
   }
@@ -65,19 +70,27 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   };
 
   render() {
+    const { currentBranch } = this.props;
+
     return (
       <div className={classNames('navbar-context-branches', 'dropdown', { open: this.state.open })}>
         <a className="link-base-color link-no-underline" href="#" onClick={this.handleClick}>
-          <BranchIcon className="little-spacer-right" />
-          {getBranchDisplayName(this.props.branch)}
+          <BranchIcon branch={currentBranch} className="little-spacer-right" />
+          {currentBranch.name}
           <i className="icon-dropdown little-spacer-left" />
         </a>
         {this.state.open &&
           <ComponentNavBranchesMenu
-            branch={this.props.branch}
+            branches={this.props.branches}
+            currentBranch={currentBranch}
             onClose={this.closeDropdown}
             project={this.props.project}
           />}
+        {isShortLivingBranch(currentBranch) &&
+          !currentBranch.isOrphan &&
+          <span className="note big-spacer-left text-lowercase">
+            {translate('from')} <strong>{currentBranch.mergeBranch}</strong>
+          </span>}
       </div>
     );
   }
