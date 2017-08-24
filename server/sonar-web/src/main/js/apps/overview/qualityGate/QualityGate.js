@@ -35,7 +35,7 @@ function isProject(component /*: Component */) {
 
 /*::
 type Props = {
-  branch: { name: string },
+  branch?: string,
   component: Component,
   measures: MeasuresList
 };
