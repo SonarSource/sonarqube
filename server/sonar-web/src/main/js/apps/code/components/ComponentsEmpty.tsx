@@ -17,21 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Breadcrumb from './Breadcrumb';
+import * as React from 'react';
+import { translate } from '../../../helpers/l10n';
 
-export default function Breadcrumbs({ rootComponent, breadcrumbs }) {
+export default function ComponentsEmpty() {
   return (
-    <ul className="code-breadcrumbs">
-      {breadcrumbs.map((component, index) =>
-        <li key={component.key}>
-          <Breadcrumb
-            rootComponent={rootComponent}
-            component={component}
-            canBrowse={index < breadcrumbs.length - 1}
-          />
-        </li>
-      )}
-    </ul>
+    <tr>
+      <td colSpan={2}>
+        {translate('no_results')}
+      </td>
+      <td colSpan={6} />
+    </tr>
   );
 }

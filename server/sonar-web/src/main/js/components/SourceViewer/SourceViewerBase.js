@@ -419,7 +419,7 @@ export default class SourceViewerBase extends React.PureComponent {
   };
 
   loadDuplications = (line /*: SourceLine */) => {
-    getDuplications(this.props.component).then(r => {
+    getDuplications(this.props.component, this.props.branch).then(r => {
       if (this.mounted) {
         this.setState(
           {
@@ -440,13 +440,22 @@ export default class SourceViewerBase extends React.PureComponent {
   };
 
   showMeasures = () => {
-    const measuresOverlay = new MeasuresOverlay({ component: this.state.component, large: true });
+    const measuresOverlay = new MeasuresOverlay({
+      branch: this.props.branch,
+      component: this.state.component,
+      large: true
+    });
     measuresOverlay.render();
   };
 
   handleCoverageClick = (line /*: SourceLine */, element /*: HTMLElement */) => {
-    getTests(this.props.component, line.line).then(tests => {
-      const popup = new CoveragePopupView({ line, tests, triggerEl: element });
+    getTests(this.props.component, line.line, this.props.branch).then(tests => {
+      const popup = new CoveragePopupView({
+        line,
+        tests,
+        triggerEl: element,
+        branch: this.props.branch
+      });
       popup.render();
     });
   };
@@ -477,7 +486,8 @@ export default class SourceViewerBase extends React.PureComponent {
         inRemovedComponent,
         component: this.state.component,
         files: this.state.duplicatedFiles,
-        triggerEl: element
+        triggerEl: element,
+        branch: this.props.branch
       });
       popup.render();
     }
@@ -500,7 +510,8 @@ export default class SourceViewerBase extends React.PureComponent {
     const popup = new LineActionsPopupView({
       line,
       triggerEl: element,
-      component: this.state.component
+      component: this.state.component,
+      branch: this.props.branch
     });
     popup.render();
   }
@@ -637,7 +648,11 @@ export default class SourceViewerBase extends React.PureComponent {
 
     return (
       <div className={className} ref={node => (this.node = node)}>
-        <SourceViewerHeader component={this.state.component} showMeasures={this.showMeasures} />
+        <SourceViewerHeader
+          branch={this.props.branch}
+          component={this.state.component}
+          showMeasures={this.showMeasures}
+        />
         {notAccessible &&
           <div className="alert alert-warning spacer-top">
             {translate('code_viewer.no_source_code_displayed_due_to_security')}

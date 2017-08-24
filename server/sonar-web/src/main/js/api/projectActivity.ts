@@ -30,6 +30,7 @@ interface GetProjectActivityResponse {
 }
 
 export function getProjectActivity(data: {
+  branch?: string;
   project: string;
   category?: string;
   p?: number;

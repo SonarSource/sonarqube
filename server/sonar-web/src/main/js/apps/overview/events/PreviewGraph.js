@@ -31,6 +31,7 @@ import {
   hasHistoryDataValue,
   splitSeriesInGraphs
 } from '../../projectActivity/utils';
+import { getBranchName } from '../../../helpers/branches';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
@@ -39,6 +40,7 @@ import { translate } from '../../../helpers/l10n';
 
 /*::
 type Props = {
+  branch: {},
   history: ?History,
   metrics: Array<Metric>,
   project: string,
@@ -137,7 +139,10 @@ export default class PreviewGraph extends React.PureComponent {
   };
 
   handleClick = () => {
-    this.props.router.push({ pathname: '/project/activity', query: { id: this.props.project } });
+    this.props.router.push({
+      pathname: '/project/activity',
+      query: { id: this.props.project, branch: getBranchName(this.props.branch) }
+    });
   };
 
   updateTooltip = (
