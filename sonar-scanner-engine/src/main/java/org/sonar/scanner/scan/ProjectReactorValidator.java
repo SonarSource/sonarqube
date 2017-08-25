@@ -37,15 +37,15 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
 public class ProjectReactorValidator {
   private final DefaultAnalysisMode mode;
 
-  private final BranchConfigurationValidator branchConfigurationValidator;
+  private final BranchParamsValidator branchParamsValidator;
 
-  public ProjectReactorValidator(DefaultAnalysisMode mode, BranchConfigurationValidator branchConfigurationValidator) {
+  public ProjectReactorValidator(DefaultAnalysisMode mode, BranchParamsValidator branchParamsValidator) {
     this.mode = mode;
-    this.branchConfigurationValidator = branchConfigurationValidator;
+    this.branchParamsValidator = branchParamsValidator;
   }
 
   public ProjectReactorValidator(DefaultAnalysisMode mode) {
-    this(mode, new DefaultBranchConfigurationValidator());
+    this(mode, new DefaultBranchParamsValidator());
   }
 
   public void validate(ProjectReactor reactor) {
@@ -61,7 +61,7 @@ public class ProjectReactorValidator {
 
     String deprecatedBranchName = reactor.getRoot().getBranch();
 
-    branchConfigurationValidator.validate(validationMessages, deprecatedBranchName, mode.isIncremental());
+    branchParamsValidator.validate(validationMessages, deprecatedBranchName, mode.isIncremental());
     validateBranch(validationMessages, deprecatedBranchName);
 
     if (!validationMessages.isEmpty()) {

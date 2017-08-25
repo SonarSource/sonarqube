@@ -22,5 +22,5 @@ package org.sonar.scanner.repository;
 import javax.annotation.Nullable;
 
 public interface ProjectRepositoriesLoader {
-  ProjectRepositories load(String projectKeyWithBranch, boolean issuesMode, @Nullable String branchTarget);
+  ProjectRepositories load(String projectKeyWithBranch, boolean issuesMode, @Nullable String branchBase);
 }
