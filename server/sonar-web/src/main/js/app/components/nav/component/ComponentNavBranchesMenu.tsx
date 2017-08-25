@@ -179,7 +179,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     });
 
     return (
-      <ul className="menu">
+      <ul className="menu menu-vertically-limited">
         {menu}
       </ul>
     );
