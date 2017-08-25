@@ -10,9 +10,14 @@
   "projectCount": 2,
   "lines": 500,
   "ncloc": 300,
-  "projectLanguageDistribution": {
+  "projectCountByLanguage": {
     "java": 2,
     "kotlin": 1,
     "js": 1
+  },
+  "nclocByLanguage": {
+    "java": 500,
+    "kotlin": 2500,
+    "js": 50
   }
 }
