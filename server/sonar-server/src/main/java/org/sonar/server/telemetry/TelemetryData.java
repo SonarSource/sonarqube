@@ -84,7 +84,7 @@ public class TelemetryData {
     return nclocByLanguage;
   }
 
-  static Builder builder() {
+  public static Builder builder() {
     return new Builder();
   }
 

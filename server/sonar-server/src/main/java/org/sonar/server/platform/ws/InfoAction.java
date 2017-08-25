@@ -28,7 +28,10 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.ce.http.CeHttpClient;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.platform.monitoring.Monitor;
+import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryData;
 
 /**
  * Implementation of the {@code info} action for the System WebService.
@@ -38,10 +41,12 @@ public class InfoAction implements SystemWsAction {
   private final UserSession userSession;
   private final CeHttpClient ceHttpClient;
   private final Monitor[] monitors;
+  private final TelemetryDataLoader statistics;
 
-  public InfoAction(UserSession userSession, CeHttpClient ceHttpClient, Monitor... monitors) {
+  public InfoAction(UserSession userSession, CeHttpClient ceHttpClient, TelemetryDataLoader statistics, Monitor... monitors) {
     this.userSession = userSession;
     this.ceHttpClient = ceHttpClient;
+    this.statistics = statistics;
     this.monitors = monitors;
   }
 
@@ -53,7 +58,7 @@ public class InfoAction implements SystemWsAction {
         "Since 5.5, this web service becomes internal in order to more easily update result.")
       .setSince("5.1")
       .setInternal(true)
-      .setResponseExample(getClass().getResource("/org/sonar/server/platform/ws/example-system-info.json"))
+      .setResponseExample(getClass().getResource("/org/sonar/server/platform/ws/info-example.json"))
       .setHandler(this);
   }
 
@@ -88,7 +93,13 @@ public class InfoAction implements SystemWsAction {
         json.endObject();
       }
     }
+    writeStatistics(json);
     json.endObject();
+  }
+
+  private void writeStatistics(JsonWriter json) {
+    json.name("Statistics");
+    writeTelemetryData(json, statistics.load());
   }
 
   private static void writeAttribute(JsonWriter json, ProtobufSystemInfo.Attribute attribute) {
