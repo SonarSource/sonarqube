@@ -19,11 +19,15 @@
  */
 package org.sonar.ce.settings;
 
+import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.db.DbClient;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
+
+import static org.sonar.db.component.ComponentDto.generateBranchKey;
 
 @ComputeEngineSide
 public class ProjectConfigurationFactory {
@@ -36,11 +40,28 @@ public class ProjectConfigurationFactory {
     this.dbClient = dbClient;
   }
 
-  public Configuration newProjectConfiguration(String projectKey) {
+  public Configuration newProjectConfiguration(String projectKey, Optional<Branch> branch) {
     Settings projectSettings = new ProjectSettings(globalSettings);
-    dbClient.propertiesDao()
-      .selectProjectProperties(projectKey)
-      .forEach(property -> projectSettings.setProperty(property.getKey(), property.getValue()));
+    addSettings(projectSettings, projectKey);
+    getBranchName(branch).ifPresent(
+      b -> addSettings(projectSettings, generateBranchKey(projectKey, b)));
     return new ConfigurationBridge(projectSettings);
+  }
+
+  private void addSettings(Settings settings, String componentDbKey) {
+    dbClient.propertiesDao()
+      .selectProjectProperties(componentDbKey)
+      .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
+  }
+
+  private static Optional<String> getBranchName(Optional<Branch> branchOpt) {
+    if (!branchOpt.isPresent()) {
+      return Optional.empty();
+    }
+    Branch branch = branchOpt.get();
+    if (!branch.isLegacyFeature() && !branch.isMain()) {
+      return branch.getName();
+    }
+    return Optional.empty();
   }
 }
