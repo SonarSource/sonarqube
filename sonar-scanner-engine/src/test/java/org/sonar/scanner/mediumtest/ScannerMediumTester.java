@@ -372,7 +372,7 @@ public class ScannerMediumTester extends ExternalResource {
     private Date lastAnalysisDate;
 
     @Override
-    public ProjectRepositories load(String projectKey, boolean isIssuesMode, @Nullable String branchTarget) {
+    public ProjectRepositories load(String projectKey, boolean isIssuesMode, @Nullable String branchBase) {
       Table<String, String, String> settings = HashBasedTable.create();
       return new ProjectRepositories(settings, fileDataTable, lastAnalysisDate);
     }
@@ -392,12 +392,19 @@ public class ScannerMediumTester extends ExternalResource {
   private static class FakeBranchConfiguration implements BranchConfiguration {
 
     private BranchType branchType = BranchType.LONG;
-    private String branchName = "";
-    private String branchTarget = "";
+    private String branchName = null;
+    private String branchTarget = null;
+    private String branchBase = null;
 
     @Override
     public BranchType branchType() {
       return branchType;
+    }
+
+    @CheckForNull
+    @Override
+    public String branchName() {
+      return branchName;
     }
 
     @CheckForNull
@@ -408,8 +415,8 @@ public class ScannerMediumTester extends ExternalResource {
 
     @CheckForNull
     @Override
-    public String branchName() {
-      return branchName;
+    public String branchBase() {
+      return branchBase;
     }
   }
 

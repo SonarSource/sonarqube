@@ -41,16 +41,20 @@ public interface BranchConfiguration {
   BranchType branchType();
 
   /**
-   * The name of the target branch to merge into, and the base to determine changed files.
-   *
-   * @return name of the target branch
+   * The name of the branch.
+   */
+  @CheckForNull
+  String branchName();
+
+  /**
+   * The name of the target branch to merge into.
    */
   @CheckForNull
   String branchTarget();
 
   /**
-   * The name of the branch.
+   * The name of the base branch to determine project repository and changed files.
    */
   @CheckForNull
-  String branchName();
+  String branchBase();
 }
