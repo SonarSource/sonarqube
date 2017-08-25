@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders sorted list of branches 1`] = `
+<div
+  className="page page-limited"
+>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      project_branches.page
+    </h1>
+  </header>
+  <table
+    className="data zebra zebra-hover"
+  >
+    <thead>
+      <tr>
+        <th>
+          Branch
+        </th>
+        <th
+          className="text-right"
+        >
+          Status
+        </th>
+        <th
+          className="text-right"
+        >
+          Actions
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <BranchRow
+        branch={
+          Object {
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        component="foo"
+        onChange={[Function]}
+      />
+      <BranchRow
+        branch={
+          Object {
+            "isMain": false,
+            "mergeBranch": "master",
+            "name": "branch-1.0",
+            "type": "SHORT",
+          }
+        }
+        component="foo"
+        onChange={[Function]}
+      />
+      <BranchRow
+        branch={
+          Object {
+            "isMain": false,
+            "name": "branch-1.0",
+            "type": "LONG",
+          }
+        }
+        component="foo"
+        onChange={[Function]}
+      />
+    </tbody>
+  </table>
+</div>
+`;
