@@ -34,12 +34,15 @@ import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_DISTRIB_LANGUAGE;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_DISTRIB_NCLOC;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_LANGUAGE_DISTRIBUTION;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
@@ -131,6 +134,25 @@ public class ProjectMeasuresDoc extends BaseDoc {
 
   public ProjectMeasuresDoc setLanguages(List<String> languages) {
     setField(FIELD_LANGUAGES, languages);
+    return this;
+  }
+
+  public Collection<Map<String, Object>> getNclocLanguageDistribution() {
+    return getField(FIELD_NCLOC_LANGUAGE_DISTRIBUTION);
+  }
+
+  public ProjectMeasuresDoc setNclocLanguageDistribution(Collection<Map<String, Object>> distribution) {
+    setField(FIELD_NCLOC_LANGUAGE_DISTRIBUTION, distribution);
+    return this;
+  }
+
+  public ProjectMeasuresDoc setNclocLanguageDistributionFromMap(Map<String, Integer> distribution) {
+    setNclocLanguageDistribution(
+      distribution.entrySet().stream()
+        .map(entry -> ImmutableMap.<String, Object>of(
+          FIELD_DISTRIB_LANGUAGE, entry.getKey(),
+          FIELD_DISTRIB_NCLOC, entry.getValue()))
+        .collect(MoreCollectors.toList()));
     return this;
   }
 

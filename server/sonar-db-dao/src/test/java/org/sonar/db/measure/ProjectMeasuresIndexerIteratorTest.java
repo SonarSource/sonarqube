@@ -129,7 +129,8 @@ public class ProjectMeasuresIndexerIteratorTest {
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
-    assertThat(docsById.get(project.uuid()).getMeasures().getLanguages()).containsOnly("<null>", "java", "xoo");
+    assertThat(docsById.get(project.uuid()).getMeasures().getNclocByLanguages())
+      .containsOnly(entry("<null>", 2), entry("java", 6), entry("xoo", 18));
   }
 
   @Test
