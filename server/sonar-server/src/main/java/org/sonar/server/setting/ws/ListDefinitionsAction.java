@@ -39,9 +39,11 @@ import org.sonarqube.ws.client.setting.ListDefinitionsRequest;
 import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.setting.ws.SettingsWs.SETTING_ON_BRANCHES;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_LIST_DEFINITIONS;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 
 public class ListDefinitionsAction implements SettingsWsAction {
@@ -79,6 +81,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+    settingsWsSupport.addBranchParam(action);
   }
 
   @Override
@@ -93,6 +96,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
     ListDefinitionsWsResponse.Builder wsResponse = ListDefinitionsWsResponse.newBuilder();
     propertyDefinitions.getAll().stream()
       .filter(definition -> qualifier.isPresent() ? definition.qualifiers().contains(qualifier.get()) : definition.global())
+      .filter(definition -> wsRequest.getBranch() == null || SETTING_ON_BRANCHES.contains(definition.key()))
       .filter(settingsWsSupport.isDefinitionVisible(component))
       .forEach(definition -> addDefinition(definition, wsResponse));
     return wsResponse.build();
@@ -101,6 +105,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
   private static ListDefinitionsRequest toWsRequest(Request request) {
     return ListDefinitionsRequest.builder()
       .setComponent(request.param(PARAM_COMPONENT))
+      .setBranch(request.param(PARAM_BRANCH))
       .build();
   }
 
@@ -108,13 +113,13 @@ public class ListDefinitionsAction implements SettingsWsAction {
     return component.isPresent() ? Optional.of(component.get().qualifier()) : Optional.empty();
   }
 
-  private Optional<ComponentDto> loadComponent(ListDefinitionsRequest valuesRequest) {
+  private Optional<ComponentDto> loadComponent(ListDefinitionsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String componentKey = valuesRequest.getComponent();
+      String componentKey = request.getComponent();
       if (componentKey == null) {
         return Optional.empty();
       }
-      ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
+      ComponentDto component = componentFinder.getByKeyAndOptionalBranch(dbSession, componentKey, request.getBranch());
       userSession.checkComponentPermission(USER, component);
       return Optional.of(component);
     }

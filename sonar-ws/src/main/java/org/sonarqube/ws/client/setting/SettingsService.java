@@ -46,7 +46,8 @@ public class SettingsService extends BaseService {
 
   public ListDefinitionsWsResponse listDefinitions(ListDefinitionsRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_LIST_DEFINITIONS))
-      .setParam(PARAM_COMPONENT, request.getComponent());
+      .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch());
     return call(getRequest, ListDefinitionsWsResponse.parser());
   }
 
