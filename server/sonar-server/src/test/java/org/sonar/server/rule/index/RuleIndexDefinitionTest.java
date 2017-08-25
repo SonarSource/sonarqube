@@ -26,13 +26,13 @@ import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
@@ -64,7 +64,7 @@ public class RuleIndexDefinitionTest {
 
   @Test
   public void enable_replica_if_clustering_is_enabled() {
-    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
+    settings.setProperty(CLUSTER_ENABLED, true);
     IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
     underTest.define(context);
 
@@ -78,8 +78,7 @@ public class RuleIndexDefinitionTest {
 
     List<AnalyzeResponse.AnalyzeToken> tokens = analyzeIndexedTokens(longText);
     assertThat(tokens).extracting(AnalyzeResponse.AnalyzeToken::getTerm).containsOnly(
-      "quick", "brown", "fox", "jump", "over", "lazi", "dog"
-    );
+      "quick", "brown", "fox", "jump", "over", "lazi", "dog");
 
     // the following method fails if PUT fails
     tester.putDocuments(INDEX_TYPE_RULE, new RuleDoc(ImmutableMap.of(

@@ -27,9 +27,12 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.application.config.TestAppSettings;
-import org.sonar.process.ProcessProperties;
 
-public class HazelcastTestHelper {
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NAME;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
+
+public class HazelcastClusterTestHelper {
 
   // Be careful this test won't work if parallel tests is used
   private static final List<HazelcastInstance> HAZELCAST_INSTANCES = new ArrayList<>();
@@ -41,8 +44,7 @@ public class HazelcastTestHelper {
     clientConfig.getNetworkConfig().getAddresses().add(
       String.format("%s:%d",
         socketAddress.getHostString(),
-        socketAddress.getPort()
-      ));
+        socketAddress.getPort()));
     clientConfig.getGroupConfig().setName(hzCluster.getName());
     HazelcastInstance hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);
     HAZELCAST_INSTANCES.add(hazelcastInstance);
@@ -55,29 +57,28 @@ public class HazelcastTestHelper {
 
   static void closeAllHazelcastClients() {
     HAZELCAST_INSTANCES.stream().forEach(
-        hz -> {
-          try {
-            hz.shutdown();
-          } catch (Exception ex) {
-            // Ignore it
-          }
+      hz -> {
+        try {
+          hz.shutdown();
+        } catch (Exception ex) {
+          // Ignore it
         }
-    );
+      });
   }
 
   static TestAppSettings newApplicationSettings() {
     TestAppSettings settings = new TestAppSettings();
-    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    settings.set(CLUSTER_ENABLED, "true");
+    settings.set(CLUSTER_NAME, "sonarqube");
+    settings.set(CLUSTER_NODE_TYPE, "application");
     return settings;
   }
 
   static TestAppSettings newSearchSettings() {
     TestAppSettings settings = new TestAppSettings();
-    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "search");
+    settings.set(CLUSTER_ENABLED, "true");
+    settings.set(CLUSTER_NAME, "sonarqube");
+    settings.set(CLUSTER_NODE_TYPE, "search");
     return settings;
   }
 }

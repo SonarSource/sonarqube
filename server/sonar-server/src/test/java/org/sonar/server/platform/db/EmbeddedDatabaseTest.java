@@ -34,7 +34,7 @@ import org.junit.rules.Timeout;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.process.NetworkUtils;
+import org.sonar.NetworkUtils;
 
 import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.mock;

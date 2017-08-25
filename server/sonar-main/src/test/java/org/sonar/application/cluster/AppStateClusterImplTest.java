@@ -32,7 +32,6 @@ import org.sonar.application.AppStateListener;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessId;
-import org.sonar.process.ProcessProperties;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,10 +40,11 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.sonar.application.cluster.HazelcastTestHelper.createHazelcastClient;
-import static org.sonar.application.cluster.HazelcastTestHelper.newApplicationSettings;
-import static org.sonar.process.cluster.ClusterObjectKeys.CLUSTER_NAME;
-import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
+import static org.sonar.application.cluster.HazelcastClusterTestHelper.createHazelcastClient;
+import static org.sonar.application.cluster.HazelcastClusterTestHelper.newApplicationSettings;
+import static org.sonar.cluster.ClusterObjectKeys.CLUSTER_NAME;
+import static org.sonar.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 
 public class AppStateClusterImplTest {
 
@@ -57,7 +57,7 @@ public class AppStateClusterImplTest {
   @Test
   public void instantiation_throws_ISE_if_cluster_mode_is_disabled() throws Exception {
     TestAppSettings settings = new TestAppSettings();
-    settings.set(ProcessProperties.CLUSTER_ENABLED, "false");
+    settings.set(CLUSTER_ENABLED, "false");
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cluster is not enabled on this instance");
@@ -76,7 +76,7 @@ public class AppStateClusterImplTest {
   }
 
   @Test
-  public void log_when_sonarqube_is_joining_a_cluster () throws IOException, InterruptedException, IllegalAccessException, NoSuchFieldException {
+  public void log_when_sonarqube_is_joining_a_cluster() throws IOException, InterruptedException, IllegalAccessException, NoSuchFieldException {
     // Now launch an instance that try to be part of the hzInstance cluster
     TestAppSettings settings = newApplicationSettings();
 
@@ -86,8 +86,7 @@ public class AppStateClusterImplTest {
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
       verify(logger).info(
         eq("Joined a SonarQube cluster that contains the following hosts : [{}]"),
-        anyString()
-      );
+        anyString());
     }
   }
 

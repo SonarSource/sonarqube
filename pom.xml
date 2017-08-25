@@ -445,14 +445,24 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.sonarsource.update-center</groupId>
-        <artifactId>sonar-update-center-common</artifactId>
-        <version>${sonarUpdateCenter.version}</version>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sonar-process</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sonar-cluster</artifactId>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sonar-server</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.update-center</groupId>
+        <artifactId>sonar-update-center-common</artifactId>
+        <version>${sonarUpdateCenter.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>

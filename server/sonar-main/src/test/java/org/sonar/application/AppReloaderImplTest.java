@@ -35,6 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 
 public class AppReloaderImplTest {
 
@@ -67,7 +68,7 @@ public class AppReloaderImplTest {
 
   @Test
   public void throw_ISE_if_cluster_is_enabled() throws IOException {
-    AppSettings settings = new TestAppSettings().set(ProcessProperties.CLUSTER_ENABLED, "true");
+    AppSettings settings = new TestAppSettings().set(CLUSTER_ENABLED, "true");
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Restart is not possible with cluster mode");
@@ -89,7 +90,7 @@ public class AppReloaderImplTest {
 
   @Test
   public void throw_MessageException_if_cluster_mode_changed() throws IOException {
-    verifyFailureIfPropertyValueChanged(ProcessProperties.CLUSTER_ENABLED);
+    verifyFailureIfPropertyValueChanged(CLUSTER_ENABLED);
   }
 
   private void verifyFailureIfPropertyValueChanged(String propertyKey) throws IOException {

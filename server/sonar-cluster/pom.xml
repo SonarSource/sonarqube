@@ -7,33 +7,34 @@
     <version>6.6-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
-  <artifactId>sonar-ce</artifactId>
-  <name>SonarQube :: Compute Engine</name>
+  <artifactId>sonar-cluster</artifactId>
+  <name>SonarQube :: Cluster</name>
 
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-server</artifactId>
-      <scope>provided</scope>
+      <artifactId>sonar-plugin-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-cluster</artifactId>
-      <scope>provided</scope>
+      <groupId>com.hazelcast</groupId>
+      <artifactId>hazelcast-client</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.nanohttpd</groupId>
-      <artifactId>nanohttpd</artifactId>
+      <groupId>org.picocontainer</groupId>
+      <artifactId>picocontainer</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
-
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
     </dependency>
 
     <!-- unit tests -->
@@ -43,24 +44,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.tngtech.java</groupId>
-      <artifactId>junit-dataprovider</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-guava</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <!-- TODO to be removed -->
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-all</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -69,9 +54,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-db-testing</artifactId>
-      <type>pom</type>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

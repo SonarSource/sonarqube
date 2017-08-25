@@ -28,12 +28,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.cluster.ClusterProperties;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NAME;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
 
 public class EsSettingsTest {
 
@@ -55,7 +58,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
+    props.set(CLUSTER_NAME, "sonarqube");
 
     EsSettings esSettings = new EsSettings(props, new EsFileSystem(props));
 
@@ -91,9 +94,9 @@ public class EsSettingsTest {
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.CLUSTER_NAME, "sonarqube-1");
-    props.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    props.set(ProcessProperties.CLUSTER_NODE_NAME, "node-1");
+    props.set(ClusterProperties.CLUSTER_NAME, "sonarqube-1");
+    props.set(ClusterProperties.CLUSTER_ENABLED, "true");
+    props.set(ClusterProperties.CLUSTER_NODE_NAME, "node-1");
 
     EsSettings esSettings = new EsSettings(props, new EsFileSystem(props));
 
@@ -106,8 +109,8 @@ public class EsSettingsTest {
   public void test_node_name_default_for_cluster_mode() throws Exception {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
-    props.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    props.set(ClusterProperties.CLUSTER_NAME, "sonarqube");
+    props.set(ClusterProperties.CLUSTER_ENABLED, "true");
     props.set(ProcessProperties.SEARCH_PORT, "1234");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
@@ -122,8 +125,8 @@ public class EsSettingsTest {
   public void test_node_name_default_for_standalone_mode() throws Exception {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
-    props.set(ProcessProperties.CLUSTER_ENABLED, "false");
+    props.set(ClusterProperties.CLUSTER_NAME, "sonarqube");
+    props.set(ClusterProperties.CLUSTER_ENABLED, "false");
     props.set(ProcessProperties.SEARCH_PORT, "1234");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
@@ -153,7 +156,7 @@ public class EsSettingsTest {
   @Test
   public void set_discovery_settings_if_cluster_is_enabled() throws Exception {
     Props props = minProps(CLUSTER_ENABLED);
-    props.set(ProcessProperties.CLUSTER_SEARCH_HOSTS, "1.2.3.4:9000,1.2.3.5:8080");
+    props.set(CLUSTER_SEARCH_HOSTS, "1.2.3.4:9000,1.2.3.5:8080");
     Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
 
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("1.2.3.4:9000,1.2.3.5:8080");
@@ -246,7 +249,7 @@ public class EsSettingsTest {
     Props props = new Props(new Properties());
     ProcessProperties.completeDefaults(props);
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
-    props.set(ProcessProperties.CLUSTER_ENABLED, Boolean.toString(cluster));
+    props.set(ClusterProperties.CLUSTER_ENABLED, Boolean.toString(cluster));
     return props;
   }
 }

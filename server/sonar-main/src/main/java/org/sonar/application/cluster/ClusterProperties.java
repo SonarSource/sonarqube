@@ -33,7 +33,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.config.AppSettings;
 import org.sonar.process.NodeType;
-import org.sonar.process.ProcessProperties;
+
+import static org.sonar.cluster.ClusterProperties.CLUSTER_HOSTS;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_HOST;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_NAME;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_PORT;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
 
 /**
  * Properties of the cluster configuration
@@ -50,15 +55,11 @@ final class ClusterProperties {
   private final String nodeName;
 
   ClusterProperties(AppSettings appSettings) {
-    port = appSettings.getProps().valueAsInt(ProcessProperties.CLUSTER_NODE_PORT);
-    networkInterfaces = extractNetworkInterfaces(
-      appSettings.getProps().value(ProcessProperties.CLUSTER_NODE_HOST, "")
-    );
-    hosts = extractHosts(
-      appSettings.getProps().value(ProcessProperties.CLUSTER_HOSTS, "")
-    );
-    nodeType = NodeType.parse(appSettings.getProps().value(ProcessProperties.CLUSTER_NODE_TYPE));
-    nodeName = appSettings.getProps().value(ProcessProperties.CLUSTER_NODE_NAME, "sonarqube-" + UUID.randomUUID().toString());
+    port = appSettings.getProps().valueAsInt(CLUSTER_NODE_PORT);
+    networkInterfaces = extractNetworkInterfaces(appSettings.getProps().value(CLUSTER_NODE_HOST, ""));
+    hosts = extractHosts(appSettings.getProps().value(CLUSTER_HOSTS, ""));
+    nodeType = NodeType.parse(appSettings.getProps().value(CLUSTER_NODE_TYPE));
+    nodeName = appSettings.getProps().value(CLUSTER_NODE_NAME, "sonarqube-" + UUID.randomUUID().toString());
   }
 
   int getPort() {
@@ -86,8 +87,7 @@ final class ClusterProperties {
     checkArgument(
       port > 0 && port < 65_536,
       "Cluster port have been set to %d which is outside the range [1-65535].",
-      port
-    );
+      port);
 
     // Test the networkInterfaces parameter
     try {
@@ -97,9 +97,7 @@ final class ClusterProperties {
         inet -> checkArgument(
           StringUtils.isEmpty(inet) || localInterfaces.contains(inet),
           "Interface %s is not available on this machine.",
-          inet
-        )
-      );
+          inet));
     } catch (SocketException e) {
       LOGGER.warn("Unable to retrieve network networkInterfaces. Interfaces won't be checked", e);
     }
@@ -111,8 +109,7 @@ final class ClusterProperties {
       if (StringUtils.isNotEmpty(host)) {
         if (!host.contains(":")) {
           result.add(
-            String.format("%s:%s", host, DEFAULT_PORT)
-          );
+            String.format("%s:%s", host, DEFAULT_PORT));
         } else {
           result.add(host);
         }
@@ -147,8 +144,8 @@ final class ClusterProperties {
   }
 
   private static void checkArgument(boolean expression,
-                                    @Nullable String messageTemplate,
-                                    @Nullable Object... args) {
+    @Nullable String messageTemplate,
+    @Nullable Object... args) {
     if (!expression) {
       throw new IllegalArgumentException(String.format(messageTemplate, args));
     }

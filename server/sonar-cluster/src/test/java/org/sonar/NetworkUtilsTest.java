@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process;
+package org.sonar;
 
 import java.net.InetAddress;
 import java.util.HashSet;
@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.process.NetworkUtils.getNextAvailablePort;
+import static org.sonar.NetworkUtils.getNextAvailablePort;
 
 public class NetworkUtilsTest {
 

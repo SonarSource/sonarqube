@@ -28,7 +28,7 @@ import org.sonar.process.MessageException;
 import org.sonar.process.Props;
 
 import static java.lang.String.format;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
 import static org.sonar.process.ProcessProperties.PATH_LOGS;
 import static org.sonar.process.ProcessProperties.PATH_TEMP;

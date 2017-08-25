@@ -39,6 +39,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettings.FIELDDATA_ENABLED;
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_FIELDDATA;
@@ -68,7 +69,7 @@ public class NewIndex {
     settings.put("index.refresh_interval", refreshInterval(settingsConfiguration));
 
     Configuration config = settingsConfiguration.getConfiguration();
-    boolean clusterMode = config.getBoolean(ProcessProperties.CLUSTER_ENABLED).orElse(false);
+    boolean clusterMode = config.getBoolean(CLUSTER_ENABLED).orElse(false);
     int shards = config.getInt(format("sonar.search.%s.shards", indexName))
       .orElse(settingsConfiguration.getDefaultNbOfShards());
     int replicas = clusterMode ? config.getInt(ProcessProperties.SEARCH_REPLICAS).orElse(1) : 0;

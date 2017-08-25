@@ -32,7 +32,7 @@ import org.sonar.process.ProcessProperties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.fail;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class NewIndexTest {
