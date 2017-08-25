@@ -37,6 +37,26 @@ public class ResetRequestTest {
     ResetRequest result = underTest.setKeys("my.key").build();
 
     assertThat(result.getKeys()).containsOnly("my.key");
+    assertThat(result.getComponent()).isNull();
+    assertThat(result.getBranch()).isNull();
+  }
+
+  @Test
+  public void component() {
+    ResetRequest result = underTest.setKeys("my.key").setComponent("project").build();
+
+    assertThat(result.getKeys()).containsOnly("my.key");
+    assertThat(result.getComponent()).isEqualTo("project");
+    assertThat(result.getBranch()).isNull();
+  }
+
+  @Test
+  public void component_and_branch() {
+    ResetRequest result = underTest.setKeys("my.key").setComponent("project").setBranch("branch").build();
+
+    assertThat(result.getKeys()).containsOnly("my.key");
+    assertThat(result.getComponent()).isEqualTo("project");
+    assertThat(result.getBranch()).isEqualTo("branch");
   }
 
   @Test
