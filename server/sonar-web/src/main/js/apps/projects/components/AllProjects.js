@@ -59,7 +59,7 @@ export default class AllProjects extends React.PureComponent {
   componentDidMount() {
     this.handleQueryChange(true);
     const footer = document.getElementById('footer');
-    footer && footer.classList.add('search-navigator-footer');
+    footer && footer.classList.add('page-footer-with-sidebar');
   }
 
   componentDidUpdate(prevProps /*: Props */) {
@@ -70,7 +70,7 @@ export default class AllProjects extends React.PureComponent {
 
   componentWillUnmount() {
     const footer = document.getElementById('footer');
-    footer && footer.classList.remove('search-navigator-footer');
+    footer && footer.classList.remove('page-footer-with-sidebar');
   }
 
   getView = () => this.state.query.view || 'overall';

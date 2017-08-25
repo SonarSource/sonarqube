@@ -75,7 +75,7 @@ export default class App extends React.PureComponent {
     key.setScope('measures-files');
     const footer = document.getElementById('footer');
     if (footer) {
-      footer.classList.add('search-navigator-footer');
+      footer.classList.add('page-footer-with-sidebar');
     }
   }
 
@@ -93,7 +93,7 @@ export default class App extends React.PureComponent {
     key.deleteScope('measures-files');
     const footer = document.getElementById('footer');
     if (footer) {
-      footer.classList.remove('search-navigator-footer');
+      footer.classList.remove('page-footer-with-sidebar');
     }
   }
 

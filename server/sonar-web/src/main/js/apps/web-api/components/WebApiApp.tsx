@@ -59,7 +59,7 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
     this.fetchList();
     const footer = document.getElementById('footer');
     if (footer) {
-      footer.classList.add('search-navigator-footer');
+      footer.classList.add('page-footer-with-sidebar');
     }
   }
 
@@ -72,7 +72,7 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
     this.mounted = false;
     const footer = document.getElementById('footer');
     if (footer) {
-      footer.classList.remove('search-navigator-footer');
+      footer.classList.remove('page-footer-with-sidebar');
     }
   }
 
