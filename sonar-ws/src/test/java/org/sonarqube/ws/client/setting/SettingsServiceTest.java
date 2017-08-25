@@ -49,12 +49,14 @@ public class SettingsServiceTest {
   public void list_definitions() {
     underTest.listDefinitions(ListDefinitionsRequest.builder()
       .setComponent("KEY")
+      .setBranch("BRANCH")
       .build());
     GetRequest getRequest = serviceTester.getGetRequest();
 
     assertThat(serviceTester.getGetParser()).isSameAs(ListDefinitionsWsResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasParam(PARAM_COMPONENT, "KEY")
+      .hasParam(PARAM_BRANCH, "BRANCH")
       .andNoOtherParam();
   }
 
