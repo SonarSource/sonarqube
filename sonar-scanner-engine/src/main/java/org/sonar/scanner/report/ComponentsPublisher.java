@@ -115,6 +115,11 @@ public class ComponentsPublisher implements ReportPublisherStep {
       if (lang != null) {
         builder.setLanguage(lang);
       }
+    } else if (component instanceof InputDir) {
+      FileStatus status = getDirectoryStatus(component, children);
+      if (status != null) {
+        builder.setStatus(status);
+      }
     }
 
     String path = getPath(component);
@@ -141,6 +146,25 @@ public class ComponentsPublisher implements ReportPublisherStep {
       default:
         throw new IllegalArgumentException("Unexpected status: " + status);
     }
+  }
+
+  @CheckForNull
+  private static FileStatus getDirectoryStatus(InputComponent component, Collection<InputComponent> children) {
+    if (children.isEmpty()) {
+      // directory must have issues, otherwise wouldn't be written
+      return null;
+    }
+
+    boolean hasChangedFiles = children.stream()
+      .filter(c -> c instanceof InputFile)
+      .map(c -> (DefaultInputFile) c)
+      .anyMatch(f -> f.isPublished() && f.status() != Status.SAME);
+
+    if (!hasChangedFiles) {
+      // this means that SonarJava didn't analyze the directory
+      return FileStatus.SAME;
+    }
+    return null;
   }
 
   private boolean shouldSkipComponent(DefaultInputComponent component, Collection<InputComponent> children) {
