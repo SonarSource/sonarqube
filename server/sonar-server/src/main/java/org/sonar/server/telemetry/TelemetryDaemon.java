@@ -36,13 +36,12 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.property.InternalProperties;
 
-import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.core.config.TelemetryProperties.PROP_ENABLE;
 import static org.sonar.core.config.TelemetryProperties.PROP_FREQUENCY;
 import static org.sonar.core.config.TelemetryProperties.PROP_URL;
+import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryData;
 
 @ServerSide
 public class TelemetryDaemon implements Startable {
@@ -133,24 +132,11 @@ public class TelemetryDaemon implements Startable {
 
   private void uploadStatistics() throws IOException {
     TelemetryData statistics = dataLoader.load();
-    StringWriter json = new StringWriter();
-    try (JsonWriter writer = JsonWriter.of(json)) {
-      writer.beginObject();
-      writer.prop("id", statistics.getServerId());
-      writer.prop("version", statistics.getVersion());
-      writer.name("plugins");
-      writer.valueObject(statistics.getPlugins());
-      writer.prop("userCount", statistics.getUserCount());
-      writer.prop("projectCount", statistics.getProjectCount());
-      writer.prop(LINES_KEY, statistics.getLines());
-      writer.prop(NCLOC_KEY, statistics.getNcloc());
-      writer.name("projectCountByLanguage");
-      writer.valueObject(statistics.getProjectCountByLanguage());
-      writer.name("nclocByLanguage");
-      writer.valueObject(statistics.getNclocByLanguage());
-      writer.endObject();
+    StringWriter jsonString = new StringWriter();
+    try (JsonWriter json = JsonWriter.of(jsonString)) {
+      writeTelemetryData(json, statistics);
     }
-    telemetryClient.upload(json.toString());
+    telemetryClient.upload(jsonString.toString());
   }
 
   private boolean shouldUploadStatistics(long now) {

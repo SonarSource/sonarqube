@@ -190,5 +190,29 @@
     "Pool Max Wait (ms)": 5000,
     "Pool Remove Abandoned": false,
     "Pool Remove Abandoned Timeout (seconds)": 300
+  },
+  "Statistics": {
+    "id": "AU-TpxcB-iU5OvuD2FL7",
+    "version": "5.1",
+    "plugins": {
+      "scmgit": "1.0-RC1",
+      "findbugs": "3.1",
+      "scmsvn": "1.0-RC1",
+      "java": "2.9.1"
+    },
+    "userCount": 3,
+    "projectCount": 2,
+    "lines": 500,
+    "ncloc": 300,
+    "projectCountByLanguage": {
+      "java": 2,
+      "kotlin": 1,
+      "js": 1
+    },
+    "nclocByLanguage": {
+      "java": 500,
+      "kotlin": 2500,
+      "js": 50
+    }
   }
 }

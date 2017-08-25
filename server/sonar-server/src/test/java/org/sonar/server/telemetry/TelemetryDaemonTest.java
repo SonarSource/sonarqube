@@ -160,7 +160,7 @@ public class TelemetryDaemonTest {
     underTest.start();
 
     ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
-    verify(client, timeout(1_000).atLeastOnce()).upload(json.capture());
+    verify(client, timeout(1_500).atLeastOnce()).upload(json.capture());
     assertThat(json.getValue()).contains(id, version);
   }
 

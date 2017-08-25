@@ -30,12 +30,15 @@ import org.sonar.ce.http.CeHttpClient;
 import org.sonar.ce.http.CeHttpClientImpl;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.monitoring.Monitor;
+import org.sonar.server.telemetry.TelemetryData;
+import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class InfoActionTest {
@@ -48,23 +51,24 @@ public class InfoActionTest {
   private Monitor monitor1 = mock(Monitor.class);
   private Monitor monitor2 = mock(Monitor.class);
   private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class, Mockito.RETURNS_MOCKS);
+  private TelemetryDataLoader statistics = mock(TelemetryDataLoader.class);
 
-  private InfoAction underTest = new InfoAction(userSessionRule, ceHttpClient, monitor1, monitor2);
-  private WsActionTester actionTester = new WsActionTester(underTest);
+  private InfoAction underTest = new InfoAction(userSessionRule, ceHttpClient, statistics, monitor1, monitor2);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void test_definition() throws Exception {
-    assertThat(actionTester.getDef().key()).isEqualTo("info");
-    assertThat(actionTester.getDef().isInternal()).isTrue();
-    assertThat(actionTester.getDef().responseExampleAsString()).isNotEmpty();
-    assertThat(actionTester.getDef().params()).isEmpty();
+    assertThat(ws.getDef().key()).isEqualTo("info");
+    assertThat(ws.getDef().isInternal()).isTrue();
+    assertThat(ws.getDef().responseExampleAsString()).isNotEmpty();
+    assertThat(ws.getDef().params()).isEmpty();
   }
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
     expectedException.expect(ForbiddenException.class);
 
-    actionTester.newRequest().execute();
+    ws.newRequest().execute();
   }
 
   @Test
@@ -73,7 +77,7 @@ public class InfoActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    actionTester.newRequest().execute();
+    ws.newRequest().execute();
   }
 
   @Test
@@ -90,10 +94,13 @@ public class InfoActionTest {
     when(monitor2.name()).thenReturn("Monitor Two");
     when(monitor2.attributes()).thenReturn(attributes2);
     when(ceHttpClient.retrieveSystemInfo()).thenReturn(Optional.empty());
+    when(statistics.load()).thenReturn(mock(TelemetryData.class));
 
-    TestResponse response = actionTester.newRequest().execute();
+    TestResponse response = ws.newRequest().execute();
     // response does not contain empty "Monitor Three"
-    assertThat(response.getInput()).isEqualTo("{\"Monitor One\":{\"foo\":\"bar\"},\"Monitor Two\":{\"one\":1,\"two\":2}}");
+    verify(statistics).load();
+    assertThat(response.getInput()).isEqualTo("{\"Monitor One\":{\"foo\":\"bar\"},\"Monitor Two\":{\"one\":1,\"two\":2}," +
+      "\"Statistics\":{\"plugins\":{},\"userCount\":0,\"projectCount\":0,\"lines\":0,\"ncloc\":0,\"projectCountByLanguage\":{},\"nclocByLanguage\":{}}}");
   }
 
   private void logInAsSystemAdministrator() {
