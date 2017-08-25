@@ -29,6 +29,7 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -38,6 +39,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -47,6 +49,7 @@ import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -380,6 +383,23 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
+  public void definitions_on_branch() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    propertyDefinitions.addComponents(asList(
+      PropertyDefinition.builder("sonar.leak.period").onQualifiers(PROJECT).build(),
+      PropertyDefinition.builder("other").onQualifiers(PROJECT).build()));
+
+    ListDefinitionsWsResponse result = ws.newRequest()
+      .setParam("component", branch.getKey())
+      .setParam("branch", branch.getBranch())
+      .executeProtobuf(Settings.ListDefinitionsWsResponse.class);
+
+    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsExactlyInAnyOrder("sonar.leak.period");
+  }
+
+  @Test
   public void fail_when_user_has_not_project_browse_permission() throws Exception {
     userSession.logIn("project-admin").addProjectPermission(CODEVIEWER, project);
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
@@ -390,13 +410,38 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
+  public void fail_when_component_not_found() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'unknown' not found");
+
+    ws.newRequest()
+      .setParam("component", "unknown")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_branch_not_found() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    userSession.logIn().addProjectPermission(USER, project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component '%s' on branch 'unknown' not found", branch.getKey()));
+
+    ws.newRequest()
+      .setParam("component", branch.getKey())
+      .setParam("branch", "unknown")
+      .execute();
+  }
+
+  @Test
   public void test_ws_definition() {
     WebService.Action action = ws.getDef();
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(1);
+    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("component", "branch");
   }
 
   @Test
