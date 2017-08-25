@@ -25,9 +25,16 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.sonar.api.platform.Server;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+
 class FakeServer extends Server {
   private String id;
   private String version;
+
+  public FakeServer() {
+    this.id = randomAlphanumeric(20);
+    this.version = randomAlphanumeric(10);
+  }
 
   @Override
   public String getId() {

@@ -59,7 +59,7 @@ public class TelemetryClient {
     try {
       okHttpClient.newCall(request.build()).execute();
     } catch (IOException e) {
-      LOG.debug("Error when sending opt-out usage statistics: %s", e.getMessage());
+      LOG.debug("Error when sending opt-out usage statistics: {}", e.getMessage());
     }
   }
 

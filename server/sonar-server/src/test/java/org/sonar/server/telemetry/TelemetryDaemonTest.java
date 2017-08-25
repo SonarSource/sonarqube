@@ -33,6 +33,8 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.config.TelemetryProperties;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -71,6 +73,8 @@ public class TelemetryDaemonTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public EsTester es = new EsTester(new UserIndexDefinition(emptyConfig), new ProjectMeasuresIndexDefinition(emptyConfig));
+  @Rule
+  public LogTester logger = new LogTester().setLevel(LoggerLevel.DEBUG);
 
   private TelemetryClient client = mock(TelemetryClient.class);
   private InternalProperties internalProperties = new MapInternalProperties();
@@ -86,8 +90,8 @@ public class TelemetryDaemonTest {
     settings = new MapSettings(new PropertyDefinitions(TelemetryProperties.all()));
     system2.setNow(System.currentTimeMillis());
 
-    underTest = new TelemetryDaemon(client, settings.asConfig(), internalProperties, server, pluginRepository, system2, new UserIndex(es.client()),
-      new ProjectMeasuresIndex(es.client(), null));
+    underTest = new TelemetryDaemon(new TelemetryDataLoader(server, pluginRepository, new UserIndex(es.client()), new ProjectMeasuresIndex(es.client(), null)), client,
+      settings.asConfig(), internalProperties, system2);
   }
 
   @Test
@@ -121,6 +125,7 @@ public class TelemetryDaemonTest {
     String json = jsonCaptor.getValue();
     assertJson(json).isSimilarTo(getClass().getResource("telemetry-example.json"));
     assertJson(getClass().getResource("telemetry-example.json")).isSimilarTo(json);
+    assertThat(logger.logs(LoggerLevel.INFO)).contains("Sharing of SonarQube statistics is enabled.");
   }
 
   @Test
@@ -194,6 +199,7 @@ public class TelemetryDaemonTest {
 
     verify(client, timeout(1_000).never()).upload(anyString());
     verify(client, timeout(1_000).times(1)).optOut(anyString());
+    assertThat(logger.logs(LoggerLevel.INFO)).contains("Sharing of SonarQube statistics is disabled.");
   }
 
   private PluginInfo newPlugin(String key, String version) {

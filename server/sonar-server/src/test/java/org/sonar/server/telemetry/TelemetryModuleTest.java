@@ -29,6 +29,6 @@ public class TelemetryModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new TelemetryModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 2);
+    assertThat(container.size()).isEqualTo(3 + 2);
   }
 }
