@@ -22,8 +22,8 @@ package org.sonar.server.computation.task.projectanalysis.component;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import org.sonar.api.config.Configuration;
-import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.settings.ProjectConfigurationFactory;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 
 /**
  * Repository of component settings implementation based on a memory cache.
@@ -32,11 +32,8 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
   private final Supplier<Configuration> configuration;
 
-  public ConfigurationRepositoryImpl(CeTask ceTask, ProjectConfigurationFactory f) {
-    // project key is loaded from task because
-    // analysisMetadataHolder.getProject() may be not set yet
-    // when the first ComputationSteps are executed.
-    this.configuration = Suppliers.memoize(() -> f.newProjectConfiguration(ceTask.getComponentKey()));
+  public ConfigurationRepositoryImpl(AnalysisMetadataHolder analysisMetadataHolder, ProjectConfigurationFactory f) {
+    this.configuration = Suppliers.memoize(() -> f.newProjectConfiguration(analysisMetadataHolder.getProject().getKey()));
   }
 
   @Override
