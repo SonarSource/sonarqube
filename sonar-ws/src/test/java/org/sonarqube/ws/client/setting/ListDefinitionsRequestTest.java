@@ -33,17 +33,27 @@ public class ListDefinitionsRequestTest {
   ListDefinitionsRequest.Builder underTest = ListDefinitionsRequest.builder();
 
   @Test
-  public void create_request_with_no_component() {
+  public void create_request_with_nothing() {
     ListDefinitionsRequest result = underTest.build();
 
     assertThat(result.getComponent()).isNull();
+    assertThat(result.getBranch()).isNull();
   }
 
   @Test
-  public void create_request_with_component_key() {
+  public void create_request_with_component() {
     ListDefinitionsRequest result = underTest.setComponent("projectKey").build();
 
     assertThat(result.getComponent()).isEqualTo("projectKey");
+    assertThat(result.getBranch()).isNull();
+  }
+
+  @Test
+  public void create_request_with_component_and_branch() {
+    ListDefinitionsRequest result = underTest.setComponent("projectKey").setBranch("branch").build();
+
+    assertThat(result.getComponent()).isEqualTo("projectKey");
+    assertThat(result.getBranch()).isEqualTo("branch");
   }
 
 }

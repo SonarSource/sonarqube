@@ -21,20 +21,27 @@ package org.sonar.server.setting.ws;
 
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
 
 @ServerSide
 public class SettingsWsSupport {
+
+  private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
 
   public static final String DOT_SECURED = ".secured";
   public static final String DOT_LICENSE = ".license";
@@ -80,5 +87,13 @@ public class SettingsWsSupport {
     return component
       .map(c -> userSession.hasComponentPermission(projectPermission, c))
       .orElse(false);
+  }
+
+  WebService.NewParam addBranchParam(WebService.NewAction action){
+    return action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key. Only available on following settings : %s", SettingsWs.SETTING_ON_BRANCHES.stream().collect(COMMA_JOINER))
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("6.6");
   }
 }
