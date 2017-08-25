@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
+import * as PropTypes from 'prop-types';
 import { Branch, Component, ComponentExtension, ComponentConfiguration } from '../../../types';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
 import { isShortLivingBranch, getBranchName } from '../../../../helpers/branches';
@@ -27,6 +28,7 @@ import { translate } from '../../../../helpers/l10n';
 
 const SETTINGS_URLS = [
   '/project/admin',
+  '/project/branches',
   '/project/settings',
   '/project/quality_profiles',
   '/project/quality_gate',
@@ -46,6 +48,10 @@ interface Props {
 }
 
 export default class ComponentNavMenu extends React.PureComponent<Props> {
+  static contextTypes = {
+    branchesEnabled: PropTypes.bool.isRequired
+  };
+
   isProject() {
     return this.props.component.qualifier === 'TRK';
   }
@@ -196,6 +202,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   renderAdministrationLinks() {
     return [
       this.renderSettingsLink(),
+      this.renderBranchesLink(),
       this.renderProfilesLink(),
       this.renderQualityGateLink(),
       this.renderCustomMeasuresLink(),
@@ -218,6 +225,21 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           to={{ pathname: '/project/settings', query: { id: this.props.component.key } }}
           activeClassName="active">
           {translate('project_settings.page')}
+        </Link>
+      </li>
+    );
+  }
+
+  renderBranchesLink() {
+    if (!this.context.branchesEnabled || !this.props.conf.showSettings) {
+      return null;
+    }
+    return (
+      <li key="branches">
+        <Link
+          to={{ pathname: '/project/branches', query: { id: this.props.component.key } }}
+          activeClassName="active">
+          {translate('project_branches.page')}
         </Link>
       </li>
     );
