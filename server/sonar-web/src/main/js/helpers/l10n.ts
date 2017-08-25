@@ -142,10 +142,22 @@ export function getLocalizedDashboardName(baseName: string) {
   return l10nLabel !== l10nKey ? l10nLabel : baseName;
 }
 
-export function getLocalizedMetricName(metric: { key: string; name: string }) {
-  const bundleKey = `metric.${metric.key}.name`;
+export function getLocalizedMetricName(
+  metric: { key: string; name: string },
+  short?: boolean
+): string {
+  const bundleKey = `metric.${metric.key}.${short ? 'short_name' : 'name'}`;
   const fromBundle = translate(bundleKey);
-  return fromBundle !== bundleKey ? fromBundle : metric.name;
+  if (fromBundle === bundleKey) {
+    return short ? getLocalizedMetricName(metric) : metric.name;
+  }
+  return fromBundle;
+}
+
+export function getLocalizedCategoryMetricName(metric: { key: string; name: string }) {
+  const bundleKey = `metric.${metric.key}.extra_short_name`;
+  const fromBundle = translate(bundleKey);
+  return fromBundle === bundleKey ? getLocalizedMetricName(metric, true) : fromBundle;
 }
 
 export function getLocalizedMetricDomain(domainName: string) {

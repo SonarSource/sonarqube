@@ -63,17 +63,31 @@ export function filterMeasures(
 
 export function sortMeasures(
   domainName /*: string */,
-  measures /*: Array<MeasureEnhanced> */
-) /*: Array<MeasureEnhanced> */ {
+  measures /*: Array<MeasureEnhanced | string> */
+) /*: Array<MeasureEnhanced | string> */ {
   const config = domains[domainName] || {};
   const configOrder = config.order || [];
   return sortBy(measures, [
-    measure => {
-      const idx = configOrder.indexOf(measure.metric.key);
+    item => {
+      if (typeof item === 'string') {
+        return configOrder.indexOf(item);
+      }
+      const idx = configOrder.indexOf(item.metric.key);
       return idx >= 0 ? idx : configOrder.length;
     },
-    measure => getLocalizedMetricName(measure.metric)
+    item => (typeof item === 'string' ? item : getLocalizedMetricName(item.metric))
   ]);
+}
+
+export function addMeasureCategories(
+  domainName /*: string */,
+  measures /*: Array<MeasureEnhanced> */
+) /*: Array<any> */ {
+  const categories = domains[domainName] && domains[domainName].categories;
+  if (categories && categories.length > 0) {
+    return [...categories, ...measures];
+  }
+  return measures;
 }
 
 export function enhanceComponent(
@@ -98,11 +112,10 @@ export function isViewType(component /*: Component */) /*: boolean */ {
 }
 
 export const groupByDomains = memoize((measures /*: Array<MeasureEnhanced> */) => {
-  const domains = toPairs(groupBy(measures, measure => measure.metric.domain)).map(r => {
-    const [name, measures] = r;
-    const sortedMeasures = sortBy(measures, measure => getLocalizedMetricName(measure.metric));
-    return { name, measures: sortedMeasures };
-  });
+  const domains = toPairs(groupBy(measures, measure => measure.metric.domain)).map(r => ({
+    name: r[0],
+    measures: r[1]
+  }));
 
   return sortBy(domains, [
     domain => {

@@ -14,17 +14,11 @@ exports[`should display facet item list 1`] = `
       disabled={false}
       halfWidth={false}
       name={
-        <Tooltip
-          mouseEnterDelay={0.5}
-          overlay="component_measures.domain_x_overview.Reliability"
-          placement="bottom"
+        <span
+          id="measure-overview-Reliability-name"
         >
-          <span
-            id="measure-overview-Reliability-name"
-          >
-            component_measures.domain_x_overview.Reliability
-          </span>
-        </Tooltip>
+          component_measures.domain_overview
+        </span>
       }
       onClick={[Function]}
       stat={
@@ -34,26 +28,26 @@ exports[`should display facet item list 1`] = `
       }
       value="Reliability"
     />
+    <span
+      className="facet search-navigator-facet facet-category"
+    >
+      <span
+        className="facet-name"
+      >
+        component_measures.facet_category.new_code_category
+      </span>
+    </span>
     <FacetItem
       active={false}
       disabled={false}
       halfWidth={false}
       name={
-        <Tooltip
-          mouseEnterDelay={0.5}
-          overlay="New Bugs"
-          placement="bottom"
+        <span
+          className="big-spacer-left"
+          id="measure-new_bugs-name"
         >
-          <span
-            id="measure-new_bugs-name"
-          >
-            <IssueTypeIcon
-              className="little-spacer-right"
-              query="new_bugs"
-            />
-            New Bugs
-          </span>
-        </Tooltip>
+          New Bugs
+        </span>
       }
       onClick={[Function]}
       stat={
@@ -79,26 +73,26 @@ exports[`should display facet item list 1`] = `
       }
       value="new_bugs"
     />
+    <span
+      className="facet search-navigator-facet facet-category"
+    >
+      <span
+        className="facet-name"
+      >
+        component_measures.facet_category.overall_category
+      </span>
+    </span>
     <FacetItem
       active={false}
       disabled={false}
       halfWidth={false}
       name={
-        <Tooltip
-          mouseEnterDelay={0.5}
-          overlay="Bugs"
-          placement="bottom"
+        <span
+          className="big-spacer-left"
+          id="measure-bugs-name"
         >
-          <span
-            id="measure-bugs-name"
-          >
-            <IssueTypeIcon
-              className="little-spacer-right"
-              query="bugs"
-            />
-            Bugs
-          </span>
-        </Tooltip>
+          Bugs
+        </span>
       }
       onClick={[Function]}
       stat={
@@ -143,17 +137,11 @@ exports[`should display facet item list with bugs selected 1`] = `
       disabled={false}
       halfWidth={false}
       name={
-        <Tooltip
-          mouseEnterDelay={0.5}
-          overlay="component_measures.domain_x_overview.Reliability"
-          placement="bottom"
+        <span
+          id="measure-overview-Reliability-name"
         >
-          <span
-            id="measure-overview-Reliability-name"
-          >
-            component_measures.domain_x_overview.Reliability
-          </span>
-        </Tooltip>
+          component_measures.domain_overview
+        </span>
       }
       onClick={[Function]}
       stat={
@@ -163,26 +151,26 @@ exports[`should display facet item list with bugs selected 1`] = `
       }
       value="Reliability"
     />
+    <span
+      className="facet search-navigator-facet facet-category"
+    >
+      <span
+        className="facet-name"
+      >
+        component_measures.facet_category.new_code_category
+      </span>
+    </span>
     <FacetItem
       active={false}
       disabled={false}
       halfWidth={false}
       name={
-        <Tooltip
-          mouseEnterDelay={0.5}
-          overlay="New Bugs"
-          placement="bottom"
+        <span
+          className="big-spacer-left"
+          id="measure-new_bugs-name"
         >
-          <span
-            id="measure-new_bugs-name"
-          >
-            <IssueTypeIcon
-              className="little-spacer-right"
-              query="new_bugs"
-            />
-            New Bugs
-          </span>
-        </Tooltip>
+          New Bugs
+        </span>
       }
       onClick={[Function]}
       stat={
@@ -208,26 +196,26 @@ exports[`should display facet item list with bugs selected 1`] = `
       }
       value="new_bugs"
     />
+    <span
+      className="facet search-navigator-facet facet-category"
+    >
+      <span
+        className="facet-name"
+      >
+        component_measures.facet_category.overall_category
+      </span>
+    </span>
     <FacetItem
       active={true}
       disabled={false}
       halfWidth={false}
       name={
-        <Tooltip
-          mouseEnterDelay={0.5}
-          overlay="Bugs"
-          placement="bottom"
+        <span
+          className="big-spacer-left"
+          id="measure-bugs-name"
         >
-          <span
-            id="measure-bugs-name"
-          >
-            <IssueTypeIcon
-              className="little-spacer-right"
-              query="bugs"
-            />
-            Bugs
-          </span>
-        </Tooltip>
+          Bugs
+        </span>
       }
       onClick={[Function]}
       stat={
