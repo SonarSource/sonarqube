@@ -39,8 +39,10 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.setting.ResetRequest;
 
 import static java.util.Collections.emptyList;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
 
@@ -84,6 +86,11 @@ public class ResetAction implements SettingsWsAction {
       .setDescription("Component key")
       .setDeprecatedKey("componentKey", "6.3")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("6.6");
   }
 
   @Override
@@ -122,6 +129,7 @@ public class ResetAction implements SettingsWsAction {
     return ResetRequest.builder()
       .setKeys(request.paramAsStrings(PARAM_KEYS))
       .setComponent(request.param(PARAM_COMPONENT))
+      .setBranch(request.param(PARAM_BRANCH))
       .build();
   }
 
@@ -130,7 +138,7 @@ public class ResetAction implements SettingsWsAction {
     if (componentKey == null) {
       return Optional.empty();
     }
-    return Optional.of(componentFinder.getByKey(dbSession, componentKey));
+    return Optional.of(componentFinder.getByKeyAndOptionalBranch(dbSession, componentKey, request.getBranch()));
   }
 
   private void checkPermissions(Optional<ComponentDto> component) {

@@ -99,11 +99,13 @@ public class SettingsServiceTest {
     underTest.reset(ResetRequest.builder()
       .setKeys("sonar.debt")
       .setComponent("KEY")
+      .setBranch("BRANCH")
       .build());
 
     serviceTester.assertThat(serviceTester.getPostRequest())
       .hasParam(PARAM_KEYS, "sonar.debt")
       .hasParam(PARAM_COMPONENT, "KEY")
+      .hasParam(PARAM_BRANCH, "BRANCH")
       .andNoOtherParam();
   }
 
