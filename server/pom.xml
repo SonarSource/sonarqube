@@ -13,6 +13,7 @@
   <name>SonarQube :: Server :: Parent</name>
 
   <modules>
+    <module>sonar-cluster</module>
     <module>sonar-process</module>
     <module>sonar-main</module>
     <module>sonar-db-core</module>

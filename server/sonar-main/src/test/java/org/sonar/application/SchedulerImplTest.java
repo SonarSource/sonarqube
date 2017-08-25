@@ -41,7 +41,6 @@ import org.sonar.application.config.TestAppSettings;
 import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.ProcessMonitor;
 import org.sonar.process.ProcessId;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.command.AbstractCommand;
 import org.sonar.process.command.CommandFactory;
 import org.sonar.process.command.EsCommand;
@@ -53,6 +52,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
 import static org.sonar.process.ProcessId.ELASTICSEARCH;
 import static org.sonar.process.ProcessId.WEB_SERVER;
@@ -128,9 +129,6 @@ public class SchedulerImplTest {
 
     // does nothing because scheduler is already terminated
     underTest.awaitTermination();
-  }
-
-  private void enableAllProcesses() {
   }
 
   @Test
@@ -237,8 +235,8 @@ public class SchedulerImplTest {
 
   @Test
   public void search_node_starts_only_elasticsearch() throws Exception {
-    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "search");
+    settings.set(CLUSTER_ENABLED, "true");
+    settings.set(CLUSTER_NODE_TYPE, "search");
     SchedulerImpl underTest = newScheduler();
     underTest.schedule();
 
@@ -251,8 +249,8 @@ public class SchedulerImplTest {
   @Test
   public void application_node_starts_only_web_and_ce() throws Exception {
     appState.setOperational(ProcessId.ELASTICSEARCH);
-    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    settings.set(CLUSTER_ENABLED, "true");
+    settings.set(CLUSTER_NODE_TYPE, "application");
     SchedulerImpl underTest = newScheduler();
     underTest.schedule();
 
@@ -270,8 +268,8 @@ public class SchedulerImplTest {
     assertThat(appState.tryToLockWebLeader()).isTrue();
 
     appState.setOperational(ProcessId.ELASTICSEARCH);
-    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "search");
+    settings.set(CLUSTER_ENABLED, "true");
+    settings.set(CLUSTER_NODE_TYPE, "search");
     SchedulerImpl underTest = newScheduler();
     underTest.schedule();
 
@@ -287,8 +285,8 @@ public class SchedulerImplTest {
     assertThat(appState.tryToLockWebLeader()).isTrue();
     appState.setOperational(ProcessId.ELASTICSEARCH);
 
-    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    settings.set(CLUSTER_ENABLED, "true");
+    settings.set(CLUSTER_NODE_TYPE, "application");
     SchedulerImpl underTest = newScheduler();
     underTest.schedule();
 
@@ -306,8 +304,8 @@ public class SchedulerImplTest {
 
   @Test
   public void web_server_waits_for_remote_elasticsearch_to_be_started_if_local_es_is_disabled() throws Exception {
-    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    settings.set(CLUSTER_ENABLED, "true");
+    settings.set(CLUSTER_NODE_TYPE, "application");
     SchedulerImpl underTest = newScheduler();
     underTest.schedule();
 

@@ -26,16 +26,18 @@ import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_REPOSITORY;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
+
+;
 
 public class RuleIndexDefinitionTest {
 
@@ -62,7 +64,7 @@ public class RuleIndexDefinitionTest {
 
   @Test
   public void enable_replica_if_clustering_is_enabled() {
-    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
+    settings.setProperty(CLUSTER_ENABLED, true);
     IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
     underTest.define(context);
 

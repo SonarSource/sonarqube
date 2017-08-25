@@ -23,26 +23,15 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Properties;
+import org.sonar.NetworkUtils;
+
+import static org.sonar.cluster.ClusterProperties.putClusterDefaults;
 
 /**
  * Constants shared by search, web server and app processes.
  * They are almost all the properties defined in conf/sonar.properties.
  */
 public class ProcessProperties {
-  public static final String CLUSTER_ENABLED = "sonar.cluster.enabled";
-  public static final String CLUSTER_NODE_TYPE = "sonar.cluster.node.type";
-  public static final String CLUSTER_SEARCH_HOSTS = "sonar.cluster.search.hosts";
-  public static final String CLUSTER_HOSTS = "sonar.cluster.hosts";
-  public static final String CLUSTER_NODE_PORT = "sonar.cluster.node.port";
-  public static final String CLUSTER_NODE_HOST = "sonar.cluster.node.host";
-  public static final String CLUSTER_NODE_NAME = "sonar.cluster.node.name";
-  public static final String CLUSTER_NAME = "sonar.cluster.name";
-  public static final String HAZELCAST_LOG_LEVEL = "sonar.log.level.app.hazelcast";
-  public static final String CLUSTER_WEB_LEADER = "sonar.cluster.web.startupLeader";
-  // Internal property used by sonar-application to share the local endpoint of Hazelcast
-  public static final String CLUSTER_LOCALENDPOINT = "sonar.cluster.hazelcast.localEndPoint";
-  // Internal property used by sonar-application to share the local UUID of the Hazelcast member
-  public static final String CLUSTER_MEMBERUUID = "sonar.cluster.hazelcast.memberUUID";
 
   public static final String JDBC_URL = "sonar.jdbc.url";
   public static final String JDBC_DRIVER_PATH = "sonar.jdbc.driverPath";
@@ -137,12 +126,7 @@ public class ProcessProperties {
     defaults.put(JDBC_MIN_EVICTABLE_IDLE_TIME_MILLIS, "600000");
     defaults.put(JDBC_TIME_BETWEEN_EVICTION_RUNS_MILLIS, "30000");
 
-    defaults.put(CLUSTER_ENABLED, "false");
-    defaults.put(CLUSTER_NAME, "sonarqube");
-    defaults.put(CLUSTER_NODE_HOST, "");
-    defaults.put(CLUSTER_HOSTS, "");
-    defaults.put(CLUSTER_NODE_PORT, "9003");
-    defaults.put(HAZELCAST_LOG_LEVEL, "WARN");
+    putClusterDefaults(defaults);
 
     return defaults;
   }

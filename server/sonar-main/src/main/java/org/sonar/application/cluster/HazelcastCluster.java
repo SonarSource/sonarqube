@@ -52,18 +52,18 @@ import org.sonar.process.ProcessId;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static org.sonar.NetworkUtils.getHostname;
+import static org.sonar.NetworkUtils.getIPAddresses;
 import static org.sonar.application.cluster.ClusterProperties.HAZELCAST_CLUSTER_NAME;
-import static org.sonar.process.NetworkUtils.getHostname;
-import static org.sonar.process.NetworkUtils.getIPAddresses;
-import static org.sonar.process.cluster.ClusterObjectKeys.CLIENT_UUIDS;
-import static org.sonar.process.cluster.ClusterObjectKeys.CLUSTER_NAME;
-import static org.sonar.process.cluster.ClusterObjectKeys.HOSTNAME;
-import static org.sonar.process.cluster.ClusterObjectKeys.IP_ADDRESSES;
-import static org.sonar.process.cluster.ClusterObjectKeys.LEADER;
-import static org.sonar.process.cluster.ClusterObjectKeys.NODE_NAME;
-import static org.sonar.process.cluster.ClusterObjectKeys.NODE_TYPE;
-import static org.sonar.process.cluster.ClusterObjectKeys.OPERATIONAL_PROCESSES;
-import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
+import static org.sonar.cluster.ClusterObjectKeys.CLIENT_UUIDS;
+import static org.sonar.cluster.ClusterObjectKeys.CLUSTER_NAME;
+import static org.sonar.cluster.ClusterObjectKeys.HOSTNAME;
+import static org.sonar.cluster.ClusterObjectKeys.IP_ADDRESSES;
+import static org.sonar.cluster.ClusterObjectKeys.LEADER;
+import static org.sonar.cluster.ClusterObjectKeys.NODE_NAME;
+import static org.sonar.cluster.ClusterObjectKeys.NODE_TYPE;
+import static org.sonar.cluster.ClusterObjectKeys.OPERATIONAL_PROCESSES;
+import static org.sonar.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
 
 public class HazelcastCluster implements AutoCloseable {
   private static Logger LOGGER = LoggerFactory.getLogger(HazelcastCluster.class);
@@ -156,8 +156,7 @@ public class HazelcastCluster implements AutoCloseable {
     String clusterVersion = sqVersion.get();
     if (!sqVersion.get().equals(sonarqubeVersion)) {
       throw new IllegalStateException(
-        format("The local version %s is not the same as the cluster %s", sonarqubeVersion, clusterVersion)
-      );
+        format("The local version %s is not the same as the cluster %s", sonarqubeVersion, clusterVersion));
     }
   }
 
@@ -178,8 +177,7 @@ public class HazelcastCluster implements AutoCloseable {
     String clusterValue = property.get();
     if (!property.get().equals(nodeValue)) {
       throw new MessageException(
-        format("This node has a cluster name [%s], which does not match [%s] from the cluster", nodeValue, clusterValue)
-      );
+        format("This node has a cluster name [%s], which does not match [%s] from the cluster", nodeValue, clusterValue));
     }
   }
 
@@ -190,7 +188,7 @@ public class HazelcastCluster implements AutoCloseable {
         // Removing listeners
         operationalProcesses.removeEntryListener(operationalProcessListenerUUID);
         hzInstance.getClientService().removeClientListener(clientListenerUUID);
-      hzInstance.getCluster().removeMembershipListener(nodeDisconnectedListenerUUID);
+        hzInstance.getCluster().removeMembershipListener(nodeDisconnectedListenerUUID);
 
         // Removing the operationalProcess from the replicated map
         operationalProcesses.keySet().forEach(

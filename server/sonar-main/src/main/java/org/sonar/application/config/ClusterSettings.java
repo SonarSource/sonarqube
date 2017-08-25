@@ -33,7 +33,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.process.MessageException;
 import org.sonar.process.NodeType;
 import org.sonar.process.ProcessId;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static com.google.common.net.InetAddresses.forString;
@@ -43,12 +42,12 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
-import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
-import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
-import static org.sonar.process.ProcessProperties.CLUSTER_WEB_LEADER;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_HOSTS;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_HOST;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_WEB_LEADER;
 import static org.sonar.process.ProcessProperties.JDBC_URL;
 import static org.sonar.process.ProcessProperties.SEARCH_HOST;
 
@@ -69,9 +68,9 @@ public class ClusterSettings implements Consumer<Props> {
 
     // Mandatory properties
     ensureMandatoryProperty(props, CLUSTER_NODE_TYPE);
-    String nodeTypeValue = props.nonNullValue(ProcessProperties.CLUSTER_NODE_TYPE);
+    String nodeTypeValue = props.nonNullValue(CLUSTER_NODE_TYPE);
     if (!NodeType.isValid(nodeTypeValue)) {
-      throw new MessageException(format("Invalid value for property [%s]: [%s], only [%s] are allowed", ProcessProperties.CLUSTER_NODE_TYPE, nodeTypeValue,
+      throw new MessageException(format("Invalid value for property [%s]: [%s], only [%s] are allowed", CLUSTER_NODE_TYPE, nodeTypeValue,
         Arrays.stream(NodeType.values()).map(NodeType::getValue).collect(joining(", "))));
     }
     ensureMandatoryProperty(props, CLUSTER_HOSTS);
@@ -182,7 +181,7 @@ public class ClusterSettings implements Consumer<Props> {
     if (!isClusterEnabled(settings)) {
       return asList(ProcessId.ELASTICSEARCH, ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);
     }
-    NodeType nodeType = NodeType.parse(settings.getValue(ProcessProperties.CLUSTER_NODE_TYPE).orElse(null));
+    NodeType nodeType = NodeType.parse(settings.getValue(CLUSTER_NODE_TYPE).orElse(null));
     switch (nodeType) {
       case APPLICATION:
         return asList(ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);
@@ -196,7 +195,7 @@ public class ClusterSettings implements Consumer<Props> {
   public static boolean isLocalElasticsearchEnabled(AppSettings settings) {
     // elasticsearch is enabled on "search" nodes, but disabled on "application" nodes
     if (isClusterEnabled(settings.getProps())) {
-      return NodeType.parse(settings.getValue(ProcessProperties.CLUSTER_NODE_TYPE).orElse(null)) == NodeType.SEARCH;
+      return NodeType.parse(settings.getValue(CLUSTER_NODE_TYPE).orElse(null)) == NodeType.SEARCH;
     }
 
     // elasticsearch is enabled in standalone mode
