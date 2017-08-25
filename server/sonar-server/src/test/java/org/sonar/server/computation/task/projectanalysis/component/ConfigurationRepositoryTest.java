@@ -24,34 +24,27 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.settings.ProjectConfigurationFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.server.computation.task.projectanalysis.analysis.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 
 public class ConfigurationRepositoryTest {
 
-  private static final Component ROOT = ReportComponent.builder(PROJECT, 1).setKey("ROOT").build();
-  private static final CeTask TASK = new CeTask.Builder()
-    .setOrganizationUuid("foo")
-    .setUuid("bar")
-    .setType(CeTaskTypes.REPORT)
-    .setComponentUuid(ROOT.getUuid())
-    .setComponentKey(ROOT.getKey())
-    .build();
+  private static Project PROJECT = new Project("UUID", "KEY", "NAME");
 
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE);
 
   private DbClient dbClient = db.getDbClient();
   private MapSettings globalSettings = new MapSettings();
-  private ConfigurationRepository underTest = new ConfigurationRepositoryImpl(TASK, new ProjectConfigurationFactory(globalSettings, dbClient));
+  private AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule().setProject(PROJECT);
+  private ConfigurationRepository underTest = new ConfigurationRepositoryImpl(analysisMetadataHolder, new ProjectConfigurationFactory(globalSettings, dbClient));
 
   @Test
   public void get_project_settings_from_global_settings() {
@@ -64,7 +57,7 @@ public class ConfigurationRepositoryTest {
 
   @Test
   public void get_project_settings_from_db() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(ROOT.getKey()));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(PROJECT.getKey()));
     insertProjectProperty(project, "key", "value");
 
     Configuration config = underTest.getConfiguration();
@@ -86,7 +79,7 @@ public class ConfigurationRepositoryTest {
   @Test
   public void project_settings_override_global_settings() {
     globalSettings.setProperty("key", "value1");
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(ROOT.getKey()));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(PROJECT.getKey()));
     insertProjectProperty(project, "key", "value2");
 
     Configuration config = underTest.getConfiguration();
@@ -95,7 +88,7 @@ public class ConfigurationRepositoryTest {
 
   @Test
   public void project_settings_are_cached_to_avoid_db_access() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(ROOT.getKey()));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(PROJECT.getKey()));
     insertProjectProperty(project, "key", "value");
 
     Configuration config = underTest.getConfiguration();
