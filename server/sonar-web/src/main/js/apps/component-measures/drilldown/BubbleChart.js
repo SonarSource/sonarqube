@@ -29,7 +29,7 @@ import {
   translate,
   translateWithParameters
 } from '../../../helpers/l10n';
-import { getBubbleMetrics, isProjectOverview } from '../utils';
+import { getBubbleMetrics, getBubbleYDomain, isProjectOverview } from '../utils';
 import { RATING_COLORS } from '../../../helpers/constants';
 /*:: import type { Component, ComponentEnhanced } from '../types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
@@ -131,6 +131,7 @@ export default class BubbleChart extends React.PureComponent {
         formatXTick={formatXTick}
         formatYTick={formatYTick}
         onBubbleClick={this.handleBubbleClick}
+        yDomain={getBubbleYDomain(this.props.domain)}
       />
     );
   }
