@@ -55,7 +55,7 @@ import org.sonar.ce.settings.ProjectConfigurationFactory;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
 import org.sonar.ce.user.CeUserSession;
-import org.sonar.cluster.localclient.HazelcastClientWrapperImpl;
+import org.sonar.cluster.localclient.HazelcastLocalClient;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.ConfigurationProvider;
 import org.sonar.core.config.CorePropertyDefinitions;
@@ -191,7 +191,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     // TODO refactoring levelXComponents()
     if (props.valueAsBoolean("sonar.cluster.enabled")) {
       this.level4.add(
-        HazelcastClientWrapperImpl.class,
+        HazelcastLocalClient.class,
         CeDistributedInformationImpl.class);
     } else {
       this.level4.add(
