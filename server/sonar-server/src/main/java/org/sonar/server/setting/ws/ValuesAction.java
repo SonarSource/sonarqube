@@ -49,9 +49,11 @@ import static java.util.stream.Stream.concat;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_VALUES;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
 
@@ -95,12 +97,17 @@ public class ValuesAction implements SettingsWsAction {
       .setResponseExample(getClass().getResource("values-example.json"))
       .setSince("6.3")
       .setHandler(this);
-    action.createParam(PARAM_COMPONENT)
-      .setDescription("Component key")
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(PARAM_KEYS)
       .setDescription("List of setting keys")
       .setExampleValue("sonar.test.inclusions,sonar.dbcleaner.cleanDirectory");
+    action.createParam(PARAM_COMPONENT)
+      .setDescription("Component key")
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("6.6");
   }
 
   @Override
@@ -122,7 +129,8 @@ public class ValuesAction implements SettingsWsAction {
 
   private static ValuesRequest toWsRequest(Request request) {
     ValuesRequest.Builder builder = ValuesRequest.builder()
-      .setComponent(request.param(PARAM_COMPONENT));
+      .setComponent(request.param(PARAM_COMPONENT))
+      .setBranch(request.param(PARAM_BRANCH));
     if (request.hasParam(PARAM_KEYS)) {
       builder.setKeys(request.paramAsStrings(PARAM_KEYS));
     }
@@ -142,16 +150,20 @@ public class ValuesAction implements SettingsWsAction {
     if (componentKey == null) {
       return Optional.empty();
     }
-    ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
+    ComponentDto component = componentFinder.getByKeyAndOptionalBranch(dbSession, componentKey, valuesRequest.getBranch());
     userSession.checkComponentPermission(USER, component);
     return Optional.of(component);
   }
 
   private List<Setting> loadSettings(DbSession dbSession, Optional<ComponentDto> component, Set<String> keys) {
-    // List of settings must be kept in the following orders : default -> global -> component
+    // List of settings must be kept in the following orders : default -> global -> component -> branch
     List<Setting> settings = new ArrayList<>();
     settings.addAll(loadDefaultSettings(keys));
     settings.addAll(settingsFinder.loadGlobalSettings(dbSession, keys));
+    if (component.isPresent() && component.get().getBranch() != null && component.get().getMainBranchProjectUuid() != null) {
+      ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, component.get().getMainBranchProjectUuid());
+      settings.addAll(settingsFinder.loadComponentSettings(dbSession, keys, project).values());
+    }
     component.ifPresent(componentDto -> settings.addAll(settingsFinder.loadComponentSettings(dbSession, keys, componentDto).values()));
     return settings.stream()
       .filter(settingsWsSupport.isSettingVisible(component))

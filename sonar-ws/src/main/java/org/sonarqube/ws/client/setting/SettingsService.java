@@ -53,7 +53,8 @@ public class SettingsService extends BaseService {
   public ValuesWsResponse values(ValuesRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_VALUES))
       .setParam(PARAM_KEYS, inlineMultipleParamValue(request.getKeys()))
-      .setParam(PARAM_COMPONENT, request.getComponent());
+      .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch());
     return call(getRequest, ValuesWsResponse.parser());
   }
 
@@ -64,16 +65,14 @@ public class SettingsService extends BaseService {
       .setParam(PARAM_VALUES, request.getValues())
       .setParam(PARAM_FIELD_VALUES, request.getFieldValues())
       .setParam(PARAM_COMPONENT, request.getComponent())
-      .setParam(PARAM_BRANCH, request.getBranch())
-    );
+      .setParam(PARAM_BRANCH, request.getBranch()));
   }
 
   public void reset(ResetRequest request) {
     call(new PostRequest(path(ACTION_RESET))
       .setParam(PARAM_KEYS, inlineMultipleParamValue(request.getKeys()))
       .setParam(PARAM_COMPONENT, request.getComponent())
-      .setParam(PARAM_BRANCH, request.getBranch())
-    );
+      .setParam(PARAM_BRANCH, request.getBranch()));
   }
 
 }
