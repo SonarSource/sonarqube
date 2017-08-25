@@ -165,7 +165,7 @@ public class TelemetryDaemon implements Startable {
       writer.prop(LINES_KEY, statistics.getLines());
       writer.prop(NCLOC_KEY, statistics.getNcloc());
       writer.name("projectLanguageDistribution");
-      writer.valueObject(statistics.getProjectLanguageDistribution());
+      writer.valueObject(statistics.getProjectCountByLanguage());
       writer.endObject();
     }
     telemetryClient.upload(json.toString());

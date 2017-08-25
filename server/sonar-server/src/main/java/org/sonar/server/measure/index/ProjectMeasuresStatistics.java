@@ -30,13 +30,15 @@ public class ProjectMeasuresStatistics {
   private final long projectCount;
   private final long lines;
   private final long ncloc;
-  private final Map<String, Long> projectLanguageDistribution;
+  private final Map<String, Long> projectCountByLanguage;
+  private final Map<String, Long> nclocByLanguage;
 
   private ProjectMeasuresStatistics(Builder builder) {
     projectCount = builder.projectCount;
     lines = builder.lines;
     ncloc = builder.ncloc;
-    projectLanguageDistribution = builder.projectLanguageDistribution;
+    projectCountByLanguage = builder.projectCountByLanguage;
+    nclocByLanguage = builder.nclocByLanguage;
   }
 
   public long getProjectCount() {
@@ -51,8 +53,12 @@ public class ProjectMeasuresStatistics {
     return ncloc;
   }
 
-  public Map<String, Long> getProjectLanguageDistribution() {
-    return projectLanguageDistribution;
+  public Map<String, Long> getProjectCountByLanguage() {
+    return projectCountByLanguage;
+  }
+
+  public Map<String, Long> getNclocByLanguage() {
+    return nclocByLanguage;
   }
 
   public static Builder builder() {
@@ -60,10 +66,11 @@ public class ProjectMeasuresStatistics {
   }
 
   public static class Builder {
-    private Map<String, Long> projectLanguageDistribution;
     private Long projectCount;
     private Long lines;
     private Long ncloc;
+    private Map<String, Long> projectCountByLanguage;
+    private Map<String, Long> nclocByLanguage;
 
     private Builder() {
       // enforce static factory method
@@ -88,15 +95,21 @@ public class ProjectMeasuresStatistics {
       return this;
     }
 
-    public void setProjectLanguageDistribution(Map<String, Long> projectLanguageDistribution) {
-      this.projectLanguageDistribution = projectLanguageDistribution;
+    public void setProjectCountByLanguage(Map<String, Long> projectCountByLanguage) {
+      this.projectCountByLanguage = projectCountByLanguage;
+    }
+
+    public Builder setNclocByLanguage(Map<String, Long> nclocByLanguage) {
+      this.nclocByLanguage = nclocByLanguage;
+      return this;
     }
 
     public ProjectMeasuresStatistics build() {
       requireNonNull(projectCount);
       requireNonNull(lines);
       requireNonNull(ncloc);
-      requireNonNull(projectLanguageDistribution);
+      requireNonNull(projectCountByLanguage);
+      requireNonNull(nclocByLanguage);
       return new ProjectMeasuresStatistics(this);
     }
   }

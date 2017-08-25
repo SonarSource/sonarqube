@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -90,6 +91,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_LANGUAGE_DISTRIBUTION;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
@@ -125,6 +127,8 @@ public class ProjectMeasuresIndex {
 
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
+  private static final String FIELD_DISTRIB_LANGUAGE = FIELD_NCLOC_LANGUAGE_DISTRIBUTION + "." + ProjectMeasuresIndexDefinition.FIELD_DISTRIB_LANGUAGE;
+  private static final String FIELD_DISTRIB_NCLOC = FIELD_NCLOC_LANGUAGE_DISTRIBUTION + "." + ProjectMeasuresIndexDefinition.FIELD_DISTRIB_NCLOC;
 
   private static final Map<String, FacetSetter> FACET_FACTORIES = ImmutableMap.<String, FacetSetter>builder()
     .put(NCLOC_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NCLOC_KEY, facetBuilder, LINES_THRESHOLDS))
@@ -184,6 +188,14 @@ public class ProjectMeasuresIndex {
       .size(MAX_PAGE_SIZE)
       .minDocCount(1)
       .order(Terms.Order.count(false)));
+    request.addAggregation(AggregationBuilders.nested(FIELD_NCLOC_LANGUAGE_DISTRIBUTION, FIELD_NCLOC_LANGUAGE_DISTRIBUTION)
+      .subAggregation(AggregationBuilders.terms(FIELD_NCLOC_LANGUAGE_DISTRIBUTION + "_terms")
+        .field(FIELD_DISTRIB_LANGUAGE)
+        .size(MAX_PAGE_SIZE)
+        .minDocCount(1)
+        .order(Terms.Order.count(false))
+        .subAggregation(sum(FIELD_DISTRIB_NCLOC).field(FIELD_DISTRIB_NCLOC))));
+
     Stream.of(LINES_KEY, NCLOC_KEY)
       .forEach(metric -> request.addAggregation(AggregationBuilders.nested(metric, FIELD_MEASURES)
         .subAggregation(AggregationBuilders.filter(metric + "_filter", termQuery(FIELD_MEASURES_KEY, metric))
@@ -202,7 +214,13 @@ public class ProjectMeasuresIndex {
         long value = Math.round(sum.getValue());
         statistics.setSum(metric, value);
       });
-    statistics.setProjectLanguageDistribution(termsToMap(response.getAggregations().get(FIELD_LANGUAGES)));
+    statistics.setProjectCountByLanguage(termsToMap(response.getAggregations().get(FIELD_LANGUAGES)));
+    Function<Terms.Bucket, Long> bucketToNcloc = bucket -> Math.round(((Sum) bucket.getAggregations().get(FIELD_DISTRIB_NCLOC)).getValue());
+    Map<String, Long> nclocByLanguage = Stream.of((Nested) response.getAggregations().get(FIELD_NCLOC_LANGUAGE_DISTRIBUTION))
+      .map(nested -> (Terms) nested.getAggregations().get(nested.getName() + "_terms"))
+      .flatMap(terms -> terms.getBuckets().stream())
+      .collect(MoreCollectors.uniqueIndex(Bucket::getKeyAsString, bucketToNcloc));
+    statistics.setNclocByLanguage(nclocByLanguage);
 
     return statistics.build();
   }
