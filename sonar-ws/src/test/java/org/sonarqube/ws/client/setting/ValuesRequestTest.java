@@ -36,24 +36,36 @@ public class ValuesRequestTest {
   public void create_request_with_no_component() {
     ValuesRequest result = underTest.setKeys("sonar.debt").build();
 
-    assertThat(result.getComponent()).isNull();
     assertThat(result.getKeys()).containsOnly("sonar.debt");
+    assertThat(result.getComponent()).isNull();
+    assertThat(result.getBranch()).isNull();
   }
 
   @Test
   public void create_request_with_no_keys() {
     ValuesRequest result = underTest.build();
 
-    assertThat(result.getComponent()).isNull();
     assertThat(result.getKeys()).isEmpty();
+    assertThat(result.getComponent()).isNull();
+    assertThat(result.getBranch()).isNull();
   }
 
   @Test
   public void create_request_with_component() {
     ValuesRequest result = underTest.setKeys("sonar.debt").setComponent("projectKey").build();
 
-    assertThat(result.getComponent()).isEqualTo("projectKey");
     assertThat(result.getKeys()).containsOnly("sonar.debt");
+    assertThat(result.getComponent()).isEqualTo("projectKey");
+    assertThat(result.getBranch()).isNull();
+  }
+
+  @Test
+  public void create_request_with_component_and_branch() {
+    ValuesRequest result = underTest.setKeys("sonar.debt").setComponent("projectKey").setBranch("branch").build();
+
+    assertThat(result.getKeys()).containsOnly("sonar.debt");
+    assertThat(result.getComponent()).isEqualTo("projectKey");
+    assertThat(result.getBranch()).isEqualTo("branch");
   }
 
 }
