@@ -29,12 +29,18 @@ import static java.util.Objects.requireNonNull;
 
 public class ValuesRequest {
 
-  private final String component;
   private final List<String> keys;
+  private final String component;
+  private final String branch;
 
   private ValuesRequest(Builder builder) {
-    this.component = builder.component;
     this.keys = builder.keys;
+    this.component = builder.component;
+    this.branch = builder.branch;
+  }
+
+  public List<String> getKeys() {
+    return keys;
   }
 
   @CheckForNull
@@ -42,8 +48,9 @@ public class ValuesRequest {
     return component;
   }
 
-  public List<String> getKeys() {
-    return keys;
+  @CheckForNull
+  public String getBranch() {
+    return branch;
   }
 
   public static Builder builder() {
@@ -51,16 +58,12 @@ public class ValuesRequest {
   }
 
   public static class Builder {
-    private String component;
     private List<String> keys = new ArrayList<>();
+    private String component;
+    private String branch;
 
     private Builder() {
       // enforce factory method use
-    }
-
-    public Builder setComponent(@Nullable String component) {
-      this.component = component;
-      return this;
     }
 
     public Builder setKeys(List<String> keys) {
@@ -70,6 +73,16 @@ public class ValuesRequest {
 
     public Builder setKeys(String... keys) {
       return setKeys(asList(keys));
+    }
+
+    public Builder setComponent(@Nullable String component) {
+      this.component = component;
+      return this;
+    }
+
+    public Builder setBranch(@Nullable String branch) {
+      this.branch = branch;
+      return this;
     }
 
     public ValuesRequest build() {
