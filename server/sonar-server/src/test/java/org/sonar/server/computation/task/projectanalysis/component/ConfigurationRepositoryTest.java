@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
@@ -30,9 +31,12 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.analysis.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ConfigurationRepositoryTest {
 
@@ -43,11 +47,12 @@ public class ConfigurationRepositoryTest {
 
   private DbClient dbClient = db.getDbClient();
   private MapSettings globalSettings = new MapSettings();
-  private AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule().setProject(PROJECT);
+  private AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
   private ConfigurationRepository underTest = new ConfigurationRepositoryImpl(analysisMetadataHolder, new ProjectConfigurationFactory(globalSettings, dbClient));
 
   @Test
   public void get_project_settings_from_global_settings() {
+    analysisMetadataHolder.setProject(PROJECT).setBranch(null);
     globalSettings.setProperty("key", "value");
 
     Configuration config = underTest.getConfiguration();
@@ -57,7 +62,8 @@ public class ConfigurationRepositoryTest {
 
   @Test
   public void get_project_settings_from_db() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(PROJECT.getKey()));
+    ComponentDto project = db.components().insertPrivateProject();
+    analysisMetadataHolder.setProject(Project.copyOf(project)).setBranch(null);
     insertProjectProperty(project, "key", "value");
 
     Configuration config = underTest.getConfiguration();
@@ -67,6 +73,7 @@ public class ConfigurationRepositoryTest {
 
   @Test
   public void call_twice_get_project_settings() {
+    analysisMetadataHolder.setProject(PROJECT).setBranch(null);
     globalSettings.setProperty("key", "value");
 
     Configuration config = underTest.getConfiguration();
@@ -79,8 +86,9 @@ public class ConfigurationRepositoryTest {
   @Test
   public void project_settings_override_global_settings() {
     globalSettings.setProperty("key", "value1");
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(PROJECT.getKey()));
+    ComponentDto project = db.components().insertPrivateProject();
     insertProjectProperty(project, "key", "value2");
+    analysisMetadataHolder.setProject(Project.copyOf(project)).setBranch(null);
 
     Configuration config = underTest.getConfiguration();
     assertThat(config.get("key")).hasValue("value2");
@@ -88,8 +96,9 @@ public class ConfigurationRepositoryTest {
 
   @Test
   public void project_settings_are_cached_to_avoid_db_access() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(PROJECT.getKey()));
+    ComponentDto project = db.components().insertPrivateProject();
     insertProjectProperty(project, "key", "value");
+    analysisMetadataHolder.setProject(Project.copyOf(project)).setBranch(null);
 
     Configuration config = underTest.getConfiguration();
     assertThat(config.get("key")).hasValue("value");
@@ -98,6 +107,24 @@ public class ConfigurationRepositoryTest {
     db.commit();
 
     assertThat(config.get("key")).hasValue("value");
+  }
+
+  @Test
+  public void branch_settings() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branchDto = db.components().insertProjectBranch(project);
+    Branch branch = mock(Branch.class);
+    when(branch.getName()).thenReturn(Optional.of(branchDto.getBranch()));
+    analysisMetadataHolder.setProject(Project.copyOf(project)).setBranch(branch);
+    globalSettings.setProperty("global", "global value");
+    insertProjectProperty(project, "project", "project value");
+    insertProjectProperty(branchDto, "branch", "branch value");
+
+    Configuration config = underTest.getConfiguration();
+
+    assertThat(config.get("global")).hasValue("global value");
+    assertThat(config.get("project")).hasValue("project value");
+    assertThat(config.get("branch")).hasValue("branch value");
   }
 
   private void insertProjectProperty(ComponentDto project, String propertyKey, String propertyValue) {
