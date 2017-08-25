@@ -29,10 +29,12 @@ import static java.util.Arrays.asList;
 public class ResetRequest {
   private final List<String> keys;
   private final String component;
+  private final String branch;
 
   private ResetRequest(Builder builder) {
     this.keys = builder.keys;
     this.component = builder.component;
+    this.branch = builder.branch;
   }
 
   public List<String> getKeys() {
@@ -44,6 +46,11 @@ public class ResetRequest {
     return component;
   }
 
+  @CheckForNull
+  public String getBranch() {
+    return branch;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -51,6 +58,7 @@ public class ResetRequest {
   public static class Builder {
     private List<String> keys;
     private String component;
+    private String branch;
 
     private Builder() {
       // enforce factory method use
@@ -68,6 +76,11 @@ public class ResetRequest {
 
     public Builder setComponent(@Nullable String component) {
       this.component = component;
+      return this;
+    }
+
+    public Builder setBranch(@Nullable String branch) {
+      this.branch = branch;
       return this;
     }
 
