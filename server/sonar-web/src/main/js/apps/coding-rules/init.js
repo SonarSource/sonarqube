@@ -61,7 +61,7 @@ App.on('start', function(
     .done(() => {
       this.layout = new Layout({ el: options.el });
       this.layout.render();
-      $('#footer').addClass('search-navigator-footer');
+      $('#footer').addClass('page-footer-with-sidebar');
 
       const allFacets = [
         'q',
@@ -123,6 +123,6 @@ export default function(
     // $FlowFixMe
     Backbone.history.stop();
     App.layout.destroy();
-    $('#footer').removeClass('search-navigator-footer');
+    $('#footer').removeClass('page-footer-with-sidebar');
   };
 }
