@@ -19,7 +19,7 @@
  */
 package org.sonar.db.measure;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -203,7 +204,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       return;
     }
     if (NCLOC_LANGUAGE_DISTRIBUTION_KEY.equals(metricKey)) {
-      readTextValue(rs, measures::setLanguages);
+      readTextValue(rs, measures::setNclocByLanguages);
       return;
     }
   }
@@ -283,10 +284,9 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   }
 
   public static class Measures {
-
     private Map<String, Double> numericMeasures = new HashMap<>();
     private String qualityGateStatus;
-    private List<String> languages = new ArrayList<>();
+    private Map<String, Integer> nclocByLanguages = new LinkedHashMap<>();
 
     Measures addNumericMeasure(String metricKey, double value) {
       numericMeasures.put(metricKey, value);
@@ -307,13 +307,13 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       return qualityGateStatus;
     }
 
-    Measures setLanguages(String languageDistributionValue) {
-      this.languages = ImmutableList.copyOf(parseStringInt(languageDistributionValue).keySet());
+    Measures setNclocByLanguages(String nclocByLangues) {
+      this.nclocByLanguages = ImmutableMap.copyOf(parseStringInt(nclocByLangues));
       return this;
     }
 
-    public List<String> getLanguages() {
-      return languages;
+    public Map<String, Integer> getNclocByLanguages() {
+      return nclocByLanguages;
     }
   }
 

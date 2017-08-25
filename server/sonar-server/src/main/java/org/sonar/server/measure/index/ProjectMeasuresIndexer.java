@@ -20,6 +20,7 @@
 package org.sonar.server.measure.index;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -46,7 +47,6 @@ import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
-import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
@@ -172,6 +172,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       .setTags(project.getTags())
       .setAnalysedAt(analysisDate == null ? null : new Date(analysisDate))
       .setMeasuresFromMap(projectMeasures.getMeasures().getNumericMeasures())
-      .setLanguages(projectMeasures.getMeasures().getLanguages());
+      .setLanguages(new ArrayList<>(projectMeasures.getMeasures().getNclocByLanguages().keySet()))
+      .setNclocLanguageDistributionFromMap(projectMeasures.getMeasures().getNclocByLanguages());
   }
 }
