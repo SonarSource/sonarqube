@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.Proxy;
 import java.util.Map;
 import javax.annotation.Nullable;
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 import okhttp3.Call;
@@ -81,6 +82,9 @@ public class HttpConnector implements WsConnector {
     okHttpClientBuilder.setReadTimeoutMs(builder.readTimeoutMs);
     okHttpClientBuilder.setSSLSocketFactory(builder.sslSocketFactory);
     okHttpClientBuilder.setTrustManager(builder.sslTrustManager);
+    if(builder.hostnameVerifier!=null) {
+      okHttpClientBuilder.set( builder.hostnameVerifier );
+    }
     this.okHttpClient = okHttpClientBuilder.build();
   }
 
@@ -196,6 +200,7 @@ public class HttpConnector implements WsConnector {
     private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLISECONDS;
     private SSLSocketFactory sslSocketFactory = null;
     private X509TrustManager sslTrustManager = null;
+    private HostnameVerifier hostnameVerifier;
 
     /**
      * Private since 5.5.
@@ -282,6 +287,11 @@ public class HttpConnector implements WsConnector {
     public Builder proxyCredentials(@Nullable String proxyLogin, @Nullable String proxyPassword) {
       this.proxyLogin = proxyLogin;
       this.proxyPassword = proxyPassword;
+      return this;
+    }
+
+    public Builder hostnameVerifier(HostnameVerifier hostnameVerifier) {
+      this.hostnameVerifier = hostnameVerifier;
       return this;
     }
 
