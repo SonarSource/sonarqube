@@ -147,7 +147,7 @@ export default class Filter extends React.PureComponent {
         const insideHighlight = options.slice(highlightUnder, max);
         const afterHighlight = options.slice(max);
         return (
-          <div className="search-navigator-facet-list">
+          <div className="search-navigator-facet-list projects-facet-list">
             {beforeHighlight.map(option => this.renderOption(option))}
             <div className="search-navigator-facet-highlight-under-container">
               {insideHighlight.map(option => this.renderOption(option))}
@@ -157,7 +157,7 @@ export default class Filter extends React.PureComponent {
         );
       } else {
         return (
-          <div className="search-navigator-facet-list">
+          <div className="search-navigator-facet-list projects-facet-list">
             {options.map(option => this.renderOption(option))}
           </div>
         );

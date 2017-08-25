@@ -186,7 +186,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
     name="projects.facets.tags"
   />
   <div
-    className="search-navigator-facet-list"
+    className="search-navigator-facet-list projects-facet-list"
   >
     <Link
       className="facet search-navigator-facet projects-facet active"
