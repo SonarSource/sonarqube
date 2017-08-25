@@ -54,6 +54,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -92,7 +94,9 @@ public class SetActionTest {
   private FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
   private SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
   private SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);
-  private SetAction underTest = new SetAction(definitions, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private SetAction underTest = new SetAction(definitions, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations,
+    new SettingsWsSupport(defaultOrganizationProvider, userSession));
 
   private WsActionTester ws = new WsActionTester(underTest);
 
@@ -939,14 +943,14 @@ public class SetActionTest {
 
   @Test
   public void fail_when_component_not_found() {
-      expectedException.expect(NotFoundException.class);
-      expectedException.expectMessage("Component key 'unknown' not found");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'unknown' not found");
 
-      ws.newRequest()
-        .setParam("key", "foo")
-        .setParam("value", "2")
-        .setParam("component", "unknown")
-        .execute();
+    ws.newRequest()
+      .setParam("key", "foo")
+      .setParam("value", "2")
+      .setParam("component", "unknown")
+      .execute();
   }
 
   @Test

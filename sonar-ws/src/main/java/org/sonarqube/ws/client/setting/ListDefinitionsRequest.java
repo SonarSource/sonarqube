@@ -27,14 +27,21 @@ import javax.annotation.concurrent.Immutable;
 public class ListDefinitionsRequest {
 
   private final String component;
+  private final String branch;
 
   private ListDefinitionsRequest(Builder builder) {
     this.component = builder.component;
+    this.branch = builder.branch;
   }
 
   @CheckForNull
   public String getComponent() {
     return component;
+  }
+
+  @CheckForNull
+  public String getBranch() {
+    return branch;
   }
 
   public static Builder builder() {
@@ -43,6 +50,7 @@ public class ListDefinitionsRequest {
 
   public static class Builder {
     private String component;
+    private String branch;
 
     private Builder() {
       // enforce factory method use
@@ -50,6 +58,11 @@ public class ListDefinitionsRequest {
 
     public Builder setComponent(@Nullable String component) {
       this.component = component;
+      return this;
+    }
+
+    public Builder setBranch(@Nullable String branch) {
+      this.branch = branch;
       return this;
     }
 
