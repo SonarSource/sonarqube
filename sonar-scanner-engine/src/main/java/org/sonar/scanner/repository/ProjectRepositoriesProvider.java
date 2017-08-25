@@ -39,7 +39,7 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
   protected ProjectRepositories provideInternal(ProjectRepositoriesLoader loader, ProjectKey projectKey, boolean isIssueMode, BranchConfiguration branchConfig) {
     if (project == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      project = loader.load(projectKey.get(), isIssueMode, branchConfig.branchTarget());
+      project = loader.load(projectKey.get(), isIssueMode, branchConfig.branchBase());
       checkProject(isIssueMode);
       profiler.stopInfo();
     }
