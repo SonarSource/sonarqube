@@ -810,7 +810,7 @@ export default class App extends React.PureComponent {
       <div>
         {paging.total > 0 &&
           <IssuesList
-            branch={getBranchName(branch)}
+            branch={this.props.branch && getBranchName(branch)}
             checked={this.state.checked}
             component={component}
             issues={issues}
@@ -873,7 +873,7 @@ export default class App extends React.PureComponent {
                 {openIssue != null
                   ? <div className="pull-left width-60">
                       <ComponentBreadcrumbs
-                        branch={getBranchName(this.props.branch)}
+                        branch={this.props.branch && getBranchName(this.props.branch)}
                         component={component}
                         issue={openIssue}
                         organization={this.props.organization}
