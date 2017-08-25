@@ -63,6 +63,7 @@ public class SettingsServiceTest {
     underTest.values(ValuesRequest.builder()
       .setKeys("sonar.debt,sonar.issue")
       .setComponent("KEY")
+      .setBranch("BRANCH")
       .build());
     GetRequest getRequest = serviceTester.getGetRequest();
 
@@ -70,6 +71,7 @@ public class SettingsServiceTest {
     serviceTester.assertThat(getRequest)
       .hasParam(PARAM_KEYS, "sonar.debt,sonar.issue")
       .hasParam(PARAM_COMPONENT, "KEY")
+      .hasParam(PARAM_BRANCH, "BRANCH")
       .andNoOtherParam();
   }
 
