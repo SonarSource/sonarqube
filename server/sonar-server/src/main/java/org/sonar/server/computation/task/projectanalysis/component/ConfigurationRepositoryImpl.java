@@ -33,7 +33,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
   private final Supplier<Configuration> configuration;
 
   public ConfigurationRepositoryImpl(AnalysisMetadataHolder analysisMetadataHolder, ProjectConfigurationFactory f) {
-    this.configuration = Suppliers.memoize(() -> f.newProjectConfiguration(analysisMetadataHolder.getProject().getKey()));
+    this.configuration = Suppliers.memoize(() -> f.newProjectConfiguration(analysisMetadataHolder.getProject().getKey(), analysisMetadataHolder.getBranch()));
   }
 
   @Override
