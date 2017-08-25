@@ -25,6 +25,7 @@ public class TelemetryModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      TelemetryDataLoader.class,
       TelemetryDaemon.class,
       TelemetryClient.class);
   }

@@ -29,19 +29,12 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.platform.PluginRepository;
-import org.sonar.server.es.SearchOptions;
-import org.sonar.server.measure.index.ProjectMeasuresIndex;
-import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 import org.sonar.server.property.InternalProperties;
-import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserQuery;
 
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
@@ -59,27 +52,20 @@ public class TelemetryDaemon implements Startable {
   static final String I_PROP_OPT_OUT = "telemetry.optOut";
   private static final Logger LOG = Loggers.get(TelemetryDaemon.class);
 
+  private final TelemetryDataLoader dataLoader;
   private final TelemetryClient telemetryClient;
   private final Configuration config;
   private final InternalProperties internalProperties;
-  private final Server server;
-  private final PluginRepository pluginRepository;
   private final System2 system2;
-  private final UserIndex userIndex;
-  private final ProjectMeasuresIndex projectMeasuresIndex;
 
   private ScheduledExecutorService executorService;
 
-  public TelemetryDaemon(TelemetryClient telemetryClient, Configuration config, InternalProperties internalProperties, Server server, PluginRepository pluginRepository,
-                         System2 system2, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex) {
+  public TelemetryDaemon(TelemetryDataLoader dataLoader, TelemetryClient telemetryClient, Configuration config, InternalProperties internalProperties, System2 system2) {
+    this.dataLoader = dataLoader;
     this.telemetryClient = telemetryClient;
     this.config = config;
     this.internalProperties = internalProperties;
-    this.server = server;
-    this.pluginRepository = pluginRepository;
     this.system2 = system2;
-    this.userIndex = userIndex;
-    this.projectMeasuresIndex = projectMeasuresIndex;
   }
 
   @Override
@@ -139,28 +125,22 @@ public class TelemetryDaemon implements Startable {
     StringWriter json = new StringWriter();
     try (JsonWriter writer = JsonWriter.of(json)) {
       writer.beginObject();
-      writer.prop("id", server.getId());
+      writer.prop("id", dataLoader.loadServerId());
       writer.endObject();
     }
     telemetryClient.optOut(json.toString());
   }
 
   private void uploadStatistics() throws IOException {
+    TelemetryData statistics = dataLoader.load();
     StringWriter json = new StringWriter();
     try (JsonWriter writer = JsonWriter.of(json)) {
       writer.beginObject();
-      writer.prop("id", server.getId());
-      writer.prop("version", server.getVersion());
+      writer.prop("id", statistics.getServerId());
+      writer.prop("version", statistics.getVersion());
       writer.name("plugins");
-      writer.beginObject();
-      pluginRepository.getPluginInfos().forEach(plugin -> {
-        String version = plugin.getVersion() == null ? "undefined" : plugin.getVersion().getName();
-        writer.prop(plugin.getKey(), version);
-      });
-      writer.endObject();
-      long userCount = userIndex.search(UserQuery.builder().build(), new SearchOptions().setLimit(1)).getTotal();
-      writer.prop("userCount", userCount);
-      ProjectMeasuresStatistics statistics = projectMeasuresIndex.searchTelemetryStatistics();
+      writer.valueObject(statistics.getPlugins());
+      writer.prop("userCount", statistics.getUserCount());
       writer.prop("projectCount", statistics.getProjectCount());
       writer.prop(LINES_KEY, statistics.getLines());
       writer.prop(NCLOC_KEY, statistics.getNcloc());
