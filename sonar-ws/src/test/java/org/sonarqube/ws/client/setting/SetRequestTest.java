@@ -40,6 +40,7 @@ public class SetRequestTest {
     assertThat(result.getValue()).isEqualTo("my value");
     assertThat(result.getValues()).isNotNull().isEmpty();
     assertThat(result.getComponent()).isNull();
+    assertThat(result.getBranch()).isNull();
   }
 
   @Test
@@ -49,6 +50,17 @@ public class SetRequestTest {
     assertThat(result.getKey()).isEqualTo("my.key");
     assertThat(result.getValue()).isEqualTo("my value");
     assertThat(result.getComponent()).isEqualTo("projectKey");
+    assertThat(result.getBranch()).isNull();
+  }
+
+  @Test
+  public void create_request_with_component_and_branch() {
+    SetRequest result = underTest.setKey("my.key").setValue("my value").setComponent("projectKey").setBranch("my_branch").build();
+
+    assertThat(result.getKey()).isEqualTo("my.key");
+    assertThat(result.getValue()).isEqualTo("my value");
+    assertThat(result.getComponent()).isEqualTo("projectKey");
+    assertThat(result.getBranch()).isEqualTo("my_branch");
   }
 
   @Test
