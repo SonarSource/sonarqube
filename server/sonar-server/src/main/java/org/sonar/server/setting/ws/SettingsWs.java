@@ -19,11 +19,16 @@
  */
 package org.sonar.server.setting.ws;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.api.server.ws.WebService;
 
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.CONTROLLER_SETTINGS;
 
 public class SettingsWs implements WebService {
+
+  public static final Set<String> SETTING_ON_BRANCHES = ImmutableSet.of(LEAK_PERIOD);
 
   private final SettingsWsAction[] actions;
 
