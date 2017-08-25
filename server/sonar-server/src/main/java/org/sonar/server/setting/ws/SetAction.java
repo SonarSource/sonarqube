@@ -21,6 +21,7 @@ package org.sonar.server.setting.ws;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -56,9 +57,14 @@ import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.setting.SetRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_FIELD_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
@@ -68,6 +74,7 @@ import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUES;
 public class SetAction implements SettingsWsAction {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
   private static final String MSG_NO_EMPTY_VALUE = "A non empty value must be provided";
+  public static final Set<String> SETTING_ON_BRANCHES = ImmutableSet.of(LEAK_PERIOD);
 
   private final PropertyDefinitions propertyDefinitions;
   private final DbClient dbClient;
@@ -124,6 +131,12 @@ public class SetAction implements SettingsWsAction {
       .setDescription("Component key")
       .setDeprecatedKey("componentKey", "6.3")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key. Only available on following settings : %s", SETTING_ON_BRANCHES.stream().collect(COMMA_JOINER))
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("6.6");
   }
 
   @Override
@@ -190,9 +203,11 @@ public class SetAction implements SettingsWsAction {
 
   private void commonChecks(SetRequest request, Optional<ComponentDto> component) {
     checkValueIsSet(request);
-    SettingData settingData = new SettingData(request.getKey(), valuesFromRequest(request), component.orElse(null));
+    String settingKey = request.getKey();
+    SettingData settingData = new SettingData(settingKey, valuesFromRequest(request), component.orElse(null));
     ImmutableList.of(validations.scope(), validations.qualifier(), validations.valueType())
       .forEach(validation -> validation.accept(settingData));
+    component.map(ComponentDto::getBranch).ifPresent(b -> checkArgument(SETTING_ON_BRANCHES.contains(settingKey), format("Setting '%s' cannot be set on a branch", settingKey)));
   }
 
   private static void validatePropertySet(SetRequest request, @Nullable PropertyDefinition definition) {
@@ -278,6 +293,7 @@ public class SetAction implements SettingsWsAction {
       .setValues(request.multiParam(PARAM_VALUES))
       .setFieldValues(request.multiParam(PARAM_FIELD_VALUES))
       .setComponent(request.param(PARAM_COMPONENT))
+      .setBranch(request.param(PARAM_BRANCH))
       .build();
   }
 
@@ -297,7 +313,7 @@ public class SetAction implements SettingsWsAction {
     if (componentKey == null) {
       return Optional.empty();
     }
-    return Optional.of(componentFinder.getByKey(dbSession, componentKey));
+    return Optional.of(componentFinder.getByKeyAndOptionalBranch(dbSession, componentKey, request.getBranch()));
   }
 
   private PropertyDto toProperty(SetRequest request, Optional<ComponentDto> component) {
