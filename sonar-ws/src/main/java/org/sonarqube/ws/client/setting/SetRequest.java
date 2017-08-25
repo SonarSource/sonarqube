@@ -32,6 +32,7 @@ public class SetRequest {
   private final List<String> values;
   private final List<String> fieldValues;
   private final String component;
+  private final String branch;
 
   private SetRequest(Builder builder) {
     this.key = builder.key;
@@ -39,6 +40,7 @@ public class SetRequest {
     this.values = builder.values;
     this.fieldValues = builder.fieldValues;
     this.component = builder.component;
+    this.branch = builder.branch;
   }
 
   public String getKey() {
@@ -63,6 +65,11 @@ public class SetRequest {
     return component;
   }
 
+  @CheckForNull
+  public String getBranch() {
+    return branch;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -73,6 +80,7 @@ public class SetRequest {
     private List<String> values = emptyList();
     private List<String> fieldValues = emptyList();
     private String component;
+    private String branch;
 
     private Builder() {
       // enforce factory method use
@@ -100,6 +108,11 @@ public class SetRequest {
 
     public Builder setComponent(@Nullable String component) {
       this.component = component;
+      return this;
+    }
+
+    public Builder setBranch(@Nullable String branch) {
+      this.branch = branch;
       return this;
     }
 
