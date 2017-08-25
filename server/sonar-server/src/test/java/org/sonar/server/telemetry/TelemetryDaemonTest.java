@@ -107,10 +107,12 @@ public class TelemetryDaemonTest {
     es.putDocuments(ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES,
       new ProjectMeasuresDoc().setId(randomAlphanumeric(20))
         .setMeasures(Arrays.asList(newMeasure("lines", 200), newMeasure("ncloc", 100), newMeasure("coverage", 80)))
-        .setLanguages(Arrays.asList("java", "js")),
+        .setLanguages(Arrays.asList("java", "js"))
+        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 200, "js", 50)),
       new ProjectMeasuresDoc().setId(randomAlphanumeric(20))
         .setMeasures(Arrays.asList(newMeasure("lines", 300), newMeasure("ncloc", 200), newMeasure("coverage", 80)))
-        .setLanguages(Arrays.asList("java", "kotlin")));
+        .setLanguages(Arrays.asList("java", "kotlin"))
+        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "kotlin", 2500)));
 
     underTest.start();
 
