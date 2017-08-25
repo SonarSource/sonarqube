@@ -31,7 +31,7 @@ export default CustomValuesFacet.extend({
       data: term => ({
         organization: this.options.app.organization,
         q: term,
-        ps: 10000
+        ps: 500
       }),
       results(data) {
         return {
