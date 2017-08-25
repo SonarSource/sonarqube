@@ -195,7 +195,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
     name="projects.facets.languages"
   />
   <div
-    className="search-navigator-facet-list"
+    className="search-navigator-facet-list projects-facet-list"
   >
     <Link
       className="facet search-navigator-facet projects-facet active"

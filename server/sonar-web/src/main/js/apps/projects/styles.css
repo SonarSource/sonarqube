@@ -187,9 +187,13 @@
 }
 
 .projects-facet-header {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding: 10px;
   transition: none;
+}
+
+.projects-facet-list {
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .projects-facet-sort {
