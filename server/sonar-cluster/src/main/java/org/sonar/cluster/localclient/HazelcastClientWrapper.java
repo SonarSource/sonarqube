@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.ce.cluster;
+package org.sonar.cluster.localclient;
 
 import java.util.List;
 import java.util.Map;

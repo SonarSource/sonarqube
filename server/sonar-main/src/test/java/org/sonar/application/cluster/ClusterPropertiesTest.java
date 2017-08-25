@@ -20,18 +20,22 @@
 
 package org.sonar.application.cluster;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.TestAppSettings;
-import org.sonar.process.ProcessProperties;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_HOSTS;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NAME;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_HOST;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_PORT;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
 
 public class ClusterPropertiesTest {
   @Rule
@@ -41,8 +45,8 @@ public class ClusterPropertiesTest {
 
   @Test
   public void test_default_values() throws Exception {
-    appSettings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
-    appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    appSettings.getProps().set(CLUSTER_ENABLED, "true");
+    appSettings.getProps().set(CLUSTER_NODE_TYPE, "application");
     ClusterProperties props = new ClusterProperties(appSettings);
 
     assertThat(props.getNetworkInterfaces())
@@ -55,13 +59,13 @@ public class ClusterPropertiesTest {
 
   @Test
   public void test_port_parameter() {
-    appSettings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
-    appSettings.getProps().set(ProcessProperties.CLUSTER_NAME, "sonarqube");
-    appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    appSettings.getProps().set(CLUSTER_ENABLED, "true");
+    appSettings.getProps().set(CLUSTER_NAME, "sonarqube");
+    appSettings.getProps().set(CLUSTER_NODE_TYPE, "application");
 
     Stream.of("-50", "0", "65536", "128563").forEach(
       port -> {
-        appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_PORT, port);
+        appSettings.getProps().set(CLUSTER_NODE_PORT, port);
 
         ClusterProperties clusterProperties = new ClusterProperties(appSettings);
         expectedException.expect(IllegalArgumentException.class);
@@ -74,10 +78,10 @@ public class ClusterPropertiesTest {
 
   @Test
   public void test_interfaces_parameter() {
-    appSettings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
-    appSettings.getProps().set(ProcessProperties.CLUSTER_NAME, "sonarqube");
-    appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_HOST, "8.8.8.8"); // This IP belongs to Google
-    appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    appSettings.getProps().set(CLUSTER_ENABLED, "true");
+    appSettings.getProps().set(CLUSTER_NAME, "sonarqube");
+    appSettings.getProps().set(CLUSTER_NODE_HOST, "8.8.8.8"); // This IP belongs to Google
+    appSettings.getProps().set(CLUSTER_NODE_TYPE, "application");
 
     ClusterProperties clusterProperties = new ClusterProperties(appSettings);
     expectedException.expect(IllegalArgumentException.class);
@@ -88,9 +92,9 @@ public class ClusterPropertiesTest {
 
   @Test
   public void validate_does_not_fail_if_cluster_enabled_and_name_specified() {
-    appSettings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
-    appSettings.getProps().set(ProcessProperties.CLUSTER_NAME, "sonarqube");
-    appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    appSettings.getProps().set(CLUSTER_ENABLED, "true");
+    appSettings.getProps().set(CLUSTER_NAME, "sonarqube");
+    appSettings.getProps().set(CLUSTER_NODE_TYPE, "application");
 
     ClusterProperties clusterProperties = new ClusterProperties(appSettings);
     clusterProperties.validate();
@@ -98,25 +102,25 @@ public class ClusterPropertiesTest {
 
   @Test
   public void test_members() {
-    appSettings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
-    appSettings.getProps().set(ProcessProperties.CLUSTER_NAME, "sonarqube");
-    appSettings.getProps().set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    appSettings.getProps().set(CLUSTER_ENABLED, "true");
+    appSettings.getProps().set(CLUSTER_NAME, "sonarqube");
+    appSettings.getProps().set(CLUSTER_NODE_TYPE, "application");
 
     assertThat(
       new ClusterProperties(appSettings).getHosts()).isEqualTo(
         Collections.emptyList());
 
-    appSettings.getProps().set(ProcessProperties.CLUSTER_HOSTS, "192.168.1.1");
+    appSettings.getProps().set(CLUSTER_HOSTS, "192.168.1.1");
     assertThat(
       new ClusterProperties(appSettings).getHosts()).isEqualTo(
         Arrays.asList("192.168.1.1:9003"));
 
-    appSettings.getProps().set(ProcessProperties.CLUSTER_HOSTS, "192.168.1.2:5501");
+    appSettings.getProps().set(CLUSTER_HOSTS, "192.168.1.2:5501");
     assertThat(
       new ClusterProperties(appSettings).getHosts()).containsExactlyInAnyOrder(
         "192.168.1.2:5501");
 
-    appSettings.getProps().set(ProcessProperties.CLUSTER_HOSTS, "192.168.1.2:5501,192.168.1.1");
+    appSettings.getProps().set(CLUSTER_HOSTS, "192.168.1.2:5501,192.168.1.1");
     assertThat(
       new ClusterProperties(appSettings).getHosts()).containsExactlyInAnyOrder(
         "192.168.1.2:5501", "192.168.1.1:9003");

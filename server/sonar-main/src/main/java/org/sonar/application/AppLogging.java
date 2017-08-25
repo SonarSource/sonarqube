@@ -28,13 +28,13 @@ import ch.qos.logback.core.FileAppender;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.process.StreamGobbler;
 import org.sonar.process.ProcessId;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.logging.RootLoggerConfig;
 
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.application.process.StreamGobbler.LOGGER_GOBBLER;
+import static org.sonar.cluster.ClusterProperties.HAZELCAST_LOG_LEVEL;
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 /**
@@ -141,7 +141,7 @@ public class AppLogging {
         .rootLevelFor(ProcessId.APP)
         .immutableLevel("com.hazelcast",
           Level.toLevel(
-            appSettings.getProps().nonNullValue(ProcessProperties.HAZELCAST_LOG_LEVEL)))
+            appSettings.getProps().nonNullValue(HAZELCAST_LOG_LEVEL)))
         .build(),
       appSettings.getProps());
 

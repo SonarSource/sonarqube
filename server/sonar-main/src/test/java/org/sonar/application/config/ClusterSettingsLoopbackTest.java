@@ -34,11 +34,11 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.process.MessageException;
 
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
-import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
-import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_HOSTS;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_HOST;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.JDBC_URL;
 import static org.sonar.process.ProcessProperties.SEARCH_HOST;
 
@@ -52,61 +52,61 @@ public class ClusterSettingsLoopbackTest {
 
   @DataPoints("parameter")
   public static final ValueAndResult[] VALID_SINGLE_IP = {
-      // Valid IPs
-      new ValueAndResult("1.2.3.4", NOT_LOCAL_ADDRESS),
-      new ValueAndResult("1.2.3.4:9001", NOT_LOCAL_ADDRESS),
-      new ValueAndResult("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb", NOT_LOCAL_ADDRESS),
-      new ValueAndResult("[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]:9001", NOT_LOCAL_ADDRESS),
+    // Valid IPs
+    new ValueAndResult("1.2.3.4", NOT_LOCAL_ADDRESS),
+    new ValueAndResult("1.2.3.4:9001", NOT_LOCAL_ADDRESS),
+    new ValueAndResult("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb", NOT_LOCAL_ADDRESS),
+    new ValueAndResult("[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]:9001", NOT_LOCAL_ADDRESS),
 
-      // Valid Name
-      new ValueAndResult("www.sonarqube.org", NOT_LOCAL_ADDRESS),
-      new ValueAndResult("www.google.fr", NOT_LOCAL_ADDRESS),
-      new ValueAndResult("www.google.com, www.sonarsource.com, wwww.sonarqube.org", NOT_LOCAL_ADDRESS),
+    // Valid Name
+    new ValueAndResult("www.sonarqube.org", NOT_LOCAL_ADDRESS),
+    new ValueAndResult("www.google.fr", NOT_LOCAL_ADDRESS),
+    new ValueAndResult("www.google.com, www.sonarsource.com, wwww.sonarqube.org", NOT_LOCAL_ADDRESS),
 
-      new ValueAndResult("...", NOT_RESOLVABLE),
-      new ValueAndResult("භඦආ\uD801\uDC8C\uD801\uDC8B", NOT_RESOLVABLE),
+    new ValueAndResult("...", NOT_RESOLVABLE),
+    new ValueAndResult("භඦආ\uD801\uDC8C\uD801\uDC8B", NOT_RESOLVABLE),
 
-      // Valide IPs List
-      new ValueAndResult("1.2.3.4,2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb", NOT_LOCAL_ADDRESS),
-      new ValueAndResult("1.2.3.4:9001,[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]:9001", NOT_LOCAL_ADDRESS),
-      new ValueAndResult("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb,1.2.3.4:9001", NOT_LOCAL_ADDRESS),
-      new ValueAndResult("[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]:9001,2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccc", NOT_LOCAL_ADDRESS),
+    // Valide IPs List
+    new ValueAndResult("1.2.3.4,2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb", NOT_LOCAL_ADDRESS),
+    new ValueAndResult("1.2.3.4:9001,[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]:9001", NOT_LOCAL_ADDRESS),
+    new ValueAndResult("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb,1.2.3.4:9001", NOT_LOCAL_ADDRESS),
+    new ValueAndResult("[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]:9001,2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccc", NOT_LOCAL_ADDRESS),
 
-      // Loopback IPs
-      new ValueAndResult("localhost", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("127.0.0.1", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("127.1.1.1", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("127.243.136.241", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("::1", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("0:0:0:0:0:0:0:1", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("localhost:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("127.0.0.1:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("127.1.1.1:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("127.243.136.241:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("[::1]:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("[0:0:0:0:0:0:0:1]:9001", LOOPBACK_FORBIDDEN),
+    // Loopback IPs
+    new ValueAndResult("localhost", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("127.0.0.1", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("127.1.1.1", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("127.243.136.241", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("::1", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("0:0:0:0:0:0:0:1", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("localhost:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("127.0.0.1:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("127.1.1.1:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("127.243.136.241:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("[::1]:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("[0:0:0:0:0:0:0:1]:9001", LOOPBACK_FORBIDDEN),
 
-      // Loopback IPs list
-      new ValueAndResult("127.0.0.1,192.168.11.25", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("192.168.11.25,127.1.1.1", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb,0:0:0:0:0:0:0:1", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("0:0:0:0:0:0:0:1,2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb,::1", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("::1,2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("::1,2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb,2a01:e34:ef1f:dbb0:b3f6:a978:c5c0:9ccb", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("localhost:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("127.0.0.1:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("127.1.1.1:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("127.243.136.241:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("[::1]:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("[0:0:0:0:0:0:0:1]:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("127.0.0.1,192.168.11.25:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("192.168.11.25:9001,127.1.1.1:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb,[0:0:0:0:0:0:0:1]:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("[0:0:0:0:0:0:0:1]:9001,[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("[2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb]:9001,[::1]:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("[::1]:9001,[2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb]:9001", LOOPBACK_FORBIDDEN),
-      new ValueAndResult("[::1]:9001,[2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb]:9001,[2a01:e34:ef1f:dbb0:b3f6:a978:c5c0:9ccb]:9001", LOOPBACK_FORBIDDEN)
+    // Loopback IPs list
+    new ValueAndResult("127.0.0.1,192.168.11.25", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("192.168.11.25,127.1.1.1", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb,0:0:0:0:0:0:0:1", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("0:0:0:0:0:0:0:1,2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb,::1", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("::1,2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("::1,2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb,2a01:e34:ef1f:dbb0:b3f6:a978:c5c0:9ccb", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("localhost:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("127.0.0.1:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("127.1.1.1:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("127.243.136.241:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("[::1]:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("[0:0:0:0:0:0:0:1]:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("127.0.0.1,192.168.11.25:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("192.168.11.25:9001,127.1.1.1:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb,[0:0:0:0:0:0:0:1]:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("[0:0:0:0:0:0:0:1]:9001,[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("[2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb]:9001,[::1]:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("[::1]:9001,[2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb]:9001", LOOPBACK_FORBIDDEN),
+    new ValueAndResult("[::1]:9001,[2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb]:9001,[2a01:e34:ef1f:dbb0:b3f6:a978:c5c0:9ccb]:9001", LOOPBACK_FORBIDDEN)
   };
 
   @DataPoints("key")
@@ -116,7 +116,6 @@ public class ClusterSettingsLoopbackTest {
     new Key(CLUSTER_SEARCH_HOSTS, true, true),
     new Key(CLUSTER_HOSTS, true, true)
   };
-
 
   @DataPoints("unresolvable_hosts")
   public static final String[] UNRESOLVABLE_HOSTS = {
@@ -152,7 +151,7 @@ public class ClusterSettingsLoopbackTest {
     }
   }
 
-  private static TestAppSettings getClusterSettings()  {
+  private static TestAppSettings getClusterSettings() {
     String localAddress = null;
     try {
       Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();

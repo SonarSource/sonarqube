@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.process.cluster;
+package org.sonar.cluster;
 
 /**
  * This class holds all object keys accessible via Hazelcast

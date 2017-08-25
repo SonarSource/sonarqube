@@ -34,6 +34,10 @@ import org.sonar.process.ProcessProperties;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NAME;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
 
 public class EsClientProviderTest {
 
@@ -50,14 +54,14 @@ public class EsClientProviderTest {
   @Before
   public void setUp() throws Exception {
     // mandatory property
-    settings.setProperty(ProcessProperties.CLUSTER_NAME, "the_cluster_name");
+    settings.setProperty(CLUSTER_NAME, "the_cluster_name");
 
     localhost = InetAddress.getLocalHost().getHostAddress();
   }
 
   @Test
   public void connection_to_local_es_when_cluster_mode_is_disabled() throws Exception {
-    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, false);
+    settings.setProperty(CLUSTER_ENABLED, false);
     settings.setProperty(ProcessProperties.SEARCH_HOST, localhost);
     settings.setProperty(ProcessProperties.SEARCH_PORT, 8080);
 
@@ -75,9 +79,9 @@ public class EsClientProviderTest {
 
   @Test
   public void connection_to_remote_es_nodes_when_cluster_mode_is_enabled_and_local_es_is_disabled() throws Exception {
-    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
-    settings.setProperty(ProcessProperties.CLUSTER_NODE_TYPE, "application");
-    settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, format("%s:8080,%s:8081", localhost, localhost));
+    settings.setProperty(CLUSTER_ENABLED, true);
+    settings.setProperty(CLUSTER_NODE_TYPE, "application");
+    settings.setProperty(CLUSTER_SEARCH_HOSTS, format("%s:8080,%s:8081", localhost, localhost));
 
     EsClient client = underTest.provide(settings.asConfig());
     TransportClient transportClient = (TransportClient) client.nativeClient();
@@ -96,9 +100,9 @@ public class EsClientProviderTest {
 
   @Test
   public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used_when_search_disabled() throws Exception {
-    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
-    settings.setProperty(ProcessProperties.CLUSTER_NODE_TYPE, "application");
-    settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, format("%s:100000,%s:8081", localhost, localhost));
+    settings.setProperty(CLUSTER_ENABLED, true);
+    settings.setProperty(CLUSTER_NODE_TYPE, "application");
+    settings.setProperty(CLUSTER_SEARCH_HOSTS, format("%s:100000,%s:8081", localhost, localhost));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(format("Port number out of range: %s:100000", localhost));
@@ -108,8 +112,8 @@ public class EsClientProviderTest {
 
   @Test
   public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used() throws Exception {
-    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
-    settings.setProperty(ProcessProperties.CLUSTER_NODE_TYPE, "search");
+    settings.setProperty(CLUSTER_ENABLED, true);
+    settings.setProperty(CLUSTER_NODE_TYPE, "search");
     settings.setProperty(ProcessProperties.SEARCH_HOST, "localhost");
     settings.setProperty(ProcessProperties.SEARCH_PORT, "100000");
 
@@ -121,9 +125,9 @@ public class EsClientProviderTest {
 
   @Test
   public void es_client_provider_must_add_default_port_when_not_specified() throws Exception {
-    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
-    settings.setProperty(ProcessProperties.CLUSTER_NODE_TYPE, "application");
-    settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, format("%s,%s:8081", localhost, localhost));
+    settings.setProperty(CLUSTER_ENABLED, true);
+    settings.setProperty(CLUSTER_NODE_TYPE, "application");
+    settings.setProperty(CLUSTER_SEARCH_HOSTS, format("%s,%s:8081", localhost, localhost));
 
     EsClient client = underTest.provide(settings.asConfig());
     TransportClient transportClient = (TransportClient) client.nativeClient();

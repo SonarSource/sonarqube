@@ -48,6 +48,8 @@ import org.sonar.process.logging.LogbackHelper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.application.process.StreamGobbler.LOGGER_GOBBLER;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.cluster.ClusterProperties.HAZELCAST_LOG_LEVEL;
 
 public class AppLoggingTest {
 
@@ -248,7 +250,7 @@ public class AppLoggingTest {
 
   @Test
   public void no_info_log_from_hazelcast() throws IOException {
-    settings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.getProps().set(CLUSTER_ENABLED, "true");
     underTest.configure();
 
     assertThat(
@@ -257,8 +259,8 @@ public class AppLoggingTest {
 
   @Test
   public void configure_logging_for_hazelcast() throws IOException {
-    settings.getProps().set(ProcessProperties.CLUSTER_ENABLED, "true");
-    settings.getProps().set(ProcessProperties.HAZELCAST_LOG_LEVEL, "INFO");
+    settings.getProps().set(CLUSTER_ENABLED, "true");
+    settings.getProps().set(HAZELCAST_LOG_LEVEL, "INFO");
     underTest.configure();
 
     assertThat(

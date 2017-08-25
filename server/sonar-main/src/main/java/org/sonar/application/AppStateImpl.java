@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
-import org.sonar.process.NetworkUtils;
+import org.sonar.NetworkUtils;
 import org.sonar.process.ProcessId;
 
 public class AppStateImpl implements AppState {

@@ -17,33 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process;
+@ParametersAreNonnullByDefault
+package org.sonar.cluster;
 
-import static java.util.Arrays.stream;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
-
-public enum NodeType {
-  APPLICATION("application"), SEARCH("search");
-
-  private final String value;
-
-  NodeType(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
-  }
-
-  public static NodeType parse(String nodeType) {
-    return stream(values())
-      .filter(t -> nodeType.equals(t.value))
-      .findFirst()
-      .orElseThrow(() -> new IllegalArgumentException("Invalid value for [" + CLUSTER_NODE_TYPE + "]: [" + nodeType + "]"));
-  }
-
-  public static boolean isValid(String nodeType) {
-    return stream(values())
-      .anyMatch(t -> nodeType.equals(t.value));
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

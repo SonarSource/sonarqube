@@ -33,17 +33,17 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
+import org.sonar.NetworkUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.CeDistributedInformationImpl;
 import org.sonar.ce.StandaloneCeDistributedInformation;
-import org.sonar.ce.cluster.HazelcastClientWrapperImpl;
-import org.sonar.ce.cluster.HazelcastTestHelper;
+import org.sonar.cluster.internal.HazelcastTestHelper;
+import org.sonar.cluster.localclient.HazelcastClientWrapperImpl;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -51,6 +51,9 @@ import org.sonar.process.Props;
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_LOCALENDPOINT;
+import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
@@ -82,12 +85,12 @@ public class ComputeEngineContainerImplTest {
   @Test
   public void real_start_with_cluster() throws IOException {
     int port = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
-    HazelcastInstance hzInstance = HazelcastTestHelper.createHazelcastCluster(port);
+    HazelcastInstance hzInstance = HazelcastTestHelper.createHazelcastCluster(NetworkUtils.getHostname(), port);
 
     Properties properties = getProperties();
-    properties.setProperty(ProcessProperties.CLUSTER_NODE_TYPE, "application");
-    properties.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
-    properties.setProperty(ProcessProperties.CLUSTER_LOCALENDPOINT, String.format("%s:%d", hzInstance.getCluster().getLocalMember().getAddress().getHost(), port));
+    properties.setProperty(CLUSTER_NODE_TYPE, "application");
+    properties.setProperty(CLUSTER_ENABLED, "true");
+    properties.setProperty(CLUSTER_LOCALENDPOINT, String.format("%s:%d", hzInstance.getCluster().getLocalMember().getAddress().getHost(), port));
 
     // required persisted properties
     insertProperty(CoreProperties.SERVER_ID, "a_startup_id");
