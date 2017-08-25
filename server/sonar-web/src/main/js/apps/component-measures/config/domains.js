@@ -18,62 +18,75 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-export const domains = {
+export const domains /*: { [string]: { categories?: Array<string>, order: Array<string> } }*/ = {
   Reliability: {
+    categories: ['new_code_category', 'overall_category'],
     order: [
-      'new_reliability_rating',
+      'new_code_category',
       'new_bugs',
+      'new_reliability_rating',
       'new_reliability_remediation_effort',
 
-      'reliability_rating',
+      'overall_category',
       'bugs',
+      'reliability_rating',
       'reliability_remediation_effort'
     ]
   },
 
   Security: {
+    categories: ['new_code_category', 'overall_category'],
     order: [
-      'new_security_rating',
+      'new_code_category',
       'new_vulnerabilities',
+      'new_security_rating',
       'new_security_remediation_effort',
 
-      'security_rating',
+      'overall_category',
       'vulnerabilities',
+      'security_rating',
       'security_remediation_effort'
     ]
   },
 
   Maintainability: {
+    categories: ['new_code_category', 'overall_category'],
     order: [
+      'new_code_category',
       'new_code_smells',
-      'new_maintainability_rating',
       'new_technical_debt',
       'new_sqale_debt_ratio',
+      'new_maintainability_rating',
 
+      'overall_category',
       'code_smells',
-      'sqale_rating',
       'sqale_index',
       'sqale_debt_ratio',
+      'sqale_rating',
       'effort_to_reach_maintainability_rating_a'
     ]
   },
 
   Coverage: {
+    categories: ['new_code_category', 'overall_category', 'tests_category'],
     order: [
+      'new_code_category',
       'new_coverage',
-      'new_line_coverage',
-      'new_branch_coverage',
-      'new_uncovered_lines',
-      'new_uncovered_conditions',
       'new_lines_to_cover',
+      'new_uncovered_lines',
+      'new_line_coverage',
+      'new_uncovered_conditions',
+      'new_branch_coverage',
 
+      'overall_category',
       'coverage',
-      'line_coverage',
-      'branch_coverage',
-      'uncovered_lines',
-      'uncovered_conditions',
       'lines_to_cover',
+      'uncovered_lines',
+      'line_coverage',
+      'uncovered_conditions',
+      'branch_coverage',
 
+      'tests_category',
       'tests',
       'test_success',
       'test_errors',
@@ -85,14 +98,17 @@ export const domains = {
   },
 
   Duplications: {
+    categories: ['new_code_category', 'overall_category'],
     order: [
+      'new_code_category',
       'new_duplicated_lines_density',
-      'new_duplicated_blocks',
       'new_duplicated_lines',
+      'new_duplicated_blocks',
 
+      'overall_category',
       'duplicated_lines_density',
-      'duplicated_blocks',
       'duplicated_lines',
+      'duplicated_blocks',
       'duplicated_files'
     ]
   },

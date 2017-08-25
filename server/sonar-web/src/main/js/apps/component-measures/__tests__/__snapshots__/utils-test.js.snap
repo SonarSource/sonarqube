@@ -5,22 +5,6 @@ Array [
   Object {
     "measures": Array [
       Object {
-        "leak": "0.0999999999999943",
-        "metric": Object {
-          "domain": "Coverage",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
-        },
-        "periods": Array [
-          Object {
-            "index": 1,
-            "value": "0.0999999999999943",
-          },
-        ],
-        "value": "99.3",
-      },
-      Object {
         "leak": "70",
         "metric": Object {
           "domain": "Coverage",
@@ -35,6 +19,22 @@ Array [
           },
         ],
         "value": "431",
+      },
+      Object {
+        "leak": "0.0999999999999943",
+        "metric": Object {
+          "domain": "Coverage",
+          "key": "coverage",
+          "name": "Coverage",
+          "type": "PERCENT",
+        },
+        "periods": Array [
+          Object {
+            "index": 1,
+            "value": "0.0999999999999943",
+          },
+        ],
+        "value": "99.3",
       },
     ],
     "name": "Coverage",
@@ -79,6 +79,7 @@ Array [
       "type": "INT",
     },
   },
+  "overall_category",
   Object {
     "metric": Object {
       "key": "bugs",

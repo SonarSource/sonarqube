@@ -74,7 +74,8 @@ describe('sortMeasures', () => {
         { metric: { key: 'reliability_remediation_effort', name: 'new_bugs', type: 'INT' } },
         { metric: { key: 'new_reliability_remediation_effort', name: 'bugs', type: 'INT' } },
         { metric: { key: 'new_bugs', name: 'new_bugs', type: 'INT' } },
-        { metric: { key: 'bugs', name: 'bugs', type: 'INT' } }
+        { metric: { key: 'bugs', name: 'bugs', type: 'INT' } },
+        'overall_category'
       ])
     ).toMatchSnapshot();
   });
