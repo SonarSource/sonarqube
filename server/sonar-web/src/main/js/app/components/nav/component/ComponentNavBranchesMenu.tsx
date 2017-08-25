@@ -28,6 +28,7 @@ import {
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectBranchUrl } from '../../../../helpers/urls';
+import { Link } from 'react-router';
 
 interface Props {
   branches: Branch[];
@@ -186,10 +187,22 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
   };
 
   render() {
+    const { project } = this.props;
+    const showManageLink =
+      project.qualifier === 'TRK' && project.configuration && project.configuration.showSettings;
+
     return (
       <div className="dropdown-menu dropdown-menu-shadow" ref={node => (this.node = node)}>
         {this.renderSearch()}
         {this.renderBranchesList()}
+        {showManageLink &&
+          <div className="dropdown-bottom-hint text-right">
+            <Link
+              className="text-muted"
+              to={{ pathname: '/project/branches', query: { id: project.key } }}>
+              {translate('branches.manage')}
+            </Link>
+          </div>}
       </div>
     );
   }

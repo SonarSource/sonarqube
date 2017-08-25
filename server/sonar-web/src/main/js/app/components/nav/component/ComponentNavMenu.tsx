@@ -45,6 +45,7 @@ interface Props {
   branch: Branch;
   component: Component;
   conf: ComponentConfiguration;
+  location?: any;
 }
 
 export default class ComponentNavMenu extends React.PureComponent<Props> {
@@ -231,7 +232,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderBranchesLink() {
-    if (!this.context.branchesEnabled || !this.props.conf.showSettings) {
+    if (!this.context.branchesEnabled || !this.isProject() || !this.props.conf.showSettings) {
       return null;
     }
     return (
