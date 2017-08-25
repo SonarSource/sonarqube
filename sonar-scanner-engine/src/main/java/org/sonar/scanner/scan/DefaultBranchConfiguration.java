@@ -31,13 +31,19 @@ public class DefaultBranchConfiguration implements BranchConfiguration {
 
   @CheckForNull
   @Override
+  public String branchName() {
+    return null;
+  }
+
+  @CheckForNull
+  @Override
   public String branchTarget() {
     return null;
   }
 
   @CheckForNull
   @Override
-  public String branchName() {
+  public String branchBase() {
     return null;
   }
 }
