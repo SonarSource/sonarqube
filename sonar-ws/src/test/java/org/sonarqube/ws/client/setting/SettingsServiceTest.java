@@ -30,6 +30,7 @@ import org.sonarqube.ws.client.WsConnector;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_FIELD_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
@@ -80,6 +81,7 @@ public class SettingsServiceTest {
       .setValues(newArrayList("v1", "v2", "v3"))
       .setFieldValues(newArrayList("json1", "json2", "json3"))
       .setComponent("KEY")
+      .setBranch("BRANCH")
       .build());
 
     serviceTester.assertThat(serviceTester.getPostRequest())
@@ -88,6 +90,7 @@ public class SettingsServiceTest {
       .hasParam(PARAM_VALUES, newArrayList("v1", "v2", "v3"))
       .hasParam(PARAM_FIELD_VALUES, newArrayList("json1", "json2", "json3"))
       .hasParam(PARAM_COMPONENT, "KEY")
+      .hasParam(PARAM_BRANCH, "BRANCH")
       .andNoOtherParam();
   }
 
