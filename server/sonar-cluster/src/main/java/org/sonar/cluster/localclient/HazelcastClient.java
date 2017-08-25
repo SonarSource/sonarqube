@@ -28,7 +28,7 @@ import java.util.concurrent.locks.Lock;
 /**
  * The interface Hazelcast client wrapper.
  */
-public interface HazelcastClientWrapper {
+public interface HazelcastClient {
   /**
    * Gets the set shared by the cluster and identified by name
    */

@@ -21,7 +21,6 @@
 package org.sonar.cluster.localclient;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
 import java.util.List;
@@ -40,15 +39,15 @@ import static org.sonar.cluster.ClusterProperties.CLUSTER_LOCALENDPOINT;
 /**
  * This class will connect as a Hazelcast client to the local instance of Hazelcluster
  */
-public class HazelcastClientWrapperImpl implements Startable, HazelcastClientWrapper {
+public class HazelcastLocalClient implements Startable, HazelcastClient {
 
   private static final String HAZELCAST_CLUSTER_NAME = "sonarqube";
   private final ClientConfig hzConfig;
 
   @VisibleForTesting
-  protected HazelcastInstance hzInstance;
+  HazelcastInstance hzInstance;
 
-  public HazelcastClientWrapperImpl(Configuration config) {
+  public HazelcastLocalClient(Configuration config) {
     boolean clusterEnabled = config.getBoolean(CLUSTER_ENABLED).orElse(false);
     String clusterLocalEndPoint = config.get(CLUSTER_LOCALENDPOINT).orElse(null);
 
@@ -106,7 +105,7 @@ public class HazelcastClientWrapperImpl implements Startable, HazelcastClientWra
 
   @Override
   public void start() {
-    this.hzInstance = HazelcastClient.newHazelcastClient(hzConfig);
+    this.hzInstance = com.hazelcast.client.HazelcastClient.newHazelcastClient(hzConfig);
   }
 
   @Override
