@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { Branch } from '../../../types';
-import Level from '../../../../components/ui/Level';
-import BugIcon from '../../../../components/icons-components/BugIcon';
-import CodeSmellIcon from '../../../../components/icons-components/CodeSmellIcon';
-import VulnerabilityIcon from '../../../../components/icons-components/VulnerabilityIcon';
-import { isShortLivingBranch } from '../../../../helpers/branches';
+import { Branch } from '../../app/types';
+import Level from '../ui/Level';
+import BugIcon from '../icons-components/BugIcon';
+import CodeSmellIcon from '../icons-components/CodeSmellIcon';
+import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
+import { isShortLivingBranch } from '../../helpers/branches';
 import './BranchStatus.css';
 
 interface Props {
