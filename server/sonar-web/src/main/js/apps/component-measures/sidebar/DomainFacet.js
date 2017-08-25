@@ -25,14 +25,18 @@ import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import FacetMeasureValue from './FacetMeasureValue';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
-import Tooltip from '../../../components/controls/Tooltip';
-import { filterMeasures, hasBubbleChart, hasFacetStat, sortMeasures } from '../utils';
 import {
+  addMeasureCategories,
+  filterMeasures,
+  hasBubbleChart,
+  hasFacetStat,
+  sortMeasures
+} from '../utils';
+import {
+  getLocalizedCategoryMetricName,
   getLocalizedMetricDomain,
   getLocalizedMetricName,
-  translate,
-  translateWithParameters
+  translate
 } from '../../../helpers/l10n';
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 
@@ -59,26 +63,51 @@ export default class DomainFacet extends React.PureComponent {
     return measureSelected || overviewSelected;
   };
 
+  renderItemsFacet = () => {
+    const { domain, selected } = this.props;
+    const items = addMeasureCategories(domain.name, filterMeasures(domain.measures));
+    const hasCategories = items.some(item => typeof item === 'string');
+    const sortedItems = sortMeasures(domain.name, items);
+    return sortedItems.map(
+      item =>
+        typeof item === 'string'
+          ? <span key={item} className="facet search-navigator-facet facet-category">
+              <span className="facet-name">
+                {translate('component_measures.facet_category', item)}
+              </span>
+            </span>
+          : <FacetItem
+              active={item.metric.key === selected}
+              disabled={false}
+              key={item.metric.key}
+              name={
+                <span className="big-spacer-left" id={`measure-${item.metric.key}-name`}>
+                  {hasCategories
+                    ? getLocalizedCategoryMetricName(item.metric)
+                    : getLocalizedMetricName(item.metric)}
+                </span>
+              }
+              onClick={this.props.onChange}
+              stat={hasFacetStat(item.metric.key) ? <FacetMeasureValue measure={item} /> : null}
+              value={item.metric.key}
+            />
+    );
+  };
+
   renderOverviewFacet = () => {
     const { domain, selected } = this.props;
     if (!hasBubbleChart(domain.name)) {
       return null;
     }
-    const facetName = translateWithParameters(
-      'component_measures.domain_x_overview',
-      getLocalizedMetricDomain(domain.name)
-    );
     return (
       <FacetItem
         active={domain.name === selected}
         disabled={false}
         key={domain.name}
         name={
-          <Tooltip overlay={facetName} mouseEnterDelay={0.5}>
-            <span id={`measure-overview-${domain.name}-name`}>
-              {facetName}
-            </span>
-          </Tooltip>
+          <span id={`measure-overview-${domain.name}-name`}>
+            {translate('component_measures.domain_overview')}
+          </span>
         }
         onClick={this.props.onChange}
         stat={<BubblesIcon size={14} />}
@@ -89,7 +118,6 @@ export default class DomainFacet extends React.PureComponent {
 
   render() {
     const { domain, selected } = this.props;
-    const measures = sortMeasures(domain.name, filterMeasures(domain.measures));
     const helper = `component_measures.domain_facets.${domain.name}.help`;
     const translatedHelper = translate(helper);
     return (
@@ -99,32 +127,13 @@ export default class DomainFacet extends React.PureComponent {
           name={getLocalizedMetricDomain(domain.name)}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.hasFacetSelected(domain, measures, selected) ? 1 : 0}
+          values={this.hasFacetSelected(domain, domain.measures, selected) ? 1 : 0}
         />
 
         {this.props.open &&
           <FacetItemsList>
             {this.renderOverviewFacet()}
-            {measures.map(measure =>
-              <FacetItem
-                active={measure.metric.key === selected}
-                disabled={false}
-                key={measure.metric.key}
-                name={
-                  <Tooltip overlay={getLocalizedMetricName(measure.metric)} mouseEnterDelay={0.5}>
-                    <span id={`measure-${measure.metric.key}-name`}>
-                      <IssueTypeIcon query={measure.metric.key} className="little-spacer-right" />
-                      {getLocalizedMetricName(measure.metric)}
-                    </span>
-                  </Tooltip>
-                }
-                onClick={this.props.onChange}
-                stat={
-                  hasFacetStat(measure.metric.key) ? <FacetMeasureValue measure={measure} /> : null
-                }
-                value={measure.metric.key}
-              />
-            )}
+            {this.renderItemsFacet()}
           </FacetItemsList>}
       </FacetBox>
     );

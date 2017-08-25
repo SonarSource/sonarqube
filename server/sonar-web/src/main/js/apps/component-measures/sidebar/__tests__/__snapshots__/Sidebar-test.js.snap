@@ -14,22 +14,6 @@ exports[`should display two facets 1`] = `
       Object {
         "measures": Array [
           Object {
-            "leak": "0.0999999999999943",
-            "metric": Object {
-              "domain": "Coverage",
-              "key": "coverage",
-              "name": "Coverage",
-              "type": "PERCENT",
-            },
-            "periods": Array [
-              Object {
-                "index": 1,
-                "value": "0.0999999999999943",
-              },
-            ],
-            "value": "99.3",
-          },
-          Object {
             "leak": "70",
             "metric": Object {
               "domain": "Coverage",
@@ -44,6 +28,22 @@ exports[`should display two facets 1`] = `
               },
             ],
             "value": "431",
+          },
+          Object {
+            "leak": "0.0999999999999943",
+            "metric": Object {
+              "domain": "Coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "periods": Array [
+              Object {
+                "index": 1,
+                "value": "0.0999999999999943",
+              },
+            ],
+            "value": "99.3",
           },
         ],
         "name": "Coverage",
