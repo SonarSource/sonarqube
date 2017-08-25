@@ -37,12 +37,13 @@ export const bubbles = {
     size: 'code_smells',
     colors: ['sqale_rating']
   },
-  Coverage: { x: 'complexity', y: 'coverage', size: 'uncovered_lines' },
+  Coverage: { x: 'complexity', y: 'coverage', size: 'uncovered_lines', yDomain: [100, 0] },
   Duplications: { x: 'ncloc', y: 'duplicated_lines', size: 'duplicated_blocks' },
   project_overview: {
     x: 'sqale_index',
     y: 'coverage',
     size: 'ncloc',
-    colors: ['reliability_rating', 'security_rating']
+    colors: ['reliability_rating', 'security_rating'],
+    yDomain: [100, 0]
   }
 };

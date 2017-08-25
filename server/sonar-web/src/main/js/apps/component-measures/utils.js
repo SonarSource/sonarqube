@@ -150,6 +150,10 @@ export function getBubbleMetrics(domain /*: string */, metrics /*: { [string]: M
   };
 }
 
+export function getBubbleYDomain(domain /*: string */) {
+  return bubbles[domain].yDomain;
+}
+
 export function isProjectOverview(metric /*: string */) {
   return metric === PROJECT_OVERVEW;
 }
