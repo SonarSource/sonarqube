@@ -35,11 +35,19 @@ public class PopulateAnalysisUuidOnMeasures extends DataChange {
   @Override
   public void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("select distinct m.snapshot_id, root_snapshots.uuid " +
+    // mysql can take hours if the 2 requests are merged into a single one
+    massUpdate.select("select distinct m.snapshot_id as sId, root_snapshots.uuid as rootUuid " +
       "from project_measures m " +
       "inner join snapshots s on m.snapshot_id=s.id " +
-      "inner join snapshots root_snapshots on s.root_snapshot_id=root_snapshots.id or (s.root_snapshot_id is null and s.id=root_snapshots.id) " +
-      "where m.analysis_uuid is null");
+      "inner join snapshots root_snapshots on s.root_snapshot_id = root_snapshots.id " +
+      "where m.analysis_uuid is null " +
+      "union " +
+      "select distinct m.snapshot_id as sId, root_snapshots.uuid as rootUuid " +
+      "from project_measures m " +
+      "inner join snapshots s on m.snapshot_id=s.id " +
+      "inner join snapshots root_snapshots on s.root_snapshot_id is null and s.id = root_snapshots.id " +
+      "where m.analysis_uuid is null"
+    );
     massUpdate.update("update project_measures set analysis_uuid=? where snapshot_id=? and analysis_uuid is null");
     massUpdate.rowPluralName("measures");
     massUpdate.execute(PopulateAnalysisUuidOnMeasures::handle);
