@@ -19,9 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.text.SimpleDateFormat;
 import org.junit.Before;
 import org.junit.Rule;
@@ -91,18 +89,9 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     when(settingsRepository.getConfiguration(root)).thenReturn(settings.asConfig());
   }
 
-  @DataProvider
-  public static Object[][] projectAndViewRoots() {
-    return new Object[][] {
-      {PROJECT_ROOT},
-      {VIEW_ROOT}
-    };
-  }
-
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void no_period_on_first_analysis(Component root) {
-    setupRoot(root);
+  public void no_period_on_first_analysis() {
+    setupRoot(PROJECT_ROOT);
 
     // No project, no snapshot
     underTest.execute();
@@ -111,9 +100,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void feed_one_period(Component root) {
-    setupRoot(root);
+  public void feed_one_period() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     String textDate = "2008-11-22";
     settings.setProperty("sonar.leak.period", textDate);
@@ -129,9 +117,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void no_period_when_settings_match_no_analysis(Component root) {
-    setupRoot(root);
+  public void no_period_when_settings_match_no_analysis() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     settings.setProperty("sonar.leak.period", "UNKNWOWN VERSION");
 
@@ -141,9 +128,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void no_period_when_settings_is_empty(Component root) {
-    setupRoot(root);
+  public void no_period_when_settings_is_empty() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     settings.setProperty("sonar.leak.period", "");
 
@@ -153,9 +139,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void ignore_unprocessed_snapshots(Component root) {
-    setupRoot(root);
+  public void ignore_unprocessed_snapshots() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "unprocessed_snapshots.xml");
     settings.setProperty("sonar.leak.period", "100");
 
@@ -165,9 +150,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void feed_period_by_date(Component root) {
-    setupRoot(root);
+  public void feed_period_by_date() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     String textDate = "2008-11-22";
     settings.setProperty("sonar.leak.period", textDate);
@@ -187,9 +171,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void search_by_date_return_nearest_later_analysis(Component root) {
-    setupRoot(root);
+  public void search_by_date_return_nearest_later_analysis() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     String date = "2008-11-24";
     settings.setProperty("sonar.leak.period", date);
@@ -206,9 +189,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void no_period_by_date(Component root) {
-    setupRoot(root);
+  public void no_period_by_date() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     // No analysis at and after this date
     settings.setProperty("sonar.leak.period", "2008-11-30");
@@ -219,9 +201,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void feed_period_by_days(Component root) {
-    setupRoot(root);
+  public void feed_period_by_days() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     settings.setProperty("sonar.leak.period", "10");
 
@@ -240,9 +221,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void no_period_by_days(Component root) {
-    setupRoot(root);
+  public void no_period_by_days() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "empty.xml");
     settings.setProperty("sonar.leak.period", "0");
 
@@ -252,9 +232,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void feed_period_by_previous_analysis(Component root) {
-    setupRoot(root);
+  public void feed_period_by_previous_analysis() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     settings.setProperty("sonar.leak.period", "previous_analysis");
 
@@ -273,9 +252,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void no_period_by_previous_analysis(Component root) {
-    setupRoot(root);
+  public void no_period_by_previous_analysis() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "empty.xml");
     settings.setProperty("sonar.leak.period", "previous_analysis");
 
@@ -317,17 +295,6 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void feed_period_by_previous_version_is_not_supported_for_views() {
-    setupRoot(VIEW_ROOT);
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-    settings.setProperty("sonar.leak.period", "previous_version");
-
-    underTest.execute();
-
-    assertThat(periodsHolder.getPeriod()).isNull();
-  }
-
-  @Test
   public void feed_period_by_previous_version_with_previous_version_deleted() {
     setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "previous_version_deleted.xml");
@@ -345,9 +312,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void no_period_by_previous_version(Component root) {
-    setupRoot(root);
+  public void no_period_by_previous_version() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "empty.xml");
     settings.setProperty("sonar.leak.period", "previous_version");
 
@@ -389,20 +355,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void no_period_by_previous_version_when_no_event_version_for_views() {
-    setupRoot(VIEW_ROOT);
-    dbTester.prepareDbUnit(getClass(), "no_previous_version.xml");
-    settings.setProperty("sonar.leak.period", "previous_version");
-
-    underTest.execute();
-
-    assertThat(periodsHolder.getPeriod()).isNull();
-  }
-
-  @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void feed_period_by_version(Component root) {
-    setupRoot(root);
+  public void feed_period_by_version() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     settings.setProperty("sonar.leak.period", "0.9");
 
@@ -421,9 +375,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void no_period_by_version(Component root) {
-    setupRoot(root);
+  public void no_period_by_version() {
+    setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "empty.xml");
     settings.setProperty("sonar.leak.period", "0.8");
 
