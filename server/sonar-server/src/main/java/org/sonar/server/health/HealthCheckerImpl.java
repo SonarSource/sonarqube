@@ -27,19 +27,19 @@ import java.util.stream.Stream;
 import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
 /**
- * Implementation of {@link HealthChecker} that executes implementations of {@link HealthCheck} in the container
+ * Implementation of {@link HealthChecker} that executes implementations of {@link NodeHealthCheck} in the container
  * and aggregates their results.
  */
 public class HealthCheckerImpl implements HealthChecker {
-  private final List<HealthCheck> healthChecks;
+  private final List<NodeHealthCheck> nodeHealthChecks;
 
-  public HealthCheckerImpl(HealthCheck... healthChecks) {
-    this.healthChecks = Arrays.asList(healthChecks);
+  public HealthCheckerImpl(NodeHealthCheck... nodeHealthChecks) {
+    this.nodeHealthChecks = Arrays.asList(nodeHealthChecks);
   }
 
   @Override
   public Health checkNode() {
-    return healthChecks.stream().map(HealthCheck::check)
+    return nodeHealthChecks.stream().map(NodeHealthCheck::check)
       .reduce(Health.GREEN, HealthReducer.INSTANCE);
   }
 

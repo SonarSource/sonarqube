@@ -19,42 +19,28 @@
  */
 package org.sonar.server.health;
 
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.sonar.server.es.EsClient;
+import org.sonar.server.app.ProcessCommandWrapper;
 
 import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
-/**
- * Checks the ElasticSearch cluster status.
- */
-public class EsStatusCheck implements HealthCheck {
-  private static final Health YELLOW_HEALTH = newHealthCheckBuilder()
-    .setStatus(Health.Status.YELLOW)
-    .addCause("Elasticsearch status is YELLOW")
-    .build();
+public class CeStatusNodeCheck implements NodeHealthCheck {
   private static final Health RED_HEALTH = newHealthCheckBuilder()
     .setStatus(Health.Status.RED)
-    .addCause("Elasticsearch status is RED")
+    .addCause("Compute Engine is not operational")
     .build();
 
-  private final EsClient esClient;
+  private final ProcessCommandWrapper processCommandWrapper;
 
-  public EsStatusCheck(EsClient esClient) {
-    this.esClient = esClient;
+  public CeStatusNodeCheck(ProcessCommandWrapper processCommandWrapper) {
+    this.processCommandWrapper = processCommandWrapper;
   }
 
   @Override
   public Health check() {
-    ClusterHealthStatus esStatus = esClient.prepareClusterStats().get().getStatus();
-    switch (esStatus) {
-      case GREEN:
-        return Health.GREEN;
-      case YELLOW:
-        return YELLOW_HEALTH;
-      case RED:
-        return RED_HEALTH;
-      default:
-        throw new IllegalArgumentException("Unsupported Elasticsearch status " + esStatus);
+    if (processCommandWrapper.isCeOperational()) {
+      return Health.GREEN;
     }
+
+    return RED_HEALTH;
   }
 }

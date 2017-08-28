@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.health.CeStatusCheck;
-import org.sonar.server.health.DbConnectionCheck;
-import org.sonar.server.health.EsStatusCheck;
-import org.sonar.server.health.HealthCheck;
+import org.sonar.server.health.CeStatusNodeCheck;
+import org.sonar.server.health.DbConnectionNodeCheck;
+import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
-import org.sonar.server.health.WebServerStatusCheck;
+import org.sonar.server.health.NodeHealthCheck;
+import org.sonar.server.health.WebServerStatusNodeCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,18 +49,18 @@ public class HealthActionModuleTest {
   }
 
   @Test
-  public void verify_installed_HealthChecks_implementations() {
+  public void verify_installed_NodeHealthChecks_implementations() {
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
 
-    List<Class<?>> checks = classesAddedToContainer(container).stream().filter(HealthCheck.class::isAssignableFrom).collect(Collectors.toList());
+    List<Class<?>> checks = classesAddedToContainer(container).stream().filter(NodeHealthCheck.class::isAssignableFrom).collect(Collectors.toList());
     assertThat(checks)
       .hasSize(4)
-      .contains(WebServerStatusCheck.class)
-      .contains(DbConnectionCheck.class)
-      .contains(EsStatusCheck.class)
-      .contains(CeStatusCheck.class);
+      .contains(WebServerStatusNodeCheck.class)
+      .contains(DbConnectionNodeCheck.class)
+      .contains(EsStatusNodeCheck.class)
+      .contains(CeStatusNodeCheck.class);
   }
 
   private List<Class<?>> classesAddedToContainer(ComponentContainer container) {
