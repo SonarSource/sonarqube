@@ -20,25 +20,31 @@
 
 import java.io.File;
 import java.util.Optional;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.Startable;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 @ServerSide
+@ComputeEngineSide
 public class ServerStartupLock implements Startable {
 
-  private final Configuration configuration;
   private static final Logger LOGGER = Loggers.get(ServerStartupLock.class);
 
-  public ServerStartupLock(Configuration configuration) {
+  private final Configuration configuration;
+  private final SonarRuntime runtime;
+
+  public ServerStartupLock(Configuration configuration, SonarRuntime runtime) {
     this.configuration = configuration;
+    this.runtime = runtime;
   }
 
   @Override
   public void start() {
-    Optional<String> path = configuration.get("sonar.test.serverStartupLock.path");
+    Optional<String> path = configuration.get(propertyKey());
     if (path.isPresent()) {
       File lock = new File(path.get());
       try {
@@ -57,5 +63,16 @@ public class ServerStartupLock implements Startable {
   @Override
   public void stop() {
     // nothing to do
+  }
+
+  private String propertyKey() {
+    switch (runtime.getSonarQubeSide()) {
+      case SERVER:
+        return "sonar.web.startupLock.path";
+      case COMPUTE_ENGINE:
+        return "sonar.ce.startupLock.path";
+      default:
+        throw new IllegalArgumentException("Unsupported runtime: " + runtime.getSonarQubeSide());
+    }
   }
 }

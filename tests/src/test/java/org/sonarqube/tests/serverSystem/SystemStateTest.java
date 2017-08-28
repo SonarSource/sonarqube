@@ -20,8 +20,10 @@
 package org.sonarqube.tests.serverSystem;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.util.NetworkUtils;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -32,6 +34,8 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.sonarqube.tests.Elasticsearch;
+import org.sonarqube.ws.WsSystem;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
@@ -54,41 +58,89 @@ public class SystemStateTest {
   public TestRule safeguard = new DisableOnDebug(Timeout.seconds(300));
 
   @Test
-  public void system_status_becomes_UP_when_web_server_is_started() throws Exception {
+  public void test_status_and_health_during_server_lifecycle() throws Exception {
     try (Commander commander = new Commander()) {
-      commander.startAsync();
-
+      Lock lock = new Lock();
+      commander.start(lock);
       commander.waitFor(() -> commander.webLogsContain("ServerStartupLock - Waiting for file to be deleted"));
-      assertThat(commander.status()).hasValue("STARTING");
 
-      commander.unlock();
+      commander.verifyStatus("STARTING");
+      commander.verifyHealth(WsSystem.Health.RED, "SonarQube webserver is not up");
+
+      lock.unlockWeb();
+      // status is UP as soon as web server is up, whatever the status of Compute Engine
       commander.waitFor(() -> "UP".equals(commander.status().orElse(null)));
+      commander.verifyHealth(WsSystem.Health.RED, "Compute Engine is not operational");
+
+      lock.unlockCe();
+      commander.waitForHealth(WsSystem.Health.GREEN);
+      commander.verifyStatus("UP");
+    }
+  }
+
+  @Test
+  public void test_status_and_health_when_ES_becomes_yellow() throws Exception {
+    try (Commander commander = new Commander()) {
+      commander.start();
+      commander.waitForHealth(WsSystem.Health.GREEN);
+
+      commander.makeElasticsearchYellow();
+      commander.waitForHealth(WsSystem.Health.YELLOW, "Elasticsearch status is YELLOW");
+      commander.verifyStatus("UP");
+
+      commander.makeElasticsearchGreen();
+      commander.waitForHealth(WsSystem.Health.GREEN);
+      // status does not change after being UP
+      commander.verifyStatus("UP");
+    }
+  }
+
+  private class Lock {
+    private final File webFile;
+    private final File ceFile;
+
+    Lock() throws Exception {
+      webFile = temp.newFile();
+      ceFile = temp.newFile();
+    }
+
+    void unlockWeb() throws IOException {
+      FileUtils.forceDelete(webFile);
+    }
+
+    void unlockCe() throws IOException {
+      FileUtils.forceDelete(ceFile);
     }
   }
 
   private class Commander implements AutoCloseable {
-    private final File lock = temp.newFile();
-    private final Orchestrator orchestrator = Orchestrator.builderEnv()
-      .addPlugin(pluginArtifact("server-plugin"))
-      .setServerProperty("sonar.test.serverStartupLock.path", lock.getCanonicalPath())
-      .build();
+    private final int esHttpPort = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
+    private Orchestrator orchestrator;
     private Thread starter;
+    private Elasticsearch elasticsearch;
 
-    Commander() throws Exception {
-
+    void start() throws Exception {
+      Lock lock = new Lock();
+      start(lock);
+      lock.unlockWeb();
+      lock.unlockCe();
     }
 
-    void startAsync() {
-      checkState(starter == null);
+    void start(Lock lock) {
+      checkState(orchestrator == null);
+      orchestrator = Orchestrator.builderEnv()
+        .addPlugin(pluginArtifact("server-plugin"))
+        .setServerProperty("sonar.web.startupLock.path", lock.webFile.getAbsolutePath())
+        .setServerProperty("sonar.ce.startupLock.path", lock.ceFile.getAbsolutePath())
+        .setServerProperty("sonar.search.httpPort", "" + esHttpPort)
+        .build();
+      elasticsearch = new Elasticsearch(esHttpPort);
+
       starter = new Thread(orchestrator::start);
       starter.start();
       while (orchestrator.getServer() == null) {
         sleep(100L);
       }
-    }
-
-    void unlock() throws IOException {
-      FileUtils.forceDelete(lock);
     }
 
     boolean webLogsContain(String message) {
@@ -127,6 +179,48 @@ public class SystemStateTest {
         }
       }
       return Optional.empty();
+    }
+
+    void verifyStatus(String expectedStatus) {
+      assertThat(status()).hasValue(expectedStatus);
+    }
+
+    Optional<WsSystem.Health> health() {
+      Optional<WsSystem.HealthResponse> response = healthResponse();
+      return response.map(WsSystem.HealthResponse::getHealth);
+    }
+
+    Optional<WsSystem.HealthResponse> healthResponse() {
+      if (orchestrator.getServer() != null) {
+        WsClient wsClient = newWsClient(orchestrator);
+        try {
+          return Optional.of(wsClient.system().health());
+        } catch (Exception e) {
+          // server does not accept connections
+        }
+      }
+      return Optional.empty();
+    }
+
+    void waitForHealth(WsSystem.Health expectedHealth, String... expectedMessages) {
+      waitFor(() -> expectedHealth == health().orElse(null));
+      verifyHealth(expectedHealth, expectedMessages);
+    }
+
+    void verifyHealth(WsSystem.Health expectedHealth, String... expectedMessages) {
+      WsSystem.HealthResponse response = healthResponse().get();
+      assertThat(response.getHealth()).isEqualTo(expectedHealth);
+      assertThat(response.getCausesList())
+        .extracting(WsSystem.Cause::getMessage)
+        .containsExactlyInAnyOrder(expectedMessages);
+    }
+
+    void makeElasticsearchYellow() throws Exception {
+      elasticsearch.makeYellow();
+    }
+
+    void makeElasticsearchGreen() throws Exception {
+      elasticsearch.makeGreen();
     }
 
     @Override

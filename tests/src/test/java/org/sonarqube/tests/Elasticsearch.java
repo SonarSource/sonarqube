@@ -36,7 +36,7 @@ public class Elasticsearch {
 
   private final int httpPort;
 
-  Elasticsearch(int httpPort) {
+  public Elasticsearch(int httpPort) {
     this.httpPort = httpPort;
   }
 
@@ -55,9 +55,17 @@ public class Elasticsearch {
     putIndexSetting(httpPort, index, "blocks.write", "false");
   }
 
+  public void makeYellow() throws Exception {
+    putIndexSetting(httpPort, "issues", "number_of_replicas", "5");
+  }
+
+  public void makeGreen() throws Exception {
+    putIndexSetting(httpPort, "issues", "number_of_replicas", "0");
+  }
+
   private void putIndexSetting(int searchHttpPort, String index, String key, String value) throws Exception {
     Request.Builder request = new Request.Builder()
-      .url("http://" + InetAddress.getLoopbackAddress().getHostAddress() + ":" + searchHttpPort + "/" + index + "/_settings")
+      .url(baseUrl(searchHttpPort) + index + "/_settings")
       .put(RequestBody.create(MediaType.parse("application/json"), "{" +
         "    \"index\" : {" +
         "        \"" + key + "\" : \"" + value + "\"" +
@@ -66,5 +74,9 @@ public class Elasticsearch {
     OkHttpClient okClient = new OkHttpClient.Builder().build();
     Response response = okClient.newCall(request.build()).execute();
     assertThat(response.isSuccessful()).isTrue();
+  }
+
+  private String baseUrl(int searchHttpPort) {
+    return "http://" + InetAddress.getLoopbackAddress().getHostAddress() + ":" + searchHttpPort + "/";
   }
 }
