@@ -34,13 +34,13 @@ import { isEmptyValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import { getSettingsAppDefinition, getSettingsAppChangedValue } from '../../../store/rootReducer';
 
-export const fetchSettings = componentKey => dispatch => {
-  return getDefinitions(componentKey)
+export const fetchSettings = (componentKey, branch) => dispatch => {
+  return getDefinitions(componentKey, branch)
     .then(definitions => {
       const withoutLicenses = definitions.filter(definition => definition.type !== 'LICENSE');
       dispatch(receiveDefinitions(withoutLicenses));
       const keys = withoutLicenses.map(definition => definition.key).join();
-      return getValues(keys, componentKey);
+      return getValues(keys, componentKey, branch);
     })
     .then(settings => {
       dispatch(receiveValues(settings, componentKey));
@@ -49,7 +49,7 @@ export const fetchSettings = componentKey => dispatch => {
     .catch(e => parseError(e).then(message => dispatch(addGlobalErrorMessage(message))));
 };
 
-export const saveValue = (key, componentKey) => (dispatch, getState) => {
+export const saveValue = (key, componentKey, branch) => (dispatch, getState) => {
   dispatch(startLoading(key));
 
   const state = getState();
@@ -62,8 +62,8 @@ export const saveValue = (key, componentKey) => (dispatch, getState) => {
     return Promise.reject();
   }
 
-  return setSettingValue(definition, value, componentKey)
-    .then(() => getValues(key, componentKey))
+  return setSettingValue(definition, value, componentKey, branch)
+    .then(() => getValues(key, componentKey, branch))
     .then(values => {
       dispatch(receiveValues(values, componentKey));
       dispatch(cancelChange(key));
@@ -77,11 +77,11 @@ export const saveValue = (key, componentKey) => (dispatch, getState) => {
     });
 };
 
-export const resetValue = (key, componentKey) => dispatch => {
+export const resetValue = (key, componentKey, branch) => dispatch => {
   dispatch(startLoading(key));
 
-  return resetSettingValue(key, componentKey)
-    .then(() => getValues(key, componentKey))
+  return resetSettingValue(key, componentKey, branch)
+    .then(() => getValues(key, componentKey, branch))
     .then(values => {
       if (values.length > 0) {
         dispatch(receiveValues(values, componentKey));

@@ -93,6 +93,44 @@ exports[`should work for long-living branches 1`] = `
       project_activity.page
     </Link>
   </li>
+  <li
+    className="dropdown"
+  >
+    <a
+      className="dropdown-toggle is-admin"
+      data-toggle="dropdown"
+      href="#"
+      id="component-navigation-admin"
+    >
+      layout.settings
+       
+      <i
+        className="icon-dropdown"
+      />
+    </a>
+    <ul
+      className="dropdown-menu"
+    >
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/settings",
+              "query": Object {
+                "branch": "release",
+                "id": "foo",
+              },
+            }
+          }
+        >
+          project_settings.page
+        </Link>
+      </li>
+    </ul>
+  </li>
 </NavBarTabs>
 `;
 
@@ -258,6 +296,7 @@ exports[`should work with extensions 1`] = `
             Object {
               "pathname": "/project/settings",
               "query": Object {
+                "branch": undefined,
                 "id": "foo",
               },
             }
@@ -479,6 +518,7 @@ exports[`should work with multiple extensions 1`] = `
             Object {
               "pathname": "/project/settings",
               "query": Object {
+                "branch": undefined,
                 "id": "foo",
               },
             }

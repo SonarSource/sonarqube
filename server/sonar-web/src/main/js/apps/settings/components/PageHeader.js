@@ -24,6 +24,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default class PageHeader extends React.PureComponent {
   static propTypes = {
+    branch: PropTypes.string,
     component: PropTypes.object
   };
 
@@ -35,7 +36,9 @@ export default class PageHeader extends React.PureComponent {
 
     const description =
       this.props.component != null
-        ? translate('project_settings.page.description')
+        ? this.props.branch
+          ? translate('branch_settings.page.description')
+          : translate('project_settings.page.')
         : translate('settings.page.description');
 
     return (
