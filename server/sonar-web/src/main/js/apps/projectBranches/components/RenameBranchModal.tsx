@@ -80,6 +80,8 @@ export default class RenameBranchModal extends React.PureComponent<Props, State>
   render() {
     const { branch } = this.props;
     const header = translate('branches.rename');
+    const submitDisabled =
+      this.state.loading || !this.state.name || this.state.name === branch.name;
 
     return (
       <Modal
@@ -115,7 +117,7 @@ export default class RenameBranchModal extends React.PureComponent<Props, State>
           </div>
           <footer className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}
-            <button disabled={this.state.loading || !this.state.name} type="submit">
+            <button disabled={submitDisabled} type="submit">
               {translate('rename')}
             </button>
             <a href="#" onClick={this.handleCancelClick}>
