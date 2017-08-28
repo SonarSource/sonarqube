@@ -30,13 +30,13 @@ import static org.sonar.server.health.Health.newHealthCheckBuilder;
 /**
  * Checks Web Server can connect to the Database.
  */
-public class DbConnectionCheck implements HealthCheck {
-  private static final Logger LOGGER = Loggers.get(DbConnectionCheck.class);
+public class DbConnectionNodeCheck implements NodeHealthCheck {
+  private static final Logger LOGGER = Loggers.get(DbConnectionNodeCheck.class);
   private static final Health RED_HEALTH = newHealthCheckBuilder().setStatus(Health.Status.RED).addCause("Can't connect to DB").build();
 
   private final DbClient dbClient;
 
-  public DbConnectionCheck(DbClient dbClient) {
+  public DbConnectionNodeCheck(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 

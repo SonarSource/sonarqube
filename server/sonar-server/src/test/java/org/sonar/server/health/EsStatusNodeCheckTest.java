@@ -19,28 +19,24 @@
  */
 package org.sonar.server.health;
 
-import org.sonar.server.app.ProcessCommandWrapper;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.server.es.EsTester;
 
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeStatusCheck implements HealthCheck {
-  private static final Health RED_HEALTH = newHealthCheckBuilder()
-    .setStatus(Health.Status.RED)
-    .addCause("Compute Engine is not operational")
-    .build();
+public class EsStatusNodeCheckTest {
 
-  private final ProcessCommandWrapper processCommandWrapper;
+  @Rule
+  public EsTester esTester = new EsTester();
 
-  public CeStatusCheck(ProcessCommandWrapper processCommandWrapper) {
-    this.processCommandWrapper = processCommandWrapper;
+  private EsStatusNodeCheck underTest = new EsStatusNodeCheck(esTester.client());
+
+  @Test
+  public void check_returns_GREEN_without_cause_if_ES_cluster_status_is_GREEN() {
+    Health health = underTest.check();
+
+    assertThat(health).isEqualTo(Health.GREEN);
   }
 
-  @Override
-  public Health check() {
-    if (processCommandWrapper.isCeOperational()) {
-      return Health.GREEN;
-    }
-
-    return RED_HEALTH;
-  }
 }

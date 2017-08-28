@@ -89,30 +89,30 @@ public class HealthCheckerImplTest {
 
   @Test
   public void checkNode_returns_causes_of_all_HealthChecks_whichever_their_status() {
-    HealthCheck[] healthChecks = IntStream.range(0, 1 + random.nextInt(20))
-      .mapToObj(s -> new StaticHealthCheck(IntStream.range(0, random.nextInt(3)).mapToObj(i -> RandomStringUtils.randomAlphanumeric(3)).toArray(String[]::new)))
-      .map(HealthCheck.class::cast)
-      .toArray(HealthCheck[]::new);
-    String[] expected = Arrays.stream(healthChecks).map(HealthCheck::check).flatMap(s -> s.getCauses().stream()).toArray(String[]::new);
+    NodeHealthCheck[] nodeHealthChecks = IntStream.range(0, 1 + random.nextInt(20))
+      .mapToObj(s -> new HardcodedHealthNodeCheck(IntStream.range(0, random.nextInt(3)).mapToObj(i -> RandomStringUtils.randomAlphanumeric(3)).toArray(String[]::new)))
+      .map(NodeHealthCheck.class::cast)
+      .toArray(NodeHealthCheck[]::new);
+    String[] expected = Arrays.stream(nodeHealthChecks).map(NodeHealthCheck::check).flatMap(s -> s.getCauses().stream()).toArray(String[]::new);
 
-    HealthCheckerImpl underTest = new HealthCheckerImpl(healthChecks);
+    HealthCheckerImpl underTest = new HealthCheckerImpl(nodeHealthChecks);
 
     assertThat(underTest.checkNode().getCauses()).containsOnly(expected);
   }
 
   private HealthCheckerImpl newHealthCheckerImpl(Stream<Health.Status> statuses) {
-    Stream<StaticHealthCheck> staticHealthCheckStream = statuses.map(StaticHealthCheck::new);
-    return new HealthCheckerImpl(staticHealthCheckStream.map(HealthCheck.class::cast).toArray(HealthCheck[]::new));
+    Stream<HardcodedHealthNodeCheck> staticHealthCheckStream = statuses.map(HardcodedHealthNodeCheck::new);
+    return new HealthCheckerImpl(staticHealthCheckStream.map(NodeHealthCheck.class::cast).toArray(NodeHealthCheck[]::new));
   }
 
-  private class StaticHealthCheck implements HealthCheck {
+  private class HardcodedHealthNodeCheck implements NodeHealthCheck {
     private final Health health;
 
-    public StaticHealthCheck(Health.Status status) {
+    public HardcodedHealthNodeCheck(Health.Status status) {
       this.health = Health.newHealthCheckBuilder().setStatus(status).build();
     }
 
-    public StaticHealthCheck(String... causes) {
+    public HardcodedHealthNodeCheck(String... causes) {
       Health.Builder builder = Health.newHealthCheckBuilder().setStatus(Health.Status.values()[random.nextInt(3)]);
       Stream.of(causes).forEach(builder::addCause);
       this.health = builder.build();
