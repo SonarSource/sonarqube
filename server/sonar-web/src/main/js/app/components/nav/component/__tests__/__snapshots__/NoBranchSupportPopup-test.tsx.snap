@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<BubblePopup
+  customClass="bubble-popup-bottom"
+>
+  <div
+    className="abs-width-400"
+  >
+    <h6
+      className="spacer-bottom"
+    >
+      branches.no_support.header
+    </h6>
+    <p
+      className="big-spacer-bottom markdown"
+    >
+      branches.no_support.header.text
+    </p>
+    <p>
+      <a
+        href="https://redirect.sonarsource.com/doc/branches.html"
+        target="_blank"
+      >
+        learn_more
+      </a>
+      <a
+        className="button spacer-left"
+        href="https://www.sonarsource.com/company/contact/"
+        target="_blank"
+      >
+        buy_developer_pack
+      </a>
+    </p>
+  </div>
+</BubblePopup>
+`;
