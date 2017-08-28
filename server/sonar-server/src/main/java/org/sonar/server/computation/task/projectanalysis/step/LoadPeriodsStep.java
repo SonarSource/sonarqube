@@ -28,6 +28,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
+import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
@@ -36,18 +37,15 @@ import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.VIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
-import static org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit.reportMaxDepth;
 
 /**
  * Populates the {@link PeriodHolder}
  * <p/>
  * Here is how these periods are computed :
- * - Read the 5 period properties ${@link org.sonar.core.config.CorePropertyDefinitions#LEAK_PERIOD}
- * - Try to find the matching snapshots from the properties
- * - If a snapshot is found, a new period is added to the repository
+ * - Read the period property ${@link org.sonar.core.config.CorePropertyDefinitions#LEAK_PERIOD}
+ * - Try to find the matching snapshots from the property
+ * - If a snapshot is found, a period is set to the repository
  */
 public class LoadPeriodsStep implements ComputationStep {
 
@@ -69,15 +67,10 @@ public class LoadPeriodsStep implements ComputationStep {
   @Override
   public void execute() {
     new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(reportMaxDepth(PROJECT).withViewsMaxDepth(VIEW), PRE_ORDER) {
+      new TypeAwareVisitorAdapter(CrawlerDepthLimit.PROJECT, PRE_ORDER) {
         @Override
         public void visitProject(Component project) {
           execute(project);
-        }
-
-        @Override
-        public void visitView(Component view) {
-          execute(view);
         }
       }).visit(treeRootHolder.getRoot());
   }

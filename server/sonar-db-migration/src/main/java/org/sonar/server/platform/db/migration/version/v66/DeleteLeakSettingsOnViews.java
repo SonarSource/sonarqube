@@ -20,16 +20,29 @@
 
 package org.sonar.server.platform.db.migration.version.v66;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class DbVersion66 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(1800, "Add incremental column to snapthots table", AddIncrementalColumnToSnapshotsTable.class)
-      .add(1801, "Create table CE task characteristics", CreateTableCeTaskCharacteristics.class)
-      .add(1802, "Delete leak settings on views", DeleteLeakSettingsOnViews.class)
-    ;
+public class DeleteLeakSettingsOnViews extends DataChange {
+
+  public DeleteLeakSettingsOnViews(Database db) {
+    super(db);
   }
+
+  @Override
+  protected void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT prop.id FROM properties prop " +
+      "INNER JOIN projects p ON p.id=prop.resource_id AND p.qualifier NOT IN ('TRK') " +
+      "WHERE prop.prop_key='sonar.leak.period' or prop.prop_key='sonar.timemachine.period1' ");
+    massUpdate.update("DELETE FROM properties WHERE id=?");
+    massUpdate.rowPluralName("properties");
+    massUpdate.execute((row, update) -> {
+      update.setLong(1, row.getLong(1));
+      return true;
+    });
+  }
+
 }

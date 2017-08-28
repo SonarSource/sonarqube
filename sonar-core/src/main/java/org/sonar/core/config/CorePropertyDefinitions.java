@@ -231,7 +231,7 @@ public class CorePropertyDefinitions {
         .defaultValue(DEFAULT_LEAK_PERIOD)
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
-        .onQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW)
+        .onQualifiers(Qualifiers.PROJECT)
         .build(),
 
       // CPD
