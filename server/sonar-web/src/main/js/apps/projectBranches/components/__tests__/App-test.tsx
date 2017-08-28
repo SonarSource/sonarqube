@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,17 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from '../helpers/request';
-import throwGlobalError from '../app/utils/throwGlobalError';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import App from '../App';
+import { Branch, BranchType } from '../../../../app/types';
 
-export function getBranches(project: string): Promise<any> {
-  return getJSON('/api/project_branches/list', { project }).then(r => r.branches, throwGlobalError);
-}
-
-export function deleteBranch(project: string, branch: string): Promise<void | Response> {
-  return post('/api/project_branches/delete', { project, branch }).catch(throwGlobalError);
-}
-
-export function renameBranch(project: string, branch: string): Promise<void | Response> {
-  return post('/api/project_branches/rename', { project, branch }).catch(throwGlobalError);
-}
+it('renders sorted list of branches', () => {
+  const branches: Branch[] = [
+    { isMain: true, name: 'master' },
+    { isMain: false, name: 'branch-1.0', type: BranchType.LONG },
+    { isMain: false, name: 'branch-1.0', mergeBranch: 'master', type: BranchType.SHORT }
+  ];
+  expect(
+    shallow(<App branches={branches} component={{ key: 'foo' }} onBranchesChange={jest.fn()} />)
+  ).toMatchSnapshot();
+});

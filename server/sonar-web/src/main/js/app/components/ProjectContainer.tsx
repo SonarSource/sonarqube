@@ -83,9 +83,7 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
 
     Promise.all([getComponentNavigation(id), getComponentData(id, branch)]).then(([nav, data]) => {
       const component = this.addQualifier({ ...nav, ...data });
-      const project = component.breadcrumbs.find((c: Component) => c.qualifier === 'TRK');
-      const branchesRequest = project ? getBranches(project.key) : Promise.resolve([]);
-      branchesRequest.then(branches => {
+      this.fetchBranches(component).then(branches => {
         if (this.mounted) {
           this.setState({ loading: false, branches, component });
         }
@@ -93,9 +91,27 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
     }, onError);
   }
 
+  fetchBranches = (component: Component) => {
+    const project = component.breadcrumbs.find((c: Component) => c.qualifier === 'TRK');
+    return project ? getBranches(project.key) : Promise.resolve([]);
+  };
+
   handleProjectChange = (changes: {}) => {
     if (this.mounted) {
       this.setState(state => ({ component: { ...state.component, ...changes } }));
+    }
+  };
+
+  handleBranchesChange = () => {
+    if (this.mounted && this.state.component) {
+      this.fetchBranches(this.state.component).then(
+        branches => {
+          if (this.mounted) {
+            this.setState({ branches });
+          }
+        },
+        () => {}
+      );
     }
   };
 
@@ -128,7 +144,9 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
           />}
         {React.cloneElement(this.props.children, {
           branch,
+          branches,
           component: component,
+          onBranchesChange: this.handleBranchesChange,
           onComponentChange: this.handleProjectChange
         })}
       </div>

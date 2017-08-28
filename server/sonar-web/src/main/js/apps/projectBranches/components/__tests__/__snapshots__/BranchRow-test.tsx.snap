@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders main branch 1`] = `
+<tr>
+  <td>
+    <BranchIcon
+      branch={
+        Object {
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      className="little-spacer-right"
+    />
+    master
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <BranchStatus
+      branch={
+        Object {
+          "isMain": true,
+          "name": "master",
+        }
+      }
+    />
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <Tooltip
+      overlay="branches.rename"
+      placement="bottom"
+    >
+      <a
+        className="js-rename link-no-underline"
+        href="#"
+        onClick={[Function]}
+      >
+        <ChangeIcon />
+      </a>
+    </Tooltip>
+  </td>
+</tr>
+`;
+
+exports[`renders short-living branch 1`] = `
+<tr>
+  <td>
+    <BranchIcon
+      branch={
+        Object {
+          "isMain": false,
+          "mergeBranch": "foo",
+          "name": "feature",
+          "type": "SHORT",
+        }
+      }
+      className="little-spacer-right big-spacer-left"
+    />
+    feature
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <BranchStatus
+      branch={
+        Object {
+          "isMain": false,
+          "mergeBranch": "foo",
+          "name": "feature",
+          "type": "SHORT",
+        }
+      }
+    />
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <Tooltip
+      overlay="branches.delete"
+      placement="bottom"
+    >
+      <a
+        className="js-delete link-no-underline"
+        href="#"
+        onClick={[Function]}
+      >
+        <DeleteIcon />
+      </a>
+    </Tooltip>
+  </td>
+</tr>
+`;
