@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,17 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from '../helpers/request';
-import throwGlobalError from '../app/utils/throwGlobalError';
+import { RouterState, IndexRouteProps } from 'react-router';
 
-export function getBranches(project: string): Promise<any> {
-  return getJSON('/api/project_branches/list', { project }).then(r => r.branches, throwGlobalError);
-}
+const routes = [
+  {
+    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+      import('./components/App').then(i => callback(null, { component: (i as any).default }));
+    }
+  }
+];
 
-export function deleteBranch(project: string, branch: string): Promise<void | Response> {
-  return post('/api/project_branches/delete', { project, branch }).catch(throwGlobalError);
-}
-
-export function renameBranch(project: string, branch: string): Promise<void | Response> {
-  return post('/api/project_branches/rename', { project, branch }).catch(throwGlobalError);
-}
+export default routes;

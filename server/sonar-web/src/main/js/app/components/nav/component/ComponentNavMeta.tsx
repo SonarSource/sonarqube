@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import IncrementalBadge from './IncrementalBadge';
-import BranchStatus from './BranchStatus';
+import BranchStatus from '../../../../components/common/BranchStatus';
 import { Branch, Component, ComponentConfiguration } from '../../../types';
 import Tooltip from '../../../../components/controls/Tooltip';
 import PendingIcon from '../../../../components/icons-components/PendingIcon';
