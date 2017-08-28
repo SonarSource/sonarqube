@@ -72,16 +72,6 @@
   left: -5px;
 }
 
-.navbar-search-shortcut-hint {
-  line-height: 16px;
-  margin-top: 5px;
-  padding: 5px 10px;
-  border-top: 1px solid #e6e6e6;
-  background-color: #f3f3f3;
-  color: #777;
-  font-size: 11px;
-}
-
 .navbar-search-no-results {
   margin-top: 4px;
   padding: 5px 10px;
@@ -93,4 +83,8 @@
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+.global-navbar-search-dropdown .dropdown-bottom-hint {
+  margin-bottom: 0;
 }
