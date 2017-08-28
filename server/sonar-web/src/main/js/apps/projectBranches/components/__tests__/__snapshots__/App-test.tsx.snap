@@ -19,17 +19,17 @@ exports[`renders sorted list of branches 1`] = `
     <thead>
       <tr>
         <th>
-          Branch
+          branch
         </th>
         <th
           className="text-right"
         >
-          Status
+          status
         </th>
         <th
           className="text-right"
         >
-          Actions
+          actions
         </th>
       </tr>
     </thead>
