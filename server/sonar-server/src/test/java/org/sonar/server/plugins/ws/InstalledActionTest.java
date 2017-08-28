@@ -104,7 +104,7 @@ public class InstalledActionTest {
       of(new PluginInfo("").setName("").setJarFile(new File(""))));
     db.pluginDbTester().insertPlugin(
       p -> p.setKee(""),
-      p -> p.setHash("abcdA"),
+      p -> p.setFileHash("abcdA"),
       p -> p.setUpdatedAt(111111L));
 
     underTest.handle(request, response);
@@ -130,7 +130,7 @@ public class InstalledActionTest {
         .setJarFile(new File(getClass().getResource(jarFilename).toURI()))));
     db.pluginDbTester().insertPlugin(
       p -> p.setKee("plugKey"),
-      p -> p.setHash("abcdplugKey"),
+      p -> p.setFileHash("abcdplugKey"),
       p -> p.setUpdatedAt(111111L));
 
     underTest.handle(request, response);
@@ -184,7 +184,7 @@ public class InstalledActionTest {
 
     db.pluginDbTester().insertPlugin(
       p -> p.setKee("plugKey"),
-      p -> p.setHash("abcdplugKey"),
+      p -> p.setFileHash("abcdplugKey"),
       p -> p.setUpdatedAt(111111L));
 
     when(request.paramAsStrings(Param.FIELDS)).thenReturn(singletonList("category"));
@@ -223,19 +223,19 @@ public class InstalledActionTest {
 
     db.pluginDbTester().insertPlugin(
       p -> p.setKee("A"),
-      p -> p.setHash("abcdA"),
+      p -> p.setFileHash("abcdA"),
       p -> p.setUpdatedAt(111111L));
     db.pluginDbTester().insertPlugin(
       p -> p.setKee("B"),
-      p -> p.setHash("abcdB"),
+      p -> p.setFileHash("abcdB"),
       p -> p.setUpdatedAt(222222L));
     db.pluginDbTester().insertPlugin(
       p -> p.setKee("C"),
-      p -> p.setHash("abcdC"),
+      p -> p.setFileHash("abcdC"),
       p -> p.setUpdatedAt(333333L));
     db.pluginDbTester().insertPlugin(
       p -> p.setKee("D"),
-      p -> p.setHash("abcdD"),
+      p -> p.setFileHash("abcdD"),
       p -> p.setUpdatedAt(444444L));
 
     underTest.handle(request, response);
@@ -261,7 +261,7 @@ public class InstalledActionTest {
 
     db.pluginDbTester().insertPlugin(
       p -> p.setKee("A"),
-      p -> p.setHash("abcdA"),
+      p -> p.setFileHash("abcdA"),
       p -> p.setUpdatedAt(111111L));
 
     underTest.handle(request, response);

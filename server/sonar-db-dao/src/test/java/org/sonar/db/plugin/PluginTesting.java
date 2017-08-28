@@ -38,7 +38,7 @@ public class PluginTesting {
     return new PluginDto()
       .setUuid(uuid)
       .setKee(uuid)
-      .setHash(randomAlphanumeric(32))
+      .setFileHash(randomAlphanumeric(32))
       .setCreatedAt(nextLong())
       .setUpdatedAt(nextLong());
   }

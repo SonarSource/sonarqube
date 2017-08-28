@@ -46,5 +46,6 @@ public interface Rule {
   @CheckForNull
   DebtRemediationFunction getRemediationFunction();
 
+  @CheckForNull
   String getPluginKey();
 }

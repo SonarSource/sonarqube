@@ -72,7 +72,7 @@ public class InstalledAction implements PluginsWsAction {
       .setSince("5.2")
       .setChangelog(
         new Change("6.6", "The 'filename' field is added"),
-        new Change("6.6", "The 'hash' field is added"),
+        new Change("6.6", "The 'fileHash' field is added"),
         new Change("6.6", "The 'sonarLintSupported' field is added"),
         new Change("6.6", "The 'updatedAt' field is added"))
       .setHandler(this)

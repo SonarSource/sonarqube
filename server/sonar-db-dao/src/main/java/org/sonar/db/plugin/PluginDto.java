@@ -30,7 +30,7 @@ public class PluginDto {
   /** Base plugin key, can be null */
   private String basePluginKey;
   /** JAR file MD5 checksum, can't be null */
-  private String hash;
+  private String fileHash;
   /** Time plugin was first installed */
   private long createdAt;
   /** Time of last plugin update (=md5 change) */
@@ -64,12 +64,12 @@ public class PluginDto {
     return this;
   }
 
-  public String getHash() {
-    return hash;
+  public String getFileHash() {
+    return fileHash;
   }
 
-  public PluginDto setHash(String s) {
-    this.hash = s;
+  public PluginDto setFileHash(String s) {
+    this.fileHash = s;
     return this;
   }
 
@@ -97,7 +97,7 @@ public class PluginDto {
       .append("uuid", uuid)
       .append("key", kee)
       .append("basePluginKey", basePluginKey)
-      .append("jarMd5", hash)
+      .append("fileHash", fileHash)
       .append("createdAt", createdAt)
       .append("updatedAt", updatedAt)
       .toString();

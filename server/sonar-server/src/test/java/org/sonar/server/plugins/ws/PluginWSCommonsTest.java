@@ -65,7 +65,7 @@ public class PluginWSCommonsTest {
 
   @Test
   public void verify_properties_written_by_writePluginMetadata_with_dto() {
-    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), null, new PluginDto().setHash("abcdef123456").setUpdatedAt(123456L));
+    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), null, new PluginDto().setFileHash("abcdef123456").setUpdatedAt(123456L));
 
     jsonWriter.close();
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +

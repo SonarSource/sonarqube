@@ -22,7 +22,7 @@ package org.sonar.server.startup;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -83,15 +83,15 @@ public class RegisterPlugins implements Startable {
             .setUuid(uuidFactory.create())
             .setKee(pluginInfo.getKey())
             .setBasePluginKey(pluginInfo.getBasePlugin())
-            .setHash(newJarMd5)
+            .setFileHash(newJarMd5)
             .setCreatedAt(now)
             .setUpdatedAt(now);
           dbClient.pluginDao().insert(dbSession, pluginDto);
-        } else if (!previousDto.getHash().equals(newJarMd5)) {
+        } else if (!previousDto.getFileHash().equals(newJarMd5)) {
           LOG.debug("Update plugin {}", pluginInfo.getKey());
           previousDto
             .setBasePluginKey(pluginInfo.getBasePlugin())
-            .setHash(newJarMd5)
+            .setFileHash(newJarMd5)
             .setUpdatedAt(now);
           dbClient.pluginDao().update(dbSession, previousDto);
         }
