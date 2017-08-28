@@ -55,7 +55,7 @@ public class HealthActionTest {
 
   @Test
   public void verify_example() {
-    when(mockedHealthChecker.check()).thenReturn(
+    when(mockedHealthChecker.checkNode()).thenReturn(
         newHealthCheckBuilder()
             .setStatus(Health.Status.YELLOW)
             .addCause("Elasticsearch status is YELLOW")
@@ -67,13 +67,13 @@ public class HealthActionTest {
   }
 
   @Test
-  public void request_returns_status_and_causes_from_HealthChecker_check_method() {
+  public void request_returns_status_and_causes_from_HealthChecker_checkNode_method() {
     Health.Status randomStatus = Health.Status.values()[new Random().nextInt(Health.Status.values().length)];
     Health.Builder builder = newHealthCheckBuilder()
         .setStatus(randomStatus);
     IntStream.range(0, new Random().nextInt(5)).mapToObj(i -> RandomStringUtils.randomAlphanumeric(3)).forEach(builder::addCause);
     Health health = builder.build();
-    when(mockedHealthChecker.check()).thenReturn(health);
+    when(mockedHealthChecker.checkNode()).thenReturn(health);
     TestRequest request = underTest.newRequest();
 
     WsSystem.HealthResponse healthResponse = request.executeProtobuf(WsSystem.HealthResponse.class);
