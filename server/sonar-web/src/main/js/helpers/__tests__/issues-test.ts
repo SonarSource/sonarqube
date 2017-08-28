@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { parseIssueFromResponse } from '../issues';
 
 it('should populate comments data', () => {
@@ -40,7 +39,7 @@ it('should populate comments data', () => {
         updatable: true
       }
     ]
-  };
+  } as any;
   expect(parseIssueFromResponse(issue, undefined, users, undefined).comments).toEqual([
     {
       author: 'admin',

@@ -20,21 +20,29 @@
 import { translate, translateWithParameters } from './l10n';
 import { parseDate } from './dates';
 
-export function getPeriod(periods, index) {
+interface Period {
+  date: string;
+  index: number;
+  mode: string;
+  modeParam?: string;
+  parameter: string;
+}
+
+export function getPeriod(periods: Period[] | undefined, index: number): Period | undefined {
   if (!Array.isArray(periods)) {
-    return null;
+    return undefined;
   }
 
   return periods.find(period => period.index === index);
 }
 
-export function getLeakPeriod(periods) {
+export function getLeakPeriod(periods: Period[] | undefined): Period | undefined {
   return getPeriod(periods, 1);
 }
 
-export function getPeriodLabel(period) {
+export function getPeriodLabel(period: Period | undefined): string | undefined {
   if (!period) {
-    return null;
+    return undefined;
   }
 
   const parameter = period.modeParam || period.parameter;
@@ -46,14 +54,10 @@ export function getPeriodLabel(period) {
   return translateWithParameters(`overview.period.${period.mode}`, parameter);
 }
 
-export function getPeriodDate(period) {
-  if (!period) {
-    return null;
-  }
-
-  return parseDate(period.date);
+export function getPeriodDate(period: Period | undefined): Date | undefined {
+  return period ? parseDate(period.date) : undefined;
 }
 
-export function getLeakPeriodLabel(periods) {
+export function getLeakPeriodLabel(periods: Period[]): string | undefined {
   return getPeriodLabel(getLeakPeriod(periods));
 }
