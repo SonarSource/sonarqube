@@ -91,6 +91,7 @@ public class RuleImpl implements Rule {
     return type;
   }
 
+  @CheckForNull
   @Override
   public String getPluginKey() {
     return pluginKey;

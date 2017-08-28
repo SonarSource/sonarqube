@@ -8,7 +8,7 @@
     uuid,
     kee,
     base_plugin_key as basePluginKey,
-    hash,
+    file_hash as fileHash,
     created_at as createdAt,
     updated_at as updatedAt
   </sql>
@@ -30,14 +30,14 @@
     uuid,
     kee,
     base_plugin_key,
-    hash,
+    file_hash,
     created_at,
     updated_at
     ) values (
     #{uuid,jdbcType=VARCHAR},
     #{kee,jdbcType=VARCHAR},
     #{basePluginKey,jdbcType=VARCHAR},
-    #{hash,jdbcType=VARCHAR},
+    #{fileHash,jdbcType=VARCHAR},
     #{createdAt,jdbcType=TIMESTAMP},
     #{updatedAt,jdbcType=TIMESTAMP}
     )
@@ -46,15 +46,10 @@
   <update id="update" parameterType="org.sonar.db.plugin.PluginDto">
     update plugins set
       base_plugin_key=#{basePluginKey,jdbcType=VARCHAR},
-      hash=#{hash,jdbcType=VARCHAR},
+      file_hash=#{fileHash,jdbcType=VARCHAR},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       uuid=#{uuid,jdbcType=VARCHAR}
   </update>
 
-  <delete id="delete" parameterType="String">
-    delete from plugins
-    where
-    uuid = #{uuid,jdbcType=VARCHAR}
-  </delete>
 </mapper>

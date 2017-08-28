@@ -91,6 +91,10 @@ public class IssueCreationDateCalculator extends IssueVisitor {
 
   private boolean ruleImplementationChanged(ActiveRule activeRule, long lastAnalysisDate) {
     String pluginKey = activeRule.getPluginKey();
+    if (pluginKey == null) {
+      return false;
+    }
+    
     ScannerPlugin scannerPlugin = Optional.ofNullable(analysisMetadataHolder.getScannerPluginsByKey().get(pluginKey))
       .orElseThrow(illegalStateException("The rule %s is declared to come from plugin %s, but this plugin was not used by scanner.", activeRule.getRuleKey(), pluginKey));
     return pluginIsNew(scannerPlugin, lastAnalysisDate)

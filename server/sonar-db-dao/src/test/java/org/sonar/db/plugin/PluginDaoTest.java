@@ -48,7 +48,7 @@ public class PluginDaoTest {
     assertThat(plugin.get().getUuid()).isEqualTo("a");
     assertThat(plugin.get().getKee()).isEqualTo("java");
     assertThat(plugin.get().getBasePluginKey()).isNull();
-    assertThat(plugin.get().getHash()).isEqualTo("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    assertThat(plugin.get().getFileHash()).isEqualTo("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     assertThat(plugin.get().getCreatedAt()).isEqualTo(1500000000000L);
     assertThat(plugin.get().getUpdatedAt()).isEqualTo(1600000000000L);
   }
@@ -68,7 +68,7 @@ public class PluginDaoTest {
       .setUuid("c")
       .setKee("javascript")
       .setBasePluginKey("java")
-      .setHash("cccccccccccccccccccccccccccccccc")
+      .setFileHash("cccccccccccccccccccccccccccccccc")
       .setCreatedAt(1L)
       .setUpdatedAt(2L));
 
@@ -77,7 +77,7 @@ public class PluginDaoTest {
     assertThat(plugin.get().getUuid()).isEqualTo("c");
     assertThat(plugin.get().getKee()).isEqualTo("javascript");
     assertThat(plugin.get().getBasePluginKey()).isEqualTo("java");
-    assertThat(plugin.get().getHash()).isEqualTo("cccccccccccccccccccccccccccccccc");
+    assertThat(plugin.get().getFileHash()).isEqualTo("cccccccccccccccccccccccccccccccc");
     assertThat(plugin.get().getCreatedAt()).isEqualTo(1L);
     assertThat(plugin.get().getUpdatedAt()).isEqualTo(2L);
   }
@@ -89,7 +89,7 @@ public class PluginDaoTest {
     PluginDto plugin = underTest.selectByKey(db.getSession(), "java").get();
 
     plugin.setBasePluginKey("foo");
-    plugin.setHash("abc");
+    plugin.setFileHash("abc");
     plugin.setUpdatedAt(3L);
 
     underTest.update(db.getSession(), plugin);
@@ -98,19 +98,8 @@ public class PluginDaoTest {
     assertThat(plugin.getUuid()).isEqualTo("a");
     assertThat(plugin.getKee()).isEqualTo("java");
     assertThat(plugin.getBasePluginKey()).isEqualTo("foo");
-    assertThat(plugin.getHash()).isEqualTo("abc");
+    assertThat(plugin.getFileHash()).isEqualTo("abc");
     assertThat(plugin.getCreatedAt()).isEqualTo(1500000000000L);
     assertThat(plugin.getUpdatedAt()).isEqualTo(3L);
   }
-
-  @Test
-  public void delete() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    underTest.delete(db.getSession(), new PluginDto()
-      .setUuid("a"));
-
-    assertThat(underTest.selectAll(db.getSession())).hasSize(1);
-  }
-
 }

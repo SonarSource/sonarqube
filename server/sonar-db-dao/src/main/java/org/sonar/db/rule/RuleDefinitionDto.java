@@ -295,11 +295,12 @@ public class RuleDefinitionDto {
     return this;
   }
 
+  @CheckForNull
   public String getPluginKey() {
     return pluginKey;
   }
 
-  public RuleDefinitionDto setPluginKey(String pluginKey) {
+  public RuleDefinitionDto setPluginKey(@Nullable String pluginKey) {
     this.pluginKey = pluginKey;
     return this;
   }

@@ -89,11 +89,12 @@ public class RuleDto {
     return this;
   }
 
+  @CheckForNull
   public String getPluginKey() {
     return definition.getPluginKey();
   }
 
-  public RuleDto setPluginKey(String s) {
+  public RuleDto setPluginKey(@Nullable String s) {
     definition.setPluginKey(s);
     return this;
   }

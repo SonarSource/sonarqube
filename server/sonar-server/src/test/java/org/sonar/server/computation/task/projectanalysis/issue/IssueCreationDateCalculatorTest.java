@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
@@ -33,7 +34,7 @@ import org.sonar.db.protobuf.DbIssues.Flow;
 import org.sonar.db.protobuf.DbIssues.Location;
 import org.sonar.db.protobuf.DbIssues.Locations.Builder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRule;
@@ -53,8 +54,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class IssueCreationDateCalculatorTest {
+  @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  private AnalysisMetadataHolder analysisMetadataHolder;
   private ScmInfoRepository scmInfoRepository;
   private IssueFieldsSetter issueUpdater;
   private ActiveRulesHolder activeRulesHolder;
@@ -69,9 +71,9 @@ public class IssueCreationDateCalculatorTest {
 
   @Before
   public void before() {
-    analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
     scannerPlugins = new HashMap<>();
-    when(analysisMetadataHolder.getScannerPluginsByKey()).thenReturn(scannerPlugins);
+    analysisMetadataHolder.setScannerPluginsByKey(scannerPlugins);
+    analysisMetadataHolder.setAnalysisDate(new Date());
     scmInfoRepository = mock(ScmInfoRepository.class);
     issueUpdater = mock(IssueFieldsSetter.class);
     activeRulesHolder = mock(ActiveRulesHolder.class);
@@ -181,6 +183,7 @@ public class IssueCreationDateCalculatorTest {
 
   @Test
   public void should_change_date_if_scm_is_available_and_first_analysis() {
+    analysisMetadataHolder.setBaseAnalysis(null);
     currentAnalysisIs(3000L);
 
     newIssue();
@@ -226,6 +229,7 @@ public class IssueCreationDateCalculatorTest {
 
   @Test
   public void should_use_primary_location_when_backdating() {
+    analysisMetadataHolder.setBaseAnalysis(null);
     currentAnalysisIs(3000L);
 
     newIssue();
@@ -240,6 +244,7 @@ public class IssueCreationDateCalculatorTest {
 
   @Test
   public void should_use_flows_location_when_backdating() {
+    analysisMetadataHolder.setBaseAnalysis(null);
     currentAnalysisIs(3000L);
 
     newIssue();
@@ -271,8 +276,7 @@ public class IssueCreationDateCalculatorTest {
   }
 
   private void previousAnalysisWas(long analysisDate) {
-    when(analysisMetadataHolder.getBaseAnalysis())
-      .thenReturn(baseAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseAnalysis);
     when(baseAnalysis.getCreatedAt())
       .thenReturn(analysisDate);
   }
@@ -286,7 +290,7 @@ public class IssueCreationDateCalculatorTest {
   }
 
   private void currentAnalysisIs(long analysisDate) {
-    when(analysisMetadataHolder.getAnalysisDate()).thenReturn(analysisDate);
+    analysisMetadataHolder.setAnalysisDate(analysisDate);
   }
 
   private void newIssue() {

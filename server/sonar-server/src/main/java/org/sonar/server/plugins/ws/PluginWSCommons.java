@@ -95,7 +95,7 @@ public class PluginWSCommons {
     if (pluginDto != null) {
       json.prop(PROPERTY_FILENAME, pluginInfo.getNonNullJarFile().getName());
       json.prop(PROPERTY_SONARLINT_SUPPORTED, pluginInfo.isSonarLintSupported());
-      json.prop(PROPERTY_HASH, pluginDto.getHash());
+      json.prop(PROPERTY_HASH, pluginDto.getFileHash());
       json.prop(PROPERTY_UPDATED_AT, pluginDto.getUpdatedAt());
     }
     json.prop(PROPERTY_DESCRIPTION, pluginInfo.getDescription());

@@ -42,10 +42,6 @@ public class PluginDao implements Dao {
     mapper(dbSession).update(dto);
   }
 
-  public void delete(DbSession dbSession, PluginDto dto) {
-    mapper(dbSession).delete(dto.getUuid());
-  }
-
   private static PluginMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(PluginMapper.class);
   }

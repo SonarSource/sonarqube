@@ -56,7 +56,7 @@ public class CreateTablePlugins extends DdlChange {
           .setIsNullable(true)
           .build())
         .addColumn(newVarcharColumnDefBuilder()
-          .setColumnName("hash")
+          .setColumnName("file_hash")
           .setLimit(200)
           .setIsNullable(false)
           .build())

@@ -49,7 +49,7 @@ public class CreateTablePluginsTest {
     db.assertPrimaryKey(TABLE, "pk_plugins", "uuid");
     db.assertColumnDefinition(TABLE, "kee", Types.VARCHAR, 200, false);
     db.assertColumnDefinition(TABLE, "base_plugin_key", Types.VARCHAR, 200, true);
-    db.assertColumnDefinition(TABLE, "hash", Types.VARCHAR, 200, false);
+    db.assertColumnDefinition(TABLE, "file_hash", Types.VARCHAR, 200, false);
     db.assertColumnDefinition(TABLE, "created_at", Types.BIGINT, null, false);
     db.assertColumnDefinition(TABLE, "updated_at", Types.BIGINT, null, false);
 
