@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import BranchStatus from '../BranchStatus';
-import { BranchType, LongLivingBranch } from '../../../../types';
+import { BranchType, LongLivingBranch } from '../../../app/types';
 
 it('renders status of short-living branches', () => {
   checkShort(0, 0, 0);

@@ -44,7 +44,10 @@ it('should work with extensions', () => {
     extensions: [{ key: 'foo', name: 'Foo' }]
   };
   expect(
-    shallow(<ComponentNavMenu branch={mainBranch} component={component as Component} conf={conf} />)
+    shallow(
+      <ComponentNavMenu branch={mainBranch} component={component as Component} conf={conf} />,
+      { context: { branchesEnabled: true } }
+    )
   ).toMatchSnapshot();
 });
 
@@ -62,7 +65,10 @@ it('should work with multiple extensions', () => {
     extensions: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
   };
   expect(
-    shallow(<ComponentNavMenu branch={mainBranch} component={component as Component} conf={conf} />)
+    shallow(
+      <ComponentNavMenu branch={mainBranch} component={component as Component} conf={conf} />,
+      { context: { branchesEnabled: true } }
+    )
   ).toMatchSnapshot();
 });
 
@@ -77,7 +83,9 @@ it('should work for short-living branches', () => {
   const component = { key: 'foo', qualifier: 'TRK' } as Component;
   const conf = { showSettings: true };
   expect(
-    shallow(<ComponentNavMenu branch={branch} component={component} conf={conf} />)
+    shallow(<ComponentNavMenu branch={branch} component={component} conf={conf} />, {
+      context: { branchesEnabled: true }
+    })
   ).toMatchSnapshot();
 });
 
@@ -86,6 +94,8 @@ it('should work for long-living branches', () => {
   const component = { key: 'foo', qualifier: 'TRK' } as Component;
   const conf = { showSettings: true };
   expect(
-    shallow(<ComponentNavMenu branch={branch} component={component} conf={conf} />)
+    shallow(<ComponentNavMenu branch={branch} component={component} conf={conf} />, {
+      context: { branchesEnabled: true }
+    })
   ).toMatchSnapshot();
 });
