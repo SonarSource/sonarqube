@@ -27,7 +27,6 @@ import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysi
 import static org.apache.commons.lang.StringUtils.trimToNull;
 
 public class BranchLoader {
-
   private final MutableAnalysisMetadataHolder metadataHolder;
   private final BranchLoaderDelegate delegate;
 
