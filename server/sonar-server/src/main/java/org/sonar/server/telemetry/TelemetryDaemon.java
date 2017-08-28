@@ -22,6 +22,7 @@ package org.sonar.server.telemetry;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -145,7 +146,7 @@ public class TelemetryDaemon implements Startable {
   }
 
   private static long startOfDay(long now) {
-    return parseDate(formatDate(now)).getTime();
+    return parseDate(formatDate(new Date(now))).getTime();
   }
 
   private int frequency() {

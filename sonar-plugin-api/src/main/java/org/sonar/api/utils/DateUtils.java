@@ -54,10 +54,6 @@ public final class DateUtils {
     return THREAD_SAFE_DATE_FORMAT.format(d);
   }
 
-  public static String formatDate(long ms) {
-    return THREAD_SAFE_DATE_FORMAT.format(new Date(ms));
-  }
-
   public static String formatDateTime(Date d) {
     return THREAD_SAFE_DATETIME_FORMAT.format(d);
   }
