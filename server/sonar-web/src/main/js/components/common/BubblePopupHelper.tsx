@@ -17,44 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 
-/*::
-type Props = {
-  className?: string,
-  children?: React.Element<*>,
-  isOpen: boolean,
-  offset?: {
-    vertical: number,
-    horizontal: number
-  },
-  popup: Object,
-  position: 'bottomleft' | 'bottomright',
-  togglePopup: (?boolean) => void
-};
-*/
+interface Props {
+  className?: string;
+  children?: React.ReactNode;
+  isOpen: boolean;
+  offset?: { vertical: number; horizontal: number };
+  popup: React.ReactElement<any>;
+  position: 'bottomleft' | 'bottomright';
+  togglePopup: (show: boolean) => void;
+}
 
-/*::
-type State = {
-  position: { top: number, right: number }
-};
-*/
+interface State {
+  position: { top: number; left?: number; right?: number };
+}
 
-export default class BubblePopupHelper extends React.PureComponent {
-  /*:: props: Props; */
-  state /*: State */ = {
-    position: {
-      top: 0,
-      right: 0
-    }
+export default class BubblePopupHelper extends React.PureComponent<Props, State> {
+  container: HTMLElement;
+  popupContainer: HTMLElement | null;
+  state: State = {
+    position: { top: 0, right: 0 }
   };
 
   componentDidMount() {
     this.setState({ position: this.getPosition(this.props) });
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     if (!this.props.isOpen && nextProps.isOpen) {
       window.addEventListener('keydown', this.handleKey, false);
       window.addEventListener('click', this.handleOutsideClick, false);
@@ -64,30 +55,31 @@ export default class BubblePopupHelper extends React.PureComponent {
     }
   }
 
-  handleKey = (evt /*: KeyboardEvent */) => {
+  handleKey = (event: KeyboardEvent) => {
     // Escape key
-    if (evt.keyCode === 27) {
+    if (event.keyCode === 27) {
       this.props.togglePopup(false);
     }
   };
 
-  handleOutsideClick = (evt /*: SyntheticInputEvent */) => {
-    if (!this.popupContainer || !this.popupContainer.contains(evt.target)) {
+  handleOutsideClick = (event: MouseEvent) => {
+    if (!this.popupContainer || !this.popupContainer.contains(event.target as Node)) {
       this.props.togglePopup(false);
     }
   };
 
-  handleClick(evt /*: SyntheticInputEvent */) {
-    evt.stopPropagation();
+  handleClick(event: React.SyntheticEvent<HTMLElement>) {
+    event.stopPropagation();
   }
 
-  getPosition(props /*: Props */) {
+  getPosition(props: Props) {
     const containerPos = this.container.getBoundingClientRect();
     const { position } = props;
     const offset = props.offset || { vertical: 0, horizontal: 0 };
     if (position === 'bottomleft') {
       return { top: containerPos.height + offset.vertical, left: offset.horizontal };
-    } else if (position === 'bottomright') {
+    } else {
+      // if (position === 'bottomright')
       return { top: containerPos.height + offset.vertical, right: offset.horizontal };
     }
   }
@@ -96,7 +88,7 @@ export default class BubblePopupHelper extends React.PureComponent {
     return (
       <div
         className={classNames(this.props.className, 'bubble-popup-helper')}
-        ref={container => (this.container = container)}
+        ref={container => (this.container = container as HTMLElement)}
         onClick={this.handleClick}
         tabIndex={0}
         role="tooltip">
