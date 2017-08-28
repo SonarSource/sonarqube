@@ -17,40 +17,57 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { connect } from 'react-redux';
+import * as PropTypes from 'prop-types';
 import GlobalLoading from './GlobalLoading';
 import { fetchCurrentUser } from '../../store/users/actions';
 import { fetchLanguages, fetchAppState } from '../../store/rootActions';
 
-class App extends React.PureComponent {
-  /*:: mounted: boolean; */
+interface Props {
+  children: JSX.Element;
+  fetchAppState: () => Promise<any>;
+  fetchCurrentUser: () => Promise<void>;
+  fetchLanguages: () => Promise<void>;
+}
 
-  static propTypes = {
-    fetchAppState: PropTypes.func.isRequired,
-    fetchCurrentUser: PropTypes.func.isRequired,
-    fetchLanguages: PropTypes.func.isRequired,
-    children: PropTypes.element.isRequired
+interface State {
+  branchesEnabled: boolean;
+  loading: boolean;
+}
+
+class App extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = { branchesEnabled: false, loading: true };
+
+  static childContextTypes = {
+    branchesEnabled: PropTypes.bool.isRequired
   };
 
-  state = {
-    loading: true
-  };
+  getChildContext() {
+    return { branchesEnabled: this.state.branchesEnabled };
+  }
 
   componentDidMount() {
     this.mounted = true;
 
     this.props
       .fetchCurrentUser()
-      .then(() => Promise.all([this.props.fetchAppState(), this.props.fetchLanguages()]))
+      .then(() => Promise.all([this.fetchAppState(), this.props.fetchLanguages()]))
       .then(this.finishLoading, this.finishLoading);
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  fetchAppState = () => {
+    return this.props.fetchAppState().then(appState => {
+      if (this.mounted) {
+        this.setState({ branchesEnabled: appState.branchesEnabled });
+      }
+    });
+  };
 
   finishLoading = () => {
     if (this.mounted) {
@@ -66,8 +83,4 @@ class App extends React.PureComponent {
   }
 }
 
-export default connect(null, {
-  fetchAppState,
-  fetchCurrentUser,
-  fetchLanguages
-})(App);
+export default connect(null, { fetchAppState, fetchCurrentUser, fetchLanguages })(App as any);
