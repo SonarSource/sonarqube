@@ -77,7 +77,6 @@ it('should work for short-living branches', () => {
     isMain: false,
     mergeBranch: 'master',
     name: 'feature',
-    status: { bugs: 0, codeSmells: 2, vulnerabilities: 3 },
     type: BranchType.SHORT
   };
   const component = { key: 'foo', qualifier: 'TRK' } as Component;
