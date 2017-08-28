@@ -102,6 +102,8 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
         <ComponentNavBranch
           branches={this.props.branches}
           currentBranch={this.props.currentBranch}
+          // to close dropdown on any location change
+          location={this.props.location}
           project={this.props.component}
         />
 
@@ -116,6 +118,8 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
           branch={this.props.currentBranch}
           component={this.props.component}
           conf={this.props.conf}
+          // to re-render selected menu item
+          location={this.props.location}
         />
       </ContextNavBar>
     );
