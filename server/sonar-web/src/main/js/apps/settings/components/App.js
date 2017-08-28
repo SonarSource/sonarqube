@@ -24,14 +24,16 @@ import PageHeader from './PageHeader';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
 import AllCategoriesList from './AllCategoriesList';
 import WildcardsHelp from './WildcardsHelp';
+import { getBranchName } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
 /*::
 type Props = {
+  branch?: {},
   component?: { key: string },
   defaultCategory: ?string,
-  fetchSettings(componentKey: ?string): Promise<*>,
+  fetchSettings(componentKey: ?string, branch?: string): Promise<*>,
   location: { query: {} }
 };
 */
@@ -52,13 +54,15 @@ export default class App extends React.PureComponent {
       html.classList.add('dashboard-page');
     }
     const componentKey = this.props.component ? this.props.component.key : null;
-    this.props.fetchSettings(componentKey).then(() => this.setState({ loaded: true }));
+    const branch = this.props.branch && getBranchName(this.props.branch);
+    this.props.fetchSettings(componentKey, branch).then(() => this.setState({ loaded: true }));
   }
 
   componentDidUpdate(prevProps /*: Props*/) {
     if (prevProps.component !== this.props.component) {
       const componentKey = this.props.component ? this.props.component.key : null;
-      this.props.fetchSettings(componentKey);
+      const branch = this.props.branch && getBranchName(this.props.branch);
+      this.props.fetchSettings(componentKey, branch);
     }
   }
 
@@ -77,21 +81,28 @@ export default class App extends React.PureComponent {
     const { query } = this.props.location;
     const selectedCategory = query.category || this.props.defaultCategory;
 
+    const branchName = this.props.branch && getBranchName(this.props.branch);
+
     return (
       <div id="settings-page" className="page page-limited">
         <Helmet title={translate('settings.page')} />
 
-        <PageHeader component={this.props.component} />
+        <PageHeader branch={branchName} component={this.props.component} />
         <div className="side-tabs-layout settings-layout">
           <div className="side-tabs-side">
             <AllCategoriesList
+              branch={branchName}
               component={this.props.component}
               selectedCategory={selectedCategory}
               defaultCategory={this.props.defaultCategory}
             />
           </div>
           <div className="side-tabs-main">
-            <CategoryDefinitionsList component={this.props.component} category={selectedCategory} />
+            <CategoryDefinitionsList
+              branch={branchName}
+              component={this.props.component}
+              category={selectedCategory}
+            />
 
             {selectedCategory === 'exclusions' && <WildcardsHelp />}
           </div>
