@@ -33,6 +33,7 @@ import BubblePopupHelper from '../../../../components/common/BubblePopupHelper';
 interface Props {
   branches: Branch[];
   currentBranch: Branch;
+  location?: any;
   project: Component;
 }
 
@@ -61,7 +62,8 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   componentWillReceiveProps(nextProps: Props) {
     if (
       nextProps.project !== this.props.project ||
-      nextProps.currentBranch !== this.props.currentBranch
+      nextProps.currentBranch !== this.props.currentBranch ||
+      nextProps.location !== this.props.location
     ) {
       this.setState({ dropdownOpen: false, singleBranchPopupOpen: false });
     }
