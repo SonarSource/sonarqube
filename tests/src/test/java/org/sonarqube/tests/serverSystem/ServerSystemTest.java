@@ -71,12 +71,6 @@ public class ServerSystemTest {
   }
 
   @Test
-  public void get_server_status() {
-    Map<String, Object> json = callStatus();
-    assertThat(json.get("status")).isEqualTo("UP");
-  }
-
-  @Test
   public void generate_server_id() throws IOException {
     Navigation nav = tester.openBrowser().openHome().logIn().submitCredentials(ADMIN_USER_LOGIN);
     String validIpAddress = getValidIpAddress();

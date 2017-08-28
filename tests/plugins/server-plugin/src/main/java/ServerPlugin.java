@@ -86,6 +86,6 @@ import static org.sonar.api.PropertyType.USER_LOGIN;
 public class ServerPlugin extends SonarPlugin {
   public List getExtensions() {
     return Arrays.asList(
-      StartupCrash.class, TempFolderExtension.class);
+      StartupCrash.class, ServerStartupLock.class, TempFolderExtension.class);
   }
 }
