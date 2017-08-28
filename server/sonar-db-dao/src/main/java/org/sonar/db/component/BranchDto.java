@@ -26,6 +26,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.repeat;
 
 public class BranchDto {
+  public static final String DEFAULT_MAIN_BRANCH_NAME = "master";
 
   /**
    * Maximum length of column "kee"
