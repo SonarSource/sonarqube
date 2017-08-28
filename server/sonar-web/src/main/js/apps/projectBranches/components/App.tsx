@@ -41,9 +41,15 @@ export default function App({ branches, component, onBranchesChange }: Props) {
       <table className="data zebra zebra-hover">
         <thead>
           <tr>
-            <th>Branch</th>
-            <th className="text-right">Status</th>
-            <th className="text-right">Actions</th>
+            <th>
+              {translate('branch')}
+            </th>
+            <th className="text-right">
+              {translate('status')}
+            </th>
+            <th className="text-right">
+              {translate('actions')}
+            </th>
           </tr>
         </thead>
         <tbody>
