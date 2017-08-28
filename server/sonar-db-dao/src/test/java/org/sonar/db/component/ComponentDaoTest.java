@@ -636,8 +636,7 @@ public class ComponentDaoTest {
   public void select_projects() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto provisionedProject = db.components().insertPrivateProject();
-    ComponentDto provisionedView = db.components().insertView(organization, (dto) -> {
-    });
+    ComponentDto provisionedView = db.components().insertView(organization);
     String projectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization)).getComponentUuid();
     String disabledProjectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization).setEnabled(false)).getComponentUuid();
     String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization)).getComponentUuid();
@@ -645,6 +644,17 @@ public class ComponentDaoTest {
     assertThat(underTest.selectProjects(dbSession))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid(), projectUuid);
+  }
+
+  @Test
+  public void select_projects_does_not_return_branches() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    assertThat(underTest.selectProjects(dbSession))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(project.uuid());
   }
 
   @Test
