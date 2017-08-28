@@ -19,19 +19,21 @@
  */
 package org.sonar.server.health;
 
-import org.junit.Test;
+import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * Checks the running status of the WebServer when the WebServer is in safemode.
+ * Obviously, it statically returns a red health status.
+ */
+public class WebServerSafemodeNodeCheck implements NodeHealthCheck {
 
-public class WebServerSafemodeCheckTest {
-  private WebServerSafemodeCheck underTest = new WebServerSafemodeCheck();
+  private static final Health RED_HEALTH = newHealthCheckBuilder()
+    .setStatus(Health.Status.RED)
+    .addCause("SonarQube webserver is not up")
+    .build();
 
-  @Test
-  public void always_returns_RED_status_with_cause() {
-    Health health = underTest.check();
-
-    assertThat(health.getStatus()).isEqualTo(Health.Status.RED);
-    assertThat(health.getCauses()).containsOnly("SonarQube webserver is not up");
-
+  @Override
+  public Health check() {
+    return RED_HEALTH;
   }
 }

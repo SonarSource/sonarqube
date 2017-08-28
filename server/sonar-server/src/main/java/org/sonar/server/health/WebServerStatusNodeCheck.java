@@ -29,7 +29,7 @@ import static org.sonar.server.health.Health.newHealthCheckBuilder;
 /**
  * Checks the running status of the WebServer when it is not anymore in safemode.
  */
-public class WebServerStatusCheck implements HealthCheck {
+public class WebServerStatusNodeCheck implements NodeHealthCheck {
   private static final EnumSet<DatabaseMigrationState.Status> VALID_DATABASEMIGRATION_STATUSES = EnumSet.of(
     DatabaseMigrationState.Status.NONE, DatabaseMigrationState.Status.SUCCEEDED);
 
@@ -37,7 +37,7 @@ public class WebServerStatusCheck implements HealthCheck {
   private final Platform platform;
   private final RestartFlagHolder restartFlagHolder;
 
-  public WebServerStatusCheck(DatabaseMigrationState migrationState, Platform platform, RestartFlagHolder restartFlagHolder) {
+  public WebServerStatusNodeCheck(DatabaseMigrationState migrationState, Platform platform, RestartFlagHolder restartFlagHolder) {
     this.migrationState = migrationState;
     this.platform = platform;
     this.restartFlagHolder = restartFlagHolder;

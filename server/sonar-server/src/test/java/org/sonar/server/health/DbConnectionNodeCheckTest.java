@@ -30,12 +30,12 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DbConnectionCheckTest {
+public class DbConnectionNodeCheckTest {
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);
   private IsAliveMapper isAliveMapper = mock(IsAliveMapper.class);
 
-  private DbConnectionCheck underTest = new DbConnectionCheck(dbClient);
+  private DbConnectionNodeCheck underTest = new DbConnectionNodeCheck(dbClient);
 
   @Before
   public void wireMocks() {

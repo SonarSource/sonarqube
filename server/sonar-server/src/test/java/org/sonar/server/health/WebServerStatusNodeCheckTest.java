@@ -30,14 +30,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class WebServerStatusCheckTest {
+public class WebServerStatusNodeCheckTest {
   private final DatabaseMigrationState migrationState = mock(DatabaseMigrationState.class);
   private final Platform platform = mock(Platform.class);
   private final RestartFlagHolder restartFlagHolder = mock(RestartFlagHolder.class);
 
   private final Random random = new Random();
 
-  private WebServerStatusCheck underTest = new WebServerStatusCheck(migrationState, platform, restartFlagHolder);
+  private WebServerStatusNodeCheck underTest = new WebServerStatusNodeCheck(migrationState, platform, restartFlagHolder);
 
   @Test
   public void returns_RED_status_with_cause_if_platform_status_is_not_UP() {

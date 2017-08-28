@@ -20,19 +20,19 @@
 package org.sonar.server.platform.ws;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.health.DbConnectionCheck;
-import org.sonar.server.health.EsStatusCheck;
+import org.sonar.server.health.DbConnectionNodeCheck;
+import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
-import org.sonar.server.health.WebServerSafemodeCheck;
+import org.sonar.server.health.WebServerSafemodeNodeCheck;
 
 public class SafeModeHealthActionModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      // HealthCheck implementations
-      WebServerSafemodeCheck.class,
-      DbConnectionCheck.class,
-      EsStatusCheck.class,
+      // NodeHealthCheck implementations
+      WebServerSafemodeNodeCheck.class,
+      DbConnectionNodeCheck.class,
+      EsStatusNodeCheck.class,
 
       HealthCheckerImpl.class,
       HealthAction.class);

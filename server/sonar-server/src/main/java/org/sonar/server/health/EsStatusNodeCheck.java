@@ -19,21 +19,42 @@
  */
 package org.sonar.server.health;
 
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import org.sonar.server.es.EsClient;
+
 import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
 /**
- * Checks the running status of the WebServer when the WebServer is in safemode.
- * Obviously, it statically returns a red health status.
+ * Checks the ElasticSearch cluster status.
  */
-public class WebServerSafemodeCheck implements HealthCheck {
-
+public class EsStatusNodeCheck implements NodeHealthCheck {
+  private static final Health YELLOW_HEALTH = newHealthCheckBuilder()
+    .setStatus(Health.Status.YELLOW)
+    .addCause("Elasticsearch status is YELLOW")
+    .build();
   private static final Health RED_HEALTH = newHealthCheckBuilder()
     .setStatus(Health.Status.RED)
-    .addCause("SonarQube webserver is not up")
+    .addCause("Elasticsearch status is RED")
     .build();
+
+  private final EsClient esClient;
+
+  public EsStatusNodeCheck(EsClient esClient) {
+    this.esClient = esClient;
+  }
 
   @Override
   public Health check() {
-    return RED_HEALTH;
+    ClusterHealthStatus esStatus = esClient.prepareClusterStats().get().getStatus();
+    switch (esStatus) {
+      case GREEN:
+        return Health.GREEN;
+      case YELLOW:
+        return YELLOW_HEALTH;
+      case RED:
+        return RED_HEALTH;
+      default:
+        throw new IllegalArgumentException("Unsupported Elasticsearch status " + esStatus);
+    }
   }
 }

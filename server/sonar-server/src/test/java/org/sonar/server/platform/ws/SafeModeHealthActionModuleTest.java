@@ -25,11 +25,11 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.health.DbConnectionCheck;
-import org.sonar.server.health.EsStatusCheck;
-import org.sonar.server.health.HealthCheck;
+import org.sonar.server.health.DbConnectionNodeCheck;
+import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
-import org.sonar.server.health.WebServerSafemodeCheck;
+import org.sonar.server.health.NodeHealthCheck;
+import org.sonar.server.health.WebServerSafemodeNodeCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,12 +53,12 @@ public class SafeModeHealthActionModuleTest {
 
     underTest.configure(container);
 
-    List<Class<?>> checks = classesAddedToContainer(container).stream().filter(HealthCheck.class::isAssignableFrom).collect(Collectors.toList());
+    List<Class<?>> checks = classesAddedToContainer(container).stream().filter(NodeHealthCheck.class::isAssignableFrom).collect(Collectors.toList());
     assertThat(checks)
       .hasSize(3)
-      .contains(WebServerSafemodeCheck.class)
-      .contains(DbConnectionCheck.class)
-      .contains(EsStatusCheck.class);
+      .contains(WebServerSafemodeNodeCheck.class)
+      .contains(DbConnectionNodeCheck.class)
+      .contains(EsStatusNodeCheck.class);
   }
 
   private List<Class<?>> classesAddedToContainer(ComponentContainer container) {

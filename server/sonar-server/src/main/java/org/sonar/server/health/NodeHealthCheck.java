@@ -19,6 +19,6 @@
  */
 package org.sonar.server.health;
 
-public interface HealthCheck {
+public interface NodeHealthCheck {
   Health check();
 }
