@@ -102,7 +102,7 @@ public class ComponentUpdaterTest {
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.uuid());
     assertThat(branch).isPresent();
     assertThat(branch.get().getKeeType()).isEqualTo(BranchKeyType.BRANCH);
-    assertThat(branch.get().getKey()).isNull();
+    assertThat(branch.get().getKey()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
     assertThat(branch.get().getMergeBranchUuid()).isNull();
     assertThat(branch.get().getPullRequestTitle()).isNull();
     assertThat(branch.get().getBranchType()).isEqualTo(BranchType.LONG);
