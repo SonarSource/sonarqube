@@ -36,8 +36,8 @@ import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.ServerId.ShowWsResponse;
+import org.sonarqube.ws.WsSystem;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.WsResponse;
 import util.ItUtils;
 
 import static org.apache.commons.lang.StringUtils.startsWithAny;
@@ -62,10 +62,10 @@ public class ServerSystemTest {
 
   @Test
   public void get_sonarqube_version() {
-    Map<String, Object> json = callStatus();
+    WsSystem.StatusResponse response = tester.wsClient().system().status();
 
-    String version = (String) json.get("version");
-    if (!startsWithAny(version, new String[]{"6."})) {
+    String version = response.getVersion();
+    if (!startsWithAny(version, new String[]{"6.", "7.", "8."})) {
       fail("Bad version: " + version);
     }
   }
@@ -94,11 +94,6 @@ public class ServerSystemTest {
 
     String serverId = page.serverIdInput().val();
     assertThat(serverId).isNotEmpty();
-  }
-
-  private Map<String, Object> callStatus() {
-    WsResponse statusResponse = tester.wsClient().wsConnector().call(new GetRequest("api/system/status"));
-    return ItUtils.jsonToMap(statusResponse.content());
   }
 
   /**

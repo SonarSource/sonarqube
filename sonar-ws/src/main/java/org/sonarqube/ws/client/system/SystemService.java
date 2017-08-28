@@ -37,4 +37,8 @@ public class SystemService extends BaseService {
   public void restart() {
     call(new PostRequest(path("restart")));
   }
+
+  public WsSystem.StatusResponse status() {
+    return call(new GetRequest(path("status")), WsSystem.StatusResponse.parser());
+  }
 }

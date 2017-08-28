@@ -46,6 +46,16 @@ public class SystemServiceTest {
   }
 
   @Test
+  public void test_status() throws Exception {
+    underTest.status();
+
+    GetRequest getRequest = serviceTester.getGetRequest();
+    serviceTester.assertThat(getRequest)
+      .hasPath("status")
+      .andNoOtherParam();
+  }
+
+  @Test
   public void test_restart() throws Exception {
     underTest.restart();
 
