@@ -220,7 +220,7 @@ public class ComponentTesting {
   public static BranchDto newBranchDto(ComponentDto branchComponent, BranchType branchType) {
     boolean isMain = branchComponent.getMainBranchProjectUuid() == null;
     String projectUuid = isMain ? branchComponent.uuid() : branchComponent.getMainBranchProjectUuid();
-    String key = isMain ? null : "branch_" + randomAlphanumeric(248);
+    String key = isMain ? "master" : "branch_" + randomAlphanumeric(248);
     
     return new BranchDto()
       .setKey(key)

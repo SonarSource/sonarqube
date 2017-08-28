@@ -25,9 +25,6 @@ import org.sonar.api.server.ws.WebService;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.CONTROLLER;
 
 public class BranchesWs implements WebService {
-
-  public static final String DEFAULT_MAIN_BRANCH_NAME = "master";
-
   private final BranchWsAction[] actions;
 
   public BranchesWs(BranchWsAction... actions) {
