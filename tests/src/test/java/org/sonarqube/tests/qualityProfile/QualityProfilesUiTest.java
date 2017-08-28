@@ -22,20 +22,19 @@ package org.sonarqube.tests.qualityProfile;
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category4Suite;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
 import org.sonarqube.ws.client.qualityprofile.CreateRequest;
-import org.sonarqube.pageobjects.Navigation;
 import util.user.UserRule;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -50,8 +49,6 @@ public class QualityProfilesUiTest {
 
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
-
-  private static WsClient adminWsClient;
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();
