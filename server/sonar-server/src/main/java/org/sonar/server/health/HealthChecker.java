@@ -21,7 +21,8 @@ package org.sonar.server.health;
 
 public interface HealthChecker {
   /**
-   * Perform a check of the health of SonarQube, either as a standalone node or as a cluster.
+   * Perform a check of the health of the current SonarQube node, either as a standalone node or as a member
+   * of a cluster.
    */
-  Health check();
+  Health checkNode();
 }

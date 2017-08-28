@@ -53,7 +53,7 @@ public class HealthAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    Health check = healthChecker.check();
+    Health check = healthChecker.checkNode();
     WsSystem.HealthResponse.Builder responseBuilder = WsSystem.HealthResponse.newBuilder()
       .setHealth(WsSystem.Health.valueOf(check.getStatus().name()));
     WsSystem.Cause.Builder causeBuilder = WsSystem.Cause.newBuilder();
