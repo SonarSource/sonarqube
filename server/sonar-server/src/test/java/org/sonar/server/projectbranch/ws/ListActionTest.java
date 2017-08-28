@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -35,8 +36,16 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
+import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
@@ -46,13 +55,14 @@ import org.sonarqube.ws.WsBranches.Branch;
 import org.sonarqube.ws.WsBranches.ListWsResponse;
 
 import static java.lang.String.format;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
-import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
-import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.WsBranches.Branch.Status;
 
@@ -60,28 +70,25 @@ public class ListActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
+  @Rule
+  public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
+  private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new AuthorizationTypeSupport(userSession));
+  private PermissionIndexerTester permissionIndexerTester = new PermissionIndexerTester(es, issueIndexer);
 
   private MetricDto qualityGateStatus;
-  private MetricDto bugs;
-  private MetricDto vulnerabilities;
-  private MetricDto codeSmells;
 
-  public WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes)));
+  public WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes), issueIndex));
 
   @Before
   public void setUp() throws Exception {
     qualityGateStatus = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
-    bugs = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
-    vulnerabilities = db.measures().insertMetric(m -> m.setKey(VULNERABILITIES_KEY));
-    codeSmells = db.measures().insertMetric(m -> m.setKey(CODE_SMELLS_KEY));
   }
 
   @Test
@@ -252,10 +259,15 @@ public class ListActionTest {
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
     ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
       b -> b.setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
-    SnapshotDto branchAnalysis = db.components().insertSnapshot(shortLivingBranch);
-    db.measures().insertMeasure(shortLivingBranch, branchAnalysis, bugs, m -> m.setValue(1d));
-    db.measures().insertMeasure(shortLivingBranch, branchAnalysis, vulnerabilities, m -> m.setValue(2d));
-    db.measures().insertMeasure(shortLivingBranch, branchAnalysis, codeSmells, m -> m.setValue(3d));
+    RuleDefinitionDto rule = db.rules().insert();
+    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(BUG));
+    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(VULNERABILITY));
+    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(VULNERABILITY));
+    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(CODE_SMELL));
+    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(CODE_SMELL));
+    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(CODE_SMELL));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexerTester.allowOnlyAnyone(project);
 
     ListWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())
