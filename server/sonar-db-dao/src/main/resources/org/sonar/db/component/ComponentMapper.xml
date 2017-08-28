@@ -226,6 +226,7 @@
       p.enabled=${_true}
       AND p.scope='PRJ'
       AND p.qualifier='TRK'
+      AND p.main_branch_project_uuid IS NULL
   </select>
 
   <select id="selectAllRootsByOrganization" resultType="Component">

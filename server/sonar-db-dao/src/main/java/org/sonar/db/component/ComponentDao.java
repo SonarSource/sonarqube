@@ -237,6 +237,8 @@ public class ComponentDao implements Dao {
    * Returns all projects (Scope {@link org.sonar.api.resources.Scopes#PROJECT} and qualifier
    * {@link org.sonar.api.resources.Qualifiers#PROJECT}) which are enabled.
    *
+   * Branches are not returned.
+   *
    * Used by Views.
    */
   public List<ComponentDto> selectProjects(DbSession session) {
