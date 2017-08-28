@@ -34,7 +34,6 @@ import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.SHORT;
-import static org.sonar.server.projectbranch.ws.BranchesWs.DEFAULT_MAIN_BRANCH_NAME;
 
 public class BranchDtoToWsBranch {
 
@@ -45,14 +44,13 @@ public class BranchDtoToWsBranch {
   static WsBranches.Branch.Builder toBranchBuilder(BranchDto branch, Optional<BranchDto> mergeBranch, Map<String, MeasureDto> measuresByMetricKey) {
     WsBranches.Branch.Builder builder = WsBranches.Branch.newBuilder();
     String branchKey = branch.getKey();
-    String effectiveBranchKey = branchKey == null && branch.isMain() ? DEFAULT_MAIN_BRANCH_NAME : branchKey;
-    setNullable(effectiveBranchKey, builder::setName);
+    setNullable(branchKey, builder::setName);
     builder.setIsMain(branch.isMain());
     builder.setType(Common.BranchType.valueOf(branch.getBranchType().name()));
     if (branch.getBranchType().equals(SHORT)) {
       if (mergeBranch.isPresent()) {
         String mergeBranchKey = mergeBranch.get().getKey();
-        builder.setMergeBranch(mergeBranchKey == null ? DEFAULT_MAIN_BRANCH_NAME : mergeBranchKey);
+        builder.setMergeBranch(mergeBranchKey);
       } else {
         builder.setIsOrphan(true);
       }
