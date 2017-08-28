@@ -42,6 +42,7 @@ import org.sonarqube.tests.serverSystem.HttpHeadersTest;
 import org.sonarqube.tests.serverSystem.LogsTest;
 import org.sonarqube.tests.serverSystem.PingTest;
 import org.sonarqube.tests.serverSystem.ServerSystemTest;
+import org.sonarqube.tests.serverSystem.SystemInfoTest;
 import org.sonarqube.tests.ui.SourceViewerTest;
 import org.sonarqube.tests.ui.UiExtensionsTest;
 import org.sonarqube.tests.ui.UiTest;
@@ -63,6 +64,7 @@ import static util.ItUtils.xooPlugin;
   RootUserTest.class,
   // server system
   ServerSystemTest.class,
+  SystemInfoTest.class,
   PingTest.class,
   // user
   MyAccountPageTest.class,

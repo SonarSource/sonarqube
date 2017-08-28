@@ -21,11 +21,9 @@ package org.sonarqube.tests.serverSystem;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import okhttp3.Response;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONValue;
 import org.junit.Before;
@@ -67,15 +65,9 @@ public class ServerSystemTest {
     Map<String, Object> json = callStatus();
 
     String version = (String) json.get("version");
-    if (!startsWithAny(version, new String[] {"6."})) {
+    if (!startsWithAny(version, new String[]{"6."})) {
       fail("Bad version: " + version);
     }
-  }
-
-  @Test
-  public void get_server_status() {
-    Map<String, Object> json = callStatus();
-    assertThat(json.get("status")).isEqualTo("UP");
   }
 
   @Test
@@ -109,44 +101,6 @@ public class ServerSystemTest {
     return ItUtils.jsonToMap(statusResponse.content());
   }
 
-  @Test
-  public void display_system_info() {
-    tester.runHtmlTests("/serverSystem/ServerSystemTest/system_info.html");
-  }
-
-  @Test
-  public void download_system_info() throws Exception {
-    waitForComputeEngineToBeUp(orchestrator);
-
-    WsResponse response = tester.wsClient().wsConnector().call(
-      new GetRequest("api/system/info"));
-
-    assertThat(response.code()).isEqualTo(200);
-
-    assertThat(response.content()).contains(
-      // SONAR-7436 monitor ES and CE
-      "\"Compute Engine Database Connection\":", "\"Compute Engine State\":", "\"Compute Engine Tasks\":",
-      "\"Elasticsearch\":", "\"State\":\"GREEN\"",
-
-      // SONAR-7271 get settings
-      "\"Settings\":", "\"sonar.jdbc.url\":", "\"sonar.path.data\":");
-  }
-
-  private static void waitForComputeEngineToBeUp(Orchestrator orchestrator) throws IOException {
-    for (int i = 0; i < 10_000; i++) {
-      File logs = orchestrator.getServer().getCeLogs();
-      if (FileUtils.readFileToString(logs).contains("Compute Engine is operational")) {
-        return;
-      }
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        // ignored
-      }
-    }
-    throw new IllegalStateException("Compute Engine is not operational");
-  }
-
   /**
    * See http://jira.codehaus.org/browse/SONAR-2727
    */
@@ -163,7 +117,7 @@ public class ServerSystemTest {
    */
   @Test
   public void hide_jdbc_settings_to_non_admin() {
-    tester.runHtmlTests( "/serverSystem/ServerSystemTest/hide-jdbc-settings.html");
+    tester.runHtmlTests("/serverSystem/ServerSystemTest/hide-jdbc-settings.html");
   }
 
   @Test
