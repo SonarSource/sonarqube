@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
@@ -38,19 +39,19 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
  * is considered as "main".
  */
 public class DefaultBranchImpl implements Branch {
-
-  @Nullable
   private final String branchName;
+  private final boolean isLegacyBranch;
 
   public DefaultBranchImpl() {
     this(null);
   }
 
   public DefaultBranchImpl(@Nullable String name) {
-    this.branchName = name;
-    if (name != null && !ComponentKeys.isValidBranch(name)) {
+    this.isLegacyBranch = (name != null);
+    this.branchName = (name == null) ? BranchDto.DEFAULT_MAIN_BRANCH_NAME : name;
+    if (!ComponentKeys.isValidBranch(branchName)) {
       throw MessageException.of(format("\"%s\" is not a valid branch name. "
-        + "Allowed characters are alphanumeric, '-', '_', '.' and '/'.", name));
+        + "Allowed characters are alphanumeric, '-', '_', '.' and '/'.", branchName));
     }
   }
 
@@ -82,12 +83,15 @@ public class DefaultBranchImpl implements Branch {
   @Override
   public boolean supportsCrossProjectCpd() {
     // only on regular project, not on branches
-    return branchName == null;
+    return !isLegacyBranch;
   }
 
   @Override
   public String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir) {
-    String moduleWithBranch =  ComponentKeys.createKey(module.getKey(), branchName);
+    String moduleWithBranch = module.getKey();
+    if (isLegacyBranch) {
+      moduleWithBranch = ComponentKeys.createKey(module.getKey(), branchName);
+    }
     if (fileOrDir == null || isEmpty(fileOrDir.getPath())) {
       return moduleWithBranch;
     }

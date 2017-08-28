@@ -23,13 +23,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
+import org.sonar.db.component.BranchDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-
 
 public class BranchLoaderTest {
   @Rule
@@ -62,7 +62,7 @@ public class BranchLoaderTest {
 
     Branch branch = metadataHolder.getBranch().get();
     assertThat(branch.isMain()).isTrue();
-    assertThat(branch.getName()).isEmpty();
+    assertThat(branch.getName().get()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
   }
 
   @Test
