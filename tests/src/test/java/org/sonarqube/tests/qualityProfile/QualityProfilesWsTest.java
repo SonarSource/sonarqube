@@ -32,7 +32,9 @@ import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.ShowResponse;
 import org.sonarqube.ws.QualityProfiles.ShowResponse.CompareToSonarWay;
 import org.sonarqube.ws.QualityProfiles.ShowResponse.QualityProfile;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 import org.sonarqube.ws.client.qualityprofile.ShowRequest;
 
@@ -99,8 +101,19 @@ public class QualityProfilesWsTest {
     assertThat(tester.qProfiles().service().show(new ShowRequest()
       .setProfile(xooProfile.getKey())
       .setCompareToSonarWay(true)).getCompareToSonarWay())
-        .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
-        .containsExactly(sonarWay.getKey(), sonarWay.getName(), 0L);
+      .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
+      .containsExactly(sonarWay.getKey(), sonarWay.getName(), 0L);
+  }
+
+  @Test
+  public void redirect_profiles_export_to_api_qualityprofiles_export() {
+    WsResponse response = tester.wsClient().wsConnector().call(new GetRequest("profiles/export?language=xoo&format=XooFakeExporter"));
+    assertThat(response.isSuccessful()).isTrue();
+    assertThat(response.requestUrl()).endsWith("/api/qualityprofiles/export?language=xoo&format=XooFakeExporter");
+    assertThat(response.content()).isEqualTo("xoo -> Basic -> 1");
+
+    // Check 'name' parameter is taken into account
+    assertThat(tester.wsClient().wsConnector().call(new GetRequest("profiles/export?language=xoo&name=empty&format=XooFakeExporter")).content()).isEqualTo("xoo -> empty -> 0");
   }
 
   private SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<SearchWsResponse.QualityProfile> filter) {
