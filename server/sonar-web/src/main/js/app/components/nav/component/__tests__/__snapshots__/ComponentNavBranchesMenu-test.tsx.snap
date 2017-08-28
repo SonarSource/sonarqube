@@ -25,7 +25,7 @@ exports[`renders list 1`] = `
     />
   </div>
   <ul
-    className="menu"
+    className="menu menu-vertically-limited"
   >
     <ComponentNavBranchesMenuItem
       branch={
@@ -165,7 +165,7 @@ exports[`searches 1`] = `
     />
   </div>
   <ul
-    className="menu"
+    className="menu menu-vertically-limited"
   >
     <ComponentNavBranchesMenuItem
       branch={

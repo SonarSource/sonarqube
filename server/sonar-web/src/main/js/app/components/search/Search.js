@@ -367,7 +367,7 @@ export default class Search extends React.PureComponent {
               results={this.state.results}
               selected={this.state.selected}
             />
-            <div className="navbar-search-shortcut-hint">
+            <div className="dropdown-bottom-hint">
               <div className="pull-right">
                 <ClockIcon className="little-spacer-right" size={12} />
                 {translate('recently_browsed')}
