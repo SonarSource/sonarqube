@@ -24,7 +24,6 @@ import com.sonar.orchestrator.util.NetworkUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.apache.commons.io.FileUtils;
@@ -36,10 +35,7 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.tests.Elasticsearch;
 import org.sonarqube.ws.WsSystem;
-import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.WsResponse;
-import util.ItUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,17 +60,17 @@ public class SystemStateTest {
       commander.start(lock);
       commander.waitFor(() -> commander.webLogsContain("ServerStartupLock - Waiting for file to be deleted"));
 
-      commander.verifyStatus("STARTING");
+      commander.verifyStatus(WsSystem.Status.STARTING);
       commander.verifyHealth(WsSystem.Health.RED, "SonarQube webserver is not up");
 
       lock.unlockWeb();
       // status is UP as soon as web server is up, whatever the status of Compute Engine
-      commander.waitFor(() -> "UP".equals(commander.status().orElse(null)));
+      commander.waitFor(() -> WsSystem.Status.UP == commander.status().orElse(null));
       commander.verifyHealth(WsSystem.Health.RED, "Compute Engine is not operational");
 
       lock.unlockCe();
       commander.waitForHealth(WsSystem.Health.GREEN);
-      commander.verifyStatus("UP");
+      commander.verifyStatus(WsSystem.Status.UP);
     }
   }
 
@@ -86,12 +82,12 @@ public class SystemStateTest {
 
       commander.makeElasticsearchYellow();
       commander.waitForHealth(WsSystem.Health.YELLOW, "Elasticsearch status is YELLOW");
-      commander.verifyStatus("UP");
+      commander.verifyStatus(WsSystem.Status.UP);
 
       commander.makeElasticsearchGreen();
       commander.waitForHealth(WsSystem.Health.GREEN);
       // status does not change after being UP
-      commander.verifyStatus("UP");
+      commander.verifyStatus(WsSystem.Status.UP);
     }
   }
 
@@ -165,15 +161,11 @@ public class SystemStateTest {
       }
     }
 
-    Optional<String> status() {
+    Optional<WsSystem.Status> status() {
       if (orchestrator.getServer() != null) {
         WsClient wsClient = newWsClient(orchestrator);
         try {
-          WsResponse statusResponse = wsClient.wsConnector().call(new GetRequest("api/system/status"));
-          if (statusResponse.isSuccessful()) {
-            Map<String, Object> json = ItUtils.jsonToMap(statusResponse.content());
-            return Optional.ofNullable((String) json.get("status"));
-          }
+          return Optional.of(wsClient.system().status().getStatus());
         } catch (Exception e) {
           // server does not accept connections
         }
@@ -181,7 +173,7 @@ public class SystemStateTest {
       return Optional.empty();
     }
 
-    void verifyStatus(String expectedStatus) {
+    void verifyStatus(WsSystem.Status expectedStatus) {
       assertThat(status()).hasValue(expectedStatus);
     }
 
@@ -209,7 +201,7 @@ public class SystemStateTest {
 
     void verifyHealth(WsSystem.Health expectedHealth, String... expectedMessages) {
       WsSystem.HealthResponse response = healthResponse().get();
-      assertThat(response.getHealth()).isEqualTo(expectedHealth);
+        assertThat(response.getHealth()).isEqualTo(expectedHealth);
       assertThat(response.getCausesList())
         .extracting(WsSystem.Cause::getMessage)
         .containsExactlyInAnyOrder(expectedMessages);
