@@ -20,74 +20,65 @@
 package org.sonar.server.platform.ws;
 
 import java.util.Random;
-import org.junit.Rule;
+import java.util.stream.IntStream;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.health.Health;
+import org.sonar.server.health.HealthChecker;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.WsSystem;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
 public class HealthActionTest {
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  private AbstractHealthActionTestSupport healthActionTestSupport = new AbstractHealthActionTestSupport();
-  private WsActionTester underTest = new WsActionTester(new HealthAction(userSessionRule, healthActionTestSupport.mockedHealthChecker));
+  private HealthChecker mockedHealthChecker = mock(HealthChecker.class);
+  private WsActionTester underTest = new WsActionTester(new HealthAction(mockedHealthChecker));
 
   @Test
   public void verify_definition() {
     WebService.Action definition = underTest.getDef();
 
-    healthActionTestSupport.verifyDefinition(definition);
-  }
-
-  @Test
-  public void execute_fails_with_UnauthorizedException_if_user_is_not_logged_in() {
-    TestRequest request = underTest.newRequest();
-
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    request.execute();
-  }
-
-  @Test
-  public void execute_fails_with_ForbiddenException_if_user_logged_in_but_not_root() {
-    TestRequest request = underTest.newRequest();
-    userSessionRule.logIn();
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    request.execute();
+    assertThat(definition.key()).isEqualTo("health");
+    assertThat(definition.isPost()).isFalse();
+    assertThat(definition.description()).isNotEmpty();
+    assertThat(definition.since()).isEqualTo("6.6");
+    assertThat(definition.isInternal()).isFalse();
+    assertThat(definition.responseExample()).isNotNull();
+    assertThat(definition.params()).isEmpty();
   }
 
   @Test
   public void verify_example() {
-    userSessionRule.logIn();
-    rootOrSystemAdmin();
+    when(mockedHealthChecker.check()).thenReturn(
+        newHealthCheckBuilder()
+            .setStatus(Health.Status.YELLOW)
+            .addCause("Elasticsearch status is YELLOW")
+            .build());
+    TestRequest request = underTest.newRequest();
 
-    healthActionTestSupport.verifyExample(underTest);
+    JsonAssert.assertJson(request.execute().getInput())
+        .isSimilarTo(underTest.getDef().responseExampleAsString());
   }
 
   @Test
   public void request_returns_status_and_causes_from_HealthChecker_check_method() {
-    userSessionRule.logIn();
-    rootOrSystemAdmin();
+    Health.Status randomStatus = Health.Status.values()[new Random().nextInt(Health.Status.values().length)];
+    Health.Builder builder = newHealthCheckBuilder()
+        .setStatus(randomStatus);
+    IntStream.range(0, new Random().nextInt(5)).mapToObj(i -> RandomStringUtils.randomAlphanumeric(3)).forEach(builder::addCause);
+    Health health = builder.build();
+    when(mockedHealthChecker.check()).thenReturn(health);
+    TestRequest request = underTest.newRequest();
 
-    healthActionTestSupport.requestReturnsStatusAndCausesFromHealthCheckerCheckMethod(underTest);
+    WsSystem.HealthResponse healthResponse = request.executeProtobuf(WsSystem.HealthResponse.class);
+    assertThat(healthResponse.getHealth().name()).isEqualTo(randomStatus.name());
+    assertThat(health.getCauses()).isEqualTo(health.getCauses());
   }
 
-  private void rootOrSystemAdmin() {
-    if (new Random().nextBoolean()) {
-      userSessionRule.setRoot();
-    } else {
-      userSessionRule.setSystemAdministrator();
-    }
-  }
 }
