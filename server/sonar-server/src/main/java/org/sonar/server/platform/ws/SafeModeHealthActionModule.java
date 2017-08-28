@@ -35,6 +35,6 @@ public class SafeModeHealthActionModule extends Module {
       EsStatusCheck.class,
 
       HealthCheckerImpl.class,
-      SafeModeHealthAction.class);
+      HealthAction.class);
   }
 }
