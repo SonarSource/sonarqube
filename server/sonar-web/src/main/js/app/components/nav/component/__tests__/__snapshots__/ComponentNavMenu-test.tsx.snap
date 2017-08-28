@@ -273,6 +273,23 @@ exports[`should work with extensions 1`] = `
           style={Object {}}
           to={
             Object {
+              "pathname": "/project/branches",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          project_branches.page
+        </Link>
+      </li>
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
               "pathname": "/project/admin/extension/foo",
               "query": Object {
                 "id": "foo",
@@ -468,6 +485,23 @@ exports[`should work with multiple extensions 1`] = `
           }
         >
           project_settings.page
+        </Link>
+      </li>
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/branches",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          project_branches.page
         </Link>
       </li>
       <li>
