@@ -160,11 +160,11 @@ describe('#formatMeasure()', () => {
   });
 
   it('should return null if value is empty string', () => {
-    expect(formatMeasure('', 'PERCENT')).toBeNull();
+    expect(formatMeasure('', 'PERCENT')).toBe('');
   });
 
-  it('should not fail without parameters', () => {
-    expect(formatMeasure()).toBeNull();
+  it('should not fail with undefined', () => {
+    expect(formatMeasure(undefined, 'INT')).toBe('');
   });
 });
 
@@ -252,7 +252,7 @@ describe('#formatMeasureVariation()', () => {
     expect(formatMeasureVariation('random value', 'RANDOM_TYPE')).toBe('random value');
   });
 
-  it('should not fail without parameters', () => {
-    expect(formatMeasureVariation()).toBeNull();
+  it('should not fail with undefined', () => {
+    expect(formatMeasureVariation(undefined, 'INT')).toBe('');
   });
 });
