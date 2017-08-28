@@ -17,62 +17,52 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-/*::
-type AppState = {
-  adminPages?: Array<*>,
-  authenticationError: boolean,
-  authorizationError: boolean,
-  organizationsEnabled: boolean,
-  qualifiers: ?Array<string>
-};
-*/
+interface AppState {
+  adminPages?: any[];
+  authenticationError: boolean;
+  authorizationError: boolean;
+  organizationsEnabled: boolean;
+  qualifiers?: string[];
+}
 
-/*::
-type SetAppStateAction = {
-  type: 'SET_APP_STATE',
-  appState: AppState
-};
-*/
+interface SetAppStateAction {
+  type: 'SET_APP_STATE';
+  appState: AppState;
+}
 
-/*::
-type SetAdminPagesAction = {
-  type: 'SET_ADMIN_PAGES',
-  adminPages: Array<*>
-};
-*/
+interface SetAdminPagesAction {
+  type: 'SET_ADMIN_PAGES';
+  adminPages: any[];
+}
 
-/*::
-export type Action = SetAppStateAction | SetAdminPagesAction; */
+interface RequireAuthorizationAction {
+  type: 'REQUIRE_AUTHORIZATION';
+}
 
-export function setAppState(appState /*: AppState */) /*: SetAppStateAction */ {
+export type Action = SetAppStateAction | SetAdminPagesAction | RequireAuthorizationAction;
+
+export function setAppState(appState: AppState): SetAppStateAction {
   return {
     type: 'SET_APP_STATE',
     appState
   };
 }
 
-export function setAdminPages(adminPages /*: Array<*> */) /*: SetAdminPagesAction */ {
-  return {
-    type: 'SET_ADMIN_PAGES',
-    adminPages
-  };
+export function setAdminPages(adminPages: any[]): SetAdminPagesAction {
+  return { type: 'SET_ADMIN_PAGES', adminPages };
 }
 
-export function requireAuthorization() {
-  return {
-    type: 'REQUIRE_AUTHORIZATION'
-  };
+export function requireAuthorization(): RequireAuthorizationAction {
+  return { type: 'REQUIRE_AUTHORIZATION' };
 }
 
-const defaultValue = {
+const defaultValue: AppState = {
   authenticationError: false,
   authorizationError: false,
-  organizationsEnabled: false,
-  qualifiers: null
+  organizationsEnabled: false
 };
 
-export default function(state /*: AppState */ = defaultValue, action /*: Action */) {
+export default function(state: AppState = defaultValue, action: Action): AppState {
   if (action.type === 'SET_APP_STATE') {
     return { ...state, ...action.appState };
   }
@@ -88,6 +78,6 @@ export default function(state /*: AppState */ = defaultValue, action /*: Action 
   return state;
 }
 
-export function getRootQualifiers(state /*: AppState */) {
+export function getRootQualifiers(state: AppState): string[] | undefined {
   return state.qualifiers;
 }
