@@ -29,7 +29,6 @@ exports[`should correctly handle clicks on the button 2`] = `
   </button>
   <div>
     <BubblePopup
-      customClass=""
       popupPosition={
         Object {
           "right": 0,
@@ -47,7 +46,6 @@ exports[`should correctly handle clicks on the button 2`] = `
 
 exports[`should render an open popup on the left 1`] = `
 <BubblePopup
-  customClass=""
   popupPosition={
     Object {
       "left": 2,
@@ -83,7 +81,6 @@ exports[`should render an open popup on the right 1`] = `
   </button>
   <div>
     <BubblePopup
-      customClass=""
       popupPosition={
         Object {
           "right": 0,
@@ -116,7 +113,6 @@ exports[`should render the popup helper with a closed popup 1`] = `
 
 exports[`should render the popup with offset 1`] = `
 <BubblePopup
-  customClass=""
   popupPosition={
     Object {
       "right": 2,
