@@ -53,7 +53,7 @@ public class ValidateProjectStepTest {
   static long DEFAULT_ANALYSIS_TIME = 1433131200000L; // 2015-06-01
   static final String PROJECT_KEY = "PROJECT_KEY";
   static final String MODULE_KEY = "MODULE_KEY";
-  static final Branch DEFAULT_BRANCH = new DefaultBranchImpl(null);
+  static final Branch DEFAULT_BRANCH = new DefaultBranchImpl();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);

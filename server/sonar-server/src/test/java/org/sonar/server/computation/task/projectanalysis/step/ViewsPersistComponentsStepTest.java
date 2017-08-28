@@ -103,7 +103,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(now.getTime());
 
     dbTester.organizations().insertForUuid(ORGANIZATION_UUID);
-    analysisMetadataHolder.setBranch(new DefaultBranchImpl(null));
+    analysisMetadataHolder.setBranch(new DefaultBranchImpl());
     branchPersister = mock(BranchPersister.class);
     underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister);
   }
