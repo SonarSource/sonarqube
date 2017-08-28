@@ -30,6 +30,13 @@ message HealthResponse {
   repeated Cause causes = 2;
 }
 
+// GET api/system/status
+message StatusResponse {
+  optional string id = 1;
+  optional string version = 2;
+  optional Status status = 3;
+}
+
 message Cause {
   optional string message = 1;
 }
@@ -38,4 +45,13 @@ enum Health {
   GREEN = 0;
   YELLOW = 1;
   RED = 2;
+}
+
+enum Status {
+  STARTING = 0;
+  UP = 1;
+  DOWN = 2;
+  RESTARTING = 3;
+  DB_MIGRATION_NEEDED = 4;
+  DB_MIGRATION_RUNNING = 5;
 }
