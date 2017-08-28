@@ -44,8 +44,7 @@ public class SafeModeHealthActionModuleTest {
 
     assertThat(classesAddedToContainer(container))
       .contains(HealthCheckerImpl.class)
-      .contains(SafeModeHealthAction.class)
-      .doesNotContain(HealthAction.class);
+      .contains(HealthAction.class);
   }
 
   @Test
