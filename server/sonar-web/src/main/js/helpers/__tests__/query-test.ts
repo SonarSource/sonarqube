@@ -42,7 +42,7 @@ describe('parseAsBoolean', () => {
   });
 
   it('should return a default value', () => {
-    expect(query.parseAsBoolean(1)).toBeTruthy();
+    expect(query.parseAsBoolean('1')).toBeTruthy();
     expect(query.parseAsBoolean('foo')).toBeTruthy();
   });
 });
@@ -60,7 +60,7 @@ describe('parseAsString', () => {
   it('should parse strings correctly', () => {
     expect(query.parseAsString('random')).toBe('random');
     expect(query.parseAsString('')).toBe('');
-    expect(query.parseAsString(null)).toBe('');
+    expect(query.parseAsString(undefined)).toBe('');
   });
 });
 
@@ -82,7 +82,6 @@ describe('serializeDate', () => {
   const date = parseDate('2016-06-20T13:09:48.256Z');
   it('should serialize string correctly', () => {
     expect(query.serializeDate(date)).toBe('2016-06-20T13:09:48+0000');
-    expect(query.serializeDate('')).toBeUndefined();
     expect(query.serializeDate()).toBeUndefined();
   });
 });

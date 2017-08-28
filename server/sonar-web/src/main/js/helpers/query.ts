@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { isNil, omitBy } from 'lodash';
 import { isValidDate, parseDate, toNotSoISOString } from './dates';
 
-/*::
-export type RawQuery = { [string]: any };
-*/
+export interface RawQuery {
+  [x: string]: any;
+}
 
-function arraysEqual(a, b) {
+function arraysEqual(a: RawQuery, b: RawQuery): boolean {
   if (a.length !== b.length) {
     return false;
   }
@@ -37,7 +36,7 @@ function arraysEqual(a, b) {
   return true;
 }
 
-export function queriesEqual(a /*: Object */, b /*: Object */) /*: boolean */ {
+export function queriesEqual(a: RawQuery, b: RawQuery): boolean {
   const keysA = Object.keys(a);
   const keysB = Object.keys(b);
 
@@ -53,48 +52,50 @@ export function queriesEqual(a /*: Object */, b /*: Object */) /*: boolean */ {
   );
 }
 
-export function cleanQuery(query /*: { [string]: ?string } */) /*: RawQuery */ {
+export function cleanQuery(query: RawQuery): RawQuery {
   return omitBy(query, isNil);
 }
 
-export function parseAsBoolean(
-  value /*: ?string */,
-  defaultValue /*: boolean */ = true
-) /*: boolean */ {
+export function parseAsBoolean(value: string | undefined, defaultValue: boolean = true): boolean {
   return value === 'false' ? false : value === 'true' ? true : defaultValue;
 }
 
-export function parseAsDate(value /*: ?string */) /*: Date | void */ {
+export function parseAsDate(value?: string): Date | undefined {
   if (value) {
     const date = parseDate(value);
     if (isValidDate(date)) {
       return date;
     }
   }
+  return undefined;
 }
 
-export function parseAsFacetMode(facetMode /*: string */) {
+export function parseAsFacetMode(facetMode: string): string {
   return facetMode === 'debt' || facetMode === 'effort' ? 'effort' : 'count';
 }
 
-export function parseAsString(value /*: ?string */) /*: string */ {
+export function parseAsString(value: string | undefined): string {
   return value || '';
 }
 
-export function parseAsArray(value /*: ?string */, itemParser /*: string => * */) /*: Array<*> */ {
+export function parseAsArray(
+  value: string | undefined,
+  itemParser: (x: string) => string
+): string[] {
   return value ? value.split(',').map(itemParser) : [];
 }
 
-export function serializeDate(value /*: ?Date */) /*: string | void */ {
+export function serializeDate(value?: Date): string | undefined {
   if (value != null && value.toISOString) {
     return toNotSoISOString(value);
   }
+  return undefined;
 }
 
-export function serializeString(value /*: string */) /*: ?string */ {
+export function serializeString(value: string): string | undefined {
   return value || undefined;
 }
 
-export function serializeStringArray(value /*: ?Array<string> */) /*: ?string */ {
+export function serializeStringArray(value: string[] | undefined[]): string | undefined {
   return value && value.length ? value.join() : undefined;
 }
