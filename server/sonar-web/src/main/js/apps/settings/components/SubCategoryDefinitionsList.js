@@ -27,6 +27,7 @@ import { getSubCategoryName, getSubCategoryDescription } from '../utils';
 
 export default class SubCategoryDefinitionsList extends React.PureComponent {
   static propTypes = {
+    branch: PropTypes.string,
     component: PropTypes.object,
     settings: PropTypes.array.isRequired
   };
@@ -63,8 +64,9 @@ export default class SubCategoryDefinitionsList extends React.PureComponent {
                 dangerouslySetInnerHTML={{ __html: subCategory.description }}
               />}
             <DefinitionsList
-              settings={bySubCategory[subCategory.key]}
+              branch={this.props.branch}
               component={this.props.component}
+              settings={bySubCategory[subCategory.key]}
             />
             {this.renderEmailForm(subCategory.key)}
           </li>

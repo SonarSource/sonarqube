@@ -23,7 +23,11 @@ import * as classNames from 'classnames';
 import * as PropTypes from 'prop-types';
 import { Branch, Component, ComponentExtension, ComponentConfiguration } from '../../../types';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
-import { isShortLivingBranch, getBranchName } from '../../../../helpers/branches';
+import {
+  isShortLivingBranch,
+  getBranchName,
+  isLongLivingBranch
+} from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 
 const SETTINGS_URLS = [
@@ -173,7 +177,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderAdministration() {
-    if (!this.props.branch.isMain) {
+    if (isShortLivingBranch(this.props.branch)) {
       return null;
     }
 
@@ -201,19 +205,21 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderAdministrationLinks() {
-    return [
-      this.renderSettingsLink(),
-      this.renderBranchesLink(),
-      this.renderProfilesLink(),
-      this.renderQualityGateLink(),
-      this.renderCustomMeasuresLink(),
-      this.renderLinksLink(),
-      this.renderPermissionsLink(),
-      this.renderBackgroundTasksLink(),
-      this.renderUpdateKeyLink(),
-      ...this.renderAdminExtensions(),
-      this.renderDeletionLink()
-    ];
+    return isLongLivingBranch(this.props.branch)
+      ? [this.renderSettingsLink()]
+      : [
+          this.renderSettingsLink(),
+          this.renderBranchesLink(),
+          this.renderProfilesLink(),
+          this.renderQualityGateLink(),
+          this.renderCustomMeasuresLink(),
+          this.renderLinksLink(),
+          this.renderPermissionsLink(),
+          this.renderBackgroundTasksLink(),
+          this.renderUpdateKeyLink(),
+          ...this.renderAdminExtensions(),
+          this.renderDeletionLink()
+        ];
   }
 
   renderSettingsLink() {
@@ -223,7 +229,10 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li key="settings">
         <Link
-          to={{ pathname: '/project/settings', query: { id: this.props.component.key } }}
+          to={{
+            pathname: '/project/settings',
+            query: { branch: getBranchName(this.props.branch), id: this.props.component.key }
+          }}
           activeClassName="active">
           {translate('project_settings.page')}
         </Link>
