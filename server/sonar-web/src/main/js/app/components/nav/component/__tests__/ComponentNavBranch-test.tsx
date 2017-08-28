@@ -20,14 +20,29 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavBranch from '../ComponentNavBranch';
-import { BranchType, ShortLivingBranch, MainBranch, Component } from '../../../../types';
+import {
+  BranchType,
+  ShortLivingBranch,
+  MainBranch,
+  Component,
+  LongLivingBranch
+} from '../../../../types';
 import { click } from '../../../../../helpers/testUtils';
+
+const fooBranch: LongLivingBranch = { isMain: false, name: 'foo', type: BranchType.LONG };
 
 it('renders main branch', () => {
   const branch: MainBranch = { isMain: true, name: 'master' };
   const component = {} as Component;
   expect(
-    shallow(<ComponentNavBranch branches={[]} currentBranch={branch} project={component} />)
+    shallow(
+      <ComponentNavBranch
+        branches={[branch, fooBranch]}
+        currentBranch={branch}
+        project={component}
+      />,
+      { context: { branchesEnabled: true } }
+    )
   ).toMatchSnapshot();
 });
 
@@ -41,7 +56,14 @@ it('renders short-living branch', () => {
   };
   const component = {} as Component;
   expect(
-    shallow(<ComponentNavBranch branches={[]} currentBranch={branch} project={component} />)
+    shallow(
+      <ComponentNavBranch
+        branches={[branch, fooBranch]}
+        currentBranch={branch}
+        project={component}
+      />,
+      { context: { branchesEnabled: true } }
+    )
   ).toMatchSnapshot();
 });
 
@@ -49,9 +71,44 @@ it('opens menu', () => {
   const branch: MainBranch = { isMain: true, name: 'master' };
   const component = {} as Component;
   const wrapper = shallow(
-    <ComponentNavBranch branches={[]} currentBranch={branch} project={component} />
+    <ComponentNavBranch
+      branches={[branch, fooBranch]}
+      currentBranch={branch}
+      project={component}
+    />,
+    { context: { branchesEnabled: true } }
   );
   expect(wrapper.find('ComponentNavBranchesMenu')).toHaveLength(0);
   click(wrapper.find('a'));
   expect(wrapper.find('ComponentNavBranchesMenu')).toHaveLength(1);
+});
+
+it('renders single branch popup', () => {
+  const branch: MainBranch = { isMain: true, name: 'master' };
+  const component = {} as Component;
+  const wrapper = shallow(
+    <ComponentNavBranch branches={[branch]} currentBranch={branch} project={component} />,
+    { context: { branchesEnabled: true } }
+  );
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('BubblePopupHelper').prop('isOpen')).toBe(false);
+  click(wrapper.find('a'));
+  expect(wrapper.find('BubblePopupHelper').prop('isOpen')).toBe(true);
+});
+
+it('renders no branch support popup', () => {
+  const branch: MainBranch = { isMain: true, name: 'master' };
+  const component = {} as Component;
+  const wrapper = shallow(
+    <ComponentNavBranch
+      branches={[branch, fooBranch]}
+      currentBranch={branch}
+      project={component}
+    />,
+    { context: { branchesEnabled: false } }
+  );
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('BubblePopupHelper').prop('isOpen')).toBe(false);
+  click(wrapper.find('a'));
+  expect(wrapper.find('BubblePopupHelper').prop('isOpen')).toBe(true);
 });
