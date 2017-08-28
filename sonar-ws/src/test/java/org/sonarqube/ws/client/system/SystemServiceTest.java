@@ -21,6 +21,7 @@ package org.sonarqube.ws.client.system;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
@@ -35,7 +36,17 @@ public class SystemServiceTest {
   private SystemService underTest = serviceTester.getInstanceUnderTest();
 
   @Test
-  public void testName() throws Exception {
+  public void test_health() throws Exception {
+    underTest.health();
+
+    GetRequest getRequest = serviceTester.getGetRequest();
+    serviceTester.assertThat(getRequest)
+      .hasPath("health")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void test_restart() throws Exception {
     underTest.restart();
 
     PostRequest postRequest = serviceTester.getPostRequest();
