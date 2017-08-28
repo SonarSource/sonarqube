@@ -47,6 +47,7 @@ class Definition extends React.PureComponent {
   /*:: timeout: number; */
 
   static propTypes = {
+    branch: PropTypes.string,
     component: PropTypes.object,
     setting: PropTypes.object.isRequired,
     changedValue: PropTypes.any,
@@ -90,7 +91,7 @@ class Definition extends React.PureComponent {
     const componentKey = this.props.component ? this.props.component.key : null;
     const { definition } = this.props.setting;
     return this.props
-      .resetValue(definition.key, componentKey)
+      .resetValue(definition.key, componentKey, this.props.branch)
       .then(() => {
         this.safeSetState({ success: true });
         this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
@@ -110,7 +111,7 @@ class Definition extends React.PureComponent {
     this.safeSetState({ success: false });
     const componentKey = this.props.component ? this.props.component.key : null;
     this.props
-      .saveValue(this.props.setting.definition.key, componentKey)
+      .saveValue(this.props.setting.definition.key, componentKey, this.props.branch)
       .then(() => {
         this.safeSetState({ success: true });
         this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
