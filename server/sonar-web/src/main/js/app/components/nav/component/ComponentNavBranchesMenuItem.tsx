@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import BranchStatus from './BranchStatus';
+import BranchStatus from '../../../../components/common/BranchStatus';
 import { Branch, Component } from '../../../types';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
 import { isShortLivingBranch } from '../../../../helpers/branches';
