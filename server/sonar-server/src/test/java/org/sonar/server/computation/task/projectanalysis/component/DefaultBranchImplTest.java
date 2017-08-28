@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
@@ -51,11 +52,11 @@ public class DefaultBranchImplTest {
 
   @Test
   public void default_branch_represents_the_project() {
-    DefaultBranchImpl branch = new DefaultBranchImpl(null);
+    DefaultBranchImpl branch = new DefaultBranchImpl();
 
     assertThat(branch.isMain()).isTrue();
     assertThat(branch.getType()).isEqualTo(BranchType.LONG);
-    assertThat(branch.getName()).isEmpty();
+    assertThat(branch.getName().get()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
     assertThat(branch.supportsCrossProjectCpd()).isTrue();
 
     assertThat(branch.generateKey(PROJECT, null)).isEqualTo("P");

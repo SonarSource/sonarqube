@@ -120,7 +120,7 @@ public class ComponentUpdater {
       .setBranchType(BranchType.LONG)
       .setKeeType(BranchKeyType.BRANCH)
       .setUuid(componentUuid)
-      .setKey(null)
+      .setKey(BranchDto.DEFAULT_MAIN_BRANCH_NAME)
       .setMergeBranchUuid(null)
       .setPullRequestTitle(null)
       .setProjectUuid(componentUuid);
