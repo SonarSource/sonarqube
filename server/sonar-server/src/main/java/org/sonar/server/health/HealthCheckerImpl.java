@@ -38,7 +38,7 @@ public class HealthCheckerImpl implements HealthChecker {
   }
 
   @Override
-  public Health check() {
+  public Health checkNode() {
     return healthChecks.stream().map(HealthCheck::check)
       .reduce(Health.GREEN, HealthReducer.INSTANCE);
   }
