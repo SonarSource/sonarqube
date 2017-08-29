@@ -20,6 +20,7 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.server.platform.ws.SafeModeHealthActionModule;
+import org.sonar.server.authentication.SafeModeUserSession;
 import org.sonar.server.organization.NoopDefaultOrganizationCache;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.db.migration.AutoDbMigration;
@@ -63,6 +64,7 @@ public class PlatformLevelSafeMode extends PlatformLevel {
       WebServicesWsModule.class,
 
       // WS engine
+      SafeModeUserSession.class,
       WebServiceEngine.class,
       WebServiceFilter.class,
 
