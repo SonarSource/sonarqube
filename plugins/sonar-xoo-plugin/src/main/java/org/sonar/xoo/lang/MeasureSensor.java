@@ -35,6 +35,7 @@ import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.xoo.Xoo;
+import org.sonar.xoo.Xoo2;
 
 /**
  * Parse files *.xoo.measures
@@ -109,12 +110,12 @@ public class MeasureSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("Xoo Measure Sensor")
-      .onlyOnLanguages(Xoo.KEY);
+      .onlyOnLanguages(Xoo.KEY, Xoo2.KEY);
   }
 
   @Override
   public void execute(SensorContext context) {
-    for (InputFile file : context.fileSystem().inputFiles(context.fileSystem().predicates().hasLanguages(Xoo.KEY))) {
+    for (InputFile file : context.fileSystem().inputFiles(context.fileSystem().predicates().hasLanguages(Xoo.KEY, Xoo2.KEY))) {
       File ioFile = file.file();
       File measureFile = new File(ioFile.getParentFile(), ioFile.getName() + MEASURES_EXTENSION);
       processFileMeasures(file, measureFile, context);
