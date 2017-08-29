@@ -24,7 +24,7 @@ import Definition from './Definition';
 
 export default class DefinitionsList extends React.PureComponent {
   static propTypes = {
-    branch: PropTypes.object,
+    branch: PropTypes.string,
     component: PropTypes.object,
     settings: PropTypes.array.isRequired
   };
