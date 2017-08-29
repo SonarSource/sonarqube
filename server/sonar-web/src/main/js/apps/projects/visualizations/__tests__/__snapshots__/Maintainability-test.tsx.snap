@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<SimpleBubbleChart
+  colorMetric="sqale_rating"
+  displayOrganizations={false}
+  projects={Array []}
+  sizeMetric={
+    Object {
+      "key": "code_smells",
+      "type": "SHORT_INT",
+    }
+  }
+  xMetric={
+    Object {
+      "key": "ncloc",
+      "type": "SHORT_INT",
+    }
+  }
+  yMetric={
+    Object {
+      "key": "sqale_index",
+      "type": "SHORT_WORK_DUR",
+    }
+  }
+/>
+`;

@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<DuplicationsFilter
+  className="leak-facet-box"
+  property="new_duplications"
+  query={Object {}}
+/>
+`;

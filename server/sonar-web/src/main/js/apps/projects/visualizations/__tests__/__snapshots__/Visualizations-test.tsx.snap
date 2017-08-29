@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="boxed-group projects-visualizations"
+>
+  <div
+    className="projects-visualization"
+  >
+    <Coverage
+      displayOrganizations={false}
+      projects={Array []}
+    />
+  </div>
+  <footer
+    className="projects-visualizations-footer"
+  >
+    <p>
+      projects.visualization.coverage.description
+    </p>
+  </footer>
+</div>
+`;
+
+exports[`renders when limit is reached 1`] = `
+<div
+  className="boxed-group projects-visualizations"
+>
+  <div
+    className="projects-visualization"
+  >
+    <Coverage
+      displayOrganizations={false}
+      projects={Array []}
+    />
+  </div>
+  <footer
+    className="projects-visualizations-footer"
+  >
+    <p>
+      projects.visualization.coverage.description
+    </p>
+    <p
+      className="note spacer-top"
+    >
+      projects.limited_set_of_projects.0.projects.sort.name
+    </p>
+  </footer>
+</div>
+`;

@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<IssuesFilter
+  className="leak-facet-box"
+  headerDetail={
+    <span
+      className="note little-spacer-left"
+    >
+      (
+      <VulnerabilityIcon
+        className="little-spacer-right"
+      />
+      metric.vulnerabilities.name
+       )
+    </span>
+  }
+  name="Security"
+  property="new_security"
+  query={Object {}}
+/>
+`;

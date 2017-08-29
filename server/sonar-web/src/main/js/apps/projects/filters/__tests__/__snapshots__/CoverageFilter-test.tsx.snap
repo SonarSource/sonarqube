@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Connect(Filter)
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="metric_domain.Coverage"
+    />
+  }
+  highlightUnder={1}
+  highlightUnderMax={5}
+  options={
+    Array [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+    ]
+  }
+  property="coverage"
+  query={Object {}}
+  renderOption={[Function]}
+/>
+`;
+
+exports[`renders 2`] = `
+<span>
+  <CoverageRating
+    muted={true}
+    size="small"
+    value={75}
+  />
+  <span
+    className="spacer-left"
+  >
+    &lt; 80%
+  </span>
+</span>
+`;

@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<SimpleBubbleChart
+  colorMetric="security_rating"
+  displayOrganizations={false}
+  projects={Array []}
+  sizeMetric={
+    Object {
+      "key": "vulnerabilities",
+      "type": "SHORT_INT",
+    }
+  }
+  xMetric={
+    Object {
+      "key": "ncloc",
+      "type": "SHORT_INT",
+    }
+  }
+  yMetric={
+    Object {
+      "key": "security_remediation_effort",
+      "type": "SHORT_WORK_DUR",
+    }
+  }
+/>
+`;

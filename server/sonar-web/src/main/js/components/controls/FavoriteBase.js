@@ -20,7 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import FavoriteIcon from '../common/FavoriteIcon';
+import FavoriteIcon from '../icons-components/FavoriteIcon';
 
 export default class FavoriteBase extends React.PureComponent {
   static propTypes = {

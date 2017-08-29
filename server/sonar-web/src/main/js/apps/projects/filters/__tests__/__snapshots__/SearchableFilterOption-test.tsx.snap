@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<span>
+  foo
+</span>
+`;
+
+exports[`renders 2`] = `
+<span>
+  bar
+</span>
+`;

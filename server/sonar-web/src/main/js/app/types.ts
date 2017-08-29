@@ -89,3 +89,16 @@ export interface ComponentConfiguration {
   showSettings?: boolean;
   showUpdateKey?: boolean;
 }
+
+export interface Metric {
+  custom?: boolean;
+  decimalScale?: number;
+  description?: string;
+  direction?: number;
+  domain?: string;
+  hidden?: boolean;
+  key: string;
+  name: string;
+  qualitative?: boolean;
+  type: string;
+}

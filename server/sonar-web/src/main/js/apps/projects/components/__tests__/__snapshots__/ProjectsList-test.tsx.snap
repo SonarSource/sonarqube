@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`does not render without projects 1`] = `null`;
+
+exports[`renders 1`] = `
+<div
+  className="projects-list"
+>
+  <Connect(ProjectCard)
+    projectKey="foo"
+    type="overall"
+  />
+  <Connect(ProjectCard)
+    projectKey="bar"
+    type="overall"
+  />
+</div>
+`;
+
+exports[`renders different types of "no projects" 1`] = `
+<div
+  className="projects-list"
+>
+  <EmptyInstance />
+</div>
+`;
+
+exports[`renders different types of "no projects" 2`] = `
+<div
+  className="projects-list"
+>
+  <EmptySearch />
+</div>
+`;
+
+exports[`renders different types of "no projects" 3`] = `
+<div
+  className="projects-list"
+>
+  <NoFavoriteProjects />
+</div>
+`;

@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<SimpleBubbleChart
+  displayOrganizations={false}
+  projects={Array []}
+  sizeMetric={
+    Object {
+      "key": "uncovered_lines",
+      "type": "SHORT_INT",
+    }
+  }
+  xMetric={
+    Object {
+      "key": "complexity",
+      "type": "SHORT_INT",
+    }
+  }
+  yDomain={
+    Array [
+      100,
+      0,
+    ]
+  }
+  yMetric={
+    Object {
+      "key": "coverage",
+      "type": "PERCENT",
+    }
+  }
+/>
+`;
