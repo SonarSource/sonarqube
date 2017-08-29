@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ProjectContainerNotFound from './ProjectContainerNotFound';
+import ComponentContainerNotFound from './ComponentContainerNotFound';
 import ComponentNav from './nav/component/ComponentNav';
 import { Branch, Component } from '../types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
@@ -39,7 +39,7 @@ interface State {
   component: Component | null;
 }
 
-export default class ProjectContainer extends React.PureComponent<Props, State> {
+export default class ComponentContainer extends React.PureComponent<Props, State> {
   mounted: boolean;
 
   constructor(props: Props) {
@@ -49,12 +49,12 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchProject();
+    this.fetchComponent();
   }
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.location.query.id !== this.props.location.query.id) {
-      this.fetchProject();
+      this.fetchComponent();
     }
   }
 
@@ -67,7 +67,7 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
     qualifier: component.breadcrumbs[component.breadcrumbs.length - 1].qualifier
   });
 
-  fetchProject() {
+  fetchComponent() {
     const { branch, id } = this.props.location.query;
     this.setState({ loading: true });
 
@@ -96,7 +96,7 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
     return project ? getBranches(project.key) : Promise.resolve([]);
   };
 
-  handleProjectChange = (changes: {}) => {
+  handleComponentChange = (changes: {}) => {
     if (this.mounted) {
       this.setState(state => ({ component: { ...state.component, ...changes } }));
     }
@@ -123,12 +123,11 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
       return <i className="spinner" />;
     }
 
-    const branch = branches.find(b => (query.branch ? b.name === query.branch : b.isMain));
-
-    if (!component || !branch) {
-      return <ProjectContainerNotFound />;
+    if (!component) {
+      return <ComponentContainerNotFound />;
     }
 
+    const branch = branches.find(b => (query.branch ? b.name === query.branch : b.isMain));
     const isFile = ['FIL', 'UTS'].includes(component.qualifier);
     const configuration = component.configuration || {};
 
@@ -147,7 +146,7 @@ export default class ProjectContainer extends React.PureComponent<Props, State> 
           branches,
           component: component,
           onBranchesChange: this.handleBranchesChange,
-          onComponentChange: this.handleProjectChange
+          onComponentChange: this.handleComponentChange
         })}
       </div>
     );
