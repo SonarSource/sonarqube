@@ -31,6 +31,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.server.computation.task.projectanalysis.analysis.Project;
 import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
@@ -80,6 +81,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
+    .setProject(new Project(PROJECT_UUID, PROJECT_KEY, PROJECT_NAME))
     .setBranch(null)
     .setAnalysisDate(new Date(ANALYSE_DATE));
 
@@ -144,7 +146,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     underTest.execute();
 
     verify(notificationService).deliver(any(NewIssuesNotification.class));
-    verify(newIssuesNotificationMock).setProject(BRANCH_COMPONENT_KEY, BRANCH_COMPONENT_UUID, BRANCH_COMPONENT_NAME, BRANCH_NAME);
+    verify(newIssuesNotificationMock).setProject(PROJECT_KEY, BRANCH_COMPONENT_UUID, BRANCH_COMPONENT_NAME, BRANCH_NAME);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(BRANCH_COMPONENT_NAME), any(NewIssuesStatistics.Stats.class));
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
