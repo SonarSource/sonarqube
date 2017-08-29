@@ -54,6 +54,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
   public static final Set<String> METRIC_KEYS = ImmutableSortedSet.of(
     CoreMetrics.NCLOC_KEY,
+    CoreMetrics.LINES_KEY,
     CoreMetrics.DUPLICATED_LINES_DENSITY_KEY,
     CoreMetrics.COVERAGE_KEY,
     CoreMetrics.SQALE_RATING_KEY,

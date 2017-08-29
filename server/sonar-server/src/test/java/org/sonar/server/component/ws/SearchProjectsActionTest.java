@@ -160,10 +160,12 @@ public class SearchProjectsActionTest {
 
     Param sort = def.param("s");
     assertThat(sort.defaultValue()).isEqualTo("name");
-    assertThat(sort.possibleValues()).containsExactlyInAnyOrder("coverage",
+    assertThat(sort.possibleValues()).containsExactlyInAnyOrder(
+      "coverage",
       "reliability_rating",
       "duplicated_lines_density",
       "ncloc_language_distribution",
+      "lines",
       "new_lines",
       "security_rating",
       "new_reliability_rating",
