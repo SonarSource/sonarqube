@@ -236,7 +236,7 @@ public class ListActionTest {
   }
 
   @Test
-  public void quality_gate_status_on_long_living_branch() {
+  public void status_on_long_living_branch() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
@@ -253,7 +253,7 @@ public class ListActionTest {
   }
 
   @Test
-  public void bugs_vulnerabilities_and_code_smells_on_short_living_branch() {
+  public void status_on_short_living_branches() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
@@ -276,9 +276,27 @@ public class ListActionTest {
     assertThat(response.getBranchesList().stream().map(WsBranches.Branch::getStatus))
       .extracting(Status::hasBugs, Status::getBugs, Status::hasVulnerabilities, Status::getVulnerabilities, Status::hasCodeSmells, Status::getCodeSmells)
       .containsExactlyInAnyOrder(
-        tuple(false, 0, false, 0, false, 0),
-        tuple(false, 0, false, 0, false, 0),
-        tuple(true, 1, true, 2, true, 3));
+        tuple(false, 0L, false, 0L, false, 0L),
+        tuple(false, 0L, false, 0L, false, 0L),
+        tuple(true, 1L, true, 2L, true, 3L));
+  }
+
+  @Test
+  public void status_on_short_living_branch_with_no_issue() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexerTester.allowOnlyAnyone(project);
+
+    ListWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getBranchesList().stream().filter(b -> b.getType().equals(Common.BranchType.SHORT)).map(WsBranches.Branch::getStatus))
+      .extracting(Status::getBugs, Status::getVulnerabilities, Status::getCodeSmells)
+      .containsExactlyInAnyOrder(tuple(0L, 0L, 0L));
   }
 
   @Test
