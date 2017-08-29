@@ -28,7 +28,7 @@ import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isShortLivingBranch } from '../../../../helpers/branches';
 
 interface Props {
-  branch: Branch;
+  branch?: Branch;
   component: Component;
   conf: ComponentConfiguration;
   incremental?: boolean;
@@ -91,7 +91,7 @@ export default function ComponentNavMeta(props: Props) {
     );
   }
 
-  if (props.component.analysisDate && props.branch.isMain) {
+  if (props.component.analysisDate && (!props.branch || props.branch.isMain)) {
     metaList.push(
       <li key="analysisDate">
         <DateTimeFormatter date={props.component.analysisDate} />
@@ -99,7 +99,7 @@ export default function ComponentNavMeta(props: Props) {
     );
   }
 
-  if (props.component.version && props.branch.isMain) {
+  if (props.component.version && (!props.branch || props.branch.isMain)) {
     metaList.push(
       <li key="version">
         Version {props.component.version}
@@ -115,7 +115,7 @@ export default function ComponentNavMeta(props: Props) {
     );
   }
 
-  if (isShortLivingBranch(props.branch)) {
+  if (props.branch && isShortLivingBranch(props.branch)) {
     metaList.push(
       <li className="navbar-context-meta-branch" key="branch-status">
         <BranchStatus branch={props.branch} />
