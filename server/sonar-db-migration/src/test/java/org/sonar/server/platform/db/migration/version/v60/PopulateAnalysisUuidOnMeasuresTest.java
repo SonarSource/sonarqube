@@ -82,6 +82,23 @@ public class PopulateAnalysisUuidOnMeasuresTest {
   }
 
   private String insertSnapshot(long id, String uuid, String qualifier, @Nullable Long rootSnapshotId) {
+    int depth;
+    switch (qualifier) {
+      case "TRK":
+        depth = 0;
+        break;
+      case "BRC":
+        depth = 1;
+        break;
+      case "DIR":
+        depth = 2;
+        break;
+      case "FIL":
+        depth = 3;
+        break;
+      default:
+        throw new IllegalArgumentException();
+    }
     db.executeInsert(
       TABLE_SNAPSHOTS,
       "ID", valueOf(id),
@@ -89,7 +106,8 @@ public class PopulateAnalysisUuidOnMeasuresTest {
       "COMPONENT_UUID", valueOf(id + 10),
       "ROOT_COMPONENT_UUID", valueOf(id + 10),
       "ROOT_SNAPSHOT_ID", rootSnapshotId != null ? valueOf(rootSnapshotId) : null,
-      "QUALIFIER", qualifier);
+      "QUALIFIER", qualifier,
+      "DEPTH", valueOf(depth));
     return uuid;
   }
 

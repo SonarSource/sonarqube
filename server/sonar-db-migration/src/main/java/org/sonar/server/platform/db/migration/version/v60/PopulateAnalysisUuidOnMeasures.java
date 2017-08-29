@@ -20,11 +20,13 @@
 package org.sonar.server.platform.db.migration.version.v60;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 import org.sonar.server.platform.db.migration.step.Select;
 import org.sonar.server.platform.db.migration.step.SqlStatement;
-import org.sonar.server.platform.db.migration.step.DataChange;
 
 public class PopulateAnalysisUuidOnMeasures extends DataChange {
 
@@ -34,32 +36,43 @@ public class PopulateAnalysisUuidOnMeasures extends DataChange {
 
   @Override
   public void execute(Context context) throws SQLException {
+    Map<Long, String> rootSnapshotUuids = loadRootSnapshotUuids(context);
+
+
     MassUpdate massUpdate = context.prepareMassUpdate();
     // mysql can take hours if the 2 requests are merged into a single one
-    massUpdate.select("select distinct m.snapshot_id as sId, root_snapshots.uuid as rootUuid " +
+    massUpdate.select("select distinct m.snapshot_id as sId, s.root_snapshot_id as rootSid " +
       "from project_measures m " +
-      "inner join snapshots s on m.snapshot_id=s.id " +
-      "inner join snapshots root_snapshots on s.root_snapshot_id = root_snapshots.id " +
+      "inner join snapshots s on m.snapshot_id = s.id " +
       "where m.analysis_uuid is null " +
       "union " +
-      "select distinct m.snapshot_id as sId, root_snapshots.uuid as rootUuid " +
+      "select distinct m.snapshot_id as sId, s.root_snapshot_id as rootSid " +
       "from project_measures m " +
       "inner join snapshots s on m.snapshot_id=s.id " +
-      "inner join snapshots root_snapshots on s.root_snapshot_id is null and s.id = root_snapshots.id " +
       "where m.analysis_uuid is null"
     );
-    massUpdate.update("update project_measures set analysis_uuid=? where snapshot_id=? and analysis_uuid is null");
+    massUpdate.update("update project_measures set analysis_uuid=? where snapshot_id = ? and analysis_uuid is null");
     massUpdate.rowPluralName("measures");
-    massUpdate.execute(PopulateAnalysisUuidOnMeasures::handle);
+    massUpdate.execute((row, update) -> handleRow(row, update, rootSnapshotUuids));
   }
 
-  private static boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+  private Map<Long, String> loadRootSnapshotUuids(Context context) throws SQLException {
+    Map<Long, String> snapshotUuidsByIds = new HashMap<>();
+    context.prepareSelect("select distinct id, uuid from snapshots where depth=0")
+      .scroll(row -> snapshotUuidsByIds.put(row.getLong(1), row.getString(2)));
+    return snapshotUuidsByIds;
+  }
+
+  private static boolean handleRow(Select.Row row, SqlStatement update, Map<Long, String> rootSnapshotUuids) throws SQLException {
     long snapshotId = row.getLong(1);
-    String analysisUuid = row.getString(2);
+    Long rootSnapshotId = row.getNullableLong(2);
+    String analysisUuid = rootSnapshotUuids.get(rootSnapshotId == null ? snapshotId : rootSnapshotId);
+    if (analysisUuid == null) {
+      return false;
+    }
 
     update.setString(1, analysisUuid);
     update.setLong(2, snapshotId);
-
     return true;
   }
 
