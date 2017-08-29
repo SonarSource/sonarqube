@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../helpers/l10n';
 
-export default class ProjectContainerNotFound extends React.PureComponent {
+export default class ComponentContainerNotFound extends React.PureComponent {
   componentDidMount() {
     const html = document.querySelector('html');
     if (html) {
