@@ -55,21 +55,24 @@ public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
 
   @Override
   protected void appendFooter(StringBuilder message, Notification notification) {
-    String projectUuid = notification.getFieldValue(FIELD_PROJECT_UUID);
+    String projectKey = notification.getFieldValue(FIELD_PROJECT_KEY);
     String dateString = notification.getFieldValue(FIELD_PROJECT_DATE);
     String assignee = notification.getFieldValue(FIELD_ASSIGNEE);
-    String branch = notification.getFieldValue(FIELD_BRANCH);
-    if (projectUuid != null && dateString != null && assignee != null) {
+    if (projectKey != null && dateString != null && assignee != null) {
       Date date = DateUtils.parseDateTime(dateString);
-      String url = String.format("%s/issues?projectUuids=%s&assignees=%s",
+      String url = String.format("%s/project/issues?id=%s&assignees=%s",
         settings.getServerBaseURL(),
-        encode(projectUuid),
+        encode(projectKey),
         encode(assignee));
-      if (branch != null) {
-        url += "&branch=" + encode(branch);
+      String branchName = notification.getFieldValue("branch");
+      if (branchName != null) {
+        url += "&branch=" + encode(branchName);
       }
       url += "&createdAt=" + encode(DateUtils.formatDateTime(date));
-      message.append("See it in SonarQube: ").append(url).append(NEW_LINE);
+      message
+        .append("See it in SonarQube: ")
+        .append(url)
+        .append(NEW_LINE);
     }
   }
 }
