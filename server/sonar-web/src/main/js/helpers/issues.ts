@@ -17,64 +17,71 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { flatten, sortBy } from 'lodash';
 import { SEVERITIES } from './constants';
-/*:: import type { Issue, FlowLocation } from '../components/issue/types'; */
 
-/*::
-type TextRange = {
-  startLine: number,
-  endLine: number,
-  startOffset: number,
-  endOffset: number
-};
-*/
+interface TextRange {
+  startLine: number;
+  endLine: number;
+  startOffset: number;
+  endOffset: number;
+}
 
-/*::
-type Comment = {
-  login: string
-};
-*/
+interface FlowLocation {
+  msg: string;
+  textRange?: TextRange;
+}
 
-/*::
-type User = {
-  login: string
-};
-*/
+interface Comment {
+  login: string;
+  [x: string]: any;
+}
 
-/*::
-type RawIssue = {
-  assignee?: string,
-  author: string,
-  comments?: Array<Comment>,
-  component: string,
+interface User {
+  login: string;
+}
+
+interface Rule {}
+
+interface Component {}
+
+interface IssueBase {
+  severity: string;
+  [x: string]: any;
+}
+
+interface RawIssue extends IssueBase {
+  assignee?: string;
+  author?: string;
+  comments?: Array<Comment>;
+  component: string;
   flows?: Array<{
-    locations?: Array<{ msg: string, textRange?: TextRange }>
-  }>,
-  key: string,
-  line?: number,
-  project: string,
-  rule: string,
-  status: string,
-  subProject?: string,
-  textRange?: TextRange
-};
-*/
+    locations?: FlowLocation[];
+  }>;
+  key: string;
+  line?: number;
+  project: string;
+  rule: string;
+  status: string;
+  subProject?: string;
+  textRange?: TextRange;
+}
 
-export function sortBySeverity(issues /*: Array<*> */) {
+interface Issue extends IssueBase {}
+
+export function sortBySeverity(issues: Issue[]): Issue[] {
   return sortBy(issues, issue => SEVERITIES.indexOf(issue.severity));
 }
 
 function injectRelational(
-  issue /*: RawIssue | Comment */,
-  source /*: ?Array<*> */,
-  baseField /*: string */,
-  lookupField /*: string */
+  issue: { [x: string]: any },
+  source: any[] | undefined,
+  baseField: string,
+  lookupField: string
 ) {
-  const newFields = {};
+  const newFields: { [x: string]: any } = {};
   const baseValue = issue[baseField];
-  if (baseValue != null && source != null) {
+  if (baseValue != undefined && source != undefined) {
     const lookupValue = source.find(candidate => candidate[lookupField] === baseValue);
     if (lookupValue != null) {
       Object.keys(lookupValue).forEach(key => {
@@ -86,7 +93,7 @@ function injectRelational(
   return newFields;
 }
 
-function injectCommentsRelational(issue /*: RawIssue */, users /*: ?Array<User> */) {
+function injectCommentsRelational(issue: RawIssue, users?: User[]) {
   if (!issue.comments) {
     return {};
   }
@@ -100,11 +107,11 @@ function injectCommentsRelational(issue /*: RawIssue */, users /*: ?Array<User> 
   return { comments };
 }
 
-function prepareClosed(issue /*: RawIssue */) {
+function prepareClosed(issue: RawIssue): { flows?: undefined } {
   return issue.status === 'CLOSED' ? { flows: undefined } : {};
 }
 
-function ensureTextRange(issue /*: RawIssue */) {
+function ensureTextRange(issue: RawIssue): { textRange?: TextRange } {
   return issue.line && !issue.textRange
     ? {
         textRange: {
@@ -117,20 +124,18 @@ function ensureTextRange(issue /*: RawIssue */) {
     : {};
 }
 
-function reverseLocations(locations /*: Array<*> */) {
+function reverseLocations(locations: FlowLocation[]): FlowLocation[] {
   const x = [...locations];
   x.reverse();
   return x;
 }
 
 function splitFlows(
-  issue /*: RawIssue */
-  // $FlowFixMe textRange is not null
-) /*: { secondaryLocations: Array<FlowLocation>, flows: Array<Array<FlowLocation>> } */ {
+  issue: RawIssue
+): { secondaryLocations: Array<FlowLocation>; flows: Array<Array<FlowLocation>> } {
   const parsedFlows = (issue.flows || [])
     .filter(flow => flow.locations != null)
-    // $FlowFixMe flow.locations is not null
-    .map(flow => flow.locations.filter(location => location.textRange != null));
+    .map(flow => flow.locations!.filter(location => location.textRange != null));
 
   const onlySecondaryLocations = parsedFlows.every(flow => flow.length === 1);
 
@@ -140,11 +145,11 @@ function splitFlows(
 }
 
 export function parseIssueFromResponse(
-  issue /*: Object */,
-  components /*: ?Array<*> */,
-  users /*: ?Array<*> */,
-  rules /*: ?Array<*> */
-) /*: Issue */ {
+  issue: RawIssue,
+  components?: Component[],
+  users?: User[],
+  rules?: Rule[]
+): Issue {
   const { secondaryLocations, flows } = splitFlows(issue);
   return {
     ...issue,

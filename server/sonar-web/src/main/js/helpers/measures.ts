@@ -17,46 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import numeral from 'numeral';
+import * as numeral from 'numeral';
 import { translate, translateWithParameters } from './l10n';
 
 const HOURS_IN_DAY = 8;
 
-/**
- * Format a measure value for a given type
- * @param {string|number} value
- * @param {string} type
- */
-export function formatMeasure(value, type, options) {
+interface Measure {
+  metric: string;
+  periods?: any[];
+}
+
+interface EnhancedMeasure {
+  metric: Metric;
+}
+
+interface Metric {
+  key: string;
+}
+
+interface Formatter {
+  (value: string | number, options?: any): string;
+}
+
+/** Format a measure value for a given type */
+export function formatMeasure(
+  value: string | number | undefined,
+  type: string,
+  options?: any
+): string {
   const formatter = getFormatter(type);
   return useFormatter(value, formatter, options);
 }
 
-/**
- * Format a measure variation for a given type
- * @param {string|number} value
- * @param {string} type
- */
-export function formatMeasureVariation(value, type, options) {
+/** Format a measure variation for a given type */
+export function formatMeasureVariation(
+  value: string | number | undefined,
+  type: string,
+  options?: any
+): string {
   const formatter = getVariationFormatter(type);
   return useFormatter(value, formatter, options);
 }
 
-/**
- * Return a localized metric name
- * @param {string} metricKey
- * @returns {string}
- */
-export function localizeMetric(metricKey) {
+/** Return a localized metric name */
+export function localizeMetric(metricKey: string): string {
   return translate('metric', metricKey, 'name');
 }
 
-/**
- * Return corresponding "short" for better display in UI
- * @param {string} type
- * @returns {string}
- */
-export function getShortType(type) {
+/** Return corresponding "short" for better display in UI */
+export function getShortType(type: string): string {
   if (type === 'INT') {
     return 'SHORT_INT';
   } else if (type === 'WORK_DUR') {
@@ -65,49 +74,38 @@ export function getShortType(type) {
   return type;
 }
 
-/**
- * Map metrics
- * @param {Array} measures
- * @param {Array} metrics
- * @returns {Array}
- */
-export function enhanceMeasuresWithMetrics(measures, metrics) {
+export function enhanceMeasuresWithMetrics(
+  measures: Measure[],
+  metrics: Metric[]
+): EnhancedMeasure[] {
   return measures.map(measure => {
-    const metric = metrics.find(metric => metric.key === measure.metric);
+    const metric = metrics.find(metric => metric.key === measure.metric) as Metric;
     return { ...measure, metric };
   });
 }
 
-/**
- * Get period value of a measure
- * @param measure
- * @param periodIndex
- */
-export function getPeriodValue(measure, periodIndex) {
+/** Get period value of a measure */
+export function getPeriodValue(measure: Measure, periodIndex: number): string | number | undefined {
   const { periods } = measure;
-  const period = periods.find(period => period.index === periodIndex);
-  return period ? period.value : null;
+  const period = periods && periods.find(period => period.index === periodIndex);
+  return period ? period.value : undefined;
 }
 
-/**
- * Check if metric is differential
- * @param {string} metricKey
- * @returns {boolean}
- */
-export function isDiffMetric(metricKey) {
+/** Check if metric is differential */
+export function isDiffMetric(metricKey: string): boolean {
   return metricKey.indexOf('new_') === 0;
 }
 
-/*
- * Helpers
- */
-
-function useFormatter(value, formatter, options) {
-  return value != null && value !== '' && formatter != null ? formatter(value, options) : null;
+function useFormatter(
+  value: string | number | undefined,
+  formatter: Formatter,
+  options?: any
+): string {
+  return value != undefined && value !== '' ? formatter(value, options) : '';
 }
 
-function getFormatter(type) {
-  const FORMATTERS = {
+function getFormatter(type: string): Formatter {
+  const FORMATTERS: { [type: string]: Formatter } = {
     INT: intFormatter,
     SHORT_INT: shortIntFormatter,
     FLOAT: floatFormatter,
@@ -121,8 +119,8 @@ function getFormatter(type) {
   return FORMATTERS[type] || noFormatter;
 }
 
-function getVariationFormatter(type) {
-  const FORMATTERS = {
+function getVariationFormatter(type: string): Formatter {
+  const FORMATTERS: { [type: string]: Formatter } = {
     INT: intVariationFormatter,
     SHORT_INT: shortIntVariationFormatter,
     FLOAT: floatVariationFormatter,
@@ -136,31 +134,27 @@ function getVariationFormatter(type) {
   return FORMATTERS[type] || noFormatter;
 }
 
-/*
- * Formatters
- */
-
-function genericFormatter(value, formatValue) {
+function genericNumberFormatter(value: number, formatValue?: string): string {
   return numeral(value).format(formatValue);
 }
 
-function noFormatter(value) {
+function noFormatter(value: string | number): string | number {
   return value;
 }
 
-function emptyFormatter() {
-  return null;
+function emptyFormatter(): string {
+  return '';
 }
 
-function intFormatter(value) {
-  return genericFormatter(value, '0,0');
+function intFormatter(value: number): string {
+  return genericNumberFormatter(value, '0,0');
 }
 
-function intVariationFormatter(value) {
-  return genericFormatter(value, '+0,0');
+function intVariationFormatter(value: number): string {
+  return genericNumberFormatter(value, '+0,0');
 }
 
-function shortIntFormatter(value) {
+function shortIntFormatter(value: number): string {
   let format = '0,0';
   if (value >= 1000) {
     format = '0.[0]a';
@@ -168,44 +162,53 @@ function shortIntFormatter(value) {
   if (value >= 10000) {
     format = '0a';
   }
-  return genericFormatter(value, format);
+  return genericNumberFormatter(value, format);
 }
 
-function shortIntVariationFormatter(value) {
+function shortIntVariationFormatter(value: number): string {
   const formatted = shortIntFormatter(Math.abs(value));
   return value < 0 ? `-${formatted}` : `+${formatted}`;
 }
 
-function floatFormatter(value) {
-  return genericFormatter(value, '0,0.0[0000]');
+function floatFormatter(value: number): string {
+  return genericNumberFormatter(value, '0,0.0[0000]');
 }
 
-function floatVariationFormatter(value) {
-  return value === 0 ? '+0.0' : genericFormatter(value, '+0,0.0[0000]');
+function floatVariationFormatter(value: number): string {
+  return value === 0 ? '+0.0' : genericNumberFormatter(value, '+0,0.0[0000]');
 }
 
-function percentFormatter(value, options = {}) {
-  value = parseFloat(value);
-  if (options.decimals) {
-    return genericFormatter(value / 100, `0,0.${'0'.repeat(options.decimals)}%`);
+function percentFormatter(value: string | number, options: { decimals?: number } = {}): string {
+  if (typeof value === 'string') {
+    value = parseFloat(value);
   }
-  return value === 100 ? '100%' : genericFormatter(value / 100, '0,0.0%');
-}
-
-function percentVariationFormatter(value, options = {}) {
-  value = parseFloat(value);
   if (options.decimals) {
-    return genericFormatter(value / 100, `+0,0.${'0'.repeat(options.decimals)}%`);
+    return genericNumberFormatter(value / 100, `0,0.${'0'.repeat(options.decimals)}%`);
   }
-  return value === 0 ? '+0.0%' : genericFormatter(value / 100, '+0,0.0%');
+  return value === 100 ? '100%' : genericNumberFormatter(value / 100, '0,0.0%');
 }
 
-function ratingFormatter(value) {
-  value = parseInt(value, 10);
+function percentVariationFormatter(
+  value: string | number,
+  options: { decimals?: number } = {}
+): string {
+  if (typeof value === 'string') {
+    value = parseFloat(value);
+  }
+  if (options.decimals) {
+    return genericNumberFormatter(value / 100, `+0,0.${'0'.repeat(options.decimals)}%`);
+  }
+  return value === 0 ? '+0.0%' : genericNumberFormatter(value / 100, '+0,0.0%');
+}
+
+function ratingFormatter(value: string | number): string {
+  if (typeof value === 'string') {
+    value = parseInt(value, 10);
+  }
   return String.fromCharCode(97 + value - 1).toUpperCase();
 }
 
-function levelFormatter(value) {
+function levelFormatter(value: string): string {
   const l10nKey = 'metric.level.' + value;
   const result = translate(l10nKey);
 
@@ -213,7 +216,7 @@ function levelFormatter(value) {
   return l10nKey !== result ? result : value;
 }
 
-function millisecondsFormatter(value) {
+function millisecondsFormatter(value: number): string {
   const ONE_SECOND = 1000;
   const ONE_MINUTE = 60 * ONE_SECOND;
   if (value >= ONE_MINUTE) {
@@ -227,7 +230,7 @@ function millisecondsFormatter(value) {
   }
 }
 
-function millisecondsVariationFormatter(value) {
+function millisecondsVariationFormatter(value: number): string {
   const absValue = Math.abs(value);
   const formattedValue = millisecondsFormatter(absValue);
   return value < 0 ? `-${formattedValue}` : `+${formattedValue}`;
@@ -237,31 +240,31 @@ function millisecondsVariationFormatter(value) {
  * Debt Formatters
  */
 
-function shouldDisplayDays(days) {
+function shouldDisplayDays(days: number): boolean {
   return days > 0;
 }
 
-function shouldDisplayDaysInShortFormat(days) {
+function shouldDisplayDaysInShortFormat(days: number): boolean {
   return days > 0.9;
 }
 
-function shouldDisplayHours(days, hours) {
+function shouldDisplayHours(days: number, hours: number): boolean {
   return hours > 0 && days < 10;
 }
 
-function shouldDisplayHoursInShortFormat(hours) {
+function shouldDisplayHoursInShortFormat(hours: number): boolean {
   return hours > 0.9;
 }
 
-function shouldDisplayMinutes(days, hours, minutes) {
+function shouldDisplayMinutes(days: number, hours: number, minutes: number): boolean {
   return minutes > 0 && hours < 10 && days === 0;
 }
 
-function addSpaceIfNeeded(value) {
+function addSpaceIfNeeded(value: string): string {
   return value.length > 0 ? value + ' ' : value;
 }
 
-function formatDuration(isNegative, days, hours, minutes) {
+function formatDuration(isNegative: boolean, days: number, hours: number, minutes: number): string {
   let formatted = '';
   if (shouldDisplayDays(days)) {
     formatted += translateWithParameters('work_duration.x_days', isNegative ? -1 * days : days);
@@ -283,7 +286,12 @@ function formatDuration(isNegative, days, hours, minutes) {
   return formatted;
 }
 
-function formatDurationShort(isNegative, days, hours, minutes) {
+function formatDurationShort(
+  isNegative: boolean,
+  days: number,
+  hours: number,
+  minutes: number
+): string {
   if (shouldDisplayDaysInShortFormat(days)) {
     const roundedDays = Math.round(days);
     const formattedDays = formatMeasure(isNegative ? -1 * roundedDays : roundedDays, 'SHORT_INT');
@@ -303,8 +311,11 @@ function formatDurationShort(isNegative, days, hours, minutes) {
   return translateWithParameters('work_duration.x_minutes', formattedMinutes);
 }
 
-function durationFormatter(value) {
-  if (value === 0 || value === '0') {
+function durationFormatter(value: string | number): string {
+  if (typeof value === 'string') {
+    value = parseInt(value);
+  }
+  if (value === 0) {
     return '0';
   }
   const hoursInDay = HOURS_IN_DAY;
@@ -317,9 +328,11 @@ function durationFormatter(value) {
   return formatDuration(isNegative, days, hours, remainingValue);
 }
 
-function shortDurationFormatter(value) {
-  value = parseInt(value, 10);
-  if (value === 0 || value === '0') {
+function shortDurationFormatter(value: string | number): string {
+  if (typeof value === 'string') {
+    value = parseInt(value);
+  }
+  if (value === 0) {
     return '0';
   }
   const hoursInDay = HOURS_IN_DAY;
@@ -332,7 +345,7 @@ function shortDurationFormatter(value) {
   return formatDurationShort(isNegative, days, hours, remainingValue);
 }
 
-function durationVariationFormatter(value) {
+function durationVariationFormatter(value: string | number): string {
   if (value === 0 || value === '0') {
     return '+0';
   }
@@ -340,7 +353,7 @@ function durationVariationFormatter(value) {
   return formatted[0] !== '-' ? '+' + formatted : formatted;
 }
 
-function shortDurationVariationFormatter(value) {
+function shortDurationVariationFormatter(value: string | number): string {
   if (value === 0 || value === '0') {
     return '+0';
   }
@@ -348,7 +361,7 @@ function shortDurationVariationFormatter(value) {
   return formatted[0] !== '-' ? '+' + formatted : formatted;
 }
 
-function getRatingGrid() {
+function getRatingGrid(): string {
   // workaround cyclic dependencies
   const getStore = require('../app/utils/getStore').default;
   const { getGlobalSettingValue } = require('../store/rootReducer');
@@ -358,8 +371,8 @@ function getRatingGrid() {
   return settingValue ? settingValue.value : '';
 }
 
-let maintainabilityRatingGrid;
-function getMaintainabilityRatingGrid() {
+let maintainabilityRatingGrid: number[];
+function getMaintainabilityRatingGrid(): number[] {
   if (maintainabilityRatingGrid) {
     return maintainabilityRatingGrid;
   }
@@ -376,7 +389,7 @@ function getMaintainabilityRatingGrid() {
   return maintainabilityRatingGrid;
 }
 
-function getMaintainabilityRatingTooltip(rating) {
+function getMaintainabilityRatingTooltip(rating: number): string {
   const maintainabilityGrid = getMaintainabilityRatingGrid();
   const maintainabilityRatingThreshold = maintainabilityGrid[Math.floor(rating) - 2];
 
@@ -396,7 +409,7 @@ function getMaintainabilityRatingTooltip(rating) {
   );
 }
 
-export function getRatingTooltip(metricKey, value) {
+export function getRatingTooltip(metricKey: string, value: number): string {
   const ratingLetter = formatMeasure(value, 'RATING');
 
   const finalMetricKey = metricKey.startsWith('new_') ? metricKey.substr(4) : metricKey;
