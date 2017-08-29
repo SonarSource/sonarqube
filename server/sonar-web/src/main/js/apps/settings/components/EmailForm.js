@@ -50,12 +50,10 @@ class EmailForm extends React.PureComponent {
   render() {
     return (
       <div className="huge-spacer-top">
-        <h3 className="spacer-bottom">
-          {translate('email_configuration.test.title')}
-        </h3>
+        <h3 className="spacer-bottom">{translate('email_configuration.test.title')}</h3>
 
         <form style={{ marginLeft: 201 }} onSubmit={e => this.handleFormSubmit(e)}>
-          {this.state.success &&
+          {this.state.success && (
             <div className="modal-field">
               <div className="alert alert-success">
                 {translateWithParameters(
@@ -63,14 +61,14 @@ class EmailForm extends React.PureComponent {
                   this.state.recipient
                 )}
               </div>
-            </div>}
+            </div>
+          )}
 
-          {this.state.error != null &&
+          {this.state.error != null && (
             <div className="modal-field">
-              <div className="alert alert-danger">
-                {this.state.error}
-              </div>
-            </div>}
+              <div className="alert alert-danger">{this.state.error}</div>
+            </div>
+          )}
 
           <div className="modal-field">
             <label htmlFor="test-email-to">

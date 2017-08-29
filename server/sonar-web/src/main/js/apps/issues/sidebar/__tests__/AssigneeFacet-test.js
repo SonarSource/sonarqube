@@ -64,7 +64,10 @@ it('should render footer select option', () => {
 it('should call onChange', () => {
   const onChange = jest.fn();
   const wrapper = renderAssigneeFacet({ assignees: ['foo'], onChange });
-  const itemOnClick = wrapper.find('FacetItem').first().prop('onClick');
+  const itemOnClick = wrapper
+    .find('FacetItem')
+    .first()
+    .prop('onClick');
 
   itemOnClick('');
   expect(onChange).lastCalledWith({ assigned: false, assignees: [] });

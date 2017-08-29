@@ -48,10 +48,8 @@ export default class DetailsHeader extends React.PureComponent {
       <div className="layout-page-header-panel layout-page-main-header issues-main-header">
         <div className="layout-page-header-panel-inner layout-page-main-header-inner">
           <div className="layout-page-main-inner">
-            <h2 className="pull-left">
-              {qualityGate.name}
-            </h2>
-            {edit &&
+            <h2 className="pull-left">{qualityGate.name}</h2>
+            {edit && (
               <div className="pull-right">
                 <div className="button-group">
                   <button id="quality-gate-rename" onClick={this.handleRenameClick}>
@@ -61,9 +59,11 @@ export default class DetailsHeader extends React.PureComponent {
                     {translate('copy')}
                   </button>
                   <button id="quality-gate-toggle-default" onClick={this.handleSetAsDefaultClick}>
-                    {qualityGate.isDefault
-                      ? translate('unset_as_default')
-                      : translate('set_as_default')}
+                    {qualityGate.isDefault ? (
+                      translate('unset_as_default')
+                    ) : (
+                      translate('set_as_default')
+                    )}
                   </button>
                   <button
                     id="quality-gate-delete"
@@ -72,7 +72,8 @@ export default class DetailsHeader extends React.PureComponent {
                     {translate('delete')}
                   </button>
                 </div>
-              </div>}
+              </div>
+            )}
           </div>
         </div>
       </div>

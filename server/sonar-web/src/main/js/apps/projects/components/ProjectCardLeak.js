@@ -71,16 +71,16 @@ export default function ProjectCardLeak({ measures, organization, project } /*: 
   return (
     <div data-key={project.key} className={className}>
       <div className="boxed-group-header clearfix">
-        {project.isFavorite != null &&
-          <FavoriteContainer className="spacer-right" componentKey={project.key} />}
+        {project.isFavorite != null && (
+          <FavoriteContainer className="spacer-right" componentKey={project.key} />
+        )}
         <h2 className="project-card-name">
-          {showOrganization &&
+          {showOrganization && (
             <span className="text-normal">
               <Organization organizationKey={project.organization} />
-            </span>}
-          <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>
-            {project.name}
-          </Link>
+            </span>
+          )}
+          <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
         </h2>
         {displayQualityGate && <ProjectCardQualityGate status={measures['alert_status']} />}
         <div className="pull-right text-right">
@@ -88,36 +88,45 @@ export default function ProjectCardLeak({ measures, organization, project } /*: 
           {hasTags && <TagsList tags={project.tags} customClass="spacer-left" />}
         </div>
         {isProjectAnalyzed &&
-          hasLeakPeriodStart &&
+        hasLeakPeriodStart && (
           <div className="project-card-dates note text-right pull-right">
-            {hasLeakPeriodStart &&
+            {hasLeakPeriodStart && (
               <DateFromNow date={project.leakPeriodDate}>
-                {fromNow =>
+                {fromNow => (
                   <span className="project-card-leak-date pull-right">
                     {translateWithParameters('projects.leak_period_x', fromNow)}
-                  </span>}
-              </DateFromNow>}
-            {isProjectAnalyzed &&
+                  </span>
+                )}
+              </DateFromNow>
+            )}
+            {isProjectAnalyzed && (
               <DateTimeFormatter date={project.analysisDate}>
-                {formattedDate =>
+                {formattedDate => (
                   <span>
                     {translateWithParameters('projects.last_analysis_on_x', formattedDate)}
-                  </span>}
-              </DateTimeFormatter>}
-          </div>}
+                  </span>
+                )}
+              </DateTimeFormatter>
+            )}
+          </div>
+        )}
       </div>
 
-      {isProjectAnalyzed && hasLeakPeriodStart
-        ? <div className="boxed-group-inner">
-            {areProjectMeasuresLoaded && <ProjectCardLeakMeasures measures={measures} />}
+      {isProjectAnalyzed && hasLeakPeriodStart ? (
+        <div className="boxed-group-inner">
+          {areProjectMeasuresLoaded && <ProjectCardLeakMeasures measures={measures} />}
+        </div>
+      ) : (
+        <div className="boxed-group-inner">
+          <div className="note project-card-not-analyzed">
+            {isProjectAnalyzed ? (
+              translate('projects.no_leak_period')
+            ) : (
+              translate('projects.not_analyzed')
+            )}
           </div>
-        : <div className="boxed-group-inner">
-            <div className="note project-card-not-analyzed">
-              {isProjectAnalyzed
-                ? translate('projects.no_leak_period')
-                : translate('projects.not_analyzed')}
-            </div>
-          </div>}
+        </div>
+      )}
     </div>
   );
 }

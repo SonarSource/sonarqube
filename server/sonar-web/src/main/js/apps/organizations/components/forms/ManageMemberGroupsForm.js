@@ -113,9 +113,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
         overlayClassName="modal-overlay"
         onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>
-            {translate('organization.members.manage_groups')}
-          </h2>
+          <h2>{translate('organization.members.manage_groups')}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
@@ -126,23 +124,22 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
               )}
             </strong>{' '}
             {this.state.loading && <i className="spinner" />}
-            {!this.state.loading &&
+            {!this.state.loading && (
               <ul className="list-spaced">
-                {this.props.organizationGroups.map(group =>
+                {this.props.organizationGroups.map(group => (
                   <OrganizationGroupCheckbox
                     key={group.id}
                     group={group}
                     checked={this.isGroupSelected(group.name)}
                     onCheck={this.onCheck}
                   />
-                )}
-              </ul>}
+                ))}
+              </ul>
+            )}
           </div>
           <footer className="modal-foot">
             <div>
-              <button type="submit">
-                {translate('save')}
-              </button>
+              <button type="submit">{translate('save')}</button>
               <button type="reset" className="button-link" onClick={this.closeForm}>
                 {translate('cancel')}
               </button>

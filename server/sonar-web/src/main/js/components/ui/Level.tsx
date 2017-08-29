@@ -35,9 +35,5 @@ export default function Level(props: Props) {
     'level-small': props.small,
     'level-muted': props.muted
   });
-  return (
-    <span className={className}>
-      {formatted}
-    </span>
-  );
+  return <span className={className}>{formatted}</span>;
 }

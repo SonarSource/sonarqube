@@ -38,12 +38,8 @@ export default class Table extends React.PureComponent {
     return (
       <thead>
         <tr>
-          <th className="nowrap">
-            {translate('project_links.name')}
-          </th>
-          <th className="nowrap width-100">
-            {translate('project_links.url')}
-          </th>
+          <th className="nowrap">{translate('project_links.name')}</th>
+          <th className="nowrap width-100">{translate('project_links.url')}</th>
           <th className="thin">&nbsp;</th>
         </tr>
       </thead>
@@ -53,16 +49,14 @@ export default class Table extends React.PureComponent {
   render() {
     const orderedLinks = orderLinks(this.props.links);
 
-    const linkRows = orderedLinks.map(link =>
+    const linkRows = orderedLinks.map(link => (
       <LinkRow key={link.id} link={link} onDelete={this.handleDeleteLink.bind(this, link)} />
-    );
+    ));
 
     return (
       <table id="project-links" className="data zebra">
         {this.renderHeader()}
-        <tbody>
-          {linkRows}
-        </tbody>
+        <tbody>{linkRows}</tbody>
       </table>
     );
   }

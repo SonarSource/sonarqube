@@ -38,11 +38,12 @@ export default class MembersListHeader extends React.PureComponent {
     return (
       <div className="panel panel-vertical bordered-bottom spacer-bottom">
         <UsersSearch onSearch={this.props.handleSearch} className="display-inline-block" />
-        {total != null &&
+        {total != null && (
           <span className="pull-right little-spacer-top">
             <strong>{formatMeasure(total, 'INT')}</strong>{' '}
             {translate('organization.members.members')}
-          </span>}
+          </span>
+        )}
       </div>
     );
   }

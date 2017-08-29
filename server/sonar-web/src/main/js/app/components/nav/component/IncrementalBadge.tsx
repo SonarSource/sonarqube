@@ -24,9 +24,7 @@ import { translate } from '../../../../helpers/l10n';
 export default function IncrementalBadge() {
   return (
     <Tooltip overlay={translate('incremental.project_tooltip')}>
-      <div className="outline-badge">
-        {translate('incremental')}
-      </div>
+      <div className="outline-badge">{translate('incremental')}</div>
     </Tooltip>
   );
 }

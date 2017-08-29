@@ -47,7 +47,7 @@ export default class IssueAssign extends React.PureComponent {
     const { issue } = this.props;
     return (
       <span>
-        {issue.assignee &&
+        {issue.assignee && (
           <span className="text-top">
             <Avatar
               className="little-spacer-right"
@@ -55,7 +55,8 @@ export default class IssueAssign extends React.PureComponent {
               name={issue.assigneeName}
               size={16}
             />
-          </span>}
+          </span>
+        )}
         <span className="issue-meta-label">
           {issue.assignee ? issue.assigneeName : translate('unassigned')}
         </span>

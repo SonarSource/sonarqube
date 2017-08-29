@@ -46,10 +46,9 @@ class CodeSmells extends React.PureComponent {
 
     const tooltip = (
       <DateTimeFormatter date={component.analysisDate}>
-        {formattedAnalysisDate =>
-          <span>
-            {translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate)}
-          </span>}
+        {formattedAnalysisDate => (
+          <span>{translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate)}</span>
+        )}
       </DateTimeFormatter>
     );
     return (
@@ -67,10 +66,11 @@ class CodeSmells extends React.PureComponent {
     }
     return (
       <DateFromNow date={this.props.historyStartDate}>
-        {fromNow =>
+        {fromNow => (
           <span className="overview-domain-timeline-date">
             {translateWithParameters('overview.started_x', fromNow)}
-          </span>}
+          </span>
+        )}
       </DateFromNow>
     );
   }
@@ -100,9 +100,7 @@ class CodeSmells extends React.PureComponent {
               </span>
               {this.props.renderRating('new_maintainability_rating')}
             </div>
-            <div className="overview-domain-measure-label">
-              {getMetricName('new_effort')}
-            </div>
+            <div className="overview-domain-measure-label">{getMetricName('new_effort')}</div>
           </div>
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">

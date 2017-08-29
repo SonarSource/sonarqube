@@ -47,7 +47,7 @@ export default function Menu(props: Props) {
   return (
     <div className="api-documentation-results panel">
       <div className="list-group">
-        {filteredDomains.map(domain =>
+        {filteredDomains.map(domain => (
           <Link
             key={domain.path}
             className={classNames('list-group-item', {
@@ -59,13 +59,14 @@ export default function Menu(props: Props) {
               {domain.deprecated && <DeprecatedBadge />}
               {domain.internal && <InternalBadge />}
             </h3>
-            {domain.description &&
+            {domain.description && (
               <div
                 className="list-group-item-text markdown"
                 dangerouslySetInnerHTML={{ __html: domain.description }}
-              />}
+              />
+            )}
           </Link>
-        )}
+        ))}
       </div>
     </div>
   );

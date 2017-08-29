@@ -30,9 +30,7 @@ export default class ReadMore extends React.PureComponent {
     return (
       <div className="big-spacer-top">
         <a className="about-page-link-more" href={this.props.link} target="_blank">
-          <span>
-            {translate('about_page.read_more')}
-          </span>
+          <span>{translate('about_page.read_more')}</span>
         </a>
       </div>
     );

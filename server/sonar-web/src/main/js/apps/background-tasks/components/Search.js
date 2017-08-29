@@ -112,7 +112,7 @@ export default class Search extends React.PureComponent {
             <h6 className="bt-search-form-label">Status</h6>
             <StatusFilter value={status} onChange={this.handleStatusChange.bind(this)} />
           </li>
-          {types.length > 1 &&
+          {types.length > 1 && (
             <li>
               <h6 className="bt-search-form-label">Type</h6>
               <TypesFilter
@@ -120,12 +120,14 @@ export default class Search extends React.PureComponent {
                 types={types}
                 onChange={this.handleTypeChange.bind(this)}
               />
-            </li>}
-          {!component &&
+            </li>
+          )}
+          {!component && (
             <li>
               <h6 className="bt-search-form-label">Only Latest Analysis</h6>
               <CurrentsFilter value={currents} onChange={this.handleCurrentsChange.bind(this)} />
-            </li>}
+            </li>
+          )}
           <li>
             <h6 className="bt-search-form-label">Date</h6>
             <DateFilter

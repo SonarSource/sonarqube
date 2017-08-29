@@ -154,16 +154,10 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             <thead>
               <tr>
                 <th>
-                  <h2>
-                    {translate('rules')}
-                  </h2>
+                  <h2>{translate('rules')}</h2>
                 </th>
-                <th>
-                  {translate('active')}
-                </th>
-                <th>
-                  {translate('inactive')}
-                </th>
+                <th>{translate('active')}</th>
+                <th>{translate('inactive')}</th>
               </tr>
             </thead>
             <tbody>
@@ -174,7 +168,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
                 qprofile={profile.key}
                 total={this.state.total}
               />
-              {TYPES.map(type =>
+              {TYPES.map(type => (
                 <ProfileRulesRowOfType
                   key={type}
                   count={this.getRulesCountForType(type)}
@@ -183,33 +177,36 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
                   total={this.getRulesTotalForType(type)}
                   type={type}
                 />
-              )}
+              ))}
             </tbody>
           </table>
 
           {this.props.canAdmin &&
-            !profile.isBuiltIn &&
+          !profile.isBuiltIn && (
             <div className="text-right big-spacer-top">
               <Link to={activateMoreUrl} className="button js-activate-rules">
                 {translate('quality_profiles.activate_more')}
               </Link>
-            </div>}
+            </div>
+          )}
         </div>
-        {profile.activeDeprecatedRuleCount > 0 &&
+        {profile.activeDeprecatedRuleCount > 0 && (
           <ProfileRulesDeprecatedWarning
             activeDeprecatedRules={profile.activeDeprecatedRuleCount}
             organization={organization}
             profile={profile.key}
-          />}
+          />
+        )}
         {compareToSonarWay != null &&
-          compareToSonarWay.missingRuleCount > 0 &&
+        compareToSonarWay.missingRuleCount > 0 && (
           <ProfileRulesSonarWayComparison
             language={profile.language}
             organization={organization}
             profile={profile.key}
             sonarway={compareToSonarWay.profile}
             sonarWayMissingRules={compareToSonarWay.missingRuleCount}
-          />}
+          />
+        )}
       </div>
     );
   }

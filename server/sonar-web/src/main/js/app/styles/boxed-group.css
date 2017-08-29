@@ -28,7 +28,7 @@
   line-height: 24px;
 }
 
-.boxed-group-header [class^="icon-"] {
+.boxed-group-header [class^='icon-'] {
   display: inline-block;
   vertical-align: middle;
 }

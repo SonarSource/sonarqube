@@ -51,25 +51,25 @@ export default function BranchStatus({ branch, concise = false }: Props) {
             })}
           />
         </li>
-        {concise &&
-          <li>
-            {totalIssues}
-          </li>}
-        {!concise &&
+        {concise && <li>{totalIssues}</li>}
+        {!concise && (
           <li>
             {branch.status.bugs}
             <BugIcon className="little-spacer-left" />
-          </li>}
-        {!concise &&
+          </li>
+        )}
+        {!concise && (
           <li>
             {branch.status.vulnerabilities}
             <VulnerabilityIcon className="little-spacer-left" />
-          </li>}
-        {!concise &&
+          </li>
+        )}
+        {!concise && (
           <li>
             {branch.status.codeSmells}
             <CodeSmellIcon className="little-spacer-left" />
-          </li>}
+          </li>
+        )}
       </ul>
     );
   } else {

@@ -66,5 +66,10 @@ it('should count all code locations', () => {
     secondaryLocations: [{}, {}]
   };
   const element = shallow(<IssueTitleBar issue={issueWithLocations} />);
-  expect(element.find('LocationIndex').children().text()).toBe('7');
+  expect(
+    element
+      .find('LocationIndex')
+      .children()
+      .text()
+  ).toBe('7');
 });

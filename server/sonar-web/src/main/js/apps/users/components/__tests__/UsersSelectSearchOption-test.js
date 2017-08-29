@@ -35,18 +35,14 @@ const user2 = {
 
 it('should render correctly without all parameters', () => {
   const wrapper = shallow(
-    <UsersSelectSearchOption option={user}>
-      {user.name}
-    </UsersSelectSearchOption>
+    <UsersSelectSearchOption option={user}>{user.name}</UsersSelectSearchOption>
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should render correctly with email instead of hash', () => {
   const wrapper = shallow(
-    <UsersSelectSearchOption option={user2}>
-      {user.name}
-    </UsersSelectSearchOption>
+    <UsersSelectSearchOption option={user2}>{user.name}</UsersSelectSearchOption>
   );
   expect(wrapper).toMatchSnapshot();
 });

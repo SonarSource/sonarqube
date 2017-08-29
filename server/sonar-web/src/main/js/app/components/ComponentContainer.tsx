@@ -133,14 +133,15 @@ export default class ComponentContainer extends React.PureComponent<Props, State
 
     return (
       <div>
-        {!isFile &&
+        {!isFile && (
           <ComponentNav
             branches={branches}
             currentBranch={branch}
             component={component}
             conf={configuration}
             location={this.props.location}
-          />}
+          />
+        )}
         {React.cloneElement(this.props.children, {
           branch,
           branches,

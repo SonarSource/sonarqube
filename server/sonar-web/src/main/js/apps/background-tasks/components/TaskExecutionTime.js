@@ -23,11 +23,7 @@ import { formatDuration } from '../utils';
 /*:: import type { Task } from '../types'; */
 
 const TaskExecutionTime = ({ task } /*: { task: Task } */) => {
-  return (
-    <td className="thin nowrap text-right">
-      {formatDuration(task.executionTimeMs)}
-    </td>
-  );
+  return <td className="thin nowrap text-right">{formatDuration(task.executionTimeMs)}</td>;
 };
 
 export default TaskExecutionTime;

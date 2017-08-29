@@ -84,11 +84,7 @@ export const BarChart = createReactClass({
         </text>
       );
     });
-    return (
-      <g>
-        {ticks}
-      </g>
-    );
+    return <g>{ticks}</g>;
   },
 
   renderXValues(xScale, yScale) {
@@ -119,11 +115,7 @@ export const BarChart = createReactClass({
         </text>
       );
     });
-    return (
-      <g>
-        {ticks}
-      </g>
-    );
+    return <g>{ticks}</g>;
   },
 
   renderBars(xScale, yScale) {
@@ -151,11 +143,7 @@ export const BarChart = createReactClass({
         />
       );
     });
-    return (
-      <g>
-        {bars}
-      </g>
-    );
+    return <g>{bars}</g>;
   },
 
   render() {
@@ -176,7 +164,9 @@ export const BarChart = createReactClass({
       .domain(this.props.data.map(d => d.x))
       .range([0, availableWidth])
       .paddingInner(relativeInnerPadding);
-    const yScale = scaleLinear().domain([0, maxY]).range([availableHeight, 0]);
+    const yScale = scaleLinear()
+      .domain([0, maxY])
+      .range([availableHeight, 0]);
 
     return (
       <TooltipsContainer>

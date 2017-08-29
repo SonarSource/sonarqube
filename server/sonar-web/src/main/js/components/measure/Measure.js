@@ -43,11 +43,7 @@ export default function Measure({ className, decimals, measure } /*: Props */) {
     const formattedValue = isDiffMetric(metric.key)
       ? formatLeak(measure.leak, metric, { decimals })
       : formatMeasure(measure.value, metric.type, { decimals });
-    return (
-      <span className={className}>
-        {formattedValue != null ? formattedValue : '–'}
-      </span>
-    );
+    return <span className={className}>{formattedValue != null ? formattedValue : '–'}</span>;
   }
 
   const value = isDiffMetric(metric.key) ? measure.leak : measure.value;
@@ -56,9 +52,7 @@ export default function Measure({ className, decimals, measure } /*: Props */) {
   if (tooltip) {
     return (
       <Tooltips overlay={tooltip}>
-        <span className={className}>
-          {rating}
-        </span>
+        <span className={className}>{rating}</span>
       </Tooltips>
     );
   }

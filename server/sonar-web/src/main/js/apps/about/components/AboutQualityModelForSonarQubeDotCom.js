@@ -26,9 +26,7 @@ import CodeSmellIconForSonarQubeDotCom from './CodeSmellIconForSonarQubeDotCom';
 export default function AboutQualityModelForSonarQubeDotCom() {
   return (
     <div className="boxed-group about-quality-model sqcom-about-quality-model">
-      <h2>
-        {translate('about_page.quality_model')}
-      </h2>
+      <h2>{translate('about_page.quality_model')}</h2>
 
       <div className="boxed-group-inner clearfix">
         <div className="flex-columns">

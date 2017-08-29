@@ -365,7 +365,10 @@ function getMaintainabilityRatingGrid() {
   }
 
   const str = getRatingGrid();
-  const numbers = str.split(',').map(s => parseFloat(s)).filter(n => !isNaN(n));
+  const numbers = str
+    .split(',')
+    .map(s => parseFloat(s))
+    .filter(n => !isNaN(n));
 
   if (numbers.length === 4) {
     maintainabilityRatingGrid = numbers;

@@ -53,9 +53,7 @@ export default class SizeFilter extends React.PureComponent {
     return (
       <span>
         <SizeRating value={getSizeRatingAverageValue(option)} small={true} muted={!selected} />
-        <span className="spacer-left">
-          {getSizeRatingLabel(option)}
-        </span>
+        <span className="spacer-left">{getSizeRatingLabel(option)}</span>
       </span>
     );
   }

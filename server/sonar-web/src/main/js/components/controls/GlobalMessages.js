@@ -59,10 +59,6 @@ export default class GlobalMessages extends React.PureComponent {
       return null;
     }
 
-    return (
-      <div className="processes-container">
-        {messages.map(this.renderMessage)}
-      </div>
-    );
+    return <div className="processes-container">{messages.map(this.renderMessage)}</div>;
   }
 }

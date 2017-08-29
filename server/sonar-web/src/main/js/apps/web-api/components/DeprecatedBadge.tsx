@@ -27,9 +27,7 @@ export default function DeprecatedBadge({ since }: { since?: string }) {
     : translate('api_documentation.depracated');
   return (
     <Tooltip overlay={translate('api_documentation.deprecation_tooltip')}>
-      <span className="badge badge-warning">
-        {label}
-      </span>
+      <span className="badge badge-warning">{label}</span>
     </Tooltip>
   );
 }

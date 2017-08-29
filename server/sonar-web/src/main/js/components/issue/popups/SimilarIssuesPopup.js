@@ -68,9 +68,7 @@ export default class SimilarIssuesPopup extends React.PureComponent {
         position={this.props.popupPosition}
         customClass="bubble-popup-menu bubble-popup-bottom-right">
         <header className="menu-search">
-          <h6>
-            {translate('issue.filter_similar_issues')}
-          </h6>
+          <h6>{translate('issue.filter_similar_issues')}</h6>
         </header>
 
         <SelectList currentItem={items[0]} items={items} onSelect={this.handleSelect}>
@@ -88,48 +86,51 @@ export default class SimilarIssuesPopup extends React.PureComponent {
           </SelectListItem>
 
           <SelectListItem item="resolution">
-            {issue.resolution != null
-              ? translate('issue.resolution', issue.resolution)
-              : translate('unresolved')}
+            {issue.resolution != null ? (
+              translate('issue.resolution', issue.resolution)
+            ) : (
+              translate('unresolved')
+            )}
           </SelectListItem>
 
           <SelectListItem item="assignee">
-            {issue.assignee != null
-              ? <span>
-                  {translate('assigned_to')}
-                  <Avatar
-                    className="little-spacer-left little-spacer-right"
-                    hash={issue.assigneeAvatar}
-                    name={issue.assigneeName}
-                    size={16}
-                  />
-                  {issue.assigneeName}
-                </span>
-              : translate('unassigned')}
+            {issue.assignee != null ? (
+              <span>
+                {translate('assigned_to')}
+                <Avatar
+                  className="little-spacer-left little-spacer-right"
+                  hash={issue.assigneeAvatar}
+                  name={issue.assigneeName}
+                  size={16}
+                />
+                {issue.assigneeName}
+              </span>
+            ) : (
+              translate('unassigned')
+            )}
           </SelectListItem>
 
-          <SelectListItem item="rule">
-            {limitComponentName(issue.ruleName)}
-          </SelectListItem>
+          <SelectListItem item="rule">{limitComponentName(issue.ruleName)}</SelectListItem>
 
           {issue.tags != null &&
-            issue.tags.map(tag =>
+            issue.tags.map(tag => (
               <SelectListItem key={`tag###${tag}`} item={`tag###${tag}`}>
                 <i className="icon-tags icon-half-transparent little-spacer-right" />
                 {tag}
               </SelectListItem>
-            )}
+            ))}
 
           <SelectListItem item="project">
             <QualifierIcon className="little-spacer-right" qualifier="TRK" />
             {issue.projectName}
           </SelectListItem>
 
-          {issue.subProject != null &&
+          {issue.subProject != null && (
             <SelectListItem item="module">
               <QualifierIcon className="little-spacer-right" qualifier="BRC" />
               {issue.subProjectName}
-            </SelectListItem>}
+            </SelectListItem>
+          )}
 
           <SelectListItem item="file">
             <QualifierIcon className="little-spacer-right" qualifier={issue.componentQualifier} />

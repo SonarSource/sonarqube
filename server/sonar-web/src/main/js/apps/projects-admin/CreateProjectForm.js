@@ -126,111 +126,106 @@ export default class CreateProjectForm extends React.PureComponent {
         className="modal"
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
-        {createdProject
-          ? <div>
-              <header className="modal-head">
-                <h2>
-                  {translate('qualifiers.create.TRK')}
-                </h2>
-              </header>
+        {createdProject ? (
+          <div>
+            <header className="modal-head">
+              <h2>{translate('qualifiers.create.TRK')}</h2>
+            </header>
 
-              <div className="modal-body">
-                <div className="alert alert-success">
-                  Project <Link to={getProjectUrl(createdProject.key)}>
-                    {createdProject.name}
-                  </Link>{' '}
-                  has been successfully created.
-                </div>
+            <div className="modal-body">
+              <div className="alert alert-success">
+                Project <Link to={getProjectUrl(createdProject.key)}>
+                  {createdProject.name}
+                </Link>{' '}
+                has been successfully created.
               </div>
-
-              <footer className="modal-foot">
-                <a href="#" id="create-project-close" onClick={this.handleCancelClick}>
-                  {translate('close')}
-                </a>
-              </footer>
             </div>
-          : <form id="create-project-form" onSubmit={this.handleFormSubmit}>
-              <header className="modal-head">
-                <h2>
-                  {translate('qualifiers.create.TRK')}
-                </h2>
-              </header>
 
-              <div className="modal-body">
-                <div className="modal-field">
-                  <label htmlFor="create-project-name">
-                    {translate('name')}
-                    <em className="mandatory">*</em>
-                  </label>
-                  <input
-                    autoFocus={true}
-                    id="create-project-name"
-                    maxLength="2000"
-                    name="name"
-                    onChange={this.handleInputChange}
-                    required={true}
-                    type="text"
-                    value={this.state.name}
-                  />
-                </div>
-                <div className="modal-field">
-                  <label htmlFor="create-project-branch">
-                    {translate('branch')}
-                  </label>
-                  <input
-                    id="create-project-branch"
-                    maxLength="200"
-                    name="branch"
-                    onChange={this.handleInputChange}
-                    type="text"
-                    value={this.state.branch}
-                  />
-                </div>
-                <div className="modal-field">
-                  <label htmlFor="create-project-key">
-                    {translate('key')}
-                    <em className="mandatory">*</em>
-                  </label>
-                  <input
-                    id="create-project-key"
-                    maxLength="400"
-                    name="key"
-                    onChange={this.handleInputChange}
-                    required={true}
-                    type="text"
-                    value={this.state.key}
-                  />
-                </div>
-                <div className="modal-field">
-                  <label>
-                    {' '}{translate('visibility')}{' '}
-                  </label>
-                  <VisibilitySelector
-                    canTurnToPrivate={
-                      organization == null || organization.canUpdateProjectsVisibilityToPrivate
-                    }
-                    className="little-spacer-top"
-                    onChange={this.handleVisibilityChange}
-                    visibility={this.state.visibility}
-                  />
-                  {organization != null &&
-                    !organization.canUpdateProjectsVisibilityToPrivate &&
-                    <div className="spacer-top">
-                      <UpgradeOrganizationBox organization={organization.key} />
-                    </div>}
-                </div>
+            <footer className="modal-foot">
+              <a href="#" id="create-project-close" onClick={this.handleCancelClick}>
+                {translate('close')}
+              </a>
+            </footer>
+          </div>
+        ) : (
+          <form id="create-project-form" onSubmit={this.handleFormSubmit}>
+            <header className="modal-head">
+              <h2>{translate('qualifiers.create.TRK')}</h2>
+            </header>
+
+            <div className="modal-body">
+              <div className="modal-field">
+                <label htmlFor="create-project-name">
+                  {translate('name')}
+                  <em className="mandatory">*</em>
+                </label>
+                <input
+                  autoFocus={true}
+                  id="create-project-name"
+                  maxLength="2000"
+                  name="name"
+                  onChange={this.handleInputChange}
+                  required={true}
+                  type="text"
+                  value={this.state.name}
+                />
               </div>
+              <div className="modal-field">
+                <label htmlFor="create-project-branch">{translate('branch')}</label>
+                <input
+                  id="create-project-branch"
+                  maxLength="200"
+                  name="branch"
+                  onChange={this.handleInputChange}
+                  type="text"
+                  value={this.state.branch}
+                />
+              </div>
+              <div className="modal-field">
+                <label htmlFor="create-project-key">
+                  {translate('key')}
+                  <em className="mandatory">*</em>
+                </label>
+                <input
+                  id="create-project-key"
+                  maxLength="400"
+                  name="key"
+                  onChange={this.handleInputChange}
+                  required={true}
+                  type="text"
+                  value={this.state.key}
+                />
+              </div>
+              <div className="modal-field">
+                <label> {translate('visibility')} </label>
+                <VisibilitySelector
+                  canTurnToPrivate={
+                    organization == null || organization.canUpdateProjectsVisibilityToPrivate
+                  }
+                  className="little-spacer-top"
+                  onChange={this.handleVisibilityChange}
+                  visibility={this.state.visibility}
+                />
+                {organization != null &&
+                !organization.canUpdateProjectsVisibilityToPrivate && (
+                  <div className="spacer-top">
+                    <UpgradeOrganizationBox organization={organization.key} />
+                  </div>
+                )}
+              </div>
+            </div>
 
-              <footer className="modal-foot">
-                {this.state.loading && <i className="spinner spacer-right" />}
-                <button disabled={this.state.loading} id="create-project-submit" type="submit">
-                  {translate('create')}
-                </button>
-                <a href="#" id="create-project-cancel" onClick={this.handleCancelClick}>
-                  {translate('cancel')}
-                </a>
-              </footer>
-            </form>}
+            <footer className="modal-foot">
+              {this.state.loading && <i className="spinner spacer-right" />}
+              <button disabled={this.state.loading} id="create-project-submit" type="submit">
+                {translate('create')}
+              </button>
+              <a href="#" id="create-project-cancel" onClick={this.handleCancelClick}>
+                {translate('cancel')}
+              </a>
+            </footer>
+          </form>
+        )}
       </Modal>
     );
   }

@@ -124,20 +124,19 @@ export default class GlobalNavUser extends React.PureComponent {
         <a className="dropdown-toggle navbar-avatar" href="#" onClick={this.toggleDropdown}>
           <Avatar email={currentUser.email} name={currentUser.name} size={24} />
         </a>
-        {this.state.open &&
+        {this.state.open && (
           <ul className="dropdown-menu dropdown-menu-right">
             <li className="dropdown-item">
               <div className="text-ellipsis text-muted" title={currentUser.name}>
-                <strong>
-                  {currentUser.name}
-                </strong>
+                <strong>{currentUser.name}</strong>
               </div>
-              {currentUser.email != null &&
+              {currentUser.email != null && (
                 <div
                   className="little-spacer-top text-ellipsis text-muted"
                   title={currentUser.email}>
                   {currentUser.email}
-                </div>}
+                </div>
+              )}
             </li>
             <li className="divider" />
             <li>
@@ -146,27 +145,25 @@ export default class GlobalNavUser extends React.PureComponent {
               </Link>
             </li>
             {hasOrganizations && <li role="separator" className="divider" />}
+            {hasOrganizations && (
+              <li className="dropdown-header spacer-left">{translate('my_organizations')}</li>
+            )}
             {hasOrganizations &&
-              <li className="dropdown-header spacer-left">
-                {translate('my_organizations')}
-              </li>}
-            {hasOrganizations &&
-              sortBy(organizations, org => org.name.toLowerCase()).map(organization =>
+              sortBy(organizations, org => org.name.toLowerCase()).map(organization => (
                 <li key={organization.key}>
                   <OrganizationLink organization={organization} onClick={this.closeDropdown}>
-                    <span className="spacer-left">
-                      {organization.name}
-                    </span>
+                    <span className="spacer-left">{organization.name}</span>
                   </OrganizationLink>
                 </li>
-              )}
+              ))}
             {hasOrganizations && <li role="separator" className="divider" />}
             <li>
               <a onClick={this.handleLogout} href="#">
                 {translate('layout.logout')}
               </a>
             </li>
-          </ul>}
+          </ul>
+        )}
       </li>
     );
   }

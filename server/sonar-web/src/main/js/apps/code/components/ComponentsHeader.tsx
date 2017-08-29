@@ -53,11 +53,11 @@ export default function ComponentsHeader({ baseComponent, rootComponent }: Props
       <tr className="code-components-header">
         <th className="thin nowrap">&nbsp;</th>
         <th>&nbsp;</th>
-        {columns.map(column =>
+        {columns.map(column => (
           <th key={column} className="thin nowrap text-right code-components-cell">
             {baseComponent && column}
           </th>
-        )}
+        ))}
       </tr>
     </thead>
   );

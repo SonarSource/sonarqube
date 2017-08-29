@@ -54,36 +54,38 @@ const Meta = ({
 
   return (
     <div className="overview-meta">
-      {hasDescription &&
-        <div className="overview-meta-card overview-meta-description">
-          {description}
-        </div>}
+      {hasDescription && (
+        <div className="overview-meta-card overview-meta-description">{description}</div>
+      )}
 
       <MetaSize branch={branch} component={component} measures={measures} />
 
       {isProject && <MetaTags component={component} onComponentChange={onComponentChange} />}
 
-      {(isProject || isApplication) &&
+      {(isProject || isApplication) && (
         <AnalysesList
           branch={branch}
           project={component.key}
           qualifier={component.qualifier}
           history={history}
           router={router}
-        />}
+        />
+      )}
 
-      {shouldShowQualityGate &&
+      {shouldShowQualityGate && (
         <MetaQualityGate
           gate={qualityGate}
           organization={hasOrganization && component.organization}
-        />}
+        />
+      )}
 
-      {shouldShowQualityProfiles &&
+      {shouldShowQualityProfiles && (
         <MetaQualityProfiles
           component={component}
           customOrganizations={areThereCustomOrganizations}
           profiles={qualityProfiles}
-        />}
+        />
+      )}
 
       {isProject && <MetaLinks component={component} />}
 

@@ -36,11 +36,12 @@ export default class ConditionsAlert extends Component {
     return (
       <div className="big-spacer-bottom">
         {translate('quality_gates.introduction')}
-        {!expanded &&
+        {!expanded && (
           <a className="spacer-left" href="#" onClick={this.handleMoreClick.bind(this)}>
             {translate('more')}
-          </a>}
-        {expanded &&
+          </a>
+        )}
+        {expanded && (
           <div className="spacer-top">
             {translate('quality_gates.health_icons')}
             <ul>
@@ -54,7 +55,8 @@ export default class ConditionsAlert extends Component {
                 <i className="icon-alert-error" /> {translate('alerts.notes.error')}
               </li>
             </ul>
-          </div>}
+          </div>
+        )}
       </div>
     );
   }

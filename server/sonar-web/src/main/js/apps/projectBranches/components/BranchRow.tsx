@@ -98,40 +98,38 @@ export default class BranchRow extends React.PureComponent<Props, State> {
           <BranchStatus branch={branch} />
         </td>
         <td className="thin nowrap text-right">
-          {branch.isMain
-            ? <Tooltip overlay={translate('branches.rename')}>
-                <a
-                  className="js-rename link-no-underline"
-                  href="#"
-                  onClick={this.handleRenameClick}>
-                  <ChangeIcon />
-                </a>
-              </Tooltip>
-            : <Tooltip overlay={translate('branches.delete')}>
-                <a
-                  className="js-delete link-no-underline"
-                  href="#"
-                  onClick={this.handleDeleteClick}>
-                  <DeleteIcon />
-                </a>
-              </Tooltip>}
+          {branch.isMain ? (
+            <Tooltip overlay={translate('branches.rename')}>
+              <a className="js-rename link-no-underline" href="#" onClick={this.handleRenameClick}>
+                <ChangeIcon />
+              </a>
+            </Tooltip>
+          ) : (
+            <Tooltip overlay={translate('branches.delete')}>
+              <a className="js-delete link-no-underline" href="#" onClick={this.handleDeleteClick}>
+                <DeleteIcon />
+              </a>
+            </Tooltip>
+          )}
         </td>
 
-        {this.state.deleting &&
+        {this.state.deleting && (
           <DeleteBranchModal
             branch={branch}
             component={component}
             onClose={this.handleDeletingStop}
             onDelete={this.handleChange}
-          />}
+          />
+        )}
 
-        {this.state.renaming &&
+        {this.state.renaming && (
           <RenameBranchModal
             branch={branch}
             component={component}
             onClose={this.handleRenamingStop}
             onRename={this.handleChange}
-          />}
+          />
+        )}
       </tr>
     );
   }

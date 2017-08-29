@@ -72,7 +72,7 @@ export default class TaskActions extends React.PureComponent {
             <i className="icon-dropdown" />
           </button>
           <ul className="dropdown-menu dropdown-menu-right">
-            {canFilter &&
+            {canFilter && (
               <li>
                 <a className="js-task-filter" href="#" onClick={this.handleFilterClick.bind(this)}>
                   <i className="spacer-right icon-filter icon-gray" />
@@ -81,15 +81,17 @@ export default class TaskActions extends React.PureComponent {
                     task.componentName
                   )}
                 </a>
-              </li>}
-            {canCancel &&
+              </li>
+            )}
+            {canCancel && (
               <li>
                 <a className="js-task-cancel" href="#" onClick={this.handleCancelClick.bind(this)}>
                   <i className="spacer-right icon-delete" />
                   {translate('background_tasks.cancel_task')}
                 </a>
-              </li>}
-            {task.hasScannerContext &&
+              </li>
+            )}
+            {task.hasScannerContext && (
               <li>
                 <a
                   className="js-task-show-scanner-context"
@@ -98,8 +100,9 @@ export default class TaskActions extends React.PureComponent {
                   <i className="spacer-right icon-list icon-gray" />
                   {translate('background_tasks.show_scanner_context')}
                 </a>
-              </li>}
-            {canShowStacktrace &&
+              </li>
+            )}
+            {canShowStacktrace && (
               <li>
                 <a
                   className="js-task-show-stacktrace"
@@ -108,12 +111,14 @@ export default class TaskActions extends React.PureComponent {
                   <i className="spacer-right icon-list icon-red" />
                   {translate('background_tasks.show_stacktrace')}
                 </a>
-              </li>}
+              </li>
+            )}
           </ul>
         </div>
 
-        {this.state.scannerContextOpen &&
-          <ScannerContext onClose={this.closeScannerContext} task={task} />}
+        {this.state.scannerContextOpen && (
+          <ScannerContext onClose={this.closeScannerContext} task={task} />
+        )}
 
         {this.state.stacktraceOpen && <Stacktrace onClose={this.closeStacktrace} task={task} />}
       </td>

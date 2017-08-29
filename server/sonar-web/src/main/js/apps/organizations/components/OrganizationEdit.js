@@ -104,9 +104,7 @@ class OrganizationEdit extends React.PureComponent {
         <Helmet title={title} />
 
         <header className="page-header">
-          <h1 className="page-title">
-            {title}
-          </h1>
+          <h1 className="page-title">{title}</h1>
         </header>
 
         <form onSubmit={this.handleSubmit}>
@@ -130,9 +128,7 @@ class OrganizationEdit extends React.PureComponent {
             </div>
           </div>
           <div className="modal-field">
-            <label htmlFor="organization-avatar">
-              {translate('organization.avatar')}
-            </label>
+            <label htmlFor="organization-avatar">{translate('organization.avatar')}</label>
             <input
               id="organization-avatar"
               name="avatar"
@@ -145,19 +141,18 @@ class OrganizationEdit extends React.PureComponent {
             <div className="modal-field-description">
               {translate('organization.avatar.description')}
             </div>
-            {!!this.state.avatarImage &&
+            {!!this.state.avatarImage && (
               <div className="spacer-top spacer-bottom">
                 <div className="little-spacer-bottom">
                   {translate('organization.avatar.preview')}
                   {':'}
                 </div>
                 <img src={this.state.avatarImage} alt="" height={30} />
-              </div>}
+              </div>
+            )}
           </div>
           <div className="modal-field">
-            <label htmlFor="organization-description">
-              {translate('description')}
-            </label>
+            <label htmlFor="organization-description">{translate('description')}</label>
             <textarea
               id="organization-description"
               name="description"
@@ -172,9 +167,7 @@ class OrganizationEdit extends React.PureComponent {
             </div>
           </div>
           <div className="modal-field">
-            <label htmlFor="organization-url">
-              {translate('organization.url')}
-            </label>
+            <label htmlFor="organization-url">{translate('organization.url')}</label>
             <input
               id="organization-url"
               name="url"

@@ -52,14 +52,10 @@ export default function Step(props /*: Props */) {
       onClick={clickable ? handleClick : undefined}
       role={clickable ? 'button' : undefined}
       tabIndex={clickable ? 0 : undefined}>
-      <div className="onboarding-step-number">
-        {props.stepNumber}
-      </div>
+      <div className="onboarding-step-number">{props.stepNumber}</div>
       {!props.open && props.renderResult()}
       <div className="boxed-group-header">
-        <h2>
-          {props.stepTitle}
-        </h2>
+        <h2>{props.stepTitle}</h2>
       </div>
       {props.open ? props.renderForm() : <div className="boxed-group-inner" />}
     </div>

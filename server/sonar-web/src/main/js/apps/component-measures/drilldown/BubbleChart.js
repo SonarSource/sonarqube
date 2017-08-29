@@ -149,12 +149,10 @@ export default class BubbleChart extends React.PureComponent {
         );
     return (
       <div className="measure-overview-bubble-chart-header">
-        <span className="measure-overview-bubble-chart-title">
-          {title}
-        </span>
+        <span className="measure-overview-bubble-chart-title">{title}</span>
         <span className="measure-overview-bubble-chart-legend">
           <span className="note">
-            {colorsMetric &&
+            {colorsMetric && (
               <span className="spacer-right">
                 {translateWithParameters(
                   'component_measures.legend.color_x',
@@ -165,7 +163,8 @@ export default class BubbleChart extends React.PureComponent {
                       )
                     : getLocalizedMetricName(colorsMetric[0])
                 )}
-              </span>}
+              </span>
+            )}
             {translateWithParameters(
               'component_measures.legend.size_x',
               getLocalizedMetricName(sizeMetric)
@@ -183,11 +182,7 @@ export default class BubbleChart extends React.PureComponent {
     if (description === translatedDescription) {
       return null;
     }
-    return (
-      <div className="measure-overview-bubble-chart-footer">
-        {translatedDescription}
-      </div>
-    );
+    return <div className="measure-overview-bubble-chart-footer">{translatedDescription}</div>;
   }
 
   render() {

@@ -81,9 +81,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
         <div className="modal-head">
-          <h2>
-            {header}
-          </h2>
+          <h2>{header}</h2>
         </div>
 
         <div className="modal-body">

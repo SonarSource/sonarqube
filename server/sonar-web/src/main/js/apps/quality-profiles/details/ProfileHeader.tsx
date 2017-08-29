@@ -49,17 +49,9 @@ export default class ProfileHeader extends React.PureComponent<Props> {
       </span>
     );
     if (isStagnant(profile)) {
-      inner = (
-        <span className="badge badge-normal-size badge-focus">
-          {inner}
-        </span>
-      );
+      inner = <span className="badge badge-normal-size badge-focus">{inner}</span>;
     }
-    return (
-      <li className="small spacer-right">
-        {inner}
-      </li>
-    );
+    return <li className="small spacer-right">{inner}</li>;
   }
 
   renderUsageDate() {
@@ -70,18 +62,10 @@ export default class ProfileHeader extends React.PureComponent<Props> {
       </span>
     );
     if (!profile.lastUsed) {
-      inner = (
-        <span className="badge badge-normal-size badge-focus">
-          {inner}
-        </span>
-      );
+      inner = <span className="badge badge-normal-size badge-focus">{inner}</span>;
     }
 
-    return (
-      <li className="small big-spacer-right">
-        {inner}
-      </li>
-    );
+    return <li className="small big-spacer-right">{inner}</li>;
   }
 
   render() {
@@ -107,9 +91,7 @@ export default class ProfileHeader extends React.PureComponent<Props> {
             language={profile.language}
             name={profile.name}
             organization={organization}>
-            <span>
-              {profile.name}
-            </span>
+            <span>{profile.name}</span>
           </ProfileLink>
           {profile.isBuiltIn && <BuiltInBadge className="spacer-left" tooltip={false} />}
         </h1>
@@ -142,12 +124,13 @@ export default class ProfileHeader extends React.PureComponent<Props> {
           </ul>
         </div>
 
-        {profile.isBuiltIn &&
+        {profile.isBuiltIn && (
           <div className="page-description">
             {translate('quality_profiles.built_in.description.1')}
             <br />
             {translate('quality_profiles.built_in.description.2')}
-          </div>}
+          </div>
+        )}
       </header>
     );
   }

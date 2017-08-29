@@ -92,20 +92,21 @@ export default class ApplicationQualityGate extends React.PureComponent {
           {status != null && <Level level={status} />}
         </h2>
 
-        {projects != null &&
+        {projects != null && (
           <div
             id="overview-quality-gate-conditions-list"
             className="overview-quality-gate-conditions-list clearfix">
             {projects
               .filter(project => project.status !== 'OK')
-              .map(project =>
+              .map(project => (
                 <ApplicationQualityGateProject
                   key={project.key}
                   metrics={metrics}
                   project={project}
                 />
-              )}
-          </div>}
+              ))}
+          </div>
+        )}
       </div>
     );
   }

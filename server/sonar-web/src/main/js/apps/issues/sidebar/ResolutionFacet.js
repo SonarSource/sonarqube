@@ -116,10 +116,7 @@ export default class ResolutionFacet extends React.PureComponent {
           values={this.props.resolutions.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {resolutions.map(this.renderItem)}
-          </FacetItemsList>}
+        {this.props.open && <FacetItemsList>{resolutions.map(this.renderItem)}</FacetItemsList>}
       </FacetBox>
     );
   }

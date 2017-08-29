@@ -140,7 +140,7 @@ export default class GraphsHistory extends React.PureComponent {
     const showAreas = ['coverage', 'duplications'].includes(graph);
     return (
       <div className="project-activity-graphs">
-        {this.props.graphs.map((series, idx) =>
+        {this.props.graphs.map((series, idx) => (
           <GraphHistory
             key={idx}
             events={events}
@@ -159,7 +159,7 @@ export default class GraphsHistory extends React.PureComponent {
             updateSelectedDate={this.props.updateSelectedDate}
             updateTooltip={this.updateTooltip}
           />
-        )}
+        ))}
       </div>
     );
   }

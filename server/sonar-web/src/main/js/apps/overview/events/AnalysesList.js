@@ -86,18 +86,14 @@ export default class AnalysesList extends React.PureComponent {
 
   renderList(analyses /*: Array<AnalysisType> */) {
     if (!analyses.length) {
-      return (
-        <p className="spacer-top note">
-          {translate('no_results')}
-        </p>
-      );
+      return <p className="spacer-top note">{translate('no_results')}</p>;
     }
 
     return (
       <ul className="spacer-top">
-        {analyses.map(analysis =>
+        {analyses.map(analysis => (
           <Analysis key={analysis.key} analysis={analysis} qualifier={this.props.qualifier} />
-        )}
+        ))}
       </ul>
     );
   }
@@ -111,9 +107,7 @@ export default class AnalysesList extends React.PureComponent {
 
     return (
       <div className="overview-meta-card">
-        <h4 className="overview-meta-header">
-          {translate('project_activity.page')}
-        </h4>
+        <h4 className="overview-meta-header">{translate('project_activity.page')}</h4>
 
         <PreviewGraph
           branch={this.props.branch}

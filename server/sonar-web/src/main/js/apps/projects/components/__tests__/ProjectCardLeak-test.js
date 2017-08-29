@@ -60,14 +60,18 @@ it('should display loading', () => {
 it('should display tags', () => {
   const project = { ...PROJECT, tags: ['foo', 'bar'] };
   expect(
-    shallow(<ProjectCardLeak type="leak" project={project} />).find('TagsList').exists()
+    shallow(<ProjectCardLeak type="leak" project={project} />)
+      .find('TagsList')
+      .exists()
   ).toBeTruthy();
 });
 
 it('should private badge', () => {
   const project = { ...PROJECT, visibility: 'private' };
   expect(
-    shallow(<ProjectCardLeak type="leak" project={project} />).find('PrivateBadge').exists()
+    shallow(<ProjectCardLeak type="leak" project={project} />)
+      .find('PrivateBadge')
+      .exists()
   ).toBeTruthy();
 });
 

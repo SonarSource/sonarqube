@@ -142,10 +142,7 @@ export default class LineCode extends React.PureComponent {
         <span href="#" ref={ref}>
           {index + 1}
         </span>
-        {message != null &&
-          <LocationMessage selected={true}>
-            {message}
-          </LocationMessage>}
+        {message != null && <LocationMessage selected={true}>{message}</LocationMessage>}
       </LocationIndex>
     );
   }
@@ -213,12 +210,10 @@ export default class LineCode extends React.PureComponent {
     return (
       <td className={className} data-line-number={line.line}>
         <div className="source-line-code-inner">
-          <pre ref={node => (this.codeNode = node)}>
-            {renderedTokens}
-          </pre>
+          <pre ref={node => (this.codeNode = node)}>{renderedTokens}</pre>
         </div>
         {showIssues &&
-          issues.length > 0 &&
+        issues.length > 0 && (
           <LineIssuesList
             issues={issues}
             onIssueChange={this.props.onIssueChange}
@@ -226,7 +221,8 @@ export default class LineCode extends React.PureComponent {
             onPopupToggle={this.props.onPopupToggle}
             openPopup={this.props.openPopup}
             selectedIssue={selectedIssue}
-          />}
+          />
+        )}
       </td>
     );
   }

@@ -138,13 +138,12 @@ class AboutApp extends React.PureComponent {
       <div id="about-page" className="page page-limited about-page">
         <div className="about-page-entry">
           <div className="about-page-intro">
-            <h1 className="big-spacer-bottom">
-              {translate('layout.sonar.slogan')}
-            </h1>
-            {!this.props.currentUser.isLoggedIn &&
+            <h1 className="big-spacer-bottom">{translate('layout.sonar.slogan')}</h1>
+            {!this.props.currentUser.isLoggedIn && (
               <Link to="/sessions/new" className="button button-active big-spacer-right">
                 {translate('layout.login')}
-              </Link>}
+              </Link>
+            )}
             <a
               className="button"
               href="https://redirect.sonarsource.com/doc/home.html"
@@ -165,11 +164,12 @@ class AboutApp extends React.PureComponent {
         </div>
 
         {customText != null &&
-          customText.value &&
+        customText.value && (
           <div
             className="about-page-section"
             dangerouslySetInnerHTML={{ __html: customText.value }}
-          />}
+          />
+        )}
 
         <AboutLanguages />
 

@@ -75,15 +75,17 @@ export default class ApplicationLeakPeriodLegend extends React.Component {
   };
 
   renderOverlay = () =>
-    this.state.leaks != null
-      ? <ul className="text-left">
-          {this.state.leaks.map(leak =>
-            <li key={leak.project}>
-              {leak.projectName}: <DateTooltipFormatter date={leak.date} />
-            </li>
-          )}
-        </ul>
-      : <i className="spinner spinner-margin" />;
+    this.state.leaks != null ? (
+      <ul className="text-left">
+        {this.state.leaks.map(leak => (
+          <li key={leak.project}>
+            {leak.projectName}: <DateTooltipFormatter date={leak.date} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <i className="spinner spinner-margin" />
+    );
 
   render() {
     return (

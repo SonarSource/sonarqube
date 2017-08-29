@@ -47,31 +47,32 @@ export default function ComponentBreadcrumbs({ branch, component, issue, organiz
 
   return (
     <div className="component-name text-ellipsis">
-      {displayOrganization &&
-        <Organization linkClassName="link-no-underline" organizationKey={issue.organization} />}
+      {displayOrganization && (
+        <Organization linkClassName="link-no-underline" organizationKey={issue.organization} />
+      )}
 
-      {displayProject &&
+      {displayProject && (
         <span title={issue.projectName}>
           <Link to={getProjectUrl(issue.project, branch)} className="link-no-underline">
             {limitComponentName(issue.projectName)}
           </Link>
           <span className="slash-separator" />
-        </span>}
+        </span>
+      )}
 
       {displaySubProject &&
-        issue.subProject != undefined &&
-        issue.subProjectName != undefined &&
+      issue.subProject != undefined &&
+      issue.subProjectName != undefined && (
         <span title={issue.subProjectName}>
           <Link to={getProjectUrl(issue.subProject, branch)} className="link-no-underline">
             {limitComponentName(issue.subProjectName)}
           </Link>
           <span className="slash-separator" />
-        </span>}
+        </span>
+      )}
 
       <Link to={getProjectUrl(issue.component, branch)} className="link-no-underline">
-        <span title={issue.componentLongName}>
-          {collapsePath(issue.componentLongName)}
-        </span>
+        <span title={issue.componentLongName}>{collapsePath(issue.componentLongName)}</span>
       </Link>
     </div>
   );

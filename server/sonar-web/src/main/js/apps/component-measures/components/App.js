@@ -162,7 +162,7 @@ export default class App extends React.PureComponent {
           </div>
         </div>
 
-        {metric != null &&
+        {metric != null && (
           <MeasureContentContainer
             branch={branch && getBranchName(branch)}
             className="layout-page-main"
@@ -176,9 +176,10 @@ export default class App extends React.PureComponent {
             selected={query.selected}
             updateQuery={this.updateQuery}
             view={query.view}
-          />}
+          />
+        )}
         {metric == null &&
-          hasBubbleChart(query.metric) &&
+        hasBubbleChart(query.metric) && (
           <MeasureOverviewContainer
             branch={branch && getBranchName(branch)}
             className="layout-page-main"
@@ -190,7 +191,8 @@ export default class App extends React.PureComponent {
             router={this.props.router}
             selected={query.selected}
             updateQuery={this.updateQuery}
-          />}
+          />
+        )}
       </div>
     );
   }

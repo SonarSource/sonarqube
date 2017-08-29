@@ -62,6 +62,10 @@ export default ModalForm.extend({
 
   addScmAccount() {
     const fields = this.$('[name="scmAccounts"]');
-    fields.first().clone().val('').insertAfter(fields.last());
+    fields
+      .first()
+      .clone()
+      .val('')
+      .insertAfter(fields.last());
   }
 });

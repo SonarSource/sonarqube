@@ -31,9 +31,12 @@ export default ModalForm.extend({
     const name = this.$('#create-link-name').val();
     const url = this.$('#create-link-url').val();
 
-    this.options.onCreate(name, url).then(() => this.destroy()).catch(e => {
-      parseError(e).then(msg => this.showSingleError(msg));
-      this.enableForm();
-    });
+    this.options
+      .onCreate(name, url)
+      .then(() => this.destroy())
+      .catch(e => {
+        parseError(e).then(msg => this.showSingleError(msg));
+        this.enableForm();
+      });
   }
 });

@@ -26,7 +26,7 @@ import { RATING_COLORS } from '../../helpers/constants';
 export default function ColorRatingsLegend({ className } /*: { className?: string } */) {
   return (
     <div className={classNames('color-box-legend', className)}>
-      {[1, 2, 3, 4, 5].map(rating =>
+      {[1, 2, 3, 4, 5].map(rating => (
         <div key={rating}>
           <span
             className="color-box-legend-rect"
@@ -38,7 +38,7 @@ export default function ColorRatingsLegend({ className } /*: { className?: strin
           </span>
           {formatMeasure(rating, 'RATING')}
         </div>
-      )}
+      ))}
     </div>
   );
 }

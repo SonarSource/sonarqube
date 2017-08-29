@@ -49,9 +49,9 @@ export default class Visualizations extends React.PureComponent {
     };
     const Component = visualizationToComponent[this.props.visualization];
 
-    return Component
-      ? <Component displayOrganizations={this.props.displayOrganizations} projects={projects} />
-      : null;
+    return Component ? (
+      <Component displayOrganizations={this.props.displayOrganizations} projects={projects} />
+    ) : null;
   }
 
   renderFooter() {
@@ -61,10 +61,8 @@ export default class Visualizations extends React.PureComponent {
 
     return (
       <footer className="projects-visualizations-footer">
-        <p>
-          {translate('projects.visualization', this.props.visualization, 'description')}
-        </p>
-        {limitReached &&
+        <p>{translate('projects.visualization', this.props.visualization, 'description')}</p>
+        {limitReached && (
           <p className="note spacer-top">
             {translateWithParameters(
               'projects.limited_set_of_projects',
@@ -72,7 +70,8 @@ export default class Visualizations extends React.PureComponent {
               projects.length,
               localizeSorting(sort)
             )}
-          </p>}
+          </p>
+        )}
       </footer>
     );
   }

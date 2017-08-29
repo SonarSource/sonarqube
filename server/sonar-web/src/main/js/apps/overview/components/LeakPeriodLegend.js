@@ -85,7 +85,7 @@ export default function LeakPeriodLegend({ period } /*: { period: Period } */) {
   const leakPeriodDate = getPeriodDate(period);
   const tooltip = (
     <DateFormatter date={leakPeriodDate} long={true}>
-      {formattedLeakPeriodDate =>
+      {formattedLeakPeriodDate => (
         <span>
           {translateWithParameters(
             ['date'].includes(period.mode)
@@ -93,7 +93,8 @@ export default function LeakPeriodLegend({ period } /*: { period: Period } */) {
               : 'overview.started_on_x',
             formattedLeakPeriodDate
           )}
-        </span>}
+        </span>
+      )}
     </DateFormatter>
   );
   return (
@@ -102,13 +103,14 @@ export default function LeakPeriodLegend({ period } /*: { period: Period } */) {
         {translateWithParameters('overview.leak_period_x', leakPeriodLabel)}
         <br />
         <DateFromNow date={leakPeriodDate}>
-          {fromNow =>
+          {fromNow => (
             <span className="note">
               {translateWithParameters(
                 ['date'].includes(period.mode) ? 'overview.last_analysis_x' : 'overview.started_x',
                 fromNow
               )}
-            </span>}
+            </span>
+          )}
         </DateFromNow>
       </div>
     </Tooltip>

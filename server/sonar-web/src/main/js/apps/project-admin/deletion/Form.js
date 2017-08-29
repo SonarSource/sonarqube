@@ -77,7 +77,7 @@ export default class Form extends React.PureComponent {
           {translate('delete')}
         </button>
 
-        {this.state.modalOpen &&
+        {this.state.modalOpen && (
           <Modal
             isOpen={true}
             contentLabel="project deletion"
@@ -86,9 +86,7 @@ export default class Form extends React.PureComponent {
             onRequestClose={this.closeModal}>
             <form onSubmit={this.handleSubmit}>
               <div className="modal-head">
-                <h2>
-                  {translate('qualifiers.delete.TRK')}
-                </h2>
+                <h2>{translate('qualifiers.delete.TRK')}</h2>
               </div>
               <div className="modal-body">
                 <div className="js-modal-messages" />
@@ -110,7 +108,8 @@ export default class Form extends React.PureComponent {
                 </a>
               </div>
             </form>
-          </Modal>}
+          </Modal>
+        )}
       </div>
     );
   }

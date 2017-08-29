@@ -92,12 +92,8 @@ class MetaQualityProfiles extends React.PureComponent {
 
     const inner = (
       <div className="text-ellipsis">
-        <span className="note spacer-right">
-          {'(' + languageName + ')'}
-        </span>
-        <Link to={path}>
-          {profile.name}
-        </Link>
+        <span className="note spacer-right">{'(' + languageName + ')'}</span>
+        <Link to={path}>{profile.name}</Link>
       </div>
     );
 
@@ -107,18 +103,12 @@ class MetaQualityProfiles extends React.PureComponent {
       const tooltip = translateWithParameters('overview.deprecated_profile', count);
       return (
         <Tooltip key={profile.key} overlay={tooltip}>
-          <li className="overview-deprecated-rules">
-            {inner}
-          </li>
+          <li className="overview-deprecated-rules">{inner}</li>
         </Tooltip>
       );
     }
 
-    return (
-      <li key={profile.key}>
-        {inner}
-      </li>
-    );
+    return <li key={profile.key}>{inner}</li>;
   }
 
   render() {
@@ -126,9 +116,7 @@ class MetaQualityProfiles extends React.PureComponent {
 
     return (
       <div className="overview-meta-card">
-        <h4 className="overview-meta-header">
-          {translate('overview.quality_profiles')}
-        </h4>
+        <h4 className="overview-meta-header">{translate('overview.quality_profiles')}</h4>
 
         <ul className="overview-meta-list">
           {profiles.map(profile => this.renderProfile(profile))}

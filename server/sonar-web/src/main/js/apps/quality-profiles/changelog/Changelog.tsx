@@ -52,17 +52,15 @@ export default function Changelog(props: Props) {
 
     return (
       <tr key={index} className={className}>
-        <td className="thin nowrap">
-          {!isBulkChange && <DateTimeFormatter date={event.date} />}
-        </td>
+        <td className="thin nowrap">{!isBulkChange && <DateTimeFormatter date={event.date} />}</td>
 
         <td className="thin nowrap">
           {!isBulkChange &&
-            (event.authorName
-              ? <span>
-                  {event.authorName}
-                </span>
-              : <span className="note">System</span>)}
+            (event.authorName ? (
+              <span>{event.authorName}</span>
+            ) : (
+              <span className="note">System</span>
+            ))}
         </td>
 
         <td className="thin nowrap">
@@ -75,9 +73,7 @@ export default function Changelog(props: Props) {
           </Link>
         </td>
 
-        <td className="thin nowrap">
-          {event.params && <ChangesList changes={event.params} />}
-        </td>
+        <td className="thin nowrap">{event.params && <ChangesList changes={event.params} />}</td>
       </tr>
     );
   });
@@ -89,23 +85,13 @@ export default function Changelog(props: Props) {
           <th className="thin nowrap">
             {translate('date')} <i className="icon-sort-desc" />
           </th>
-          <th className="thin nowrap">
-            {translate('user')}
-          </th>
-          <th className="thin nowrap">
-            {translate('action')}
-          </th>
-          <th>
-            {translate('rule')}
-          </th>
-          <th className="thin nowrap">
-            {translate('parameters')}
-          </th>
+          <th className="thin nowrap">{translate('user')}</th>
+          <th className="thin nowrap">{translate('action')}</th>
+          <th>{translate('rule')}</th>
+          <th className="thin nowrap">{translate('parameters')}</th>
         </tr>
       </thead>
-      <tbody>
-        {rows}
-      </tbody>
+      <tbody>{rows}</tbody>
     </table>
   );
 }

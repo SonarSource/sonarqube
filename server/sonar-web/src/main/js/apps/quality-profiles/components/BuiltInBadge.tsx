@@ -41,9 +41,5 @@ export default function BuiltInBadge({ className, tooltip = true }: Props) {
     </span>
   );
 
-  return tooltip
-    ? <Tooltip overlay={overlay}>
-        {badge}
-      </Tooltip>
-    : badge;
+  return tooltip ? <Tooltip overlay={overlay}>{badge}</Tooltip> : badge;
 }

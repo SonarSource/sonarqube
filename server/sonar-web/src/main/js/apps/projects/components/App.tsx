@@ -35,10 +35,6 @@ export default class App extends React.PureComponent {
   }
 
   render() {
-    return (
-      <div id="projects-page">
-        {this.props.children}
-      </div>
-    );
+    return <div id="projects-page">{this.props.children}</div>;
   }
 }

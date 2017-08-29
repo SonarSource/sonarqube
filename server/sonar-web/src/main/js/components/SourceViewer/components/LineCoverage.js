@@ -54,12 +54,12 @@ export default class LineCoverage extends React.PureComponent {
       </td>
     );
 
-    return line.coverageStatus != null
-      ? <Tooltip
-          overlay={translate('source_viewer.tooltip', line.coverageStatus)}
-          placement="right">
-          {cell}
-        </Tooltip>
-      : cell;
+    return line.coverageStatus != null ? (
+      <Tooltip overlay={translate('source_viewer.tooltip', line.coverageStatus)} placement="right">
+        {cell}
+      </Tooltip>
+    ) : (
+      cell
+    );
   }
 }

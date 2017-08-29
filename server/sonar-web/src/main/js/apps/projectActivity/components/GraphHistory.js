@@ -81,12 +81,14 @@ export default class GraphHistory extends React.PureComponent {
 
     return (
       <div className="project-activity-graph-container">
-        {this.props.isCustom
-          ? <GraphsLegendCustom series={series} removeMetric={this.props.removeCustomMetric} />
-          : <GraphsLegendStatic series={series} />}
+        {this.props.isCustom ? (
+          <GraphsLegendCustom series={series} removeMetric={this.props.removeCustomMetric} />
+        ) : (
+          <GraphsLegendStatic series={series} />
+        )}
         <div className="project-activity-graph">
           <AutoSizer>
-            {({ height, width }) =>
+            {({ height, width }) => (
               <div>
                 <AdvancedTimeline
                   endDate={this.props.graphEndDate}
@@ -105,7 +107,7 @@ export default class GraphHistory extends React.PureComponent {
                   updateZoom={this.props.updateGraphZoom}
                 />
                 {selectedDate != null &&
-                  tooltipXPos != null &&
+                tooltipXPos != null && (
                   <GraphsTooltips
                     events={this.props.events}
                     formatValue={this.formatTooltipValue}
@@ -116,8 +118,10 @@ export default class GraphHistory extends React.PureComponent {
                     series={series}
                     tooltipIdx={tooltipIdx}
                     tooltipPos={tooltipXPos}
-                  />}
-              </div>}
+                  />
+                )}
+              </div>
+            )}
           </AutoSizer>
         </div>
       </div>

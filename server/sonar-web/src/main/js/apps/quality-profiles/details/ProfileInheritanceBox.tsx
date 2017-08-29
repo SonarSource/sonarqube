@@ -48,34 +48,36 @@ export default function ProfileInheritanceBox({ displayLink = true, ...props }: 
     <tr className={className}>
       <td>
         <div style={{ paddingLeft: offset }}>
-          {displayLink
-            ? <ProfileLink
-                language={props.language}
-                name={profile.name}
-                organization={props.organization}>
-                {profile.name}
-              </ProfileLink>
-            : profile.name}
+          {displayLink ? (
+            <ProfileLink
+              language={props.language}
+              name={profile.name}
+              organization={props.organization}>
+              {profile.name}
+            </ProfileLink>
+          ) : (
+            profile.name
+          )}
           {profile.isBuiltIn && <BuiltInBadge className="spacer-left" />}
-          {extendsBuiltIn &&
+          {extendsBuiltIn && (
             <Tooltip overlay={translate('quality_profiles.extends_built_in')}>
               <i className="icon-help spacer-left" />
-            </Tooltip>}
+            </Tooltip>
+          )}
         </div>
       </td>
 
-      <td>
-        {translateWithParameters('quality_profile.x_active_rules', profile.activeRuleCount)}
-      </td>
+      <td>{translateWithParameters('quality_profile.x_active_rules', profile.activeRuleCount)}</td>
 
       <td>
-        {profile.overridingRuleCount != null &&
+        {profile.overridingRuleCount != null && (
           <p>
             {translateWithParameters(
               'quality_profiles.x_overridden_rules',
               profile.overridingRuleCount
             )}
-          </p>}
+          </p>
+        )}
       </td>
     </tr>
   );

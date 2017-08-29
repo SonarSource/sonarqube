@@ -80,7 +80,9 @@ export default class TreeMap extends React.PureComponent {
       .sum(d => d.size)
       .sort((a, b) => b.value - a.value);
 
-    const treemap = d3Treemap().round(true).size([width, height]);
+    const treemap = d3Treemap()
+      .round(true)
+      .size([width, height]);
 
     const nodes = treemap(hierarchy).leaves();
     const prefix = this.mostCommitPrefix(items.map(item => item.label));
@@ -88,7 +90,7 @@ export default class TreeMap extends React.PureComponent {
     return (
       <div className="sonar-d3">
         <div className="treemap-container" style={{ width, height }}>
-          {nodes.map(node =>
+          {nodes.map(node => (
             <TreeMapRect
               key={node.data.key}
               x={node.x0}
@@ -105,7 +107,7 @@ export default class TreeMap extends React.PureComponent {
               onClick={this.props.onRectangleClick}
               placement={node.x0 === 0 || node.x1 < halfWidth ? 'right' : 'left'}
             />
-          )}
+          ))}
         </div>
       </div>
     );

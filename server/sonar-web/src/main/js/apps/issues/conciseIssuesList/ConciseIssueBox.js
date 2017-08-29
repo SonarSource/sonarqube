@@ -104,14 +104,15 @@ export default class ConciseIssueBox extends React.PureComponent {
             selectedFlowIndex={this.props.selectedFlowIndex}
           />
         </div>
-        {selected &&
+        {selected && (
           <ConciseIssueLocationsNavigator
             issue={issue}
             onLocationSelect={this.props.onLocationSelect}
             scroll={this.props.scroll}
             selectedFlowIndex={this.props.selectedFlowIndex}
             selectedLocationIndex={this.props.selectedLocationIndex}
-          />}
+          />
+        )}
       </div>
     );
   }

@@ -66,8 +66,9 @@ export default class PageActions extends React.PureComponent {
           <DeferredSpinner className="issues-main-header-spinner" loading={this.props.loading}>
             <ReloadButton onClick={this.props.onReload} />
           </DeferredSpinner>
-          {paging != null &&
-            <IssuesCounter className="spacer-left" current={selectedIndex} total={paging.total} />}
+          {paging != null && (
+            <IssuesCounter className="spacer-left" current={selectedIndex} total={paging.total} />
+          )}
         </div>
       </div>
     );

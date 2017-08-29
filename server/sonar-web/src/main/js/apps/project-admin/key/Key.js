@@ -94,12 +94,13 @@ class Key extends React.PureComponent {
 
         {modules == null && <i className="spinner" />}
 
-        {noModules &&
+        {noModules && (
           <div>
             <UpdateForm component={component} onKeyChange={this.handleChangeKey.bind(this)} />
-          </div>}
+          </div>
+        )}
 
-        {hasModules &&
+        {hasModules && (
           <div>
             <div className="big-spacer-bottom">
               <ul className="tabs">
@@ -126,15 +127,17 @@ class Key extends React.PureComponent {
 
             {tab === 'bulk' && <BulkUpdate component={component} />}
 
-            {tab === 'fine' &&
+            {tab === 'fine' && (
               <FineGrainedUpdate
                 component={component}
                 modules={modules}
                 onKeyChange={this.handleChangeKey.bind(this)}
                 onSuccess={this.props.closeAllGlobalMessages}
                 onError={this.props.addGlobalErrorMessage}
-              />}
-          </div>}
+              />
+            )}
+          </div>
+        )}
       </div>
     );
   }

@@ -35,9 +35,7 @@ export default function EmptyOverview({ component } /*: Props */) {
 
   return (
     <div className="page page-limited">
-      <div className="alert alert-warning">
-        {translate('provisioning.no_analysis')}
-      </div>
+      <div className="alert alert-warning">{translate('provisioning.no_analysis')}</div>
 
       <div className="big-spacer-top">
         {head}
@@ -50,12 +48,8 @@ export default function EmptyOverview({ component } /*: Props */) {
       </div>
 
       <div className="big-spacer-top">
-        <h4>
-          {translate('key')}
-        </h4>
-        <code>
-          {component.key}
-        </code>
+        <h4>{translate('key')}</h4>
+        <code>{component.key}</code>
       </div>
     </div>
   );

@@ -126,12 +126,13 @@ export default class ListView extends React.PureComponent {
           selectedComponent={this.props.selectedKey}
         />
         {this.props.paging &&
-          this.props.components.length > 0 &&
+        this.props.components.length > 0 && (
           <ListFooter
             count={this.props.components.length}
             total={this.props.paging.total}
             loadMore={this.props.fetchMore}
-          />}
+          />
+        )}
       </div>
     );
   }

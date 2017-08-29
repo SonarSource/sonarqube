@@ -66,13 +66,15 @@ class QualityProfiles extends React.PureComponent {
 
         <Header />
 
-        {profiles.length > 0
-          ? <Table
-              allProfiles={allProfiles}
-              profiles={profiles}
-              onChangeProfile={this.handleChangeProfile}
-            />
-          : <i className="spinner" />}
+        {profiles.length > 0 ? (
+          <Table
+            allProfiles={allProfiles}
+            profiles={profiles}
+            onChangeProfile={this.handleChangeProfile}
+          />
+        ) : (
+          <i className="spinner" />
+        )}
       </div>
     );
   }

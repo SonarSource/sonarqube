@@ -40,16 +40,15 @@ export default class FiltersHeader extends React.PureComponent {
   render() {
     return (
       <div className="issues-filters-header">
-        {this.props.displayReset &&
+        {this.props.displayReset && (
           <div className="pull-right">
             <button className="button-red" onClick={this.handleResetClick}>
               {translate('clear_all_filters')}
             </button>
-          </div>}
+          </div>
+        )}
 
-        <h3>
-          {translate('filters')}
-        </h3>
+        <h3>{translate('filters')}</h3>
       </div>
     );
   }

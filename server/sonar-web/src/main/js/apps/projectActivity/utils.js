@@ -157,7 +157,9 @@ export function getAnalysesByVersionByDay(analyses /*: Array<Analysis> */, query
       acc.push(currentVersion);
     }
 
-    const day = startOfDay(parseDate(analysis.date)).getTime().toString();
+    const day = startOfDay(parseDate(analysis.date))
+      .getTime()
+      .toString();
 
     let matchFilters = true;
     if (query.category || query.from || query.to) {

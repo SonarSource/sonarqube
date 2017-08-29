@@ -37,10 +37,7 @@ export default function Unauthorized(props: Props) {
         {"You're not authorized to access this page. Please contact the administrator."}
       </p>
 
-      {!!message &&
-        <p className="spacer-top">
-          Reason : {message}
-        </p>}
+      {!!message && <p className="spacer-top">Reason : {message}</p>}
 
       <div className="big-spacer-top">
         <Link to="/">Home</Link>

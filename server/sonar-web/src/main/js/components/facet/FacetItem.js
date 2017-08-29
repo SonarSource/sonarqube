@@ -52,24 +52,16 @@ export default class FacetItem extends React.PureComponent {
       'search-navigator-facet-half': this.props.halfWidth
     });
 
-    return this.props.disabled
-      ? <span className={className}>
-          <span className="facet-name">
-            {this.props.name}
-          </span>
-          {this.props.stat != null &&
-            <span className="facet-stat">
-              {this.props.stat}
-            </span>}
-        </span>
-      : <a className={className} href="#" onClick={this.handleClick}>
-          <span className="facet-name">
-            {this.props.name}
-          </span>
-          {this.props.stat != null &&
-            <span className="facet-stat">
-              {this.props.stat}
-            </span>}
-        </a>;
+    return this.props.disabled ? (
+      <span className={className}>
+        <span className="facet-name">{this.props.name}</span>
+        {this.props.stat != null && <span className="facet-stat">{this.props.stat}</span>}
+      </span>
+    ) : (
+      <a className={className} href="#" onClick={this.handleClick}>
+        <span className="facet-name">{this.props.name}</span>
+        {this.props.stat != null && <span className="facet-stat">{this.props.stat}</span>}
+      </a>
+    );
   }
 }

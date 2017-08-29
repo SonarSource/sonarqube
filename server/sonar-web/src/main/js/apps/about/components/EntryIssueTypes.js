@@ -42,7 +42,7 @@ export default function EntryIssueTypes(
   return (
     <div className="about-page-projects">
       {loading && <i className="spinner" />}
-      {!loading &&
+      {!loading && (
         <table className="about-page-issue-types">
           <tbody>
             <tr>
@@ -95,7 +95,8 @@ export default function EntryIssueTypes(
               </td>
             </tr>
           </tbody>
-        </table>}
+        </table>
+      )}
     </div>
   );
 }

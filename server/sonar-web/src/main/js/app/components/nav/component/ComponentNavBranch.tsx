@@ -115,26 +115,26 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   };
 
   renderDropdown = () => {
-    return this.state.dropdownOpen
-      ? <ComponentNavBranchesMenu
-          branches={this.props.branches}
-          currentBranch={this.props.currentBranch}
-          onClose={this.closeDropdown}
-          project={this.props.project}
-        />
-      : null;
+    return this.state.dropdownOpen ? (
+      <ComponentNavBranchesMenu
+        branches={this.props.branches}
+        currentBranch={this.props.currentBranch}
+        onClose={this.closeDropdown}
+        project={this.props.project}
+      />
+    ) : null;
   };
 
   renderMergeBranch = () => {
     const { currentBranch } = this.props;
-    return isShortLivingBranch(currentBranch) && !currentBranch.isOrphan
-      ? <span className="note big-spacer-left text-lowercase">
-          {translate('from')} <strong>{currentBranch.mergeBranch}</strong>
-        </span>
-      : null;
+    return isShortLivingBranch(currentBranch) && !currentBranch.isOrphan ? (
+      <span className="note big-spacer-left text-lowercase">
+        {translate('from')} <strong>{currentBranch.mergeBranch}</strong>
+      </span>
+    ) : null;
   };
 
-  renderSingleBranchPopup = () =>
+  renderSingleBranchPopup = () => (
     <div className="display-inline-block spacer-left">
       <a className="link-no-underline" href="#" onClick={this.handleSingleBranchClick}>
         <HelpIcon className="" fill="#cdcdcd" />
@@ -145,9 +145,10 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
         popup={<SingleBranchHelperPopup />}
         togglePopup={this.toggleSingleBranchPopup}
       />
-    </div>;
+    </div>
+  );
 
-  renderNoBranchSupportPopup = () =>
+  renderNoBranchSupportPopup = () => (
     <div className="display-inline-block spacer-left">
       <a className="link-no-underline" href="#" onClick={this.handleNoBranchSupportClick}>
         <HelpIcon className="" fill="#cdcdcd" />
@@ -158,7 +159,8 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
         popup={<NoBranchSupportPopup />}
         togglePopup={this.toggleNoBranchSupportPopup}
       />
-    </div>;
+    </div>
+  );
 
   render() {
     const { branches, currentBranch } = this.props;
@@ -167,9 +169,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
       return (
         <div className="navbar-context-branches">
           <BranchIcon branch={currentBranch} className="little-spacer-right" color="#cdcdcd" />
-          <span className="note">
-            {currentBranch.name}
-          </span>
+          <span className="note">{currentBranch.name}</span>
           {this.renderNoBranchSupportPopup()}
         </div>
       );
@@ -179,9 +179,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
       return (
         <div className="navbar-context-branches">
           <BranchIcon branch={currentBranch} className="little-spacer-right" color="#cdcdcd" />
-          <span className="note">
-            {currentBranch.name}
-          </span>
+          <span className="note">{currentBranch.name}</span>
           {this.renderSingleBranchPopup()}
         </div>
       );

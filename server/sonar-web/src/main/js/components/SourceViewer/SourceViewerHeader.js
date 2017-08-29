@@ -96,18 +96,20 @@ export default class SourceViewerHeader extends React.PureComponent {
               </Link>
             </div>
 
-            {subProject != null &&
+            {subProject != null && (
               <div className="component-name-parent">
                 <Link to={getProjectUrl(subProject, this.props.branch)} className="link-with-icon">
                   <QualifierIcon qualifier="BRC" /> <span>{subProjectName}</span>
                 </Link>
-              </div>}
+              </div>
+            )}
 
             <div className="component-name-path">
               <QualifierIcon qualifier={q} /> <span>{collapsedDirFromPath(path)}</span>
               <span className="component-name-file">{fileFromPath(path)}</span>
-              {this.props.component.canMarkAsFavorite &&
-                <FavoriteContainer className="component-name-favorite" componentKey={key} />}
+              {this.props.component.canMarkAsFavorite && (
+                <FavoriteContainer className="component-name-favorite" componentKey={key} />
+              )}
             </div>
           </div>
         </div>
@@ -135,12 +137,13 @@ export default class SourceViewerHeader extends React.PureComponent {
                 {translate('component_viewer.new_window')}
               </Link>
             </li>
-            {!workspace &&
+            {!workspace && (
               <li>
                 <a className="js-workspace" href="#" onClick={this.openInWorkspace}>
                   {translate('component_viewer.open_in_workspace')}
                 </a>
-              </li>}
+              </li>
+            )}
             <li>
               <a className="js-raw-source" href={rawSourcesLink} target="_blank">
                 {translate('component_viewer.show_raw_source')}
@@ -150,7 +153,7 @@ export default class SourceViewerHeader extends React.PureComponent {
         </div>
 
         <div className="source-viewer-header-measures">
-          {isUnitTest &&
+          {isUnitTest && (
             <div className="source-viewer-header-measure">
               <span className="source-viewer-header-measure-value">
                 {formatMeasure(measures.tests, 'SHORT_INT')}
@@ -158,9 +161,10 @@ export default class SourceViewerHeader extends React.PureComponent {
               <span className="source-viewer-header-measure-label">
                 {translate('metric.tests.name')}
               </span>
-            </div>}
+            </div>
+          )}
 
-          {!isUnitTest &&
+          {!isUnitTest && (
             <div className="source-viewer-header-measure">
               <span className="source-viewer-header-measure-value">
                 {formatMeasure(measures.lines, 'SHORT_INT')}
@@ -168,7 +172,8 @@ export default class SourceViewerHeader extends React.PureComponent {
               <span className="source-viewer-header-measure-label">
                 {translate('metric.lines.name')}
               </span>
-            </div>}
+            </div>
+          )}
 
           <div className="source-viewer-header-measure">
             <span className="source-viewer-header-measure-value">
@@ -189,7 +194,7 @@ export default class SourceViewerHeader extends React.PureComponent {
             </span>
           </div>
 
-          {measures.coverage != null &&
+          {measures.coverage != null && (
             <div className="source-viewer-header-measure">
               <span className="source-viewer-header-measure-value">
                 {formatMeasure(measures.coverage, 'PERCENT')}
@@ -197,9 +202,10 @@ export default class SourceViewerHeader extends React.PureComponent {
               <span className="source-viewer-header-measure-label">
                 {translate('metric.coverage.name')}
               </span>
-            </div>}
+            </div>
+          )}
 
-          {measures.duplicationDensity != null &&
+          {measures.duplicationDensity != null && (
             <div className="source-viewer-header-measure">
               <span className="source-viewer-header-measure-value">
                 {formatMeasure(measures.duplicationDensity, 'PERCENT')}
@@ -207,7 +213,8 @@ export default class SourceViewerHeader extends React.PureComponent {
               <span className="source-viewer-header-measure-label">
                 {translate('duplications')}
               </span>
-            </div>}
+            </div>
+          )}
         </div>
       </div>
     );

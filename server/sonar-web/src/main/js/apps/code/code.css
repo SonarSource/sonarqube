@@ -17,7 +17,7 @@
   padding-left: 10px;
   color: #777;
   font-size: 11px;
-  content: ">";
+  content: '>';
 }
 
 .code-breadcrumbs > li:last-child::after {

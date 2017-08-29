@@ -352,7 +352,7 @@ export default class App extends React.PureComponent {
           loadHolders={this.loadHolders}
         />
         <PageError />
-        {this.props.component.qualifier === 'TRK' &&
+        {this.props.component.qualifier === 'TRK' && (
           <div>
             <VisibilitySelector
               canTurnToPrivate={canTurnToPrivate}
@@ -360,15 +360,18 @@ export default class App extends React.PureComponent {
               onChange={this.handleVisibilityChange}
               visibility={this.props.component.visibility}
             />
-            {!canTurnToPrivate &&
-              <UpgradeOrganizationBox organization={this.props.component.organization} />}
-            {this.state.disclaimer &&
+            {!canTurnToPrivate && (
+              <UpgradeOrganizationBox organization={this.props.component.organization} />
+            )}
+            {this.state.disclaimer && (
               <PublicProjectDisclaimer
                 component={this.props.component}
                 onClose={this.closeDisclaimer}
                 onConfirm={this.turnProjectToPublic}
-              />}
-          </div>}
+              />
+            )}
+          </div>
+        )}
         <AllHoldersList
           component={this.props.component}
           filter={this.state.filter}

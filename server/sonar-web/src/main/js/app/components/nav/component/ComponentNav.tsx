@@ -99,14 +99,15 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
           breadcrumbs={this.props.component.breadcrumbs}
         />
 
-        {this.props.currentBranch &&
+        {this.props.currentBranch && (
           <ComponentNavBranch
             branches={this.props.branches}
             currentBranch={this.props.currentBranch}
             // to close dropdown on any location change
             location={this.props.location}
             project={this.props.component}
-          />}
+          />
+        )}
 
         <ComponentNavMeta
           branch={this.props.currentBranch}

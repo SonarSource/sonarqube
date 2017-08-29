@@ -113,48 +113,49 @@ export default class TokenStep extends React.PureComponent {
 
     return (
       <div className="boxed-group-inner">
-        {token != null
-          ? <form onSubmit={this.handleTokenRevoke}>
-              <span className="text-middle">
-                {tokenName}
-                {': '}
-              </span>
-              <strong className="spacer-right text-middle">
-                {token}
-              </strong>
-              {loading
-                ? <i className="spinner text-middle" />
-                : <button className="button-clean text-middle" onClick={this.handleTokenRevoke}>
-                    <CloseIcon className="icon-red" />
-                  </button>}
-            </form>
-          : <form onSubmit={this.handleTokenGenerate}>
-              <input
-                autoFocus={true}
-                className="input-large spacer-right text-middle"
-                onChange={this.handleTokenNameChange}
-                placeholder={translate('onboarding.token.placeholder')}
-                required={true}
-                type="text"
-                value={tokenName || ''}
-              />
-              {loading
-                ? <i className="spinner text-middle" />
-                : <button className="text-middle">
-                    {translate('onboarding.token.generate')}
-                  </button>}
-            </form>}
+        {token != null ? (
+          <form onSubmit={this.handleTokenRevoke}>
+            <span className="text-middle">
+              {tokenName}
+              {': '}
+            </span>
+            <strong className="spacer-right text-middle">{token}</strong>
+            {loading ? (
+              <i className="spinner text-middle" />
+            ) : (
+              <button className="button-clean text-middle" onClick={this.handleTokenRevoke}>
+                <CloseIcon className="icon-red" />
+              </button>
+            )}
+          </form>
+        ) : (
+          <form onSubmit={this.handleTokenGenerate}>
+            <input
+              autoFocus={true}
+              className="input-large spacer-right text-middle"
+              onChange={this.handleTokenNameChange}
+              placeholder={translate('onboarding.token.placeholder')}
+              required={true}
+              type="text"
+              value={tokenName || ''}
+            />
+            {loading ? (
+              <i className="spinner text-middle" />
+            ) : (
+              <button className="text-middle">{translate('onboarding.token.generate')}</button>
+            )}
+          </form>
+        )}
 
-        <div className="note big-spacer-top width-50">
-          {translate('onboarding.token.text')}
-        </div>
+        <div className="note big-spacer-top width-50">{translate('onboarding.token.text')}</div>
 
-        {token != null &&
+        {token != null && (
           <div className="big-spacer-top">
             <button className="js-continue" onClick={this.handleContinueClick}>
               {translate('continue')}
             </button>
-          </div>}
+          </div>
+        )}
       </div>
     );
   };
@@ -171,9 +172,7 @@ export default class TokenStep extends React.PureComponent {
         <i className="icon-check spacer-right" />
         {tokenName}
         {': '}
-        <strong>
-          {token}
-        </strong>
+        <strong>{token}</strong>
       </div>
     );
   };

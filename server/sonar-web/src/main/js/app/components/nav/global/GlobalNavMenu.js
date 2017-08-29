@@ -123,9 +123,7 @@ export default class GlobalNavMenu extends React.PureComponent {
   renderGlobalPageLink = ({ key, name }) => {
     return (
       <li key={key}>
-        <Link to={`/extension/${key}`}>
-          {name}
-        </Link>
+        <Link to={`/extension/${key}`}>{name}</Link>
       </li>
     );
   };
@@ -142,9 +140,7 @@ export default class GlobalNavMenu extends React.PureComponent {
           {translate('more')}&nbsp;
           <span className="icon-dropdown" />
         </a>
-        <ul className="dropdown-menu">
-          {withoutPortfolios.map(this.renderGlobalPageLink)}
-        </ul>
+        <ul className="dropdown-menu">{withoutPortfolios.map(this.renderGlobalPageLink)}</ul>
       </li>
     );
   }

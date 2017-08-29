@@ -27,9 +27,5 @@ type Props = {|
 */
 
 export default function FacetItemsList(props /*: Props */) {
-  return (
-    <div className="search-navigator-facet-list">
-      {props.children}
-    </div>
-  );
+  return <div className="search-navigator-facet-list">{props.children}</div>;
 }

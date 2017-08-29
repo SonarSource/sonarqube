@@ -84,7 +84,7 @@ export default class Action extends React.PureComponent<Props, State> {
     if (action.params || action.hasResponseExample || action.changelog.length > 0) {
       return (
         <ul className="web-api-action-actions tabs">
-          {action.params &&
+          {action.params && (
             <li>
               <a
                 className={classNames({ selected: showParams })}
@@ -92,9 +92,10 @@ export default class Action extends React.PureComponent<Props, State> {
                 onClick={this.handleShowParamsClick}>
                 {translate('api_documentation.parameters')}
               </a>
-            </li>}
+            </li>
+          )}
 
-          {action.hasResponseExample &&
+          {action.hasResponseExample && (
             <li>
               <a
                 className={classNames({ selected: showResponse })}
@@ -102,9 +103,10 @@ export default class Action extends React.PureComponent<Props, State> {
                 onClick={this.handleShowResponseClick}>
                 {translate('api_documentation.response_example')}
               </a>
-            </li>}
+            </li>
+          )}
 
-          {action.changelog.length > 0 &&
+          {action.changelog.length > 0 && (
             <li>
               <a
                 className={classNames({ selected: showChangelog })}
@@ -112,7 +114,8 @@ export default class Action extends React.PureComponent<Props, State> {
                 onClick={this.handleChangelogClick}>
                 {translate('api_documentation.changelog')}
               </a>
-            </li>}
+            </li>
+          )}
         </ul>
       );
     }
@@ -139,20 +142,23 @@ export default class Action extends React.PureComponent<Props, State> {
             {verb}&nbsp;{actionKey}
           </h3>
 
-          {action.internal &&
+          {action.internal && (
             <span className="spacer-left">
               <InternalBadge />
-            </span>}
+            </span>
+          )}
 
-          {action.since &&
+          {action.since && (
             <span className="spacer-left badge">
               {translateWithParameters('since_x', action.since)}
-            </span>}
+            </span>
+          )}
 
-          {action.deprecatedSince &&
+          {action.deprecatedSince && (
             <span className="spacer-left">
               <DeprecatedBadge since={action.deprecatedSince} />
-            </span>}
+            </span>
+          )}
         </header>
 
         <div
@@ -163,16 +169,16 @@ export default class Action extends React.PureComponent<Props, State> {
         {this.renderTabs()}
 
         {showParams &&
-          action.params &&
+        action.params && (
           <Params
             params={action.params}
             showDeprecated={this.props.showDeprecated}
             showInternal={this.props.showInternal}
-          />}
+          />
+        )}
 
         {showResponse &&
-          action.hasResponseExample &&
-          <ResponseExample domain={domain} action={action} />}
+        action.hasResponseExample && <ResponseExample domain={domain} action={action} />}
 
         {showChangelog && <ActionChangelog changelog={action.changelog} />}
       </div>

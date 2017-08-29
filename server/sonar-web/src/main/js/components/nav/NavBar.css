@@ -1,6 +1,6 @@
 .navbar,
-[class^="navbar-"],
-[class*=" navbar-"] {
+[class^='navbar-'],
+[class*=' navbar-'] {
   box-sizing: border-box;
 }
 

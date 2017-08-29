@@ -93,12 +93,13 @@ export default class BubblePopupHelper extends React.PureComponent<Props, State>
         tabIndex={0}
         role="tooltip">
         {this.props.children}
-        {this.props.isOpen &&
+        {this.props.isOpen && (
           <div ref={popupContainer => (this.popupContainer = popupContainer)}>
             {React.cloneElement(this.props.popup, {
               popupPosition: this.state.position
             })}
-          </div>}
+          </div>
+        )}
       </div>
     );
   }

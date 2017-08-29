@@ -23,12 +23,8 @@ import { translate } from '../../../helpers/l10n';
 export default function Header() {
   return (
     <header className="page-header">
-      <h1 className="page-title">
-        {translate('update_key.page')}
-      </h1>
-      <div className="page-description">
-        {translate('update_key.page.description')}
-      </div>
+      <h1 className="page-title">{translate('update_key.page')}</h1>
+      <div className="page-description">{translate('update_key.page.description')}</div>
     </header>
   );
 }

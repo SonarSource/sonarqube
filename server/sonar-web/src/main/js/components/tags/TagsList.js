@@ -45,9 +45,7 @@ export default class TagsList extends React.PureComponent {
     return (
       <span className={tagListClass} title={tags.join(', ')}>
         <i className="icon-tags icon-half-transparent" />
-        <span className={spanClass}>
-          {tags.join(', ')}
-        </span>
+        <span className={spanClass}>{tags.join(', ')}</span>
         {allowUpdate && <i className="icon-dropdown" />}
       </span>
     );

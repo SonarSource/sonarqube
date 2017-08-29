@@ -69,7 +69,7 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
         </div>
         <div className="project-activity-analysis-icon big-spacer-right" title={analysisTitle} />
 
-        {canAdmin &&
+        {canAdmin && (
           <div className="project-activity-analysis-actions spacer-left">
             <div className="dropdown display-inline-block">
               <button
@@ -80,14 +80,15 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
               </button>
               <ul className="dropdown-menu dropdown-menu-right">
                 {!hasVersion &&
-                  this.props.canCreateVersion &&
+                this.props.canCreateVersion && (
                   <li>
                     <AddEventForm
                       addEvent={this.props.addVersion}
                       analysis={analysis}
                       addEventButtonText="project_activity.add_version"
                     />
-                  </li>}
+                  </li>
+                )}
                 <li>
                   <AddEventForm
                     addEvent={this.props.addCustomEvent}
@@ -96,18 +97,20 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
                   />
                 </li>
                 {!isFirst && <li role="separator" className="divider" />}
-                {!isFirst &&
+                {!isFirst && (
                   <li>
                     <RemoveAnalysisForm
                       analysis={analysis}
                       deleteAnalysis={this.props.deleteAnalysis}
                     />
-                  </li>}
+                  </li>
+                )}
               </ul>
             </div>
-          </div>}
+          </div>
+        )}
 
-        {events.length > 0 &&
+        {events.length > 0 && (
           <Events
             analysis={analysis.key}
             canAdmin={canAdmin}
@@ -115,7 +118,8 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
             deleteEvent={this.props.deleteEvent}
             events={events}
             isFirst={this.props.isFirst}
-          />}
+          />
+        )}
       </li>
     );
   }

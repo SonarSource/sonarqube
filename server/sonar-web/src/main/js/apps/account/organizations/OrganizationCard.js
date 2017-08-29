@@ -34,32 +34,29 @@ export default function OrganizationCard(props /*: Props */) {
   return (
     <div className="account-project-card clearfix">
       <aside className="account-project-side">
-        {!!organization.avatar &&
+        {!!organization.avatar && (
           <div className="spacer-bottom">
             <img src={organization.avatar} height={30} alt={organization.name} />
-          </div>}
-        {!!organization.url &&
+          </div>
+        )}
+        {!!organization.url && (
           <div className="text-limited text-top spacer-bottom">
             <a className="small" href={organization.url} title={organization.url} rel="nofollow">
               {organization.url}
             </a>
-          </div>}
+          </div>
+        )}
       </aside>
 
       <h3 className="account-project-name">
-        <OrganizationLink organization={organization}>
-          {organization.name}
-        </OrganizationLink>
+        <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
       </h3>
 
-      <div className="account-project-key">
-        {organization.key}
-      </div>
+      <div className="account-project-key">{organization.key}</div>
 
-      {!!organization.description &&
-        <div className="account-project-description">
-          {organization.description}
-        </div>}
+      {!!organization.description && (
+        <div className="account-project-description">{organization.description}</div>
+      )}
     </div>
   );
 }

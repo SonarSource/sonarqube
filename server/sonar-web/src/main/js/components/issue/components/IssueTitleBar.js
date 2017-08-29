@@ -58,9 +58,7 @@ export default function IssueTitleBar(props /*: Props */) {
         formatMeasure(locationsCount)
       )}
       placement="left">
-      <LocationIndex>
-        {locationsCount}
-      </LocationIndex>
+      <LocationIndex>{locationsCount}</LocationIndex>
     </Tooltip>
   );
 
@@ -91,20 +89,24 @@ export default function IssueTitleBar(props /*: Props */) {
                   onFail={props.onFail}
                 />
               </li>
-              {issue.textRange != null &&
+              {issue.textRange != null && (
                 <li className="issue-meta">
                   <span className="issue-meta-label" title={translate('line_number')}>
                     L{issue.textRange.endLine}
                   </span>
-                </li>}
-              {locationsCount > 0 &&
+                </li>
+              )}
+              {locationsCount > 0 && (
                 <li className="issue-meta">
-                  {onIssuesPage
-                    ? locationsBadge
-                    : <Link onClick={stopPropagation} target="_blank" to={issueUrl}>
-                        {locationsBadge}
-                      </Link>}
-                </li>}
+                  {onIssuesPage ? (
+                    locationsBadge
+                  ) : (
+                    <Link onClick={stopPropagation} target="_blank" to={issueUrl}>
+                      {locationsBadge}
+                    </Link>
+                  )}
+                </li>
+              )}
               <li className="issue-meta">
                 <Link
                   className="js-issue-permalink link-no-underline"
@@ -114,7 +116,7 @@ export default function IssueTitleBar(props /*: Props */) {
                   <LinkIcon />
                 </Link>
               </li>
-              {hasSimilarIssuesFilter &&
+              {hasSimilarIssuesFilter && (
                 <li className="issue-meta">
                   <SimilarIssuesFilter
                     isOpen={props.currentPopup === 'similarIssues'}
@@ -123,7 +125,8 @@ export default function IssueTitleBar(props /*: Props */) {
                     onFail={props.onFail}
                     onFilter={props.onFilter}
                   />
-                </li>}
+                </li>
+              )}
             </ul>
           </td>
         </tr>

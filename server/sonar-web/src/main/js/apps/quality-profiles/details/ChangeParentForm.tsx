@@ -107,9 +107,7 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
         onRequestClose={this.props.onClose}>
         <form id="change-profile-parent-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
-            <h2>
-              {translate('quality_profiles.change_parent')}
-            </h2>
+            <h2>{translate('quality_profiles.change_parent')}</h2>
           </div>
           <div className="modal-body">
             <div className="modal-field">
@@ -122,9 +120,11 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
                 onChange={this.handleSelectChange}
                 options={options}
                 value={
-                  this.state.selected != null
-                    ? this.state.selected
-                    : this.props.profile.parentKey || ''
+                  this.state.selected != null ? (
+                    this.state.selected
+                  ) : (
+                    this.props.profile.parentKey || ''
+                  )
                 }
               />
             </div>

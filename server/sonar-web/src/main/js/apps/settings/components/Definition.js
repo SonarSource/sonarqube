@@ -155,14 +155,15 @@ class Definition extends React.PureComponent {
 
         <div className="settings-definition-right">
           <div className="settings-definition-state">
-            {loading &&
+            {loading && (
               <span className="text-info">
                 <i className="spinner spacer-right" />
                 {translate('settings.state.saving')}
-              </span>}
+              </span>
+            )}
 
             {!loading &&
-              this.props.validationMessage != null &&
+            this.props.validationMessage != null && (
               <span className="text-danger">
                 <i className="icon-alert-error spacer-right" />
                 <span>
@@ -171,30 +172,34 @@ class Definition extends React.PureComponent {
                     this.props.validationMessage
                   )}
                 </span>
-              </span>}
+              </span>
+            )}
 
             {!loading &&
-              this.state.success &&
+            this.state.success && (
               <span className="text-success">
                 <i className="icon-check spacer-right" />
                 {translate('settings.state.saved')}
-              </span>}
+              </span>
+            )}
           </div>
 
           <Input setting={setting} value={effectiveValue} onChange={this.handleChange.bind(this)} />
 
-          {!hasValueChanged &&
+          {!hasValueChanged && (
             <DefinitionDefaults
               setting={setting}
               isDefault={isDefault}
               onReset={() => this.handleReset()}
-            />}
+            />
+          )}
 
-          {hasValueChanged &&
+          {hasValueChanged && (
             <DefinitionChanges
               onSave={this.handleSave.bind(this)}
               onCancel={this.handleCancel.bind(this)}
-            />}
+            />
+          )}
         </div>
       </div>
     );

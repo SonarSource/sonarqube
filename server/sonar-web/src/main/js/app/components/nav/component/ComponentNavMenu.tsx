@@ -113,9 +113,11 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
             }
           }}
           activeClassName="active">
-          {this.isView() || this.isApplication()
-            ? translate('view_projects.page')
-            : translate('code.page')}
+          {this.isView() || this.isApplication() ? (
+            translate('view_projects.page')
+          ) : (
+            translate('code.page')
+          )}
         </Link>
       </li>
     );
@@ -209,9 +211,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           {translate('layout.settings')}&nbsp;
           <i className="icon-dropdown" />
         </a>
-        <ul className="dropdown-menu">
-          {adminLinks}
-        </ul>
+        <ul className="dropdown-menu">{adminLinks}</ul>
       </li>
     );
   }

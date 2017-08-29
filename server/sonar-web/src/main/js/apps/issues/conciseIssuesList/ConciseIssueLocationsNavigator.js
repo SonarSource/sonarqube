@@ -55,7 +55,7 @@ export default class ConciseIssueLocationsNavigator extends React.PureComponent 
 
     return (
       <div className="spacer-top">
-        {locations.map((location, index) =>
+        {locations.map((location, index) => (
           <ConciseIssueLocationsNavigatorLocation
             key={index}
             index={index}
@@ -64,7 +64,7 @@ export default class ConciseIssueLocationsNavigator extends React.PureComponent 
             scroll={this.props.scroll}
             selected={index === selectedLocationIndex}
           />
-        )}
+        ))}
       </div>
     );
   }

@@ -37,7 +37,9 @@ export default function ProjectPageExtension(props: Props) {
   const extension =
     component.extensions &&
     component.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
-  return extension
-    ? <Extension extension={extension} options={{ component }} />
-    : <ExtensionNotFound />;
+  return extension ? (
+    <Extension extension={extension} options={{ component }} />
+  ) : (
+    <ExtensionNotFound />
+  );
 }

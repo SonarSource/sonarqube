@@ -49,18 +49,19 @@ export default class DuplicationsFilter extends React.PureComponent {
   renderOption(option, selected) {
     return (
       <span>
-        {option < 6 &&
+        {option < 6 && (
           <DuplicationsRating
             value={getDuplicationsRatingAverageValue(option)}
             size="small"
             muted={!selected}
-          />}
+          />
+        )}
         <span className="spacer-left">
-          {option < 6
-            ? getDuplicationsRatingLabel(option)
-            : <span className="big-spacer-left">
-                {translate('no_data')}
-              </span>}
+          {option < 6 ? (
+            getDuplicationsRatingLabel(option)
+          ) : (
+            <span className="big-spacer-left">{translate('no_data')}</span>
+          )}
         </span>
       </span>
     );

@@ -155,13 +155,13 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
     if (this.props.analyses.length === 0 || !hasFilteredData) {
       return (
         <div className={this.props.className}>
-          {this.props.initializing
-            ? <div className="text-center">
-                <i className="spinner" />
-              </div>
-            : <span className="note">
-                {translate('no_results')}
-              </span>}
+          {this.props.initializing ? (
+            <div className="text-center">
+              <i className="spinner" />
+            </div>
+          ) : (
+            <span className="note">{translate('no_results')}</span>
+          )}
         </div>
       );
     }
@@ -183,14 +183,13 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
           }
           return (
             <li key={version.key || 'noversion'}>
-              {version.version &&
+              {version.version && (
                 <div className={classNames('project-activity-version-badge', { first: idx === 0 })}>
-                  <span className="badge">
-                    {version.version}
-                  </span>
-                </div>}
+                  <span className="badge">{version.version}</span>
+                </div>
+              )}
               <ul className="project-activity-days-list">
-                {days.map(day =>
+                {days.map(day => (
                   <li
                     key={day}
                     className="project-activity-day"
@@ -200,7 +199,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
                     </div>
                     <ul className="project-activity-analyses-list">
                       {version.byDay[day] != null &&
-                        version.byDay[day].map(analysis =>
+                        version.byDay[day].map(analysis => (
                           <ProjectActivityAnalysis
                             addCustomEvent={this.props.addCustomEvent}
                             addVersion={this.props.addVersion}
@@ -215,18 +214,19 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
                             selected={analysis.date.valueOf() === selectedDate}
                             updateSelectedDate={this.updateSelectedDate}
                           />
-                        )}
+                        ))}
                     </ul>
                   </li>
-                )}
+                ))}
               </ul>
             </li>
           );
         })}
-        {this.props.analysesLoading &&
+        {this.props.analysesLoading && (
           <li className="text-center">
             <i className="spinner" />
-          </li>}
+          </li>
+        )}
       </ul>
     );
   }

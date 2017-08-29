@@ -95,7 +95,7 @@ export default class ListItem extends React.PureComponent {
 
     return (
       <div className="issues-workspace-list-item">
-        {displayComponent &&
+        {displayComponent && (
           <div className="issues-workspace-list-component">
             <ComponentBreadcrumbs
               branch={branch}
@@ -103,7 +103,8 @@ export default class ListItem extends React.PureComponent {
               issue={this.props.issue}
               organization={this.props.organization}
             />
-          </div>}
+          </div>
+        )}
         <Issue
           checked={this.props.checked}
           issue={issue}

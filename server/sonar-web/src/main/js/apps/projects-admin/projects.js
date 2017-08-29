@@ -79,13 +79,9 @@ export default class Projects extends React.PureComponent {
           </Link>
         </td>
         <td className="nowrap">
-          <span className="note">
-            {project.key}
-          </span>
+          <span className="note">{project.key}</span>
         </td>
-        <td className="width-20">
-          {project.visibility === 'private' && <PrivateBadge />}
-        </td>
+        <td className="width-20">{project.visibility === 'private' && <PrivateBadge />}</td>
         <td className="thin nowrap">
           <div className="dropdown">
             <button className="dropdown-toggle" data-toggle="dropdown">
@@ -93,9 +89,7 @@ export default class Projects extends React.PureComponent {
             </button>
             <ul className="dropdown-menu dropdown-menu-right">
               <li>
-                <Link to={permissionsUrl}>
-                  {translate('edit_permissions')}
-                </Link>
+                <Link to={permissionsUrl}>{translate('edit_permissions')}</Link>
               </li>
               <li>
                 <a href="#" onClick={this.onApplyTemplateClick.bind(this, project)}>
@@ -114,9 +108,7 @@ export default class Projects extends React.PureComponent {
 
     return (
       <table className={className} id="projects-management-page-projects">
-        <tbody>
-          {this.props.projects.map(this.renderProject)}
-        </tbody>
+        <tbody>{this.props.projects.map(this.renderProject)}</tbody>
       </table>
     );
   }

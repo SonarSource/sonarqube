@@ -32,11 +32,12 @@ export default function FilesCounter({ className, current, total } /*: Props */)
   return (
     <span className={className}>
       <strong>
-        {current != null &&
+        {current != null && (
           <span>
             {formatMeasure(current, 'INT')}
             {' / '}
-          </span>}
+          </span>
+        )}
         {formatMeasure(total, 'INT')}
       </strong>{' '}
       {translate('component_measures.files')}

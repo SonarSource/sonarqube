@@ -55,7 +55,7 @@
   border-radius: 22px;
   box-sizing: border-box;
   background-color: #f6f6f6;
-  transition: transform 0.3s cubic-bezier(.87, -.41, .19, 1.44), border 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.87, -0.41, 0.19, 1.44), border 0.3s ease;
 }
 
 .boolean-toggle-on {

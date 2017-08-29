@@ -53,10 +53,6 @@ export default class Rating extends React.PureComponent {
       },
       this.props.className
     );
-    return (
-      <span className={className}>
-        {formatted}
-      </span>
-    );
+    return <span className={className}>{formatted}</span>;
   }
 }

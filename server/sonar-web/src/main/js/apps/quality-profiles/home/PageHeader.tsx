@@ -78,11 +78,9 @@ export default class PageHeader extends React.PureComponent<Props, State> {
   render() {
     return (
       <header className="page-header">
-        <h1 className="page-title">
-          {translate('quality_profiles.page')}
-        </h1>
+        <h1 className="page-title">{translate('quality_profiles.page')}</h1>
 
-        {this.props.canAdmin &&
+        {this.props.canAdmin && (
           <div className="page-actions button-group dropdown">
             <button id="quality-profiles-create" onClick={this.handleCreateClick}>
               {translate('create')}
@@ -97,7 +95,8 @@ export default class PageHeader extends React.PureComponent<Props, State> {
                 </a>
               </li>
             </ul>
-          </div>}
+          </div>
+        )}
 
         <div className="page-description markdown">
           {translate('quality_profiles.intro1')}
@@ -105,22 +104,24 @@ export default class PageHeader extends React.PureComponent<Props, State> {
           {translate('quality_profiles.intro2')}
         </div>
 
-        {this.state.restoreFormOpen &&
+        {this.state.restoreFormOpen && (
           <RestoreProfileForm
             onClose={this.closeRestoreForm}
             onRequestFail={this.props.onRequestFail}
             onRestore={this.props.updateProfiles}
             organization={this.props.organization}
-          />}
+          />
+        )}
 
-        {this.state.createFormOpen &&
+        {this.state.createFormOpen && (
           <CreateProfileForm
             languages={this.props.languages}
             onClose={this.closeCreateForm}
             onRequestFail={this.props.onRequestFail}
             onCreate={this.handleCreate}
             organization={this.props.organization}
-          />}
+          />
+        )}
       </header>
     );
   }

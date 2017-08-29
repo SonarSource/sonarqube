@@ -111,29 +111,33 @@ class GlobalNav extends React.PureComponent {
           <Search appState={this.props.appState} currentUser={this.props.currentUser} />
           <li>
             <a className="navbar-help" onClick={this.handleHelpClick} href="#">
-              {this.state.onboardingTutorialTooltip
-                ? <Tooltip
-                    defaultVisible={true}
-                    overlay={translate('tutorials.follow_later')}
-                    trigger="manual">
-                    <HelpIcon />
-                  </Tooltip>
-                : <HelpIcon />}
+              {this.state.onboardingTutorialTooltip ? (
+                <Tooltip
+                  defaultVisible={true}
+                  overlay={translate('tutorials.follow_later')}
+                  trigger="manual">
+                  <HelpIcon />
+                </Tooltip>
+              ) : (
+                <HelpIcon />
+              )}
             </a>
           </li>
           <GlobalNavUserContainer {...this.props} />
         </ul>
 
-        {this.state.helpOpen &&
+        {this.state.helpOpen && (
           <GlobalHelp
             currentUser={this.props.currentUser}
             onClose={this.closeHelp}
             onTutorialSelect={this.openOnboardingTutorial}
             sonarCloud={this.props.sonarCloud}
-          />}
+          />
+        )}
 
-        {this.state.onboardingTutorialOpen &&
-          <OnboardingModal onFinish={this.closeOnboardingTutorial} />}
+        {this.state.onboardingTutorialOpen && (
+          <OnboardingModal onFinish={this.closeOnboardingTutorial} />
+        )}
       </NavBar>
     );
   }

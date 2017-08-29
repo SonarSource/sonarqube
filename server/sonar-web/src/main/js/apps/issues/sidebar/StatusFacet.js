@@ -107,10 +107,7 @@ export default class StatusFacet extends React.PureComponent {
           values={this.props.statuses.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {statuses.map(this.renderItem)}
-          </FacetItemsList>}
+        {this.props.open && <FacetItemsList>{statuses.map(this.renderItem)}</FacetItemsList>}
       </FacetBox>
     );
   }

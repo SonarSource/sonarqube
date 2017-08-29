@@ -274,13 +274,14 @@ export default class Main extends React.PureComponent {
           loadMore={this.loadMore}
         />
 
-        {this.state.createProjectForm &&
+        {this.state.createProjectForm && (
           <CreateProjectForm
             onClose={this.closeCreateProjectForm}
             onProjectCreated={this.requestProjects}
             onRequestFail={this.props.onRequestFail}
             organization={this.props.organization}
-          />}
+          />
+        )}
       </div>
     );
   }

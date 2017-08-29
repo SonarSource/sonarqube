@@ -33,34 +33,26 @@ export default function App({ branches, component, onBranchesChange }: Props) {
   return (
     <div className="page page-limited">
       <header className="page-header">
-        <h1 className="page-title">
-          {translate('project_branches.page')}
-        </h1>
+        <h1 className="page-title">{translate('project_branches.page')}</h1>
       </header>
 
       <table className="data zebra zebra-hover">
         <thead>
           <tr>
-            <th>
-              {translate('branch')}
-            </th>
-            <th className="text-right">
-              {translate('status')}
-            </th>
-            <th className="text-right">
-              {translate('actions')}
-            </th>
+            <th>{translate('branch')}</th>
+            <th className="text-right">{translate('status')}</th>
+            <th className="text-right">{translate('actions')}</th>
           </tr>
         </thead>
         <tbody>
-          {sortBranchesAsTree(branches).map(branch =>
+          {sortBranchesAsTree(branches).map(branch => (
             <BranchRow
               branch={branch}
               component={component.key}
               key={branch.name}
               onChange={onBranchesChange}
             />
-          )}
+          ))}
         </tbody>
       </table>
     </div>

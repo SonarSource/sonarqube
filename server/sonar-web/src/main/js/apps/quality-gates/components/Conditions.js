@@ -87,72 +87,54 @@ export default class Conditions extends React.PureComponent {
 
     return (
       <div id="quality-gate-conditions" className="quality-gate-section">
-        <h3 className="spacer-bottom">
-          {translate('quality_gates.conditions')}
-        </h3>
+        <h3 className="spacer-bottom">{translate('quality_gates.conditions')}</h3>
 
         <ConditionsAlert />
 
-        {this.state.error &&
-          <div className="alert alert-danger">
-            {this.state.error}
-          </div>}
+        {this.state.error && <div className="alert alert-danger">{this.state.error}</div>}
 
-        {uniqDuplicates.length > 0 &&
+        {uniqDuplicates.length > 0 && (
           <div className="alert alert-warning">
-            <p>
-              {translate('quality_gates.duplicated_conditions')}
-            </p>
+            <p>{translate('quality_gates.duplicated_conditions')}</p>
             <ul className="list-styled spacer-top">
-              {uniqDuplicates.map(d =>
-                <li key={d.metric.key}>
-                  {getLocalizedMetricName(d.metric)}
-                </li>
-              )}
+              {uniqDuplicates.map(d => (
+                <li key={d.metric.key}>{getLocalizedMetricName(d.metric)}</li>
+              ))}
             </ul>
-          </div>}
+          </div>
+        )}
 
-        {sortedConditions.length
-          ? <table id="quality-gate-conditions" className="data zebra zebra-hover">
-              <thead>
-                <tr>
-                  <th className="nowrap">
-                    {translate('quality_gates.conditions.metric')}
-                  </th>
-                  <th className="thin nowrap">
-                    {translate('quality_gates.conditions.leak')}
-                  </th>
-                  <th className="thin nowrap">
-                    {translate('quality_gates.conditions.operator')}
-                  </th>
-                  <th className="thin nowrap">
-                    {translate('quality_gates.conditions.warning')}
-                  </th>
-                  <th className="thin nowrap">
-                    {translate('quality_gates.conditions.error')}
-                  </th>
-                  {edit && <th />}
-                </tr>
-              </thead>
-              <tbody>
-                {sortedConditions.map((condition, index) =>
-                  <Condition
-                    key={getKey(condition, index)}
-                    qualityGate={qualityGate}
-                    condition={condition}
-                    metric={metrics.find(metric => metric.key === condition.metric)}
-                    edit={edit}
-                    onSaveCondition={onSaveCondition}
-                    onDeleteCondition={onDeleteCondition}
-                    onError={this.handleError.bind(this)}
-                    onResetError={this.handleResetError.bind(this)}
-                  />
-                )}
-              </tbody>
-            </table>
-          : <div className="big-spacer-top">
-              {translate('quality_gates.no_conditions')}
-            </div>}
+        {sortedConditions.length ? (
+          <table id="quality-gate-conditions" className="data zebra zebra-hover">
+            <thead>
+              <tr>
+                <th className="nowrap">{translate('quality_gates.conditions.metric')}</th>
+                <th className="thin nowrap">{translate('quality_gates.conditions.leak')}</th>
+                <th className="thin nowrap">{translate('quality_gates.conditions.operator')}</th>
+                <th className="thin nowrap">{translate('quality_gates.conditions.warning')}</th>
+                <th className="thin nowrap">{translate('quality_gates.conditions.error')}</th>
+                {edit && <th />}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedConditions.map((condition, index) => (
+                <Condition
+                  key={getKey(condition, index)}
+                  qualityGate={qualityGate}
+                  condition={condition}
+                  metric={metrics.find(metric => metric.key === condition.metric)}
+                  edit={edit}
+                  onSaveCondition={onSaveCondition}
+                  onDeleteCondition={onDeleteCondition}
+                  onError={this.handleError.bind(this)}
+                  onResetError={this.handleResetError.bind(this)}
+                />
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="big-spacer-top">{translate('quality_gates.no_conditions')}</div>
+        )}
 
         {edit && <AddConditionForm metrics={metrics} onSelect={onAddCondition} />}
       </div>
