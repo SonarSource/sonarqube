@@ -113,9 +113,10 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   private void sendNewIssuesNotification(NewIssuesStatistics statistics, Component project, long analysisDate) {
     NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
+    String branchName = analysisMetadataHolder.getBranch().flatMap(Branch::getName).orElse(null);
     NewIssuesNotification notification = newIssuesNotificationFactory
       .newNewIssuesNotication()
-      .setProject(project.getKey(), project.getUuid(), project.getName())
+      .setProject(project.getKey(), project.getUuid(), project.getName(), branchName)
       .setAnalysisDate(new Date(analysisDate))
       .setStatistics(project.getName(), globalStatistics)
       .setDebt(globalStatistics.debt());
@@ -123,6 +124,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   }
 
   private void sendNewIssuesNotificationToAssignees(NewIssuesStatistics statistics, Component project, long analysisDate) {
+    String branchName = analysisMetadataHolder.getBranch().flatMap(Branch::getName).orElse(null);
     // send email to each user having issues
     for (Map.Entry<String, NewIssuesStatistics.Stats> assigneeAndStatisticsTuple : statistics.assigneesStatistics().entrySet()) {
       String assignee = assigneeAndStatisticsTuple.getKey();
@@ -131,7 +133,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
         .newMyNewIssuesNotification()
         .setAssignee(assignee);
       myNewIssuesNotification
-        .setProject(project.getKey(), project.getUuid(), project.getName())
+        .setProject(project.getKey(), project.getUuid(), project.getName(), branchName)
         .setAnalysisDate(new Date(analysisDate))
         .setStatistics(project.getName(), assigneeStatistics)
         .setDebt(assigneeStatistics.debt());

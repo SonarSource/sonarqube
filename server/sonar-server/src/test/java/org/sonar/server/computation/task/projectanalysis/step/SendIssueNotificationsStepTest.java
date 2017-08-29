@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import java.util.Date;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.Component.Type;
@@ -59,12 +61,18 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   static final String PROJECT_KEY = "PROJECT_KEY";
   static final String PROJECT_NAME = "PROJECT_NAME";
 
+  static final String BRANCH_COMPONENT_UUID = "BRANCH_UUID";
+  static final String BRANCH_COMPONENT_KEY = "BRANCH_KEY";
+  static final String BRANCH_COMPONENT_NAME = "BRANCH_NAME";
+  static final String BRANCH_NAME = "feature";
+
   static final long ANALYSE_DATE = 123L;
 
   static final Duration ISSUE_DURATION = Duration.create(100L);
   static final String ISSUE_ASSIGNEE = "John";
 
   static final Component PROJECT = builder(Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).setName(PROJECT_NAME).build();
+  static final Component BRANCH = builder(Type.PROJECT, 2).setUuid(BRANCH_COMPONENT_UUID).setKey(BRANCH_COMPONENT_KEY).setName(BRANCH_COMPONENT_NAME).build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
@@ -72,6 +80,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
+    .setBranch(null)
     .setAnalysisDate(new Date(ANALYSE_DATE));
 
   @Rule
@@ -115,9 +124,29 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     underTest.execute();
 
     verify(notificationService).deliver(any(NewIssuesNotification.class));
-    verify(newIssuesNotificationMock).setProject(PROJECT_KEY, PROJECT_UUID, PROJECT_NAME);
+    verify(newIssuesNotificationMock).setProject(PROJECT_KEY, PROJECT_UUID, PROJECT_NAME, null);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(PROJECT_NAME), any(NewIssuesStatistics.Stats.class));
+    verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
+  }
+
+  @Test
+  public void send_global_new_issues_notification_on_branch() throws Exception {
+    issueCache.newAppender().append(
+      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION)
+      ).close();
+
+    when(notificationService.hasProjectSubscribersForTypes(BRANCH_COMPONENT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
+
+    analysisMetadataHolder.setBranch(new DefaultBranchImpl(BRANCH_NAME));
+    treeRootHolder.setRoot(BRANCH);
+
+    underTest.execute();
+
+    verify(notificationService).deliver(any(NewIssuesNotification.class));
+    verify(newIssuesNotificationMock).setProject(BRANCH_COMPONENT_KEY, BRANCH_COMPONENT_UUID, BRANCH_COMPONENT_NAME, BRANCH_NAME);
+    verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
+    verify(newIssuesNotificationMock).setStatistics(eq(BRANCH_COMPONENT_NAME), any(NewIssuesStatistics.Stats.class));
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
   }
 
@@ -133,7 +162,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
     verify(notificationService, times(2)).deliver(any(Notification.class));
     verify(myNewIssuesNotificationMock).setAssignee(ISSUE_ASSIGNEE);
-    verify(myNewIssuesNotificationMock).setProject(PROJECT_KEY, PROJECT_UUID, PROJECT_NAME);
+    verify(myNewIssuesNotificationMock).setProject(PROJECT_KEY, PROJECT_UUID, PROJECT_NAME, null);
     verify(myNewIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(myNewIssuesNotificationMock).setStatistics(eq(PROJECT_NAME), any(NewIssuesStatistics.Stats.class));
     verify(myNewIssuesNotificationMock).setDebt(ISSUE_DURATION);
@@ -153,7 +182,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   private NewIssuesNotification createNewIssuesNotificationMock() {
     NewIssuesNotification notification = mock(NewIssuesNotification.class);
-    when(notification.setProject(anyString(), anyString(), anyString())).thenReturn(notification);
+    when(notification.setProject(anyString(), anyString(), anyString(), anyString())).thenReturn(notification);
     when(notification.setAnalysisDate(any(Date.class))).thenReturn(notification);
     when(notification.setStatistics(anyString(), any(NewIssuesStatistics.Stats.class))).thenReturn(notification);
     when(notification.setDebt(any(Duration.class))).thenReturn(notification);
@@ -163,7 +192,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private MyNewIssuesNotification createMyNewIssuesNotificationMock() {
     MyNewIssuesNotification notification = mock(MyNewIssuesNotification.class);
     when(notification.setAssignee(anyString())).thenReturn(notification);
-    when(notification.setProject(anyString(), anyString(), anyString())).thenReturn(notification);
+    when(notification.setProject(anyString(), anyString(), anyString(), anyString())).thenReturn(notification);
     when(notification.setAnalysisDate(any(Date.class))).thenReturn(notification);
     when(notification.setStatistics(anyString(), any(NewIssuesStatistics.Stats.class))).thenReturn(notification);
     when(notification.setDebt(any(Duration.class))).thenReturn(notification);
