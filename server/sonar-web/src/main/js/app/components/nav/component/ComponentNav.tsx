@@ -32,7 +32,7 @@ import './ComponentNav.css';
 
 interface Props {
   branches: Branch[];
-  currentBranch: Branch;
+  currentBranch?: Branch;
   component: Component;
   conf: ComponentConfiguration;
   location: {};
@@ -99,13 +99,14 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
           breadcrumbs={this.props.component.breadcrumbs}
         />
 
-        <ComponentNavBranch
-          branches={this.props.branches}
-          currentBranch={this.props.currentBranch}
-          // to close dropdown on any location change
-          location={this.props.location}
-          project={this.props.component}
-        />
+        {this.props.currentBranch &&
+          <ComponentNavBranch
+            branches={this.props.branches}
+            currentBranch={this.props.currentBranch}
+            // to close dropdown on any location change
+            location={this.props.location}
+            project={this.props.component}
+          />}
 
         <ComponentNavMeta
           branch={this.props.currentBranch}
