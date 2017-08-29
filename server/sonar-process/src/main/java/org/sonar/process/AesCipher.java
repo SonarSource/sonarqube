@@ -22,10 +22,7 @@ package org.sonar.process;
 import java.io.File;
 import java.io.IOException;
 import java.security.Key;
-import java.security.SecureRandom;
 import javax.annotation.Nullable;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
@@ -54,19 +51,6 @@ final class AesCipher implements Cipher {
   }
 
   @Override
-  public String encrypt(String clearText) {
-    try {
-      javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
-      cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFile());
-      return Base64.encodeBase64String(cipher.doFinal(clearText.getBytes("UTF-8")));
-    } catch (RuntimeException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-  }
-
-  @Override
   public String decrypt(String encryptedText) {
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
@@ -78,18 +62,6 @@ final class AesCipher implements Cipher {
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }
-  }
-
-  /**
-   * This method checks the existence of the file, but not the validity of the contained key.
-   */
-  boolean hasSecretKey() {
-    String path = getPathToSecretKey();
-    if (StringUtils.isNotBlank(path)) {
-      File file = new File(path);
-      return file.exists() && file.isFile();
-    }
-    return false;
   }
 
   private Key loadSecretFile() throws IOException {
@@ -110,18 +82,6 @@ final class AesCipher implements Cipher {
       throw new IllegalStateException("No secret key in the file: " + path);
     }
     return new SecretKeySpec(Base64.decodeBase64(StringUtils.trim(s)), CRYPTO_KEY);
-  }
-
-  String generateRandomSecretKey() {
-    try {
-      KeyGenerator keyGen = KeyGenerator.getInstance(CRYPTO_KEY);
-      keyGen.init(KEY_SIZE_IN_BITS, new SecureRandom());
-      SecretKey secretKey = keyGen.generateKey();
-      return Base64.encodeBase64String(secretKey.getEncoded());
-
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to generate secret key", e);
-    }
   }
 
   String getPathToSecretKey() {

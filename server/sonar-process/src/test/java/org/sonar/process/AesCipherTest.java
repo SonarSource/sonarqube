@@ -20,55 +20,22 @@
 package org.sonar.process;
 
 import com.google.common.io.Resources;
-import org.apache.commons.codec.binary.Base64;
+import java.io.File;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import javax.crypto.BadPaddingException;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import javax.crypto.BadPaddingException;
-import java.io.File;
-import java.security.InvalidKeyException;
-import java.security.Key;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-
 
 public class AesCipherTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
-  @Test
-  public void generateRandomSecretKey() {
-    AesCipher cipher = new AesCipher(null);
-
-    String key = cipher.generateRandomSecretKey();
-
-    assertThat(StringUtils.isNotBlank(key)).isTrue();
-    assertThat(Base64.isBase64(key.getBytes())).isTrue();
-  }
-
-  @Test
-  public void encrypt() {
-    AesCipher cipher = new AesCipher(pathToSecretKey());
-
-    String encryptedText = cipher.encrypt("this is a secret");
-
-    assertThat(StringUtils.isNotBlank(encryptedText)).isTrue();
-    assertThat(Base64.isBase64(encryptedText.getBytes())).isTrue();
-  }
-
-  @Test
-  public void encrypt_bad_key() {
-    thrown.expect(RuntimeException.class);
-    thrown.expectMessage("Invalid AES key");
-
-    AesCipher cipher = new AesCipher(getPath("bad_secret_key.txt"));
-
-    cipher.encrypt("this is a secret");
-  }
 
   @Test
   public void decrypt() {
@@ -105,13 +72,6 @@ public class AesCipherTest {
     } catch (RuntimeException e) {
       assertThat(e.getCause()).isInstanceOf(BadPaddingException.class);
     }
-  }
-
-  @Test
-  public void encryptThenDecrypt() {
-    AesCipher cipher = new AesCipher(pathToSecretKey());
-
-    assertThat(cipher.decrypt(cipher.encrypt("foo"))).isEqualTo("foo");
   }
 
   @Test
@@ -157,20 +117,6 @@ public class AesCipherTest {
 
     AesCipher cipher = new AesCipher(null);
     cipher.loadSecretFileFromFile(null);
-  }
-
-  @Test
-  public void hasSecretKey() {
-    AesCipher cipher = new AesCipher(pathToSecretKey());
-
-    assertThat(cipher.hasSecretKey()).isTrue();
-  }
-
-  @Test
-  public void doesNotHaveSecretKey() {
-    AesCipher cipher = new AesCipher("/my/twitter/id/is/SimonBrandhof");
-
-    assertThat(cipher.hasSecretKey()).isFalse();
   }
 
   private static String getPath(String file) {

@@ -20,7 +20,5 @@
 package org.sonar.process;
 
 interface Cipher {
-  String encrypt(String clearText);
-
   String decrypt(String encryptedText);
 }
