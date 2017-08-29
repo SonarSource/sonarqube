@@ -30,7 +30,7 @@ interface Props {
 export default function Breadcrumbs({ branch, breadcrumbs, rootComponent }: Props) {
   return (
     <ul className="code-breadcrumbs">
-      {breadcrumbs.map((component, index) =>
+      {breadcrumbs.map((component, index) => (
         <li key={component.key}>
           <ComponentName
             branch={branch}
@@ -39,7 +39,7 @@ export default function Breadcrumbs({ branch, breadcrumbs, rootComponent }: Prop
             rootComponent={rootComponent}
           />
         </li>
-      )}
+      ))}
     </ul>
   );
 }

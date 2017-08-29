@@ -93,9 +93,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
   renderDefault() {
     return (
       <div>
-        <span className="badge spacer-right">
-          {translate('default')}
-        </span>
+        <span className="badge spacer-right">{translate('default')}</span>
         {translate('quality_profiles.projects_for_default')}
       </div>
     );
@@ -109,16 +107,12 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     }
 
     if (projects.length === 0) {
-      return (
-        <div>
-          {translate('quality_profiles.no_projects_associated_to_profile')}
-        </div>
-      );
+      return <div>{translate('quality_profiles.no_projects_associated_to_profile')}</div>;
     }
 
     return (
       <ul>
-        {projects.map(project =>
+        {projects.map(project => (
           <li key={project.uuid} className="spacer-top js-profile-project" data-key={project.key}>
             <Link
               to={{ pathname: '/dashboard', query: { id: project.key } }}
@@ -126,7 +120,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
               <QualifierIcon qualifier="TRK" /> <span>{project.name}</span>
             </Link>
           </li>
-        )}
+        ))}
       </ul>
     );
   }
@@ -135,27 +129,27 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     return (
       <div className="quality-profile-projects">
         <header className="page-header">
-          <h2 className="page-title">
-            {translate('projects')}
-          </h2>
+          <h2 className="page-title">{translate('projects')}</h2>
 
           {this.props.canAdmin &&
-            !this.props.profile.isDefault &&
+          !this.props.profile.isDefault && (
             <div className="pull-right">
               <button className="js-change-projects" onClick={this.handleChangeClick}>
                 {translate('quality_profiles.change_projects')}
               </button>
-            </div>}
+            </div>
+          )}
         </header>
 
         {this.props.profile.isDefault ? this.renderDefault() : this.renderProjects()}
 
-        {this.state.formOpen &&
+        {this.state.formOpen && (
           <ChangeProjectsForm
             onClose={this.closeForm}
             organization={this.props.organization}
             profile={this.props.profile}
-          />}
+          />
+        )}
       </div>
     );
   }

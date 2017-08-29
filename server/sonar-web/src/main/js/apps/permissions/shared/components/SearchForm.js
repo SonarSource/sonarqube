@@ -83,13 +83,12 @@ export default class SearchForm extends React.PureComponent {
             onChange={this.handleSearch.bind(this)}
           />
           {query.length > 0 &&
-            query.length < 3 &&
+          query.length < 3 && (
             <div className="search-box-input-note tooltip bottom fade in">
-              <div className="tooltip-inner">
-                {translateWithParameters('select2.tooShort', 3)}
-              </div>
+              <div className="tooltip-inner">{translateWithParameters('select2.tooShort', 3)}</div>
               <div className="tooltip-arrow" style={{ left: 23 }} />
-            </div>}
+            </div>
+          )}
         </form>
       </div>
     );

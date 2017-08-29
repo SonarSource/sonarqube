@@ -99,7 +99,7 @@ export default class Breadcrumbs extends React.PureComponent {
     const lastItem = breadcrumbs[breadcrumbs.length - 1];
     return (
       <div className={this.props.className}>
-        {breadcrumbs.map(component =>
+        {breadcrumbs.map(component => (
           <Breadcrumb
             key={component.key}
             canBrowse={component.key !== lastItem.key}
@@ -107,7 +107,7 @@ export default class Breadcrumbs extends React.PureComponent {
             isLast={component.key === lastItem.key}
             handleSelect={this.props.handleSelect}
           />
-        )}
+        ))}
       </div>
     );
   }

@@ -132,7 +132,9 @@ $.fn.barchart = function(data) {
           isValueShown = d.count === maxValue;
           return text;
         });
-      $(this).find('[data-toggle=tooltip]').tooltip({ container: 'body', html: true });
+      $(this)
+        .find('[data-toggle=tooltip]')
+        .tooltip({ container: 'body', html: true });
     }
   });
 };

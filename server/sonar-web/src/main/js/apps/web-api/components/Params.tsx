@@ -37,46 +37,47 @@ export default function Params({ params, showDeprecated, showInternal }: Props) 
     <div className="web-api-params">
       <table>
         <tbody>
-          {displayedParameters.map(param =>
+          {displayedParameters.map(param => (
             <tr key={param.key}>
               <td className="markdown" style={{ width: 180 }}>
-                <code>
-                  {param.key}
-                </code>
+                <code>{param.key}</code>
 
-                {param.internal &&
+                {param.internal && (
                   <div className="little-spacer-top">
                     <InternalBadge />
-                  </div>}
+                  </div>
+                )}
 
-                {param.deprecatedSince &&
+                {param.deprecatedSince && (
                   <div className="little-spacer-top">
                     <DeprecatedBadge since={param.deprecatedSince} />
-                  </div>}
+                  </div>
+                )}
 
                 {showDeprecated &&
-                  param.deprecatedKey &&
+                param.deprecatedKey && (
                   <div className="little-spacer-top">
-                    <code>
-                      {param.deprecatedKey}
-                    </code>
-                  </div>}
+                    <code>{param.deprecatedKey}</code>
+                  </div>
+                )}
 
                 {showDeprecated &&
-                  param.deprecatedKey &&
-                  param.deprecatedKeySince &&
+                param.deprecatedKey &&
+                param.deprecatedKeySince && (
                   <div className="little-spacer-top">
                     <DeprecatedBadge since={param.deprecatedKeySince} />
-                  </div>}
+                  </div>
+                )}
 
                 <div className="note little-spacer-top">
                   {param.required ? 'required' : 'optional'}
                 </div>
 
-                {param.since &&
+                {param.since && (
                   <div className="note little-spacer-top">
                     {translateWithParameters('since_x', param.since)}
-                  </div>}
+                  </div>
+                )}
               </td>
 
               <td>
@@ -84,54 +85,42 @@ export default function Params({ params, showDeprecated, showInternal }: Props) 
               </td>
 
               <td style={{ width: 250 }}>
-                {param.possibleValues &&
+                {param.possibleValues && (
                   <div>
-                    <h4>
-                      {translate('api_documentation.possible_values')}
-                    </h4>
+                    <h4>{translate('api_documentation.possible_values')}</h4>
                     <ul className="list-styled">
-                      {param.possibleValues.map(value =>
+                      {param.possibleValues.map(value => (
                         <li key={value} className="little-spacer-top">
-                          <code>
-                            {value}
-                          </code>
+                          <code>{value}</code>
                         </li>
-                      )}
+                      ))}
                     </ul>
-                  </div>}
+                  </div>
+                )}
 
-                {param.defaultValue &&
+                {param.defaultValue && (
                   <div className="little-spacer-top">
-                    <h4>
-                      {translate('api_documentation.default_values')}
-                    </h4>
-                    <code>
-                      {param.defaultValue}
-                    </code>
-                  </div>}
+                    <h4>{translate('api_documentation.default_values')}</h4>
+                    <code>{param.defaultValue}</code>
+                  </div>
+                )}
 
-                {param.exampleValue &&
+                {param.exampleValue && (
                   <div className="little-spacer-top">
-                    <h4>
-                      {translate('api_documentation.example_values')}
-                    </h4>
-                    <code>
-                      {param.exampleValue}
-                    </code>
-                  </div>}
+                    <h4>{translate('api_documentation.example_values')}</h4>
+                    <code>{param.exampleValue}</code>
+                  </div>
+                )}
 
-                {param.maxValuesAllowed != null &&
+                {param.maxValuesAllowed != null && (
                   <div className="little-spacer-top">
-                    <h4>
-                      {translate('api_documentation.max_values')}
-                    </h4>
-                    <code>
-                      {param.maxValuesAllowed}
-                    </code>
-                  </div>}
+                    <h4>{translate('api_documentation.max_values')}</h4>
+                    <code>{param.maxValuesAllowed}</code>
+                  </div>
+                )}
               </td>
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
     </div>

@@ -38,32 +38,22 @@ export default function TaskStatus({ status }: Props) {
       break;
     case STATUSES.SUCCESS:
       inner = (
-        <span className="badge badge-success">
-          {translate('background_task.status.SUCCESS')}
-        </span>
+        <span className="badge badge-success">{translate('background_task.status.SUCCESS')}</span>
       );
       break;
     case STATUSES.FAILED:
       inner = (
-        <span className="badge badge-danger">
-          {translate('background_task.status.FAILED')}
-        </span>
+        <span className="badge badge-danger">{translate('background_task.status.FAILED')}</span>
       );
       break;
     case STATUSES.CANCELED:
       inner = (
-        <span className="badge badge-muted">
-          {translate('background_task.status.CANCELED')}
-        </span>
+        <span className="badge badge-muted">{translate('background_task.status.CANCELED')}</span>
       );
       break;
     default:
       inner = '';
   }
 
-  return (
-    <td className="thin spacer-right">
-      {inner}
-    </td>
-  );
+  return <td className="thin spacer-right">{inner}</td>;
 }

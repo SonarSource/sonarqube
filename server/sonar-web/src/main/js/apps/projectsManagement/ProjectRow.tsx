@@ -68,15 +68,15 @@ export default class ProjectRow extends React.PureComponent<Props> {
         </td>
 
         <td className="nowrap">
-          <span className="note">
-            {project.key}
-          </span>
+          <span className="note">{project.key}</span>
         </td>
 
         <td className="thin nowrap text-right">
-          {project.lastAnalysisDate
-            ? <DateTooltipFormatter date={project.lastAnalysisDate} />
-            : <span className="note">—</span>}
+          {project.lastAnalysisDate ? (
+            <DateTooltipFormatter date={project.lastAnalysisDate} />
+          ) : (
+            <span className="note">—</span>
+          )}
         </td>
 
         <td className="thin nowrap">

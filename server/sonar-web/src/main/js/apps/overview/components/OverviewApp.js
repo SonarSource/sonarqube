@@ -180,9 +180,11 @@ export default class OverviewApp extends React.PureComponent {
       <div className="page page-limited">
         <div className="overview page-with-sidebar">
           <div className="overview-main page-main">
-            {component.qualifier === 'APP'
-              ? <ApplicationQualityGate component={component} />
-              : <QualityGate branch={branchName} component={component} measures={measures} />}
+            {component.qualifier === 'APP' ? (
+              <ApplicationQualityGate component={component} />
+            ) : (
+              <QualityGate branch={branchName} component={component} measures={measures} />
+            )}
 
             <div className="overview-domains-list">
               <BugsAndVulnerabilities {...domainProps} />

@@ -119,9 +119,11 @@ export default class App extends React.PureComponent<Props> {
       <div id="project-quality-gate" className="page page-limited">
         <Helmet title={translate('project_quality_gate.page')} />
         <Header />
-        {loading
-          ? <i className="spinner" />
-          : allGates && <Form allGates={allGates} gate={gate} onChange={this.handleChangeGate} />}
+        {loading ? (
+          <i className="spinner" />
+        ) : (
+          allGates && <Form allGates={allGates} gate={gate} onChange={this.handleChangeGate} />
+        )}
       </div>
     );
   }

@@ -39,13 +39,9 @@ export default function MarkdownHelp() {
             </td>
           </tr>
           <tr>
-            <td>
-              {'http://sonarqube.org'}
-            </td>
+            <td>{'http://sonarqube.org'}</td>
             <td className="markdown">
-              <a href="http://sonarqube.org">
-                {'http://sonarqube.org'}
-              </a>
+              <a href="http://sonarqube.org">{'http://sonarqube.org'}</a>
             </td>
           </tr>
           <tr>

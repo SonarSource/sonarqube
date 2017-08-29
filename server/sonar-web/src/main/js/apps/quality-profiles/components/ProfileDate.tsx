@@ -28,13 +28,13 @@ interface Props {
 }
 
 export default function ProfileDate({ date }: Props) {
-  return date
-    ? <Tooltip overlay={<DateTimeFormatter date={date} />}>
-        <span>
-          <DateFromNow date={date} />
-        </span>
-      </Tooltip>
-    : <span>
-        {translate('never')}
-      </span>;
+  return date ? (
+    <Tooltip overlay={<DateTimeFormatter date={date} />}>
+      <span>
+        <DateFromNow date={date} />
+      </span>
+    </Tooltip>
+  ) : (
+    <span>{translate('never')}</span>
+  );
 }

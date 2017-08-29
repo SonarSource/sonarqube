@@ -71,22 +71,19 @@ export default class Password extends Component {
 
     return (
       <section>
-        <h2 className="spacer-bottom">
-          {translate('my_profile.password.title')}
-        </h2>
+        <h2 className="spacer-bottom">{translate('my_profile.password.title')}</h2>
 
         <form onSubmit={this.handleChangePassword.bind(this)}>
-          {success &&
-            <div className="alert alert-success">
-              {translate('my_profile.password.changed')}
-            </div>}
+          {success && (
+            <div className="alert alert-success">{translate('my_profile.password.changed')}</div>
+          )}
 
           {errors &&
-            errors.map((e, i) =>
+            errors.map((e, i) => (
               <div key={i} className="alert alert-danger">
                 {e}
               </div>
-            )}
+            ))}
 
           <div className="modal-field">
             <label htmlFor="old_password">

@@ -208,10 +208,7 @@ export default class App extends React.PureComponent<Props, State> {
       <div className="page page-limited">
         <Helmet title={translate('code.page')} />
 
-        {error &&
-          <div className="alert alert-danger">
-            {error}
-          </div>}
+        {error && <div className="alert alert-danger">{error}</div>}
 
         <Search
           branch={branchName}
@@ -221,11 +218,12 @@ export default class App extends React.PureComponent<Props, State> {
         />
 
         <div className="code-components">
-          {shouldShowBreadcrumbs &&
-            <Breadcrumbs branch={branchName} breadcrumbs={breadcrumbs} rootComponent={component} />}
+          {shouldShowBreadcrumbs && (
+            <Breadcrumbs branch={branchName} breadcrumbs={breadcrumbs} rootComponent={component} />
+          )}
 
           {sourceViewer == undefined &&
-            components != undefined &&
+          components != undefined && (
             <div className={componentsClassName}>
               <Components
                 baseComponent={baseComponent}
@@ -233,16 +231,19 @@ export default class App extends React.PureComponent<Props, State> {
                 components={components}
                 rootComponent={component}
               />
-            </div>}
+            </div>
+          )}
 
           {sourceViewer == undefined &&
-            components != undefined &&
-            <ListFooter count={components.length} total={total} loadMore={this.handleLoadMore} />}
+          components != undefined && (
+            <ListFooter count={components.length} total={total} loadMore={this.handleLoadMore} />
+          )}
 
-          {sourceViewer != undefined &&
+          {sourceViewer != undefined && (
             <div className="spacer-top">
               <SourceViewer branch={branchName} component={sourceViewer.key} />
-            </div>}
+            </div>
+          )}
         </div>
       </div>
     );

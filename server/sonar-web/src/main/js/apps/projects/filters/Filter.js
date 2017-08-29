@@ -129,11 +129,12 @@ export default class Filter extends React.PureComponent {
         <span className="facet-name">
           {this.props.renderOption(option, this.isSelected(option) || isUnderSelectedOption)}
         </span>
-        {facetValue != null &&
+        {facetValue != null && (
           <span className="facet-stat">
             {formatMeasure(facetValue, 'SHORT_INT')}
             {this.renderOptionBar(facetValue)}
-          </span>}
+          </span>
+        )}
       </Link>
     );
   }
@@ -163,11 +164,7 @@ export default class Filter extends React.PureComponent {
         );
       }
     } else {
-      return (
-        <div className="search-navigator-facet-empty">
-          {translate('no_results')}
-        </div>
-      );
+      return <div className="search-navigator-facet-empty">{translate('no_results')}</div>;
     }
   }
 

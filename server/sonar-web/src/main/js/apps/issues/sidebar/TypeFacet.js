@@ -103,10 +103,7 @@ export default class TypeFacet extends React.PureComponent {
           values={this.props.types.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {types.map(this.renderItem)}
-          </FacetItemsList>}
+        {this.props.open && <FacetItemsList>{types.map(this.renderItem)}</FacetItemsList>}
       </FacetBox>
     );
   }

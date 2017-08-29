@@ -113,13 +113,15 @@ export default class Line extends React.PureComponent {
           previousLine={this.props.previousLine}
         />
 
-        {this.props.displayCoverage &&
-          <LineCoverage line={line} onClick={this.props.onCoverageClick} />}
+        {this.props.displayCoverage && (
+          <LineCoverage line={line} onClick={this.props.onCoverageClick} />
+        )}
 
-        {this.props.displayDuplications &&
-          <LineDuplications line={line} onClick={this.props.loadDuplications} />}
+        {this.props.displayDuplications && (
+          <LineDuplications line={line} onClick={this.props.loadDuplications} />
+        )}
 
-        {times(duplicationsCount).map(index =>
+        {times(duplicationsCount).map(index => (
           <LineDuplicationBlock
             duplicated={duplications.includes(index)}
             index={index}
@@ -127,20 +129,22 @@ export default class Line extends React.PureComponent {
             line={this.props.line}
             onClick={this.props.onDuplicationClick}
           />
-        )}
+        ))}
 
         {this.props.displayIssues &&
-          !this.props.displayAllIssues &&
+        !this.props.displayAllIssues && (
           <LineIssuesIndicator
             issues={this.props.issues}
             line={line}
             onClick={this.handleIssuesIndicatorClick}
-          />}
+          />
+        )}
 
-        {this.props.displayFiltered &&
+        {this.props.displayFiltered && (
           <td className="source-meta source-line-filtered-container" data-line-number={line.line}>
             <div className="source-line-bar" />
-          </td>}
+          </td>
+        )}
 
         <LineCode
           highlightedLocationMessage={this.props.highlightedLocationMessage}

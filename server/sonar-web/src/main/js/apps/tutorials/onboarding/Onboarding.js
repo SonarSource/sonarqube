@@ -144,22 +144,20 @@ export default class Onboarding extends React.PureComponent {
 
         <div className="page page-limited onboarding">
           <header className="page-header">
-            <h1 className="page-title">
-              {header}
-            </h1>
+            <h1 className="page-title">{header}</h1>
             <div className="page-actions">
-              {this.state.skipping
-                ? <i className="spinner" />
-                : <a className="js-skip text-muted" href="#" onClick={this.handleSkipClick}>
-                    {translate('tutorials.skip')}
-                  </a>}
+              {this.state.skipping ? (
+                <i className="spinner" />
+              ) : (
+                <a className="js-skip text-muted" href="#" onClick={this.handleSkipClick}>
+                  {translate('tutorials.skip')}
+                </a>
+              )}
             </div>
-            <div className="page-description">
-              {translate('onboarding.header.description')}
-            </div>
+            <div className="page-description">{translate('onboarding.header.description')}</div>
           </header>
 
-          {organizationsEnabled &&
+          {organizationsEnabled && (
             <OrganizationStep
               currentUser={this.props.currentUser}
               finished={this.state.organization != null}
@@ -167,7 +165,8 @@ export default class Onboarding extends React.PureComponent {
               onOpen={this.handleOrganizationOpen}
               open={step === 'organization'}
               stepNumber={stepNumber++}
-            />}
+            />
+          )}
 
           <TokenStep
             finished={this.state.token != null}
@@ -189,17 +188,19 @@ export default class Onboarding extends React.PureComponent {
 
           {this.state.finished &&
             !this.state.skipping &&
-            (this.state.projectKey
-              ? <ProjectWatcher
-                  onFinish={this.finishOnboarding}
-                  onTimeout={this.handleTimeout}
-                  projectKey={this.state.projectKey}
-                />
-              : <footer className="text-right">
-                  <a className="button" href="#" onClick={this.handleSkipClick}>
-                    {translate('tutorials.finish')}
-                  </a>
-                </footer>)}
+            (this.state.projectKey ? (
+              <ProjectWatcher
+                onFinish={this.finishOnboarding}
+                onTimeout={this.handleTimeout}
+                projectKey={this.state.projectKey}
+              />
+            ) : (
+              <footer className="text-right">
+                <a className="button" href="#" onClick={this.handleSkipClick}>
+                  {translate('tutorials.finish')}
+                </a>
+              </footer>
+            ))}
         </div>
       </div>
     );

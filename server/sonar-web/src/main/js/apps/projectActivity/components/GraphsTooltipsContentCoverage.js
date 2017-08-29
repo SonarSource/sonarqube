@@ -43,34 +43,33 @@ export default function GraphsTooltipsContentCoverage(
   const coverageValue = coverage.history[tooltipIdx].value;
   return (
     <tbody>
-      {addSeparator &&
+      {addSeparator && (
         <tr>
           <td className="project-activity-graph-tooltip-separator" colSpan="3">
             <hr />
           </td>
-        </tr>}
-      {uncoveredValue &&
+        </tr>
+      )}
+      {uncoveredValue && (
         <tr className="project-activity-graph-tooltip-line">
           <td
             colSpan="2"
             className="project-activity-graph-tooltip-value text-right spacer-right thin">
             {formatMeasure(uncoveredValue, 'SHORT_INT')}
           </td>
-          <td>
-            {translate('metric.uncovered_lines.name')}
-          </td>
-        </tr>}
-      {coverageValue &&
+          <td>{translate('metric.uncovered_lines.name')}</td>
+        </tr>
+      )}
+      {coverageValue && (
         <tr className="project-activity-graph-tooltip-line">
           <td
             colSpan="2"
             className="project-activity-graph-tooltip-value text-right spacer-right thin">
             {formatMeasure(coverageValue, 'PERCENT')}
           </td>
-          <td>
-            {translate('metric.coverage.name')}
-          </td>
-        </tr>}
+          <td>{translate('metric.coverage.name')}</td>
+        </tr>
+      )}
     </tbody>
   );
 }

@@ -25,7 +25,9 @@ import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 function Sector(props) {
-  const arc = d3Arc().outerRadius(props.radius).innerRadius(props.radius - props.thickness);
+  const arc = d3Arc()
+    .outerRadius(props.radius)
+    .innerRadius(props.radius - props.thickness);
   return <path d={arc(props.data)} style={{ fill: props.fill }} />;
 }
 
@@ -57,7 +59,9 @@ export const DonutChart = createReactClass({
     const size = Math.min(availableWidth, availableHeight);
     const radius = Math.floor(size / 2);
 
-    const pie = d3Pie().sort(null).value(d => d.value);
+    const pie = d3Pie()
+      .sort(null)
+      .value(d => d.value);
     const sectors = pie(this.props.data).map((d, i) => {
       return (
         <Sector
@@ -73,9 +77,7 @@ export const DonutChart = createReactClass({
     return (
       <svg className="donut-chart" width={this.state.width} height={this.state.height}>
         <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-          <g transform={`translate(${radius}, ${radius})`}>
-            {sectors}
-          </g>
+          <g transform={`translate(${radius}, ${radius})`}>{sectors}</g>
         </g>
       </svg>
     );

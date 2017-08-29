@@ -40,9 +40,7 @@ export default class BulkUpdateForm extends React.PureComponent {
     return (
       <form onSubmit={this.handleSubmit.bind(this)}>
         <div className="modal-field">
-          <label htmlFor="bulk-update-replace">
-            {translate('update_key.replace')}
-          </label>
+          <label htmlFor="bulk-update-replace">{translate('update_key.replace')}</label>
           <input
             ref="replace"
             id="bulk-update-replace"
@@ -54,9 +52,7 @@ export default class BulkUpdateForm extends React.PureComponent {
         </div>
 
         <div className="modal-field">
-          <label htmlFor="bulk-update-by">
-            {translate('update_key.by')}
-          </label>
+          <label htmlFor="bulk-update-by">{translate('update_key.by')}</label>
           <input
             ref="by"
             id="bulk-update-by"

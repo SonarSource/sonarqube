@@ -105,41 +105,43 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
     return (
       <div className="quality-profile-box quality-profiles-evolution-rules">
         <div className="clearfix">
-          <strong className="pull-left">
-            {translate('quality_profiles.latest_new_rules')}
-          </strong>
+          <strong className="pull-left">{translate('quality_profiles.latest_new_rules')}</strong>
         </div>
         <ul>
-          {this.state.latestRules.map(rule =>
+          {this.state.latestRules.map(rule => (
             <li key={rule.key} className="spacer-top">
               <div className="text-ellipsis">
                 <Link
                   to={getRulesUrl({ rule_key: rule.key }, this.props.organization)}
                   className="link-no-underline">
-                  {' '}{rule.name}
+                  {' '}
+                  {rule.name}
                 </Link>
                 <div className="note">
-                  {rule.activations
-                    ? translateWithParameters(
-                        'quality_profiles.latest_new_rules.activated',
-                        rule.langName,
-                        rule.activations
-                      )
-                    : translateWithParameters(
-                        'quality_profiles.latest_new_rules.not_activated',
-                        rule.langName
-                      )}
+                  {rule.activations ? (
+                    translateWithParameters(
+                      'quality_profiles.latest_new_rules.activated',
+                      rule.langName,
+                      rule.activations
+                    )
+                  ) : (
+                    translateWithParameters(
+                      'quality_profiles.latest_new_rules.not_activated',
+                      rule.langName
+                    )
+                  )}
                 </div>
               </div>
             </li>
-          )}
+          ))}
         </ul>
-        {this.state.latestRulesTotal > RULES_LIMIT &&
+        {this.state.latestRulesTotal > RULES_LIMIT && (
           <div className="spacer-top">
             <Link to={newRulesUrl} className="small">
               {translate('see_all')} {formatMeasure(this.state.latestRulesTotal, 'SHORT_INT', null)}
             </Link>
-          </div>}
+          </div>
+        )}
       </div>
     );
   }

@@ -63,9 +63,7 @@ export default function enhance(ComposedComponent) {
       return (
         <div className="overview-card-header">
           <div className="overview-title">
-            <span>
-              {label}
-            </span>
+            <span>{label}</span>
             <Link
               className="button button-small button-compact spacer-left text-text-bottom"
               to={getComponentDrilldownUrl(component.key, domain, branch)}>
@@ -113,13 +111,9 @@ export default function enhance(ComposedComponent) {
           : NO_VALUE;
       return (
         <div className="overview-domain-measure">
-          <div className="overview-domain-measure-value">
-            {formatted}
-          </div>
+          <div className="overview-domain-measure-value">{formatted}</div>
 
-          <div className="overview-domain-measure-label">
-            {customLabel || measure.metric.name}
-          </div>
+          <div className="overview-domain-measure-label">{customLabel || measure.metric.name}</div>
         </div>
       );
     };
@@ -158,10 +152,11 @@ export default function enhance(ComposedComponent) {
 
       const tooltip = (
         <DateTimeFormatter date={component.analysisDate}>
-          {formattedAnalysisDate =>
+          {formattedAnalysisDate => (
             <span>
               {translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate)}
-            </span>}
+            </span>
+          )}
         </DateTimeFormatter>
       );
 

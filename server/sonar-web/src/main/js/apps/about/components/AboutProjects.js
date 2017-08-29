@@ -34,17 +34,16 @@ export default function AboutProjects({ count, loading } /*: Props */) {
   return (
     <div className="about-page-projects">
       {loading && <i className="spinner" />}
-      {!loading &&
+      {!loading && (
         <div>
           <div>
             <Link to="/projects" className="about-page-projects-link">
               {formatMeasure(count, 'INT')}
             </Link>
           </div>
-          <div>
-            {translate('about_page.projects_analyzed')}
-          </div>
-        </div>}
+          <div>{translate('about_page.projects_analyzed')}</div>
+        </div>
+      )}
     </div>
   );
 }

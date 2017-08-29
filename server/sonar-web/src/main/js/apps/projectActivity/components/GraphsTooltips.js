@@ -101,24 +101,25 @@ export default class GraphsTooltips extends React.PureComponent {
             <DateTimeFormatter date={this.props.selectedDate} />
           </div>
           <table className="width-100">
-            <tbody>
-              {tooltipContent}
-            </tbody>
-            {this.props.graph === 'coverage' &&
+            <tbody>{tooltipContent}</tbody>
+            {this.props.graph === 'coverage' && (
               <GraphsTooltipsContentCoverage
                 addSeparator={addSeparator}
                 measuresHistory={measuresHistory}
                 tooltipIdx={tooltipIdx}
-              />}
-            {this.props.graph === 'duplications' &&
+              />
+            )}
+            {this.props.graph === 'duplications' && (
               <GraphsTooltipsContentDuplication
                 addSeparator={addSeparator}
                 measuresHistory={measuresHistory}
                 tooltipIdx={tooltipIdx}
-              />}
+              />
+            )}
             {events &&
-              events.length > 0 &&
-              <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />}
+            events.length > 0 && (
+              <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
+            )}
           </table>
         </div>
       </BubblePopup>

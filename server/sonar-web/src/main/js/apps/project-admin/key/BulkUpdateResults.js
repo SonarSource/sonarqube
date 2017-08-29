@@ -42,56 +42,56 @@ export default class BulkUpdateResults extends React.PureComponent {
 
     return (
       <div id="bulk-update-simulation" className="big-spacer-top">
-        {isEmpty &&
+        {isEmpty && (
           <div id="bulk-update-nothing" className="spacer-bottom">
             {translateWithParameters('update_key.no_key_to_update', replace)}
-          </div>}
+          </div>
+        )}
 
-        {hasDuplications &&
+        {hasDuplications && (
           <div id="bulk-update-duplicate" className="spacer-bottom">
             {translateWithParameters('update_key.cant_update_because_duplicate_keys', replace, by)}
-          </div>}
+          </div>
+        )}
 
-        {canUpdate &&
+        {canUpdate && (
           <div className="spacer-bottom">
             {translate('update_key.keys_will_be_updated_as_follows')}
-          </div>}
+          </div>
+        )}
 
-        {!isEmpty &&
+        {!isEmpty && (
           <table id="bulk-update-results" className="data zebra zebra-hover">
             <thead>
               <tr>
-                <th>
-                  {translate('update_key.old_key')}
-                </th>
-                <th>
-                  {translate('update_key.new_key')}
-                </th>
+                <th>{translate('update_key.old_key')}</th>
+                <th>{translate('update_key.new_key')}</th>
               </tr>
             </thead>
             <tbody>
-              {results.map(result =>
+              {results.map(result => (
                 <tr key={result.key} data-key={result.key}>
-                  <td className="js-old-key">
-                    {result.key}
-                  </td>
+                  <td className="js-old-key">{result.key}</td>
                   <td className="js-new-key">
-                    {result.duplicate &&
+                    {result.duplicate && (
                       <span className="spacer-right badge badge-danger">
                         {translate('update_key.duplicate_key')}
-                      </span>}
+                      </span>
+                    )}
                     {result.newKey}
                   </td>
                 </tr>
-              )}
+              ))}
             </tbody>
-          </table>}
+          </table>
+        )}
 
         <div className="big-spacer-top">
-          {canUpdate &&
+          {canUpdate && (
             <button id="bulk-update-confirm" onClick={this.handleConfirm.bind(this)}>
               {translate('update_verb')}
-            </button>}
+            </button>
+          )}
         </div>
       </div>
     );

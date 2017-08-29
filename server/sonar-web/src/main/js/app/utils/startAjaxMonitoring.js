@@ -101,7 +101,9 @@ const ProcessesView = Marionette.ItemView.extend({
       });
       el.appendTo(this.$el);
     } else if (timeout != null) {
-      el = $('<li></li>').html(timeout.get('message')).addClass('process-spinner shown');
+      el = $('<li></li>')
+        .html(timeout.get('message'))
+        .addClass('process-spinner shown');
       el.appendTo(this.$el);
     }
     return this;

@@ -42,9 +42,7 @@ export default class ComparisonForm extends React.PureComponent<Props> {
 
     return (
       <div className="display-inline-block">
-        <label className="spacer-right">
-          {translate('quality_profiles.compare_with')}
-        </label>
+        <label className="spacer-right">{translate('quality_profiles.compare_with')}</label>
         <Select
           value={withKey}
           options={options}

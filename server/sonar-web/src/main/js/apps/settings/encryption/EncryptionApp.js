@@ -46,25 +46,25 @@ export default class EncryptionApp extends React.PureComponent {
       <div id="encryption-page" className="page page-limited">
         <Helmet title={translate('property.category.security.encryption')} />
         <header className="page-header">
-          <h1 className="page-title">
-            {translate('property.category.security.encryption')}
-          </h1>
+          <h1 className="page-title">{translate('property.category.security.encryption')}</h1>
           {this.props.loading && <i className="spinner" />}
         </header>
 
         {!this.props.loading &&
-          !this.props.secretKeyAvailable &&
+        !this.props.secretKeyAvailable && (
           <GenerateSecretKeyForm
             secretKey={this.props.secretKey}
             generateSecretKey={this.props.generateSecretKey}
-          />}
+          />
+        )}
 
-        {this.props.secretKeyAvailable &&
+        {this.props.secretKeyAvailable && (
           <EncryptionForm
             encryptedValue={this.props.encryptedValue}
             encryptValue={this.props.encryptValue}
             generateSecretKey={this.props.startGeneration}
-          />}
+          />
+        )}
       </div>
     );
   }

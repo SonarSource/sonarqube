@@ -60,12 +60,8 @@ export default class ConciseIssueLocationsNavigatorLocation extends React.PureCo
           className="consice-issue-locations-navigator-location"
           href="#"
           onClick={this.handleClick}>
-          <LocationIndex selected={this.props.selected}>
-            {this.props.index + 1}
-          </LocationIndex>
-          <LocationMessage selected={this.props.selected}>
-            {this.props.message}
-          </LocationMessage>
+          <LocationIndex selected={this.props.selected}>{this.props.index + 1}</LocationIndex>
+          <LocationMessage selected={this.props.selected}>{this.props.message}</LocationMessage>
         </a>
       </div>
     );

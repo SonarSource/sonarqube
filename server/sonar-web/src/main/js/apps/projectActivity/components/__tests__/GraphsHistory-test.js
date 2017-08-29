@@ -96,9 +96,15 @@ it('should correctly render multiple graphs', () => {
 });
 
 it('should correctly filter events', () => {
-  expect(shallow(<GraphsHistory {...DEFAULT_PROPS} />).instance().getEvents()).toMatchSnapshot();
   expect(
-    shallow(<GraphsHistory {...DEFAULT_PROPS} eventFilter="OTHER" />).instance().getEvents()
+    shallow(<GraphsHistory {...DEFAULT_PROPS} />)
+      .instance()
+      .getEvents()
+  ).toMatchSnapshot();
+  expect(
+    shallow(<GraphsHistory {...DEFAULT_PROPS} eventFilter="OTHER" />)
+      .instance()
+      .getEvents()
   ).toMatchSnapshot();
 });
 

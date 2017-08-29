@@ -138,18 +138,18 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
     return (
       <ul className="dropdown-menu dropdown-menu-right">
         {canAdmin &&
-          !profile.isBuiltIn &&
+        !profile.isBuiltIn && (
           <li>
-            <Link to={activateMoreUrl}>
-              {translate('quality_profiles.activate_more_rules')}
-            </Link>
-          </li>}
-        {!profile.isBuiltIn &&
+            <Link to={activateMoreUrl}>{translate('quality_profiles.activate_more_rules')}</Link>
+          </li>
+        )}
+        {!profile.isBuiltIn && (
           <li>
             <a id="quality-profile-backup" href={backupUrl}>
               {translate('backup_verb')}
             </a>
-          </li>}
+          </li>
+        )}
         <li>
           <Link
             to={getProfileComparePath(profile.name, profile.language, this.props.organization)}
@@ -157,58 +157,65 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
             {translate('compare')}
           </Link>
         </li>
-        {canAdmin &&
+        {canAdmin && (
           <li>
             <a id="quality-profile-copy" href="#" onClick={this.handleCopyClick}>
               {translate('copy')}
             </a>
-          </li>}
+          </li>
+        )}
         {canAdmin &&
-          !profile.isBuiltIn &&
+        !profile.isBuiltIn && (
           <li>
             <a id="quality-profile-rename" href="#" onClick={this.handleRenameClick}>
               {translate('rename')}
             </a>
-          </li>}
+          </li>
+        )}
         {canAdmin &&
-          !profile.isDefault &&
+        !profile.isDefault && (
           <li>
             <a id="quality-profile-set-as-default" href="#" onClick={this.handleSetDefaultClick}>
               {translate('set_as_default')}
             </a>
-          </li>}
+          </li>
+        )}
         {canAdmin &&
-          !profile.isDefault &&
-          !profile.isBuiltIn &&
+        !profile.isDefault &&
+        !profile.isBuiltIn && (
           <li>
             <a id="quality-profile-delete" href="#" onClick={this.handleDeleteClick}>
               {translate('delete')}
             </a>
-          </li>}
+          </li>
+        )}
 
-        {this.state.copyFormOpen &&
+        {this.state.copyFormOpen && (
           <CopyProfileForm
             onClose={this.closeCopyForm}
             onCopy={this.handleProfileCopy}
             onRequestFail={this.props.onRequestFail}
             profile={profile}
-          />}
+          />
+        )}
 
-        {this.state.deleteFormOpen &&
+        {this.state.deleteFormOpen && (
           <DeleteProfileForm
             onClose={this.closeDeleteForm}
             onDelete={this.handleProfileDelete}
             onRequestFail={this.props.onRequestFail}
             profile={profile}
-          />}
+          />
+        )}
 
-        {this.state.renameFormOpen &&
+        {this.state.renameFormOpen && (
           <RenameProfileForm
             onClose={this.closeRenameForm}
             onRename={this.handleProfileRename}
             onRequestFail={this.props.onRequestFail}
             profile={profile}
-          />}
+          />
+        )}
       </ul>
     );
   }

@@ -81,11 +81,11 @@ export default class ScannerContext extends React.PureComponent<Props, State> {
         </div>
 
         <div className="modal-body modal-container">
-          {scannerContext != null
-            ? <pre className="js-task-scanner-context">
-                {scannerContext}
-              </pre>
-            : <i className="spinner" />}
+          {scannerContext != null ? (
+            <pre className="js-task-scanner-context">{scannerContext}</pre>
+          ) : (
+            <i className="spinner" />
+          )}
         </div>
 
         <div className="modal-foot">

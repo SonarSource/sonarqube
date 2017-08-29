@@ -124,13 +124,14 @@ export default class AssigneeFacet extends React.PureComponent {
   renderOption = (option /*: { avatar: string, label: string } */) => {
     return (
       <span>
-        {option.avatar != null &&
+        {option.avatar != null && (
           <Avatar
             className="little-spacer-right"
             hash={option.avatar}
             name={option.label}
             size={16}
-          />}
+          />
+        )}
         {option.label}
       </span>
     );
@@ -153,7 +154,7 @@ export default class AssigneeFacet extends React.PureComponent {
 
     return (
       <FacetItemsList>
-        {assignees.map(assignee =>
+        {assignees.map(assignee => (
           <FacetItem
             active={this.isAssigneeActive(assignee)}
             key={assignee}
@@ -162,7 +163,7 @@ export default class AssigneeFacet extends React.PureComponent {
             stat={formatFacetStat(this.getStat(assignee), this.props.facetMode)}
             value={assignee}
           />
-        )}
+        ))}
       </FacetItemsList>
     );
   }

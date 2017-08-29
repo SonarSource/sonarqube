@@ -33,7 +33,7 @@ export default class List extends React.PureComponent {
   };
 
   render() {
-    const permissionTemplates = this.props.permissionTemplates.map(p =>
+    const permissionTemplates = this.props.permissionTemplates.map(p => (
       <ListItem
         key={p.id}
         organization={this.props.organization}
@@ -41,14 +41,12 @@ export default class List extends React.PureComponent {
         topQualifiers={this.props.topQualifiers}
         refresh={this.props.refresh}
       />
-    );
+    ));
 
     return (
       <table id="permission-templates" className="data zebra permissions-table">
         <ListHeader organization={this.props.organization} permissions={this.props.permissions} />
-        <tbody>
-          {permissionTemplates}
-        </tbody>
+        <tbody>{permissionTemplates}</tbody>
       </table>
     );
   }

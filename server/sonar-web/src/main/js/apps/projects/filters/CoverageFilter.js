@@ -46,18 +46,19 @@ export default class CoverageFilter extends React.PureComponent {
   renderOption(option, selected) {
     return (
       <span>
-        {option < 6 &&
+        {option < 6 && (
           <CoverageRating
             value={getCoverageRatingAverageValue(option)}
             size="small"
             muted={!selected}
-          />}
+          />
+        )}
         <span className="spacer-left">
-          {option < 6
-            ? getCoverageRatingLabel(option)
-            : <span className="big-spacer-left">
-                {translate('no_data')}
-              </span>}
+          {option < 6 ? (
+            getCoverageRatingLabel(option)
+          ) : (
+            <span className="big-spacer-left">{translate('no_data')}</span>
+          )}
         </span>
       </span>
     );

@@ -59,7 +59,7 @@ export default class PropertySetInput extends React.PureComponent {
 
     return (
       <tr key={index}>
-        {setting.definition.fields.map(field =>
+        {setting.definition.fields.map(field => (
           <td key={field.key}>
             <PrimitiveInput
               name={this.getFieldName(field)}
@@ -68,14 +68,15 @@ export default class PropertySetInput extends React.PureComponent {
               onChange={this.handleInputChange.bind(this, index, field.key)}
             />
           </td>
-        )}
+        ))}
         <td className="thin nowrap">
-          {!isLast &&
+          {!isLast && (
             <button
               className="js-remove-value button-link"
               onClick={e => this.handleDeleteValue(e, index)}>
               <i className="icon-delete" />
-            </button>}
+            </button>
+          )}
         </td>
       </tr>
     );
@@ -93,15 +94,14 @@ export default class PropertySetInput extends React.PureComponent {
           style={{ width: 'auto', minWidth: 480, marginTop: -12 }}>
           <thead>
             <tr>
-              {setting.definition.fields.map(field =>
+              {setting.definition.fields.map(field => (
                 <th key={field.key}>
                   {field.name}
-                  {field.description != null &&
-                    <span className="spacer-top small">
-                      {field.description}
-                    </span>}
+                  {field.description != null && (
+                    <span className="spacer-top small">{field.description}</span>
+                  )}
                 </th>
-              )}
+              ))}
               <th>&nbsp;</th>
             </tr>
           </thead>

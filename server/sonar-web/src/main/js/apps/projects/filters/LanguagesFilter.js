@@ -65,11 +65,12 @@ export default class LanguagesFilter extends React.PureComponent {
 
   getFacetValueForOption = (facet /*: {} */ = {}, option /*: string */) => facet[option];
 
-  renderOption = (option /*: string */) =>
+  renderOption = (option /*: string */) => (
     <SearchableFilterOption
       optionKey={option}
       option={getLanguageByKey(this.props.languages, option)}
-    />;
+    />
+  );
 
   render() {
     return (

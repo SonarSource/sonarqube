@@ -246,7 +246,7 @@ export default class MultiSelect extends React.PureComponent {
         </div>
         <ul className="menu">
           {selectedElements.length > 0 &&
-            selectedElements.map(element =>
+            selectedElements.map(element => (
               <MultiSelectOption
                 key={element}
                 element={element}
@@ -255,9 +255,9 @@ export default class MultiSelect extends React.PureComponent {
                 onSelectChange={this.handleSelectChange}
                 onHover={this.handleElementHover}
               />
-            )}
+            ))}
           {unselectedElements.length > 0 &&
-            unselectedElements.map(element =>
+            unselectedElements.map(element => (
               <MultiSelectOption
                 key={element}
                 element={element}
@@ -265,8 +265,8 @@ export default class MultiSelect extends React.PureComponent {
                 onSelectChange={this.handleSelectChange}
                 onHover={this.handleElementHover}
               />
-            )}
-          {this.isNewElement(query, this.props) &&
+            ))}
+          {this.isNewElement(query, this.props) && (
             <MultiSelectOption
               key={query}
               element={query}
@@ -274,7 +274,8 @@ export default class MultiSelect extends React.PureComponent {
               active={activeElement === query}
               onSelectChange={this.handleSelectChange}
               onHover={this.handleElementHover}
-            />}
+            />
+          )}
         </ul>
       </div>
     );

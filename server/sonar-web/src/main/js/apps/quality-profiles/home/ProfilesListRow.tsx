@@ -58,18 +58,10 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
     const { profile } = this.props;
 
     if (profile.isDefault) {
-      return (
-        <span className="badge">
-          {translate('default')}
-        </span>
-      );
+      return <span className="badge">{translate('default')}</span>;
     }
 
-    return (
-      <span>
-        {profile.projectCount}
-      </span>
-    );
+    return <span>{profile.projectCount}</span>;
   }
 
   renderRules() {
@@ -94,18 +86,17 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
 
     return (
       <div>
-        {profile.activeDeprecatedRuleCount > 0 &&
+        {profile.activeDeprecatedRuleCount > 0 && (
           <span className="spacer-right">
             <Tooltip overlay={translate('quality_profiles.deprecated_rules')}>
               <Link to={deprecatedRulesUrl} className="badge badge-normal-size badge-danger-light">
                 {profile.activeDeprecatedRuleCount}
               </Link>
             </Tooltip>
-          </span>}
+          </span>
+        )}
 
-        <Link to={activeRulesUrl}>
-          {profile.activeRuleCount}
-        </Link>
+        <Link to={activeRulesUrl}>{profile.activeRuleCount}</Link>
       </div>
     );
   }
@@ -113,11 +104,7 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
   renderUpdateDate() {
     const date = <ProfileDate date={this.props.profile.userUpdatedAt} />;
     if (isStagnant(this.props.profile)) {
-      return (
-        <span className="badge badge-normal-size badge-focus">
-          {date}
-        </span>
-      );
+      return <span className="badge badge-normal-size badge-focus">{date}</span>;
     } else {
       return date;
     }
@@ -127,11 +114,7 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
     const { lastUsed } = this.props.profile;
     const date = <ProfileDate date={lastUsed} />;
     if (!lastUsed) {
-      return (
-        <span className="badge badge-normal-size badge-focus">
-          {date}
-        </span>
-      );
+      return <span className="badge badge-normal-size badge-focus">{date}</span>;
     } else {
       return date;
     }
@@ -143,9 +126,7 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
         className="quality-profiles-table-row"
         data-key={this.props.profile.key}
         data-name={this.props.profile.name}>
-        <td className="quality-profiles-table-name">
-          {this.renderName()}
-        </td>
+        <td className="quality-profiles-table-name">{this.renderName()}</td>
         <td className="quality-profiles-table-projects thin nowrap text-right">
           {this.renderProjects()}
         </td>
@@ -158,7 +139,7 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
         <td className="quality-profiles-table-date thin nowrap text-right">
           {this.renderUsageDate()}
         </td>
-        {this.props.canAdmin &&
+        {this.props.canAdmin && (
           <td className="quality-profiles-table-actions thin nowrap text-right">
             <div className="dropdown">
               <button className="dropdown-toggle" data-toggle="dropdown">
@@ -173,7 +154,8 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
                 updateProfiles={this.props.updateProfiles}
               />
             </div>
-          </td>}
+          </td>
+        )}
       </tr>
     );
   }

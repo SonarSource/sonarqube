@@ -63,20 +63,14 @@ export default class ProfileRow extends React.PureComponent<Props, State> {
     if (profileOption.isDefault) {
       return (
         <span>
-          <strong>
-            {translate('default')}
-          </strong>
+          <strong>{translate('default')}</strong>
           {': '}
           {profileOption.label}
         </span>
       );
     }
 
-    return (
-      <span>
-        {profileOption.label}
-      </span>
-    );
+    return <span>{profileOption.label}</span>;
   };
 
   renderProfileSelect() {
@@ -107,15 +101,9 @@ export default class ProfileRow extends React.PureComponent<Props, State> {
 
     return (
       <tr data-key={profile.language}>
-        <td className="thin nowrap">
-          {profile.languageName}
-        </td>
-        <td className="thin nowrap">
-          {this.renderProfileSelect()}
-        </td>
-        <td>
-          {this.state.loading && <i className="spinner" />}
-        </td>
+        <td className="thin nowrap">{profile.languageName}</td>
+        <td className="thin nowrap">{this.renderProfileSelect()}</td>
+        <td>{this.state.loading && <i className="spinner" />}</td>
       </tr>
     );
   }

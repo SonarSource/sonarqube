@@ -94,9 +94,7 @@ export default class ApplicationQualityGateProject extends React.PureComponent {
         )}
         to={getProjectUrl(project.key)}>
         <div className="application-quality-gate-project">
-          <h4>
-            {project.name}
-          </h4>
+          <h4>{project.name}</h4>
           <ul className="application-quality-gate-project-conditions">
             {project.conditions.filter(c => c.status !== 'OK').map(this.renderCondition)}
           </ul>

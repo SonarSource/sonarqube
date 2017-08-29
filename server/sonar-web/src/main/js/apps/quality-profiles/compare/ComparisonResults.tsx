@@ -56,7 +56,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     }
     return (
       <ul>
-        {Object.keys(params).map(key =>
+        {Object.keys(params).map(key => (
           <li key={key} className="spacer-top">
             <code>
               {key}
@@ -64,7 +64,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
               {params[key]}
             </code>
           </li>
-        )}
+        ))}
       </ul>
     );
   }
@@ -87,14 +87,12 @@ export default class ComparisonResults extends React.PureComponent<Props> {
         <td>&nbsp;</td>
       </tr>
     );
-    const rows = this.props.inLeft.map(rule =>
+    const rows = this.props.inLeft.map(rule => (
       <tr key={`left-${rule.key}`} className="js-comparison-in-left">
-        <td>
-          {this.renderRule(rule, rule.severity)}
-        </td>
+        <td>{this.renderRule(rule, rule.severity)}</td>
         <td>&nbsp;</td>
       </tr>
-    );
+    ));
     return [header, ...rows];
   }
 
@@ -116,14 +114,12 @@ export default class ComparisonResults extends React.PureComponent<Props> {
         </td>
       </tr>
     );
-    const rows = this.props.inRight.map(rule =>
+    const rows = this.props.inRight.map(rule => (
       <tr key={`right-${rule.key}`} className="js-comparison-in-right">
         <td>&nbsp;</td>
-        <td>
-          {this.renderRule(rule, rule.severity)}
-        </td>
+        <td>{this.renderRule(rule, rule.severity)}</td>
       </tr>
-    );
+    ));
     return [header, ...rows];
   }
 
@@ -146,18 +142,14 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     const secondHeader = (
       <tr key="modified-second-header">
         <td>
-          <h6>
-            {this.props.left.name}
-          </h6>
+          <h6>{this.props.left.name}</h6>
         </td>
         <td>
-          <h6>
-            {this.props.right.name}
-          </h6>
+          <h6>{this.props.right.name}</h6>
         </td>
       </tr>
     );
-    const rows = this.props.modified.map(rule =>
+    const rows = this.props.modified.map(rule => (
       <tr key={`modified-${rule.key}`} className="js-comparison-modified">
         <td>
           {this.renderRule(rule, rule.left.severity)}
@@ -168,7 +160,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
           {this.renderParameters(rule.right.params)}
         </td>
       </tr>
-    );
+    ));
     return [header, secondHeader, ...rows];
   }
 

@@ -70,7 +70,10 @@ export default ModalForm.extend({
       formatSelection: format
     });
     setTimeout(() => {
-      that.$('a').first().focus();
+      that
+        .$('a')
+        .first()
+        .focus();
     }, 0);
   },
 

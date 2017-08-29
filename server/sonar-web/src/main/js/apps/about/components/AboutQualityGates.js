@@ -26,13 +26,9 @@ const link = 'https://redirect.sonarsource.com/doc/quality-gates.html';
 export default function AboutQualityGates() {
   return (
     <div className="boxed-group">
-      <h2>
-        {translate('about_page.quality_gates')}
-      </h2>
+      <h2>{translate('about_page.quality_gates')}</h2>
       <div className="boxed-group-inner">
-        <p className="about-page-text">
-          {translate('about_page.quality_gates.text')}
-        </p>
+        <p className="about-page-text">{translate('about_page.quality_gates.text')}</p>
         <ReadMore link={link} />
       </div>
     </div>

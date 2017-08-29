@@ -23,9 +23,7 @@ import { translate } from '../../../helpers/l10n';
 export default function ComponentsEmpty() {
   return (
     <tr>
-      <td colSpan={2}>
-        {translate('no_results')}
-      </td>
+      <td colSpan={2}>{translate('no_results')}</td>
       <td colSpan={6} />
     </tr>
   );

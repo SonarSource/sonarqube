@@ -25,19 +25,14 @@ import { getQualityGateUrl } from '../../../helpers/urls';
 const MetaQualityGate = ({ gate, organization }) => {
   return (
     <div className="overview-meta-card">
-      <h4 className="overview-meta-header">
-        {translate('overview.quality_gate')}
-      </h4>
+      <h4 className="overview-meta-header">{translate('overview.quality_gate')}</h4>
 
       <ul className="overview-meta-list">
         <li>
-          {gate.isDefault &&
-            <span className="note spacer-right">
-              {'(' + translate('default') + ')'}
-            </span>}
-          <Link to={getQualityGateUrl(gate.key, organization)}>
-            {gate.name}
-          </Link>
+          {gate.isDefault && (
+            <span className="note spacer-right">{'(' + translate('default') + ')'}</span>
+          )}
+          <Link to={getQualityGateUrl(gate.key, organization)}>{gate.name}</Link>
         </li>
       </ul>
     </div>

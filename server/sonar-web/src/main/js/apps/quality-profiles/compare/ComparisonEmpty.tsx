@@ -21,9 +21,5 @@ import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default function ComparisonEmpty() {
-  return (
-    <div className="big-spacer-top">
-      {translate('quality_profile.empty_comparison')}
-    </div>
-  );
+  return <div className="big-spacer-top">{translate('quality_profile.empty_comparison')}</div>;
 }

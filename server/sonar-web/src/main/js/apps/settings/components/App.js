@@ -89,27 +89,29 @@ export default class App extends React.PureComponent {
       <div id="settings-page" className="page page-limited">
         <Helmet title={translate('settings.page')} />
 
-        {branchName
-          ? <div className="alert alert-info">
-              <FormattedMessage
-                defaultMessage={translate('branches.settings_hint')}
-                id="branches.settings_hint"
-                values={{
-                  link: (
-                    <Link
-                      to={{
-                        pathname: '/project/branches',
-                        query: { id: this.props.component && this.props.component.key }
-                      }}>
-                      {translate('branches.settings_hint_tab')}
-                    </Link>
-                  )
-                }}
-              />
-            </div>
-          : <PageHeader branch={branchName} component={this.props.component} />}
+        {branchName ? (
+          <div className="alert alert-info">
+            <FormattedMessage
+              defaultMessage={translate('branches.settings_hint')}
+              id="branches.settings_hint"
+              values={{
+                link: (
+                  <Link
+                    to={{
+                      pathname: '/project/branches',
+                      query: { id: this.props.component && this.props.component.key }
+                    }}>
+                    {translate('branches.settings_hint_tab')}
+                  </Link>
+                )
+              }}
+            />
+          </div>
+        ) : (
+          <PageHeader branch={branchName} component={this.props.component} />
+        )}
         <div className="side-tabs-layout settings-layout">
-          {branchName == null &&
+          {branchName == null && (
             <div className="side-tabs-side">
               <AllCategoriesList
                 branch={branchName}
@@ -117,7 +119,8 @@ export default class App extends React.PureComponent {
                 selectedCategory={selectedCategory}
                 defaultCategory={this.props.defaultCategory}
               />
-            </div>}
+            </div>
+          )}
           <div className="side-tabs-main">
             <CategoryDefinitionsList
               branch={branchName}

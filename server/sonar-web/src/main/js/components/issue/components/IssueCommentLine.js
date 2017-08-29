@@ -101,7 +101,7 @@ export default class IssueCommentLine extends React.PureComponent {
           <DateFromNow date={comment.createdAt} />
         </div>
         <div className="issue-comment-actions">
-          {comment.updatable &&
+          {comment.updatable && (
             <BubblePopupHelper
               className="bubble-popup-helper-inline"
               isOpen={this.state.openPopup === 'edit'}
@@ -121,8 +121,9 @@ export default class IssueCommentLine extends React.PureComponent {
                 className="js-issue-comment-edit button-link icon-edit icon-half-transparent"
                 onClick={this.toggleEditPopup}
               />
-            </BubblePopupHelper>}
-          {comment.updatable &&
+            </BubblePopupHelper>
+          )}
+          {comment.updatable && (
             <BubblePopupHelper
               className="bubble-popup-helper-inline"
               isOpen={this.state.openPopup === 'delete'}
@@ -134,7 +135,8 @@ export default class IssueCommentLine extends React.PureComponent {
                 className="js-issue-comment-delete button-link icon-delete icon-half-transparent"
                 onClick={this.toggleDeletePopup}
               />
-            </BubblePopupHelper>}
+            </BubblePopupHelper>
+          )}
         </div>
       </div>
     );

@@ -55,7 +55,9 @@ export default PopupView.extend({
 
   makeActive(option) {
     if (option.length > 0) {
-      this.getOptions().removeClass('active').tooltip('hide');
+      this.getOptions()
+        .removeClass('active')
+        .tooltip('hide');
       option.addClass('active').tooltip('show');
     }
   },
@@ -66,14 +68,22 @@ export default PopupView.extend({
 
   selectNextOption() {
     this.makeActive(
-      this.getActiveOption().parent().nextAll('li:not(.divider)').first().children('a')
+      this.getActiveOption()
+        .parent()
+        .nextAll('li:not(.divider)')
+        .first()
+        .children('a')
     );
     return false;
   },
 
   selectPreviousOption() {
     this.makeActive(
-      this.getActiveOption().parent().prevAll('li:not(.divider)').first().children('a')
+      this.getActiveOption()
+        .parent()
+        .prevAll('li:not(.divider)')
+        .first()
+        .children('a')
     );
     return false;
   },

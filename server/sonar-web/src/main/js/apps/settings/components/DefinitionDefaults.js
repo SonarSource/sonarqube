@@ -64,20 +64,14 @@ export default class DefinitionDefaults extends React.PureComponent {
         overlayClassName="modal-overlay"
         onRequestClose={this.handleClose}>
         <header className="modal-head">
-          <h2>
-            {header}
-          </h2>
+          <h2>{header}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
-            <p>
-              {translate('settings.reset_confirm.description')}
-            </p>
+            <p>{translate('settings.reset_confirm.description')}</p>
           </div>
           <footer className="modal-foot">
-            <button className="button-red">
-              {translate('reset_verb')}
-            </button>
+            <button className="button-red">{translate('reset_verb')}</button>
             <button type="reset" className="button-link" onClick={this.handleClose}>
               {translate('cancel')}
             </button>
@@ -95,22 +89,22 @@ export default class DefinitionDefaults extends React.PureComponent {
 
     return (
       <div>
-        {isDefault &&
+        {isDefault && (
           <div className="spacer-top note" style={{ lineHeight: '24px' }}>
             {translate('settings._default')}
-          </div>}
+          </div>
+        )}
 
-        {isExplicitlySet &&
+        {isExplicitlySet && (
           <div className="spacer-top nowrap">
-            <button onClick={this.handleReset}>
-              {translate('reset_verb')}
-            </button>
+            <button onClick={this.handleReset}>{translate('reset_verb')}</button>
             <span className="spacer-left note">
               {translate('default')}
               {': '}
               {getDefaultValue(setting)}
             </span>
-          </div>}
+          </div>
+        )}
         {this.state.reseting && this.renderModal()}
       </div>
     );

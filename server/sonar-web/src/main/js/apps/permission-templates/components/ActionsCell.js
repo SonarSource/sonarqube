@@ -91,11 +91,7 @@ export default class ActionsCell extends React.PureComponent {
       marginRight: 4,
       textAlign: 'center'
     };
-    return (
-      <div style={style}>
-        {icon}
-      </div>
-    );
+    return <div style={style}>{icon}</div>;
   }
 
   renderSetDefaultsControl() {
@@ -129,9 +125,7 @@ export default class ActionsCell extends React.PureComponent {
     return availableQualifiers.map(qualifier =>
       this.renderSetDefaultLink(
         qualifier,
-        <span>
-          {translate('permission_templates.set_default')}
-        </span>
+        <span>{translate('permission_templates.set_default')}</span>
       )
     );
   }
@@ -164,13 +158,14 @@ export default class ActionsCell extends React.PureComponent {
         <ul className="dropdown-menu dropdown-menu-right">
           {this.renderSetDefaultsControl()}
 
-          {!this.props.fromDetails &&
+          {!this.props.fromDetails && (
             <li>
               <Link to={{ pathname, query: { id: t.id } }}>
                 {this.renderDropdownIcon(<i className="icon-edit" />)}
                 Edit Permissions
               </Link>
-            </li>}
+            </li>
+          )}
 
           <li>
             <a href="#" className="js-update" onClick={this.handleUpdateClick.bind(this)}>
@@ -179,13 +174,14 @@ export default class ActionsCell extends React.PureComponent {
             </a>
           </li>
 
-          {t.defaultFor.length === 0 &&
+          {t.defaultFor.length === 0 && (
             <li>
               <a href="#" className="js-delete" onClick={this.handleDeleteClick.bind(this)}>
                 {this.renderDropdownIcon(<i className="icon-delete" />)}
                 {translate('delete')}
               </a>
-            </li>}
+            </li>
+          )}
         </ul>
       </div>
     );

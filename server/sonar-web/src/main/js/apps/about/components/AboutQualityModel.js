@@ -26,9 +26,7 @@ import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 export default function AboutQualityModel() {
   return (
     <div className="boxed-group about-quality-model">
-      <h2>
-        {translate('about_page.quality_model')}
-      </h2>
+      <h2>{translate('about_page.quality_model')}</h2>
 
       <div className="boxed-group-inner clearfix">
         <div className="flex-columns">

@@ -66,9 +66,7 @@ export default class InputForPassword extends React.PureComponent {
             onChange={e => this.handleInputChange(e)}
           />
 
-          <button className="spacer-left button-success">
-            {translate('save')}
-          </button>
+          <button className="spacer-left button-success">{translate('save')}</button>
 
           <a className="spacer-left" href="#" onClick={e => this.handleCancelChangeClick(e)}>
             {translate('cancel')}

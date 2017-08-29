@@ -54,13 +54,15 @@ class OrganizationPageExtension extends React.PureComponent {
     }
 
     const extension = pages.find(p => p.key === `${pluginKey}/${extensionKey}`);
-    return extension
-      ? <Extension
-          extension={extension}
-          location={this.props.location}
-          options={{ organization, refreshOrganization: this.refreshOrganization }}
-        />
-      : <ExtensionNotFound />;
+    return extension ? (
+      <Extension
+        extension={extension}
+        location={this.props.location}
+        options={{ organization, refreshOrganization: this.refreshOrganization }}
+      />
+    ) : (
+      <ExtensionNotFound />
+    );
   }
 }
 

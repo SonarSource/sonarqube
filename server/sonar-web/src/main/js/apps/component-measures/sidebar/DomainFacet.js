@@ -70,27 +70,31 @@ export default class DomainFacet extends React.PureComponent {
     const sortedItems = sortMeasures(domain.name, items);
     return sortedItems.map(
       item =>
-        typeof item === 'string'
-          ? <span key={item} className="facet search-navigator-facet facet-category">
-              <span className="facet-name">
-                {translate('component_measures.facet_category', item)}
-              </span>
+        typeof item === 'string' ? (
+          <span key={item} className="facet search-navigator-facet facet-category">
+            <span className="facet-name">
+              {translate('component_measures.facet_category', item)}
             </span>
-          : <FacetItem
-              active={item.metric.key === selected}
-              disabled={false}
-              key={item.metric.key}
-              name={
-                <span className="big-spacer-left" id={`measure-${item.metric.key}-name`}>
-                  {hasCategories
-                    ? getLocalizedCategoryMetricName(item.metric)
-                    : getLocalizedMetricName(item.metric)}
-                </span>
-              }
-              onClick={this.props.onChange}
-              stat={hasFacetStat(item.metric.key) ? <FacetMeasureValue measure={item} /> : null}
-              value={item.metric.key}
-            />
+          </span>
+        ) : (
+          <FacetItem
+            active={item.metric.key === selected}
+            disabled={false}
+            key={item.metric.key}
+            name={
+              <span className="big-spacer-left" id={`measure-${item.metric.key}-name`}>
+                {hasCategories ? (
+                  getLocalizedCategoryMetricName(item.metric)
+                ) : (
+                  getLocalizedMetricName(item.metric)
+                )}
+              </span>
+            }
+            onClick={this.props.onChange}
+            stat={hasFacetStat(item.metric.key) ? <FacetMeasureValue measure={item} /> : null}
+            value={item.metric.key}
+          />
+        )
     );
   };
 
@@ -130,11 +134,12 @@ export default class DomainFacet extends React.PureComponent {
           values={this.hasFacetSelected(domain, domain.measures, selected) ? 1 : 0}
         />
 
-        {this.props.open &&
+        {this.props.open && (
           <FacetItemsList>
             {this.renderOverviewFacet()}
             {this.renderItemsFacet()}
-          </FacetItemsList>}
+          </FacetItemsList>
+        )}
       </FacetBox>
     );
   }

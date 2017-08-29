@@ -40,7 +40,7 @@ export default class MembersList extends React.PureComponent {
     return (
       <table className="data zebra">
         <tbody>
-          {this.props.members.map(member =>
+          {this.props.members.map(member => (
             <MembersListItem
               key={member.login}
               member={member}
@@ -49,7 +49,7 @@ export default class MembersList extends React.PureComponent {
               removeMember={this.props.removeMember}
               updateMemberGroups={this.props.updateMemberGroups}
             />
-          )}
+          ))}
         </tbody>
       </table>
     );

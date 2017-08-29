@@ -31,12 +31,8 @@ export default function Header(props /*: { component: { qualifier: string } } */
 
   return (
     <header className="page-header">
-      <h1 className="page-title">
-        {translate('deletion.page')}
-      </h1>
-      <div className="page-description">
-        {description}
-      </div>
+      <h1 className="page-title">{translate('deletion.page')}</h1>
+      <div className="page-description">{description}</div>
     </header>
   );
 }

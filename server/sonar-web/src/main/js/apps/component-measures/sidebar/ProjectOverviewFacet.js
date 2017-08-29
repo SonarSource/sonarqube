@@ -42,9 +42,7 @@ export default function ProjectOverviewFacet({ value, selected, onChange } /*: P
           key={value}
           name={
             <Tooltip overlay={facetName} mouseEnterDelay={0.5}>
-              <strong id={`measure-overview-${value}-name`}>
-                {facetName}
-              </strong>
+              <strong id={`measure-overview-${value}-name`}>{facetName}</strong>
             </Tooltip>
           }
           onClick={onChange}

@@ -34,58 +34,59 @@ export default class GenerateSecretKeyForm extends React.PureComponent {
   render() {
     return (
       <div id="generate-secret-key-form-container">
-        {this.props.secretKey != null
-          ? <div>
-              <div className="big-spacer-bottom">
-                <h3 className="spacer-bottom">Secret Key</h3>
-                <input
-                  id="secret-key"
-                  className="input-large"
-                  type="text"
-                  readOnly={true}
-                  value={this.props.secretKey}
-                />
-              </div>
-
-              <h3 className="spacer-bottom">How To Use</h3>
-
-              <ul className="list-styled markdown">
-                <li className="spacer-bottom">
-                  Store the secret key in the file <code>~/.sonar/sonar-secret.txt</code> of the
-                  server. This file can be relocated by defining the property{' '}
-                  <code>sonar.secretKeyPath</code> in <code>conf/sonar.properties</code>
-                </li>
-                <li className="spacer-bottom">
-                  Restrict access to this file by making it readable and by owner only
-                </li>
-                <li className="spacer-bottom">
-                  Restart the server if the property <code>sonar.secretKeyPath</code> has been set
-                  or changed.
-                </li>
-                <li className="spacer-bottom">
-                  Copy this file on all the machines that execute code inspection. Define the{' '}
-                  property <code>sonar.secretKeyPath</code> on those machines if the path is not{' '}
-                  <code>~/.sonar/sonar-secret.txt</code>.
-                </li>
-                <li>
-                  For each property that you want to encrypt, generate the encrypted value and{' '}
-                  replace the original value wherever it is stored (configuration files, command
-                  lines).
-                </li>
-              </ul>
+        {this.props.secretKey != null ? (
+          <div>
+            <div className="big-spacer-bottom">
+              <h3 className="spacer-bottom">Secret Key</h3>
+              <input
+                id="secret-key"
+                className="input-large"
+                type="text"
+                readOnly={true}
+                value={this.props.secretKey}
+              />
             </div>
-          : <div>
-              <p className="spacer-bottom">
-                Secret key is required to be able to encrypt properties.{' '}
-                <a href="https://redirect.sonarsource.com/doc/settings-encryption.html">
-                  More information
-                </a>
-              </p>
 
-              <form id="generate-secret-key-form" onSubmit={e => this.handleSubmit(e)}>
-                <button>Generate Secret Key</button>
-              </form>
-            </div>}
+            <h3 className="spacer-bottom">How To Use</h3>
+
+            <ul className="list-styled markdown">
+              <li className="spacer-bottom">
+                Store the secret key in the file <code>~/.sonar/sonar-secret.txt</code> of the
+                server. This file can be relocated by defining the property{' '}
+                <code>sonar.secretKeyPath</code> in <code>conf/sonar.properties</code>
+              </li>
+              <li className="spacer-bottom">
+                Restrict access to this file by making it readable and by owner only
+              </li>
+              <li className="spacer-bottom">
+                Restart the server if the property <code>sonar.secretKeyPath</code> has been set or
+                changed.
+              </li>
+              <li className="spacer-bottom">
+                Copy this file on all the machines that execute code inspection. Define the property{' '}
+                <code>sonar.secretKeyPath</code> on those machines if the path is not{' '}
+                <code>~/.sonar/sonar-secret.txt</code>.
+              </li>
+              <li>
+                For each property that you want to encrypt, generate the encrypted value and replace
+                the original value wherever it is stored (configuration files, command lines).
+              </li>
+            </ul>
+          </div>
+        ) : (
+          <div>
+            <p className="spacer-bottom">
+              Secret key is required to be able to encrypt properties.{' '}
+              <a href="https://redirect.sonarsource.com/doc/settings-encryption.html">
+                More information
+              </a>
+            </p>
+
+            <form id="generate-secret-key-form" onSubmit={e => this.handleSubmit(e)}>
+              <button>Generate Secret Key</button>
+            </form>
+          </div>
+        )}
       </div>
     );
   }

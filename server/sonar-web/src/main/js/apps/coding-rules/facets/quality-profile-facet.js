@@ -86,7 +86,9 @@ export default BaseFacet.extend({
   setActivation(e) {
     e.stopPropagation();
     const compareProfile = this.options.app.state.get('query').compareToProfile;
-    const profile = $(e.currentTarget).parents('.js-facet').data('value');
+    const profile = $(e.currentTarget)
+      .parents('.js-facet')
+      .data('value');
     if (compareProfile == null || compareProfile !== profile) {
       this.options.app.state.updateFilter({ activation: 'true', compareToProfile: null });
     }
@@ -95,7 +97,9 @@ export default BaseFacet.extend({
   unsetActivation(e) {
     e.stopPropagation();
     const compareProfile = this.options.app.state.get('query').compareToProfile;
-    const profile = $(e.currentTarget).parents('.js-facet').data('value');
+    const profile = $(e.currentTarget)
+      .parents('.js-facet')
+      .data('value');
     if (compareProfile == null || compareProfile !== profile) {
       this.options.app.state.updateFilter({
         activation: 'false',

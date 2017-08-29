@@ -227,47 +227,53 @@ export default class CreationDateFacet extends React.PureComponent {
           onClick={this.handlePeriodClick}
           value=""
         />
-        {component == null &&
+        {component == null && (
           <FacetItem
             active={createdInLast === '1w'}
             name={translate('issues.facet.createdAt.last_week')}
             onClick={this.handlePeriodClick}
             value="1w"
-          />}
-        {component == null &&
+          />
+        )}
+        {component == null && (
           <FacetItem
             active={createdInLast === '1m'}
             name={translate('issues.facet.createdAt.last_month')}
             onClick={this.handlePeriodClick}
             value="1m"
-          />}
-        {component == null &&
+          />
+        )}
+        {component == null && (
           <FacetItem
             active={createdInLast === '1y'}
             name={translate('issues.facet.createdAt.last_year')}
             onClick={this.handlePeriodClick}
             value="1y"
-          />}
-        {component != null &&
+          />
+        )}
+        {component != null && (
           <FacetItem
             active={sinceLeakPeriod}
             name={translate('issues.leak_period')}
             onClick={this.handleLeakPeriodClick}
             value=""
-          />}
+          />
+        )}
       </div>
     );
   }
 
   renderInner() {
     const { createdAt } = this.props;
-    return createdAt
-      ? this.renderExactDate()
-      : <div>
-          {this.renderBarChart()}
-          {this.renderPeriodSelectors()}
-          {this.renderPredefinedPeriods()}
-        </div>;
+    return createdAt ? (
+      this.renderExactDate()
+    ) : (
+      <div>
+        {this.renderBarChart()}
+        {this.renderPeriodSelectors()}
+        {this.renderPredefinedPeriods()}
+      </div>
+    );
   }
 
   render() {

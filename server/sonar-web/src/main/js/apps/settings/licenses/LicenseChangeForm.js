@@ -68,7 +68,7 @@ export default class LicenseChangeForm extends React.PureComponent {
       <button className="js-change" onClick={e => this.onClick(e)}>
         {translate('update_verb')}
 
-        {this.state.modalOpen &&
+        {this.state.modalOpen && (
           <Modal
             isOpen={true}
             contentLabel="license update"
@@ -77,14 +77,10 @@ export default class LicenseChangeForm extends React.PureComponent {
             onRequestClose={this.closeModal}>
             <form onSubmit={this.handleSubmit}>
               <div className="modal-head">
-                <h2>
-                  {translateWithParameters('licenses.update_license_for_x', productName)}
-                </h2>
+                <h2>{translateWithParameters('licenses.update_license_for_x', productName)}</h2>
               </div>
               <div className="modal-body">
-                <label htmlFor="license-input">
-                  {translate('licenses.license_input_label')}
-                </label>
+                <label htmlFor="license-input">{translate('licenses.license_input_label')}</label>
                 <textarea
                   autoFocus={true}
                   className="width-100 spacer-top"
@@ -93,9 +89,7 @@ export default class LicenseChangeForm extends React.PureComponent {
                   id="license-input"
                   defaultValue={license.value}
                 />
-                <div className="spacer-top note">
-                  {translate('licenses.license_input_note')}
-                </div>
+                <div className="spacer-top note">{translate('licenses.license_input_note')}</div>
               </div>
               <div className="modal-foot">
                 {this.state.loading && <i className="js-modal-spinner spinner spacer-right" />}
@@ -107,7 +101,8 @@ export default class LicenseChangeForm extends React.PureComponent {
                 </a>
               </div>
             </form>
-          </Modal>}
+          </Modal>
+        )}
       </button>
     );
   }

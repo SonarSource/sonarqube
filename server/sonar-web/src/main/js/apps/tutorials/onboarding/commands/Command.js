@@ -81,14 +81,14 @@ export default class Command extends React.PureComponent {
 
     return (
       <div className="onboarding-command">
-        <pre>
-          {finalCommand}
-        </pre>
-        {this.state.tooltipShown
-          ? <Tooltip defaultVisible={true} placement="top" overlay="Copied!" trigger="manual">
-              {button}
-            </Tooltip>
-          : button}
+        <pre>{finalCommand}</pre>
+        {this.state.tooltipShown ? (
+          <Tooltip defaultVisible={true} placement="top" overlay="Copied!" trigger="manual">
+            {button}
+          </Tooltip>
+        ) : (
+          button
+        )}
       </div>
     );
   }

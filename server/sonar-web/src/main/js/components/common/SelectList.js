@@ -148,7 +148,7 @@ export default class SelectList extends React.PureComponent {
               })
           )}
         {!hasChildren &&
-          this.props.items.map(item =>
+          this.props.items.map(item => (
             <SelectListItem
               active={this.state.active}
               item={item}
@@ -156,7 +156,7 @@ export default class SelectList extends React.PureComponent {
               onHover={this.handleHover}
               onSelect={this.handleSelect}
             />
-          )}
+          ))}
       </ul>
     );
   }

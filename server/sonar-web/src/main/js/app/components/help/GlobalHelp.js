@@ -62,9 +62,11 @@ export default class GlobalHelp extends React.PureComponent {
       case 'shortcuts':
         return <ShortcutsHelp />;
       case 'links':
-        return this.props.sonarCloud
-          ? <LinksHelpSonarCloud onClose={this.props.onClose} />
-          : <LinksHelp onClose={this.props.onClose} />;
+        return this.props.sonarCloud ? (
+          <LinksHelpSonarCloud onClose={this.props.onClose} />
+        ) : (
+          <LinksHelp onClose={this.props.onClose} />
+        );
       case 'tutorials':
         return <TutorialsHelp onTutorialSelect={this.props.onTutorialSelect} />;
       default:
@@ -72,7 +74,7 @@ export default class GlobalHelp extends React.PureComponent {
     }
   };
 
-  renderMenuItem = (section /*: string */) =>
+  renderMenuItem = (section /*: string */) => (
     <li key={section}>
       <a
         className={classNames({ active: section === this.state.section })}
@@ -81,14 +83,16 @@ export default class GlobalHelp extends React.PureComponent {
         onClick={this.handleSectionClick}>
         {translate('help.section', section)}
       </a>
-    </li>;
+    </li>
+  );
 
-  renderMenu = () =>
+  renderMenu = () => (
     <ul className="side-tabs-menu">
       {(this.props.currentUser.isLoggedIn
         ? ['shortcuts', 'tutorials', 'links']
         : ['shortcuts', 'links']).map(this.renderMenuItem)}
-    </ul>;
+    </ul>
+  );
 
   render() {
     return (
@@ -99,18 +103,12 @@ export default class GlobalHelp extends React.PureComponent {
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
         <div className="modal-head">
-          <h2>
-            {translate('help')}
-          </h2>
+          <h2>{translate('help')}</h2>
         </div>
 
         <div className="side-tabs-layout">
-          <div className="side-tabs-side">
-            {this.renderMenu()}
-          </div>
-          <div className="side-tabs-main">
-            {this.renderSection()}
-          </div>
+          <div className="side-tabs-side">{this.renderMenu()}</div>
+          <div className="side-tabs-main">{this.renderSection()}</div>
         </div>
 
         <div className="modal-foot">

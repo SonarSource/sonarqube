@@ -100,10 +100,7 @@ export default class SeverityFacet extends React.PureComponent {
           values={this.props.severities.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {severities.map(this.renderItem)}
-          </FacetItemsList>}
+        {this.props.open && <FacetItemsList>{severities.map(this.renderItem)}</FacetItemsList>}
       </FacetBox>
     );
   }

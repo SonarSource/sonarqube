@@ -61,9 +61,7 @@ export default class PublicProjectDisclaimer extends React.PureComponent {
         </header>
 
         <div className="modal-body">
-          <p>
-            {translate('projects_role.are_you_sure_to_turn_project_to_public')}
-          </p>
+          <p>{translate('projects_role.are_you_sure_to_turn_project_to_public')}</p>
           <p className="spacer-top">
             {translate('projects_role.are_you_sure_to_turn_project_to_public.2')}
           </p>

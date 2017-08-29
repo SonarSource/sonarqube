@@ -34,11 +34,11 @@ export default function OrganizationsList(props /*: Props */) {
     <ul className="account-projects-list">
       {sortBy(props.organizations, organization =>
         organization.name.toLocaleLowerCase()
-      ).map(organization =>
+      ).map(organization => (
         <li key={organization.key}>
           <OrganizationCard organization={organization} />
         </li>
-      )}
+      ))}
     </ul>
   );
 }

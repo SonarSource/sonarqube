@@ -33,9 +33,7 @@ export default function TaskComponent({ task }: Props) {
   if (!task.componentKey) {
     return (
       <td>
-        <span className="note">
-          {task.id}
-        </span>
+        <span className="note">{task.id}</span>
         <TaskType incremental={task.incremental} type={task.type} />
       </td>
     );
@@ -43,23 +41,26 @@ export default function TaskComponent({ task }: Props) {
 
   return (
     <td>
-      {task.componentQualifier &&
+      {task.componentQualifier && (
         <span className="little-spacer-right">
           <QualifierIcon qualifier={task.componentQualifier} />
-        </span>}
+        </span>
+      )}
 
       {task.organization && <Organization organizationKey={task.organization} />}
 
-      {task.componentName &&
+      {task.componentName && (
         <Link className="spacer-right" to={getProjectUrl(task.componentKey, task.branch)}>
           {task.componentName}
 
-          {task.branch &&
+          {task.branch && (
             <span className="text-limited text-text-top" title={task.branch}>
               <span style={{ marginLeft: 5, marginRight: 5 }}>/</span>
               {task.branch}
-            </span>}
-        </Link>}
+            </span>
+          )}
+        </Link>
+      )}
 
       <TaskType incremental={task.incremental} type={task.type} />
     </td>

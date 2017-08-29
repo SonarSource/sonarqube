@@ -75,11 +75,7 @@ export default class CategoriesList extends React.PureComponent {
 
     return (
       <ul className="side-tabs-menu">
-        {sortedCategories.map(category =>
-          <li key={category.key}>
-            {this.renderLink(category)}
-          </li>
-        )}
+        {sortedCategories.map(category => <li key={category.key}>{this.renderLink(category)}</li>)}
       </ul>
     );
   }

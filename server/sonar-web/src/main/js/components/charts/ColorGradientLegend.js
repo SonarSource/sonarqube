@@ -57,14 +57,14 @@ export default function ColorGradientLegend(
     <svg className={className} width={width} height={height}>
       <defs>
         <linearGradient id="gradient-legend">
-          {colorRange.map((color, idx) =>
+          {colorRange.map((color, idx) => (
             <stop key={idx} offset={idx / lastColorIdx} stopColor={color} />
-          )}
+          ))}
         </linearGradient>
       </defs>
       <g transform={`translate(${padding[3]}, ${padding[0]})`}>
         <rect fill="url(#gradient-legend)" x={0} y={0} height={rectHeight} width={widthNoPadding} />
-        {colorDomain.map((d, idx) =>
+        {colorDomain.map((d, idx) => (
           <text
             className="gradient-legend-text"
             key={idx}
@@ -73,9 +73,9 @@ export default function ColorGradientLegend(
             dy="-2px">
             {d}
           </text>
-        )}
+        ))}
       </g>
-      {colorNA &&
+      {colorNA && (
         <g transform={`translate(${widthNoPadding}, ${padding[0]})`}>
           <rect
             fill={colorNA}
@@ -91,7 +91,8 @@ export default function ColorGradientLegend(
             dy="-2px">
             N/A
           </text>
-        </g>}
+        </g>
+      )}
     </svg>
   );
 }

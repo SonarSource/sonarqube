@@ -202,9 +202,12 @@ const SelectListView = Backbone.View.extend({
 
     this.$listContainer = this.$('.select-list-list-container');
     if (!this.settings.readOnly) {
-      this.$listContainer.height(this.settings.height).css('overflow', 'auto').on('scroll', () => {
-        that.scroll();
-      });
+      this.$listContainer
+        .height(this.settings.height)
+        .css('overflow', 'auto')
+        .on('scroll', () => {
+          that.scroll();
+        });
     } else {
       this.$listContainer.addClass('select-list-list-container-readonly');
     }
@@ -230,7 +233,10 @@ const SelectListView = Backbone.View.extend({
       }
 
       that.$el.prevAll('.alert').remove();
-      $('<div>').addClass('alert alert-danger').text(message).insertBefore(that.$el);
+      $('<div>')
+        .addClass('alert alert-danger')
+        .text(message)
+        .insertBefore(that.$el);
     };
 
     if (this.settings.readOnly) {

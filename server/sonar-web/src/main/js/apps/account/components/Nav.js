@@ -48,18 +48,20 @@ export default function Nav({ customOrganizations } /*: Props */) {
             {translate('my_account.notifications')}
           </Link>
         </li>
-        {!customOrganizations &&
+        {!customOrganizations && (
           <li>
             <Link to="/account/projects/" activeClassName="active">
               {translate('my_account.projects')}
             </Link>
-          </li>}
-        {customOrganizations &&
+          </li>
+        )}
+        {customOrganizations && (
           <li>
             <Link to="/account/organizations" activeClassName="active">
               {translate('my_account.organizations')}
             </Link>
-          </li>}
+          </li>
+        )}
       </NavBarTabs>
     </nav>
   );

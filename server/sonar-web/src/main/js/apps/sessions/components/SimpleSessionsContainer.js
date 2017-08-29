@@ -28,9 +28,5 @@ type Props = {
 */
 
 export default function SimpleSessionsContainer({ children } /*: Props */) {
-  return (
-    <SimpleContainer hideLoggedInInfo={true}>
-      {children}
-    </SimpleContainer>
-  );
+  return <SimpleContainer hideLoggedInInfo={true}>{children}</SimpleContainer>;
 }

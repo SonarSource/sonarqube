@@ -55,8 +55,9 @@ export default class LineSCM extends React.PureComponent {
         role={clickable ? 'button' : undefined}
         tabIndex={clickable ? 0 : undefined}
         onClick={clickable ? this.handleClick : undefined}>
-        {this.isSCMChanged(line, previousLine) &&
-          <div className="source-line-scm-inner" data-author={line.scmAuthor} />}
+        {this.isSCMChanged(line, previousLine) && (
+          <div className="source-line-scm-inner" data-author={line.scmAuthor} />
+        )}
       </td>
     );
   }

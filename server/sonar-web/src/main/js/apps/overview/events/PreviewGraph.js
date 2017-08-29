@@ -153,7 +153,7 @@ export default class PreviewGraph extends React.PureComponent {
     const { graph, selectedDate, series, tooltipIdx, tooltipXPos } = this.state;
     return (
       <AutoSizer disableHeight={true}>
-        {({ width }) =>
+        {({ width }) => (
           <div>
             <AdvancedTimeline
               endDate={null}
@@ -170,8 +170,8 @@ export default class PreviewGraph extends React.PureComponent {
               updateTooltip={this.updateTooltip}
             />
             {selectedDate != null &&
-              tooltipXPos != null &&
-              tooltipIdx != null &&
+            tooltipXPos != null &&
+            tooltipIdx != null && (
               <PreviewGraphTooltips
                 formatValue={this.formatValue}
                 graph={graph}
@@ -181,8 +181,10 @@ export default class PreviewGraph extends React.PureComponent {
                 series={series}
                 tooltipIdx={tooltipIdx}
                 tooltipPos={tooltipXPos}
-              />}
-          </div>}
+              />
+            )}
+          </div>
+        )}
       </AutoSizer>
     );
   }

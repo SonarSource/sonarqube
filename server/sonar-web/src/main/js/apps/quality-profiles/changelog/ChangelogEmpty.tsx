@@ -21,9 +21,5 @@ import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default function ChangelogEmpty() {
-  return (
-    <div className="big-spacer-top">
-      {translate('no_results')}
-    </div>
-  );
+  return <div className="big-spacer-top">{translate('no_results')}</div>;
 }

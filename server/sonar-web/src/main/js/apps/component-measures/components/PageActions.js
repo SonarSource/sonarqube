@@ -43,8 +43,9 @@ export default function PageActions(props /*: Props */) {
         <DeferredSpinner loading={props.loading}>
           <i className="spinner-placeholder" />
         </DeferredSpinner>
-        {paging != null &&
-          <FilesCounter className="spacer-left" current={props.current} total={paging.total} />}
+        {paging != null && (
+          <FilesCounter className="spacer-left" current={props.current} total={paging.total} />
+        )}
       </div>
     </div>
   );

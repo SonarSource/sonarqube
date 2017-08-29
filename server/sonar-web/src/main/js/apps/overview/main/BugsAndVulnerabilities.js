@@ -36,17 +36,13 @@ class BugsAndVulnerabilities extends React.PureComponent {
     return (
       <div className="overview-card-header">
         <div className="overview-title">
-          <span>
-            {translate('metric.bugs.name')}
-          </span>
+          <span>{translate('metric.bugs.name')}</span>
           <Link
             className="button button-small button-compact spacer-left text-text-bottom"
             to={getComponentDrilldownUrl(component.key, 'Reliability', branch)}>
             <BubblesIcon size={14} />
           </Link>
-          <span className="big-spacer-left">
-            {translate('metric.vulnerabilities.name')}
-          </span>
+          <span className="big-spacer-left">{translate('metric.vulnerabilities.name')}</span>
           <Link
             className="button button-small button-compact spacer-left text-text-bottom"
             to={getComponentDrilldownUrl(component.key, 'Security', branch)}>
@@ -66,16 +62,16 @@ class BugsAndVulnerabilities extends React.PureComponent {
 
     return (
       <div className="overview-domain-leak">
-        {component.qualifier === 'APP'
-          ? <ApplicationLeakPeriodLegend component={component} />
-          : <LeakPeriodLegend period={leakPeriod} />}
+        {component.qualifier === 'APP' ? (
+          <ApplicationLeakPeriodLegend component={component} />
+        ) : (
+          <LeakPeriodLegend period={leakPeriod} />
+        )}
 
         <div className="overview-domain-measures">
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
-              <span style={{ marginLeft: 30 }}>
-                {this.props.renderIssues('new_bugs', 'BUG')}
-              </span>
+              <span style={{ marginLeft: 30 }}>{this.props.renderIssues('new_bugs', 'BUG')}</span>
               {this.props.renderRating('new_reliability_rating')}
             </div>
             <div className="overview-domain-measure-label">

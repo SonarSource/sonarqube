@@ -45,21 +45,23 @@ export default class Breadcrumb extends React.PureComponent {
     const componentName = isPath
       ? collapsePath(component.name, 15)
       : limitComponentName(component.name);
-    const breadcrumbItem = canBrowse
-      ? <a href="#" onClick={this.handleClick}>
-          {componentName}
-        </a>
-      : <span>
-          {componentName}
-        </span>;
+    const breadcrumbItem = canBrowse ? (
+      <a href="#" onClick={this.handleClick}>
+        {componentName}
+      </a>
+    ) : (
+      <span>{componentName}</span>
+    );
 
     return (
       <span>
-        {component.name !== componentName
-          ? <Tooltip overlay={component.name} placement="bottom">
-              {breadcrumbItem}
-            </Tooltip>
-          : breadcrumbItem}
+        {component.name !== componentName ? (
+          <Tooltip overlay={component.name} placement="bottom">
+            {breadcrumbItem}
+          </Tooltip>
+        ) : (
+          breadcrumbItem
+        )}
         {!isLast && <span className="slash-separator" />}
       </span>
     );

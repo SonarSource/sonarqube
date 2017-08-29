@@ -41,12 +41,8 @@ export default class PageHeader extends React.PureComponent {
 
     return (
       <header className="page-header">
-        <h1 className="page-title">
-          {title}
-        </h1>
-        <div className="page-description">
-          {description}
-        </div>
+        <h1 className="page-title">{title}</h1>
+        <div className="page-description">{description}</div>
       </header>
     );
   }

@@ -101,11 +101,12 @@ export default function PageHeader(props /*: Props */) {
         })}>
         {!!props.projectsAppState.loading && <i className="spinner spacer-right" />}
 
-        {props.projectsAppState.total != null &&
+        {props.projectsAppState.total != null && (
           <span>
             <strong id="projects-total">{props.projectsAppState.total}</strong>{' '}
             {translate('projects._projects')}
-          </span>}
+          </span>
+        )}
       </div>
     </header>
   );

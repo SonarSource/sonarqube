@@ -54,38 +54,32 @@ export default class VisibilitySelector extends React.PureComponent<Props> {
               'is-checked': this.props.visibility === 'public'
             })}
           />
-          <span className="spacer-left">
-            {translate('visibility.public')}
-          </span>
+          <span className="spacer-left">{translate('visibility.public')}</span>
         </a>
 
-        {this.props.canTurnToPrivate
-          ? <a
-              className="link-base-color link-no-underline huge-spacer-left"
-              id="visibility-private"
-              href="#"
-              onClick={this.handlePrivateClick}>
-              <i
-                className={classNames('icon-radio', {
-                  'is-checked': this.props.visibility === 'private'
-                })}
-              />
-              <span className="spacer-left">
-                {translate('visibility.private')}
-              </span>
-            </a>
-          : <span
-              className="huge-spacer-left text-muted cursor-not-allowed"
-              id="visibility-private">
-              <i
-                className={classNames('icon-radio', {
-                  'is-checked': this.props.visibility === 'private'
-                })}
-              />
-              <span className="spacer-left">
-                {translate('visibility.private')}
-              </span>
-            </span>}
+        {this.props.canTurnToPrivate ? (
+          <a
+            className="link-base-color link-no-underline huge-spacer-left"
+            id="visibility-private"
+            href="#"
+            onClick={this.handlePrivateClick}>
+            <i
+              className={classNames('icon-radio', {
+                'is-checked': this.props.visibility === 'private'
+              })}
+            />
+            <span className="spacer-left">{translate('visibility.private')}</span>
+          </a>
+        ) : (
+          <span className="huge-spacer-left text-muted cursor-not-allowed" id="visibility-private">
+            <i
+              className={classNames('icon-radio', {
+                'is-checked': this.props.visibility === 'private'
+              })}
+            />
+            <span className="spacer-left">{translate('visibility.private')}</span>
+          </span>
+        )}
       </div>
     );
   }

@@ -109,16 +109,12 @@ export default class AddGraphMetric extends React.PureComponent {
         overlayClassName="modal-overlay"
         onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>
-            {translate('project_activity.graphs.custom.add_metric')}
-          </h2>
+          <h2>{translate('project_activity.graphs.custom.add_metric')}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
             <div className="modal-large-field">
-              <label>
-                {translate('project_activity.graphs.custom.search')}
-              </label>
+              <label>{translate('project_activity.graphs.custom.search')}</label>
               <Select
                 autofocus={true}
                 className="Select-big"
@@ -131,15 +127,17 @@ export default class AddGraphMetric extends React.PureComponent {
                 value={this.state.selectedMetric}
               />
               <span className="alert alert-info">
-                {metricsTypeFilter != null && metricsTypeFilter.length > 0
-                  ? translateWithParameters(
-                      'project_activity.graphs.custom.type_x_message',
-                      metricsTypeFilter
-                        .map(type => translate('metric.type', type))
-                        .sort()
-                        .join(', ')
-                    )
-                  : translate('project_activity.graphs.custom.add_metric_info')}
+                {metricsTypeFilter != null && metricsTypeFilter.length > 0 ? (
+                  translateWithParameters(
+                    'project_activity.graphs.custom.type_x_message',
+                    metricsTypeFilter
+                      .map(type => translate('metric.type', type))
+                      .sort()
+                      .join(', ')
+                  )
+                ) : (
+                  translate('project_activity.graphs.custom.add_metric_info')
+                )}
               </span>
             </div>
           </div>

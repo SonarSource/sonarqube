@@ -23,9 +23,7 @@ import { translate } from '../../../helpers/l10n';
 export default function LicensesAppHeader() {
   return (
     <header className="page-header">
-      <h1 className="page-title">
-        {translate('property.category.licenses')}
-      </h1>
+      <h1 className="page-title">{translate('property.category.licenses')}</h1>
       <div
         className="page-description"
         dangerouslySetInnerHTML={{ __html: translate('property.category.licenses.description') }}

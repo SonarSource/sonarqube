@@ -116,75 +116,76 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
         onRequestClose={this.props.onClose}>
         <form id="create-profile-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
-            <h2>
-              {header}
-            </h2>
+            <h2>{header}</h2>
           </div>
 
-          {this.state.preloading
-            ? <div className="modal-body">
-                <i className="spinner" />
+          {this.state.preloading ? (
+            <div className="modal-body">
+              <i className="spinner" />
+            </div>
+          ) : (
+            <div className="modal-body">
+              <div className="modal-field">
+                <label htmlFor="create-profile-name">
+                  {translate('name')}
+                  <em className="mandatory">*</em>
+                </label>
+                <input
+                  autoFocus={true}
+                  id="create-profile-name"
+                  maxLength={100}
+                  name="name"
+                  onChange={this.handleNameChange}
+                  required={true}
+                  size={50}
+                  type="text"
+                  value={this.state.name}
+                />
               </div>
-            : <div className="modal-body">
-                <div className="modal-field">
-                  <label htmlFor="create-profile-name">
-                    {translate('name')}
-                    <em className="mandatory">*</em>
+              <div className="modal-field spacer-bottom">
+                <label htmlFor="create-profile-language">
+                  {translate('language')}
+                  <em className="mandatory">*</em>
+                </label>
+                <Select
+                  clearable={false}
+                  name="language"
+                  onChange={this.handleLanguageChange}
+                  options={languages.map(language => ({
+                    label: language.name,
+                    value: language.key
+                  }))}
+                  value={selectedLanguage}
+                />
+              </div>
+              {importers.map(importer => (
+                <div
+                  className="modal-field spacer-bottom js-importer"
+                  data-key={importer.key}
+                  key={importer.key}>
+                  <label htmlFor={'create-profile-form-backup-' + importer.key}>
+                    {importer.name}
                   </label>
                   <input
-                    autoFocus={true}
-                    id="create-profile-name"
-                    maxLength={100}
-                    name="name"
-                    onChange={this.handleNameChange}
-                    required={true}
-                    size={50}
-                    type="text"
-                    value={this.state.name}
+                    id={'create-profile-form-backup-' + importer.key}
+                    name={'backup_' + importer.key}
+                    type="file"
                   />
+                  <p className="note">
+                    {translate('quality_profiles.optional_configuration_file')}
+                  </p>
                 </div>
-                <div className="modal-field spacer-bottom">
-                  <label htmlFor="create-profile-language">
-                    {translate('language')}
-                    <em className="mandatory">*</em>
-                  </label>
-                  <Select
-                    clearable={false}
-                    name="language"
-                    onChange={this.handleLanguageChange}
-                    options={languages.map(language => ({
-                      label: language.name,
-                      value: language.key
-                    }))}
-                    value={selectedLanguage}
-                  />
-                </div>
-                {importers.map(importer =>
-                  <div
-                    className="modal-field spacer-bottom js-importer"
-                    data-key={importer.key}
-                    key={importer.key}>
-                    <label htmlFor={'create-profile-form-backup-' + importer.key}>
-                      {importer.name}
-                    </label>
-                    <input
-                      id={'create-profile-form-backup-' + importer.key}
-                      name={'backup_' + importer.key}
-                      type="file"
-                    />
-                    <p className="note">
-                      {translate('quality_profiles.optional_configuration_file')}
-                    </p>
-                  </div>
-                )}
-              </div>}
+              ))}
+            </div>
+          )}
 
           <div className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}
-            {!this.state.preloading &&
+            {!this.state.preloading && (
               <button disabled={this.state.loading} id="create-profile-submit">
                 {translate('create')}
-              </button>}
+              </button>
+            )}
             <a href="#" id="create-profile-cancel" onClick={this.handleCancelClick}>
               {translate('cancel')}
             </a>

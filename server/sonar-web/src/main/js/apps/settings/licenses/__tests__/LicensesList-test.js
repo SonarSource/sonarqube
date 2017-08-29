@@ -36,6 +36,16 @@ it('should fetch licenses', () => {
 it('should render rows', () => {
   const list = shallow(<LicensesList licenses={['foo', 'bar']} fetchLicenses={jest.fn()} />);
   expect(list.find(LicenseRowContainer).length).toBe(2);
-  expect(list.find(LicenseRowContainer).at(0).prop('licenseKey')).toBe('foo');
-  expect(list.find(LicenseRowContainer).at(1).prop('licenseKey')).toBe('bar');
+  expect(
+    list
+      .find(LicenseRowContainer)
+      .at(0)
+      .prop('licenseKey')
+  ).toBe('foo');
+  expect(
+    list
+      .find(LicenseRowContainer)
+      .at(1)
+      .prop('licenseKey')
+  ).toBe('bar');
 });

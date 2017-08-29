@@ -102,29 +102,31 @@ export default class IssueView extends React.PureComponent {
           onChange={this.props.onChange}
         />
         {issue.comments &&
-          issue.comments.length > 0 &&
+        issue.comments.length > 0 && (
           <div className="issue-comments">
-            {issue.comments.map(comment =>
+            {issue.comments.map(comment => (
               <IssueCommentLine
                 comment={comment}
                 key={comment.key}
                 onEdit={this.editComment}
                 onDelete={this.deleteComment}
               />
-            )}
-          </div>}
+            ))}
+          </div>
+        )}
         <a className="issue-navigate js-issue-navigate">
           <i className="issue-navigate-to-left icon-chevron-left" />
           <i className="issue-navigate-to-right icon-chevron-right" />
         </a>
-        {hasCheckbox &&
+        {hasCheckbox && (
           <a className="js-toggle issue-checkbox-container" href="#" onClick={this.handleCheck}>
             <i
               className={classNames('issue-checkbox', 'icon-checkbox', {
                 'icon-checkbox-checked': this.props.checked
               })}
             />
-          </a>}
+          </a>
+        )}
       </div>
     );
   }

@@ -29,38 +29,26 @@ type Props = { onClose: () => void };
 export default function LinksHelpSonarCloud({ onClose } /*: Props */) {
   return (
     <div>
-      <h2 className="spacer-top spacer-bottom">
-        {translate('help.section.links')}
-      </h2>
+      <h2 className="spacer-top spacer-bottom">{translate('help.section.links')}</h2>
 
       <p className="spacer-bottom">
-        <a href="https://about.sonarcloud.io/news/">
-          {translate('footer.news')}
-        </a>
+        <a href="https://about.sonarcloud.io/news/">{translate('footer.news')}</a>
       </p>
 
       <p className="spacer-bottom">
-        <a href="https://about.sonarcloud.io/terms.pdf">
-          {translate('footer.terms')}
-        </a>
+        <a href="https://about.sonarcloud.io/terms.pdf">{translate('footer.terms')}</a>
       </p>
 
       <p className="spacer-bottom">
-        <a href="https://twitter.com/sonarqube">
-          {translate('footer.twitter')}
-        </a>
+        <a href="https://twitter.com/sonarqube">{translate('footer.twitter')}</a>
       </p>
 
       <p className="spacer-bottom">
-        <a href="https://about.sonarcloud.io/get-started/">
-          {translate('footer.get_started')}
-        </a>
+        <a href="https://about.sonarcloud.io/get-started/">{translate('footer.get_started')}</a>
       </p>
 
       <p className="spacer-bottom">
-        <a href="https://about.sonarcloud.io/contact/">
-          {translate('footer.help')}
-        </a>
+        <a href="https://about.sonarcloud.io/contact/">{translate('footer.help')}</a>
       </p>
 
       <p className="spacer-bottom">

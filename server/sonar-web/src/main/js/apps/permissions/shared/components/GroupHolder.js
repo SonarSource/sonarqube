@@ -38,18 +38,20 @@ export default class GroupHolder extends React.PureComponent {
 
   render() {
     const { selectedPermission } = this.props;
-    const permissionCells = this.props.permissionsOrder.map(p =>
+    const permissionCells = this.props.permissionsOrder.map(p => (
       <td
         key={p.key}
         className="text-center text-middle"
         style={{ backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent' }}>
         <button className="button-clean" onClick={this.handleClick.bind(this, p.key)}>
-          {this.props.permissions.includes(p.key)
-            ? <i className="icon-checkbox icon-checkbox-checked" />
-            : <i className="icon-checkbox" />}
+          {this.props.permissions.includes(p.key) ? (
+            <i className="icon-checkbox icon-checkbox-checked" />
+          ) : (
+            <i className="icon-checkbox" />
+          )}
         </button>
       </td>
-    );
+    ));
 
     const { group } = this.props;
 
@@ -61,9 +63,7 @@ export default class GroupHolder extends React.PureComponent {
           </div>
           <div className="display-inline-block text-middle">
             <div>
-              <strong>
-                {group.name}
-              </strong>
+              <strong>{group.name}</strong>
             </div>
             <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
               {group.description}

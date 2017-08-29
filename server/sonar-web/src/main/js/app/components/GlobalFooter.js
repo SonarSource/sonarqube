@@ -42,15 +42,14 @@ export default function GlobalFooter(
 
   return (
     <div id="footer" className="page-footer page-container">
-      {productionDatabase === false &&
+      {productionDatabase === false && (
         <div className="alert alert-danger">
           <p className="big" id="evaluation_warning">
             {translate('footer.production_database_warning')}
           </p>
-          <p>
-            {translate('footer.production_database_explanation')}
-          </p>
-        </div>}
+          <p>{translate('footer.production_database_explanation')}</p>
+        </div>
+      )}
 
       <GlobalFooterBranding />
 
@@ -59,13 +58,9 @@ export default function GlobalFooter(
           sonarqubeVersion &&
           translateWithParameters('footer.version_x', sonarqubeVersion)}
         {!hideLoggedInInfo && sonarqubeVersion && ' - '}
-        <a href="http://www.gnu.org/licenses/lgpl-3.0.txt">
-          {translate('footer.licence')}
-        </a>
+        <a href="http://www.gnu.org/licenses/lgpl-3.0.txt">{translate('footer.licence')}</a>
         {' - '}
-        <a href="http://www.sonarqube.org">
-          {translate('footer.community')}
-        </a>
+        <a href="http://www.sonarqube.org">{translate('footer.community')}</a>
         {' - '}
         <a href="https://redirect.sonarsource.com/doc/home.html">
           {translate('footer.documentation')}
@@ -79,15 +74,9 @@ export default function GlobalFooter(
           {translate('footer.plugins')}
         </a>
         {!hideLoggedInInfo && ' - '}
-        {!hideLoggedInInfo &&
-          <Link to="/web_api">
-            {translate('footer.web_api')}
-          </Link>}
+        {!hideLoggedInInfo && <Link to="/web_api">{translate('footer.web_api')}</Link>}
         {!hideLoggedInInfo && ' - '}
-        {!hideLoggedInInfo &&
-          <Link to="/about">
-            {translate('footer.about')}
-          </Link>}
+        {!hideLoggedInInfo && <Link to="/about">{translate('footer.about')}</Link>}
       </div>
     </div>
   );

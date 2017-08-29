@@ -142,7 +142,7 @@ export default class Sidebar extends React.PureComponent {
           stats={facets.tags}
           tags={query.tags}
         />
-        {displayProjectsFacet &&
+        {displayProjectsFacet && (
           <ProjectFacet
             component={component}
             facetMode={query.facetMode}
@@ -153,8 +153,9 @@ export default class Sidebar extends React.PureComponent {
             projects={query.projects}
             referencedComponents={this.props.referencedComponents}
             stats={facets.projects}
-          />}
-        {displayModulesFacet &&
+          />
+        )}
+        {displayModulesFacet && (
           <ModuleFacet
             facetMode={query.facetMode}
             onChange={this.props.onFilterChange}
@@ -163,8 +164,9 @@ export default class Sidebar extends React.PureComponent {
             modules={query.modules}
             referencedComponents={this.props.referencedComponents}
             stats={facets.modules}
-          />}
-        {displayDirectoriesFacet &&
+          />
+        )}
+        {displayDirectoriesFacet && (
           <DirectoryFacet
             facetMode={query.facetMode}
             onChange={this.props.onFilterChange}
@@ -173,8 +175,9 @@ export default class Sidebar extends React.PureComponent {
             directories={query.directories}
             referencedComponents={this.props.referencedComponents}
             stats={facets.directories}
-          />}
-        {displayFilesFacet &&
+          />
+        )}
+        {displayFilesFacet && (
           <FileFacet
             facetMode={query.facetMode}
             onChange={this.props.onFilterChange}
@@ -183,8 +186,9 @@ export default class Sidebar extends React.PureComponent {
             files={query.files}
             referencedComponents={this.props.referencedComponents}
             stats={facets.files}
-          />}
-        {!this.props.myIssues &&
+          />
+        )}
+        {!this.props.myIssues && (
           <AssigneeFacet
             component={component}
             facetMode={query.facetMode}
@@ -196,8 +200,9 @@ export default class Sidebar extends React.PureComponent {
             assignees={query.assignees}
             referencedUsers={this.props.referencedUsers}
             stats={facets.assignees}
-          />}
-        {displayAuthorFacet &&
+          />
+        )}
+        {displayAuthorFacet && (
           <AuthorFacet
             facetMode={query.facetMode}
             onChange={this.props.onFilterChange}
@@ -205,7 +210,8 @@ export default class Sidebar extends React.PureComponent {
             open={!!openFacets.authors}
             authors={query.authors}
             stats={facets.authors}
-          />}
+          />
+        )}
         <LanguageFacet
           facetMode={query.facetMode}
           onChange={this.props.onFilterChange}

@@ -39,12 +39,8 @@ export default function GraphsTooltipsContent({ name, style, translatedName, val
           className={classNames('spacer-right line-chart-legend', 'line-chart-legend-' + style)}
         />
       </td>
-      <td className="project-activity-graph-tooltip-value text-right spacer-right thin">
-        {value}
-      </td>
-      <td>
-        {translatedName}
-      </td>
+      <td className="project-activity-graph-tooltip-value text-right spacer-right thin">{value}</td>
+      <td>{translatedName}</td>
     </tr>
   );
 }

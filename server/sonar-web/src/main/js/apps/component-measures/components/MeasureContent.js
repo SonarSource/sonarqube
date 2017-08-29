@@ -303,18 +303,20 @@ export default class MeasureContent extends React.PureComponent {
                 rootComponent={rootComponent}
               />
               {component.key !== rootComponent.key &&
-                isLoggedIn &&
+              isLoggedIn && (
                 <MeasureFavoriteContainer
                   component={component.key}
                   className="measure-favorite spacer-right"
-                />}
-              {!isFile &&
+                />
+              )}
+              {!isFile && (
                 <MeasureViewSelect
                   className="measure-view-select"
                   metric={metric}
                   handleViewChange={this.props.updateView}
                   view={view}
-                />}
+                />
+              )}
               <PageActions
                 current={selectedIdx != null && view !== 'treemap' ? selectedIdx + 1 : null}
                 loading={this.props.loading}
@@ -325,10 +327,11 @@ export default class MeasureContent extends React.PureComponent {
             </div>
           </div>
         </div>
-        {metric == null &&
-          <MetricNotFound className="layout-page-main-inner measure-details-content" />}
+        {metric == null && (
+          <MetricNotFound className="layout-page-main-inner measure-details-content" />
+        )}
         {metric != null &&
-          measure != null &&
+        measure != null && (
           <div className="layout-page-main-inner measure-details-content">
             <MeasureHeader
               branch={branch}
@@ -341,7 +344,8 @@ export default class MeasureContent extends React.PureComponent {
               selectedIdx={selectedIdx}
             />
             {isFileType(component) ? this.renderCode() : this.renderMeasure()}
-          </div>}
+          </div>
+        )}
       </div>
     );
   }

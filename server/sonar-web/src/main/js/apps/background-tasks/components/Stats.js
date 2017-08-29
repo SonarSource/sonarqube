@@ -123,12 +123,8 @@ export default class Stats extends React.PureComponent {
   render() {
     return (
       <section className="big-spacer-top big-spacer-bottom">
-        <span>
-          {this.renderPending()}
-        </span>
-        <span className="huge-spacer-left">
-          {this.renderFailures()}
-        </span>
+        <span>{this.renderPending()}</span>
+        <span className="huge-spacer-left">{this.renderFailures()}</span>
       </section>
     );
   }

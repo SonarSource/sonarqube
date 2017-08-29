@@ -36,7 +36,7 @@ interface Props {
 
 export default class ProfilesList extends React.PureComponent<Props> {
   renderProfiles(profiles: Profile[]) {
-    return profiles.map(profile =>
+    return profiles.map(profile => (
       <ProfilesListRow
         canAdmin={this.props.canAdmin}
         key={profile.key}
@@ -45,7 +45,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
         profile={profile}
         updateProfiles={this.props.updateProfiles}
       />
-    );
+    ));
   }
 
   renderHeader(languageKey: string, profilesCount: number) {
@@ -63,18 +63,10 @@ export default class ProfilesList extends React.PureComponent<Props> {
             {', '}
             {translateWithParameters('quality_profiles.x_profiles', profilesCount)}
           </th>
-          <th className="text-right nowrap">
-            {translate('quality_profiles.list.projects')}
-          </th>
-          <th className="text-right nowrap">
-            {translate('quality_profiles.list.rules')}
-          </th>
-          <th className="text-right nowrap">
-            {translate('quality_profiles.list.updated')}
-          </th>
-          <th className="text-right nowrap">
-            {translate('quality_profiles.list.used')}
-          </th>
+          <th className="text-right nowrap">{translate('quality_profiles.list.projects')}</th>
+          <th className="text-right nowrap">{translate('quality_profiles.list.rules')}</th>
+          <th className="text-right nowrap">{translate('quality_profiles.list.updated')}</th>
+          <th className="text-right nowrap">{translate('quality_profiles.list.used')}</th>
           {this.props.canAdmin && <th>&nbsp;</th>}
         </tr>
       </thead>
@@ -104,12 +96,11 @@ export default class ProfilesList extends React.PureComponent<Props> {
           organization={this.props.organization}
         />
 
-        {Object.keys(profilesToShow).length === 0 &&
-          <div className="alert alert-warning spacer-top">
-            {translate('no_results')}
-          </div>}
+        {Object.keys(profilesToShow).length === 0 && (
+          <div className="alert alert-warning spacer-top">{translate('no_results')}</div>
+        )}
 
-        {languagesToShow.map(languageKey =>
+        {languagesToShow.map(languageKey => (
           <div key={languageKey} className="quality-profile-box quality-profiles-table">
             <table data-language={languageKey} className="data zebra zebra-hover">
               {profilesToShow[languageKey] != null &&
@@ -121,7 +112,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
               </tbody>
             </table>
           </div>
-        )}
+        ))}
       </div>
     );
   }

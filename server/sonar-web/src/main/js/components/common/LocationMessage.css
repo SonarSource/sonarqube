@@ -34,7 +34,7 @@
   border-top: 5px solid #475760;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  content: "";
+  content: '';
 }
 
 .source-line-code .location-message {

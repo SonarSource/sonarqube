@@ -136,13 +136,14 @@ export default class IssueActionsBar extends React.PureComponent {
                     togglePopup={this.props.togglePopup}
                   />
                 </li>
-                {issue.effort &&
+                {issue.effort && (
                   <li className="issue-meta">
                     <span className="issue-meta-label">
                       {translateWithParameters('issue.x_effort', issue.effort)}
                     </span>
-                  </li>}
-                {canComment &&
+                  </li>
+                )}
+                {canComment && (
                   <IssueCommentAction
                     commentPlaceholder={this.state.commentPlaceholder}
                     currentPopup={this.props.currentPopup}
@@ -150,7 +151,8 @@ export default class IssueActionsBar extends React.PureComponent {
                     onChange={this.props.onChange}
                     onFail={this.props.onFail}
                     toggleComment={this.toggleComment}
-                  />}
+                  />
+                )}
               </ul>
             </td>
             <td className="issue-table-meta-cell">

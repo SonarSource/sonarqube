@@ -60,21 +60,15 @@ export default class Header extends React.PureComponent {
   render() {
     return (
       <header id="project-permissions-header" className="page-header">
-        <h1 className="page-title">
-          {translate('permission_templates.page')}
-        </h1>
+        <h1 className="page-title">{translate('permission_templates.page')}</h1>
 
         {!this.props.ready && <i className="spinner" />}
 
         <div className="page-actions">
-          <button onClick={this.handleCreateClick}>
-            {translate('create')}
-          </button>
+          <button onClick={this.handleCreateClick}>{translate('create')}</button>
         </div>
 
-        <p className="page-description">
-          {translate('permission_templates.page.description')}
-        </p>
+        <p className="page-description">{translate('permission_templates.page.description')}</p>
       </header>
     );
   }

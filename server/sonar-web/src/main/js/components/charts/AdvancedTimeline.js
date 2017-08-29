@@ -134,10 +134,14 @@ export default class AdvancedTimeline extends React.PureComponent {
   }
 
   getRatingScale = (availableHeight /*: number */) =>
-    scalePoint().domain([5, 4, 3, 2, 1]).range([availableHeight, 0]);
+    scalePoint()
+      .domain([5, 4, 3, 2, 1])
+      .range([availableHeight, 0]);
 
   getLevelScale = (availableHeight /*: number */) =>
-    scalePoint().domain(['ERROR', 'WARN', 'OK']).range([availableHeight, 0]);
+    scalePoint()
+      .domain(['ERROR', 'WARN', 'OK'])
+      .range([availableHeight, 0]);
 
   getYScale = (props /*: Props */, availableHeight /*: number */, flatData /*: Array<Point> */) => {
     if (props.metricType === 'RATING') {
@@ -160,7 +164,10 @@ export default class AdvancedTimeline extends React.PureComponent {
     const dateRange = extent(flatData, d => d.x);
     const start = startDate && startDate > dateRange[0] ? startDate : dateRange[0];
     const end = endDate && endDate < dateRange[1] ? endDate : dateRange[1];
-    const xScale = scaleTime().domain(sortBy([start, end])).range([0, availableWidth]).clamp(false);
+    const xScale = scaleTime()
+      .domain(sortBy([start, end]))
+      .range([0, availableWidth])
+      .clamp(false);
     return {
       xScale,
       maxXRange: dateRange.map(xScale)
@@ -302,9 +309,9 @@ export default class AdvancedTimeline extends React.PureComponent {
 
     return (
       <g>
-        {ticks.map(tick =>
+        {ticks.map(tick => (
           <g key={tick}>
-            {formatYTick != null &&
+            {formatYTick != null && (
               <text
                 className="line-chart-tick line-chart-tick-x"
                 dx="-1em"
@@ -313,7 +320,8 @@ export default class AdvancedTimeline extends React.PureComponent {
                 x={xScale.range()[0]}
                 y={yScale(tick)}>
                 {formatYTick(tick)}
-              </text>}
+              </text>
+            )}
             <line
               className="line-chart-grid"
               x1={xScale.range()[0]}
@@ -322,7 +330,7 @@ export default class AdvancedTimeline extends React.PureComponent {
               y2={yScale(tick)}
             />
           </g>
-        )}
+        ))}
       </g>
     );
   };
@@ -376,13 +384,13 @@ export default class AdvancedTimeline extends React.PureComponent {
     }
     return (
       <g>
-        {this.props.series.map((serie, idx) =>
+        {this.props.series.map((serie, idx) => (
           <path
             key={serie.name}
             className={classNames('line-chart-path', 'line-chart-path-' + idx)}
             d={lineGenerator(serie.data)}
           />
-        )}
+        ))}
       </g>
     );
   };
@@ -398,13 +406,13 @@ export default class AdvancedTimeline extends React.PureComponent {
     }
     return (
       <g>
-        {this.props.series.map((serie, idx) =>
+        {this.props.series.map((serie, idx) => (
           <path
             key={serie.name}
             className={classNames('line-chart-area', 'line-chart-area-' + idx)}
             d={areaGenerator(serie.data)}
           />
-        )}
+        ))}
       </g>
     );
   };
@@ -421,14 +429,14 @@ export default class AdvancedTimeline extends React.PureComponent {
     const offset = eventSize / 2;
     return (
       <g>
-        {inRangeEvents.map((event, idx) =>
+        {inRangeEvents.map((event, idx) => (
           <path
             d={this.getEventMarker(eventSize)}
             className={classNames('line-chart-event', event.className)}
             key={`${idx}-${event.date.getTime()}`}
             transform={`translate(${xScale(event.date) - offset}, ${yScale.range()[0] + offset})`}
           />
-        )}
+        ))}
       </g>
     );
   };

@@ -85,16 +85,12 @@ export default class AddMemberForm extends React.PureComponent {
         overlayClassName="modal-overlay"
         onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>
-            {translate('users.add')}
-          </h2>
+          <h2>{translate('users.add')}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
             <div className="modal-large-field">
-              <label>
-                {translate('users.search_description')}
-              </label>
+              <label>{translate('users.search_description')}</label>
               <UsersSelectSearch
                 autoFocus={true}
                 selectedUser={this.state.selectedMember}

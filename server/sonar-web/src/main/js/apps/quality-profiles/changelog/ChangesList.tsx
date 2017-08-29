@@ -28,13 +28,15 @@ interface Props {
 export default function ChangesList({ changes }: Props) {
   return (
     <ul>
-      {Object.keys(changes).map(key =>
+      {Object.keys(changes).map(key => (
         <li key={key}>
-          {key === 'severity'
-            ? <SeverityChange severity={changes[key]} />
-            : <ParameterChange name={key} value={changes[key]} />}
+          {key === 'severity' ? (
+            <SeverityChange severity={changes[key]} />
+          ) : (
+            <ParameterChange name={key} value={changes[key]} />
+          )}
         </li>
-      )}
+      ))}
     </ul>
   );
 }

@@ -185,7 +185,7 @@
   border: 2px solid #4b9fd5;
   border-radius: 10px;
   box-sizing: border-box;
-  content: "";
+  content: '';
 }
 
 .project-activity-events {

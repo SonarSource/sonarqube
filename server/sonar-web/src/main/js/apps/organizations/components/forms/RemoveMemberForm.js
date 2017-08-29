@@ -69,9 +69,7 @@ export default class RemoveMemberForm extends React.PureComponent {
         overlayClassName="modal-overlay"
         onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>
-            {translate('users.remove')}
-          </h2>
+          <h2>{translate('users.remove')}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body markdown">

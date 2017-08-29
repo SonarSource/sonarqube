@@ -36,7 +36,7 @@ export default function ColorBoxLegend(
   const colorRange = colorScale.range();
   return (
     <div className={classNames('color-box-legend', className)}>
-      {colorDomain.map((value, idx) =>
+      {colorDomain.map((value, idx) => (
         <div key={value}>
           <span className="color-box-legend-rect" style={{ borderColor: colorRange[idx] }}>
             <span
@@ -46,14 +46,15 @@ export default function ColorBoxLegend(
           </span>
           {formatMeasure(value, metricType)}
         </div>
-      )}
-      {colorNA &&
+      ))}
+      {colorNA && (
         <div>
           <span className="color-box-legend-rect" style={{ borderColor: colorNA }}>
             <span className="color-box-legend-rect-inner" style={{ backgroundColor: colorNA }} />
           </span>
           N/A
-        </div>}
+        </div>
+      )}
     </div>
   );
 }

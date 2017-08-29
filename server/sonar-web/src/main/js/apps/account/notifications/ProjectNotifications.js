@@ -82,18 +82,14 @@ class ProjectNotifications extends React.PureComponent {
                 <Organization organizationKey={project.organization} />
               </span>
               <h4 className="display-inline-block">
-                <Link to={getProjectUrl(project.key)}>
-                  {project.name}
-                </Link>
+                <Link to={getProjectUrl(project.key)}>{project.name}</Link>
               </h4>
             </th>
-            {channels.map(channel =>
+            {channels.map(channel => (
               <th key={channel} className="text-center">
-                <h4>
-                  {translate('notification.channel', channel)}
-                </h4>
+                <h4>{translate('notification.channel', channel)}</h4>
               </th>
-            )}
+            ))}
           </tr>
         </thead>
         <NotificationsList

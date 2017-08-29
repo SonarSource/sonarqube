@@ -102,7 +102,7 @@
 }
 
 .Select-value svg,
-.Select-value [class^="icon-"] {
+.Select-value [class^='icon-'] {
   padding-top: 5px;
 }
 
@@ -112,21 +112,23 @@
 
 .Select-option svg,
 .Select-option img,
-.Select-option [class^="icon-"] {
+.Select-option [class^='icon-'] {
   padding-top: 2px;
 }
 
 .has-value:not(.Select--multi) > .Select-control > .Select-value .Select-value-label,
 .has-value.is-pseudo-focused:not(.Select--multi)
   > .Select-control
-  > .Select-value .Select-value-label {
+  > .Select-value
+  .Select-value-label {
   color: @baseFontColor;
 }
 
 .has-value:not(.Select--multi) > .Select-control > .Select-value a.Select-value-label,
 .has-value.is-pseudo-focused:not(.Select--multi)
   > .Select-control
-  > .Select-value a.Select-value-label {
+  > .Select-value
+  a.Select-value-label {
   cursor: pointer;
   text-decoration: none;
 }
@@ -134,11 +136,13 @@
 .has-value:not(.Select--multi) > .Select-control > .Select-value a.Select-value-label:hover,
 .has-value.is-pseudo-focused:not(.Select--multi)
   > .Select-control
-  > .Select-value a.Select-value-label:hover,
+  > .Select-value
+  a.Select-value-label:hover,
 .has-value:not(.Select--multi) > .Select-control > .Select-value a.Select-value-label:focus,
 .has-value.is-pseudo-focused:not(.Select--multi)
   > .Select-control
-  > .Select-value a.Select-value-label:focus {
+  > .Select-value
+  a.Select-value-label:focus {
   color: #007eff;
   outline: none;
   text-decoration: underline;

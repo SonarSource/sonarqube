@@ -45,9 +45,11 @@ function ProjectAdminPageExtension(props /*: Props */) {
   const extension =
     component.configuration &&
     component.configuration.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
-  return extension
-    ? <Extension extension={extension} options={{ component }} />
-    : <ExtensionNotFound />;
+  return extension ? (
+    <Extension extension={extension} options={{ component }} />
+  ) : (
+    <ExtensionNotFound />
+  );
 }
 
 const mapDispatchToProps = { onFail: addGlobalErrorMessage };

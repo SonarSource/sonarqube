@@ -86,12 +86,13 @@ export default class OrganizationNavigation extends React.PureComponent {
               {translate('edit')}
             </Link>
           </li>
-          {organization.canDelete &&
+          {organization.canDelete && (
             <li>
               <Link to={`/organizations/${organization.key}/delete`} activeClassName="active">
                 {translate('delete')}
               </Link>
-            </li>}
+            </li>
+          )}
         </ul>
       </li>
     );
@@ -126,9 +127,7 @@ export default class OrganizationNavigation extends React.PureComponent {
             href="#">
             {translate('more')}&nbsp;<i className="icon-dropdown" />
           </a>
-          <ul className="dropdown-menu">
-            {extensions.map(this.renderExtension)}
-          </ul>
+          <ul className="dropdown-menu">{extensions.map(this.renderExtension)}</ul>
         </li>
       );
     } else {
@@ -160,23 +159,23 @@ export default class OrganizationNavigation extends React.PureComponent {
             <Link
               to={`/organizations/${organization.key}`}
               className="link-base-color link-no-underline">
-              <strong>
-                {organization.name}
-              </strong>
+              <strong>{organization.name}</strong>
             </Link>
           </h1>
-          {organization.description != null &&
+          {organization.description != null && (
             <div className="navbar-context-description">
               <p className="text-limited text-top" title={organization.description}>
                 {organization.description}
               </p>
-            </div>}
+            </div>
+          )}
         </div>
 
         <div className="navbar-context-meta">
-          {!!organization.avatar &&
-            <img src={organization.avatar} height={30} alt={organization.name} />}
-          {organization.url != null &&
+          {!!organization.avatar && (
+            <img src={organization.avatar} height={30} alt={organization.name} />
+          )}
+          {organization.url != null && (
             <div>
               <p className="text-limited text-top">
                 <a
@@ -187,7 +186,8 @@ export default class OrganizationNavigation extends React.PureComponent {
                   {organization.url}
                 </a>
               </p>
-            </div>}
+            </div>
+          )}
         </div>
 
         <NavBarTabs>

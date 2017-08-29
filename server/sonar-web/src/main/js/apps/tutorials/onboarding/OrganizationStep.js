@@ -142,7 +142,7 @@ export default class OrganizationStep extends React.PureComponent {
     }
   };
 
-  renderPersonalOrganizationOption = () =>
+  renderPersonalOrganizationOption = () => (
     <div>
       <a className="link-base-color link-no-underline" href="#" onClick={this.handlePersonalClick}>
         <i
@@ -151,13 +151,12 @@ export default class OrganizationStep extends React.PureComponent {
           })}
         />
         {translate('onboarding.organization.my_personal_organization')}
-        <span className="note spacer-left">
-          {this.state.personalOrganization}
-        </span>
+        <span className="note spacer-left">{this.state.personalOrganization}</span>
       </a>
-    </div>;
+    </div>
+  );
 
-  renderExistingOrganizationOption = () =>
+  renderExistingOrganizationOption = () => (
     <div className="big-spacer-top">
       <a
         className="js-existing link-base-color link-no-underline"
@@ -170,7 +169,7 @@ export default class OrganizationStep extends React.PureComponent {
         />
         {translate('onboarding.organization.exising_organization')}
       </a>
-      {this.state.selection === 'existing' &&
+      {this.state.selection === 'existing' && (
         <div className="big-spacer-top">
           <Select
             className="input-super-large"
@@ -182,10 +181,12 @@ export default class OrganizationStep extends React.PureComponent {
             }))}
             value={this.state.existingOrganization}
           />
-        </div>}
-    </div>;
+        </div>
+      )}
+    </div>
+  );
 
-  renderNewOrganizationOption = () =>
+  renderNewOrganizationOption = () => (
     <div className="big-spacer-top">
       <a
         className="js-new link-base-color link-no-underline"
@@ -198,15 +199,17 @@ export default class OrganizationStep extends React.PureComponent {
         />
         {translate('onboarding.organization.create_another_organization')}
       </a>
-      {this.state.selection === 'new' &&
+      {this.state.selection === 'new' && (
         <div className="big-spacer-top">
           <NewOrganizationForm
             onDelete={this.handleOrganizationDelete}
             onDone={this.handleOrganizationCreate}
             organization={this.state.newOrganization}
           />
-        </div>}
-    </div>;
+        </div>
+      )}
+    </div>
+  );
 
   renderForm = () => {
     return (
@@ -215,22 +218,24 @@ export default class OrganizationStep extends React.PureComponent {
           {translate('onboarding.organization.text')}
         </div>
 
-        {this.state.loading
-          ? <i className="spinner" />
-          : <div>
-              {this.state.personalOrganization && this.renderPersonalOrganizationOption()}
-              {this.state.existingOrganizations.length > 0 &&
-                this.renderExistingOrganizationOption()}
-              {this.renderNewOrganizationOption()}
-            </div>}
+        {this.state.loading ? (
+          <i className="spinner" />
+        ) : (
+          <div>
+            {this.state.personalOrganization && this.renderPersonalOrganizationOption()}
+            {this.state.existingOrganizations.length > 0 && this.renderExistingOrganizationOption()}
+            {this.renderNewOrganizationOption()}
+          </div>
+        )}
 
         {this.getSelectedOrganization() != null &&
-          !this.state.loading &&
+        !this.state.loading && (
           <div className="big-spacer-top">
             <button className="js-continue" onClick={this.handleContinueClick}>
               {translate('continue')}
             </button>
-          </div>}
+          </div>
+        )}
       </div>
     );
   };
@@ -238,14 +243,12 @@ export default class OrganizationStep extends React.PureComponent {
   renderResult = () => {
     const result = this.getSelectedOrganization();
 
-    return result != null
-      ? <div className="boxed-group-actions">
-          <i className="icon-check spacer-right" />
-          <strong>
-            {result}
-          </strong>
-        </div>
-      : null;
+    return result != null ? (
+      <div className="boxed-group-actions">
+        <i className="icon-check spacer-right" />
+        <strong>{result}</strong>
+      </div>
+    ) : null;
   };
 
   render() {

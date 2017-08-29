@@ -38,7 +38,10 @@ export default ModalView.extend({
     ModalView.prototype.onRender.apply(this, arguments);
     const that = this;
     setTimeout(() => {
-      that.$(':tabbable').first().focus();
+      that
+        .$(':tabbable')
+        .first()
+        .focus();
     }, 0);
   },
 

@@ -103,14 +103,14 @@ export default class QualityGateConditions extends React.PureComponent {
       <div
         id="overview-quality-gate-conditions-list"
         className="overview-quality-gate-conditions-list clearfix">
-        {sortedConditions.map(condition =>
+        {sortedConditions.map(condition => (
           <QualityGateCondition
             key={condition.measure.metric.key}
             branch={branch}
             component={component}
             condition={condition}
           />
-        )}
+        ))}
       </div>
     );
   }

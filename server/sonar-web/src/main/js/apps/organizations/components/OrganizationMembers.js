@@ -90,7 +90,7 @@ export default class OrganizationMembers extends React.PureComponent {
       <div className="page page-limited">
         <Helmet title={translate('organization.members.page')} />
         <MembersPageHeader loading={status.loading} total={status.total}>
-          {organization.canAdmin &&
+          {organization.canAdmin && (
             <div className="page-actions">
               <div className="button-group">
                 <AddMemberForm
@@ -99,7 +99,8 @@ export default class OrganizationMembers extends React.PureComponent {
                   memberLogins={this.props.memberLogins}
                 />
               </div>
-            </div>}
+            </div>
+          )}
         </MembersPageHeader>
         <MembersListHeader total={status.total} handleSearch={this.handleSearchMembers} />
         <MembersList
@@ -109,13 +110,14 @@ export default class OrganizationMembers extends React.PureComponent {
           removeMember={this.removeMember}
           updateMemberGroups={this.updateMemberGroups}
         />
-        {status.total != null &&
+        {status.total != null && (
           <ListFooter
             count={members.length}
             total={status.total}
             ready={!status.loading}
             loadMore={this.handleLoadMoreMembers}
-          />}
+          />
+        )}
       </div>
     );
   }

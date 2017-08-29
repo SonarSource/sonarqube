@@ -27,14 +27,12 @@ interface Props {
 export default function ActionChangelog({ changelog }: Props) {
   return (
     <ul className="big-spacer-top">
-      {changelog.map((item, index) =>
+      {changelog.map((item, index) => (
         <li key={index} className="spacer-top">
-          <span className="spacer-right badge">
-            {item.version}
-          </span>
+          <span className="spacer-right badge">{item.version}</span>
           {item.description}
         </li>
-      )}
+      ))}
     </ul>
   );
 }

@@ -26,9 +26,7 @@ interface Props {
 export default function TaskId({ id }: Props) {
   return (
     <td className="thin nowrap">
-      <div className="note">
-        {id}
-      </div>
+      <div className="note">{id}</div>
     </td>
   );
 }

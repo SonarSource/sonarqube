@@ -77,7 +77,9 @@ export default Marionette.ItemView.extend({
     this.initialResizeHeight = $('.workspace-viewer-container').height();
     const processResizing = this.processResizing.bind(this);
     const stopResizing = this.stopResizing.bind(this);
-    $('body').on('mousemove.workspace', processResizing).on('mouseup.workspace', stopResizing);
+    $('body')
+      .on('mousemove.workspace', processResizing)
+      .on('mouseup.workspace', stopResizing);
   },
 
   processResizing(e) {
@@ -88,7 +90,9 @@ export default Marionette.ItemView.extend({
   },
 
   stopResizing() {
-    $('body').off('mousemove.workspace').off('mouseup.workspace');
+    $('body')
+      .off('mousemove.workspace')
+      .off('mouseup.workspace');
   },
 
   toFullScreen() {

@@ -151,7 +151,7 @@
   height: 100px;
   background-color: #e6e6e6;
   transform: rotate(30deg);
-  content: "";
+  content: '';
 }
 
 .my-activity-issues > a {

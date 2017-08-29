@@ -48,7 +48,7 @@ export default class IssuesList extends React.PureComponent {
 
     return (
       <div>
-        {issues.map((issue, index) =>
+        {issues.map((issue, index) => (
           <ListItem
             branch={branch}
             checked={checked.includes(issue.key)}
@@ -65,7 +65,7 @@ export default class IssuesList extends React.PureComponent {
             previousIssue={index > 0 ? issues[index - 1] : null}
             selected={selectedIssue != null && selectedIssue.key === issue.key}
           />
-        )}
+        ))}
       </div>
     );
   }

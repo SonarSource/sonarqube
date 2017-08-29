@@ -62,7 +62,9 @@ const Plugins = Backbone.Collection.extend({
 
   _fetchInstalled() {
     if (this._installed) {
-      return $.Deferred().resolve().promise();
+      return $.Deferred()
+        .resolve()
+        .promise();
     }
     const that = this;
     const opts = {
@@ -77,7 +79,9 @@ const Plugins = Backbone.Collection.extend({
 
   _fetchUpdates() {
     if (this._updates) {
-      return $.Deferred().resolve().promise();
+      return $.Deferred()
+        .resolve()
+        .promise();
     }
     const that = this;
     const opts = {
@@ -92,7 +96,9 @@ const Plugins = Backbone.Collection.extend({
 
   _fetchAvailable() {
     if (this._available) {
-      return $.Deferred().resolve().promise();
+      return $.Deferred()
+        .resolve()
+        .promise();
     }
     const that = this;
     const opts = {
@@ -131,7 +137,9 @@ const Plugins = Backbone.Collection.extend({
 
   _fetchSystemUpgrades() {
     if (this._systemUpdates) {
-      return $.Deferred().resolve().promise();
+      return $.Deferred()
+        .resolve()
+        .promise();
     }
     const that = this;
     const opts = {

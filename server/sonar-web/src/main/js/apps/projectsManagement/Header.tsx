@@ -55,9 +55,7 @@ export default class Header extends React.PureComponent<Props, State> {
 
     return (
       <header className="page-header">
-        <h1 className="page-title">
-          {translate('projects_management')}
-        </h1>
+        <h1 className="page-title">{translate('projects_management')}</h1>
 
         <div className="page-actions">
           <span className="big-spacer-right">
@@ -69,22 +67,22 @@ export default class Header extends React.PureComponent<Props, State> {
               onClick={this.handleChangeVisibilityClick}
             />
           </span>
-          {this.props.hasProvisionPermission &&
+          {this.props.hasProvisionPermission && (
             <button id="create-project" onClick={this.handleCreateProjectClick}>
               {translate('qualifiers.create.TRK')}
-            </button>}
+            </button>
+          )}
         </div>
 
-        <p className="page-description">
-          {translate('projects_management.page.description')}
-        </p>
+        <p className="page-description">{translate('projects_management.page.description')}</p>
 
-        {this.state.visibilityForm &&
+        {this.state.visibilityForm && (
           <ChangeVisibilityForm
             onClose={this.closeVisiblityForm}
             onConfirm={this.props.onVisibilityChange}
             organization={organization}
-          />}
+          />
+        )}
       </header>
     );
   }

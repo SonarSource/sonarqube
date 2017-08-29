@@ -47,9 +47,7 @@ export default class TemplateHeader extends React.PureComponent {
           </Link>
         </div>
 
-        <h1 className="page-title">
-          {template.name}
-        </h1>
+        <h1 className="page-title">{template.name}</h1>
 
         {this.props.loading && <i className="spinner" />}
 

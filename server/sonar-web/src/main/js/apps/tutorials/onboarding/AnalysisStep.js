@@ -77,18 +77,15 @@ export default class AnalysisStep extends React.PureComponent {
               sonarCloud={this.props.sonarCloud}
             />
           </div>
-          <div className="flex-column flex-column-half">
-            {this.renderCommand()}
-          </div>
+          <div className="flex-column flex-column-half">{this.renderCommand()}</div>
         </div>
       </div>
     );
   };
 
-  renderFormattedCommand = (...lines /*: Array<string> */) =>
-    <pre>
-      {lines.join(' ' + '\\' + '\n' + '  ')}
-    </pre>;
+  renderFormattedCommand = (...lines /*: Array<string> */) => (
+    <pre>{lines.join(' ' + '\\' + '\n' + '  ')}</pre>
+  );
 
   renderCommand = () => {
     const { result } = this.state;
@@ -112,19 +109,21 @@ export default class AnalysisStep extends React.PureComponent {
     }
   };
 
-  renderCommandForMaven = () =>
+  renderCommandForMaven = () => (
     <JavaMaven
       host={this.getHost()}
       organization={this.props.organization}
       token={this.props.token}
-    />;
+    />
+  );
 
-  renderCommandForGradle = () =>
+  renderCommandForGradle = () => (
     <JavaGradle
       host={this.getHost()}
       organization={this.props.organization}
       token={this.props.token}
-    />;
+    />
+  );
 
   renderCommandForDotNet = () => {
     return (
@@ -150,7 +149,7 @@ export default class AnalysisStep extends React.PureComponent {
     );
   };
 
-  renderCommandForClangGCC = () =>
+  renderCommandForClangGCC = () => (
     <ClangGCC
       host={this.getHost()}
       organization={this.props.organization}
@@ -159,9 +158,10 @@ export default class AnalysisStep extends React.PureComponent {
       // $FlowFixMe
       projectKey={this.state.result.projectKey}
       token={this.props.token}
-    />;
+    />
+  );
 
-  renderCommandForOther = () =>
+  renderCommandForOther = () => (
     <Other
       host={this.getHost()}
       organization={this.props.organization}
@@ -170,7 +170,8 @@ export default class AnalysisStep extends React.PureComponent {
       // $FlowFixMe
       projectKey={this.state.result.projectKey}
       token={this.props.token}
-    />;
+    />
+  );
 
   renderResult = () => null;
 

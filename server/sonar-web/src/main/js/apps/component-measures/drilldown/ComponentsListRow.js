@@ -49,7 +49,7 @@ export default function ComponentsListRow(props /*: Props */) {
 
       <MeasureCell component={component} metric={props.metric} />
 
-      {otherMeasures.map(measure =>
+      {otherMeasures.map(measure => (
         <MeasureCell
           key={measure.metric.key}
           component={{
@@ -59,7 +59,7 @@ export default function ComponentsListRow(props /*: Props */) {
           }}
           metric={measure.metric}
         />
-      )}
+      ))}
     </tr>
   );
 }

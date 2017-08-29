@@ -71,10 +71,14 @@ export default class ZoomTimeLine extends React.PureComponent {
   }
 
   getRatingScale = (availableHeight /*: number */) =>
-    scalePoint().domain([5, 4, 3, 2, 1]).range([availableHeight, 0]);
+    scalePoint()
+      .domain([5, 4, 3, 2, 1])
+      .range([availableHeight, 0]);
 
   getLevelScale = (availableHeight /*: number */) =>
-    scalePoint().domain(['ERROR', 'WARN', 'OK']).range([availableHeight, 0]);
+    scalePoint()
+      .domain(['ERROR', 'WARN', 'OK'])
+      .range([availableHeight, 0]);
 
   getYScale = (availableHeight /*: number */, flatData /*: Array<Point> */) => {
     if (this.props.metricType === 'RATING') {
@@ -82,12 +86,18 @@ export default class ZoomTimeLine extends React.PureComponent {
     } else if (this.props.metricType === 'LEVEL') {
       return this.getLevelScale(availableHeight);
     } else {
-      return scaleLinear().range([availableHeight, 0]).domain([0, max(flatData, d => d.y)]).nice();
+      return scaleLinear()
+        .range([availableHeight, 0])
+        .domain([0, max(flatData, d => d.y)])
+        .nice();
     }
   };
 
   getXScale = (availableWidth /*: number */, flatData /*: Array<Point> */) =>
-    scaleTime().domain(extent(flatData, d => d.x)).range([0, availableWidth]).clamp(true);
+    scaleTime()
+      .domain(extent(flatData, d => d.x))
+      .range([0, availableWidth])
+      .clamp(true);
 
   getScales = () => {
     const availableWidth = this.props.width - this.props.padding[1] - this.props.padding[3];
@@ -241,13 +251,13 @@ export default class ZoomTimeLine extends React.PureComponent {
     }
     return (
       <g>
-        {this.props.series.map((serie, idx) =>
+        {this.props.series.map((serie, idx) => (
           <path
             key={serie.name}
             className={classNames('line-chart-path', 'line-chart-path-' + idx)}
             d={lineGenerator(serie.data)}
           />
-        )}
+        ))}
       </g>
     );
   };
@@ -263,13 +273,13 @@ export default class ZoomTimeLine extends React.PureComponent {
     }
     return (
       <g>
-        {this.props.series.map((serie, idx) =>
+        {this.props.series.map((serie, idx) => (
           <path
             key={serie.name}
             className={classNames('line-chart-area', 'line-chart-area-' + idx)}
             d={areaGenerator(serie.data)}
           />
-        )}
+        ))}
       </g>
     );
   };
@@ -283,7 +293,7 @@ export default class ZoomTimeLine extends React.PureComponent {
     xDim: Array<number>,
     direction: string
   } */
-  ) =>
+  ) => (
     <Draggable
       axis="x"
       bounds={{ left: options.xDim[0], right: options.xDim[1] }}
@@ -308,7 +318,8 @@ export default class ZoomTimeLine extends React.PureComponent {
         height={options.yDim[0] - options.yDim[1] + 1}
         width={6}
       />
-    </Draggable>;
+    </Draggable>
+  );
 
   renderZoom = (xScale /*: Scale */, yScale /*: Scale */) => {
     const xRange = xScale.range();
@@ -338,7 +349,7 @@ export default class ZoomTimeLine extends React.PureComponent {
             width={xDim[1] - xDim[0]}
           />
         </DraggableCore>
-        {showZoomArea &&
+        {showZoomArea && (
           <Draggable
             axis="x"
             bounds={{ left: xDim[0], right: Math.floor(xDim[1] - zoomBoxWidth) }}
@@ -353,7 +364,8 @@ export default class ZoomTimeLine extends React.PureComponent {
               width={zoomBoxWidth}
               onDoubleClick={this.handleDoubleClick(xScale, xDim)}
             />
-          </Draggable>}
+          </Draggable>
+        )}
         {showZoomArea &&
           this.renderZoomHandle({
             xScale,

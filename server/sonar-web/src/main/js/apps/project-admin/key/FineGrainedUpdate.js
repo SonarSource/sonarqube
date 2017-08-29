@@ -29,7 +29,7 @@ export default function FineGrainedUpdate(props) {
     <div id="project-key-fine-grained-update">
       <table className="data zebra">
         <tbody>
-          {components.map(component =>
+          {components.map(component => (
             <tr key={component.key}>
               <td className="width-40">
                 <QualifierIcon qualifier={component.qualifier} /> {component.name}
@@ -38,7 +38,7 @@ export default function FineGrainedUpdate(props) {
                 <UpdateKeyForm component={component} onKeyChange={props.onKeyChange} />
               </td>
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
     </div>
