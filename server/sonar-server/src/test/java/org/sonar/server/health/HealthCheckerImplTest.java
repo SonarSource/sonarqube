@@ -52,47 +52,47 @@ public class HealthCheckerImplTest {
     HealthCheckerImpl underTest = newHealthCheckerImpl(statuses.stream());
 
     assertThat(underTest.checkNode().getStatus())
-      .describedAs("%s should have been computed from %s statuses", GREEN, statuses)
-      .isEqualTo(GREEN);
+        .describedAs("%s should have been computed from %s statuses", GREEN, statuses)
+        .isEqualTo(GREEN);
   }
 
   @Test
   public void checkNode_returns_YELLOW_status_if_only_GREEN_and_at_least_one_YELLOW_statuses_returned_by_HealthChecks() {
     List<Health.Status> statuses = new ArrayList<>();
     Stream.concat(
-      IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> YELLOW), // at least 1 YELLOW
-      IntStream.range(0, random.nextInt(20)).mapToObj(i -> GREEN)).forEach(statuses::add); // between 0 and 19 GREEN
+        IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> YELLOW), // at least 1 YELLOW
+        IntStream.range(0, random.nextInt(20)).mapToObj(i -> GREEN)).forEach(statuses::add); // between 0 and 19 GREEN
     Collections.shuffle(statuses);
     HealthCheckerImpl underTest = newHealthCheckerImpl(statuses.stream());
 
     assertThat(underTest.checkNode().getStatus())
-      .describedAs("%s should have been computed from %s statuses", YELLOW, statuses)
-      .isEqualTo(YELLOW);
+        .describedAs("%s should have been computed from %s statuses", YELLOW, statuses)
+        .isEqualTo(YELLOW);
   }
 
   @Test
   public void checkNode_returns_RED_status_if_at_least_one_RED_status_returned_by_HealthChecks() {
     List<Health.Status> statuses = new ArrayList<>();
     Stream.of(
-      IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> RED), // at least 1 RED
-      IntStream.range(0, random.nextInt(20)).mapToObj(i -> YELLOW), // between 0 and 19 YELLOW
-      IntStream.range(0, random.nextInt(20)).mapToObj(i -> GREEN) // between 0 and 19 GREEN
+        IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> RED), // at least 1 RED
+        IntStream.range(0, random.nextInt(20)).mapToObj(i -> YELLOW), // between 0 and 19 YELLOW
+        IntStream.range(0, random.nextInt(20)).mapToObj(i -> GREEN) // between 0 and 19 GREEN
     ).flatMap(s -> s)
-      .forEach(statuses::add);
+        .forEach(statuses::add);
     Collections.shuffle(statuses);
     HealthCheckerImpl underTest = newHealthCheckerImpl(statuses.stream());
 
     assertThat(underTest.checkNode().getStatus())
-      .describedAs("%s should have been computed from %s statuses", RED, statuses)
-      .isEqualTo(RED);
+        .describedAs("%s should have been computed from %s statuses", RED, statuses)
+        .isEqualTo(RED);
   }
 
   @Test
   public void checkNode_returns_causes_of_all_HealthChecks_whichever_their_status() {
     NodeHealthCheck[] nodeHealthChecks = IntStream.range(0, 1 + random.nextInt(20))
-      .mapToObj(s -> new HardcodedHealthNodeCheck(IntStream.range(0, random.nextInt(3)).mapToObj(i -> RandomStringUtils.randomAlphanumeric(3)).toArray(String[]::new)))
-      .map(NodeHealthCheck.class::cast)
-      .toArray(NodeHealthCheck[]::new);
+        .mapToObj(s -> new HardcodedHealthNodeCheck(IntStream.range(0, random.nextInt(3)).mapToObj(i -> RandomStringUtils.randomAlphanumeric(3)).toArray(String[]::new)))
+        .map(NodeHealthCheck.class::cast)
+        .toArray(NodeHealthCheck[]::new);
     String[] expected = Arrays.stream(nodeHealthChecks).map(NodeHealthCheck::check).flatMap(s -> s.getCauses().stream()).toArray(String[]::new);
 
     HealthCheckerImpl underTest = new HealthCheckerImpl(nodeHealthChecks);

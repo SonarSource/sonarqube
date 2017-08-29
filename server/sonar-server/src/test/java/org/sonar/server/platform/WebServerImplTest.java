@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.cluster;
+package org.sonar.server.platform;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,7 +26,7 @@ import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ClusterImplTest {
+public class WebServerImplTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -35,9 +35,9 @@ public class ClusterImplTest {
 
   @Test
   public void cluster_is_disabled_by_default() {
-    ClusterImpl underTest = new ClusterImpl(settings.asConfig());
+    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
 
-    assertThat(underTest.isEnabled()).isFalse();
+    assertThat(underTest.isStandalone()).isTrue();
     assertThat(underTest.isStartupLeader()).isTrue();
   }
 
@@ -46,9 +46,9 @@ public class ClusterImplTest {
     settings.setProperty("sonar.cluster.enabled", "true");
     settings.setProperty("sonar.cluster.web.startupLeader", "true");
 
-    ClusterImpl underTest = new ClusterImpl(settings.asConfig());
+    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
 
-    assertThat(underTest.isEnabled()).isTrue();
+    assertThat(underTest.isStandalone()).isFalse();
     assertThat(underTest.isStartupLeader()).isTrue();
   }
 
@@ -56,9 +56,9 @@ public class ClusterImplTest {
   public void node_is_startup_follower_by_default_in_cluster() {
     settings.setProperty("sonar.cluster.enabled", "true");
 
-    ClusterImpl underTest = new ClusterImpl(settings.asConfig());
+    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
 
-    assertThat(underTest.isEnabled()).isTrue();
+    assertThat(underTest.isStandalone()).isFalse();
     assertThat(underTest.isStartupLeader()).isFalse();
   }
 
@@ -67,9 +67,9 @@ public class ClusterImplTest {
     settings.setProperty("sonar.cluster.enabled", "true");
     settings.setProperty("sonar.cluster.web.startupLeader", "false");
 
-    ClusterImpl underTest = new ClusterImpl(settings.asConfig());
+    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
 
-    assertThat(underTest.isEnabled()).isTrue();
+    assertThat(underTest.isStandalone()).isFalse();
     assertThat(underTest.isStartupLeader()).isFalse();
   }
 

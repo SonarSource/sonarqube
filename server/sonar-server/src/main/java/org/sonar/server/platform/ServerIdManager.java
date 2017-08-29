@@ -30,7 +30,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.server.platform.cluster.Cluster;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -39,13 +38,13 @@ import static org.sonar.api.CoreProperties.SERVER_ID;
 public class ServerIdManager implements Startable {
   private final DbClient dbClient;
   private final SonarRuntime runtime;
-  private final Cluster cluster;
+  private final WebServer webServer;
   private final UuidFactory uuidFactory;
 
-  public ServerIdManager(DbClient dbClient, SonarRuntime runtime, Cluster cluster, UuidFactory uuidFactory) {
+  public ServerIdManager(DbClient dbClient, SonarRuntime runtime, WebServer webServer, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.runtime = runtime;
-    this.cluster = cluster;
+    this.webServer = webServer;
     this.uuidFactory = uuidFactory;
   }
 
@@ -53,7 +52,7 @@ public class ServerIdManager implements Startable {
   public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PropertyDto dto = dbClient.propertiesDao().selectGlobalProperty(dbSession, SERVER_ID);
-      if (runtime.getSonarQubeSide() == SonarQubeSide.SERVER && cluster.isStartupLeader()) {
+      if (runtime.getSonarQubeSide() == SonarQubeSide.SERVER && webServer.isStartupLeader()) {
         persistServerIdIfMissingOrOldFormatted(dbSession, dto);
       } else {
         ensureServerIdIsSet(dto);
