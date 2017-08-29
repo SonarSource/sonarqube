@@ -19,8 +19,8 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.assertj.core.api.Fail;
+import org.assertj.core.groups.Tuple;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
@@ -68,8 +70,12 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -1287,12 +1293,64 @@ public class IssueIndexTest {
       newDoc("issue2", project).setTags(ImmutableSet.of("convention", "bug")),
       newDoc("issue3", project).setTags(emptyList()),
       newDoc("issue4", project).setTags(ImmutableSet.of("convention", "java8", "bug")).setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("issue5", project).setTags(ImmutableSet.of("convention"))
-    );
+      newDoc("issue5", project).setTags(ImmutableSet.of("convention")));
 
     assertThat(underTest.countTags(projectQuery(project.uuid()), 5)).containsOnly(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
     assertThat(underTest.countTags(projectQuery(project.uuid()), 2)).contains(entry("convention", 3L), entry("bug", 2L)).doesNotContainEntry("java8", 1L);
     assertThat(underTest.countTags(projectQuery("other"), 10)).isEmpty();
+  }
+
+  @Test
+  public void searchBranchStatistics() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch1 = db.components().insertProjectBranch(project);
+    ComponentDto branch2 = db.components().insertProjectBranch(project);
+    ComponentDto branch3 = db.components().insertProjectBranch(project);
+    ComponentDto fileOnBranch3 = db.components().insertComponent(newFileDto(branch3));
+    indexIssues(newDoc(project),
+      newDoc(branch1).setType(BUG), newDoc(branch1).setType(VULNERABILITY), newDoc(branch1).setType(CODE_SMELL),
+      newDoc(branch3).setType(CODE_SMELL), newDoc(branch3).setType(CODE_SMELL), newDoc(fileOnBranch3).setType(CODE_SMELL));
+
+    List<BranchStatistics> branchStatistics = underTest.searchBranchStatistics(asList(branch1.uuid(), branch2.uuid(), branch3.uuid()));
+
+    assertThat(branchStatistics).extracting(BranchStatistics::getBranchUuid, BranchStatistics::getBugs, BranchStatistics::getVulnerabilities, BranchStatistics::getCodeSmells)
+      .containsExactlyInAnyOrder(
+        tuple(branch1.uuid(), 1L, 1L, 1L),
+        tuple(branch3.uuid(), 0L, 0L, 3L));
+  }
+
+  @Test
+  public void searchBranchStatistics_on_many_branches() {
+    ComponentDto project = db.components().insertMainBranch();
+    List<String> branchUuids = new ArrayList<>();
+    List<Tuple> expectedResult = new ArrayList<>();
+    IntStream.range(0, 15).forEach(i -> {
+      ComponentDto branch = db.components().insertProjectBranch(project);
+      addIssues(branch, 1 + i, 2 + i, 3 + i);
+      expectedResult.add(tuple(branch.uuid(), 1L + i, 2L + i, 3L + i));
+      branchUuids.add(branch.uuid());
+    });
+
+    List<BranchStatistics> branchStatistics = underTest.searchBranchStatistics(branchUuids);
+
+    assertThat(branchStatistics)
+      .extracting(BranchStatistics::getBranchUuid, BranchStatistics::getBugs, BranchStatistics::getVulnerabilities, BranchStatistics::getCodeSmells)
+      .hasSize(15)
+      .containsAll(expectedResult);
+  }
+
+  @Test
+  public void searchBranchStatistics_on_empty_list() {
+    assertThat(underTest.searchBranchStatistics(emptyList())).isEmpty();
+    assertThat(underTest.searchBranchStatistics(singletonList("unknown"))).isEmpty();
+  }
+
+  private void addIssues(ComponentDto branch, int bugs, int vulnerabilities, int codeSmelles) {
+    List<IssueDoc> issues = new ArrayList<>();
+    IntStream.range(0, bugs).forEach(b -> issues.add(newDoc(branch).setType(BUG)));
+    IntStream.range(0, vulnerabilities).forEach(v -> issues.add(newDoc(branch).setType(VULNERABILITY)));
+    IntStream.range(0, codeSmelles).forEach(c -> issues.add(newDoc(branch).setType(CODE_SMELL)));
+    indexIssues(issues.toArray(new IssueDoc[issues.size()]));
   }
 
   private IssueQuery projectQuery(String projectUuid) {
