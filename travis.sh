@@ -143,7 +143,7 @@ BUILD)
           -Pdeploy-sonarsource,release
         
     #disabling incremental analysis for the time being    
-    INCREMENTAL=false
+    INCREMENTAL=true
     # Triggers a full analysis for every build number ending with 0
     if [[ "$TRAVIS_BUILD_NUMBER" == *0 ]]; then
       INCREMENTAL=false
