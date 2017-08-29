@@ -173,7 +173,7 @@ export default class ComponentNavMenu extends React.PureComponent {
   }
 
   renderSettingsLink() {
-    if (!this.props.conf.showSettings || this.isApplication()) {
+    if (!this.props.conf.showSettings || this.isApplication() || this.isView()) {
       return null;
     }
     return (
