@@ -30,7 +30,8 @@ import org.sonarqube.tests.serverSystem.RestartTest;
 import org.sonarqube.tests.serverSystem.ServerSystemRestartingOrchestrator;
 import org.sonarqube.tests.settings.LicensesPageTest;
 import org.sonarqube.tests.settings.SettingsTestRestartingOrchestrator;
-import org.sonarqube.tests.telemetry.TelemetryTest;
+import org.sonarqube.tests.telemetry.TelemetryOptOutTest;
+import org.sonarqube.tests.telemetry.TelemetryUploadTest;
 import org.sonarqube.tests.updateCenter.UpdateCenterTest;
 import org.sonarqube.tests.user.OnboardingTest;
 import org.sonarqube.tests.user.RealmAuthenticationTest;
@@ -58,7 +59,8 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
   ActiveRuleEsResilienceTest.class,
   RuleEsResilienceTest.class,
   UserEsResilienceTest.class,
-  TelemetryTest.class,
+  TelemetryUploadTest.class,
+  TelemetryOptOutTest.class,
   // ce
   CeWorkersTest.class
 })
