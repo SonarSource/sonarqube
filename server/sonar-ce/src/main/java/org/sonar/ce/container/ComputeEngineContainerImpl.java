@@ -120,7 +120,7 @@ import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.platform.StartupMetadataProvider;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.platform.UrlSettings;
-import org.sonar.server.platform.cluster.ClusterImpl;
+import org.sonar.server.platform.WebServerImpl;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
@@ -244,7 +244,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       SonarRuntimeImpl.forSonarQube(ApiVersion.load(System2.INSTANCE), SonarQubeSide.COMPUTE_ENGINE),
       CeProcessLogging.class,
       UuidFactoryImpl.INSTANCE,
-      ClusterImpl.class,
+      WebServerImpl.class,
       LogbackHelper.class,
       DefaultDatabase.class,
       DatabaseChecker.class,

@@ -19,9 +19,7 @@
  */
 package org.sonar.server.es.request;
 
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -33,7 +31,7 @@ import org.sonar.server.es.EsTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class ProxyClusterHealthRequestBuilderTest {
+public class ProxyWebServerStateRequestBuilderTest {
 
   @ClassRule
   public static EsTester esTester = new EsTester();
@@ -43,24 +41,22 @@ public class ProxyClusterHealthRequestBuilderTest {
 
   @Test
   public void state() {
-    ClusterHealthRequestBuilder requestBuilder = esTester.client().prepareHealth();
-    ClusterHealthResponse state = requestBuilder.get();
-    assertThat(state.getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
+    ClusterStateRequestBuilder requestBuilder = esTester.client().prepareState();
+    requestBuilder.get();
   }
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().prepareHealth("rules").toString()).isEqualTo("ES cluster health request on indices 'rules'");
-    assertThat(esTester.client().prepareHealth().toString()).isEqualTo("ES cluster health request");
+    assertThat(esTester.client().prepareState().setIndices("rules").toString()).isEqualTo("ES cluster state request on indices 'rules'");
+    assertThat(esTester.client().prepareState().toString()).isEqualTo("ES cluster state request");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    ClusterHealthRequestBuilder requestBuilder = esTester.client().prepareHealth();
-    ClusterHealthResponse state = requestBuilder.get();
-    assertThat(state.getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
+    ClusterStateRequestBuilder requestBuilder = esTester.client().prepareState();
+    requestBuilder.get();
 
     assertThat(logTester.logs()).hasSize(1);
   }
@@ -68,7 +64,7 @@ public class ProxyClusterHealthRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareHealth().get("1");
+      esTester.client().prepareState().get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -78,7 +74,7 @@ public class ProxyClusterHealthRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareHealth().get(TimeValue.timeValueMinutes(1));
+      esTester.client().prepareState().get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -88,7 +84,7 @@ public class ProxyClusterHealthRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().prepareHealth().execute();
+      esTester.client().prepareState().execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

@@ -31,7 +31,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.server.platform.cluster.ClusterMock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -50,28 +49,28 @@ public class StartupMetadataProviderTest {
 
   private StartupMetadataProvider underTest = new StartupMetadataProvider();
   private System2 system = mock(System2.class);
-  private ClusterMock cluster = new ClusterMock();
+  private WebServer webServer = mock(WebServer.class);
 
   @Test
   public void generate_SERVER_STARTIME_but_do_not_persist_it_if_server_is_startup_leader() {
     when(system.now()).thenReturn(A_DATE);
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER);
-    cluster.setStartupLeader(true);
+    when(webServer.isStartupLeader()).thenReturn(true);
 
-    StartupMetadata metadata = underTest.provide(system, runtime, cluster, dbTester.getDbClient());
+    StartupMetadata metadata = underTest.provide(system, runtime, webServer, dbTester.getDbClient());
     assertThat(metadata.getStartedAt()).isEqualTo(A_DATE);
 
     assertNotPersistedProperty(CoreProperties.SERVER_STARTTIME);
 
     // keep a cache
-    StartupMetadata secondMetadata = underTest.provide(system, runtime, cluster, dbTester.getDbClient());
+    StartupMetadata secondMetadata = underTest.provide(system, runtime, webServer, dbTester.getDbClient());
     assertThat(secondMetadata).isSameAs(metadata);
   }
 
   @Test
   public void load_from_database_if_server_is_startup_follower() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER);
-    cluster.setStartupLeader(false);
+    when(webServer.isStartupLeader()).thenReturn(false);
 
     testLoadingFromDatabase(runtime, false);
   }
@@ -93,25 +92,25 @@ public class StartupMetadataProviderTest {
   @Test
   public void fail_to_load_from_database_if_properties_are_not_persisted() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.COMPUTE_ENGINE);
-    cluster.setStartupLeader(false);
+    when(webServer.isStartupLeader()).thenReturn(false);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Property sonar.core.startTime is missing in database");
-    underTest.provide(system, runtime, cluster, dbTester.getDbClient());
+    underTest.provide(system, runtime, webServer, dbTester.getDbClient());
   }
 
   private void testLoadingFromDatabase(SonarRuntime runtime, boolean isStartupLeader) {
     new StartupMetadataPersister(new StartupMetadata(A_DATE), dbTester.getDbClient()).start();
-    cluster.setStartupLeader(isStartupLeader);
+    when(webServer.isStartupLeader()).thenReturn(isStartupLeader);
 
-    StartupMetadata metadata = underTest.provide(system, runtime, cluster, dbTester.getDbClient());
+    StartupMetadata metadata = underTest.provide(system, runtime, webServer, dbTester.getDbClient());
     assertThat(metadata.getStartedAt()).isEqualTo(A_DATE);
 
     // still in database
     assertPersistedProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(A_DATE));
 
     // keep a cache
-    StartupMetadata secondMetadata = underTest.provide(system, runtime, cluster, dbTester.getDbClient());
+    StartupMetadata secondMetadata = underTest.provide(system, runtime, webServer, dbTester.getDbClient());
     assertThat(secondMetadata).isSameAs(metadata);
 
     verifyZeroInteractions(system);

@@ -30,7 +30,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.server.platform.cluster.Cluster;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -42,9 +41,9 @@ public class StartupMetadataProvider extends ProviderAdapter {
 
   private StartupMetadata cache = null;
 
-  public StartupMetadata provide(System2 system, SonarRuntime runtime, Cluster cluster, DbClient dbClient) {
+  public StartupMetadata provide(System2 system, SonarRuntime runtime, WebServer webServer, DbClient dbClient) {
     if (cache == null) {
-      if (runtime.getSonarQubeSide() == SonarQubeSide.SERVER && cluster.isStartupLeader()) {
+      if (runtime.getSonarQubeSide() == SonarQubeSide.SERVER && webServer.isStartupLeader()) {
         cache = generate(system);
       } else {
         cache = load(dbClient);
