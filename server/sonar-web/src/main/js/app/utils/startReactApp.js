@@ -32,7 +32,7 @@ import Landing from '../components/Landing';
 import ProjectAdminContainer from '../components/ProjectAdminContainer';
 import ProjectPageExtension from '../components/extensions/ProjectPageExtension';
 import ProjectAdminPageExtension from '../components/extensions/ProjectAdminPageExtension';
-import ViewDashboard from '../components/extensions/ViewDashboard';
+import PortfolioDashboard from '../components/extensions/PortfolioDashboard';
 import PortfoliosPage from '../components/extensions/PortfoliosPage';
 import AdminContainer from '../components/AdminContainer';
 import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
@@ -170,7 +170,7 @@ const startReactApp = () => {
 
                   <Route
                     getComponent={() =>
-                      import('../components/ProjectContainer').then(i => i.default)}>
+                      import('../components/ComponentContainer').then(i => i.default)}>
                     <Route path="code" childRoutes={codeRoutes} />
                     <Route path="component_measures" childRoutes={componentMeasuresRoutes} />
                     <Route path="custom_measures" childRoutes={customMeasuresRoutes} />
@@ -194,7 +194,7 @@ const startReactApp = () => {
                       {projectAdminRoutes}
                     </Route>
                     <Route path="project_roles" childRoutes={projectPermissionsRoutes} />
-                    <Route path="portfolio" component={ViewDashboard} />
+                    <Route path="portfolio" component={PortfolioDashboard} />
                   </Route>
 
                   <Route component={AdminContainer}>
