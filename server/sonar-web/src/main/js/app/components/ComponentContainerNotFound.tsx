@@ -40,12 +40,8 @@ export default class ComponentContainerNotFound extends React.PureComponent {
     return (
       <div id="bd" className="page-wrapper-simple">
         <div id="nonav" className="page-simple">
-          <h2 className="big-spacer-bottom">
-            {translate('dashboard.project_not_found')}
-          </h2>
-          <p className="spacer-bottom">
-            {translate('dashboard.project_not_found.2')}
-          </p>
+          <h2 className="big-spacer-bottom">{translate('dashboard.project_not_found')}</h2>
+          <p className="spacer-bottom">{translate('dashboard.project_not_found.2')}</p>
           <p>
             <Link to="/">Go back to the homepage</Link>
           </p>

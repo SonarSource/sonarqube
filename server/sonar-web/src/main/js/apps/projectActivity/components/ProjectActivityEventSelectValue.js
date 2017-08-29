@@ -35,9 +35,7 @@ export default function ProjectActivityEventSelectValue(props /*: Props */) {
     <div className="Select-value" title={value.label}>
       <div className="Select-value-label">
         <ProjectEventIcon className={'project-activity-event-icon ' + value.value} />
-        <span className="little-spacer-left">
-          {props.children}
-        </span>
+        <span className="little-spacer-left">{props.children}</span>
       </div>
     </div>
   );

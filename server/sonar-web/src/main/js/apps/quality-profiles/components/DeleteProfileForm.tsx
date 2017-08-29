@@ -76,32 +76,32 @@ export default class DeleteProfileForm extends React.PureComponent<Props, State>
         onRequestClose={this.props.onClose}>
         <form id="delete-profile-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
-            <h2>
-              {header}
-            </h2>
+            <h2>{header}</h2>
           </div>
           <div className="modal-body">
             <div className="js-modal-messages" />
-            {profile.childrenCount > 0
-              ? <div>
-                  <div className="alert alert-warning">
-                    {translate('quality_profiles.this_profile_has_descendants')}
-                  </div>
-                  <p>
-                    {translateWithParameters(
-                      'quality_profiles.are_you_sure_want_delete_profile_x_and_descendants',
-                      profile.name,
-                      profile.languageName
-                    )}
-                  </p>
+            {profile.childrenCount > 0 ? (
+              <div>
+                <div className="alert alert-warning">
+                  {translate('quality_profiles.this_profile_has_descendants')}
                 </div>
-              : <p>
+                <p>
                   {translateWithParameters(
-                    'quality_profiles.are_you_sure_want_delete_profile_x',
+                    'quality_profiles.are_you_sure_want_delete_profile_x_and_descendants',
                     profile.name,
                     profile.languageName
                   )}
-                </p>}
+                </p>
+              </div>
+            ) : (
+              <p>
+                {translateWithParameters(
+                  'quality_profiles.are_you_sure_want_delete_profile_x',
+                  profile.name,
+                  profile.languageName
+                )}
+              </p>
+            )}
           </div>
           <div className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}

@@ -25,7 +25,7 @@ import { getQualityGateUrl } from '../../../helpers/urls';
 export default function List({ organization, qualityGates }) {
   return (
     <div className="list-group">
-      {qualityGates.map(qualityGate =>
+      {qualityGates.map(qualityGate => (
         <Link
           key={qualityGate.id}
           to={getQualityGateUrl(qualityGate.id, organization && organization.key)}
@@ -35,20 +35,17 @@ export default function List({ organization, qualityGates }) {
           <table>
             <tbody>
               <tr>
-                <td className="text-top">
-                  {qualityGate.name}
-                </td>
+                <td className="text-top">{qualityGate.name}</td>
                 <td className="text-top thin nowrap spacer-left">
-                  {qualityGate.isDefault &&
-                    <span className="badge pull-right">
-                      {translate('default')}
-                    </span>}
+                  {qualityGate.isDefault && (
+                    <span className="badge pull-right">{translate('default')}</span>
+                  )}
                 </td>
               </tr>
             </tbody>
           </table>
         </Link>
-      )}
+      ))}
     </div>
   );
 }

@@ -36,7 +36,7 @@ export default function Components(props: Props) {
   return (
     <table className="data zebra">
       <ComponentsHeader baseComponent={baseComponent} rootComponent={rootComponent} />
-      {baseComponent &&
+      {baseComponent && (
         <tbody>
           <Component
             branch={branch}
@@ -47,21 +47,24 @@ export default function Components(props: Props) {
           <tr className="blank">
             <td colSpan={8}>&nbsp;</td>
           </tr>
-        </tbody>}
+        </tbody>
+      )}
       <tbody>
-        {components.length
-          ? components.map((component, index, list) =>
-              <Component
-                branch={branch}
-                canBrowse={true}
-                component={component}
-                key={component.key}
-                previous={index > 0 ? list[index - 1] : undefined}
-                rootComponent={rootComponent}
-                selected={component === selected}
-              />
-            )
-          : <ComponentsEmpty />}
+        {components.length ? (
+          components.map((component, index, list) => (
+            <Component
+              branch={branch}
+              canBrowse={true}
+              component={component}
+              key={component.key}
+              previous={index > 0 ? list[index - 1] : undefined}
+              rootComponent={rootComponent}
+              selected={component === selected}
+            />
+          ))
+        ) : (
+          <ComponentsEmpty />
+        )}
       </tbody>
     </table>
   );

@@ -77,11 +77,12 @@ export default function AboutAppForSonarQubeDotCom(props /*: Props */) {
 
       <div className="page-limited">
         {customText != null &&
-          customText.value &&
+        customText.value && (
           <div
             className="about-page-section"
             dangerouslySetInnerHTML={{ __html: customText.value }}
-          />}
+          />
+        )}
 
         <AboutQualityModelForSonarQubeDotCom />
 

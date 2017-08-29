@@ -37,7 +37,7 @@ export default function OAuthProviders(props /*: Props */) {
   return (
     <section className="oauth-providers">
       <ul>
-        {props.identityProviders.map(identityProvider =>
+        {props.identityProviders.map(identityProvider => (
           <li key={identityProvider.key}>
             <a
               href={`${window.baseUrl}/sessions/init/${identityProvider.key}`}
@@ -56,7 +56,7 @@ export default function OAuthProviders(props /*: Props */) {
               </span>
             </a>
           </li>
-        )}
+        ))}
       </ul>
     </section>
   );

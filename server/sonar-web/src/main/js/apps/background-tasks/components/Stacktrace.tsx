@@ -82,25 +82,19 @@ export default class Stacktrace extends React.PureComponent<Props, State> {
         </div>
 
         <div className="modal-body modal-container">
-          {loading
-            ? <i className="spinner" />
-            : stacktrace
-              ? <div>
-                  <h4 className="spacer-bottom">
-                    {translate('background_tasks.error_stacktrace')}
-                  </h4>
-                  <pre className="js-task-stacktrace">
-                    {stacktrace}
-                  </pre>
-                </div>
-              : <div>
-                  <h4 className="spacer-bottom">
-                    {translate('background_tasks.error_message')}
-                  </h4>
-                  <pre className="js-task-error-message">
-                    {task.errorMessage}
-                  </pre>
-                </div>}
+          {loading ? (
+            <i className="spinner" />
+          ) : stacktrace ? (
+            <div>
+              <h4 className="spacer-bottom">{translate('background_tasks.error_stacktrace')}</h4>
+              <pre className="js-task-stacktrace">{stacktrace}</pre>
+            </div>
+          ) : (
+            <div>
+              <h4 className="spacer-bottom">{translate('background_tasks.error_message')}</h4>
+              <pre className="js-task-error-message">{task.errorMessage}</pre>
+            </div>
+          )}
         </div>
 
         <div className="modal-foot">

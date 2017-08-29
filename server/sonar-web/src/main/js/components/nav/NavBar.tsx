@@ -31,9 +31,7 @@ export default function NavBar({ children, className, height, ...other }: Props)
   return (
     <nav {...other} className={classNames('navbar', className)} style={{ height }}>
       <div className="navbar-inner" style={{ height }}>
-        <div className="navbar-limited clearfix">
-          {children}
-        </div>
+        <div className="navbar-limited clearfix">{children}</div>
       </div>
     </nav>
   );

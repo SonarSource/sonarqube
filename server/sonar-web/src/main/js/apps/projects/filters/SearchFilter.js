@@ -76,10 +76,9 @@ export default class SearchFilter extends React.PureComponent {
           onChange={this.handleQueryChange}
           autoComplete="off"
         />
-        {shortQuery &&
-          <span className="note spacer-left">
-            {translateWithParameters('select2.tooShort', 2)}
-          </span>}
+        {shortQuery && (
+          <span className="note spacer-left">{translateWithParameters('select2.tooShort', 2)}</span>
+        )}
       </div>
     );
   }

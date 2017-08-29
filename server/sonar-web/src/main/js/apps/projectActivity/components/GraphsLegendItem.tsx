@@ -51,19 +51,22 @@ export default class GraphsLegendItem extends React.PureComponent<Props> {
     );
     return (
       <span className={legendClass}>
-        {this.props.showWarning
-          ? <AlertWarnIcon className="spacer-right" />
-          : <ChartLegendIcon
-              className={classNames(
-                'spacer-right line-chart-legend',
-                'line-chart-legend-' + this.props.style
-              )}
-            />}
+        {this.props.showWarning ? (
+          <AlertWarnIcon className="spacer-right" />
+        ) : (
+          <ChartLegendIcon
+            className={classNames(
+              'spacer-right line-chart-legend',
+              'line-chart-legend-' + this.props.style
+            )}
+          />
+        )}
         {this.props.name}
-        {isActionable &&
+        {isActionable && (
           <a className="spacer-left button-clean text-text-top" href="#" onClick={this.handleClick}>
             <CloseIcon className="text-danger" />
-          </a>}
+          </a>
+        )}
       </span>
     );
   }

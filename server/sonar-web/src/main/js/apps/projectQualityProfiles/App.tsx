@@ -124,15 +124,18 @@ export default class QualityProfiles extends React.PureComponent<Props, State> {
 
         <Header />
 
-        {loading
-          ? <i className="spinner" />
-          : allProfiles &&
-            profiles &&
+        {loading ? (
+          <i className="spinner" />
+        ) : (
+          allProfiles &&
+          profiles && (
             <Table
               allProfiles={allProfiles}
               profiles={profiles}
               onChangeProfile={this.handleChangeProfile}
-            />}
+            />
+          )
+        )}
       </div>
     );
   }

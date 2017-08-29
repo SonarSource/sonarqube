@@ -98,53 +98,55 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
         onRequestClose={this.props.onClose}>
         <form id="restore-profile-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
-            <h2>
-              {header}
-            </h2>
+            <h2>{header}</h2>
           </div>
 
           <div className="modal-body">
-            {profile != null && ruleSuccesses != null
-              ? ruleFailures
-                ? <div className="alert alert-warning">
-                    {translateWithParameters(
-                      'quality_profiles.restore_profile.warning',
-                      profile.name,
-                      ruleSuccesses,
-                      ruleFailures
-                    )}
-                  </div>
-                : <div className="alert alert-success">
-                    {translateWithParameters(
-                      'quality_profiles.restore_profile.success',
-                      profile.name,
-                      ruleSuccesses
-                    )}
-                  </div>
-              : <div className="modal-field">
-                  <label htmlFor="restore-profile-backup">
-                    {translate('backup')}
-                    <em className="mandatory">*</em>
-                  </label>
-                  <input id="restore-profile-backup" name="backup" required={true} type="file" />
-                </div>}
+            {profile != null && ruleSuccesses != null ? ruleFailures ? (
+              <div className="alert alert-warning">
+                {translateWithParameters(
+                  'quality_profiles.restore_profile.warning',
+                  profile.name,
+                  ruleSuccesses,
+                  ruleFailures
+                )}
+              </div>
+            ) : (
+              <div className="alert alert-success">
+                {translateWithParameters(
+                  'quality_profiles.restore_profile.success',
+                  profile.name,
+                  ruleSuccesses
+                )}
+              </div>
+            ) : (
+              <div className="modal-field">
+                <label htmlFor="restore-profile-backup">
+                  {translate('backup')}
+                  <em className="mandatory">*</em>
+                </label>
+                <input id="restore-profile-backup" name="backup" required={true} type="file" />
+              </div>
+            )}
           </div>
 
-          {ruleSuccesses == null
-            ? <div className="modal-foot">
-                {loading && <i className="spinner spacer-right" />}
-                <button disabled={loading} id="restore-profile-submit">
-                  {translate('restore')}
-                </button>
-                <a href="#" id="restore-profile-cancel" onClick={this.handleCancelClick}>
-                  {translate('cancel')}
-                </a>
-              </div>
-            : <div className="modal-foot">
-                <a href="#" onClick={this.handleCancelClick}>
-                  {translate('close')}
-                </a>
-              </div>}
+          {ruleSuccesses == null ? (
+            <div className="modal-foot">
+              {loading && <i className="spinner spacer-right" />}
+              <button disabled={loading} id="restore-profile-submit">
+                {translate('restore')}
+              </button>
+              <a href="#" id="restore-profile-cancel" onClick={this.handleCancelClick}>
+                {translate('cancel')}
+              </a>
+            </div>
+          ) : (
+            <div className="modal-foot">
+              <a href="#" onClick={this.handleCancelClick}>
+                {translate('close')}
+              </a>
+            </div>
+          )}
         </form>
       </Modal>
     );

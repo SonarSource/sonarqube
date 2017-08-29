@@ -55,10 +55,12 @@ export default class LineDuplications extends React.PureComponent {
       </td>
     );
 
-    return line.duplicated
-      ? <Tooltip overlay={translate('source_viewer.tooltip.duplicated_line')} placement="right">
-          {cell}
-        </Tooltip>
-      : cell;
+    return line.duplicated ? (
+      <Tooltip overlay={translate('source_viewer.tooltip.duplicated_line')} placement="right">
+        {cell}
+      </Tooltip>
+    ) : (
+      cell
+    );
   }
 }

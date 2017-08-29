@@ -84,7 +84,10 @@ export default class NewOrganizationForm extends React.PureComponent {
   };
 
   sanitizeOrganization = (organization /*: string */) =>
-    organization.toLowerCase().replace(/[^a-z0-9-]/, '').replace(/^-/, '');
+    organization
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/, '')
+      .replace(/^-/, '');
 
   handleOrganizationChange = (event /*: { target: HTMLInputElement } */) => {
     const organization = this.sanitizeOrganization(event.target.value);
@@ -125,42 +128,47 @@ export default class NewOrganizationForm extends React.PureComponent {
 
     const valid = unique && organization.length >= 2;
 
-    return done
-      ? <form onSubmit={this.handleOrganizationDelete}>
-          <span className="spacer-right text-middle">
-            {organization}
+    return done ? (
+      <form onSubmit={this.handleOrganizationDelete}>
+        <span className="spacer-right text-middle">{organization}</span>
+        {loading ? (
+          <i className="spinner text-middle" />
+        ) : (
+          <button className="button-clean text-middle">
+            <CloseIcon className="icon-red" />
+          </button>
+        )}
+      </form>
+    ) : (
+      <form onSubmit={this.handleOrganizationCreate}>
+        <input
+          autoFocus={true}
+          className="input-super-large spacer-right text-middle"
+          onChange={this.handleOrganizationChange}
+          maxLength={32}
+          minLength={2}
+          placeholder={translate('onboarding.organization.placeholder')}
+          required={true}
+          type="text"
+          value={organization}
+        />
+        {loading ? (
+          <i className="spinner text-middle" />
+        ) : (
+          <button className="text-middle" disabled={!valid}>
+            {translate('create')}
+          </button>
+        )}
+        {!unique && (
+          <span className="big-spacer-left text-danger text-middle">
+            <i className="icon-alert-error little-spacer-right text-text-top" />
+            {translate('this_name_is_already_taken')}
           </span>
-          {loading
-            ? <i className="spinner text-middle" />
-            : <button className="button-clean text-middle">
-                <CloseIcon className="icon-red" />
-              </button>}
-        </form>
-      : <form onSubmit={this.handleOrganizationCreate}>
-          <input
-            autoFocus={true}
-            className="input-super-large spacer-right text-middle"
-            onChange={this.handleOrganizationChange}
-            maxLength={32}
-            minLength={2}
-            placeholder={translate('onboarding.organization.placeholder')}
-            required={true}
-            type="text"
-            value={organization}
-          />
-          {loading
-            ? <i className="spinner text-middle" />
-            : <button className="text-middle" disabled={!valid}>
-                {translate('create')}
-              </button>}
-          {!unique &&
-            <span className="big-spacer-left text-danger text-middle">
-              <i className="icon-alert-error little-spacer-right text-text-top" />
-              {translate('this_name_is_already_taken')}
-            </span>}
-          <div className="note spacer-top abs-width-300">
-            {translate('onboarding.organization.key_requirement')}
-          </div>
-        </form>;
+        )}
+        <div className="note spacer-top abs-width-300">
+          {translate('onboarding.organization.key_requirement')}
+        </div>
+      </form>
+    );
   }
 }

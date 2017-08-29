@@ -99,11 +99,9 @@ export default class SearchResult extends React.PureComponent {
     }
 
     const organization = this.props.organizations[component.organization];
-    return organization
-      ? <div className="navbar-search-item-right text-muted-2">
-          {organization.name}
-        </div>
-      : null;
+    return organization ? (
+      <div className="navbar-search-item-right text-muted-2">{organization.name}</div>
+    ) : null;
   };
 
   renderProject = (component /*: Component */) => {
@@ -112,11 +110,9 @@ export default class SearchResult extends React.PureComponent {
     }
 
     const project = this.props.projects[component.project];
-    return project
-      ? <div className="navbar-search-item-right text-muted-2">
-          {project.name}
-        </div>
-      : null;
+    return project ? (
+      <div className="navbar-search-item-right text-muted-2">{project.name}</div>
+    ) : null;
   };
 
   render() {
@@ -144,14 +140,14 @@ export default class SearchResult extends React.PureComponent {
               <QualifierIcon className="little-spacer-right" qualifier={component.qualifier} />
             </span>
 
-            {component.match
-              ? <span
-                  className="navbar-search-item-match"
-                  dangerouslySetInnerHTML={{ __html: component.match }}
-                />
-              : <span className="navbar-search-item-match">
-                  {component.name}
-                </span>}
+            {component.match ? (
+              <span
+                className="navbar-search-item-match"
+                dangerouslySetInnerHTML={{ __html: component.match }}
+              />
+            ) : (
+              <span className="navbar-search-item-match">{component.name}</span>
+            )}
 
             {this.renderOrganization(component)}
             {this.renderProject(component)}

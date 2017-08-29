@@ -47,21 +47,17 @@ type Props = {
 function GlobalNotifications(props /*: Props */) {
   return (
     <section>
-      <h2 className="spacer-bottom">
-        {translate('my_profile.overall_notifications.title')}
-      </h2>
+      <h2 className="spacer-bottom">{translate('my_profile.overall_notifications.title')}</h2>
 
       <table className="form">
         <thead>
           <tr>
             <th />
-            {props.channels.map(channel =>
+            {props.channels.map(channel => (
               <th key={channel} className="text-center">
-                <h4>
-                  {translate('notification.channel', channel)}
-                </h4>
+                <h4>{translate('notification.channel', channel)}</h4>
               </th>
-            )}
+            ))}
           </tr>
         </thead>
 

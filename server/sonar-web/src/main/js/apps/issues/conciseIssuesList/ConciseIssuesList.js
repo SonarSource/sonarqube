@@ -48,7 +48,7 @@ export default class ConciseIssuesList extends React.PureComponent {
   render() {
     return (
       <div>
-        {this.props.issues.map((issue, index) =>
+        {this.props.issues.map((issue, index) => (
           <ConciseIssue
             key={issue.key}
             issue={issue}
@@ -61,7 +61,7 @@ export default class ConciseIssuesList extends React.PureComponent {
             selectedFlowIndex={this.props.selectedFlowIndex}
             selectedLocationIndex={this.props.selectedLocationIndex}
           />
-        )}
+        ))}
       </div>
     );
   }

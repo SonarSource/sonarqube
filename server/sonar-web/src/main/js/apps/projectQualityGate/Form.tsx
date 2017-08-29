@@ -75,20 +75,14 @@ export default class Form extends React.PureComponent<Props, State> {
     if (option.isDefault) {
       return (
         <span>
-          <strong>
-            {translate('default')}
-          </strong>
+          <strong>{translate('default')}</strong>
           {': '}
           {option.label}
         </span>
       );
     }
 
-    return (
-      <span>
-        {option.label}
-      </span>
-    );
+    return <span>{option.label}</span>;
   };
 
   renderSelect() {

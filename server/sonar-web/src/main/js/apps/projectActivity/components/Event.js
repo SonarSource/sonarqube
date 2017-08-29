@@ -94,19 +94,22 @@ export default class Event extends React.PureComponent {
       <div className="project-activity-event">
         <EventInner event={this.props.event} />
 
-        {showActions &&
+        {showActions && (
           <div className="project-activity-event-actions spacer-left">
-            {canChange &&
+            {canChange && (
               <button className="js-change-event button-clean" onClick={this.startChanging}>
                 <ChangeIcon />
-              </button>}
-            {canDelete &&
+              </button>
+            )}
+            {canDelete && (
               <button className="js-delete-event button-clean" onClick={this.startDeleting}>
                 <DeleteIcon />
-              </button>}
-          </div>}
+              </button>
+            )}
+          </div>
+        )}
 
-        {this.state.changing &&
+        {this.state.changing && (
           <ChangeEventForm
             changeEventButtonText={
               'project_activity.' + (isVersion ? 'change_version' : 'change_custom_event')
@@ -114,9 +117,10 @@ export default class Event extends React.PureComponent {
             changeEvent={this.props.changeEvent}
             event={this.props.event}
             onClose={this.stopChanging}
-          />}
+          />
+        )}
 
-        {this.state.deleting &&
+        {this.state.deleting && (
           <RemoveEventForm
             analysis={this.props.analysis}
             deleteEvent={this.props.deleteEvent}
@@ -128,7 +132,8 @@ export default class Event extends React.PureComponent {
             removeEventQuestion={`project_activity.${isVersion
               ? 'remove_version'
               : 'remove_custom_event'}.question`}
-          />}
+          />
+        )}
       </div>
     );
   }

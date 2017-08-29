@@ -35,9 +35,7 @@ export default function ProfileNotFound(props: Props) {
         </IndexLink>
       </div>
 
-      <div>
-        {translate('quality_profiles.not_found')}
-      </div>
+      <div>{translate('quality_profiles.not_found')}</div>
     </div>
   );
 }

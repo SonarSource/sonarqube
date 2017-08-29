@@ -93,49 +93,46 @@ export default class BranchRow extends React.PureComponent<Props, State> {
             })}
           />
           {branch.name}
-          {branch.isMain &&
-            <div className="outline-badge spacer-left">
-              {translate('branches.main_branch')}
-            </div>}
+          {branch.isMain && (
+            <div className="outline-badge spacer-left">{translate('branches.main_branch')}</div>
+          )}
         </td>
         <td className="thin nowrap text-right">
           <BranchStatus branch={branch} />
         </td>
         <td className="thin nowrap text-right">
-          {branch.isMain
-            ? <Tooltip overlay={translate('branches.rename')}>
-                <a
-                  className="js-rename link-no-underline"
-                  href="#"
-                  onClick={this.handleRenameClick}>
-                  <ChangeIcon />
-                </a>
-              </Tooltip>
-            : <Tooltip overlay={translate('branches.delete')}>
-                <a
-                  className="js-delete link-no-underline"
-                  href="#"
-                  onClick={this.handleDeleteClick}>
-                  <DeleteIcon />
-                </a>
-              </Tooltip>}
+          {branch.isMain ? (
+            <Tooltip overlay={translate('branches.rename')}>
+              <a className="js-rename link-no-underline" href="#" onClick={this.handleRenameClick}>
+                <ChangeIcon />
+              </a>
+            </Tooltip>
+          ) : (
+            <Tooltip overlay={translate('branches.delete')}>
+              <a className="js-delete link-no-underline" href="#" onClick={this.handleDeleteClick}>
+                <DeleteIcon />
+              </a>
+            </Tooltip>
+          )}
         </td>
 
-        {this.state.deleting &&
+        {this.state.deleting && (
           <DeleteBranchModal
             branch={branch}
             component={component}
             onClose={this.handleDeletingStop}
             onDelete={this.handleChange}
-          />}
+          />
+        )}
 
-        {this.state.renaming &&
+        {this.state.renaming && (
           <RenameBranchModal
             branch={branch}
             component={component}
             onClose={this.handleRenamingStop}
             onRename={this.handleChange}
-          />}
+          />
+        )}
       </tr>
     );
   }

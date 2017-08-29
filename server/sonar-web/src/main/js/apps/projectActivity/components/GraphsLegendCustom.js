@@ -52,9 +52,7 @@ export default function GraphsLegendCustom({ removeMetric, series } /*: Props */
               key={serie.name}
               overlay={translate('project_activity.graphs.custom.metric_no_history')}
               placement="bottom">
-              <span className="spacer-left spacer-right">
-                {legendItem}
-              </span>
+              <span className="spacer-left spacer-right">{legendItem}</span>
             </Tooltip>
           );
         }

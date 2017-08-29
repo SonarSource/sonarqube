@@ -89,27 +89,25 @@ export default class RemoveEventForm extends React.PureComponent {
         overlayClassName="modal-overlay"
         onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>
-            {translate(this.props.removeEventButtonText)}
-          </h2>
+          <h2>{translate(this.props.removeEventButtonText)}</h2>
         </header>
 
         <form onSubmit={this.handleSubmit}>
-          <div className="modal-body">
-            {translate(this.props.removeEventQuestion)}
-          </div>
+          <div className="modal-body">{translate(this.props.removeEventQuestion)}</div>
 
           <footer className="modal-foot">
-            {this.state.processing
-              ? <i className="spinner" />
-              : <div>
-                  <button type="submit" className="button-red" autoFocus={true}>
-                    {translate('delete')}
-                  </button>
-                  <button type="reset" className="button-link" onClick={this.closeForm}>
-                    {translate('cancel')}
-                  </button>
-                </div>}
+            {this.state.processing ? (
+              <i className="spinner" />
+            ) : (
+              <div>
+                <button type="submit" className="button-red" autoFocus={true}>
+                  {translate('delete')}
+                </button>
+                <button type="reset" className="button-link" onClick={this.closeForm}>
+                  {translate('cancel')}
+                </button>
+              </div>
+            )}
           </footer>
         </form>
       </Modal>

@@ -66,15 +66,17 @@ export default class FacetHeader extends React.PureComponent {
         width="10"
         height="10"
         style={{ paddingTop: 3 }}>
-        {this.props.open
-          ? <path
-              style={{ fill: 'currentColor ' }}
-              d="M1683 808l-742 741q-19 19-45 19t-45-19l-742-741q-19-19-19-45.5t19-45.5l166-165q19-19 45-19t45 19l531 531 531-531q19-19 45-19t45 19l166 165q19 19 19 45.5t-19 45.5z"
-            />
-          : <path
-              style={{ fill: 'currentColor ' }}
-              d="M1363 877l-742 742q-19 19-45 19t-45-19l-166-166q-19-19-19-45t19-45l531-531-531-531q-19-19-19-45t19-45l166-166q19-19 45-19t45 19l742 742q19 19 19 45t-19 45z"
-            />}
+        {this.props.open ? (
+          <path
+            style={{ fill: 'currentColor ' }}
+            d="M1683 808l-742 741q-19 19-45 19t-45-19l-742-741q-19-19-19-45.5t19-45.5l166-165q19-19 45-19t45 19l531 531 531-531q19-19 45-19t45 19l166 165q19 19 19 45.5t-19 45.5z"
+          />
+        ) : (
+          <path
+            style={{ fill: 'currentColor ' }}
+            d="M1363 877l-742 742q-19 19-45 19t-45-19l-166-166q-19-19-19-45t19-45l531-531-531-531q-19-19-19-45t19-45l166-166q19-19 45-19t45 19l742 742q19 19 19 45t-19 45z"
+          />
+        )}
       </svg>
     );
   }
@@ -97,9 +99,7 @@ export default class FacetHeader extends React.PureComponent {
       return null;
     }
     return (
-      <span className="spacer-left badge badge-secondary is-rounded">
-        {this.props.values}
-      </span>
+      <span className="spacer-left badge badge-secondary is-rounded">{this.props.values}</span>
     );
   }
 
@@ -108,26 +108,29 @@ export default class FacetHeader extends React.PureComponent {
 
     return (
       <div>
-        {showClearButton &&
+        {showClearButton && (
           <button
             className="search-navigator-facet-header-button button-small button-red"
             onClick={this.handleClearClick}>
             {translate('clear')}
-          </button>}
+          </button>
+        )}
 
-        {this.props.onClick
-          ? <span className="search-navigator-facet-header">
-              <a href="#" onClick={this.handleClick}>
-                {this.renderCheckbox()}
-                {this.props.name}
-              </a>
-              {this.renderHelper()}
-              {this.renderValueIndicator()}
-            </span>
-          : <span className="search-navigator-facet-header">
+        {this.props.onClick ? (
+          <span className="search-navigator-facet-header">
+            <a href="#" onClick={this.handleClick}>
+              {this.renderCheckbox()}
               {this.props.name}
-              {this.renderHelper()}
-            </span>}
+            </a>
+            {this.renderHelper()}
+            {this.renderValueIndicator()}
+          </span>
+        ) : (
+          <span className="search-navigator-facet-header">
+            {this.props.name}
+            {this.renderHelper()}
+          </span>
+        )}
       </div>
     );
   }

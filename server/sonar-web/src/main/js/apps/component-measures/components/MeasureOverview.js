@@ -152,11 +152,12 @@ export default class MeasureOverview extends React.PureComponent {
                 rootComponent={rootComponent}
               />
               {component.key !== rootComponent.key &&
-                isLoggedIn &&
+              isLoggedIn && (
                 <MeasureFavoriteContainer
                   component={component.key}
                   className="measure-favorite spacer-right"
-                />}
+                />
+              )}
               <PageActions
                 current={this.state.components.length}
                 loading={this.props.loading}
@@ -168,8 +169,9 @@ export default class MeasureOverview extends React.PureComponent {
         </div>
         <div className="layout-page-main-inner measure-details-content">
           <div className="clearfix big-spacer-bottom">
-            {leakPeriod != null &&
-              <LeakPeriodLegend className="pull-right" component={component} period={leakPeriod} />}
+            {leakPeriod != null && (
+              <LeakPeriodLegend className="pull-right" component={component} period={leakPeriod} />
+            )}
           </div>
           {!this.props.loading && this.renderContent()}
         </div>

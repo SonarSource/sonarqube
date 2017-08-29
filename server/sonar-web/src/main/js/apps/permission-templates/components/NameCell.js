@@ -39,28 +39,25 @@ export default class NameCell extends React.PureComponent {
     return (
       <td>
         <Link to={{ pathname, query: { id: t.id } }}>
-          <strong className="js-name">
-            {t.name}
-          </strong>
+          <strong className="js-name">{t.name}</strong>
         </Link>
 
-        {t.defaultFor.length > 0 &&
+        {t.defaultFor.length > 0 && (
           <div className="spacer-top js-defaults">
             <Defaults
               permissionTemplate={this.props.permissionTemplate}
               organization={organization}
             />
-          </div>}
+          </div>
+        )}
 
-        {!!t.description &&
-          <div className="spacer-top js-description">
-            {t.description}
-          </div>}
+        {!!t.description && <div className="spacer-top js-description">{t.description}</div>}
 
-        {!!t.projectKeyPattern &&
+        {!!t.projectKeyPattern && (
           <div className="spacer-top js-project-key-pattern">
             Project Key Pattern: <code>{t.projectKeyPattern}</code>
-          </div>}
+          </div>
+        )}
       </td>
     );
   }

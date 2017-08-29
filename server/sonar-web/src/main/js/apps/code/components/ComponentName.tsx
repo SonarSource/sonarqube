@@ -62,16 +62,14 @@ export default function ComponentName(props: Props) {
     areBothDirs && previous != undefined
       ? mostCommitPrefix([component.name + '/', previous.name + '/'])
       : '';
-  const name = prefix
-    ? <span>
-        <span style={{ color: '#777' }}>
-          {prefix}
-        </span>
-        <span>
-          {component.name.substr(prefix.length)}
-        </span>
-      </span>
-    : component.name;
+  const name = prefix ? (
+    <span>
+      <span style={{ color: '#777' }}>{prefix}</span>
+      <span>{component.name.substr(prefix.length)}</span>
+    </span>
+  ) : (
+    component.name
+  );
 
   let inner = null;
 
@@ -101,9 +99,5 @@ export default function ComponentName(props: Props) {
     );
   }
 
-  return (
-    <Truncated title={getTooltip(component)}>
-      {inner}
-    </Truncated>
-  );
+  return <Truncated title={getTooltip(component)}>{inner}</Truncated>;
 }

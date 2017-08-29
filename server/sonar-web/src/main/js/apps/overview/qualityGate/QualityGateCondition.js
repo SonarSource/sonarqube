@@ -108,18 +108,20 @@ export default class QualityGateCondition extends React.PureComponent {
       new_maintainability_rating: ['CODE_SMELL', true]
     };
 
-    return RATING_METRICS_MAPPING[metricKey]
-      ? <Link to={this.getUrlForType(...RATING_METRICS_MAPPING[metricKey])} className={className}>
-          {children}
-        </Link>
-      : <DrilldownLink
-          branch={branch}
-          className={className}
-          component={component.key}
-          metric={condition.measure.metric.key}
-          sinceLeakPeriod={condition.period != null}>
-          {children}
-        </DrilldownLink>;
+    return RATING_METRICS_MAPPING[metricKey] ? (
+      <Link to={this.getUrlForType(...RATING_METRICS_MAPPING[metricKey])} className={className}>
+        {children}
+      </Link>
+    ) : (
+      <DrilldownLink
+        branch={branch}
+        className={className}
+        component={component.key}
+        metric={condition.measure.metric.key}
+        sinceLeakPeriod={condition.period != null}>
+        {children}
+      </DrilldownLink>
+    );
   }
 
   render() {
@@ -153,10 +155,11 @@ export default class QualityGateCondition extends React.PureComponent {
             {metric.name}
           </div>
           {!isDiff &&
-            condition.period != null &&
+          condition.period != null && (
             <div className="overview-quality-gate-condition-period">
               {translate('quality_gates.conditions.leak')}
-            </div>}
+            </div>
+          )}
           <div className="overview-quality-gate-threshold">
             {operator} {formatMeasure(threshold, metric.type)}
           </div>

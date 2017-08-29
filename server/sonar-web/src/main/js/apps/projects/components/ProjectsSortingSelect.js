@@ -89,9 +89,7 @@ export default class ProjectsSortingSelect extends React.PureComponent {
 
     return (
       <div className={this.props.className}>
-        <label>
-          {translate('projects.sort_by')}:
-        </label>
+        <label>{translate('projects.sort_by')}:</label>
         <Select
           className="little-spacer-left input-medium"
           clearable={false}
@@ -106,9 +104,11 @@ export default class ProjectsSortingSelect extends React.PureComponent {
             sortDesc ? translate('projects.sort_descending') : translate('projects.sort_ascending')
           }>
           <a className="spacer-left button-icon" href="#" onClick={this.handleDescToggle}>
-            {sortDesc
-              ? <SortDescIcon className="little-spacer-top" />
-              : <SortAscIcon className="little-spacer-top" />}
+            {sortDesc ? (
+              <SortDescIcon className="little-spacer-top" />
+            ) : (
+              <SortAscIcon className="little-spacer-top" />
+            )}
           </a>
         </Tooltip>
       </div>

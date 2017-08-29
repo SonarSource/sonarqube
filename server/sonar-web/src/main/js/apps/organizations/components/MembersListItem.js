@@ -50,21 +50,18 @@ export default class MembersListItem extends React.PureComponent {
           <Avatar hash={member.avatar} email={member.email} name={member.name} size={AVATAR_SIZE} />
         </td>
         <td className="nowrap text-middle">
-          <strong>
-            {member.name}
-          </strong>
-          <span className="note little-spacer-left">
-            {member.login}
-          </span>
+          <strong>{member.name}</strong>
+          <span className="note little-spacer-left">{member.login}</span>
         </td>
-        {organization.canAdmin &&
+        {organization.canAdmin && (
           <td className="text-right text-middle">
             {translateWithParameters(
               'organization.members.x_groups',
               formatMeasure(member.groupCount || 0, 'INT')
             )}
-          </td>}
-        {organization.canAdmin &&
+          </td>
+        )}
+        {organization.canAdmin && (
           <td className="nowrap text-middle text-right">
             <div className="dropdown">
               <button
@@ -91,7 +88,8 @@ export default class MembersListItem extends React.PureComponent {
                 </li>
               </ul>
             </div>
-          </td>}
+          </td>
+        )}
       </tr>
     );
   }

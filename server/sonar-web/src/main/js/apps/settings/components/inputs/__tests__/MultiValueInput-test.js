@@ -64,7 +64,10 @@ it('should change existing value', () => {
   const multiValueInput = shallow(
     <MultiValueInput setting={{ definition }} value={['foo', 'bar', 'baz']} onChange={onChange} />
   );
-  multiValueInput.find(PrimitiveInput).at(1).prop('onChange')('qux');
+  multiValueInput
+    .find(PrimitiveInput)
+    .at(1)
+    .prop('onChange')('qux');
   expect(onChange).toBeCalledWith(['foo', 'qux', 'baz']);
 });
 
@@ -73,6 +76,9 @@ it('should add new value', () => {
   const multiValueInput = shallow(
     <MultiValueInput setting={{ definition }} value={['foo']} onChange={onChange} />
   );
-  multiValueInput.find(PrimitiveInput).at(1).prop('onChange')('bar');
+  multiValueInput
+    .find(PrimitiveInput)
+    .at(1)
+    .prop('onChange')('bar');
   expect(onChange).toBeCalledWith(['foo', 'bar']);
 });

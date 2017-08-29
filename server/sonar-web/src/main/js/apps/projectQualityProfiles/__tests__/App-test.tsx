@@ -39,8 +39,9 @@ const associateProject = require('../../../api/quality-profiles').associateProje
   any
 >;
 
-const dissociateProject = require('../../../api/quality-profiles')
-  .dissociateProject as jest.Mock<any>;
+const dissociateProject = require('../../../api/quality-profiles').dissociateProject as jest.Mock<
+  any
+>;
 
 const searchQualityProfiles = require('../../../api/quality-profiles')
   .searchQualityProfiles as jest.Mock<any>;

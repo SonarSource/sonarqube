@@ -147,9 +147,7 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
               <div className="layout-page-filters">
                 <div className="web-api-page-header">
                   <Link to="/web_api/">
-                    <h1>
-                      {translate('api_documentation.page')}
-                    </h1>
+                    <h1>{translate('api_documentation.page')}</h1>
                   </Link>
                 </div>
 
@@ -175,14 +173,15 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
 
         <div className="layout-page-main">
           <div className="layout-page-main-inner">
-            {domain &&
+            {domain && (
               <Domain
                 key={domain.path}
                 domain={domain}
                 showDeprecated={showDeprecated}
                 showInternal={showInternal}
                 searchQuery={searchQuery}
-              />}
+              />
+            )}
           </div>
         </div>
       </div>

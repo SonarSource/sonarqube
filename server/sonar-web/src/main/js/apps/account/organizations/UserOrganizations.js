@@ -72,27 +72,30 @@ class UserOrganizations extends React.PureComponent {
         <Helmet title={translate('my_account.organizations')} />
 
         <header className="page-header">
-          <h2 className="page-title">
-            {translate('my_account.organizations')}
-          </h2>
-          {canCreateOrganizations &&
+          <h2 className="page-title">{translate('my_account.organizations')}</h2>
+          {canCreateOrganizations && (
             <div className="page-actions">
               <Link to="/account/organizations/create" className="button">
                 {translate('create')}
               </Link>
-            </div>}
-          {this.props.organizations.length > 0
-            ? <div className="page-description">
-                {translate('my_account.organizations.description')}
-              </div>
-            : <div className="page-description">
-                {translate('my_account.organizations.no_results')}
-              </div>}
+            </div>
+          )}
+          {this.props.organizations.length > 0 ? (
+            <div className="page-description">
+              {translate('my_account.organizations.description')}
+            </div>
+          ) : (
+            <div className="page-description">
+              {translate('my_account.organizations.no_results')}
+            </div>
+          )}
         </header>
 
-        {this.state.loading
-          ? <i className="spinner" />
-          : <OrganizationsList organizations={this.props.organizations} />}
+        {this.state.loading ? (
+          <i className="spinner" />
+        ) : (
+          <OrganizationsList organizations={this.props.organizations} />
+        )}
 
         {this.props.children}
       </div>

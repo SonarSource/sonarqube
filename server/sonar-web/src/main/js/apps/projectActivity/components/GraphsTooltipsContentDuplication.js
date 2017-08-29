@@ -46,21 +46,20 @@ export default function GraphsTooltipsContentDuplication(
   }
   return (
     <tbody>
-      {addSeparator &&
+      {addSeparator && (
         <tr>
           <td className="project-activity-graph-tooltip-separator" colSpan="3">
             <hr />
           </td>
-        </tr>}
+        </tr>
+      )}
       <tr className="project-activity-graph-tooltip-line">
         <td
           colSpan="2"
           className="project-activity-graph-tooltip-value text-right spacer-right thin">
           {formatMeasure(duplicationDensityValue, 'PERCENT')}
         </td>
-        <td>
-          {translate('metric.duplicated_lines_density.name')}
-        </td>
+        <td>{translate('metric.duplicated_lines_density.name')}</td>
       </tr>
     </tbody>
   );

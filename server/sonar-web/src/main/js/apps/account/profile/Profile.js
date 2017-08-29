@@ -49,15 +49,17 @@ function Profile(props /*: Props */) {
       </div>
 
       {!user.local &&
-        user.externalProvider !== 'sonarqube' &&
+      user.externalProvider !== 'sonarqube' && (
         <div id="identity-provider" className="spacer-bottom">
           <UserExternalIdentity user={user} />
-        </div>}
+        </div>
+      )}
 
-      {!!user.email &&
+      {!!user.email && (
         <div className="spacer-bottom">
           Email: <strong id="email">{user.email}</strong>
-        </div>}
+        </div>
+      )}
 
       {!customOrganizations && <hr className="account-separator" />}
       {!customOrganizations && <UserGroups groups={user.groups} />}

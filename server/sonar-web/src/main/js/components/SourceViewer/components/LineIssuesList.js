@@ -41,7 +41,7 @@ export default class LineIssuesList extends React.PureComponent {
 
     return (
       <div className="issue-list">
-        {issues.map(issue =>
+        {issues.map(issue => (
           <Issue
             issue={issue}
             key={issue.key}
@@ -51,7 +51,7 @@ export default class LineIssuesList extends React.PureComponent {
             openPopup={openPopup && openPopup.issue === issue.key ? openPopup.name : null}
             selected={selectedIssue === issue.key}
           />
-        )}
+        ))}
       </div>
     );
   }

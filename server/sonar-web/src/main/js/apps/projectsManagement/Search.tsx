@@ -132,11 +132,12 @@ export default class Search extends React.PureComponent<Props, State> {
     );
   };
 
-  renderQualifierOption = (option: { label: string; value: string }) =>
+  renderQualifierOption = (option: { label: string; value: string }) => (
     <span>
       <QualifierIcon className="little-spacer-right" qualifier={option.value} />
       {option.label}
-    </span>;
+    </span>
+  );
 
   renderQualifierFilter = () => {
     const options = this.getQualifierOptions();
@@ -162,22 +163,22 @@ export default class Search extends React.PureComponent<Props, State> {
   };
 
   renderTypeFilter = () =>
-    this.props.qualifiers === 'TRK'
-      ? <td className="thin nowrap text-middle">
-          <Checkbox
-            className="link-checkbox-control"
-            checked={this.props.provisioned}
-            id="projects-provisioned"
-            onCheck={this.props.onProvisionedChanged}>
-            <span className="little-spacer-left">
-              {translate('provisioning.only_provisioned')}
-              <Tooltip overlay={translate('provisioning.only_provisioned.tooltip')}>
-                <i className="spacer-left icon-help" />
-              </Tooltip>
-            </span>
-          </Checkbox>
-        </td>
-      : null;
+    this.props.qualifiers === 'TRK' ? (
+      <td className="thin nowrap text-middle">
+        <Checkbox
+          className="link-checkbox-control"
+          checked={this.props.provisioned}
+          id="projects-provisioned"
+          onCheck={this.props.onProvisionedChanged}>
+          <span className="little-spacer-left">
+            {translate('provisioning.only_provisioned')}
+            <Tooltip overlay={translate('provisioning.only_provisioned.tooltip')}>
+              <i className="spacer-left icon-help" />
+            </Tooltip>
+          </span>
+        </Checkbox>
+      </td>
+    ) : null;
 
   renderDateFilter = () => {
     return (
@@ -238,7 +239,7 @@ export default class Search extends React.PureComponent<Props, State> {
           </tbody>
         </table>
 
-        {this.state.bulkApplyTemplateModal &&
+        {this.state.bulkApplyTemplateModal && (
           <BulkApplyTemplateModal
             analyzedBefore={this.props.analyzedBefore}
             onClose={this.closeBulkApplyTemplateModal}
@@ -248,9 +249,10 @@ export default class Search extends React.PureComponent<Props, State> {
             query={this.props.query}
             selection={this.props.selection}
             total={this.props.total}
-          />}
+          />
+        )}
 
-        {this.state.deleteModal &&
+        {this.state.deleteModal && (
           <DeleteModal
             analyzedBefore={this.props.analyzedBefore}
             onClose={this.closeDeleteModal}
@@ -261,7 +263,8 @@ export default class Search extends React.PureComponent<Props, State> {
             query={this.props.query}
             selection={this.props.selection}
             total={this.props.total}
-          />}
+          />
+        )}
       </div>
     );
   }

@@ -38,39 +38,39 @@ export default function ProjectCard({ project }: Props) {
   return (
     <div className="account-project-card clearfix">
       <aside className="account-project-side">
-        {isAnalyzed
-          ? <Tooltip
-              overlay={<DateTimeFormatter date={project.lastAnalysisDate} />}
-              placement="right">
-              <div className="account-project-analysis">
-                <DateFromNow date={project.lastAnalysisDate}>
-                  {(fromNow: string) =>
-                    <span>
-                      {translateWithParameters('my_account.projects.analyzed_x', fromNow)}
-                    </span>}
-                </DateFromNow>
-              </div>
-            </Tooltip>
-          : <div className="account-project-analysis">
-              {translate('my_account.projects.never_analyzed')}
-            </div>}
+        {isAnalyzed ? (
+          <Tooltip
+            overlay={<DateTimeFormatter date={project.lastAnalysisDate} />}
+            placement="right">
+            <div className="account-project-analysis">
+              <DateFromNow date={project.lastAnalysisDate}>
+                {(fromNow: string) => (
+                  <span>{translateWithParameters('my_account.projects.analyzed_x', fromNow)}</span>
+                )}
+              </DateFromNow>
+            </div>
+          </Tooltip>
+        ) : (
+          <div className="account-project-analysis">
+            {translate('my_account.projects.never_analyzed')}
+          </div>
+        )}
 
-        {project.qualityGate != null &&
+        {project.qualityGate != null && (
           <div className="account-project-quality-gate">
             <Level level={project.qualityGate} />
-          </div>}
+          </div>
+        )}
       </aside>
 
       <h3 className="account-project-name">
-        <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>
-          {project.name}
-        </Link>
+        <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
       </h3>
 
-      {links.length > 0 &&
+      {links.length > 0 && (
         <div className="account-project-links">
           <ul className="list-inline">
-            {links.map(link =>
+            {links.map(link => (
               <li key={link.type}>
                 <a
                   className="link-with-icon"
@@ -81,18 +81,16 @@ export default function ProjectCard({ project }: Props) {
                   <i className={`icon-color-link icon-${link.type}`} />
                 </a>
               </li>
-            )}
+            ))}
           </ul>
-        </div>}
+        </div>
+      )}
 
-      <div className="account-project-key">
-        {project.key}
-      </div>
+      <div className="account-project-key">{project.key}</div>
 
-      {!!project.description &&
-        <div className="account-project-description">
-          {project.description}
-        </div>}
+      {!!project.description && (
+        <div className="account-project-description">{project.description}</div>
+      )}
     </div>
   );
 }

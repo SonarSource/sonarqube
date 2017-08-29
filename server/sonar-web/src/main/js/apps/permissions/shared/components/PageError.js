@@ -34,11 +34,7 @@ class PageError extends React.PureComponent {
       return null;
     }
 
-    return (
-      <div className="alert alert-danger">
-        {message}
-      </div>
-    );
+    return <div className="alert alert-danger">{message}</div>;
   }
 }
 

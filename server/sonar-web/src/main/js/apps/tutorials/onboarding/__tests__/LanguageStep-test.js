@@ -30,12 +30,18 @@ it('selects java', () => {
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('RadioToggle').at(1).prop('onCheck')('maven');
+  wrapper
+    .find('RadioToggle')
+    .at(1)
+    .prop('onCheck')('maven');
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
   expect(onDone).lastCalledWith({ language: 'java', javaBuild: 'maven' });
 
-  wrapper.find('RadioToggle').at(1).prop('onCheck')('gradle');
+  wrapper
+    .find('RadioToggle')
+    .at(1)
+    .prop('onCheck')('gradle');
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
   expect(onDone).lastCalledWith({ language: 'java', javaBuild: 'gradle' });
@@ -61,7 +67,10 @@ it('selects c-family', () => {
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('RadioToggle').at(1).prop('onCheck')('msvc');
+  wrapper
+    .find('RadioToggle')
+    .at(1)
+    .prop('onCheck')('msvc');
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 
@@ -72,11 +81,17 @@ it('selects c-family', () => {
     projectKey: 'project-foo'
   });
 
-  wrapper.find('RadioToggle').at(1).prop('onCheck')('clang-gcc');
+  wrapper
+    .find('RadioToggle')
+    .at(1)
+    .prop('onCheck')('clang-gcc');
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('RadioToggle').at(2).prop('onCheck')('linux');
+  wrapper
+    .find('RadioToggle')
+    .at(2)
+    .prop('onCheck')('linux');
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 
@@ -97,7 +112,10 @@ it('selects other', () => {
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('RadioToggle').at(1).prop('onCheck')('mac');
+  wrapper
+    .find('RadioToggle')
+    .at(1)
+    .prop('onCheck')('mac');
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 

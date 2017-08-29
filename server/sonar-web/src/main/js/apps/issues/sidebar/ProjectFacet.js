@@ -108,20 +108,20 @@ export default class ProjectFacet extends React.PureComponent {
 
   renderName(project /*: string */) /*: React.Element<*> | string */ {
     const { organization, referencedComponents } = this.props;
-    return referencedComponents[project]
-      ? <span>
-          <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-          {!organization &&
-            <Organization
-              link={false}
-              organizationKey={referencedComponents[project].organization}
-            />}
-          {referencedComponents[project].name}
-        </span>
-      : <span>
-          <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-          {project}
-        </span>;
+    return referencedComponents[project] ? (
+      <span>
+        <QualifierIcon className="little-spacer-right" qualifier="TRK" />
+        {!organization && (
+          <Organization link={false} organizationKey={referencedComponents[project].organization} />
+        )}
+        {referencedComponents[project].name}
+      </span>
+    ) : (
+      <span>
+        <QualifierIcon className="little-spacer-right" qualifier="TRK" />
+        {project}
+      </span>
+    );
   }
 
   renderOption = (option /*: { label: string, organization: string } */) => {
@@ -144,7 +144,7 @@ export default class ProjectFacet extends React.PureComponent {
 
     return (
       <FacetItemsList>
-        {projects.map(project =>
+        {projects.map(project => (
           <FacetItem
             active={this.props.projects.includes(project)}
             key={project}
@@ -153,7 +153,7 @@ export default class ProjectFacet extends React.PureComponent {
             stat={formatFacetStat(this.getStat(project), this.props.facetMode)}
             value={project}
           />
-        )}
+        ))}
       </FacetItemsList>
     );
   }

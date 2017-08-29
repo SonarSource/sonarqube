@@ -121,21 +121,20 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
     return (
       <div className="quality-profile-inheritance">
         <header className="big-spacer-bottom clearfix">
-          <h2 className="pull-left">
-            {translate('quality_profiles.profile_inheritance')}
-          </h2>
+          <h2 className="pull-left">{translate('quality_profiles.profile_inheritance')}</h2>
           {this.props.canAdmin &&
-            !this.props.profile.isBuiltIn &&
+          !this.props.profile.isBuiltIn && (
             <button className="pull-right js-change-parent" onClick={this.handleChangeParentClick}>
               {translate('quality_profiles.change_parent')}
-            </button>}
+            </button>
+          )}
         </header>
 
-        {!this.state.loading &&
+        {!this.state.loading && (
           <table className="data zebra">
             <tbody>
               {ancestors != null &&
-                ancestors.map((ancestor, index) =>
+                ancestors.map((ancestor, index) => (
                   <ProfileInheritanceBox
                     className="js-inheritance-ancestor"
                     depth={index}
@@ -144,9 +143,9 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
                     organization={this.props.organization}
                     profile={ancestor}
                   />
-                )}
+                ))}
 
-              {this.state.profile != null &&
+              {this.state.profile != null && (
                 <ProfileInheritanceBox
                   className={currentClassName}
                   depth={ancestors ? ancestors.length : 0}
@@ -155,10 +154,11 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
                   language={profile.language}
                   organization={this.props.organization}
                   profile={this.state.profile}
-                />}
+                />
+              )}
 
               {this.state.children != null &&
-                this.state.children.map(child =>
+                this.state.children.map(child => (
                   <ProfileInheritanceBox
                     className="js-inheritance-child"
                     depth={ancestors ? ancestors.length + 1 : 0}
@@ -167,18 +167,20 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
                     organization={this.props.organization}
                     profile={child}
                   />
-                )}
+                ))}
             </tbody>
-          </table>}
+          </table>
+        )}
 
-        {this.state.formOpen &&
+        {this.state.formOpen && (
           <ChangeParentForm
             onChange={this.handleParentChange}
             onClose={this.closeForm}
             onRequestFail={this.props.onRequestFail}
             profile={profile}
             profiles={profiles.filter(p => p !== profile && p.language === profile.language)}
-          />}
+          />
+        )}
       </div>
     );
   }

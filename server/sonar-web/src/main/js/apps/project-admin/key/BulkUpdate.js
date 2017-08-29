@@ -113,9 +113,7 @@ class BulkUpdate extends React.PureComponent {
     return (
       <div id="project-key-bulk-update">
         <header className="big-spacer-bottom">
-          <div className="spacer-bottom">
-            {translate('update_key.bulk_change_description')}
-          </div>
+          <div className="spacer-bottom">{translate('update_key.bulk_change_description')}</div>
           <div>
             {translateWithParameters(
               'update_key.current_key_for_project_x_is_x',
@@ -127,13 +125,14 @@ class BulkUpdate extends React.PureComponent {
 
         <BulkUpdateForm onSubmit={this.handleSubmit.bind(this)} />
 
-        {results != null &&
+        {results != null && (
           <BulkUpdateResults
             results={results}
             replace={replace}
             by={by}
             onConfirm={this.handleConfirm.bind(this)}
-          />}
+          />
+        )}
       </div>
     );
   }

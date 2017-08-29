@@ -93,13 +93,13 @@ export default class ChangelogPopup extends React.PureComponent {
                 </td>
               </tr>
 
-              {this.state.changelogs.map((item, idx) =>
+              {this.state.changelogs.map((item, idx) => (
                 <tr key={idx}>
                   <td className="thin text-left text-top nowrap">
                     <DateTimeFormatter date={item.creationDate} />
                   </td>
                   <td className="text-left text-top">
-                    {item.userName &&
+                    {item.userName && (
                       <p>
                         <Avatar
                           className="little-spacer-right"
@@ -108,11 +108,12 @@ export default class ChangelogPopup extends React.PureComponent {
                           size={16}
                         />
                         {item.userName}
-                      </p>}
+                      </p>
+                    )}
                     {item.diffs.map(diff => <IssueChangelogDiff key={diff.key} diff={diff} />)}
                   </td>
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
         </div>

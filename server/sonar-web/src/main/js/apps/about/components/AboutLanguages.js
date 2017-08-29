@@ -48,26 +48,19 @@ const half = (languages.length + 1) / 2;
 export default function AboutLanguages() {
   return (
     <div className="boxed-group">
-      <h2>
-        {translate('about_page.languages')}
-      </h2>
+      <h2>{translate('about_page.languages')}</h2>
       <div className="boxed-group-inner">
-        <p className="about-page-text">
-          {translate('about_page.languages.text')}
-        </p>
+        <p className="about-page-text">{translate('about_page.languages.text')}</p>
         <ul className="about-page-languages">
-          {languages.slice(0, half).map((language, index) =>
+          {languages.slice(0, half).map((language, index) => (
             <li key={index}>
-              <a href={languages[index].url}>
-                {languages[index].name}
-              </a>
+              <a href={languages[index].url}>{languages[index].name}</a>
               <br />
-              {index + half < languages.length &&
-                <a href={languages[index + half].url}>
-                  {languages[index + half].name}
-                </a>}
+              {index + half < languages.length && (
+                <a href={languages[index + half].url}>{languages[index + half].name}</a>
+              )}
             </li>
-          )}
+          ))}
         </ul>
       </div>
     </div>

@@ -29,7 +29,12 @@ it('should render key and name', () => {
   const project = { ...BASE };
   const output = shallow(<ProjectCard project={project} />);
   expect(output.find('.account-project-key').text()).toBe('key');
-  expect(output.find('.account-project-name').find(Link).prop('children')).toBe('name');
+  expect(
+    output
+      .find('.account-project-name')
+      .find(Link)
+      .prop('children')
+  ).toBe('name');
 });
 
 it('should render description', () => {
@@ -63,7 +68,12 @@ it('should not render analysis date', () => {
 it('should render quality gate status', () => {
   const project = { ...BASE, qualityGate: 'ERROR' };
   const output = shallow(<ProjectCard project={project} />);
-  expect(output.find('.account-project-quality-gate').find(Level).prop('level')).toBe('ERROR');
+  expect(
+    output
+      .find('.account-project-quality-gate')
+      .find(Level)
+      .prop('level')
+  ).toBe('ERROR');
 });
 
 it('should render links', () => {

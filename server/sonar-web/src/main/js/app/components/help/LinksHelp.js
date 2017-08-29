@@ -29,14 +29,10 @@ type Props = { onClose: () => void };
 export default function LinksHelp({ onClose } /*: Props */) {
   return (
     <div>
-      <h2 className="spacer-top spacer-bottom">
-        {translate('help.section.links')}
-      </h2>
+      <h2 className="spacer-top spacer-bottom">{translate('help.section.links')}</h2>
 
       <p className="spacer-bottom">
-        <a href="http://www.sonarqube.org">
-          {translate('footer.community')}
-        </a>
+        <a href="http://www.sonarqube.org">{translate('footer.community')}</a>
       </p>
 
       <p className="spacer-bottom">

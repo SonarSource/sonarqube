@@ -41,16 +41,25 @@ it('selects and deselects project', () => {
   const onProjectSelected = jest.fn();
   const wrapper = shallowRender({ onProjectDeselected, onProjectSelected, projects });
 
-  wrapper.find('ProjectRow').first().prop<Function>('onProjectCheck')(projects[0], true);
+  wrapper
+    .find('ProjectRow')
+    .first()
+    .prop<Function>('onProjectCheck')(projects[0], true);
   expect(onProjectSelected).toBeCalledWith('a');
 
-  wrapper.find('ProjectRow').first().prop<Function>('onProjectCheck')(projects[0], false);
+  wrapper
+    .find('ProjectRow')
+    .first()
+    .prop<Function>('onProjectCheck')(projects[0], false);
   expect(onProjectDeselected).toBeCalledWith('a');
 });
 
 it('opens modal to apply permission template', () => {
   const wrapper = shallowRender({ projects });
-  wrapper.find('ProjectRow').first().prop<Function>('onApplyTemplateClick')(projects[0]);
+  wrapper
+    .find('ProjectRow')
+    .first()
+    .prop<Function>('onApplyTemplateClick')(projects[0]);
   expect(ApplyTemplateView).toBeCalledWith({ organization, project: projects[0] });
 });
 

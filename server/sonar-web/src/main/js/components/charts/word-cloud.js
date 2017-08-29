@@ -67,13 +67,13 @@ export const WordCloud = createReactClass({
     const len = this.props.items.length;
     const sortedItems = sortBy(this.props.items, (item, idx) => {
       const index = len - idx;
-      return index % 2 * (len - index) + index / 2;
+      return (index % 2) * (len - index) + index / 2;
     });
 
     const sizeScale = scaleLinear()
       .domain([0, max(this.props.items, d => d.size)])
       .range(this.props.sizeRange);
-    const words = sortedItems.map((item, index) =>
+    const words = sortedItems.map((item, index) => (
       <Word
         key={index}
         text={item.text}
@@ -81,11 +81,7 @@ export const WordCloud = createReactClass({
         link={item.link}
         tooltip={item.tooltip}
       />
-    );
-    return (
-      <div className="word-cloud">
-        {words}
-      </div>
-    );
+    ));
+    return <div className="word-cloud">{words}</div>;
   }
 });

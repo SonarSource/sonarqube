@@ -62,7 +62,7 @@ export default class EncryptionForm extends React.PureComponent {
           <button className="spacer-left">Encrypt</button>
         </form>
 
-        {this.props.encryptedValue != null &&
+        {this.props.encryptedValue != null && (
           <div>
             Encrypted Value:{' '}
             <input
@@ -72,7 +72,8 @@ export default class EncryptionForm extends React.PureComponent {
               readOnly={true}
               value={this.props.encryptedValue}
             />
-          </div>}
+          </div>
+        )}
 
         <div className="huge-spacer-top bordered-top">
           <div className="big-spacer-top spacer-bottom">

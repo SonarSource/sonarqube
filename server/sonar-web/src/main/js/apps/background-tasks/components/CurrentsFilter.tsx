@@ -38,9 +38,7 @@ export default class CurrentsFilter extends React.PureComponent<Props> {
     return (
       <div className="bt-search-form-field">
         <Checkbox checked={checked} onCheck={this.handleChange}>
-          <span className="little-spacer-left">
-            {translate('yes')}
-          </span>
+          <span className="little-spacer-left">{translate('yes')}</span>
         </Checkbox>
       </div>
     );

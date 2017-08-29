@@ -24,12 +24,8 @@ import { translate } from '../../../helpers/l10n';
 export default function NoFavoriteProjects() {
   return (
     <div className="projects-empty-list">
-      <h3>
-        {translate('projects.no_favorite_projects')}
-      </h3>
-      <p className="big-spacer-top">
-        {translate('projects.no_favorite_projects.engagement')}
-      </p>
+      <h3>{translate('projects.no_favorite_projects')}</h3>
+      <p className="big-spacer-top">{translate('projects.no_favorite_projects.engagement')}</p>
       <p className="big-spacer-top">
         <Link to="/projects/all" className="button">
           {translate('projects.explore_projects')}

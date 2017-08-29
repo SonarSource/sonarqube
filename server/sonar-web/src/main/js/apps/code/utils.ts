@@ -179,10 +179,12 @@ function retrieveComponentBreadcrumbs(
     return Promise.resolve(existing);
   }
 
-  return getBreadcrumbs(componentKey, branch).then(skipRootDir).then(breadcrumbs => {
-    addComponentBreadcrumbs(componentKey, breadcrumbs);
-    return breadcrumbs;
-  });
+  return getBreadcrumbs(componentKey, branch)
+    .then(skipRootDir)
+    .then(breadcrumbs => {
+      addComponentBreadcrumbs(componentKey, breadcrumbs);
+      return breadcrumbs;
+    });
 }
 
 export function retrieveComponent(

@@ -76,9 +76,7 @@ class SettingsNav extends React.PureComponent {
     return (
       <ContextNavBar id="context-navigation" height={65}>
         <h1 className="navbar-context-header">
-          <strong>
-            {translate('layout.settings')}
-          </strong>
+          <strong>{translate('layout.settings')}</strong>
         </h1>
 
         <NavBarTabs>
@@ -130,24 +128,27 @@ class SettingsNav extends React.PureComponent {
                   {translate('users.page')}
                 </IndexLink>
               </li>
-              {!this.props.customOrganizations &&
+              {!this.props.customOrganizations && (
                 <li>
                   <IndexLink to="/groups" activeClassName="active">
                     {translate('user_groups.page')}
                   </IndexLink>
-                </li>}
-              {!this.props.customOrganizations &&
+                </li>
+              )}
+              {!this.props.customOrganizations && (
                 <li>
                   <IndexLink to="/roles/global" activeClassName="active">
                     {translate('global_permissions.page')}
                   </IndexLink>
-                </li>}
-              {!this.props.customOrganizations &&
+                </li>
+              )}
+              {!this.props.customOrganizations && (
                 <li>
                   <IndexLink to="/permission_templates" activeClassName="active">
                     {translate('permission_templates')}
                   </IndexLink>
-                </li>}
+                </li>
+              )}
             </ul>
           </li>
 
@@ -156,12 +157,13 @@ class SettingsNav extends React.PureComponent {
               {translate('sidebar.projects')} <i className="icon-dropdown" />
             </a>
             <ul className="dropdown-menu">
-              {!this.props.customOrganizations &&
+              {!this.props.customOrganizations && (
                 <li>
                   <IndexLink to="/admin/projects_management" activeClassName="active">
                     Management
                   </IndexLink>
-                </li>}
+                </li>
+              )}
               <li>
                 <IndexLink to="/background_tasks" activeClassName="active">
                   {translate('background_tasks.page')}

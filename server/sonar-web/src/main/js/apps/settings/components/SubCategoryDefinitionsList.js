@@ -53,16 +53,15 @@ export default class SubCategoryDefinitionsList extends React.PureComponent {
 
     return (
       <ul className="settings-sub-categories-list">
-        {sortedSubCategories.map(subCategory =>
+        {sortedSubCategories.map(subCategory => (
           <li key={subCategory.key}>
-            <h2 className="settings-sub-category-name">
-              {subCategory.name}
-            </h2>
-            {subCategory.description != null &&
+            <h2 className="settings-sub-category-name">{subCategory.name}</h2>
+            {subCategory.description != null && (
               <div
                 className="settings-sub-category-description markdown"
                 dangerouslySetInnerHTML={{ __html: subCategory.description }}
-              />}
+              />
+            )}
             <DefinitionsList
               branch={this.props.branch}
               component={this.props.component}
@@ -70,7 +69,7 @@ export default class SubCategoryDefinitionsList extends React.PureComponent {
             />
             {this.renderEmailForm(subCategory.key)}
           </li>
-        )}
+        ))}
       </ul>
     );
   }

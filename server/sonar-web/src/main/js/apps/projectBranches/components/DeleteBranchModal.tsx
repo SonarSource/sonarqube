@@ -81,9 +81,7 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
         <header className="modal-head">
-          <h2>
-            {header}
-          </h2>
+          <h2>{header}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">

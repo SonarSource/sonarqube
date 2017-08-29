@@ -63,8 +63,9 @@ export default function QualityGate({ branch, component, measures } /*: Props */
         <Level level={level} />
       </h2>
 
-      {conditions.length > 0 &&
-        <QualityGateConditions branch={branch} component={component} conditions={conditions} />}
+      {conditions.length > 0 && (
+        <QualityGateConditions branch={branch} component={component} conditions={conditions} />
+      )}
     </div>
   );
 }

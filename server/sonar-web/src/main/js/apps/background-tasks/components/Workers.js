@@ -80,30 +80,33 @@ export default class Workers extends React.PureComponent {
     return (
       <div>
         {!loading &&
-          workerCount > 1 &&
+        workerCount > 1 && (
           <Tooltip overlay={translate('background_tasks.number_of_workers.warning')}>
             <i className="icon-alert-warn little-spacer-right bt-workers-warning-icon" />
-          </Tooltip>}
+          </Tooltip>
+        )}
 
         {translate('background_tasks.number_of_workers')}
 
-        {loading
-          ? <i className="spinner little-spacer-left" />
-          : <strong className="little-spacer-left">
-              {workerCount}
-            </strong>}
+        {loading ? (
+          <i className="spinner little-spacer-left" />
+        ) : (
+          <strong className="little-spacer-left">{workerCount}</strong>
+        )}
 
         {!loading &&
-          (canSetWorkerCount
-            ? <Tooltip overlay={translate('background_tasks.change_number_of_workers')}>
-                <a className="icon-edit spacer-left" href="#" onClick={this.handleChangeClick} />
-              </Tooltip>
-            : <a
-                className="button button-promote spacer-left"
-                href="https://redirect.sonarsource.com/plugins/governance.html"
-                target="_blank">
-                {translate('background_tasks.add_more_with_governance')}
-              </a>)}
+          (canSetWorkerCount ? (
+            <Tooltip overlay={translate('background_tasks.change_number_of_workers')}>
+              <a className="icon-edit spacer-left" href="#" onClick={this.handleChangeClick} />
+            </Tooltip>
+          ) : (
+            <a
+              className="button button-promote spacer-left"
+              href="https://redirect.sonarsource.com/plugins/governance.html"
+              target="_blank">
+              {translate('background_tasks.add_more_with_governance')}
+            </a>
+          ))}
 
         {formOpen && <WorkersForm onClose={this.closeForm} workerCount={this.state.workerCount} />}
       </div>

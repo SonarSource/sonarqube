@@ -75,16 +75,15 @@ export default function PageSidebar(
       <FavoriteFilterContainer query={linkQuery} organization={organization} />
 
       <div className="projects-facets-header clearfix">
-        {isFiltered &&
+        {isFiltered && (
           <div className="projects-facets-reset">
             <Link to={{ pathname, query: linkQuery }} className="button button-red">
               {translate('clear_all_filters')}
             </Link>
-          </div>}
+          </div>
+        )}
 
-        <h3>
-          {translate('filters')}
-        </h3>
+        <h3>{translate('filters')}</h3>
       </div>
       <QualityGateFilter {...facetProps} />
       {!isLeakView && [

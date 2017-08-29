@@ -62,8 +62,18 @@ describe('ItemObject', () => {
       <ItemObject value={{ users: { docs: 1, shards: 5 }, tests: { docs: 68, shards: 5 } }} />
     );
     expect(result.find(ItemValue).length).toBe(2);
-    expect(result.find(ItemValue).at(0).prop('value')).toEqual({ docs: 1, shards: 5 });
-    expect(result.find(ItemValue).at(1).prop('value')).toEqual({ docs: 68, shards: 5 });
+    expect(
+      result
+        .find(ItemValue)
+        .at(0)
+        .prop('value')
+    ).toEqual({ docs: 1, shards: 5 });
+    expect(
+      result
+        .find(ItemValue)
+        .at(1)
+        .prop('value')
+    ).toEqual({ docs: 68, shards: 5 });
   });
 });
 

@@ -81,13 +81,13 @@ export default class ConciseIssueLocations extends React.PureComponent {
       );
     });
 
-    return this.state.collapsed
-      ? <div className="concise-issue-locations pull-right">
-          {badges.slice(0, LIMIT)}
-          {badges.length > LIMIT && this.renderExpandButton()}
-        </div>
-      : <div className="concise-issue-locations spacer-top">
-          {badges}
-        </div>;
+    return this.state.collapsed ? (
+      <div className="concise-issue-locations pull-right">
+        {badges.slice(0, LIMIT)}
+        {badges.length > LIMIT && this.renderExpandButton()}
+      </div>
+    ) : (
+      <div className="concise-issue-locations spacer-top">{badges}</div>
+    );
   }
 }

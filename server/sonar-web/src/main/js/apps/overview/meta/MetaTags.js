@@ -126,7 +126,7 @@ export default class MetaTags extends React.PureComponent {
             ref={tagsList => (this.tagsList = tagsList)}>
             <TagsList tags={tags.length ? tags : [translate('no_tags')]} allowUpdate={true} />
           </button>
-          {popupOpen &&
+          {popupOpen && (
             <div ref={tagsSelector => (this.tagsSelector = tagsSelector)}>
               <MetaTagsSelector
                 position={popupPosition}
@@ -134,7 +134,8 @@ export default class MetaTags extends React.PureComponent {
                 selectedTags={tags}
                 setProjectTags={this.handleSetProjectTags}
               />
-            </div>}
+            </div>
+          )}
         </div>
       );
     } else {

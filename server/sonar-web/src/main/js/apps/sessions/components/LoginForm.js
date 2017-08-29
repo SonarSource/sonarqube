@@ -69,70 +69,71 @@ export default class LoginForm extends React.PureComponent {
   render() {
     return (
       <div id="login_form">
-        <h1 className="maintenance-title text-center">
-          {translate('login.login_to_sonarqube')}
-        </h1>
+        <h1 className="maintenance-title text-center">{translate('login.login_to_sonarqube')}</h1>
 
-        {this.props.identityProviders.length > 0 &&
-          <OAuthProviders identityProviders={this.props.identityProviders} />}
+        {this.props.identityProviders.length > 0 && (
+          <OAuthProviders identityProviders={this.props.identityProviders} />
+        )}
 
-        {this.state.collapsed
-          ? <div className="text-center">
-              <a
-                className="small text-muted js-more-options"
-                href="#"
-                onClick={this.handleMoreOptionsClick}>
-                {translate('login.more_options')}
-              </a>
+        {this.state.collapsed ? (
+          <div className="text-center">
+            <a
+              className="small text-muted js-more-options"
+              href="#"
+              onClick={this.handleMoreOptionsClick}>
+              {translate('login.more_options')}
+            </a>
+          </div>
+        ) : (
+          <form onSubmit={this.handleSubmit}>
+            <GlobalMessagesContainer />
+
+            <div className="big-spacer-bottom">
+              <label htmlFor="login" className="login-label">
+                {translate('login')}
+              </label>
+              <input
+                type="text"
+                id="login"
+                name="login"
+                className="login-input"
+                maxLength="255"
+                required={true}
+                autoFocus={true}
+                placeholder={translate('login')}
+                value={this.state.login}
+                onChange={e => this.setState({ login: e.target.value })}
+              />
             </div>
-          : <form onSubmit={this.handleSubmit}>
-              <GlobalMessagesContainer />
 
-              <div className="big-spacer-bottom">
-                <label htmlFor="login" className="login-label">
-                  {translate('login')}
-                </label>
-                <input
-                  type="text"
-                  id="login"
-                  name="login"
-                  className="login-input"
-                  maxLength="255"
-                  required={true}
-                  autoFocus={true}
-                  placeholder={translate('login')}
-                  value={this.state.login}
-                  onChange={e => this.setState({ login: e.target.value })}
-                />
-              </div>
+            <div className="big-spacer-bottom">
+              <label htmlFor="password" className="login-label">
+                {translate('password')}
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                className="login-input"
+                required={true}
+                placeholder={translate('password')}
+                value={this.state.password}
+                onChange={e => this.setState({ password: e.target.value })}
+              />
+            </div>
 
-              <div className="big-spacer-bottom">
-                <label htmlFor="password" className="login-label">
-                  {translate('password')}
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  className="login-input"
-                  required={true}
-                  placeholder={translate('password')}
-                  value={this.state.password}
-                  onChange={e => this.setState({ password: e.target.value })}
-                />
+            <div>
+              <div className="text-right overflow-hidden">
+                <button name="commit" type="submit">
+                  {translate('sessions.log_in')}
+                </button>
+                <a className="spacer-left" href={window.baseUrl + '/'}>
+                  {translate('cancel')}
+                </a>
               </div>
-
-              <div>
-                <div className="text-right overflow-hidden">
-                  <button name="commit" type="submit">
-                    {translate('sessions.log_in')}
-                  </button>
-                  <a className="spacer-left" href={window.baseUrl + '/'}>
-                    {translate('cancel')}
-                  </a>
-                </div>
-              </div>
-            </form>}
+            </div>
+          </form>
+        )}
       </div>
     );
   }

@@ -45,9 +45,7 @@ export default class DetailsContent extends React.PureComponent {
         />
 
         <div id="quality-gate-projects" className="quality-gate-section">
-          <h3 className="spacer-bottom">
-            {translate('quality_gates.projects')}
-          </h3>
+          <h3 className="spacer-bottom">{translate('quality_gates.projects')}</h3>
           {gate.isDefault ? defaultMessage : <Projects qualityGate={gate} edit={canEdit} />}
         </div>
       </div>

@@ -69,9 +69,7 @@ export default class IssueCommentAction extends React.PureComponent {
           <button
             className="button-link issue-action js-issue-comment"
             onClick={this.handleCommentClick}>
-            <span className="issue-meta-label">
-              {translate('issue.comment.formlink')}
-            </span>
+            <span className="issue-meta-label">{translate('issue.comment.formlink')}</span>
           </button>
         </BubblePopupHelper>
       </li>

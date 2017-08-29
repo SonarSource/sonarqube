@@ -45,27 +45,24 @@ export default function ComponentsList(
   const otherMetrics = (complementary[metric.key] || []).map(key => metrics[key]);
   return (
     <table className="data zebra zebra-hover">
-      {otherMetrics.length > 0 &&
+      {otherMetrics.length > 0 && (
         <thead>
           <tr>
             <th>&nbsp;</th>
             <th className="text-right">
-              <span className="small">
-                {getLocalizedMetricName(metric)}
-              </span>
+              <span className="small">{getLocalizedMetricName(metric)}</span>
             </th>
-            {otherMetrics.map(metric =>
+            {otherMetrics.map(metric => (
               <th key={metric.key} className="text-right">
-                <span className="small">
-                  {getLocalizedMetricName(metric)}
-                </span>
+                <span className="small">{getLocalizedMetricName(metric)}</span>
               </th>
-            )}
+            ))}
           </tr>
-        </thead>}
+        </thead>
+      )}
 
       <tbody>
-        {components.map(component =>
+        {components.map(component => (
           <ComponentsListRow
             key={component.id}
             branch={branch}
@@ -75,7 +72,7 @@ export default function ComponentsList(
             metric={metric}
             onClick={onClick}
           />
-        )}
+        ))}
       </tbody>
     </table>
   );

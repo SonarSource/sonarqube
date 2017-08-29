@@ -110,9 +110,7 @@ export default function ProjectCardLeakMeasures({ measures } /*: Props */) {
               }}
             />
           </div>
-          <div className="project-card-measure-label">
-            {translate('metric.coverage.name')}
-          </div>
+          <div className="project-card-measure-label">{translate('metric.coverage.name')}</div>
         </div>
       </div>
 
@@ -146,9 +144,7 @@ export default function ProjectCardLeakMeasures({ measures } /*: Props */) {
               }}
             />
           </div>
-          <div className="project-card-measure-label">
-            {translate('metric.lines.name')}
-          </div>
+          <div className="project-card-measure-label">{translate('metric.lines.name')}</div>
         </div>
       </div>
     </div>

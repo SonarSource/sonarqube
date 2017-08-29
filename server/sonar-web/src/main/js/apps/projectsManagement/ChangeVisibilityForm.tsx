@@ -69,48 +69,50 @@ export default class ChangeVisibilityForm extends React.PureComponent<Props, Sta
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
         <header className="modal-head">
-          <h2>
-            {translate('organization.change_visibility_form.header')}
-          </h2>
+          <h2>{translate('organization.change_visibility_form.header')}</h2>
         </header>
 
         <div className="modal-body">
-          {[Visibility.Public, Visibility.Private].map(visibility =>
+          {[Visibility.Public, Visibility.Private].map(visibility => (
             <div className="big-spacer-bottom" key={visibility}>
               <p>
-                {visibility === Visibility.Private && !canUpdateProjectsVisibilityToPrivate
-                  ? <span className="text-muted cursor-not-allowed">
-                      <i
-                        className={classNames('icon-radio', 'spacer-right', {
-                          'is-checked': this.state.visibility === visibility
-                        })}
-                      />
-                      {translate('visibility', visibility)}
-                    </span>
-                  : <a
-                      className="link-base-color link-no-underline"
-                      data-visibility={visibility}
-                      href="#"
-                      onClick={this.handleVisibilityClick}>
-                      <i
-                        className={classNames('icon-radio', 'spacer-right', {
-                          'is-checked': this.state.visibility === visibility
-                        })}
-                      />
-                      {translate('visibility', visibility)}
-                    </a>}
+                {visibility === Visibility.Private && !canUpdateProjectsVisibilityToPrivate ? (
+                  <span className="text-muted cursor-not-allowed">
+                    <i
+                      className={classNames('icon-radio', 'spacer-right', {
+                        'is-checked': this.state.visibility === visibility
+                      })}
+                    />
+                    {translate('visibility', visibility)}
+                  </span>
+                ) : (
+                  <a
+                    className="link-base-color link-no-underline"
+                    data-visibility={visibility}
+                    href="#"
+                    onClick={this.handleVisibilityClick}>
+                    <i
+                      className={classNames('icon-radio', 'spacer-right', {
+                        'is-checked': this.state.visibility === visibility
+                      })}
+                    />
+                    {translate('visibility', visibility)}
+                  </a>
+                )}
               </p>
               <p className="text-muted spacer-top" style={{ paddingLeft: 22 }}>
                 {translate('visibility', visibility, 'description.short')}
               </p>
             </div>
-          )}
+          ))}
 
-          {canUpdateProjectsVisibilityToPrivate
-            ? <div className="alert alert-warning">
-                {translate('organization.change_visibility_form.warning')}
-              </div>
-            : <UpgradeOrganizationBox organization={this.props.organization.key} />}
+          {canUpdateProjectsVisibilityToPrivate ? (
+            <div className="alert alert-warning">
+              {translate('organization.change_visibility_form.warning')}
+            </div>
+          ) : (
+            <UpgradeOrganizationBox organization={this.props.organization.key} />
+          )}
         </div>
 
         <footer className="modal-foot">

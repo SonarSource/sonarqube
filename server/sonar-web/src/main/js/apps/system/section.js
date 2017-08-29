@@ -39,13 +39,9 @@ export default class Section extends React.PureComponent {
 
     return (
       <div className="big-spacer-bottom">
-        <h3 className="spacer-bottom">
-          {this.props.section}
-        </h3>
+        <h3 className="spacer-bottom">{this.props.section}</h3>
         <table className="data zebra" id={this.props.section}>
-          <tbody>
-            {items}
-          </tbody>
+          <tbody>{items}</tbody>
         </table>
       </div>
     );

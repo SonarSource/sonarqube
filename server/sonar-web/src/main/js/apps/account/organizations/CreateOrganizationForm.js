@@ -126,9 +126,7 @@ class CreateOrganizationForm extends React.PureComponent {
         overlayClassName="modal-overlay"
         onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>
-            {translate('my_account.create_organization')}
-          </h2>
+          <h2>{translate('my_account.create_organization')}</h2>
         </header>
 
         <form onSubmit={this.handleSubmit}>
@@ -155,9 +153,7 @@ class CreateOrganizationForm extends React.PureComponent {
               </div>
             </div>
             <div className="modal-field">
-              <label htmlFor="organization-key">
-                {translate('organization.key')}
-              </label>
+              <label htmlFor="organization-key">{translate('organization.key')}</label>
               <input
                 id="organization-key"
                 name="key"
@@ -173,9 +169,7 @@ class CreateOrganizationForm extends React.PureComponent {
               </div>
             </div>
             <div className="modal-field">
-              <label htmlFor="organization-avatar">
-                {translate('organization.avatar')}
-              </label>
+              <label htmlFor="organization-avatar">{translate('organization.avatar')}</label>
               <input
                 id="organization-avatar"
                 name="avatar"
@@ -188,19 +182,18 @@ class CreateOrganizationForm extends React.PureComponent {
               <div className="modal-field-description">
                 {translate('organization.avatar.description')}
               </div>
-              {!!this.state.avatarImage &&
+              {!!this.state.avatarImage && (
                 <div className="spacer-top spacer-bottom">
                   <div className="little-spacer-bottom">
                     {translate('organization.avatar.preview')}
                     {':'}
                   </div>
                   <img src={this.state.avatarImage} alt="" height={30} />
-                </div>}
+                </div>
+              )}
             </div>
             <div className="modal-field">
-              <label htmlFor="organization-description">
-                {translate('description')}
-              </label>
+              <label htmlFor="organization-description">{translate('description')}</label>
               <textarea
                 id="organization-description"
                 name="description"
@@ -215,9 +208,7 @@ class CreateOrganizationForm extends React.PureComponent {
               </div>
             </div>
             <div className="modal-field">
-              <label htmlFor="organization-url">
-                {translate('organization.url')}
-              </label>
+              <label htmlFor="organization-url">{translate('organization.url')}</label>
               <input
                 id="organization-url"
                 name="url"

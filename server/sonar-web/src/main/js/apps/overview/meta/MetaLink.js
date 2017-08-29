@@ -58,9 +58,11 @@ export default class MetaLink extends React.PureComponent {
       return <BugTrackerIcon />;
     }
 
-    return isProvided(link)
-      ? <i className={`icon-color-link icon-${link.type}`} />
-      : <i className="icon-color-link icon-detach" />;
+    return isProvided(link) ? (
+      <i className={`icon-color-link icon-${link.type}`} />
+    ) : (
+      <i className="icon-color-link icon-detach" />
+    );
   }
 
   render() {
@@ -77,7 +79,7 @@ export default class MetaLink extends React.PureComponent {
           &nbsp;
           {link.name}
         </a>
-        {this.state.expanded &&
+        {this.state.expanded && (
           <div className="little-spacer-top">
             <input
               type="text"
@@ -86,7 +88,8 @@ export default class MetaLink extends React.PureComponent {
               readOnly={true}
               onClick={e => e.target.select()}
             />
-          </div>}
+          </div>
+        )}
       </li>
     );
   }

@@ -41,9 +41,7 @@ class Notifications extends React.PureComponent {
       <div className="account-body account-container">
         <Helmet title={translate('my_account.notifications')} />
 
-        <p className="big-spacer-bottom">
-          {translate('notification.dispatcher.information')}
-        </p>
+        <p className="big-spacer-bottom">{translate('notification.dispatcher.information')}</p>
 
         <GlobalNotifications />
 

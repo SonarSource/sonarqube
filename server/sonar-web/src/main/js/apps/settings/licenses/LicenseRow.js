@@ -44,22 +44,17 @@ export default class LicenseRow extends React.PureComponent {
             {license.name || license.key}
           </div>
         </td>
-        <td className="js-organization text-middle">
-          {license.organization}
-        </td>
+        <td className="js-organization text-middle">{license.organization}</td>
         <td className="js-expiration text-middle">
-          {license.expiration != null &&
+          {license.expiration != null && (
             <div className={license.invalidExpiration ? 'text-danger' : null}>
               <DateFormatter date={license.expiration} long={true} />
-            </div>}
+            </div>
+          )}
         </td>
-        <td className="js-type text-middle">
-          {license.type}
-        </td>
+        <td className="js-type text-middle">{license.type}</td>
         <td className="js-server-id text-middle">
-          <div className={license.invalidServerId ? 'text-danger' : null}>
-            {license.serverId}
-          </div>
+          <div className={license.invalidServerId ? 'text-danger' : null}>{license.serverId}</div>
         </td>
         <td className="text-right">
           <LicenseChangeForm license={license} onChange={this.handleSet} />

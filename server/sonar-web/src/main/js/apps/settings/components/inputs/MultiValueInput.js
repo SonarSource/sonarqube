@@ -67,14 +67,15 @@ export default class MultiValueInput extends React.PureComponent {
           onChange={this.handleSingleInputChange.bind(this, index)}
         />
 
-        {!isLast &&
+        {!isLast && (
           <div className="display-inline-block spacer-left">
             <button
               className="js-remove-value button-clean"
               onClick={e => this.handleDeleteValue(e, index)}>
               <i className="icon-delete" />
             </button>
-          </div>}
+          </div>
+        )}
       </li>
     );
   }

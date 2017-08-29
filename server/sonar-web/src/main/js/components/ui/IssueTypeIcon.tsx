@@ -52,9 +52,5 @@ export default function IssueTypeIcon(props: Props) {
     return null;
   }
 
-  return props.className
-    ? <span className={props.className}>
-        {icon}
-      </span>
-    : icon;
+  return props.className ? <span className={props.className}>{icon}</span> : icon;
 }

@@ -24,16 +24,12 @@ import { translate } from '../../../helpers/l10n';
 export default function ShortcutsHelp() {
   return (
     <div>
-      <h2 className="spacer-top spacer-bottom">
-        {translate('help.section.shortcuts')}
-      </h2>
+      <h2 className="spacer-top spacer-bottom">{translate('help.section.shortcuts')}</h2>
 
       <div className="columns">
         <div className="column-half">
           <div className="spacer-bottom">
-            <h3 className="shortcuts-section-title">
-              {translate('shortcuts.section.global')}
-            </h3>
+            <h3 className="shortcuts-section-title">{translate('shortcuts.section.global')}</h3>
             <ul className="shortcuts-list">
               <li>
                 <span className="shortcut-button spacer-right">s</span>
@@ -46,9 +42,7 @@ export default function ShortcutsHelp() {
             </ul>
           </div>
 
-          <h3 className="shortcuts-section-title">
-            {translate('shortcuts.section.rules')}
-          </h3>
+          <h3 className="shortcuts-section-title">{translate('shortcuts.section.rules')}</h3>
           <ul className="shortcuts-list">
             <li>
               <span className="shortcut-button little-spacer-right">↑</span>
@@ -75,9 +69,7 @@ export default function ShortcutsHelp() {
         </div>
 
         <div className="column-half">
-          <h3 className="shortcuts-section-title">
-            {translate('shortcuts.section.issues')}
-          </h3>
+          <h3 className="shortcuts-section-title">{translate('shortcuts.section.issues')}</h3>
           <ul className="shortcuts-list">
             <li>
               <span className="shortcut-button little-spacer-right">↑</span>

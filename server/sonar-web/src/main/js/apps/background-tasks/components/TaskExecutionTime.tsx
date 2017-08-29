@@ -25,9 +25,5 @@ interface Props {
 }
 
 export default function TaskExecutionTime({ ms }: Props) {
-  return (
-    <td className="thin nowrap text-right">
-      {ms && formatDuration(ms)}
-    </td>
-  );
+  return <td className="thin nowrap text-right">{ms && formatDuration(ms)}</td>;
 }

@@ -51,18 +51,12 @@ export default class RadioToggle extends React.PureComponent<Props> {
           onChange={this.handleChange}
         />
 
-        <label htmlFor={htmlId}>
-          {option.label}
-        </label>
+        <label htmlFor={htmlId}>{option.label}</label>
       </li>
     );
   };
 
   render() {
-    return (
-      <ul className="radio-toggle">
-        {this.props.options.map(this.renderOption)}
-      </ul>
-    );
+    return <ul className="radio-toggle">{this.props.options.map(this.renderOption)}</ul>;
   }
 }

@@ -216,18 +216,17 @@ export default class Search extends React.PureComponent<Props, State> {
 
           {loading && <i className="spinner spacer-left" />}
 
-          <span className="note spacer-left">
-            {translateWithParameters('select2.tooShort', 3)}
-          </span>
+          <span className="note spacer-left">{translateWithParameters('select2.tooShort', 3)}</span>
         </form>
 
-        {results != null &&
+        {results != null && (
           <Components
             branch={this.props.branch}
             components={results}
             rootComponent={component}
             selected={selected}
-          />}
+          />
+        )}
       </div>
     );
   }

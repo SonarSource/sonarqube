@@ -115,9 +115,7 @@ export default class Component extends React.PureComponent<Props> {
     return (
       <tr className={classNames({ selected })} ref={node => (this.node = node as HTMLElement)}>
         <td className="thin nowrap">
-          <span className="spacer-right">
-            {componentAction}
-          </span>
+          <span className="spacer-right">{componentAction}</span>
         </td>
         <td className="code-name-cell">
           <ComponentName
@@ -129,7 +127,7 @@ export default class Component extends React.PureComponent<Props> {
           />
         </td>
 
-        {columns.map(column =>
+        {columns.map(column => (
           <td key={column.metric} className="thin nowrap text-right">
             <div className="code-components-cell">
               <ComponentMeasure
@@ -139,7 +137,7 @@ export default class Component extends React.PureComponent<Props> {
               />
             </div>
           </td>
-        )}
+        ))}
       </tr>
     );
   }

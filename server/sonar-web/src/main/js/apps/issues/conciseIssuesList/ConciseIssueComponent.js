@@ -27,9 +27,8 @@ type Props = {
 };
 */
 
-const ConciseIssueComponent = (props /*: Props */) =>
-  <div className="concise-issue-component note text-ellipsis">
-    {collapsePath(props.path, 20)}
-  </div>;
+const ConciseIssueComponent = (props /*: Props */) => (
+  <div className="concise-issue-component note text-ellipsis">{collapsePath(props.path, 20)}</div>
+);
 
 export default ConciseIssueComponent;

@@ -62,7 +62,7 @@ export default class Projects extends React.PureComponent<Props> {
           </tr>
         </thead>
         <tbody>
-          {this.props.projects.map(project =>
+          {this.props.projects.map(project => (
             <ProjectRow
               key={project.key}
               onApplyTemplateClick={this.onApplyTemplateClick}
@@ -70,7 +70,7 @@ export default class Projects extends React.PureComponent<Props> {
               project={project}
               selected={this.props.selection.includes(project.key)}
             />
-          )}
+          ))}
         </tbody>
       </table>
     );

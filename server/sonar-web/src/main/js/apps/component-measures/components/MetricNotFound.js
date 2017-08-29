@@ -24,9 +24,7 @@ import { translate } from '../../../helpers/l10n';
 export default function MetricNotFound({ className } /*: { className?: string } */) {
   return (
     <div className={className}>
-      <div className="alert alert-danger">
-        {translate('component_measures.not_found')}
-      </div>
+      <div className="alert alert-danger">{translate('component_measures.not_found')}</div>
     </div>
   );
 }

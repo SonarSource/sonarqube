@@ -110,9 +110,11 @@ export default class SearchSelect extends React.PureComponent {
         filterOption={this.handleFilterOption}
         isLoading={this.state.loading}
         noResultsText={
-          this.state.query.length < this.props.minimumQueryLength
-            ? translateWithParameters('select2.tooShort', this.props.minimumQueryLength)
-            : translate('select2.noMatches')
+          this.state.query.length < this.props.minimumQueryLength ? (
+            translateWithParameters('select2.tooShort', this.props.minimumQueryLength)
+          ) : (
+            translate('select2.noMatches')
+          )
         }
         onBlur={this.props.resetOnBlur ? this.handleBlur : undefined}
         onChange={this.handleChange}

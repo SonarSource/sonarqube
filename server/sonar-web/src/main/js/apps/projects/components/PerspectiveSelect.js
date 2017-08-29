@@ -70,9 +70,7 @@ export default class PerspectiveSelect extends React.PureComponent {
     const perspective = view === 'visualizations' ? visualization : view;
     return (
       <div className={this.props.className}>
-        <label>
-          {translate('projects.perspective')}:
-        </label>
+        <label>{translate('projects.perspective')}:</label>
         <Select
           className="little-spacer-left input-medium"
           clearable={false}

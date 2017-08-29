@@ -83,7 +83,7 @@ export default class Sidebar extends React.PureComponent {
           selected={this.props.selectedMetric}
           value={PROJECT_OVERVEW}
         />
-        {groupByDomains(this.props.measures).map(domain =>
+        {groupByDomains(this.props.measures).map(domain => (
           <DomainFacet
             key={domain.name}
             domain={domain}
@@ -92,7 +92,7 @@ export default class Sidebar extends React.PureComponent {
             open={this.state.openFacets[domain.name] === true}
             selected={this.props.selectedMetric}
           />
-        )}
+        ))}
       </div>
     );
   }

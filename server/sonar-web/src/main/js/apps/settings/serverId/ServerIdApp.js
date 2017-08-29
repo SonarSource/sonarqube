@@ -80,16 +80,12 @@ export default class ServerIdApp extends React.PureComponent {
       <div id="server-id-page" className="page page-limited">
         <Helmet title={translate('property.category.server_id')} />
         <header className="page-header">
-          <h1 className="page-title">
-            {translate('property.category.server_id')}
-          </h1>
+          <h1 className="page-title">{translate('property.category.server_id')}</h1>
           {this.state.loading && <i className="spinner" />}
-          <div className="page-description">
-            {translate('server_id_configuration.information')}
-          </div>
+          <div className="page-description">{translate('server_id_configuration.information')}</div>
         </header>
 
-        {this.state.serverId != null &&
+        {this.state.serverId != null && (
           <div className={this.state.invalidServerId ? 'panel panel-danger' : 'panel'}>
             Server ID:
             <input
@@ -99,11 +95,11 @@ export default class ServerIdApp extends React.PureComponent {
               readOnly={true}
               value={this.state.serverId}
             />
-            {!!this.state.invalidServerId &&
-              <span className="spacer-left">
-                {translate('server_id_configuration.bad_key')}
-              </span>}
-          </div>}
+            {!!this.state.invalidServerId && (
+              <span className="spacer-left">{translate('server_id_configuration.bad_key')}</span>
+            )}
+          </div>
+        )}
 
         <div className="panel">
           <form id="server-id-form" onSubmit={e => this.handleSubmit(e)}>
@@ -143,11 +139,11 @@ export default class ServerIdApp extends React.PureComponent {
               <div className="modal-field-description">
                 {translate('server_id_configuration.ip.desc')}
                 <ul className="list-styled">
-                  {this.state.validIpAddresses.map(ip =>
+                  {this.state.validIpAddresses.map(ip => (
                     <li key={ip} className="little-spacer-top">
                       {ip}
                     </li>
-                  )}
+                  ))}
                 </ul>
               </div>
             </div>

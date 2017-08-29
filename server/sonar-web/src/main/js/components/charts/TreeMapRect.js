@@ -25,7 +25,10 @@ import { scaleLinear } from 'd3-scale';
 import LinkIcon from '../icons-components/LinkIcon';
 import Tooltip from '../controls/Tooltip';
 
-const SIZE_SCALE = scaleLinear().domain([3, 15]).range([11, 18]).clamp(true);
+const SIZE_SCALE = scaleLinear()
+  .domain([3, 15])
+  .range([11, 18])
+  .clamp(true);
 
 /*:: type Props = {|
   x: number,
@@ -93,12 +96,14 @@ export default class TreeMapRect extends React.PureComponent {
         role="treeitem"
         tabIndex={0}>
         <div className="treemap-inner" style={{ maxWidth: this.props.width }}>
-          {isIconVisible &&
+          {isIconVisible && (
             <span className={classNames('treemap-icon', { 'spacer-right': isTextVisible })}>
               {this.props.icon}
-            </span>}
-          {isTextVisible &&
-            <span className="treemap-text" dangerouslySetInnerHTML={{ __html: label }} />}
+            </span>
+          )}
+          {isTextVisible && (
+            <span className="treemap-text" dangerouslySetInnerHTML={{ __html: label }} />
+          )}
         </div>
         {this.renderLink()}
       </div>

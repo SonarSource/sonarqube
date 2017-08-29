@@ -133,7 +133,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
 
   isSelected = (branch: Branch) => branch.name === this.getSelected();
 
-  renderSearch = () =>
+  renderSearch = () => (
     <div className="search-box menu-search">
       <button className="search-box-submit button-clean">
         <i className="icon-search-new" />
@@ -147,18 +147,15 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
         type="search"
         value={this.state.query}
       />
-    </div>;
+    </div>
+  );
 
   renderBranchesList = () => {
     const branches = this.getFilteredBranches();
     const selected = this.getSelected();
 
     if (branches.length === 0) {
-      return (
-        <div className="menu-message note">
-          {translate('no_results')}
-        </div>
-      );
+      return <div className="menu-message note">{translate('no_results')}</div>;
     }
 
     const menu: JSX.Element[] = [];
@@ -190,11 +187,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       );
     });
 
-    return (
-      <ul className="menu menu-vertically-limited">
-        {menu}
-      </ul>
-    );
+    return <ul className="menu menu-vertically-limited">{menu}</ul>;
   };
 
   render() {
@@ -206,14 +199,15 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       <div className="dropdown-menu dropdown-menu-shadow" ref={node => (this.node = node)}>
         {this.renderSearch()}
         {this.renderBranchesList()}
-        {showManageLink &&
+        {showManageLink && (
           <div className="dropdown-bottom-hint text-right">
             <Link
               className="text-muted"
               to={{ pathname: '/project/branches', query: { id: project.key } }}>
               {translate('branches.manage')}
             </Link>
-          </div>}
+          </div>
+        )}
       </div>
     );
   }

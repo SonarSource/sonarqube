@@ -126,10 +126,10 @@ export default class ComparisonContainer extends React.PureComponent<Props, Stat
         </header>
 
         {left != null &&
-          inLeft != null &&
-          right != null &&
-          inRight != null &&
-          modified != null &&
+        inLeft != null &&
+        right != null &&
+        inRight != null &&
+        modified != null && (
           <ComparisonResults
             left={left}
             right={right}
@@ -137,7 +137,8 @@ export default class ComparisonContainer extends React.PureComponent<Props, Stat
             inRight={inRight}
             modified={modified}
             organization={this.props.organization}
-          />}
+          />
+        )}
       </div>
     );
   }

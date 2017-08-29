@@ -49,11 +49,7 @@ export default class NewLinesFilter extends React.PureComponent {
   }
 
   renderOption(option) {
-    return (
-      <span>
-        {getSizeRatingLabel(option)}
-      </span>
-    );
+    return <span>{getSizeRatingLabel(option)}</span>;
   }
 
   render() {

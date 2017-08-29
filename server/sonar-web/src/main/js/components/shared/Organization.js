@@ -55,11 +55,13 @@ class Organization extends React.PureComponent {
 
     return (
       <span>
-        {this.props.link
-          ? <OrganizationLink className={this.props.linkClassName} organization={organization}>
-              {organization.name}
-            </OrganizationLink>
-          : organization.name}
+        {this.props.link ? (
+          <OrganizationLink className={this.props.linkClassName} organization={organization}>
+            {organization.name}
+          </OrganizationLink>
+        ) : (
+          organization.name
+        )}
         <span className="slash-separator" />
       </span>
     );

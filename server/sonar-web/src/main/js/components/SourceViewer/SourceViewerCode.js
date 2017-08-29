@@ -198,21 +198,24 @@ export default class SourceViewerCode extends React.PureComponent {
 
     return (
       <div>
-        {this.props.hasSourcesBefore &&
+        {this.props.hasSourcesBefore && (
           <div className="source-viewer-more-code">
-            {this.props.loadingSourcesBefore
-              ? <div className="js-component-viewer-loading-before">
-                  <i className="spinner" />
-                  <span className="note spacer-left">
-                    {translate('source_viewer.loading_more_code')}
-                  </span>
-                </div>
-              : <button
-                  className="js-component-viewer-source-before"
-                  onClick={this.props.loadSourcesBefore}>
-                  {translate('source_viewer.load_more_code')}
-                </button>}
-          </div>}
+            {this.props.loadingSourcesBefore ? (
+              <div className="js-component-viewer-loading-before">
+                <i className="spinner" />
+                <span className="note spacer-left">
+                  {translate('source_viewer.loading_more_code')}
+                </span>
+              </div>
+            ) : (
+              <button
+                className="js-component-viewer-source-before"
+                onClick={this.props.loadSourcesBefore}>
+                {translate('source_viewer.load_more_code')}
+              </button>
+            )}
+          </div>
+        )}
 
         <table className="source-table">
           <tbody>
@@ -231,21 +234,24 @@ export default class SourceViewerCode extends React.PureComponent {
           </tbody>
         </table>
 
-        {this.props.hasSourcesAfter &&
+        {this.props.hasSourcesAfter && (
           <div className="source-viewer-more-code">
-            {this.props.loadingSourcesAfter
-              ? <div className="js-component-viewer-loading-after">
-                  <i className="spinner" />
-                  <span className="note spacer-left">
-                    {translate('source_viewer.loading_more_code')}
-                  </span>
-                </div>
-              : <button
-                  className="js-component-viewer-source-after"
-                  onClick={this.props.loadSourcesAfter}>
-                  {translate('source_viewer.load_more_code')}
-                </button>}
-          </div>}
+            {this.props.loadingSourcesAfter ? (
+              <div className="js-component-viewer-loading-after">
+                <i className="spinner" />
+                <span className="note spacer-left">
+                  {translate('source_viewer.loading_more_code')}
+                </span>
+              </div>
+            ) : (
+              <button
+                className="js-component-viewer-source-after"
+                onClick={this.props.loadSourcesAfter}>
+                {translate('source_viewer.load_more_code')}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     );
   }

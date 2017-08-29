@@ -34,7 +34,7 @@ export default class MetaSize extends React.PureComponent {
     measures: PropTypes.array.isRequired
   };
 
-  renderLoC = ncloc =>
+  renderLoC = ncloc => (
     <div
       id="overview-ncloc"
       className={classNames('overview-meta-size-ncloc', {
@@ -46,41 +46,38 @@ export default class MetaSize extends React.PureComponent {
       <DrilldownLink branch={this.props.branch} component={this.props.component.key} metric="ncloc">
         {formatMeasure(ncloc.value, 'SHORT_INT')}
       </DrilldownLink>
-      <div className="overview-domain-measure-label text-muted">
-        {getMetricName('ncloc')}
-      </div>
-    </div>;
+      <div className="overview-domain-measure-label text-muted">{getMetricName('ncloc')}</div>
+    </div>
+  );
 
   renderLoCDistribution = () => {
     const languageDistribution = this.props.measures.find(
       measure => measure.metric.key === 'ncloc_language_distribution'
     );
 
-    return languageDistribution
-      ? <div id="overview-language-distribution" className="overview-meta-size-lang-dist">
-          <LanguageDistribution distribution={languageDistribution.value} />
-        </div>
-      : null;
+    return languageDistribution ? (
+      <div id="overview-language-distribution" className="overview-meta-size-lang-dist">
+        <LanguageDistribution distribution={languageDistribution.value} />
+      </div>
+    ) : null;
   };
 
   renderProjects = () => {
     const projects = this.props.measures.find(measure => measure.metric.key === 'projects');
 
-    return projects
-      ? <div
-          id="overview-projects"
-          className="overview-meta-size-ncloc is-half-width bordered-left">
-          <DrilldownLink
-            branch={this.props.branch}
-            component={this.props.component.key}
-            metric="projects">
-            {formatMeasure(projects.value, 'SHORT_INT')}
-          </DrilldownLink>
-          <div className="overview-domain-measure-label text-muted">
-            {translate('metric.projects.name')}
-          </div>
+    return projects ? (
+      <div id="overview-projects" className="overview-meta-size-ncloc is-half-width bordered-left">
+        <DrilldownLink
+          branch={this.props.branch}
+          component={this.props.component.key}
+          metric="projects">
+          {formatMeasure(projects.value, 'SHORT_INT')}
+        </DrilldownLink>
+        <div className="overview-domain-measure-label text-muted">
+          {translate('metric.projects.name')}
         </div>
-      : null;
+      </div>
+    ) : null;
   };
 
   render() {
@@ -93,9 +90,11 @@ export default class MetaSize extends React.PureComponent {
     return (
       <div id="overview-size" className="overview-meta-card">
         {this.renderLoC(ncloc)}
-        {this.props.component.qualifier === 'APP'
-          ? this.renderProjects()
-          : this.renderLoCDistribution()}
+        {this.props.component.qualifier === 'APP' ? (
+          this.renderProjects()
+        ) : (
+          this.renderLoCDistribution()
+        )}
       </div>
     );
   }

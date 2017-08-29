@@ -32,7 +32,9 @@ interface Props {
 }
 
 export default function BranchIcon({ branch, ...props }: Props) {
-  return isShortLivingBranch(branch)
-    ? <ShortLivingBranchIcon {...props} />
-    : <LongLivingBranchIcon {...props} />;
+  return isShortLivingBranch(branch) ? (
+    <ShortLivingBranchIcon {...props} />
+  ) : (
+    <LongLivingBranchIcon {...props} />
+  );
 }

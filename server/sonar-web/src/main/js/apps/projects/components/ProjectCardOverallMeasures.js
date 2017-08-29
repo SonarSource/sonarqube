@@ -45,9 +45,7 @@ export default function ProjectCardOverallMeasures({ measures } /*: Props */) {
           <div className="project-card-measure-number">
             <Rating value={measures['reliability_rating']} />
           </div>
-          <div className="project-card-measure-label">
-            {translate('metric_domain.Reliability')}
-          </div>
+          <div className="project-card-measure-label">{translate('metric_domain.Reliability')}</div>
         </div>
       </div>
 
@@ -56,9 +54,7 @@ export default function ProjectCardOverallMeasures({ measures } /*: Props */) {
           <div className="project-card-measure-number">
             <Rating value={measures['security_rating']} />
           </div>
-          <div className="project-card-measure-label">
-            {translate('metric_domain.Security')}
-          </div>
+          <div className="project-card-measure-label">{translate('metric_domain.Security')}</div>
         </div>
       </div>
 
@@ -76,10 +72,11 @@ export default function ProjectCardOverallMeasures({ measures } /*: Props */) {
       <div className="project-card-measure" data-key="coverage">
         <div className="project-card-measure-inner">
           <div className="project-card-measure-number">
-            {measures['coverage'] != null &&
+            {measures['coverage'] != null && (
               <span className="spacer-right">
                 <CoverageRating value={measures['coverage']} />
-              </span>}
+              </span>
+            )}
             <Measure
               measure={{
                 metric: { key: 'coverage', name: 'coverage', type: 'PERCENT' },
@@ -87,19 +84,18 @@ export default function ProjectCardOverallMeasures({ measures } /*: Props */) {
               }}
             />
           </div>
-          <div className="project-card-measure-label">
-            {translate('metric.coverage.name')}
-          </div>
+          <div className="project-card-measure-label">{translate('metric.coverage.name')}</div>
         </div>
       </div>
 
       <div className="project-card-measure" data-key="duplicated_lines_density">
         <div className="project-card-measure-inner">
           <div className="project-card-measure-number">
-            {measures['duplicated_lines_density'] != null &&
+            {measures['duplicated_lines_density'] != null && (
               <span className="spacer-right">
                 <DuplicationsRating value={Number(measures['duplicated_lines_density'])} />
-              </span>}
+              </span>
+            )}
             <Measure
               measure={{
                 metric: {
@@ -117,7 +113,7 @@ export default function ProjectCardOverallMeasures({ measures } /*: Props */) {
         </div>
       </div>
 
-      {measures['ncloc'] != null &&
+      {measures['ncloc'] != null && (
         <div className="project-card-measure pull-right" data-key="ncloc">
           <div className="project-card-measure-inner pull-right">
             <div className="project-card-measure-number">
@@ -135,7 +131,8 @@ export default function ProjectCardOverallMeasures({ measures } /*: Props */) {
               <ProjectCardLanguages distribution={measures['ncloc_language_distribution']} />
             </div>
           </div>
-        </div>}
+        </div>
+      )}
     </div>
   );
 }

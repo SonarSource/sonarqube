@@ -34,32 +34,26 @@ export default function Table(props: Props) {
   const orderedProfiles = orderBy(props.profiles, 'languageName');
 
   // set key to language to avoid destroying of component
-  const profileRows = orderedProfiles.map(profile =>
+  const profileRows = orderedProfiles.map(profile => (
     <ProfileRow
       key={profile.language}
       profile={profile}
       possibleProfiles={profilesByLanguage[profile.language]}
       onChangeProfile={props.onChangeProfile}
     />
-  );
+  ));
 
   return (
     <table className="data zebra">
       <thead>
         <tr>
-          <th className="thin nowrap">
-            {translate('language')}
-          </th>
-          <th className="thin nowrap">
-            {translate('quality_profile')}
-          </th>
+          <th className="thin nowrap">{translate('language')}</th>
+          <th className="thin nowrap">{translate('quality_profile')}</th>
           {/* keep one empty cell for the spinner */}
           <th>&nbsp;</th>
         </tr>
       </thead>
-      <tbody>
-        {profileRows}
-      </tbody>
+      <tbody>{profileRows}</tbody>
     </table>
   );
 }

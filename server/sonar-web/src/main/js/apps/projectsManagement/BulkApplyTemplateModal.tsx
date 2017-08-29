@@ -123,21 +123,24 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     this.setState({ permissionTemplate: value });
   };
 
-  renderWarning = () =>
+  renderWarning = () => (
     <div className="alert alert-warning modal-alert">
       <AlertWarnIcon className="spacer-right" />
-      {this.props.selection.length
-        ? translateWithParameters(
-            'permission_templates.bulk_apply_permission_template.apply_to_selected',
-            this.props.selection.length
-          )
-        : translateWithParameters(
-            'permission_templates.bulk_apply_permission_template.apply_to_all',
-            this.props.total
-          )}
-    </div>;
+      {this.props.selection.length ? (
+        translateWithParameters(
+          'permission_templates.bulk_apply_permission_template.apply_to_selected',
+          this.props.selection.length
+        )
+      ) : (
+        translateWithParameters(
+          'permission_templates.bulk_apply_permission_template.apply_to_all',
+          this.props.total
+        )
+      )}
+    </div>
+  );
 
-  renderSelect = () =>
+  renderSelect = () => (
     <div className="modal-field">
       <label>
         {translate('template')}
@@ -151,7 +154,8 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         searchable={false}
         value={this.state.permissionTemplate}
       />
-    </div>;
+    </div>
+  );
 
   render() {
     const { done, loading, permissionTemplates, submitting } = this.state;
@@ -165,16 +169,15 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
         <header className="modal-head">
-          <h2>
-            {header}
-          </h2>
+          <h2>{header}</h2>
         </header>
 
         <div className="modal-body">
-          {done &&
+          {done && (
             <div className="alert alert-success">
               {translate('projects_role.apply_template.success')}
-            </div>}
+            </div>
+          )}
 
           {loading && <i className="spinner" />}
 
@@ -185,11 +188,12 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         <footer className="modal-foot">
           {submitting && <i className="spinner spacer-right" />}
           {!loading &&
-            !done &&
-            permissionTemplates &&
+          !done &&
+          permissionTemplates && (
             <button disabled={submitting} onClick={this.handleConfirmClick}>
               {translate('apply')}
-            </button>}
+            </button>
+          )}
           <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
             {done ? translate('close') : translate('cancel')}
           </a>

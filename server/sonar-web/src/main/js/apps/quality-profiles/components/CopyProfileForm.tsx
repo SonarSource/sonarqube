@@ -94,9 +94,7 @@ export default class CopyProfileForm extends React.PureComponent<Props, State> {
         onRequestClose={this.props.onClose}>
         <form id="copy-profile-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
-            <h2>
-              {header}
-            </h2>
+            <h2>{header}</h2>
           </div>
           <div className="modal-body">
             <div className="modal-field">

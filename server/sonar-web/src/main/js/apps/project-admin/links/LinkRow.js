@@ -57,9 +57,7 @@ export default class LinkRow extends React.PureComponent {
         {this.renderIcon(`icon-${link.type}`)}
         <div className="display-inline-block text-top">
           <div>
-            <span className="js-name">
-              {link.name}
-            </span>
+            <span className="js-name">{link.name}</span>
           </div>
           <div className="note little-spacer-top">
             <span className="js-type">{`sonar.links.${link.type}`}</span>
@@ -78,9 +76,7 @@ export default class LinkRow extends React.PureComponent {
       <div>
         {this.renderIcon('icon-detach')}
         <div className="display-inline-block text-top">
-          <span className="js-name">
-            {link.name}
-          </span>
+          <span className="js-name">{link.name}</span>
         </div>
       </div>
     );
@@ -115,15 +111,9 @@ export default class LinkRow extends React.PureComponent {
 
     return (
       <tr data-name={link.name}>
-        <td className="nowrap">
-          {this.renderName(link)}
-        </td>
-        <td className="nowrap js-url">
-          {this.renderUrl(link)}
-        </td>
-        <td className="thin nowrap">
-          {this.renderDeleteButton(link)}
-        </td>
+        <td className="nowrap">{this.renderName(link)}</td>
+        <td className="nowrap js-url">{this.renderUrl(link)}</td>
+        <td className="thin nowrap">{this.renderDeleteButton(link)}</td>
       </tr>
     );
   }

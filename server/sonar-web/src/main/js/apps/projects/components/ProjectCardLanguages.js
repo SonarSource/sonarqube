@@ -46,12 +46,12 @@ class ProjectCardLanguages extends React.PureComponent {
 
     const tooltip = (
       <span>
-        {finalLanguages.map(language =>
+        {finalLanguages.map(language => (
           <span key={language}>
             {language}
             <br />
           </span>
-        )}
+        ))}
       </span>
     );
 
@@ -61,9 +61,7 @@ class ProjectCardLanguages extends React.PureComponent {
     return (
       <div className="project-card-languages">
         <Tooltip placement="bottom" overlay={tooltip}>
-          <span>
-            {languagesText}
-          </span>
+          <span>{languagesText}</span>
         </Tooltip>
       </div>
     );

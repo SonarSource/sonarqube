@@ -86,11 +86,7 @@ export const Histogram = createReactClass({
         </text>
       );
     });
-    return (
-      <g>
-        {ticks}
-      </g>
-    );
+    return <g>{ticks}</g>;
   },
 
   renderValues(xScale, yScale) {
@@ -115,11 +111,7 @@ export const Histogram = createReactClass({
         </text>
       );
     });
-    return (
-      <g>
-        {ticks}
-      </g>
-    );
+    return <g>{ticks}</g>;
   },
 
   renderBars(xScale, yScale) {
@@ -140,11 +132,7 @@ export const Histogram = createReactClass({
         />
       );
     });
-    return (
-      <g>
-        {bars}
-      </g>
-    );
+    return <g>{bars}</g>;
   },
 
   render() {
@@ -156,7 +144,9 @@ export const Histogram = createReactClass({
     const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
     const maxX = max(this.props.data, d => d.x);
-    const xScale = scaleLinear().domain([0, maxX]).range([0, availableWidth]);
+    const xScale = scaleLinear()
+      .domain([0, maxX])
+      .range([0, availableWidth]);
     const yScale = scaleBand()
       .domain(this.props.data.map(d => d.y))
       .rangeRound([0, availableHeight]);

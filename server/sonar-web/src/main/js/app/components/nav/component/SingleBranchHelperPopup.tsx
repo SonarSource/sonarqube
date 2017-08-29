@@ -29,9 +29,7 @@ export default function SingleBranchHelperPopup(props: Props) {
   return (
     <BubblePopup position={props.popupPosition} customClass="bubble-popup-bottom">
       <div className="abs-width-400">
-        <h6 className="spacer-bottom">
-          {translate('branches.learn_how_to_analyze')}
-        </h6>
+        <h6 className="spacer-bottom">{translate('branches.learn_how_to_analyze')}</h6>
         <p className="big-spacer-bottom markdown">
           {translate('branches.learn_how_to_analyze.text')}
         </p>

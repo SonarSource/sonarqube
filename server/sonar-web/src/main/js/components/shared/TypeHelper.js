@@ -28,10 +28,11 @@ type Props = {
 };
 */
 
-const TypeHelper = (props /*: Props */) =>
+const TypeHelper = (props /*: Props */) => (
   <span>
     <IssueTypeIcon className="little-spacer-right" query={props.type} />
     {translate('issue.type', props.type)}
-  </span>;
+  </span>
+);
 
 export default TypeHelper;

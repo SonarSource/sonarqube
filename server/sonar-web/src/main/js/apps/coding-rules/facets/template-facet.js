@@ -28,7 +28,9 @@ export default BaseFacet.extend({
     BaseFacet.prototype.onRender.apply(this, arguments);
     const value = this.options.app.state.get('query').is_template;
     if (value != null) {
-      this.$('.js-facet').filter(`[data-value="${value}"]`).addClass('active');
+      this.$('.js-facet')
+        .filter(`[data-value="${value}"]`)
+        .addClass('active');
     }
   },
 

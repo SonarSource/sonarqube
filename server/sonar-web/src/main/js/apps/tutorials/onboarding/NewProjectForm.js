@@ -110,43 +110,45 @@ export default class NewProjectForm extends React.PureComponent {
 
     const valid = projectKey.length > 0;
 
-    const form = done
-      ? <form onSubmit={this.handleProjectDelete}>
-          <span className="spacer-right text-middle">
-            {projectKey}
-          </span>
-          {loading
-            ? <i className="spinner text-middle" />
-            : <button className="button-clean text-middle">
-                <CloseIcon className="icon-red" />
-              </button>}
-        </form>
-      : <form onSubmit={this.handleProjectCreate}>
-          <input
-            autoFocus={true}
-            className="input-large spacer-right text-middle"
-            minLength={1}
-            maxLength={400}
-            onChange={this.handleProjectKeyChange}
-            required={true}
-            type="text"
-            value={projectKey}
-          />
-          {loading
-            ? <i className="spinner text-middle" />
-            : <button className="text-middle" disabled={!valid}>
-                {translate('Done')}
-              </button>}
-          <div className="note spacer-top abs-width-300">
-            {translate('onboarding.project_key_requirement')}
-          </div>
-        </form>;
+    const form = done ? (
+      <form onSubmit={this.handleProjectDelete}>
+        <span className="spacer-right text-middle">{projectKey}</span>
+        {loading ? (
+          <i className="spinner text-middle" />
+        ) : (
+          <button className="button-clean text-middle">
+            <CloseIcon className="icon-red" />
+          </button>
+        )}
+      </form>
+    ) : (
+      <form onSubmit={this.handleProjectCreate}>
+        <input
+          autoFocus={true}
+          className="input-large spacer-right text-middle"
+          minLength={1}
+          maxLength={400}
+          onChange={this.handleProjectKeyChange}
+          required={true}
+          type="text"
+          value={projectKey}
+        />
+        {loading ? (
+          <i className="spinner text-middle" />
+        ) : (
+          <button className="text-middle" disabled={!valid}>
+            {translate('Done')}
+          </button>
+        )}
+        <div className="note spacer-top abs-width-300">
+          {translate('onboarding.project_key_requirement')}
+        </div>
+      </form>
+    );
 
     return (
       <div className="big-spacer-top">
-        <h4 className="spacer-bottom">
-          {translate('onboarding.language.project_key')}
-        </h4>
+        <h4 className="spacer-bottom">{translate('onboarding.language.project_key')}</h4>
         {form}
       </div>
     );

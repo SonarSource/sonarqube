@@ -85,9 +85,7 @@ export default function ComponentNavMeta(props: Props) {
         overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
         mouseLeaveDelay={2}>
         <li>
-          <span className="badge badge-danger">
-            {translate('background_task.status.FAILED')}
-          </span>
+          <span className="badge badge-danger">{translate('background_task.status.FAILED')}</span>
         </li>
       </Tooltip>
     );
@@ -102,11 +100,7 @@ export default function ComponentNavMeta(props: Props) {
   }
 
   if (props.component.version && !shortBranch) {
-    metaList.push(
-      <li key="version">
-        Version {props.component.version}
-      </li>
-    );
+    metaList.push(<li key="version">Version {props.component.version}</li>);
   }
 
   if (props.incremental) {
@@ -119,13 +113,12 @@ export default function ComponentNavMeta(props: Props) {
 
   return (
     <div className="navbar-context-meta">
-      <ul className="list-inline">
-        {metaList}
-      </ul>
-      {shortBranch &&
+      <ul className="list-inline">{metaList}</ul>
+      {shortBranch && (
         <div className="navbar-context-meta-branch">
           <BranchStatus branch={props.branch!} />
-        </div>}
+        </div>
+      )}
     </div>
   );
 }

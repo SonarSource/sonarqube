@@ -69,42 +69,44 @@ export default function ProjectCardOverall({ measures, organization, project } /
   return (
     <div data-key={project.key} className={className}>
       <div className="boxed-group-header clearfix">
-        {project.isFavorite != null &&
-          <FavoriteContainer className="spacer-right" componentKey={project.key} />}
+        {project.isFavorite != null && (
+          <FavoriteContainer className="spacer-right" componentKey={project.key} />
+        )}
         <h2 className="project-card-name">
-          {showOrganization &&
+          {showOrganization && (
             <span className="text-normal">
               <Organization organizationKey={project.organization} />
-            </span>}
-          <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>
-            {project.name}
-          </Link>
+            </span>
+          )}
+          <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
         </h2>
         {displayQualityGate && <ProjectCardQualityGate status={measures['alert_status']} />}
         <div className="pull-right text-right">
           {isPrivate && <PrivateBadge className="spacer-left" tooltipPlacement="left" />}
           {hasTags && <TagsList tags={project.tags} customClass="spacer-left" />}
         </div>
-        {isProjectAnalyzed &&
+        {isProjectAnalyzed && (
           <div className="project-card-dates note text-right">
             <DateTimeFormatter date={project.analysisDate}>
-              {formattedDate =>
+              {formattedDate => (
                 <span className="big-spacer-left">
                   {translateWithParameters('projects.last_analysis_on_x', formattedDate)}
-                </span>}
+                </span>
+              )}
             </DateTimeFormatter>
-          </div>}
+          </div>
+        )}
       </div>
 
-      {isProjectAnalyzed
-        ? <div className="boxed-group-inner">
-            {areProjectMeasuresLoaded && <ProjectCardOverallMeasures measures={measures} />}
-          </div>
-        : <div className="boxed-group-inner">
-            <div className="note project-card-not-analyzed">
-              {translate('projects.not_analyzed')}
-            </div>
-          </div>}
+      {isProjectAnalyzed ? (
+        <div className="boxed-group-inner">
+          {areProjectMeasuresLoaded && <ProjectCardOverallMeasures measures={measures} />}
+        </div>
+      ) : (
+        <div className="boxed-group-inner">
+          <div className="note project-card-not-analyzed">{translate('projects.not_analyzed')}</div>
+        </div>
+      )}
     </div>
   );
 }

@@ -129,7 +129,7 @@
   height: 24px;
   margin-top: -12px;
   border-left: 1px solid #e6e6e6;
-  content: "";
+  content: '';
 }
 
 .project-card-measure.pull-right {
@@ -241,8 +241,10 @@
 }
 
 .search-navigator-facet.active .projects-facet-bar-inner,
-.search-navigator-facet-highlight-under-container .search-navigator-facet.active
-  ~ .search-navigator-facet .projects-facet-bar-inner {
+.search-navigator-facet-highlight-under-container
+  .search-navigator-facet.active
+  ~ .search-navigator-facet
+  .projects-facet-bar-inner {
   background-color: #4b9fd5;
 }
 

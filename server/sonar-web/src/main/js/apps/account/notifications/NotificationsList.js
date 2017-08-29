@@ -57,12 +57,10 @@ export default class NotificationsList extends React.PureComponent {
 
     return (
       <tbody>
-        {types.map(type =>
+        {types.map(type => (
           <tr key={type}>
-            <td>
-              {translate('notification.dispatcher', type)}
-            </td>
-            {channels.map(channel =>
+            <td>{translate('notification.dispatcher', type)}</td>
+            {channels.map(channel => (
               <td key={channel} className="text-center">
                 <Checkbox
                   checked={this.isEnabled(type, channel)}
@@ -70,9 +68,9 @@ export default class NotificationsList extends React.PureComponent {
                   onCheck={checked => this.handleCheck(type, channel, checked)}
                 />
               </td>
-            )}
+            ))}
           </tr>
-        )}
+        ))}
       </tbody>
     );
   }

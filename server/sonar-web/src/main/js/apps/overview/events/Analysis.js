@@ -50,13 +50,13 @@ export default function Analysis(props /*: Props */) {
         </strong>
       </div>
 
-      {sortedEvents.length > 0
-        ? <div className="project-activity-events">
-            {sortedEvents.map(event => <Event event={event} key={event.key} />)}
-          </div>
-        : <span className="note">
-            {translate('project_activity.analyzed', props.qualifier)}
-          </span>}
+      {sortedEvents.length > 0 ? (
+        <div className="project-activity-events">
+          {sortedEvents.map(event => <Event event={event} key={event.key} />)}
+        </div>
+      ) : (
+        <span className="note">{translate('project_activity.analyzed', props.qualifier)}</span>
+      )}
     </li>
   );
 }

@@ -29,12 +29,8 @@ export default function NoBranchSupportPopup(props: Props) {
   return (
     <BubblePopup position={props.popupPosition} customClass="bubble-popup-bottom">
       <div className="abs-width-400">
-        <h6 className="spacer-bottom">
-          {translate('branches.no_support.header')}
-        </h6>
-        <p className="big-spacer-bottom markdown">
-          {translate('branches.no_support.header.text')}
-        </p>
+        <h6 className="spacer-bottom">{translate('branches.no_support.header')}</h6>
+        <p className="big-spacer-bottom markdown">{translate('branches.no_support.header.text')}</p>
         <p>
           <a href="https://redirect.sonarsource.com/doc/branches.html" target="_blank">
             {translate('learn_more')}

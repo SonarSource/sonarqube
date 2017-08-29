@@ -74,16 +74,27 @@ export default ModalView.extend({
       const radius = options.size / 2;
 
       const container = select(this);
-      const svg = container.append('svg').attr('width', options.size).attr('height', options.size);
+      const svg = container
+        .append('svg')
+        .attr('width', options.size)
+        .attr('height', options.size);
       const plot = svg.append('g').attr('transform', trans(radius, radius));
-      const arc = d3Arc().innerRadius(radius - options.thickness).outerRadius(radius);
-      const pie = d3Pie().sort(null).value(d => d);
+      const arc = d3Arc()
+        .innerRadius(radius - options.thickness)
+        .outerRadius(radius);
+      const pie = d3Pie()
+        .sort(null)
+        .value(d => d);
       const colors = function(i) {
         return i === 0 ? options.color : options.baseColor;
       };
       const sectors = plot.selectAll('path').data(pie(data));
 
-      sectors.enter().append('path').style('fill', (d, i) => colors(i)).attr('d', arc);
+      sectors
+        .enter()
+        .append('path')
+        .style('fill', (d, i) => colors(i))
+        .attr('d', arc);
     });
   },
 
@@ -250,7 +261,9 @@ export default ModalView.extend({
     const testId = $(e.currentTarget).data('id');
     const url = window.baseUrl + '/api/tests/covered_files';
     const options = { testId };
-    this.testsScroll = $(e.currentTarget).scrollParent().scrollTop();
+    this.testsScroll = $(e.currentTarget)
+      .scrollParent()
+      .scrollTop();
     return $.get(url, options).done(data => {
       this.coveredFiles = data.files;
       this.selectedTest = this.tests.find(test => test.id === testId);

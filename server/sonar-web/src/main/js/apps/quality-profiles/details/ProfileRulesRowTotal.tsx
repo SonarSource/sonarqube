@@ -47,27 +47,24 @@ export default function ProfileRulesRowTotal(props: Props) {
   return (
     <tr>
       <td>
-        <strong>
-          {translate('total')}
-        </strong>
+        <strong>{translate('total')}</strong>
       </td>
       <td className="thin nowrap text-right">
-        {props.count != null &&
+        {props.count != null && (
           <Link to={activeRulesUrl}>
-            <strong>
-              {formatMeasure(props.count, 'SHORT_INT', null)}
-            </strong>
-          </Link>}
+            <strong>{formatMeasure(props.count, 'SHORT_INT', null)}</strong>
+          </Link>
+        )}
       </td>
       <td className="thin nowrap text-right">
         {inactiveCount != null &&
-          (inactiveCount > 0
-            ? <Link to={inactiveRulesUrl} className="small text-muted">
-                <strong>
-                  {formatMeasure(inactiveCount, 'SHORT_INT', null)}
-                </strong>
-              </Link>
-            : <span className="note text-muted">0</span>)}
+          (inactiveCount > 0 ? (
+            <Link to={inactiveRulesUrl} className="small text-muted">
+              <strong>{formatMeasure(inactiveCount, 'SHORT_INT', null)}</strong>
+            </Link>
+          ) : (
+            <span className="note text-muted">0</span>
+          ))}
       </td>
     </tr>
   );

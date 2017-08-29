@@ -31,16 +31,13 @@ type Props = {
 export default function Header(props /*: Props */) {
   return (
     <header className="page-header">
-      <h1 className="page-title">
-        {translate('background_tasks.page')}
-      </h1>
-      {!props.component &&
+      <h1 className="page-title">{translate('background_tasks.page')}</h1>
+      {!props.component && (
         <div className="page-actions">
           <Workers />
-        </div>}
-      <p className="page-description">
-        {translate('background_tasks.page.description')}
-      </p>
+        </div>
+      )}
+      <p className="page-description">{translate('background_tasks.page.description')}</p>
     </header>
   );
 }

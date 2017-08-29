@@ -33,7 +33,7 @@ export default function DateTooltipFormatter({ className, date, placement }: Pro
   const parsedDate = parseDate(date);
   return (
     <DateFormatter date={parsedDate} long={true}>
-      {formattedDate =>
+      {formattedDate => (
         <Tooltip
           overlay={<DateTimeFormatter date={parsedDate} />}
           placement={placement}
@@ -41,7 +41,8 @@ export default function DateTooltipFormatter({ className, date, placement }: Pro
           <time className={className} dateTime={parsedDate.toISOString()}>
             {formattedDate}
           </time>
-        </Tooltip>}
+        </Tooltip>
+      )}
     </DateFormatter>
   );
 }

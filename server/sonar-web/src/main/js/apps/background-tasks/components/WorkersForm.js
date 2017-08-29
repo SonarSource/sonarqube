@@ -96,9 +96,7 @@ export default class WorkersForm extends React.PureComponent {
         overlayClassName="modal-overlay"
         onRequestClose={this.handleClose}>
         <header className="modal-head">
-          <h2>
-            {translate('background_tasks.change_number_of_workers')}
-          </h2>
+          <h2>{translate('background_tasks.change_number_of_workers')}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">

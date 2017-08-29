@@ -53,21 +53,20 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
       return (
         <span key={item.key}>
           {!displayOrganization &&
-            index === 0 &&
+          index === 0 && (
             <span className="navbar-context-title-qualifier little-spacer-right">
               <QualifierIcon qualifier={lastItem.qualifier} />
-            </span>}
+            </span>
+          )}
           <Link
             title={item.name}
             to={{ pathname: '/dashboard', query: { id: item.key } }}
             className="link-base-color link-no-underline">
-            {index === breadcrumbs.length - 1
-              ? <strong>
-                  {itemName}
-                </strong>
-              : <span>
-                  {itemName}
-                </span>}
+            {index === breadcrumbs.length - 1 ? (
+              <strong>{itemName}</strong>
+            ) : (
+              <span>{itemName}</span>
+            )}
           </Link>
           {index < breadcrumbs.length - 1 && <span className="slash-separator" />}
         </span>
@@ -80,7 +79,7 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
           title={component.name}
           organization={displayOrganization ? organization : null}
         />
-        {displayOrganization &&
+        {displayOrganization && (
           <span>
             <span className="navbar-context-title-qualifier little-spacer-right">
               <QualifierIcon qualifier={lastItem.qualifier} />
@@ -91,7 +90,8 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
               {organization.name}
             </OrganizationLink>
             <span className="slash-separator" />
-          </span>}
+          </span>
+        )}
         {items}
         {component.visibility === 'private' && <PrivateBadge className="spacer-left" />}
       </h1>

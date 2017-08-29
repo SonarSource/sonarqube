@@ -27,25 +27,19 @@ export default function Event(props /*: { event: EventType } */) {
   const { event } = props;
 
   if (event.category === 'VERSION') {
-    return (
-      <span className="overview-analysis-event badge">
-        {props.event.name}
-      </span>
-    );
+    return <span className="overview-analysis-event badge">{props.event.name}</span>;
   }
 
   return (
     <span className="overview-analysis-event">
       <span className="note">{translate('event.category', event.category)}:</span>{' '}
-      {event.description
-        ? <Tooltip overlay={event.description} placement="left" mouseEnterDelay={0.5}>
-            <strong>
-              {event.name}
-            </strong>
-          </Tooltip>
-        : <strong>
-            {event.name}
-          </strong>}
+      {event.description ? (
+        <Tooltip overlay={event.description} placement="left" mouseEnterDelay={0.5}>
+          <strong>{event.name}</strong>
+        </Tooltip>
+      ) : (
+        <strong>{event.name}</strong>
+      )}
     </span>
   );
 }

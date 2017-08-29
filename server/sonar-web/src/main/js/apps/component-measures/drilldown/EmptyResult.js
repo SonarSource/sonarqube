@@ -22,9 +22,5 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default function EmptyResult() {
-  return (
-    <div className="note">
-      {translate('no_results')}
-    </div>
-  );
+  return <div className="note">{translate('no_results')}</div>;
 }

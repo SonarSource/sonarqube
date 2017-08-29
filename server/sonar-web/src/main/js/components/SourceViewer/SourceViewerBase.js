@@ -653,14 +653,16 @@ export default class SourceViewerBase extends React.PureComponent {
           component={this.state.component}
           showMeasures={this.showMeasures}
         />
-        {notAccessible &&
+        {notAccessible && (
           <div className="alert alert-warning spacer-top">
             {translate('code_viewer.no_source_code_displayed_due_to_security')}
-          </div>}
-        {sourceRemoved &&
+          </div>
+        )}
+        {sourceRemoved && (
           <div className="alert alert-warning spacer-top">
             {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}
-          </div>}
+          </div>
+        )}
         {displaySources && sources != null && this.renderCode(sources)}
       </div>
     );

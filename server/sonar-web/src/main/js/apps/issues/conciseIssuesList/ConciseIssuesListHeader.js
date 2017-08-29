@@ -41,9 +41,11 @@ export default function ConciseIssuesListHeader(props /*: Props */) {
     <header className="layout-page-header-panel concise-issues-list-header">
       <div className="layout-page-header-panel-inner concise-issues-list-header-inner">
         <BackButton className="pull-left" onClick={props.onBackClick} />
-        {props.loading
-          ? <i className="spinner pull-right" />
-          : <ReloadButton className="pull-right" onClick={props.onReload} />}
+        {props.loading ? (
+          <i className="spinner pull-right" />
+        ) : (
+          <ReloadButton className="pull-right" onClick={props.onReload} />
+        )}
         {paging != null && <IssuesCounter current={selectedIndex} total={paging.total} />}
       </div>
     </header>

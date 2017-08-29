@@ -54,10 +54,9 @@ export default function ComponentNavBranchesMenuItem({ branch, ...props }: Props
             })}
           />
           {branch.name}
-          {branch.isMain &&
-            <div className="outline-badge spacer-left">
-              {translate('branches.main_branch')}
-            </div>}
+          {branch.isMain && (
+            <div className="outline-badge spacer-left">{translate('branches.main_branch')}</div>
+          )}
         </div>
         <div className="big-spacer-left note">
           <BranchStatus branch={branch} concise={true} />

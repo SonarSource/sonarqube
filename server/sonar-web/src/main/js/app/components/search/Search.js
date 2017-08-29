@@ -301,7 +301,7 @@ export default class Search extends React.PureComponent {
     this.nodes[component] = node;
   };
 
-  renderResult = (component /*: Component */) =>
+  renderResult = (component /*: Component */) => (
     <SearchResult
       appState={this.props.appState}
       component={component}
@@ -312,12 +312,14 @@ export default class Search extends React.PureComponent {
       organizations={this.state.organizations}
       projects={this.state.projects}
       selected={this.state.selected === component.key}
-    />;
+    />
+  );
 
-  renderNoResults = () =>
+  renderNoResults = () => (
     <div className="navbar-search-no-results">
       {translateWithParameters('no_results_for_x', this.state.query)}
-    </div>;
+    </div>
+  );
 
   render() {
     const dropdownClassName = classNames('dropdown', 'navbar-search', { open: this.state.open });
@@ -343,16 +345,17 @@ export default class Search extends React.PureComponent {
           value={this.state.query}
         />
 
-        {this.state.shortQuery &&
+        {this.state.shortQuery && (
           <span
             className={classNames('navbar-search-input-hint', {
               'is-shifted': this.state.query.length > 5
             })}>
             {translateWithParameters('select2.tooShort', 2)}
-          </span>}
+          </span>
+        )}
 
         {this.state.open &&
-          Object.keys(this.state.results).length > 0 &&
+        Object.keys(this.state.results).length > 0 && (
           <div
             className="dropdown-menu dropdown-menu-shadow dropdown-menu-right global-navbar-search-dropdown"
             ref={node => (this.node = node)}>
@@ -381,7 +384,8 @@ export default class Search extends React.PureComponent {
                 }}
               />
             </div>
-          </div>}
+          </div>
+        )}
       </li>
     );
   }

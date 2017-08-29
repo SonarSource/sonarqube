@@ -69,18 +69,16 @@ export default class Main extends React.PureComponent {
     if (this.state && this.state.sections) {
       sections = this.state.sections
         .filter(section => SECTIONS_ORDER.indexOf(section.name) >= 0)
-        .map(section =>
+        .map(section => (
           <Section key={section.name} section={section.name} items={section.items} />
-        );
+        ));
     }
 
     return (
       <div className="page page-limited">
         <Helmet title={translate('system_info.page')} />
         <header className="page-header">
-          <h1 className="page-title">
-            {translate('system_info.page')}
-          </h1>
+          <h1 className="page-title">{translate('system_info.page')}</h1>
           <div className="page-actions">
             <a href={window.baseUrl + '/api/system/info'} id="download-link">
               Download

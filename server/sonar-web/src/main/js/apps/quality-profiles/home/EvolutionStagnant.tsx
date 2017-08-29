@@ -41,15 +41,13 @@ export default function EvolutionStagnant(props: Props) {
   return (
     <div className="quality-profile-box quality-profiles-evolution-stagnant">
       <div className="spacer-bottom">
-        <strong>
-          {translate('quality_profiles.stagnant_profiles')}
-        </strong>
+        <strong>{translate('quality_profiles.stagnant_profiles')}</strong>
       </div>
       <div className="spacer-bottom">
         {translate('quality_profiles.not_updated_more_than_year')}
       </div>
       <ul>
-        {outdated.map(profile =>
+        {outdated.map(profile => (
           <li key={profile.key} className="spacer-top">
             <div className="text-ellipsis">
               <ProfileLink
@@ -60,19 +58,21 @@ export default function EvolutionStagnant(props: Props) {
                 {profile.name}
               </ProfileLink>
             </div>
-            {profile.rulesUpdatedAt &&
+            {profile.rulesUpdatedAt && (
               <DateFormatter date={profile.rulesUpdatedAt} long={true}>
-                {formattedDate =>
+                {formattedDate => (
                   <div className="note">
                     {translateWithParameters(
                       'quality_profiles.x_updated_on_y',
                       profile.languageName,
                       formattedDate
                     )}
-                  </div>}
-              </DateFormatter>}
+                  </div>
+                )}
+              </DateFormatter>
+            )}
           </li>
-        )}
+        ))}
       </ul>
     </div>
   );

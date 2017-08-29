@@ -39,29 +39,30 @@ export default function Domain({ domain, showInternal, showDeprecated, searchQue
   return (
     <div className="web-api-domain">
       <header className="web-api-domain-header">
-        <h2 className="web-api-domain-title">
-          {domain.path}
-        </h2>
+        <h2 className="web-api-domain-title">{domain.path}</h2>
 
-        {domain.deprecated &&
+        {domain.deprecated && (
           <span className="spacer-left">
             <DeprecatedBadge />
-          </span>}
+          </span>
+        )}
 
-        {domain.internal &&
+        {domain.internal && (
           <span className="spacer-left">
             <InternalBadge />
-          </span>}
+          </span>
+        )}
       </header>
 
-      {domain.description &&
+      {domain.description && (
         <div
           className="web-api-domain-description markdown"
           dangerouslySetInnerHTML={{ __html: domain.description }}
-        />}
+        />
+      )}
 
       <div className="web-api-domain-actions">
-        {filteredActions.map(action =>
+        {filteredActions.map(action => (
           <Action
             key={getActionKey(domain.path, action.key)}
             action={action}
@@ -69,7 +70,7 @@ export default function Domain({ domain, showInternal, showDeprecated, searchQue
             showDeprecated={showDeprecated}
             showInternal={showInternal}
           />
-        )}
+        ))}
       </div>
     </div>
   );

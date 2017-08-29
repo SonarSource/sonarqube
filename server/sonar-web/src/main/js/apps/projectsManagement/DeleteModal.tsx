@@ -84,16 +84,19 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
     );
   };
 
-  renderWarning = () =>
+  renderWarning = () => (
     <div className="alert alert-warning modal-alert">
       <AlertWarnIcon className="spacer-right" />
-      {this.props.selection.length
-        ? translateWithParameters(
-            'projects_management.delete_selected_warning',
-            this.props.selection.length
-          )
-        : translateWithParameters('projects_management.delete_all_warning', this.props.total)}
-    </div>;
+      {this.props.selection.length ? (
+        translateWithParameters(
+          'projects_management.delete_selected_warning',
+          this.props.selection.length
+        )
+      ) : (
+        translateWithParameters('projects_management.delete_all_warning', this.props.total)
+      )}
+    </div>
+  );
 
   render() {
     const header = translate('qualifiers.delete', this.props.qualifier);
@@ -106,9 +109,7 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
         <header className="modal-head">
-          <h2>
-            {header}
-          </h2>
+          <h2>{header}</h2>
         </header>
 
         <div className="modal-body">

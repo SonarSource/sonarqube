@@ -55,18 +55,19 @@ export default function ProfileRulesRowOfType(props: Props) {
         </span>
       </td>
       <td className="thin nowrap text-right">
-        {props.count != null &&
-          <Link to={activeRulesUrl}>
-            {formatMeasure(props.count, 'SHORT_INT', null)}
-          </Link>}
+        {props.count != null && (
+          <Link to={activeRulesUrl}>{formatMeasure(props.count, 'SHORT_INT', null)}</Link>
+        )}
       </td>
       <td className="thin nowrap text-right">
         {inactiveCount != null &&
-          (inactiveCount > 0
-            ? <Link to={inactiveRulesUrl} className="small text-muted">
-                {formatMeasure(inactiveCount, 'SHORT_INT', null)}
-              </Link>
-            : <span className="note text-muted">0</span>)}
+          (inactiveCount > 0 ? (
+            <Link to={inactiveRulesUrl} className="small text-muted">
+              {formatMeasure(inactiveCount, 'SHORT_INT', null)}
+            </Link>
+          ) : (
+            <span className="note text-muted">0</span>
+          ))}
       </td>
     </tr>
   );

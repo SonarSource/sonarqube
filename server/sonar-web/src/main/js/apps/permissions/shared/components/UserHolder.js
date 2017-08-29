@@ -39,18 +39,20 @@ export default class UserHolder extends React.PureComponent {
 
   render() {
     const { selectedPermission } = this.props;
-    const permissionCells = this.props.permissionsOrder.map(p =>
+    const permissionCells = this.props.permissionsOrder.map(p => (
       <td
         key={p.key}
         className="text-center text-middle"
         style={{ backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent' }}>
         <button className="button-clean" onClick={this.handleClick.bind(this, p.key)}>
-          {this.props.permissions.includes(p.key)
-            ? <i className="icon-checkbox icon-checkbox-checked" />
-            : <i className="icon-checkbox" />}
+          {this.props.permissions.includes(p.key) ? (
+            <i className="icon-checkbox icon-checkbox-checked" />
+          ) : (
+            <i className="icon-checkbox" />
+          )}
         </button>
       </td>
-    );
+    ));
 
     const { user } = this.props;
 
@@ -59,31 +61,25 @@ export default class UserHolder extends React.PureComponent {
     return (
       <tr>
         <td className="nowrap">
-          {!isCreator &&
+          {!isCreator && (
             <Avatar
               email={user.email}
               name={user.name}
               size={36}
               className="text-middle big-spacer-right"
-            />}
+            />
+          )}
           <div className="display-inline-block text-middle">
             <div>
-              <strong>
-                {user.name}
-              </strong>
-              {!isCreator &&
-                <span className="note spacer-left">
-                  {user.login}
-                </span>}
+              <strong>{user.name}</strong>
+              {!isCreator && <span className="note spacer-left">{user.login}</span>}
             </div>
-            {!isCreator &&
-              <div className="little-spacer-top">
-                {user.email}
-              </div>}
-            {isCreator &&
+            {!isCreator && <div className="little-spacer-top">{user.email}</div>}
+            {isCreator && (
               <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
                 {translate('permission_templates.project_creators.explanation')}
-              </div>}
+              </div>
+            )}
           </div>
         </td>
         {permissionCells}

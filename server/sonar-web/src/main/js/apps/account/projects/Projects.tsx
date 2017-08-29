@@ -36,30 +36,30 @@ export default function Projects(props: Props) {
 
   return (
     <div id="account-projects">
-      {projects.length === 0
-        ? <div className="js-no-results">
-            {translate('my_account.projects.no_results')}
-          </div>
-        : <p>
-            {translate('my_account.projects.description')}
-          </p>}
+      {projects.length === 0 ? (
+        <div className="js-no-results">{translate('my_account.projects.no_results')}</div>
+      ) : (
+        <p>{translate('my_account.projects.description')}</p>
+      )}
 
-      {projects.length > 0 &&
+      {projects.length > 0 && (
         <ul className="account-projects-list">
-          {projects.map(project =>
+          {projects.map(project => (
             <li key={project.key}>
               <ProjectCard project={project} />
             </li>
-          )}
-        </ul>}
+          ))}
+        </ul>
+      )}
 
-      {projects.length > 0 &&
+      {projects.length > 0 && (
         <ListFooter
           count={projects.length}
           total={props.total || 0}
           ready={!props.loading}
           loadMore={props.loadMore}
-        />}
+        />
+      )}
     </div>
   );
 }

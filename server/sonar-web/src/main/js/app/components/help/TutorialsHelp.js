@@ -33,9 +33,7 @@ export default function TutorialsHelp({ onTutorialSelect } /*: Props */) {
 
   return (
     <div>
-      <h2 className="spacer-top spacer-bottom">
-        {translate('help.section.tutorials')}
-      </h2>
+      <h2 className="spacer-top spacer-bottom">{translate('help.section.tutorials')}</h2>
       <a href="#" onClick={handleClick}>
         {translate('tutorials.onboarding')}
       </a>

@@ -104,9 +104,7 @@ class Projects extends React.PureComponent {
     return (
       <span>
         <Organization organizationKey={option.organization} link={false} />
-        <strong>
-          {option.label}
-        </strong>
+        <strong>{option.label}</strong>
       </span>
     );
   };
@@ -116,14 +114,11 @@ class Projects extends React.PureComponent {
 
     return (
       <section>
-        <h2 className="spacer-bottom">
-          {translate('my_profile.per_project_notifications.title')}
-        </h2>
+        <h2 className="spacer-bottom">{translate('my_profile.per_project_notifications.title')}</h2>
 
-        {allProjects.length === 0 &&
-          <div className="note">
-            {translate('my_account.no_project_notifications')}
-          </div>}
+        {allProjects.length === 0 && (
+          <div className="note">{translate('my_account.no_project_notifications')}</div>
+        )}
 
         {allProjects.map(project => <ProjectNotifications key={project.key} project={project} />)}
 

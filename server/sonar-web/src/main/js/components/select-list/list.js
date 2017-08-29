@@ -35,10 +35,6 @@ export default class List extends React.PureComponent {
       const key = this.props.getItemKey(item);
       return <Item key={key} {...this.props} item={item} />;
     });
-    return (
-      <ul>
-        {renderedItems}
-      </ul>
-    );
+    return <ul>{renderedItems}</ul>;
   }
 }

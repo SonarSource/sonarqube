@@ -32,15 +32,11 @@ type Props = {
 export default function UpgradeOrganizationBox(props /*: Props */) {
   return (
     <div className="boxed-group boxed-group-inner upgrade-organization-box">
-      <h3 className="spacer-bottom">
-        {translate('billing.upgrade_box.header')}
-      </h3>
+      <h3 className="spacer-bottom">{translate('billing.upgrade_box.header')}</h3>
 
-      <p>
-        {translate('billing.upgrade_box.text')}
-      </p>
+      <p>{translate('billing.upgrade_box.text')}</p>
 
-      {hasMessage('billing.upgrade_box.button') &&
+      {hasMessage('billing.upgrade_box.button') && (
         <div className="big-spacer-top">
           <Link
             className="button"
@@ -50,7 +46,8 @@ export default function UpgradeOrganizationBox(props /*: Props */) {
             }}>
             {translate('billing.upgrade_box.button')}
           </Link>
-        </div>}
+        </div>
+      )}
     </div>
   );
 }

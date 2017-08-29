@@ -68,27 +68,21 @@ export default class PageHeader extends React.PureComponent {
 
     return (
       <header className="page-header">
-        <h1 className="page-title">
-          {translate('permissions.page')}
-        </h1>
+        <h1 className="page-title">{translate('permissions.page')}</h1>
 
         {this.props.loading && <i className="spinner" />}
 
-        {canApplyPermissionTemplate &&
+        {canApplyPermissionTemplate && (
           <div className="page-actions">
             <button className="js-apply-template" onClick={this.handleApplyTemplate}>
               Apply Template
             </button>
-          </div>}
+          </div>
+        )}
 
         <div className="page-description">
-          <p>
-            {description}
-          </p>
-          {visibilityDescription != null &&
-            <p>
-              {visibilityDescription}
-            </p>}
+          <p>{description}</p>
+          {visibilityDescription != null && <p>{visibilityDescription}</p>}
         </div>
       </header>
     );
