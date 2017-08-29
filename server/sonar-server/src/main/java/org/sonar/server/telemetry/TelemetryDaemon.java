@@ -92,6 +92,9 @@ public class TelemetryDaemon implements Startable {
   @Override
   public void stop() {
     try {
+      if (executorService == null) {
+        return;
+      }
       executorService.shutdown();
       executorService.awaitTermination(5, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
