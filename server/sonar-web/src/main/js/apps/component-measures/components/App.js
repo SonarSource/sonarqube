@@ -34,7 +34,7 @@ import { translate } from '../../../helpers/l10n';
 import '../style.css';
 
 /*:: type Props = {|
-  branch: {},
+  branch?: {},
   component: Component,
   currentUser: { isLoggedIn: boolean },
   location: { pathname: string, query: RawQuery },
@@ -106,7 +106,7 @@ export default class App extends React.PureComponent {
     const filteredKeys = metricsKey.filter(
       key => !metrics[key].hidden && !['DATA', 'DISTRIB'].includes(metrics[key].type)
     );
-    fetchMeasures(component.key, filteredKeys, getBranchName(branch)).then(
+    fetchMeasures(component.key, filteredKeys, branch && getBranchName(branch)).then(
       ({ measures, leakPeriod }) => {
         if (this.mounted) {
           this.setState({
@@ -127,7 +127,11 @@ export default class App extends React.PureComponent {
     });
     this.props.router.push({
       pathname: this.props.location.pathname,
-      query: { ...query, branch: getBranchName(this.props.branch), id: this.props.component.key }
+      query: {
+        ...query,
+        branch: this.props.branch && getBranchName(this.props.branch),
+        id: this.props.component.key
+      }
     });
   };
 
@@ -160,7 +164,7 @@ export default class App extends React.PureComponent {
 
         {metric != null &&
           <MeasureContentContainer
-            branch={getBranchName(branch)}
+            branch={branch && getBranchName(branch)}
             className="layout-page-main"
             currentUser={this.props.currentUser}
             rootComponent={component}
@@ -176,7 +180,7 @@ export default class App extends React.PureComponent {
         {metric == null &&
           hasBubbleChart(query.metric) &&
           <MeasureOverviewContainer
-            branch={getBranchName(branch)}
+            branch={branch && getBranchName(branch)}
             className="layout-page-main"
             rootComponent={component}
             currentUser={this.props.currentUser}

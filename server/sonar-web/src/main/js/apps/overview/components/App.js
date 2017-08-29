@@ -28,7 +28,7 @@ import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
 /*::
 type Props = {
-  branch: { name: string },
+  branch?: { name: string },
   component: {
     analysisDate?: string,
     id: string,
@@ -75,7 +75,7 @@ export default class App extends React.PureComponent {
     if (['FIL', 'UTS'].includes(component.qualifier)) {
       return (
         <div className="page page-limited">
-          <SourceViewer branch={getBranchName(branch)} component={component.key} />
+          <SourceViewer branch={branch && getBranchName(branch)} component={component.key} />
         </div>
       );
     }
