@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render items without the ones in the facet 1`] = `
+Array [
+  Object {
+    "label": "java",
+    "value": "java",
+  },
+  Object {
+    "label": "js",
+    "value": "js",
+  },
+  Object {
+    "label": "csharp",
+    "value": "csharp",
+  },
+]
+`;

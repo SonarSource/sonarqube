@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="search-navigator-facet-header projects-facet-header"
+>
+  foo
+</div>
+`;
+
+exports[`renders with children 1`] = `
+<div
+  className="search-navigator-facet-header projects-facet-header"
+>
+  foo
+  <div />
+</div>
+`;

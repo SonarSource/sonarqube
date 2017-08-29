@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Connect(Filter)
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="metric_domain.Duplications"
+    />
+  }
+  highlightUnder={1}
+  highlightUnderMax={5}
+  options={
+    Array [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+    ]
+  }
+  property="duplications"
+  query={Object {}}
+  renderOption={[Function]}
+/>
+`;
+
+exports[`renders 2`] = `
+<span>
+  <DuplicationsRating
+    muted={true}
+    size="small"
+    value={4}
+  />
+  <span
+    className="spacer-left"
+  >
+    ≥ 3%
+  </span>
+</span>
+`;
+
+exports[`renders 3`] = `
+<span>
+  <span
+    className="spacer-left"
+  >
+    <span
+      className="big-spacer-left"
+    >
+      no_data
+    </span>
+  </span>
+</span>
+`;

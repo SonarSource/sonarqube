@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Link
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/organizations/org"
+/>
+`;

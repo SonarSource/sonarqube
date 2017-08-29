@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="projects-empty-list"
+>
+  <h3>
+    projects.no_projects.empty_instance
+  </h3>
+</div>
+`;

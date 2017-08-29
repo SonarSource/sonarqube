@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="empty-search"
+>
+  <h3>
+    no_results_search
+  </h3>
+  <p
+    className="big-spacer-top"
+  >
+    no_results_search.2
+  </p>
+</div>
+`;

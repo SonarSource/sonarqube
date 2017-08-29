@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Connect(Filter)
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="metric_domain.bugs"
+    />
+  }
+  highlightUnder={1}
+  options={
+    Array [
+      1,
+      2,
+      3,
+      4,
+      5,
+    ]
+  }
+  query={Object {}}
+  renderOption={[Function]}
+/>
+`;
+
+exports[`renders 2`] = `
+<span>
+  <Rating
+    muted={true}
+    small={true}
+    value={2}
+  />
+  <span
+    className="note spacer-left"
+  >
+    and_worse
+  </span>
+</span>
+`;

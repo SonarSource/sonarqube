@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Connect(Filter)
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="metric_domain.Size"
+    />
+  }
+  highlightUnder={1}
+  options={
+    Array [
+      1,
+      2,
+      3,
+      4,
+      5,
+    ]
+  }
+  property="size"
+  query={Object {}}
+  renderOption={[Function]}
+/>
+`;
+
+exports[`renders 2`] = `
+<span>
+  <SizeRating
+    muted={true}
+    small={true}
+    value={5000}
+  />
+  <span
+    className="spacer-left"
+  >
+    ≥ 1k
+  </span>
+</span>
+`;
