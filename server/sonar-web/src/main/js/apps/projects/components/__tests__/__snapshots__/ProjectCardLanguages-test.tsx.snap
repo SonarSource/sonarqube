@@ -1,0 +1,107 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`does not render 1`] = `null`;
+
+exports[`handles unknown languages 1`] = `
+<div
+  className="project-card-languages"
+>
+  <Tooltip
+    overlay={
+      <span>
+        <span>
+          cpp
+          <br />
+        </span>
+        <span>
+          Java
+          <br />
+        </span>
+      </span>
+    }
+    placement="bottom"
+  >
+    <span>
+      cpp, Java
+    </span>
+  </Tooltip>
+</div>
+`;
+
+exports[`handles unknown languages 2`] = `
+<div
+  className="project-card-languages"
+>
+  <Tooltip
+    overlay={
+      <span>
+        <span>
+          unknown
+          <br />
+        </span>
+        <span>
+          Java
+          <br />
+        </span>
+      </span>
+    }
+    placement="bottom"
+  >
+    <span>
+      unknown, Java
+    </span>
+  </Tooltip>
+</div>
+`;
+
+exports[`renders 1`] = `
+<div
+  className="project-card-languages"
+>
+  <Tooltip
+    overlay={
+      <span>
+        <span>
+          Java
+          <br />
+        </span>
+        <span>
+          JavaScript
+          <br />
+        </span>
+      </span>
+    }
+    placement="bottom"
+  >
+    <span>
+      Java, JavaScript
+    </span>
+  </Tooltip>
+</div>
+`;
+
+exports[`sorts languages 1`] = `
+<div
+  className="project-card-languages"
+>
+  <Tooltip
+    overlay={
+      <span>
+        <span>
+          JavaScript
+          <br />
+        </span>
+        <span>
+          Java
+          <br />
+        </span>
+      </span>
+    }
+    placement="bottom"
+  >
+    <span>
+      JavaScript, Java
+    </span>
+  </Tooltip>
+</div>
+`;

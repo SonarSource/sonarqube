@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Connect(Filter)
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="projects.facets.quality_gate"
+    />
+  }
+  options={
+    Array [
+      "OK",
+      "WARN",
+      "ERROR",
+    ]
+  }
+  property="gate"
+  query={Object {}}
+  renderOption={[Function]}
+/>
+`;
+
+exports[`renders 2`] = `
+<Level
+  level={2}
+  muted={true}
+  small={true}
+/>
+`;

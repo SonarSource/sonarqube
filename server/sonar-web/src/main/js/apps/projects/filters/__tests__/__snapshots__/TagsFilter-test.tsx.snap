@@ -1,0 +1,388 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render maximum 10 tags in the searchbox results 1`] = `
+<Filter
+  facet={
+    Object {
+      "ad": 1,
+      "csharp": 1,
+      "lang": 4,
+      "sonar": 3,
+    }
+  }
+  footer={
+    <SearchableFilterFooter
+      isFavorite={true}
+      isLoading={false}
+      onInputChange={[Function]}
+      onOpen={[Function]}
+      options={
+        Array [
+          Object {
+            "label": "dotnet",
+            "value": "dotnet",
+          },
+          Object {
+            "label": "it",
+            "value": "it",
+          },
+          Object {
+            "label": "net",
+            "value": "net",
+          },
+          Object {
+            "label": "aa",
+            "value": "aa",
+          },
+          Object {
+            "label": "ab",
+            "value": "ab",
+          },
+          Object {
+            "label": "ac",
+            "value": "ac",
+          },
+          Object {
+            "label": "ae",
+            "value": "ae",
+          },
+          Object {
+            "label": "af",
+            "value": "af",
+          },
+          Object {
+            "label": "ag",
+            "value": "ag",
+          },
+          Object {
+            "label": "ah",
+            "value": "ah",
+          },
+        ]
+      }
+      property="tags"
+      query={
+        Object {
+          "languages": Array [
+            "java",
+            "ad",
+          ],
+        }
+      }
+    />
+  }
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="projects.facets.tags"
+    />
+  }
+  isFavorite={true}
+  options={
+    Array [
+      "lang",
+      "sonar",
+      "ad",
+      "csharp",
+    ]
+  }
+  property="tags"
+  query={
+    Object {
+      "languages": Array [
+        "java",
+        "ad",
+      ],
+    }
+  }
+  renderOption={[Function]}
+  value={
+    Array [
+      "java",
+      "ad",
+    ]
+  }
+/>
+`;
+
+exports[`should render the tags facet with the selected tags 1`] = `
+<Filter
+  facet={
+    Object {
+      "csharp": 1,
+      "lang": 4,
+      "sonar": 3,
+    }
+  }
+  footer={
+    <SearchableFilterFooter
+      isFavorite={true}
+      isLoading={false}
+      onInputChange={[Function]}
+      onOpen={[Function]}
+      options={Array []}
+      property="tags"
+      query={
+        Object {
+          "tags": Array [
+            "lang",
+            "sonar",
+          ],
+        }
+      }
+    />
+  }
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="projects.facets.tags"
+    />
+  }
+  isFavorite={true}
+  options={
+    Array [
+      "lang",
+      "sonar",
+      "csharp",
+    ]
+  }
+  property="tags"
+  query={
+    Object {
+      "tags": Array [
+        "lang",
+        "sonar",
+      ],
+    }
+  }
+  renderOption={[Function]}
+  value={
+    Array [
+      "lang",
+      "sonar",
+    ]
+  }
+/>
+`;
+
+exports[`should render the tags facet with the selected tags 2`] = `
+<div
+  className="search-navigator-facet-box"
+  data-key="tags"
+>
+  <FilterHeader
+    name="projects.facets.tags"
+  />
+  <div
+    className="search-navigator-facet-list projects-facet-list"
+  >
+    <Link
+      className="facet search-navigator-facet projects-facet active"
+      data-key="lang"
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/favorite",
+          "query": Object {
+            "tags": "sonar",
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        <SearchableFilterOption
+          optionKey="lang"
+        />
+      </span>
+      <span
+        className="facet-stat"
+      >
+        4
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet active"
+      data-key="sonar"
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/favorite",
+          "query": Object {
+            "tags": "lang",
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        <SearchableFilterOption
+          optionKey="sonar"
+        />
+      </span>
+      <span
+        className="facet-stat"
+      >
+        3
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key="csharp"
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/favorite",
+          "query": Object {
+            "tags": "lang,sonar,csharp",
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        <SearchableFilterOption
+          optionKey="csharp"
+        />
+      </span>
+      <span
+        className="facet-stat"
+      >
+        1
+      </span>
+    </Link>
+  </div>
+  <SearchableFilterFooter
+    isFavorite={true}
+    isLoading={false}
+    onInputChange={[Function]}
+    onOpen={[Function]}
+    options={Array []}
+    property="tags"
+    query={
+      Object {
+        "tags": Array [
+          "lang",
+          "sonar",
+        ],
+      }
+    }
+  />
+</div>
+`;
+
+exports[`should render the tags without the ones in the facet 1`] = `
+<Filter
+  facet={
+    Object {
+      "csharp": 1,
+      "lang": 4,
+      "sonar": 3,
+    }
+  }
+  footer={
+    <SearchableFilterFooter
+      isLoading={false}
+      onInputChange={[Function]}
+      onOpen={[Function]}
+      options={Array []}
+      property="tags"
+      query={
+        Object {
+          "tags": null,
+        }
+      }
+    />
+  }
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="projects.facets.tags"
+    />
+  }
+  options={
+    Array [
+      "lang",
+      "sonar",
+      "csharp",
+    ]
+  }
+  property="tags"
+  query={
+    Object {
+      "tags": null,
+    }
+  }
+  renderOption={[Function]}
+/>
+`;
+
+exports[`should render the tags without the ones in the facet 2`] = `
+<Filter
+  facet={
+    Object {
+      "csharp": 1,
+      "lang": 4,
+      "sonar": 3,
+    }
+  }
+  footer={
+    <SearchableFilterFooter
+      isLoading={false}
+      onInputChange={[Function]}
+      onOpen={[Function]}
+      options={
+        Array [
+          Object {
+            "label": "dotnet",
+            "value": "dotnet",
+          },
+          Object {
+            "label": "it",
+            "value": "it",
+          },
+          Object {
+            "label": "net",
+            "value": "net",
+          },
+        ]
+      }
+      property="tags"
+      query={
+        Object {
+          "tags": null,
+        }
+      }
+    />
+  }
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="projects.facets.tags"
+    />
+  }
+  options={
+    Array [
+      "lang",
+      "sonar",
+      "csharp",
+    ]
+  }
+  property="tags"
+  query={
+    Object {
+      "tags": null,
+    }
+  }
+  renderOption={[Function]}
+/>
+`;

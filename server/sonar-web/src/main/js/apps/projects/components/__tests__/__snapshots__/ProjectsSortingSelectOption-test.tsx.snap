@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className=""
+  onMouseDown={[Function]}
+  onMouseEnter={[Function]}
+  onMouseMove={[Function]}
+  title="Size"
+>
+  Size
+</div>
+`;
+
+exports[`renders short 1`] = `
+<div
+  className=""
+  onMouseDown={[Function]}
+  onMouseEnter={[Function]}
+  onMouseMove={[Function]}
+  title="Size"
+>
+  Short
+</div>
+`;

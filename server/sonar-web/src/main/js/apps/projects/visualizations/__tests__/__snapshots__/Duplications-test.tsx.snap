@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<SimpleBubbleChart
+  displayOrganizations={false}
+  projects={Array []}
+  sizeMetric={
+    Object {
+      "key": "duplicated_blocks",
+      "type": "SHORT_INT",
+    }
+  }
+  xMetric={
+    Object {
+      "key": "ncloc",
+      "type": "SHORT_INT",
+    }
+  }
+  yMetric={
+    Object {
+      "key": "duplicated_lines",
+      "type": "SHORT_INT",
+    }
+  }
+/>
+`;

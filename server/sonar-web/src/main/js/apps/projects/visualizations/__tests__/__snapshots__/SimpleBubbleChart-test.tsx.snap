@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div>
+  <BubbleChart
+    displayXGrid={true}
+    displayXTicks={true}
+    displayYGrid={true}
+    displayYTicks={true}
+    formatXTick={[Function]}
+    formatYTick={[Function]}
+    height={600}
+    items={
+      Array [
+        Object {
+          "color": undefined,
+          "key": "foo",
+          "link": Object {
+            "pathname": "/dashboard",
+            "query": Object {
+              "branch": undefined,
+              "id": "foo",
+            },
+          },
+          "size": 1734,
+          "tooltip": "<div class=\\"text-left\\"><div class=\\"little-spacer-bottom\\"><strong>Foo</strong></div><div>metric.complexity.name: 17</div><div>metric.coverage.name: 53.5%</div><div>metric.ncloc.name: 1,734</div></div>",
+          "x": 17.2,
+          "y": 53.5,
+        },
+      ]
+    }
+    padding={
+      Array [
+        80,
+        20,
+        60,
+        100,
+      ]
+    }
+    sizeRange={
+      Array [
+        5,
+        45,
+      ]
+    }
+  />
+  <div
+    className="measure-details-bubble-chart-axis x"
+  >
+    metric.complexity.name
+  </div>
+  <div
+    className="measure-details-bubble-chart-axis y"
+  >
+    metric.coverage.name
+  </div>
+  <div
+    className="measure-details-bubble-chart-axis size"
+  >
+    <span
+      className="spacer-right"
+    >
+      component_measures.legend.color_x.metric.security_rating.name
+    </span>
+    component_measures.legend.size_x.metric.ncloc.name
+    <ColorRatingsLegend
+      className="big-spacer-top"
+    />
+  </div>
+</div>
+`;

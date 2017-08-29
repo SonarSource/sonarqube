@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="projects-empty-list"
+>
+  <h3>
+    projects.no_favorite_projects
+  </h3>
+  <p
+    className="big-spacer-top"
+  >
+    projects.no_favorite_projects.engagement
+  </p>
+  <p
+    className="big-spacer-top"
+  >
+    <Link
+      className="button"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/projects/all"
+    >
+      projects.explore_projects
+    </Link>
+  </p>
+</div>
+`;

@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Connect(Filter)
+  className="leak-facet-box"
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="projects.facets.new_lines"
+    />
+  }
+  highlightUnder={1}
+  options={
+    Array [
+      1,
+      2,
+      3,
+      4,
+      5,
+    ]
+  }
+  property="new_lines"
+  query={Object {}}
+  renderOption={[Function]}
+/>
+`;
+
+exports[`renders 2`] = `
+<span>
+  ≥ 1k
+</span>
+`;

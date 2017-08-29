@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`does not render 1`] = `null`;
+
+exports[`renders 1`] = `
+<div
+  className="project-card-measure project-card-quality-gate spacer-left"
+>
+  <Tooltip
+    overlay="overview.quality_gate_x.ERROR"
+    placement="bottom"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <Level
+        level="ERROR"
+        small={true}
+      />
+    </div>
+  </Tooltip>
+</div>
+`;

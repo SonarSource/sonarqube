@@ -1,0 +1,378 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render maximum 10 languages in the searchbox results 1`] = `
+<Filter
+  facet={
+    Object {
+      "cs": 4,
+      "g": 1,
+      "java": 39,
+      "js": 1,
+    }
+  }
+  footer={
+    <SearchableFilterFooter
+      isFavorite={true}
+      options={
+        Array [
+          Object {
+            "label": "Flex",
+            "value": "flex",
+          },
+          Object {
+            "label": "PHP",
+            "value": "php",
+          },
+          Object {
+            "label": "Python",
+            "value": "py",
+          },
+          Object {
+            "label": "c",
+            "value": "c",
+          },
+          Object {
+            "label": "d",
+            "value": "d",
+          },
+          Object {
+            "label": "e",
+            "value": "e",
+          },
+          Object {
+            "label": "f",
+            "value": "f",
+          },
+          Object {
+            "label": "h",
+            "value": "h",
+          },
+          Object {
+            "label": "i",
+            "value": "i",
+          },
+          Object {
+            "label": "k",
+            "value": "k",
+          },
+        ]
+      }
+      property="languages"
+      query={
+        Object {
+          "languages": Array [
+            "java",
+            "g",
+          ],
+        }
+      }
+    />
+  }
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="projects.facets.languages"
+    />
+  }
+  isFavorite={true}
+  options={
+    Array [
+      "java",
+      "cs",
+      "g",
+      "js",
+    ]
+  }
+  property="languages"
+  query={
+    Object {
+      "languages": Array [
+        "java",
+        "g",
+      ],
+    }
+  }
+  renderOption={[Function]}
+  value={
+    Array [
+      "java",
+      "g",
+    ]
+  }
+/>
+`;
+
+exports[`should render the languages facet with the selected languages 1`] = `
+<Filter
+  facet={
+    Object {
+      "cs": 4,
+      "java": 39,
+      "js": 1,
+    }
+  }
+  footer={
+    <SearchableFilterFooter
+      isFavorite={true}
+      options={
+        Array [
+          Object {
+            "label": "Flex",
+            "value": "flex",
+          },
+          Object {
+            "label": "PHP",
+            "value": "php",
+          },
+          Object {
+            "label": "Python",
+            "value": "py",
+          },
+        ]
+      }
+      property="languages"
+      query={
+        Object {
+          "languages": Array [
+            "java",
+            "cs",
+          ],
+        }
+      }
+    />
+  }
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="projects.facets.languages"
+    />
+  }
+  isFavorite={true}
+  options={
+    Array [
+      "java",
+      "cs",
+      "js",
+    ]
+  }
+  property="languages"
+  query={
+    Object {
+      "languages": Array [
+        "java",
+        "cs",
+      ],
+    }
+  }
+  renderOption={[Function]}
+  value={
+    Array [
+      "java",
+      "cs",
+    ]
+  }
+/>
+`;
+
+exports[`should render the languages facet with the selected languages 2`] = `
+<div
+  className="search-navigator-facet-box"
+  data-key="languages"
+>
+  <FilterHeader
+    name="projects.facets.languages"
+  />
+  <div
+    className="search-navigator-facet-list projects-facet-list"
+  >
+    <Link
+      className="facet search-navigator-facet projects-facet active"
+      data-key="java"
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/favorite",
+          "query": Object {
+            "languages": "cs",
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        <SearchableFilterOption
+          option={
+            Object {
+              "key": "java",
+              "name": "Java",
+            }
+          }
+          optionKey="java"
+        />
+      </span>
+      <span
+        className="facet-stat"
+      >
+        39
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet active"
+      data-key="cs"
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/favorite",
+          "query": Object {
+            "languages": "java",
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        <SearchableFilterOption
+          option={
+            Object {
+              "key": "cs",
+              "name": "C#",
+            }
+          }
+          optionKey="cs"
+        />
+      </span>
+      <span
+        className="facet-stat"
+      >
+        4
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key="js"
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/favorite",
+          "query": Object {
+            "languages": "java,cs,js",
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        <SearchableFilterOption
+          option={
+            Object {
+              "key": "js",
+              "name": "JavaScript",
+            }
+          }
+          optionKey="js"
+        />
+      </span>
+      <span
+        className="facet-stat"
+      >
+        1
+      </span>
+    </Link>
+  </div>
+  <SearchableFilterFooter
+    isFavorite={true}
+    options={
+      Array [
+        Object {
+          "label": "Flex",
+          "value": "flex",
+        },
+        Object {
+          "label": "PHP",
+          "value": "php",
+        },
+        Object {
+          "label": "Python",
+          "value": "py",
+        },
+      ]
+    }
+    property="languages"
+    query={
+      Object {
+        "languages": Array [
+          "java",
+          "cs",
+        ],
+      }
+    }
+  />
+</div>
+`;
+
+exports[`should render the languages without the ones in the facet 1`] = `
+<Filter
+  facet={
+    Object {
+      "cs": 4,
+      "java": 39,
+      "js": 1,
+    }
+  }
+  footer={
+    <SearchableFilterFooter
+      options={
+        Array [
+          Object {
+            "label": "Flex",
+            "value": "flex",
+          },
+          Object {
+            "label": "PHP",
+            "value": "php",
+          },
+          Object {
+            "label": "Python",
+            "value": "py",
+          },
+        ]
+      }
+      property="languages"
+      query={
+        Object {
+          "languages": null,
+        }
+      }
+    />
+  }
+  getFacetValueForOption={[Function]}
+  header={
+    <FilterHeader
+      name="projects.facets.languages"
+    />
+  }
+  options={
+    Array [
+      "java",
+      "cs",
+      "js",
+    ]
+  }
+  property="languages"
+  query={
+    Object {
+      "languages": null,
+    }
+  }
+  renderOption={[Function]}
+/>
+`;

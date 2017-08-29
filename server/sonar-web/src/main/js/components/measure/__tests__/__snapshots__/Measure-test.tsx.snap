@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders LEVEL 1`] = `
+<Level
+  level="ERROR"
+/>
+`;
+
+exports[`renders known RATING 1`] = `
+<Tooltip
+  overlay="tooltip"
+  placement="bottom"
+>
+  <span>
+    <Rating
+      value="3"
+    />
+  </span>
+</Tooltip>
+`;
+
+exports[`renders leak measure 1`] = `
+<span>
+  36.0%
+</span>
+`;
+
+exports[`renders trivial measure 1`] = `
+<span>
+  73.0%
+</span>
+`;
+
+exports[`renders unknown RATING 1`] = `
+<Rating
+  value="4"
+/>
+`;

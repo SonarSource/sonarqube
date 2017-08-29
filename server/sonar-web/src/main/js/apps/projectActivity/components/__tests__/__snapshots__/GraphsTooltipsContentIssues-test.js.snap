@@ -21,7 +21,6 @@ exports[`should render correctly 1`] = `
     </span>
     <Rating
       className="spacer-left"
-      muted={false}
       small={true}
       value="5.0"
     />

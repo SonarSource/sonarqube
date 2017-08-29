@@ -1,0 +1,596 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`highlights under 1`] = `
+<div
+  className="search-navigator-facet-box"
+  data-key="foo"
+>
+  <div
+    className="search-navigator-facet-list projects-facet-list"
+  >
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key={1}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": 1,
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        1
+      </span>
+    </Link>
+    <div
+      className="search-navigator-facet-highlight-under-container"
+    >
+      <Link
+        className="facet search-navigator-facet projects-facet"
+        data-key={2}
+        onClick={[Function]}
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/projects",
+            "query": Object {
+              "foo": 2,
+            },
+          }
+        }
+      >
+        <span
+          className="facet-name"
+        >
+          2
+        </span>
+      </Link>
+      <Link
+        className="facet search-navigator-facet projects-facet"
+        data-key={3}
+        onClick={[Function]}
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/projects",
+            "query": Object {
+              "foo": 3,
+            },
+          }
+        }
+      >
+        <span
+          className="facet-name"
+        >
+          3
+        </span>
+      </Link>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`hightlights under selected 1`] = `
+<div
+  className="search-navigator-facet-box"
+  data-key="foo"
+>
+  <div
+    className="search-navigator-facet-list projects-facet-list"
+  >
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key={1}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": 1,
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        1
+      </span>
+    </Link>
+    <div
+      className="search-navigator-facet-highlight-under-container"
+    >
+      <Link
+        className="facet search-navigator-facet projects-facet active"
+        data-key={2}
+        onClick={[Function]}
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/projects",
+            "query": Object {},
+          }
+        }
+      >
+        <span
+          className="facet-name"
+        >
+          2
+        </span>
+      </Link>
+      <Link
+        className="facet search-navigator-facet projects-facet"
+        data-key={3}
+        onClick={[Function]}
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/projects",
+            "query": Object {
+              "foo": 3,
+            },
+          }
+        }
+      >
+        <span
+          className="facet-name"
+        >
+          3
+        </span>
+      </Link>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`renders 1`] = `
+<div
+  className="search-navigator-facet-box"
+  data-key="foo"
+>
+  <div
+    className="search-navigator-facet-list projects-facet-list"
+  >
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key={1}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": 1,
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        1
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key={2}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": 2,
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        2
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key={3}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": 3,
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        3
+      </span>
+    </Link>
+  </div>
+</div>
+`;
+
+exports[`renders facet bar chart 1`] = `
+<div
+  className="search-navigator-facet-box"
+  data-key="foo"
+>
+  <div
+    className="search-navigator-facet-list projects-facet-list"
+  >
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key="a"
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": "a",
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        a
+      </span>
+      <span
+        className="facet-stat"
+      >
+        17
+        <div
+          className="projects-facet-bar"
+        >
+          <div
+            className="projects-facet-bar-inner"
+            style={
+              Object {
+                "width": 42.5,
+              }
+            }
+          />
+        </div>
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key="b"
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": "b",
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        b
+      </span>
+      <span
+        className="facet-stat"
+      >
+        15
+        <div
+          className="projects-facet-bar"
+        >
+          <div
+            className="projects-facet-bar-inner"
+            style={
+              Object {
+                "width": 37.5,
+              }
+            }
+          />
+        </div>
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key="c"
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": "c",
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        c
+      </span>
+      <span
+        className="facet-stat"
+      >
+        24
+        <div
+          className="projects-facet-bar"
+        >
+          <div
+            className="projects-facet-bar-inner"
+            style={
+              Object {
+                "width": 60,
+              }
+            }
+          />
+        </div>
+      </span>
+    </Link>
+  </div>
+</div>
+`;
+
+exports[`renders header and footer 1`] = `
+<div
+  className="search-navigator-facet-box"
+  data-key="foo"
+>
+  <header />
+  <div
+    className="search-navigator-facet-list projects-facet-list"
+  >
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key={1}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": 1,
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        1
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key={2}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": 2,
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        2
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key={3}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": 3,
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        3
+      </span>
+    </Link>
+  </div>
+  <footer />
+</div>
+`;
+
+exports[`renders multiple selected 1`] = `
+<div
+  className="search-navigator-facet-box"
+  data-key="foo"
+>
+  <div
+    className="search-navigator-facet-list projects-facet-list"
+  >
+    <Link
+      className="facet search-navigator-facet projects-facet active"
+      data-key={1}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": "2",
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        1
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet active"
+      data-key={2}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": "1",
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        2
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key={3}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": "1,2,3",
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        3
+      </span>
+    </Link>
+  </div>
+</div>
+`;
+
+exports[`renders no results 1`] = `
+<div
+  className="search-navigator-facet-box"
+  data-key="foo"
+>
+  <div
+    className="search-navigator-facet-empty"
+  >
+    no_results
+  </div>
+</div>
+`;
+
+exports[`renders selected 1`] = `
+<div
+  className="search-navigator-facet-box"
+  data-key="foo"
+>
+  <div
+    className="search-navigator-facet-list projects-facet-list"
+  >
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key={1}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": 1,
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        1
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet active"
+      data-key={2}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {},
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        2
+      </span>
+    </Link>
+    <Link
+      className="facet search-navigator-facet projects-facet"
+      data-key={3}
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects",
+          "query": Object {
+            "foo": 3,
+          },
+        }
+      }
+    >
+      <span
+        className="facet-name"
+      >
+        3
+      </span>
+    </Link>
+  </div>
+</div>
+`;
