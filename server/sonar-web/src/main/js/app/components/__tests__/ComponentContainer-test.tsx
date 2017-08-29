@@ -21,13 +21,20 @@ jest.mock('../../../api/branches', () => ({ getBranches: jest.fn() }));
 jest.mock('../../../api/components', () => ({ getComponentData: jest.fn() }));
 jest.mock('../../../api/nav', () => ({ getComponentNavigation: jest.fn() }));
 
+// mock this, because some of its children are using redux store
+jest.mock('../nav/component/ComponentNav', () => ({
+  default: () => null
+}));
+
 import * as React from 'react';
 import { shallow, mount } from 'enzyme';
-import ProjectContainer from '../ProjectContainer';
+import ComponentContainer from '../ComponentContainer';
 import { getBranches } from '../../../api/branches';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
 import { doAsync } from '../../../helpers/testUtils';
+
+const Inner = () => <div />;
 
 beforeEach(() => {
   (getBranches as jest.Mock<any>).mockClear();
@@ -36,14 +43,12 @@ beforeEach(() => {
 });
 
 it('changes component', () => {
-  const Inner = () => <div />;
-
   const wrapper = shallow(
-    <ProjectContainer location={{ query: { id: 'foo' } }}>
+    <ComponentContainer location={{ query: { id: 'foo' } }}>
       <Inner />
-    </ProjectContainer>
+    </ComponentContainer>
   );
-  (wrapper.instance() as ProjectContainer).mounted = true;
+  (wrapper.instance() as ComponentContainer).mounted = true;
   wrapper.setState({
     branches: [{ isMain: true }],
     component: { qualifier: 'TRK', visibility: 'public' },
@@ -67,9 +72,9 @@ it("loads branches for module's project", () => {
   );
 
   mount(
-    <ProjectContainer location={{ query: { id: 'moduleKey' } }}>
-      <div />
-    </ProjectContainer>
+    <ComponentContainer location={{ query: { id: 'moduleKey' } }}>
+      <Inner />
+    </ComponentContainer>
   );
 
   return doAsync().then(() => {
@@ -88,28 +93,28 @@ it("doesn't load branches portfolio", () => {
     })
   );
 
-  mount(
-    <ProjectContainer location={{ query: { id: 'portfolioKey' } }}>
-      <div />
-    </ProjectContainer>
+  const wrapper = mount(
+    <ComponentContainer location={{ query: { id: 'portfolioKey' } }}>
+      <Inner />
+    </ComponentContainer>
   );
 
   return doAsync().then(() => {
     expect(getBranches).not.toBeCalled();
     expect(getComponentData).toBeCalledWith('portfolioKey', undefined);
     expect(getComponentNavigation).toBeCalledWith('portfolioKey');
+    expect(wrapper.find(Inner).exists()).toBeTruthy();
   });
 });
 
 it('updates branches on change', () => {
   (getBranches as jest.Mock<any>).mockImplementation(() => Promise.resolve([]));
-  const Inner = () => <div />;
   const wrapper = shallow(
-    <ProjectContainer location={{ query: { id: 'portfolioKey' } }}>
+    <ComponentContainer location={{ query: { id: 'portfolioKey' } }}>
       <Inner />
-    </ProjectContainer>
+    </ComponentContainer>
   );
-  (wrapper.instance() as ProjectContainer).mounted = true;
+  (wrapper.instance() as ComponentContainer).mounted = true;
   wrapper.setState({
     branches: [{ isMain: true }],
     component: { breadcrumbs: [{ key: 'projectKey', name: 'project', qualifier: 'TRK' }] },

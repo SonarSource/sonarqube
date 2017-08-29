@@ -42,7 +42,7 @@ import '../styles.css';
 
 /*::
 type Props = {
-  branch: { name: string },
+  branch?: { name: string },
   component: Component,
   onComponentChange: {} => void
 };
@@ -98,7 +98,7 @@ export default class OverviewApp extends React.PureComponent {
 
     return getMeasuresAndMeta(component.key, METRICS, {
       additionalFields: 'metrics,periods',
-      branch: getBranchName(branch)
+      branch: branch && getBranchName(branch)
     }).then(
       r => {
         if (this.mounted) {
@@ -128,7 +128,7 @@ export default class OverviewApp extends React.PureComponent {
 
     const metrics = uniq(HISTORY_METRICS_LIST.concat(graphMetrics));
     return getAllTimeMachineData(component.key, metrics, {
-      branch: getBranchName(branch)
+      branch: branch && getBranchName(branch)
     }).then(r => {
       if (this.mounted) {
         const history /*: History */ = {};
@@ -166,7 +166,7 @@ export default class OverviewApp extends React.PureComponent {
 
     const leakPeriod =
       component.qualifier === 'APP' ? this.getApplicationLeakPeriod() : getLeakPeriod(periods);
-    const branchName = getBranchName(branch);
+    const branchName = branch && getBranchName(branch);
     const domainProps = {
       branch: branchName,
       component,

@@ -17,14 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import ProjectPageExtension from './ProjectPageExtension';
+import { Component } from '../../types';
 
-export default function ViewDashboard(props /*: Object */) {
+interface Props {
+  component: Component;
+  location: { query: { id: string } };
+}
+
+export default function PortfolioDashboard(props: Props) {
   return (
     <ProjectPageExtension
-      location={props.location}
+      {...props}
       params={{ pluginKey: 'governance', extensionKey: 'governance' }}
     />
   );
