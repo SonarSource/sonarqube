@@ -28,7 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.cluster.Cluster;
+import org.sonar.server.platform.WebServer;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,7 +58,7 @@ public class PlatformLevel2Test {
     underTest.configure();
 
     // some level1 components
-    assertThat(underTest.getOptional(Cluster.class)).isPresent();
+    assertThat(underTest.getOptional(WebServer.class)).isPresent();
     assertThat(underTest.getOptional(System2.class)).isPresent();
 
     // level2 component that does not depend on cluster state
@@ -77,7 +77,7 @@ public class PlatformLevel2Test {
     PlatformLevel2 underTest = new PlatformLevel2(level1);
     underTest.configure();
 
-    assertThat(underTest.get(Cluster.class).isStartupLeader()).isFalse();
+    assertThat(underTest.get(WebServer.class).isStartupLeader()).isFalse();
 
     // level2 component that does not depend on cluster state
     assertThat(underTest.getOptional(PluginRepository.class)).isPresent();

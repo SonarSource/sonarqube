@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.cluster;
+package org.sonar.server.platform;
 
-public interface Cluster {
+public interface WebServer {
 
   /**
-   * Cluster is enabled when property {@link org.sonar.process.ProcessProperties#CLUSTER_ENABLED} is {@code true}
+   * WebServer is standalone when property {@link org.sonar.process.ProcessProperties#CLUSTER_ENABLED} is {@code false} or
+   * undefined.
    */
-  boolean isEnabled();
+  boolean isStandalone();
 
   /**
    * The startup leader is the first node to be started in a cluster. It's the only one

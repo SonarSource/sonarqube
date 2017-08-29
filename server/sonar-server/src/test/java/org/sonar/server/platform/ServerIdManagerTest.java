@@ -33,7 +33,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.server.platform.cluster.ClusterMock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -52,7 +51,7 @@ public class ServerIdManagerTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-  private ClusterMock cluster = new ClusterMock();
+  private WebServer webServer = mock(WebServer.class);
   private UuidFactory uuidFactory = mock(UuidFactory.class);
 
   private static SonarRuntime runtimeFor(SonarQubeSide side) {
@@ -62,9 +61,9 @@ public class ServerIdManagerTest {
   @Test
   public void start_persists_new_serverId_if_server_startupLeader_and_serverId_does_not_exist() {
     when(uuidFactory.create()).thenReturn(SOME_UUID);
-    cluster.setStartupLeader(true);
+    when(webServer.isStartupLeader()).thenReturn(true);
 
-    new ServerIdManager(dbClient, runtimeFor(SERVER), cluster, uuidFactory)
+    new ServerIdManager(dbClient, runtimeFor(SERVER), webServer, uuidFactory)
       .start();
 
     assertThat(dbClient.propertiesDao().selectGlobalProperty(dbSession, CoreProperties.SERVER_ID))
@@ -76,9 +75,9 @@ public class ServerIdManagerTest {
   public void start_persists_new_serverId_if_server_startupLeader_and_serverId_is_an_old_date() {
     insertPropertyCoreId("20161123150657");
     when(uuidFactory.create()).thenReturn(SOME_UUID);
-    cluster.setStartupLeader(true);
+    when(webServer.isStartupLeader()).thenReturn(true);
 
-    new ServerIdManager(dbClient, runtimeFor(SERVER), cluster, uuidFactory)
+    new ServerIdManager(dbClient, runtimeFor(SERVER), webServer, uuidFactory)
         .start();
 
     assertThat(dbClient.propertiesDao().selectGlobalProperty(dbSession, CoreProperties.SERVER_ID))
@@ -95,9 +94,9 @@ public class ServerIdManagerTest {
   public void start_persists_new_serverId_if_server_startupLeader_and_serverId_is_empty() {
     insertPropertyCoreId("");
     when(uuidFactory.create()).thenReturn(SOME_UUID);
-    cluster.setStartupLeader(true);
+    when(webServer.isStartupLeader()).thenReturn(true);
 
-    new ServerIdManager(dbClient, runtimeFor(SERVER), cluster, uuidFactory)
+    new ServerIdManager(dbClient, runtimeFor(SERVER), webServer, uuidFactory)
         .start();
 
     assertThat(dbClient.propertiesDao().selectGlobalProperty(dbSession, CoreProperties.SERVER_ID))
@@ -107,9 +106,9 @@ public class ServerIdManagerTest {
 
   @Test
   public void start_fails_with_ISE_if_serverId_is_null_and_server_is_not_startupLeader() {
-    cluster.setStartupLeader(false);
+    when(webServer.isStartupLeader()).thenReturn(false);
 
-    ServerIdManager underTest = new ServerIdManager(dbClient, runtimeFor(SERVER), cluster, uuidFactory);
+    ServerIdManager underTest = new ServerIdManager(dbClient, runtimeFor(SERVER), webServer, uuidFactory);
 
     expectMissingCoreIdException();
     
@@ -119,9 +118,9 @@ public class ServerIdManagerTest {
   @Test
   public void start_fails_with_ISE_if_serverId_is_empty_and_server_is_not_startupLeader() {
     insertPropertyCoreId("");
-    cluster.setStartupLeader(false);
+    when(webServer.isStartupLeader()).thenReturn(false);
 
-    ServerIdManager underTest = new ServerIdManager(dbClient, runtimeFor(SERVER), cluster, uuidFactory);
+    ServerIdManager underTest = new ServerIdManager(dbClient, runtimeFor(SERVER), webServer, uuidFactory);
 
     expectEmptyCoreIdException();
 
@@ -130,9 +129,9 @@ public class ServerIdManagerTest {
 
   @Test
   public void start_fails_with_ISE_if_serverId_is_null_and_not_server() {
-    cluster.setStartupLeader(false);
+    when(webServer.isStartupLeader()).thenReturn(false);
 
-    ServerIdManager underTest = new ServerIdManager(dbClient, runtimeFor(COMPUTE_ENGINE), cluster, uuidFactory);
+    ServerIdManager underTest = new ServerIdManager(dbClient, runtimeFor(COMPUTE_ENGINE), webServer, uuidFactory);
 
     expectMissingCoreIdException();
 
@@ -143,7 +142,7 @@ public class ServerIdManagerTest {
   public void start_fails_with_ISE_if_serverId_is_empty_and_not_server() {
     insertPropertyCoreId("");
 
-    ServerIdManager underTest = new ServerIdManager(dbClient, runtimeFor(COMPUTE_ENGINE), cluster, uuidFactory);
+    ServerIdManager underTest = new ServerIdManager(dbClient, runtimeFor(COMPUTE_ENGINE), webServer, uuidFactory);
 
     expectEmptyCoreIdException();
 
@@ -153,16 +152,16 @@ public class ServerIdManagerTest {
   @Test
   public void start_does_not_fail_if_serverId_exists_and_server_is_not_startupLeader() {
     insertPropertyCoreId(SOME_UUID);
-    cluster.setStartupLeader(false);
+    when(webServer.isStartupLeader()).thenReturn(false);
 
-    new ServerIdManager(dbClient, runtimeFor(SERVER), cluster, uuidFactory).start();
+    new ServerIdManager(dbClient, runtimeFor(SERVER), webServer, uuidFactory).start();
   }
 
   @Test
   public void start_does_not_fail_if_serverId_exists_and_not_server() {
     insertPropertyCoreId(SOME_UUID);
 
-    new ServerIdManager(dbClient, runtimeFor(COMPUTE_ENGINE), cluster, uuidFactory).start();
+    new ServerIdManager(dbClient, runtimeFor(COMPUTE_ENGINE), webServer, uuidFactory).start();
   }
 
   private void expectEmptyCoreIdException() {
