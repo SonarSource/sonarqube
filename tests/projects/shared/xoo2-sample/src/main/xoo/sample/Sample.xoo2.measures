@@ -1,0 +1,9 @@
+ncloc:7
+#Used by dashboard/widgets tests
+complexity:4
+complexity_in_classes:5
+cognitive_complexity:6
+classes:2
+comment_lines:4
+public_api:6
+public_undocumented_api:1
