@@ -20,7 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import java.util.Date;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -140,7 +139,12 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
     when(notificationService.hasProjectSubscribersForTypes(BRANCH_COMPONENT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
-    analysisMetadataHolder.setBranch(new DefaultBranchImpl(BRANCH_NAME));
+    analysisMetadataHolder.setBranch(new DefaultBranchImpl(BRANCH_NAME) {
+      @Override
+      public boolean isMain() {
+        return false;
+      }
+    });
     treeRootHolder.setRoot(BRANCH);
 
     underTest.execute();
