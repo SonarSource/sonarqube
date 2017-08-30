@@ -45,7 +45,11 @@ import static org.mockito.Mockito.when;
 public class MovedIssueVisitorTest {
   private static final long ANALYSIS_DATE = 894521;
   private static final String FILE_UUID = "file uuid";
-  private static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1).setUuid(FILE_UUID).build();
+  private static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1)
+    .setKey("key_1")
+    .setPublicKey("public_key_1")
+    .setUuid(FILE_UUID)
+    .build();
 
   @org.junit.Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -115,7 +119,7 @@ public class MovedIssueVisitorTest {
     underTest.onIssue(FILE, issue);
 
     verify(issue).setComponentUuid(FILE.getUuid());
-    verify(issue).setComponentKey(FILE.getKey());
+    verify(issue).setComponentKey(FILE.getPublicKey());
     verify(issue).setModuleUuid(null);
     verify(issue).setModuleUuidPath(null);
     verify(issue).setChanged(true);
