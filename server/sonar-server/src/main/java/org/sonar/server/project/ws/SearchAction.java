@@ -84,11 +84,17 @@ public class SearchAction implements ProjectsWsAction {
         "Requires 'System Administrator' permission")
       .setInternal(true)
       .addPagingParams(100, MAX_PAGE_SIZE)
-      .addSearchQuery("sona", "component names", "component keys")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this);
 
     action.setChangelog(new Change("6.4", "The 'uuid' field is deprecated in the response"));
+
+    action.createParam(Param.TEXT_QUERY)
+      .setDescription("Limit search to: <ul>" +
+        "<li>component names that contain the supplied string</li>" +
+        "<li>component keys that are exactly the same as the supplied string</li>" +
+        "</ul>")
+      .setExampleValue("sonar");
 
     action.createParam(PARAM_QUALIFIERS)
       .setDescription("Comma-separated list of component qualifiers. Filter the results with the specified qualifiers")
