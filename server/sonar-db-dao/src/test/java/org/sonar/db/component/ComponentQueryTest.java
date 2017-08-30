@@ -36,12 +36,14 @@ public class ComponentQueryTest {
     ComponentQuery underTest = ComponentQuery.builder()
       .setNameOrKeyQuery("key")
       .setLanguage("java")
+      .setAnalyzedBefore(1_000_000_000L)
       .setQualifiers(PROJECT)
       .build();
 
     assertThat(underTest.getNameOrKeyQuery()).isEqualTo("key");
     assertThat(underTest.getLanguage()).isEqualTo("java");
     assertThat(underTest.getQualifiers()).containsOnly(PROJECT);
+    assertThat(underTest.getAnalyzedBefore()).isEqualTo(1_000_000_000L);
   }
 
   @Test

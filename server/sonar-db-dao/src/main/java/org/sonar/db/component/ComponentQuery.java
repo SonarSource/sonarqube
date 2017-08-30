@@ -34,6 +34,7 @@ public class ComponentQuery {
   private final String language;
   private final Boolean isPrivate;
   private final Set<Long> componentIds;
+  private final Long analyzedBefore;
 
   /**
    * Used by Dev Cockpit 1.9.
@@ -48,6 +49,7 @@ public class ComponentQuery {
     this.language = null;
     this.componentIds = null;
     this.isPrivate = null;
+    this.analyzedBefore = null;
   }
 
   private ComponentQuery(Builder builder) {
@@ -56,6 +58,7 @@ public class ComponentQuery {
     this.language = builder.language;
     this.componentIds = builder.componentIds;
     this.isPrivate = builder.isPrivate;
+    this.analyzedBefore = builder.analyzedBefore;
   }
 
   public String[] getQualifiers() {
@@ -90,6 +93,11 @@ public class ComponentQuery {
     return isPrivate;
   }
 
+  @CheckForNull
+  public Long getAnalyzedBefore() {
+    return analyzedBefore;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -100,6 +108,7 @@ public class ComponentQuery {
     private String language;
     private Boolean isPrivate;
     private Set<Long> componentIds;
+    private Long analyzedBefore;
 
     public Builder setNameOrKeyQuery(@Nullable String nameOrKeyQuery) {
       this.nameOrKeyQuery = nameOrKeyQuery;
@@ -123,6 +132,11 @@ public class ComponentQuery {
 
     public Builder setPrivate(@Nullable Boolean isPrivate) {
       this.isPrivate = isPrivate;
+      return this;
+    }
+
+    public Builder setAnalyzedBefore(@Nullable Long analyzedBefore) {
+      this.analyzedBefore = analyzedBefore;
       return this;
     }
 
