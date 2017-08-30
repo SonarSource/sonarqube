@@ -17,4 +17,4 @@ Project: Struts
         /path/to/file: 3
         /path/to/directory: 7
 
-See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18T16%3A50%3A45%2B0200
+See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18
