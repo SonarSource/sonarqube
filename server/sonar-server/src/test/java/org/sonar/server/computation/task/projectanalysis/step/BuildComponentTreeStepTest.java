@@ -205,7 +205,7 @@ public class BuildComponentTreeStepTest {
   @Test
   public void generate_keys_when_using_branch() {
     Branch branch = mock(Branch.class);
-    when(branch.getName()).thenReturn(Optional.of("origin/feature"));
+    when(branch.getName()).thenReturn("origin/feature");
     when(branch.isMain()).thenReturn(false);
     when(branch.isLegacyFeature()).thenReturn(false);
     when(branch.generateKey(any(ScannerReport.Component.class), any(ScannerReport.Component.class))).thenReturn("generated");
@@ -230,7 +230,7 @@ public class BuildComponentTreeStepTest {
   @Test
   public void generate_keys_when_using_main_branch() {
     Branch branch = mock(Branch.class);
-    when(branch.getName()).thenReturn(Optional.of("origin/master"));
+    when(branch.getName()).thenReturn("origin/master");
     when(branch.isMain()).thenReturn(true);
     when(branch.isLegacyFeature()).thenReturn(false);
     when(branch.generateKey(any(ScannerReport.Component.class), any(ScannerReport.Component.class))).thenReturn("generated");
