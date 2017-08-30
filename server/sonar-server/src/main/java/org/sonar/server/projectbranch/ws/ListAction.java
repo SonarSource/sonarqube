@@ -106,7 +106,7 @@ public class ListAction implements BranchWsAction {
       Map<String, MeasureDto> qualityGateMeasuresByComponentUuids = dbClient.measureDao()
         .selectByComponentsAndMetrics(dbSession, branches.stream().map(BranchDto::getUuid).collect(toList()), singletonList(qualityGateMetric.getId()))
         .stream().collect(uniqueIndex(MeasureDto::getComponentUuid));
-      Map<String, BranchStatistics> branchStatisticsByBranchUuid = issueIndex.searchBranchStatistics(branches.stream()
+      Map<String, BranchStatistics> branchStatisticsByBranchUuid = issueIndex.searchBranchStatistics(project.uuid(), branches.stream()
         .filter(b -> b.getBranchType().equals(SHORT))
         .map(BranchDto::getUuid).collect(toList()))
         .stream().collect(uniqueIndex(BranchStatistics::getBranchUuid, Function.identity()));

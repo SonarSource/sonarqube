@@ -707,12 +707,13 @@ public class IssueIndex {
       }).collect(MoreCollectors.toList(projectUuids.size()));
   }
 
-  public List<BranchStatistics> searchBranchStatistics(List<String> branchUuids) {
+  public List<BranchStatistics> searchBranchStatistics(String projectUuid, List<String> branchUuids) {
     if (branchUuids.isEmpty()) {
       return Collections.emptyList();
     }
 
     SearchRequestBuilder request = client.prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
+      .setRouting(projectUuid)
       .setQuery(
         boolQuery()
           .must(termsQuery(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, branchUuids))
