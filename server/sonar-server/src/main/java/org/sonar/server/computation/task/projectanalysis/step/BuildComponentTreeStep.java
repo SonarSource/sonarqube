@@ -102,7 +102,7 @@ public class BuildComponentTreeStep implements ComputationStep {
   private ComponentKeyGenerator loadPublicKeyGenerator() {
     return analysisMetadataHolder.getBranch()
       .filter(b -> !b.isMain())
-      .map(b -> new DefaultBranchImpl(b.getName().orElse(null)))
+      .map(b -> new DefaultBranchImpl(b.getName()))
       .orElseGet(DefaultBranchImpl::new);
   }
 

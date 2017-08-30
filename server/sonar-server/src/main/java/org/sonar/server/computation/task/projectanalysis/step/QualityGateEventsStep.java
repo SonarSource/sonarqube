@@ -132,7 +132,7 @@ public class QualityGateEventsStep implements ComputationStep {
       .setFieldValue("alertText", rawStatus.getText())
       .setFieldValue("alertLevel", rawStatus.getStatus().toString())
       .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));
-    analysisMetadataHolder.getBranch().ifPresent(branch -> notification.setFieldValue("branch", branch.getName().orElse(null)));
+    analysisMetadataHolder.getBranch().ifPresent(branch -> notification.setFieldValue("branch", branch.getName()));
     notificationService.deliver(notification);
   }
 

@@ -79,7 +79,7 @@ public class BranchDaoTest {
     dto.setUuid("U1");
     dto.setBranchType(BranchType.LONG);
     dto.setKeeType(BranchKeyType.BRANCH);
-    dto.setKey(null);
+    dto.setKey("feature");
     underTest.insert(dbSession, dto);
 
     BranchDto dto2 = new BranchDto();
@@ -118,22 +118,6 @@ public class BranchDaoTest {
     assertThat((String) map.get("kee")).contains("c").isEqualTo(dto.getKey());
     assertThat((String) map.get("mergeBranchUuid")).contains("d").isEqualTo(dto.getMergeBranchUuid());
     assertThat((String) map.get("pullRequestTitle")).contains("e").isEqualTo(dto.getPullRequestTitle());
-  }
-
-  @Test
-  public void null_value_of_kee_column_is_converted_in_db() {
-    BranchDto dto = new BranchDto();
-    dto.setProjectUuid("u1");
-    dto.setUuid("u2");
-    dto.setKeeType(BranchKeyType.BRANCH);
-    dto.setKey(null);
-
-    underTest.insert(dbSession, dto);
-
-    Map<String, Object> map = db.selectFirst(dbSession, SELECT_FROM + " where uuid='" + dto.getUuid() + "'");
-    assertThat(map).contains(entry("kee", BranchDto.NULL_KEY));
-    BranchDto loaded = underTest.selectByKey(dbSession, dto.getProjectUuid(), dto.getKeeType(), null).get();
-    assertThat(loaded.getKey()).isNull();
   }
 
   @Test
