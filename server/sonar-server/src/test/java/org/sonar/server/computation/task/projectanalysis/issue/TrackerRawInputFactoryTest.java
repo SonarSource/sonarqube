@@ -32,9 +32,9 @@ import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.issue.commonrule.CommonRuleEngine;
 import org.sonar.server.computation.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryRule;
@@ -49,10 +49,10 @@ import static org.mockito.Mockito.when;
 
 public class TrackerRawInputFactoryTest {
 
-  static int FILE_REF = 2;
+  private static int FILE_REF = 2;
 
-  static ReportComponent PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1).setKey("PROJECT_KEY_2").setUuid("PROJECT_UUID_1").build();
-  static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY_2").setUuid("FILE_UUID_2").build();
+  private static ReportComponent PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1).build();
+  private static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, FILE_REF).build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
@@ -190,7 +190,8 @@ public class TrackerRawInputFactoryTest {
   }
 
   private void assertInitializedIssue(DefaultIssue issue) {
-    assertThat(issue.componentKey()).isEqualTo(FILE.getKey());
+    assertThat(issue.projectKey()).isEqualTo(PROJECT.getPublicKey());
+    assertThat(issue.componentKey()).isEqualTo(FILE.getPublicKey());
     assertThat(issue.componentUuid()).isEqualTo(FILE.getUuid());
     assertThat(issue.resolution()).isNull();
     assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);
