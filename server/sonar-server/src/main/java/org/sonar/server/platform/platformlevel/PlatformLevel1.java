@@ -21,7 +21,7 @@ package org.sonar.server.platform.platformlevel;
 
 import java.util.Properties;
 import javax.annotation.Nullable;
-import org.sonar.db.DBSessionsImpl;
+import org.sonar.NetworkUtils;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.internal.ApiVersion;
@@ -32,6 +32,7 @@ import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.config.ConfigurationProvider;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.util.UuidFactoryImpl;
+import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
@@ -84,6 +85,7 @@ public class PlatformLevel1 extends PlatformLevel {
       ProcessCommandWrapperImpl.class,
       RestartFlagHolderImpl.class,
       UuidFactoryImpl.INSTANCE,
+      NetworkUtils.INSTANCE,
       UrlSettings.class,
       EmbeddedDatabaseFactory.class,
       LogbackHelper.class,
