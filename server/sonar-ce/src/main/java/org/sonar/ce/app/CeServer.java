@@ -171,8 +171,9 @@ public class CeServer implements Monitored {
         try {
           Thread.sleep(CHECK_FOR_STOP_DELAY);
         } catch (InterruptedException e) {
-          // ignore the interruption itself, check the flag
-          Thread.currentThread().interrupt();
+          // ignore the interruption itself
+          // Do not propagate the isInterrupted flag with : Thread.currentThread().interrupt();
+          // It will break the shutdown of ComputeEngineContainerImpl#stop()
         }
       }
       attemptShutdown();
@@ -180,10 +181,11 @@ public class CeServer implements Monitored {
 
     private void attemptShutdown() {
       try {
-        LOG.info("Compute Engine shutting down...");
+        LOG.info("Compute Engine is stopping...");
         computeEngine.shutdown();
+        LOG.info("Compute Engine is stopped");
       } catch (Throwable e) {
-        LOG.error("Compute Engine shutdown failed", e);
+        LOG.error("Compute Engine failed to stop", e);
       } finally {
         // release thread waiting for CeServer
         stopAwait();
@@ -207,8 +209,9 @@ public class CeServer implements Monitored {
       if (t != null) {
         t.interrupt();
         try {
-          t.join(1000);
+          t.join(1_000);
         } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
           // Ignored
         }
       }

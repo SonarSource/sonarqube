@@ -53,6 +53,7 @@ import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.queue.CeQueueCleaner;
 import org.sonar.ce.queue.PurgeCeActivities;
 import org.sonar.ce.settings.ProjectConfigurationFactory;
+import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
 import org.sonar.ce.user.CeUserSession;
 import org.sonar.core.component.DefaultResourceTypes;
@@ -220,6 +221,11 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
   @Override
   public ComputeEngineContainer stop() {
+    if (level4 != null) {
+      // try to graceful stop in-progress tasks
+      CeProcessingScheduler ceProcessingScheduler = level4.getComponentByType(CeProcessingScheduler.class);
+      ceProcessingScheduler.stopScheduling();
+    }
     this.level1.stopComponents();
     return this;
   }

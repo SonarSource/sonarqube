@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.configuration.CeConfiguration;
@@ -35,7 +34,7 @@ import org.sonar.ce.configuration.CeConfiguration;
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startable {
+public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
   private static final Logger LOG = Loggers.get(CeProcessingSchedulerImpl.class);
   private static final long DELAY_BETWEEN_DISABLED_TASKS = 30 * 1000L; // 30 seconds
 
@@ -43,12 +42,15 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
   private final long delayBetweenEnabledTasks;
   private final TimeUnit timeUnit;
   private final ChainingCallback[] chainingCallbacks;
+  private final EnabledCeWorkerController ceWorkerController;
 
   public CeProcessingSchedulerImpl(CeConfiguration ceConfiguration,
-    CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerFactory ceCeWorkerFactory) {
+    CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerFactory ceCeWorkerFactory,
+    EnabledCeWorkerController ceWorkerController) {
     this.executorService = processingExecutorService;
 
     this.delayBetweenEnabledTasks = ceConfiguration.getQueuePollingDelay();
+    this.ceWorkerController = ceWorkerController;
     this.timeUnit = MILLISECONDS;
 
     int threadWorkerCount = ceConfiguration.getWorkerMaxCount();
@@ -60,11 +62,6 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
   }
 
   @Override
-  public void start() {
-    // nothing to do at component startup, startScheduling will be called by CeQueueInitializer
-  }
-
-  @Override
   public void startScheduling() {
     for (ChainingCallback chainingCallback : chainingCallbacks) {
       ListenableScheduledFuture<CeWorker.Result> future = executorService.schedule(chainingCallback.worker, delayBetweenEnabledTasks, timeUnit);
@@ -72,10 +69,37 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
     }
   }
 
+  /**
+   * This method is stopping all the workers giving them a delay before killing them.
+   */
   @Override
-  public void stop() {
+  public void stopScheduling() {
+    LOG.debug("Stopping compute engine");
+    // Requesting all workers to stop
     for (ChainingCallback chainingCallback : chainingCallbacks) {
-      chainingCallback.stop();
+      chainingCallback.stop(false);
+    }
+
+    // Workers have 40s to gracefully stop processing tasks
+    long until = System.currentTimeMillis() + 40_000L;
+    LOG.info("Waiting for workers to finish in-progress tasks");
+    while (System.currentTimeMillis() < until && ceWorkerController.hasAtLeastOneProcessingWorker()) {
+      try {
+        Thread.sleep(200L);
+      } catch (InterruptedException e) {
+        LOG.debug("Graceful stop period has been interrupted", e);
+        Thread.currentThread().interrupt();
+        break;
+      }
+    }
+
+    if (ceWorkerController.hasAtLeastOneProcessingWorker()) {
+      LOG.info("Some in-progress tasks did not finish in due time. Tasks will be stopped.");
+    }
+
+    // Interrupting the tasks
+    for (ChainingCallback chainingCallback : chainingCallbacks) {
+      chainingCallback.stop(true);
     }
   }
 
@@ -149,10 +173,10 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
       return keepRunning.get();
     }
 
-    public void stop() {
+    public void stop(boolean interrupt) {
       this.keepRunning.set(false);
       if (workerFuture != null) {
-        workerFuture.cancel(false);
+        workerFuture.cancel(interrupt);
       }
     }
   }

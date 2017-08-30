@@ -127,7 +127,7 @@ public class LoadMeasureComputersStepTest {
   @Test
   public void fail_with_ISE_when_output_metric_is_not_define_by_plugin() throws Exception {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Metric 'unknown' cannot be used as an output metric as no plugin declare this metric");
+    thrown.expectMessage("Metric 'unknown' cannot be used as an output metric because no plugins declare this metric");
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_4), array("unknown"))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
@@ -137,7 +137,7 @@ public class LoadMeasureComputersStepTest {
   @Test
   public void fail_with_ISE_when_output_metric_is_a_core_metric() throws Exception {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Metric 'ncloc' cannot be used as an output metric as it's a core metric");
+    thrown.expectMessage("Metric 'ncloc' cannot be used as an output metric because it's a core metric");
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_4), array(NCLOC_KEY))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
@@ -172,7 +172,7 @@ public class LoadMeasureComputersStepTest {
   @Test
   public void fail_with_ISE_when_no_metrics_are_defined_by_plugin_but_measure_computer_use_a_new_metric() throws Exception {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Metric 'metric1' cannot be used as an output metric as no plugin declare this metric");
+    thrown.expectMessage("Metric 'metric1' cannot be used as an output metric because no plugins declare this metric");
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, computers);

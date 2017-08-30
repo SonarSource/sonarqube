@@ -17,17 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package ce;
 
-package org.sonarqube.tests.cluster;
+import java.util.Arrays;
+import java.util.List;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metrics;
 
+public class PauseMetric implements Metrics {
 
-import com.sonar.orchestrator.server.StartupLogWatcher;
-
-public class StartupLogWatcherImpl implements StartupLogWatcher {
-  private static final String STARTUP_EXPECTED_MESSAGE = "SonarQube is up";
+  public static final String KEY = "pause";
 
   @Override
-  public boolean isStarted(String logLine) {
-    return logLine.contains(STARTUP_EXPECTED_MESSAGE);
+  public List<Metric> getMetrics() {
+    return Arrays.asList(new Metric.Builder(KEY, "Pause", Metric.ValueType.INT).create());
   }
 }

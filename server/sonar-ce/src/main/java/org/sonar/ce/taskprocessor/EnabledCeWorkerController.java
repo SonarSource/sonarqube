@@ -24,6 +24,9 @@ package org.sonar.ce.taskprocessor;
  * task to process.
  */
 public interface EnabledCeWorkerController {
+  interface ProcessingRecorderHook extends AutoCloseable {
+  }
+
   /**
    * Requests the {@link EnabledCeWorkerController} to refresh its state, if it has any.
    */
@@ -33,4 +36,13 @@ public interface EnabledCeWorkerController {
    * Returns {@code true} if the specified {@link CeWorker} is enabled
    */
   boolean isEnabled(CeWorker ceWorker);
+
+  ProcessingRecorderHook registerProcessingFor(CeWorker ceWorker);
+
+  /**
+   * Whether at least one worker is being processed a task or not.
+   * Returns {@code false} when all workers are waiting for tasks
+   * or are being stopped.
+   */
+  boolean hasAtLeastOneProcessingWorker();
 }
