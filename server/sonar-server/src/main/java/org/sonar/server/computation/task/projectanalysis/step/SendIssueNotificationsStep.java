@@ -106,8 +106,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     IssueChangeNotification changeNotification = new IssueChangeNotification();
     changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
     changeNotification.setIssue(issue);
-    String branchName = analysisMetadataHolder.getBranch().flatMap(Branch::getName).orElse(null);
-    changeNotification.setProject(project.getKey(), project.getName(), branchName);
+    changeNotification.setProject(getMainBranchProjectKey(), project.getName(), getBranchName());
     service.deliver(changeNotification);
   }
 
@@ -115,7 +114,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
     NewIssuesNotification notification = newIssuesNotificationFactory
       .newNewIssuesNotication()
-      .setProject(project.getKey(), project.getUuid(), project.getName())
+      .setProject(getMainBranchProjectKey(), project.getUuid(), project.getName(), getBranchName())
       .setAnalysisDate(new Date(analysisDate))
       .setStatistics(project.getName(), globalStatistics)
       .setDebt(globalStatistics.debt());
@@ -131,7 +130,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
         .newMyNewIssuesNotification()
         .setAssignee(assignee);
       myNewIssuesNotification
-        .setProject(project.getKey(), project.getUuid(), project.getName())
+        .setProject(getMainBranchProjectKey(), project.getUuid(), project.getName(), getBranchName())
         .setAnalysisDate(new Date(analysisDate))
         .setStatistics(project.getName(), assigneeStatistics)
         .setDebt(assigneeStatistics.debt());
@@ -143,6 +142,14 @@ public class SendIssueNotificationsStep implements ComputationStep {
   @Override
   public String getDescription() {
     return "Send issue notifications";
+  }
+
+  private String getBranchName() {
+    return analysisMetadataHolder.getBranch().filter(b -> !b.isMain()).flatMap(Branch::getName).orElse(null);
+  }
+
+  private String getMainBranchProjectKey() {
+    return analysisMetadataHolder.getProject().getKey();
   }
 
 }
