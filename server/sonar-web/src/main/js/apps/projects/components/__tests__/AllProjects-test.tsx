@@ -17,19 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-jest.mock('../ProjectsListContainer', () => ({
-  default: function ProjectsListContainer() {
+jest.mock('../ProjectsList', () => ({
+  default: function ProjectsList() {
     return null;
   }
 }));
 
-jest.mock('../ProjectsListFooterContainer', () => ({
-  default: function ProjectsListFooterContainer() {
-    return null;
-  }
-}));
-jest.mock('../PageHeaderContainer', () => ({
-  default: function PageHeaderContainer() {
+jest.mock('../PageHeader', () => ({
+  default: function PageHeader() {
     return null;
   }
 }));
@@ -39,6 +34,12 @@ jest.mock('../PageSidebar', () => ({
     return null;
   }
 }));
+
+jest.mock('../../utils', () => {
+  const utils = require.requireActual('../../utils');
+  utils.fetchProjects = jest.fn(() => Promise.resolve({ projects: [] }));
+  return utils;
+});
 
 jest.mock('../../../../helpers/storage', () => ({
   getSort: () => null,
@@ -54,51 +55,46 @@ import { mount, shallow } from 'enzyme';
 import AllProjects from '../AllProjects';
 import { getView, saveSort, saveView, saveVisualization } from '../../../../helpers/storage';
 
+const fetchProjects = require('../../utils').fetchProjects as jest.Mock<any>;
+
 beforeEach(() => {
   (getView as jest.Mock<any>).mockImplementation(() => null);
   (saveSort as jest.Mock<any>).mockClear();
   (saveView as jest.Mock<any>).mockClear();
   (saveVisualization as jest.Mock<any>).mockClear();
+  fetchProjects.mockClear();
 });
 
 it('renders', () => {
-  const wrapper = shallow(
-    <AllProjects
-      fetchProjects={jest.fn()}
-      isFavorite={false}
-      location={{ pathname: '/projects', query: {} }}
-    />,
-    { context: { router: {} } }
-  );
+  const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ query: { view: 'visualizations' } });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('fetches projects', () => {
-  const fetchProjects = jest.fn();
-  mountRender({ fetchProjects });
+  mountRender();
   expect(fetchProjects).lastCalledWith(
     {
-      coverage: null,
-      duplications: null,
-      gate: null,
-      languages: null,
-      maintainability: null,
-      new_coverage: null,
-      new_duplications: null,
-      new_lines: null,
-      new_maintainability: null,
-      new_reliability: null,
-      new_security: null,
-      reliability: null,
-      search: null,
-      security: null,
-      size: null,
-      sort: null,
-      tags: null,
+      coverage: undefined,
+      duplications: undefined,
+      gate: undefined,
+      languages: undefined,
+      maintainability: undefined,
+      new_coverage: undefined,
+      new_duplications: undefined,
+      new_lines: undefined,
+      new_maintainability: undefined,
+      new_reliability: undefined,
+      new_security: undefined,
+      reliability: undefined,
+      search: undefined,
+      security: undefined,
+      size: undefined,
+      sort: undefined,
+      tags: undefined,
       view: undefined,
-      visualization: null
+      visualization: undefined
     },
     false,
     undefined
@@ -114,16 +110,16 @@ it('redirects to the saved search', () => {
 
 it('changes sort', () => {
   const push = jest.fn();
-  const wrapper = mountRender({}, push);
-  wrapper.find('PageHeaderContainer').prop<Function>('onSortChange')('size', false);
+  const wrapper = shallowRender({}, push);
+  wrapper.find('PageHeader').prop<Function>('onSortChange')('size', false);
   expect(push).lastCalledWith({ pathname: '/projects', query: { sort: 'size' } });
   expect(saveSort).lastCalledWith('size');
 });
 
 it('changes perspective to leak', () => {
   const push = jest.fn();
-  const wrapper = mountRender({}, push);
-  wrapper.find('PageHeaderContainer').prop<Function>('onPerspectiveChange')({ view: 'leak' });
+  const wrapper = shallowRender({}, push);
+  wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({ view: 'leak' });
   expect(push).lastCalledWith({
     pathname: '/projects',
     query: { view: 'leak', visualization: undefined }
@@ -135,11 +131,9 @@ it('changes perspective to leak', () => {
 
 it('updates sorting when changing perspective from leak', () => {
   const push = jest.fn();
-  const wrapper = mountRender(
-    { location: { pathname: '/projects', query: { sort: 'new_coverage', view: 'leak' } } },
-    push
-  );
-  wrapper.find('PageHeaderContainer').prop<Function>('onPerspectiveChange')({
+  const wrapper = shallowRender({}, push);
+  wrapper.setState({ query: { sort: 'new_coverage', view: 'leak' } });
+  wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({
     view: undefined
   });
   expect(push).lastCalledWith({
@@ -153,8 +147,8 @@ it('updates sorting when changing perspective from leak', () => {
 
 it('changes perspective to risk visualization', () => {
   const push = jest.fn();
-  const wrapper = mountRender({}, push);
-  wrapper.find('PageHeaderContainer').prop<Function>('onPerspectiveChange')({
+  const wrapper = shallowRender({}, push);
+  wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({
     view: 'visualizations',
     visualization: 'risk'
   });
@@ -175,6 +169,19 @@ function mountRender(props: any = {}, push: Function = jest.fn(), replace: Funct
       location={{ pathname: '/projects', query: {} }}
       {...props}
     />,
-    { context: { router: { push, replace } } }
+    { context: { currentUser: { isLoggedIn: true }, router: { push, replace } } }
   );
+}
+
+function shallowRender(props: any = {}, push: Function = jest.fn(), replace: Function = jest.fn()) {
+  const wrapper = shallow(
+    <AllProjects isFavorite={false} location={{ pathname: '/projects', query: {} }} {...props} />,
+    { context: { currentUser: { isLoggedIn: true }, router: { push, replace } } }
+  );
+  wrapper.setState({
+    loading: false,
+    projects: [{ key: 'foo', measures: {}, name: 'Foo' }],
+    total: 0
+  });
+  return wrapper;
 }

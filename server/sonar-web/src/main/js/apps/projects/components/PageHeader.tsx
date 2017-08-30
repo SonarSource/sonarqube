@@ -25,25 +25,26 @@ import PerspectiveSelect from './PerspectiveSelect';
 import ProjectsSortingSelect from './ProjectsSortingSelect';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
+import { Project } from '../types';
 
 interface Props {
   currentUser?: { isLoggedIn: boolean };
   isFavorite?: boolean;
+  loading: boolean;
   onPerspectiveChange: (x: { view: string; visualization?: string }) => void;
-  organization?: { key: string };
-  projects: Array<any>;
-  projectsAppState: { loading: boolean; total?: number };
-  query: RawQuery;
   onSortChange: (sort: string, desc: boolean) => void;
+  organization?: { key: string };
+  projects?: Project[];
+  query: RawQuery;
   selectedSort: string;
+  total?: number;
   view: string;
   visualization?: string;
 }
 
 export default function PageHeader(props: Props) {
-  const { projectsAppState, projects, currentUser, view } = props;
-  const limitReached =
-    projects != null && projectsAppState.total != null && projects.length < projectsAppState.total;
+  const { loading, total, projects, currentUser, view } = props;
+  const limitReached = projects != null && total != null && projects.length < total;
   const defaultOption = currentUser && currentUser.isLoggedIn ? 'name' : 'analysis_date';
 
   return (
@@ -86,14 +87,13 @@ export default function PageHeader(props: Props) {
 
       <div
         className={classNames('projects-topbar-item', 'is-last', {
-          'is-loading': props.projectsAppState.loading
+          'is-loading': loading
         })}>
-        {!!props.projectsAppState.loading && <i className="spinner spacer-right" />}
+        {loading && <i className="spinner spacer-right" />}
 
-        {props.projectsAppState.total != null && (
+        {total != null && (
           <span>
-            <strong id="projects-total">{props.projectsAppState.total}</strong>{' '}
-            {translate('projects._projects')}
+            <strong id="projects-total">{total}</strong> {translate('projects._projects')}
           </span>
         )}
       </div>

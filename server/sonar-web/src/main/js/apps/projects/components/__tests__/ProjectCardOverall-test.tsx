@@ -21,12 +21,6 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectCardOverall from '../ProjectCardOverall';
 
-const PROJECT = {
-  analysisDate: '2017-01-01',
-  key: 'foo',
-  name: 'Foo',
-  tags: []
-};
 const MEASURES = {
   alert_status: 'OK',
   reliability_rating: '1.0',
@@ -34,14 +28,24 @@ const MEASURES = {
   new_bugs: '12'
 };
 
+const PROJECT = {
+  analysisDate: '2017-01-01',
+  key: 'foo',
+  measures: MEASURES,
+  name: 'Foo',
+  organization: { key: 'org', name: 'org' },
+  tags: [],
+  visibility: 'public'
+};
+
 it('should display analysis date (and not leak period) when defined', () => {
   expect(
-    shallow(<ProjectCardOverall measures={{}} project={PROJECT} />)
+    shallow(<ProjectCardOverall project={PROJECT} />)
       .find('.project-card-dates')
       .exists()
   ).toBeTruthy();
   expect(
-    shallow(<ProjectCardOverall measures={{}} project={{ ...PROJECT, analysisDate: undefined }} />)
+    shallow(<ProjectCardOverall project={{ ...PROJECT, analysisDate: undefined }} />)
       .find('.project-card-dates')
       .exists()
   ).toBeFalsy();
@@ -49,12 +53,12 @@ it('should display analysis date (and not leak period) when defined', () => {
 
 it('should display loading', () => {
   expect(
-    shallow(<ProjectCardOverall project={PROJECT} />)
+    shallow(<ProjectCardOverall project={{ ...PROJECT, measures: {} }} />)
       .find('.boxed-group')
       .hasClass('boxed-group-loading')
   ).toBeTruthy();
   expect(
-    shallow(<ProjectCardOverall measures={{ sqale_rating: '1.0' }} project={PROJECT} />)
+    shallow(<ProjectCardOverall project={{ ...PROJECT, measures: { sqale_rating: '1.0' } }} />)
       .find('.boxed-group')
       .hasClass('boxed-group-loading')
   ).toBeTruthy();
@@ -63,7 +67,7 @@ it('should display loading', () => {
 it('should not display the quality gate', () => {
   const project = { ...PROJECT, analysisDate: undefined };
   expect(
-    shallow(<ProjectCardOverall measures={MEASURES} project={project} />)
+    shallow(<ProjectCardOverall project={project} />)
       .find('ProjectCardOverallQualityGate')
       .exists()
   ).toBeFalsy();
@@ -88,5 +92,5 @@ it('should private badge', () => {
 });
 
 it('should display the overall measures and quality gate', () => {
-  expect(shallow(<ProjectCardOverall measures={MEASURES} project={PROJECT} />)).toMatchSnapshot();
+  expect(shallow(<ProjectCardOverall project={PROJECT} />)).toMatchSnapshot();
 });

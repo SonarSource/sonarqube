@@ -18,16 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
-import AllProjectsContainer from './AllProjectsContainer';
-import { getCurrentUser } from '../../../store/rootReducer';
+import AllProjects from './AllProjects';
 import { isFavoriteSet, isAllSet } from '../../../helpers/storage';
 import { searchProjects } from '../../../api/components';
 
 interface Props {
-  currentUser: { isLoggedIn: boolean };
-  location: { query: { [x: string]: string } };
+  location: { pathname: string; query: { [x: string]: string } };
 }
 
 interface State {
@@ -35,8 +32,9 @@ interface State {
   shouldForceSorting?: string;
 }
 
-class DefaultPageSelector extends React.PureComponent<Props, State> {
+export default class DefaultPageSelector extends React.PureComponent<Props, State> {
   static contextTypes = {
+    currentUser: PropTypes.object.isRequired,
     router: PropTypes.object.isRequired
   };
 
@@ -69,7 +67,7 @@ class DefaultPageSelector extends React.PureComponent<Props, State> {
     if (Object.keys(this.props.location.query).length > 0) {
       // show ALL projects when there are some filters
       this.setState({ shouldBeRedirected: false, shouldForceSorting: undefined });
-    } else if (!this.props.currentUser.isLoggedIn) {
+    } else if (!this.context.currentUser.isLoggedIn) {
       // show ALL projects if user is anonymous
       if (!this.props.location.query || !this.props.location.query.sort) {
         // force default sorting to last analysis date
@@ -98,21 +96,7 @@ class DefaultPageSelector extends React.PureComponent<Props, State> {
     if (shouldBeRedirected == null || shouldBeRedirected === true || shouldForceSorting != null) {
       return null;
     } else {
-      return (
-        <AllProjectsContainer
-          isFavorite={false}
-          location={this.props.location}
-          currentUser={this.props.currentUser}
-        />
-      );
+      return <AllProjects isFavorite={false} location={this.props.location} />;
     }
   }
 }
-
-const mapStateToProps = (state: any) => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default connect<any, any, any>(mapStateToProps)(DefaultPageSelector);
-
-export const UnconnectedDefaultPageSelector = DefaultPageSelector;

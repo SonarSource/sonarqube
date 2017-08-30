@@ -25,10 +25,6 @@ it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('does not render without projects', () => {
-  expect(shallow(<ProjectsList isFavorite={false} isFiltered={false} />)).toMatchSnapshot();
-});
-
 it('renders different types of "no projects"', () => {
   expect(shallowRender({ projects: [] })).toMatchSnapshot();
   expect(shallowRender({ projects: [], isFiltered: true })).toMatchSnapshot();
@@ -41,7 +37,7 @@ function shallowRender(props?: any) {
       cardType="overall"
       isFavorite={false}
       isFiltered={false}
-      projects={['foo', 'bar']}
+      projects={[{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]}
       {...props}
     />
   );

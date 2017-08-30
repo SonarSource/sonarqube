@@ -23,9 +23,9 @@ import { Link } from 'react-router';
 import { getFilterUrl } from './utils';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
+import { Facet } from '../types';
 
 export type Option = string | number;
-export type Facet = { [x: string]: number };
 
 interface Props {
   property: string;

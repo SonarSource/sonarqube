@@ -28,7 +28,7 @@ import FavoriteFilter from '../FavoriteFilter';
 import { saveAll, saveFavorite } from '../../../../helpers/storage';
 import { click } from '../../../../helpers/testUtils';
 
-const user = { isLoggedIn: true };
+const currentUser = { isLoggedIn: true };
 const query = { size: 1 };
 
 beforeEach(() => {
@@ -37,11 +37,11 @@ beforeEach(() => {
 });
 
 it('renders for logged in user', () => {
-  expect(shallow(<FavoriteFilter query={query} user={user} />)).toMatchSnapshot();
+  expect(shallow(<FavoriteFilter query={query} />, { context: { currentUser } })).toMatchSnapshot();
 });
 
 it('saves last selection', () => {
-  const wrapper = shallow(<FavoriteFilter query={query} user={user} />);
+  const wrapper = shallow(<FavoriteFilter query={query} />, { context: { currentUser } });
   click(wrapper.find('#favorite-projects'));
   expect(saveFavorite).toBeCalled();
   click(wrapper.find('#all-projects'));
@@ -50,14 +50,16 @@ it('saves last selection', () => {
 
 it('handles organization', () => {
   expect(
-    shallow(<FavoriteFilter organization={{ key: 'org' }} query={query} user={user} />)
+    shallow(<FavoriteFilter organization={{ key: 'org' }} query={query} />, {
+      context: { currentUser }
+    })
   ).toMatchSnapshot();
 });
 
 it('does not save last selection with organization', () => {
-  const wrapper = shallow(
-    <FavoriteFilter organization={{ key: 'org' }} query={query} user={user} />
-  );
+  const wrapper = shallow(<FavoriteFilter organization={{ key: 'org' }} query={query} />, {
+    context: { currentUser }
+  });
   click(wrapper.find('#favorite-projects'));
   expect(saveFavorite).not.toBeCalled();
   click(wrapper.find('#all-projects'));
@@ -65,5 +67,7 @@ it('does not save last selection with organization', () => {
 });
 
 it('does not render for anonymous', () => {
-  expect(shallow(<FavoriteFilter query={query} user={{ isLoggedIn: false }} />)).toMatchSnapshot();
+  expect(
+    shallow(<FavoriteFilter query={query} />, { context: { currentUser: { isLoggedIn: false } } })
+  ).toMatchSnapshot();
 });

@@ -20,7 +20,23 @@
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export function getOrganizations(organizations?: string[]): Promise<any> {
+interface GetOrganizationsResponse {
+  organizations: Array<{
+    avatar?: string;
+    description?: string;
+    guarded: boolean;
+    key: string;
+    name: string;
+    url?: string;
+  }>;
+  paging: {
+    pageIndex: number;
+    pageSize: number;
+    total: number;
+  };
+}
+
+export function getOrganizations(organizations?: string[]): Promise<GetOrganizationsResponse> {
   const data: RequestData = {};
   if (organizations) {
     Object.assign(data, { organizations: organizations.join() });

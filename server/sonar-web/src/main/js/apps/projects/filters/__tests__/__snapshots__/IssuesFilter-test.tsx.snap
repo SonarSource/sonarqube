@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders 1`] = `
-<Connect(Filter)
+<Filter
   getFacetValueForOption={[Function]}
   header={
     <FilterHeader
@@ -18,6 +18,7 @@ exports[`renders 1`] = `
       5,
     ]
   }
+  property="bugs"
   query={Object {}}
   renderOption={[Function]}
 />

@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,28 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import FavoriteBase from './FavoriteBase';
-import { addFavorite, removeFavorite } from '../../api/favorites';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
+import OrganizationLink from '../../../components/ui/OrganizationLink';
 
-export default class Favorite extends React.PureComponent {
-  static propTypes = {
-    favorite: PropTypes.bool.isRequired,
-    component: PropTypes.string.isRequired,
-    className: PropTypes.string
+interface Props {
+  organization?: { key: string; name: string };
+}
+
+export default class ProjectCardOrganization extends React.PureComponent<Props> {
+  static contextTypes = {
+    organizationsEnabled: PropTypes.bool
   };
 
   render() {
-    const { favorite, component, ...other } = this.props;
+    const { organization } = this.props;
+    const { organizationsEnabled } = this.context;
+
+    if (!organization || !organizationsEnabled) {
+      return null;
+    }
 
     return (
-      <FavoriteBase
-        {...other}
-        favorite={favorite}
-        addFavorite={() => addFavorite(component)}
-        removeFavorite={() => removeFavorite(component)}
-      />
+      <span className="text-normal">
+        <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
+        <span className="slash-separator" />
+      </span>
     );
   }
 }

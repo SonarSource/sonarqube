@@ -1,17 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`does not render without projects 1`] = `null`;
-
 exports[`renders 1`] = `
 <div
   className="projects-list"
 >
-  <Connect(ProjectCard)
-    projectKey="foo"
+  <ProjectCard
+    project={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    }
     type="overall"
   />
-  <Connect(ProjectCard)
-    projectKey="bar"
+  <ProjectCard
+    project={
+      Object {
+        "key": "bar",
+        "name": "Bar",
+      }
+    }
     type="overall"
   />
 </div>

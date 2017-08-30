@@ -17,30 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import FavoriteIcon from '../icons-components/FavoriteIcon';
 
-export default class FavoriteBase extends React.PureComponent {
-  static propTypes = {
-    favorite: PropTypes.bool.isRequired,
-    addFavorite: PropTypes.func.isRequired,
-    removeFavorite: PropTypes.func.isRequired,
-    className: PropTypes.string
-  };
+interface Props {
+  addFavorite: () => Promise<void>;
+  className?: string;
+  favorite: boolean;
+  removeFavorite: () => Promise<void>;
+}
 
-  constructor(props) {
+interface State {
+  favorite: boolean;
+}
+
+export default class FavoriteBase extends React.PureComponent<Props, State> {
+  mounted: boolean;
+
+  constructor(props: Props) {
     super(props);
     this.state = { favorite: this.props.favorite };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.mounted = true;
-    this.toggleFavorite = this.toggleFavorite.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.favorite !== this.props.favorite && nextProps.favorite !== this.state.favorite) {
       this.setState({ favorite: nextProps.favorite });
     }
@@ -50,14 +54,14 @@ export default class FavoriteBase extends React.PureComponent {
     this.mounted = false;
   }
 
-  toggleFavorite(e) {
-    e.preventDefault();
+  toggleFavorite = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
     if (this.state.favorite) {
       this.removeFavorite();
     } else {
       this.addFavorite();
     }
-  }
+  };
 
   addFavorite() {
     this.props.addFavorite().then(() => {

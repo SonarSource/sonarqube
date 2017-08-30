@@ -21,12 +21,16 @@ import * as React from 'react';
 import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import IssuesFilter from './IssuesFilter';
 import { translate } from '../../../helpers/l10n';
+import { Facet } from '../types';
 
 interface Props {
   className?: string;
+  facet?: Facet;
   isFavorite?: boolean;
+  maxFacetValue?: number;
   organization?: { key: string };
   query: { [x: string]: any };
+  value?: any;
 }
 
 export default function NewSecurityFilter(props: Props) {

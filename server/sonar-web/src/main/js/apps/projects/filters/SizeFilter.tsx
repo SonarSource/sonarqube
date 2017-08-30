@@ -18,26 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import FilterContainer from './FilterContainer';
+import Filter from './Filter';
 import FilterHeader from './FilterHeader';
 import SizeRating from '../../../components/ui/SizeRating';
 import { translate } from '../../../helpers/l10n';
 import { getSizeRatingLabel, getSizeRatingAverageValue } from '../../../helpers/ratings';
-import { Facet } from './Filter';
+import { Facet } from '../types';
 
 export interface Props {
   className?: string;
+  facet?: Facet;
   isFavorite?: boolean;
+  maxFacetValue?: number;
   organization?: { key: string };
   property?: string;
   query: { [x: string]: any };
+  value?: any;
 }
 
 export default function SizeFilter(props: Props) {
   const { property = 'size' } = props;
 
   return (
-    <FilterContainer
+    <Filter
+      facet={props.facet}
+      maxFacetValue={props.maxFacetValue}
+      value={props.value}
       property={property}
       className={props.className}
       options={[1, 2, 3, 4, 5]}

@@ -30,7 +30,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   displayOrganizations: boolean;
-  projects?: Project[];
+  projects: Project[];
   sort?: string;
   total?: number;
   visualization: string;

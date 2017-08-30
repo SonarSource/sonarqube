@@ -19,12 +19,13 @@
  */
 import * as React from 'react';
 import { debounce, difference, sortBy, size } from 'lodash';
-import Filter, { Facet } from './Filter';
+import Filter from './Filter';
 import FilterHeader from './FilterHeader';
 import SearchableFilterFooter from './SearchableFilterFooter';
 import SearchableFilterOption from './SearchableFilterOption';
 import { searchProjectTags } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
+import { Facet } from '../types';
 
 interface Props {
   facet?: Facet;

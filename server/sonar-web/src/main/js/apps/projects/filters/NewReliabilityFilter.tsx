@@ -21,12 +21,16 @@ import * as React from 'react';
 import BugIcon from '../../../components/icons-components/BugIcon';
 import IssuesFilter from './IssuesFilter';
 import { translate } from '../../../helpers/l10n';
+import { Facet } from '../types';
 
 interface Props {
   className?: string;
+  facet?: Facet;
   isFavorite?: boolean;
+  maxFacetValue?: number;
   organization?: { key: string };
   query: { [x: string]: any };
+  value?: any;
 }
 
 export default function NewReliabilityFilter(props: Props) {
