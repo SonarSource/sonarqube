@@ -18,25 +18,31 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import FilterContainer from './FilterContainer';
+import Filter from './Filter';
 import FilterHeader from './FilterHeader';
 import Rating from '../../../components/ui/Rating';
 import { translate } from '../../../helpers/l10n';
-import { Facet } from './Filter';
+import { Facet } from '../types';
 
 interface Props {
   className?: string;
+  facet?: Facet;
   headerDetail?: React.ReactNode;
   isFavorite?: boolean;
+  maxFacetValue?: number;
   name: string;
   organization?: { key: string };
-  property?: string;
+  property: string;
   query: { [x: string]: any };
+  value?: any;
 }
 
 export default function IssuesFilter(props: Props) {
   return (
-    <FilterContainer
+    <Filter
+      facet={props.facet}
+      maxFacetValue={props.maxFacetValue}
+      value={props.value}
       property={props.property}
       className={props.className}
       options={[1, 2, 3, 4, 5]}

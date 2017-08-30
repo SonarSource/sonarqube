@@ -18,37 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import ProjectCardLeak from './ProjectCardLeak';
 import ProjectCardOverall from './ProjectCardOverall';
-import { getComponent, getComponentMeasures } from '../../../store/rootReducer';
+import { Project } from '../types';
 
 interface Props {
-  measures?: { [key: string]: string };
   organization?: { key: string };
-  project?: {
-    analysisDate?: string;
-    key: string;
-    leakPeriodDate?: string;
-    name: string;
-    tags: Array<string>;
-    isFavorite?: boolean;
-    organization?: string;
-    visibility?: string;
-  };
+  project: Project;
   type?: string;
 }
 
-function ProjectCard(props: Props) {
+export default function ProjectCard(props: Props) {
   if (props.type === 'leak') {
     return <ProjectCardLeak {...props} />;
   }
   return <ProjectCardOverall {...props} />;
 }
-
-const mapStateToProps = (state: any, ownProps: any) => ({
-  project: getComponent(state, ownProps.projectKey),
-  measures: getComponentMeasures(state, ownProps.projectKey)
-});
-
-export default connect(mapStateToProps)(ProjectCard);

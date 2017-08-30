@@ -17,13 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import PageHeader from './PageHeader';
-import { getProjects, getProjectsAppState } from '../../../store/rootReducer';
+import * as React from 'react';
+import AllProjects from './AllProjects';
 
-const mapStateToProps = (state: any) => ({
-  projects: getProjects(state),
-  projectsAppState: getProjectsAppState(state)
-});
-
-export default connect<any, any, any>(mapStateToProps)(PageHeader);
+export default function FavoriteProjectsContainer(props: any) {
+  return <AllProjects isFavorite={true} {...props} />;
+}

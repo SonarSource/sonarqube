@@ -18,17 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ProjectCardContainer from './ProjectCardContainer';
+import ProjectCard from './ProjectCard';
 import NoFavoriteProjects from './NoFavoriteProjects';
 import EmptyInstance from './EmptyInstance';
 import EmptySearch from '../../../components/common/EmptySearch';
+import { Project } from '../types';
 
 interface Props {
   cardType?: string;
   isFavorite: boolean;
   isFiltered: boolean;
   organization?: { key: string };
-  projects?: string[];
+  projects: Project[];
 }
 
 export default class ProjectsList extends React.PureComponent<Props> {
@@ -45,17 +46,13 @@ export default class ProjectsList extends React.PureComponent<Props> {
   render() {
     const { projects } = this.props;
 
-    if (projects == undefined) {
-      return null;
-    }
-
     return (
       <div className="projects-list">
         {projects.length > 0 ? (
-          projects.map(projectKey => (
-            <ProjectCardContainer
-              key={projectKey}
-              projectKey={projectKey}
+          projects.map(project => (
+            <ProjectCard
+              key={project.key}
+              project={project}
               organization={this.props.organization}
               type={this.props.cardType}
             />

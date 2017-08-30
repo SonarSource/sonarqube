@@ -8,7 +8,6 @@ exports[`should render favorite 1`] = `
 >
   <FavoriteIcon
     favorite={true}
-    size={16}
   />
 </a>
 `;
@@ -21,7 +20,6 @@ exports[`should render not favorite 1`] = `
 >
   <FavoriteIcon
     favorite={false}
-    size={16}
   />
 </a>
 `;

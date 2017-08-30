@@ -17,12 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import FavoriteFilter from './FavoriteFilter';
-import { getCurrentUser } from '../../../store/rootReducer';
+import * as React from 'react';
+import FavoriteBase from './FavoriteBase';
+import { addFavorite, removeFavorite } from '../../api/favorites';
 
-const mapStateToProps = (state: any) => ({
-  user: getCurrentUser(state)
-});
+interface Props {
+  className?: string;
+  component: string;
+  favorite: boolean;
+}
 
-export default connect<any, any, any>(mapStateToProps)(FavoriteFilter);
+export default function Favorite({ favorite, component, ...other }: Props) {
+  return (
+    <FavoriteBase
+      {...other}
+      favorite={favorite}
+      addFavorite={() => addFavorite(component)}
+      removeFavorite={() => removeFavorite(component)}
+    />
+  );
+}

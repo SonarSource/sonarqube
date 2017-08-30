@@ -85,7 +85,7 @@ export function enhanceMeasuresWithMetrics(
 }
 
 /** Get period value of a measure */
-export function getPeriodValue(measure: Measure, periodIndex: number): string | number | undefined {
+export function getPeriodValue(measure: Measure, periodIndex: number): string | undefined {
   const { periods } = measure;
   const period = periods && periods.find(period => period.index === periodIndex);
   return period ? period.value : undefined;

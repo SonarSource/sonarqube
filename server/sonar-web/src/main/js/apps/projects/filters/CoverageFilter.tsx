@@ -18,26 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import FilterContainer from './FilterContainer';
+import Filter from './Filter';
 import FilterHeader from './FilterHeader';
-import { Facet } from './Filter';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { getCoverageRatingLabel, getCoverageRatingAverageValue } from '../../../helpers/ratings';
 import { translate } from '../../../helpers/l10n';
+import { Facet } from '../types';
 
 export interface Props {
   className?: string;
+  facet?: Facet;
   isFavorite?: boolean;
+  maxFacetValue?: number;
   organization?: { key: string };
   property?: string;
   query: { [x: string]: any };
+  value?: any;
 }
 
 export default function CoverageFilter(props: Props) {
   const { property = 'coverage' } = props;
 
   return (
-    <FilterContainer
+    <Filter
+      facet={props.facet}
+      maxFacetValue={props.maxFacetValue}
+      value={props.value}
       property={property}
       className={props.className}
       options={[1, 2, 3, 4, 5, 6]}

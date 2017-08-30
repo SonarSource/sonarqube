@@ -125,7 +125,36 @@ export function getMyProjects(data: RequestData): Promise<any> {
   return getJSON(url, data);
 }
 
-export function searchProjects(data: RequestData): Promise<any> {
+export interface Paging {
+  pageIndex: number;
+  pageSize: number;
+  total: number;
+}
+
+export interface Component {
+  organization: string;
+  id: string;
+  key: string;
+  name: string;
+  isFavorite?: boolean;
+  analysisDate?: string;
+  tags: string[];
+  visibility: string;
+  leakPeriodDate?: string;
+}
+
+export interface Facet {
+  property: string;
+  values: Array<{ val: string; count: number }>;
+}
+
+export interface SearchProjectsResponse {
+  paging: Paging;
+  components: Component[];
+  facets: Facet[];
+}
+
+export function searchProjects(data: RequestData): Promise<SearchProjectsResponse> {
   const url = '/api/components/search_projects';
   return getJSON(url, data);
 }

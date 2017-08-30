@@ -23,35 +23,24 @@ import { Link } from 'react-router';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardOverallMeasures from './ProjectCardOverallMeasures';
-import FavoriteContainer from '../../../components/controls/FavoriteContainer';
-import Organization from '../../../components/shared/Organization';
+import ProjectCardOrganization from './ProjectCardOrganization';
+import Favorite from '../../../components/controls/Favorite';
 import TagsList from '../../../components/tags/TagsList';
 import PrivateBadge from '../../../components/common/PrivateBadge';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Project } from '../types';
 
 interface Props {
-  measures?: { [key: string]: string };
   organization?: { key: string };
-  project?: {
-    analysisDate?: string;
-    key: string;
-    name: string;
-    tags: Array<string>;
-    isFavorite?: boolean;
-    organization?: string;
-    visibility?: string;
-  };
+  project: Project;
 }
 
-export default function ProjectCardOverall({ measures, organization, project }: Props) {
-  if (project == undefined) {
-    return null;
-  }
+export default function ProjectCardOverall({ organization, project }: Props) {
+  const { measures } = project;
 
   const isProjectAnalyzed = project.analysisDate != undefined;
   const isPrivate = project.visibility === 'private';
   const hasTags = project.tags.length > 0;
-  const showOrganization = organization == undefined && project.organization != undefined;
 
   // check for particular measures because only some measures can be loaded
   // if coming from visualizations tab
@@ -69,14 +58,14 @@ export default function ProjectCardOverall({ measures, organization, project }: 
     <div data-key={project.key} className={className}>
       <div className="boxed-group-header clearfix">
         {project.isFavorite != undefined && (
-          <FavoriteContainer className="spacer-right" componentKey={project.key} />
+          <Favorite
+            className="spacer-right"
+            component={project.key}
+            favorite={project.isFavorite}
+          />
         )}
         <h2 className="project-card-name">
-          {showOrganization && (
-            <span className="text-normal">
-              <Organization organizationKey={project.organization} />
-            </span>
-          )}
+          {!organization && <ProjectCardOrganization organization={project.organization} />}
           <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
         </h2>
         {displayQualityGate && <ProjectCardQualityGate status={measures!['alert_status']} />}

@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,24 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createValue } from '../../../store/utils/generalReducers';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Favorite from '../Favorite';
 
-export const actions = {
-  UPDATE_STATE: 'projects/UPDATE_STATE'
-};
-
-export const updateState = changes => ({
-  type: actions.UPDATE_STATE,
-  changes
+it('renders', () => {
+  expect(shallow(<Favorite component="foo" favorite={true} />)).toMatchSnapshot();
 });
-
-export default createValue(
-  // should update
-  (state, action) => action.type === actions.UPDATE_STATE,
-  // should reset
-  () => false,
-  // get next value
-  (state, action) => ({ ...state, ...action.changes }),
-  // default value
-  {}
-);

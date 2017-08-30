@@ -21,13 +21,6 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectCardLeak from '../ProjectCardLeak';
 
-const PROJECT = {
-  analysisDate: '2017-01-01',
-  leakPeriodDate: '2016-12-01',
-  key: 'foo',
-  name: 'Foo',
-  tags: []
-};
 const MEASURES = {
   alert_status: 'OK',
   reliability_rating: '1.0',
@@ -35,8 +28,19 @@ const MEASURES = {
   new_bugs: '12'
 };
 
+const PROJECT = {
+  analysisDate: '2017-01-01',
+  leakPeriodDate: '2016-12-01',
+  key: 'foo',
+  measures: MEASURES,
+  name: 'Foo',
+  organization: { key: 'org', name: 'org' },
+  tags: [],
+  visibility: 'public'
+};
+
 it('should display analysis date and leak start date', () => {
-  const card = shallow(<ProjectCardLeak measures={MEASURES} project={PROJECT} />);
+  const card = shallow(<ProjectCardLeak project={PROJECT} />);
   expect(card.find('.project-card-dates').exists()).toBeTruthy();
   expect(card.find('.project-card-dates').find('DateFromNow')).toHaveLength(1);
   expect(card.find('.project-card-dates').find('DateTimeFormatter')).toHaveLength(1);
@@ -44,14 +48,14 @@ it('should display analysis date and leak start date', () => {
 
 it('should not display analysis date or leak start date', () => {
   const project = { ...PROJECT, analysisDate: undefined };
-  const card = shallow(<ProjectCardLeak measures={MEASURES} project={project} />);
+  const card = shallow(<ProjectCardLeak project={project} />);
   expect(card.find('.project-card-dates').exists()).toBeFalsy();
 });
 
 it('should display loading', () => {
   const measures = { alert_status: 'OK', reliability_rating: '1.0', sqale_rating: '1.0' };
   expect(
-    shallow(<ProjectCardLeak measures={measures} project={PROJECT} />)
+    shallow(<ProjectCardLeak project={{ ...PROJECT, measures }} />)
       .find('.boxed-group')
       .hasClass('boxed-group-loading')
   ).toBeTruthy();
@@ -76,5 +80,5 @@ it('should private badge', () => {
 });
 
 it('should display the leak measures and quality gate', () => {
-  expect(shallow(<ProjectCardLeak measures={MEASURES} project={PROJECT} />)).toMatchSnapshot();
+  expect(shallow(<ProjectCardLeak project={PROJECT} />)).toMatchSnapshot();
 });

@@ -26,12 +26,12 @@ it('should render correctly', () => {
 });
 
 it('should render correctly while loading', () => {
-  expect(shallowRender({ projectsAppState: { loading: true, total: 2 } })).toMatchSnapshot();
+  expect(shallowRender({ loading: true, total: 2 })).toMatchSnapshot();
 });
 
 it('should not render projects total', () => {
   expect(
-    shallowRender({ projectsAppState: {} })
+    shallowRender({ total: undefined })
       .find('#projects-total')
       .exists()
   ).toBeFalsy();
@@ -41,7 +41,7 @@ it('should render disabled sorting options for visualizations', () => {
   expect(
     shallowRender({
       open: true,
-      projectsAppState: {},
+      total: undefined,
       view: 'visualizations',
       visualization: 'coverage'
     })
@@ -53,7 +53,6 @@ it('should render switch the default sorting option for anonymous users', () => 
     shallowRender({
       currentUser: { isLoggedIn: true },
       open: true,
-      projectsAppState: {},
       visualization: 'risk'
     }).find('ProjectsSortingSelect')
   ).toMatchSnapshot();
@@ -62,22 +61,22 @@ it('should render switch the default sorting option for anonymous users', () => 
     shallowRender({
       currentUser: { isLoggedIn: false },
       open: true,
-      projectsAppState: {},
       view: 'leak',
       visualization: 'risk'
     }).find('ProjectsSortingSelect')
   ).toMatchSnapshot();
 });
 
-function shallowRender(props?: any) {
+function shallowRender(props?: {}) {
   return shallow(
     <PageHeader
+      loading={false}
       onPerspectiveChange={jest.fn()}
       onSortChange={jest.fn()}
       projects={[]}
-      projectsAppState={{ loading: false, total: 12 }}
       query={{ search: 'test' }}
       selectedSort="size"
+      total={12}
       view="overall"
       {...props}
     />

@@ -17,16 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import TagsFilter from './TagsFilter';
-import {
-  getProjectsAppFacetByProperty,
-  getProjectsAppMaxFacetValue
-} from '../../../store/rootReducer';
+import * as React from 'react';
+import App from '../../projects/components/App';
+import AllProjects from '../../projects/components/AllProjects';
 
-const mapStateToProps = (state: any, ownProps: any) => ({
-  value: ownProps.query['tags'],
-  facet: getProjectsAppFacetByProperty(state, 'tags'),
-  maxFacetValue: getProjectsAppMaxFacetValue(state)
-});
-export default connect<any, any, any>(mapStateToProps)(TagsFilter);
+interface Props {
+  location: { pathname: string; query: { [x: string]: string } };
+  organization: { key: string };
+}
+
+export default function OrganizationFavoriteProjects(props: Props) {
+  return (
+    <div id="projects-page">
+      <App>
+        <AllProjects
+          isFavorite={true}
+          location={props.location}
+          organization={props.organization}
+        />
+      </App>
+    </div>
+  );
+}

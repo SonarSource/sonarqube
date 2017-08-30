@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import FavoriteFilterContainer from './FavoriteFilterContainer';
-import LanguagesFilterContainer from '../filters/LanguagesFilterContainer';
+import { flatMap } from 'lodash';
+import FavoriteFilter from './FavoriteFilter';
+import LanguagesFilter from '../filters/LanguagesFilter';
 import CoverageFilter from '../filters/CoverageFilter';
 import DuplicationsFilter from '../filters/DuplicationsFilter';
 import MaintainabilityFilter from '../filters/MaintainabilityFilter';
@@ -34,11 +35,13 @@ import QualityGateFilter from '../filters/QualityGateFilter';
 import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
 import SizeFilter from '../filters/SizeFilter';
-import TagsFilterContainer from '../filters/TagsFilterContainer';
+import TagsFilter from '../filters/TagsFilter';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
+import { Facets } from '../types';
 
 interface Props {
+  facets?: Facets;
   isFavorite: boolean;
   organization?: { key: string };
   query: RawQuery;
@@ -47,14 +50,15 @@ interface Props {
 }
 
 export default function PageSidebar(props: Props) {
-  const { query, isFavorite, organization, view, visualization } = props;
+  const { facets, query, isFavorite, organization, view, visualization } = props;
   const isFiltered = Object.keys(query)
     .filter(key => !['view', 'visualization', 'sort'].includes(key))
     .some(key => query[key] != null);
   const isLeakView = view === 'leak';
   const basePathName = organization ? `/organizations/${organization.key}/projects` : '/projects';
   const pathname = basePathName + (isFavorite ? '/favorite' : '');
-  const facetProps = { query, isFavorite, organization };
+  const maxFacetValue = getMaxFacetValue(facets);
+  const facetProps = { isFavorite, maxFacetValue, organization, query };
 
   let linkQuery: RawQuery | undefined = undefined;
   if (view !== 'overall') {
@@ -67,7 +71,7 @@ export default function PageSidebar(props: Props) {
 
   return (
     <div>
-      <FavoriteFilterContainer query={linkQuery} organization={organization} />
+      <FavoriteFilter query={linkQuery} organization={organization} />
 
       <div className="projects-facets-header clearfix">
         {isFiltered && (
@@ -80,25 +84,84 @@ export default function PageSidebar(props: Props) {
 
         <h3>{translate('filters')}</h3>
       </div>
-      <QualityGateFilter {...facetProps} />
+      <QualityGateFilter {...facetProps} facet={facets && facets.gate} value={query.gate} />
       {!isLeakView && [
-        <ReliabilityFilter key="reliability" {...facetProps} />,
-        <SecurityFilter key="security" {...facetProps} />,
-        <MaintainabilityFilter key="maintainability" {...facetProps} />,
-        <CoverageFilter key="coverage" {...facetProps} />,
-        <DuplicationsFilter key="duplications" {...facetProps} />,
-        <SizeFilter key="size" {...facetProps} />
+        <ReliabilityFilter
+          key="reliability"
+          {...facetProps}
+          facet={facets && facets.reliability}
+          value={query.reliability}
+        />,
+        <SecurityFilter
+          key="security"
+          {...facetProps}
+          facet={facets && facets.security}
+          value={query.security}
+        />,
+        <MaintainabilityFilter
+          key="maintainability"
+          {...facetProps}
+          facet={facets && facets.maintainability}
+          value={query.maintainability}
+        />,
+        <CoverageFilter
+          key="coverage"
+          {...facetProps}
+          facet={facets && facets.coverage}
+          value={query.coverage}
+        />,
+        <DuplicationsFilter
+          key="duplications"
+          {...facetProps}
+          facet={facets && facets.duplications}
+          value={query.duplications}
+        />,
+        <SizeFilter key="size" {...facetProps} facet={facets && facets.size} value={query.size} />
       ]}
       {isLeakView && [
-        <NewReliabilityFilter key="new_reliability" {...facetProps} />,
-        <NewSecurityFilter key="new_security" {...facetProps} />,
-        <NewMaintainabilityFilter key="new_maintainability" {...facetProps} />,
-        <NewCoverageFilter key="new_coverage" {...facetProps} />,
-        <NewDuplicationsFilter key="new_duplications" {...facetProps} />,
-        <NewLinesFilter key="new_size" {...facetProps} />
+        <NewReliabilityFilter
+          key="new_reliability"
+          {...facetProps}
+          facet={facets && facets.new_reliability}
+          value={query.new_reliability}
+        />,
+        <NewSecurityFilter
+          key="new_security"
+          {...facetProps}
+          facet={facets && facets.new_security}
+          value={query.new_security}
+        />,
+        <NewMaintainabilityFilter
+          key="new_maintainability"
+          {...facetProps}
+          facet={facets && facets.new_maintainability}
+          value={query.new_maintainability}
+        />,
+        <NewCoverageFilter
+          key="new_coverage"
+          {...facetProps}
+          facet={facets && facets.new_coverage}
+          value={query.new_coverage}
+        />,
+        <NewDuplicationsFilter
+          key="new_duplications"
+          {...facetProps}
+          facet={facets && facets.new_duplications}
+          value={query.new_duplications}
+        />,
+        <NewLinesFilter
+          key="new_lines"
+          {...facetProps}
+          facet={facets && facets.new_lines}
+          value={query.new_lines}
+        />
       ]}
-      <LanguagesFilterContainer {...facetProps} />
-      <TagsFilterContainer {...facetProps} />
+      <LanguagesFilter {...facetProps} facet={facets && facets.languages} value={query.languages} />
+      <TagsFilter {...facetProps} facet={facets && facets.tags} value={query.tags} />
     </div>
   );
+}
+
+function getMaxFacetValue(facets?: Facets) {
+  return facets && Math.max(...flatMap(Object.values(facets), facet => Object.values(facet)));
 }
