@@ -25,13 +25,9 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-import static org.apache.commons.lang.StringUtils.repeat;
-
 public class PopulateMainProjectBranches extends DataChange {
-  private static final int KEE_MAX_LENGTH = 255;
-  static final String NULL_KEY = repeat("_", KEE_MAX_LENGTH);
-  private static final String INSERT_MAIN_PROJECT_BRANCHES = "INSERT INTO project_branches (uuid, project_uuid, kee_type, kee, branch_type, "
-    + "merge_branch_uuid, pull_request_title, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+  private static final String MAIN_BRANCH_NAME = "master";
 
   private final System2 system2;
 
@@ -47,14 +43,15 @@ public class PopulateMainProjectBranches extends DataChange {
     massUpdate.select("SELECT uuid FROM projects p "
       + "WHERE p.scope='PRJ' AND p.qualifier='TRK' AND p.main_branch_project_uuid IS NULL "
       + "AND NOT EXISTS (SELECT uuid FROM project_branches b WHERE b.uuid = p.uuid)");
-    massUpdate.update(INSERT_MAIN_PROJECT_BRANCHES);
+    massUpdate.update("INSERT INTO project_branches (uuid, project_uuid, kee_type, kee, branch_type, "
+      + "merge_branch_uuid, pull_request_title, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     massUpdate.rowPluralName("projects");
     massUpdate.execute((row, update) -> {
       String uuid = row.getString(1);
       update.setString(1, uuid);
       update.setString(2, uuid);
       update.setString(3, "BRANCH");
-      update.setString(4, NULL_KEY);
+      update.setString(4, MAIN_BRANCH_NAME);
       update.setString(5, "LONG");
       update.setString(6, null);
       update.setString(7, null);
