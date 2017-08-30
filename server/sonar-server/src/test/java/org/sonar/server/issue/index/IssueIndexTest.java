@@ -1311,7 +1311,7 @@ public class IssueIndexTest {
       newDoc(branch1).setType(BUG), newDoc(branch1).setType(VULNERABILITY), newDoc(branch1).setType(CODE_SMELL),
       newDoc(branch3).setType(CODE_SMELL), newDoc(branch3).setType(CODE_SMELL), newDoc(fileOnBranch3).setType(CODE_SMELL));
 
-    List<BranchStatistics> branchStatistics = underTest.searchBranchStatistics(asList(branch1.uuid(), branch2.uuid(), branch3.uuid()));
+    List<BranchStatistics> branchStatistics = underTest.searchBranchStatistics(project.uuid(), asList(branch1.uuid(), branch2.uuid(), branch3.uuid()));
 
     assertThat(branchStatistics).extracting(BranchStatistics::getBranchUuid, BranchStatistics::getBugs, BranchStatistics::getVulnerabilities, BranchStatistics::getCodeSmells)
       .containsExactlyInAnyOrder(
@@ -1331,7 +1331,7 @@ public class IssueIndexTest {
       branchUuids.add(branch.uuid());
     });
 
-    List<BranchStatistics> branchStatistics = underTest.searchBranchStatistics(branchUuids);
+    List<BranchStatistics> branchStatistics = underTest.searchBranchStatistics(project.uuid(), branchUuids);
 
     assertThat(branchStatistics)
       .extracting(BranchStatistics::getBranchUuid, BranchStatistics::getBugs, BranchStatistics::getVulnerabilities, BranchStatistics::getCodeSmells)
@@ -1341,8 +1341,10 @@ public class IssueIndexTest {
 
   @Test
   public void searchBranchStatistics_on_empty_list() {
-    assertThat(underTest.searchBranchStatistics(emptyList())).isEmpty();
-    assertThat(underTest.searchBranchStatistics(singletonList("unknown"))).isEmpty();
+    ComponentDto project = db.components().insertMainBranch();
+
+    assertThat(underTest.searchBranchStatistics(project.uuid(), emptyList())).isEmpty();
+    assertThat(underTest.searchBranchStatistics(project.uuid(), singletonList("unknown"))).isEmpty();
   }
 
   private void addIssues(ComponentDto branch, int bugs, int vulnerabilities, int codeSmelles) {
