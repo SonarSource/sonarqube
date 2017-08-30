@@ -73,7 +73,7 @@ public class SearchAction implements ProjectsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_SEARCH)
       .setSince("6.3")
-      .setDescription("Search for projects or views.<br>" +
+      .setDescription("Search for projects or views to administrate them.<br>" +
         "Requires 'System Administrator' permission")
       .setInternal(true)
       .addPagingParams(100, MAX_PAGE_SIZE)
