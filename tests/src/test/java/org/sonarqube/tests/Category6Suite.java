@@ -38,6 +38,7 @@ import org.sonarqube.tests.organization.RootUserOnOrganizationTest;
 import org.sonarqube.tests.projectAdministration.ProjectDeletionTest;
 import org.sonarqube.tests.projectAdministration.ProjectKeyUpdateTest;
 import org.sonarqube.tests.projectAdministration.ProjectProvisioningTest;
+import org.sonarqube.tests.projectAdministration.ProjectSearchTest;
 import org.sonarqube.tests.projectSearch.LeakProjectsPageTest;
 import org.sonarqube.tests.projectSearch.SearchProjectsTest;
 import org.sonarqube.tests.qualityGate.OrganizationQualityGateUiTest;
@@ -79,6 +80,7 @@ import static util.ItUtils.xooPlugin;
   ProjectDeletionTest.class,
   ProjectProvisioningTest.class,
   ProjectKeyUpdateTest.class,
+  ProjectSearchTest.class,
   PermissionTemplateTest.class
 })
 public class Category6Suite {

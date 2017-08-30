@@ -138,6 +138,7 @@ public class ProjectsServiceTest {
       .setOrganization("default")
       .setQuery("project")
       .setQualifiers(asList("TRK", "VW"))
+      .setAnalyzedBefore("2017-09-01")
       .setPage(3)
       .setPageSize(10)
       .build());
@@ -146,6 +147,7 @@ public class ProjectsServiceTest {
       .hasPath("search")
       .hasParam("organization", "default")
       .hasParam("q", "project")
+      .hasParam("analyzedBefore", "2017-09-01")
       .hasParam("qualifiers", "TRK,VW")
       .hasParam(PAGE, 3)
       .hasParam(PAGE_SIZE, 10)

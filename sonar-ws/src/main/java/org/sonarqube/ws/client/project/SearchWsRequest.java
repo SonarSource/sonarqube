@@ -36,6 +36,7 @@ public class SearchWsRequest {
   private final String visibility;
   private final Integer page;
   private final Integer pageSize;
+  private final String analyzedBefore;
 
   public SearchWsRequest(Builder builder) {
     this.organization = builder.organization;
@@ -44,6 +45,7 @@ public class SearchWsRequest {
     this.visibility = builder.visibility;
     this.page = builder.page;
     this.pageSize = builder.pageSize;
+    this.analyzedBefore = builder.analyzedBefore;
   }
 
   @CheckForNull
@@ -75,6 +77,11 @@ public class SearchWsRequest {
     return visibility;
   }
 
+  @CheckForNull
+  public String getAnalyzedBefore() {
+    return analyzedBefore;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -86,6 +93,7 @@ public class SearchWsRequest {
     private Integer pageSize;
     private String query;
     private String visibility;
+    private String analyzedBefore;
 
     public Builder setOrganization(@Nullable String organization) {
       this.organization = organization;
@@ -117,10 +125,14 @@ public class SearchWsRequest {
       return this;
     }
 
+    public Builder setAnalyzedBefore(@Nullable String lastAnalysisBefore) {
+      this.analyzedBefore = lastAnalysisBefore;
+      return this;
+    }
+
     public SearchWsRequest build() {
       checkArgument(pageSize == null || pageSize <= MAX_PAGE_SIZE, "Page size must not be greater than %s", MAX_PAGE_SIZE);
       return new SearchWsRequest(this);
     }
   }
-
 }
