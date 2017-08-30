@@ -58,6 +58,7 @@ import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
 public class ComponentDaoTest {
 
@@ -982,6 +983,25 @@ public class ComponentDaoTest {
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getDbKey()).isEqualTo("java-project-key");
+  }
+
+  @Test
+  public void selectByQuery_filter_on_last_analysis_date() {
+    long aLongTimeAgo = 1_000_000_000L;
+    long recentTime = 3_000_000_000L;
+    ComponentDto oldProject = db.components().insertPublicProject();
+    db.getDbClient().snapshotDao().insert(dbSession, newAnalysis(oldProject).setCreatedAt(aLongTimeAgo));
+    ComponentDto recentProject = db.components().insertPublicProject();
+    db.getDbClient().snapshotDao().insert(dbSession, newAnalysis(recentProject).setCreatedAt(recentTime));
+    db.getDbClient().snapshotDao().insert(dbSession, newAnalysis(recentProject).setCreatedAt(aLongTimeAgo).setLast(false));
+    ComponentQuery.Builder query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT);
+
+    assertThat(underTest.selectByQuery(dbSession, query.setAnalyzedBefore(recentTime).build(), 0, 10)).extracting(ComponentDto::getKey)
+      .containsExactlyInAnyOrder(oldProject.getKey());
+    assertThat(underTest.selectByQuery(dbSession, query.setAnalyzedBefore(aLongTimeAgo).build(), 0, 10)).extracting(ComponentDto::getKey)
+      .isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, query.setAnalyzedBefore(recentTime + 1_000L).build(), 0, 10)).extracting(ComponentDto::getKey)
+      .containsExactlyInAnyOrder(oldProject.getKey(), recentProject.getKey());
   }
 
   @Test

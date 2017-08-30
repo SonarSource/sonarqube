@@ -20,16 +20,20 @@
 package org.sonar.server.project.ws;
 
 import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -43,6 +47,8 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.server.project.Visibility.PUBLIC;
@@ -51,6 +57,7 @@ import static org.sonarqube.ws.WsProjects.SearchWsResponse.Component;
 import static org.sonarqube.ws.WsProjects.SearchWsResponse.newBuilder;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.MAX_PAGE_SIZE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
@@ -97,6 +104,11 @@ public class SearchAction implements ProjectsWsAction {
       .setInternal(true)
       .setSince("6.4")
       .setPossibleValues(Visibility.getLabels());
+
+    action.createParam(PARAM_ANALYZED_BEFORE)
+      .setDescription("Filter the projects for which last analysis is older than the given date (exclusive).<br> " +
+        "Format: date or datetime ISO formats.")
+      .setSince("6.6");
   }
 
   @Override
@@ -113,6 +125,7 @@ public class SearchAction implements ProjectsWsAction {
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setVisibility(request.param(PARAM_VISIBILITY))
+      .setAnalyzedBefore(request.param(PARAM_ANALYZED_BEFORE))
       .build();
   }
 
@@ -124,7 +137,10 @@ public class SearchAction implements ProjectsWsAction {
       ComponentQuery query = buildQuery(request);
       Paging paging = buildPaging(dbSession, request, organization, query);
       List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, paging.offset(), paging.pageSize());
-      return buildResponse(components, organization, paging);
+      Map<String, Long> analysisDateByComponentUuid = dbClient.snapshotDao()
+        .selectLastAnalysesByRootComponentUuids(dbSession, components.stream().map(ComponentDto::uuid).collect(MoreCollectors.toList())).stream()
+        .collect(MoreCollectors.uniqueIndex(SnapshotDto::getComponentUuid, SnapshotDto::getCreatedAt));
+      return buildResponse(components, organization, analysisDateByComponentUuid, paging);
     }
   }
 
@@ -135,6 +151,7 @@ public class SearchAction implements ProjectsWsAction {
       .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]));
 
     setNullable(request.getVisibility(), v -> query.setPrivate(Visibility.isPrivate(v)));
+    setNullable(request.getAnalyzedBefore(), d -> query.setAnalyzedBefore(parseDateOrDateTime(d).getTime()));
 
     return query.build();
   }
@@ -146,7 +163,7 @@ public class SearchAction implements ProjectsWsAction {
       .andTotal(total);
   }
 
-  private static SearchWsResponse buildResponse(List<ComponentDto> components, OrganizationDto organization, Paging paging) {
+  private static SearchWsResponse buildResponse(List<ComponentDto> components, OrganizationDto organization, Map<String, Long> analysisDateByComponentUuid, Paging paging) {
     SearchWsResponse.Builder responseBuilder = newBuilder();
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -155,12 +172,12 @@ public class SearchAction implements ProjectsWsAction {
       .build();
 
     components.stream()
-      .map(dto -> dtoToProject(organization, dto))
+      .map(dto -> dtoToProject(organization, dto, analysisDateByComponentUuid.get(dto.uuid())))
       .forEach(responseBuilder::addComponents);
     return responseBuilder.build();
   }
 
-  private static Component dtoToProject(OrganizationDto organization, ComponentDto dto) {
+  private static Component dtoToProject(OrganizationDto organization, ComponentDto dto, @Nullable Long analysisDate) {
     checkArgument(
       organization.getUuid().equals(dto.getOrganizationUuid()),
       "No Organization found for uuid '%s'",
@@ -173,6 +190,8 @@ public class SearchAction implements ProjectsWsAction {
       .setName(dto.name())
       .setQualifier(dto.qualifier())
       .setVisibility(dto.isPrivate() ? PRIVATE.getLabel() : PUBLIC.getLabel());
+    setNullable(analysisDate, d -> builder.setLastAnalysisDate(formatDateTime(d)));
+
     return builder.build();
   }
 
