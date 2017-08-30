@@ -38,17 +38,19 @@ import org.sonar.server.computation.task.projectanalysis.analysis.Project;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.DIRECTORY;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.MODULE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.PROJECT;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNRECOGNIZED;
-import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class ComponentTreeBuilderTest {
 
   private static final ComponentKeyGenerator KEY_GENERATOR = (module, component) -> "generated_"
+    + ComponentKeys.createEffectiveKey(module.getKey(), component != null ? component.getPath() : null);
+  private static final ComponentKeyGenerator PUBLIC_KEY_GENERATOR = (module, component) -> "public_"
     + ComponentKeys.createEffectiveKey(module.getKey(), component != null ? component.getPath() : null);
   private static final Function<String, String> UUID_SUPPLIER = (componentKey) -> componentKey + "_uuid";
   private static final EnumSet<ScannerReport.Component.ComponentType> REPORT_TYPES = EnumSet.of(PROJECT, MODULE, DIRECTORY, FILE);
@@ -93,6 +95,7 @@ public class ComponentTreeBuilderTest {
 
     assertThat(root.getUuid()).isEqualTo("generated_K1_uuid");
     assertThat(root.getKey()).isEqualTo("generated_K1");
+    assertThat(root.getPublicKey()).isEqualTo("public_K1");
     assertThat(root.getType()).isEqualTo(Component.Type.PROJECT);
     assertThat(root.getName()).isEqualTo(nameInReport);
     assertThat(root.getDescription()).isEqualTo(descriptionInReport);
@@ -176,23 +179,27 @@ public class ComponentTreeBuilderTest {
 
     Component root = call(project);
     assertThat(root.getKey()).isEqualTo("generated_" + projectInDb.getKey());
+    assertThat(root.getPublicKey()).isEqualTo("public_" + projectInDb.getKey());
     assertThat(root.getChildren()).hasSize(1);
 
     Component module = root.getChildren().iterator().next();
     assertThat(module.getKey()).isEqualTo("generated_M");
+    assertThat(module.getPublicKey()).isEqualTo("public_M");
     assertThat(module.getChildren()).hasSize(1);
 
     Component directory = module.getChildren().iterator().next();
     assertThat(directory.getKey()).isEqualTo("generated_M:src/js");
+    assertThat(directory.getPublicKey()).isEqualTo("public_M:src/js");
     assertThat(directory.getChildren()).hasSize(1);
 
     Component file = directory.getChildren().iterator().next();
     assertThat(file.getKey()).isEqualTo("generated_M:src/js/Foo.js");
+    assertThat(file.getPublicKey()).isEqualTo("public_M:src/js/Foo.js");
     assertThat(file.getChildren()).isEmpty();
   }
 
   @Test
-  public void names_of_module_directory_and_file_are_keys_if_names_are_absent_from_report() {
+  public void names_of_module_directory_and_file_are_public_keys_if_names_are_absent_from_report() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -276,7 +283,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void name_of_module_directory_and_files_includes_name_of_closest_module() {
+  public void keys_of_module_directory_and_files_includes_name_of_closest_module() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey("project 1")
@@ -301,20 +308,35 @@ public class ComponentTreeBuilderTest {
     Component root = call(project);
     Map<Integer, Component> componentsByRef = indexComponentByRef(root);
     assertThat(componentsByRef.get(11).getKey()).isEqualTo("generated_module 1");
+    assertThat(componentsByRef.get(11).getPublicKey()).isEqualTo("public_module 1");
     assertThat(componentsByRef.get(12).getKey()).isEqualTo("generated_module 2");
+    assertThat(componentsByRef.get(12).getPublicKey()).isEqualTo("public_module 2");
     assertThat(componentsByRef.get(13).getKey()).isEqualTo("generated_module 3");
+    assertThat(componentsByRef.get(13).getPublicKey()).isEqualTo("public_module 3");
     assertThat(componentsByRef.get(21).getKey()).startsWith("generated_project 1:");
+    assertThat(componentsByRef.get(21).getPublicKey()).startsWith("public_project 1:");
     assertThat(componentsByRef.get(22).getKey()).startsWith("generated_module 1:");
+    assertThat(componentsByRef.get(22).getPublicKey()).startsWith("public_module 1:");
     assertThat(componentsByRef.get(23).getKey()).startsWith("generated_module 2:");
+    assertThat(componentsByRef.get(23).getPublicKey()).startsWith("public_module 2:");
     assertThat(componentsByRef.get(24).getKey()).startsWith("generated_module 3:");
+    assertThat(componentsByRef.get(24).getPublicKey()).startsWith("public_module 3:");
     assertThat(componentsByRef.get(31).getKey()).startsWith("generated_project 1:");
+    assertThat(componentsByRef.get(31).getPublicKey()).startsWith("public_project 1:");
     assertThat(componentsByRef.get(32).getKey()).startsWith("generated_module 1:");
+    assertThat(componentsByRef.get(32).getPublicKey()).startsWith("public_module 1:");
     assertThat(componentsByRef.get(33).getKey()).startsWith("generated_module 2:");
+    assertThat(componentsByRef.get(33).getPublicKey()).startsWith("public_module 2:");
     assertThat(componentsByRef.get(34).getKey()).startsWith("generated_module 3:");
+    assertThat(componentsByRef.get(34).getPublicKey()).startsWith("public_module 3:");
     assertThat(componentsByRef.get(35).getKey()).startsWith("generated_project 1:");
+    assertThat(componentsByRef.get(35).getPublicKey()).startsWith("public_project 1:");
     assertThat(componentsByRef.get(36).getKey()).startsWith("generated_module 1:");
+    assertThat(componentsByRef.get(36).getPublicKey()).startsWith("public_module 1:");
     assertThat(componentsByRef.get(37).getKey()).startsWith("generated_module 2:");
+    assertThat(componentsByRef.get(37).getPublicKey()).startsWith("public_module 2:");
     assertThat(componentsByRef.get(38).getKey()).startsWith("generated_module 3:");
+    assertThat(componentsByRef.get(38).getPublicKey()).startsWith("public_module 3:");
   }
 
   @Test
@@ -718,7 +740,7 @@ public class ComponentTreeBuilderTest {
   }
 
   private ComponentTreeBuilder newUnderTest(@Nullable SnapshotDto baseAnalysis) {
-    return new ComponentTreeBuilder(KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider, projectInDb, baseAnalysis);
+    return new ComponentTreeBuilder(KEY_GENERATOR, PUBLIC_KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider, projectInDb, baseAnalysis);
   }
 
   private static Map<Integer, Component> indexComponentByRef(Component root) {

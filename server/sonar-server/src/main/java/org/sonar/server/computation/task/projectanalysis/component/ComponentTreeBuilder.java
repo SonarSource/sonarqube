@@ -37,6 +37,7 @@ public class ComponentTreeBuilder {
   private static final String DEFAULT_PROJECT_VERSION = "not provided";
 
   private final ComponentKeyGenerator keyGenerator;
+  private final ComponentKeyGenerator publicKeyGenerator;
   /**
    * Will supply the UUID for any component in the tree, given it's key.
    * <p>
@@ -61,12 +62,14 @@ public class ComponentTreeBuilder {
 
   public ComponentTreeBuilder(
     ComponentKeyGenerator keyGenerator,
+    ComponentKeyGenerator publicKeyGenerator,
     Function<String, String> uuidSupplier,
     Function<Integer, ScannerReport.Component> scannerComponentSupplier,
     Project project,
     @Nullable SnapshotDto baseAnalysis) {
 
     this.keyGenerator = keyGenerator;
+    this.publicKeyGenerator = publicKeyGenerator;
     this.uuidSupplier = uuidSupplier;
     this.scannerComponentSupplier = scannerComponentSupplier;
     this.project = project;
@@ -93,6 +96,7 @@ public class ComponentTreeBuilder {
         return ComponentImpl.builder(Component.Type.PROJECT)
           .setUuid(uuid)
           .setKey(projectKey)
+          .setPublicKey(publicKeyGenerator.generateKey(component, null))
           .setName(nameOfProject(component))
           .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
@@ -107,6 +111,7 @@ public class ComponentTreeBuilder {
         return ComponentImpl.builder(Component.Type.MODULE)
           .setUuid(uuidSupplier.apply(moduleKey))
           .setKey(moduleKey)
+          .setPublicKey(publicKeyGenerator.generateKey(component, null))
           .setName(nameOfOthers(component, moduleKey))
           .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
@@ -120,6 +125,7 @@ public class ComponentTreeBuilder {
         return ComponentImpl.builder(convertDirOrFileType(component.getType()))
           .setUuid(uuidSupplier.apply(key))
           .setKey(key)
+          .setPublicKey(publicKeyGenerator.generateKey(closestModule, component))
           .setName(nameOfOthers(component, key))
           .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
