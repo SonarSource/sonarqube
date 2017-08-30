@@ -42,8 +42,8 @@ import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.analysis.Project;
 import org.sonar.server.computation.task.projectanalysis.component.BranchPersister;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
+import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDisabledComponentsHolder;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
@@ -933,8 +933,8 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     }
 
     @Override
-    public java.util.Optional<String> getName() {
-      return java.util.Optional.ofNullable(name);
+    public String getName() {
+      return name;
     }
 
     @Override
