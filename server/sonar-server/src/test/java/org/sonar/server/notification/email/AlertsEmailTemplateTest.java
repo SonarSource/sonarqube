@@ -102,6 +102,23 @@ public class AlertsEmailTemplateTest {
   }
 
   @Test
+  public void shouldFormatNewAlertWithOneMessageOnBranch() {
+    Notification notification = createNotification("Orange (was Red)", "violations > 4", "WARN", "true")
+      .setFieldValue("branch", "feature");
+
+    EmailMessage message = template.format(notification);
+    assertThat(message.getMessageId(), is("alerts/45"));
+    assertThat(message.getSubject(), is("New quality gate threshold reached on \"Foo\""));
+    assertThat(message.getMessage(), is("" +
+      "Project: Foo\n" +
+      "Quality gate status: Orange (was Red)\n" +
+      "\n" +
+      "New quality gate threshold: violations > 4\n" +
+      "\n" +
+      "See it in SonarQube: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
+  }
+
+  @Test
   public void shouldFormatBackToGreenMessage() {
     Notification notification = createNotification("Green (was Red)", "", "OK", "false");
 
