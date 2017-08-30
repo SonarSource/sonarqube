@@ -254,8 +254,8 @@ public class PostProjectAnalysisTasksExecutorTest {
       }
 
       @Override
-      public Optional<String> getName() {
-        return Optional.of("feature/foo");
+      public String getName() {
+        return "feature/foo";
       }
 
       @Override

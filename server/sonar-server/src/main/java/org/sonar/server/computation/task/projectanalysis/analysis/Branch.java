@@ -38,10 +38,9 @@ public interface Branch extends ComponentKeyGenerator {
   boolean isLegacyFeature();
 
   /**
-   * Name can be empty when it's not known on the main branch
-   * (regular analysis without the branch parameters)
+   * Name of the branch
    */
-  Optional<String> getName();
+  String getName();
 
   /**
    * For short living branches, indicates the branch from which it was forked.

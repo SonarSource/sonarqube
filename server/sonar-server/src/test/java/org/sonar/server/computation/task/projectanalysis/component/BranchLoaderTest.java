@@ -62,7 +62,7 @@ public class BranchLoaderTest {
 
     Branch branch = metadataHolder.getBranch().get();
     assertThat(branch.isMain()).isTrue();
-    assertThat(branch.getName().get()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
+    assertThat(branch.getName()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
   }
 
   @Test
@@ -77,7 +77,7 @@ public class BranchLoaderTest {
 
     Branch branch = metadataHolder.getBranch().get();
     assertThat(branch.isMain()).isTrue();
-    assertThat(branch.getName()).hasValue("foo");
+    assertThat(branch.getName()).isEqualTo("foo");
   }
 
   @Test
@@ -93,7 +93,7 @@ public class BranchLoaderTest {
 
     Branch branch = metadataHolder.getBranch().get();
     assertThat(branch.isMain()).isTrue();
-    assertThat(branch.getName()).hasValue("foo");
+    assertThat(branch.getName()).isEqualTo("foo");
   }
 
   private class FakeDelegate implements BranchLoaderDelegate {
