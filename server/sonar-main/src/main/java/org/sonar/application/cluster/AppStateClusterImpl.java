@@ -27,16 +27,16 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.application.AppState;
 import org.sonar.application.AppStateListener;
 import org.sonar.application.config.AppSettings;
+import org.sonar.cluster.localclient.HazelcastClient;
 import org.sonar.process.ProcessId;
 
 import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_LOCALENDPOINT;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_MEMBERUUID;
 
-public class AppStateClusterImpl implements AppState {
+public class AppStateClusterImpl implements ClusterAppState {
   private static Logger LOGGER = LoggerFactory.getLogger(AppStateClusterImpl.class);
 
   private final Map<ProcessId, Boolean> localProcesses = new EnumMap<>(ProcessId.class);
@@ -110,6 +110,11 @@ public class AppStateClusterImpl implements AppState {
 
   HazelcastCluster getHazelcastCluster() {
     return hazelcastCluster;
+  }
+
+  @Override
+  public HazelcastClient getHazelcastClient() {
+    return hazelcastCluster.getHazelcastClient();
   }
 
   /**
