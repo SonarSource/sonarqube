@@ -81,7 +81,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
     .setProject(new Project(PROJECT_UUID, PROJECT_KEY, PROJECT_NAME))
-    .setBranch(null)
+    .setBranch(new DefaultBranchImpl())
     .setAnalysisDate(new Date(ANALYSE_DATE));
 
   @Rule
