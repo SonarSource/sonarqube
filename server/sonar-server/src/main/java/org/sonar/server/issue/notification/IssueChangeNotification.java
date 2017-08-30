@@ -69,6 +69,7 @@ public class IssueChangeNotification extends Notification {
 
   public IssueChangeNotification setComponent(ComponentDto component) {
     setFieldValue("componentName", component.longName());
+    setFieldValue("componentKey", component.getKey());
     return this;
   }
 
