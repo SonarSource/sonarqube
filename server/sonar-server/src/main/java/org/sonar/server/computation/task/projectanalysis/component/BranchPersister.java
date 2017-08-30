@@ -88,7 +88,7 @@ public class BranchPersister {
     // MainBranchProjectUuid will be null if it's a main branch
     dto.setProjectUuid(firstNonNull(componentDto.getMainBranchProjectUuid(), componentDto.projectUuid()));
     dto.setKeeType(BranchKeyType.BRANCH);
-    dto.setKey(branch.getName().orElse(null));
+    dto.setKey(branch.getName());
     dto.setBranchType(branch.getType());
     // merge branch is only present if it's a short living branch
     dto.setMergeBranchUuid(branch.getMergeBranchUuid().orElse(null));

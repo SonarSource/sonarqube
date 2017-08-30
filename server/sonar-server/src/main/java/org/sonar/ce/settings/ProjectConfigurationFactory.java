@@ -60,7 +60,7 @@ public class ProjectConfigurationFactory {
     }
     Branch branch = branchOpt.get();
     if (!branch.isLegacyFeature() && !branch.isMain()) {
-      return branch.getName();
+      return Optional.of(branch.getName());
     }
     return Optional.empty();
   }

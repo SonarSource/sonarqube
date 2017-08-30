@@ -19,11 +19,9 @@
  */
 package org.sonar.db.component;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.StringUtils.repeat;
 
 public class BranchDto {
   public static final String DEFAULT_MAIN_BRANCH_NAME = "master";
@@ -32,14 +30,6 @@ public class BranchDto {
    * Maximum length of column "kee"
    */
   public static final int KEE_MAX_LENGTH = 255;
-
-  /**
-   * Value of {@link #kee} when the name of main branch is not known.
-   * Used only if {@link #keeType} is {@link BranchKeyType#BRANCH}.
-   * It does not conflict with names of real branches because the term ':BRANCH:'
-   * is not accepted.
-   */
-  public static final String NULL_KEY = repeat("_", KEE_MAX_LENGTH);
 
   /**
    * Branch UUID is the projects.uuid that reference projects, branches or pull requests
@@ -64,7 +54,7 @@ public class BranchDto {
 
   /**
    * If {@link #keeType} is {@link BranchKeyType#BRANCH}, then name of branch, for example
-   * "feature/foo". Can be {@link #NULL_KEY} is the name is not known.
+   * "feature/foo".
    *
    * If {@link #keeType} is {@link BranchKeyType#PR}, then id of the pull request, for
    * example "1204".
@@ -126,30 +116,26 @@ public class BranchDto {
   }
 
   /**
-   * This is the getter used by MyBatis mapper. It does
-   * not handle the special value used to map null field.
+   * This is the getter used by MyBatis mapper.
    */
   private String getKee() {
     return kee;
   }
 
-  @CheckForNull
   public String getKey() {
-    return convertKeyFromDb(getKee());
+    return kee;
   }
 
   /**
-   * This is the setter used by MyBatis mapper. It does
-   * not handle the special value used to map null field.
+   * This is the setter used by MyBatis mapper.
    */
   private void setKee(String s) {
     this.kee = s;
   }
 
-  public BranchDto setKey(@Nullable String s) {
-    checkArgument(s == null || s.length() <= KEE_MAX_LENGTH, "Maximum length of branch name or pull request id is %s: %s", KEE_MAX_LENGTH, s);
-    checkArgument(!NULL_KEY.equals(s), "Branch name is not allowed: %s", s);
-    setKee(convertKeyToDb(s));
+  public BranchDto setKey(String s) {
+    checkArgument(s.length() <= KEE_MAX_LENGTH, "Maximum length of branch name or pull request id is %s: %s", KEE_MAX_LENGTH, s);
+    setKee(s);
     return this;
   }
 
@@ -197,14 +183,4 @@ public class BranchDto {
     sb.append('}');
     return sb.toString();
   }
-
-  static String convertKeyToDb(@Nullable String s) {
-    return s == null ? NULL_KEY : s;
-  }
-
-  @CheckForNull
-  static String convertKeyFromDb(String s) {
-    return NULL_KEY.equals(s) ? null : s;
-  }
-
 }

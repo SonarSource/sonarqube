@@ -76,8 +76,8 @@ public class DefaultBranchImpl implements Branch {
   }
 
   @Override
-  public Optional<String> getName() {
-    return Optional.ofNullable(branchName);
+  public String getName() {
+    return branchName;
   }
 
   @Override

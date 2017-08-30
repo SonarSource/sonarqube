@@ -84,7 +84,7 @@ public class ProjectConfigurationFactoryTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.properties().insertProperties(newComponentPropertyDto(branch).setKey("sonar.leak.period").setValue("1"));
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getBranch())));
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getBranch(), false)));
 
     assertThat(config.get("sonar.leak.period")).hasValue("1");
   }
@@ -96,7 +96,7 @@ public class ProjectConfigurationFactoryTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.properties().insertProperties(newComponentPropertyDto(branch).setKey("sonar.leak.period").setValue("1"));
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getBranch())));
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getBranch(), false)));
 
     assertThat(config.get("global")).hasValue("global_value");
     assertThat(config.get("sonar.leak.period")).hasValue("1");
@@ -109,7 +109,7 @@ public class ProjectConfigurationFactoryTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.properties().insertProperties(newComponentPropertyDto(branch).setKey("sonar.leak.period").setValue("1"));
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getBranch())));
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getBranch(), false)));
 
     assertThat(config.get("key")).hasValue("value");
     assertThat(config.get("sonar.leak.period")).hasValue("1");
@@ -122,7 +122,7 @@ public class ProjectConfigurationFactoryTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.properties().insertProperties(newComponentPropertyDto(branch).setKey("sonar.leak.period").setValue("2"));
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getBranch())));
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getBranch(), false)));
 
     assertThat(config.get("sonar.leak.period")).hasValue("2");
   }
@@ -131,10 +131,10 @@ public class ProjectConfigurationFactoryTest {
   public void main_branch() {
     ComponentDto project = db.components().insertMainBranch();
     db.properties().insertProperties(newComponentPropertyDto(project).setKey("sonar.leak.period").setValue("1"));
-    Branch branch = createBranch(project.getBranch());
+    Branch branch = createBranch("master", true);
     when(branch.isMain()).thenReturn(true);
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(project.getBranch())));
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getName(), true)));
 
     assertThat(config.get("sonar.leak.period")).hasValue("1");
   }
@@ -143,30 +143,18 @@ public class ProjectConfigurationFactoryTest {
   public void legacy_branch() {
     ComponentDto project = db.components().insertMainBranch();
     db.properties().insertProperties(newComponentPropertyDto(project).setKey("sonar.leak.period").setValue("1"));
-    Branch branch = createBranch(project.getBranch());
+    Branch branch = createBranch("legacy", true);
     when(branch.isLegacyFeature()).thenReturn(true);
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(project.getBranch())));
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getName(), true)));
 
     assertThat(config.get("sonar.leak.period")).hasValue("1");
   }
 
-  @Test
-  public void empty_branch_name() {
-    ComponentDto project = db.components().insertMainBranch();
-    db.properties().insertProperties(newComponentPropertyDto(project).setKey("sonar.leak.period").setValue("1"));
+  private static Branch createBranch(String name, boolean isMain) {
     Branch branch = mock(Branch.class);
-    when(branch.getName()).thenReturn(Optional.empty());
-
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(project.getBranch())));
-
-    assertThat(config.get("sonar.leak.period")).hasValue("1");
-  }
-
-  private static Branch createBranch(String name) {
-    Branch branch = mock(Branch.class);
-    when(branch.getName()).thenReturn(Optional.ofNullable(name));
-    when(branch.isMain()).thenReturn(false);
+    when(branch.getName()).thenReturn(name);
+    when(branch.isMain()).thenReturn(isMain);
     return branch;
   }
 }

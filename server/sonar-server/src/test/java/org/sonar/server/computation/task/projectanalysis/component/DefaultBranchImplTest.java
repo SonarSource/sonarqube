@@ -56,7 +56,7 @@ public class DefaultBranchImplTest {
 
     assertThat(branch.isMain()).isTrue();
     assertThat(branch.getType()).isEqualTo(BranchType.LONG);
-    assertThat(branch.getName().get()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
+    assertThat(branch.getName()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
     assertThat(branch.supportsCrossProjectCpd()).isTrue();
 
     assertThat(branch.generateKey(PROJECT, null)).isEqualTo("P");
@@ -71,7 +71,7 @@ public class DefaultBranchImplTest {
     // not a real branch. Parameter sonar.branch forks project.
     assertThat(branch.isMain()).isTrue();
     assertThat(branch.getType()).isEqualTo(BranchType.LONG);
-    assertThat(branch.getName()).hasValue("bar");
+    assertThat(branch.getName()).isEqualTo("bar");
     assertThat(branch.supportsCrossProjectCpd()).isFalse();
 
     assertThat(branch.generateKey(PROJECT, null)).isEqualTo("P:bar");
@@ -81,7 +81,7 @@ public class DefaultBranchImplTest {
 
   private void assertThatNameIsCorrect(@Nullable String name) {
     DefaultBranchImpl branch = new DefaultBranchImpl(name);
-    assertThat(branch.getName()).hasValue(name);
+    assertThat(branch.getName()).isEqualTo(name);
   }
 
   private void assertThatNameIsNotCorrect(String name) {
