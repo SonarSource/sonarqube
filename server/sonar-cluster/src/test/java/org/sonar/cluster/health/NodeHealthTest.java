@@ -20,10 +20,8 @@
 package org.sonar.cluster.health;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -33,8 +31,6 @@ import org.junit.rules.ExpectedException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.cluster.health.NodeDetails.Type;
-import static org.sonar.cluster.health.NodeDetails.newNodeDetailsBuilder;
 import static org.sonar.cluster.health.NodeHealth.newNodeHealthBuilder;
 
 public class NodeHealthTest {
@@ -42,7 +38,8 @@ public class NodeHealthTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private Random random = new Random();
-  private NodeHealth.Status randomStatus = NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)];
+  private NodeDetailsTestSupport testSupport = new NodeDetailsTestSupport(random);
+  private NodeHealth.Status randomStatus = testSupport.randomStatus();
   private NodeHealth.Builder builderUnderTest = newNodeHealthBuilder();
 
   @Test
@@ -91,7 +88,7 @@ public class NodeHealthTest {
   public void build_throws_IAE_if_date_is_less_than_1() {
     builderUnderTest
       .setStatus(randomStatus)
-      .setDetails(randomNodeDetails());
+      .setDetails(testSupport.randomNodeDetails());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("date must be > 0");
@@ -101,7 +98,7 @@ public class NodeHealthTest {
 
   @Test
   public void clearClauses_clears_clauses_of_builder() {
-    NodeHealth.Builder underTest = randomBuilder();
+    NodeHealth.Builder underTest = testSupport.randomBuilder();
     NodeHealth original = underTest
       .addCause(randomAlphanumeric(3))
       .build();
@@ -117,12 +114,12 @@ public class NodeHealthTest {
 
   @Test
   public void builder_can_be_reused() {
-    NodeHealth.Builder builder = randomBuilder(1);
+    NodeHealth.Builder builder = testSupport.randomBuilder(1);
     NodeHealth original = builder.build();
     NodeHealth second = builder.build();
 
     NodeHealth.Status newRandomStatus = NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)];
-    NodeDetails newNodeDetails = randomNodeDetails();
+    NodeDetails newNodeDetails = testSupport.randomNodeDetails();
     long newDate = 1 + random.nextInt(666);
     builder
       .clearCauses()
@@ -143,7 +140,7 @@ public class NodeHealthTest {
 
   @Test
   public void equals_is_based_on_content() {
-    NodeHealth.Builder builder = randomBuilder();
+    NodeHealth.Builder builder = testSupport.randomBuilder();
 
     NodeHealth underTest = builder.build();
 
@@ -157,7 +154,7 @@ public class NodeHealthTest {
 
   @Test
   public void hashcode_is_based_on_content() {
-    NodeHealth.Builder builder = randomBuilder();
+    NodeHealth.Builder builder = testSupport.randomBuilder();
 
     NodeHealth underTest = builder.build();
 
@@ -167,8 +164,8 @@ public class NodeHealthTest {
 
   @Test
   public void class_is_serializable_with_causes() throws IOException, ClassNotFoundException {
-    NodeHealth source = randomBuilder(1).build();
-    byte[] bytes = serialize(source);
+    NodeHealth source = testSupport.randomBuilder(1).build();
+    byte[] bytes = testSupport.serialize(source);
 
     NodeHealth underTest = (NodeHealth) new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
 
@@ -179,27 +176,19 @@ public class NodeHealthTest {
   public void class_is_serializable_without_causes() throws IOException, ClassNotFoundException {
     NodeHealth.Builder builder = newNodeHealthBuilder()
       .setStatus(randomStatus)
-      .setDetails(randomNodeDetails())
+      .setDetails(testSupport.randomNodeDetails())
       .setDate(1 + random.nextInt(999));
     NodeHealth source = builder.build();
-    byte[] bytes = serialize(source);
+    byte[] bytes = testSupport.serialize(source);
 
     NodeHealth underTest = (NodeHealth) new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
 
     assertThat(underTest).isEqualTo(source);
   }
 
-  private byte[] serialize(NodeHealth source) throws IOException {
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(out)) {
-      objectOutputStream.writeObject(source);
-    }
-    return out.toByteArray();
-  }
-
   @Test
   public void verify_toString() {
-    NodeDetails nodeDetails = randomNodeDetails();
+    NodeDetails nodeDetails = testSupport.randomNodeDetails();
     int date = 1 + random.nextInt(999);
     String cause = randomAlphanumeric(4);
     NodeHealth.Builder builder = builderUnderTest
@@ -216,7 +205,7 @@ public class NodeHealthTest {
 
   @Test
   public void verify_getters() {
-    NodeDetails nodeDetails = randomNodeDetails();
+    NodeDetails nodeDetails = testSupport.randomNodeDetails();
     int date = 1 + random.nextInt(999);
     NodeHealth.Builder builder = builderUnderTest
       .setStatus(randomStatus)
@@ -231,33 +220,6 @@ public class NodeHealthTest {
     assertThat(underTest.getDetails()).isEqualTo(nodeDetails);
     assertThat(underTest.getDate()).isEqualTo(date);
     assertThat(underTest.getCauses()).containsOnly(causes);
-  }
-
-  private NodeHealth.Builder randomBuilder() {
-    return randomBuilder(0);
-  }
-
-  private NodeHealth.Builder randomBuilder(int minCauseCount) {
-    NodeHealth.Builder builder = newNodeHealthBuilder()
-      .setStatus(randomStatus)
-      .setDetails(randomNodeDetails())
-      .setDate(1 + random.nextInt(33));
-    IntStream.range(0, minCauseCount + random.nextInt(2)).mapToObj(i -> randomAlphanumeric(4)).forEach(builder::addCause);
-    return builder;
-  }
-
-  private NodeDetails randomNodeDetails() {
-    return randomNodeDetailsBuilder()
-      .build();
-  }
-
-  private NodeDetails.Builder randomNodeDetailsBuilder() {
-    return newNodeDetailsBuilder()
-      .setType(Type.values()[random.nextInt(Type.values().length)])
-      .setName(randomAlphanumeric(3))
-      .setHost(randomAlphanumeric(10))
-      .setPort(1 + random.nextInt(10))
-      .setStarted(1 + random.nextInt(666));
   }
 
 }

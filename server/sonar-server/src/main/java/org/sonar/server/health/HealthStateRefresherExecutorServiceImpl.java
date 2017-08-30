@@ -17,26 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.server.health;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.health.CeStatusNodeCheck;
-import org.sonar.server.health.DbConnectionNodeCheck;
-import org.sonar.server.health.EsStatusNodeCheck;
-import org.sonar.server.health.HealthCheckerImpl;
-import org.sonar.server.health.WebServerStatusNodeCheck;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import org.sonar.cluster.health.HealthStateRefresherExecutorService;
+import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 
-public class HealthActionModule extends Module {
-
-  @Override
-  protected void configureModule() {
-    // NodeHealthCheck implementations
-    add(WebServerStatusNodeCheck.class,
-      DbConnectionNodeCheck.class,
-      EsStatusNodeCheck.class,
-      CeStatusNodeCheck.class);
-
-    add(HealthCheckerImpl.class,
-      HealthAction.class);
+public class HealthStateRefresherExecutorServiceImpl
+  extends AbstractStoppableScheduledExecutorServiceImpl<ScheduledExecutorService>
+  implements HealthStateRefresherExecutorService {
+  public HealthStateRefresherExecutorServiceImpl() {
+    super(Executors.newSingleThreadScheduledExecutor(
+      new ThreadFactoryBuilder()
+        .setDaemon(false)
+        .setNameFormat("health_state_refresh-%d")
+        .build()));
   }
 }

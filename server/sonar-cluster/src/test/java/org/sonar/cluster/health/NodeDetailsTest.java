@@ -20,10 +20,8 @@
 package org.sonar.cluster.health;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +36,8 @@ public class NodeDetailsTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private Random random = new Random();
-  private NodeDetails.Type randomType = NodeDetails.Type.values()[random.nextInt(NodeDetails.Type.values().length)];
+  private NodeDetailsTestSupport testSupport = new NodeDetailsTestSupport(random);
+  private NodeDetails.Type randomType = testSupport.randomType();
   private NodeDetails.Builder builderUnderTest = newNodeDetailsBuilder();
 
   @Test
@@ -173,7 +172,7 @@ public class NodeDetailsTest {
 
   @Test
   public void equals_is_based_on_content() {
-    NodeDetails.Builder builder = randomBuilder();
+    NodeDetails.Builder builder = testSupport.randomNodeDetailsBuilder();
 
     NodeDetails underTest = builder.build();
 
@@ -187,7 +186,7 @@ public class NodeDetailsTest {
 
   @Test
   public void hashcode_is_based_on_content() {
-    NodeDetails.Builder builder = randomBuilder();
+    NodeDetails.Builder builder = testSupport.randomNodeDetailsBuilder();
 
     NodeDetails underTest = builder.build();
 
@@ -197,8 +196,8 @@ public class NodeDetailsTest {
 
   @Test
   public void NodeDetails_is_Externalizable() throws IOException, ClassNotFoundException {
-    NodeDetails source = randomNodeDetails();
-    byte[] byteArray = serialize(source);
+    NodeDetails source = testSupport.randomNodeDetails();
+    byte[] byteArray = testSupport.serialize(source);
 
     NodeDetails underTest = (NodeDetails) new ObjectInputStream(new ByteArrayInputStream(byteArray)).readObject();
 
@@ -244,27 +243,5 @@ public class NodeDetailsTest {
     assertThat(underTest.getHost()).isEqualTo(host);
     assertThat(underTest.getPort()).isEqualTo(port);
     assertThat(underTest.getStarted()).isEqualTo(started);
-  }
-
-  private NodeDetails randomNodeDetails() {
-    return randomBuilder()
-      .build();
-  }
-
-  private NodeDetails.Builder randomBuilder() {
-    return newNodeDetailsBuilder()
-      .setType(randomType)
-      .setName(randomAlphanumeric(3))
-      .setHost(randomAlphanumeric(10))
-      .setPort(1 + random.nextInt(10))
-      .setStarted(1 + random.nextInt(666));
-  }
-
-  private static byte[] serialize(NodeDetails source) throws IOException {
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(out)) {
-      objectOutputStream.writeObject(source);
-    }
-    return out.toByteArray();
   }
 }

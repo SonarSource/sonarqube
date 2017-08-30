@@ -17,26 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.cluster.health;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.health.CeStatusNodeCheck;
-import org.sonar.server.health.DbConnectionNodeCheck;
-import org.sonar.server.health.EsStatusNodeCheck;
-import org.sonar.server.health.HealthCheckerImpl;
-import org.sonar.server.health.WebServerStatusNodeCheck;
+import java.util.concurrent.ScheduledExecutorService;
 
-public class HealthActionModule extends Module {
-
-  @Override
-  protected void configureModule() {
-    // NodeHealthCheck implementations
-    add(WebServerStatusNodeCheck.class,
-      DbConnectionNodeCheck.class,
-      EsStatusNodeCheck.class,
-      CeStatusNodeCheck.class);
-
-    add(HealthCheckerImpl.class,
-      HealthAction.class);
-  }
+public interface HealthStateRefresherExecutorService extends ScheduledExecutorService {
 }

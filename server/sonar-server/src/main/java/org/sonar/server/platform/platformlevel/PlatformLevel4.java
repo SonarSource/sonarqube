@@ -31,6 +31,7 @@ import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.ce.CeModule;
 import org.sonar.ce.settings.ProjectConfigurationFactory;
+import org.sonar.cluster.localclient.HazelcastLocalClient;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.authentication.AuthenticationModule;
@@ -61,6 +62,7 @@ import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.event.NewAlerts;
 import org.sonar.server.favorite.FavoriteModule;
+import org.sonar.server.health.NodeHealthModule;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.CommentAction;
@@ -242,6 +244,10 @@ public class PlatformLevel4 extends PlatformLevel {
       MetadataIndexDefinition.class,
       MetadataIndex.class,
       EsDbCompatibilityImpl.class);
+
+    addIfCluster(
+      HazelcastLocalClient.class,
+      NodeHealthModule.class);
 
     add(
       PluginDownloader.class,
