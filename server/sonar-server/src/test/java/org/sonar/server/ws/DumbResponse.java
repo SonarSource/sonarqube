@@ -45,7 +45,7 @@ public class DumbResponse implements Response {
   public class InMemoryStream implements Response.Stream {
     private String mediaType;
 
-    private int status;
+    private int status = 200;
 
     @CheckForNull
     public String mediaType() {
