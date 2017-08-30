@@ -22,13 +22,13 @@ package org.sonar.server.computation.task.projectanalysis.component;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Implementation of {@link Component} to unit test report components.
@@ -45,6 +45,7 @@ public class ReportComponent implements Component {
   @CheckForNull
   private final String description;
   private final String key;
+  private final String publicKey;
   private final String uuid;
   private final ReportAttributes reportAttributes;
   private final FileAttributes fileAttributes;
@@ -54,6 +55,7 @@ public class ReportComponent implements Component {
     this.type = builder.type;
     this.status = builder.status;
     this.key = builder.key;
+    this.publicKey = builder.publicKey;
     this.name = builder.name == null ? String.valueOf(builder.key) : builder.name;
     this.description = builder.description;
     this.uuid = builder.uuid;
@@ -89,6 +91,14 @@ public class ReportComponent implements Component {
       throw new UnsupportedOperationException(String.format("Component key of ref '%d' has not be fed yet", this.reportAttributes.getRef()));
     }
     return key;
+  }
+
+  @Override
+  public String getPublicKey() {
+    if (publicKey == null) {
+      throw new UnsupportedOperationException(String.format("Component key of ref '%d' has not be fed yet", this.reportAttributes.getRef()));
+    }
+    return publicKey;
   }
 
   @Override
@@ -169,6 +179,7 @@ public class ReportComponent implements Component {
     private Status status;
     private String uuid;
     private String key;
+    private String publicKey;
     private String name;
     private String version;
     private String description;
@@ -183,12 +194,12 @@ public class ReportComponent implements Component {
     }
 
     public Builder setStatus(Status s) {
-      this.status = Objects.requireNonNull(s);
+      this.status = requireNonNull(s);
       return this;
     }
 
     public Builder setUuid(String s) {
-      this.uuid = Objects.requireNonNull(s);
+      this.uuid = requireNonNull(s);
       return this;
     }
 
@@ -198,7 +209,12 @@ public class ReportComponent implements Component {
     }
 
     public Builder setKey(String s) {
-      this.key = Objects.requireNonNull(s);
+      this.key = requireNonNull(s);
+      return this;
+    }
+
+    public Builder setPublicKey(String publicKey) {
+      this.publicKey = requireNonNull(publicKey);
       return this;
     }
 
