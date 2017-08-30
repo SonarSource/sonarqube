@@ -27,35 +27,32 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
+import static java.lang.String.format;
+
 /**
  * Gracefully stops process in a timely fashion
  */
 class StopperThread extends Thread {
 
   private final Monitored monitored;
-  private final long terminationTimeout;
+  private final long terminationTimeoutMs;
   private final ProcessCommands commands;
 
-  StopperThread(Monitored monitored, ProcessCommands commands, long terminationTimeout) {
+  StopperThread(Monitored monitored, ProcessCommands commands, long terminationTimeoutMs) {
     super("Stopper");
     this.monitored = monitored;
-    this.terminationTimeout = terminationTimeout;
+    this.terminationTimeoutMs = terminationTimeoutMs;
     this.commands = commands;
   }
 
   @Override
   public void run() {
     ExecutorService executor = Executors.newSingleThreadExecutor();
-    Future future = executor.submit(new Runnable() {
-      @Override
-      public void run() {
-        monitored.stop();
-      }
-    });
     try {
-      future.get(terminationTimeout, TimeUnit.MILLISECONDS);
+      Future future = executor.submit(monitored::stop);
+      future.get(terminationTimeoutMs, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).error(String.format("Can not stop in %dms", terminationTimeout), e);
+      LoggerFactory.getLogger(getClass()).error(format("Can not stop in %dms", terminationTimeoutMs), e);
     }
     executor.shutdownNow();
     commands.endWatch();

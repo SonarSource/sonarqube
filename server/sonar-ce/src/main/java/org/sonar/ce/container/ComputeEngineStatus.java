@@ -27,6 +27,6 @@ public interface ComputeEngineStatus {
   Status getStatus();
 
   enum Status {
-    INIT, STARTING, STARTED, STOPPING, STOPPED;
+    INIT, STARTING, STARTED, STOPPING, STOPPED
   }
 }
