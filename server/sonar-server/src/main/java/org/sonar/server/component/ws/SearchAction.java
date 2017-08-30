@@ -80,8 +80,7 @@ public class SearchAction implements ComponentsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_SEARCH)
       .setSince("6.3")
-      .setDescription("Search for components.<br>" +
-        "Returns the components with the 'Browse' permission.")
+      .setDescription("Search for components")
       .addPagingParams(100)
       .addSearchQuery("sona", "component names", "component keys")
       .setResponseExample(getClass().getResource("search-components-example.json"))
