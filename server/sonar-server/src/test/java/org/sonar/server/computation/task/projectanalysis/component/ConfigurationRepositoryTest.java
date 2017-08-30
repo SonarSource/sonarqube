@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
-import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
@@ -114,7 +113,7 @@ public class ConfigurationRepositoryTest {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branchDto = db.components().insertProjectBranch(project);
     Branch branch = mock(Branch.class);
-    when(branch.getName()).thenReturn(Optional.of(branchDto.getBranch()));
+    when(branch.getName()).thenReturn(branchDto.getBranch());
     analysisMetadataHolder.setProject(Project.copyOf(project)).setBranch(branch);
     globalSettings.setProperty("global", "global value");
     insertProjectProperty(project, "project", "project value");

@@ -19,14 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
-
 import java.util.Optional;
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -38,8 +31,12 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.analysis.Project;
-import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
+import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
 
 public class BranchPersisterTest {
   private final static Component MAIN = builder(PROJECT, 1).setUuid("PROJECT_UUID").setKey("PROJECT_KEY").build();
@@ -58,7 +55,7 @@ public class BranchPersisterTest {
 
   @Test
   public void fail_if_no_component_for_main_branches() {
-    analysisMetadataHolder.setBranch(createBranch(BranchType.LONG, true, null));
+    analysisMetadataHolder.setBranch(createBranch(BranchType.LONG, true, "master"));
     treeRootHolder.setRoot(MAIN);
 
     exception.expect(IllegalStateException.class);
@@ -94,10 +91,10 @@ public class BranchPersisterTest {
 
   }
 
-  private static Branch createBranch(BranchType type, boolean isMain, @Nullable String name) {
+  private static Branch createBranch(BranchType type, boolean isMain, String name) {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(type);
-    when(branch.getName()).thenReturn(Optional.ofNullable(name));
+    when(branch.getName()).thenReturn(name);
     when(branch.isMain()).thenReturn(isMain);
     when(branch.getMergeBranchUuid()).thenReturn(Optional.empty());
     return branch;

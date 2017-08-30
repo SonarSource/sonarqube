@@ -107,7 +107,7 @@ public class BuildComponentTreeStep implements ComputationStep {
       return new DefaultBranchImpl();
     }
     return branch.filter(Branch::isLegacyFeature)
-      .map(b -> new DefaultBranchImpl(b.getName().orElse(null)))
+      .map(b -> new DefaultBranchImpl(b.getName()))
       .orElseGet(DefaultBranchImpl::new);
   }
 
