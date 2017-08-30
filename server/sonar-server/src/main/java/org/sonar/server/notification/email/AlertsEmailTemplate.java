@@ -19,6 +19,7 @@
  */
 package org.sonar.server.notification.email;
 
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.measures.Metric;
@@ -49,6 +50,7 @@ public class AlertsEmailTemplate extends EmailTemplate {
     String projectId = notification.getFieldValue("projectId");
     String projectKey = notification.getFieldValue("projectKey");
     String projectName = notification.getFieldValue("projectName");
+    String branchName = notification.getFieldValue("branch");
     String alertName = notification.getFieldValue("alertName");
     String alertText = notification.getFieldValue("alertText");
     String alertLevel = notification.getFieldValue("alertLevel");
@@ -56,7 +58,7 @@ public class AlertsEmailTemplate extends EmailTemplate {
 
     // Generate text
     String subject = generateSubject(projectName, alertLevel, isNewAlert);
-    String messageBody = generateMessageBody(projectName, projectKey, alertName, alertText, isNewAlert);
+    String messageBody = generateMessageBody(projectName, projectKey, branchName, alertName, alertText, isNewAlert);
 
     // And finally return the email that will be sent
     return new EmailMessage()
@@ -77,7 +79,7 @@ public class AlertsEmailTemplate extends EmailTemplate {
     return subjectBuilder.toString();
   }
 
-  private String generateMessageBody(String projectName, String projectKey, String alertName, String alertText, boolean isNewAlert) {
+  private String generateMessageBody(String projectName, String projectKey, @Nullable String branchName, String alertName, String alertText, boolean isNewAlert) {
     StringBuilder messageBody = new StringBuilder();
     messageBody.append("Project: ").append(projectName).append("\n");
     messageBody.append("Quality gate status: ").append(alertName).append("\n\n");
@@ -100,6 +102,9 @@ public class AlertsEmailTemplate extends EmailTemplate {
     }
 
     messageBody.append("\n").append("See it in SonarQube: ").append(configuration.getServerBaseURL()).append("/dashboard?id=").append(projectKey);
+    if (branchName != null) {
+      messageBody.append("&branch=").append(branchName);
+    }
 
     return messageBody.toString();
   }

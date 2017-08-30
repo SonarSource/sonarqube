@@ -126,7 +126,7 @@ public class QualityGateEventsStep implements ComputationStep {
     Notification notification = new Notification("alerts")
       .setDefaultMessage(String.format("Alert on %s: %s", project.getName(), label))
       .setFieldValue("projectName", project.getName())
-      .setFieldValue("projectKey", project.getKey())
+      .setFieldValue("projectKey", getMainBranchProjectKey())
       .setFieldValue("projectUuid", project.getUuid())
       .setFieldValue("alertName", label)
       .setFieldValue("alertText", rawStatus.getText())
@@ -143,5 +143,9 @@ public class QualityGateEventsStep implements ComputationStep {
   @Override
   public String getDescription() {
     return "Generate Quality gate events";
+  }
+
+  private String getMainBranchProjectKey() {
+    return analysisMetadataHolder.getProject().getKey();
   }
 }
