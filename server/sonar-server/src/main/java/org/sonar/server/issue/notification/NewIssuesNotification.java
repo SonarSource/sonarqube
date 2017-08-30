@@ -22,6 +22,7 @@ package org.sonar.server.issue.notification;
 import com.google.common.collect.Multiset;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -35,6 +36,7 @@ import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
+import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_BRANCH;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_DATE;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_KEY;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_NAME;
@@ -69,10 +71,13 @@ public class NewIssuesNotification extends Notification {
     return this;
   }
 
-  public NewIssuesNotification setProject(String projectKey, String projectUuid, String projectName) {
+  public NewIssuesNotification setProject(String projectKey, String projectUuid, String projectName, @Nullable String branchName) {
     setFieldValue(FIELD_PROJECT_NAME, projectName);
     setFieldValue(FIELD_PROJECT_KEY, projectKey);
     setFieldValue(FIELD_PROJECT_UUID, projectUuid);
+    if (branchName != null) {
+      setFieldValue(FIELD_BRANCH, branchName);
+    }
     return this;
   }
 
