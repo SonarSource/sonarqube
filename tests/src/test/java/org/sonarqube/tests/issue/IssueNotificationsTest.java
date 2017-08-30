@@ -156,7 +156,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     assertThat((String) message.getContent()).contains("Severity");
     assertThat((String) message.getContent()).contains("One Issue Per Line (xoo): 17");
     assertThat((String) message.getContent()).contains(
-      "See it in SonarQube: http://localhost:9000/project/issues?id=sample&branch=master&createdAt=2015-12-15T00%3A00%3A00%2B");
+      "See it in SonarQube: http://localhost:9000/project/issues?id=sample&createdAt=2015-12-15T00%3A00%3A00%2B");
 
     assertThat(emails.hasNext()).isTrue();
     message = emails.next().getMimeMessage();
