@@ -152,6 +152,14 @@ public class ViewsComponent implements Component {
     return key;
   }
 
+  /**
+   * Views has no branch feature, the public key is the same as the key
+   */
+  @Override
+  public String getPublicKey() {
+    return getKey();
+  }
+
   @Override
   public String getName() {
     checkState(this.name != null, "No name has been set");

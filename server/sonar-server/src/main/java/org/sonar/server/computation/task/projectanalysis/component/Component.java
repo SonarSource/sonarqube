@@ -79,6 +79,14 @@ public interface Component {
   String getKey();
 
   /**
+   * Returns the key as it will be displayed in the ui.
+   * If legacy branch feature is used, the key will contain the branch name
+   * If new branch feature is used, the key will not contain the branch name
+   */
+  // TODO to be renamed getKey() and rename existing getKey to getDbKey
+  String getPublicKey();
+
+  /**
    * The component name.
    */
   String getName();
