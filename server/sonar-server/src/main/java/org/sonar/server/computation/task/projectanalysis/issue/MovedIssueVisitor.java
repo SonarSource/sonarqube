@@ -59,7 +59,7 @@ public class MovedIssueVisitor extends IssueVisitor {
     // changes the issue's component uuid, add a change and set issue as changed to enforce it is persisted to DB
     issueUpdater.setIssueMoved(issue, component.getUuid(), IssueChangeContext.createUser(new Date(analysisMetadataHolder.getAnalysisDate()), null));
     // other fields (such as module, modulePath, componentKey) are read-only and set/reset for consistency only
-    issue.setComponentKey(component.getKey());
+    issue.setComponentKey(component.getPublicKey());
     issue.setModuleUuid(null);
     issue.setModuleUuidPath(null);
   }
