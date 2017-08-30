@@ -266,7 +266,7 @@ public class AnalysisMetadataHolderImplTest {
 
     underTest.setBranch(new DefaultBranchImpl("master"));
 
-    assertThat(underTest.getBranch().get().getName()).hasValue("master");
+    assertThat(underTest.getBranch().get().getName()).isEqualTo("master");
   }
 
   @Test

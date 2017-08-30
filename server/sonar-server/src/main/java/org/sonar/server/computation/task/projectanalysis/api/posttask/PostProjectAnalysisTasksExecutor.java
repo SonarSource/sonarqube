@@ -158,7 +158,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     java.util.Optional<org.sonar.server.computation.task.projectanalysis.analysis.Branch> analysisBranchOpt = analysisMetadataHolder.getBranch();
     if (analysisBranchOpt.isPresent() && !analysisBranchOpt.get().isLegacyFeature()) {
       org.sonar.server.computation.task.projectanalysis.analysis.Branch branch = analysisBranchOpt.get();
-      return new BranchImpl(branch.isMain(), branch.getName().orElse(null), Branch.Type.valueOf(branch.getType().name()));
+      return new BranchImpl(branch.isMain(), branch.getName(), Branch.Type.valueOf(branch.getType().name()));
     }
     return null;
   }

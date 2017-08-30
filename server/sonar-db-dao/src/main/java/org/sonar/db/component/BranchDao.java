@@ -55,8 +55,7 @@ public class BranchDao implements Dao {
   }
 
   public Optional<BranchDto> selectByKey(DbSession dbSession, String projectUuid, BranchKeyType keyType, @Nullable String key) {
-    String keyInDb = BranchDto.convertKeyToDb(key);
-    return Optional.ofNullable(mapper(dbSession).selectByKey(projectUuid, keyType, keyInDb));
+    return Optional.ofNullable(mapper(dbSession).selectByKey(projectUuid, keyType, key));
   }
 
   public Collection<BranchDto> selectByComponent(DbSession dbSession, ComponentDto component) {
