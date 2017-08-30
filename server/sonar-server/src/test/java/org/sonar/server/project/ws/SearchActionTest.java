@@ -285,7 +285,11 @@ public class SearchActionTest {
 
     WebService.Param qParam = action.param("q");
     assertThat(qParam.isRequired()).isFalse();
-    assertThat(qParam.description()).isEqualTo("Limit search to component names or component keys that contain the supplied string.");
+    assertThat(qParam.description()).isEqualTo("Limit search to: " +
+      "<ul>" +
+      "<li>component names that contain the supplied string</li>" +
+      "<li>component keys that are exactly the same as the supplied string</li>" +
+      "</ul>");
 
     WebService.Param qualifierParam = action.param("qualifiers");
     assertThat(qualifierParam.isRequired()).isFalse();
