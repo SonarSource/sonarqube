@@ -18,8 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export interface Project {
+  analysisDate?: string;
+  isFavorite?: boolean;
   key: string;
+  leakPeriodDate?: string;
   measures: { [key: string]: string };
   name: string;
-  organization?: { name: string };
+  organization?: { key: string; name: string };
+  tags: string[];
+  visibility: string;
+}
+
+export interface Facet {
+  [value: string]: number;
+}
+
+export interface Facets {
+  [property: string]: Facet;
 }

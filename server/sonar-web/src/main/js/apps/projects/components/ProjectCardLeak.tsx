@@ -24,37 +24,25 @@ import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
-import FavoriteContainer from '../../../components/controls/FavoriteContainer';
-import Organization from '../../../components/shared/Organization';
+import ProjectCardOrganization from './ProjectCardOrganization';
+import Favorite from '../../../components/controls/Favorite';
 import TagsList from '../../../components/tags/TagsList';
 import PrivateBadge from '../../../components/common/PrivateBadge';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Project } from '../types';
 
 interface Props {
-  measures?: { [key: string]: string };
   organization?: { key: string };
-  project?: {
-    analysisDate?: string;
-    key: string;
-    leakPeriodDate?: string;
-    name: string;
-    tags: Array<string>;
-    isFavorite?: boolean;
-    organization?: string;
-    visibility?: string;
-  };
+  project: Project;
 }
 
-export default function ProjectCardLeak({ measures, organization, project }: Props) {
-  if (project == undefined) {
-    return null;
-  }
+export default function ProjectCardLeak({ organization, project }: Props) {
+  const { measures } = project;
 
   const isProjectAnalyzed = project.analysisDate != null;
   const isPrivate = project.visibility === 'private';
   const hasLeakPeriodStart = project.leakPeriodDate != undefined;
   const hasTags = project.tags.length > 0;
-  const showOrganization = organization == undefined && project.organization != undefined;
 
   // check for particular measures because only some measures can be loaded
   // if coming from visualizations tab
@@ -69,14 +57,14 @@ export default function ProjectCardLeak({ measures, organization, project }: Pro
     <div data-key={project.key} className={className}>
       <div className="boxed-group-header clearfix">
         {project.isFavorite != null && (
-          <FavoriteContainer className="spacer-right" componentKey={project.key} />
+          <Favorite
+            className="spacer-right"
+            component={project.key}
+            favorite={project.isFavorite}
+          />
         )}
         <h2 className="project-card-name">
-          {showOrganization && (
-            <span className="text-normal">
-              <Organization organizationKey={project.organization} />
-            </span>
-          )}
+          {!organization && <ProjectCardOrganization organization={project.organization} />}
           <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
         </h2>
         {displayQualityGate && <ProjectCardQualityGate status={measures!['alert_status']} />}

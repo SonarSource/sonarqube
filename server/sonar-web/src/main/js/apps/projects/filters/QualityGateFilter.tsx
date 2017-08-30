@@ -18,22 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import FilterContainer from './FilterContainer';
+import Filter from './Filter';
 import FilterHeader from './FilterHeader';
 import Level from '../../../components/ui/Level';
 import { translate } from '../../../helpers/l10n';
-import { Facet } from './Filter';
+import { Facet } from '../types';
 
 export interface Props {
   className?: string;
+  facet?: Facet;
   isFavorite?: boolean;
+  maxFacetValue?: number;
   organization?: { key: string };
   query: { [x: string]: any };
+  value?: any;
 }
 
 export default function QualityGateFilter(props: Props) {
   return (
-    <FilterContainer
+    <Filter
+      facet={props.facet}
+      maxFacetValue={props.maxFacetValue}
+      value={props.value}
       property="gate"
       options={['OK', 'WARN', 'ERROR']}
       query={props.query}

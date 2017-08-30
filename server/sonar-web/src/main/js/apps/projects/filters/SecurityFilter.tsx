@@ -19,13 +19,17 @@
  */
 import * as React from 'react';
 import IssuesFilter from './IssuesFilter';
+import { Facet } from '../types';
 
 interface Props {
   className?: string;
+  facet?: Facet;
   headerDetail?: React.ReactNode;
   isFavorite?: boolean;
+  maxFacetValue?: number;
   organization?: { key: string };
   query: { [x: string]: any };
+  value?: any;
 }
 
 export default function SecurityFilter(props: Props) {

@@ -25,7 +25,9 @@ it('renders', () => {
   const project1 = {
     key: 'foo',
     measures: { complexity: '17.2', coverage: '53.5', ncloc: '1734' },
-    name: 'Foo'
+    name: 'Foo',
+    tags: [],
+    visibility: 'public'
   };
   expect(shallow(<Risk displayOrganizations={false} projects={[project1]} />)).toMatchSnapshot();
 });

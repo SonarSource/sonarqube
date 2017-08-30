@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-jest.mock('../AllProjectsContainer', () => ({
-  default: function AllProjectsContainer() {
+jest.mock('../AllProjects', () => ({
+  default: function AllProjects() {
     return null;
   }
 }));
@@ -34,7 +34,7 @@ jest.mock('../../../../api/components', () => ({
 
 import * as React from 'react';
 import { mount } from 'enzyme';
-import { UnconnectedDefaultPageSelector } from '../DefaultPageSelector';
+import DefaultPageSelector from '../DefaultPageSelector';
 import { doAsync } from '../../../../helpers/testUtils';
 
 const isFavoriteSet = require('../../../../helpers/storage').isFavoriteSet as jest.Mock<any>;
@@ -55,7 +55,7 @@ it('shows all projects with existing filter', () => {
 it('shows all projects sorted by analysis date for anonymous', () => {
   const replace = jest.fn();
   mountRender({ isLoggedIn: false }, undefined, replace);
-  expect(replace).lastCalledWith({ query: { sort: '-analysis_date' } });
+  expect(replace).lastCalledWith({ pathname: '/projects', query: { sort: '-analysis_date' } });
 });
 
 it('shows favorite projects', () => {
@@ -83,7 +83,7 @@ it('fetches favorites', () => {
 });
 
 function mountRender(user: any = { isLoggedIn: true }, query: any = {}, replace: any = jest.fn()) {
-  return mount(<UnconnectedDefaultPageSelector currentUser={user} location={{ query }} />, {
-    context: { router: { replace } }
+  return mount(<DefaultPageSelector location={{ pathname: '/projects', query }} />, {
+    context: { currentUser: user, router: { replace } }
   });
 }

@@ -38,9 +38,24 @@ export function getMeasuresAndMeta(
   return getJSON('/api/measures/component', data);
 }
 
-export function getMeasuresForProjects(projectKeys: string[], metricKeys: string[]): Promise<any> {
+export interface Period {
+  index: number;
+  value: string;
+}
+
+export interface Measure {
+  component: string;
+  metric: string;
+  periods?: Period[];
+  value?: string;
+}
+
+export function getMeasuresForProjects(
+  projectKeys: string[],
+  metricKeys: string[]
+): Promise<Measure[]> {
   return getJSON('/api/measures/search', {
     projectKeys: projectKeys.join(),
     metricKeys: metricKeys.join()
-  });
+  }).then(r => r.measures);
 }

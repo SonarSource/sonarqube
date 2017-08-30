@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,12 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import ProjectCardLanguages from './ProjectCardLanguages';
-import { getLanguages } from '../../../store/rootReducer';
+import * as React from 'react';
+import App from '../../projects/components/App';
+import AllProjects from '../../projects/components/AllProjects';
 
-const mapStateToProps = (state: any) => ({
-  languages: getLanguages(state)
-});
+interface Props {
+  location: { pathname: string; query: { [x: string]: string } };
+  organization: { key: string };
+}
 
-export default connect<any, any, any>(mapStateToProps)(ProjectCardLanguages);
+export default function OrganizationProjects(props: Props) {
+  return (
+    <div id="projects-page">
+      <App>
+        <AllProjects
+          isFavorite={false}
+          location={props.location}
+          organization={props.organization}
+        />
+      </App>
+    </div>
+  );
+}

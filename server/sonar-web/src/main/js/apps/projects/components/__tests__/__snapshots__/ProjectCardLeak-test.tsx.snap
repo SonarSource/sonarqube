@@ -11,6 +11,14 @@ exports[`should display the leak measures and quality gate 1`] = `
     <h2
       className="project-card-name"
     >
+      <ProjectCardOrganization
+        organization={
+          Object {
+            "key": "org",
+            "name": "org",
+          }
+        }
+      />
       <Link
         onlyActiveOnIndex={false}
         style={Object {}}

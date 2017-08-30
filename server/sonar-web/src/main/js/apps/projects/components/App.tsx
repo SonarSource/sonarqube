@@ -18,8 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
+import * as PropTypes from 'prop-types';
+import {
+  getCurrentUser,
+  getLanguages,
+  areThereCustomOrganizations
+} from '../../../store/rootReducer';
 
-export default class App extends React.PureComponent {
+interface Props {
+  currentUser: { isLoggedIn: boolean };
+  languages: { [key: string]: { key: string; name: string } };
+  organizationsEnabled: boolean;
+}
+
+class App extends React.PureComponent<Props> {
+  static childContextTypes = {
+    currentUser: PropTypes.object.isRequired,
+    languages: PropTypes.object.isRequired,
+    organizationsEnabled: PropTypes.bool
+  };
+
+  getChildContext() {
+    return {
+      currentUser: this.props.currentUser,
+      languages: this.props.languages,
+      organizationsEnabled: this.props.organizationsEnabled
+    };
+  }
+
   componentDidMount() {
     const elem = document.querySelector('html');
     if (elem) {
@@ -38,3 +65,11 @@ export default class App extends React.PureComponent {
     return <div id="projects-page">{this.props.children}</div>;
   }
 }
+
+const mapStateToProps = (state: any) => ({
+  currentUser: getCurrentUser(state),
+  languages: getLanguages(state),
+  organizationsEnabled: areThereCustomOrganizations(state)
+});
+
+export default connect<any, any, any>(mapStateToProps)(App);
