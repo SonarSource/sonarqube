@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.notifications.Notification;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.server.computation.task.projectanalysis.analysis.Project;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
@@ -81,6 +82,7 @@ public class QualityGateEventsStepTest {
   @Before
   public void setUp() {
     when(metricRepository.getByKey(ALERT_STATUS_KEY)).thenReturn(alertStatusMetric);
+    analysisMetadataHolder.setProject(new Project(PROJECT_COMPONENT.getUuid(), PROJECT_COMPONENT.getKey(), PROJECT_COMPONENT.getName()));
     analysisMetadataHolder.setBranch(null);
     treeRootHolder.setRoot(PROJECT_COMPONENT);
   }
