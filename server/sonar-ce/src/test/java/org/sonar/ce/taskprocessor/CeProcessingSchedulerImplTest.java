@@ -67,20 +67,20 @@ import static org.sonar.ce.taskprocessor.CeWorker.Result.TASK_PROCESSED;
 public class CeProcessingSchedulerImplTest {
   private static final Error ERROR_TO_INTERRUPT_CHAINING = new Error("Error should stop scheduling");
 
-  @Rule
   // due to risks of infinite chaining of tasks/futures, a timeout is required for safety
+  @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
   @Rule
   public CeConfigurationRule ceConfiguration = new CeConfigurationRule();
-  // Required to prevent an infinite loop
   private CeWorker ceWorker = mock(CeWorker.class);
   private CeWorkerFactory ceWorkerFactory = new TestCeWorkerFactory(ceWorker);
   private StubCeProcessingSchedulerExecutorService processingExecutorService = new StubCeProcessingSchedulerExecutorService();
   private SchedulerCall regularDelayedPoll = new SchedulerCall(ceWorker, 2000L, MILLISECONDS);
   private SchedulerCall extendedDelayedPoll = new SchedulerCall(ceWorker, 30000L, MILLISECONDS);
   private SchedulerCall notDelayedPoll = new SchedulerCall(ceWorker);
+  private EnabledCeWorkerController ceWorkerController = new EnabledCeWorkerControllerImpl(ceConfiguration);
 
-  private CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(ceConfiguration, processingExecutorService, ceWorkerFactory);
+  private CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(ceConfiguration, processingExecutorService, ceWorkerFactory, ceWorkerController);
 
   @Test
   public void polls_without_delay_when_CeWorkerCallable_returns_TASK_PROCESSED() throws Exception {
@@ -164,7 +164,7 @@ public class CeProcessingSchedulerImplTest {
   }
 
   @Test
-  public void stop_cancels_next_polling_and_does_not_add_any_new_one() throws Exception {
+  public void stopScheduling_cancels_next_polling_and_does_not_add_any_new_one() throws Exception {
     when(ceWorker.call())
       .thenReturn(NO_TASK)
       .thenReturn(TASK_PROCESSED)
@@ -188,7 +188,7 @@ public class CeProcessingSchedulerImplTest {
       }
       // call stop after second delayed polling
       if (i == 1) {
-        underTest.stop();
+        underTest.stopScheduling();
       }
       i++;
     }
@@ -219,7 +219,7 @@ public class CeProcessingSchedulerImplTest {
     when(processingExecutorService.schedule(any(CeWorker.class), any(Long.class), any(TimeUnit.class))).thenReturn(listenableScheduledFuture);
 
     CeWorkerFactory ceWorkerFactory = spy(new TestCeWorkerFactory(workers));
-    CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(ceConfiguration, processingExecutorService, ceWorkerFactory);
+    CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(ceConfiguration, processingExecutorService, ceWorkerFactory, ceWorkerController);
     when(processingExecutorService.schedule(ceWorker, ceConfiguration.getQueuePollingDelay(), MILLISECONDS))
       .thenReturn(listenableScheduledFuture);
 
@@ -454,7 +454,7 @@ public class CeProcessingSchedulerImplTest {
 
       @Override
       public void shutdown() {
-        throw new UnsupportedOperationException("shutdown() not implemented");
+        // Nothing to do
       }
 
       @Override

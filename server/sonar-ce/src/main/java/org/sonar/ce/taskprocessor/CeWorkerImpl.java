@@ -79,7 +79,7 @@ public class CeWorkerImpl implements CeWorker {
       return NO_TASK;
     }
 
-    try {
+    try (EnabledCeWorkerController.ProcessingRecorderHook processing = enabledCeWorkerController.registerProcessingFor(this)) {
       executeTask(ceTask.get());
     } catch (Exception e) {
       LOG.error(format("An error occurred while executing task with uuid '%s'", ceTask.get().getUuid()), e);

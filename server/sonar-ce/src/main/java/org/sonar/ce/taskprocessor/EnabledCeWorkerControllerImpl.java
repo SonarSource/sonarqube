@@ -19,13 +19,19 @@
  */
 package org.sonar.ce.taskprocessor;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.configuration.CeConfiguration;
 
 public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController {
+  private final ConcurrentHashMap<CeWorker, Status> map = new ConcurrentHashMap<>();
   private final CeConfiguration ceConfiguration;
   private final AtomicInteger workerCount;
+
+  enum Status {
+    PROCESSING, PAUSED
+  }
 
   public EnabledCeWorkerControllerImpl(CeConfiguration ceConfiguration) {
     this.ceConfiguration = ceConfiguration;
@@ -46,6 +52,16 @@ public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController 
     logEnabledWorkerCount();
   }
 
+  @Override
+  public ProcessingRecorderHook registerProcessingFor(CeWorker ceWorker) {
+    return new ProcessingRecorderHookImpl(ceWorker);
+  }
+
+  @Override
+  public boolean hasAtLeastOneProcessingWorker() {
+    return map.entrySet().stream().anyMatch(e -> e.getValue() == Status.PROCESSING);
+  }
+
   /**
    * Returns {@code true} if {@link CeWorker#getOrdinal() worker ordinal} is strictly less than
    * {@link CeConfiguration#getWorkerCount()}.
@@ -55,5 +71,19 @@ public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController 
   @Override
   public boolean isEnabled(CeWorker ceWorker) {
     return ceWorker.getOrdinal() < workerCount.get();
+  }
+
+  private class ProcessingRecorderHookImpl implements ProcessingRecorderHook {
+    private final CeWorker ceWorker;
+
+    private ProcessingRecorderHookImpl(CeWorker ceWorker) {
+      this.ceWorker = ceWorker;
+      map.put(this.ceWorker, Status.PROCESSING);
+    }
+
+    @Override
+    public void close() throws Exception {
+      map.put(ceWorker, Status.PAUSED);
+    }
   }
 }

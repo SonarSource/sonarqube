@@ -21,11 +21,12 @@ package org.sonarqube.tests;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.sonarqube.tests.ce.CeShutdownTest;
 import org.sonarqube.tests.ce.CeWorkersTest;
 import org.sonarqube.tests.qualityProfile.ActiveRuleEsResilienceTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesNotificationTest;
 import org.sonarqube.tests.rule.RuleEsResilienceTest;
-import org.sonarqube.tests.serverSystem.ClusterTest;
+import org.sonarqube.tests.cluster.ClusterTest;
 import org.sonarqube.tests.serverSystem.RestartTest;
 import org.sonarqube.tests.serverSystem.ServerSystemRestartingOrchestrator;
 import org.sonarqube.tests.settings.ElasticsearchSettingsTest;
@@ -63,7 +64,9 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
   TelemetryUploadTest.class,
   TelemetryOptOutTest.class,
   // ce
+  CeShutdownTest.class,
   CeWorkersTest.class,
+
   // elasticsearch
   ElasticsearchSettingsTest.class
 })
