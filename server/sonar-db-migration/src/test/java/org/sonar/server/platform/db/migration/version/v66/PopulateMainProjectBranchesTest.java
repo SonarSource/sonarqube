@@ -20,69 +20,84 @@
 package org.sonar.server.platform.db.migration.version.v66;
 
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
+import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class PopulateMainProjectBranchesTest {
+
+  private final static long PAST = 10_000_000_000L;
+  private final static long NOW = 50_000_000_000L;
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(PopulateMainProjectBranchesTest.class, "initial.sql");
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private System2 system2 = new TestSystem2().setNow(NOW);
   private PopulateMainProjectBranches underTest = new PopulateMainProjectBranches(db.database(), system2);
 
   @Test
-  public void populate_with_existing_project() throws SQLException {
-    insertProject("project1");
-    insertProject("project2", "project1", "PRJ");
-    insertProject("project3", null, "XXX");
+  public void migrate() throws SQLException {
+    String project = insertProject();
 
     underTest.execute();
 
-    assertThat(db.countRowsOfTable("project_branches")).isEqualTo(1);
-
-    Map<String, Object> row = db.selectFirst("select * from project_branches");
-    assertThat(row.get("UUID")).isEqualTo("project1");
-    assertThat(row.get("PROJECT_UUID")).isEqualTo("project1");
-    assertThat(row.get("KEE")).isEqualTo(PopulateMainProjectBranches.NULL_KEY);
-    assertThat(row.get("BRANCH_TYPE")).isEqualTo("LONG");
-
+    assertProjectBranches(tuple("master", project, project, "BRANCH", "LONG", NOW, NOW));
   }
 
   @Test
-  public void do_nothing_if_no_project() throws SQLException {
-    insertProject("project2", "project1", "PRJ");
-    insertProject("project3", null, "XXX");
+  public void does_nothing_on_non_projects() throws SQLException {
+    insertProject(null, "BRC");
+    insertProject(null, "VW");
 
     underTest.execute();
-    assertThat(db.countRowsOfTable("project_branches")).isEqualTo(0);
+
+    assertThat(db.countRowsOfTable("project_branches")).isZero();
   }
 
   @Test
-  public void do_not_populate_if_already_exists() throws SQLException {
-    insertProject("project1");
-    insertBranch("project1");
-
-    assertThat(db.countRowsOfTable("project_branches")).isEqualTo(1);
+  public void does_nothing_on_empty_table() throws SQLException {
     underTest.execute();
-    assertThat(db.countRowsOfTable("project_branches")).isEqualTo(1);
+
+    assertThat(db.countRowsOfTable("project_branches")).isZero();
   }
 
-  private void insertProject(String uuid) {
-    insertProject(uuid, null, "PRJ");
+  @Test
+  public void does_nothing_if_already_migrated() throws SQLException {
+    String project = insertProject();
+    insertMainBranch(project);
+
+    underTest.execute();
+
+    assertProjectBranches(tuple("master", project, project, "BRANCH", "LONG", PAST, PAST));
   }
 
-  private void insertProject(String uuid, @Nullable String mainBranchUuid, String scope) {
+  private void assertProjectBranches(Tuple... expectedTuples) {
+    assertThat(db.select("SELECT KEE, UUID, PROJECT_UUID, KEE_TYPE, BRANCH_TYPE, CREATED_AT, UPDATED_AT FROM PROJECT_BRANCHES")
+      .stream()
+      .map(map -> new Tuple(map.get("KEE"), map.get("UUID"), map.get("PROJECT_UUID"), map.get("KEE_TYPE"), map.get("BRANCH_TYPE"), map.get("CREATED_AT"), map.get("UPDATED_AT")))
+      .collect(Collectors.toList()))
+        .containsExactlyInAnyOrder(expectedTuples);
+  }
+
+  private String insertProject() {
+    return insertProject(null, "PRJ");
+  }
+
+  private String insertProject(@Nullable String mainBranchUuid, String scope) {
+    String uuid = Uuids.createFast();
     db.executeInsert("PROJECTS",
       "ORGANIZATION_UUID", "default-org",
       "KEE", uuid + "-key",
@@ -94,16 +109,17 @@ public class PopulateMainProjectBranchesTest {
       "PRIVATE", "true",
       "qualifier", "TRK",
       "scope", scope);
+    return uuid;
   }
 
-  private void insertBranch(String uuid) {
+  private void insertMainBranch(String uuid) {
     db.executeInsert("PROJECT_BRANCHES",
       "uuid", uuid,
       "project_uuid", uuid,
       "kee_type", "BRANCH",
-      "kee", PopulateMainProjectBranches.NULL_KEY,
+      "kee", "master",
       "branch_type", "LONG",
-      "created_at", 0,
-      "updated_at", 0);
+      "created_at", PAST,
+      "updated_at", PAST);
   }
 }
