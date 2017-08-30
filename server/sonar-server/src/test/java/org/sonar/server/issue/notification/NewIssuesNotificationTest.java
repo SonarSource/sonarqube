@@ -55,12 +55,23 @@ public class NewIssuesNotificationTest {
   NewIssuesNotification underTest = new NewIssuesNotification(userIndex, dbClient, durations);
 
   @Test
-  public void set_project() {
-    underTest.setProject("project-key", "project-uuid", "project-long-name");
+  public void set_project_without_branch() {
+    underTest.setProject("project-key", "project-uuid", "project-long-name", null);
 
     assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_NAME)).isEqualTo("project-long-name");
     assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_UUID)).isEqualTo("project-uuid");
     assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_KEY)).isEqualTo("project-key");
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_BRANCH)).isNull();
+  }
+
+  @Test
+  public void set_project_with_branch() {
+    underTest.setProject("project-key", "project-uuid", "project-long-name", "feature");
+
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_NAME)).isEqualTo("project-long-name");
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_UUID)).isEqualTo("project-uuid");
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_KEY)).isEqualTo("project-key");
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_BRANCH)).isEqualTo("feature");
   }
 
   @Test
