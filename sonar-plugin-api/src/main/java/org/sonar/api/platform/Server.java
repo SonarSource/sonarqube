@@ -37,10 +37,12 @@ import org.sonar.api.server.ServerSide;
 public abstract class Server {
 
   /**
-   * Name is misleading, this is an UUID generated
-   * at each startup, so it changes if server is restarted.
+   * UUID identifying the installation. It is persisted
+   * so that it does not change over time, even after
+   * a restart.
    * In the context of cluster, the value is shared
    * by all the nodes.
+   *
    * @return a non-null UUID. Format can change over versions.
    */
   public abstract String getId();
