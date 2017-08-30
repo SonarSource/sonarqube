@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
@@ -36,11 +35,9 @@ import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentKeyGenerator;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentTreeBuilder;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentUuidFactory;
+import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.component.MutableTreeRootHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
-
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.trimToNull;
 
 /**
  * Populates the {@link MutableTreeRootHolder} and {@link MutableAnalysisMetadataHolder} from the {@link BatchReportReader}
@@ -70,6 +67,7 @@ public class BuildComponentTreeStep implements ComputationStep {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ScannerReport.Component reportProject = reportReader.readComponent(analysisMetadataHolder.getRootComponentRef());
       ComponentKeyGenerator keyGenerator = loadKeyGenerator();
+      ComponentKeyGenerator publicKeyGenerator = loadPublicKeyGenerator();
 
       // root key of branch, not necessarily of project
       String rootKey = keyGenerator.generateKey(reportProject, null);
@@ -80,7 +78,7 @@ public class BuildComponentTreeStep implements ComputationStep {
       String rootUuid = componentUuidFactory.getOrCreateForKey(rootKey);
       SnapshotDto baseAnalysis = loadBaseAnalysis(dbSession, rootUuid);
 
-      ComponentTreeBuilder builder = new ComponentTreeBuilder(keyGenerator,
+      ComponentTreeBuilder builder = new ComponentTreeBuilder(keyGenerator, publicKeyGenerator,
         componentUuidFactory::getOrCreateForKey,
         reportReader::readComponent,
         analysisMetadataHolder.getProject(),
@@ -93,12 +91,19 @@ public class BuildComponentTreeStep implements ComputationStep {
   }
 
   private ComponentKeyGenerator loadKeyGenerator() {
-    return Stream.of(analysisMetadataHolder.getBranch(), Optional.of(new DefaultKeyGenerator()))
+    return Stream.of(analysisMetadataHolder.getBranch(), Optional.of(new DefaultBranchImpl()))
       // TODO pull request generator will be added here
       .filter(Optional::isPresent)
       .flatMap(x -> x.map(Stream::of).orElseGet(Stream::empty))
       .findFirst()
       .get();
+  }
+
+  private ComponentKeyGenerator loadPublicKeyGenerator() {
+    return analysisMetadataHolder.getBranch()
+      .filter(b -> !b.isMain())
+      .map(b -> new DefaultBranchImpl(b.getName().orElse(null)))
+      .orElseGet(DefaultBranchImpl::new);
   }
 
   @CheckForNull
@@ -122,14 +127,4 @@ public class BuildComponentTreeStep implements ComputationStep {
     return null;
   }
 
-  private static class DefaultKeyGenerator implements ComponentKeyGenerator {
-    @Override
-    public String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir) {
-      String moduleKey = module.getKey();
-      if (fileOrDir == null || isEmpty(fileOrDir.getPath())) {
-        return moduleKey;
-      }
-      return ComponentKeys.createEffectiveKey(moduleKey, trimToNull(fileOrDir.getPath()));
-    }
-  }
 }
