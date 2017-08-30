@@ -22,7 +22,7 @@ package org.sonar.ce.app;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.ComputeEngine;
@@ -56,7 +56,7 @@ public class CeServer implements Monitored {
   private volatile boolean stopAwait = false;
 
   private final ComputeEngine computeEngine;
-  @CheckForNull
+  @Nullable
   private CeMainThread ceMainThread = null;
 
   @VisibleForTesting
@@ -172,6 +172,7 @@ public class CeServer implements Monitored {
           Thread.sleep(CHECK_FOR_STOP_DELAY);
         } catch (InterruptedException e) {
           // ignore the interruption itself, check the flag
+          Thread.currentThread().interrupt();
         }
       }
       attemptShutdown();
@@ -179,18 +180,14 @@ public class CeServer implements Monitored {
 
     private void attemptShutdown() {
       try {
-        shutdown();
+        LOG.info("Compute Engine shutting down...");
+        computeEngine.shutdown();
       } catch (Throwable e) {
         LOG.error("Compute Engine shutdown failed", e);
       } finally {
         // release thread waiting for CeServer
         stopAwait();
       }
-    }
-
-    private void shutdown() {
-      LOG.info("Compute Engine shutting down...");
-      computeEngine.shutdown();
     }
 
     public boolean isStarted() {

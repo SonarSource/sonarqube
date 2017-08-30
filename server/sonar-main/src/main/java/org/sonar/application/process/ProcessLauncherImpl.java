@@ -44,7 +44,7 @@ import static java.lang.String.format;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_KEY;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
-import static org.sonar.process.ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT_MS;
 
 public class ProcessLauncherImpl implements ProcessLauncher {
   private static final Logger LOG = LoggerFactory.getLogger(ProcessLauncherImpl.class);
@@ -182,7 +182,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       props.putAll(javaCommand.getArguments());
       props.setProperty(PROPERTY_PROCESS_KEY, javaCommand.getProcessId().getKey());
       props.setProperty(PROPERTY_PROCESS_INDEX, Integer.toString(javaCommand.getProcessId().getIpcIndex()));
-      props.setProperty(PROPERTY_TERMINATION_TIMEOUT, "60000");
+      props.setProperty(PROPERTY_TERMINATION_TIMEOUT_MS, "60000");
       props.setProperty(PROPERTY_SHARED_PATH, tempDir.getAbsolutePath());
       try (OutputStream out = new FileOutputStream(propertiesFile)) {
         props.store(out, format("Temporary properties file for command [%s]", javaCommand.getProcessId().getKey()));

@@ -19,6 +19,11 @@
  */
 package org.sonar.process;
 
+/**
+ * Base interface for the processes started by the bootstrap process.
+ * It provides the information and operations required by {@link ProcessEntryPoint}
+ * to handle the lifecycle of the process.
+ */
 public interface Monitored {
 
   /**
@@ -37,9 +42,12 @@ public interface Monitored {
   }
 
   /**
-   * Blocks until the process is terminated
+   * Blocks until the process is stopped
    */
   void awaitStop();
 
+  /**
+   * Stop process and wait until it's stopped.
+   */
   void stop();
 }
