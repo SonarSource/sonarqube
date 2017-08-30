@@ -43,10 +43,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.NetworkUtils;
 import org.sonar.application.AppStateListener;
+import org.sonar.cluster.ClusterObjectKeys;
+import org.sonar.cluster.localclient.HazelcastClient;
 import org.sonar.process.MessageException;
 import org.sonar.process.NodeType;
 import org.sonar.process.ProcessId;
@@ -275,6 +279,53 @@ public class HazelcastCluster implements AutoCloseable {
   String getLocalEndPoint() {
     Address localAddress = hzInstance.getCluster().getLocalMember().getAddress();
     return format("%s:%d", localAddress.getHost(), localAddress.getPort());
+  }
+
+  public HazelcastClient getHazelcastClient() {
+    return new HazelcastInstanceClient(hzInstance);
+  }
+
+  private static class HazelcastInstanceClient implements HazelcastClient {
+    private final HazelcastInstance hzInstance;
+
+    private HazelcastInstanceClient(HazelcastInstance hzInstance) {
+      this.hzInstance = hzInstance;
+    }
+
+    @Override
+    public <E> Set<E> getSet(String s) {
+      return hzInstance.getSet(s);
+    }
+
+    @Override
+    public <E> List<E> getList(String s) {
+      return hzInstance.getList(s);
+    }
+
+    @Override
+    public <K, V> Map<K, V> getMap(String s) {
+      return hzInstance.getMap(s);
+    }
+
+    @Override
+    public <K, V> Map<K, V> getReplicatedMap(String s) {
+      return hzInstance.getReplicatedMap(s);
+    }
+
+    @Override
+    public String getClientUUID() {
+      return hzInstance.getLocalEndpoint().getUuid();
+    }
+
+    @Override
+    public Set<String> getConnectedClients() {
+      return hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS);
+    }
+
+    @Override
+    public Lock getLock(String s) {
+      return hzInstance.getLock(s);
+    }
   }
 
   private class OperationalProcessListener implements EntryListener<ClusterProcess, Boolean> {
