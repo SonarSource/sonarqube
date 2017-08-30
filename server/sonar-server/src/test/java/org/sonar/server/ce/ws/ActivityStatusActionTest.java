@@ -66,6 +66,7 @@ public class ActivityStatusActionTest {
   public void json_example() {
     dbClient.ceQueueDao().insert(dbSession, newCeQueueDto("ce-queue-uuid-1").setStatus(CeQueueDto.Status.PENDING));
     dbClient.ceQueueDao().insert(dbSession, newCeQueueDto("ce-queue-uuid-2").setStatus(CeQueueDto.Status.PENDING));
+    dbClient.ceQueueDao().insert(dbSession, newCeQueueDto("ce-queue-uuid-3").setStatus(CeQueueDto.Status.IN_PROGRESS));
     for (int i = 0; i < 5; i++) {
       dbClient.ceActivityDao().insert(dbSession, new CeActivityDto(newCeQueueDto("ce-activity-uuid-" + i))
         .setStatus(CeActivityDto.Status.FAILED));

@@ -20,6 +20,7 @@
 package org.sonar.server.ce.ws;
 
 import com.google.common.base.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -69,6 +70,8 @@ public class ActivityStatusAction implements CeWsAction {
     action.createParam(PARAM_COMPONENT_KEY)
       .setDescription("Key of the component (project) to filter on")
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
+
+    action.setChangelog(new Change("6.6", "New field 'inProgress' in response"));
   }
 
   @Override
@@ -83,10 +86,12 @@ public class ActivityStatusAction implements CeWsAction {
       String componentUuid = component.isPresent() ? component.get().uuid() : null;
       checkPermissions(component);
       int pendingCount = dbClient.ceQueueDao().countByStatusAndComponentUuid(dbSession, CeQueueDto.Status.PENDING, componentUuid);
+      int inProgressCount = dbClient.ceQueueDao().countByStatusAndComponentUuid(dbSession, CeQueueDto.Status.IN_PROGRESS, componentUuid);
       int failingCount = dbClient.ceActivityDao().countLastByStatusAndComponentUuid(dbSession, CeActivityDto.Status.FAILED, componentUuid);
 
       return ActivityStatusWsResponse.newBuilder()
         .setPending(pendingCount)
+        .setInProgress(inProgressCount)
         .setFailing(failingCount)
         .build();
     }
