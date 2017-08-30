@@ -247,7 +247,7 @@ public class SearchActionTest {
     WebService.Action action = ws.getDef();
     assertThat(action.key()).isEqualTo("search");
     assertThat(action.isPost()).isFalse();
-    assertThat(action.description()).isEqualTo("Search for projects or views.<br>Requires 'System Administrator' permission");
+    assertThat(action.description()).isEqualTo("Search for projects or views to administrate them.<br>Requires 'System Administrator' permission");
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("6.3");
     assertThat(action.handler()).isEqualTo(ws.getDef().handler());
