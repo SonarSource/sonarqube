@@ -70,6 +70,7 @@ message SearchWsResponse {
     optional string name = 4;
     optional string qualifier = 5;
     optional string visibility = 6;
+    optional string lastAnalysisDate = 7;
   }
 }
 

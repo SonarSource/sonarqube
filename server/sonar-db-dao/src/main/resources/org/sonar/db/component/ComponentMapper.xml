@@ -249,23 +249,27 @@
 
   <sql id="sqlSelectByQuery">
     from projects p
+    <if test="query.analyzedBefore!=null">
+      inner join snapshots s on s.component_uuid=p.uuid and s.status='P' and s.islast=${_true}
+        and s.created_at &lt; #{query.analyzedBefore,jdbcType=BIGINT}
+    </if>
     where
       p.enabled=${_true}
-      AND p.copy_component_uuid is null
+      and p.copy_component_uuid is null
       <if test="organizationUuid!=null">
         and p.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
       </if>
       <if test="query.qualifiers!=null">
-      AND p.qualifier in
-        <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
-          #{qualifier,jdbcType=VARCHAR}
-        </foreach>
+        and p.qualifier in
+          <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
+            #{qualifier,jdbcType=VARCHAR}
+          </foreach>
       </if>
       <if test="query.language!=null">
-        AND p.language = #{query.language,jdbcType=VARCHAR}
+        and p.language = #{query.language,jdbcType=VARCHAR}
       </if>
       <if test="query.componentIds!=null">
-        AND p.id in
+        and p.id in
         <foreach collection="query.componentIds" item="componentId" open="(" close=")" separator=",">
           #{componentId,jdbcType=BIGINT}
         </foreach>
