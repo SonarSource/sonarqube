@@ -37,7 +37,13 @@ public class ReportComponent implements Component {
 
   private static final FileAttributes DEFAULT_FILE_ATTRIBUTES = new FileAttributes(false, null, 1);
 
-  public static final Component DUMB_PROJECT = builder(Type.PROJECT, 1).setKey("PROJECT_KEY").setUuid("PROJECT_UUID").setName("Project Name").setVersion("1.0-SNAPSHOT").build();
+  public static final Component DUMB_PROJECT = builder(Type.PROJECT, 1)
+    .setKey("PROJECT_KEY")
+    .setPublicKey("PUBLIC_PROJECT_KEY")
+    .setUuid("PROJECT_UUID")
+    .setName("Project Name")
+    .setVersion("1.0-SNAPSHOT")
+    .build();
 
   private final Type type;
   private final Status status;
@@ -170,7 +176,7 @@ public class ReportComponent implements Component {
   }
 
   public static Builder builder(Type type, int ref) {
-    return new Builder(type, ref).setKey("key_" + ref).setUuid("uuid_" + ref);
+    return new Builder(type, ref).setKey("key_" + ref).setPublicKey("public_" + ref).setUuid("uuid_" + ref);
   }
 
   public static final class Builder {
