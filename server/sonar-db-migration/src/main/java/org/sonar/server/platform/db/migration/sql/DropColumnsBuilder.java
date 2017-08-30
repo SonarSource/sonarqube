@@ -67,18 +67,18 @@ public class DropColumnsBuilder {
   }
 
   private String getOracleStatement() {
-    StringBuilder sql2 = new StringBuilder().append(ALTER_TABLE).append(tableName).append(" ");
-    sql2.append("DROP (");
-    dropColumns(sql2, "", columns);
-    sql2.append(")");
-    return sql2.toString();
+    StringBuilder sql = new StringBuilder().append(ALTER_TABLE).append(tableName).append(" ");
+    sql.append("SET UNUSED (");
+    dropColumns(sql, "", columns);
+    sql.append(")");
+    return sql.toString();
   }
 
   private String getMsSQLStatement(String... columnNames) {
-    StringBuilder sql1 = new StringBuilder().append(ALTER_TABLE).append(tableName).append(" ");
-    sql1.append("DROP COLUMN ");
-    dropColumns(sql1, "", columnNames);
-    return sql1.toString();
+    StringBuilder sql = new StringBuilder().append(ALTER_TABLE).append(tableName).append(" ");
+    sql.append("DROP COLUMN ");
+    dropColumns(sql, "", columnNames);
+    return sql.toString();
   }
 
   private static void dropColumns(StringBuilder sql, String columnPrefix, String... columnNames) {

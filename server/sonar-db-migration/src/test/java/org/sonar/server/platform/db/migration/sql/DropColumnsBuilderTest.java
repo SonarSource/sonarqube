@@ -39,7 +39,7 @@ public class DropColumnsBuilderTest {
   @Test
   public void drop_columns_on_oracle() {
     assertThat(new DropColumnsBuilder(new Oracle(), "issues", "date_in_ms", "name").build())
-      .containsOnly("ALTER TABLE issues DROP (date_in_ms, name)");
+      .containsOnly("ALTER TABLE issues SET UNUSED (date_in_ms, name)");
   }
 
   @Test
