@@ -38,6 +38,7 @@ public class ComponentImpl implements Component {
   private final Status status;
   private final String name;
   private final String key;
+  private final String publicKey;
   private final String uuid;
 
   @CheckForNull
@@ -52,6 +53,7 @@ public class ComponentImpl implements Component {
     this.type = builder.type;
     this.status = builder.status;
     this.key = builder.key;
+    this.publicKey = builder.publicKey;
     this.name = builder.name;
     this.description = builder.description;
     this.uuid = builder.uuid;
@@ -78,6 +80,11 @@ public class ComponentImpl implements Component {
   @Override
   public String getKey() {
     return key;
+  }
+
+  @Override
+  public String getPublicKey() {
+    return publicKey;
   }
 
   @Override
@@ -139,6 +146,7 @@ public class ComponentImpl implements Component {
     private ReportAttributes reportAttributes;
     private String uuid;
     private String key;
+    private String publicKey;
     private String name;
     private String description;
     private FileAttributes fileAttributes;
@@ -170,6 +178,11 @@ public class ComponentImpl implements Component {
 
     public Builder setKey(String s) {
       this.key = requireNonNull(s, KEY_CANNOT_BE_NULL);
+      return this;
+    }
+
+    public Builder setPublicKey(String publicKey) {
+      this.publicKey = requireNonNull(publicKey);
       return this;
     }
 
