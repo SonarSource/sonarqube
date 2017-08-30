@@ -48,6 +48,7 @@ message ActivityResponse {
 message ActivityStatusWsResponse {
   optional int32 pending = 1;
   optional int32 failing = 2;
+  optional int32 inProgress = 3;
 }
 
 // GET api/ce/component
