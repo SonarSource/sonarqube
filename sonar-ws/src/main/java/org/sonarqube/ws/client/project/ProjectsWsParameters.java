@@ -41,8 +41,9 @@ public class ProjectsWsParameters {
   public static final String PARAM_FROM = "from";
   public static final String PARAM_TO = "to";
   public static final String PARAM_DRY_RUN = "dryRun";
-
   public static final String PARAM_VISIBILITY = "visibility";
+  public static final String PARAM_ANALYZED_BEFORE = "analyzedBefore";
+
   public static final String FILTER_LANGUAGES = "languages";
   public static final String FILTER_TAGS = "tags";
 
