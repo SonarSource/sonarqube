@@ -180,7 +180,7 @@ public class ComponentFinderTest {
 
   @Test
   public void get_by_key_and_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     ComponentDto module = db.components().insertComponent(newModuleDto(branch));
     ComponentDto directory = db.components().insertComponent(newDirectory(module, "scr"));
@@ -190,6 +190,13 @@ public class ComponentFinderTest {
     assertThat(underTest.getByKeyAndBranch(dbSession, module.getKey(), "my_branch").uuid()).isEqualTo(module.uuid());
     assertThat(underTest.getByKeyAndBranch(dbSession, file.getKey(), "my_branch").uuid()).isEqualTo(file.uuid());
     assertThat(underTest.getByKeyAndBranch(dbSession, directory.getKey(), "my_branch").uuid()).isEqualTo(directory.uuid());
+  }
+
+  @Test
+  public void get_by_key_and_branch_accept_main_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+
+    assertThat(underTest.getByKeyAndBranch(dbSession, project.getKey(), "master").uuid()).isEqualTo(project.uuid());
   }
 
   @Test

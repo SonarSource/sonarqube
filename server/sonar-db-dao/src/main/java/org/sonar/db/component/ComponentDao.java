@@ -29,13 +29,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
@@ -44,6 +44,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
@@ -173,8 +174,9 @@ public class ComponentDao implements Dao {
   }
 
   public List<ComponentDto> selectByKeysAndBranch(DbSession session, Collection<String> keys, String branch) {
-    List<String> dbKeys = keys.stream().map(k -> generateBranchKey(k, branch)).collect(MoreCollectors.toList());
-    return executeLargeInputs(dbKeys, mapper(session)::selectByDbKeys);
+    List<String> dbKeys = keys.stream().map(k -> generateBranchKey(k, branch)).collect(toList());
+    List<String> allKeys = Stream.of(keys, dbKeys) .flatMap(x -> x.stream()) .collect(toList());
+    return executeLargeInputs(allKeys, subKeys -> mapper(session).selectByKeysAndBranch(subKeys, branch));
   }
 
   public List<ComponentDto> selectComponentsHavingSameKeyOrderedById(DbSession session, String key) {
@@ -223,7 +225,7 @@ public class ComponentDao implements Dao {
   }
 
   public java.util.Optional<ComponentDto> selectByKeyAndBranch(DbSession session, String key, String branch) {
-    return java.util.Optional.ofNullable(mapper(session).selectByDbKey(generateBranchKey(key, branch)));
+    return java.util.Optional.ofNullable(mapper(session).selectByKeyAndBranch(key, generateBranchKey(key, branch), branch));
   }
 
   public List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(DbSession session) {
