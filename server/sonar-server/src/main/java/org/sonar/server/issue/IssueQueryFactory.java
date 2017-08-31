@@ -234,11 +234,10 @@ public class IssueQueryFactory {
   private void addComponentParameters(IssueQuery.Builder builder, DbSession session, boolean onComponentOnly,
     List<ComponentDto> components, SearchWsRequest request) {
 
-    String branch = request.getBranch();
     builder.onComponentOnly(onComponentOnly);
     if (onComponentOnly) {
       builder.componentUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
-      builder.branchUuid(branch == null ? null : components.get(0).projectUuid());
+      setBranch(builder, components.get(0), request.getBranch());
       return;
     }
 
@@ -249,9 +248,9 @@ public class IssueQueryFactory {
     if (projectUuids != null) {
       builder.projectUuids(projectUuids);
     } else if (projectKeys != null) {
-      List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, branch);
-      builder.projectUuids(projects.stream().map(p -> branch == null ? p.projectUuid() : p.getMainBranchProjectUuid()).collect(toList()));
-      builder.branchUuid(branch == null ? null : projects.get(0).projectUuid());
+      List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, request.getBranch());
+      builder.projectUuids(projects.stream().map(IssueQueryFactory::toProjectUuid).collect(toList()));
+      setBranch(builder, projects.get(0), request.getBranch());
     }
     builder.moduleUuids(request.getModuleUuids());
     builder.directories(request.getDirectories());
@@ -272,8 +271,7 @@ public class IssueQueryFactory {
     Set<String> qualifiers = components.stream().map(ComponentDto::qualifier).collect(toHashSet());
     checkArgument(qualifiers.size() == 1, "All components must have the same qualifier, found %s", String.join(",", qualifiers));
 
-    String branch = request.getBranch();
-    builder.branchUuid(branch == null ? null : components.get(0).projectUuid());
+    setBranch(builder, components.get(0), request.getBranch());
     String qualifier = qualifiers.iterator().next();
     switch (qualifier) {
       case Qualifiers.VIEW:
@@ -284,7 +282,7 @@ public class IssueQueryFactory {
         addApplications(builder, dbSession, components, request);
         break;
       case Qualifiers.PROJECT:
-        builder.projectUuids(components.stream().map(c -> branch == null ? c.projectUuid() : c.getMainBranchProjectUuid()).collect(toList()));
+        builder.projectUuids(components.stream().map(IssueQueryFactory::toProjectUuid).collect(toList()));
         break;
       case Qualifiers.MODULE:
         builder.moduleRootUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
@@ -387,5 +385,15 @@ public class IssueQueryFactory {
       return Collections2.transform(rules, RuleKey::parse);
     }
     return null;
+  }
+
+  private static String toProjectUuid(ComponentDto componentDto) {
+    String mainBranchProjectUuid = componentDto.getMainBranchProjectUuid();
+    return mainBranchProjectUuid == null ? componentDto.projectUuid() : mainBranchProjectUuid;
+  }
+
+  private static void setBranch(IssueQuery.Builder builder, ComponentDto component, @Nullable String branch){
+    builder.branchUuid(branch == null ? null : component.projectUuid());
+    builder.mainBranch(branch == null || !branch.equals(component.getBranch()));
   }
 }
