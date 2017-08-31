@@ -20,7 +20,7 @@
 package org.sonar.application;
 
 import org.junit.Test;
-import org.sonar.application.cluster.AppStateClusterImpl;
+import org.sonar.application.cluster.ClusterAppStateImpl;
 import org.sonar.application.config.TestAppSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,8 +40,8 @@ public class AppStateFactoryTest {
     settings.set(CLUSTER_NAME, "foo");
 
     AppState appState = underTest.create();
-    assertThat(appState).isInstanceOf(AppStateClusterImpl.class);
-    appState.close();
+    assertThat(appState).isInstanceOf(ClusterAppStateImpl.class);
+    ((ClusterAppStateImpl) appState).close();
   }
 
   @Test

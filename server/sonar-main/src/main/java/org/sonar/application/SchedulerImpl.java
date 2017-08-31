@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.NetworkUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.application.cluster.ClusterAppState;
 import org.sonar.application.config.AppSettings;
@@ -151,7 +152,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
       ClusterAppState clusterAppState = (ClusterAppState) appState;
       this.healthStateSharing = new HealthStateSharingImpl(
         clusterAppState.getHazelcastClient(),
-        new SearchNodeHealthProvider(settings.getProps(), System2.INSTANCE));
+        new SearchNodeHealthProvider(settings.getProps(), System2.INSTANCE, clusterAppState, NetworkUtils.INSTANCE));
       this.healthStateSharing.start();
     }
   }

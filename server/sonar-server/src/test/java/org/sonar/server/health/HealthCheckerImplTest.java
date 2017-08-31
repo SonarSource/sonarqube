@@ -132,7 +132,7 @@ public class HealthCheckerImplTest {
   @Test
   public void checkCluster_fails_with_ISE_in_clustering_and_HealthState_is_null() {
     when(webServer.isStandalone()).thenReturn(false);
-    HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], new ClusterHealthCheck[0], sharedHealthState);
+    HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], new ClusterHealthCheck[0], null);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("HealthState instance can't be null when clustering is enabled");

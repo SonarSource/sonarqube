@@ -36,13 +36,13 @@ import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_LOCALENDPOINT;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_MEMBERUUID;
 
-public class AppStateClusterImpl implements ClusterAppState {
-  private static Logger LOGGER = LoggerFactory.getLogger(AppStateClusterImpl.class);
+public class ClusterAppStateImpl implements ClusterAppState {
+  private static Logger LOGGER = LoggerFactory.getLogger(ClusterAppStateImpl.class);
 
   private final Map<ProcessId, Boolean> localProcesses = new EnumMap<>(ProcessId.class);
   private final HazelcastCluster hazelcastCluster;
 
-  public AppStateClusterImpl(AppSettings appSettings) {
+  public ClusterAppStateImpl(AppSettings appSettings) {
     if (!appSettings.getProps().valueAsBoolean(CLUSTER_ENABLED)) {
       throw new IllegalStateException("Cluster is not enabled on this instance");
     }
@@ -123,7 +123,7 @@ public class AppStateClusterImpl implements ClusterAppState {
    * @param logger
    */
   static void setLogger(Logger logger) {
-    AppStateClusterImpl.LOGGER = logger;
+    ClusterAppStateImpl.LOGGER = logger;
   }
 
 }

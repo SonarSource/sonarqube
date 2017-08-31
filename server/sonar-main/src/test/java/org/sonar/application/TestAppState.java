@@ -19,7 +19,6 @@
  */
 package org.sonar.application;
 
-import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -28,25 +27,14 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 import org.sonar.NetworkUtils;
-import org.sonar.application.cluster.ClusterAppState;
-import org.sonar.cluster.localclient.HazelcastClient;
 import org.sonar.process.ProcessId;
 
-public class TestAppState implements ClusterAppState {
+public class TestAppState implements AppState {
 
   private final Map<ProcessId, Boolean> localProcesses = new EnumMap<>(ProcessId.class);
   private final Map<ProcessId, Boolean> remoteProcesses = new EnumMap<>(ProcessId.class);
   private final List<AppStateListener> listeners = new ArrayList<>();
   private final AtomicBoolean webLeaderLocked = new AtomicBoolean(false);
-  private final HazelcastClient hazelcastClient;
-
-  public TestAppState() {
-    this(null);
-  }
-
-  public TestAppState(HazelcastClient hazelcastClient) {
-    this.hazelcastClient = hazelcastClient;
-  }
 
   @Override
   public void addListener(@Nonnull AppStateListener listener) {
@@ -97,12 +85,6 @@ public class TestAppState implements ClusterAppState {
   @Override
   public Optional<String> getLeaderHostName() {
     return Optional.of(NetworkUtils.INSTANCE.getHostname());
-  }
-
-  @Override
-  public HazelcastClient getHazelcastClient() {
-    Preconditions.checkState(hazelcastClient != null, "An HazelcastClient should be provided when testing in cluster mode");
-    return hazelcastClient;
   }
 
   @Override

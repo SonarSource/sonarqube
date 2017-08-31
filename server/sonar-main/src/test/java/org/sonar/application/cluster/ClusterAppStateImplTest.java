@@ -46,7 +46,7 @@ import static org.sonar.cluster.ClusterObjectKeys.CLUSTER_NAME;
 import static org.sonar.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 
-public class AppStateClusterImplTest {
+public class ClusterAppStateImplTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -62,14 +62,14 @@ public class AppStateClusterImplTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cluster is not enabled on this instance");
 
-    new AppStateClusterImpl(settings);
+    new ClusterAppStateImpl(settings);
   }
 
   @Test
   public void tryToLockWebLeader_returns_true_only_for_the_first_call() throws Exception {
     TestAppSettings settings = newApplicationSettings();
 
-    try (AppStateClusterImpl underTest = new AppStateClusterImpl(settings)) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(settings)) {
       assertThat(underTest.tryToLockWebLeader()).isEqualTo(true);
       assertThat(underTest.tryToLockWebLeader()).isEqualTo(false);
     }
@@ -81,9 +81,9 @@ public class AppStateClusterImplTest {
     TestAppSettings settings = newApplicationSettings();
 
     Logger logger = mock(Logger.class);
-    AppStateClusterImpl.setLogger(logger);
+    ClusterAppStateImpl.setLogger(logger);
 
-    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
       verify(logger).info(
         eq("Joined a SonarQube cluster that contains the following hosts : [{}]"),
         anyString());
@@ -93,7 +93,7 @@ public class AppStateClusterImplTest {
   @Test
   public void test_listeners() throws InterruptedException {
     AppStateListener listener = mock(AppStateListener.class);
-    try (AppStateClusterImpl underTest = new AppStateClusterImpl(newApplicationSettings())) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(newApplicationSettings())) {
       underTest.addListener(listener);
 
       underTest.setOperational(ProcessId.ELASTICSEARCH);
@@ -110,7 +110,7 @@ public class AppStateClusterImplTest {
   public void registerSonarQubeVersion_publishes_version_on_first_call() {
     TestAppSettings settings = newApplicationSettings();
 
-    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
       appStateCluster.registerSonarQubeVersion("6.4.1.5");
 
       HazelcastInstance hzInstance = createHazelcastClient(appStateCluster);
@@ -126,7 +126,7 @@ public class AppStateClusterImplTest {
     TestAppSettings settings = newApplicationSettings();
     String clusterName = randomAlphanumeric(20);
 
-    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
       appStateCluster.registerClusterName(clusterName);
 
       HazelcastInstance hzInstance = createHazelcastClient(appStateCluster);
@@ -141,7 +141,7 @@ public class AppStateClusterImplTest {
   public void reset_throws_always_ISE() {
     TestAppSettings settings = newApplicationSettings();
 
-    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
       expectedException.expect(IllegalStateException.class);
       expectedException.expectMessage("state reset is not supported in cluster mode");
       appStateCluster.reset();
@@ -153,7 +153,7 @@ public class AppStateClusterImplTest {
     // Now launch an instance that try to be part of the hzInstance cluster
     TestAppSettings settings = newApplicationSettings();
 
-    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
       // Register first version
       appStateCluster.registerSonarQubeVersion("1.0.0");
 
@@ -170,7 +170,7 @@ public class AppStateClusterImplTest {
     // Now launch an instance that try to be part of the hzInstance cluster
     TestAppSettings settings = newApplicationSettings();
 
-    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
       // Register first version
       appStateCluster.registerClusterName("goodClusterName");
 

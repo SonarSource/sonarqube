@@ -244,7 +244,7 @@ public class HazelcastClusterTest {
     settings.set(CLUSTER_NODE_HOST, InetAddress.getLoopbackAddress().getHostAddress());
     AppStateListener listener = mock(AppStateListener.class);
 
-    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
       appStateCluster.addListener(listener);
 
       HazelcastInstance hzInstance = createHazelcastClient(appStateCluster.getHazelcastCluster());
@@ -277,18 +277,17 @@ public class HazelcastClusterTest {
     memoryAppender.start();
     lc.getLogger("com.hazelcast").addAppender(memoryAppender);
 
-    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(newApplicationSettings())) {
+    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(newApplicationSettings())) {
     }
 
     assertThat(memoryAppender.events).isNotEmpty();
     memoryAppender.events.stream().forEach(
-      e -> assertThat(e.getLoggerName()).startsWith("com.hazelcast")
-    );
+      e -> assertThat(e.getLoggerName()).startsWith("com.hazelcast"));
   }
 
   @Test
   public void removing_the_last_application_node_must_clear_web_leader() throws InterruptedException {
-    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(newSearchSettings())) {
+    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(newSearchSettings())) {
       TestAppSettings appSettings = newApplicationSettings();
       appSettings.set(CLUSTER_HOSTS, appStateCluster.getHazelcastCluster().getLocalEndPoint());
       appSettings.set(CLUSTER_NODE_PORT, "9004");
