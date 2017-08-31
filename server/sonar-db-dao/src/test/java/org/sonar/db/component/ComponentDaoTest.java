@@ -608,8 +608,8 @@ public class ComponentDaoTest {
     ComponentDto provisionedProject = db.components().insertPrivateProject();
     ComponentDto provisionedView = db.components().insertView(organization, (dto) -> {
     });
-    String projectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization)).getComponentUuid();
-    String disabledProjectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization).setEnabled(false)).getComponentUuid();
+    String projectUuid = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization)).getComponentUuid();
+    String disabledProjectUuid = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization).setEnabled(false)).getComponentUuid();
     String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization)).getComponentUuid();
 
     assertThat(underTest.selectProjects(dbSession))
@@ -621,10 +621,10 @@ public class ComponentDaoTest {
   public void select_provisioned() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto provisionedProject = db.components()
-      .insertComponent(ComponentTesting.newPrivateProjectDto(organization).setDbKey("provisioned.project").setName("Provisioned Project"));
+      .insertComponent(newPrivateProjectDto(organization).setDbKey("provisioned.project").setName("Provisioned Project"));
     ComponentDto provisionedView = db.components().insertView(organization);
-    String projectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization)).getComponentUuid();
-    String disabledProjectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization).setEnabled(false)).getComponentUuid();
+    String projectUuid = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization)).getComponentUuid();
+    String disabledProjectUuid = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization).setEnabled(false)).getComponentUuid();
     String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization)).getComponentUuid();
 
     Set<String> projectQualifiers = newHashSet(Qualifiers.PROJECT);
@@ -668,7 +668,7 @@ public class ComponentDaoTest {
   public void count_provisioned() {
     OrganizationDto organization = db.organizations().insert();
     db.components().insertPrivateProject(organization);
-    db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization));
+    db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization));
     db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization));
 
     assertThat(underTest.countProvisioned(dbSession, organization.getUuid(), null, newHashSet(Qualifiers.PROJECT))).isEqualTo(1);
@@ -898,10 +898,10 @@ public class ComponentDaoTest {
   @Test
   public void selectByQuery_with_paging_query_and_qualifiers() {
     OrganizationDto organizationDto = db.organizations().insert();
-    db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto).setName("aaaa-name"));
+    db.components().insertProjectAndSnapshot(newPrivateProjectDto(organizationDto).setName("aaaa-name"));
     db.components().insertProjectAndSnapshot(newView(organizationDto));
     for (int i = 9; i >= 1; i--) {
-      db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project-" + i));
+      db.components().insertProjectAndSnapshot(newPrivateProjectDto(organizationDto).setName("project-" + i));
     }
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("oJect").setQualifiers(Qualifiers.PROJECT).build();
@@ -953,7 +953,7 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByQuery_name_with_special_characters() {
-    db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("project-\\_%/-name"));
+    db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization()).setName("project-\\_%/-name"));
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("-\\_%/-").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
@@ -964,7 +964,8 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByQuery_key_with_special_characters() {
-    db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("project-_%-key"));
+    db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert()).setDbKey("project-_%-key"));
+    db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert()).setDbKey("project-key-that-does-not-match"));
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-key").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
@@ -974,9 +975,23 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void selectByQuery_on_key_partial_match_case_insensitive() {
+    db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert()).setDbKey("project-key"));
+
+    ComponentQuery query = ComponentQuery.builder()
+      .setNameOrKeyQuery("JECT-K")
+      .setPartialMatchOnKey(true)
+      .setQualifiers(Qualifiers.PROJECT).build();
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getDbKey()).isEqualTo("project-key");
+  }
+
+  @Test
   public void selectByQuery_filter_on_language() {
-    db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("java-project-key").setLanguage("java"));
-    db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("cpp-project-key").setLanguage("cpp"));
+    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("java-project-key").setLanguage("java"));
+    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("cpp-project-key").setLanguage("cpp"));
 
     ComponentQuery query = ComponentQuery.builder().setLanguage("java").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
@@ -1006,7 +1021,7 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByQuery_filter_on_visibility() {
-    db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("private-key"));
+    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("private-key"));
     db.components().insertComponent(ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()).setDbKey("public-key"));
 
     ComponentQuery privateProjectsQuery = ComponentQuery.builder().setPrivate(true).setQualifiers(Qualifiers.PROJECT).build();
@@ -1031,9 +1046,9 @@ public class ComponentDaoTest {
   @Test
   public void selectByQuery_on_component_ids() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto sonarqube = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
-    ComponentDto jdk8 = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
-    ComponentDto cLang = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
+    ComponentDto sonarqube = db.components().insertComponent(newPrivateProjectDto(organizationDto));
+    ComponentDto jdk8 = db.components().insertComponent(newPrivateProjectDto(organizationDto));
+    ComponentDto cLang = db.components().insertComponent(newPrivateProjectDto(organizationDto));
 
     ComponentQuery query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT)
       .setComponentIds(newHashSet(sonarqube.getId(), jdk8.getId())).build();
@@ -1181,12 +1196,12 @@ public class ComponentDaoTest {
   @Test
   public void select_projects_by_name_query() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project1 = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project1"));
+    ComponentDto project1 = db.components().insertComponent(newPrivateProjectDto(organizationDto).setName("project1"));
     ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setName("module1"));
     ComponentDto subModule1 = db.components().insertComponent(newModuleDto(module1).setName("subModule1"));
     db.components().insertComponent(newFileDto(subModule1).setName("file"));
-    ComponentDto project2 = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project2"));
-    ComponentDto project3 = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project3"));
+    ComponentDto project2 = db.components().insertComponent(newPrivateProjectDto(organizationDto).setName("project2"));
+    ComponentDto project3 = db.components().insertComponent(newPrivateProjectDto(organizationDto).setName("project3"));
 
     assertThat(underTest.selectProjectsByNameQuery(dbSession, null, false)).extracting(ComponentDto::uuid)
       .containsOnly(project1.uuid(), project2.uuid(), project3.uuid());
@@ -1207,11 +1222,11 @@ public class ComponentDaoTest {
 
     OrganizationDto organizationDto = db.organizations().insert();
     String[] uuids = {
-      db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setProjectUuid(uuid1).setPrivate(true)).uuid(),
-      db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setProjectUuid(uuid1).setPrivate(false)).uuid(),
-      db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setProjectUuid(uuid2).setPrivate(true)).uuid(),
-      db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setProjectUuid(uuid2).setPrivate(false)).uuid(),
-      db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setRootUuid(uuid1).setProjectUuid("foo").setPrivate(false)).uuid(),
+      db.components().insertComponent(newPrivateProjectDto(organizationDto).setProjectUuid(uuid1).setPrivate(true)).uuid(),
+      db.components().insertComponent(newPrivateProjectDto(organizationDto).setProjectUuid(uuid1).setPrivate(false)).uuid(),
+      db.components().insertComponent(newPrivateProjectDto(organizationDto).setProjectUuid(uuid2).setPrivate(true)).uuid(),
+      db.components().insertComponent(newPrivateProjectDto(organizationDto).setProjectUuid(uuid2).setPrivate(false)).uuid(),
+      db.components().insertComponent(newPrivateProjectDto(organizationDto).setRootUuid(uuid1).setProjectUuid("foo").setPrivate(false)).uuid(),
     };
 
     underTest.setPrivateForRootComponentUuid(db.getSession(), uuid1, true);
