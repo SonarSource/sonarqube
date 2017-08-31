@@ -408,6 +408,18 @@ public class IssueQueryFactoryTest {
   }
 
   @Test
+  public void search_issues_from_main_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    assertThat(underTest.create(new SearchWsRequest()
+      .setProjectKeys(singletonList(project.getKey()))
+      .setBranch("master")))
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()))
+      .containsOnly(project.uuid(), singletonList(project.uuid()));
+  }
+
+  @Test
   public void fail_if_created_after_and_created_since_are_both_set() {
     SearchWsRequest request = new SearchWsRequest()
       .setCreatedAfter("2013-07-25T07:35:00+0100")

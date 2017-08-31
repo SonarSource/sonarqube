@@ -250,7 +250,7 @@ public class IssueQueryFactory {
       builder.projectUuids(projectUuids);
     } else if (projectKeys != null) {
       List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, branch);
-      builder.projectUuids(projects.stream().map(p -> branch == null ? p.projectUuid() : p.getMainBranchProjectUuid()).collect(toList()));
+      builder.projectUuids(projects.stream().map(p -> p.getMainBranchProjectUuid() == null ? p.projectUuid() : p.getMainBranchProjectUuid()).collect(toList()));
       builder.branchUuid(branch == null ? null : projects.get(0).projectUuid());
     }
     builder.moduleUuids(request.getModuleUuids());
