@@ -19,7 +19,6 @@
  */
 package org.sonar.api.server.ws;
 
-import com.google.common.base.Joiner;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -428,7 +427,7 @@ public interface WebService extends Definable<WebService.Context> {
      * </p>
      */
     public NewParam createSearchQuery(String exampleValue, String... pluralFields) {
-      String actionDescription = format("Limit search to %s that contain the supplied string.", Joiner.on(" or ").join(pluralFields));
+      String actionDescription = format("Limit search to %s that contain the supplied string.", String.join(" or ", pluralFields));
 
       return createParam(Param.TEXT_QUERY)
         .setDescription(actionDescription)

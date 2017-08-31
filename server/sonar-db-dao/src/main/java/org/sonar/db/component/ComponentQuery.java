@@ -30,30 +30,16 @@ import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
 
 public class ComponentQuery {
   private final String nameOrKeyQuery;
+  private final boolean partialMatchOnKey;
   private final String[] qualifiers;
   private final String language;
   private final Boolean isPrivate;
   private final Set<Long> componentIds;
   private final Long analyzedBefore;
 
-  /**
-   * Used by Dev Cockpit 1.9.
-   * Could be removed when Developer Cockpit doesn't use it anymore.
-   *
-   * @deprecated since 5.4, use {@link Builder} instead
-   */
-  @Deprecated
-  public ComponentQuery(@Nullable String nameOrKeyQuery, String... qualifiers) {
-    this.nameOrKeyQuery = nameOrKeyQuery;
-    this.qualifiers = Builder.validateQualifiers(qualifiers);
-    this.language = null;
-    this.componentIds = null;
-    this.isPrivate = null;
-    this.analyzedBefore = null;
-  }
-
   private ComponentQuery(Builder builder) {
     this.nameOrKeyQuery = builder.nameOrKeyQuery;
+    this.partialMatchOnKey = builder.partialMatchOnKey == null ? false : builder.partialMatchOnKey;
     this.qualifiers = builder.qualifiers;
     this.language = builder.language;
     this.componentIds = builder.componentIds;
@@ -76,6 +62,13 @@ public class ComponentQuery {
   @CheckForNull
   public String getNameOrKeyUpperLikeQuery() {
     return buildLikeValue(nameOrKeyQuery, WildcardPosition.BEFORE_AND_AFTER).toUpperCase(Locale.ENGLISH);
+  }
+
+  /**
+   * Used by MyBatis mapper
+   */
+  public boolean isPartialMatchOnKey() {
+    return partialMatchOnKey;
   }
 
   @CheckForNull
@@ -104,6 +97,7 @@ public class ComponentQuery {
 
   public static class Builder {
     private String nameOrKeyQuery;
+    private Boolean partialMatchOnKey;
     private String[] qualifiers;
     private String language;
     private Boolean isPrivate;
@@ -112,6 +106,14 @@ public class ComponentQuery {
 
     public Builder setNameOrKeyQuery(@Nullable String nameOrKeyQuery) {
       this.nameOrKeyQuery = nameOrKeyQuery;
+      return this;
+    }
+
+    /**
+     * Beware, can be resource intensive! Should be used with precautions.
+     */
+    public Builder setPartialMatchOnKey(@Nullable Boolean partialMatchOnKey) {
+      this.partialMatchOnKey = partialMatchOnKey;
       return this;
     }
 
@@ -140,13 +142,10 @@ public class ComponentQuery {
       return this;
     }
 
-    protected static String[] validateQualifiers(@Nullable String... qualifiers) {
-      checkArgument(qualifiers != null && qualifiers.length > 0, "At least one qualifier must be provided");
-      return qualifiers;
-    }
-
     public ComponentQuery build() {
-      validateQualifiers(this.qualifiers);
+      checkArgument(qualifiers != null && qualifiers.length > 0, "At least one qualifier must be provided");
+      checkArgument(nameOrKeyQuery != null || partialMatchOnKey == null, "A query must be provided if a partial match on key is specified.");
+
       return new ComponentQuery(this);
     }
   }
