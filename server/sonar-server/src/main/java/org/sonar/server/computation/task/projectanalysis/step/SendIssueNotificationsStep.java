@@ -106,7 +106,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     IssueChangeNotification changeNotification = new IssueChangeNotification();
     changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
     changeNotification.setIssue(issue);
-    changeNotification.setProject(getMainBranchProjectKey(), project.getName(), getBranchName());
+    changeNotification.setProject(project.getPublicKey(), project.getName(), getBranchName());
     service.deliver(changeNotification);
   }
 
@@ -114,7 +114,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
     NewIssuesNotification notification = newIssuesNotificationFactory
       .newNewIssuesNotication()
-      .setProject(getMainBranchProjectKey(), project.getUuid(), project.getName(), getBranchName())
+      .setProject(project.getPublicKey(), project.getUuid(), project.getName(), getBranchName())
       .setAnalysisDate(new Date(analysisDate))
       .setStatistics(project.getName(), globalStatistics)
       .setDebt(globalStatistics.debt());
@@ -130,7 +130,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
         .newMyNewIssuesNotification()
         .setAssignee(assignee);
       myNewIssuesNotification
-        .setProject(getMainBranchProjectKey(), project.getUuid(), project.getName(), getBranchName())
+        .setProject(project.getPublicKey(), project.getUuid(), project.getName(), getBranchName())
         .setAnalysisDate(new Date(analysisDate))
         .setStatistics(project.getName(), assigneeStatistics)
         .setDebt(assigneeStatistics.debt());
@@ -146,10 +146,6 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   private String getBranchName() {
     return analysisMetadataHolder.getBranch().filter(b -> !b.isMain()).map(Branch::getName).orElse(null);
-  }
-
-  private String getMainBranchProjectKey() {
-    return analysisMetadataHolder.getProject().getKey();
   }
 
 }
