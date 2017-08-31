@@ -356,14 +356,14 @@ public class IssueQueryFactoryTest {
     assertThat(underTest.create(new SearchWsRequest()
       .setProjectKeys(singletonList(branch.getKey()))
       .setBranch(branch.getBranch())))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()))
-        .containsOnly(branch.uuid(), singletonList(project.uuid()));
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+        .containsOnly(branch.uuid(), singletonList(project.uuid()), false);
 
     assertThat(underTest.create(new SearchWsRequest()
       .setComponentKeys(singletonList(branch.getKey()))
       .setBranch(branch.getBranch())))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()))
-        .containsOnly(branch.uuid(), singletonList(project.uuid()));
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+        .containsOnly(branch.uuid(), singletonList(project.uuid()), false);
   }
 
   @Test
@@ -375,22 +375,22 @@ public class IssueQueryFactoryTest {
     assertThat(underTest.create(new SearchWsRequest()
       .setComponentKeys(singletonList(file.getKey()))
       .setBranch(branch.getBranch())))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.fileUuids()))
-        .containsOnly(branch.uuid(), singletonList(file.uuid()));
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.fileUuids()), IssueQuery::isMainBranch)
+        .containsOnly(branch.uuid(), singletonList(file.uuid()), false);
 
     assertThat(underTest.create(new SearchWsRequest()
       .setComponentKeys(singletonList(branch.getKey()))
       .setFileUuids(singletonList(file.uuid()))
       .setBranch(branch.getBranch())))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.fileUuids()))
-        .containsOnly(branch.uuid(), singletonList(file.uuid()));
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.fileUuids()), IssueQuery::isMainBranch)
+        .containsOnly(branch.uuid(), singletonList(file.uuid()), false);
 
     assertThat(underTest.create(new SearchWsRequest()
       .setProjectKeys(singletonList(branch.getKey()))
       .setFileUuids(singletonList(file.uuid()))
       .setBranch(branch.getBranch())))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.fileUuids()))
-        .containsOnly(branch.uuid(), singletonList(file.uuid()));
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.fileUuids()), IssueQuery::isMainBranch)
+        .containsOnly(branch.uuid(), singletonList(file.uuid()), false);
   }
 
   @Test
@@ -403,8 +403,25 @@ public class IssueQueryFactoryTest {
       .setComponentKeys(singletonList(file.getKey()))
       .setBranch(branch.getBranch())
       .setOnComponentOnly(true)))
-      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.componentUuids()))
-      .containsOnly(branch.uuid(), singletonList(file.uuid()));
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.componentUuids()), IssueQuery::isMainBranch)
+      .containsOnly(branch.uuid(), singletonList(file.uuid()), false);
+  }
+
+  @Test
+  public void search_issues_from_main_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    assertThat(underTest.create(new SearchWsRequest()
+      .setProjectKeys(singletonList(project.getKey()))
+      .setBranch("master")))
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+      .containsOnly(project.uuid(), singletonList(project.uuid()), true);
+    assertThat(underTest.create(new SearchWsRequest()
+      .setComponentKeys(singletonList(project.getKey()))
+      .setBranch("master")))
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+      .containsOnly(project.uuid(), singletonList(project.uuid()), true);
   }
 
   @Test

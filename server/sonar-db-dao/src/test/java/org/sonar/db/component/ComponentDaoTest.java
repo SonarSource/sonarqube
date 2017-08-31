@@ -192,11 +192,12 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByKeyAndBranch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
-    assertThat(underTest.selectByKeyAndBranch(dbSession, project.getKey(), "my_branch").get().uuid()).isEqualTo(branch.uuid());
+    assertThat(underTest.selectByKeyAndBranch(dbSession, project.getKey(), "master").get().uuid()).isEqualTo(project.uuid());
+    assertThat(underTest.selectByKeyAndBranch(dbSession, branch.getKey(), "my_branch").get().uuid()).isEqualTo(branch.uuid());
     assertThat(underTest.selectByKeyAndBranch(dbSession, file.getKey(), "my_branch").get().uuid()).isEqualTo(file.uuid());
     assertThat(underTest.selectByKeyAndBranch(dbSession, "unknown", "my_branch")).isNotPresent();
     assertThat(underTest.selectByKeyAndBranch(dbSession, file.getKey(), "unknown")).isNotPresent();
@@ -251,7 +252,7 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByKeysAndBranch() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     ComponentDto file1 = db.components().insertComponent(newFileDto(branch));
     ComponentDto file2 = db.components().insertComponent(newFileDto(branch));
@@ -265,6 +266,7 @@ public class ComponentDaoTest {
     assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList(fileOnAnotherBranch.getKey()), "my_branch")).isEmpty();
     assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList(file1.getKey()), "unknown")).isEmpty();
     assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList("unknown"), "my_branch")).isEmpty();
+    assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList(branch.getKey()), "master")).extracting(ComponentDto::uuid).containsExactlyInAnyOrder(project.uuid());
   }
 
   @Test

@@ -368,10 +368,10 @@ public class IssueIndexTest {
     IssueDoc issueOnAnotherBranch = newDoc(anotherbBranch);
     indexIssues(issueOnProject, issueOnBranch, issueOnAnotherBranch);
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().branchUuid(branch.uuid()), issueOnBranch.key());
-    assertThatSearchReturnsOnly(IssueQuery.builder().componentUuids(singletonList(branch.uuid())).branchUuid(branch.uuid()), issueOnBranch.key());
-    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())).branchUuid(branch.uuid()), issueOnBranch.key());
-    assertThatSearchReturnsOnly(IssueQuery.builder().componentUuids(singletonList(branch.uuid())).projectUuids(singletonList(project.uuid())).branchUuid(branch.uuid()),
+    assertThatSearchReturnsOnly(IssueQuery.builder().branchUuid(branch.uuid()).mainBranch(false), issueOnBranch.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().componentUuids(singletonList(branch.uuid())).branchUuid(branch.uuid()).mainBranch(false), issueOnBranch.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())).branchUuid(branch.uuid()).mainBranch(false), issueOnBranch.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().componentUuids(singletonList(branch.uuid())).projectUuids(singletonList(project.uuid())).branchUuid(branch.uuid()).mainBranch(false),
       issueOnBranch.key());
     assertThatSearchReturnsEmpty(IssueQuery.builder().branchUuid("unknown"));
   }
@@ -393,10 +393,26 @@ public class IssueIndexTest {
       newDoc("I5", branchModule),
       newDoc("I6", branchFile));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().branchUuid(branch.uuid()), "I4", "I5", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(singletonList(branchModule.uuid())).branchUuid(branch.uuid()), "I5", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(singletonList(branchFile.uuid())).branchUuid(branch.uuid()), "I6");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().fileUuids(singletonList(branchFile.uuid())).branchUuid("unknown"));
+    assertThatSearchReturnsOnly(IssueQuery.builder().branchUuid(branch.uuid()).mainBranch(false), "I4", "I5", "I6");
+    assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(singletonList(branchModule.uuid())).branchUuid(branch.uuid()).mainBranch(false), "I5", "I6");
+    assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(singletonList(branchFile.uuid())).branchUuid(branch.uuid()).mainBranch(false), "I6");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().fileUuids(singletonList(branchFile.uuid())).mainBranch(false).branchUuid("unknown"));
+  }
+
+  @Test
+  public void issues_from_main_branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    IssueDoc issueOnProject = newDoc(project);
+    IssueDoc issueOnBranch = newDoc(branch);
+    indexIssues(issueOnProject, issueOnBranch);
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().branchUuid(project.uuid()).mainBranch(true), issueOnProject.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().componentUuids(singletonList(project.uuid())).branchUuid(project.uuid()).mainBranch(true), issueOnProject.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())).branchUuid(project.uuid()).mainBranch(true), issueOnProject.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().componentUuids(singletonList(project.uuid())).projectUuids(singletonList(project.uuid())).branchUuid(project.uuid()).mainBranch(true),
+      issueOnProject.key());
   }
 
   @Test
@@ -1347,11 +1363,11 @@ public class IssueIndexTest {
     assertThat(underTest.searchBranchStatistics(project.uuid(), singletonList("unknown"))).isEmpty();
   }
 
-  private void addIssues(ComponentDto branch, int bugs, int vulnerabilities, int codeSmelles) {
+  private void addIssues(ComponentDto component, int bugs, int vulnerabilities, int codeSmelles) {
     List<IssueDoc> issues = new ArrayList<>();
-    IntStream.range(0, bugs).forEach(b -> issues.add(newDoc(branch).setType(BUG)));
-    IntStream.range(0, vulnerabilities).forEach(v -> issues.add(newDoc(branch).setType(VULNERABILITY)));
-    IntStream.range(0, codeSmelles).forEach(c -> issues.add(newDoc(branch).setType(CODE_SMELL)));
+    IntStream.range(0, bugs).forEach(b -> issues.add(newDoc(component).setType(BUG)));
+    IntStream.range(0, vulnerabilities).forEach(v -> issues.add(newDoc(component).setType(VULNERABILITY)));
+    IntStream.range(0, codeSmelles).forEach(c -> issues.add(newDoc(component).setType(CODE_SMELL)));
     indexIssues(issues.toArray(new IssueDoc[issues.size()]));
   }
 
