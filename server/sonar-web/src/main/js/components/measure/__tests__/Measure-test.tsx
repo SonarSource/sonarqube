@@ -63,3 +63,8 @@ it('renders unknown RATING', () => {
   };
   expect(shallow(<Measure measure={measure} />)).toMatchSnapshot();
 });
+
+it('renders undefined measure', () => {
+  const measure = { metric: { key: 'foo', name: 'Foo', type: 'PERCENT' } };
+  expect(shallow(<Measure measure={measure} />)).toMatchSnapshot();
+});

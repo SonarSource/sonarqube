@@ -17,16 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
 import Rating from '../Rating';
 
-it('should render with numeric value', () => {
-  const rating = shallow(<Rating value={2} />);
-  expect(rating.is('.rating-B')).toBe(true);
+it('renders numeric value', () => {
+  expect(shallow(<Rating value={2} />)).toMatchSnapshot();
 });
 
-it('should render with string value', () => {
-  const rating = shallow(<Rating value="2.0" />);
-  expect(rating.is('.rating-B')).toBe(true);
+it('renders string value', () => {
+  expect(shallow(<Rating value="2.0" />)).toMatchSnapshot();
+});
+
+it('renders undefined value', () => {
+  expect(shallow(<Rating value={undefined} />)).toMatchSnapshot();
 });

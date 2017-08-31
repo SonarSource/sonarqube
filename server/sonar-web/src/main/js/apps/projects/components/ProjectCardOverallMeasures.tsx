@@ -27,7 +27,7 @@ import SizeRating from '../../../components/ui/SizeRating';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  measures?: { [key: string]: string };
+  measures: { [key: string]: string | undefined };
 }
 
 export default function ProjectCardOverallMeasures({ measures }: Props) {
