@@ -30,11 +30,10 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.analysis.Project;
-import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.Component.Type;
+import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
@@ -57,22 +56,21 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 
 public class SendIssueNotificationsStepTest extends BaseStepTest {
 
-  static final String PROJECT_UUID = "PROJECT_UUID";
-  static final String PROJECT_KEY = "PROJECT_KEY";
-  static final String PROJECT_NAME = "PROJECT_NAME";
+  private static final String PROJECT_UUID = "PROJECT_UUID";
+  private static final String PROJECT_KEY = "PROJECT_KEY";
+  private static final String PROJECT_NAME = "PROJECT_NAME";
 
-  static final String BRANCH_COMPONENT_UUID = "BRANCH_UUID";
-  static final String BRANCH_COMPONENT_KEY = "BRANCH_KEY";
-  static final String BRANCH_COMPONENT_NAME = "BRANCH_NAME";
-  static final String BRANCH_NAME = "feature";
+  private static final String BRANCH_COMPONENT_UUID = "BRANCH_UUID";
+  private static final String BRANCH_COMPONENT_NAME = "BRANCH_NAME";
+  private static final String BRANCH_NAME = "feature";
 
-  static final long ANALYSE_DATE = 123L;
+  private static final long ANALYSE_DATE = 123L;
 
-  static final Duration ISSUE_DURATION = Duration.create(100L);
-  static final String ISSUE_ASSIGNEE = "John";
+  private static final Duration ISSUE_DURATION = Duration.create(100L);
+  private static final String ISSUE_ASSIGNEE = "John";
 
-  static final Component PROJECT = builder(Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).setName(PROJECT_NAME).build();
-  static final Component BRANCH = builder(Type.PROJECT, 2).setUuid(BRANCH_COMPONENT_UUID).setKey(BRANCH_COMPONENT_KEY).setName(BRANCH_COMPONENT_NAME).build();
+  private static final Component PROJECT = builder(Type.PROJECT, 1).setUuid(PROJECT_UUID).setPublicKey(PROJECT_KEY).setName(PROJECT_NAME).build();
+  private static final Component BRANCH = builder(Type.PROJECT, 2).setUuid(BRANCH_COMPONENT_UUID).setPublicKey(PROJECT_KEY).setName(BRANCH_COMPONENT_NAME).build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
@@ -80,7 +78,6 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-    .setProject(new Project(PROJECT_UUID, PROJECT_KEY, PROJECT_NAME))
     .setBranch(new DefaultBranchImpl())
     .setAnalysisDate(new Date(ANALYSE_DATE));
 
