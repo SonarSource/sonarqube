@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders numeric value 1`] = `
+<span
+  className="rating rating-B"
+>
+  B
+</span>
+`;
+
+exports[`renders string value 1`] = `
+<span
+  className="rating rating-B"
+>
+  B
+</span>
+`;
+
+exports[`renders undefined value 1`] = `
+<span>
+  –
+</span>
+`;

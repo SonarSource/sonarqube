@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import { Link } from 'react-router';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
@@ -39,22 +38,11 @@ interface Props {
 export default function ProjectCardLeak({ organization, project }: Props) {
   const { measures } = project;
 
-  const isProjectAnalyzed = project.analysisDate != null;
   const isPrivate = project.visibility === 'private';
-  const hasLeakPeriodStart = project.leakPeriodDate != undefined;
   const hasTags = project.tags.length > 0;
 
-  // check for particular measures because only some measures can be loaded
-  // if coming from visualizations tab
-  const areProjectMeasuresLoaded = measures != undefined && measures['new_bugs'];
-
-  const displayQualityGate = areProjectMeasuresLoaded && isProjectAnalyzed;
-  const className = classNames('boxed-group', 'project-card', {
-    'boxed-group-loading': isProjectAnalyzed && hasLeakPeriodStart && !areProjectMeasuresLoaded
-  });
-
   return (
-    <div data-key={project.key} className={className}>
+    <div data-key={project.key} className="boxed-group project-card">
       <div className="boxed-group-header clearfix">
         {project.isFavorite != null && (
           <Favorite
@@ -67,44 +55,38 @@ export default function ProjectCardLeak({ organization, project }: Props) {
           {!organization && <ProjectCardOrganization organization={project.organization} />}
           <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
         </h2>
-        {displayQualityGate && <ProjectCardQualityGate status={measures!['alert_status']} />}
+        {project.analysisDate && <ProjectCardQualityGate status={measures!['alert_status']} />}
         <div className="pull-right text-right">
           {isPrivate && <PrivateBadge className="spacer-left" tooltipPlacement="left" />}
           {hasTags && <TagsList tags={project.tags} customClass="spacer-left" />}
         </div>
-        {isProjectAnalyzed &&
-        hasLeakPeriodStart && (
+        {project.analysisDate &&
+        project.leakPeriodDate && (
           <div className="project-card-dates note text-right pull-right">
-            {hasLeakPeriodStart && (
-              <DateFromNow date={project.leakPeriodDate!}>
-                {fromNow => (
-                  <span className="project-card-leak-date pull-right">
-                    {translateWithParameters('projects.leak_period_x', fromNow)}
-                  </span>
-                )}
-              </DateFromNow>
-            )}
-            {isProjectAnalyzed && (
-              <DateTimeFormatter date={project.analysisDate!}>
-                {formattedDate => (
-                  <span>
-                    {translateWithParameters('projects.last_analysis_on_x', formattedDate)}
-                  </span>
-                )}
-              </DateTimeFormatter>
-            )}
+            <DateFromNow date={project.leakPeriodDate!}>
+              {fromNow => (
+                <span className="project-card-leak-date pull-right">
+                  {translateWithParameters('projects.leak_period_x', fromNow)}
+                </span>
+              )}
+            </DateFromNow>
+            <DateTimeFormatter date={project.analysisDate!}>
+              {formattedDate => (
+                <span>{translateWithParameters('projects.last_analysis_on_x', formattedDate)}</span>
+              )}
+            </DateTimeFormatter>
           </div>
         )}
       </div>
 
-      {isProjectAnalyzed && hasLeakPeriodStart ? (
+      {project.analysisDate && project.leakPeriodDate ? (
         <div className="boxed-group-inner">
-          {areProjectMeasuresLoaded && <ProjectCardLeakMeasures measures={measures} />}
+          <ProjectCardLeakMeasures measures={measures} />
         </div>
       ) : (
         <div className="boxed-group-inner">
           <div className="note project-card-not-analyzed">
-            {isProjectAnalyzed ? (
+            {project.analysisDate ? (
               translate('projects.no_leak_period')
             ) : (
               translate('projects.not_analyzed')

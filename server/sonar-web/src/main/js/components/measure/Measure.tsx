@@ -35,7 +35,7 @@ export default function Measure({ className, decimals, measure }: Props) {
   const value = isDiffMetric(metric.key) ? measure.leak : measure.value;
 
   if (value == undefined) {
-    return null;
+    return <span>{'–'}</span>;
   }
 
   if (metric.type === 'LEVEL') {

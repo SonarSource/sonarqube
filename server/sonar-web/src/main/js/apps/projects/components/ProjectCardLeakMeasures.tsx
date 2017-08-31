@@ -26,14 +26,10 @@ import VulnerabilityIcon from '../../../components/icons-components/Vulnerabilit
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  measures?: { [key: string]: string };
+  measures: { [key: string]: string };
 }
 
 export default function ProjectCardLeakMeasures({ measures }: Props) {
-  if (measures == undefined) {
-    return null;
-  }
-
   return (
     <div className="project-card-leak-measures">
       <div className="project-card-measure smaller-card" data-key="new_reliability_rating">

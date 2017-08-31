@@ -31,6 +31,12 @@ exports[`renders trivial measure 1`] = `
 </span>
 `;
 
+exports[`renders undefined measure 1`] = `
+<span>
+  –
+</span>
+`;
+
 exports[`renders unknown RATING 1`] = `
 <Rating
   value="4"

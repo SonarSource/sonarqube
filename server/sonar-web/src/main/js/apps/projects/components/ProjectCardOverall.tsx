@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import { Link } from 'react-router';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
@@ -38,24 +37,11 @@ interface Props {
 export default function ProjectCardOverall({ organization, project }: Props) {
   const { measures } = project;
 
-  const isProjectAnalyzed = project.analysisDate != undefined;
   const isPrivate = project.visibility === 'private';
   const hasTags = project.tags.length > 0;
 
-  // check for particular measures because only some measures can be loaded
-  // if coming from visualizations tab
-  const areProjectMeasuresLoaded =
-    measures != undefined &&
-    measures['reliability_rating'] != undefined &&
-    measures['sqale_rating'] != undefined;
-
-  const displayQualityGate = areProjectMeasuresLoaded && isProjectAnalyzed;
-  const className = classNames('boxed-group', 'project-card', {
-    'boxed-group-loading': isProjectAnalyzed && !areProjectMeasuresLoaded
-  });
-
   return (
-    <div data-key={project.key} className={className}>
+    <div data-key={project.key} className="boxed-group project-card">
       <div className="boxed-group-header clearfix">
         {project.isFavorite != undefined && (
           <Favorite
@@ -68,7 +54,7 @@ export default function ProjectCardOverall({ organization, project }: Props) {
           {!organization && <ProjectCardOrganization organization={project.organization} />}
           <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
         </h2>
-        {displayQualityGate && <ProjectCardQualityGate status={measures!['alert_status']} />}
+        {project.analysisDate && <ProjectCardQualityGate status={measures['alert_status']} />}
         <div className="pull-right text-right">
           {isPrivate && <PrivateBadge className="spacer-left" tooltipPlacement="left" />}
           {hasTags && <TagsList tags={project.tags} customClass="spacer-left" />}
@@ -86,9 +72,9 @@ export default function ProjectCardOverall({ organization, project }: Props) {
         )}
       </div>
 
-      {isProjectAnalyzed ? (
+      {project.analysisDate ? (
         <div className="boxed-group-inner">
-          {areProjectMeasuresLoaded && <ProjectCardOverallMeasures measures={measures} />}
+          {<ProjectCardOverallMeasures measures={measures} />}
         </div>
       ) : (
         <div className="boxed-group-inner">
