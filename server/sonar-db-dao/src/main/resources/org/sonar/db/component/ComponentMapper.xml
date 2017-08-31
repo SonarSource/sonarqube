@@ -276,9 +276,16 @@
       </if>
       <if test="query.nameOrKeyQuery!=null">
         and (
-          p.kee = #{query.nameOrKeyQuery,jdbcType=VARCHAR}
-          or
           upper(p.name) like #{query.nameOrKeyUpperLikeQuery,jdbcType=VARCHAR} escape '/'
+          or
+          <choose>
+            <when test="query.isPartialMatchOnKey()">
+              upper(p.kee) like #{query.nameOrKeyUpperLikeQuery,jdbcType=VARCHAR} escape '/'
+            </when>
+            <otherwise>
+              p.kee = #{query.nameOrKeyQuery,jdbcType=VARCHAR}
+            </otherwise>
+          </choose>
         )
       </if>
       <if test="query.private!=null">
