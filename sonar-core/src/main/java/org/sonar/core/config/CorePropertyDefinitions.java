@@ -127,7 +127,7 @@ public class CorePropertyDefinitions {
       PropertyDefinition.builder(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS)
         .name("Show an onboarding tutorial to new users")
         .type(BOOLEAN)
-        .description("Show an onboarding tutorial to new users, that explains how to analyze a first project, after logging in for the fist time.")
+        .description("Show an onboarding tutorial to new users, that explains how to analyze a first project, after logging in for the first time.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .defaultValue(String.valueOf(false))
         .build(),
@@ -164,7 +164,7 @@ public class CorePropertyDefinitions {
         .build(),
       PropertyDefinition.builder(DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES)
         .name("Avoid quality profiles notification")
-        .description("Avoid sending email notification on each update of built-in quality profiles to quality profile administrators")
+        .description("Avoid sending email notification on each update of built-in quality profiles to quality profile administrators.")
         .defaultValue(Boolean.toString(false))
         .category(CoreProperties.CATEGORY_GENERAL)
         .type(BOOLEAN)
@@ -181,7 +181,7 @@ public class CorePropertyDefinitions {
       PropertyDefinition.builder(WebConstants.SONAR_LF_LOGO_WIDTH_PX)
         .deprecatedKey("sonar.branding.image.width")
         .name("Width of image in pixels")
-        .description("Width in pixels, given that the height of the the image is constrained to 30px")
+        .description("Width in pixels, given that the height of the the image is constrained to 30px.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
@@ -261,14 +261,14 @@ public class CorePropertyDefinitions {
 
       // ORGANIZATIONS
       PropertyDefinition.builder(ORGANIZATIONS_ANYONE_CAN_CREATE)
-        .name("Allow any authenticated user to create organizations")
+        .name("Allow any authenticated user to create organizations.")
         .defaultValue(Boolean.toString(false))
         .category(CATEGORY_ORGANIZATIONS)
         .type(BOOLEAN)
         .hidden()
         .build(),
       PropertyDefinition.builder(ORGANIZATIONS_CREATE_PERSONAL_ORG)
-        .name("Create an organization for each new user")
+        .name("Create an organization for each new user.")
         .defaultValue(Boolean.toString(false))
         .category(CATEGORY_ORGANIZATIONS)
         .type(BOOLEAN)
