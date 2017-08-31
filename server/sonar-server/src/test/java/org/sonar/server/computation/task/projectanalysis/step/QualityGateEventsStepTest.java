@@ -187,7 +187,7 @@ public class QualityGateEventsStepTest {
     verify(notificationService).deliver(notificationArgumentCaptor.capture());
     Notification notification = notificationArgumentCaptor.getValue();
     assertThat(notification.getType()).isEqualTo("alerts");
-    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
+    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getPublicKey());
     assertThat(notification.getFieldValue("projectUuid")).isEqualTo(PROJECT_COMPONENT.getUuid());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
     assertThat(notification.getFieldValue("branch")).isNull();
@@ -239,7 +239,7 @@ public class QualityGateEventsStepTest {
     verify(notificationService).deliver(notificationArgumentCaptor.capture());
     Notification notification = notificationArgumentCaptor.getValue();
     assertThat(notification.getType()).isEqualTo("alerts");
-    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
+    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getPublicKey());
     assertThat(notification.getFieldValue("projectUuid")).isEqualTo(PROJECT_COMPONENT.getUuid());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
     assertThat(notification.getFieldValue("branch")).isNull();
@@ -263,7 +263,7 @@ public class QualityGateEventsStepTest {
     verify(notificationService).deliver(notificationArgumentCaptor.capture());
     Notification notification = notificationArgumentCaptor.getValue();
     assertThat(notification.getType()).isEqualTo("alerts");
-    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
+    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getPublicKey());
     assertThat(notification.getFieldValue("projectUuid")).isEqualTo(PROJECT_COMPONENT.getUuid());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
     assertThat(notification.getFieldValue("branch")).isEqualTo(branchName);
