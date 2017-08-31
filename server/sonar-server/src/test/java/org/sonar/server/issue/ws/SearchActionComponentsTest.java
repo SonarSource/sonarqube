@@ -737,6 +737,31 @@ public class SearchActionComponentsTest {
   }
 
   @Test
+  public void search_using_main_branch_name() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
+    IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
+    allowAnyoneOnProjects(project);
+    indexIssuesAndViews();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
+      .setParam(PARAM_BRANCH, "master")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey, Issue::getComponent, Issue::hasBranch)
+      .containsExactlyInAnyOrder(tuple(projectIssue.getKey(), projectFile.getKey(), false));
+    assertThat(result.getComponentsList())
+      .extracting(Issues.Component::getKey, Issues.Component::hasBranch)
+      .containsExactlyInAnyOrder(
+        tuple(projectFile.getKey(), false),
+        tuple(project.getKey(), false));
+  }
+
+  @Test
   public void does_not_return_branch_issues_on_not_contextualized_search() {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();

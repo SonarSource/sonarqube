@@ -209,7 +209,7 @@ public class IssueIndex {
     QueryBuilder directoryFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
     QueryBuilder fileFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
     QueryBuilder branchFilter = createTermFilter(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, query.branchUuid());
-    filters.put("__is_main_branch", createTermFilter(IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(query.branchUuid() == null)));
+    filters.put("__is_main_branch", createTermFilter(IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(query.isMainBranch())));
 
     if (BooleanUtils.isTrue(query.onComponentOnly())) {
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentFilter);
