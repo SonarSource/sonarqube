@@ -19,19 +19,18 @@
  */
 package org.sonar.application;
 
-import org.sonar.application.cluster.ClusterAppStateImpl;
-import org.sonar.application.config.AppSettings;
-import org.sonar.application.config.ClusterSettings;
+import org.sonar.application.cluster.ClusterAppState;
+import org.sonar.cluster.localclient.HazelcastClient;
 
-public class AppStateFactory {
+public class TestClusterAppState extends TestAppState implements ClusterAppState {
+  private final HazelcastClient hazelcastClient;
 
-  private final AppSettings settings;
-
-  public AppStateFactory(AppSettings settings) {
-    this.settings = settings;
+  public TestClusterAppState(HazelcastClient hazelcastClient) {
+    this.hazelcastClient = hazelcastClient;
   }
 
-  public AppState create() {
-    return ClusterSettings.isClusterEnabled(settings) ? new ClusterAppStateImpl(settings) : new AppStateImpl();
+  @Override
+  public HazelcastClient getHazelcastClient() {
+    return hazelcastClient;
   }
 }

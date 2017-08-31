@@ -151,7 +151,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
       ClusterAppState clusterAppState = (ClusterAppState) appState;
       this.healthStateSharing = new HealthStateSharingImpl(
         clusterAppState.getHazelcastClient(),
-        new SearchNodeHealthProvider(settings.getProps(), System2.INSTANCE));
+        new SearchNodeHealthProvider(settings.getProps(), System2.INSTANCE, clusterAppState));
       this.healthStateSharing.start();
     }
   }
