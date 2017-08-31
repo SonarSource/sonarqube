@@ -242,7 +242,7 @@ public class HazelcastClusterTest {
     settings.set(CLUSTER_NODE_HOST, InetAddress.getLoopbackAddress().getHostAddress());
     AppStateListener listener = mock(AppStateListener.class);
 
-    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
+    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
       appStateCluster.addListener(listener);
 
       HazelcastInstance hzInstance = createHazelcastClient(appStateCluster.getHazelcastCluster());
@@ -275,7 +275,7 @@ public class HazelcastClusterTest {
     memoryAppender.start();
     lc.getLogger("com.hazelcast").addAppender(memoryAppender);
 
-    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(newClusterSettings())) {
+    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(newClusterSettings())) {
     }
 
     assertThat(memoryAppender.events).isNotEmpty();

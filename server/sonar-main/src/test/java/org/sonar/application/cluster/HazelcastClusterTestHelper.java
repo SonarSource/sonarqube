@@ -62,7 +62,7 @@ public class HazelcastClusterTestHelper {
       });
   }
 
-  static HazelcastInstance createHazelcastClient(AppStateClusterImpl appStateCluster) {
+  static HazelcastInstance createHazelcastClient(ClusterAppStateImpl appStateCluster) {
     return createHazelcastClient(appStateCluster.getHazelcastCluster());
   }
 
