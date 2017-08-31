@@ -37,12 +37,15 @@
       p.kee=#{key,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByDbKey" parameterType="String" resultType="Component">
+  <select id="selectByKeyAndBranch" parameterType="String" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
     FROM projects p
-    where
-    p.kee=#{key,jdbcType=VARCHAR}
+    INNER JOIN project_branches pb on pb.uuid = p.project_uuid
+    <where>
+      (p.kee=#{dbKey,jdbcType=VARCHAR} OR p.kee=#{key,jdbcType=VARCHAR})
+      AND pb.kee=#{branch,jdbcType=VARCHAR}
+    </where>
   </select>
 
   <select id="selectComponentsHavingSameKeyOrderedById" parameterType="String" resultType="Component">
@@ -90,16 +93,19 @@
       </foreach>
   </select>
 
-  <select id="selectByDbKeys" parameterType="String" resultType="Component">
-    select
+  <select id="selectByKeysAndBranch" parameterType="String" resultType="Component">
+    SELECT
     <include refid="componentColumns"/>
-    from projects p
-    where
+    FROM projects p
+    INNER JOIN project_branches pb on pb.uuid = p.project_uuid
+    <where>
     p.enabled=${_true}
-    and p.kee in
+    AND p.kee IN
     <foreach collection="keys" open="(" close=")" item="key" separator=",">
       #{key,jdbcType=VARCHAR}
     </foreach>
+    AND pb.kee=#{branch,jdbcType=VARCHAR}
+    </where>
   </select>
 
   <select id="selectByIds" parameterType="long" resultType="Component">

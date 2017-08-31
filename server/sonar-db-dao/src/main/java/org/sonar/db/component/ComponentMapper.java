@@ -34,11 +34,8 @@ public interface ComponentMapper {
   @CheckForNull
   ComponentDto selectByKey(String key);
 
-  /**
-   * This method should be used to get a component by its key without filtering out branches
-   */
   @CheckForNull
-  ComponentDto selectByDbKey(String dbKey);
+  ComponentDto selectByKeyAndBranch(@Param("key") String key, @Param("dbKey") String dbKey, @Param("branch") String branch);
 
   @CheckForNull
   ComponentDto selectById(long id);
@@ -53,7 +50,7 @@ public interface ComponentMapper {
 
   List<ComponentDto> selectByKeys(@Param("keys") Collection<String> keys);
 
-  List<ComponentDto> selectByDbKeys(@Param("keys") Collection<String> keys);
+  List<ComponentDto> selectByKeysAndBranch(@Param("keys") Collection<String> keys, @Param("branch") String branch);
 
   List<ComponentDto> selectByIds(@Param("ids") Collection<Long> ids);
 
