@@ -65,6 +65,28 @@ public class ProjectSearchTest {
     assertThat(result.getComponentsList()).extracting(SearchWsResponse.Component::getKey).containsExactlyInAnyOrder(oldProject.getKey());
   }
 
+  @Test
+  public void search_on_key_partial_match_case_insensitive() {
+    Organizations.Organization organization = tester.organizations().generate();
+    CreateWsResponse.Project lowerCaseProject = tester.projects().generate(organization, p -> p.setKey("project-key"));
+    CreateWsResponse.Project upperCaseProject = tester.projects().generate(organization, p -> p.setKey("PROJECT-KEY"));
+    CreateWsResponse.Project anotherProject = tester.projects().generate(organization, p -> p.setKey("another-project"));
+
+    analyzeProject(lowerCaseProject.getKey(), organization.getKey());
+    analyzeProject(upperCaseProject.getKey(), organization.getKey());
+    analyzeProject(anotherProject.getKey(), organization.getKey());
+
+    SearchWsResponse result = tester.wsClient().projects().search(SearchWsRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualifiers(singletonList("TRK"))
+      .setQuery("JeCt-K")
+      .build());
+
+    assertThat(result.getComponentsList()).extracting(SearchWsResponse.Component::getKey)
+      .containsExactlyInAnyOrder(lowerCaseProject.getKey(), upperCaseProject.getKey())
+      .doesNotContain(anotherProject.getKey());
+  }
+
   private void analyzeProject(String projectKey, Date analysisDate, String organizationKey) {
     runProjectAnalysis(orchestrator, "shared/xoo-sample",
       "sonar.organization", organizationKey,
@@ -72,5 +94,9 @@ public class ProjectSearchTest {
       "sonar.projectDate", formatDate(analysisDate),
       "sonar.login", "admin",
       "sonar.password", "admin");
+  }
+
+  private void analyzeProject(String projectKey, String organizationKey) {
+    analyzeProject(projectKey, new Date(), organizationKey);
   }
 }

@@ -92,7 +92,7 @@ public class SearchAction implements ProjectsWsAction {
     action.createParam(Param.TEXT_QUERY)
       .setDescription("Limit search to: <ul>" +
         "<li>component names that contain the supplied string</li>" +
-        "<li>component keys that are exactly the same as the supplied string</li>" +
+        "<li>component keys that contain the supplied string</li>" +
         "</ul>")
       .setExampleValue("sonar");
 
@@ -153,9 +153,13 @@ public class SearchAction implements ProjectsWsAction {
   private static ComponentQuery buildQuery(SearchWsRequest request) {
     List<String> qualifiers = request.getQualifiers();
     ComponentQuery.Builder query = ComponentQuery.builder()
-      .setNameOrKeyQuery(request.getQuery())
       .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]));
 
+    setNullable(request.getQuery(), q -> {
+      query.setNameOrKeyQuery(q);
+      query.setPartialMatchOnKey(true);
+      return query;
+    });
     setNullable(request.getVisibility(), v -> query.setPrivate(Visibility.isPrivate(v)));
     setNullable(request.getAnalyzedBefore(), d -> query.setAnalyzedBefore(parseDateOrDateTime(d).getTime()));
 
