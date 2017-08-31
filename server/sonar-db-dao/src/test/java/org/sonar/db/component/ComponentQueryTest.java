@@ -58,6 +58,16 @@ public class ComponentQueryTest {
   }
 
   @Test
+  public void test_getNameOrKeyUpperLikeQuery() throws Exception {
+    ComponentQuery underTest = ComponentQuery.builder()
+      .setNameOrKeyQuery("NAME/key")
+      .setQualifiers(PROJECT)
+      .build();
+
+    assertThat(underTest.getNameOrKeyUpperLikeQuery()).isEqualTo("%NAME//KEY%");
+  }
+
+  @Test
   public void fail_if_no_qualifier_provided() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("At least one qualifier must be provided");
@@ -66,12 +76,10 @@ public class ComponentQueryTest {
   }
 
   @Test
-  public void test_getNameOrKeyUpperLikeQuery() throws Exception {
-    ComponentQuery underTest = ComponentQuery.builder()
-      .setNameOrKeyQuery("NAME/key")
-      .setQualifiers(PROJECT)
-      .build();
+  public void fail_if_partial_match_on_key_without_a_query() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("A query must be provided if a partial match on key is specified.");
 
-    assertThat(underTest.getNameOrKeyUpperLikeQuery()).isEqualTo("%NAME//KEY%");
+    ComponentQuery.builder().setQualifiers(PROJECT).setPartialMatchOnKey(false).build();
   }
 }
