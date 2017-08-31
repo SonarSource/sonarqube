@@ -52,15 +52,6 @@ it('should not display analysis date or leak start date', () => {
   expect(card.find('.project-card-dates').exists()).toBeFalsy();
 });
 
-it('should display loading', () => {
-  const measures = { alert_status: 'OK', reliability_rating: '1.0', sqale_rating: '1.0' };
-  expect(
-    shallow(<ProjectCardLeak project={{ ...PROJECT, measures }} />)
-      .find('.boxed-group')
-      .hasClass('boxed-group-loading')
-  ).toBeTruthy();
-});
-
 it('should display tags', () => {
   const project = { ...PROJECT, tags: ['foo', 'bar'] };
   expect(

@@ -26,10 +26,13 @@ interface Props {
   className?: string;
   muted?: boolean;
   small?: boolean;
-  value: string | number;
+  value: string | number | undefined;
 }
 
 export default function Rating({ className, muted = false, small = false, value }: Props) {
+  if (value == undefined) {
+    return <span>{'–'}</span>;
+  }
   const formatted = formatMeasure(value, 'RATING');
   return (
     <span

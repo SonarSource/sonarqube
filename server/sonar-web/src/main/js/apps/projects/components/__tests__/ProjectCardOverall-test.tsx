@@ -51,19 +51,6 @@ it('should display analysis date (and not leak period) when defined', () => {
   ).toBeFalsy();
 });
 
-it('should display loading', () => {
-  expect(
-    shallow(<ProjectCardOverall project={{ ...PROJECT, measures: {} }} />)
-      .find('.boxed-group')
-      .hasClass('boxed-group-loading')
-  ).toBeTruthy();
-  expect(
-    shallow(<ProjectCardOverall project={{ ...PROJECT, measures: { sqale_rating: '1.0' } }} />)
-      .find('.boxed-group')
-      .hasClass('boxed-group-loading')
-  ).toBeTruthy();
-});
-
 it('should not display the quality gate', () => {
   const project = { ...PROJECT, analysisDate: undefined };
   expect(
