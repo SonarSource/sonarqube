@@ -115,7 +115,7 @@ import org.sonar.server.platform.web.WebPagesFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
 import org.sonar.server.platform.ws.ChangeLogLevelAction;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
-import org.sonar.server.platform.ws.InfoAction;
+import org.sonar.server.platform.ws.InfoActionModule;
 import org.sonar.server.platform.ws.L10nWs;
 import org.sonar.server.platform.ws.LogsAction;
 import org.sonar.server.platform.ws.MigrateDbAction;
@@ -472,7 +472,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // System
       ServerLogging.class,
       RestartAction.class,
-      InfoAction.class,
+      InfoActionModule.class,
       PingAction.class,
       UpgradesAction.class,
       StatusAction.class,

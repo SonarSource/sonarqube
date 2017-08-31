@@ -24,9 +24,7 @@ import org.sonar.core.platform.Module;
 public class TelemetryModule extends Module {
   @Override
   protected void configureModule() {
-    add(
-      TelemetryDataLoader.class,
-      TelemetryDaemon.class,
+    add(TelemetryDaemon.class,
       TelemetryClient.class);
   }
 }
