@@ -32,6 +32,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -79,7 +80,8 @@ public class ShowActionTest {
       tuple("6.4", "The field 'id' is deprecated in the response"),
       tuple("6.4", "The 'visibility' field is added to the response"),
       tuple("6.5", "Leak period date is added to the response"),
-      tuple("6.6", "'branch' is added to the response"));
+      tuple("6.6", "'branch' is added to the response"),
+      tuple("6.6", "'version' is added to the response"));
     assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("component", "componentId", "branch");
 
     WebService.Param componentId = action.param(PARAM_COMPONENT_ID);
@@ -263,6 +265,23 @@ public class ShowActionTest {
   }
 
   @Test
+  public void display_version() throws Exception {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    db.components().insertSnapshot(project, s -> s.setVersion("1.1"));
+    userSession.addProjectPermission(USER, project);
+
+    ShowWsResponse response = newRequest(null, file.getDbKey());
+
+    assertThat(response.getComponent().getVersion()).isEqualTo("1.1");
+    assertThat(response.getAncestorsList())
+      .extracting(Component::getVersion)
+      .containsOnly("1.1");
+  }
+
+  @Test
   public void branch() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.addProjectPermission(UserRole.USER, project);
@@ -271,19 +290,21 @@ public class ShowActionTest {
     ComponentDto module = db.components().insertComponent(newModuleDto(branch));
     ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    db.components().insertSnapshot(branch, s -> s.setVersion("1.1"));
 
     ShowWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
       .setParam(PARAM_BRANCH, branchKey)
       .executeProtobuf(ShowWsResponse.class);
 
-    assertThat(response.getComponent()).extracting(Component::getKey, Component::getBranch)
-      .containsExactlyInAnyOrder(file.getKey(), branchKey);
-    assertThat(response.getAncestorsList()).extracting(Component::getKey, Component::getBranch)
+    assertThat(response.getComponent())
+      .extracting(Component::getKey, Component::getBranch, Component::getVersion)
+      .containsExactlyInAnyOrder(file.getKey(), branchKey, "1.1");
+    assertThat(response.getAncestorsList()).extracting(Component::getKey, Component::getBranch, Component::getVersion)
       .containsExactlyInAnyOrder(
-        tuple(directory.getKey(), branchKey),
-        tuple(module.getKey(), branchKey),
-        tuple(branch.getKey(), branchKey));
+        tuple(directory.getKey(), branchKey, "1.1"),
+        tuple(module.getKey(), branchKey, "1.1"),
+        tuple(branch.getKey(), branchKey, "1.1"));
   }
 
   @Test
@@ -395,6 +416,7 @@ public class ShowActionTest {
       .setQualifier(Qualifiers.PROJECT)
       .setTagsString("language, plugin"));
     db.components().insertSnapshot(project, snapshot -> snapshot
+      .setVersion("1.1")
       .setCreatedAt(parseDateTime("2017-03-01T11:39:03+0100").getTime())
       .setPeriodDate(parseDateTime("2017-01-01T11:39:03+0100").getTime()));
     ComponentDto directory = newDirectory(project, "AVIF-FfgA3Ax6PH2efPF", "src/main/java/com/sonarsource/markdown/impl")
