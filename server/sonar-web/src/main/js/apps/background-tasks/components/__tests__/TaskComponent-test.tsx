@@ -34,4 +34,5 @@ it('renders', () => {
   };
   expect(shallow(<TaskComponent task={task} />)).toMatchSnapshot();
   expect(shallow(<TaskComponent task={{ ...task, componentKey: undefined }} />)).toMatchSnapshot();
+  expect(shallow(<TaskComponent task={{ ...task, branch: 'feature' }} />)).toMatchSnapshot();
 });

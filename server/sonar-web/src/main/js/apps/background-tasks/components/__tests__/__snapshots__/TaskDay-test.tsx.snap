@@ -5,7 +5,7 @@ exports[`renders 1`] = `
   className="thin nowrap text-right"
 >
   <DateFormatter
-    date="2017-01-02"
+    date="2017-01-02T00:00:00.000Z"
     long={true}
   />
 </td>
