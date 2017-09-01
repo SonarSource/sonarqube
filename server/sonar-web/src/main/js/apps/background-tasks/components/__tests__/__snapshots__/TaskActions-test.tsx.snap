@@ -1,0 +1,272 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<td
+  className="thin nowrap"
+>
+  <div
+    className="dropdown js-task-action"
+  >
+    <button
+      className="dropdown-toggle"
+      data-toggle="dropdown"
+    >
+      <i
+        className="icon-dropdown"
+      />
+    </button>
+    <ul
+      className="dropdown-menu dropdown-menu-right"
+    >
+      <li>
+        <a
+          className="js-task-filter"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="spacer-right icon-filter icon-gray"
+          />
+          background_tasks.filter_by_component_x.foo
+        </a>
+      </li>
+      <li>
+        <a
+          className="js-task-cancel"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="spacer-right icon-delete"
+          />
+          background_tasks.cancel_task
+        </a>
+      </li>
+    </ul>
+  </div>
+</td>
+`;
+
+exports[`renders 2`] = `
+<td
+  className="thin nowrap"
+>
+  <div
+    className="dropdown js-task-action"
+  >
+    <button
+      className="dropdown-toggle"
+      data-toggle="dropdown"
+    >
+      <i
+        className="icon-dropdown"
+      />
+    </button>
+    <ul
+      className="dropdown-menu dropdown-menu-right"
+    >
+      <li>
+        <a
+          className="js-task-filter"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="spacer-right icon-filter icon-gray"
+          />
+          background_tasks.filter_by_component_x.foo
+        </a>
+      </li>
+    </ul>
+  </div>
+</td>
+`;
+
+exports[`renders 3`] = `
+<td
+  className="thin nowrap"
+>
+  <div
+    className="dropdown js-task-action"
+  >
+    <button
+      className="dropdown-toggle"
+      data-toggle="dropdown"
+    >
+      <i
+        className="icon-dropdown"
+      />
+    </button>
+    <ul
+      className="dropdown-menu dropdown-menu-right"
+    >
+      <li>
+        <a
+          className="js-task-filter"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="spacer-right icon-filter icon-gray"
+          />
+          background_tasks.filter_by_component_x.foo
+        </a>
+      </li>
+      <li>
+        <a
+          className="js-task-cancel"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="spacer-right icon-delete"
+          />
+          background_tasks.cancel_task
+        </a>
+      </li>
+      <li>
+        <a
+          className="js-task-show-scanner-context"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="spacer-right icon-list icon-gray"
+          />
+          background_tasks.show_scanner_context
+        </a>
+      </li>
+    </ul>
+  </div>
+</td>
+`;
+
+exports[`renders 4`] = `
+<td
+  className="thin nowrap"
+>
+  <div
+    className="dropdown js-task-action"
+  >
+    <button
+      className="dropdown-toggle"
+      data-toggle="dropdown"
+    >
+      <i
+        className="icon-dropdown"
+      />
+    </button>
+    <ul
+      className="dropdown-menu dropdown-menu-right"
+    >
+      <li>
+        <a
+          className="js-task-filter"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="spacer-right icon-filter icon-gray"
+          />
+          background_tasks.filter_by_component_x.foo
+        </a>
+      </li>
+      <li>
+        <a
+          className="js-task-cancel"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="spacer-right icon-delete"
+          />
+          background_tasks.cancel_task
+        </a>
+      </li>
+      <li>
+        <a
+          className="js-task-show-stacktrace"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="spacer-right icon-list icon-red"
+          />
+          background_tasks.show_stacktrace
+        </a>
+      </li>
+    </ul>
+  </div>
+</td>
+`;
+
+exports[`renders 5`] = `
+<td
+  className="thin nowrap"
+>
+  <div
+    className="dropdown js-task-action"
+  >
+    <button
+      className="dropdown-toggle"
+      data-toggle="dropdown"
+    >
+      <i
+        className="icon-dropdown"
+      />
+    </button>
+    <ul
+      className="dropdown-menu dropdown-menu-right"
+    >
+      <li>
+        <a
+          className="js-task-cancel"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="spacer-right icon-delete"
+          />
+          background_tasks.cancel_task
+        </a>
+      </li>
+    </ul>
+  </div>
+</td>
+`;
+
+exports[`shows scanner context 1`] = `
+<ScannerContext
+  onClose={[Function]}
+  task={
+    Object {
+      "componentName": "foo",
+      "hasScannerContext": true,
+      "id": "123",
+      "status": "PENDING",
+      "submittedAt": "2017-01-01",
+      "type": "REPORT",
+    }
+  }
+/>
+`;
+
+exports[`shows scanner context 2`] = `undefined`;
+
+exports[`shows stack trace 1`] = `
+<Stacktrace
+  onClose={[Function]}
+  task={
+    Object {
+      "componentName": "foo",
+      "errorMessage": "error!",
+      "id": "123",
+      "status": "PENDING",
+      "submittedAt": "2017-01-01",
+      "type": "REPORT",
+    }
+  }
+/>
+`;
+
+exports[`shows stack trace 2`] = `undefined`;

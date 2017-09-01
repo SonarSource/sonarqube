@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
-import { formatDuration } from '../utils';
-/*:: import type { Task } from '../types'; */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import TaskComponent from '../TaskComponent';
 
-const TaskExecutionTime = ({ task } /*: { task: Task } */) => {
-  return (
-    <td className="thin nowrap text-right">
-      {formatDuration(task.executionTimeMs)}
-    </td>
-  );
-};
-
-export default TaskExecutionTime;
+it('renders', () => {
+  const task = {
+    componentKey: 'foo',
+    componentName: 'foo',
+    componentQualifier: 'TRK',
+    id: 'bar',
+    organization: 'org',
+    status: 'PENDING',
+    submittedAt: '2017-01-01',
+    type: 'REPORT'
+  };
+  expect(shallow(<TaskComponent task={task} />)).toMatchSnapshot();
+  expect(shallow(<TaskComponent task={{ ...task, componentKey: undefined }} />)).toMatchSnapshot();
+});
