@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -70,8 +70,8 @@ public class HazelcastClusterTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  @AfterClass
-  public static void closeHazelcastClients() {
+  @After
+  public void closeHazelcastClients() {
     closeAllHazelcastClients();
   }
 
