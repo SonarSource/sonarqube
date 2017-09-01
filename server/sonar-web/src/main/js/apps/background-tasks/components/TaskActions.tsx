@@ -17,48 +17,61 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import ScannerContext from './ScannerContext';
 import Stacktrace from './Stacktrace';
 import { STATUSES } from './../constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Task } from '../types';
 
-export default class TaskActions extends React.PureComponent {
-  state = {
+interface Props {
+  component?: {};
+  onCancelTask: (task: Task) => void;
+  onFilterTask: (task: Task) => void;
+  task: Task;
+}
+
+interface State {
+  scannerContextOpen: boolean;
+  stacktraceOpen: boolean;
+}
+
+export default class TaskActions extends React.PureComponent<Props, State> {
+  state: State = {
     scannerContextOpen: false,
     stacktraceOpen: false
   };
 
-  handleFilterClick(e) {
-    e.preventDefault();
+  handleFilterClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
     this.props.onFilterTask(this.props.task);
-  }
+  };
 
-  handleCancelClick(e) {
-    e.preventDefault();
+  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
     this.props.onCancelTask(this.props.task);
-  }
+  };
 
-  handleShowScannerContextClick(e) {
-    e.preventDefault();
+  handleShowScannerContextClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
     this.setState({ scannerContextOpen: true });
-  }
+  };
 
   closeScannerContext = () => this.setState({ scannerContextOpen: false });
 
-  handleShowStacktraceClick(e) {
-    e.preventDefault();
+  handleShowStacktraceClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
     this.setState({ stacktraceOpen: true });
-  }
+  };
 
   closeStacktrace = () => this.setState({ stacktraceOpen: false });
 
   render() {
     const { component, task } = this.props;
 
-    const canFilter = component == null;
+    const canFilter = component == undefined;
     const canCancel = task.status === STATUSES.PENDING;
-    const canShowStacktrace = task.errorMessage != null;
+    const canShowStacktrace = task.errorMessage != undefined;
     const hasActions = canFilter || canCancel || task.hasScannerContext || canShowStacktrace;
 
     if (!hasActions) {
@@ -73,8 +86,9 @@ export default class TaskActions extends React.PureComponent {
           </button>
           <ul className="dropdown-menu dropdown-menu-right">
             {canFilter &&
+              task.componentName &&
               <li>
-                <a className="js-task-filter" href="#" onClick={this.handleFilterClick.bind(this)}>
+                <a className="js-task-filter" href="#" onClick={this.handleFilterClick}>
                   <i className="spacer-right icon-filter icon-gray" />
                   {translateWithParameters(
                     'background_tasks.filter_by_component_x',
@@ -84,7 +98,7 @@ export default class TaskActions extends React.PureComponent {
               </li>}
             {canCancel &&
               <li>
-                <a className="js-task-cancel" href="#" onClick={this.handleCancelClick.bind(this)}>
+                <a className="js-task-cancel" href="#" onClick={this.handleCancelClick}>
                   <i className="spacer-right icon-delete" />
                   {translate('background_tasks.cancel_task')}
                 </a>
@@ -94,7 +108,7 @@ export default class TaskActions extends React.PureComponent {
                 <a
                   className="js-task-show-scanner-context"
                   href="#"
-                  onClick={this.handleShowScannerContextClick.bind(this)}>
+                  onClick={this.handleShowScannerContextClick}>
                   <i className="spacer-right icon-list icon-gray" />
                   {translate('background_tasks.show_scanner_context')}
                 </a>
@@ -104,7 +118,7 @@ export default class TaskActions extends React.PureComponent {
                 <a
                   className="js-task-show-stacktrace"
                   href="#"
-                  onClick={this.handleShowStacktraceClick.bind(this)}>
+                  onClick={this.handleShowStacktraceClick}>
                   <i className="spacer-right icon-list icon-red" />
                   {translate('background_tasks.show_stacktrace')}
                 </a>

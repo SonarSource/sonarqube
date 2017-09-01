@@ -17,47 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
 import TaskType from './TaskType';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import Organization from '../../../components/shared/Organization';
-/*:: import type { Task } from '../types'; */
+import { Task } from '../types';
 
-/*::
-type Props = {
-  task: Task
-};
-*/
+interface Props {
+  task: Task;
+}
 
-export default function TaskComponent(props /*: Props */) {
-  const { task } = props;
-
+export default function TaskComponent({ task }: Props) {
   if (!task.componentKey) {
     return (
       <td>
         <span className="note">
           {task.id}
         </span>
-        <TaskType task={task} />
+        <TaskType incremental={task.incremental} type={task.type} />
       </td>
     );
   }
 
   return (
     <td>
-      <span className="little-spacer-right">
-        <QualifierIcon qualifier={task.componentQualifier} />
-      </span>
+      {task.componentQualifier &&
+        <span className="little-spacer-right">
+          <QualifierIcon qualifier={task.componentQualifier} />
+        </span>}
 
-      {task.organization != null && <Organization organizationKey={task.organization} />}
+      {task.organization && <Organization organizationKey={task.organization} />}
 
-      <Link to={{ pathname: '/dashboard', query: { id: task.componentKey } }}>
-        {task.componentName}
-      </Link>
+      {task.componentName &&
+        <Link to={{ pathname: '/dashboard', query: { id: task.componentKey } }}>
+          {task.componentName}
+        </Link>}
 
-      <TaskType task={task} />
+      <TaskType incremental={task.incremental} type={task.type} />
     </td>
   );
 }
