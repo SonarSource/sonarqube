@@ -82,11 +82,11 @@ export default class Tasks extends React.PureComponent {
             <Task
               key={task.id}
               task={task}
-              index={index}
               tasks={tasks}
               component={component}
               onCancelTask={onCancelTask}
               onFilterTask={onFilterTask}
+              previousTask={index > 0 ? tasks[index - 1] : undefined}
             />
           )}
         </tbody>

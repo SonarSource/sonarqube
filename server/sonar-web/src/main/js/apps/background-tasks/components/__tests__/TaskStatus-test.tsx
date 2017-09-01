@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,21 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DateFormatter from '../../../components/intl/DateFormatter';
-import { isSameDay, parseDate } from '../../../helpers/dates';
+import { shallow } from 'enzyme';
+import TaskStatus from '../TaskStatus';
 
-interface Props {
-  submittedAt: string;
-  prevSubmittedAt?: string;
-}
-
-export default function TaskDay({ submittedAt, prevSubmittedAt }: Props) {
-  const shouldDisplay =
-    !prevSubmittedAt || !isSameDay(parseDate(submittedAt), parseDate(prevSubmittedAt));
-
-  return (
-    <td className="thin nowrap text-right">
-      {shouldDisplay ? <DateFormatter date={submittedAt} long={true} /> : ''}
-    </td>
-  );
-}
+it('renders', () => {
+  expect.assertions(5);
+  const statuses = ['PENDING', 'IN_PROGRESS', 'SUCCESS', 'FAILED', 'CANCELED'];
+  statuses.forEach(status => {
+    expect(shallow(<TaskStatus status={status} />)).toMatchSnapshot();
+  });
+});

@@ -17,31 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Modal from 'react-modal';
 import { getTask } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
+import { Task } from '../types';
 
-/*::
-type Props = {
-  onClose: () => void,
-  task: { componentName: string, id: string, type: string }
-};
-*/
+interface Props {
+  onClose: () => void;
+  task: Task;
+}
 
-/*::
-type State = {
-  scannerContext: ?string
-};
-*/
+interface State {
+  scannerContext?: string;
+}
 
-export default class ScannerContext extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    scannerContext: null
-  };
+export default class ScannerContext extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = {};
 
   componentDidMount() {
     this.mounted = true;
@@ -60,7 +53,7 @@ export default class ScannerContext extends React.PureComponent {
     });
   }
 
-  handleCloseClick = (event /*: Event */) => {
+  handleCloseClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.onClose();
   };

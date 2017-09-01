@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import TaskDay from '../TaskDay';
 
-const TaskId = ({ task }) => {
-  return (
-    <td className="thin nowrap">
-      <div className="note">
-        {task.id}
-      </div>
-    </td>
-  );
-};
+it('renders', () => {
+  expect(
+    shallow(<TaskDay submittedAt="2017-01-02" prevSubmittedAt="2017-01-01" />)
+  ).toMatchSnapshot();
 
-export default TaskId;
+  expect(
+    shallow(<TaskDay submittedAt="2017-01-01" prevSubmittedAt="2017-01-01" />)
+  ).toMatchSnapshot();
+});
