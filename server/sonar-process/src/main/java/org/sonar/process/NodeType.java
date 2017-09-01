@@ -19,8 +19,6 @@
  */
 package org.sonar.process;
 
-import javax.annotation.Nullable;
-
 import static java.util.Arrays.stream;
 
 public enum NodeType {
@@ -36,14 +34,11 @@ public enum NodeType {
     return value;
   }
 
-  public static NodeType parse(@Nullable String nodeType) {
-    if (nodeType == null) {
-      throw new IllegalStateException("Setting [" + ProcessProperties.CLUSTER_NODE_TYPE + "] is mandatory");
-    }
+  public static NodeType parse(String nodeType) {
     return stream(values())
       .filter(t -> nodeType.equals(t.value))
       .findFirst()
-      .orElseThrow(() -> new IllegalStateException("Invalid value for [" + ProcessProperties.CLUSTER_NODE_TYPE + "]: [" + nodeType + "]"));
+      .orElseThrow(() -> new IllegalArgumentException("Invalid value for [" + ProcessProperties.CLUSTER_NODE_TYPE + "]: [" + nodeType + "]"));
   }
 
   public static boolean isValid(String nodeType) {

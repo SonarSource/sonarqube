@@ -29,7 +29,6 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.process.MessageException;
 import org.sonar.process.NodeType;
@@ -42,6 +41,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
@@ -56,11 +56,9 @@ public class ClusterSettings implements Consumer<Props> {
 
   @Override
   public void accept(Props props) {
-    if (!isClusterEnabled(props)) {
-      return;
+    if (isClusterEnabled(props)) {
+      checkProperties(props);
     }
-
-    checkProperties(props);
   }
 
   private static void checkProperties(Props props) {
@@ -71,33 +69,43 @@ public class ClusterSettings implements Consumer<Props> {
 
     // Mandatory properties
     ensureMandatoryProperty(props, CLUSTER_NODE_TYPE);
+    String nodeTypeValue = props.nonNullValue(ProcessProperties.CLUSTER_NODE_TYPE);
+    if (!NodeType.isValid(nodeTypeValue)) {
+      throw new MessageException(format("Invalid value for property [%s]: [%s], only [%s] are allowed", ProcessProperties.CLUSTER_NODE_TYPE, nodeTypeValue,
+        Arrays.stream(NodeType.values()).map(NodeType::getValue).collect(joining(", "))));
+    }
     ensureMandatoryProperty(props, CLUSTER_HOSTS);
     ensureMandatoryProperty(props, CLUSTER_SEARCH_HOSTS);
 
-    String nodeTypeValue = props.value(ProcessProperties.CLUSTER_NODE_TYPE);
-    if (!NodeType.isValid(nodeTypeValue)) {
-      throw new MessageException(format("Invalid nodeTypeValue for [%s]: [%s], only [%s] are allowed", ProcessProperties.CLUSTER_NODE_TYPE, nodeTypeValue,
-        Arrays.stream(NodeType.values()).map(NodeType::getValue).collect(Collectors.joining(", "))));
-    }
     NodeType nodeType = NodeType.parse(nodeTypeValue);
-    if (nodeType == NodeType.SEARCH) {
-      ensureMandatoryProperty(props, SEARCH_HOST);
-      ensureNotLoopback(props, SEARCH_HOST);
+    switch (nodeType) {
+      case APPLICATION:
+        ensureNotH2(props);
+        ensureMandatoryProperty(props, "sonar.auth.jwtBase64Hs256Secret");
+        break;
+      case SEARCH:
+        ensureMandatoryProperty(props, SEARCH_HOST);
+        ensureNotLoopback(props, SEARCH_HOST);
+        break;
+      default:
+        throw new IllegalArgumentException("Unsupported node type: " + nodeType);
     }
 
-    // H2 Database is not allowed in cluster mode
-    String jdbcUrl = props.value(JDBC_URL);
-    if (isBlank(jdbcUrl) || jdbcUrl.startsWith("jdbc:h2:")) {
-      throw new MessageException("Embedded database is not supported in cluster mode");
-    }
-
-    // Loopback interfaces are forbidden for SEARCH_HOST and CLUSTER_NODE_HOST
+    // Loopback interfaces are forbidden for the ports accessed
+    // by other nodes of cluster
     ensureNotLoopback(props, CLUSTER_HOSTS);
     ensureNotLoopback(props, CLUSTER_NODE_HOST);
     ensureNotLoopback(props, CLUSTER_SEARCH_HOSTS);
 
     ensureLocalAddress(props, SEARCH_HOST);
     ensureLocalAddress(props, CLUSTER_NODE_HOST);
+  }
+
+  private static void ensureNotH2(Props props) {
+    String jdbcUrl = props.value(JDBC_URL);
+    if (isBlank(jdbcUrl) || jdbcUrl.startsWith("jdbc:h2:")) {
+      throw new MessageException("Embedded database is not supported in cluster mode");
+    }
   }
 
   private static void ensureMandatoryProperty(Props props, String key) {
@@ -107,7 +115,7 @@ public class ClusterSettings implements Consumer<Props> {
   }
 
   @VisibleForTesting
-  protected static void ensureNotLoopback(Props props, String key) {
+  private static void ensureNotLoopback(Props props, String key) {
     String ipList = props.value(key);
     if (ipList == null) {
       return;
@@ -151,7 +159,7 @@ public class ClusterSettings implements Consumer<Props> {
     HostAndPort hostAndPort = HostAndPort.fromString(text);
     if (!InetAddresses.isInetAddress(hostAndPort.getHostText())) {
       try {
-        inetAddress =InetAddress.getByName(hostAndPort.getHostText());
+        inetAddress = InetAddress.getByName(hostAndPort.getHostText());
       } catch (UnknownHostException e) {
         throw new MessageException(format("The interface address [%s] of [%s] cannot be resolved : %s", text, key, e.getMessage()));
       }
@@ -181,12 +189,11 @@ public class ClusterSettings implements Consumer<Props> {
       case SEARCH:
         return singletonList(ProcessId.ELASTICSEARCH);
       default:
-        throw new IllegalStateException("Unexpected node type "+nodeType);
+        throw new IllegalArgumentException("Unexpected node type " + nodeType);
     }
   }
 
   public static boolean isLocalElasticsearchEnabled(AppSettings settings) {
-
     // elasticsearch is enabled on "search" nodes, but disabled on "application" nodes
     if (isClusterEnabled(settings.getProps())) {
       return NodeType.parse(settings.getValue(ProcessProperties.CLUSTER_NODE_TYPE).orElse(null)) == NodeType.SEARCH;
