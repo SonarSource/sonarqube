@@ -77,7 +77,7 @@ public class ReportComponent implements Component {
   public Type getType() {
     return type;
   }
-  
+
   @Override
   public Status getStatus() {
     return status;
@@ -176,7 +176,8 @@ public class ReportComponent implements Component {
   }
 
   public static Builder builder(Type type, int ref) {
-    return new Builder(type, ref).setKey("key_" + ref).setPublicKey("public_" + ref).setUuid("uuid_" + ref);
+    String key = "key_" + ref;
+    return new Builder(type, ref).setKey(key).setPublicKey(key).setUuid("uuid_" + ref).setName("name_" + ref);
   }
 
   public static final class Builder {

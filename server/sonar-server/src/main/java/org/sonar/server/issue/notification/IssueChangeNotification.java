@@ -41,7 +41,6 @@ public class IssueChangeNotification extends Notification {
     setFieldValue("key", issue.key());
     setFieldValue("assignee", issue.assignee());
     setFieldValue("message", issue.message());
-    setFieldValue("componentKey", issue.componentKey());
     FieldDiffs currentChange = issue.currentChange();
     if (currentChange != null) {
       for (Map.Entry<String, FieldDiffs.Diff> entry : currentChange.diffs().entrySet()) {
@@ -68,8 +67,12 @@ public class IssueChangeNotification extends Notification {
   }
 
   public IssueChangeNotification setComponent(ComponentDto component) {
-    setFieldValue("componentName", component.longName());
-    setFieldValue("componentKey", component.getKey());
+    return setComponent(component.getKey(), component.longName());
+  }
+
+  public IssueChangeNotification setComponent(String componentKey, String componentName) {
+    setFieldValue("componentName", componentName);
+    setFieldValue("componentKey", componentKey);
     return this;
   }
 
