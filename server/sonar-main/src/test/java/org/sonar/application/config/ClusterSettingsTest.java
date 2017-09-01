@@ -19,12 +19,16 @@
  */
 package org.sonar.application.config;
 
-import org.junit.Before;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Collections;
+import java.util.Enumeration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.process.MessageException;
-import org.sonar.process.ProcessProperties;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,25 +42,17 @@ import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.JDBC_URL;
 import static org.sonar.process.ProcessProperties.SEARCH_HOST;
 
-
 public class ClusterSettingsTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private TestAppSettings settings;
-
-  @Before
-  public void resetSettings() {
-    settings = getClusterSettings();
-  }
-
   @Test
   public void test_isClusterEnabled() {
-    settings.set(CLUSTER_ENABLED, "true");
+    TestAppSettings settings = newSettingsForAppNode().set(CLUSTER_ENABLED, "true");
     assertThat(ClusterSettings.isClusterEnabled(settings)).isTrue();
 
-    settings.set(CLUSTER_ENABLED, "false");
+    settings = new TestAppSettings().set(CLUSTER_ENABLED, "false");
     assertThat(ClusterSettings.isClusterEnabled(settings)).isFalse();
   }
 
@@ -66,38 +62,36 @@ public class ClusterSettingsTest {
   }
 
   @Test
-  public void getEnabledProcesses_returns_all_processes_by_default() {
-    settings.set(CLUSTER_ENABLED, "false");
+  public void getEnabledProcesses_returns_all_processes_in_standalone_mode() {
+    TestAppSettings settings = new TestAppSettings().set(CLUSTER_ENABLED, "false");
     assertThat(ClusterSettings.getEnabledProcesses(settings)).containsOnly(COMPUTE_ENGINE, ELASTICSEARCH, WEB_SERVER);
   }
 
   @Test
   public void getEnabledProcesses_fails_if_no_node_type_is_set_for_a_cluster_node() {
+    TestAppSettings settings = new TestAppSettings();
     settings.set(CLUSTER_ENABLED, "true");
-    settings.set(CLUSTER_NODE_TYPE, "");
+    settings.set(CLUSTER_NODE_TYPE, "foo");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Invalid value for [sonar.cluster.node.type]: []");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Invalid value for [sonar.cluster.node.type]: [foo]");
 
     ClusterSettings.getEnabledProcesses(settings);
   }
 
   @Test
   public void getEnabledProcesses_returns_configured_processes_in_cluster_mode() {
-    settings.set(CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
-
+    TestAppSettings settings = newSettingsForAppNode();
     assertThat(ClusterSettings.getEnabledProcesses(settings)).containsOnly(COMPUTE_ENGINE, WEB_SERVER);
 
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "search");
-
+    settings = newSettingsForSearchNode();
     assertThat(ClusterSettings.getEnabledProcesses(settings)).containsOnly(ELASTICSEARCH);
   }
 
   @Test
   public void accept_throws_MessageException_if_no_node_type_is_configured() {
+    TestAppSettings settings = new TestAppSettings();
     settings.set(CLUSTER_ENABLED, "true");
-    settings.set(CLUSTER_NODE_TYPE, "");
 
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Property [sonar.cluster.node.type] is mandatory");
@@ -106,19 +100,20 @@ public class ClusterSettingsTest {
   }
 
   @Test
-  public void accept_throws_MessageException_if_no_node_type_is_an_illegal_value() {
+  public void accept_throws_MessageException_if_node_type_is_not_correct() {
+    TestAppSettings settings = new TestAppSettings();
     settings.set(CLUSTER_ENABLED, "true");
     settings.set(CLUSTER_NODE_TYPE, "bla");
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Invalid nodeTypeValue for [sonar.cluster.node.type]: [bla], only [application, search] are allowed");
+    expectedException.expectMessage("Invalid value for property [sonar.cluster.node.type]: [bla], only [application, search] are allowed");
 
     new ClusterSettings().accept(settings.getProps());
   }
 
   @Test
   public void accept_throws_MessageException_if_internal_property_for_web_leader_is_configured() {
-    settings.set(CLUSTER_ENABLED, "true");
+    TestAppSettings settings = newSettingsForAppNode();
     settings.set("sonar.cluster.web.startupLeader", "true");
 
     expectedException.expect(MessageException.class);
@@ -129,8 +124,7 @@ public class ClusterSettingsTest {
 
   @Test
   public void accept_throws_MessageException_if_search_enabled_with_loopback() {
-    settings.set(CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "search");
+    TestAppSettings settings = newSettingsForSearchNode();
     settings.set(CLUSTER_SEARCH_HOSTS, "192.168.1.1,192.168.1.2");
     settings.set(SEARCH_HOST, "::1");
 
@@ -140,18 +134,10 @@ public class ClusterSettingsTest {
     new ClusterSettings().accept(settings.getProps());
   }
 
-  @Test
-  public void accept_not_throwing_MessageException_if_search_disabled_with_loopback() {
-    settings.set(CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
-    settings.set(CLUSTER_SEARCH_HOSTS, "192.168.1.1,192.168.1.2");
-    settings.set(SEARCH_HOST, "127.0.0.1");
-
-    new ClusterSettings().accept(settings.getProps());
-  }
 
   @Test
   public void accept_does_nothing_if_cluster_is_disabled() {
+    TestAppSettings settings = new TestAppSettings();
     settings.set(CLUSTER_ENABLED, "false");
     // this property is supposed to fail if cluster is enabled
     settings.set("sonar.cluster.web.startupLeader", "true");
@@ -160,8 +146,8 @@ public class ClusterSettingsTest {
   }
 
   @Test
-  public void accept_throws_MessageException_if_h2() {
-    settings.set(CLUSTER_ENABLED, "true");
+  public void accept_throws_MessageException_if_h2_on_application_node() {
+    TestAppSettings settings = newSettingsForAppNode();
     settings.set("sonar.jdbc.url", "jdbc:h2:mem");
 
     expectedException.expect(MessageException.class);
@@ -171,7 +157,17 @@ public class ClusterSettingsTest {
   }
 
   @Test
-  public void accept_throws_MessageException_if_default_jdbc_url() {
+  public void accept_does_not_verify_h2_on_search_node() {
+    TestAppSettings settings = newSettingsForSearchNode();
+    settings.set("sonar.jdbc.url", "jdbc:h2:mem");
+
+    // do not fail
+    new ClusterSettings().accept(settings.getProps());
+  }
+
+  @Test
+  public void accept_throws_MessageException_on_application_node_if_default_jdbc_url() {
+    TestAppSettings settings = newSettingsForAppNode();
     settings.clearProperty(JDBC_URL);
 
     expectedException.expect(MessageException.class);
@@ -181,77 +177,117 @@ public class ClusterSettingsTest {
   }
 
   @Test
-  public void isLocalElasticsearchEnabled_returns_true_by_default() {
+  public void isLocalElasticsearchEnabled_returns_true_in_standalone_mode() {
+    TestAppSettings settings = new TestAppSettings();
     assertThat(ClusterSettings.isLocalElasticsearchEnabled(settings)).isTrue();
   }
 
   @Test
-  public void isLocalElasticsearchEnabled_returns_true_for_a_search_node() {
-    settings.set(CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "search");
+  public void isLocalElasticsearchEnabled_returns_true_on_search_node() {
+    TestAppSettings settings = newSettingsForSearchNode();
 
     assertThat(ClusterSettings.isLocalElasticsearchEnabled(settings)).isTrue();
   }
 
   @Test
   public void isLocalElasticsearchEnabled_returns_true_for_a_application_node() {
-    settings.set(CLUSTER_ENABLED, "true");
-    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    TestAppSettings settings = newSettingsForAppNode();
 
     assertThat(ClusterSettings.isLocalElasticsearchEnabled(settings)).isFalse();
   }
 
   @Test
   public void accept_throws_MessageException_if_searchHost_is_missing() {
+    TestAppSettings settings = newSettingsForSearchNode();
     settings.clearProperty(SEARCH_HOST);
-    checkMandatoryProperty(SEARCH_HOST);
+    assertThatPropertyIsMandatory(settings, SEARCH_HOST);
   }
 
   @Test
   public void accept_throws_MessageException_if_searchHost_is_blank() {
+    TestAppSettings settings = newSettingsForSearchNode();
     settings.set(SEARCH_HOST, " ");
-    checkMandatoryProperty(SEARCH_HOST);
+    assertThatPropertyIsMandatory(settings, SEARCH_HOST);
   }
 
   @Test
   public void accept_throws_MessageException_if_clusterHosts_is_missing() {
+    TestAppSettings settings = newSettingsForSearchNode();
     settings.clearProperty(CLUSTER_HOSTS);
-    checkMandatoryProperty(CLUSTER_HOSTS);
+    assertThatPropertyIsMandatory(settings, CLUSTER_HOSTS);
   }
 
   @Test
   public void accept_throws_MessageException_if_clusterHosts_is_blank() {
+    TestAppSettings settings = newSettingsForSearchNode();
     settings.set(CLUSTER_HOSTS, " ");
-    checkMandatoryProperty(CLUSTER_HOSTS);
+    assertThatPropertyIsMandatory(settings, CLUSTER_HOSTS);
   }
 
   @Test
   public void accept_throws_MessageException_if_clusterSearchHosts_is_missing() {
+    TestAppSettings settings = newSettingsForSearchNode();
     settings.clearProperty(CLUSTER_SEARCH_HOSTS);
-    checkMandatoryProperty(CLUSTER_SEARCH_HOSTS);
+    assertThatPropertyIsMandatory(settings, CLUSTER_SEARCH_HOSTS);
   }
 
   @Test
   public void accept_throws_MessageException_if_clusterSearchHosts_is_blank() {
+    TestAppSettings settings = newSettingsForSearchNode();
     settings.set(CLUSTER_SEARCH_HOSTS, " ");
-    checkMandatoryProperty(CLUSTER_SEARCH_HOSTS);
+    assertThatPropertyIsMandatory(settings, CLUSTER_SEARCH_HOSTS);
   }
 
-  private void checkMandatoryProperty(String key) {
+  @Test
+  public void accept_throws_MessageException_if_jwt_token_is_not_set_on_application_nodes() {
+    TestAppSettings settings = newSettingsForAppNode();
+    settings.clearProperty("sonar.auth.jwtBase64Hs256Secret");
+    assertThatPropertyIsMandatory(settings, "sonar.auth.jwtBase64Hs256Secret");
+  }
+
+  private void assertThatPropertyIsMandatory(TestAppSettings settings, String key) {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage(format("Property [%s] is mandatory", key));
 
     new ClusterSettings().accept(settings.getProps());
   }
 
-  private static TestAppSettings getClusterSettings() {
-    TestAppSettings testAppSettings = new TestAppSettings()
+  private static TestAppSettings newSettingsForAppNode() {
+    return new TestAppSettings()
       .set(CLUSTER_ENABLED, "true")
-      .set(CLUSTER_NODE_TYPE, "search")
+      .set(CLUSTER_NODE_TYPE, "application")
       .set(CLUSTER_SEARCH_HOSTS, "localhost")
       .set(CLUSTER_HOSTS, "192.168.233.1, 192.168.233.2,192.168.233.3")
-      .set(SEARCH_HOST, "192.168.233.1")
-      .set(JDBC_URL, "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance");
-    return testAppSettings;
+      .set("sonar.auth.jwtBase64Hs256Secret", "abcde")
+      .set(JDBC_URL, "jdbc:mysql://localhost:3306/sonar");
+  }
+
+  private static TestAppSettings newSettingsForSearchNode() {
+    return new TestAppSettings()
+      .set(CLUSTER_ENABLED, "true")
+      .set(CLUSTER_NODE_TYPE, "search")
+      .set(CLUSTER_SEARCH_HOSTS, "192.168.233.1")
+      .set(CLUSTER_HOSTS, "192.168.233.1, 192.168.233.2,192.168.233.3")
+      .set(SEARCH_HOST, getNonLoopbackIpv4Address().getHostName());
+  }
+
+  private static InetAddress getNonLoopbackIpv4Address() {
+    try {
+      Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
+      for (NetworkInterface networkInterface : Collections.list(nets)) {
+        if (!networkInterface.isLoopback() && networkInterface.isUp()) {
+          Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+          while (inetAddresses.hasMoreElements()) {
+            InetAddress inetAddress = inetAddresses.nextElement();
+            if (inetAddress instanceof Inet4Address) {
+              return inetAddress;
+            }
+          }
+        }
+      }
+    } catch (SocketException se) {
+      throw new RuntimeException("Cannot find a non loopback card required for tests", se);
+    }
+    throw new RuntimeException("Cannot find a non loopback card required for tests");
   }
 }

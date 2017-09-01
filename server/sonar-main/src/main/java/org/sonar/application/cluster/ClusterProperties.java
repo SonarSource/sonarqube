@@ -38,10 +38,10 @@ import org.sonar.process.ProcessProperties;
 /**
  * Properties of the cluster configuration
  */
-public final class ClusterProperties {
-  static final String DEFAULT_PORT = "9003";
+final class ClusterProperties {
+  private static final String DEFAULT_PORT = "9003";
   private static final Logger LOGGER = LoggerFactory.getLogger(ClusterProperties.class);
-  public static final String HAZELCAST_CLUSTER_NAME = "sonarqube";
+  static final String HAZELCAST_CLUSTER_NAME = "sonarqube";
 
   private final int port;
   private final List<String> hosts;
