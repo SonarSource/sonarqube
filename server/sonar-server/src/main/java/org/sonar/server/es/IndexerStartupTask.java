@@ -77,13 +77,13 @@ public class IndexerStartupTask {
 
   private void setInitialized(IndexType indexType) {
     String index = indexType.getIndex();
-    waitForIndexGreen(index);
+    waitForIndexYellow(index);
     metadataIndex.setInitialized(indexType, true);
   }
 
-  private void waitForIndexGreen(String index) {
+  private void waitForIndexYellow(String index) {
     Client nativeClient = esClient.nativeClient();
-    ClusterHealthAction.INSTANCE.newRequestBuilder(nativeClient).setIndices(index).setWaitForGreenStatus().get(TimeValue.timeValueMinutes(10));
+    ClusterHealthAction.INSTANCE.newRequestBuilder(nativeClient).setIndices(index).setWaitForYellowStatus().get(TimeValue.timeValueMinutes(10));
   }
 
   private String getLogMessage(Set<IndexType> emptyTypes, String suffix) {
