@@ -20,9 +20,10 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import TaskType from './TaskType';
+import { Task } from '../types';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import Organization from '../../../components/shared/Organization';
-import { Task } from '../types';
+import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
   task: Task;
@@ -50,8 +51,14 @@ export default function TaskComponent({ task }: Props) {
       {task.organization && <Organization organizationKey={task.organization} />}
 
       {task.componentName &&
-        <Link to={{ pathname: '/dashboard', query: { id: task.componentKey } }}>
+        <Link className="spacer-right" to={getProjectUrl(task.componentKey, task.branch)}>
           {task.componentName}
+
+          {task.branch &&
+            <span className="text-limited text-text-top" title={task.branch}>
+              <span style={{ marginLeft: 5, marginRight: 5 }}>/</span>
+              {task.branch}
+            </span>}
         </Link>}
 
       <TaskType incremental={task.incremental} type={task.type} />
