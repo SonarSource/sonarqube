@@ -27,10 +27,29 @@ import {
   RequestData
 } from '../helpers/request';
 
+export interface Profile {
+  key: string;
+  name: string;
+  language: string;
+  languageName: string;
+  isInherited?: boolean;
+  parentKey?: string;
+  parentName?: string;
+  isDefault?: boolean;
+  activeRuleCount: number;
+  activeDeprecatedRuleCount: number;
+  rulesUpdatedAt?: string;
+  lastUsed?: string;
+  userUpdatedAt?: string;
+  organization: string;
+  isBuiltIn?: boolean;
+  projectCount?: number;
+}
+
 export function searchQualityProfiles(data: {
   organization?: string;
   projectKey?: string;
-}): Promise<any> {
+}): Promise<Profile[]> {
   return getJSON('/api/qualityprofiles/search', data).then(r => r.profiles);
 }
 

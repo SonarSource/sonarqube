@@ -189,24 +189,6 @@ export const getSettingsAppEncryptionState = state =>
 export const getSettingsAppGlobalMessages = state =>
   fromSettingsApp.getGlobalMessages(state.settingsApp);
 
-export const getProjectAdminProfileByKey = (state, profileKey) =>
-  fromProjectAdminApp.getProfileByKey(state.projectAdminApp, profileKey);
-
-export const getProjectAdminAllProfiles = state =>
-  fromProjectAdminApp.getAllProfiles(state.projectAdminApp);
-
-export const getProjectAdminProjectProfiles = (state, projectKey) =>
-  fromProjectAdminApp.getProjectProfiles(state.projectAdminApp, projectKey);
-
-export const getProjectAdminGateById = (state, gateId) =>
-  fromProjectAdminApp.getGateById(state.projectAdminApp, gateId);
-
-export const getProjectAdminAllGates = state =>
-  fromProjectAdminApp.getAllGates(state.projectAdminApp);
-
-export const getProjectAdminProjectGate = (state, projectKey) =>
-  fromProjectAdminApp.getProjectGate(state.projectAdminApp, projectKey);
-
 export const getProjectAdminLinkById = (state, linkId) =>
   fromProjectAdminApp.getLinkById(state.projectAdminApp, linkId);
 
