@@ -73,7 +73,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
   /*:: state: State; */
 
   static contextTypes = {
-    router: PropTypes.object
+    router: PropTypes.object.isRequired
   };
 
   constructor(props /*: Props */) {
@@ -87,27 +87,25 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
       metrics: [],
       query: parseQuery(props.location.query)
     };
-
-    if (this.shouldRedirect()) {
-      const newQuery = { ...this.state.query, graph: getGraph() };
-      if (isCustomGraph(newQuery.graph)) {
-        newQuery.customMetrics = getCustomGraph();
-      }
-      this.context.router.replace({
-        pathname: props.location.pathname,
-        query: {
-          ...serializeUrlQuery(newQuery),
-          branch: props.branch && getBranchName(props.branch)
-        }
-      });
-    }
   }
 
   componentDidMount() {
     this.mounted = true;
     const elem = document.querySelector('html');
     elem && elem.classList.add('dashboard-page');
-    if (!this.shouldRedirect()) {
+    if (this.shouldRedirect()) {
+      const newQuery = { ...this.state.query, graph: getGraph() };
+      if (isCustomGraph(newQuery.graph)) {
+        newQuery.customMetrics = getCustomGraph();
+      }
+      this.context.router.replace({
+        pathname: this.props.location.pathname,
+        query: {
+          ...serializeUrlQuery(newQuery),
+          branch: this.props.branch && getBranchName(this.props.branch)
+        }
+      });
+    } else {
       this.firstLoadData(this.state.query);
     }
   }
@@ -317,6 +315,10 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
   };
 
   render() {
+    if (this.shouldRedirect()) {
+      return null;
+    }
+
     return (
       <ProjectActivityApp
         addCustomEvent={this.addCustomEvent}
