@@ -93,43 +93,25 @@ exports[`should work for long-living branches 1`] = `
       project_activity.page
     </Link>
   </li>
-  <li
-    className="dropdown"
-  >
-    <a
-      className="dropdown-toggle is-admin"
-      data-toggle="dropdown"
-      href="#"
+  <li>
+    <Link
+      className="is-admin"
       id="component-navigation-admin"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/settings",
+          "query": Object {
+            "branch": "release",
+            "id": "foo",
+          },
+        }
+      }
     >
       layout.settings
        
-      <i
-        className="icon-dropdown"
-      />
-    </a>
-    <ul
-      className="dropdown-menu"
-    >
-      <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/settings",
-              "query": Object {
-                "branch": "release",
-                "id": "foo",
-              },
-            }
-          }
-        >
-          project_settings.page
-        </Link>
-      </li>
-    </ul>
+    </Link>
   </li>
 </NavBarTabs>
 `;
