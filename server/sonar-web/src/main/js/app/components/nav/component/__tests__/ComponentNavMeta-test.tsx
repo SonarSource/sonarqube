@@ -20,13 +20,17 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavMeta from '../ComponentNavMeta';
-import {
-  Branch,
-  Component,
-  BranchType,
-  ShortLivingBranch,
-  LongLivingBranch
-} from '../../../../types';
+import { Branch, BranchType, ShortLivingBranch, LongLivingBranch } from '../../../../types';
+
+const component = {
+  analysisDate: '2017-01-02T00:00:00.000Z',
+  breadcrumbs: [],
+  key: 'foo',
+  name: 'Foo',
+  organization: 'org',
+  qualifier: 'TRK',
+  version: '0.0.1'
+};
 
 it('renders incremental badge', () => {
   check(true);
@@ -37,7 +41,7 @@ it('renders incremental badge', () => {
       shallow(
         <ComponentNavMeta
           branch={{} as Branch}
-          component={{ key: 'foo' } as Component}
+          component={component}
           conf={{}}
           incremental={incremental}
         />
@@ -55,11 +59,11 @@ it('renders status of short-living branch', () => {
     type: BranchType.SHORT
   };
   expect(
-    shallow(<ComponentNavMeta branch={branch} component={{ key: 'foo' } as Component} conf={{}} />)
+    shallow(<ComponentNavMeta branch={branch} component={component} conf={{}} />)
   ).toMatchSnapshot();
 });
 
-it('renders nothing for long-living branch', () => {
+it('renders meta for long-living branch', () => {
   const branch: LongLivingBranch = {
     isMain: false,
     name: 'release',
@@ -67,6 +71,6 @@ it('renders nothing for long-living branch', () => {
     type: BranchType.LONG
   };
   expect(
-    shallow(<ComponentNavMeta branch={branch} component={{ key: 'foo' } as Component} conf={{}} />)
+    shallow(<ComponentNavMeta branch={branch} component={component} conf={{}} />)
   ).toMatchSnapshot();
 });

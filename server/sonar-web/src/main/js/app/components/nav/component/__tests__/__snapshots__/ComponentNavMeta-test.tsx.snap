@@ -1,12 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders nothing for long-living branch 1`] = `
+exports[`renders meta for long-living branch 1`] = `
 <div
   className="navbar-context-meta"
 >
   <ul
     className="list-inline"
-  />
+  >
+    <li>
+      <DateTimeFormatter
+        date="2017-01-02T00:00:00.000Z"
+      />
+    </li>
+    <li>
+      Version 
+      0.0.1
+    </li>
+  </ul>
 </div>
 `;
 
