@@ -87,16 +87,17 @@ export default class App extends React.PureComponent {
       <div id="settings-page" className="page page-limited">
         <Helmet title={translate('settings.page')} />
 
-        <PageHeader branch={branchName} component={this.props.component} />
+        {branchName == null && <PageHeader branch={branchName} component={this.props.component} />}
         <div className="side-tabs-layout settings-layout">
-          <div className="side-tabs-side">
-            <AllCategoriesList
-              branch={branchName}
-              component={this.props.component}
-              selectedCategory={selectedCategory}
-              defaultCategory={this.props.defaultCategory}
-            />
-          </div>
+          {branchName == null &&
+            <div className="side-tabs-side">
+              <AllCategoriesList
+                branch={branchName}
+                component={this.props.component}
+                selectedCategory={selectedCategory}
+                defaultCategory={this.props.defaultCategory}
+              />
+            </div>}
           <div className="side-tabs-main">
             <CategoryDefinitionsList
               branch={branchName}
