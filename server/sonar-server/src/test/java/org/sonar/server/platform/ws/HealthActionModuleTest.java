@@ -34,6 +34,7 @@ import org.sonar.server.health.EsStatusClusterCheck;
 import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
 import org.sonar.server.health.NodeHealthCheck;
+import org.sonar.server.health.SearchNodeClusterCheck;
 import org.sonar.server.health.WebServerStatusNodeCheck;
 import org.sonar.server.platform.WebServer;
 
@@ -98,8 +99,9 @@ public class HealthActionModuleTest {
 
     List<Class<?>> checks = classesAddedToContainer(container).stream().filter(ClusterHealthCheck.class::isAssignableFrom).collect(Collectors.toList());
     assertThat(checks)
-      .hasSize(2)
+      .hasSize(3)
       .contains(EsStatusClusterCheck.class)
+      .contains(SearchNodeClusterCheck.class)
       .contains(AppNodeClusterCheck.class);
   }
 

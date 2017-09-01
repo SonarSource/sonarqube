@@ -26,6 +26,7 @@ import org.sonar.server.health.DbConnectionNodeCheck;
 import org.sonar.server.health.EsStatusClusterCheck;
 import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
+import org.sonar.server.health.SearchNodeClusterCheck;
 import org.sonar.server.health.WebServerStatusNodeCheck;
 import org.sonar.server.platform.WebServer;
 
@@ -46,7 +47,8 @@ public class HealthActionModule extends Module {
     if (!webServer.isStandalone()) {
       // ClusterHealthCheck implementations
       add(EsStatusClusterCheck.class,
-        AppNodeClusterCheck.class);
+        AppNodeClusterCheck.class,
+        SearchNodeClusterCheck.class);
     }
 
     add(HealthCheckerImpl.class,
