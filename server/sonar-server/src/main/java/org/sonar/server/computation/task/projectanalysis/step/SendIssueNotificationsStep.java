@@ -19,16 +19,22 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
+import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
@@ -38,6 +44,8 @@ import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notification.NotificationService;
+
+import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 /**
  * Reads issues from disk cache and send related notifications. For performance reasons,
@@ -55,7 +63,8 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final NotificationService service;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private NewIssuesNotificationFactory newIssuesNotificationFactory;
+  private final NewIssuesNotificationFactory newIssuesNotificationFactory;
+  private Map<String, Component> componentsByDbKey = new HashMap<>();
 
   public SendIssueNotificationsStep(IssueCache issueCache, RuleRepository rules, TreeRootHolder treeRootHolder,
     NotificationService service, AnalysisMetadataHolder analysisMetadataHolder,
@@ -107,6 +116,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
     changeNotification.setIssue(issue);
     changeNotification.setProject(project.getPublicKey(), project.getName(), getBranchName());
+    getComponentKey(issue).ifPresent(c -> changeNotification.setComponent(c.getPublicKey(), c.getName()));
     service.deliver(changeNotification);
   }
 
@@ -137,6 +147,21 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
       service.deliver(myNewIssuesNotification);
     }
+  }
+
+  private Optional<Component> getComponentKey(DefaultIssue issue) {
+    if (componentsByDbKey.isEmpty()) {
+      final ImmutableMap.Builder<String, Component> builder = ImmutableMap.builder();
+      new DepthTraversalTypeAwareCrawler(
+        new TypeAwareVisitorAdapter(CrawlerDepthLimit.LEAVES, POST_ORDER) {
+          @Override
+          public void visitAny(Component component) {
+            builder.put(component.getKey(), component);
+          }
+        }).visit(this.treeRootHolder.getRoot());
+      this.componentsByDbKey = builder.build();
+    }
+    return Optional.ofNullable(componentsByDbKey.get(issue.componentKey()));
   }
 
   @Override
