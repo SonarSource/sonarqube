@@ -17,20 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import TaskComponent from '../TaskComponent';
+import TaskType from '../TaskType';
 
 it('renders', () => {
-  const task = {
-    componentKey: 'foo',
-    componentName: 'foo',
-    componentQualifier: 'TRK',
-    id: 'bar',
-    organization: 'org',
-    type: 'REPORT'
-  };
-  expect(shallow(<TaskComponent task={task} />)).toMatchSnapshot();
-  expect(shallow(<TaskComponent task={{ ...task, componentKey: undefined }} />)).toMatchSnapshot();
+  expect(shallow(<TaskType type="REPORT" />)).toMatchSnapshot();
+  expect(shallow(<TaskType incremental={true} type="REPORT" />)).toMatchSnapshot();
 });

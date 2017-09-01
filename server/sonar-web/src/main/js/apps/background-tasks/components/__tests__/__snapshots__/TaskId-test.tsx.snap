@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<td
+  className="thin nowrap"
+>
+  <div
+    className="note"
+  >
+    173
+  </div>
+</td>
+`;

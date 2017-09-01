@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<td
+  className="thin nowrap text-right"
+/>
+`;
+
+exports[`renders 2`] = `
+<td
+  className="thin nowrap text-right"
+>
+  12s
+</td>
+`;
