@@ -44,7 +44,6 @@ public class IssueChangeNotificationTest {
     assertThat(result.getFieldValue("key")).isEqualTo("ABCD");
     assertThat(result.getFieldValue("assignee")).isEqualTo("simon");
     assertThat(result.getFieldValue("message")).isEqualTo("Remove this useless method");
-    assertThat(result.getFieldValue("componentKey")).isEqualTo("MyService");
     assertThat(result.getFieldValue("old.resolution")).isEqualTo("FALSE-POSITIVE");
     assertThat(result.getFieldValue("new.resolution")).isEqualTo("FIXED");
   }
