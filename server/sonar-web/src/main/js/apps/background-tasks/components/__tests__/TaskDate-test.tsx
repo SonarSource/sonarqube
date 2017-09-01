@@ -23,7 +23,11 @@ import TaskDate from '../TaskDate';
 
 it('renders', () => {
   expect(shallow(<TaskDate />)).toMatchSnapshot();
-  expect(shallow(<TaskDate date="2017-01-01" />)).toMatchSnapshot();
-  expect(shallow(<TaskDate date="2017-01-01" baseDate="2017-01-01" />)).toMatchSnapshot();
-  expect(shallow(<TaskDate date="2017-01-05" baseDate="2017-01-01" />)).toMatchSnapshot();
+  expect(shallow(<TaskDate date="2017-01-01T00:00:00.000Z" />)).toMatchSnapshot();
+  expect(
+    shallow(<TaskDate date="2017-01-01T00:00:00.000Z" baseDate="2017-01-01T00:00:00.000Z" />)
+  ).toMatchSnapshot();
+  expect(
+    shallow(<TaskDate date="2017-01-05T00:00:00.000Z" baseDate="2017-01-01T00:00:00.000Z" />)
+  ).toMatchSnapshot();
 });

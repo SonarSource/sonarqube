@@ -11,7 +11,7 @@ exports[`renders 2`] = `
   className="thin nowrap text-right"
 >
   <TimeFormatter
-    date={2016-12-31T23:00:00.000Z}
+    date={2017-01-01T00:00:00.000Z}
     long={true}
   />
 </td>
@@ -22,7 +22,7 @@ exports[`renders 3`] = `
   className="thin nowrap text-right"
 >
   <TimeFormatter
-    date={2016-12-31T23:00:00.000Z}
+    date={2017-01-01T00:00:00.000Z}
     long={true}
   />
 </td>
@@ -38,7 +38,7 @@ exports[`renders 4`] = `
     (+4d)
   </span>
   <TimeFormatter
-    date={2017-01-04T23:00:00.000Z}
+    date={2017-01-05T00:00:00.000Z}
     long={true}
   />
 </td>
