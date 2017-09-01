@@ -19,17 +19,11 @@
  */
 package org.sonar.server.health;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
-import org.assertj.core.api.AbstractAssert;
 import org.junit.Test;
 import org.sonar.cluster.health.NodeDetails;
 import org.sonar.cluster.health.NodeHealth;
@@ -40,6 +34,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.sonar.cluster.health.NodeHealth.Status.GREEN;
 import static org.sonar.cluster.health.NodeHealth.Status.RED;
 import static org.sonar.cluster.health.NodeHealth.Status.YELLOW;
+import static org.sonar.server.health.HealthAssert.assertThat;
 
 public class AppNodeClusterCheckTest {
   private final Random random = new Random();
@@ -288,66 +283,4 @@ public class AppNodeClusterCheckTest {
       .build();
   }
 
-  public static HealthAssert assertThat(Health actual) {
-    return new HealthAssert(actual);
-  }
-
-  private static final class HealthAssert extends AbstractAssert<HealthAssert, Health> {
-    private Set<NodeHealth> nodeHealths;
-
-    protected HealthAssert(Health actual) {
-      super(actual, HealthAssert.class);
-    }
-
-    public HealthAssert forInput(Set<NodeHealth> nodeHealths) {
-      this.nodeHealths = nodeHealths;
-
-      return this;
-    }
-
-    public HealthAssert hasStatus(Health.Status expected) {
-      isNotNull();
-
-      if (actual.getStatus() != expected) {
-        failWithMessage(
-          "Expected Status of Health to be <%s> but was <%s> for NodeHealth \n%s",
-          expected,
-          actual.getStatus(),
-          printStatusesAndTypes(this.nodeHealths));
-      }
-
-      return this;
-    }
-
-    public HealthAssert andCauses(String... causes) {
-      isNotNull();
-
-      if (!checkCauses(causes)) {
-        failWithMessage(
-          "Expected causes of Health to contain only \n%s\n but was \n%s\n for NodeHealth \n%s",
-          Arrays.asList(causes),
-          actual.getCauses(),
-          printStatusesAndTypes(this.nodeHealths));
-      }
-
-      return this;
-    }
-
-    private String printStatusesAndTypes(@Nullable Set<NodeHealth> nodeHealths) {
-      if (nodeHealths == null) {
-        return "<null>";
-      }
-      return nodeHealths.stream()
-        .map(s -> ImmutableList.of(s.getDetails().getType().name(), s.getStatus().name()))
-        .map(String::valueOf)
-        .collect(Collectors.joining(","));
-    }
-
-    private boolean checkCauses(String... causes) {
-      if (causes.length != this.actual.getCauses().size()) {
-        return false;
-      }
-      return Objects.equals(new HashSet<>(Arrays.asList(causes)), this.actual.getCauses());
-    }
-  }
 }
