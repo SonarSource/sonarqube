@@ -121,6 +121,7 @@ message Component {
   // Root project key
   optional string project = 17;
   optional string branch = 18;
+  optional string version = 19;
 
   message Tags {
     repeated string tags = 1;
