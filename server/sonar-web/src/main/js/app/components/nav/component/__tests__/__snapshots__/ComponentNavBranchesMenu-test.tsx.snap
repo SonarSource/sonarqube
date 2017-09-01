@@ -45,6 +45,19 @@ exports[`renders list 1`] = `
     <li
       className="divider"
     />
+    <li
+      className="dropdown-header"
+    >
+      branches.orphan_branches
+      <Tooltip
+        overlay="branches.orphan_branches.tooltip"
+        placement="bottom"
+      >
+        <i
+          className="icon-help spacer-left"
+        />
+      </Tooltip>
+    </li>
     <ComponentNavBranchesMenuItem
       branch={
         Object {
@@ -113,6 +126,19 @@ exports[`renders list 1`] = `
     <li
       className="divider"
     />
+    <li
+      className="dropdown-header"
+    >
+      branches.orphan_branches
+      <Tooltip
+        overlay="branches.orphan_branches.tooltip"
+        placement="bottom"
+      >
+        <i
+          className="icon-help spacer-left"
+        />
+      </Tooltip>
+    </li>
     <ComponentNavBranchesMenuItem
       branch={
         Object {
