@@ -19,6 +19,8 @@
  */
 
 export interface Task {
+  branch?: string;
+  branchType?: string;
   componentKey?: string;
   componentName?: string;
   componentQualifier?: string;

@@ -27,7 +27,7 @@ interface Props {
 
 export default function TaskType({ incremental, type }: Props) {
   return (
-    <span className="note nowrap spacer-left">
+    <span className="display-inline-block note">
       {'['}
       {translate('background_task.type', type)}
       {incremental && ` - ${translate('incremental')}`}
