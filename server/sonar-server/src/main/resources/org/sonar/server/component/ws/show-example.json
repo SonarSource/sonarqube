@@ -8,7 +8,8 @@
     "language": "java",
     "path": "src/main/java/com/sonarsource/markdown/impl/Rule.java",
     "analysisDate": "2017-03-01T11:39:03+0100",
-    "leakPeriodDate": "2017-01-01T11:39:03+0100"
+    "leakPeriodDate": "2017-01-01T11:39:03+0100",
+    "version": "1.1"
   },
   "ancestors": [
     {
@@ -18,7 +19,8 @@
       "name": "src/main/java/com/sonarsource/markdown/impl",
       "qualifier": "DIR",
       "path": "src/main/java/com/sonarsource/markdown/impl",
-      "analysisDate": "2017-03-01T11:39:03+0100"
+      "analysisDate": "2017-03-01T11:39:03+0100",
+      "version": "1.1"
     },
     {
       "organization": "my-org-1",
@@ -28,6 +30,7 @@
       "description": "Java Markdown Project",
       "qualifier": "TRK",
       "analysisDate": "2017-03-01T11:39:03+0100",
+      "version": "1.1",
       "tags": [
         "language",
         "plugin"
