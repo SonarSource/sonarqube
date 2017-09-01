@@ -17,12 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
-import { shallow } from 'enzyme';
-import TaskType from '../TaskType';
+import * as React from 'react';
+import { translate } from '../../../helpers/l10n';
 
-it('renders', () => {
-  expect(shallow(<TaskType task={{ id: 'foo' }} />)).toMatchSnapshot();
-  expect(shallow(<TaskType task={{ incremental: true, id: 'foo' }} />)).toMatchSnapshot();
-});
+interface Props {
+  incremental?: boolean;
+  type: string;
+}
+
+export default function TaskType({ incremental, type }: Props) {
+  return (
+    <span className="note nowrap spacer-left">
+      {'['}
+      {translate('background_task.type', type)}
+      {incremental && ` - ${translate('incremental')}`}
+      {']'}
+    </span>
+  );
+}

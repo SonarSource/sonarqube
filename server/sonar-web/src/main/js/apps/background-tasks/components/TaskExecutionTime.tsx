@@ -17,20 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
-/*:: import type { Task } from '../types'; */
-import { translate } from '../../../helpers/l10n';
+import * as React from 'react';
+import { formatDuration } from '../utils';
 
-const TaskType = ({ task } /*: { task: Task } */) => {
+interface Props {
+  ms?: number;
+}
+
+export default function TaskExecutionTime({ ms }: Props) {
   return (
-    <span className="note nowrap spacer-left">
-      {'['}
-      {translate('background_task.type', task.type)}
-      {task.incremental && ` - ${translate('incremental')}`}
-      {']'}
-    </span>
+    <td className="thin nowrap text-right">
+      {ms && formatDuration(ms)}
+    </td>
   );
-};
-
-export default TaskType;
+}

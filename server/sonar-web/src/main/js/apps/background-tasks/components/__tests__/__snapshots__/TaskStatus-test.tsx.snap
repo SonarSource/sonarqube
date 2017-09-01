@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<td
+  className="thin spacer-right"
+>
+  <PendingIcon />
+</td>
+`;
+
+exports[`renders 2`] = `
+<td
+  className="thin spacer-right"
+>
+  <i
+    className="spinner"
+  />
+</td>
+`;
+
+exports[`renders 3`] = `
+<td
+  className="thin spacer-right"
+>
+  <span
+    className="badge badge-success"
+  >
+    background_task.status.SUCCESS
+  </span>
+</td>
+`;
+
+exports[`renders 4`] = `
+<td
+  className="thin spacer-right"
+>
+  <span
+    className="badge badge-danger"
+  >
+    background_task.status.FAILED
+  </span>
+</td>
+`;
+
+exports[`renders 5`] = `
+<td
+  className="thin spacer-right"
+>
+  <span
+    className="badge badge-muted"
+  >
+    background_task.status.CANCELED
+  </span>
+</td>
+`;

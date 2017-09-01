@@ -17,17 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
+import * as React from 'react';
 import { STATUSES } from './../constants';
 import PendingIcon from '../../../components/icons-components/PendingIcon';
 import { translate } from '../../../helpers/l10n';
-/*:: import type { Task } from '../types'; */
 
-const TaskStatus = ({ task } /*: { task: Task } */) => {
+interface Props {
+  status: string;
+}
+
+export default function TaskStatus({ status }: Props) {
   let inner;
 
-  switch (task.status) {
+  switch (status) {
     case STATUSES.PENDING:
       inner = <PendingIcon />;
       break;
@@ -64,6 +66,4 @@ const TaskStatus = ({ task } /*: { task: Task } */) => {
       {inner}
     </td>
   );
-};
-
-export default TaskStatus;
+}
