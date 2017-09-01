@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div>
+  <Select
+    addLabelText="Add \\"{label}\\"?"
+    arrowRenderer={[Function]}
+    autosize={true}
+    backspaceRemoves={true}
+    backspaceToRemoveMessage="Press backspace to remove {label}"
+    clearAllText="Clear all"
+    clearRenderer={[Function]}
+    clearValueText="Clear value"
+    clearable={false}
+    deleteRemoves={true}
+    delimiter=","
+    disabled={false}
+    escapeClearsValue={true}
+    filterOptions={[Function]}
+    ignoreAccents={true}
+    ignoreCase={true}
+    inputProps={Object {}}
+    isLoading={false}
+    joinValues={false}
+    labelKey="label"
+    matchPos="any"
+    matchProp="any"
+    menuBuffer={0}
+    menuRenderer={[Function]}
+    multi={false}
+    noResultsText="No results found"
+    onBlurResetsInput={true}
+    onChange={[Function]}
+    onCloseResetsInput={true}
+    optionComponent={[Function]}
+    optionRenderer={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "none",
+          "value": "",
+        },
+        Object {
+          "isDefault": undefined,
+          "label": "foo",
+          "value": "foo",
+        },
+        Object {
+          "isDefault": undefined,
+          "label": "bar",
+          "value": "bar",
+        },
+      ]
+    }
+    pageSize={5}
+    placeholder="none"
+    required={false}
+    scrollMenuIntoView={true}
+    searchable={true}
+    simpleValue={false}
+    style={
+      Object {
+        "width": 300,
+      }
+    }
+    tabSelectsValue={true}
+    value="foo"
+    valueComponent={[Function]}
+    valueKey="value"
+    valueRenderer={[Function]}
+  />
+</div>
+`;

@@ -20,15 +20,11 @@
 import React from 'react';
 import { Route } from 'react-router';
 import Deletion from './deletion/Deletion';
-import QualityProfiles from './quality-profiles/QualityProfiles';
-import QualityGate from './quality-gate/QualityGate';
 import Links from './links/Links';
 import Key from './key/Key';
 
 export default [
-  <Route key="deletion" path="deletion" component={Deletion} />,
-  <Route key="quality_profiles" path="quality_profiles" component={QualityProfiles} />,
-  <Route key="quality_gate" path="quality_gate" component={QualityGate} />,
-  <Route key="links" path="links" component={Links} />,
-  <Route key="key" path="key" component={Key} />
+  <Route key="deletion" path="project/deletion" component={Deletion} />,
+  <Route key="links" path="project/links" component={Links} />,
+  <Route key="key" path="project/key" component={Key} />
 ];
