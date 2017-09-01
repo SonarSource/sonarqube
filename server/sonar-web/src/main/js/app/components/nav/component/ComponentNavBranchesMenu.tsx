@@ -29,6 +29,7 @@ import {
 import { translate } from '../../../../helpers/l10n';
 import { getProjectBranchUrl } from '../../../../helpers/urls';
 import { Link } from 'react-router';
+import Tooltip from '../../../../components/controls/Tooltip';
 
 interface Props {
   branches: Branch[];
@@ -167,6 +168,16 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       const isPreviousOrphan = isShortLivingBranch(previous) ? previous.isOrphan : false;
       if (isLongLivingBranch(branch) || (isOrphan && !isPreviousOrphan)) {
         menu.push(<li key={`divider-${branch.name}`} className="divider" />);
+      }
+      if (isOrphan && !isPreviousOrphan) {
+        menu.push(
+          <li className="dropdown-header" key="orphans">
+            {translate('branches.orphan_branches')}
+            <Tooltip overlay={translate('branches.orphan_branches.tooltip')}>
+              <i className="icon-help spacer-left" />
+            </Tooltip>
+          </li>
+        );
       }
       menu.push(
         <ComponentNavBranchesMenuItem
