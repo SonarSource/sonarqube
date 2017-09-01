@@ -28,6 +28,11 @@ public interface SharedHealthState {
   void writeMine(NodeHealth nodeHealth);
 
   /**
+   * Clears the {@link NodeHealth} of the current node in the shared health state (if any).
+   */
+  void clearMine();
+
+  /**
    * Reads the {@link NodeHealth} of all nodes which shared to the shared health state.
    */
   Set<NodeHealth> readAll();
