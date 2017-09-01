@@ -53,7 +53,10 @@ export default class ComponentContainer extends React.PureComponent<Props, State
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.location.query.id !== this.props.location.query.id) {
+    if (
+      prevProps.location.query.id !== this.props.location.query.id ||
+      prevProps.location.query.branch !== this.props.location.query.branch
+    ) {
       this.fetchComponent();
     }
   }
