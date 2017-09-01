@@ -17,33 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Modal from 'react-modal';
 import { getTask } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
+import { Task } from '../types';
 
-/*::
-type Props = {
-  onClose: () => void,
-  task: { componentName: string, errorMessage: string, id: string, type: string }
-};
-*/
+interface Props {
+  onClose: () => void;
+  task: Task;
+}
 
-/*::
-type State = {
-  loading: boolean,
-  stacktrace: ?string
-};
-*/
+interface State {
+  loading: boolean;
+  stacktrace?: string;
+}
 
-export default class Stacktrace extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    loading: true,
-    stacktrace: null
-  };
+export default class Stacktrace extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = { loading: true };
 
   componentDidMount() {
     this.mounted = true;
@@ -62,7 +54,7 @@ export default class Stacktrace extends React.PureComponent {
     });
   }
 
-  handleCloseClick = (event /*: Event */) => {
+  handleCloseClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.onClose();
   };

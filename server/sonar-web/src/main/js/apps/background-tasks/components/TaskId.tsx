@@ -18,21 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DateFormatter from '../../../components/intl/DateFormatter';
-import { isSameDay, parseDate } from '../../../helpers/dates';
 
 interface Props {
-  submittedAt: string;
-  prevSubmittedAt?: string;
+  id: string;
 }
 
-export default function TaskDay({ submittedAt, prevSubmittedAt }: Props) {
-  const shouldDisplay =
-    !prevSubmittedAt || !isSameDay(parseDate(submittedAt), parseDate(prevSubmittedAt));
-
+export default function TaskId({ id }: Props) {
   return (
-    <td className="thin nowrap text-right">
-      {shouldDisplay ? <DateFormatter date={submittedAt} long={true} /> : ''}
+    <td className="thin nowrap">
+      <div className="note">
+        {id}
+      </div>
     </td>
   );
 }

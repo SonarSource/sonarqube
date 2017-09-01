@@ -18,8 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export interface ITask {
-  incremental: boolean;
+export interface Task {
+  componentKey?: string;
+  componentName?: string;
+  componentQualifier?: string;
+  errorMessage?: string;
+  executedAt?: string;
+  executionTimeMs?: number;
+  hasScannerContext?: boolean;
+  incremental?: boolean;
   id: string;
+  organization?: string;
+  startedAt?: string;
+  status: string;
   submittedAt: string;
+  type: string;
 }

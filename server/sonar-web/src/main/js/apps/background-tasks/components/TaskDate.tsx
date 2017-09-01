@@ -22,15 +22,15 @@ import TimeFormatter from '../../../components/intl/TimeFormatter';
 import { differenceInDays, isValidDate, parseDate } from '../../../helpers/dates';
 
 interface Props {
-  date: string;
-  baseDate: string;
+  date?: string;
+  baseDate?: string;
 }
 
 export default function TaskDate({ date, baseDate }: Props) {
-  const parsedDate = parseDate(date);
-  const parsedBaseDate = parseDate(baseDate);
+  const parsedDate = date && parseDate(date);
+  const parsedBaseDate = baseDate && parseDate(baseDate);
   const diff =
-    date && baseDate && isValidDate(parsedDate) && isValidDate(parsedBaseDate)
+    parsedDate && parsedBaseDate && isValidDate(parsedDate) && isValidDate(parsedBaseDate)
       ? differenceInDays(parsedDate, parsedBaseDate)
       : 0;
 
@@ -38,7 +38,7 @@ export default function TaskDate({ date, baseDate }: Props) {
     <td className="thin nowrap text-right">
       {diff > 0 && <span className="text-warning little-spacer-right">{`(+${diff}d)`}</span>}
 
-      {date && isValidDate(parsedDate) ? <TimeFormatter date={parsedDate} long={true} /> : ''}
+      {parsedDate && isValidDate(parsedDate) ? <TimeFormatter date={parsedDate} long={true} /> : ''}
     </td>
   );
 }
