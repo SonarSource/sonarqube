@@ -34,6 +34,9 @@ import org.sonar.cluster.localclient.HazelcastClient;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.cluster.health.NodeDetails.newNodeDetailsBuilder;
 import static org.sonar.cluster.health.NodeHealth.newNodeHealthBuilder;
@@ -115,6 +118,35 @@ public class SharedHealthStateImplTest {
 
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.TRACE).iterator().next()).isEqualTo("Reading " + map);
+  }
+
+  @Test
+  public void clearMine_clears_entry_into_map_sq_health_state_under_current_client_uuid() {
+    Map<String, NodeHealth> map = mock(Map.class);
+    doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
+    String uuid = randomAlphanumeric(5);
+    when(hazelcastClient.getClientUUID()).thenReturn(uuid);
+
+    underTest.clearMine();
+
+    verify(map).remove(uuid);
+    verifyNoMoreInteractions(map);
+    assertThat(logTester.logs()).isEmpty();
+  }
+
+  @Test
+  public void clearMine_logs_map_sq_health_state_and_current_client_uuid_if_TRACE() {
+    logTester.setLevel(LoggerLevel.TRACE);
+    Map<String, NodeHealth> map = new HashMap<>();
+    map.put(randomAlphanumeric(4), randomNodeHealth());
+    doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
+    String uuid = randomAlphanumeric(5);
+    when(hazelcastClient.getClientUUID()).thenReturn(uuid);
+
+    underTest.clearMine();
+
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.TRACE).iterator().next()).isEqualTo("Reading " + map + " and clearing for " + uuid);
   }
 
   private NodeHealth randomNodeHealth() {

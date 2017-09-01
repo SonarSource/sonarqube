@@ -92,6 +92,7 @@ public class HealthStateRefresherTest {
   public void stop_has_no_effect() {
     underTest.stop();
 
-    verifyZeroInteractions(executorService, nodeHealthProvider, sharedHealthState);
+    verify(sharedHealthState).clearMine();
+    verifyZeroInteractions(executorService, nodeHealthProvider);
   }
 }

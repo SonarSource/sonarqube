@@ -56,6 +56,6 @@ public class HealthStateRefresher implements Startable {
 
   @Override
   public void stop() {
-    // nothing to do
+    sharedHealthState.clearMine();
   }
 }
