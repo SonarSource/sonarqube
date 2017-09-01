@@ -93,10 +93,11 @@ public class ComponentTreeBuilder {
       case PROJECT:
         String projectKey = keyGenerator.generateKey(component, null);
         String uuid = uuidSupplier.apply(projectKey);
+        String projectPublicKey = publicKeyGenerator.generateKey(component, null);
         return ComponentImpl.builder(Component.Type.PROJECT)
           .setUuid(uuid)
           .setKey(projectKey)
-          .setPublicKey(publicKeyGenerator.generateKey(component, null))
+          .setPublicKey(projectPublicKey)
           .setName(nameOfProject(component))
           .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
@@ -108,11 +109,12 @@ public class ComponentTreeBuilder {
 
       case MODULE:
         String moduleKey = keyGenerator.generateKey(component, null);
+        String modulePublicKey = publicKeyGenerator.generateKey(component, null);
         return ComponentImpl.builder(Component.Type.MODULE)
           .setUuid(uuidSupplier.apply(moduleKey))
           .setKey(moduleKey)
-          .setPublicKey(publicKeyGenerator.generateKey(component, null))
-          .setName(nameOfOthers(component, moduleKey))
+          .setPublicKey(modulePublicKey)
+          .setName(nameOfOthers(component, modulePublicKey))
           .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
           .setReportAttributes(createAttributesBuilder(component).build())
@@ -122,11 +124,12 @@ public class ComponentTreeBuilder {
       case DIRECTORY:
       case FILE:
         String key = keyGenerator.generateKey(closestModule, component);
+        String publicKey = publicKeyGenerator.generateKey(closestModule, component);
         return ComponentImpl.builder(convertDirOrFileType(component.getType()))
           .setUuid(uuidSupplier.apply(key))
           .setKey(key)
-          .setPublicKey(publicKeyGenerator.generateKey(closestModule, component))
-          .setName(nameOfOthers(component, key))
+          .setPublicKey(publicKey)
+          .setName(nameOfOthers(component, publicKey))
           .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
           .setReportAttributes(createAttributesBuilder(component).build())
