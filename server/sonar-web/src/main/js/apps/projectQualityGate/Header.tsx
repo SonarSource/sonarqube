@@ -17,21 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RECEIVE_PROJECT_GATE, SET_PROJECT_GATE } from './actions';
+import * as React from 'react';
+import { translate } from '../../helpers/l10n';
 
-const gateByProject = (state = {}, action = {}) => {
-  if (action.type === RECEIVE_PROJECT_GATE) {
-    const gateId = action.gate ? action.gate.id : null;
-    return { ...state, [action.projectKey]: gateId };
-  }
-
-  if (action.type === SET_PROJECT_GATE) {
-    return { ...state, [action.projectKey]: action.gateId };
-  }
-
-  return state;
-};
-
-export default gateByProject;
-
-export const getProjectGate = (state, projectKey) => state[projectKey];
+export default function Header() {
+  return (
+    <header className="page-header">
+      <h1 className="page-title">
+        {translate('project_quality_gate.page')}
+      </h1>
+      <div className="page-description">
+        {translate('project_quality_gate.page.description')}
+      </div>
+    </header>
+  );
+}

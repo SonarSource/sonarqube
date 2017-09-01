@@ -17,24 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { without } from 'lodash';
-import { RECEIVE_PROJECT_PROFILES, SET_PROJECT_PROFILE } from './actions';
+import * as React from 'react';
+import { translate } from '../../helpers/l10n';
 
-const profilesByProject = (state = {}, action = {}) => {
-  if (action.type === RECEIVE_PROJECT_PROFILES) {
-    const profileKeys = action.profiles.map(profile => profile.key);
-    return { ...state, [action.projectKey]: profileKeys };
-  }
-
-  if (action.type === SET_PROJECT_PROFILE) {
-    const profileKeys = state[action.projectKey];
-    const nextProfileKeys = [...without(profileKeys, action.oldProfileKey), action.newProfileKey];
-    return { ...state, [action.projectKey]: nextProfileKeys };
-  }
-
-  return state;
-};
-
-export default profilesByProject;
-
-export const getProfiles = (state, projectKey) => state[projectKey] || [];
+export default function Header() {
+  return (
+    <header className="page-header">
+      <h1 className="page-title">
+        {translate('project_quality_profiles.page')}
+      </h1>
+      <div className="page-description">
+        {translate('project_quality_profiles.page.description')}
+      </div>
+    </header>
+  );
+}

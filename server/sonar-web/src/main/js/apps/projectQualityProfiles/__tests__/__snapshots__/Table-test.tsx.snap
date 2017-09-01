@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<table
+  className="data zebra"
+>
+  <thead>
+    <tr>
+      <th
+        className="thin nowrap"
+      >
+        language
+      </th>
+      <th
+        className="thin nowrap"
+      >
+        quality_profile
+      </th>
+      <th>
+         
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <ProfileRow
+      onChangeProfile={[Function]}
+      possibleProfiles={
+        Array [
+          Object {
+            "activeDeprecatedRuleCount": 0,
+            "activeRuleCount": 17,
+            "key": "foo-java",
+            "language": "java",
+            "languageName": "java",
+            "name": "foo-java",
+            "organization": "org",
+          },
+          Object {
+            "activeDeprecatedRuleCount": 0,
+            "activeRuleCount": 17,
+            "key": "bar-java",
+            "language": "java",
+            "languageName": "java",
+            "name": "bar-java",
+            "organization": "org",
+          },
+          Object {
+            "activeDeprecatedRuleCount": 0,
+            "activeRuleCount": 17,
+            "key": "baz-java",
+            "language": "java",
+            "languageName": "java",
+            "name": "baz-java",
+            "organization": "org",
+          },
+        ]
+      }
+      profile={
+        Object {
+          "activeDeprecatedRuleCount": 0,
+          "activeRuleCount": 17,
+          "key": "foo-java",
+          "language": "java",
+          "languageName": "java",
+          "name": "foo-java",
+          "organization": "org",
+        }
+      }
+    />
+    <ProfileRow
+      onChangeProfile={[Function]}
+      possibleProfiles={
+        Array [
+          Object {
+            "activeDeprecatedRuleCount": 0,
+            "activeRuleCount": 17,
+            "key": "foo-js",
+            "language": "js",
+            "languageName": "js",
+            "name": "foo-js",
+            "organization": "org",
+          },
+        ]
+      }
+      profile={
+        Object {
+          "activeDeprecatedRuleCount": 0,
+          "activeRuleCount": 17,
+          "key": "foo-js",
+          "language": "js",
+          "languageName": "js",
+          "name": "foo-js",
+          "organization": "org",
+        }
+      }
+    />
+  </tbody>
+</table>
+`;
