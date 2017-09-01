@@ -29,6 +29,7 @@ import { isShortLivingBranch } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import HelpIcon from '../../../../components/icons-components/HelpIcon';
 import BubblePopupHelper from '../../../../components/common/BubblePopupHelper';
+import Tooltip from '../../../../components/controls/Tooltip';
 
 interface Props {
   branches: Branch[];
@@ -127,11 +128,19 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
 
   renderMergeBranch = () => {
     const { currentBranch } = this.props;
-    return isShortLivingBranch(currentBranch) && !currentBranch.isOrphan
+    if (!isShortLivingBranch(currentBranch)) {
+      return null;
+    }
+    return currentBranch.isOrphan
       ? <span className="note big-spacer-left text-lowercase">
-          {translate('from')} <strong>{currentBranch.mergeBranch}</strong>
+          {translate('branches.orphan_branch')}
+          <Tooltip overlay={translate('branches.orphan_branches.tooltip')}>
+            <i className="icon-help spacer-left" />
+          </Tooltip>
         </span>
-      : null;
+      : <span className="note big-spacer-left text-lowercase">
+          {translate('from')} <strong>{currentBranch.mergeBranch}</strong>
+        </span>;
   };
 
   renderSingleBranchPopup = () =>
