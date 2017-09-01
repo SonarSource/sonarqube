@@ -30,80 +30,97 @@ import static org.sonar.cluster.health.NodeHealth.Status.YELLOW;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
-public class AppNodeClusterCheck implements ClusterHealthCheck {
+public class SearchNodeClusterCheck implements ClusterHealthCheck {
 
   @Override
   public Health check(Set<NodeHealth> nodeHealths) {
-    Set<NodeHealth> appNodes = nodeHealths.stream()
-      .filter(s -> s.getDetails().getType() == NodeDetails.Type.APPLICATION)
+    Set<NodeHealth> searchNOdes = nodeHealths.stream()
+      .filter(s -> s.getDetails().getType() == NodeDetails.Type.SEARCH)
       .collect(toSet());
 
-    return Arrays.stream(AppNodeClusterHealthSubChecks.values())
-      .map(s -> s.check(appNodes))
+    return Arrays.stream(SearchNodeClusterSubChecks.values())
+      .map(s -> s.check(searchNOdes))
       .reduce(Health.GREEN, HealthReducer.INSTANCE);
   }
 
-  private enum AppNodeClusterHealthSubChecks implements ClusterHealthSubCheck {
-    NO_APPLICATION_NODE() {
+  private enum SearchNodeClusterSubChecks implements ClusterHealthSubCheck {
+    NO_SEARCH_NODE() {
       @Override
-      public Health check(Set<NodeHealth> appNodes) {
-        int appNodeCount = appNodes.size();
-        if (appNodeCount == 0) {
+      public Health check(Set<NodeHealth> searchNodes) {
+        int searchNodeCount = searchNodes.size();
+        if (searchNodeCount == 0) {
           return newHealthCheckBuilder()
             .setStatus(Health.Status.RED)
-            .addCause("No application node")
+            .addCause("No search node")
             .build();
         }
         return Health.GREEN;
       }
     },
-    MIN_APPLICATION_NODE_COUNT() {
+    NUMBER_OF_NODES() {
       @Override
-      public Health check(Set<NodeHealth> appNodes) {
-        int appNodeCount = appNodes.size();
-        if (appNodeCount == 1) {
-          return newHealthCheckBuilder()
-            .setStatus(Health.Status.YELLOW)
-            .addCause("There should be at least two application nodes")
-            .build();
-        }
-        return Health.GREEN;
-      }
-    },
-    REPORT_RED_OR_YELLOW_NODES() {
-      @Override
-      public Health check(Set<NodeHealth> appNodes) {
-        int appNodeCount = appNodes.size();
-        if (appNodeCount == 0) {
+      public Health check(Set<NodeHealth> searchNodes) {
+        int searchNodeCount = searchNodes.size();
+        if (searchNodeCount == 0) {
           // skipping this check
           return Health.GREEN;
         }
 
-        long redNodesCount = withStatus(appNodes, RED).count();
-        long yellowNodesCount = withStatus(appNodes, YELLOW).count();
+        if (searchNodeCount < 3) {
+          long yellowGreenNodesCount = withStatus(searchNodes, GREEN, YELLOW).count();
+          return newHealthCheckBuilder()
+            .setStatus(yellowGreenNodesCount > 1 ? Health.Status.YELLOW : Health.Status.RED)
+            .addCause("There should be at least three search nodes")
+            .build();
+        }
+        if (searchNodeCount > 3 && isEven(searchNodeCount)) {
+          return newHealthCheckBuilder()
+            .setStatus(Health.Status.YELLOW)
+            .addCause("There should be an odd number of search nodes")
+            .build();
+        }
+        return Health.GREEN;
+      }
+
+      private boolean isEven(int searchNodeCount) {
+        return searchNodeCount % 2 == 0;
+      }
+    },
+    RED_OR_YELLOW_NODES() {
+      @Override
+      public Health check(Set<NodeHealth> searchNodes) {
+        int searchNodeCount = searchNodes.size();
+        if (searchNodeCount == 0) {
+          // skipping this check
+          return Health.GREEN;
+        }
+
+        long redNodesCount = withStatus(searchNodes, RED).count();
+        long yellowNodesCount = withStatus(searchNodes, YELLOW).count();
         if (redNodesCount == 0 && yellowNodesCount == 0) {
           return Health.GREEN;
         }
 
         Health.Builder builder = newHealthCheckBuilder();
-        if (redNodesCount == appNodeCount) {
+        if (redNodesCount == searchNodeCount) {
           return builder
             .setStatus(Health.Status.RED)
-            .addCause("Status of all application nodes is RED")
+            .addCause("Status of all search nodes is RED")
             .build();
         } else if (redNodesCount > 0) {
-          builder.addCause("At least one application node is RED");
+          builder.addCause("At least one search node is RED");
         }
-        if (yellowNodesCount == appNodeCount) {
+        if (yellowNodesCount == searchNodeCount) {
           return builder
             .setStatus(Health.Status.YELLOW)
-            .addCause("Status of all application nodes is YELLOW")
+            .addCause("Status of all search nodes is YELLOW")
             .build();
         } else if (yellowNodesCount > 0) {
-          builder.addCause("At least one application node is YELLOW");
+          builder.addCause("At least one search node is YELLOW");
         }
-        long greenNodesCount = withStatus(appNodes, GREEN).count();
-        builder.setStatus(greenNodesCount > 0 || yellowNodesCount > 0 ? Health.Status.YELLOW : Health.Status.RED);
+
+        long greenNodesCount = withStatus(searchNodes, GREEN).count();
+        builder.setStatus(greenNodesCount + yellowNodesCount > 1 ? Health.Status.YELLOW : Health.Status.RED);
 
         return builder.build();
       }
