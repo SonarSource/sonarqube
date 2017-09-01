@@ -189,8 +189,28 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderAdministration() {
-    if (this.props.branch && isShortLivingBranch(this.props.branch)) {
+    const { branch } = this.props;
+
+    if (branch && isShortLivingBranch(branch)) {
       return null;
+    }
+
+    const isSettingsActive = SETTINGS_URLS.some(url => window.location.href.indexOf(url) !== -1);
+
+    if (branch && isLongLivingBranch(branch)) {
+      return (
+        <li>
+          <Link
+            className={classNames('is-admin', { active: isSettingsActive })}
+            id="component-navigation-admin"
+            to={{
+              pathname: '/project/settings',
+              query: { branch: getBranchName(branch), id: this.props.component.key }
+            }}>
+            {translate('layout.settings')}&nbsp;
+          </Link>
+        </li>
+      );
     }
 
     const adminLinks = this.renderAdministrationLinks();
@@ -198,7 +218,6 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
       return null;
     }
 
-    const isSettingsActive = SETTINGS_URLS.some(url => window.location.href.indexOf(url) !== -1);
     return (
       <li className="dropdown">
         <a
@@ -217,21 +236,19 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderAdministrationLinks() {
-    return this.props.branch && isLongLivingBranch(this.props.branch)
-      ? [this.renderSettingsLink()]
-      : [
-          this.renderSettingsLink(),
-          this.renderBranchesLink(),
-          this.renderProfilesLink(),
-          this.renderQualityGateLink(),
-          this.renderCustomMeasuresLink(),
-          this.renderLinksLink(),
-          this.renderPermissionsLink(),
-          this.renderBackgroundTasksLink(),
-          this.renderUpdateKeyLink(),
-          ...this.renderAdminExtensions(),
-          this.renderDeletionLink()
-        ];
+    return [
+      this.renderSettingsLink(),
+      this.renderBranchesLink(),
+      this.renderProfilesLink(),
+      this.renderQualityGateLink(),
+      this.renderCustomMeasuresLink(),
+      this.renderLinksLink(),
+      this.renderPermissionsLink(),
+      this.renderBackgroundTasksLink(),
+      this.renderUpdateKeyLink(),
+      ...this.renderAdminExtensions(),
+      this.renderDeletionLink()
+    ];
   }
 
   renderSettingsLink() {
