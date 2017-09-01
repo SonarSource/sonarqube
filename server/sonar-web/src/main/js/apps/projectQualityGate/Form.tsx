@@ -17,39 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import Select from 'react-select';
+import * as React from 'react';
+import * as Select from 'react-select';
 import { some } from 'lodash';
-import { translate } from '../../../helpers/l10n';
+import { QualityGate } from '../../api/quality-gates';
+import { translate } from '../../helpers/l10n';
 
-export default class Form extends React.PureComponent {
-  static propTypes = {
-    allGates: PropTypes.array.isRequired,
-    gate: PropTypes.object,
-    onChange: PropTypes.func.isRequired
-  };
+interface Props {
+  allGates: QualityGate[];
+  gate?: QualityGate;
+  onChange: (oldGate: string | undefined, newGate: string) => Promise<void>;
+}
 
-  state = {
-    loading: false
-  };
+interface State {
+  loading: boolean;
+}
 
-  componentWillMount() {
-    this.handleChange = this.handleChange.bind(this);
-    this.renderGateName = this.renderGateName.bind(this);
+interface Option {
+  isDefault?: boolean;
+  label: string;
+  value: string;
+}
+
+export default class Form extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = { loading: false };
+
+  componentDidMount() {
+    this.mounted = true;
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.gate !== this.props.gate) {
-      this.stopLoading();
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
     }
-  }
+  };
 
-  stopLoading() {
-    this.setState({ loading: false });
-  }
-
-  handleChange(option) {
+  handleChange = (option: { value: string }) => {
     const { gate } = this.props;
 
     const isSet = gate == null && option.value != null;
@@ -59,30 +67,34 @@ export default class Form extends React.PureComponent {
 
     if (hasChanged) {
       this.setState({ loading: true });
-      this.props.onChange(gate && gate.id, option.value);
+      this.props.onChange(gate && gate.id, option.value).then(this.stopLoading, this.stopLoading);
     }
-  }
+  };
 
-  renderGateName(gateOption) {
-    if (gateOption.isDefault) {
+  renderGateName = (option: { isDefault?: boolean; label: string }) => {
+    if (option.isDefault) {
       return (
         <span>
           <strong>
             {translate('default')}
           </strong>
           {': '}
-          {gateOption.label}
+          {option.label}
         </span>
       );
     }
 
-    return gateOption.label;
-  }
+    return (
+      <span>
+        {option.label}
+      </span>
+    );
+  };
 
   renderSelect() {
     const { gate, allGates } = this.props;
 
-    const options = allGates.map(gate => ({
+    const options: Option[] = allGates.map(gate => ({
       value: gate.id,
       label: gate.name,
       isDefault: gate.isDefault
@@ -90,23 +102,20 @@ export default class Form extends React.PureComponent {
 
     const hasDefault = some(allGates, gate => gate.isDefault);
     if (!hasDefault) {
-      options.unshift({
-        value: null,
-        label: translate('none')
-      });
+      options.unshift({ value: '', label: translate('none') });
     }
 
     return (
       <Select
-        options={options}
-        valueRenderer={this.renderGateName}
-        optionRenderer={this.renderGateName}
-        value={gate && gate.id}
         clearable={false}
+        disabled={this.state.loading}
+        onChange={this.handleChange}
+        optionRenderer={this.renderGateName}
+        options={options}
         placeholder={translate('none')}
         style={{ width: 300 }}
-        disabled={this.state.loading}
-        onChange={this.handleChange.bind(this)}
+        value={gate && gate.id}
+        valueRenderer={this.renderGateName}
       />
     );
   }

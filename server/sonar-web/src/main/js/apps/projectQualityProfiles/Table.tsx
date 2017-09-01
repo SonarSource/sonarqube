@@ -17,22 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { groupBy, orderBy } from 'lodash';
 import ProfileRow from './ProfileRow';
-import { translate } from '../../../helpers/l10n';
+import { Profile } from '../../api/quality-profiles';
+import { translate } from '../../helpers/l10n';
 
-export default class Table extends React.PureComponent {
-  static propTypes = {
-    allProfiles: PropTypes.array.isRequired,
-    profiles: PropTypes.array.isRequired,
-    onChangeProfile: PropTypes.func.isRequired
-  };
+interface Props {
+  allProfiles: Profile[];
+  profiles: Profile[];
+  onChangeProfile: (oldProfile: string, newProfile: string) => Promise<void>;
+}
 
-  renderHeader() {
-    // keep one empty cell for the spinner
-    return (
+export default function Table(props: Props) {
+  const profilesByLanguage = groupBy(props.allProfiles, 'language');
+  const orderedProfiles = orderBy(props.profiles, 'languageName');
+
+  // set key to language to avoid destroying of component
+  const profileRows = orderedProfiles.map(profile =>
+    <ProfileRow
+      key={profile.language}
+      profile={profile}
+      possibleProfiles={profilesByLanguage[profile.language]}
+      onChangeProfile={props.onChangeProfile}
+    />
+  );
+
+  return (
+    <table className="data zebra">
       <thead>
         <tr>
           <th className="thin nowrap">
@@ -41,33 +53,13 @@ export default class Table extends React.PureComponent {
           <th className="thin nowrap">
             {translate('quality_profile')}
           </th>
+          {/* keep one empty cell for the spinner */}
           <th>&nbsp;</th>
         </tr>
       </thead>
-    );
-  }
-
-  render() {
-    const profilesByLanguage = groupBy(this.props.allProfiles, 'language');
-    const orderedProfiles = orderBy(this.props.profiles, 'languageName');
-
-    // set key to language to avoid destroying of component
-    const profileRows = orderedProfiles.map(profile =>
-      <ProfileRow
-        key={profile.language}
-        profile={profile}
-        possibleProfiles={profilesByLanguage[profile.language]}
-        onChangeProfile={this.props.onChangeProfile}
-      />
-    );
-
-    return (
-      <table className="data zebra">
-        {this.renderHeader()}
-        <tbody>
-          {profileRows}
-        </tbody>
-      </table>
-    );
-  }
+      <tbody>
+        {profileRows}
+      </tbody>
+    </table>
+  );
 }

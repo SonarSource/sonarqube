@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    project_quality_gate.page
+  </h1>
+  <div
+    className="page-description"
+  >
+    project_quality_gate.page.description
+  </div>
+</header>
+`;

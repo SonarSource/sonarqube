@@ -17,18 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { RouterState, IndexRouteProps } from 'react-router';
 
-export default function Header() {
-  return (
-    <header className="page-header">
-      <h1 className="page-title">
-        {translate('project_quality_gate.page')}
-      </h1>
-      <div className="page-description">
-        {translate('project_quality_gate.page.description')}
-      </div>
-    </header>
-  );
-}
+const routes = [
+  {
+    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+      import('./App').then(i => callback(null, { component: i.default }));
+    }
+  }
+];
+
+export default routes;

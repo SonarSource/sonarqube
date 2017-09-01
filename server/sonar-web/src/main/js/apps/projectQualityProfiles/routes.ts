@@ -17,45 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
+import { RouterState, IndexRouteProps } from 'react-router';
 
-export default class ProjectAdminContainer extends React.PureComponent {
-  /*::
-  props: {
-    component: {
-      configuration?: {
-        showSettings: boolean
-      }
-    }
-  };
-  */
-
-  componentDidMount() {
-    this.checkPermissions();
-  }
-
-  componentDidUpdate() {
-    this.checkPermissions();
-  }
-
-  isProjectAdmin() {
-    const { configuration } = this.props.component;
-    return configuration != null && configuration.showSettings;
-  }
-
-  checkPermissions() {
-    if (!this.isProjectAdmin()) {
-      handleRequiredAuthorization();
+const routes = [
+  {
+    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+      import('./App').then(i => callback(null, { component: i.default }));
     }
   }
+];
 
-  render() {
-    if (!this.isProjectAdmin()) {
-      return null;
-    }
-
-    const { children, ...props } = this.props;
-    return React.cloneElement(children, props);
-  }
-}
+export default routes;

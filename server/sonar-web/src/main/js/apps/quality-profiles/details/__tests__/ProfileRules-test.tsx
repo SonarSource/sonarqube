@@ -25,18 +25,19 @@ import * as apiRules from '../../../../api/rules';
 import * as apiQP from '../../../../api/quality-profiles';
 
 const PROFILE = {
-  key: 'foo',
-  name: 'Foo',
+  activeRuleCount: 68,
+  activeDeprecatedRuleCount: 0,
+  childrenCount: 0,
+  depth: 0,
   isBuiltIn: false,
   isDefault: false,
   isInherited: false,
+  key: 'foo',
   language: 'java',
   languageName: 'Java',
-  activeRuleCount: 68,
-  activeDeprecatedRuleCount: 0,
-  rulesUpdatedAt: '2017-06-28T12:58:44+0000',
-  depth: 0,
-  childrenCount: 0
+  name: 'Foo',
+  organization: 'org',
+  rulesUpdatedAt: '2017-06-28T12:58:44+0000'
 };
 
 const apiResponseAll = {

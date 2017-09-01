@@ -17,36 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import Select from 'react-select';
-import { translate } from '../../../helpers/l10n';
+import * as React from 'react';
+import * as Select from 'react-select';
+import { Profile } from '../../api/quality-profiles';
+import { translate } from '../../helpers/l10n';
 
-export default class ProfileRow extends React.PureComponent {
-  static propTypes = {
-    profile: PropTypes.object.isRequired,
-    possibleProfiles: PropTypes.array.isRequired,
-    onChangeProfile: PropTypes.func.isRequired
-  };
+interface Props {
+  onChangeProfile: (oldProfile: string, newProfile: string) => Promise<void>;
+  possibleProfiles: Profile[];
+  profile: Profile;
+}
 
-  state = {
-    loading: false
-  };
+interface State {
+  loading: boolean;
+}
 
-  componentWillUpdate(nextProps) {
-    if (nextProps.profile !== this.props.profile) {
+export default class ProfileRow extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = { loading: false };
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  stopLoading = () => {
+    if (this.mounted) {
       this.setState({ loading: false });
     }
-  }
+  };
 
-  handleChange(option) {
+  handleChange = (option: { value: string }) => {
     if (this.props.profile.key !== option.value) {
       this.setState({ loading: true });
-      this.props.onChangeProfile(this.props.profile.key, option.value);
+      this.props
+        .onChangeProfile(this.props.profile.key, option.value)
+        .then(this.stopLoading, this.stopLoading);
     }
-  }
+  };
 
-  renderProfileName(profileOption) {
+  renderProfileName = (profileOption: { isDefault: boolean; label: string }) => {
     if (profileOption.isDefault) {
       return (
         <span>
@@ -59,8 +72,12 @@ export default class ProfileRow extends React.PureComponent {
       );
     }
 
-    return profileOption.label;
-  }
+    return (
+      <span>
+        {profileOption.label}
+      </span>
+    );
+  };
 
   renderProfileSelect() {
     const { profile, possibleProfiles } = this.props;
@@ -73,14 +90,14 @@ export default class ProfileRow extends React.PureComponent {
 
     return (
       <Select
-        options={options}
-        valueRenderer={this.renderProfileName}
-        optionRenderer={this.renderProfileName}
-        value={profile.key}
         clearable={false}
-        style={{ width: 300 }}
         disabled={this.state.loading}
-        onChange={this.handleChange.bind(this)}
+        onChange={this.handleChange}
+        optionRenderer={this.renderProfileName}
+        options={options}
+        style={{ width: 300 }}
+        valueRenderer={this.renderProfileName}
+        value={profile.key}
       />
     );
   }

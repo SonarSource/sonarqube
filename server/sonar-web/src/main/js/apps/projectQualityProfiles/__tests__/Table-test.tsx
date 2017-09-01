@@ -17,24 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Profile as BaseProfile } from '../../api/quality-profiles';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Table from '../Table';
 
-export interface Profile extends BaseProfile {
-  depth: number;
-  childrenCount: number;
-}
+it('renders', () => {
+  const fooJava = randomProfile('foo-java', 'java');
+  const fooJs = randomProfile('foo-js', 'js');
+  const allProfiles = [
+    fooJava,
+    randomProfile('bar-java', 'java'),
+    randomProfile('baz-java', 'java'),
+    fooJs
+  ];
+  const profiles = [fooJava, fooJs];
+  expect(
+    shallow(<Table allProfiles={allProfiles} onChangeProfile={jest.fn()} profiles={profiles} />)
+  ).toMatchSnapshot();
+});
 
-export interface Exporter {
-  key: string;
-  name: string;
-  languages: string[];
-}
-
-export interface ProfileChangelogEvent {
-  action: string;
-  authorName: string;
-  date: string;
-  params?: { [change: string]: string | null };
-  ruleKey: string;
-  ruleName: string;
+function randomProfile(key: string, language: string) {
+  return {
+    activeRuleCount: 17,
+    activeDeprecatedRuleCount: 0,
+    key,
+    name: key,
+    language: language,
+    languageName: language,
+    organization: 'org'
+  };
 }

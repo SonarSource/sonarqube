@@ -18,10 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-import profiles, { getProfile, getAllProfiles as nextGetAllProfiles } from './profiles';
-import profilesByProject, { getProfiles } from './profilesByProject';
-import gates, { getAllGates as nextGetAllGates, getGate } from './gates';
-import gateByProject, { getProjectGate as nextGetProjectGate } from './gateByProject';
 import links, { getLink } from './links';
 import linksByProject, { getLinks } from './linksByProject';
 import components, { getComponentByKey as nextGetComponentByKey } from './components';
@@ -31,10 +27,6 @@ import globalMessages, {
 } from '../../../store/globalMessages/duck';
 
 const rootReducer = combineReducers({
-  profiles,
-  profilesByProject,
-  gates,
-  gateByProject,
   links,
   linksByProject,
   components,
@@ -43,22 +35,6 @@ const rootReducer = combineReducers({
 });
 
 export default rootReducer;
-
-export const getProfileByKey = (state, profileKey) => getProfile(state.profiles, profileKey);
-
-export const getAllProfiles = state => nextGetAllProfiles(state.profiles);
-
-export const getProjectProfiles = (state, projectKey) =>
-  getProfiles(state.profilesByProject, projectKey).map(profileKey =>
-    getProfileByKey(state, profileKey)
-  );
-
-export const getGateById = (state, gateId) => getGate(state.gates, gateId);
-
-export const getAllGates = state => nextGetAllGates(state.gates);
-
-export const getProjectGate = (state, projectKey) =>
-  getGateById(state, nextGetProjectGate(state.gateByProject, projectKey));
 
 export const getLinkById = (state, linkId) => getLink(state.links, linkId);
 
