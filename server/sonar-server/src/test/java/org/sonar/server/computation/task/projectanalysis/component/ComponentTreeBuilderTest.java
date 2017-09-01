@@ -225,17 +225,17 @@ public class ComponentTreeBuilderTest {
     Component root = call(project);
 
     Component module = root.getChildren().iterator().next();
-    assertThat(module.getName()).isEqualTo("generated_M");
+    assertThat(module.getName()).isEqualTo("public_M");
 
     Component directory = module.getChildren().iterator().next();
-    assertThat(directory.getName()).isEqualTo("generated_M:src/js");
+    assertThat(directory.getName()).isEqualTo("public_M:src/js");
 
     Component file = directory.getChildren().iterator().next();
-    assertThat(file.getName()).isEqualTo("generated_M:src/js/Foo.js");
+    assertThat(file.getName()).isEqualTo("public_M:src/js/Foo.js");
   }
 
   @Test
-  public void names_of_module_directory_and_file_are_keys_if_names_are_empty_in_report() {
+  public void names_of_module_directory_and_file_are_public_keys_if_names_are_empty_in_report() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -264,13 +264,13 @@ public class ComponentTreeBuilderTest {
     Component root = call(project);
 
     Component module = root.getChildren().iterator().next();
-    assertThat(module.getName()).isEqualTo("generated_M");
+    assertThat(module.getName()).isEqualTo("public_M");
 
     Component directory = module.getChildren().iterator().next();
-    assertThat(directory.getName()).isEqualTo("generated_M:src/js");
+    assertThat(directory.getName()).isEqualTo("public_M:src/js");
 
     Component file = directory.getChildren().iterator().next();
-    assertThat(file.getName()).isEqualTo("generated_M:src/js/Foo.js");
+    assertThat(file.getName()).isEqualTo("public_M:src/js/Foo.js");
   }
 
   private void assertThatFileAttributesAreNotSet(Component root) {
