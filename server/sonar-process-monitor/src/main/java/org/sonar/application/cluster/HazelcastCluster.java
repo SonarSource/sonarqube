@@ -29,6 +29,7 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.IAtomicReference;
 import com.hazelcast.core.ILock;
 import com.hazelcast.core.MapEvent;
@@ -39,6 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.application.AppStateListener;
 import org.sonar.process.ProcessId;
 
@@ -51,6 +54,8 @@ import static org.sonar.process.cluster.ClusterObjectKeys.OPERATIONAL_PROCESSES;
 import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
 
 public class HazelcastCluster implements AutoCloseable {
+  private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCluster.class);
+
   private final List<AppStateListener> listeners = new ArrayList<>();
   private final ReplicatedMap<ClusterProcess, Boolean> operationalProcesses;
   private final String operationalProcessListenerUUID;
@@ -145,20 +150,25 @@ public class HazelcastCluster implements AutoCloseable {
   @Override
   public void close() {
     if (hzInstance != null) {
-      // Removing listeners
-      operationalProcesses.removeEntryListener(operationalProcessListenerUUID);
-      hzInstance.getClientService().removeClientListener(clientListenerUUID);
+      try {
+        // Removing listeners
+        operationalProcesses.removeEntryListener(operationalProcessListenerUUID);
+        hzInstance.getClientService().removeClientListener(clientListenerUUID);
 
-      // Removing the operationalProcess from the replicated map
-      operationalProcesses.keySet().forEach(
-        clusterNodeProcess -> {
-          if (clusterNodeProcess.getNodeUuid().equals(getLocalUUID())) {
-            operationalProcesses.remove(clusterNodeProcess);
-          }
-        });
+        // Removing the operationalProcess from the replicated map
+        operationalProcesses.keySet().forEach(
+          clusterNodeProcess -> {
+            if (clusterNodeProcess.getNodeUuid().equals(getLocalUUID())) {
+              operationalProcesses.remove(clusterNodeProcess);
+            }
+          });
 
-      // Shutdown Hazelcast properly
-      hzInstance.shutdown();
+        // Shutdown Hazelcast properly
+        hzInstance.shutdown();
+      } catch (HazelcastInstanceNotActiveException e) {
+        // hazelcastCluster may be already closed by the shutdown hook
+        LOGGER.debug("Unable to close Hazelcast cluster", e);
+      }
     }
   }
 

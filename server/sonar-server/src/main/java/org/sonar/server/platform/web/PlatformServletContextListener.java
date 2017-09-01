@@ -19,11 +19,13 @@
  */
 package org.sonar.server.platform.web;
 
+import ch.qos.logback.classic.LoggerContext;
 import java.util.Enumeration;
 import java.util.Properties;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.platform.Platform;
 
@@ -64,6 +66,8 @@ public final class PlatformServletContextListener implements ServletContextListe
   @Override
   public void contextDestroyed(ServletContextEvent event) {
     Platform.getInstance().doStop();
+    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+    loggerContext.stop();
   }
 
 }

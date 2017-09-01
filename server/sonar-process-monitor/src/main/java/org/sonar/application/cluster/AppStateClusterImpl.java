@@ -20,7 +20,6 @@
 
 package org.sonar.application.cluster;
 
-import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -88,12 +87,7 @@ public class AppStateClusterImpl implements AppState {
 
   @Override
   public void close() {
-    try {
-      hazelcastCluster.close();
-    } catch (HazelcastInstanceNotActiveException e) {
-      // hazelcastCluster may be already closed by the shutdown hook
-      LOGGER.debug("Unable to close Hazelcast cluster", e);
-    }
+    hazelcastCluster.close();
   }
 
   @Override
