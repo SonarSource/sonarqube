@@ -20,14 +20,21 @@
 package org.sonar.server.platform.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.health.AppNodeClusterCheck;
 import org.sonar.server.health.CeStatusNodeCheck;
 import org.sonar.server.health.DbConnectionNodeCheck;
 import org.sonar.server.health.EsStatusClusterCheck;
 import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
 import org.sonar.server.health.WebServerStatusNodeCheck;
+import org.sonar.server.platform.WebServer;
 
 public class HealthActionModule extends Module {
+  private final WebServer webServer;
+
+  public HealthActionModule(WebServer webServer) {
+    this.webServer = webServer;
+  }
 
   @Override
   protected void configureModule() {
@@ -36,9 +43,11 @@ public class HealthActionModule extends Module {
       DbConnectionNodeCheck.class,
       EsStatusNodeCheck.class,
       CeStatusNodeCheck.class);
-
-    // ClusterHealthCheck implementations
-    add(EsStatusClusterCheck.class);
+    if (!webServer.isStandalone()) {
+      // ClusterHealthCheck implementations
+      add(EsStatusClusterCheck.class,
+        AppNodeClusterCheck.class);
+    }
 
     add(HealthCheckerImpl.class,
       HealthActionSupport.class,

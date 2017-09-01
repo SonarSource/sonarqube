@@ -21,10 +21,12 @@ package org.sonar.server.platform.ws;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.health.AppNodeClusterCheck;
 import org.sonar.server.health.CeStatusNodeCheck;
 import org.sonar.server.health.ClusterHealthCheck;
 import org.sonar.server.health.DbConnectionNodeCheck;
@@ -33,19 +35,26 @@ import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
 import org.sonar.server.health.NodeHealthCheck;
 import org.sonar.server.health.WebServerStatusNodeCheck;
+import org.sonar.server.platform.WebServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HealthActionModuleTest {
-  private HealthActionModule underTest = new HealthActionModule();
+  private WebServer webServer = mock(WebServer.class);
+  private HealthActionModule underTest = new HealthActionModule(webServer);
 
   @Test
   public void verify_action_and_HealthChecker() {
+    boolean standalone = new Random().nextBoolean();
+    when(webServer.isStandalone()).thenReturn(standalone);
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
 
     assertThat(classesAddedToContainer(container))
+      .describedAs("Verifying action and HealthChecker with standalone=%s", standalone)
       .contains(HealthCheckerImpl.class)
       .contains(HealthActionSupport.class)
       .contains(HealthAction.class)
@@ -54,6 +63,8 @@ public class HealthActionModuleTest {
 
   @Test
   public void verify_installed_NodeHealthChecks_implementations() {
+    boolean standalone = new Random().nextBoolean();
+    when(webServer.isStandalone()).thenReturn(standalone);
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
@@ -68,15 +79,28 @@ public class HealthActionModuleTest {
   }
 
   @Test
-  public void verify_installed_ClusterHealthChecks_implementations() {
+  public void verify_installed_ClusterHealthChecks_implementations_in_standalone() {
+    when(webServer.isStandalone()).thenReturn(true);
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+    List<Class<?>> checks = classesAddedToContainer(container).stream().filter(ClusterHealthCheck.class::isAssignableFrom).collect(Collectors.toList());
+    assertThat(checks).isEmpty();
+  }
+
+  @Test
+  public void verify_installed_ClusterHealthChecks_implementations_in_clustering() {
+    when(webServer.isStandalone()).thenReturn(false);
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
 
     List<Class<?>> checks = classesAddedToContainer(container).stream().filter(ClusterHealthCheck.class::isAssignableFrom).collect(Collectors.toList());
     assertThat(checks)
-      .hasSize(1)
-      .contains(EsStatusClusterCheck.class);
+      .hasSize(2)
+      .contains(EsStatusClusterCheck.class)
+      .contains(AppNodeClusterCheck.class);
   }
 
   private List<Class<?>> classesAddedToContainer(ComponentContainer container) {

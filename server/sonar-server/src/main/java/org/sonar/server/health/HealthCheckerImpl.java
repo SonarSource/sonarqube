@@ -21,8 +21,6 @@ package org.sonar.server.health;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.BinaryOperator;
-import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.cluster.health.NodeHealth;
@@ -31,7 +29,6 @@ import org.sonar.server.platform.WebServer;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.copyOf;
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
 /**
  * Implementation of {@link HealthChecker} based on {@link NodeHealthCheck} and {@link ClusterHealthCheck} instances
@@ -81,35 +78,4 @@ public class HealthCheckerImpl implements HealthChecker {
     return new ClusterHealth(health, nodeHealths);
   }
 
-  private enum HealthReducer implements BinaryOperator<Health> {
-    INSTANCE;
-
-    /**
-     * According to Javadoc, {@link BinaryOperator} used in method
-     * {@link java.util.stream.Stream#reduce(Object, BinaryOperator)} is supposed to be stateless.
-     *
-     * But as we are sure this {@link BinaryOperator} won't be used on a Stream with {@link Stream#parallel()}
-     * feature on, we allow ourselves this optimisation.
-     */
-    private final Health.Builder builder = newHealthCheckBuilder();
-
-    @Override
-    public Health apply(Health left, Health right) {
-      builder.clear();
-      builder.setStatus(worseOf(left.getStatus(), right.getStatus()));
-      left.getCauses().forEach(builder::addCause);
-      right.getCauses().forEach(builder::addCause);
-      return builder.build();
-    }
-
-    private static Health.Status worseOf(Health.Status left, Health.Status right) {
-      if (left == right) {
-        return left;
-      }
-      if (left.ordinal() > right.ordinal()) {
-        return left;
-      }
-      return right;
-    }
-  }
 }
