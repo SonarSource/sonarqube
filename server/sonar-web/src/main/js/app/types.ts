@@ -68,7 +68,7 @@ export interface Component {
   }>;
   configuration?: ComponentConfiguration;
   extensions?: ComponentExtension[];
-  isFavorite: boolean;
+  isFavorite?: boolean;
   key: string;
   name: string;
   organization: string;
