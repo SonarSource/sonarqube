@@ -4,6 +4,7 @@
 RUN_ACTIVITY:
   - run-db-unit-tests-mysql56
   - run-db-unit-tests-mssql2014
+  - run-db-unit-tests-mssql2016
   - run-db-unit-tests-oracle11g
   - run-db-unit-tests-oracle12c
   - run-db-unit-tests-postgresql93
@@ -42,6 +43,8 @@ exclude:
   - RUN_ACTIVITY: run-db-unit-tests-mysql56
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-db-unit-tests-mssql2014
+    SLAVE_TYPE: performance
+  - RUN_ACTIVITY: run-db-unit-tests-mssql2016
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-db-unit-tests-oracle11g
     SLAVE_TYPE: performance
@@ -114,6 +117,8 @@ exclude:
   - RUN_ACTIVITY: run-db-unit-tests-mysql56
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-db-unit-tests-mssql2014
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-unit-tests-mssql2016
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-db-unit-tests-oracle11g
     SLAVE_TYPE: windows
