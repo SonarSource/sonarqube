@@ -372,35 +372,6 @@
     </where>
   </select>
 
-  <select id="selectProvisioned" parameterType="map" resultType="Component">
-    select
-    <include refid="componentColumns"/>
-    from projects p
-    <include refid="provisionedClauses"/>
-  </select>
-
-  <select id="countProvisioned" parameterType="map" resultType="int">
-    select count(p.id)
-    from projects p
-    <include refid="provisionedClauses"/>
-  </select>
-
-  <sql id="provisionedClauses">
-    left join snapshots s on s.component_uuid=p.uuid
-    where
-    s.id is null
-    and p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-    and p.enabled = ${_true}
-    and p.qualifier in <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">#{qualifier}</foreach>
-    and p.copy_component_uuid is null
-    <if test="keyOrNameLike != null">
-      and (
-      upper(p.name) like #{keyOrNameLike} ESCAPE '/'
-      or upper(p.kee) like #{keyOrNameLike} ESCAPE '/'
-      )
-    </if>
-  </sql>
-
   <select id="selectGhostProjects" parameterType="map" resultType="Component">
     select distinct
       <include refid="componentColumns"/>
