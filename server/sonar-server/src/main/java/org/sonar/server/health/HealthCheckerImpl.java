@@ -70,14 +70,15 @@ public class HealthCheckerImpl implements HealthChecker {
   }
 
   @Override
-  public Health checkCluster() {
+  public ClusterHealth checkCluster() {
     checkState(!webServer.isStandalone(), "Clustering is not enabled");
     checkState(sharedHealthState != null, "HealthState instance can't be null when clustering is enabled");
 
     Set<NodeHealth> nodeHealths = sharedHealthState.readAll();
-    return clusterHealthChecks.stream()
+    Health health = clusterHealthChecks.stream()
       .map(clusterHealthCheck -> clusterHealthCheck.check(nodeHealths))
       .reduce(Health.GREEN, HealthReducer.INSTANCE);
+    return new ClusterHealth(health, nodeHealths);
   }
 
   private enum HealthReducer implements BinaryOperator<Health> {

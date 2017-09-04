@@ -41,6 +41,7 @@ public class HealthActionModule extends Module {
     add(EsStatusClusterCheck.class);
 
     add(HealthCheckerImpl.class,
+      HealthActionSupport.class,
       HealthAction.class);
   }
 }

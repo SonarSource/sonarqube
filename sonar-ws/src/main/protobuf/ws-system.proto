@@ -28,6 +28,7 @@ option optimize_for = SPEED;
 message HealthResponse {
   optional Health health = 1;
   repeated Cause causes = 2;
+  repeated Node nodes = 3;
 }
 
 // GET api/system/status
@@ -54,4 +55,19 @@ enum Status {
   RESTARTING = 3;
   DB_MIGRATION_NEEDED = 4;
   DB_MIGRATION_RUNNING = 5;
+}
+
+message Node {
+  optional string name = 1;
+  optional NodeType type = 2;
+  optional string host = 3;
+  optional string port = 4;
+  optional string started = 5;
+  optional Health health = 6;
+  repeated Cause causes = 7;
+}
+
+enum NodeType {
+  APPLICATION = 0;
+  SEARCH = 1;
 }
