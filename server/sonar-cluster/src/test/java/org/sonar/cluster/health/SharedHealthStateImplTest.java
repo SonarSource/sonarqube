@@ -67,7 +67,7 @@ public class SharedHealthStateImplTest {
     Map<String, NodeHealth> map = new HashMap<>();
     doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
     String uuid = randomAlphanumeric(5);
-    when(hazelcastClient.getClientUUID()).thenReturn(uuid);
+    when(hazelcastClient.getUUID()).thenReturn(uuid);
 
     underTest.writeMine(nodeHealth);
 
@@ -84,7 +84,7 @@ public class SharedHealthStateImplTest {
     map.put(randomAlphanumeric(4), randomNodeHealth());
     doReturn(new HashMap<>(map)).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
     String uuid = randomAlphanumeric(5);
-    when(hazelcastClient.getClientUUID()).thenReturn(uuid);
+    when(hazelcastClient.getUUID()).thenReturn(uuid);
 
     underTest.writeMine(newNodeHealth);
 
@@ -125,7 +125,7 @@ public class SharedHealthStateImplTest {
     Map<String, NodeHealth> map = mock(Map.class);
     doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
     String uuid = randomAlphanumeric(5);
-    when(hazelcastClient.getClientUUID()).thenReturn(uuid);
+    when(hazelcastClient.getUUID()).thenReturn(uuid);
 
     underTest.clearMine();
 
@@ -141,7 +141,7 @@ public class SharedHealthStateImplTest {
     map.put(randomAlphanumeric(4), randomNodeHealth());
     doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
     String uuid = randomAlphanumeric(5);
-    when(hazelcastClient.getClientUUID()).thenReturn(uuid);
+    when(hazelcastClient.getUUID()).thenReturn(uuid);
 
     underTest.clearMine();
 

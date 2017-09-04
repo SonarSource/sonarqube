@@ -45,7 +45,7 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
 
   @Override
   public Set<String> getWorkerUUIDs() {
-    Set<String> connectedWorkerUUIDs = hazelcastClient.getConnectedClients();
+    Set<String> connectedWorkerUUIDs = hazelcastClient.getMemberUuids();
 
     return getClusteredWorkerUUIDs().entrySet().stream()
       .filter(e -> connectedWorkerUUIDs.contains(e.getKey()))
@@ -56,7 +56,7 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
 
   @Override
   public void broadcastWorkerUUIDs() {
-    getClusteredWorkerUUIDs().put(hazelcastClient.getClientUUID(), ceCeWorkerFactory.getWorkerUUIDs());
+    getClusteredWorkerUUIDs().put(hazelcastClient.getUUID(), ceCeWorkerFactory.getWorkerUUIDs());
   }
 
   @Override
@@ -72,7 +72,7 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
   @Override
   public void stop() {
     // Removing the worker UUIDs
-    getClusteredWorkerUUIDs().remove(hazelcastClient.getClientUUID());
+    getClusteredWorkerUUIDs().remove(hazelcastClient.getUUID());
   }
 
   private Map<String, Set<String>> getClusteredWorkerUUIDs() {

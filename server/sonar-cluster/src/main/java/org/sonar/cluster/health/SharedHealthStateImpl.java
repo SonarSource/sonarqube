@@ -47,13 +47,13 @@ public class SharedHealthStateImpl implements SharedHealthState {
     if (LOG.isTraceEnabled()) {
       LOG.trace("Reading {} and adding {}", new HashMap<>(sqHealthState), nodeHealth);
     }
-    sqHealthState.put(hazelcastClient.getClientUUID(), nodeHealth);
+    sqHealthState.put(hazelcastClient.getUUID(), nodeHealth);
   }
 
   @Override
   public void clearMine() {
     Map<String, NodeHealth> sqHealthState = hazelcastClient.getReplicatedMap(SQ_HEALTH_STATE_REPLICATED_MAP_IDENTIFIER);
-    String clientUUID = hazelcastClient.getClientUUID();
+    String clientUUID = hazelcastClient.getUUID();
     if (LOG.isTraceEnabled()) {
       LOG.trace("Reading {} and clear for {}", new HashMap<>(sqHealthState), clientUUID);
     }
