@@ -3,7 +3,7 @@
 
 RUN_ACTIVITY:
   - run-db-unit-tests-mysql56
-  - run-db-unit-tests-mssql2014
+  - run-db-unit-tests-mssql2016
   - run-db-unit-tests-oracle11g
   - run-db-unit-tests-oracle12c
   - run-db-unit-tests-postgresql93
@@ -13,12 +13,12 @@ RUN_ACTIVITY:
   - run-db-integration-tests-mysql56-Category4
   - run-db-integration-tests-mysql56-Category5
   - run-db-integration-tests-mysql56-Category6
-  - run-db-integration-tests-mssql2014-Category1
-  - run-db-integration-tests-mssql2014-Category2
-  - run-db-integration-tests-mssql2014-Category3
-  - run-db-integration-tests-mssql2014-Category4
-  - run-db-integration-tests-mssql2014-Category5
-  - run-db-integration-tests-mssql2014-Category6
+  - run-db-integration-tests-mssql2016-Category1
+  - run-db-integration-tests-mssql2016-Category2
+  - run-db-integration-tests-mssql2016-Category3
+  - run-db-integration-tests-mssql2016-Category4
+  - run-db-integration-tests-mssql2016-Category5
+  - run-db-integration-tests-mssql2016-Category6
   - run-db-integration-tests-oracle12c-Category1
   - run-db-integration-tests-oracle12c-Category2
   - run-db-integration-tests-oracle12c-Category3
@@ -32,7 +32,7 @@ RUN_ACTIVITY:
   - run-db-integration-tests-postgresql93-Category5
   - run-db-integration-tests-postgresql93-Category6
   - run-upgrade-tests-mysql56
-  - run-upgrade-tests-mssql2014
+  - run-upgrade-tests-mssql2016
   - run-upgrade-tests-oracle12c
   - run-upgrade-tests-postgresql93
   - run-it-released-plugins
@@ -41,7 +41,7 @@ RUN_ACTIVITY:
 exclude:
   - RUN_ACTIVITY: run-db-unit-tests-mysql56
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-db-unit-tests-mssql2014
+  - RUN_ACTIVITY: run-db-unit-tests-mssql2016
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-db-unit-tests-oracle11g
     SLAVE_TYPE: performance
@@ -61,17 +61,17 @@ exclude:
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category6
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category1
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2016-Category1
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category2
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2016-Category2
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category3
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2016-Category3
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category4
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2016-Category4
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category5
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2016-Category5
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category6
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2016-Category6
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-db-integration-tests-oracle12c-Category1
     SLAVE_TYPE: performance
@@ -99,7 +99,7 @@ exclude:
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-upgrade-tests-mysql56
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-upgrade-tests-mssql2014
+  - RUN_ACTIVITY: run-upgrade-tests-mssql2016
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-upgrade-tests-oracle12c
     SLAVE_TYPE: performance
@@ -113,7 +113,7 @@ exclude:
 
   - RUN_ACTIVITY: run-db-unit-tests-mysql56
     SLAVE_TYPE: windows
-  - RUN_ACTIVITY: run-db-unit-tests-mssql2014
+  - RUN_ACTIVITY: run-db-unit-tests-mssql2016
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-db-unit-tests-oracle11g
     SLAVE_TYPE: windows
@@ -133,17 +133,17 @@ exclude:
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category6
     SLAVE_TYPE: windows
-  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category1
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2016-Category1
     SLAVE_TYPE: windows
-  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category2
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2016-Category2
     SLAVE_TYPE: windows
-  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category3
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2016-Category3
     SLAVE_TYPE: windows
-  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category4
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2016-Category4
     SLAVE_TYPE: windows
-  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category5
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2016-Category5
     SLAVE_TYPE: windows
-  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category6
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2016-Category6
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-db-integration-tests-oracle12c-Category1
     SLAVE_TYPE: windows
@@ -171,7 +171,7 @@ exclude:
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-upgrade-tests-mysql56
     SLAVE_TYPE: windows
-  - RUN_ACTIVITY: run-upgrade-tests-mssql2014
+  - RUN_ACTIVITY: run-upgrade-tests-mssql2016
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-upgrade-tests-oracle12c
     SLAVE_TYPE: windows
