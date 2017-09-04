@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.cluster.localclient.HazelcastClient;
@@ -55,7 +56,7 @@ public class SharedHealthStateImpl implements SharedHealthState {
     Map<String, NodeHealth> sqHealthState = hazelcastClient.getReplicatedMap(SQ_HEALTH_STATE_REPLICATED_MAP_IDENTIFIER);
     String clientUUID = hazelcastClient.getUUID();
     if (LOG.isTraceEnabled()) {
-      LOG.trace("Reading {} and clear for {}", new HashMap<>(sqHealthState), clientUUID);
+      LOG.trace("Reading {} and clearing for {}", new HashMap<>(sqHealthState), clientUUID);
     }
     sqHealthState.remove(clientUUID);
   }
@@ -63,9 +64,13 @@ public class SharedHealthStateImpl implements SharedHealthState {
   @Override
   public Set<NodeHealth> readAll() {
     Map<String, NodeHealth> sqHealthState = hazelcastClient.getReplicatedMap(SQ_HEALTH_STATE_REPLICATED_MAP_IDENTIFIER);
+    Set<String> hzMemberUUIDs = hazelcastClient.getMemberUuids();
+    Set<NodeHealth> existingNodeHealths = sqHealthState.entrySet().stream()
+      .filter(entry -> hzMemberUUIDs.contains(entry.getKey())).map(Map.Entry::getValue)
+      .collect(Collectors.toSet());
     if (LOG.isTraceEnabled()) {
-      LOG.trace("Reading {}", new HashMap<>(sqHealthState));
+      LOG.trace("Reading {} and keeping {}", new HashMap<>(sqHealthState), existingNodeHealths);
     }
-    return ImmutableSet.copyOf(sqHealthState.values());
+    return ImmutableSet.copyOf(existingNodeHealths);
   }
 }
