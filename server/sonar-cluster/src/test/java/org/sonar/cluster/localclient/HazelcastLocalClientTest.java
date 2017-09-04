@@ -160,8 +160,8 @@ public class HazelcastLocalClientTest {
     try {
       hazelcastClientWrapperImpl.start();
       clientListener.counter.await(5, TimeUnit.SECONDS);
-      assertThat(hazelcastClientWrapperImpl.getConnectedClients()).hasSize(1);
-      assertThat(hazelcastClientWrapperImpl.getClientUUID()).isNotEmpty();
+      assertThat(hazelcastClientWrapperImpl.getMemberUuids()).hasSize(2);
+      assertThat(hazelcastClientWrapperImpl.getUUID()).isNotEmpty();
     } finally {
       hazelcastClientWrapperImpl.stop();
     }

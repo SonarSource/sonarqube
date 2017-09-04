@@ -65,7 +65,7 @@ public final class ClusterObjectKeys {
   /**
    * The key of the Set holding the UUIDs of clients
    */
-  public static final String CLIENT_UUIDS = "CLIENT_UUIDS";
+  public static final String LOCAL_MEMBER_UUIDS = "LOCAL_MEMBER_UUIDS";
   /**
    * The key of replicated map holding the CeWorker UUIDs
    */

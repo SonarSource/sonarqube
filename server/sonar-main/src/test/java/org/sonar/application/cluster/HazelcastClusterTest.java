@@ -157,12 +157,12 @@ public class HazelcastClusterTest {
     testAppSettings.set(CLUSTER_NAME, "a_cluster_");
     ClusterProperties clusterProperties = new ClusterProperties(testAppSettings);
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
-      assertThat(hzCluster.hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS)).isEmpty();
+      assertThat(hzCluster.hzInstance.getSet(ClusterObjectKeys.LOCAL_MEMBER_UUIDS)).isEmpty();
       HazelcastInstance hzClient = createHazelcastClient(hzCluster);
-      assertThat(hzCluster.hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS)).containsExactly(hzClient.getLocalEndpoint().getUuid());
+      assertThat(hzCluster.hzInstance.getSet(ClusterObjectKeys.LOCAL_MEMBER_UUIDS)).containsExactly(hzClient.getLocalEndpoint().getUuid());
 
       CountDownLatch latch = new CountDownLatch(1);
-      hzCluster.hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS).addItemListener(new ItemListener<Object>() {
+      hzCluster.hzInstance.getSet(ClusterObjectKeys.LOCAL_MEMBER_UUIDS).addItemListener(new ItemListener<Object>() {
         @Override
         public void itemAdded(ItemEvent<Object> item) {
         }
@@ -175,7 +175,7 @@ public class HazelcastClusterTest {
 
       hzClient.shutdown();
       if (latch.await(5, TimeUnit.SECONDS)) {
-        assertThat(hzCluster.hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS).size()).isEqualTo(0);
+        assertThat(hzCluster.hzInstance.getSet(ClusterObjectKeys.LOCAL_MEMBER_UUIDS).size()).isEqualTo(0);
       } else {
         fail("The client UUID have not been removed from the Set within 5 seconds' time lapse");
       }
