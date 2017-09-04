@@ -50,17 +50,18 @@ public interface HazelcastClient {
   <K,V> Map<K,V> getReplicatedMap(String name);
 
   /**
-   * Retrieve the local UUID
+   * The UUID of the Hazelcast client.
+   *
+   * <p>The uuid of the member of the current client is a member, otherwise the UUID of the client if the
+   * member is a local client of one of the members.</p>
    */
-  String getClientUUID();
+  String getUUID();
 
   /**
-   * Retrieve the Set of connected clients.
-   * The client is only CE for the time being
-   *
-   * @return the connected clients
+   * The UUIDs of all the members (both members and local clients of these members) currently connected to the
+   * Hazelcast cluster.
    */
-  Set<String> getConnectedClients();
+  Set<String> getMemberUuids();
 
   /**
    * Gets lock among the cluster, identified by name

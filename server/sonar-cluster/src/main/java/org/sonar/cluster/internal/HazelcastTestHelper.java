@@ -85,12 +85,12 @@ public class HazelcastTestHelper {
 
     @Override
     public void clientConnected(Client client) {
-      hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS).add(client.getUuid());
+      hzInstance.getSet(ClusterObjectKeys.LOCAL_MEMBER_UUIDS).add(client.getUuid());
     }
 
     @Override
     public void clientDisconnected(Client client) {
-      hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS).remove(client.getUuid());
+      hzInstance.getSet(ClusterObjectKeys.LOCAL_MEMBER_UUIDS).remove(client.getUuid());
     }
   }
 }

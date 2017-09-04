@@ -49,8 +49,8 @@ public class CeDistributedInformationImplTest {
 
   @Test
   public void getWorkerUUIDs_returns_union_of_workers_uuids_of_local_and_cluster_worker_uuids() {
-    when(hzClientWrapper.getClientUUID()).thenReturn(clientUUID1);
-    when(hzClientWrapper.getConnectedClients()).thenReturn(ImmutableSet.of(clientUUID1, clientUUID2, clientUUID3));
+    when(hzClientWrapper.getUUID()).thenReturn(clientUUID1);
+    when(hzClientWrapper.getMemberUuids()).thenReturn(ImmutableSet.of(clientUUID1, clientUUID2, clientUUID3));
     when(hzClientWrapper.getReplicatedMap(WORKER_UUIDS)).thenReturn(workerMap);
 
     CeDistributedInformation ceDistributedInformation = new CeDistributedInformationImpl(hzClientWrapper, mock(CeWorkerFactory.class));
@@ -59,8 +59,8 @@ public class CeDistributedInformationImplTest {
 
   @Test
   public void getWorkerUUIDs_must_filter_absent_client() {
-    when(hzClientWrapper.getClientUUID()).thenReturn(clientUUID1);
-    when(hzClientWrapper.getConnectedClients()).thenReturn(ImmutableSet.of(clientUUID1, clientUUID2));
+    when(hzClientWrapper.getUUID()).thenReturn(clientUUID1);
+    when(hzClientWrapper.getMemberUuids()).thenReturn(ImmutableSet.of(clientUUID1, clientUUID2));
     when(hzClientWrapper.getReplicatedMap(WORKER_UUIDS)).thenReturn(workerMap);
 
     CeDistributedInformation ceDistributedInformation = new CeDistributedInformationImpl(hzClientWrapper, mock(CeWorkerFactory.class));
@@ -74,8 +74,8 @@ public class CeDistributedInformationImplTest {
     connectedClients.add(clientUUID1);
     connectedClients.add(clientUUID2);
 
-    when(hzClientWrapper.getClientUUID()).thenReturn(clientUUID1);
-    when(hzClientWrapper.getConnectedClients()).thenReturn(connectedClients);
+    when(hzClientWrapper.getUUID()).thenReturn(clientUUID1);
+    when(hzClientWrapper.getMemberUuids()).thenReturn(connectedClients);
     when(hzClientWrapper.getReplicatedMap(WORKER_UUIDS)).thenReturn(modifiableWorkerMap);
 
     CeWorkerFactory ceWorkerFactory = mock(CeWorkerFactory.class);
@@ -101,8 +101,8 @@ public class CeDistributedInformationImplTest {
     Map modifiableWorkerMap = new HashMap();
     modifiableWorkerMap.putAll(workerMap);
 
-    when(hzClientWrapper.getClientUUID()).thenReturn(clientUUID1);
-    when(hzClientWrapper.getConnectedClients()).thenReturn(connectedClients);
+    when(hzClientWrapper.getUUID()).thenReturn(clientUUID1);
+    when(hzClientWrapper.getMemberUuids()).thenReturn(connectedClients);
     when(hzClientWrapper.getReplicatedMap(WORKER_UUIDS)).thenReturn(modifiableWorkerMap);
 
     CeDistributedInformationImpl ceDistributedInformation = new CeDistributedInformationImpl(hzClientWrapper, mock(CeWorkerFactory.class));

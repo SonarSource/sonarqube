@@ -21,8 +21,10 @@
 package org.sonar.cluster.localclient;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.Member;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,13 +91,16 @@ public class HazelcastLocalClient implements Startable, HazelcastClient {
   }
 
   @Override
-  public String getClientUUID() {
+  public String getUUID() {
     return hzInstance.getLocalEndpoint().getUuid();
   }
 
   @Override
-  public Set<String> getConnectedClients() {
-    return hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS);
+  public Set<String> getMemberUuids() {
+    ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+    builder.addAll(hzInstance.getSet(ClusterObjectKeys.LOCAL_MEMBER_UUIDS));
+    hzInstance.getCluster().getMembers().stream().map(Member::getUuid).forEach(builder::add);
+    return builder.build();
   }
 
   @Override

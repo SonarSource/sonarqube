@@ -20,6 +20,7 @@
 
 package org.sonar.application.cluster;
 
+import com.google.common.collect.ImmutableSet;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -58,11 +59,11 @@ import org.sonar.process.ProcessId;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.application.cluster.ClusterProperties.HAZELCAST_CLUSTER_NAME;
-import static org.sonar.cluster.ClusterObjectKeys.CLIENT_UUIDS;
 import static org.sonar.cluster.ClusterObjectKeys.CLUSTER_NAME;
 import static org.sonar.cluster.ClusterObjectKeys.HOSTNAME;
 import static org.sonar.cluster.ClusterObjectKeys.IP_ADDRESSES;
 import static org.sonar.cluster.ClusterObjectKeys.LEADER;
+import static org.sonar.cluster.ClusterObjectKeys.LOCAL_MEMBER_UUIDS;
 import static org.sonar.cluster.ClusterObjectKeys.NODE_NAME;
 import static org.sonar.cluster.ClusterObjectKeys.NODE_TYPE;
 import static org.sonar.cluster.ClusterObjectKeys.OPERATIONAL_PROCESSES;
@@ -308,13 +309,16 @@ public class HazelcastCluster implements AutoCloseable {
     }
 
     @Override
-    public String getClientUUID() {
+    public String getUUID() {
       return hzInstance.getLocalEndpoint().getUuid();
     }
 
     @Override
-    public Set<String> getConnectedClients() {
-      return hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS);
+    public Set<String> getMemberUuids() {
+      ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+      builder.addAll(hzInstance.getSet(ClusterObjectKeys.LOCAL_MEMBER_UUIDS));
+      hzInstance.getCluster().getMembers().stream().map(Member::getUuid).forEach(builder::add);
+      return builder.build();
     }
 
     @Override
@@ -362,12 +366,12 @@ public class HazelcastCluster implements AutoCloseable {
   private class ConnectedClientListener implements ClientListener {
     @Override
     public void clientConnected(Client client) {
-      hzInstance.getSet(CLIENT_UUIDS).add(client.getUuid());
+      hzInstance.getSet(LOCAL_MEMBER_UUIDS).add(client.getUuid());
     }
 
     @Override
     public void clientDisconnected(Client client) {
-      hzInstance.getSet(CLIENT_UUIDS).remove(client.getUuid());
+      hzInstance.getSet(LOCAL_MEMBER_UUIDS).remove(client.getUuid());
     }
   }
 
