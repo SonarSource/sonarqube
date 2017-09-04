@@ -22,7 +22,6 @@ package org.sonar.db.component;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
@@ -116,11 +115,6 @@ public interface ComponentMapper {
    * Return technical projects from a view or a sub-view
    */
   List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("projectViewUuid") String projectViewUuid);
-
-  List<ComponentDto> selectProvisioned(@Param("organizationUuid") String organizationUuid, @Nullable @Param("keyOrNameLike") String keyOrNameLike,
-    @Param("qualifiers") Set<String> qualifiers, RowBounds rowBounds);
-
-  int countProvisioned(@Param("organizationUuid") String organizationUuid, @Nullable @Param("keyOrNameLike") String keyOrNameLike, @Param("qualifiers") Set<String> qualifiers);
 
   List<ComponentDto> selectGhostProjects(@Param("organizationUuid") String organizationUuid, @Nullable @Param("query") String query, RowBounds rowBounds);
 
