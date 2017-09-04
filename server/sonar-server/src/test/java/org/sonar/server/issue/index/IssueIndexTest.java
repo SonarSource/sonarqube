@@ -73,6 +73,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
@@ -371,7 +372,8 @@ public class IssueIndexTest {
     assertThatSearchReturnsOnly(IssueQuery.builder().branchUuid(branch.uuid()).mainBranch(false), issueOnBranch.key());
     assertThatSearchReturnsOnly(IssueQuery.builder().componentUuids(singletonList(branch.uuid())).branchUuid(branch.uuid()).mainBranch(false), issueOnBranch.key());
     assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())).branchUuid(branch.uuid()).mainBranch(false), issueOnBranch.key());
-    assertThatSearchReturnsOnly(IssueQuery.builder().componentUuids(singletonList(branch.uuid())).projectUuids(singletonList(project.uuid())).branchUuid(branch.uuid()).mainBranch(false),
+    assertThatSearchReturnsOnly(
+      IssueQuery.builder().componentUuids(singletonList(branch.uuid())).projectUuids(singletonList(project.uuid())).branchUuid(branch.uuid()).mainBranch(false),
       issueOnBranch.key());
     assertThatSearchReturnsEmpty(IssueQuery.builder().branchUuid("unknown"));
   }
@@ -411,7 +413,8 @@ public class IssueIndexTest {
     assertThatSearchReturnsOnly(IssueQuery.builder().branchUuid(project.uuid()).mainBranch(true), issueOnProject.key());
     assertThatSearchReturnsOnly(IssueQuery.builder().componentUuids(singletonList(project.uuid())).branchUuid(project.uuid()).mainBranch(true), issueOnProject.key());
     assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())).branchUuid(project.uuid()).mainBranch(true), issueOnProject.key());
-    assertThatSearchReturnsOnly(IssueQuery.builder().componentUuids(singletonList(project.uuid())).projectUuids(singletonList(project.uuid())).branchUuid(project.uuid()).mainBranch(true),
+    assertThatSearchReturnsOnly(
+      IssueQuery.builder().componentUuids(singletonList(project.uuid())).projectUuids(singletonList(project.uuid())).branchUuid(project.uuid()).mainBranch(true),
       issueOnProject.key());
   }
 
@@ -1324,8 +1327,10 @@ public class IssueIndexTest {
     ComponentDto branch3 = db.components().insertProjectBranch(project);
     ComponentDto fileOnBranch3 = db.components().insertComponent(newFileDto(branch3));
     indexIssues(newDoc(project),
-      newDoc(branch1).setType(BUG), newDoc(branch1).setType(VULNERABILITY), newDoc(branch1).setType(CODE_SMELL),
-      newDoc(branch3).setType(CODE_SMELL), newDoc(branch3).setType(CODE_SMELL), newDoc(fileOnBranch3).setType(CODE_SMELL));
+      newDoc(branch1).setType(BUG).setResolution(null), newDoc(branch1).setType(VULNERABILITY).setResolution(null), newDoc(branch1).setType(CODE_SMELL).setResolution(null),
+      newDoc(branch1).setType(CODE_SMELL).setResolution(RESOLUTION_FIXED),
+      newDoc(branch3).setType(CODE_SMELL).setResolution(null), newDoc(branch3).setType(CODE_SMELL).setResolution(null),
+      newDoc(fileOnBranch3).setType(CODE_SMELL).setResolution(null), newDoc(fileOnBranch3).setType(CODE_SMELL).setResolution(RESOLUTION_FIXED));
 
     List<BranchStatistics> branchStatistics = underTest.searchBranchStatistics(project.uuid(), asList(branch1.uuid(), branch2.uuid(), branch3.uuid()));
 
@@ -1365,9 +1370,9 @@ public class IssueIndexTest {
 
   private void addIssues(ComponentDto component, int bugs, int vulnerabilities, int codeSmelles) {
     List<IssueDoc> issues = new ArrayList<>();
-    IntStream.range(0, bugs).forEach(b -> issues.add(newDoc(component).setType(BUG)));
-    IntStream.range(0, vulnerabilities).forEach(v -> issues.add(newDoc(component).setType(VULNERABILITY)));
-    IntStream.range(0, codeSmelles).forEach(c -> issues.add(newDoc(component).setType(CODE_SMELL)));
+    IntStream.range(0, bugs).forEach(b -> issues.add(newDoc(component).setType(BUG).setResolution(null)));
+    IntStream.range(0, vulnerabilities).forEach(v -> issues.add(newDoc(component).setType(VULNERABILITY).setResolution(null)));
+    IntStream.range(0, codeSmelles).forEach(c -> issues.add(newDoc(component).setType(CODE_SMELL).setResolution(null)));
     indexIssues(issues.toArray(new IssueDoc[issues.size()]));
   }
 
