@@ -163,7 +163,8 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
-    assertThat(logs.getAllAsString()).contains("Branch key (deprecated): my-branch");
+    assertThat(logs.getAllAsString()).contains("Branch key: my-branch");
+    assertThat(logs.getAllAsString()).contains("The use of \"sonar.branch\" is deprecated and replaced by \"sonar.branch.name\".");
   }
 
   @Test
