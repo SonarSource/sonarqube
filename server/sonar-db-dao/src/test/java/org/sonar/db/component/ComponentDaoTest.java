@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.assertj.core.api.ListAssert;
@@ -628,21 +629,31 @@ public class ComponentDaoTest {
     String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization)).getComponentUuid();
 
     Set<String> projectQualifiers = newHashSet(Qualifiers.PROJECT);
+    Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setOnProvisionedOnly(true);
     assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), null, projectQualifiers, new RowBounds(0, 10)))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(provisionedProject.uuid());
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().build(), 0, 10))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid());
 
     // pagination
-    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), null, projectQualifiers, new RowBounds(2, 10)))
-      .isEmpty();
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), null, projectQualifiers, new RowBounds(2, 10))).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().build(), 2, 10)).isEmpty();
 
     // filter on qualifiers
-    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), null, newHashSet("XXX"), new RowBounds(0, 10)))
-      .isEmpty();
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), null, newHashSet("XXX"), new RowBounds(0, 10))).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setQualifiers("XXX").build(), 0, 10)).isEmpty();
     assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), null, newHashSet(Qualifiers.PROJECT, "XXX"), new RowBounds(0, 10)))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid());
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.PROJECT, "XXX").build(), 0, 10))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(provisionedProject.uuid());
     assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), null, newHashSet(Qualifiers.PROJECT, Qualifiers.VIEW), new RowBounds(0, 10)))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(provisionedProject.uuid(), provisionedView.uuid());
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW).build(), 0, 10))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid(), provisionedView.uuid());
 
@@ -650,16 +661,26 @@ public class ComponentDaoTest {
     assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), provisionedProject.getDbKey(), projectQualifiers, new RowBounds(0, 10)))
       .extracting(ComponentDto::uuid)
       .containsExactly(provisionedProject.uuid());
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setNameOrKeyQuery(provisionedProject.getDbKey()).build(), 0, 10))
+      .extracting(ComponentDto::uuid)
+      .containsExactly(provisionedProject.uuid());
     assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), "pROvisiONed.proJEcT", projectQualifiers, new RowBounds(0, 10)))
       .extracting(ComponentDto::uuid)
       .containsExactly(provisionedProject.uuid());
-    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), "missing", projectQualifiers, new RowBounds(0, 10)))
-      .isEmpty();
-    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), "to be escaped '\"\\%", projectQualifiers, new RowBounds(0, 10)))
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setNameOrKeyQuery("pROvisiONed.proJEcT").setPartialMatchOnKey(true).build(), 0, 10))
+      .extracting(ComponentDto::uuid)
+      .containsExactly(provisionedProject.uuid());
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), "missing", projectQualifiers, new RowBounds(0, 10))).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setNameOrKeyQuery("missing").setPartialMatchOnKey(true).build(), 0, 10)).isEmpty();
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), "to be escaped '\"\\%", projectQualifiers, new RowBounds(0, 10))).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setNameOrKeyQuery("to be escaped '\"\\%").setPartialMatchOnKey(true).build(), 0, 10))
       .isEmpty();
 
     // match name
     assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), "ned proj", projectQualifiers, new RowBounds(0, 10)))
+      .extracting(ComponentDto::uuid)
+      .containsExactly(provisionedProject.uuid());
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setNameOrKeyQuery("ned proj").setPartialMatchOnKey(true).build(), 0, 10))
       .extracting(ComponentDto::uuid)
       .containsExactly(provisionedProject.uuid());
   }
