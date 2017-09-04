@@ -145,7 +145,7 @@ public class HealthCheckerImplTest {
     when(webServer.isStandalone()).thenReturn(false);
     HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], new ClusterHealthCheck[0], sharedHealthState);
 
-    assertThat(underTest.checkCluster()).isEqualTo(Health.GREEN);
+    assertThat(underTest.checkCluster().getHealth()).isEqualTo(Health.GREEN);
   }
 
   @Test
@@ -154,7 +154,7 @@ public class HealthCheckerImplTest {
     List<Health.Status> statuses = IntStream.range(1, 1 + random.nextInt(20)).mapToObj(i -> GREEN).collect(Collectors.toList());
     HealthCheckerImpl underTest = newClusterHealthCheckerImpl(statuses.stream());
 
-    assertThat(underTest.checkCluster().getStatus())
+    assertThat(underTest.checkCluster().getHealth().getStatus())
       .describedAs("%s should have been computed from %s statuses", GREEN, statuses)
       .isEqualTo(GREEN);
   }
@@ -169,7 +169,7 @@ public class HealthCheckerImplTest {
     Collections.shuffle(statuses);
     HealthCheckerImpl underTest = newClusterHealthCheckerImpl(statuses.stream());
 
-    assertThat(underTest.checkCluster().getStatus())
+    assertThat(underTest.checkCluster().getHealth().getStatus())
       .describedAs("%s should have been computed from %s statuses", YELLOW, statuses)
       .isEqualTo(YELLOW);
   }
@@ -187,7 +187,7 @@ public class HealthCheckerImplTest {
     Collections.shuffle(statuses);
     HealthCheckerImpl underTest = newClusterHealthCheckerImpl(statuses.stream());
 
-    assertThat(underTest.checkCluster().getStatus())
+    assertThat(underTest.checkCluster().getHealth().getStatus())
       .describedAs("%s should have been computed from %s statuses", RED, statuses)
       .isEqualTo(RED);
   }
@@ -206,7 +206,7 @@ public class HealthCheckerImplTest {
 
     HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], clusterHealthChecks, sharedHealthState);
 
-    assertThat(underTest.checkCluster().getCauses()).containsOnly(expectedCauses);
+    assertThat(underTest.checkCluster().getHealth().getCauses()).containsOnly(expectedCauses);
   }
 
   @Test
@@ -227,6 +227,18 @@ public class HealthCheckerImplTest {
     for (ClusterHealthCheck mockedClusterHealthCheck : mockedClusterHealthChecks) {
       verify(mockedClusterHealthCheck).check(same(nodeHealths));
     }
+  }
+
+  @Test
+  public void checkCluster_returns_NodeHealths_returned_by_HealthState() {
+    when(webServer.isStandalone()).thenReturn(false);
+    Set<NodeHealth> nodeHealths = IntStream.range(0, 1 + random.nextInt(4)).mapToObj(i -> randomNodeHealth()).collect(Collectors.toSet());
+    when(sharedHealthState.readAll()).thenReturn(nodeHealths);
+
+    HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], new ClusterHealthCheck[0], sharedHealthState);
+
+    ClusterHealth clusterHealth = underTest.checkCluster();
+    assertThat(clusterHealth.getNodes()).isEqualTo(nodeHealths);
   }
 
   private NodeHealth randomNodeHealth() {

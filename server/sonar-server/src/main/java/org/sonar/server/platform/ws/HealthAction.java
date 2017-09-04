@@ -19,47 +19,33 @@
  */
 package org.sonar.server.platform.ws;
 
-import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.health.Health;
-import org.sonar.server.health.HealthChecker;
+import org.sonar.server.platform.WebServer;
 import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.WsSystem;
 
 public class HealthAction implements SystemWsAction {
-  private final HealthChecker healthChecker;
+  private final WebServer webServer;
+  private final HealthActionSupport support;
 
-  public HealthAction(HealthChecker healthChecker) {
-    this.healthChecker = healthChecker;
+  public HealthAction(WebServer webServer, HealthActionSupport support) {
+    this.webServer = webServer;
+    this.support = support;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction("health")
-      .setDescription("Provide health status of the current SonarQube instance." +
-        "<p>status: the health status" +
-        " <ul>" +
-        " <li>GREEN: SonarQube is fully operational</li>" +
-        " <li>YELLOW: SonarQube is operational but something must be fixed to be fully operational</li>" +
-        " <li>RED: SonarQube is not operational</li>" +
-        " </ul>" +
-        "</p>")
-      .setSince("6.6")
-      .setResponseExample(Resources.getResource(this.getClass(), "example-health.json"))
-      .setHandler(this);
+    support.define(controller, this);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    Health check = healthChecker.checkNode();
-    WsSystem.HealthResponse.Builder responseBuilder = WsSystem.HealthResponse.newBuilder()
-      .setHealth(WsSystem.Health.valueOf(check.getStatus().name()));
-    WsSystem.Cause.Builder causeBuilder = WsSystem.Cause.newBuilder();
-    check.getCauses().forEach(str -> responseBuilder.addCauses(causeBuilder.clear().setMessage(str).build()));
-
-    WsUtils.writeProtobuf(responseBuilder.build(), request, response);
+    if (webServer.isStandalone()) {
+      WsUtils.writeProtobuf(support.checkNodeHealth(), request, response);
+    } else {
+      WsUtils.writeProtobuf(support.checkClusterHealth(), request, response);
+    }
   }
 
 }

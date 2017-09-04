@@ -31,7 +31,7 @@ public class Health {
   /**
    * The GREEN status without any cause as a constant, for convenience and optimisation.
    */
-  static final Health GREEN = newHealthCheckBuilder()
+  public static final Health GREEN = newHealthCheckBuilder()
     .setStatus(Status.GREEN)
     .build();
 

@@ -17,19 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.platform.ws;
 
-public interface HealthChecker {
-  /**
-   * Perform a check of the health of the current SonarQube node, either as a standalone node or as a member
-   * of a cluster.
-   */
-  Health checkNode();
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.WsUtils;
 
-  /**
-   * Perform a check of the health of the SonarQube cluster.
-   *
-   * @throws IllegalStateException if clustering is not enabled.
-   */
-  ClusterHealth checkCluster();
+public class SafeModeHealthAction implements SystemWsAction {
+  private final HealthActionSupport support;
+
+  public SafeModeHealthAction(HealthActionSupport support) {
+    this.support = support;
+  }
+
+  @Override
+  public void define(WebService.NewController controller) {
+    support.define(controller, this);
+  }
+
+  @Override
+  public void handle(Request request, Response response) throws Exception {
+    WsUtils.writeProtobuf(support.checkNodeHealth(), request, response);
+  }
 }
