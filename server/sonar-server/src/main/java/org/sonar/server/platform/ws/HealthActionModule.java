@@ -42,9 +42,10 @@ public class HealthActionModule extends Module {
     // NodeHealthCheck implementations
     add(WebServerStatusNodeCheck.class,
       DbConnectionNodeCheck.class,
-      EsStatusNodeCheck.class,
       CeStatusNodeCheck.class);
-    if (!webServer.isStandalone()) {
+    if (webServer.isStandalone()) {
+      add(EsStatusNodeCheck.class);
+    } else {
       // ClusterHealthCheck implementations
       add(EsStatusClusterCheck.class,
         AppNodeClusterCheck.class,
