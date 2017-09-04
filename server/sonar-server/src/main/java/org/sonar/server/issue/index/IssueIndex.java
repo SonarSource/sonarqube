@@ -717,6 +717,7 @@ public class IssueIndex {
       .setQuery(
         boolQuery()
           .must(termsQuery(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, branchUuids))
+          .mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION))
           .must(termQuery(IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(false))))
       .setSize(0)
       .addAggregation(AggregationBuilders.terms("branchUuids")
