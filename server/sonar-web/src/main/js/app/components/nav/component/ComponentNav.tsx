@@ -113,6 +113,9 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
           component={this.props.component}
           conf={this.props.conf}
           incremental={this.state.incremental}
+          isInProgress={this.state.isInProgress}
+          isFailed={this.state.isFailed}
+          isPending={this.state.isPending}
         />
 
         <ComponentNavMenu

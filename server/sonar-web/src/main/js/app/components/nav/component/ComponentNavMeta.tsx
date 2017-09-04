@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import IncrementalBadge from './IncrementalBadge';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import { Branch, Component, ComponentConfiguration } from '../../../types';
@@ -44,6 +45,8 @@ export default function ComponentNavMeta(props: Props) {
     (window as any).baseUrl +
     `/project/background_tasks?id=${encodeURIComponent(props.component.key)}`;
 
+  const shortBranch = props.branch && isShortLivingBranch(props.branch);
+
   if (props.isInProgress) {
     const tooltip = canSeeBackgroundTasks
       ? translateWithParameters('component_navigation.status.in_progress.admin', backgroundTasksUrl)
@@ -53,7 +56,7 @@ export default function ComponentNavMeta(props: Props) {
         key="isInProgress"
         overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
         mouseLeaveDelay={2}>
-        <li>
+        <li className={classNames({ 'navbar-context-meta-branch': shortBranch })}>
           <i className="spinner" style={{ marginTop: '-1px' }} />{' '}
           <span className="text-info">{translate('background_task.status.IN_PROGRESS')}</span>
         </li>
@@ -68,7 +71,7 @@ export default function ComponentNavMeta(props: Props) {
         key="isPending"
         overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
         mouseLeaveDelay={2}>
-        <li>
+        <li className={classNames({ 'navbar-context-meta-branch': shortBranch })}>
           <PendingIcon /> <span>{translate('background_task.status.PENDING')}</span>
         </li>
       </Tooltip>
@@ -82,7 +85,7 @@ export default function ComponentNavMeta(props: Props) {
         key="isFailed"
         overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
         mouseLeaveDelay={2}>
-        <li>
+        <li className={classNames({ 'navbar-context-meta-branch': shortBranch })}>
           <span className="badge badge-danger">
             {translate('background_task.status.FAILED')}
           </span>
@@ -91,7 +94,7 @@ export default function ComponentNavMeta(props: Props) {
     );
   }
 
-  if (props.component.analysisDate && (!props.branch || !isShortLivingBranch(props.branch))) {
+  if (props.component.analysisDate && !shortBranch) {
     metaList.push(
       <li key="analysisDate">
         <DateTimeFormatter date={props.component.analysisDate} />
@@ -99,7 +102,7 @@ export default function ComponentNavMeta(props: Props) {
     );
   }
 
-  if (props.component.version && (!props.branch || !isShortLivingBranch(props.branch))) {
+  if (props.component.version && !shortBranch) {
     metaList.push(
       <li key="version">
         Version {props.component.version}
@@ -109,16 +112,16 @@ export default function ComponentNavMeta(props: Props) {
 
   if (props.incremental) {
     metaList.push(
-      <li key="incremental">
+      <li key="incremental" className={classNames({ 'navbar-context-meta-branch': shortBranch })}>
         <IncrementalBadge />
       </li>
     );
   }
 
-  if (props.branch && isShortLivingBranch(props.branch)) {
+  if (shortBranch) {
     metaList.push(
       <li className="navbar-context-meta-branch" key="branch-status">
-        <BranchStatus branch={props.branch} />
+        <BranchStatus branch={props.branch!} />
       </li>
     );
   }
