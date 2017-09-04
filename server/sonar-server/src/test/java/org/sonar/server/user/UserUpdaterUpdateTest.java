@@ -124,7 +124,6 @@ public class UserUpdaterUpdateTest {
     underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@email.com")
-      .setPassword(null)
       .setExternalIdentity(new ExternalIdentity("github", "john")), u -> {
       });
 
@@ -142,7 +141,6 @@ public class UserUpdaterUpdateTest {
     underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@email.com")
-      .setPassword(null)
       .setExternalIdentity(new ExternalIdentity("github", "john")), u -> {
       });
 

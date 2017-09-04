@@ -637,7 +637,7 @@ public class UserUpdaterCreateTest {
   }
 
   @Test
-  public void update_external_provider_when_reactivating_user() {
+  public void reactivate_user_with_external_provider() {
     db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
       .setLocal(true));
     createDefaultGroup();
@@ -651,9 +651,29 @@ public class UserUpdaterCreateTest {
     session.commit();
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
+    assertThat(dto.isLocal()).isFalse();
     assertThat(dto.getExternalIdentity()).isEqualTo("john");
     assertThat(dto.getExternalIdentityProvider()).isEqualTo("github");
-    assertThat(dto.isLocal()).isFalse();
+  }
+
+  @Test
+  public void reactivate_user_with_local_provider() {
+    db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
+      .setLocal(true));
+    createDefaultGroup();
+
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
+      .setLogin(DEFAULT_LOGIN)
+      .setName("Marius2")
+      .setPassword("password")
+      .build(), u -> {
+    });
+    session.commit();
+
+    UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
+    assertThat(dto.isLocal()).isTrue();
+    assertThat(dto.getExternalIdentity()).isEqualTo(DEFAULT_LOGIN);
+    assertThat(dto.getExternalIdentityProvider()).isEqualTo("sonarqube");
   }
 
   @Test
