@@ -240,31 +240,6 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).selectAllRootsByOrganization(organizationUuid);
   }
 
-  /**
-   * Select a page of provisioned (root) components. Results are ordered by ascending name.
-   * @param dbSession
-   * @param organizationUuid uuid of the organization
-   * @param textQuery optional text query to match component name or key
-   * @param qualifiers filter on qualifiers. Must not be null nor empty
-   * @param rowBounds pagination
-   */
-  public List<ComponentDto> selectProvisioned(DbSession dbSession, String organizationUuid, @Nullable String textQuery, Set<String> qualifiers, RowBounds rowBounds) {
-    checkArgument(!qualifiers.isEmpty(), "qualifiers must not be empty");
-    return mapper(dbSession).selectProvisioned(organizationUuid, buildUpperLikeSql(textQuery), qualifiers, rowBounds);
-  }
-
-  /**
-   * Count number of provisioned (root) components.
-   * @param dbSession
-   * @param organizationUuid uuid of the organization
-   * @param textQuery optional text query to match component name or key
-   * @param qualifiers filter on qualifiers. Must not be null nor empty
-   */
-  public int countProvisioned(DbSession dbSession, String organizationUuid, @Nullable String textQuery, Set<String> qualifiers) {
-    checkArgument(!qualifiers.isEmpty(), "qualifiers must not be empty");
-    return mapper(dbSession).countProvisioned(organizationUuid, buildUpperLikeSql(textQuery), qualifiers);
-  }
-
   public List<ComponentDto> selectGhostProjects(DbSession session, String organizationUuid, @Nullable String query, int offset, int limit) {
     return mapper(session).selectGhostProjects(organizationUuid, buildUpperLikeSql(query), new RowBounds(offset, limit));
   }
