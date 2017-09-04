@@ -31,6 +31,7 @@ import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.WsUserTokens;
+import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
@@ -38,12 +39,14 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.user.CreateRequest;
 import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
 import org.sonarqube.ws.client.usertoken.SearchWsRequest;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
@@ -226,6 +229,26 @@ public class LocalAuthenticationTest {
     assertThat(checkAuthenticationWithAnyWS("test", "wrong").code()).isEqualTo(401);
     assertThat(checkAuthenticationWithAnyWS("test", null).code()).isEqualTo(401);
     assertThat(checkAuthenticationWithAnyWS(null, null).code()).isEqualTo(401);
+  }
+
+  @Test
+  public void authenticate_on_user_that_was_disabled() {
+    User user = tester.users().generate(u -> u.setLogin("test").setPassword("password"));
+    tester.users().service().deactivate(user.getLogin());
+
+    tester.users().service().create(CreateRequest.builder()
+      .setLogin("test")
+      .setName("Test")
+      .setEmail("test@email.com")
+      .setScmAccounts(asList("test1", "test2"))
+      .setPassword("password")
+      .build());
+
+    assertThat(checkAuthenticationWithAuthenticateWebService("test", "password")).isTrue();
+    assertThat(tester.users().getByLogin("test").get())
+      .extracting(WsUsers.SearchWsResponse.User::getLogin, WsUsers.SearchWsResponse.User::getName, WsUsers.SearchWsResponse.User::getEmail, u -> u.getScmAccounts().getScmAccountsList(),
+        WsUsers.SearchWsResponse.User::getExternalIdentity, WsUsers.SearchWsResponse.User::getExternalProvider)
+      .containsOnly("test", "Test", "test@email.com", asList("test1", "test2"), "test", "sonarqube");
   }
 
   private boolean checkAuthenticationWithAuthenticateWebService(String login, String password) {
