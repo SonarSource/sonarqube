@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -68,6 +69,7 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
@@ -243,6 +245,20 @@ public class SearchActionTest {
   }
 
   @Test
+  public void provisioned_projects() {
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    ComponentDto provisionedProject = db.components().insertPrivateProject();
+    ComponentDto analyzedProject = db.components().insertPrivateProject();
+    db.components().insertSnapshot(newAnalysis(analyzedProject));
+
+    SearchWsResponse response = call(SearchWsRequest.builder().setOnProvisionedOnly(true).build());
+
+    assertThat(response.getComponentsList()).extracting(Component::getKey)
+      .containsExactlyInAnyOrder(provisionedProject.getKey())
+      .doesNotContain(analyzedProject.getKey());
+  }
+
+  @Test
   public void fail_when_not_system_admin() throws Exception {
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
     expectedException.expect(ForbiddenException.class);
@@ -275,16 +291,17 @@ public class SearchActionTest {
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("6.3");
     assertThat(action.handler()).isEqualTo(ws.getDef().handler());
-    assertThat(action.params()).hasSize(7);
+    assertThat(action.params()).hasSize(8).extracting(Param::key)
+      .containsExactlyInAnyOrder("organization", "q", "qualifiers", "p", "ps", "visibility", "analyzedBefore", "onProvisionedOnly");
     assertThat(action.responseExample()).isEqualTo(getClass().getResource("search-example.json"));
 
-    WebService.Param organization = action.param("organization");
+    Param organization = action.param("organization");
     Assertions.assertThat(organization.description()).isEqualTo("The key of the organization");
     Assertions.assertThat(organization.isInternal()).isTrue();
     Assertions.assertThat(organization.isRequired()).isFalse();
     Assertions.assertThat(organization.since()).isEqualTo("6.3");
 
-    WebService.Param qParam = action.param("q");
+    Param qParam = action.param("q");
     assertThat(qParam.isRequired()).isFalse();
     assertThat(qParam.description()).isEqualTo("Limit search to: " +
       "<ul>" +
@@ -292,30 +309,35 @@ public class SearchActionTest {
       "<li>component keys that contain the supplied string</li>" +
       "</ul>");
 
-    WebService.Param qualifierParam = action.param("qualifiers");
+    Param qualifierParam = action.param("qualifiers");
     assertThat(qualifierParam.isRequired()).isFalse();
     assertThat(qualifierParam.description()).isEqualTo("Comma-separated list of component qualifiers. Filter the results with the specified qualifiers");
     assertThat(qualifierParam.possibleValues()).containsOnly("TRK", "VW", "APP");
     assertThat(qualifierParam.defaultValue()).isEqualTo("TRK");
 
-    WebService.Param pParam = action.param("p");
+    Param pParam = action.param("p");
     assertThat(pParam.isRequired()).isFalse();
     assertThat(pParam.defaultValue()).isEqualTo("1");
     assertThat(pParam.description()).isEqualTo("1-based page number");
 
-    WebService.Param psParam = action.param("ps");
+    Param psParam = action.param("ps");
     assertThat(psParam.isRequired()).isFalse();
     assertThat(psParam.defaultValue()).isEqualTo("100");
     assertThat(psParam.description()).isEqualTo("Page size. Must be greater than 0 and less than 500");
 
-    WebService.Param visibilityParam = action.param("visibility");
+    Param visibilityParam = action.param("visibility");
     assertThat(visibilityParam.isRequired()).isFalse();
     assertThat(visibilityParam.description()).isEqualTo("Filter the projects that should be visible to everyone (public), or only specific user/groups (private).<br/>" +
       "If no visibility is specified, the default project visibility of the organization will be used.");
 
-    WebService.Param lastAnalysisBefore = action.param("analyzedBefore");
+    Param lastAnalysisBefore = action.param("analyzedBefore");
     assertThat(lastAnalysisBefore.isRequired()).isFalse();
     assertThat(lastAnalysisBefore.since()).isEqualTo("6.6");
+
+    Param onProvisionedOnly = action.param("onProvisionedOnly");
+    assertThat(onProvisionedOnly.possibleValues()).containsExactlyInAnyOrder("true", "false", "yes", "no");
+    assertThat(onProvisionedOnly.defaultValue()).isEqualTo("false");
+    assertThat(onProvisionedOnly.since()).isEqualTo("6.6");
   }
 
   @Test
@@ -352,6 +374,7 @@ public class SearchActionTest {
     setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(PAGE_SIZE, String.valueOf(pageSize)));
     setNullable(wsRequest.getVisibility(), v -> request.setParam(PARAM_VISIBILITY, v));
     setNullable(wsRequest.getAnalyzedBefore(), d -> request.setParam(PARAM_ANALYZED_BEFORE, d));
+    request.setParam(PARAM_ON_PROVISIONED_ONLY, String.valueOf(wsRequest.isOnProvisionedOnly()));
     return request.executeProtobuf(SearchWsResponse.class);
   }
 

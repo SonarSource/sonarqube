@@ -31,7 +31,6 @@ import org.sonarqube.ws.client.WsConnector;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.api.utils.DateUtils.formatDateTimeNullSafe;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_BULK_UPDATE_KEY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_SEARCH;
@@ -42,6 +41,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZE
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
@@ -117,7 +117,8 @@ public class ProjectsService extends BaseService {
       .setParam(PARAM_ANALYZED_BEFORE, request.getAnalyzedBefore())
       .setParam(TEXT_QUERY, request.getQuery())
       .setParam(PAGE, request.getPage())
-      .setParam(PAGE_SIZE, request.getPageSize());
+      .setParam(PAGE_SIZE, request.getPageSize())
+      .setParam(PARAM_ON_PROVISIONED_ONLY, request.isOnProvisionedOnly());
     return call(get, SearchWsResponse.parser());
   }
 

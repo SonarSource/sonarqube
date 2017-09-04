@@ -250,8 +250,8 @@
   <sql id="sqlSelectByQuery">
     from projects p
     <if test="query.analyzedBefore!=null">
-      inner join snapshots s on s.component_uuid=p.uuid and s.status='P' and s.islast=${_true}
-        and s.created_at &lt; #{query.analyzedBefore,jdbcType=BIGINT}
+      inner join snapshots sa on sa.component_uuid=p.uuid
+        and sa.status='P' and sa.islast=${_true} and sa.created_at &lt; #{query.analyzedBefore,jdbcType=BIGINT}
     </if>
     where
       p.enabled=${_true}
@@ -295,6 +295,9 @@
         <if test="query.private.equals(false)">
           and p.private=${_false}
         </if>
+      </if>
+      <if test="query.isOnProvisionedOnly()">
+        and not exists(select 1 from snapshots sp where sp.component_uuid=p.uuid)
       </if>
   </sql>
 

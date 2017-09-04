@@ -44,6 +44,8 @@ public class ComponentQueryTest {
     assertThat(underTest.getLanguage()).isEqualTo("java");
     assertThat(underTest.getQualifiers()).containsOnly(PROJECT);
     assertThat(underTest.getAnalyzedBefore()).isEqualTo(1_000_000_000L);
+    assertThat(underTest.isOnProvisionedOnly()).isFalse();
+    assertThat(underTest.isPartialMatchOnKey()).isFalse();
   }
 
   @Test
