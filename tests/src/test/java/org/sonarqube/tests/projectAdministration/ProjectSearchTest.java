@@ -31,6 +31,7 @@ import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.WsProjects.SearchWsResponse;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.project.SearchWsRequest;
 
 import static java.util.Collections.singletonList;
@@ -85,6 +86,24 @@ public class ProjectSearchTest {
     assertThat(result.getComponentsList()).extracting(SearchWsResponse.Component::getKey)
       .containsExactlyInAnyOrder(lowerCaseProject.getKey(), upperCaseProject.getKey())
       .doesNotContain(anotherProject.getKey());
+  }
+
+  @Test
+  public void search_provisioned_projects() {
+    Organizations.Organization organization = tester.organizations().generate();
+    CreateWsResponse.Project firstProvisionedProject = tester.projects().generate(organization);
+    CreateWsResponse.Project secondProvisionedProject = tester.projects().generate(organization);
+    CreateWsResponse.Project analyzedProject = tester.projects().generate(organization);
+
+    analyzeProject(analyzedProject.getKey(), organization.getKey());
+
+    String result = tester.wsClient().wsConnector().call(new GetRequest("api/projects/provisioned")
+      .setParam("organization", organization.getKey()))
+      .failIfNotSuccessful().content();
+
+    assertThat(result)
+      .contains(firstProvisionedProject.getKey(), secondProvisionedProject.getKey())
+      .doesNotContain(analyzedProject.getKey());
   }
 
   private void analyzeProject(String projectKey, Date analysisDate, String organizationKey) {
