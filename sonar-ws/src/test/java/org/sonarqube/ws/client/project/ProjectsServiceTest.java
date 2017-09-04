@@ -139,6 +139,7 @@ public class ProjectsServiceTest {
       .setQuery("project")
       .setQualifiers(asList("TRK", "VW"))
       .setAnalyzedBefore("2017-09-01")
+      .setOnProvisionedOnly(true)
       .setPage(3)
       .setPageSize(10)
       .build());
@@ -149,6 +150,7 @@ public class ProjectsServiceTest {
       .hasParam("q", "project")
       .hasParam("analyzedBefore", "2017-09-01")
       .hasParam("qualifiers", "TRK,VW")
+      .hasParam("onProvisionedOnly", "true")
       .hasParam(PAGE, 3)
       .hasParam(PAGE_SIZE, 10)
       .andNoOtherParam();
