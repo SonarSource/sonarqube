@@ -241,7 +241,7 @@ public class ProjectScanContainer extends ComponentContainer {
     String branchName = props.property(ScannerProperties.BRANCH_NAME);
     if (branchName != null) {
       BranchConfiguration branchConfig = getComponentByType(BranchConfiguration.class);
-      LOG.info("Branch name: {}, type: {}", branchName, branchConfig.branchType().toString().toLowerCase());
+      LOG.info("Branch name: {}, type: {}", branchName, toDisplayName(branchConfig.branchType()));
     }
 
     LOG.debug("Start recursive analysis of project modules");
@@ -250,6 +250,15 @@ public class ProjectScanContainer extends ComponentContainer {
     if (analysisMode.isMediumTest()) {
       getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();
     }
+  }
+
+  private static String toDisplayName(BranchConfiguration.BranchType branchType) {
+    if (branchType == BranchConfiguration.BranchType.LONG) {
+      return "long living";
+    } else if (branchType == BranchConfiguration.BranchType.SHORT) {
+      return "short living";
+    }
+    throw new UnsupportedOperationException("unknown branch type: " + branchType);
   }
 
   private void scanRecursively(InputModuleHierarchy tree, DefaultInputModule module) {
