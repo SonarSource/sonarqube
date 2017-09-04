@@ -279,7 +279,6 @@ public class AppNodeClusterCheckTest {
         .setPort(1 + random.nextInt(88))
         .setStarted(1 + random.nextInt(54))
         .build())
-      .setDate(1 + random.nextInt(2323))
       .build();
   }
 
