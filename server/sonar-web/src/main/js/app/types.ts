@@ -60,7 +60,7 @@ export interface ComponentExtension {
 }
 
 export interface Component {
-  analysisDate: string;
+  analysisDate?: string;
   breadcrumbs: Array<{
     key: string;
     name: string;
@@ -75,7 +75,7 @@ export interface Component {
   path?: string;
   qualifier: string;
   refKey?: string;
-  version: string;
+  version?: string;
 }
 
 export interface ComponentConfiguration {
