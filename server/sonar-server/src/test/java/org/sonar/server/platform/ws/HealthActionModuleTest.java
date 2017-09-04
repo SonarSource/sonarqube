@@ -26,7 +26,9 @@ import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.health.CeStatusNodeCheck;
+import org.sonar.server.health.ClusterHealthCheck;
 import org.sonar.server.health.DbConnectionNodeCheck;
+import org.sonar.server.health.EsStatusClusterCheck;
 import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
 import org.sonar.server.health.NodeHealthCheck;
@@ -61,6 +63,18 @@ public class HealthActionModuleTest {
       .contains(DbConnectionNodeCheck.class)
       .contains(EsStatusNodeCheck.class)
       .contains(CeStatusNodeCheck.class);
+  }
+
+  @Test
+  public void verify_installed_ClusterHealthChecks_implementations() {
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+    List<Class<?>> checks = classesAddedToContainer(container).stream().filter(ClusterHealthCheck.class::isAssignableFrom).collect(Collectors.toList());
+    assertThat(checks)
+      .hasSize(1)
+      .contains(EsStatusClusterCheck.class);
   }
 
   private List<Class<?>> classesAddedToContainer(ComponentContainer container) {

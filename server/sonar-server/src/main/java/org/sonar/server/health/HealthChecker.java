@@ -25,4 +25,11 @@ public interface HealthChecker {
    * of a cluster.
    */
   Health checkNode();
+
+  /**
+   * Perform a check of the health of the SonarQube cluster.
+   *
+   * @throws IllegalStateException if clustering is not enabled.
+   */
+  Health checkCluster();
 }

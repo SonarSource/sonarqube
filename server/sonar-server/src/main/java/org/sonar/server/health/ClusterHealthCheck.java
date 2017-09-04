@@ -19,19 +19,9 @@
  */
 package org.sonar.server.health;
 
-import org.sonar.server.es.EsClient;
+import java.util.Set;
+import org.sonar.cluster.health.NodeHealth;
 
-/**
- * Checks the ElasticSearch cluster status.
- */
-public class EsStatusNodeCheck extends EsStatusCheck implements NodeHealthCheck {
-
-  public EsStatusNodeCheck(EsClient esClient) {
-    super(esClient);
-  }
-
-  @Override
-  public Health check() {
-    return super.checkEsStatus();
-  }
+public interface ClusterHealthCheck {
+  Health check(Set<NodeHealth> nodeHealths);
 }
