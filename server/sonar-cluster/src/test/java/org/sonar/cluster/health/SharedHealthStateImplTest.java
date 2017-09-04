@@ -94,21 +94,27 @@ public class SharedHealthStateImplTest {
   }
 
   @Test
-  public void readAll_returns_all_NodeHealth_in_map_sq_health_state() {
-    NodeHealth[] expected = IntStream.range(0, 1 + random.nextInt(6)).mapToObj(i -> randomNodeHealth()).toArray(NodeHealth[]::new);
-    Map<String, NodeHealth> map = new HashMap<>();
+  public void readAll_returns_all_NodeHealth_in_map_sq_health_state_for_existing_client_uuids() {
+    NodeHealth[] nodeHealths = IntStream.range(0, 1 + random.nextInt(6)).mapToObj(i -> randomNodeHealth()).toArray(NodeHealth[]::new);
+    Map<String, NodeHealth> allNodeHealths = new HashMap<>();
+    Map<String, NodeHealth> expected = new HashMap<>();
     String randomUuidBase = randomAlphanumeric(5);
-    for (int i = 0; i < expected.length; i++) {
-      map.put(randomUuidBase + i, expected[i]);
+    for (int i = 0; i < nodeHealths.length; i++) {
+      String memberUuid = randomUuidBase + i;
+      allNodeHealths.put(memberUuid, nodeHealths[i]);
+      if (random.nextBoolean()) {
+        expected.put(memberUuid, nodeHealths[i]);
+      }
     }
-    doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
+    doReturn(allNodeHealths).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
+    when(hazelcastClient.getMemberUuids()).thenReturn(expected.keySet());
 
-    assertThat(underTest.readAll()).containsOnly(expected);
+    assertThat(underTest.readAll()).containsOnly(expected.values().stream().toArray(NodeHealth[]::new));
     assertThat(logTester.logs()).isEmpty();
   }
 
   @Test
-  public void readAll_logs_map_sq_health_state_content_if_TRACE() {
+  public void readAll_logs_map_sq_health_state_content_and_the_content_effectively_returned_if_TRACE() {
     logTester.setLevel(LoggerLevel.TRACE);
     Map<String, NodeHealth> map = new HashMap<>();
     map.put(randomAlphanumeric(44), randomNodeHealth());
@@ -117,7 +123,7 @@ public class SharedHealthStateImplTest {
     underTest.readAll();
 
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.TRACE).iterator().next()).isEqualTo("Reading " + map);
+    assertThat(logTester.logs(LoggerLevel.TRACE).iterator().next()).isEqualTo("Reading " + map + " and keeping []");
   }
 
   @Test
