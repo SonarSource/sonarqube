@@ -23,7 +23,6 @@ import java.util.Random;
 import java.util.function.Supplier;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
-import org.sonar.api.utils.System2;
 import org.sonar.cluster.health.NodeDetails;
 import org.sonar.cluster.health.NodeHealth;
 import org.sonar.cluster.health.NodeHealthProvider;
@@ -38,10 +37,8 @@ public class NodeHealthProviderImpl implements NodeHealthProvider {
   private final HealthChecker healthChecker;
   private final NodeHealth.Builder nodeHealthBuilder;
   private final NodeDetails nodeDetails;
-  private final System2 system2;
 
-  public NodeHealthProviderImpl(Configuration configuration, HealthChecker healthChecker, Server server, System2 system2) {
-    this.system2 = system2;
+  public NodeHealthProviderImpl(Configuration configuration, HealthChecker healthChecker, Server server) {
     this.healthChecker = healthChecker;
     this.nodeHealthBuilder = newNodeHealthBuilder();
     this.nodeDetails = newNodeDetailsBuilder()
@@ -77,14 +74,12 @@ public class NodeHealthProviderImpl implements NodeHealthProvider {
   @Override
   public NodeHealth get() {
     Health nodeHealth = healthChecker.checkNode();
-    long now = system2.now();
     this.nodeHealthBuilder
       .clearCauses()
       .setStatus(NodeHealth.Status.valueOf(nodeHealth.getStatus().name()));
     nodeHealth.getCauses().forEach(this.nodeHealthBuilder::addCause);
 
     return this.nodeHealthBuilder
-      .setDate(now)
       .setDetails(nodeDetails)
       .build();
   }

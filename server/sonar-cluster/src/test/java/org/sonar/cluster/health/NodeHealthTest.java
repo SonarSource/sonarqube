@@ -59,14 +59,6 @@ public class NodeHealthTest {
   }
 
   @Test
-  public void setDate_throws_IAR_if_arg_is_less_then_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("date must be > 0");
-
-    builderUnderTest.setDate(-random.nextInt(22));
-  }
-
-  @Test
   public void build_throws_NPE_if_status_is_null() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("status can't be null");
@@ -85,18 +77,6 @@ public class NodeHealthTest {
   }
 
   @Test
-  public void build_throws_IAE_if_date_is_less_than_1() {
-    builderUnderTest
-      .setStatus(randomStatus)
-      .setDetails(testSupport.randomNodeDetails());
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("date must be > 0");
-
-    builderUnderTest.build();
-  }
-
-  @Test
   public void clearClauses_clears_clauses_of_builder() {
     NodeHealth.Builder underTest = testSupport.randomBuilder();
     NodeHealth original = underTest
@@ -107,7 +87,6 @@ public class NodeHealthTest {
 
     NodeHealth second = underTest.build();
     assertThat(second.getStatus()).isEqualTo(original.getStatus());
-    assertThat(second.getDate()).isEqualTo(original.getDate());
     assertThat(second.getDetails()).isEqualTo(original.getDetails());
     assertThat(second.getCauses()).isEmpty();
   }
@@ -120,12 +99,10 @@ public class NodeHealthTest {
 
     NodeHealth.Status newRandomStatus = NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)];
     NodeDetails newNodeDetails = testSupport.randomNodeDetails();
-    long newDate = 1 + random.nextInt(666);
     builder
       .clearCauses()
       .setStatus(newRandomStatus)
-      .setDetails(newNodeDetails)
-      .setDate(newDate);
+      .setDetails(newNodeDetails);
     String[] newCauses = IntStream.range(0, 1 + random.nextInt(2)).mapToObj(i -> randomAlphanumeric(4)).toArray(String[]::new);
     Arrays.stream(newCauses).forEach(builder::addCause);
 
@@ -133,7 +110,6 @@ public class NodeHealthTest {
 
     assertThat(second).isEqualTo(original);
     assertThat(newNodeHealth.getStatus()).isEqualTo(newRandomStatus);
-    assertThat(newNodeHealth.getDate()).isEqualTo(newDate);
     assertThat(newNodeHealth.getDetails()).isEqualTo(newNodeDetails);
     assertThat(newNodeHealth.getCauses()).containsOnly(newCauses);
   }
@@ -176,8 +152,7 @@ public class NodeHealthTest {
   public void class_is_serializable_without_causes() throws IOException, ClassNotFoundException {
     NodeHealth.Builder builder = newNodeHealthBuilder()
       .setStatus(randomStatus)
-      .setDetails(testSupport.randomNodeDetails())
-      .setDate(1 + random.nextInt(999));
+      .setDetails(testSupport.randomNodeDetails());
     NodeHealth source = builder.build();
     byte[] bytes = testSupport.serialize(source);
 
@@ -189,28 +164,24 @@ public class NodeHealthTest {
   @Test
   public void verify_toString() {
     NodeDetails nodeDetails = testSupport.randomNodeDetails();
-    int date = 1 + random.nextInt(999);
     String cause = randomAlphanumeric(4);
     NodeHealth.Builder builder = builderUnderTest
       .setStatus(randomStatus)
       .setDetails(nodeDetails)
-      .setDate(date)
       .addCause(cause);
 
     NodeHealth underTest = builder.build();
 
     assertThat(underTest.toString())
-      .isEqualTo("NodeHealth{status=" + randomStatus + ", causes=[" + cause + "], details=" + nodeDetails + ", date=" + date + "}");
+      .isEqualTo("NodeHealth{status=" + randomStatus + ", causes=[" + cause + "], details=" + nodeDetails + "}");
   }
 
   @Test
   public void verify_getters() {
     NodeDetails nodeDetails = testSupport.randomNodeDetails();
-    int date = 1 + random.nextInt(999);
     NodeHealth.Builder builder = builderUnderTest
       .setStatus(randomStatus)
-      .setDetails(nodeDetails)
-      .setDate(date);
+      .setDetails(nodeDetails);
     String[] causes = IntStream.range(0, random.nextInt(10)).mapToObj(i -> randomAlphanumeric(4)).toArray(String[]::new);
     Arrays.stream(causes).forEach(builder::addCause);
 
@@ -218,7 +189,6 @@ public class NodeHealthTest {
 
     assertThat(underTest.getStatus()).isEqualTo(randomStatus);
     assertThat(underTest.getDetails()).isEqualTo(nodeDetails);
-    assertThat(underTest.getDate()).isEqualTo(date);
     assertThat(underTest.getCauses()).containsOnly(causes);
   }
 

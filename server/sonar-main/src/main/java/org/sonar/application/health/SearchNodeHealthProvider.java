@@ -32,12 +32,10 @@ import org.sonar.process.Props;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_PORT;
 
 public class SearchNodeHealthProvider implements NodeHealthProvider {
-  private final System2 system2;
   private final ClusterAppState clusterAppState;
   private final NodeDetails nodeDetails;
 
   public SearchNodeHealthProvider(Props props, System2 system2, ClusterAppState clusterAppState) {
-    this.system2 = system2;
     this.clusterAppState = clusterAppState;
     this.nodeDetails = NodeDetails.newNodeDetailsBuilder()
       .setType(NodeDetails.Type.SEARCH)
@@ -61,7 +59,6 @@ public class SearchNodeHealthProvider implements NodeHealthProvider {
     }
     return builder
       .setDetails(nodeDetails)
-      .setDate(system2.now())
       .build();
   }
 }

@@ -52,7 +52,6 @@ public class EsStatusClusterCheckTest {
           .setPort(1 + random.nextInt(96))
           .setStarted(1 + random.nextInt(966))
           .build())
-        .setDate(1 + random.nextInt(23))
         .build())
       .collect(Collectors.toSet());
     Health health = underTest.check(nodeHealths);
