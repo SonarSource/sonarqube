@@ -38,7 +38,6 @@ public class NodeHealth implements Externalizable {
   private Status status;
   private Set<String> causes;
   private NodeDetails details;
-  private long date;
 
   /**
    * Required for Serialization
@@ -50,7 +49,6 @@ public class NodeHealth implements Externalizable {
     this.status = builder.status;
     this.causes = ImmutableSet.copyOf(builder.causes);
     this.details = builder.details;
-    this.date = builder.date;
   }
 
   public static Builder newNodeHealthBuilder() {
@@ -69,10 +67,6 @@ public class NodeHealth implements Externalizable {
     return details;
   }
 
-  public long getDate() {
-    return date;
-  }
-
   @Override
   public void writeExternal(ObjectOutput out) throws IOException {
     out.writeInt(status.ordinal());
@@ -81,7 +75,6 @@ public class NodeHealth implements Externalizable {
       out.writeUTF(cause);
     }
     out.writeObject(details);
-    out.writeLong(date);
   }
 
   @Override
@@ -98,7 +91,6 @@ public class NodeHealth implements Externalizable {
       this.causes = ImmutableSet.of();
     }
     this.details = (NodeDetails) in.readObject();
-    this.date = in.readLong();
   }
 
   @Override
@@ -110,15 +102,14 @@ public class NodeHealth implements Externalizable {
       return false;
     }
     NodeHealth that = (NodeHealth) o;
-    return date == that.date &&
-      status == that.status &&
+    return status == that.status &&
       causes.equals(that.causes) &&
       details.equals(that.details);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(status, causes, details, date);
+    return Objects.hash(status, causes, details);
   }
 
   @Override
@@ -127,19 +118,16 @@ public class NodeHealth implements Externalizable {
       "status=" + status +
       ", causes=" + causes +
       ", details=" + details +
-      ", date=" + date +
       '}';
   }
 
   public static class Builder {
     private static final String STATUS_CANT_BE_NULL = "status can't be null";
     private static final String DETAILS_CANT_BE_NULL = "details can't be null";
-    private static final String DATE_MUST_BE_MORE_THAN_0 = "date must be > 0";
 
     private Status status;
     private Set<String> causes = new HashSet<>(0);
     private NodeDetails details;
-    private long date;
 
     private Builder() {
       // use static factory method
@@ -169,16 +157,9 @@ public class NodeHealth implements Externalizable {
       return this;
     }
 
-    public Builder setDate(long date) {
-      checkArgument(date > 0, DATE_MUST_BE_MORE_THAN_0);
-      this.date = date;
-      return this;
-    }
-
     public NodeHealth build() {
       requireNonNull(status, STATUS_CANT_BE_NULL);
       requireNonNull(details, DETAILS_CANT_BE_NULL);
-      checkArgument(date > 0, DATE_MUST_BE_MORE_THAN_0);
       return new NodeHealth(this);
     }
   }

@@ -98,7 +98,6 @@ public class HealthActionTest {
                   .setPort(999)
                   .setStarted(time)
                   .build())
-              .setDate(1 + random.nextInt(888))
               .build(),
             newNodeHealthBuilder()
               .setStatus(NodeHealth.Status.YELLOW)
@@ -111,7 +110,6 @@ public class HealthActionTest {
                   .setPort(999)
                   .setStarted(time)
                   .build())
-              .setDate(1 + random.nextInt(888))
               .build(),
             newNodeHealthBuilder()
               .setStatus(NodeHealth.Status.GREEN)
@@ -123,7 +121,6 @@ public class HealthActionTest {
                   .setPort(999)
                   .setStarted(time)
                   .build())
-              .setDate(1 + random.nextInt(888))
               .build(),
             newNodeHealthBuilder()
               .setStatus(NodeHealth.Status.GREEN)
@@ -135,7 +132,6 @@ public class HealthActionTest {
                   .setPort(999)
                   .setStarted(time)
                   .build())
-              .setDate(1 + random.nextInt(888))
               .build(),
             newNodeHealthBuilder()
               .setStatus(NodeHealth.Status.GREEN)
@@ -147,7 +143,6 @@ public class HealthActionTest {
                   .setPort(999)
                   .setStarted(time)
                   .build())
-              .setDate(1 + random.nextInt(888))
               .build())));
 
     TestResponse response = underTest.newRequest().execute();
@@ -255,7 +250,6 @@ public class HealthActionTest {
         .setPort(1 + random.nextInt(3))
         .setStarted(1 + random.nextInt(23))
         .build())
-      .setDate(1 + random.nextInt(343))
       .build();
   }
 
@@ -271,7 +265,6 @@ public class HealthActionTest {
         .setPort(port)
         .setStarted(started)
         .build())
-      .setDate(1 + random.nextInt(23))
       .build();
   }
 

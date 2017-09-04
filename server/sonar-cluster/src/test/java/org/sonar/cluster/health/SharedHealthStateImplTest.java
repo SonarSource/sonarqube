@@ -165,7 +165,6 @@ public class SharedHealthStateImplTest {
         .setPort(1 + random.nextInt(666))
         .setStarted(1 + random.nextInt(852))
         .build())
-      .setDate(1 + random.nextInt(999))
       .build();
   }
 }

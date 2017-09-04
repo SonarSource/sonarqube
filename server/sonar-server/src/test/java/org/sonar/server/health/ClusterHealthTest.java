@@ -110,7 +110,6 @@ public class ClusterHealthTest {
   private Set<NodeHealth> randomNodeHealths() {
     return IntStream.range(0, random.nextInt(4)).mapToObj(i -> NodeHealth.newNodeHealthBuilder()
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)])
-      .setDate(1 + random.nextInt(951))
       .setDetails(
         NodeDetails.newNodeDetailsBuilder()
           .setType(random.nextBoolean() ? NodeDetails.Type.SEARCH : NodeDetails.Type.APPLICATION)

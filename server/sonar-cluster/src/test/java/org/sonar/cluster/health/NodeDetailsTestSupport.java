@@ -55,8 +55,7 @@ public class NodeDetailsTestSupport {
   NodeHealth.Builder randomBuilder(int minCauseCount) {
     NodeHealth.Builder builder = newNodeHealthBuilder()
       .setStatus(randomStatus())
-      .setDetails(randomNodeDetails())
-      .setDate(1 + random.nextInt(33));
+      .setDetails(randomNodeDetails());
     IntStream.range(0, minCauseCount + random.nextInt(2)).mapToObj(i -> randomAlphanumeric(4)).forEach(builder::addCause);
     return builder;
   }

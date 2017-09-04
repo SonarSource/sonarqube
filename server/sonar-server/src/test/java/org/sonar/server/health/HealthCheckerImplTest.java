@@ -244,7 +244,6 @@ public class HealthCheckerImplTest {
   private NodeHealth randomNodeHealth() {
     return newNodeHealthBuilder()
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)])
-      .setDate(1 + random.nextInt(222))
       .setDetails(newNodeDetailsBuilder()
         .setType(random.nextBoolean() ? NodeDetails.Type.APPLICATION : NodeDetails.Type.SEARCH)
         .setName(randomAlphanumeric(10))

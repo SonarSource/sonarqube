@@ -19,7 +19,6 @@
  */
 package org.sonar.server.health;
 
-import java.util.Date;
 import java.util.function.Supplier;
 import org.sonar.NetworkUtils;
 import org.sonar.api.config.Configuration;
@@ -81,7 +80,6 @@ public class NodeHealthProviderImpl implements NodeHealthProvider {
     nodeHealth.getCauses().forEach(this.nodeHealthBuilder::addCause);
 
     return this.nodeHealthBuilder
-      .setDate(new Date().getTime())
       .setDetails(nodeDetails)
       .build();
   }
