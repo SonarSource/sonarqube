@@ -31,6 +31,7 @@ import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.WsProjects.SearchWsResponse;
+import org.sonarqube.ws.WsProjects.SearchWsResponse.Component;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.project.SearchWsRequest;
 
@@ -63,7 +64,7 @@ public class ProjectSearchTest {
       .setQualifiers(singletonList("TRK"))
       .setAnalyzedBefore(formatDate(oneYearAgo)).build());
 
-    assertThat(result.getComponentsList()).extracting(SearchWsResponse.Component::getKey).containsExactlyInAnyOrder(oldProject.getKey());
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(oldProject.getKey());
   }
 
   @Test
@@ -83,7 +84,7 @@ public class ProjectSearchTest {
       .setQuery("JeCt-K")
       .build());
 
-    assertThat(result.getComponentsList()).extracting(SearchWsResponse.Component::getKey)
+    assertThat(result.getComponentsList()).extracting(Component::getKey)
       .containsExactlyInAnyOrder(lowerCaseProject.getKey(), upperCaseProject.getKey())
       .doesNotContain(anotherProject.getKey());
   }
@@ -100,9 +101,14 @@ public class ProjectSearchTest {
     String result = tester.wsClient().wsConnector().call(new GetRequest("api/projects/provisioned")
       .setParam("organization", organization.getKey()))
       .failIfNotSuccessful().content();
+   SearchWsResponse searchResult = tester.wsClient().projects().search(SearchWsRequest.builder()
+     .setQualifiers(singletonList("TRK"))
+     .setOrganization(organization.getKey())
+     .setOnProvisionedOnly(true).build());
 
-    assertThat(result)
-      .contains(firstProvisionedProject.getKey(), secondProvisionedProject.getKey())
+    assertThat(result).contains(firstProvisionedProject.getKey(), secondProvisionedProject.getKey()).doesNotContain(analyzedProject.getKey());
+    assertThat(searchResult.getComponentsList()).extracting(Component::getKey)
+      .containsOnly(firstProvisionedProject.getKey(), secondProvisionedProject.getKey())
       .doesNotContain(analyzedProject.getKey());
   }
 

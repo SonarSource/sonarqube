@@ -36,6 +36,7 @@ public class ComponentQuery {
   private final Boolean isPrivate;
   private final Set<Long> componentIds;
   private final Long analyzedBefore;
+  private final boolean onProvisionedOnly;
 
   private ComponentQuery(Builder builder) {
     this.nameOrKeyQuery = builder.nameOrKeyQuery;
@@ -45,6 +46,7 @@ public class ComponentQuery {
     this.componentIds = builder.componentIds;
     this.isPrivate = builder.isPrivate;
     this.analyzedBefore = builder.analyzedBefore;
+    this.onProvisionedOnly = builder.onProvisionedOnly;
   }
 
   public String[] getQualifiers() {
@@ -91,6 +93,10 @@ public class ComponentQuery {
     return analyzedBefore;
   }
 
+  public boolean isOnProvisionedOnly() {
+    return onProvisionedOnly;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -103,6 +109,7 @@ public class ComponentQuery {
     private Boolean isPrivate;
     private Set<Long> componentIds;
     private Long analyzedBefore;
+    private boolean onProvisionedOnly = false;
 
     public Builder setNameOrKeyQuery(@Nullable String nameOrKeyQuery) {
       this.nameOrKeyQuery = nameOrKeyQuery;
@@ -139,6 +146,11 @@ public class ComponentQuery {
 
     public Builder setAnalyzedBefore(@Nullable Long analyzedBefore) {
       this.analyzedBefore = analyzedBefore;
+      return this;
+    }
+
+    public Builder setOnProvisionedOnly(boolean onProvisionedOnly) {
+      this.onProvisionedOnly = onProvisionedOnly;
       return this;
     }
 
