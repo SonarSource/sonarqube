@@ -146,7 +146,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   renderSingleBranchPopup = () =>
     <div className="display-inline-block spacer-left">
       <a className="link-no-underline" href="#" onClick={this.handleSingleBranchClick}>
-        <HelpIcon className="" fill="#cdcdcd" />
+        <HelpIcon fill="#4b9fd5" />
       </a>
       <BubblePopupHelper
         isOpen={this.state.singleBranchPopupOpen}
@@ -159,7 +159,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   renderNoBranchSupportPopup = () =>
     <div className="display-inline-block spacer-left">
       <a className="link-no-underline" href="#" onClick={this.handleNoBranchSupportClick}>
-        <HelpIcon className="" fill="#cdcdcd" />
+        <HelpIcon fill="#cdcdcd" />
       </a>
       <BubblePopupHelper
         isOpen={this.state.noBranchSupportPopupOpen}
@@ -187,7 +187,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     if (branches.length < 2) {
       return (
         <div className="navbar-context-branches">
-          <BranchIcon branch={currentBranch} className="little-spacer-right" color="#cdcdcd" />
+          <BranchIcon branch={currentBranch} className="little-spacer-right" />
           <span className="note">
             {currentBranch.name}
           </span>

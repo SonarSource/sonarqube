@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 
-/*::
-type Props = { className?: string, fill?: string, size?: number };
-*/
+interface Props {
+  className?: string;
+  fill?: string;
+  size?: number;
+}
 
-export default function HelpIcon({ className, fill = 'currentColor', size = 16 } /*: Props */) {
-  /* eslint-disable max-len */
+export default function HelpIcon({ className, fill = 'currentColor', size = 16 }: Props) {
   return (
     <svg className={className} viewBox="0 0 16 16" width={size} height={size}>
       <g transform="matrix(0.0364583,0,0,0.0364583,1,-0.166667)">
