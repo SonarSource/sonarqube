@@ -63,9 +63,8 @@ public class HealthActionModuleTest {
   }
 
   @Test
-  public void verify_installed_NodeHealthChecks_implementations() {
-    boolean standalone = new Random().nextBoolean();
-    when(webServer.isStandalone()).thenReturn(standalone);
+  public void verify_installed_NodeHealthChecks_implementations_when_standalone() {
+    when(webServer.isStandalone()).thenReturn(true);
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
@@ -77,6 +76,22 @@ public class HealthActionModuleTest {
       .contains(DbConnectionNodeCheck.class)
       .contains(EsStatusNodeCheck.class)
       .contains(CeStatusNodeCheck.class);
+  }
+
+  @Test
+  public void verify_installed_NodeHealthChecks_implementations_when_clustered() {
+    when(webServer.isStandalone()).thenReturn(false);
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+    List<Class<?>> checks = classesAddedToContainer(container).stream().filter(NodeHealthCheck.class::isAssignableFrom).collect(Collectors.toList());
+    assertThat(checks)
+      .hasSize(3)
+      .contains(WebServerStatusNodeCheck.class)
+      .contains(DbConnectionNodeCheck.class)
+      .contains(CeStatusNodeCheck.class)
+      .doesNotContain(EsStatusNodeCheck.class);
   }
 
   @Test
