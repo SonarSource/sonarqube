@@ -31,7 +31,7 @@ export default function Event(props /*: { event: EventType } */) {
   }
 
   return (
-    <span className="overview-analysis-event">
+    <div className="overview-analysis-event">
       <span className="note">{translate('event.category', event.category)}:</span>{' '}
       {event.description ? (
         <Tooltip overlay={event.description} placement="left" mouseEnterDelay={0.5}>
@@ -40,6 +40,6 @@ export default function Event(props /*: { event: EventType } */) {
       ) : (
         <strong>{event.name}</strong>
       )}
-    </span>
+    </div>
   );
 }

@@ -9,7 +9,7 @@ exports[`should render a version correctly 1`] = `
 `;
 
 exports[`should render an event correctly 1`] = `
-<span
+<div
   className="overview-analysis-event"
 >
   <span
@@ -22,5 +22,5 @@ exports[`should render an event correctly 1`] = `
   <strong>
     test
   </strong>
-</span>
+</div>
 `;
