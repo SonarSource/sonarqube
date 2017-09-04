@@ -151,7 +151,7 @@ public class FileSystemMediumTest {
     builder = createBuilder();
     builder.put("sonar.branch", "my-branch");
     File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
+    assertThat(srcDir.mkdir()).isTrue();
 
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
@@ -165,6 +165,23 @@ public class FileSystemMediumTest {
     assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
     assertThat(logs.getAllAsString()).contains("Branch key: my-branch");
     assertThat(logs.getAllAsString()).contains("The use of \"sonar.branch\" is deprecated and replaced by \"sonar.branch.name\".");
+  }
+
+  @Test
+  public void logBranchNameAndType() throws IOException {
+    builder = createBuilder();
+    builder.put("sonar.branch.name", "my-branch");
+    File srcDir = new File(baseDir, "src");
+    assertThat(srcDir.mkdir()).isTrue();
+
+    tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .execute();
+
+    assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
+    assertThat(logs.getAllAsString()).contains("Branch name: my-branch, type: long living");
   }
 
   @Test
