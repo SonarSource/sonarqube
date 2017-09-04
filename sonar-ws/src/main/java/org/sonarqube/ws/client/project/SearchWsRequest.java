@@ -37,6 +37,7 @@ public class SearchWsRequest {
   private final Integer page;
   private final Integer pageSize;
   private final String analyzedBefore;
+  private final boolean onProvisionedOnly;
 
   public SearchWsRequest(Builder builder) {
     this.organization = builder.organization;
@@ -46,6 +47,7 @@ public class SearchWsRequest {
     this.page = builder.page;
     this.pageSize = builder.pageSize;
     this.analyzedBefore = builder.analyzedBefore;
+    this.onProvisionedOnly = builder.onProvisionedOnly;
   }
 
   @CheckForNull
@@ -82,6 +84,10 @@ public class SearchWsRequest {
     return analyzedBefore;
   }
 
+  public boolean isOnProvisionedOnly() {
+    return onProvisionedOnly;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -94,6 +100,7 @@ public class SearchWsRequest {
     private String query;
     private String visibility;
     private String analyzedBefore;
+    private boolean onProvisionedOnly = false;
 
     public Builder setOrganization(@Nullable String organization) {
       this.organization = organization;
@@ -127,6 +134,11 @@ public class SearchWsRequest {
 
     public Builder setAnalyzedBefore(@Nullable String lastAnalysisBefore) {
       this.analyzedBefore = lastAnalysisBefore;
+      return this;
+    }
+
+    public Builder setOnProvisionedOnly(boolean onProvisionedOnly) {
+      this.onProvisionedOnly = onProvisionedOnly;
       return this;
     }
 

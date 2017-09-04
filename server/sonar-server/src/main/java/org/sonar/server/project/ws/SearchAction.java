@@ -58,6 +58,7 @@ import static org.sonarqube.ws.WsProjects.SearchWsResponse.newBuilder;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.MAX_PAGE_SIZE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
@@ -115,6 +116,12 @@ public class SearchAction implements ProjectsWsAction {
       .setDescription("Filter the projects for which last analysis is older than the given date (exclusive).<br> " +
         "Format: date or datetime ISO formats.")
       .setSince("6.6");
+
+    action.createParam(PARAM_ON_PROVISIONED_ONLY)
+      .setDescription("Filter the projects that are provisioned")
+      .setBooleanPossibleValues()
+      .setDefaultValue("false")
+      .setSince("6.6");
   }
 
   @Override
@@ -132,6 +139,7 @@ public class SearchAction implements ProjectsWsAction {
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setVisibility(request.param(PARAM_VISIBILITY))
       .setAnalyzedBefore(request.param(PARAM_ANALYZED_BEFORE))
+      .setOnProvisionedOnly(request.mandatoryParamAsBoolean(PARAM_ON_PROVISIONED_ONLY))
       .build();
   }
 
@@ -162,6 +170,7 @@ public class SearchAction implements ProjectsWsAction {
     });
     setNullable(request.getVisibility(), v -> query.setPrivate(Visibility.isPrivate(v)));
     setNullable(request.getAnalyzedBefore(), d -> query.setAnalyzedBefore(parseDateOrDateTime(d).getTime()));
+    setNullable(request.isOnProvisionedOnly(), query::setOnProvisionedOnly);
 
     return query.build();
   }
