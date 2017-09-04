@@ -56,6 +56,7 @@ export default BaseView.extend({
     render(
       <WithStore>
         <SourceViewer
+          aroundLine={line}
           branch={branch}
           component={key}
           fromWorkspace={true}
