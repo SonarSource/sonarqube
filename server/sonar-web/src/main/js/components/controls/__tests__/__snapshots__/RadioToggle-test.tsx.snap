@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<ul
+  className="radio-toggle"
+>
+  <li>
+    <input
+      checked={false}
+      id="sample__one"
+      name="sample"
+      onChange={[Function]}
+      type="radio"
+      value="one"
+    />
+    <label
+      htmlFor="sample__one"
+    >
+      first
+    </label>
+  </li>
+  <li>
+    <input
+      checked={false}
+      id="sample__two"
+      name="sample"
+      onChange={[Function]}
+      type="radio"
+      value="two"
+    />
+    <label
+      htmlFor="sample__two"
+    >
+      second
+    </label>
+  </li>
+</ul>
+`;

@@ -42,10 +42,11 @@ export function submit(element: ShallowWrapper): void {
   });
 }
 
-export function change(element: ShallowWrapper, value: string): void {
+export function change(element: ShallowWrapper, value: string, event = {}): void {
   element.simulate('change', {
     target: { value },
-    currentTarget: { value }
+    currentTarget: { value },
+    ...event
   });
 }
 

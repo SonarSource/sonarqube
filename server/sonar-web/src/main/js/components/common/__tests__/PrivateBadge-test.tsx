@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,25 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
-import Tooltip from '../controls/Tooltip';
-import { translate } from '../../helpers/l10n';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import PrivateBadge from '../PrivateBadge';
 
-/*::
-type Props = {
-  className?: string,
-  tooltipPlacement?: string
-};
-*/
-
-export default function PrivateBadge({ className, tooltipPlacement = 'bottom' } /*: Props */) {
-  return (
-    <Tooltip overlay={translate('visibility.private.description')} placement={tooltipPlacement}>
-      <div className={classNames('outline-badge', className)}>
-        {translate('visibility.private')}
-      </div>
-    </Tooltip>
-  );
-}
+it('renders', () => {
+  expect(shallow(<PrivateBadge />)).toMatchSnapshot();
+});

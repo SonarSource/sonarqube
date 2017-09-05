@@ -1,0 +1,308 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`changes visibility 1`] = `
+<Modal
+  ariaHideApp={true}
+  bodyOpenClassName="ReactModal__Body--open"
+  className="modal"
+  closeTimeoutMS={0}
+  contentLabel="modal form"
+  isOpen={true}
+  onRequestClose={[Function]}
+  overlayClassName="modal-overlay"
+  parentSelector={[Function]}
+  portalClassName="ReactModalPortal"
+  shouldCloseOnOverlayClick={true}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      organization.change_visibility_form.header
+    </h2>
+  </header>
+  <div
+    className="modal-body"
+  >
+    <div
+      className="big-spacer-bottom"
+    >
+      <p>
+        <a
+          className="link-base-color link-no-underline"
+          data-visibility="public"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="icon-radio spacer-right is-checked"
+          />
+          visibility.public
+        </a>
+      </p>
+      <p
+        className="text-muted spacer-top"
+        style={
+          Object {
+            "paddingLeft": 22,
+          }
+        }
+      >
+        visibility.public.description.short
+      </p>
+    </div>
+    <div
+      className="big-spacer-bottom"
+    >
+      <p>
+        <a
+          className="link-base-color link-no-underline"
+          data-visibility="private"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="icon-radio spacer-right"
+          />
+          visibility.private
+        </a>
+      </p>
+      <p
+        className="text-muted spacer-top"
+        style={
+          Object {
+            "paddingLeft": 22,
+          }
+        }
+      >
+        visibility.private.description.short
+      </p>
+    </div>
+    <div
+      className="alert alert-warning"
+    >
+      organization.change_visibility_form.warning
+    </div>
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <button
+      className="js-confirm"
+      onClick={[Function]}
+    >
+      organization.change_visibility_form.submit
+    </button>
+    <a
+      className="js-modal-close"
+      href="#"
+      onClick={[Function]}
+    >
+      cancel
+    </a>
+  </footer>
+</Modal>
+`;
+
+exports[`changes visibility 2`] = `
+<Modal
+  ariaHideApp={true}
+  bodyOpenClassName="ReactModal__Body--open"
+  className="modal"
+  closeTimeoutMS={0}
+  contentLabel="modal form"
+  isOpen={true}
+  onRequestClose={[Function]}
+  overlayClassName="modal-overlay"
+  parentSelector={[Function]}
+  portalClassName="ReactModalPortal"
+  shouldCloseOnOverlayClick={true}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      organization.change_visibility_form.header
+    </h2>
+  </header>
+  <div
+    className="modal-body"
+  >
+    <div
+      className="big-spacer-bottom"
+    >
+      <p>
+        <a
+          className="link-base-color link-no-underline"
+          data-visibility="public"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="icon-radio spacer-right"
+          />
+          visibility.public
+        </a>
+      </p>
+      <p
+        className="text-muted spacer-top"
+        style={
+          Object {
+            "paddingLeft": 22,
+          }
+        }
+      >
+        visibility.public.description.short
+      </p>
+    </div>
+    <div
+      className="big-spacer-bottom"
+    >
+      <p>
+        <a
+          className="link-base-color link-no-underline"
+          data-visibility="private"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="icon-radio spacer-right is-checked"
+          />
+          visibility.private
+        </a>
+      </p>
+      <p
+        className="text-muted spacer-top"
+        style={
+          Object {
+            "paddingLeft": 22,
+          }
+        }
+      >
+        visibility.private.description.short
+      </p>
+    </div>
+    <div
+      className="alert alert-warning"
+    >
+      organization.change_visibility_form.warning
+    </div>
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <button
+      className="js-confirm"
+      onClick={[Function]}
+    >
+      organization.change_visibility_form.submit
+    </button>
+    <a
+      className="js-modal-close"
+      href="#"
+      onClick={[Function]}
+    >
+      cancel
+    </a>
+  </footer>
+</Modal>
+`;
+
+exports[`renders disabled 1`] = `
+<Modal
+  ariaHideApp={true}
+  bodyOpenClassName="ReactModal__Body--open"
+  className="modal"
+  closeTimeoutMS={0}
+  contentLabel="modal form"
+  isOpen={true}
+  onRequestClose={[Function]}
+  overlayClassName="modal-overlay"
+  parentSelector={[Function]}
+  portalClassName="ReactModalPortal"
+  shouldCloseOnOverlayClick={true}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      organization.change_visibility_form.header
+    </h2>
+  </header>
+  <div
+    className="modal-body"
+  >
+    <div
+      className="big-spacer-bottom"
+    >
+      <p>
+        <a
+          className="link-base-color link-no-underline"
+          data-visibility="public"
+          href="#"
+          onClick={[Function]}
+        >
+          <i
+            className="icon-radio spacer-right is-checked"
+          />
+          visibility.public
+        </a>
+      </p>
+      <p
+        className="text-muted spacer-top"
+        style={
+          Object {
+            "paddingLeft": 22,
+          }
+        }
+      >
+        visibility.public.description.short
+      </p>
+    </div>
+    <div
+      className="big-spacer-bottom"
+    >
+      <p>
+        <span
+          className="text-muted cursor-not-allowed"
+        >
+          <i
+            className="icon-radio spacer-right"
+          />
+          visibility.private
+        </span>
+      </p>
+      <p
+        className="text-muted spacer-top"
+        style={
+          Object {
+            "paddingLeft": 22,
+          }
+        }
+      >
+        visibility.private.description.short
+      </p>
+    </div>
+    <UpgradeOrganizationBox
+      organization="org"
+    />
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <button
+      className="js-confirm"
+      onClick={[Function]}
+    >
+      organization.change_visibility_form.submit
+    </button>
+    <a
+      className="js-modal-close"
+      href="#"
+      onClick={[Function]}
+    >
+      cancel
+    </a>
+  </footer>
+</Modal>
+`;

@@ -17,25 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
 import RadioToggle from '../RadioToggle';
 import { change } from '../../../helpers/testUtils';
 
-function getSample(props) {
+it('renders', () => {
+  expect(shallow(getSample())).toMatchSnapshot();
+});
+
+it('calls onCheck', () => {
+  const onCheck = jest.fn();
+  const wrapper = shallow(getSample({ onCheck }));
+  change(wrapper.find('input[value="two"]'), 'two');
+  expect(onCheck).toBeCalledWith('two');
+});
+
+function getSample(props?: any) {
   const options = [{ value: 'one', label: 'first' }, { value: 'two', label: 'second' }];
   return <RadioToggle options={options} name="sample" onCheck={() => true} {...props} />;
 }
-
-it('should render', () => {
-  const radioToggle = shallow(getSample());
-  expect(radioToggle.find('input[type="radio"]').length).toBe(2);
-  expect(radioToggle.find('label').length).toBe(2);
-});
-
-it('should call onCheck', () => {
-  const onCheck = jest.fn();
-  const radioToggle = shallow(getSample({ onCheck }));
-  change(radioToggle.find('input[value="two"]'), 'two');
-  expect(onCheck).toBeCalledWith('two');
-});

@@ -17,15 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import ModalForm from '../../components/common/modal-form';
-import Template from './templates/projects-delete.hbs';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import Tooltip from '../controls/Tooltip';
+import { translate } from '../../helpers/l10n';
 
-export default ModalForm.extend({
-  template: Template,
+interface Props {
+  className?: string;
+  tooltipPlacement?: string;
+}
 
-  onFormSubmit() {
-    ModalForm.prototype.onFormSubmit.apply(this, arguments);
-    this.options.deleteProjects();
-    this.destroy();
-  }
-});
+export default function PrivateBadge({ className, tooltipPlacement = 'bottom' }: Props) {
+  return (
+    <Tooltip overlay={translate('visibility.private.description')} placement={tooltipPlacement}>
+      <div className={classNames('outline-badge', className)}>
+        {translate('visibility.private')}
+      </div>
+    </Tooltip>
+  );
+}

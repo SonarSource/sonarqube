@@ -1,0 +1,101 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<tr>
+  <td
+    className="thin"
+  >
+    <Checkbox
+      checked={true}
+      onCheck={[Function]}
+      thirdState={false}
+    />
+  </td>
+  <td
+    className="nowrap"
+  >
+    <Link
+      className="link-with-icon"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "id": "project",
+          },
+        }
+      }
+    >
+      <QualifierIcon
+        qualifier="TRK"
+      />
+       
+      <span>
+        Project
+      </span>
+    </Link>
+  </td>
+  <td
+    className="nowrap"
+  >
+    <span
+      className="note"
+    >
+      project
+    </span>
+  </td>
+  <td
+    className="width-20"
+  >
+    <PrivateBadge />
+  </td>
+  <td
+    className="thin nowrap"
+  >
+    <div
+      className="dropdown"
+    >
+      <button
+        className="dropdown-toggle"
+        data-toggle="dropdown"
+      >
+        actions
+         
+        <i
+          className="icon-dropdown"
+        />
+      </button>
+      <ul
+        className="dropdown-menu dropdown-menu-right"
+      >
+        <li>
+          <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project_roles",
+                "query": Object {
+                  "id": "project",
+                },
+              }
+            }
+          >
+            edit_permissions
+          </Link>
+        </li>
+        <li>
+          <a
+            className="js-apply-template"
+            href="#"
+            onClick={[Function]}
+          >
+            projects_role.apply_template
+          </a>
+        </li>
+      </ul>
+    </div>
+  </td>
+</tr>
+`;

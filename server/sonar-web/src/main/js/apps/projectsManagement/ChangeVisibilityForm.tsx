@@ -17,53 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Modal from 'react-modal';
-import classNames from 'classnames';
+import * as classNames from 'classnames';
+import { Organization } from '../../app/types';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import { translate } from '../../helpers/l10n';
-/*:: import type { Organization } from '../../store/organizations/duck'; */
+import { Visibility } from './utils';
 
-/*::
-type Props = {
-  onClose: () => void,
-  onConfirm: string => void,
-  organization: Organization
-};
-*/
+export interface Props {
+  onClose: () => void;
+  onConfirm: (visiblity: Visibility) => void;
+  organization: Organization;
+}
 
-/*::
-type State = {
-  visibility: string
-};
-*/
+interface State {
+  visibility: Visibility;
+}
 
-export default class ChangeVisibilityForm extends React.PureComponent {
-  /*:: props: Props; */
-  /*:: state: State; */
-
-  constructor(props /*: Props */) {
+export default class ChangeVisibilityForm extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
     super(props);
-    this.state = { visibility: props.organization.projectVisibility };
+    this.state = { visibility: props.organization.projectVisibility as Visibility };
   }
 
-  handleCancelClick = (event /*: Event */) => {
+  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  handleConfirmClick = (event /*: Event */) => {
+  handleConfirmClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
     event.preventDefault();
     this.props.onConfirm(this.state.visibility);
     this.props.onClose();
   };
 
-  handleVisibilityClick = (visibility /*: string */) => (
-    event /*: Event & { currentTarget: HTMLElement } */
-  ) => {
+  handleVisibilityClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
+    const visibility = event.currentTarget.dataset.visibility as Visibility;
     this.setState({ visibility });
   };
 
@@ -84,10 +76,10 @@ export default class ChangeVisibilityForm extends React.PureComponent {
         </header>
 
         <div className="modal-body">
-          {['public', 'private'].map(visibility =>
+          {[Visibility.Public, Visibility.Private].map(visibility =>
             <div className="big-spacer-bottom" key={visibility}>
               <p>
-                {visibility === 'private' && !canUpdateProjectsVisibilityToPrivate
+                {visibility === Visibility.Private && !canUpdateProjectsVisibilityToPrivate
                   ? <span className="text-muted cursor-not-allowed">
                       <i
                         className={classNames('icon-radio', 'spacer-right', {
@@ -98,8 +90,9 @@ export default class ChangeVisibilityForm extends React.PureComponent {
                     </span>
                   : <a
                       className="link-base-color link-no-underline"
+                      data-visibility={visibility}
                       href="#"
-                      onClick={this.handleVisibilityClick(visibility)}>
+                      onClick={this.handleVisibilityClick}>
                       <i
                         className={classNames('icon-radio', 'spacer-right', {
                           'is-checked': this.state.visibility === visibility
@@ -122,10 +115,10 @@ export default class ChangeVisibilityForm extends React.PureComponent {
         </div>
 
         <footer className="modal-foot">
-          <button onClick={this.handleConfirmClick}>
+          <button className="js-confirm" onClick={this.handleConfirmClick}>
             {translate('organization.change_visibility_form.submit')}
           </button>
-          <a href="#" onClick={this.handleCancelClick}>
+          <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
             {translate('cancel')}
           </a>
         </footer>
