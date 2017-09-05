@@ -53,6 +53,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.index.FooIndexDefinition;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -94,7 +95,7 @@ public class UpdateVisibilityActionTest {
   private TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
 
-  private ProjectsWsSupport wsSupport = new ProjectsWsSupport(dbClient, billingValidations);
+  private ProjectsWsSupport wsSupport = new ProjectsWsSupport(dbClient, TestDefaultOrganizationProvider.from(dbTester), billingValidations);
   private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester), userSessionRule, projectIndexers, wsSupport);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
