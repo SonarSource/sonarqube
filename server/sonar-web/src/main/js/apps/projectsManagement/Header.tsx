@@ -17,37 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import ChangeVisibilityForm from './ChangeVisibilityForm';
+import { Visibility } from './utils';
+import { Organization } from '../../app/types';
 import { translate } from '../../helpers/l10n';
-/*:: import type { Organization } from '../../store/organizations/duck'; */
 
-/*::
-type Props = {|
-  hasProvisionPermission: boolean,
-  onProjectCreate: () => void,
-  onVisibilityChange: string => void,
-  organization: Organization
-|};
-*/
+export interface Props {
+  hasProvisionPermission?: boolean;
+  onProjectCreate: () => void;
+  onVisibilityChange: (visibility: Visibility) => void;
+  organization: Organization;
+}
 
-/*::
-type State = {
-  visibilityForm: boolean
-};
-*/
+interface State {
+  visibilityForm: boolean;
+}
 
-export default class Header extends React.PureComponent {
-  /*:: props: Props; */
-  state /*: State */ = { visibilityForm: false };
+export default class Header extends React.PureComponent<Props, State> {
+  state: State = { visibilityForm: false };
 
-  handleCreateProjectClick = (event /*: Event */) => {
+  handleCreateProjectClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
     event.preventDefault();
     this.props.onProjectCreate();
   };
 
-  handleChangeVisibilityClick = (event /*: Event */) => {
+  handleChangeVisibilityClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.setState({ visibilityForm: true });
   };
@@ -64,12 +59,13 @@ export default class Header extends React.PureComponent {
         <h1 className="page-title">
           {translate('projects_management')}
         </h1>
+
         <div className="page-actions">
           <span className="big-spacer-right">
             {translate('organization.default_visibility_of_new_projects')}{' '}
             <strong>{translate('visibility', organization.projectVisibility)}</strong>
             <a
-              className="spacer-left icon-edit"
+              className="js-change-visibility spacer-left icon-edit"
               href="#"
               onClick={this.handleChangeVisibilityClick}
             />
@@ -79,6 +75,7 @@ export default class Header extends React.PureComponent {
               {translate('qualifiers.create.TRK')}
             </button>}
         </div>
+
         <p className="page-description">
           {translate('projects_management.page.description')}
         </p>

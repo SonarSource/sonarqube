@@ -17,38 +17,60 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { sortBy } from 'lodash';
-import { TYPE, QUALIFIERS_ORDER } from './constants';
-import DeleteView from './delete-view';
-import BulkApplyTemplateView from './views/BulkApplyTemplateView';
+import BulkApplyTemplateModal from './BulkApplyTemplateModal';
+import DeleteModal from './DeleteModal';
+import { Type, QUALIFIERS_ORDER } from './utils';
+import { Project } from './utils';
+import { Organization } from '../../app/types';
 import RadioToggle from '../../components/controls/RadioToggle';
 import Checkbox from '../../components/controls/Checkbox';
 import { translate } from '../../helpers/l10n';
 
-export default class Search extends React.PureComponent {
-  static propTypes = {
-    onSearch: PropTypes.func.isRequired
-  };
+export interface Props {
+  onAllDeselected: () => void;
+  onAllSelected: () => void;
+  onDeleteProjects: () => void;
+  onQualifierChanged: (qualifier: string) => void;
+  onSearch: (query: string) => void;
+  onTypeChanged: (type: Type) => void;
+  organization: Organization;
+  projects: Project[];
+  qualifiers: string;
+  query: string;
+  ready: boolean;
+  selection: any[];
+  topLevelQualifiers: string[];
+  total: number;
+  type: Type;
+}
 
-  onSubmit = e => {
-    e.preventDefault();
+interface State {
+  bulkApplyTemplateModal: boolean;
+  deleteModal: boolean;
+}
+
+export default class Search extends React.PureComponent<Props, State> {
+  input: HTMLInputElement;
+  mounted: boolean;
+  state: State = { bulkApplyTemplateModal: false, deleteModal: false };
+
+  onSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
     this.search();
   };
 
-  search = () => {
-    const q = this.refs.input.value;
+  search = (event?: React.SyntheticEvent<HTMLInputElement>) => {
+    const q = event ? event.currentTarget.value : this.input.value;
     this.props.onSearch(q);
   };
 
-  getTypeOptions = () => {
-    return [
-      { value: TYPE.ALL, label: 'All' },
-      { value: TYPE.PROVISIONED, label: 'Provisioned' },
-      { value: TYPE.GHOSTS, label: 'Ghosts' }
-    ];
-  };
+  getTypeOptions = () => [
+    { value: Type.All, label: 'All' },
+    { value: Type.Provisioned, label: 'Provisioned' },
+    { value: Type.Ghosts, label: 'Ghosts' }
+  ];
 
   getQualifierOptions = () => {
     const options = this.props.topLevelQualifiers.map(q => {
@@ -57,7 +79,7 @@ export default class Search extends React.PureComponent {
     return sortBy(options, option => QUALIFIERS_ORDER.indexOf(option.value));
   };
 
-  onCheck = checked => {
+  onCheck = (checked: boolean) => {
     if (checked) {
       this.props.onAllSelected();
     } else {
@@ -65,20 +87,29 @@ export default class Search extends React.PureComponent {
     }
   };
 
-  deleteProjects = () => {
-    new DeleteView({
-      deleteProjects: this.props.deleteProjects
-    }).render();
+  handleDeleteClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    this.setState({ deleteModal: true });
   };
 
-  bulkApplyTemplate = () => {
-    new BulkApplyTemplateView({
-      total: this.props.total,
-      selection: this.props.selection,
-      query: this.props.query,
-      qualifier: this.props.qualifier,
-      organization: this.props.organization
-    }).render();
+  closeDeleteModal = () => {
+    this.setState({ deleteModal: false });
+  };
+
+  handleDeleteConfirm = () => {
+    this.closeDeleteModal();
+    this.props.onDeleteProjects();
+  };
+
+  handleBulkApplyTemplateClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    this.setState({ bulkApplyTemplateModal: true });
+  };
+
+  closeBulkApplyTemplateModal = () => {
+    this.setState({ bulkApplyTemplateModal: false });
   };
 
   renderCheckbox = () => {
@@ -93,7 +124,7 @@ export default class Search extends React.PureComponent {
   };
 
   renderGhostsDescription = () => {
-    if (this.props.type !== TYPE.GHOSTS || !this.props.ready) {
+    if (this.props.type !== Type.Ghosts || !this.props.ready) {
       return null;
     }
     return (
@@ -120,8 +151,6 @@ export default class Search extends React.PureComponent {
     );
   };
 
-  renderSpinner = () => <i className="spinner" />;
-
   render() {
     const isSomethingSelected = this.props.projects.length > 0 && this.props.selection.length > 0;
     return (
@@ -130,7 +159,7 @@ export default class Search extends React.PureComponent {
           <tbody>
             <tr>
               <td className="thin text-middle">
-                {this.props.ready ? this.renderCheckbox() : this.renderSpinner()}
+                {this.props.ready ? this.renderCheckbox() : <i className="spinner" />}
               </td>
               {this.renderQualifierFilter()}
               <td className="thin nowrap text-middle">
@@ -149,7 +178,7 @@ export default class Search extends React.PureComponent {
                   <input
                     onChange={this.search}
                     value={this.props.query}
-                    ref="input"
+                    ref={node => (this.input = node!)}
                     className="search-box-input input-medium"
                     type="search"
                     placeholder="Search"
@@ -159,12 +188,12 @@ export default class Search extends React.PureComponent {
               <td className="thin nowrap text-middle">
                 <button
                   className="spacer-right js-bulk-apply-permission-template"
-                  onClick={this.bulkApplyTemplate}>
+                  onClick={this.handleBulkApplyTemplateClick}>
                   {translate('permission_templates.bulk_apply_permission_template')}
                 </button>
                 <button
-                  onClick={this.deleteProjects}
-                  className="button-red"
+                  onClick={this.handleDeleteClick}
+                  className="js-delete button-red"
                   disabled={!isSomethingSelected}>
                   {translate('delete')}
                 </button>
@@ -173,6 +202,26 @@ export default class Search extends React.PureComponent {
           </tbody>
         </table>
         {this.renderGhostsDescription()}
+
+        {this.state.bulkApplyTemplateModal &&
+          <BulkApplyTemplateModal
+            onClose={this.closeBulkApplyTemplateModal}
+            organization={this.props.organization.key}
+            qualifier={this.props.qualifiers}
+            query={this.props.query}
+            selection={this.props.selection}
+            total={this.props.total}
+            type={this.props.type}
+          />}
+
+        {this.state.deleteModal &&
+          <DeleteModal
+            onClose={this.closeDeleteModal}
+            onConfirm={this.handleDeleteConfirm}
+            organization={this.props.organization.key}
+            qualifier={this.props.qualifiers}
+            selection={this.props.selection}
+          />}
       </div>
     );
   }

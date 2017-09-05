@@ -85,10 +85,30 @@ export function revokePermissionFromGroup(
   return post('/api/permissions/remove_group', data);
 }
 
-/**
- * Get list of permission templates
- */
-export function getPermissionTemplates(organization?: string) {
+export interface PermissionTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  projectKeyPattern?: string;
+  createdAt: string;
+  updatedAt?: string;
+  permissions: Array<{
+    key: string;
+    usersCount: number;
+    groupsCount: number;
+    withProjectCreator?: boolean;
+  }>;
+}
+
+interface GetPermissionTemplatesResponse {
+  permissionTemplates: PermissionTemplate[];
+  defaultTemplates: Array<{ templateId: string; qualifier: string }>;
+  permissions: Array<{ key: string; name: string; description: string }>;
+}
+
+export function getPermissionTemplates(
+  organization?: string
+): Promise<GetPermissionTemplatesResponse> {
   const url = '/api/permissions/search_templates';
   return organization ? getJSON(url, { organization }) : getJSON(url);
 }

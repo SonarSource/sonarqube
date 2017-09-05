@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Tooltip
+  overlay="visibility.private.description"
+  placement="bottom"
+>
+  <div
+    className="outline-badge"
+  >
+    visibility.private
+  </div>
+</Tooltip>
+`;

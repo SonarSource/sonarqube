@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`changes default visibility 1`] = `
+<ChangeVisibilityForm
+  onClose={[Function]}
+  onConfirm={[Function]}
+  organization={
+    Object {
+      "key": "org",
+      "name": "org",
+      "projectVisibility": "public",
+    }
+  }
+/>
+`;
+
+exports[`renders 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    projects_management
+  </h1>
+  <div
+    className="page-actions"
+  >
+    <span
+      className="big-spacer-right"
+    >
+      organization.default_visibility_of_new_projects
+       
+      <strong>
+        visibility.public
+      </strong>
+      <a
+        className="js-change-visibility spacer-left icon-edit"
+        href="#"
+        onClick={[Function]}
+      />
+    </span>
+    <button
+      id="create-project"
+      onClick={[Function]}
+    >
+      qualifiers.create.TRK
+    </button>
+  </div>
+  <p
+    className="page-description"
+  >
+    projects_management.page.description
+  </p>
+</header>
+`;

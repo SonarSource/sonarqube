@@ -17,50 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Modal from 'react-modal';
 import { Link } from 'react-router';
+import { Organization } from '../../app/types';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
 import { createProject } from '../../api/components';
 import { translate } from '../../helpers/l10n';
 import { getProjectUrl } from '../../helpers/urls';
-/*:: import type { Organization } from '../../store/organizations/duck'; */
 
-/*::
-type Props = {|
-  onClose: () => void,
-  onProjectCreated: () => void,
-  onRequestFail: Object => void,
-  organization?: Organization
-|};
-*/
+interface Props {
+  onClose: () => void;
+  onProjectCreated: () => void;
+  organization: Organization;
+}
 
-/*::
-type State = {
-  branch: string,
-  createdProject?: Object,
-  key: string,
-  loading: boolean,
-  name: string,
-  visibility: string
-};
-*/
+interface State {
+  branch: string;
+  createdProject?: { key: string; name: string };
+  key: string;
+  loading: boolean;
+  name: string;
+  visibility: string;
+  // add index declaration to be able to do `this.setState({ [name]: value });`
+  [x: string]: any;
+}
 
-export default class CreateProjectForm extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  /*:: state: State; */
+export default class CreateProjectForm extends React.PureComponent<Props, State> {
+  mounted: boolean;
 
-  constructor(props /*: Props */) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       branch: '',
       key: '',
       loading: false,
       name: '',
-      visibility: props.organization ? props.organization.projectVisibility : 'public'
+      visibility: props.organization.projectVisibility
     };
   }
 
@@ -72,32 +66,30 @@ export default class CreateProjectForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  handleCancelClick = (event /*: Event */) => {
+  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  handleInputChange = (event /*: { currentTarget: HTMLInputElement } */) => {
+  handleInputChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     const { name, value } = event.currentTarget;
     this.setState({ [name]: value });
   };
 
-  handleVisibilityChange = (visibility /*: string */) => {
+  handleVisibilityChange = (visibility: string) => {
     this.setState({ visibility });
   };
 
-  handleFormSubmit = (event /*: Event */) => {
+  handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const data /*: { [string]: string } */ = {
+    const data = {
       name: this.state.name,
       branch: this.state.branch,
+      organization: this.props.organization && this.props.organization.key,
       project: this.state.key,
       visibility: this.state.visibility
     };
-    if (this.props.organization) {
-      data.organization = this.props.organization.key;
-    }
 
     this.setState({ loading: true });
     createProject(data).then(
@@ -165,7 +157,7 @@ export default class CreateProjectForm extends React.PureComponent {
                   <input
                     autoFocus={true}
                     id="create-project-name"
-                    maxLength="2000"
+                    maxLength={2000}
                     name="name"
                     onChange={this.handleInputChange}
                     required={true}
@@ -179,7 +171,7 @@ export default class CreateProjectForm extends React.PureComponent {
                   </label>
                   <input
                     id="create-project-branch"
-                    maxLength="200"
+                    maxLength={200}
                     name="branch"
                     onChange={this.handleInputChange}
                     type="text"
@@ -193,7 +185,7 @@ export default class CreateProjectForm extends React.PureComponent {
                   </label>
                   <input
                     id="create-project-key"
-                    maxLength="400"
+                    maxLength={400}
                     name="key"
                     onChange={this.handleInputChange}
                     required={true}
@@ -203,18 +195,15 @@ export default class CreateProjectForm extends React.PureComponent {
                 </div>
                 <div className="modal-field">
                   <label>
-                    {' '}{translate('visibility')}{' '}
+                    {translate('visibility')}
                   </label>
                   <VisibilitySelector
-                    canTurnToPrivate={
-                      organization == null || organization.canUpdateProjectsVisibilityToPrivate
-                    }
+                    canTurnToPrivate={organization.canUpdateProjectsVisibilityToPrivate}
                     className="little-spacer-top"
                     onChange={this.handleVisibilityChange}
                     visibility={this.state.visibility}
                   />
-                  {organization != null &&
-                    !organization.canUpdateProjectsVisibilityToPrivate &&
+                  {!organization.canUpdateProjectsVisibilityToPrivate &&
                     <div className="spacer-top">
                       <UpgradeOrganizationBox organization={organization.key} />
                     </div>}
