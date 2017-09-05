@@ -76,7 +76,7 @@ public class BulkIndexer {
   private final SizeHandler sizeHandler;
 
   public BulkIndexer(EsClient client, IndexType indexType, Size size) {
-    this(client, indexType, size, IndexingListener.NOOP);
+    this(client, indexType, size, IndexingListener.FAIL_ON_ERROR);
   }
 
   public BulkIndexer(EsClient client, IndexType indexType, Size size, IndexingListener indexingListener) {

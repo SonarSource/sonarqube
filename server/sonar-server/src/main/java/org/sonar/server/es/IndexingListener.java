@@ -27,7 +27,7 @@ public interface IndexingListener {
 
   void onFinish(IndexingResult result);
 
-  IndexingListener NOOP = new IndexingListener() {
+  IndexingListener FAIL_ON_ERROR = new IndexingListener() {
     @Override
     public void onSuccess(List<DocId> docIds) {
       // nothing to do
@@ -35,7 +35,9 @@ public interface IndexingListener {
 
     @Override
     public void onFinish(IndexingResult result) {
-      // nothing to do
+      if (result.getFailures() > 0) {
+        throw new IllegalStateException("Indexation failures");
+      }
     }
   };
 }
