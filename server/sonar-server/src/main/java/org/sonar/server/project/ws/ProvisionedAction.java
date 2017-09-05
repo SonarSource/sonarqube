@@ -78,7 +78,7 @@ public class ProvisionedAction implements ProjectsWsAction {
           "Require 'Create Projects' permission.")
       .setSince("5.2")
       .setDeprecatedSince("6.6")
-      .setResponseExample(Resources.getResource(getClass(), "projects-example-provisioned.json"))
+      .setResponseExample(Resources.getResource(getClass(), "provisioned-example.json"))
       .setHandler(this)
       .addPagingParams(100, MAX_LIMIT)
       .addSearchQuery("sonar", "names", "keys")

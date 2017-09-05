@@ -19,7 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import com.google.common.io.Resources;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -192,8 +191,7 @@ public class ProvisionedActionTest {
       .setParam(PARAM_ORGANIZATION, org.getKey())
       .execute();
 
-    assertJson(result.getInput())
-      .isSimilarTo(Resources.getResource(getClass(), "projects-example-provisioned.json"));
+    assertJson(result.getInput()).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   @Test
