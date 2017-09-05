@@ -20,8 +20,9 @@
 package org.sonarqube.tests;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.projectAdministration.ProjectVisibilityPageTest;
-import org.sonarqube.tests.user.UsersPageTest;
+import org.junit.ClassRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import org.sonarqube.tests.authorisation.ExecuteAnalysisPermissionTest;
 import org.sonarqube.tests.authorisation.IssuePermissionTest;
 import org.sonarqube.tests.authorisation.PermissionSearchTest;
@@ -30,19 +31,21 @@ import org.sonarqube.tests.authorisation.QualityProfileAdminPermissionTest;
 import org.sonarqube.tests.complexity.ComplexityMeasuresTest;
 import org.sonarqube.tests.customMeasure.CustomMeasuresTest;
 import org.sonarqube.tests.i18n.I18nTest;
+import org.sonarqube.tests.measure.DifferentialPeriodsTest;
 import org.sonarqube.tests.measure.MeasuresWsTest;
 import org.sonarqube.tests.measure.ProjectDashboardTest;
 import org.sonarqube.tests.measure.ProjectMeasuresPageTest;
-import org.sonarqube.tests.measure.DifferentialPeriodsTest;
 import org.sonarqube.tests.measure.SincePreviousVersionHistoryTest;
 import org.sonarqube.tests.measure.SinceXDaysHistoryTest;
 import org.sonarqube.tests.measure.TimeMachineTest;
 import org.sonarqube.tests.projectAdministration.BackgroundTasksTest;
-import org.sonarqube.tests.projectAdministration.ProjectBulkDeletionPageTest;
 import org.sonarqube.tests.projectAdministration.ProjectAdministrationTest;
+import org.sonarqube.tests.projectAdministration.ProjectBulkDeletionPageTest;
 import org.sonarqube.tests.projectAdministration.ProjectLinksPageTest;
+import org.sonarqube.tests.projectAdministration.ProjectVisibilityPageTest;
 import org.sonarqube.tests.projectSearch.ProjectsPageTest;
 import org.sonarqube.tests.qualityGate.QualityGateNotificationTest;
+import org.sonarqube.tests.qualityGate.QualityGateOnRatingMeasuresTest;
 import org.sonarqube.tests.qualityGate.QualityGateTest;
 import org.sonarqube.tests.qualityGate.QualityGateUiTest;
 import org.sonarqube.tests.settings.DeprecatedPropertiesWsTest;
@@ -52,9 +55,7 @@ import org.sonarqube.tests.settings.SettingsTest;
 import org.sonarqube.tests.sourceCode.EncodingTest;
 import org.sonarqube.tests.sourceCode.HighlightingTest;
 import org.sonarqube.tests.sourceCode.ProjectCodeTest;
-import org.junit.ClassRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.sonarqube.tests.user.UsersPageTest;
 
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
@@ -80,6 +81,7 @@ import static util.ItUtils.xooPlugin;
   QualityGateTest.class,
   QualityGateUiTest.class,
   QualityGateNotificationTest.class,
+  QualityGateOnRatingMeasuresTest.class,
   // authorisation
   ExecuteAnalysisPermissionTest.class,
   IssuePermissionTest.class,
