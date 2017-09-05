@@ -73,6 +73,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchPhraseQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
@@ -203,7 +204,7 @@ public class RuleIndex {
             SEARCH_GRAMS_ANALYZER.subField(FIELD_RULE_NAME),
             StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)
           ).boost(20f)).should(
-          matchQuery(
+          matchPhraseQuery(
             ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION),
             StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)
           ).boost(3f))
