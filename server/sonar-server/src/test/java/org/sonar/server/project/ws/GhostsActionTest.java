@@ -19,7 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import com.google.common.io.Resources;
 import java.util.function.Consumer;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
@@ -216,8 +215,7 @@ public class GhostsActionTest {
       .setParam("organization", organization.getKey())
       .execute();
 
-    assertJson(result.getInput())
-      .isSimilarTo(Resources.getResource(getClass(), "projects-example-ghosts.json"));
+    assertJson(result.getInput()).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   @Test
