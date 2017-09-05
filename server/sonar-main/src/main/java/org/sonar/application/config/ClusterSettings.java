@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.process.MessageException;
-import org.sonar.process.NodeType;
+import org.sonar.cluster.NodeType;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 

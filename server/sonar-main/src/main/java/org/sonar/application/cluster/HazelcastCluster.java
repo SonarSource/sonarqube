@@ -53,7 +53,7 @@ import org.sonar.application.AppStateListener;
 import org.sonar.cluster.ClusterObjectKeys;
 import org.sonar.cluster.localclient.HazelcastClient;
 import org.sonar.process.MessageException;
-import org.sonar.process.NodeType;
+import org.sonar.cluster.NodeType;
 import org.sonar.process.ProcessId;
 
 import static java.lang.String.format;
