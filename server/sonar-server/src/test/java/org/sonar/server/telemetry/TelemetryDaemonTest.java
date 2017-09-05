@@ -121,7 +121,7 @@ public class TelemetryDaemonTest {
     underTest.start();
 
     ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
-    verify(client, timeout(1_000).atLeastOnce()).upload(jsonCaptor.capture());
+    verify(client, timeout(2_000).atLeastOnce()).upload(jsonCaptor.capture());
     String json = jsonCaptor.getValue();
     assertJson(json).isSimilarTo(getClass().getResource("telemetry-example.json"));
     assertJson(getClass().getResource("telemetry-example.json")).isSimilarTo(json);
@@ -133,7 +133,7 @@ public class TelemetryDaemonTest {
     settings.setProperty(PROP_FREQUENCY, "1");
     underTest.start();
 
-    verify(client, timeout(1_000).atLeastOnce()).upload(anyString());
+    verify(client, timeout(2_000).atLeastOnce()).upload(anyString());
   }
 
   @Test
@@ -144,10 +144,10 @@ public class TelemetryDaemonTest {
     internalProperties.write(I_PROP_LAST_PING, String.valueOf(sixDaysAgo));
     settings.setProperty(PROP_FREQUENCY, "1");
     underTest.start();
-    verify(client, timeout(1_000).never()).upload(anyString());
+    verify(client, timeout(2_000).never()).upload(anyString());
     internalProperties.write(I_PROP_LAST_PING, String.valueOf(sevenDaysAgo));
 
-    verify(client, timeout(1_000).atLeastOnce()).upload(anyString());
+    verify(client, timeout(2_000).atLeastOnce()).upload(anyString());
   }
 
   @Test
@@ -160,7 +160,7 @@ public class TelemetryDaemonTest {
     underTest.start();
 
     ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
-    verify(client, timeout(1_500).atLeastOnce()).upload(json.capture());
+    verify(client, timeout(2_000).atLeastOnce()).upload(json.capture());
     assertThat(json.getValue()).contains(id, version);
   }
 
@@ -186,7 +186,7 @@ public class TelemetryDaemonTest {
 
     underTest.start();
 
-    verify(client, timeout(1_000).atLeastOnce()).upload(anyString());
+    verify(client, timeout(2_000).atLeastOnce()).upload(anyString());
     assertThat(internalProperties.read(I_PROP_LAST_PING).get()).isEqualTo(String.valueOf(today));
   }
 
@@ -197,8 +197,8 @@ public class TelemetryDaemonTest {
     underTest.start();
     underTest.start();
 
-    verify(client, timeout(1_000).never()).upload(anyString());
-    verify(client, timeout(1_000).times(1)).optOut(anyString());
+    verify(client, timeout(2_000).never()).upload(anyString());
+    verify(client, timeout(2_000).times(1)).optOut(anyString());
     assertThat(logger.logs(LoggerLevel.INFO)).contains("Sharing of SonarQube statistics is disabled.");
   }
 
