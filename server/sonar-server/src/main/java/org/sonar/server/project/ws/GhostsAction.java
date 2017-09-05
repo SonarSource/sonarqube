@@ -70,7 +70,7 @@ public class GhostsAction implements ProjectsWsAction {
       .setDescription("List ghost projects.<br> " +
         "With the current architecture, it's no more possible to have invisible ghost projects. Therefore, the web service is deprecated.<br> " +
         "Requires 'Administer System' permission.")
-      .setResponseExample(Resources.getResource(getClass(), "projects-example-ghosts.json"))
+      .setResponseExample(Resources.getResource(getClass(), "ghosts-example.json"))
       .setSince("5.2")
       .setDeprecatedSince("6.6")
       .addPagingParams(100, MAX_LIMIT)
