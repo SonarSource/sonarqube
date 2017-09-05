@@ -66,7 +66,7 @@ import static org.sonar.process.cluster.ClusterObjectKeys.OPERATIONAL_PROCESSES;
 import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
 
 public class HazelcastCluster implements AutoCloseable {
-  private static Logger LOGGER = LoggerFactory.getLogger(HazelcastCluster.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCluster.class);
 
   private final List<AppStateListener> listeners = new ArrayList<>();
   private final ReplicatedMap<ClusterProcess, Boolean> operationalProcesses;

@@ -126,7 +126,6 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
       nodeAttributes.put("Request Circuit Breaker Estimation", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.REQUEST).getEstimated()));
       nodeAttributes.put("Query Cache Memory", byteCountToDisplaySize(stats.getIndices().getQueryCache().getMemorySizeInBytes()));
       nodeAttributes.put("Request Cache Memory", byteCountToDisplaySize(stats.getIndices().getRequestCache().getMemorySizeInBytes()));
-      nodeAttributes.put("Query Cache Memory", byteCountToDisplaySize(stats.getIndices().getQueryCache().getMemorySizeInBytes()));
     }
     return nodes;
   }

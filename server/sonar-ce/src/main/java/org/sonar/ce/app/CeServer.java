@@ -172,7 +172,7 @@ public class CeServer implements Monitored {
           Thread.sleep(CHECK_FOR_STOP_DELAY);
         } catch (InterruptedException e) {
           // ignore the interruption itself
-          // Do not propagate the isInterrupted flag with : Thread.currentThread().interrupt();
+          // Do not propagate the isInterrupted flag with Thread.currentThread().interrupt()
           // It will break the shutdown of ComputeEngineContainerImpl#stop()
         }
       }
