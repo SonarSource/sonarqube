@@ -19,7 +19,7 @@
  */
 package org.sonar.cluster.health;
 
-import java.util.Collections;
+import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -32,6 +32,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.cluster.localclient.HazelcastClient;
 
+import static java.util.Collections.singleton;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -51,6 +52,7 @@ public class SharedHealthStateImplTest {
   public LogTester logTester = new LogTester();
 
   private final Random random = new Random();
+  private long clusterTime = 99 + Math.abs(random.nextInt(9621));
   private HazelcastClient hazelcastClient = Mockito.mock(HazelcastClient.class);
   private SharedHealthStateImpl underTest = new SharedHealthStateImpl(hazelcastClient);
 
@@ -96,14 +98,14 @@ public class SharedHealthStateImplTest {
   }
 
   @Test
-  public void readAll_returns_all_NodeHealth_in_map_sq_health_state_for_existing_client_uuids() {
+  public void readAll_returns_all_NodeHealth_in_map_sq_health_state_for_existing_client_uuids_aged_less_than_30_seconds() {
     NodeHealth[] nodeHealths = IntStream.range(0, 1 + random.nextInt(6)).mapToObj(i -> randomNodeHealth()).toArray(NodeHealth[]::new);
     Map<String, TimestampedNodeHealth> allNodeHealths = new HashMap<>();
     Map<String, NodeHealth> expected = new HashMap<>();
     String randomUuidBase = randomAlphanumeric(5);
     for (int i = 0; i < nodeHealths.length; i++) {
       String memberUuid = randomUuidBase + i;
-      TimestampedNodeHealth timestampedNodeHealth = new TimestampedNodeHealth(nodeHealths[i], random.nextLong());
+      TimestampedNodeHealth timestampedNodeHealth = new TimestampedNodeHealth(nodeHealths[i], clusterTime - random.nextInt(30 * 1000));
       allNodeHealths.put(memberUuid, timestampedNodeHealth);
       if (random.nextBoolean()) {
         expected.put(memberUuid, nodeHealths[i]);
@@ -111,10 +113,39 @@ public class SharedHealthStateImplTest {
     }
     doReturn(allNodeHealths).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
     when(hazelcastClient.getMemberUuids()).thenReturn(expected.keySet());
+    when(hazelcastClient.getClusterTime()).thenReturn(clusterTime);
 
     assertThat(underTest.readAll())
       .containsOnly(expected.values().stream().toArray(NodeHealth[]::new));
     assertThat(logTester.logs()).isEmpty();
+  }
+
+  @Test
+  public void readAll_ignores_NodeHealth_of_30_seconds_before_cluster_time() {
+    NodeHealth nodeHealth = randomNodeHealth();
+    Map<String, TimestampedNodeHealth> map = new HashMap<>();
+    String memberUuid = randomAlphanumeric(5);
+    TimestampedNodeHealth timestampedNodeHealth = new TimestampedNodeHealth(nodeHealth, clusterTime - 30 * 1000);
+    map.put(memberUuid, timestampedNodeHealth);
+    doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
+    when(hazelcastClient.getMemberUuids()).thenReturn(map.keySet());
+    when(hazelcastClient.getClusterTime()).thenReturn(clusterTime);
+
+    assertThat(underTest.readAll()).isEmpty();
+  }
+
+  @Test
+  public void readAll_ignores_NodeHealth_of_more_than_30_seconds_before_cluster_time() {
+    NodeHealth nodeHealth = randomNodeHealth();
+    Map<String, TimestampedNodeHealth> map = new HashMap<>();
+    String memberUuid = randomAlphanumeric(5);
+    TimestampedNodeHealth timestampedNodeHealth = new TimestampedNodeHealth(nodeHealth, clusterTime - 30 * 1000 - random.nextInt(99));
+    map.put(memberUuid, timestampedNodeHealth);
+    doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
+    when(hazelcastClient.getMemberUuids()).thenReturn(map.keySet());
+    when(hazelcastClient.getClusterTime()).thenReturn(clusterTime);
+
+    assertThat(underTest.readAll()).isEmpty();
   }
 
   @Test
@@ -123,32 +154,58 @@ public class SharedHealthStateImplTest {
     Map<String, TimestampedNodeHealth> map = new HashMap<>();
     String uuid = randomAlphanumeric(44);
     NodeHealth nodeHealth = randomNodeHealth();
-    map.put(uuid, new TimestampedNodeHealth(nodeHealth, random.nextLong()));
-    when(hazelcastClient.getClusterTime()).thenReturn(random.nextLong());
-    when(hazelcastClient.getMemberUuids()).thenReturn(Collections.singleton(uuid));
+    map.put(uuid, new TimestampedNodeHealth(nodeHealth, clusterTime - 1));
+    when(hazelcastClient.getClusterTime()).thenReturn(clusterTime);
+    when(hazelcastClient.getMemberUuids()).thenReturn(singleton(uuid));
     doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
 
     underTest.readAll();
 
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Reading " + new HashMap<>(map) + " and keeping " + Collections.singleton(nodeHealth));
+    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Reading " + new HashMap<>(map) + " and keeping " + singleton(nodeHealth));
   }
 
   @Test
-  public void readAll_logs_content_of_non_existing_member_was_ignored_if_TRACE() {
+  public void readAll_logs_message_for_each_non_existing_member_ignored_if_TRACE() {
     logTester.setLevel(LoggerLevel.TRACE);
     Map<String, TimestampedNodeHealth> map = new HashMap<>();
-    String memberUuid = randomAlphanumeric(44);
-    map.put(memberUuid, new TimestampedNodeHealth(randomNodeHealth(), random.nextLong()));
-    when(hazelcastClient.getClusterTime()).thenReturn(random.nextLong());
+    String memberUuid1 = randomAlphanumeric(44);
+    String memberUuid2 = randomAlphanumeric(44);
+    map.put(memberUuid1, new TimestampedNodeHealth(randomNodeHealth(), clusterTime - 1));
+    map.put(memberUuid2, new TimestampedNodeHealth(randomNodeHealth(), clusterTime - 1));
+    when(hazelcastClient.getClusterTime()).thenReturn(clusterTime);
     doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
 
     underTest.readAll();
 
-    assertThat(logTester.logs()).hasSize(2);
-    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly(
-      "Reading " + map + " and keeping []",
-      "Ignoring NodeHealth of member " + memberUuid + " because it is not part of the cluster at the moment");
+    assertThat(logTester.logs()).hasSize(3);
+    assertThat(logTester.logs(LoggerLevel.TRACE))
+      .containsOnly(
+        "Reading " + new HashMap<>(map) + " and keeping []",
+        "Ignoring NodeHealth of member " + memberUuid1 + " because it is not part of the cluster at the moment",
+        "Ignoring NodeHealth of member " + memberUuid2 + " because it is not part of the cluster at the moment");
+  }
+
+  @Test
+  public void readAll_logs_message_for_each_timed_out_NodeHealth_ignored_if_TRACE() {
+    logTester.setLevel(LoggerLevel.TRACE);
+    Map<String, TimestampedNodeHealth> map = new HashMap<>();
+    String memberUuid1 = randomAlphanumeric(44);
+    String memberUuid2 = randomAlphanumeric(44);
+    map.put(memberUuid1, new TimestampedNodeHealth(randomNodeHealth(), clusterTime - 30 * 1000));
+    map.put(memberUuid2, new TimestampedNodeHealth(randomNodeHealth(), clusterTime - 30 * 1000));
+    doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
+    when(hazelcastClient.getMemberUuids()).thenReturn(ImmutableSet.of(memberUuid1, memberUuid2));
+    when(hazelcastClient.getClusterTime()).thenReturn(clusterTime);
+
+    underTest.readAll();
+
+    assertThat(logTester.logs()).hasSize(3);
+    assertThat(logTester.logs(LoggerLevel.TRACE))
+      .containsOnly(
+        "Reading " + new HashMap<>(map) + " and keeping []",
+        "Ignoring NodeHealth of member " + memberUuid1 + " because it is too old",
+        "Ignoring NodeHealth of member " + memberUuid2 + " because it is too old");
   }
 
   @Test
