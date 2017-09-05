@@ -22,25 +22,20 @@ package org.sonarqube.tests.measure;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.ClassRule;
 import org.junit.Rule;
+import org.junit.Test;
+import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.pageobjects.measures.MeasureContent;
 import org.sonarqube.pageobjects.measures.MeasuresPage;
 import org.sonarqube.tests.Category1Suite;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.tests.Tester;
 
-import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
-import static util.selenium.Selenese.runSelenese;
 
 public class ProjectMeasuresPageTest {
 
@@ -48,7 +43,7 @@ public class ProjectMeasuresPageTest {
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator);
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   private static String projectKey = "project-measures-page-test-project";
 

@@ -23,9 +23,6 @@ import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.junit.Rule;
-import org.openqa.selenium.By;
-import org.sonarqube.tests.Category1Suite;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -33,7 +30,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.openqa.selenium.By;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
@@ -41,9 +40,8 @@ import org.sonar.wsclient.qualitygate.QualityGateCondition;
 import org.sonar.wsclient.qualitygate.UpdateCondition;
 import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.pageobjects.ProjectActivityPage;
+import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.tests.Tester;
-import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsUsers;
 
 import static com.codeborne.selenide.Selenide.$;
 import static org.apache.commons.lang.time.DateUtils.addDays;
@@ -59,7 +57,7 @@ public class QualityGateUiTest {
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator);
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   private static long DEFAULT_QUALITY_GATE;
 
