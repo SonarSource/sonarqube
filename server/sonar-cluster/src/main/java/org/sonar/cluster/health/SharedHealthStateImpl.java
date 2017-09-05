@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -33,6 +34,7 @@ import static java.util.Objects.requireNonNull;
 public class SharedHealthStateImpl implements SharedHealthState {
   private static final String SQ_HEALTH_STATE_REPLICATED_MAP_IDENTIFIER = "sq_health_state";
   private static final Logger LOG = Loggers.get(SharedHealthStateImpl.class);
+  private static final int TIMEOUT_30_SECONDS = 30 * 60 * 1000;
 
   private final HazelcastClient hazelcastClient;
 
@@ -45,8 +47,8 @@ public class SharedHealthStateImpl implements SharedHealthState {
     requireNonNull(nodeHealth, "nodeHealth can't be null");
 
     Map<String, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Reading {} and adding {}", new HashMap<>(sqHealthState), nodeHealth);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Reading {} and adding {}", new HashMap<>(sqHealthState), nodeHealth);
     }
     sqHealthState.put(hazelcastClient.getUUID(), new TimestampedNodeHealth(nodeHealth, hazelcastClient.getClusterTime()));
   }
@@ -55,8 +57,8 @@ public class SharedHealthStateImpl implements SharedHealthState {
   public void clearMine() {
     Map<String, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
     String clientUUID = hazelcastClient.getUUID();
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Reading {} and clearing for {}", new HashMap<>(sqHealthState), clientUUID);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Reading {} and clearing for {}", new HashMap<>(sqHealthState), clientUUID);
     }
     sqHealthState.remove(clientUUID);
   }
@@ -66,13 +68,23 @@ public class SharedHealthStateImpl implements SharedHealthState {
     Map<String, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
     Set<String> hzMemberUUIDs = hazelcastClient.getMemberUuids();
     Set<NodeHealth> existingNodeHealths = sqHealthState.entrySet().stream()
-      .filter(entry -> hzMemberUUIDs.contains(entry.getKey()))
+      .filter(ofNonExistentMember(hzMemberUUIDs))
       .map(entry -> entry.getValue().getNodeHealth())
       .collect(Collectors.toSet());
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Reading {} and keeping {}", new HashMap<>(sqHealthState), existingNodeHealths);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Reading {} and keeping {}", new HashMap<>(sqHealthState), existingNodeHealths);
     }
     return ImmutableSet.copyOf(existingNodeHealths);
+  }
+
+  private static Predicate<Map.Entry<String, TimestampedNodeHealth>> ofNonExistentMember(Set<String> hzMemberUUIDs) {
+    return entry -> {
+      boolean res = hzMemberUUIDs.contains(entry.getKey());
+      if (!res && LOG.isTraceEnabled()) {
+        LOG.trace("Ignoring NodeHealth of member {} because it is not part of the cluster at the moment", entry.getKey());
+      }
+      return res;
+    };
   }
 
   private Map<String, TimestampedNodeHealth> readReplicatedMap() {
