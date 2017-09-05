@@ -34,12 +34,12 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_IDS;
 
 public class BulkDeleteAction implements ProjectsWsAction {
 
   private static final String ACTION = "bulk_delete";
-  private static final String PARAM_PROJECT_IDS = "projectIds";
-  private static final String PARAM_PROJECTS = "projects";
 
   private final ComponentCleanerService componentCleanerService;
   private final DbClient dbClient;

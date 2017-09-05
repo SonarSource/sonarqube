@@ -44,7 +44,9 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_IDS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
@@ -118,7 +120,9 @@ public class ProjectsService extends BaseService {
       .setParam(TEXT_QUERY, request.getQuery())
       .setParam(PAGE, request.getPage())
       .setParam(PAGE_SIZE, request.getPageSize())
-      .setParam(PARAM_ON_PROVISIONED_ONLY, request.isOnProvisionedOnly());
+      .setParam(PARAM_ON_PROVISIONED_ONLY, request.isOnProvisionedOnly())
+      .setParam(PARAM_PROJECTS, request.getProjects())
+      .setParam(PARAM_PROJECT_IDS, request.getProjectIds());
     return call(get, SearchWsResponse.parser());
   }
 
