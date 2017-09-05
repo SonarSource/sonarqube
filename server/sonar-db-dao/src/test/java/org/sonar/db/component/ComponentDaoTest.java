@@ -1034,7 +1034,9 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByQuery_on_empty_list_of_component_id() {
+    db.components().insertPrivateProject();
     ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setComponentIds(emptySet()).build();
+
     List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, 0, 10);
     int count = underTest.countByQuery(dbSession, dbQuery);
 
@@ -1056,6 +1058,62 @@ public class ComponentDaoTest {
     assertThat(result).hasSize(2).extracting(ComponentDto::getId)
       .containsOnlyOnce(sonarqube.getId(), jdk8.getId())
       .doesNotContain(cLang.getId());
+  }
+
+  @Test
+  public void selectByQuery_on_empty_list_of_component_key() {
+    db.components().insertPrivateProject();
+    ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setComponentKeys(emptySet()).build();
+
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, 0, 10);
+    int count = underTest.countByQuery(dbSession, dbQuery);
+
+    assertThat(result).isEmpty();
+    assertThat(count).isEqualTo(0);
+  }
+
+  @Test
+  public void selectByQuery_on_component_keys() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto sonarqube = db.components().insertComponent(newPrivateProjectDto(organizationDto));
+    ComponentDto jdk8 = db.components().insertComponent(newPrivateProjectDto(organizationDto));
+    ComponentDto cLang = db.components().insertComponent(newPrivateProjectDto(organizationDto));
+    ComponentQuery query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT)
+      .setComponentKeys(newHashSet(sonarqube.getDbKey(), jdk8.getDbKey())).build();
+
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+
+    assertThat(result).hasSize(2).extracting(ComponentDto::getDbKey)
+      .containsExactlyInAnyOrder(sonarqube.getDbKey(), jdk8.getDbKey())
+      .doesNotContain(cLang.getDbKey());
+  }
+
+  @Test
+  public void selectByQuery_on_empty_list_of_component_uuids() {
+    db.components().insertPrivateProject();
+    ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setComponentUuids(emptySet()).build();
+
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, 0, 10);
+    int count = underTest.countByQuery(dbSession, dbQuery);
+
+    assertThat(result).isEmpty();
+    assertThat(count).isEqualTo(0);
+  }
+
+  @Test
+  public void selectByQuery_on_component_uuids() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto sonarqube = db.components().insertComponent(newPrivateProjectDto(organizationDto));
+    ComponentDto jdk8 = db.components().insertComponent(newPrivateProjectDto(organizationDto));
+    ComponentDto cLang = db.components().insertComponent(newPrivateProjectDto(organizationDto));
+    ComponentQuery query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT)
+      .setComponentUuids(newHashSet(sonarqube.uuid(), jdk8.uuid())).build();
+
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+
+    assertThat(result).hasSize(2).extracting(ComponentDto::uuid)
+      .containsOnlyOnce(sonarqube.uuid(), jdk8.uuid())
+      .doesNotContain(cLang.uuid());
   }
 
   @Test

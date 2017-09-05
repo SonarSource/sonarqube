@@ -68,7 +68,7 @@ public class ProjectSearchTest {
   }
 
   @Test
-  public void search_on_key_partial_match_case_insensitive() {
+  public void search_on_key_query_partial_match_case_insensitive() {
     Organizations.Organization organization = tester.organizations().generate();
     CreateWsResponse.Project lowerCaseProject = tester.projects().generate(organization, p -> p.setKey("project-key"));
     CreateWsResponse.Project upperCaseProject = tester.projects().generate(organization, p -> p.setKey("PROJECT-KEY"));
