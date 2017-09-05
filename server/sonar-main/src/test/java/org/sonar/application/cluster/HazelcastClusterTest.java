@@ -50,6 +50,7 @@ import org.sonar.process.ProcessId;
 import static java.lang.String.format;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -209,7 +210,6 @@ public class HazelcastClusterTest {
     }
   }
 
-
   @Test
   public void registerSonarQubeVersion_publishes_version_on_first_call() {
     ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
@@ -280,8 +280,16 @@ public class HazelcastClusterTest {
 
     assertThat(memoryAppender.events).isNotEmpty();
     memoryAppender.events.stream().forEach(
-      e -> assertThat(e.getLoggerName()).startsWith("com.hazelcast")
-    );
+      e -> assertThat(e.getLoggerName()).startsWith("com.hazelcast"));
+  }
+
+  @Test
+  public void getClusterTime_returns_time_of_cluster() {
+    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
+      assertThat(hzCluster.getHazelcastClient().getClusterTime())
+        .isCloseTo(hzCluster.hzInstance.getCluster().getClusterTime(), within(1000L));
+    }
   }
 
   private class MemoryAppender<E> extends AppenderBase<E> {
@@ -292,7 +300,6 @@ public class HazelcastClusterTest {
       events.add(eventObject);
     }
   }
-
 
   @Test
   public void configuration_tweaks_of_hazelcast_must_be_present() {

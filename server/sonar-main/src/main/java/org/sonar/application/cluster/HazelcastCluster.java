@@ -325,6 +325,11 @@ public class HazelcastCluster implements AutoCloseable {
     public Lock getLock(String s) {
       return hzInstance.getLock(s);
     }
+
+    @Override
+    public long getClusterTime() {
+      return hzInstance.getCluster().getClusterTime();
+    }
   }
 
   private class OperationalProcessListener implements EntryListener<ClusterProcess, Boolean> {
