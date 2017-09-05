@@ -28,13 +28,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentUpdater;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.client.project.CreateRequest;
 
-import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
@@ -55,15 +53,12 @@ public class CreateAction implements ProjectsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentUpdater componentUpdater;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public CreateAction(ProjectsWsSupport support, DbClient dbClient, UserSession userSession, ComponentUpdater componentUpdater,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+  public CreateAction(ProjectsWsSupport support, DbClient dbClient, UserSession userSession, ComponentUpdater componentUpdater) {
     this.support = support;
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -114,8 +109,7 @@ public class CreateAction implements ProjectsWsAction {
 
   private CreateWsResponse doHandle(CreateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = support.getOrganization(dbSession, ofNullable(request.getOrganization())
-        .orElseGet(defaultOrganizationProvider.get()::getKey));
+      OrganizationDto organization = support.getOrganization(dbSession, request.getOrganization());
       userSession.checkPermission(PROVISION_PROJECTS, organization);
       String visibility = request.getVisibility();
       Boolean changeToPrivate = visibility == null ? dbClient.organizationDao().getNewProjectPrivate(dbSession, organization) : "private".equals(visibility);
