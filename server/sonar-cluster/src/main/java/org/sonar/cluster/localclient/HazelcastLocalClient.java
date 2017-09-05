@@ -109,6 +109,11 @@ public class HazelcastLocalClient implements Startable, HazelcastClient {
   }
 
   @Override
+  public long getClusterTime() {
+    return hzInstance.getCluster().getClusterTime();
+  }
+
+  @Override
   public void start() {
     this.hzInstance = com.hazelcast.client.HazelcastClient.newHazelcastClient(hzConfig);
   }
