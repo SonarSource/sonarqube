@@ -52,7 +52,6 @@ import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 import static java.util.Collections.emptyList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.sonar.server.es.DefaultIndexSettings.REFRESH_NONE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
 
@@ -93,14 +92,14 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
     try (IssueIterator issues = issueIteratorFactory.createForAll()) {
-      doIndex(issues, Size.LARGE, IndexingListener.NOOP);
+      doIndex(issues, Size.LARGE, IndexingListener.FAIL_ON_ERROR);
     }
   }
 
   @Override
   public void indexOnAnalysis(String branchUuid) {
     try (IssueIterator issues = issueIteratorFactory.createForProject(branchUuid)) {
-      doIndex(issues, Size.REGULAR, IndexingListener.NOOP);
+      doIndex(issues, Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
     }
   }
 
@@ -227,7 +226,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
       return;
     }
 
-    BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, IndexingListener.NOOP);
+    BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
     bulkIndexer.start();
     issueKeys.forEach(issueKey -> bulkIndexer.addDeletion(INDEX_TYPE_ISSUE, issueKey, projectUuid));
     bulkIndexer.stop();
@@ -235,7 +234,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
   @VisibleForTesting
   protected void index(Iterator<IssueDoc> issues) {
-    doIndex(issues, Size.LARGE, IndexingListener.NOOP);
+    doIndex(issues, Size.LARGE, IndexingListener.FAIL_ON_ERROR);
   }
 
   private void doIndex(Iterator<IssueDoc> issues, Size size, IndexingListener listener) {

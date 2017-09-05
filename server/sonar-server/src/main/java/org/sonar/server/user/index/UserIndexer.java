@@ -67,7 +67,7 @@ public class UserIndexer implements ResilientIndexer {
       ListMultimap<String, String> organizationUuidsByLogin = ArrayListMultimap.create();
       dbClient.organizationMemberDao().selectAllForUserIndexing(dbSession, organizationUuidsByLogin::put);
 
-      BulkIndexer bulkIndexer = newBulkIndexer(Size.LARGE, IndexingListener.NOOP);
+      BulkIndexer bulkIndexer = newBulkIndexer(Size.LARGE, IndexingListener.FAIL_ON_ERROR);
       bulkIndexer.start();
       dbClient.userDao().scrollAll(dbSession,
         // only index requests, no deletion requests.

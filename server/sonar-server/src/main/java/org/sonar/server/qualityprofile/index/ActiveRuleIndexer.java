@@ -73,7 +73,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      BulkIndexer bulkIndexer = createBulkIndexer(Size.LARGE, IndexingListener.NOOP);
+      BulkIndexer bulkIndexer = createBulkIndexer(Size.LARGE, IndexingListener.FAIL_ON_ERROR);
       bulkIndexer.start();
       dbClient.activeRuleDao().scrollAllForIndexing(dbSession, ar -> bulkIndexer.add(newIndexRequest(ar)));
       bulkIndexer.stop();
@@ -182,7 +182,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
         profileResult = BulkIndexer.delete(esClient, INDEX_TYPE_ACTIVE_RULE, search);
 
       } else {
-        BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, IndexingListener.NOOP);
+        BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
         bulkIndexer.start();
         dbClient.activeRuleDao().scrollByRuleProfileForIndexing(dbSession, ruleProfileUUid, i -> bulkIndexer.add(newIndexRequest(i)));
         profileResult = bulkIndexer.stop();

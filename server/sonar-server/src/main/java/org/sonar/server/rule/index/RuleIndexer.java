@@ -69,7 +69,7 @@ public class RuleIndexer implements ResilientIndexer {
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      BulkIndexer bulk = createBulkIndexer(Size.LARGE, IndexingListener.NOOP);
+      BulkIndexer bulk = createBulkIndexer(Size.LARGE, IndexingListener.FAIL_ON_ERROR);
       bulk.start();
 
       // index all definitions and system extensions

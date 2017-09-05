@@ -138,7 +138,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
     try (DbSession dbSession = dbClient.openSession(false);
       ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, projectUuid)) {
 
-      BulkIndexer bulkIndexer = createBulkIndexer(size, IndexingListener.NOOP);
+      BulkIndexer bulkIndexer = createBulkIndexer(size, IndexingListener.FAIL_ON_ERROR);
       bulkIndexer.start();
       while (rowIt.hasNext()) {
         ProjectMeasures doc = rowIt.next();

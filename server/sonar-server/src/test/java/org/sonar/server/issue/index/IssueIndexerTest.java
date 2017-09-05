@@ -141,10 +141,14 @@ public class IssueIndexerTest {
     es.lockWrites(INDEX_TYPE_ISSUE);
     db.issues().insertIssue(organization);
 
-    underTest.indexOnStartup(emptySet());
-
-    assertThatIndexHasSize(0);
-    assertThatEsQueueTableHasSize(0);
+    try {
+      // FIXME : test also message
+      expectedException.expect(IllegalStateException.class);
+      underTest.indexOnStartup(emptySet());
+    } finally {
+      assertThatIndexHasSize(0);
+      assertThatEsQueueTableHasSize(0);
+    }
   }
 
   @Test
@@ -187,10 +191,14 @@ public class IssueIndexerTest {
     es.lockWrites(INDEX_TYPE_ISSUE);
     IssueDto issue = db.issues().insertIssue(organization);
 
-    underTest.indexOnAnalysis(issue.getProjectUuid());
-
-    assertThatIndexHasSize(0);
-    assertThatEsQueueTableHasSize(0);
+    try {
+      // FIXME : test also message
+      expectedException.expect(IllegalStateException.class);
+      underTest.indexOnAnalysis(issue.getProjectUuid());
+    } finally {
+      assertThatIndexHasSize(0);
+      assertThatEsQueueTableHasSize(0);
+    }
   }
 
   @Test
@@ -416,10 +424,14 @@ public class IssueIndexerTest {
     addIssueToIndex("P1", "Issue1");
     es.lockWrites(INDEX_TYPE_ISSUE);
 
-    underTest.deleteByKeys("P1", asList("Issue1"));
-
-    assertThatIndexHasOnly("Issue1");
-    assertThatEsQueueTableHasSize(0);
+    try {
+      // FIXME : test also message
+      expectedException.expect(IllegalStateException.class);
+      underTest.deleteByKeys("P1", asList("Issue1"));
+    } finally {
+      assertThatIndexHasOnly("Issue1");
+      assertThatEsQueueTableHasSize(0);
+    }
   }
 
   @Test

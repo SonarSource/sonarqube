@@ -20,8 +20,6 @@
 package org.sonar.server.test.index;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
@@ -32,15 +30,10 @@ import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.es.EsQueueDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.IndexingResult;
-import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.test.db.TestTesting;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
@@ -100,73 +93,6 @@ public class TestIndexerTest {
     assertThat(countDocuments()).isZero();
   }
 
-  /**
-   * Indexing recovery is handled by Compute Engine, without using
-   * the table es_queue
-   */
-  @Test
-  public void indexOnAnalysis_does_not_fail_on_errors_and_does_not_enable_recovery_mode() throws IOException, SQLException {
-    db.prepareDbUnit(getClass(), "db.xml");
-
-    es.lockWrites(INDEX_TYPE_TEST);
-    TestTesting.updateDataColumn(db.getSession(), "FILE_UUID", TestTesting.newRandomTests(3));
-
-    underTest.indexOnAnalysis("PROJECT_UUID");
-    es.unlockWrites(INDEX_TYPE_TEST);
-
-    assertThat(countDocuments()).isEqualTo(0);
-    assertThat(db.countRowsOfTable("es_queue")).isEqualTo(0);
-  }
-
-  @Test
-  public void prepareForRecovery_must_be_empty_unless_cause_is_PROJECT_DELETION() {
-    db.prepareDbUnit(getClass(), "db.xml");
-    assertThat(underTest.prepareForRecovery(db.getSession(), asList("PROJECT_UUID"), ProjectIndexer.Cause.PROJECT_CREATION))
-      .isEmpty();
-    assertThat(underTest.prepareForRecovery(db.getSession(), asList("PROJECT_UUID"), ProjectIndexer.Cause.PROJECT_KEY_UPDATE))
-      .isEmpty();
-    assertThat(underTest.prepareForRecovery(db.getSession(), asList("PROJECT_UUID"), ProjectIndexer.Cause.PROJECT_TAGS_UPDATE))
-      .isEmpty();
-    assertThat(underTest.prepareForRecovery(db.getSession(), asList("PROJECT_UUID"), ProjectIndexer.Cause.PERMISSION_CHANGE))
-      .isEmpty();
-
-    // Only deletion is resilient with recovery
-    assertThat(underTest.prepareForRecovery(db.getSession(), asList("PROJECT_UUID"), ProjectIndexer.Cause.PROJECT_DELETION))
-      .isNotEmpty();
-  }
-
-  @Test
-  public void errors_during_project_deletion_are_recovered() throws IOException, SQLException, InterruptedException {
-    // Create a project with 3 tests
-    db.prepareDbUnit(getClass(), "db.xml");
-    TestTesting.updateDataColumn(db.getSession(), "FILE_UUID", TestTesting.newRandomTests(3));
-    underTest.indexOnAnalysis("PROJECT_UUID"); //index(db.getSession(), items);
-    assertThat(countDocuments()).isEqualTo(3);
-
-    // Now delete the files
-    es.lockWrites(INDEX_TYPE_TEST);
-    Collection<EsQueueDto> items = underTest.prepareForRecovery(db.getSession(), asList("PROJECT_UUID"), ProjectIndexer.Cause.PROJECT_DELETION);
-    db.commit();
-
-    underTest.deleteByFile("FILE_UUID");
-    es.unlockWrites(INDEX_TYPE_TEST);
-    // Still 3 tests
-    assertThat(countDocuments()).isEqualTo(3);
-
-    // Recover must delete the 3 tests
-    IndexingResult result = recover();
-    assertThat(result.getTotal()).isEqualTo(3);
-
-    assertThat(countDocuments()).isEqualTo(0);
-  }
-
-  @Test
-  public void indexing_with_empty_esqueue_dto_does_nothing() {
-    assertThat(underTest.index(db.getSession(), emptyList()))
-      .extracting(IndexingResult::getTotal, IndexingResult::getFailures, IndexingResult::getSuccess)
-      .containsExactly(0L, 0L, 0L);
-  }
-
   @Test
   public void delete_file_by_uuid() throws Exception {
     indexTest("P1", "F1", "T1", "U111");
@@ -201,10 +127,5 @@ public class TestIndexerTest {
 
   private long countDocuments() {
     return es.countDocuments(INDEX_TYPE_TEST);
-  }
-
-  private IndexingResult recover() {
-    Collection<EsQueueDto> items = db.getDbClient().esQueueDao().selectForRecovery(db.getSession(), System.currentTimeMillis() + 10_000L, 10);
-    return underTest.index(db.getSession(), items);
   }
 }
