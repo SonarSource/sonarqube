@@ -23,6 +23,7 @@ import com.google.common.base.Joiner;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.assertj.core.api.Assertions;
@@ -71,6 +72,8 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_IDS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class SearchActionTest {
@@ -259,6 +262,38 @@ public class SearchActionTest {
   }
 
   @Test
+  public void search_by_component_keys() {
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    ComponentDto jdk = db.components().insertPrivateProject();
+    ComponentDto sonarqube = db.components().insertPrivateProject();
+    ComponentDto sonarlint = db.components().insertPrivateProject();
+
+    SearchWsResponse result = call(SearchWsRequest.builder()
+      .setProjects(Arrays.asList(jdk.getKey(), sonarqube.getKey()))
+      .build());
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey)
+      .containsExactlyInAnyOrder(jdk.getKey(), sonarqube.getKey())
+      .doesNotContain(sonarlint.getKey());
+  }
+
+  @Test
+  public void search_by_component_uuids() {
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    ComponentDto jdk = db.components().insertPrivateProject();
+    ComponentDto sonarqube = db.components().insertPrivateProject();
+    ComponentDto sonarlint = db.components().insertPrivateProject();
+
+    SearchWsResponse result = call(SearchWsRequest.builder()
+      .setProjectIds(Arrays.asList(jdk.uuid(), sonarqube.uuid()))
+      .build());
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey)
+      .containsExactlyInAnyOrder(jdk.getKey(), sonarqube.getKey())
+      .doesNotContain(sonarlint.getKey());
+  }
+
+  @Test
   public void fail_when_not_system_admin() throws Exception {
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
     expectedException.expect(ForbiddenException.class);
@@ -291,8 +326,8 @@ public class SearchActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.since()).isEqualTo("6.3");
     assertThat(action.handler()).isEqualTo(ws.getDef().handler());
-    assertThat(action.params()).hasSize(8).extracting(Param::key)
-      .containsExactlyInAnyOrder("organization", "q", "qualifiers", "p", "ps", "visibility", "analyzedBefore", "onProvisionedOnly");
+    assertThat(action.params()).extracting(Param::key)
+      .containsExactlyInAnyOrder("organization", "q", "qualifiers", "p", "ps", "visibility", "analyzedBefore", "onProvisionedOnly", "projects", "projectIds");
     assertThat(action.responseExample()).isEqualTo(getClass().getResource("search-example.json"));
 
     Param organization = action.param("organization");
@@ -374,6 +409,8 @@ public class SearchActionTest {
     setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(PAGE_SIZE, String.valueOf(pageSize)));
     setNullable(wsRequest.getVisibility(), v -> request.setParam(PARAM_VISIBILITY, v));
     setNullable(wsRequest.getAnalyzedBefore(), d -> request.setParam(PARAM_ANALYZED_BEFORE, d));
+    setNullable(wsRequest.getProjects(), l -> request.setParam(PARAM_PROJECTS, String.join(",", l)));
+    setNullable(wsRequest.getProjectIds(), l -> request.setParam(PARAM_PROJECT_IDS, String.join(",", l)));
     request.setParam(PARAM_ON_PROVISIONED_ONLY, String.valueOf(wsRequest.isOnProvisionedOnly()));
     return request.executeProtobuf(SearchWsResponse.class);
   }

@@ -274,6 +274,18 @@
           #{componentId,jdbcType=BIGINT}
         </foreach>
       </if>
+      <if test="query.componentKeys!=null">
+        and p.kee in
+        <foreach collection="query.componentKeys" item="componentKey" open="(" close=")" separator=",">
+          #{componentKey,jdbcType=BIGINT}
+        </foreach>
+      </if>
+      <if test="query.componentUuids!=null">
+        and p.uuid in
+        <foreach collection="query.componentUuids" item="componentUuid" open="(" close=")" separator=",">
+          #{componentUuid,jdbcType=BIGINT}
+        </foreach>
+      </if>
       <if test="query.nameOrKeyQuery!=null">
         and (
           upper(p.name) like #{query.nameOrKeyUpperLikeQuery,jdbcType=VARCHAR} escape '/'

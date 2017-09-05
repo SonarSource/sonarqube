@@ -51,18 +51,17 @@ import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 public class ComponentDao implements Dao {
 
   private static List<ComponentDto> selectByQueryImpl(DbSession session, @Nullable String organizationUuid, ComponentQuery query, int offset, int limit) {
-    Set<Long> componentIds = query.getComponentIds();
-    if (componentIds != null && componentIds.isEmpty()) {
+    if (query.hasEmptySetOfComponents()) {
       return emptyList();
     }
     return mapper(session).selectByQuery(organizationUuid, query, new RowBounds(offset, limit));
   }
 
   private static int countByQueryImpl(DbSession session, @Nullable String organizationUuid, ComponentQuery query) {
-    Set<Long> componentIds = query.getComponentIds();
-    if (componentIds != null && componentIds.isEmpty()) {
+    if (query.hasEmptySetOfComponents()) {
       return 0;
     }
+
     return mapper(session).countByQuery(organizationUuid, query);
   }
 

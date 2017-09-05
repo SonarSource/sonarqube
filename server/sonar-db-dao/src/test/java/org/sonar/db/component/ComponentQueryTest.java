@@ -19,10 +19,13 @@
  */
 package org.sonar.db.component;
 
+import java.util.function.Supplier;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 
@@ -46,6 +49,7 @@ public class ComponentQueryTest {
     assertThat(underTest.getAnalyzedBefore()).isEqualTo(1_000_000_000L);
     assertThat(underTest.isOnProvisionedOnly()).isFalse();
     assertThat(underTest.isPartialMatchOnKey()).isFalse();
+    assertThat(underTest.hasEmptySetOfComponents()).isFalse();
   }
 
   @Test
@@ -67,6 +71,18 @@ public class ComponentQueryTest {
       .build();
 
     assertThat(underTest.getNameOrKeyUpperLikeQuery()).isEqualTo("%NAME//KEY%");
+  }
+
+  @Test
+  public void empty_list_of_components() {
+    Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setQualifiers(PROJECT);
+
+    assertThat(query.get().setComponentIds(emptySet()).build().hasEmptySetOfComponents()).isTrue();
+    assertThat(query.get().setComponentKeys(emptySet()).build().hasEmptySetOfComponents()).isTrue();
+    assertThat(query.get().setComponentUuids(emptySet()).build().hasEmptySetOfComponents()).isTrue();
+    assertThat(query.get().setComponentIds(singleton(404L)).build().hasEmptySetOfComponents()).isFalse();
+    assertThat(query.get().setComponentKeys(singleton("P1")).build().hasEmptySetOfComponents()).isFalse();
+    assertThat(query.get().setComponentUuids(singleton("U1")).build().hasEmptySetOfComponents()).isFalse();
   }
 
   @Test

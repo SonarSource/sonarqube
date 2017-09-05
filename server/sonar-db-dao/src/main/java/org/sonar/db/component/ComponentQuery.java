@@ -21,6 +21,7 @@ package org.sonar.db.component;
 
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.WildcardPosition;
@@ -35,6 +36,8 @@ public class ComponentQuery {
   private final String language;
   private final Boolean isPrivate;
   private final Set<Long> componentIds;
+  private final Set<String> componentUuids;
+  private final Set<String> componentKeys;
   private final Long analyzedBefore;
   private final boolean onProvisionedOnly;
 
@@ -44,6 +47,8 @@ public class ComponentQuery {
     this.qualifiers = builder.qualifiers;
     this.language = builder.language;
     this.componentIds = builder.componentIds;
+    this.componentUuids = builder.componentUuids;
+    this.componentKeys = builder.componentKeys;
     this.isPrivate = builder.isPrivate;
     this.analyzedBefore = builder.analyzedBefore;
     this.onProvisionedOnly = builder.onProvisionedOnly;
@@ -84,6 +89,16 @@ public class ComponentQuery {
   }
 
   @CheckForNull
+  public Set<String> getComponentUuids() {
+    return componentUuids;
+  }
+
+  @CheckForNull
+  public Set<String> getComponentKeys() {
+    return componentKeys;
+  }
+
+  @CheckForNull
   public Boolean getPrivate() {
     return isPrivate;
   }
@@ -97,6 +112,11 @@ public class ComponentQuery {
     return onProvisionedOnly;
   }
 
+  boolean hasEmptySetOfComponents() {
+    return Stream.of(componentIds, componentKeys, componentUuids)
+      .anyMatch(list -> list != null && list.isEmpty());
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -108,6 +128,8 @@ public class ComponentQuery {
     private String language;
     private Boolean isPrivate;
     private Set<Long> componentIds;
+    private Set<String> componentUuids;
+    private Set<String> componentKeys;
     private Long analyzedBefore;
     private boolean onProvisionedOnly = false;
 
@@ -136,6 +158,16 @@ public class ComponentQuery {
 
     public Builder setComponentIds(@Nullable Set<Long> componentIds) {
       this.componentIds = componentIds;
+      return this;
+    }
+
+    public Builder setComponentUuids(@Nullable Set<String> componentUuids) {
+      this.componentUuids = componentUuids;
+      return this;
+    }
+
+    public Builder setComponentKeys(@Nullable Set<String> componentKeys) {
+      this.componentKeys = componentKeys;
       return this;
     }
 

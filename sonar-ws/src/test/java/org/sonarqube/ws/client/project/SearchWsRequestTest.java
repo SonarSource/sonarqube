@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SearchWsRequestTest {
@@ -55,6 +56,26 @@ public class SearchWsRequestTest {
 
     SearchWsRequest.builder()
       .setPageSize(10000)
+      .build();
+  }
+
+  @Test
+  public void fail_if_project_key_list_is_empty() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Project key list must not be empty");
+
+    SearchWsRequest.builder()
+      .setProjects(emptyList())
+      .build();
+  }
+
+  @Test
+  public void fail_if_project_id_list_is_empty() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Project id list must not be empty");
+
+    SearchWsRequest.builder()
+      .setProjectIds(emptyList())
       .build();
   }
 }

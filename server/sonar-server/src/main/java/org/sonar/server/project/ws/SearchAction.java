@@ -19,6 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -50,8 +51,12 @@ import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.server.project.Visibility.PUBLIC;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsProjects.SearchWsResponse.Component;
 import static org.sonarqube.ws.WsProjects.SearchWsResponse.newBuilder;
@@ -60,6 +65,8 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.MAX_PAGE_SIZE
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_IDS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
@@ -121,6 +128,20 @@ public class SearchAction implements ProjectsWsAction {
       .setBooleanPossibleValues()
       .setDefaultValue("false")
       .setSince("6.6");
+
+    action
+      .createParam(PARAM_PROJECTS)
+      .setDescription("Comma-separated list of project keys")
+      .setSince("6.6")
+      .setExampleValue(String.join(",", KEY_PROJECT_EXAMPLE_001, KEY_PROJECT_EXAMPLE_002));
+
+    action
+      .createParam(PARAM_PROJECT_IDS)
+      .setDescription("Comma-separated list of project ids")
+      .setSince("6.6")
+      // parameter added to match api/projects/bulk_delete parameters
+      .setDeprecatedSince("6.6")
+      .setExampleValue(String.join(",", UUID_EXAMPLE_01, UUID_EXAMPLE_02));
   }
 
   @Override
@@ -139,6 +160,8 @@ public class SearchAction implements ProjectsWsAction {
       .setVisibility(request.param(PARAM_VISIBILITY))
       .setAnalyzedBefore(request.param(PARAM_ANALYZED_BEFORE))
       .setOnProvisionedOnly(request.mandatoryParamAsBoolean(PARAM_ON_PROVISIONED_ONLY))
+      .setProjects(request.paramAsStrings(PARAM_PROJECTS))
+      .setProjectIds(request.paramAsStrings(PARAM_PROJECT_IDS))
       .build();
   }
 
@@ -147,7 +170,7 @@ public class SearchAction implements ProjectsWsAction {
       OrganizationDto organization = support.getOrganization(dbSession, ofNullable(request.getOrganization()).orElseGet(defaultOrganizationProvider.get()::getKey));
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
 
-      ComponentQuery query = buildQuery(request);
+      ComponentQuery query = buildDbQuery(request);
       Paging paging = buildPaging(dbSession, request, organization, query);
       List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, paging.offset(), paging.pageSize());
       Map<String, Long> analysisDateByComponentUuid = dbClient.snapshotDao()
@@ -157,7 +180,7 @@ public class SearchAction implements ProjectsWsAction {
     }
   }
 
-  private static ComponentQuery buildQuery(SearchWsRequest request) {
+  private static ComponentQuery buildDbQuery(SearchWsRequest request) {
     List<String> qualifiers = request.getQualifiers();
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]));
@@ -170,6 +193,8 @@ public class SearchAction implements ProjectsWsAction {
     setNullable(request.getVisibility(), v -> query.setPrivate(Visibility.isPrivate(v)));
     setNullable(request.getAnalyzedBefore(), d -> query.setAnalyzedBefore(parseDateOrDateTime(d).getTime()));
     setNullable(request.isOnProvisionedOnly(), query::setOnProvisionedOnly);
+    setNullable(request.getProjects(), keys -> query.setComponentKeys(new HashSet<>(keys)));
+    setNullable(request.getProjectIds(), uuids -> query.setComponentUuids(new HashSet<>(uuids)));
 
     return query.build();
   }
