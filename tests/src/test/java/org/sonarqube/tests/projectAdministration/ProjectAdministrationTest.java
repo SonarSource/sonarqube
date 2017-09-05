@@ -21,9 +21,6 @@ package org.sonarqube.tests.projectAdministration;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.openqa.selenium.By;
-import org.sonarqube.pageobjects.ProjectsManagementPage;
-import org.sonarqube.tests.Category1Suite;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.Calendar;
@@ -37,11 +34,14 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.openqa.selenium.By;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.pageobjects.ProjectsManagementPage;
 import org.sonarqube.pageobjects.settings.SettingsPage;
+import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
@@ -68,7 +68,7 @@ public class ProjectAdministrationTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public Tester tester = new Tester(orchestrator);
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   private Navigation nav = Navigation.create(orchestrator);
 
