@@ -53,6 +53,7 @@ import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.FLOAT;
@@ -62,6 +63,7 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
@@ -451,6 +453,25 @@ public class ComponentTreeActionTest {
     Common.Metric responseMetric = result.getMetrics().getMetrics(0);
     assertThat(responseMetric.getKey()).isEqualTo(metricWithoutDomain.getKey());
     assertThat(responseMetric.hasDomain()).isFalse();
+  }
+
+  @Test
+  public void reference_component() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto view = db.components().insertView();
+    SnapshotDto viewAnalysis = db.components().insertSnapshot(view);
+    ComponentDto projectCopy = db.components().insertComponent(newProjectCopy(project, view));
+    MetricDto ncloc = insertNclocMetric();
+    db.measures().insertMeasure(projectCopy, viewAnalysis, ncloc, m -> m.setValue(5d));
+
+    ComponentTreeWsResponse result = ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_KEY, view.getKey())
+      .setParam(PARAM_METRIC_KEYS, ncloc.getKey())
+      .executeProtobuf(ComponentTreeWsResponse.class);
+
+    assertThat(result.getComponentsList())
+      .extracting(WsMeasures.Component::getKey, WsMeasures.Component::getRefId, WsMeasures.Component::getRefKey)
+      .containsExactlyInAnyOrder(tuple(projectCopy.getKey(), project.uuid(), project.getKey()));
   }
 
   @Test
