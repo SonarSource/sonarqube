@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -147,6 +148,13 @@ public class LogsTailer implements AutoCloseable {
      */
     public void waitForLog() throws InterruptedException {
       foundSignal.await();
+    }
+
+    /**
+     * Blocks until the expected log appears in watched files with timeout
+     */
+    public void waitForLog(long timeout, TimeUnit timeUnit) throws InterruptedException {
+      foundSignal.await(timeout, timeUnit);
     }
 
     public Optional<String> getLog() {

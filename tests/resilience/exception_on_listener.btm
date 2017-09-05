@@ -1,0 +1,8 @@
+RULE throw an exception on IndexingListener#onFinish
+CLASS org.sonar.server.es.IndexingListener
+METHOD onFinish
+COMPILE
+AT ENTRY
+IF true
+DO THROW new IllegalStateException("Indexation failures from byteman")
+ENDRULE
