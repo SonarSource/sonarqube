@@ -97,6 +97,7 @@ public class Tester extends ExternalResource implements Session {
     }
     users().deleteAll();
     projects().deleteAll();
+    settings().deleteAll();
   }
 
   public Session asAnonymous() {
@@ -179,6 +180,11 @@ public class Tester extends ExternalResource implements Session {
     return rootSession.users();
   }
 
+  @Override
+  public SettingTester settings() {
+    return rootSession.settings();
+  }
+
   private static class SessionImpl implements Session {
     private final WsClient client;
 
@@ -214,6 +220,11 @@ public class Tester extends ExternalResource implements Session {
     @Override
     public UserTester users() {
       return new UserTester(this);
+    }
+
+    @Override
+    public SettingTester settings() {
+      return new SettingTester(this);
     }
   }
 }

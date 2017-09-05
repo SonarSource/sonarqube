@@ -240,10 +240,18 @@ public class ItUtils {
     return scan;
   }
 
+  /**
+   * @deprecated replaced by {@link org.sonarqube.tests.SettingTester#setGlobalSetting(String, String)}
+   */
+  @Deprecated
   public static void setServerProperty(Orchestrator orchestrator, String key, @Nullable String value) {
     setServerProperty(orchestrator, null, key, value);
   }
 
+  /**
+   * @deprecated replaced by {@link org.sonarqube.tests.SettingTester#setProjectSetting(String, String, String)}
+   */
+  @Deprecated
   public static void setServerProperty(Orchestrator orchestrator, @Nullable String componentKey, String key, @Nullable String value) {
     if (value == null) {
       newAdminWsClient(orchestrator).settings().reset(ResetRequest.builder().setKeys(key).setComponent(componentKey).build());
@@ -252,23 +260,39 @@ public class ItUtils {
     }
   }
 
+  /**
+   * @deprecated replaced by {@link org.sonarqube.tests.SettingTester#setGlobalSetting(String, String)} or {@link org.sonarqube.tests.SettingTester#setProjectSettings(String, String...)}
+   */
+  @Deprecated
   public static void setServerProperties(Orchestrator orchestrator, @Nullable String componentKey, String... properties) {
     for (int i = 0; i < properties.length; i += 2) {
       setServerProperty(orchestrator, componentKey, properties[i], properties[i + 1]);
     }
   }
 
+  /**
+   * @deprecated replaced by {@link org.sonarqube.tests.SettingTester#resetSettings(String...)} 
+   */
+  @Deprecated
   public static void resetSettings(Orchestrator orchestrator, @Nullable String componentKey, String... keys) {
     if (keys.length > 0) {
       newAdminWsClient(orchestrator).settings().reset(ResetRequest.builder().setKeys(keys).setComponent(componentKey).build());
     }
   }
 
+  /**
+   * @deprecated no more needed as already done by n by {@link Tester#after()}
+   */
+  @Deprecated
   public static void resetEmailSettings(Orchestrator orchestrator) {
     resetSettings(orchestrator, null, "email.smtp_host.secured", "email.smtp_port.secured", "email.smtp_secure_connection.secured", "email.smtp_username.secured",
       "email.smtp_password.secured", "email.from", "email.prefix");
   }
 
+  /**
+   * @deprecated no more needed as already done by n by {@link Tester#after()}
+   */
+  @Deprecated
   public static void resetPeriod(Orchestrator orchestrator) {
     resetSettings(orchestrator, null, "sonar.leak.period");
   }

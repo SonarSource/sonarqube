@@ -35,4 +35,6 @@ public interface Session {
 
   UserTester users();
 
+  SettingTester settings();
+
 }
