@@ -67,4 +67,9 @@ public interface HazelcastClient {
    * Gets lock among the cluster, identified by name
    */
   Lock getLock(String name);
+
+  /**
+   * Retrieves the cluster time which is (alsmost) identical on all members of the cluster.
+   */
+  long getClusterTime();
 }

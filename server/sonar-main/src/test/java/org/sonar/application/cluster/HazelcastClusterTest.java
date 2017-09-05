@@ -50,6 +50,7 @@ import org.sonar.process.ProcessId;
 import static java.lang.String.format;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -286,13 +287,21 @@ public class HazelcastClusterTest {
   }
 
   @Test
+  public void getClusterTime_returns_time_of_cluster() {
+    ClusterProperties clusterProperties = new ClusterProperties(newApplicationSettings());
+    try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
+      assertThat(hzCluster.getHazelcastClient().getClusterTime())
+        .isCloseTo(hzCluster.hzInstance.getCluster().getClusterTime(), within(1000L));
+    }
+  }
+
+  @Test
   public void removing_the_last_application_node_must_clear_web_leader() throws InterruptedException {
     try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(newSearchSettings())) {
       TestAppSettings appSettings = newApplicationSettings();
       appSettings.set(CLUSTER_HOSTS, appStateCluster.getHazelcastCluster().getLocalEndPoint());
       appSettings.set(CLUSTER_NODE_PORT, "9004");
       ClusterProperties clusterProperties = new ClusterProperties(appSettings);
-
       // Simulate a connection from an application node
       HazelcastCluster appNode = HazelcastCluster.create(clusterProperties);
       appNode.tryToLockWebLeader();
@@ -320,6 +329,7 @@ public class HazelcastClusterTest {
       assertThat(appStateCluster.isOperational(ProcessId.COMPUTE_ENGINE, false)).isFalse();
       assertThat(appStateCluster.getHazelcastCluster().getSonarQubeVersion()).isNull();
     }
+
   }
 
   @Test

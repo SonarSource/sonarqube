@@ -56,6 +56,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.cluster.internal.HazelcastTestHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_LOCALENDPOINT;
@@ -257,6 +258,19 @@ public class HazelcastLocalClientTest {
     Assertions.assertThat(memoryAppender.events).isNotEmpty();
     memoryAppender.events.stream().forEach(
       e -> Assertions.assertThat(e.getLoggerName()).startsWith("com.hazelcast"));
+  }
+
+  @Test
+  public void getClusterTime_returns_time_of_cluster() {
+    try {
+      hzClient.start();
+
+      HazelcastClientInstanceImpl realClient = ((HazelcastClientProxy) hzClient.hzInstance).client;
+      assertThat(hzClient.getClusterTime())
+        .isCloseTo(realClient.getCluster().getClusterTime(), within(1000L));
+    } finally {
+      hzClient.stop();
+    }
   }
 
   private class ClientListenerImpl implements ClientListener {
