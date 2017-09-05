@@ -31,7 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.config.AppSettings;
-import org.sonar.process.NodeType;
+import org.sonar.cluster.NodeType;
 
 import static org.sonar.cluster.ClusterProperties.CLUSTER_HOSTS;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_HOST;
