@@ -44,16 +44,16 @@ public class SharedHealthStateImpl implements SharedHealthState {
   public void writeMine(NodeHealth nodeHealth) {
     requireNonNull(nodeHealth, "nodeHealth can't be null");
 
-    Map<String, NodeHealth> sqHealthState = hazelcastClient.getReplicatedMap(SQ_HEALTH_STATE_REPLICATED_MAP_IDENTIFIER);
+    Map<String, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
     if (LOG.isTraceEnabled()) {
       LOG.trace("Reading {} and adding {}", new HashMap<>(sqHealthState), nodeHealth);
     }
-    sqHealthState.put(hazelcastClient.getUUID(), nodeHealth);
+    sqHealthState.put(hazelcastClient.getUUID(), new TimestampedNodeHealth(nodeHealth, hazelcastClient.getClusterTime()));
   }
 
   @Override
   public void clearMine() {
-    Map<String, NodeHealth> sqHealthState = hazelcastClient.getReplicatedMap(SQ_HEALTH_STATE_REPLICATED_MAP_IDENTIFIER);
+    Map<String, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
     String clientUUID = hazelcastClient.getUUID();
     if (LOG.isTraceEnabled()) {
       LOG.trace("Reading {} and clearing for {}", new HashMap<>(sqHealthState), clientUUID);
@@ -63,14 +63,20 @@ public class SharedHealthStateImpl implements SharedHealthState {
 
   @Override
   public Set<NodeHealth> readAll() {
-    Map<String, NodeHealth> sqHealthState = hazelcastClient.getReplicatedMap(SQ_HEALTH_STATE_REPLICATED_MAP_IDENTIFIER);
+    Map<String, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
     Set<String> hzMemberUUIDs = hazelcastClient.getMemberUuids();
     Set<NodeHealth> existingNodeHealths = sqHealthState.entrySet().stream()
-      .filter(entry -> hzMemberUUIDs.contains(entry.getKey())).map(Map.Entry::getValue)
+      .filter(entry -> hzMemberUUIDs.contains(entry.getKey()))
+      .map(entry -> entry.getValue().getNodeHealth())
       .collect(Collectors.toSet());
     if (LOG.isTraceEnabled()) {
       LOG.trace("Reading {} and keeping {}", new HashMap<>(sqHealthState), existingNodeHealths);
     }
     return ImmutableSet.copyOf(existingNodeHealths);
   }
+
+  private Map<String, TimestampedNodeHealth> readReplicatedMap() {
+    return hazelcastClient.getReplicatedMap(SQ_HEALTH_STATE_REPLICATED_MAP_IDENTIFIER);
+  }
+
 }
