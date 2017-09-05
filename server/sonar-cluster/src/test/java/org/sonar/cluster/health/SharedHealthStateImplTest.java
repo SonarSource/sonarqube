@@ -79,8 +79,8 @@ public class SharedHealthStateImplTest {
   }
 
   @Test
-  public void write_logs_map_sq_health_state_content_and_NodeHealth_to_be_added_if_TRACE() {
-    logTester.setLevel(LoggerLevel.TRACE);
+  public void write_logs_map_sq_health_state_content_and_NodeHealth_to_be_added_if_DEBUG() {
+    logTester.setLevel(LoggerLevel.DEBUG);
     NodeHealth newNodeHealth = randomNodeHealth();
     Map<String, TimestampedNodeHealth> map = new HashMap<>();
     map.put(randomAlphanumeric(4), new TimestampedNodeHealth(randomNodeHealth(), random.nextLong()));
@@ -91,7 +91,7 @@ public class SharedHealthStateImplTest {
     underTest.writeMine(newNodeHealth);
 
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.TRACE).iterator().next()).isEqualTo("Reading " + map + " and adding " + newNodeHealth);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).iterator().next()).isEqualTo("Reading " + map + " and adding " + newNodeHealth);
 
   }
 
@@ -118,8 +118,8 @@ public class SharedHealthStateImplTest {
   }
 
   @Test
-  public void readAll_logs_map_sq_health_state_content_and_the_content_effectively_returned_if_TRACE() {
-    logTester.setLevel(LoggerLevel.TRACE);
+  public void readAll_logs_map_sq_health_state_content_and_the_content_effectively_returned_if_DEBUG() {
+    logTester.setLevel(LoggerLevel.DEBUG);
     Map<String, TimestampedNodeHealth> map = new HashMap<>();
     map.put(randomAlphanumeric(44), new TimestampedNodeHealth(randomNodeHealth(), random.nextLong()));
     when(hazelcastClient.getClusterTime()).thenReturn(random.nextLong());
@@ -128,7 +128,24 @@ public class SharedHealthStateImplTest {
     underTest.readAll();
 
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.TRACE).iterator().next()).isEqualTo("Reading " + map + " and keeping []");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).iterator().next()).isEqualTo("Reading " + map + " and keeping []");
+  }
+
+  @Test
+  public void readAll_logs_content_of_non_existing_member_was_ignored_if_TRACE() {
+    logTester.setLevel(LoggerLevel.TRACE);
+    Map<String, TimestampedNodeHealth> map = new HashMap<>();
+    String memberUuid = randomAlphanumeric(44);
+    map.put(memberUuid, new TimestampedNodeHealth(randomNodeHealth(), random.nextLong()));
+    when(hazelcastClient.getClusterTime()).thenReturn(random.nextLong());
+    doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
+
+    underTest.readAll();
+
+    assertThat(logTester.logs()).hasSize(2);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).iterator().next()).isEqualTo("Reading " + map + " and keeping []");
+    assertThat(logTester.logs(LoggerLevel.TRACE).iterator().next())
+      .isEqualTo("Ignoring NodeHealth of member " + memberUuid + " because it is not part of the cluster at the moment");
   }
 
   @Test
@@ -146,8 +163,8 @@ public class SharedHealthStateImplTest {
   }
 
   @Test
-  public void clearMine_logs_map_sq_health_state_and_current_client_uuid_if_TRACE() {
-    logTester.setLevel(LoggerLevel.TRACE);
+  public void clearMine_logs_map_sq_health_state_and_current_client_uuid_if_DEBUG() {
+    logTester.setLevel(LoggerLevel.DEBUG);
     Map<String, TimestampedNodeHealth> map = new HashMap<>();
     map.put(randomAlphanumeric(4), new TimestampedNodeHealth(randomNodeHealth(), random.nextLong()));
     doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
@@ -157,7 +174,7 @@ public class SharedHealthStateImplTest {
     underTest.clearMine();
 
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.TRACE).iterator().next()).isEqualTo("Reading " + map + " and clearing for " + uuid);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).iterator().next()).isEqualTo("Reading " + map + " and clearing for " + uuid);
   }
 
   private NodeHealth randomNodeHealth() {
