@@ -83,16 +83,8 @@ class Cluster implements AutoCloseable {
     return nodes.stream().filter(n -> n.getConfig().getType() == NodeConfig.NodeType.APPLICATION);
   }
 
-  Stream<Node> getSearchNodes() {
-    return nodes.stream().filter(n -> n.getConfig().getType() == NodeConfig.NodeType.SEARCH);
-  }
-
   Node getAppNode(int index) {
     return getAppNodes().skip(index).findFirst().orElseThrow(IllegalArgumentException::new);
-  }
-
-  Node getSearchNode(int index) {
-    return getSearchNodes().skip(index).findFirst().orElseThrow(IllegalArgumentException::new);
   }
 
   @Override

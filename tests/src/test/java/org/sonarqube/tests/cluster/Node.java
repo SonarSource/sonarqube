@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
+import org.sonarqube.tests.LogsTailer;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,6 +37,8 @@ class Node {
 
   private final NodeConfig config;
   private final Orchestrator orchestrator;
+  private LogsTailer logsTailer;
+  private final LogsTailer.Content content = new LogsTailer.Content();
 
   Node(NodeConfig config, Orchestrator orchestrator) {
     this.config = config;
@@ -53,10 +56,20 @@ class Node {
    */
   void start() {
     orchestrator.start();
+    logsTailer = LogsTailer.builder()
+      .addFile(orchestrator.getServer().getWebLogs())
+      .addFile(orchestrator.getServer().getCeLogs())
+      .addFile(orchestrator.getServer().getEsLogs())
+      .addFile(orchestrator.getServer().getAppLogs())
+      .addConsumer(content)
+      .build();
   }
 
   void stop() {
     orchestrator.stop();
+    if (logsTailer != null) {
+      logsTailer.close();
+    }
   }
 
   void cleanUpLogs() {
@@ -144,13 +157,7 @@ class Node {
   }
 
   boolean anyLogsContain(String message) {
-    if (orchestrator.getServer() == null) {
-      return false;
-    }
-    return fileContains(orchestrator.getServer().getAppLogs(), message) ||
-      fileContains(orchestrator.getServer().getWebLogs(), message) ||
-      fileContains(orchestrator.getServer().getEsLogs(), message) ||
-      fileContains(orchestrator.getServer().getCeLogs(), message);
+    return content.hasText(message);
   }
 
   private boolean webLogsContain(String message) {
