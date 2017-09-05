@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,60 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { Link } from 'react-router';
-import { getComponentPermissionsUrl } from '../../helpers/urls';
-import ApplyTemplateView from '../permissions/project/views/ApplyTemplateView';
+import { Project, Visibility } from './utils';
+import PrivateBadge from '../../components/common/PrivateBadge';
 import Checkbox from '../../components/controls/Checkbox';
 import QualifierIcon from '../../components/shared/QualifierIcon';
-import PrivateBadge from '../../components/common/PrivateBadge';
 import { translate } from '../../helpers/l10n';
+import { getComponentPermissionsUrl } from '../../helpers/urls';
 
-export default class Projects extends React.PureComponent {
-  static propTypes = {
-    projects: PropTypes.array.isRequired,
-    selection: PropTypes.array.isRequired,
-    organization: PropTypes.object.isRequired
+interface Props {
+  onApplyTemplateClick: (project: Project) => void;
+  onProjectCheck: (project: Project, checked: boolean) => void;
+  project: Project;
+  selected: boolean;
+}
+
+export default class ProjectRow extends React.PureComponent<Props> {
+  handleProjectCheck = (checked: boolean) => {
+    this.props.onProjectCheck(this.props.project, checked);
   };
 
-  componentWillMount() {
-    this.renderProject = this.renderProject.bind(this);
-  }
+  handleApplyTemplateClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    this.props.onApplyTemplateClick(this.props.project);
+  };
 
-  onProjectCheck(project, checked) {
-    if (checked) {
-      this.props.onProjectSelected(project);
-    } else {
-      this.props.onProjectDeselected(project);
-    }
-  }
-
-  onApplyTemplateClick(project, e) {
-    e.preventDefault();
-    e.target.blur();
-    new ApplyTemplateView({
-      project,
-      organization: this.props.organization
-    }).render();
-  }
-
-  isProjectSelected(project) {
-    return this.props.selection.indexOf(project.key) !== -1;
-  }
-
-  renderProject(project) {
-    const permissionsUrl = getComponentPermissionsUrl(project.key);
+  render() {
+    const { project, selected } = this.props;
 
     return (
-      <tr key={project.key}>
+      <tr>
         <td className="thin">
-          <Checkbox
-            checked={this.isProjectSelected(project)}
-            onCheck={this.onProjectCheck.bind(this, project)}
-          />
+          <Checkbox checked={selected} onCheck={this.handleProjectCheck} />
         </td>
+
         <td className="nowrap">
           <Link
             to={{ pathname: '/dashboard', query: { id: project.key } }}
@@ -78,14 +60,17 @@ export default class Projects extends React.PureComponent {
             <QualifierIcon qualifier={project.qualifier} /> <span>{project.name}</span>
           </Link>
         </td>
+
         <td className="nowrap">
           <span className="note">
             {project.key}
           </span>
         </td>
+
         <td className="width-20">
-          {project.visibility === 'private' && <PrivateBadge />}
+          {project.visibility === Visibility.Private && <PrivateBadge />}
         </td>
+
         <td className="thin nowrap">
           <div className="dropdown">
             <button className="dropdown-toggle" data-toggle="dropdown">
@@ -93,12 +78,12 @@ export default class Projects extends React.PureComponent {
             </button>
             <ul className="dropdown-menu dropdown-menu-right">
               <li>
-                <Link to={permissionsUrl}>
+                <Link to={getComponentPermissionsUrl(project.key)}>
                   {translate('edit_permissions')}
                 </Link>
               </li>
               <li>
-                <a href="#" onClick={this.onApplyTemplateClick.bind(this, project)}>
+                <a className="js-apply-template" href="#" onClick={this.handleApplyTemplateClick}>
                   {translate('projects_role.apply_template')}
                 </a>
               </li>
@@ -106,18 +91,6 @@ export default class Projects extends React.PureComponent {
           </div>
         </td>
       </tr>
-    );
-  }
-
-  render() {
-    const className = classNames('data', 'zebra', { 'new-loading': !this.props.ready });
-
-    return (
-      <table className={className} id="projects-management-page-projects">
-        <tbody>
-          {this.props.projects.map(this.renderProject)}
-        </tbody>
-      </table>
     );
   }
 }

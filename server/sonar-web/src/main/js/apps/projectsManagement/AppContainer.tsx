@@ -17,16 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
-import Main from './main';
+import App from './App';
+import { Organization } from '../../app/types';
 import { onFail } from '../../store/rootActions';
 import { getAppState, getOrganizationByKey } from '../../store/rootReducer';
 import { receiveOrganizations } from '../../store/organizations/duck';
 import { changeProjectVisibility } from '../../api/organizations';
 import { fetchOrganization } from '../../apps/organizations/actions';
 
-class AppContainer extends React.PureComponent {
+interface Props {
+  appState: {
+    defaultOrganization: string;
+    qualifiers: string[];
+  };
+  fetchOrganization: (organization: string) => void;
+  onVisibilityChange: (organization: Organization, visibility: string) => void;
+  onRequestFail: (error: any) => void;
+  organization?: Organization;
+}
+
+class AppContainer extends React.PureComponent<Props> {
   componentDidMount() {
     // if there is no organization, that means we are in the global scope
     // let's fetch defails for the default organization in this case
@@ -35,12 +47,10 @@ class AppContainer extends React.PureComponent {
     }
   }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleVisibilityChange = visibility => {
-    this.props.onVisibilityChange(this.props.organization, visibility);
+  handleVisibilityChange = (visibility: string) => {
+    if (this.props.organization) {
+      this.props.onVisibilityChange(this.props.organization, visibility);
+    }
   };
 
   render() {
@@ -53,24 +63,25 @@ class AppContainer extends React.PureComponent {
     const topLevelQualifiers = organization.isDefault ? this.props.appState.qualifiers : ['TRK'];
 
     return (
-      <Main
+      <App
         hasProvisionPermission={organization.canProvisionProjects}
-        topLevelQualifiers={topLevelQualifiers}
         onVisibilityChange={this.handleVisibilityChange}
-        onRequestFail={this.props.onRequestFail}
         organization={organization}
+        topLevelQualifiers={topLevelQualifiers}
       />
     );
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state: any, ownProps: Props) => ({
   appState: getAppState(state),
   organization:
     ownProps.organization || getOrganizationByKey(state, getAppState(state).defaultOrganization)
 });
 
-const onVisibilityChange = (organization, visibility) => dispatch => {
+const onVisibilityChange = (organization: Organization, visibility: string) => (
+  dispatch: Function
+) => {
   const currentVisibility = organization.projectVisibility;
   dispatch(receiveOrganizations([{ ...organization, projectVisibility: visibility }]));
   changeProjectVisibility(organization.key, visibility).catch(error => {
@@ -79,11 +90,10 @@ const onVisibilityChange = (organization, visibility) => dispatch => {
   });
 };
 
-const mapDispatchToProps = dispatch => ({
-  fetchOrganization: key => dispatch(fetchOrganization(key)),
-  onVisibilityChange: (organization, visibility) =>
-    dispatch(onVisibilityChange(organization, visibility)),
-  onRequestFail: error => onFail(dispatch)(error)
+const mapDispatchToProps = (dispatch: Function) => ({
+  fetchOrganization: (key: string) => dispatch(fetchOrganization(key)),
+  onVisibilityChange: (organization: Organization, visibility: string) =>
+    dispatch(onVisibilityChange(organization, visibility))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppContainer);
+export default connect<any, any, any>(mapStateToProps, mapDispatchToProps)(AppContainer);

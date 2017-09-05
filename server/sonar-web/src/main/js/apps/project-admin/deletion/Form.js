@@ -87,7 +87,7 @@ export default class Form extends React.PureComponent {
             <form onSubmit={this.handleSubmit}>
               <div className="modal-head">
                 <h2>
-                  {translate('qualifiers.delete.TRK')}
+                  {translate('qualifier.delete.TRK')}
                 </h2>
               </div>
               <div className="modal-body">

@@ -1,0 +1,104 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`changes visibility 1`] = `
+<div>
+  <a
+    className="link-base-color link-no-underline"
+    href="#"
+    id="visibility-public"
+    onClick={[Function]}
+  >
+    <i
+      className="icon-radio is-checked"
+    />
+    <span
+      className="spacer-left"
+    >
+      visibility.public
+    </span>
+  </a>
+  <a
+    className="link-base-color link-no-underline huge-spacer-left"
+    href="#"
+    id="visibility-private"
+    onClick={[Function]}
+  >
+    <i
+      className="icon-radio"
+    />
+    <span
+      className="spacer-left"
+    >
+      visibility.private
+    </span>
+  </a>
+</div>
+`;
+
+exports[`changes visibility 2`] = `
+<div>
+  <a
+    className="link-base-color link-no-underline"
+    href="#"
+    id="visibility-public"
+    onClick={[Function]}
+  >
+    <i
+      className="icon-radio"
+    />
+    <span
+      className="spacer-left"
+    >
+      visibility.public
+    </span>
+  </a>
+  <a
+    className="link-base-color link-no-underline huge-spacer-left"
+    href="#"
+    id="visibility-private"
+    onClick={[Function]}
+  >
+    <i
+      className="icon-radio is-checked"
+    />
+    <span
+      className="spacer-left"
+    >
+      visibility.private
+    </span>
+  </a>
+</div>
+`;
+
+exports[`renders disabled 1`] = `
+<div>
+  <a
+    className="link-base-color link-no-underline"
+    href="#"
+    id="visibility-public"
+    onClick={[Function]}
+  >
+    <i
+      className="icon-radio is-checked"
+    />
+    <span
+      className="spacer-left"
+    >
+      visibility.public
+    </span>
+  </a>
+  <span
+    className="huge-spacer-left text-muted cursor-not-allowed"
+    id="visibility-private"
+  >
+    <i
+      className="icon-radio"
+    />
+    <span
+      className="spacer-left"
+    >
+      visibility.private
+    </span>
+  </span>
+</div>
+`;

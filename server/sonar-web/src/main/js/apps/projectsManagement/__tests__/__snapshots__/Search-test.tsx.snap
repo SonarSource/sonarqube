@@ -1,0 +1,234 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`bulk applies permission template 1`] = `
+<BulkApplyTemplateModal
+  onClose={[Function]}
+  organization="org"
+  qualifier="TRK"
+  query=""
+  selection={Array []}
+  total={0}
+  type="ALL"
+/>
+`;
+
+exports[`deletes projects 1`] = `
+<DeleteModal
+  onClose={[Function]}
+  onConfirm={[Function]}
+  organization="org"
+  qualifier="TRK"
+  selection={
+    Array [
+      "foo",
+      "bar",
+    ]
+  }
+/>
+`;
+
+exports[`render qualifiers filter 1`] = `
+<div
+  className="panel panel-vertical bordered-bottom spacer-bottom"
+>
+  <table
+    className="data"
+  >
+    <tbody>
+      <tr>
+        <td
+          className="thin text-middle"
+        >
+          <Checkbox
+            checked={false}
+            onCheck={[Function]}
+            thirdState={false}
+          />
+        </td>
+        <td
+          className="thin nowrap text-middle"
+        >
+          <RadioToggle
+            disabled={false}
+            name="projects-qualifier"
+            onCheck={[Function]}
+            options={
+              Array [
+                Object {
+                  "label": "qualifiers.TRK",
+                  "value": "TRK",
+                },
+                Object {
+                  "label": "qualifiers.VW",
+                  "value": "VW",
+                },
+                Object {
+                  "label": "qualifiers.APP",
+                  "value": "APP",
+                },
+              ]
+            }
+            value="TRK"
+          />
+        </td>
+        <td
+          className="thin nowrap text-middle"
+        >
+          <RadioToggle
+            disabled={false}
+            name="projects-type"
+            onCheck={[Function]}
+            options={
+              Array [
+                Object {
+                  "label": "All",
+                  "value": "ALL",
+                },
+                Object {
+                  "label": "Provisioned",
+                  "value": "PROVISIONED",
+                },
+                Object {
+                  "label": "Ghosts",
+                  "value": "GHOSTS",
+                },
+              ]
+            }
+            value="ALL"
+          />
+        </td>
+        <td
+          className="text-middle"
+        >
+          <form
+            className="search-box"
+            onSubmit={[Function]}
+          >
+            <button
+              className="search-box-submit button-clean"
+            >
+              <i
+                className="icon-search"
+              />
+            </button>
+            <input
+              className="search-box-input input-medium"
+              onChange={[Function]}
+              placeholder="Search"
+              type="search"
+              value=""
+            />
+          </form>
+        </td>
+        <td
+          className="thin nowrap text-middle"
+        >
+          <button
+            className="spacer-right js-bulk-apply-permission-template"
+            onClick={[Function]}
+          >
+            permission_templates.bulk_apply_permission_template
+          </button>
+          <button
+            className="js-delete button-red"
+            disabled={true}
+            onClick={[Function]}
+          >
+            delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`renders 1`] = `
+<div
+  className="panel panel-vertical bordered-bottom spacer-bottom"
+>
+  <table
+    className="data"
+  >
+    <tbody>
+      <tr>
+        <td
+          className="thin text-middle"
+        >
+          <Checkbox
+            checked={false}
+            onCheck={[Function]}
+            thirdState={false}
+          />
+        </td>
+        <td
+          className="thin nowrap text-middle"
+        >
+          <RadioToggle
+            disabled={false}
+            name="projects-type"
+            onCheck={[Function]}
+            options={
+              Array [
+                Object {
+                  "label": "All",
+                  "value": "ALL",
+                },
+                Object {
+                  "label": "Provisioned",
+                  "value": "PROVISIONED",
+                },
+                Object {
+                  "label": "Ghosts",
+                  "value": "GHOSTS",
+                },
+              ]
+            }
+            value="ALL"
+          />
+        </td>
+        <td
+          className="text-middle"
+        >
+          <form
+            className="search-box"
+            onSubmit={[Function]}
+          >
+            <button
+              className="search-box-submit button-clean"
+            >
+              <i
+                className="icon-search"
+              />
+            </button>
+            <input
+              className="search-box-input input-medium"
+              onChange={[Function]}
+              placeholder="Search"
+              type="search"
+              value=""
+            />
+          </form>
+        </td>
+        <td
+          className="thin nowrap text-middle"
+        >
+          <button
+            className="spacer-right js-bulk-apply-permission-template"
+            onClick={[Function]}
+          >
+            permission_templates.bulk_apply_permission_template
+          </button>
+          <button
+            className="js-delete button-red"
+            disabled={true}
+            onClick={[Function]}
+          >
+            delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;

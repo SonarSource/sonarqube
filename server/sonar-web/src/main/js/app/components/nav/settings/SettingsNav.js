@@ -42,7 +42,7 @@ class SettingsNav extends React.PureComponent {
   }
 
   isProjectsActive() {
-    const urls = ['/projects_admin', '/background_tasks'];
+    const urls = ['/admin/projects_management', '/background_tasks'];
     return this.isSomethingActive(urls);
   }
 
@@ -158,7 +158,7 @@ class SettingsNav extends React.PureComponent {
             <ul className="dropdown-menu">
               {!this.props.customOrganizations &&
                 <li>
-                  <IndexLink to="/projects_admin" activeClassName="active">
+                  <IndexLink to="/admin/projects_management" activeClassName="active">
                     Management
                   </IndexLink>
                 </li>}
