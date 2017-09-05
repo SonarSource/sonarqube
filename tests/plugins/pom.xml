@@ -60,6 +60,7 @@
     <module>sonar-subcategories-plugin</module>
     <module>ui-extensions-plugin</module>
     <module>posttask-plugin</module>
+    <module>wait-at-platform-level4-plugin</module>
     <module>ws-plugin</module>
     <module>backdating-plugin-v1</module>
     <module>backdating-plugin-v2</module>

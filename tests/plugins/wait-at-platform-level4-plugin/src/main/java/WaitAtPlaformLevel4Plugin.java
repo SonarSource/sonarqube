@@ -17,27 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
-
+import java.util.ArrayList;
 import java.util.List;
+import org.sonar.api.SonarPlugin;
 
-public interface IndexingListener {
+public final class WaitAtPlaformLevel4Plugin extends SonarPlugin {
 
-  void onSuccess(List<DocId> docIds);
+  public List getExtensions() {
+    List extensions = new ArrayList();
+    extensions.add(WaitAtPlatformLevel4.class);
+    return extensions;
+  }
 
-  void onFinish(IndexingResult result);
-
-  IndexingListener FAIL_ON_ERROR = new IndexingListener() {
-    @Override
-    public void onSuccess(List<DocId> docIds) {
-      // nothing to do
-    }
-
-    @Override
-    public void onFinish(IndexingResult result) {
-      if (result.getFailures() > 0) {
-        throw new IllegalStateException("Unrecoverable indexation failures");
-      }
-    }
-  };
 }
