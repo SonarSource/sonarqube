@@ -37,7 +37,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.WsComponents.ProvisionedWsResponse;
@@ -57,19 +56,16 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ProvisionedAction implements ProjectsWsAction {
 
-  private static final Set<String> QUALIFIERS_FILTER = newHashSet(Qualifiers.PROJECT);
   private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate", "visibility");
 
   private final ProjectsWsSupport support;
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public ProvisionedAction(ProjectsWsSupport support, DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public ProvisionedAction(ProjectsWsSupport support, DbClient dbClient, UserSession userSession) {
     this.support = support;
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -105,8 +101,7 @@ public class ProvisionedAction implements ProjectsWsAction {
     String query = request.param(Param.TEXT_QUERY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = support.getOrganization(dbSession,
-        request.getParam(PARAM_ORGANIZATION).or(defaultOrganizationProvider.get()::getKey));
+      OrganizationDto organization = support.getOrganization(dbSession, request.param(PARAM_ORGANIZATION));
       userSession.checkPermission(PROVISION_PROJECTS, organization);
 
       ComponentQuery dbQuery = buildDbQuery(query);
