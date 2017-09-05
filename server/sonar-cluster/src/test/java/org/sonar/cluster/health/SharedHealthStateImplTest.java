@@ -19,6 +19,7 @@
  */
 package org.sonar.cluster.health;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -92,7 +93,6 @@ public class SharedHealthStateImplTest {
 
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.TRACE).iterator().next()).isEqualTo("Reading " + map + " and adding " + newNodeHealth);
-
   }
 
   @Test
@@ -121,14 +121,34 @@ public class SharedHealthStateImplTest {
   public void readAll_logs_map_sq_health_state_content_and_the_content_effectively_returned_if_TRACE() {
     logTester.setLevel(LoggerLevel.TRACE);
     Map<String, TimestampedNodeHealth> map = new HashMap<>();
-    map.put(randomAlphanumeric(44), new TimestampedNodeHealth(randomNodeHealth(), random.nextLong()));
+    String uuid = randomAlphanumeric(44);
+    NodeHealth nodeHealth = randomNodeHealth();
+    map.put(uuid, new TimestampedNodeHealth(nodeHealth, random.nextLong()));
     when(hazelcastClient.getClusterTime()).thenReturn(random.nextLong());
+    when(hazelcastClient.getMemberUuids()).thenReturn(Collections.singleton(uuid));
     doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
 
     underTest.readAll();
 
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.TRACE).iterator().next()).isEqualTo("Reading " + map + " and keeping []");
+    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Reading " + new HashMap<>(map) + " and keeping " + Collections.singleton(nodeHealth));
+  }
+
+  @Test
+  public void readAll_logs_content_of_non_existing_member_was_ignored_if_TRACE() {
+    logTester.setLevel(LoggerLevel.TRACE);
+    Map<String, TimestampedNodeHealth> map = new HashMap<>();
+    String memberUuid = randomAlphanumeric(44);
+    map.put(memberUuid, new TimestampedNodeHealth(randomNodeHealth(), random.nextLong()));
+    when(hazelcastClient.getClusterTime()).thenReturn(random.nextLong());
+    doReturn(map).when(hazelcastClient).getReplicatedMap(MAP_SQ_HEALTH_STATE);
+
+    underTest.readAll();
+
+    assertThat(logTester.logs()).hasSize(2);
+    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly(
+      "Reading " + map + " and keeping []",
+      "Ignoring NodeHealth of member " + memberUuid + " because it is not part of the cluster at the moment");
   }
 
   @Test
