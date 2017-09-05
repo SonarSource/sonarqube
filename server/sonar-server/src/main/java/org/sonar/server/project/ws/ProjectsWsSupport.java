@@ -19,6 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
@@ -26,6 +27,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
@@ -34,11 +36,12 @@ public class ProjectsWsSupport {
   public static final String PARAM_ORGANIZATION = "organization";
 
   private final DbClient dbClient;
-
+  private final DefaultOrganizationProvider organizationProvider;
   private final BillingValidationsProxy billingValidations;
 
-  public ProjectsWsSupport(DbClient dbClient, BillingValidationsProxy billingValidations) {
+  public ProjectsWsSupport(DbClient dbClient, DefaultOrganizationProvider organizationProvider, BillingValidationsProxy billingValidations) {
     this.dbClient = dbClient;
+    this.organizationProvider = organizationProvider;
     this.billingValidations = billingValidations;
   }
 
@@ -50,10 +53,11 @@ public class ProjectsWsSupport {
       .setSince("6.3");
   }
 
-  OrganizationDto getOrganization(DbSession dbSession, String organizationKey) {
+  OrganizationDto getOrganization(DbSession dbSession, @Nullable String organizationKeyParam) {
+    String organizationKey = organizationKeyParam == null ? organizationProvider.get().getKey() : organizationKeyParam;
     return checkFoundWithOptional(
-        dbClient.organizationDao().selectByKey(dbSession, organizationKey),
-        "No organization for key '%s'", organizationKey);
+      dbClient.organizationDao().selectByKey(dbSession, organizationKey),
+      "No organization for key '%s'", organizationKey);
   }
 
   void checkCanUpdateProjectsVisibility(OrganizationDto organization, boolean newProjectsPrivate) {

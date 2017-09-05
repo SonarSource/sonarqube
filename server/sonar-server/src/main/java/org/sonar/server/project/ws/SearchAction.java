@@ -37,14 +37,12 @@ import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsProjects.SearchWsResponse;
 import org.sonarqube.ws.client.project.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
@@ -74,13 +72,11 @@ public class SearchAction implements ProjectsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final ProjectsWsSupport support;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider, ProjectsWsSupport support) {
+  public SearchAction(DbClient dbClient, UserSession userSession, ProjectsWsSupport support) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.support = support;
   }
 
@@ -167,7 +163,7 @@ public class SearchAction implements ProjectsWsAction {
 
   private SearchWsResponse doHandle(SearchWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = support.getOrganization(dbSession, ofNullable(request.getOrganization()).orElseGet(defaultOrganizationProvider.get()::getKey));
+      OrganizationDto organization = support.getOrganization(dbSession, request.getOrganization());
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
 
       ComponentQuery query = buildDbQuery(request);

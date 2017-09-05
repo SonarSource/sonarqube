@@ -94,7 +94,7 @@ public class SearchActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private WsActionTester ws = new WsActionTester(
-    new SearchAction(db.getDbClient(), userSession, defaultOrganizationProvider, new ProjectsWsSupport(db.getDbClient(), mock(BillingValidationsProxy.class))));
+    new SearchAction(db.getDbClient(), userSession, new ProjectsWsSupport(db.getDbClient(), defaultOrganizationProvider, mock(BillingValidationsProxy.class))));
 
   @Test
   public void search_by_key_query_with_partial_match_case_insensitive() throws IOException {

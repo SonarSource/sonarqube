@@ -66,7 +66,7 @@ public class ProvisionedActionTest {
   private DbClient dbClient = db.getDbClient();
 
   private WsActionTester ws = new WsActionTester(
-    new ProvisionedAction(new ProjectsWsSupport(dbClient, mock(BillingValidationsProxy.class)), dbClient, userSessionRule, defaultOrganizationProvider));
+    new ProvisionedAction(new ProjectsWsSupport(dbClient, defaultOrganizationProvider, mock(BillingValidationsProxy.class)), dbClient, userSessionRule));
 
   @Test
   public void definition() {

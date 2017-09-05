@@ -85,11 +85,11 @@ public class CreateActionTest {
   private TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private WsActionTester ws = new WsActionTester(
     new CreateAction(
-      new ProjectsWsSupport(db.getDbClient(), billingValidations),
+      new ProjectsWsSupport(db.getDbClient(), defaultOrganizationProvider, billingValidations),
       db.getDbClient(), userSession,
       new ComponentUpdater(db.getDbClient(), i18n, system2, mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()),
-        projectIndexers),
-      defaultOrganizationProvider));
+        projectIndexers)
+    ));
 
   @Test
   public void create_project() throws Exception {
