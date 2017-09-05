@@ -486,4 +486,31 @@ public class PermissionsServiceTest {
       .hasParam(PARAM_ORGANIZATION, ORGANIZATION_VALUE)
       .andNoOtherParam();
   }
+
+  @Test
+  public void users() {
+    underTest.users(new UsersWsRequest()
+      .setOrganization("org")
+      .setProjectKey("project")
+      .setProjectId("ABCD")
+      .setPermission("user")
+      .setQuery("query")
+      .setPage(10)
+      .setPageSize(50)
+    );
+
+    assertThat(serviceTester.getGetParser()).isSameAs(WsPermissions.UsersWsResponse.parser());
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    serviceTester.assertThat(getRequest)
+      .hasPath("users")
+      .hasParam("organization", "org")
+      .hasParam("projectKey", "project")
+      .hasParam("projectId", "ABCD")
+      .hasParam("permission", "user")
+      .hasParam("q", "query")
+      .hasParam("p", "10")
+      .hasParam("ps", "50")
+      .andNoOtherParam();
+  }
 }
