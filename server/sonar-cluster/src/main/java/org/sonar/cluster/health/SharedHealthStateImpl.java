@@ -34,7 +34,7 @@ import static java.util.Objects.requireNonNull;
 public class SharedHealthStateImpl implements SharedHealthState {
   private static final String SQ_HEALTH_STATE_REPLICATED_MAP_IDENTIFIER = "sq_health_state";
   private static final Logger LOG = Loggers.get(SharedHealthStateImpl.class);
-  private static final int TIMEOUT_30_SECONDS = 30 * 60 * 1000;
+  private static final int TIMEOUT_30_SECONDS = 30 * 1000;
 
   private final HazelcastClient hazelcastClient;
 
@@ -65,9 +65,12 @@ public class SharedHealthStateImpl implements SharedHealthState {
 
   @Override
   public Set<NodeHealth> readAll() {
+    long clusterTime = hazelcastClient.getClusterTime();
+    long timeout = clusterTime - TIMEOUT_30_SECONDS;
     Map<String, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
     Set<String> hzMemberUUIDs = hazelcastClient.getMemberUuids();
     Set<NodeHealth> existingNodeHealths = sqHealthState.entrySet().stream()
+      .filter(outOfDate(timeout))
       .filter(ofNonExistentMember(hzMemberUUIDs))
       .map(entry -> entry.getValue().getNodeHealth())
       .collect(Collectors.toSet());
@@ -75,6 +78,16 @@ public class SharedHealthStateImpl implements SharedHealthState {
       LOG.debug("Reading {} and keeping {}", new HashMap<>(sqHealthState), existingNodeHealths);
     }
     return ImmutableSet.copyOf(existingNodeHealths);
+  }
+
+  private static Predicate<Map.Entry<String, TimestampedNodeHealth>> outOfDate(long timeout) {
+    return entry -> {
+      boolean res = entry.getValue().getTimestamp() > timeout;
+      if (!res && LOG.isTraceEnabled()) {
+        LOG.trace("Ignoring NodeHealth of member {} because it is too old", entry.getKey());
+      }
+      return res;
+    };
   }
 
   private static Predicate<Map.Entry<String, TimestampedNodeHealth>> ofNonExistentMember(Set<String> hzMemberUUIDs) {
