@@ -98,6 +98,7 @@ public class Tester extends ExternalResource implements Session {
     users().deleteAll();
     projects().deleteAll();
     settings().deleteAll();
+    qGates().deleteAll();
   }
 
   public Session asAnonymous() {
@@ -185,6 +186,11 @@ public class Tester extends ExternalResource implements Session {
     return rootSession.settings();
   }
 
+  @Override
+  public QGateTester qGates() {
+    return rootSession.qGates();
+  }
+
   private static class SessionImpl implements Session {
     private final WsClient client;
 
@@ -225,6 +231,11 @@ public class Tester extends ExternalResource implements Session {
     @Override
     public SettingTester settings() {
       return new SettingTester(this);
+    }
+
+    @Override
+    public QGateTester qGates() {
+      return new QGateTester(this);
     }
   }
 }

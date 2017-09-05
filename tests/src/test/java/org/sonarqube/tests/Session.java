@@ -37,4 +37,6 @@ public interface Session {
 
   SettingTester settings();
 
+  QGateTester qGates();
+
 }
