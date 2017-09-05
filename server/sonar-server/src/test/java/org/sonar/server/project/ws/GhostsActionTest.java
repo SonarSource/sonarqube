@@ -60,14 +60,19 @@ public class GhostsActionTest {
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private DbClient dbClient = db.getDbClient();
-  private WsActionTester underTest = new WsActionTester(new GhostsAction(dbClient, userSessionRule, defaultOrganizationProvider));
+
+  private WsActionTester ws = new WsActionTester(new GhostsAction(dbClient, userSessionRule, defaultOrganizationProvider));
 
   @Test
-  public void verify_definition() {
-    WebService.Action action = underTest.getDef();
-    assertThat(action.description()).isEqualTo("List ghost projects.<br /> Requires 'Administer System' permission.");
+  public void definition() {
+    WebService.Action action = ws.getDef();
+    assertThat(action.key()).isEqualTo("ghosts");
+    assertThat(action.description()).isEqualTo("List ghost projects.<br> " +
+      "With the current architecture, it's no more possible to have invisible ghost projects. Therefore, the web service is deprecated.<br> " +
+      "Requires 'Administer System' permission.");
     assertThat(action.since()).isEqualTo("5.2");
     assertThat(action.isInternal()).isFalse();
+    assertThat(action.deprecatedSince()).isEqualTo("6.6");
 
     assertThat(action.params()).hasSize(5);
 
@@ -86,7 +91,7 @@ public class GhostsActionTest {
     ComponentDto activeProject = insertActiveProject(organization);
     userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
-    TestResponse result = underTest.newRequest()
+    TestResponse result = ws.newRequest()
       .setParam("organization", organization.getKey())
       .execute();
 
@@ -119,7 +124,7 @@ public class GhostsActionTest {
     }
     userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
-    TestResponse result = underTest.newRequest()
+    TestResponse result = ws.newRequest()
       .setParam("organization", organization.getKey())
       .setParam(Param.PAGE, "3")
       .setParam(Param.PAGE_SIZE, "4")
@@ -140,7 +145,7 @@ public class GhostsActionTest {
     insertGhostProject(organization);
     userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
-    TestResponse result = underTest.newRequest()
+    TestResponse result = ws.newRequest()
       .setParam("organization", organization.getKey())
       .setParam(Param.FIELDS, "name")
       .execute();
@@ -160,7 +165,7 @@ public class GhostsActionTest {
 
     userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
-    TestResponse result = underTest.newRequest()
+    TestResponse result = ws.newRequest()
       .setParam("organization", organization.getKey())
       .setParam(Param.TEXT_QUERY, "name-1")
       .execute();
@@ -177,7 +182,7 @@ public class GhostsActionTest {
 
     userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
-    TestResponse result = underTest.newRequest()
+    TestResponse result = ws.newRequest()
       .setParam("organization", organization.getKey())
       .setParam(Param.TEXT_QUERY, "GHOST-key")
       .execute();
@@ -207,7 +212,7 @@ public class GhostsActionTest {
     db.getSession().commit();
     userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
-    TestResponse result = underTest.newRequest()
+    TestResponse result = ws.newRequest()
       .setParam("organization", organization.getKey())
       .execute();
 
@@ -222,7 +227,7 @@ public class GhostsActionTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    underTest.newRequest().execute();
+    ws.newRequest().execute();
   }
 
   @Test
@@ -232,7 +237,7 @@ public class GhostsActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No organization for key 'foo'");
 
-    underTest.newRequest().setParam("organization", "foo").execute();
+    ws.newRequest().setParam("organization", "foo").execute();
   }
 
   private ComponentDto insertGhostProject(OrganizationDto organization) {
