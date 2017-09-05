@@ -118,7 +118,6 @@ public class QualityGateTest {
       assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
     } finally {
       qgClient().unsetDefault();
-      qgClient().destroy(empty.id());
     }
   }
 
@@ -137,7 +136,6 @@ public class QualityGateTest {
       assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
     } finally {
       qgClient().unsetDefault();
-      qgClient().destroy(simple.id());
     }
   }
 
@@ -156,7 +154,6 @@ public class QualityGateTest {
       assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("WARN");
     } finally {
       qgClient().unsetDefault();
-      qgClient().destroy(simple.id());
     }
   }
 
@@ -175,7 +172,6 @@ public class QualityGateTest {
       assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("ERROR");
     } finally {
       qgClient().unsetDefault();
-      qgClient().destroy(simple.id());
     }
   }
 
@@ -199,8 +195,6 @@ public class QualityGateTest {
       assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("ERROR");
     } finally {
       qgClient().unsetDefault();
-      qgClient().destroy(alert.id());
-      qgClient().destroy(error.id());
     }
   }
 
@@ -226,7 +220,6 @@ public class QualityGateTest {
         .contains(tuple("ncloc", "GT", "10"), tuple("duplicated_lines_density", "GT", "20"));
     } finally {
       qgClient().unsetDefault();
-      qgClient().destroy(allTypes.id());
     }
   }
 
@@ -254,13 +247,11 @@ public class QualityGateTest {
       assertThat(condition.getErrorThreshold()).isEqualTo("7");
     } finally {
       qgClient().unsetDefault();
-      qgClient().destroy(simple.id());
     }
   }
 
   @Test
   public void does_not_fail_when_condition_is_on_removed_metric() throws Exception {
-
     // create project
     Project project = tester.projects().generate(null);
     String projectKey = project.getKey();
@@ -269,26 +260,21 @@ public class QualityGateTest {
     String customMetricKey = randomAlphabetic(10);
     createCustomIntMetric(customMetricKey);
     try {
-
       // create quality gate
       WsQualityGates.CreateWsResponse simple = tester.wsClient().qualityGates().create("OnCustomMetric");
       Long qualityGateId = simple.getId();
-      try {
-        qgClient().createCondition(NewCondition.create(qualityGateId).metricKey(customMetricKey).operator("GT").warningThreshold("40"));
+      qgClient().createCondition(NewCondition.create(qualityGateId).metricKey(customMetricKey).operator("GT").warningThreshold("40"));
 
-        // delete custom metric
-        deleteCustomMetric(customMetricKey);
+      // delete custom metric
+      deleteCustomMetric(customMetricKey);
 
-        // run analysis
-        tester.wsClient().qualityGates().associateProject(new SelectWsRequest().setProjectKey(projectKey).setGateId(qualityGateId));
-        BuildResult buildResult = executeAnalysis(projectKey);
+      // run analysis
+      tester.wsClient().qualityGates().associateProject(new SelectWsRequest().setProjectKey(projectKey).setGateId(qualityGateId));
+      BuildResult buildResult = executeAnalysis(projectKey);
 
-        // verify quality gate
-        verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_OK);
-        assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
-      } finally {
-        qgClient().destroy(qualityGateId);
-      }
+      // verify quality gate
+      verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_OK);
+      assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
     } finally {
       deleteCustomMetric(customMetricKey);
     }
