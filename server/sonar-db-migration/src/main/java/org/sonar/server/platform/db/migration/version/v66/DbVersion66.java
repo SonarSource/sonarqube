@@ -22,7 +22,6 @@ package org.sonar.server.platform.db.migration.version.v66;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
-import org.sonar.server.platform.db.migration.version.v65.FixEmptyIdentityProviderInUsers;
 
 public class DbVersion66 implements DbVersion {
   @Override
