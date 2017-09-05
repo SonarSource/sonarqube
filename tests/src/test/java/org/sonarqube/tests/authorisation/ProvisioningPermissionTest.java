@@ -95,7 +95,7 @@ public class ProvisioningPermissionTest {
    * SONAR-4709
    */
   @Test
-  public void organization_administrator_cannot_provision_project_if_he_doesnt_have_provisioning_permission() {
+  public void organization_administrator_cannot_provision_project_if_he_does_not_have_provisioning_permission() {
     runSelenese(orchestrator, "/authorisation/ProvisioningPermissionTest/should-not-be-able-to-provision-project.html");
   }
 
@@ -131,7 +131,7 @@ public class ProvisioningPermissionTest {
    * SONAR-4709
    */
   @Test
-  public void user_cannot_provision_project_through_ws_if_he_doesnt_have_provisioning_permission() {
+  public void user_cannot_provision_project_through_ws_if_he_does_not_have_provisioning_permission() {
     thrown.expect(HttpException.class);
     thrown.expectMessage("403");
 

@@ -56,7 +56,7 @@ import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
 import projectActivityRoutes from '../../apps/projectActivity/routes';
 import projectAdminRoutes from '../../apps/project-admin/routes';
 import projectsRoutes from '../../apps/projects/routes';
-import projectsAdminRoutes from '../../apps/projects-admin/routes';
+import projectsManagementRoutes from '../../apps/projectsManagement/routes';
 import qualityGatesRoutes from '../../apps/quality-gates/routes';
 import qualityProfilesRoutes from '../../apps/quality-profiles/routes';
 import sessionsRoutes from '../../apps/sessions/routes';
@@ -115,6 +115,7 @@ const startReactApp = () => {
           }}
         />
 
+        <Redirect from="/projects_admin" to="/admin/projects_management" />
         <Redirect from="/component/index" to="/component" />
         <Redirect from="/component_issues" to="/project/issues" />
         <Redirect from="/dashboard/index" to="/dashboard" />
@@ -203,7 +204,10 @@ const startReactApp = () => {
                     <Route path="groups" childRoutes={groupsRoutes} />
                     <Route path="metrics" childRoutes={metricsRoutes} />
                     <Route path="permission_templates" childRoutes={permissionTemplatesRoutes} />
-                    <Route path="projects_admin" childRoutes={projectsAdminRoutes} />
+                    <Route
+                      path="admin/projects_management"
+                      childRoutes={projectsManagementRoutes}
+                    />
                     <Route path="roles/global" childRoutes={globalPermissionsRoutes} />
                     <Route path="settings" childRoutes={settingsRoutes} />
                     <Route path="system" childRoutes={systemRoutes} />

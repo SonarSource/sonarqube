@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
-import AppContainer from '../../projects-admin/AppContainer';
+import AppContainer from '../../projectsManagement/AppContainer';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 /*:: import type { Organization } from '../../../store/organizations/duck'; */
 

@@ -19,10 +19,9 @@
  */
 package org.sonarqube.pageobjects;
 
-import com.codeborne.selenide.CollectionCondition;
-
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
@@ -52,13 +51,11 @@ public class ProjectsManagementPage {
   }
 
   public ProjectsManagementPage bulkApplyPermissionTemplate(String template) {
-    $(".js-bulk-apply-permission-template").should(exist).click();
-    $(".modal .select2-choice").should(exist).click();
-    $$(".select2-results li")
-      .shouldHave(CollectionCondition.sizeGreaterThan(0))
-      .findBy(text("foo-template")).should(exist).click();
-    $(".modal .js-apply").should(exist).click();
-    $(".modal-body .alert-success").should(exist);
+    $(".js-bulk-apply-permission-template").click();
+    $(".modal .Select-value").click();
+    $$(".modal .Select-option").findBy(text(template)).click();
+    $(".modal-foot button").click();
+    $(".modal-body .alert-success").shouldBe(visible);
     return this;
   }
 }

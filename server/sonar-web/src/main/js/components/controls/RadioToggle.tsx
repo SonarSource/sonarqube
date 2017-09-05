@@ -17,38 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 
-export default class RadioToggle extends React.PureComponent {
-  static propTypes = {
-    value: PropTypes.string,
-    options: PropTypes.arrayOf(
-      PropTypes.shape({
-        value: PropTypes.string.isRequired,
-        label: PropTypes.string.isRequired
-      })
-    ).isRequired,
-    name: PropTypes.string.isRequired,
-    onCheck: PropTypes.func.isRequired
-  };
+interface Props {
+  name: string;
+  onCheck: (value: string) => void;
+  options: Array<{ label: string; value: string }>;
+  value?: string;
+}
 
+export default class RadioToggle extends React.PureComponent<Props> {
   static defaultProps = {
     disabled: false,
     value: null
   };
 
-  componentWillMount() {
-    this.renderOption = this.renderOption.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-  }
-
-  handleChange(e) {
+  handleChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
     const newValue = e.currentTarget.value;
     this.props.onCheck(newValue);
-  }
+  };
 
-  renderOption(option) {
+  renderOption = (option: { label: string; value: string }) => {
     const checked = option.value === this.props.value;
     const htmlId = this.props.name + '__' + option.value;
     return (
@@ -67,7 +56,7 @@ export default class RadioToggle extends React.PureComponent {
         </label>
       </li>
     );
-  }
+  };
 
   render() {
     return (

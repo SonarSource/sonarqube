@@ -17,30 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import { translate } from '../../helpers/l10n';
 
-/*::
-type Props = {|
-  canTurnToPrivate: boolean,
-  className?: string,
-  onChange: string => void,
-  visibility: string
-|};
-*/
+interface Props {
+  canTurnToPrivate?: boolean;
+  className?: string;
+  onChange: (x: string) => void;
+  visibility: string;
+}
 
-export default class VisibilitySelector extends React.PureComponent {
-  /*:: props: Props; */
-
-  handlePublicClick = (event /*: Event & { currentTarget: HTMLElement } */) => {
+export default class VisibilitySelector extends React.PureComponent<Props> {
+  handlePublicClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
     this.props.onChange('public');
   };
 
-  handlePrivateClick = (event /*: Event & { currentTarget: HTMLElement } */) => {
+  handlePrivateClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
     this.props.onChange('private');

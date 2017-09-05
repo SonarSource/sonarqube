@@ -21,8 +21,20 @@ export const PAGE_SIZE = 50;
 
 export const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP', 'DEV'];
 
-export const TYPE = {
-  ALL: 'ALL',
-  PROVISIONED: 'PROVISIONED',
-  GHOSTS: 'GHOSTS'
-};
+export enum Type {
+  All = 'ALL',
+  Provisioned = 'PROVISIONED',
+  Ghosts = 'GHOSTS'
+}
+
+export interface Project {
+  key: string;
+  name: string;
+  qualifier: string;
+  visibility: Visibility;
+}
+
+export enum Visibility {
+  Public = 'public',
+  Private = 'private'
+}
