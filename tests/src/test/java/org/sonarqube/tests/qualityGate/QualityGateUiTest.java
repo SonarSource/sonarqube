@@ -26,29 +26,24 @@ import com.sonar.orchestrator.build.SonarScanner;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.sonar.wsclient.qualitygate.NewCondition;
-import org.sonar.wsclient.qualitygate.QualityGate;
-import org.sonar.wsclient.qualitygate.QualityGateClient;
-import org.sonar.wsclient.qualitygate.QualityGateCondition;
-import org.sonar.wsclient.qualitygate.UpdateCondition;
 import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.pageobjects.ProjectActivityPage;
 import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
+import org.sonarqube.ws.WsQualityGates;
+import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
+import org.sonarqube.ws.client.qualitygate.UpdateConditionRequest;
 
 import static com.codeborne.selenide.Selenide.$;
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
-import static util.ItUtils.resetPeriod;
-import static util.ItUtils.setServerProperty;
 import static util.selenium.Selenese.runSelenese;
 
 public class QualityGateUiTest {
@@ -59,23 +54,9 @@ public class QualityGateUiTest {
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();
 
-  private static long DEFAULT_QUALITY_GATE;
-
-  @BeforeClass
-  public static void initPeriod() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
-    DEFAULT_QUALITY_GATE = qgClient().list().defaultGate().id();
-  }
-
-  @AfterClass
-  public static void resetData() throws Exception {
-    resetPeriod(orchestrator);
-    qgClient().setDefault(DEFAULT_QUALITY_GATE);
-  }
-
   @Before
-  public void cleanUp() {
-    orchestrator.resetData();
+  public void initPeriod() throws Exception {
+    tester.settings().setGlobalSettings("sonar.leak.period", "previous_analysis");
   }
 
   /**
@@ -83,28 +64,26 @@ public class QualityGateUiTest {
    */
   @Test
   public void display_alerts_correctly_in_history_page() {
-    QualityGateClient qgClient = qgClient();
-    QualityGate qGate = qgClient.create("AlertsForHistory");
-    qgClient.setDefault(qGate.id());
+    Project project = tester.projects().generate(null);
+    WsQualityGates.CreateWsResponse qGate = tester.qGates().generate();
+    tester.qGates().associateProject(qGate, project);
 
     String firstAnalysisDate = DateFormatUtils.ISO_DATE_FORMAT.format(addDays(new Date(), -2));
     String secondAnalysisDate = DateFormatUtils.ISO_DATE_FORMAT.format(addDays(new Date(), -1));
 
     // with this configuration, project should have an Orange alert
-    QualityGateCondition lowThresholds = qgClient.createCondition(NewCondition.create(qGate.id()).metricKey("lines").operator("GT").warningThreshold("5").errorThreshold("50"));
-    scanSampleWithDate(firstAnalysisDate);
+    WsQualityGates.CreateConditionWsResponse lowThresholds = tester.qGates().service()
+      .createCondition(CreateConditionRequest.builder().setQualityGateId(qGate.getId()).setMetricKey("lines").setOperator("GT").setWarning("5").setError("50").build());
+    scanSampleWithDate(project, firstAnalysisDate);
     // with this configuration, project should have a Green alert
-    qgClient.updateCondition(UpdateCondition.create(lowThresholds.id()).metricKey("lines").operator("GT").warningThreshold("5000").errorThreshold("5000"));
-    scanSampleWithDate(secondAnalysisDate);
+    tester.qGates().service().updateCondition(UpdateConditionRequest.builder().setConditionId(lowThresholds.getId()).setMetricKey("lines").setOperator("GT").setWarning("5000").setError("5000").build());
+    scanSampleWithDate(project, secondAnalysisDate);
 
     Navigation nav = Navigation.create(orchestrator);
-    ProjectActivityPage page = nav.openProjectActivity("sample");
+    ProjectActivityPage page = nav.openProjectActivity(project.getKey());
     page
       .assertFirstAnalysisOfTheDayHasText(secondAnalysisDate, "Green (was Orange)")
       .assertFirstAnalysisOfTheDayHasText(firstAnalysisDate, "Orange");
-
-    qgClient.unsetDefault();
-    qgClient.destroy(qGate.id());
   }
 
   @Test
@@ -141,12 +120,12 @@ public class QualityGateUiTest {
       .displayIntro();
   }
 
-  private void scanSampleWithDate(String date) {
-    scanSample(date, null);
+  private void scanSampleWithDate(Project project, String date) {
+    scanSample(project, date, null);
   }
 
-  private void scanSample(@Nullable String date, @Nullable String profile) {
-    SonarScanner scan = SonarScanner.create(projectDir("shared/xoo-sample"))
+  private void scanSample(Project project, @Nullable String date, @Nullable String profile) {
+    SonarScanner scan = SonarScanner.create(projectDir("shared/xoo-sample")).setProperty("sonar.projectKey", project.getKey())
       .setProperty("sonar.cpd.exclusions", "**/*");
     if (date != null) {
       scan.setProperty("sonar.projectDate", date);
@@ -155,10 +134,6 @@ public class QualityGateUiTest {
       scan.setProfile(profile);
     }
     orchestrator.executeBuild(scan);
-  }
-
-  private static QualityGateClient qgClient() {
-    return orchestrator.getServer().adminWsClient().qualityGateClient();
   }
 
 }
