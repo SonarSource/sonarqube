@@ -19,12 +19,13 @@
  */
 package org.sonarqube.ws.client.project;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.MAX_PAGE_SIZE;
 
@@ -108,7 +109,7 @@ public class SearchWsRequest {
 
   public static class Builder {
     private String organization;
-    private List<String> qualifiers = new ArrayList<>();
+    private List<String> qualifiers = singletonList(Qualifiers.PROJECT);
     private Integer page;
     private Integer pageSize;
     private String query;

@@ -176,7 +176,7 @@ public class SearchAction implements ProjectsWsAction {
     }
   }
 
-  private static ComponentQuery buildDbQuery(SearchWsRequest request) {
+  static ComponentQuery buildDbQuery(SearchWsRequest request) {
     List<String> qualifiers = request.getQualifiers();
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]));

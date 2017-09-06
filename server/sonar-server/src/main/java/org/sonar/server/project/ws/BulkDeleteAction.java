@@ -19,23 +19,35 @@
  */
 package org.sonar.server.project.ws;
 
-import java.util.List;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.client.project.SearchWsRequest;
 
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.server.project.ws.SearchAction.buildDbQuery;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_IDS;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class BulkDeleteAction implements ProjectsWsAction {
 
@@ -64,59 +76,79 @@ public class BulkDeleteAction implements ProjectsWsAction {
       .setSince("5.2")
       .setHandler(this);
 
-    action
-      .createParam(PARAM_PROJECT_IDS)
-      .setDescription("List of project IDs to delete")
-      .setDeprecatedKey("ids", "6.4")
-      .setDeprecatedSince("6.4")
-      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d,c526ef20-131b-4486-9357-063fa64b5079");
+    support.addOrganizationParam(action);
 
     action
       .createParam(PARAM_PROJECTS)
-      .setDescription("List of project keys to delete")
+      .setDescription("Comma-separated list of project keys")
       .setDeprecatedKey("keys", "6.4")
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+      .setExampleValue(String.join(",", KEY_PROJECT_EXAMPLE_001, KEY_PROJECT_EXAMPLE_002));
 
-    support.addOrganizationParam(action);
+    action
+      .createParam(PARAM_PROJECT_IDS)
+      .setDescription("Comma-separated list of project ids")
+      .setDeprecatedKey("ids", "6.4")
+      .setDeprecatedSince("6.4")
+      .setExampleValue(String.join(",", UUID_EXAMPLE_01, UUID_EXAMPLE_02));
+
+    action.createParam(Param.TEXT_QUERY)
+      .setDescription("Limit to: <ul>" +
+        "<li>component names that contain the supplied string</li>" +
+        "<li>component keys that contain the supplied string</li>" +
+        "</ul>")
+      .setExampleValue("sonar");
+
+    action.createParam(PARAM_QUALIFIERS)
+      .setDescription("Comma-separated list of component qualifiers. Filter the results with the specified qualifiers")
+      .setPossibleValues(PROJECT, VIEW, APP)
+      .setDefaultValue(PROJECT);
+
+    action.createParam(PARAM_VISIBILITY)
+      .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
+        "If no visibility is specified, the default project visibility of the organization will be used.",
+        Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
+      .setRequired(false)
+      .setInternal(true)
+      .setSince("6.4")
+      .setPossibleValues(Visibility.getLabels());
+
+    action.createParam(PARAM_ANALYZED_BEFORE)
+      .setDescription("Filter the projects for which last analysis is older than the given date (exclusive).<br> " +
+        "Format: date or datetime ISO formats.")
+      .setSince("6.6");
+
+    action.createParam(PARAM_ON_PROVISIONED_ONLY)
+      .setDescription("Filter the projects that are provisioned")
+      .setBooleanPossibleValues()
+      .setDefaultValue("false")
+      .setSince("6.6");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    SearchWsRequest searchRequest = toSearchWsRequest(request);
     userSession.checkLoggedIn();
-
-    List<String> uuids = request.paramAsStrings(PARAM_PROJECT_IDS);
-    List<String> keys = request.paramAsStrings(PARAM_PROJECTS);
-    String orgKey = request.param(ProjectsWsSupport.PARAM_ORGANIZATION);
-
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<OrganizationDto> org = loadOrganizationByKey(dbSession, orgKey);
-      List<ComponentDto> projects = searchProjects(dbSession, uuids, keys);
-      projects.stream()
-        .filter(p -> !org.isPresent() || org.get().getUuid().equals(p.getOrganizationUuid()))
+      OrganizationDto organization = support.getOrganization(dbSession, searchRequest.getOrganization());
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+
+      ComponentQuery query = buildDbQuery(searchRequest);
+      dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, 0, Integer.MAX_VALUE)
         .forEach(p -> componentCleanerService.delete(dbSession, p));
     }
-
     response.noContent();
   }
 
-  private Optional<OrganizationDto> loadOrganizationByKey(DbSession dbSession, @Nullable String orgKey) {
-    if (orgKey == null) {
-      userSession.checkIsSystemAdministrator();
-      return Optional.empty();
-    }
-    OrganizationDto org = support.getOrganization(dbSession, orgKey);
-    userSession.checkPermission(ADMINISTER, org);
-    return Optional.of(org);
-  }
-
-  private List<ComponentDto> searchProjects(DbSession dbSession, @Nullable List<String> uuids, @Nullable List<String> keys) {
-    if (uuids != null) {
-      return dbClient.componentDao().selectByUuids(dbSession, uuids);
-    }
-    if (keys != null) {
-      return dbClient.componentDao().selectByKeys(dbSession, keys);
-    }
-
-    throw new IllegalArgumentException("ids or keys must be provided");
+  private static SearchWsRequest toSearchWsRequest(Request request) {
+    return SearchWsRequest.builder()
+      .setOrganization(request.param(PARAM_ORGANIZATION))
+      .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
+      .setQuery(request.param(Param.TEXT_QUERY))
+      .setVisibility(request.param(PARAM_VISIBILITY))
+      .setAnalyzedBefore(request.param(PARAM_ANALYZED_BEFORE))
+      .setOnProvisionedOnly(request.mandatoryParamAsBoolean(PARAM_ON_PROVISIONED_ONLY))
+      .setProjects(request.paramAsStrings(PARAM_PROJECTS))
+      .setProjectIds(request.paramAsStrings(PARAM_PROJECT_IDS))
+      .build();
   }
 }
