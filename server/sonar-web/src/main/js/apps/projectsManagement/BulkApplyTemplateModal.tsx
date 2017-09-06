@@ -22,13 +22,14 @@ import Modal from 'react-modal';
 import * as Select from 'react-select';
 import {
   getPermissionTemplates,
-  PermissionTemplate,
   bulkApplyTemplate,
-  applyTemplateToProject
+  PermissionTemplate
 } from '../../api/permissions';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
 
 export interface Props {
+  analyzedBefore?: string;
   onClose: () => void;
   organization: string;
   provisioned: boolean;
@@ -80,32 +81,6 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     );
   }
 
-  bulkApplyToAll = (permissionTemplate: string) => {
-    const data = {
-      organization: this.props.organization,
-      q: this.props.query ? this.props.query : undefined,
-      qualifier: this.props.qualifier,
-      templateId: permissionTemplate
-    };
-    return bulkApplyTemplate(data);
-  };
-
-  bulkApplyToSelected = (permissionTemplate: string) => {
-    const { selection } = this.props;
-    let lastRequest = Promise.resolve();
-
-    selection.forEach(projectKey => {
-      const data = {
-        organization: this.props.organization,
-        projectKey,
-        templateId: permissionTemplate
-      };
-      lastRequest = lastRequest.then(() => applyTemplateToProject(data));
-    });
-
-    return lastRequest;
-  };
-
   handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.onClose();
@@ -115,10 +90,21 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     const { permissionTemplate } = this.state;
     if (permissionTemplate) {
       this.setState({ submitting: true });
-      const request = this.props.selection.length
-        ? this.bulkApplyToSelected(permissionTemplate)
-        : this.bulkApplyToAll(permissionTemplate);
-      request.then(
+      const parameters = this.props.selection.length
+        ? {
+            organization: this.props.organization,
+            projects: this.props.selection.join(),
+            templateId: permissionTemplate
+          }
+        : {
+            analyzedBefore: this.props.analyzedBefore,
+            onProvisionedOnly: this.props.provisioned || undefined,
+            organization: this.props.organization,
+            qualifiers: this.props.qualifier,
+            q: this.props.query || undefined,
+            templateId: permissionTemplate
+          };
+      bulkApplyTemplate(parameters).then(
         () => {
           if (this.mounted) {
             this.setState({ done: true, submitting: false });
@@ -137,21 +123,19 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     this.setState({ permissionTemplate: value });
   };
 
-  renderWarning = () => {
-    return this.props.selection.length
-      ? <div className="alert alert-info">
-          {translateWithParameters(
+  renderWarning = () =>
+    <div className="alert alert-warning modal-alert">
+      <AlertWarnIcon className="spacer-right" />
+      {this.props.selection.length
+        ? translateWithParameters(
             'permission_templates.bulk_apply_permission_template.apply_to_selected',
             this.props.selection.length
-          )}
-        </div>
-      : <div className="alert alert-warning">
-          {translateWithParameters(
+          )
+        : translateWithParameters(
             'permission_templates.bulk_apply_permission_template.apply_to_all',
             this.props.total
           )}
-        </div>;
-  };
+    </div>;
 
   renderSelect = () =>
     <div className="modal-field">

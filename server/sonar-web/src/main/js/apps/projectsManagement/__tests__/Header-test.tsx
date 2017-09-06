@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Header, { Props } from '../Header';
-import { Visibility } from '../utils';
+import { Visibility } from '../../../app/types';
 import { click } from '../../../helpers/testUtils';
 
 const organization = { key: 'org', name: 'org', projectVisibility: 'public' };

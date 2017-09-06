@@ -30,17 +30,13 @@ jest.mock('rc-tooltip', () => ({
   }
 }));
 
-jest.mock('../../../api/components', () => ({
-  getComponents: jest.fn(),
-  getProvisioned: jest.fn(() => Promise.resolve({ paging: { total: 0 }, projects: [] }))
-}));
+jest.mock('../../../api/components', () => ({ getComponents: jest.fn() }));
 
 import * as React from 'react';
 import { mount } from 'enzyme';
 import App, { Props } from '../App';
 
 const getComponents = require('../../../api/components').getComponents as jest.Mock<any>;
-const getProvisioned = require('../../../api/components').getProvisioned as jest.Mock<any>;
 
 const organization = { key: 'org', name: 'org', projectVisibility: 'public' };
 
@@ -55,7 +51,6 @@ beforeEach(() => {
   getComponents
     .mockImplementation(() => Promise.resolve({ paging: { total: 0 }, components: [] }))
     .mockClear();
-  getProvisioned.mockClear();
 });
 
 it('fetches all projects on mount', () => {
@@ -66,7 +61,11 @@ it('fetches all projects on mount', () => {
 it('selects provisioned', () => {
   const wrapper = mountRender();
   wrapper.find('Search').prop<Function>('onProvisionedChanged')(true);
-  expect(getProvisioned).lastCalledWith(defaultSearchParameters);
+  expect(getComponents).lastCalledWith({
+    ...defaultSearchParameters,
+    onProvisionedOnly: true,
+    qualifiers: 'TRK'
+  });
 });
 
 it('changes qualifier and resets provisioned', () => {

@@ -19,8 +19,7 @@
  */
 import * as React from 'react';
 import ChangeVisibilityForm from './ChangeVisibilityForm';
-import { Visibility } from './utils';
-import { Organization } from '../../app/types';
+import { Organization, Visibility } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
 export interface Props {

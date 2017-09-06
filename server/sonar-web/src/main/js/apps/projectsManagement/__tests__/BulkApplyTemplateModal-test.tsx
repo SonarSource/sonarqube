@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 jest.mock('../../../api/permissions', () => ({
-  applyTemplateToProject: jest.fn(),
-  bulkApplyTemplate: jest.fn(),
-  getPermissionTemplates: jest.fn()
+  bulkApplyTemplate: jest.fn(() => Promise.resolve()),
+  getPermissionTemplates: jest.fn(() => Promise.resolve({ permissionTemplates: [] }))
 }));
 
 import * as React from 'react';
@@ -28,18 +27,13 @@ import { mount, shallow } from 'enzyme';
 import BulkApplyTemplateModal, { Props } from '../BulkApplyTemplateModal';
 import { click } from '../../../helpers/testUtils';
 
-const applyTemplateToProject = require('../../../api/permissions')
-  .applyTemplateToProject as jest.Mock<any>;
 const bulkApplyTemplate = require('../../../api/permissions').bulkApplyTemplate as jest.Mock<any>;
 const getPermissionTemplates = require('../../../api/permissions')
   .getPermissionTemplates as jest.Mock<any>;
 
 beforeEach(() => {
-  applyTemplateToProject.mockImplementation(() => Promise.resolve()).mockClear();
-  bulkApplyTemplate.mockImplementation(() => Promise.resolve()).mockClear();
-  getPermissionTemplates
-    .mockImplementation(() => Promise.resolve({ permissionTemplates: [] }))
-    .mockClear();
+  bulkApplyTemplate.mockClear();
+  getPermissionTemplates.mockClear();
 });
 
 it('fetches permission templates on mount', () => {
@@ -61,9 +55,11 @@ it('bulk applies template to all results', async () => {
 
   click(wrapper.find('button'));
   expect(bulkApplyTemplate).toBeCalledWith({
+    analyzedBefore: '2017-04-08T00:00:00.000Z',
+    onProvisionedOnly: true,
     organization: 'org',
     q: 'bla',
-    qualifier: 'TRK',
+    qualifiers: 'TRK',
     templateId: 'foo'
   });
   expect(wrapper).toMatchSnapshot();
@@ -88,15 +84,9 @@ it('bulk applies template to selected results', async () => {
   click(wrapper.find('button'));
   expect(wrapper).toMatchSnapshot();
   await new Promise(setImmediate);
-  expect(applyTemplateToProject.mock.calls).toHaveLength(2);
-  expect(applyTemplateToProject).toBeCalledWith({
+  expect(bulkApplyTemplate).toBeCalledWith({
     organization: 'org',
-    projectKey: 'proj1',
-    templateId: 'foo'
-  });
-  expect(applyTemplateToProject).toBeCalledWith({
-    organization: 'org',
-    projectKey: 'proj2',
+    projects: 'proj1,proj2',
     templateId: 'foo'
   });
 
@@ -114,6 +104,7 @@ it('closes', () => {
 function render(props?: { [P in keyof Props]?: Props[P] }) {
   return (
     <BulkApplyTemplateModal
+      analyzedBefore="2017-04-08T00:00:00.000Z"
       onClose={jest.fn()}
       organization="org"
       provisioned={true}
