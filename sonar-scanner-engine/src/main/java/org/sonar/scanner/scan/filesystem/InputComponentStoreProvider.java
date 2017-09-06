@@ -22,13 +22,14 @@ package org.sonar.scanner.scan.filesystem;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.scanner.scan.BranchConfiguration;
 
 public class InputComponentStoreProvider extends ProviderAdapter {
   private InputComponentStore store;
 
-  public InputComponentStore provide(InputModuleHierarchy hierarchy, AnalysisMode mode) {
+  public InputComponentStore provide(InputModuleHierarchy hierarchy, AnalysisMode mode, BranchConfiguration branchConfiguration) {
     if (store == null) {
-      store = new InputComponentStore(hierarchy.root(), mode);
+      store = new InputComponentStore(hierarchy.root(), mode, branchConfiguration);
     }
     return store;
   }

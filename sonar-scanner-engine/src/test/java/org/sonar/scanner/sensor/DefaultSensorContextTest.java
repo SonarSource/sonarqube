@@ -91,7 +91,7 @@ public class DefaultSensorContextTest {
 
   @Test
   public void shouldSkipDupsAndCoverageOnShortBranches() {
-    when(branchConfig.branchType()).thenReturn(BranchConfiguration.BranchType.SHORT);
+    when(branchConfig.isShortLivingBranch()).thenReturn(true);
     assertThat(adaptor.newCpdTokens()).isEqualTo(DefaultSensorContext.NO_OP_NEW_CPD_TOKENS);
     assertThat(adaptor.newCoverage()).isEqualTo(DefaultSensorContext.NO_OP_NEW_COVERAGE);
   }

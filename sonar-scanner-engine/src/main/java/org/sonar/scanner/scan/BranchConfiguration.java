@@ -40,6 +40,10 @@ public interface BranchConfiguration {
    */
   BranchType branchType();
 
+  default boolean isShortLivingBranch() {
+    return branchType() == BranchType.SHORT;
+  }
+
   /**
    * The name of the branch.
    */

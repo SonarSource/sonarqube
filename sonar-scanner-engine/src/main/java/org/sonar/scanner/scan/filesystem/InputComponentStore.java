@@ -44,6 +44,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.scanner.scan.BranchConfiguration;
 
 /**
  * Store of all files and dirs. This cache is shared amongst all project modules. Inclusion and
@@ -65,10 +66,12 @@ public class InputComponentStore {
   private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
   private final InputModule root;
   private final AnalysisMode mode;
+  private final BranchConfiguration branchConfiguration;
 
-  public InputComponentStore(DefaultInputModule root, AnalysisMode mode) {
+  public InputComponentStore(DefaultInputModule root, AnalysisMode mode, BranchConfiguration branchConfiguration) {
     this.root = root;
     this.mode = mode;
+    this.branchConfiguration = branchConfiguration;
     this.put(root);
   }
 
@@ -80,7 +83,7 @@ public class InputComponentStore {
     return inputFileCache.values().stream()
       .map(f -> (DefaultInputFile) f)
       .filter(DefaultInputFile::isPublished)
-      .filter(f -> !mode.isIncremental() || f.status() != Status.SAME)::iterator;
+      .filter(f -> (!mode.isIncremental() && !branchConfiguration.isShortLivingBranch()) || f.status() != Status.SAME)::iterator;
   }
 
   public Iterable<InputFile> allFiles() {

@@ -20,9 +20,7 @@
 package org.sonar.scanner.sensor;
 
 import java.io.Serializable;
-
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
@@ -49,7 +47,6 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Version;
 import org.sonar.scanner.scan.BranchConfiguration;
-import org.sonar.scanner.scan.BranchConfiguration.BranchType;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
 import org.sonar.scanner.sensor.noop.NoOpNewCoverage;
 import org.sonar.scanner.sensor.noop.NoOpNewCpdTokens;
@@ -151,7 +148,7 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public NewCoverage newCoverage() {
-    if (branchConfiguration.branchType() == BranchType.SHORT) {
+    if (branchConfiguration.isShortLivingBranch()) {
       return NO_OP_NEW_COVERAGE;
     }
     return new DefaultCoverage(sensorStorage);
@@ -159,7 +156,7 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public NewCpdTokens newCpdTokens() {
-    if (analysisMode.isIssues() || branchConfiguration.branchType() == BranchType.SHORT) {
+    if (analysisMode.isIssues() || branchConfiguration.isShortLivingBranch()) {
       return NO_OP_NEW_CPD_TOKENS;
     }
     return new DefaultCpdTokens(config, sensorStorage);

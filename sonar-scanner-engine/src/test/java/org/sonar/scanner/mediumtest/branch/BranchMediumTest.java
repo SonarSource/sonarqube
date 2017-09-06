@@ -42,8 +42,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BranchMediumTest {
 
+  private static final String PROJECT_KEY = "sample";
+  private static final String FILE_PATH = "HelloJava.xoo";
+  private static final String FILE_CONTENT = "xoooo";
   private File baseDir;
-  private final String relativePath = "HelloJava.xoo";
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -58,24 +60,31 @@ public class BranchMediumTest {
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
-    Path filepath = baseDir.toPath().resolve(relativePath);
-    Files.write(filepath, "xoooo".getBytes());
+    Path filepath = baseDir.toPath().resolve(FILE_PATH);
+    Files.write(filepath, FILE_CONTENT.getBytes());
 
     String md5sum = new FileMetadata()
-      .readMetadata(Files.newInputStream(filepath), StandardCharsets.UTF_8, relativePath)
+      .readMetadata(Files.newInputStream(filepath), StandardCharsets.UTF_8, FILE_PATH)
       .hash();
-    tester.addFileData("sample", relativePath, new FileData(md5sum, null));
+    tester.addFileData(PROJECT_KEY, FILE_PATH, new FileData(md5sum, "1.1"));
   }
 
   @Test
   public void should_skip_report_for_unchanged_files_in_short_branch() {
     // sanity check, normally report gets generated
     TaskResult result = getResult(tester);
-    assertThat(getResult(tester).getReportComponent(result.inputFile(relativePath).key())).isNotNull();
+    assertThat(getResult(tester).getReportComponent(result.inputFile(FILE_PATH).key())).isNotNull();
+    int fileId = 2;
+    assertThat(result.getReportReader().readChangesets(fileId)).isNotNull();
+    assertThat(result.getReportReader().hasCoverage(fileId)).isTrue();
+    assertThat(result.getReportReader().readFileSource(fileId)).isNotNull();
 
     // file is skipped for short branches (no report, no coverage, no duplications)
     TaskResult result2 = getResult(tester.setBranchType(BranchConfiguration.BranchType.SHORT));
-    assertThat(result2.getReportComponent(result2.inputFile(relativePath).key())).isNull();
+    assertThat(result2.getReportComponent(result2.inputFile(FILE_PATH).key())).isNull();
+    assertThat(result2.getReportReader().readChangesets(fileId)).isNull();
+    assertThat(result2.getReportReader().hasCoverage(fileId)).isFalse();
+    assertThat(result.getReportReader().readFileSource(fileId)).isNull();
   }
 
   @Test
@@ -100,8 +109,9 @@ public class BranchMediumTest {
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-        .put("sonar.projectKey", "sample")
+        .put("sonar.projectKey", PROJECT_KEY)
         .put("sonar.sources", ".")
+        .put("sonar.scm.provider", "xoo")
         .build())
       .execute();
   }

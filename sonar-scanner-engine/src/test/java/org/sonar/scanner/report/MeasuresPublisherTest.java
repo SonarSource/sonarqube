@@ -39,6 +39,7 @@ import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
@@ -69,7 +70,7 @@ public class MeasuresPublisherTest {
     String moduleKey = "foo";
     inputModule = TestInputFileBuilder.newDefaultInputModule(moduleKey, temp.newFolder());
     inputFile = new TestInputFileBuilder(moduleKey, "src/Foo.php").setPublish(true).build();
-    InputComponentStore componentCache = new InputComponentStore(inputModule, mock(AnalysisMode.class));
+    InputComponentStore componentCache = new InputComponentStore(inputModule, mock(AnalysisMode.class), mock(BranchConfiguration.class));
     componentCache.put(inputFile);
     measureCache = mock(MeasureCache.class);
     when(measureCache.byComponentKey(anyString())).thenReturn(Collections.<DefaultMeasure<?>>emptyList());

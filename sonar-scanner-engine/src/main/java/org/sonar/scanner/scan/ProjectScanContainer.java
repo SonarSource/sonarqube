@@ -253,12 +253,14 @@ public class ProjectScanContainer extends ComponentContainer {
   }
 
   private static String toDisplayName(BranchConfiguration.BranchType branchType) {
-    if (branchType == BranchConfiguration.BranchType.LONG) {
-      return "long living";
-    } else if (branchType == BranchConfiguration.BranchType.SHORT) {
-      return "short living";
+    switch (branchType) {
+      case LONG:
+        return "long living";
+      case SHORT:
+        return "short living";
+      default:
+        throw new UnsupportedOperationException("unknown branch type: " + branchType);
     }
-    throw new UnsupportedOperationException("unknown branch type: " + branchType);
   }
 
   private void scanRecursively(InputModuleHierarchy tree, DefaultInputModule module) {

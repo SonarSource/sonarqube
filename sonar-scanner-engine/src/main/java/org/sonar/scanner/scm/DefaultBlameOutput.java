@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -62,10 +63,10 @@ class DefaultBlameOutput implements BlameOutput {
   public synchronized void blameResult(InputFile file, List<BlameLine> lines) {
     Preconditions.checkNotNull(file);
     Preconditions.checkNotNull(lines);
-    Preconditions.checkArgument(allFilesToBlame.contains(file), "It was not expected to blame file %s", file.relativePath());
+    Preconditions.checkArgument(allFilesToBlame.contains(file), "It was not expected to blame file %s", file);
 
     if (lines.size() != file.lines()) {
-      LOG.debug("Ignoring blame result since provider returned {} blame lines but file {} has {} lines", lines.size(), file.relativePath(), file.lines());
+      LOG.debug("Ignoring blame result since provider returned {} blame lines but file {} has {} lines", lines.size(), file, file.lines());
       return;
     }
 
@@ -93,8 +94,8 @@ class DefaultBlameOutput implements BlameOutput {
   }
 
   private static void validateLine(BlameLine line, int lineId, InputFile file) {
-    Preconditions.checkArgument(StringUtils.isNotBlank(line.revision()), "Blame revision is blank for file %s at line %s", file.relativePath(), lineId);
-    Preconditions.checkArgument(line.date() != null, "Blame date is null for file %s at line %s", file.relativePath(), lineId);
+    Preconditions.checkArgument(StringUtils.isNotBlank(line.revision()), "Blame revision is blank for file %s at line %s", file, lineId);
+    Preconditions.checkArgument(line.date() != null, "Blame date is null for file %s at line %s", file, lineId);
   }
 
   private static void addChangeset(Builder scmBuilder, BlameLine line) {
@@ -112,7 +113,7 @@ class DefaultBlameOutput implements BlameOutput {
     if (inputString == null) {
       return "";
     }
-    return inputString.toLowerCase();
+    return inputString.toLowerCase(Locale.US);
   }
 
   public void finish(boolean success) {
@@ -120,7 +121,7 @@ class DefaultBlameOutput implements BlameOutput {
     if (success && !allFilesToBlame.isEmpty()) {
       LOG.warn("Missing blame information for the following files:");
       for (InputFile f : allFilesToBlame) {
-        LOG.warn("  * " + f.absolutePath());
+        LOG.warn("  * " + f);
       }
       LOG.warn("This may lead to missing/broken features in SonarQube");
     }
