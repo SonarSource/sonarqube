@@ -53,6 +53,17 @@ it('does not render provisioned filter for portfolios', () => {
   expect(wrapper.find('Checkbox[id="projects-provisioned"]').exists()).toBeFalsy();
 });
 
+it('updates analysis date', () => {
+  const onDateChanged = jest.fn();
+  const wrapper = shallowRender({ onDateChanged });
+
+  wrapper.find('DateInput').prop<Function>('onChange')('2017-04-08T00:00:00.000Z');
+  expect(onDateChanged).toBeCalledWith('2017-04-08T00:00:00.000Z');
+
+  wrapper.find('DateInput').prop<Function>('onChange')(undefined);
+  expect(onDateChanged).toBeCalledWith(undefined);
+});
+
 it('searches', () => {
   const onSearch = jest.fn();
   const wrapper = shallowRender({ onSearch });
@@ -94,6 +105,7 @@ function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
     <Search
       onAllDeselected={jest.fn()}
       onAllSelected={jest.fn()}
+      onDateChanged={jest.fn()}
       onDeleteProjects={jest.fn()}
       onProvisionedChanged={jest.fn()}
       onQualifierChanged={jest.fn()}

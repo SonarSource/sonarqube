@@ -29,7 +29,7 @@ exports[`deletes projects 1`] = `
 
 exports[`render qualifiers filter 1`] = `
 <div
-  className="panel panel-vertical bordered-bottom spacer-bottom"
+  className="big-spacer-bottom"
 >
   <table
     className="data"
@@ -115,6 +115,17 @@ exports[`render qualifiers filter 1`] = `
         <td
           className="thin nowrap text-middle"
         >
+          <DateInput
+            format="yy-mm-dd"
+            inputClassName="input-medium"
+            name="analyzed-before"
+            onChange={[Function]}
+            placeholder="analyzed_before"
+          />
+        </td>
+        <td
+          className="thin nowrap text-middle"
+        >
           <Checkbox
             checked={false}
             className="link-checkbox-control"
@@ -185,7 +196,7 @@ exports[`render qualifiers filter 1`] = `
 
 exports[`renders 1`] = `
 <div
-  className="panel panel-vertical bordered-bottom spacer-bottom"
+  className="big-spacer-bottom"
 >
   <table
     className="data"
@@ -200,6 +211,17 @@ exports[`renders 1`] = `
             id="projects-selection"
             onCheck={[Function]}
             thirdState={false}
+          />
+        </td>
+        <td
+          className="thin nowrap text-middle"
+        >
+          <DateInput
+            format="yy-mm-dd"
+            inputClassName="input-medium"
+            name="analyzed-before"
+            onChange={[Function]}
+            placeholder="analyzed_before"
           />
         </td>
         <td

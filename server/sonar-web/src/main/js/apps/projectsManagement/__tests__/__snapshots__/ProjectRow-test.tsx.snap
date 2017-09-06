@@ -37,6 +37,11 @@ exports[`renders 1`] = `
     </Link>
   </td>
   <td
+    className="thin nowrap"
+  >
+    <PrivateBadge />
+  </td>
+  <td
     className="nowrap"
   >
     <span
@@ -46,9 +51,120 @@ exports[`renders 1`] = `
     </span>
   </td>
   <td
-    className="width-20"
+    className="thin nowrap text-right"
+  >
+    <span
+      className="note"
+    >
+      —
+    </span>
+  </td>
+  <td
+    className="thin nowrap"
+  >
+    <div
+      className="dropdown"
+    >
+      <button
+        className="dropdown-toggle"
+        data-toggle="dropdown"
+      >
+        actions
+         
+        <i
+          className="icon-dropdown"
+        />
+      </button>
+      <ul
+        className="dropdown-menu dropdown-menu-right"
+      >
+        <li>
+          <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project_roles",
+                "query": Object {
+                  "id": "project",
+                },
+              }
+            }
+          >
+            edit_permissions
+          </Link>
+        </li>
+        <li>
+          <a
+            className="js-apply-template"
+            href="#"
+            onClick={[Function]}
+          >
+            projects_role.apply_template
+          </a>
+        </li>
+      </ul>
+    </div>
+  </td>
+</tr>
+`;
+
+exports[`renders 2`] = `
+<tr>
+  <td
+    className="thin"
+  >
+    <Checkbox
+      checked={true}
+      onCheck={[Function]}
+      thirdState={false}
+    />
+  </td>
+  <td
+    className="nowrap"
+  >
+    <Link
+      className="link-with-icon"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "id": "project",
+          },
+        }
+      }
+    >
+      <QualifierIcon
+        qualifier="TRK"
+      />
+       
+      <span>
+        Project
+      </span>
+    </Link>
+  </td>
+  <td
+    className="thin nowrap"
   >
     <PrivateBadge />
+  </td>
+  <td
+    className="nowrap"
+  >
+    <span
+      className="note"
+    >
+      project
+    </span>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <DateTooltipFormatter
+      date="2017-04-08T00:00:00.000Z"
+    />
   </td>
   <td
     className="thin nowrap"
