@@ -25,6 +25,7 @@ import Checkbox from '../../components/controls/Checkbox';
 import QualifierIcon from '../../components/shared/QualifierIcon';
 import { translate } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
+import DateTooltipFormatter from '../../components/intl/DateTooltipFormatter';
 
 interface Props {
   onApplyTemplateClick: (project: Project) => void;
@@ -61,14 +62,20 @@ export default class ProjectRow extends React.PureComponent<Props> {
           </Link>
         </td>
 
+        <td className="thin nowrap">
+          {project.visibility === Visibility.Private && <PrivateBadge />}
+        </td>
+
         <td className="nowrap">
           <span className="note">
             {project.key}
           </span>
         </td>
 
-        <td className="width-20">
-          {project.visibility === Visibility.Private && <PrivateBadge />}
+        <td className="thin nowrap text-right">
+          {project.lastAnalysisDate
+            ? <DateTooltipFormatter date={project.lastAnalysisDate} />
+            : <span className="note">—</span>}
         </td>
 
         <td className="thin nowrap">

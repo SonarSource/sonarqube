@@ -22,21 +22,22 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { pick } from 'lodash';
 import './styles.css';
+import CloseIcon from '../icons-components/CloseIcon';
 
 interface Props {
   className?: string;
-  value?: string;
   format?: string;
+  inputClassName?: string;
   name: string;
+  onChange: (value?: string) => void;
   placeholder: string;
-  onChange: (value: string) => void;
+  value?: string;
 }
 
 export default class DateInput extends React.PureComponent<Props> {
   input: HTMLInputElement;
 
   static defaultProps = {
-    value: '',
     format: 'yy-mm-dd'
   };
 
@@ -44,23 +45,23 @@ export default class DateInput extends React.PureComponent<Props> {
     this.attachDatePicker();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.value != null && this.input) {
-      this.input.value = nextProps.value;
-    }
-  }
-
-  handleChange() {
+  handleChange = () => {
     const { value } = this.input;
     this.props.onChange(value);
-  }
+  };
+
+  handleResetClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    this.props.onChange(undefined);
+  };
 
   attachDatePicker() {
     const opts = {
       dateFormat: this.props.format,
       changeMonth: true,
       changeYear: true,
-      onSelect: this.handleChange.bind(this)
+      onSelect: this.handleChange
     };
 
     if ($.fn && ($.fn as any).datepicker && this.input) {
@@ -74,11 +75,12 @@ export default class DateInput extends React.PureComponent<Props> {
     return (
       <span className={classNames('date-input-control', this.props.className)}>
         <input
-          className="date-input-control-input"
-          ref={node => (this.input = node as HTMLInputElement)}
-          type="text"
-          defaultValue={this.props.value}
+          className={classNames('date-input-control-input', this.props.inputClassName)}
+          onChange={this.handleChange}
           readOnly={true}
+          ref={node => (this.input = node!)}
+          type="text"
+          value={this.props.value || ''}
           {...inputProps}
         />
         <span className="date-input-control-icon">
@@ -86,6 +88,10 @@ export default class DateInput extends React.PureComponent<Props> {
             <path d="M5.5 6h2v2h-2V6zm3 0h2v2h-2V6zm3 0h2v2h-2V6zm-9 6h2v2h-2v-2zm3 0h2v2h-2v-2zm3 0h2v2h-2v-2zm-3-3h2v2h-2V9zm3 0h2v2h-2V9zm3 0h2v2h-2V9zm-9 0h2v2h-2V9zm11-9v1h-2V0h-7v1h-2V0h-2v16h15V0h-2zm1 15h-13V4h13v11z" />
           </svg>
         </span>
+        {this.props.value != undefined &&
+          <a className="date-input-control-reset" href="#" onClick={this.handleResetClick}>
+            <CloseIcon className="" />
+          </a>}
       </span>
     );
   }

@@ -51,6 +51,16 @@ export default class Projects extends React.PureComponent<Props> {
       <table
         className={classNames('data', 'zebra', { 'new-loading': !this.props.ready })}
         id="projects-management-page-projects">
+        <thead>
+          <tr>
+            <th />
+            <th>Name</th>
+            <th />
+            <th>Key</th>
+            <th className="thin nowrap text-right">Last Analysis</th>
+            <th />
+          </tr>
+        </thead>
         <tbody>
           {this.props.projects.map(project =>
             <ProjectRow
