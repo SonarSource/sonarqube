@@ -28,7 +28,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.AbstractAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.scan.BranchConfiguration;
-import org.sonar.scanner.scan.BranchConfiguration.BranchType;
 
 @Immutable
 public class DefaultAnalysisMode extends AbstractAnalysisMode {
@@ -50,13 +49,12 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode {
     // make sure analysis is consistent with global properties
     boolean globalPreview = isIssues(globalProps);
     boolean analysisPreview = isIssues(analysisProps);
-    boolean shortLivingBranch = branchConfig.branchType() == BranchType.SHORT;
 
     if (!globalPreview && analysisPreview) {
       throw new IllegalStateException("Inconsistent properties: global properties doesn't enable issues mode while analysis properties enables it");
     }
 
-    load(globalProps, analysisProps, shortLivingBranch);
+    load(globalProps, analysisProps, branchConfig.isShortLivingBranch());
   }
 
   private void load(Map<String, String> globalProps, Map<String, String> analysisProps, boolean isShortLivingBranch) {

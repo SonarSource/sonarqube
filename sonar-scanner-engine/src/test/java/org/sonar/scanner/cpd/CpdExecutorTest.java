@@ -49,7 +49,6 @@ import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.scan.BranchConfiguration;
-import org.sonar.scanner.scan.BranchConfiguration.BranchType;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,7 +90,7 @@ public class CpdExecutorTest {
 
     index = new SonarCpdBlockIndex(publisher, settings);
     DefaultInputModule inputModule = TestInputFileBuilder.newDefaultInputModule("foo", baseDir);
-    componentStore = new InputComponentStore(inputModule, mock(AnalysisMode.class));
+    componentStore = new InputComponentStore(inputModule, mock(AnalysisMode.class), mock(BranchConfiguration.class));
     executor = new CpdExecutor(settings, index, publisher, componentStore, branchConfig);
     reader = new ScannerReportReader(outputDir);
 
@@ -102,7 +101,7 @@ public class CpdExecutorTest {
 
   @Test
   public void skipIfShortBranch() {
-    when(branchConfig.branchType()).thenReturn(BranchType.SHORT);
+    when(branchConfig.isShortLivingBranch()).thenReturn(true);
     index = mock(SonarCpdBlockIndex.class);
     executor = new CpdExecutor(settings, index, publisher, componentStore, branchConfig);
 

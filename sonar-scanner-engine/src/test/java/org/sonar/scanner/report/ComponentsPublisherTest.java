@@ -313,7 +313,7 @@ public class ComponentsPublisherTest {
 
   @Test
   public void skip_unchanged_components_in_short_branches() throws IOException {
-    when(branchConfiguration.branchType()).thenReturn(BranchType.SHORT);
+    when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
     ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 

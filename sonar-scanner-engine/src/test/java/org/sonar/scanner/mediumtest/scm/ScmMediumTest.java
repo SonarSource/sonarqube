@@ -31,7 +31,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester.TaskBuilder;
@@ -180,7 +179,7 @@ public class ScmMediumTest {
     assertThat(fileWithoutBlameScm).isNull();
 
     assertThat(logTester.logs()).containsSubsequence("2 files to be analyzed", "1/2 files analyzed", MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES,
-      "  * " + PathUtils.sanitize(xooFileWithoutBlame.toPath().toString()));
+      "  * src/sample_no_blame.xoo");
   }
 
   // SONAR-6397
@@ -239,7 +238,7 @@ public class ScmMediumTest {
     // 5 .xoo files + 3 .scm files, but only 4 marked for publishing. 1 file is SAME so not included in the total
     assertThat(logTester.logs()).containsSubsequence("8 files indexed");
     assertThat(logTester.logs()).containsSubsequence("4 files to be analyzed", "3/4 files analyzed");
-    assertThat(logTester.logs()).containsSubsequence(MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES, "  * " + noBlameScmOnServer.getPath().replaceAll("\\\\", "/"));
+    assertThat(logTester.logs()).containsSubsequence(MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES, "  * src/no_blame_scm_on_server.xoo");
   }
 
   @Test

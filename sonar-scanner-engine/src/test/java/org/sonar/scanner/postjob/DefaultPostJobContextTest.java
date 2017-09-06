@@ -33,6 +33,7 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
+import org.sonar.scanner.scan.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +55,7 @@ public class DefaultPostJobContextTest {
   public void setUp() throws IOException {
     issueCache = mock(IssueCache.class);
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule("foo", temp.newFolder());
-    componentStore = new InputComponentStore(rootModule, mock(AnalysisMode.class));
+    componentStore = new InputComponentStore(rootModule, mock(AnalysisMode.class), mock(BranchConfiguration.class));
     settings = new MapSettings();
     analysisMode = mock(AnalysisMode.class);
     context = new DefaultPostJobContext(settings.asConfig(), settings, issueCache, componentStore, analysisMode);
