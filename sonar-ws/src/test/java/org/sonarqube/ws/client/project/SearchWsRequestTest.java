@@ -50,7 +50,7 @@ public class SearchWsRequestTest {
   }
 
   @Test
-  public void fail_when_page_size_is_greather_then_500() throws Exception {
+  public void fail_when_page_size_is_greater_then_500() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Page size must not be greater than 500");
 

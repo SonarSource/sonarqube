@@ -35,7 +35,7 @@ import org.sonarqube.tests.organization.OrganizationMembershipUiTest;
 import org.sonarqube.tests.organization.OrganizationTest;
 import org.sonarqube.tests.organization.PersonalOrganizationTest;
 import org.sonarqube.tests.organization.RootUserOnOrganizationTest;
-import org.sonarqube.tests.projectAdministration.ProjectDeletionTest;
+import org.sonarqube.tests.projectAdministration.ProjectDeleteTest;
 import org.sonarqube.tests.projectAdministration.ProjectKeyUpdateTest;
 import org.sonarqube.tests.projectAdministration.ProjectProvisioningTest;
 import org.sonarqube.tests.projectAdministration.ProjectSearchTest;
@@ -77,7 +77,7 @@ import static util.ItUtils.xooPlugin;
   LeakProjectsPageTest.class,
   SearchProjectsTest.class,
   RulesWsTest.class,
-  ProjectDeletionTest.class,
+  ProjectDeleteTest.class,
   ProjectProvisioningTest.class,
   ProjectKeyUpdateTest.class,
   ProjectSearchTest.class,
