@@ -27,12 +27,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.cluster.ClusterObjectKeys;
 import org.sonar.cluster.localclient.HazelcastClient;
 
 import static java.util.Objects.requireNonNull;
 
 public class SharedHealthStateImpl implements SharedHealthState {
-  private static final String SQ_HEALTH_STATE_REPLICATED_MAP_IDENTIFIER = "sq_health_state";
   private static final Logger LOG = Loggers.get(SharedHealthStateImpl.class);
   private static final int TIMEOUT_30_SECONDS = 30 * 1000;
 
@@ -101,7 +101,7 @@ public class SharedHealthStateImpl implements SharedHealthState {
   }
 
   private Map<String, TimestampedNodeHealth> readReplicatedMap() {
-    return hazelcastClient.getReplicatedMap(SQ_HEALTH_STATE_REPLICATED_MAP_IDENTIFIER);
+    return hazelcastClient.getReplicatedMap(ClusterObjectKeys.SQ_HEALTH_STATE);
   }
 
 }
