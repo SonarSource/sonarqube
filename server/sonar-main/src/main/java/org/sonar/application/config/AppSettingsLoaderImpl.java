@@ -74,9 +74,9 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
 
   private static File detectHomeDir() {
     try {
-      File appJar = new File(AppSettingsLoaderImpl.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+      File appJar = new File(Class.forName("org.sonar.application.App").getProtectionDomain().getCodeSource().getLocation().toURI());
       return appJar.getParentFile().getParentFile();
-    } catch (URISyntaxException e) {
+    } catch (URISyntaxException | ClassNotFoundException e) {
       throw new IllegalStateException("Cannot detect path of main jar file", e);
     }
   }
