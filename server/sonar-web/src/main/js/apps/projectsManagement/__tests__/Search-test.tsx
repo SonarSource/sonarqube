@@ -118,7 +118,7 @@ function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
       ready={true}
       selection={[]}
       topLevelQualifiers={['TRK']}
-      total={0}
+      total={17}
       {...props}
     />
   );

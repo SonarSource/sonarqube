@@ -67,8 +67,11 @@ exports[`bulk applies template to all results 2`] = `
     className="modal-body"
   >
     <div
-      className="alert alert-warning"
+      className="alert alert-warning modal-alert"
     >
+      <AlertWarnIcon
+        className="spacer-right"
+      />
       permission_templates.bulk_apply_permission_template.apply_to_all.17
     </div>
     <div
@@ -183,8 +186,11 @@ exports[`bulk applies template to all results 3`] = `
     className="modal-body"
   >
     <div
-      className="alert alert-warning"
+      className="alert alert-warning modal-alert"
     >
+      <AlertWarnIcon
+        className="spacer-right"
+      />
       permission_templates.bulk_apply_permission_template.apply_to_all.17
     </div>
     <div
@@ -388,8 +394,11 @@ exports[`bulk applies template to selected results 2`] = `
     className="modal-body"
   >
     <div
-      className="alert alert-info"
+      className="alert alert-warning modal-alert"
     >
+      <AlertWarnIcon
+        className="spacer-right"
+      />
       permission_templates.bulk_apply_permission_template.apply_to_selected.2
     </div>
     <div
@@ -504,8 +513,11 @@ exports[`bulk applies template to selected results 3`] = `
     className="modal-body"
   >
     <div
-      className="alert alert-info"
+      className="alert alert-warning modal-alert"
     >
+      <AlertWarnIcon
+        className="spacer-right"
+      />
       permission_templates.bulk_apply_permission_template.apply_to_selected.2
     </div>
     <div

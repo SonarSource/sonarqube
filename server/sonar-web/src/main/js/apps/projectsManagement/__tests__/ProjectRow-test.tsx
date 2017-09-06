@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectRow from '../ProjectRow';
-import { Visibility } from '../utils';
+import { Visibility } from '../../../app/types';
 import { click } from '../../../helpers/testUtils';
 
 const project = {
