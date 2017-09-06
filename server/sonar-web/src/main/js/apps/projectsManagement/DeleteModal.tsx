@@ -19,15 +19,20 @@
  */
 import * as React from 'react';
 import Modal from 'react-modal';
-import { deleteComponents } from '../../api/components';
-import { translate } from '../../helpers/l10n';
+import { bulkDeleteProjects } from '../../api/components';
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
 
 export interface Props {
+  analyzedBefore?: string;
   onClose: () => void;
   onConfirm: () => void;
   organization: string;
+  provisioned: boolean;
   qualifier: string;
+  query: string;
   selection: string[];
+  total: number;
 }
 
 interface State {
@@ -53,7 +58,19 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
 
   handleConfirmClick = () => {
     this.setState({ loading: true });
-    deleteComponents(this.props.selection, this.props.organization).then(
+    const parameters = this.props.selection.length
+      ? {
+          organization: this.props.organization,
+          projects: this.props.selection.join()
+        }
+      : {
+          analyzedBefore: this.props.analyzedBefore,
+          onProvisionedOnly: this.props.provisioned || undefined,
+          organization: this.props.organization,
+          qualifiers: this.props.qualifier,
+          q: this.props.query || undefined
+        };
+    bulkDeleteProjects(parameters).then(
       () => {
         if (this.mounted) {
           this.props.onConfirm();
@@ -66,6 +83,17 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
       }
     );
   };
+
+  renderWarning = () =>
+    <div className="alert alert-warning modal-alert">
+      <AlertWarnIcon className="spacer-right" />
+      {this.props.selection.length
+        ? translateWithParameters(
+            'projects_management.delete_selected_warning',
+            this.props.selection.length
+          )
+        : translateWithParameters('projects_management.delete_all_warning', this.props.total)}
+    </div>;
 
   render() {
     const header = translate('qualifiers.delete', this.props.qualifier);
@@ -84,6 +112,7 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
         </header>
 
         <div className="modal-body">
+          {this.renderWarning()}
           {translate('qualifiers.delete_confirm', this.props.qualifier)}
         </div>
 

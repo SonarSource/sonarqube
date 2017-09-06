@@ -186,7 +186,7 @@ export default class Search extends React.PureComponent<Props, State> {
           inputClassName="input-medium"
           name="analyzed-before"
           onChange={this.props.onDateChanged}
-          placeholder={translate('analyzed_before')}
+          placeholder={translate('last_analysis_before')}
           value={this.props.analyzedBefore}
         />
       </td>
@@ -194,7 +194,6 @@ export default class Search extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const isSomethingSelected = this.props.projects.length > 0 && this.props.selection.length > 0;
     return (
       <div className="big-spacer-bottom">
         <table className="data">
@@ -224,13 +223,14 @@ export default class Search extends React.PureComponent<Props, State> {
               <td className="thin nowrap text-middle">
                 <button
                   className="spacer-right js-bulk-apply-permission-template"
+                  disabled={this.props.total === 0}
                   onClick={this.handleBulkApplyTemplateClick}>
                   {translate('permission_templates.bulk_apply_permission_template')}
                 </button>
                 <button
-                  onClick={this.handleDeleteClick}
                   className="js-delete button-red"
-                  disabled={!isSomethingSelected}>
+                  disabled={this.props.total === 0}
+                  onClick={this.handleDeleteClick}>
                   {translate('delete')}
                 </button>
               </td>
@@ -240,6 +240,7 @@ export default class Search extends React.PureComponent<Props, State> {
 
         {this.state.bulkApplyTemplateModal &&
           <BulkApplyTemplateModal
+            analyzedBefore={this.props.analyzedBefore}
             onClose={this.closeBulkApplyTemplateModal}
             organization={this.props.organization.key}
             provisioned={this.props.provisioned}
@@ -251,11 +252,15 @@ export default class Search extends React.PureComponent<Props, State> {
 
         {this.state.deleteModal &&
           <DeleteModal
+            analyzedBefore={this.props.analyzedBefore}
             onClose={this.closeDeleteModal}
             onConfirm={this.handleDeleteConfirm}
             organization={this.props.organization.key}
+            provisioned={this.props.provisioned}
             qualifier={this.props.qualifiers}
+            query={this.props.query}
             selection={this.props.selection}
+            total={this.props.total}
           />}
       </div>
     );

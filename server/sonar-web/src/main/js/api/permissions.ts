@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import { BaseSearchProjectsParameters } from './components';
 
 const PAGE_SIZE = 100;
 
@@ -136,7 +137,7 @@ export function applyTemplateToProject(data: RequestData): Promise<void> {
   return post('/api/permissions/apply_template', data);
 }
 
-export function bulkApplyTemplate(data: RequestData): Promise<void> {
+export function bulkApplyTemplate(data: BaseSearchProjectsParameters): Promise<void> {
   return post('/api/permissions/bulk_apply_template', data);
 }
 

@@ -19,17 +19,46 @@
  */
 import { getJSON, postJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { Paging, Visibility } from '../app/types';
 
-export function getComponents(data: RequestData): Promise<any> {
-  return getJSON('/api/projects/search', data);
+export interface BaseSearchProjectsParameters {
+  analyzedBefore?: string;
+  onProvisionedOnly?: boolean;
+  organization: string;
+  projects?: string;
+  q?: string;
+  qualifiers?: string;
+  visibility?: Visibility;
 }
 
-export function getProvisioned(data: RequestData): Promise<any> {
-  return getJSON('/api/projects/provisioned', data);
+export interface SearchProjectsParameters extends BaseSearchProjectsParameters {
+  p?: number;
+  ps?: number;
 }
 
-export function deleteComponents(projects: string[], organization: string): Promise<void> {
-  return post('/api/projects/bulk_delete', { projects: projects.join(), organization });
+export interface SearchProjectsResponseComponent {
+  id: string;
+  key: string;
+  lastAnalysisDate?: string;
+  name: string;
+  organization: string;
+  qualifier: string;
+  visibility: Visibility;
+}
+
+export interface SearchProjectsResponse {
+  components: SearchProjectsResponseComponent[];
+  paging: Paging;
+}
+
+export function getComponents(
+  parameters: SearchProjectsParameters
+): Promise<SearchProjectsResponse> {
+  return getJSON('/api/projects/search', parameters);
+}
+
+export function bulkDeleteProjects(parameters: BaseSearchProjectsParameters): Promise<void> {
+  return post('/api/projects/bulk_delete', parameters);
 }
 
 export function deleteProject(project: string): Promise<void> {

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 jest.mock('../../../api/components', () => ({
-  deleteComponents: jest.fn(() => Promise.resolve())
+  bulkDeleteProjects: jest.fn(() => Promise.resolve())
 }));
 
 import * as React from 'react';
@@ -26,9 +26,13 @@ import { shallow } from 'enzyme';
 import DeleteModal, { Props } from '../DeleteModal';
 import { click } from '../../../helpers/testUtils';
 
-const deleteComponents = require('../../../api/components').deleteComponents as jest.Mock<any>;
+const bulkDeleteProjects = require('../../../api/components').bulkDeleteProjects as jest.Mock<any>;
 
-it('deletes projects', async () => {
+beforeEach(() => {
+  bulkDeleteProjects.mockClear();
+});
+
+it('deletes all projects', async () => {
   const onConfirm = jest.fn();
   const wrapper = shallowRender({ onConfirm });
   (wrapper.instance() as DeleteModal).mounted = true;
@@ -36,7 +40,27 @@ it('deletes projects', async () => {
 
   click(wrapper.find('button'));
   expect(wrapper).toMatchSnapshot();
-  expect(deleteComponents).toBeCalledWith(['foo', 'bar'], 'org');
+  expect(bulkDeleteProjects).toBeCalledWith({
+    analyzedBefore: '2017-04-08T00:00:00.000Z',
+    onProvisionedOnly: undefined,
+    organization: 'org',
+    q: 'bla',
+    qualifiers: 'TRK'
+  });
+
+  await new Promise(setImmediate);
+  expect(onConfirm).toBeCalled();
+});
+
+it('deletes selected projects', async () => {
+  const onConfirm = jest.fn();
+  const wrapper = shallowRender({ onConfirm, selection: ['proj1', 'proj2'] });
+  (wrapper.instance() as DeleteModal).mounted = true;
+  expect(wrapper).toMatchSnapshot();
+
+  click(wrapper.find('button'));
+  expect(wrapper).toMatchSnapshot();
+  expect(bulkDeleteProjects).toBeCalledWith({ organization: 'org', projects: 'proj1,proj2' });
 
   await new Promise(setImmediate);
   expect(onConfirm).toBeCalled();
@@ -52,11 +76,15 @@ it('closes', () => {
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
   return shallow(
     <DeleteModal
+      analyzedBefore="2017-04-08T00:00:00.000Z"
       onClose={jest.fn()}
       onConfirm={jest.fn()}
       organization="org"
+      provisioned={false}
       qualifier="TRK"
-      selection={['foo', 'bar']}
+      query="bla"
+      selection={[]}
+      total={17}
       {...props}
     />
   );

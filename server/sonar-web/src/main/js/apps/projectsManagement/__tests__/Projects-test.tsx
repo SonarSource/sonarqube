@@ -22,8 +22,8 @@ jest.mock('../../permissions/project/views/ApplyTemplateView');
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Projects from '../Projects';
-import { Visibility } from '../utils';
 import ApplyTemplateView from '../../permissions/project/views/ApplyTemplateView';
+import { Visibility } from '../../../app/types';
 
 const organization = { key: 'org', name: 'org', projectVisibility: 'public' };
 const projects = [
