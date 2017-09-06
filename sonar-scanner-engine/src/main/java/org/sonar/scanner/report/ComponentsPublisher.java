@@ -21,9 +21,7 @@ package org.sonar.scanner.report;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
-
 import javax.annotation.CheckForNull;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -177,10 +175,13 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   private boolean shouldSkipComponent(DefaultInputComponent component, Collection<InputComponent> children) {
-    if (component instanceof InputDir && children.isEmpty()) {
+    if (component instanceof InputModule && children.isEmpty() && isShortLivingBranch()) {
+      // no children on a module in short branch analysis -> skip it (except root)
+      return !moduleHierarchy.isRoot((InputModule) component);
+    } else if (component instanceof InputDir && children.isEmpty()) {
       try (CloseableIterator<Issue> componentIssuesIt = reader.readComponentIssues(component.batchId())) {
         if (!componentIssuesIt.hasNext()) {
-          // no file to publish on a directory without issues -> skip it
+          // no files to publish on a directory without issues -> skip it
           return true;
         }
       }
