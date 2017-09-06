@@ -30,6 +30,7 @@ import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.scan.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -48,7 +49,7 @@ public class ModuleInputComponentStoreTest {
   @Before
   public void setUp() throws IOException {
     DefaultInputModule root = TestInputFileBuilder.newDefaultInputModule(moduleKey, temp.newFolder());
-    componentStore = new InputComponentStore(root, mock(AnalysisMode.class));
+    componentStore = new InputComponentStore(root, mock(AnalysisMode.class), mock(BranchConfiguration.class));
   }
 
   @Test

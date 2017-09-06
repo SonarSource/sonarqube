@@ -38,7 +38,7 @@ public class ModuleIndexerTest {
   private InputComponentStore componentStore;
 
   public void createIndexer(DefaultInputModule rootModule) {
-    componentStore = new InputComponentStore(rootModule, mock(AnalysisMode.class));
+    componentStore = new InputComponentStore(rootModule, mock(AnalysisMode.class), mock(BranchConfiguration.class));
     tree = new DefaultComponentTree();
     moduleHierarchy = mock(DefaultInputModuleHierarchy.class);
     indexer = new ModuleIndexer(tree, componentStore, moduleHierarchy);
