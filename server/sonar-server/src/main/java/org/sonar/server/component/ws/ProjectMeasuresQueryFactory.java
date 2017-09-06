@@ -125,9 +125,9 @@ class ProjectMeasuresQueryFactory {
     Operator operator = criterion.getOperator();
     String value = criterion.getValue();
     checkArgument(EQ.equals(operator), "Only equals operator is available for quality gate criteria");
-    Arrays.stream(Level.values()).filter(level -> level.name().equalsIgnoreCase(value)).findFirst()
+    Level qualityGate = Arrays.stream(Level.values()).filter(level -> level.name().equalsIgnoreCase(value)).findFirst()
       .orElseThrow(() -> new IllegalArgumentException(format("Unknown quality gate status : '%s'", value)));
-    query.setQualityGateStatus(Level.valueOf(value));
+    query.setQualityGateStatus(qualityGate);
   }
 
   private static void processMetricCriterion(Criterion criterion, ProjectMeasuresQuery query) {

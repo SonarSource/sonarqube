@@ -32,6 +32,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
@@ -98,7 +99,7 @@ public class AddUserAction implements UserGroupsWsAction {
   }
 
   private void checkMembership(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())
-      .orElseThrow(() -> new IllegalArgumentException(format("User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey())));
+    checkArgument(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId()).isPresent(),
+      "User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey());
   }
 }

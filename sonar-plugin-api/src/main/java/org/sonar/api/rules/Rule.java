@@ -287,7 +287,7 @@ public class Rule {
    */
   @Deprecated
   public Rule getParent() {
-    return template;
+    return getTemplate();
   }
 
   /**
@@ -295,8 +295,7 @@ public class Rule {
    */
   @Deprecated
   public Rule setParent(Rule parent) {
-    this.template = parent;
-    return this;
+    return setTemplate(parent);
   }
 
   /**

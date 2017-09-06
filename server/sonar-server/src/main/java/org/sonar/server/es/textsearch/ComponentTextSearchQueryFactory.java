@@ -163,11 +163,11 @@ public class ComponentTextSearchQueryFactory {
       }
 
       public ComponentTextSearchQuery build() {
-        this.queryText = requireNonNull(queryText, "query text cannot be null");
-        this.fieldKey = requireNonNull(fieldKey, "field key cannot be null");
-        this.fieldName = requireNonNull(fieldName, "field name cannot be null");
-        this.recentlyBrowsedKeys = requireNonNull(recentlyBrowsedKeys, "field recentlyBrowsedKeys cannot be null");
-        this.favoriteKeys = requireNonNull(favoriteKeys, "field favoriteKeys cannot be null");
+        requireNonNull(queryText, "query text cannot be null");
+        requireNonNull(fieldKey, "field key cannot be null");
+        requireNonNull(fieldName, "field name cannot be null");
+        requireNonNull(recentlyBrowsedKeys, "field recentlyBrowsedKeys cannot be null");
+        requireNonNull(favoriteKeys, "field favoriteKeys cannot be null");
         return new ComponentTextSearchQuery(this);
       }
     }

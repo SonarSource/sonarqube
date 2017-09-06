@@ -19,13 +19,11 @@
  */
 package org.sonar.server.issue;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -133,13 +131,7 @@ public class Result<T> {
         return false;
       }
       // Probably incorrect - comparing Object[] arrays with Arrays.equals
-      if (!Arrays.equals(l10nParams, message.l10nParams)) {
-        return false;
-      }
-      if ((text != null) ? !text.equals(message.text) : (message.text != null)) {
-        return false;
-      }
-      return true;
+      return Arrays.equals(l10nParams, message.l10nParams) && ((text != null) ? text.equals(message.text) : (message.text == null));
     }
 
     @Override

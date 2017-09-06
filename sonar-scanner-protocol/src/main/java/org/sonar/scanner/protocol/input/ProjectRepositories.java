@@ -48,11 +48,7 @@ public class ProjectRepositories {
   }
 
   public ProjectRepositories addSettings(String moduleKey, Map<String, String> settings) {
-    Map<String, String> existingSettings = settingsByModule.get(moduleKey);
-    if (existingSettings == null) {
-      existingSettings = new HashMap<>();
-      settingsByModule.put(moduleKey, existingSettings);
-    }
+    Map<String, String> existingSettings = settingsByModule.computeIfAbsent(moduleKey, k -> new HashMap<>());
     existingSettings.putAll(settings);
     return this;
   }
@@ -74,11 +70,7 @@ public class ProjectRepositories {
       return this;
     }
 
-    Map<String, FileData> existingFileDataByPath = fileDataByModuleAndPath.get(moduleKey);
-    if (existingFileDataByPath == null) {
-      existingFileDataByPath = new HashMap<>();
-      fileDataByModuleAndPath.put(moduleKey, existingFileDataByPath);
-    }
+    Map<String, FileData> existingFileDataByPath = fileDataByModuleAndPath.computeIfAbsent(moduleKey, k -> new HashMap<>());
     existingFileDataByPath.put(path, fileData);
     return this;
   }

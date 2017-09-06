@@ -35,7 +35,7 @@ public class SearchIdResult<ID> {
 
   public SearchIdResult(SearchResponse response, Function<String, ID> converter) {
     this.facets = new Facets(response);
-    this.total = response.getHits().totalHits();
+    this.total = response.getHits().getTotalHits();
     this.ids = convertToIds(response.getHits(), converter);
   }
 

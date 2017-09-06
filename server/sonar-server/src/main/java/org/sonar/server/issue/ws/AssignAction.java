@@ -45,6 +45,7 @@ import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -66,7 +67,7 @@ public class AssignAction implements IssuesWsAction {
   private final OperationResponseWriter responseWriter;
 
   public AssignAction(System2 system2, UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
-    OperationResponseWriter responseWriter) {
+                      OperationResponseWriter responseWriter) {
     this.system2 = system2;
     this.userSession = userSession;
     this.dbClient = dbClient;
@@ -148,8 +149,8 @@ public class AssignAction implements IssuesWsAction {
     ComponentDto project = Optional.ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orNull())
       .orElseThrow(() -> new IllegalStateException(format("Unknown project %s", projectUuid)));
     OrganizationDto organizationDto = dbClient.organizationDao().selectByUuid(dbSession, project.getOrganizationUuid())
-      .orElseThrow(() -> new IllegalStateException(format("Unknown organization %s", project.getOrganizationUuid())));
-    dbClient.organizationMemberDao().select(dbSession, organizationDto.getUuid(), user.getId())
-      .orElseThrow(() -> new IllegalArgumentException(format("User '%s' is not member of organization '%s'", user.getLogin(), organizationDto.getKey())));
+      .orElseThrow(() -> new IllegalStateException(format("Unknown organizationMember %s", project.getOrganizationUuid())));
+    checkArgument(dbClient.organizationMemberDao().select(dbSession, organizationDto.getUuid(), user.getId()).isPresent(),
+      "User '%s' is not member of organization '%s'", user.getLogin(), organizationDto.getKey());
   }
 }
