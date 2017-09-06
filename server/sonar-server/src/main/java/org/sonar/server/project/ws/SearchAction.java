@@ -83,7 +83,6 @@ public class SearchAction implements ProjectsWsAction {
       .setSince("6.3")
       .setDescription("Search for projects or views to administrate them.<br>" +
         "Requires 'System Administrator' permission")
-      .setInternal(true)
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this);
