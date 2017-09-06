@@ -26,7 +26,6 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.UUID;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -56,10 +55,10 @@ final class ClusterProperties {
 
   ClusterProperties(AppSettings appSettings) {
     port = appSettings.getProps().valueAsInt(CLUSTER_NODE_PORT);
-    networkInterfaces = extractNetworkInterfaces(appSettings.getProps().value(CLUSTER_NODE_HOST, ""));
-    hosts = extractHosts(appSettings.getProps().value(CLUSTER_HOSTS, ""));
-    nodeType = NodeType.parse(appSettings.getProps().value(CLUSTER_NODE_TYPE));
-    nodeName = appSettings.getProps().value(CLUSTER_NODE_NAME, "sonarqube-" + UUID.randomUUID().toString());
+    networkInterfaces = extractNetworkInterfaces(appSettings.getProps().nonNullValue(CLUSTER_NODE_HOST));
+    hosts = extractHosts(appSettings.getProps().nonNullValue(CLUSTER_HOSTS));
+    nodeType = NodeType.parse(appSettings.getProps().nonNullValue(CLUSTER_NODE_TYPE));
+    nodeName = appSettings.getProps().nonNullValue(CLUSTER_NODE_NAME);
   }
 
   int getPort() {
