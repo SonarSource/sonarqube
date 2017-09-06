@@ -39,7 +39,6 @@ import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
-import org.sonarqube.ws.client.project.BulkDeleteRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.DeleteRequest;
 import org.sonarqube.ws.client.project.SearchWsRequest;
@@ -48,7 +47,7 @@ import util.ItUtils;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProjectDeletionTest {
+public class ProjectDeleteTest {
 
   @ClassRule
   public static final Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
@@ -137,9 +136,9 @@ public class ProjectDeletionTest {
   }
 
   private void bulkDeleteProjects(Organizations.Organization organization, Project... projects) {
-    BulkDeleteRequest request = BulkDeleteRequest.builder()
+    SearchWsRequest request = SearchWsRequest.builder()
       .setOrganization(organization.getKey())
-      .setProjectKeys(Arrays.stream(projects).map(Project::getKey).collect(Collectors.toList()))
+      .setProjects(Arrays.stream(projects).map(Project::getKey).collect(Collectors.toList()))
       .build();
     tester.wsClient().projects().bulkDelete(request);
   }

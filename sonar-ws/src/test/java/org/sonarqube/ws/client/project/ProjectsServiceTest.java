@@ -125,11 +125,24 @@ public class ProjectsServiceTest {
 
   @Test
   public void bulk_delete() {
-    BulkDeleteRequest request = BulkDeleteRequest.builder().setProjectKeys(Arrays.asList("p1", "p2")).setOrganization("my-org").build();
-    underTest.bulkDelete(request);
+    underTest.bulkDelete(SearchWsRequest.builder()
+      .setOrganization("default")
+      .setQuery("project")
+      .setQualifiers(asList("TRK", "VW"))
+      .setAnalyzedBefore("2017-09-01")
+      .setProjects(Arrays.asList("P1", "P2"))
+      .setOnProvisionedOnly(true)
+      .build());
 
-    assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/bulk_delete");
-    assertThat(serviceTester.getPostRequest().getParams()).containsOnly(entry("organization", "my-org"), entry("projects", "p1,p2"));
+    serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasPath("bulk_delete")
+      .hasParam("organization", "default")
+      .hasParam("q", "project")
+      .hasParam("analyzedBefore", "2017-09-01")
+      .hasParam("qualifiers", "TRK,VW")
+      .hasParam("onProvisionedOnly", "true")
+      .hasParam("projects", "P1,P2")
+      .andNoOtherParam();
   }
 
   @Test

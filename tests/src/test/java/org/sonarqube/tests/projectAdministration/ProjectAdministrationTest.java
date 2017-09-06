@@ -47,8 +47,10 @@ import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
 import org.sonarqube.ws.client.permission.UsersWsRequest;
+import org.sonarqube.ws.client.project.SearchWsRequest;
 
 import static com.codeborne.selenide.Selenide.$;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getComponent;
@@ -97,14 +99,15 @@ public class ProjectAdministrationTest {
 
   @Test
   public void fail_when_trying_to_delete_a_file() {
-    expectedException.expect(HttpException.class);
     scanSampleWithDate(ANALYSIS_DATE);
-
     assertThat(getComponent(orchestrator, PROJECT_KEY)).isNotNull();
     assertThat(getComponent(orchestrator, FILE_KEY)).isNotNull();
 
-    // it's forbidden to delete only some files
-    orchestrator.getServer().adminWsClient().post(DELETE_WS_ENDPOINT, "keys", FILE_KEY);
+    expectedException.expect(org.sonarqube.ws.client.HttpException.class);
+
+    tester.wsClient().projects().bulkDelete(SearchWsRequest.builder()
+      .setQualifiers(singletonList("FIL"))
+      .setProjects(singletonList(FILE_KEY)).build());
   }
 
   @Test
