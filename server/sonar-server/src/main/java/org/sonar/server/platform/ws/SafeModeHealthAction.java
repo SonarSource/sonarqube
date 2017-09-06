@@ -22,13 +22,17 @@ package org.sonar.server.platform.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.ws.WsUtils;
 
 public class SafeModeHealthAction implements SystemWsAction {
   private final HealthActionSupport support;
+  private final SystemPasscode systemPasscode;
 
-  public SafeModeHealthAction(HealthActionSupport support) {
+  public SafeModeHealthAction(HealthActionSupport support, SystemPasscode systemPasscode) {
     this.support = support;
+    this.systemPasscode = systemPasscode;
   }
 
   @Override
@@ -38,6 +42,10 @@ public class SafeModeHealthAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    if (!systemPasscode.isConfigured() || !systemPasscode.isValid(request)) {
+      throw new ForbiddenException("Insufficient privileges");
+    }
+
     WsUtils.writeProtobuf(support.checkNodeHealth(), request, response);
   }
 }

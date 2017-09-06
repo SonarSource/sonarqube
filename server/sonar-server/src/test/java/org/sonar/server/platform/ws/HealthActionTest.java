@@ -28,14 +28,20 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 import org.apache.commons.lang.RandomStringUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.cluster.health.NodeDetails;
 import org.sonar.cluster.health.NodeHealth;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.health.ClusterHealth;
 import org.sonar.server.health.Health;
 import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.WebServer;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -46,6 +52,7 @@ import static java.util.Collections.singleton;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -56,10 +63,16 @@ import static org.sonar.server.health.Health.newHealthCheckBuilder;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class HealthActionTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
   private final Random random = new Random();
   private HealthChecker healthChecker = mock(HealthChecker.class);
   private WebServer webServer = mock(WebServer.class);
-  private WsActionTester underTest = new WsActionTester(new HealthAction(webServer, new HealthActionSupport(healthChecker)));
+  private SystemPasscode systemPasscode = mock(SystemPasscode.class);
+  private WsActionTester underTest = new WsActionTester(new HealthAction(webServer, new HealthActionSupport(healthChecker), systemPasscode, userSessionRule));
 
   @Test
   public void verify_definition() {
@@ -75,7 +88,82 @@ public class HealthActionTest {
   }
 
   @Test
+  public void request_fails_with_ForbiddenException_when_anonymous() {
+    TestRequest request = underTest.newRequest();
+
+    expectForbiddenException();
+
+    request.execute();
+  }
+
+  @Test
+  public void request_fails_with_SystemPasscode_enabled_and_anonymous() {
+    when(systemPasscode.isConfigured()).thenReturn(true);
+    TestRequest request = underTest.newRequest();
+
+    expectForbiddenException();
+
+    request.execute();
+  }
+
+  @Test
+  public void request_fails_with_SystemPasscode_enabled_but_no_passcode_and_user_is_not_system_administrator() {
+    when(systemPasscode.isConfigured()).thenReturn(true);
+    when(systemPasscode.isValid(any(Request.class))).thenReturn(false);
+    userSessionRule.logIn();
+    when(healthChecker.checkCluster()).thenReturn(randomStatusMinimalClusterHealth());
+    TestRequest request = underTest.newRequest();
+
+    expectForbiddenException();
+
+    request.execute();
+  }
+
+  @Test
+  public void request_succeeds_with_SystemPasscode_enabled_and_passcode() {
+    when(systemPasscode.isConfigured()).thenReturn(true);
+    when(systemPasscode.isValid(any(Request.class))).thenReturn(true);
+    when(healthChecker.checkCluster()).thenReturn(randomStatusMinimalClusterHealth());
+    TestRequest request = underTest.newRequest();
+
+    request.execute();
+  }
+
+  @Test
+  public void request_succeeds_with_SystemPasscode_disabled_and_user_is_system_administrator() {
+    when(systemPasscode.isConfigured()).thenReturn(false);
+    userSessionRule.logIn().setSystemAdministrator();
+    when(healthChecker.checkCluster()).thenReturn(randomStatusMinimalClusterHealth());
+    TestRequest request = underTest.newRequest();
+
+    request.execute();
+  }
+
+  @Test
+  public void request_succeeds_with_SystemPasscode_enabled_but_no_passcode_and_user_is_system_administrator() {
+    when(systemPasscode.isConfigured()).thenReturn(true);
+    when(systemPasscode.isValid(any(Request.class))).thenReturn(false);
+    userSessionRule.logIn().setSystemAdministrator();
+    when(healthChecker.checkCluster()).thenReturn(randomStatusMinimalClusterHealth());
+    TestRequest request = underTest.newRequest();
+
+    request.execute();
+  }
+
+  @Test
+  public void request_succeeds_with_SystemPasscode_enabled_and_passcode_and_user_is_system_administrator() {
+    when(systemPasscode.isConfigured()).thenReturn(true);
+    when(systemPasscode.isValid(any(Request.class))).thenReturn(true);
+    userSessionRule.logIn().setSystemAdministrator();
+    when(healthChecker.checkCluster()).thenReturn(randomStatusMinimalClusterHealth());
+    TestRequest request = underTest.newRequest();
+
+    request.execute();
+  }
+
+  @Test
   public void verify_response_example() {
+    authenticateWithRandomMethod();
     when(webServer.isStandalone()).thenReturn(false);
     long time = parseDateTime("2015-08-13T23:34:59+0200").getTime();
     when(healthChecker.checkCluster())
@@ -151,6 +239,7 @@ public class HealthActionTest {
 
   @Test
   public void request_returns_status_and_causes_from_HealthChecker_checkNode_method_when_standalone() {
+    authenticateWithRandomMethod();
     Health.Status randomStatus = Health.Status.values()[new Random().nextInt(Health.Status.values().length)];
     Health.Builder builder = newHealthCheckBuilder()
       .setStatus(randomStatus);
@@ -167,6 +256,7 @@ public class HealthActionTest {
 
   @Test
   public void response_contains_status_and_causes_from_HealthChecker_checkCluster_when_standalone() {
+    authenticateWithRandomMethod();
     Health.Status randomStatus = Health.Status.values()[random.nextInt(Health.Status.values().length)];
     String[] causes = IntStream.range(0, random.nextInt(33)).mapToObj(i -> randomAlphanumeric(4)).toArray(String[]::new);
     Health.Builder healthBuilder = newHealthCheckBuilder()
@@ -184,6 +274,7 @@ public class HealthActionTest {
 
   @Test
   public void response_contains_information_of_nodes_when_clustered() {
+    authenticateWithRandomMethod();
     NodeHealth nodeHealth = randomNodeHealth();
     when(webServer.isStandalone()).thenReturn(false);
     when(healthChecker.checkCluster()).thenReturn(new ClusterHealth(GREEN, singleton(nodeHealth)));
@@ -206,6 +297,7 @@ public class HealthActionTest {
 
   @Test
   public void response_sort_nodes_by_type_name_host_then_port_when_clustered() {
+    authenticateWithRandomMethod();
     // using created field as a unique identifier. pseudo random value to ensure sorting is not based on created field
     List<NodeHealth> nodeHealths = new ArrayList<>(Arrays.asList(
       randomNodeHealth(NodeDetails.Type.APPLICATION, "1_name", "1_host", 1, 99),
@@ -264,6 +356,39 @@ public class HealthActionTest {
         .setStartedAt(started)
         .build())
       .build();
+  }
+
+  private ClusterHealth randomStatusMinimalClusterHealth() {
+    return new ClusterHealth(newHealthCheckBuilder()
+      .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
+      .build(), emptySet());
+  }
+
+  private void expectForbiddenException() {
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+  }
+
+  /**
+   * Randomly choose of one the valid authentication method:
+   * <ul>
+   *   <li>system administrator and passcode disabled</li>
+   *   <li>system administrator and passcode enabled</li>
+   *   <li>passcode</li>
+   * </ul>
+   */
+  private void authenticateWithRandomMethod() {
+    if (random.nextBoolean()) {
+      when(systemPasscode.isConfigured()).thenReturn(true);
+      if (random.nextBoolean()) {
+        when(systemPasscode.isValid(any(Request.class))).thenReturn(true);
+      } else {
+        when(systemPasscode.isValid(any(Request.class))).thenReturn(false);
+        userSessionRule.logIn().setSystemAdministrator();
+      }
+    } else {
+      userSessionRule.logIn().setSystemAdministrator();
+    }
   }
 
 }

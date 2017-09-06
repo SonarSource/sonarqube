@@ -130,6 +130,18 @@ public class ItUtils {
   }
 
   /**
+   * @deprecated replaced by {@link Tester#wsClient()}
+   */
+  @Deprecated
+  public static WsClient newSystemUserWsClient(Orchestrator orchestrator, @Nullable String systemPassCode) {
+    Server server = orchestrator.getServer();
+    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+      .url(server.getUrl())
+      .systemPassCode(systemPassCode)
+      .build());
+  }
+
+  /**
    * Locate the directory of sample project
    *
    * @param relativePath path related to the directory it/projects, for example "qualitygate/xoo-sample"

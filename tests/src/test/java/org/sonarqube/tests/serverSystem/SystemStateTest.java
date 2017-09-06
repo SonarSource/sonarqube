@@ -24,9 +24,11 @@ import com.sonar.orchestrator.util.NetworkUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -38,8 +40,8 @@ import org.sonarqube.ws.WsSystem;
 import org.sonarqube.ws.client.WsClient;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.stream.Collectors.joining;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newSystemUserWsClient;
 import static util.ItUtils.newWsClient;
 import static util.ItUtils.pluginArtifact;
 
@@ -50,9 +52,10 @@ public class SystemStateTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
   @Rule
   public TestRule safeguard = new DisableOnDebug(Timeout.seconds(300));
+
+  private final String systemPassCode = RandomStringUtils.randomAlphanumeric(15);
 
   @Test
   public void test_status_and_health_during_server_lifecycle() throws Exception {
@@ -130,6 +133,7 @@ public class SystemStateTest {
         .setServerProperty("sonar.web.startupLock.path", lock.webFile.getAbsolutePath())
         .setServerProperty("sonar.ce.startupLock.path", lock.ceFile.getAbsolutePath())
         .setServerProperty("sonar.search.httpPort", "" + esHttpPort)
+        .setServerProperty("sonar.web.systemPasscode", systemPassCode)
         .build();
       elasticsearch = new Elasticsearch(esHttpPort);
 
@@ -185,7 +189,7 @@ public class SystemStateTest {
 
     Optional<WsSystem.HealthResponse> healthResponse() {
       if (orchestrator.getServer() != null) {
-        WsClient wsClient = newWsClient(orchestrator);
+        WsClient wsClient = newSystemUserWsClient(orchestrator, systemPassCode);
         try {
           return Optional.of(wsClient.system().health());
         } catch (Exception e) {
@@ -203,10 +207,11 @@ public class SystemStateTest {
     void verifyHealth(WsSystem.Health expectedHealth, String... expectedMessages) {
       WsSystem.HealthResponse response = healthResponse().get();
       assertThat(response.getHealth())
-        .as(response.getCausesList().stream().map(WsSystem.Cause::getMessage).collect(joining(",")))
+        .describedAs("Expected status %s in response %s", expectedHealth, response)
         .isEqualTo(expectedHealth);
       assertThat(response.getCausesList())
         .extracting(WsSystem.Cause::getMessage)
+        .describedAs("Expected causes %s in response %s", Arrays.asList(expectedMessages), response)
         .containsExactlyInAnyOrder(expectedMessages);
     }
 

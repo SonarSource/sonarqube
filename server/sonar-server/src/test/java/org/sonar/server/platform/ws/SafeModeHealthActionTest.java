@@ -23,10 +23,15 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.IntStream;
 import org.apache.commons.lang.RandomStringUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.health.Health;
 import org.sonar.server.health.HealthChecker;
+import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -34,15 +39,20 @@ import org.sonarqube.ws.WsSystem;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.health.Health.newHealthCheckBuilder;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SafeModeHealthActionTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   private final Random random = new Random();
   private HealthChecker healthChecker = mock(HealthChecker.class);
-  private WsActionTester underTest = new WsActionTester(new SafeModeHealthAction(new HealthActionSupport(healthChecker)));
+  private SystemPasscode systemPasscode = mock(SystemPasscode.class);
+  private WsActionTester underTest = new WsActionTester(new SafeModeHealthAction(new HealthActionSupport(healthChecker), systemPasscode));
 
   @Test
   public void verify_definition() {
@@ -58,7 +68,42 @@ public class SafeModeHealthActionTest {
   }
 
   @Test
+  public void request_fails_with_ForbiddenException_when_PassCode_disabled() {
+    when(systemPasscode.isConfigured()).thenReturn(false);
+    when(systemPasscode.isValid(any(Request.class))).thenReturn(random.nextBoolean());
+    TestRequest request = underTest.newRequest();
+
+    expectForbiddenException();
+
+    request.execute();
+  }
+
+  @Test
+  public void request_fails_with_ForbiddenException_when_PassCode_enabled_but_no_passcode() {
+    when(systemPasscode.isConfigured()).thenReturn(true);
+    when(systemPasscode.isValid(any(Request.class))).thenReturn(false);
+    TestRequest request = underTest.newRequest();
+
+    expectForbiddenException();
+
+    request.execute();
+  }
+
+  @Test
+  public void request_succeeds_when_PassCode_enabled_and_valid_passcode() {
+    authenticateWithPasscode();
+    when(healthChecker.checkNode())
+      .thenReturn(newHealthCheckBuilder()
+        .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
+        .build());
+    TestRequest request = underTest.newRequest();
+
+    request.execute();
+  }
+
+  @Test
   public void verify_response_example() {
+    authenticateWithPasscode();
     when(healthChecker.checkNode())
       .thenReturn(newHealthCheckBuilder()
         .setStatus(Health.Status.RED)
@@ -74,6 +119,7 @@ public class SafeModeHealthActionTest {
 
   @Test
   public void request_returns_status_and_causes_from_HealthChecker_checkNode_method() {
+    authenticateWithPasscode();
     Health.Status randomStatus = Health.Status.values()[new Random().nextInt(Health.Status.values().length)];
     Health.Builder builder = newHealthCheckBuilder()
       .setStatus(randomStatus);
@@ -89,6 +135,7 @@ public class SafeModeHealthActionTest {
 
   @Test
   public void response_contains_status_and_causes_from_HealthChecker_checkCluster() {
+    authenticateWithPasscode();
     Health.Status randomStatus = Health.Status.values()[random.nextInt(Health.Status.values().length)];
     String[] causes = IntStream.range(0, random.nextInt(33)).mapToObj(i -> randomAlphanumeric(4)).toArray(String[]::new);
     Health.Builder healthBuilder = newHealthCheckBuilder()
@@ -101,6 +148,16 @@ public class SafeModeHealthActionTest {
     assertThat(clusterHealthResponse.getCausesList())
       .extracting(WsSystem.Cause::getMessage)
       .containsOnly(causes);
+  }
+
+  private void expectForbiddenException() {
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+  }
+
+  private void authenticateWithPasscode() {
+    when(systemPasscode.isConfigured()).thenReturn(true);
+    when(systemPasscode.isValid(any(Request.class))).thenReturn(true);
   }
 
 }
