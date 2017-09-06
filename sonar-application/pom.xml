@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -180,7 +182,8 @@
           <archive>
             <index>true</index>
             <manifest>
-              <addClasspath>false</addClasspath>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>common</classpathPrefix>
               <mainClass>org.sonar.application.App</mainClass>
             </manifest>
             <manifestEntries>
@@ -191,41 +194,24 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
-              <artifactSet>
-                <!--excluding some transitive dependencies which are not necessary to the main process to create-->
-                <!--a smaller jar and use less memory-->
-                <excludes>
-                  <exclude>org.apache.lucene:lucene-analyzers-common</exclude>
-                  <exclude>org.apache.lucene:lucene-backward-codecs</exclude>
-                  <exclude>org.apache.lucene:lucene-grouping</exclude>
-                  <exclude>org.apache.lucene:lucene-memory</exclude>
-                  <exclude>org.apache.lucene:lucene-misc</exclude>
-                  <exclude>org.apache.lucene:lucene-spatial-extras</exclude>
-                  <exclude>org.apache.lucene:lucene-spatial3d</exclude>
-                  <exclude>org.elasticsearch.plugin:reindex-client</exclude>
-                  <exclude>org.elasticsearch.plugin:lang-mustache-client</exclude>
-                  <exclude>org.elasticsearch.plugin:percolator-client</exclude>
-                  <exclude>org.elasticsearch.plugin:transport-netty3-client</exclude>
-                </excludes>
-              </artifactSet>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
+            <id>assemble-common-lib-dir</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+              <finalName>common</finalName>
+              <descriptors>
+                <descriptor>assembly-common.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+          <execution>
+            <id>assemble-distribution-zip</id>
             <phase>package</phase>
             <goals>
               <goal>single</goal>
@@ -254,8 +240,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>200000000</minsize>
-                  <maxsize>215000000</maxsize>
+                  <minsize>165000000</minsize>
+                  <maxsize>180000000</maxsize>
                   <files>
                     <file>${project.build.directory}/sonarqube-${project.version}.zip</file>
                   </files>

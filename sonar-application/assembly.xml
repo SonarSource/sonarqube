@@ -28,14 +28,6 @@
       <scope>provided</scope>
     </dependencySet>
 
-
-    <dependencySet>
-      <outputDirectory>lib/common</outputDirectory>
-      <useTransitiveFiltering>true</useTransitiveFiltering>
-      <useProjectArtifact>false</useProjectArtifact>
-      <scope>runtime</scope>
-    </dependencySet>
-
     <dependencySet>
       <outputDirectory>lib/server</outputDirectory>
       <useProjectArtifact>false</useProjectArtifact>
@@ -122,6 +114,11 @@
   </dependencySets>
 
   <fileSets>
+    <!-- common directory -->
+    <fileSet>
+      <directory>target/common</directory>
+      <outputDirectory>lib/common</outputDirectory>
+    </fileSet>
     <!-- wrapper binaries -->
     <fileSet>
       <directory>src/main/assembly</directory>
