@@ -21,6 +21,7 @@ package org.sonar.scanner.report;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
@@ -207,6 +208,62 @@ public class ComponentsPublisherTest {
   }
 
   @Test
+  public void should_skip_empty_modules_for_short_living_branches() throws IOException {
+    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+
+    ProjectDefinition rootDef = ProjectDefinition.create()
+      .setKey("foo")
+      .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
+      .setName("Root project")
+      .setDescription("Root description")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder());
+    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
+
+    ProjectDefinition emptyModuleDef = ProjectDefinition.create()
+      .setKey("modEmpty")
+      .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
+      .setName("Empty module")
+      .setDescription("Empty module")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder());
+    DefaultInputModule emptyModule = new DefaultInputModule(emptyModuleDef, 2);
+
+    ProjectDefinition notEmptyModuleDef = ProjectDefinition.create()
+      .setKey("modNotEmpty")
+      .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
+      .setName("Module")
+      .setDescription("Module")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder());
+    DefaultInputModule notEmptyModule = new DefaultInputModule(notEmptyModuleDef, 3);
+
+    moduleHierarchy = mock(InputModuleHierarchy.class);
+    when(moduleHierarchy.root()).thenReturn(root);
+    when(moduleHierarchy.isRoot(root)).thenReturn(true);
+    when(moduleHierarchy.children(root)).thenReturn(Arrays.asList(emptyModule, notEmptyModule));
+    when(moduleHierarchy.children(emptyModule)).thenReturn(Collections.emptyList());
+    when(moduleHierarchy.children(notEmptyModule)).thenReturn(Collections.emptyList());
+    when(branchConfiguration.branchType()).thenReturn(BranchType.SHORT);
+
+    // dir with files
+    DefaultInputDir dir = new DefaultInputDir("modNotEmpty", "src", 4);
+    tree.index(dir, notEmptyModule);
+
+    // Only an unchanged file, so module should also be skipped
+    DefaultInputFile file = new TestInputFileBuilder("modNotEmpty", "src/Foo.java", 5).setLines(2).setStatus(InputFile.Status.SAME).build();
+    tree.index(file, dir);
+
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree, branchConfiguration);
+    publisher.publish(writer);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 2)).isFalse();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isFalse();
+  }
+
+  @Test
   public void should_set_directory_status() throws IOException {
     ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
@@ -319,7 +376,6 @@ public class ComponentsPublisherTest {
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isFalse();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isFalse();
   }
-
 
   @Test
   public void add_components_without_version_and_name() throws IOException {
