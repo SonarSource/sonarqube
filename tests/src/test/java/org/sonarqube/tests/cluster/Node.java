@@ -42,12 +42,14 @@ class Node {
 
   private final NodeConfig config;
   private final Orchestrator orchestrator;
+  private final String systemPassCode;
   private LogsTailer logsTailer;
   private final LogsTailer.Content content = new LogsTailer.Content();
 
-  Node(NodeConfig config, Orchestrator orchestrator) {
+  Node(NodeConfig config, Orchestrator orchestrator, String systemPassCode) {
     this.config = config;
     this.orchestrator = orchestrator;
+    this.systemPassCode = systemPassCode;
   }
 
   NodeConfig getConfig() {
@@ -142,7 +144,7 @@ class Node {
       return Optional.empty();
     }
     try {
-      return Optional.ofNullable(ItUtils.newAdminWsClient(orchestrator).system().health());
+      return Optional.ofNullable(ItUtils.newSystemUserWsClient(orchestrator, systemPassCode).system().health());
     } catch (Exception e) {
       return Optional.empty();
     }

@@ -22,16 +22,23 @@ package org.sonar.server.platform.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.WebServer;
+import org.sonar.server.user.SystemPasscode;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 
 public class HealthAction implements SystemWsAction {
   private final WebServer webServer;
   private final HealthActionSupport support;
+  private final SystemPasscode systemPasscode;
+  private final UserSession userSession;
 
-  public HealthAction(WebServer webServer, HealthActionSupport support) {
+  public HealthAction(WebServer webServer, HealthActionSupport support, SystemPasscode systemPasscode, UserSession userSession) {
     this.webServer = webServer;
     this.support = support;
+    this.systemPasscode = systemPasscode;
+    this.userSession = userSession;
   }
 
   @Override
@@ -41,11 +48,23 @@ public class HealthAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    if (!isPassCodeAuthenticated(request) && !isSystemAdmin()) {
+      throw new ForbiddenException("Insufficient privileges");
+    }
+
     if (webServer.isStandalone()) {
       WsUtils.writeProtobuf(support.checkNodeHealth(), request, response);
     } else {
       WsUtils.writeProtobuf(support.checkClusterHealth(), request, response);
     }
+  }
+
+  private boolean isSystemAdmin() {
+    return userSession.isSystemAdministrator();
+  }
+
+  private boolean isPassCodeAuthenticated(Request request) {
+    return systemPasscode.isConfigured() && systemPasscode.isValid(request);
   }
 
 }

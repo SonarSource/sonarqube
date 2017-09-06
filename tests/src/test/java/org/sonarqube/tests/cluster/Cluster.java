@@ -37,6 +37,7 @@ class Cluster implements AutoCloseable {
   private final String clusterName;
 
   private final List<Node> nodes = new ArrayList<>();
+  private final String systemPassCode = "fooBar2000";
 
   Cluster(@Nullable String name) {
     this.clusterName = name;
@@ -50,6 +51,7 @@ class Cluster implements AutoCloseable {
 
   Node addNode(NodeConfig config, Consumer<OrchestratorBuilder> consumer) {
     OrchestratorBuilder builder = newOrchestratorBuilder(config);
+    builder.setServerProperty("sonar.web.systemPasscode", systemPassCode);
 
     switch (config.getType()) {
       case SEARCH:
@@ -71,7 +73,7 @@ class Cluster implements AutoCloseable {
     }
     consumer.accept(builder);
     Orchestrator orchestrator = builder.build();
-    Node node = new Node(config, orchestrator);
+    Node node = new Node(config, orchestrator, systemPassCode);
     nodes.add(node);
     return node;
   }
