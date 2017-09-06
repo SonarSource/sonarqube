@@ -38,6 +38,7 @@ import org.sonarqube.ws.WsSystem;
 import org.sonarqube.ws.client.WsClient;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.joining;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newWsClient;
 import static util.ItUtils.pluginArtifact;
@@ -201,7 +202,9 @@ public class SystemStateTest {
 
     void verifyHealth(WsSystem.Health expectedHealth, String... expectedMessages) {
       WsSystem.HealthResponse response = healthResponse().get();
-        assertThat(response.getHealth()).isEqualTo(expectedHealth);
+      assertThat(response.getHealth())
+        .as(response.getCausesList().stream().map(WsSystem.Cause::getMessage).collect(joining(",")))
+        .isEqualTo(expectedHealth);
       assertThat(response.getCausesList())
         .extracting(WsSystem.Cause::getMessage)
         .containsExactlyInAnyOrder(expectedMessages);

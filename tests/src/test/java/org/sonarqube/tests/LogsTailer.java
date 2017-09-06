@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListenerAdapter;
@@ -53,7 +54,7 @@ public class LogsTailer implements AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     for (Tailer tailer : tailers) {
       tailer.stop();
     }
@@ -78,17 +79,15 @@ public class LogsTailer implements AutoCloseable {
       return this;
     }
 
+    /**
+     * Adds a consumer that is called on each new line appended
+     * to the files.
+     * Note that the consumer {@link Content} allows to keep
+     * all past logs in memory.
+     */
     public Builder addConsumer(Consumer<String> consumer) {
       this.consumers.add(consumer);
       return this;
-    }
-
-    public Builder doOnFind(String text, Runnable runnable) {
-      return addConsumer(log -> {
-        if (log.contains(text)) {
-          runnable.run();
-        }
-      });
     }
 
     public LogsTailer build() {
@@ -157,6 +156,37 @@ public class LogsTailer implements AutoCloseable {
     @Override
     public void close() {
       logConsumer.remove(consumer);
+    }
+  }
+
+  public static class Content implements Consumer<String> {
+    private final List<String> lines = Collections.synchronizedList(new ArrayList<>());
+
+    @Override
+    public void accept(String s) {
+      lines.add(s);
+    }
+
+    public boolean hasText(String text) {
+      synchronized (lines) {
+        for (String line : lines) {
+          if (line.contains(text)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    public boolean hasLineMatching(Pattern pattern) {
+      synchronized (lines) {
+        for (String line : lines) {
+          if (pattern.matcher(line).matches()) {
+            return true;
+          }
+        }
+      }
+      return false;
     }
   }
 }

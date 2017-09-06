@@ -22,18 +22,23 @@ package org.sonarqube.tests.cluster;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.db.DefaultDatabase;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
+import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.sonarqube.ws.WsSystem;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +53,9 @@ public class ClusterTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @BeforeClass
   public static void initDbSchema() throws Exception {
@@ -65,16 +73,17 @@ public class ClusterTest {
   public void test_high_availability_topology() throws Exception {
     try (Cluster cluster = newCluster(3, 2)) {
       cluster.getNodes().forEach(Node::start);
-      cluster.getAppNodes().forEach(Node::waitForStatusUp);
 
-      // TODO verify cluster health to be green
-      // TODO verify that ES cluster is green
+      cluster.getAppNode(0).waitForHealthGreen();
+      cluster.getAppNodes().forEach(node -> assertThat(node.getStatus()).hasValue(WsSystem.Status.UP));
 
       cluster.getNodes().forEach(node -> {
         node.assertThatProcessesAreUp();
         assertThat(node.anyLogsContain(" ERROR ")).isFalse();
         assertThat(node.anyLogsContain("MessageException")).isFalse();
       });
+
+      verifyGreenHealthOfNodes(cluster);
 
       // verify that there's a single web startup leader
       Node startupLeader = cluster.getAppNodes()
@@ -100,6 +109,21 @@ public class ClusterTest {
     }
   }
 
+  private void verifyGreenHealthOfNodes(Cluster cluster) {
+    WsSystem.HealthResponse health = cluster.getAppNode(0).getHealth().get();
+    cluster.getNodes().forEach(node -> {
+      WsSystem.Node healthNode = health.getNodes().getNodesList().stream()
+        .filter(n -> n.getPort() == node.getConfig().getHzPort())
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Node with port " + node.getConfig().getHzPort() + " not found in api/system/health"));
+      // TODO assertions to be improved
+      assertThat(healthNode.getStartedAt()).isNotEmpty();
+      assertThat(healthNode.getHost()).isNotEmpty();
+      assertThat(healthNode.getCausesCount()).isEqualTo(0);
+      assertThat(healthNode.getHealth()).isEqualTo(WsSystem.Health.GREEN);
+    });
+  }
+
   @Test
   public void minimal_cluster_is_2_search_and_1_application_nodes() throws Exception {
     try (Cluster cluster = newCluster(2, 1)) {
@@ -108,11 +132,15 @@ public class ClusterTest {
       Node app = cluster.getAppNode(0);
       app.waitForStatusUp();
       app.waitForCeLogsContain("Compute Engine is operational");
+
+      app.waitForHealth(WsSystem.Health.YELLOW);
+      WsSystem.HealthResponse health = app.getHealth().orElseThrow(() -> new IllegalStateException("Health is not available"));
+      assertThat(health.getCausesList()).extracting(WsSystem.Cause::getMessage)
+        .contains("There should be at least three search nodes")
+        .contains("There should be at least two application nodes");
+
       assertThat(app.isStartupLeader()).isTrue();
       assertThat(app.hasStartupLeaderOperations()).isTrue();
-
-      // TODO verify cluster health to be yellow
-      // TODO verify that ES cluster is yellow
 
       cluster.getNodes().forEach(node -> {
         assertThat(node.anyLogsContain(" ERROR ")).isFalse();
@@ -145,8 +173,6 @@ public class ClusterTest {
       app.waitForStatusUp();
       assertThat(app.isStartupLeader()).isTrue();
       assertThat(app.hasStartupLeaderOperations()).isTrue();
-      // TODO verify cluster health to be yellow
-      // TODO verify that ES cluster is yellow
 
       // no errors
       cluster.getNodes().forEach(node -> {
@@ -219,6 +245,49 @@ public class ClusterTest {
       assertThat(startupFollower.hasStartupLeaderOperations()).isFalse();
       assertThat(startupFollower.hasCreatedSearchIndices()).isFalse();
       assertThat(startupFollower).isNotSameAs(startupLeader);
+    }
+  }
+
+  @Test
+  @Ignore("WS api/system/health returns 500")
+  public void health_becomes_RED_when_all_search_nodes_go_down() throws Exception {
+    try (Cluster cluster = newCluster(2, 1)) {
+      cluster.getNodes().forEach(Node::start);
+
+      Node app = cluster.getAppNode(0);
+      app.waitForHealth(WsSystem.Health.YELLOW);
+
+      cluster.getSearchNodes().forEach(Node::stop);
+
+      app.waitForHealth(WsSystem.Health.RED);
+      assertThat(app.getHealth().get().getCausesList()).extracting(WsSystem.Cause::getMessage)
+        .contains("Elasticsearch status is RED");
+    }
+  }
+
+  @Test
+  public void health_ws_is_available_when_server_is_starting() throws Exception {
+    File startupLock = temp.newFile();
+    FileUtils.touch(startupLock);
+
+    try (Cluster cluster = newCluster(2, 0)) {
+      // add an application node that pauses during startup
+      NodeConfig appConfig = NodeConfig.newApplicationConfig()
+        .addConnectionToBus(cluster.getSearchNode(0).getConfig())
+        .addConnectionToSearch(cluster.getSearchNode(0).getConfig());
+      Node appNode = cluster.addNode(appConfig, b -> b.setServerProperty("sonar.web.startupLock.path", startupLock.getAbsolutePath()));
+
+      cluster.getNodes().forEach(Node::start);
+
+      appNode.waitFor(node -> WsSystem.Status.STARTING == node.getStatus().orElse(null));
+
+      // WS answers whereas server is still not started
+      assertThat(appNode.getHealth().get().getHealth()).isEqualTo(WsSystem.Health.RED);
+
+      // just to be sure, verify that server is still being started
+      assertThat(appNode.getStatus()).hasValue(WsSystem.Status.STARTING);
+
+      startupLock.delete();
     }
   }
 
