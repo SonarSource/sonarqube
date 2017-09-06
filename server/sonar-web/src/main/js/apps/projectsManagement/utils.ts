@@ -19,12 +19,7 @@
  */
 export const PAGE_SIZE = 50;
 
-export const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP', 'DEV'];
-
-export enum Type {
-  All = 'ALL',
-  Provisioned = 'PROVISIONED'
-}
+export const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP'];
 
 export interface Project {
   key: string;

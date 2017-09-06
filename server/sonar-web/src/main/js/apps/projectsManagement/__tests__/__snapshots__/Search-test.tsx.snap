@@ -4,11 +4,11 @@ exports[`bulk applies permission template 1`] = `
 <BulkApplyTemplateModal
   onClose={[Function]}
   organization="org"
+  provisioned={false}
   qualifier="TRK"
   query=""
   selection={Array []}
   total={0}
-  type="ALL"
 />
 `;
 
@@ -41,6 +41,7 @@ exports[`render qualifiers filter 1`] = `
         >
           <Checkbox
             checked={false}
+            id="projects-selection"
             onCheck={[Function]}
             thirdState={false}
           />
@@ -48,10 +49,40 @@ exports[`render qualifiers filter 1`] = `
         <td
           className="thin nowrap text-middle"
         >
-          <RadioToggle
+          <Select
+            addLabelText="Add \\"{label}\\"?"
+            arrowRenderer={[Function]}
+            autosize={true}
+            backspaceRemoves={true}
+            backspaceToRemoveMessage="Press backspace to remove {label}"
+            className="input-medium"
+            clearAllText="Clear all"
+            clearRenderer={[Function]}
+            clearValueText="Clear value"
+            clearable={false}
+            deleteRemoves={true}
+            delimiter=","
             disabled={false}
+            escapeClearsValue={true}
+            filterOptions={[Function]}
+            ignoreAccents={true}
+            ignoreCase={true}
+            inputProps={Object {}}
+            isLoading={false}
+            joinValues={false}
+            labelKey="label"
+            matchPos="any"
+            matchProp="any"
+            menuBuffer={0}
+            menuRenderer={[Function]}
+            multi={false}
             name="projects-qualifier"
-            onCheck={[Function]}
+            noResultsText="No results found"
+            onBlurResetsInput={true}
+            onChange={[Function]}
+            onCloseResetsInput={true}
+            optionComponent={[Function]}
+            optionRenderer={[Function]}
             options={
               Array [
                 Object {
@@ -68,30 +99,43 @@ exports[`render qualifiers filter 1`] = `
                 },
               ]
             }
+            pageSize={5}
+            placeholder="Select..."
+            required={false}
+            scrollMenuIntoView={true}
+            searchable={false}
+            simpleValue={false}
+            tabSelectsValue={true}
             value="TRK"
+            valueComponent={[Function]}
+            valueKey="value"
+            valueRenderer={[Function]}
           />
         </td>
         <td
           className="thin nowrap text-middle"
         >
-          <RadioToggle
-            disabled={false}
-            name="projects-type"
+          <Checkbox
+            checked={false}
+            className="link-checkbox-control"
+            id="projects-provisioned"
             onCheck={[Function]}
-            options={
-              Array [
-                Object {
-                  "label": "All",
-                  "value": "ALL",
-                },
-                Object {
-                  "label": "Provisioned",
-                  "value": "PROVISIONED",
-                },
-              ]
-            }
-            value="ALL"
-          />
+            thirdState={false}
+          >
+            <span
+              className="little-spacer-left"
+            >
+              provisioning.only_provisioned
+              <Tooltip
+                overlay="provisioning.only_provisioned.tooltip"
+                placement="bottom"
+              >
+                <i
+                  className="spacer-left icon-help"
+                />
+              </Tooltip>
+            </span>
+          </Checkbox>
         </td>
         <td
           className="text-middle"
@@ -153,6 +197,7 @@ exports[`renders 1`] = `
         >
           <Checkbox
             checked={false}
+            id="projects-selection"
             onCheck={[Function]}
             thirdState={false}
           />
@@ -160,24 +205,27 @@ exports[`renders 1`] = `
         <td
           className="thin nowrap text-middle"
         >
-          <RadioToggle
-            disabled={false}
-            name="projects-type"
+          <Checkbox
+            checked={false}
+            className="link-checkbox-control"
+            id="projects-provisioned"
             onCheck={[Function]}
-            options={
-              Array [
-                Object {
-                  "label": "All",
-                  "value": "ALL",
-                },
-                Object {
-                  "label": "Provisioned",
-                  "value": "PROVISIONED",
-                },
-              ]
-            }
-            value="ALL"
-          />
+            thirdState={false}
+          >
+            <span
+              className="little-spacer-left"
+            >
+              provisioning.only_provisioned
+              <Tooltip
+                overlay="provisioning.only_provisioned.tooltip"
+                placement="bottom"
+              >
+                <i
+                  className="spacer-left icon-help"
+                />
+              </Tooltip>
+            </span>
+          </Checkbox>
         </td>
         <td
           className="text-middle"
