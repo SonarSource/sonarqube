@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -69,7 +70,7 @@ public class CeShutdownTest {
       try (LogsTailer.Watch watch = ce.logs().watch("Process [ce] is stopped")) {
         ce.resumeTask();
         watch.waitForLog();
-        assertThat(ce.isTaskFinished()).isTrue();
+        assertThat(ce.hasTaskFinishedSuccessfully()).isTrue();
         assertThat(ce.hasErrorLogs()).isFalse();
       }
     }
@@ -98,7 +99,7 @@ public class CeShutdownTest {
       // finish successfully
       try (LogsTailer.Watch watch = ce.logs().watch("Process [ce] is stopped")) {
         watch.waitForLog();
-        assertThat(ce.isTaskFinished()).isTrue();
+        assertThat(ce.hasTaskFinishedSuccessfully()).isTrue();
         assertThat(ce.hasErrorLogs()).isTrue();
       }
     }
@@ -110,6 +111,7 @@ public class CeShutdownTest {
     private final WsClient adminWsClient;
     private Thread stopper;
     private final LogsTailer logsTailer;
+    private final LogsTailer.Content content = new LogsTailer.Content();
 
     ComputeEngine() throws Exception {
       pauseFile = temp.newFile();
@@ -125,6 +127,7 @@ public class CeShutdownTest {
       logsTailer = LogsTailer.builder()
         .addFile(orchestrator.getServer().getCeLogs())
         .addFile(orchestrator.getServer().getAppLogs())
+        .addConsumer(content)
         .build();
     }
 
@@ -144,14 +147,12 @@ public class CeShutdownTest {
       return adminWsClient.ce().activityStatus(ActivityStatusWsRequest.newBuilder().build()).getInProgress();
     }
 
-    boolean isTaskFinished() throws Exception {
-      String ceLogs = FileUtils.readFileToString(orchestrator.getServer().getCeLogs());
-      return ceLogs.contains("Executed task | project=foo | type=REPORT");
+    boolean hasTaskFinishedSuccessfully() throws Exception {
+      return content.hasLineMatching(Pattern.compile(".* INFO .*Executed task \\| project=foo \\| type=REPORT.*"));
     }
 
     boolean hasErrorLogs() throws IOException {
-      String ceLogs = FileUtils.readFileToString(orchestrator.getServer().getCeLogs());
-      return ceLogs.contains(" ERROR ");
+      return content.hasText(" ERROR ");
     }
 
     /**
@@ -171,6 +172,7 @@ public class CeShutdownTest {
       if (orchestrator != null) {
         orchestrator.stop();
       }
+      logsTailer.close();
     }
   }
 }

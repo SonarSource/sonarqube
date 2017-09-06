@@ -24,18 +24,26 @@ import com.sonar.orchestrator.Orchestrator;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
+import org.sonarqube.tests.LogsTailer;
+import org.sonarqube.ws.WsSystem;
+import org.sonarqube.ws.client.WsClient;
 import util.ItUtils;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class Node {
 
   private final NodeConfig config;
   private final Orchestrator orchestrator;
+  private LogsTailer logsTailer;
+  private final LogsTailer.Content content = new LogsTailer.Content();
 
   Node(NodeConfig config, Orchestrator orchestrator) {
     this.config = config;
@@ -53,10 +61,20 @@ class Node {
    */
   void start() {
     orchestrator.start();
+    logsTailer = LogsTailer.builder()
+      .addFile(orchestrator.getServer().getWebLogs())
+      .addFile(orchestrator.getServer().getCeLogs())
+      .addFile(orchestrator.getServer().getEsLogs())
+      .addFile(orchestrator.getServer().getAppLogs())
+      .addConsumer(content)
+      .build();
   }
 
   void stop() {
     orchestrator.stop();
+    if (logsTailer != null) {
+      logsTailer.close();
+    }
   }
 
   void cleanUpLogs() {
@@ -77,22 +95,62 @@ class Node {
   }
 
   void waitForStatusUp() {
-    waitForStatus("UP");
+    waitFor(node -> WsSystem.Status.UP == node.getStatus().orElse(null));
   }
 
-  void waitForStatus(String expectedStatus) {
-    String status = null;
-    try {
-      while (!expectedStatus.equals(status)) {
-        if (orchestrator.getServer() != null) {
-          try {
-            Map<String, Object> json = ItUtils.jsonToMap(orchestrator.getServer().newHttpCall("api/system/status").executeUnsafely().getBodyAsString());
-            status = (String) json.get("status");
-          } catch (Exception e) {
-            // ignored
-          }
-        }
+  /**
+   * Waiting for health to be green... or yellow on the boxes that
+   * have less than 15% of free disk space. In that case Elasticsearch
+   * can't build shard replicas so it is yellow.
+   */
+  void waitForHealthGreen() {
+    waitFor(node -> {
+      Optional<WsSystem.HealthResponse> health = node.getHealth();
+      if (!health.isPresent()) {
+        return false;
+      }
+      if (health.get().getHealth() == WsSystem.Health.GREEN) {
+        return true;
+      }
+      if (health.get().getHealth() == WsSystem.Health.YELLOW) {
+        List<WsSystem.Cause> causes = health.get().getCausesList();
+        return causes.size() == 1 && "Elasticsearch status is YELLOW".equals(causes.get(0).getMessage());
+      }
+      return false;
+    });
+  }
 
+  void waitForHealth(WsSystem.Health expectedHealth) {
+    waitFor(node -> expectedHealth.equals(node.getHealth().map(WsSystem.HealthResponse::getHealth).orElse(null)));
+  }
+
+  Optional<WsSystem.Status> getStatus() {
+    checkState(config.getType() == NodeConfig.NodeType.APPLICATION);
+    if (orchestrator.getServer() == null) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.ofNullable(ItUtils.newAdminWsClient(orchestrator).system().status().getStatus());
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  Optional<WsSystem.HealthResponse> getHealth() {
+    checkState(config.getType() == NodeConfig.NodeType.APPLICATION);
+    if (orchestrator.getServer() == null) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.ofNullable(ItUtils.newAdminWsClient(orchestrator).system().health());
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  void waitFor(Predicate<Node> predicate) {
+    try {
+      while (!predicate.test(this)) {
         Thread.sleep(500);
       }
     } catch (InterruptedException e) {
@@ -144,13 +202,7 @@ class Node {
   }
 
   boolean anyLogsContain(String message) {
-    if (orchestrator.getServer() == null) {
-      return false;
-    }
-    return fileContains(orchestrator.getServer().getAppLogs(), message) ||
-      fileContains(orchestrator.getServer().getWebLogs(), message) ||
-      fileContains(orchestrator.getServer().getEsLogs(), message) ||
-      fileContains(orchestrator.getServer().getCeLogs(), message);
+    return content.hasText(message);
   }
 
   private boolean webLogsContain(String message) {
@@ -182,4 +234,8 @@ class Node {
     }
   }
 
+  public WsClient wsClient() {
+    checkState(config.getType() == NodeConfig.NodeType.APPLICATION);
+    return ItUtils.newAdminWsClient(orchestrator);
+  }
 }
