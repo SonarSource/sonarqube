@@ -88,10 +88,6 @@ exports[`render qualifiers filter 1`] = `
                   "label": "Provisioned",
                   "value": "PROVISIONED",
                 },
-                Object {
-                  "label": "Ghosts",
-                  "value": "GHOSTS",
-                },
               ]
             }
             value="ALL"
@@ -177,10 +173,6 @@ exports[`renders 1`] = `
                 Object {
                   "label": "Provisioned",
                   "value": "PROVISIONED",
-                },
-                Object {
-                  "label": "Ghosts",
-                  "value": "GHOSTS",
                 },
               ]
             }

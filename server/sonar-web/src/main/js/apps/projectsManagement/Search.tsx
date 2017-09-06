@@ -68,8 +68,7 @@ export default class Search extends React.PureComponent<Props, State> {
 
   getTypeOptions = () => [
     { value: Type.All, label: 'All' },
-    { value: Type.Provisioned, label: 'Provisioned' },
-    { value: Type.Ghosts, label: 'Ghosts' }
+    { value: Type.Provisioned, label: 'Provisioned' }
   ];
 
   getQualifierOptions = () => {
@@ -121,17 +120,6 @@ export default class Search extends React.PureComponent<Props, State> {
       this.props.selection.length < this.props.projects.length;
     const checked = isAllChecked || thirdState;
     return <Checkbox checked={checked} thirdState={thirdState} onCheck={this.onCheck} />;
-  };
-
-  renderGhostsDescription = () => {
-    if (this.props.type !== Type.Ghosts || !this.props.ready) {
-      return null;
-    }
-    return (
-      <div className="spacer-top alert alert-info">
-        {translate('bulk_deletion.ghosts.description')}
-      </div>
-    );
   };
 
   renderQualifierFilter = () => {
@@ -201,7 +189,6 @@ export default class Search extends React.PureComponent<Props, State> {
             </tr>
           </tbody>
         </table>
-        {this.renderGhostsDescription()}
 
         {this.state.bulkApplyTemplateModal &&
           <BulkApplyTemplateModal
