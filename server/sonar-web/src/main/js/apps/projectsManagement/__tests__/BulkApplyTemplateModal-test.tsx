@@ -26,7 +26,6 @@ jest.mock('../../../api/permissions', () => ({
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import BulkApplyTemplateModal, { Props } from '../BulkApplyTemplateModal';
-import { Type } from '../utils';
 import { click } from '../../../helpers/testUtils';
 
 const applyTemplateToProject = require('../../../api/permissions')
@@ -117,11 +116,11 @@ function render(props?: { [P in keyof Props]?: Props[P] }) {
     <BulkApplyTemplateModal
       onClose={jest.fn()}
       organization="org"
+      provisioned={true}
       qualifier="TRK"
       query="bla"
       selection={[]}
       total={17}
-      type={Type.All}
       {...props}
     />
   );
