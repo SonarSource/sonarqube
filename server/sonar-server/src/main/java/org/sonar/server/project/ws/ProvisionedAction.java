@@ -77,9 +77,11 @@ public class ProvisionedAction implements ProjectsWsAction {
     WebService.NewAction action = controller.createAction("provisioned");
     action
       .setDescription(
-        "Get the list of provisioned projects.<br /> " +
+        "Get the list of provisioned projects.<br> " +
+          "Web service is deprecated. Use api/projects/search instead, with onProvisionedOnly=true.<br> " +
           "Require 'Create Projects' permission.")
       .setSince("5.2")
+      .setDeprecatedSince("6.6")
       .setResponseExample(Resources.getResource(getClass(), "projects-example-provisioned.json"))
       .setHandler(this)
       .addPagingParams(100, MAX_LIMIT)
