@@ -26,7 +26,7 @@ import Projects from './Projects';
 import CreateProjectForm from './CreateProjectForm';
 import ListFooter from '../../components/controls/ListFooter';
 import { PAGE_SIZE, Project } from './utils';
-import { getComponents, getProvisioned } from '../../api/components';
+import { getComponents } from '../../api/components';
 import { Organization } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
@@ -78,38 +78,17 @@ export default class App extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  getFilters = () => ({
-    analyzedBefore: this.state.analyzedBefore,
-    organization: this.props.organization.key,
-    p: this.state.page !== 1 ? this.state.page : undefined,
-    ps: PAGE_SIZE,
-    q: this.state.query ? this.state.query : undefined
-  });
-
-  requestProjects = () =>
-    this.state.provisioned ? this.requestProvisioned() : this.requestAllProjects();
-
-  requestProvisioned = () => {
-    const data = this.getFilters();
-    getProvisioned(data).then(r => {
-      if (this.mounted) {
-        let projects: Project[] = r.projects.map((project: any) => ({
-          ...project,
-          id: project.uuid,
-          qualifier: 'TRK'
-        }));
-        if (this.state.page > 1) {
-          projects = [...this.state.projects, ...projects];
-        }
-        this.setState({ ready: true, projects, selection: [], total: r.paging.total });
-      }
-    });
-  };
-
-  requestAllProjects = () => {
-    const data = this.getFilters();
-    Object.assign(data, { qualifiers: this.state.qualifiers });
-    getComponents(data).then(r => {
+  requestProjects = () => {
+    const parameters = {
+      analyzedBefore: this.state.analyzedBefore,
+      onProvisionedOnly: this.state.provisioned || undefined,
+      organization: this.props.organization.key,
+      p: this.state.page !== 1 ? this.state.page : undefined,
+      ps: PAGE_SIZE,
+      q: this.state.query || undefined,
+      qualifiers: this.state.qualifiers
+    };
+    getComponents(parameters).then(r => {
       if (this.mounted) {
         let projects: Project[] = r.components;
         if (this.state.page > 1) {

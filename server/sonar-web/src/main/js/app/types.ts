@@ -118,3 +118,14 @@ export interface Organization {
   projectVisibility: string;
   url?: string;
 }
+
+export interface Paging {
+  pageIndex: number;
+  pageSize: number;
+  total: number;
+}
+
+export enum Visibility {
+  Public = 'public',
+  Private = 'private'
+}

@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { Project, Visibility } from './utils';
+import { Project } from './utils';
+import { Visibility } from '../../app/types';
 import PrivateBadge from '../../components/common/PrivateBadge';
 import Checkbox from '../../components/controls/Checkbox';
 import QualifierIcon from '../../components/shared/QualifierIcon';

@@ -20,10 +20,9 @@
 import * as React from 'react';
 import Modal from 'react-modal';
 import * as classNames from 'classnames';
-import { Organization } from '../../app/types';
+import { Organization, Visibility } from '../../app/types';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import { translate } from '../../helpers/l10n';
-import { Visibility } from './utils';
 
 export interface Props {
   onClose: () => void;

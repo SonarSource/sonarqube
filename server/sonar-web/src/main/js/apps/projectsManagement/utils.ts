@@ -17,19 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { SearchProjectsResponseComponent } from '../../api/components';
+
 export const PAGE_SIZE = 50;
 
 export const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP'];
 
-export interface Project {
-  key: string;
-  lastAnalysisDate?: string;
-  name: string;
-  qualifier: string;
-  visibility: Visibility;
-}
-
-export enum Visibility {
-  Public = 'public',
-  Private = 'private'
-}
+export type Project = SearchProjectsResponseComponent;

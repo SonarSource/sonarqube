@@ -8,7 +8,7 @@ exports[`bulk applies permission template 1`] = `
   qualifier="TRK"
   query=""
   selection={Array []}
-  total={0}
+  total={17}
 />
 `;
 
@@ -17,13 +17,16 @@ exports[`deletes projects 1`] = `
   onClose={[Function]}
   onConfirm={[Function]}
   organization="org"
+  provisioned={false}
   qualifier="TRK"
+  query=""
   selection={
     Array [
       "foo",
       "bar",
     ]
   }
+  total={17}
 />
 `;
 
@@ -176,13 +179,14 @@ exports[`render qualifiers filter 1`] = `
         >
           <button
             className="spacer-right js-bulk-apply-permission-template"
+            disabled={false}
             onClick={[Function]}
           >
             permission_templates.bulk_apply_permission_template
           </button>
           <button
             className="js-delete button-red"
-            disabled={true}
+            disabled={false}
             onClick={[Function]}
           >
             delete
@@ -277,13 +281,14 @@ exports[`renders 1`] = `
         >
           <button
             className="spacer-right js-bulk-apply-permission-template"
+            disabled={false}
             onClick={[Function]}
           >
             permission_templates.bulk_apply_permission_template
           </button>
           <button
             className="js-delete button-red"
-            disabled={true}
+            disabled={false}
             onClick={[Function]}
           >
             delete
