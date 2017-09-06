@@ -23,6 +23,13 @@ jest.mock('lodash', () => {
   return lodash;
 });
 
+// actual version breaks `mount`
+jest.mock('rc-tooltip', () => ({
+  default: function Tooltip() {
+    return null;
+  }
+}));
+
 jest.mock('../../../api/components', () => ({
   getComponents: jest.fn(),
   getProvisioned: jest.fn(() => Promise.resolve({ paging: { total: 0 }, projects: [] }))
@@ -31,7 +38,6 @@ jest.mock('../../../api/components', () => ({
 import * as React from 'react';
 import { mount } from 'enzyme';
 import App, { Props } from '../App';
-import { Type } from '../utils';
 
 const getComponents = require('../../../api/components').getComponents as jest.Mock<any>;
 const getProvisioned = require('../../../api/components').getProvisioned as jest.Mock<any>;
@@ -57,15 +63,15 @@ it('fetches all projects on mount', () => {
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, qualifiers: 'TRK' });
 });
 
-it('changes type', () => {
+it('selects provisioned', () => {
   const wrapper = mountRender();
-  wrapper.find('Search').prop<Function>('onTypeChanged')(Type.Provisioned);
+  wrapper.find('Search').prop<Function>('onProvisionedChanged')(true);
   expect(getProvisioned).lastCalledWith(defaultSearchParameters);
 });
 
-it('changes qualifier and resets type', () => {
+it('changes qualifier and resets provisioned', () => {
   const wrapper = mountRender();
-  wrapper.setState({ type: Type.Provisioned });
+  wrapper.setState({ provisioned: true });
   wrapper.find('Search').prop<Function>('onQualifierChanged')('VW');
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, qualifiers: 'VW' });
 });

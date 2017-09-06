@@ -25,7 +25,7 @@ import Search from './Search';
 import Projects from './Projects';
 import CreateProjectForm from './CreateProjectForm';
 import ListFooter from '../../components/controls/ListFooter';
-import { PAGE_SIZE, Type, Project } from './utils';
+import { PAGE_SIZE, Project } from './utils';
 import { getComponents, getProvisioned } from '../../api/components';
 import { Organization } from '../../app/types';
 import { translate } from '../../helpers/l10n';
@@ -41,12 +41,12 @@ interface State {
   createProjectForm: boolean;
   page: number;
   projects: Project[];
+  provisioned: boolean;
   qualifiers: string;
   query: string;
   ready: boolean;
   selection: string[];
   total: number;
-  type: Type;
 }
 
 export default class App extends React.PureComponent<Props, State> {
@@ -58,11 +58,11 @@ export default class App extends React.PureComponent<Props, State> {
       createProjectForm: false,
       ready: false,
       projects: [],
+      provisioned: false,
       total: 0,
       page: 1,
       query: '',
       qualifiers: 'TRK',
-      type: Type.All,
       selection: []
     };
     this.requestProjects = debounce(this.requestProjects, 250);
@@ -84,16 +84,8 @@ export default class App extends React.PureComponent<Props, State> {
     q: this.state.query ? this.state.query : undefined
   });
 
-  requestProjects = () => {
-    switch (this.state.type) {
-      case Type.All:
-        this.requestAllProjects();
-        break;
-      case Type.Provisioned:
-        this.requestProvisioned();
-        break;
-    }
-  };
+  requestProjects = () =>
+    this.state.provisioned ? this.requestProvisioned() : this.requestAllProjects();
 
   requestProvisioned = () => {
     const data = this.getFilters();
@@ -134,16 +126,23 @@ export default class App extends React.PureComponent<Props, State> {
     this.setState({ ready: false, page: 1, query, selection: [] }, this.requestProjects);
   };
 
-  onTypeChanged = (newType: Type) => {
+  onProvisionedChanged = (provisioned: boolean) => {
     this.setState(
-      { ready: false, page: 1, query: '', type: newType, qualifiers: 'TRK', selection: [] },
+      { ready: false, page: 1, query: '', provisioned, qualifiers: 'TRK', selection: [] },
       this.requestProjects
     );
   };
 
   onQualifierChanged = (newQualifier: string) => {
     this.setState(
-      { ready: false, page: 1, query: '', type: Type.All, qualifiers: newQualifier, selection: [] },
+      {
+        ready: false,
+        page: 1,
+        provisioned: false,
+        query: '',
+        qualifiers: newQualifier,
+        selection: []
+      },
       this.requestProjects
     );
   };
@@ -188,14 +187,21 @@ export default class App extends React.PureComponent<Props, State> {
         />
 
         <Search
-          {...this.props}
-          {...this.state}
           onAllSelected={this.onAllSelected}
           onAllDeselected={this.onAllDeselected}
           onDeleteProjects={this.requestProjects}
+          onProvisionedChanged={this.onProvisionedChanged}
           onQualifierChanged={this.onQualifierChanged}
           onSearch={this.onSearch}
-          onTypeChanged={this.onTypeChanged}
+          organization={this.props.organization}
+          projects={this.state.projects}
+          provisioned={this.state.provisioned}
+          qualifiers={this.state.qualifiers}
+          query={this.state.query}
+          ready={this.state.ready}
+          selection={this.state.selection}
+          topLevelQualifiers={this.props.topLevelQualifiers}
+          total={this.state.total}
         />
 
         <Projects

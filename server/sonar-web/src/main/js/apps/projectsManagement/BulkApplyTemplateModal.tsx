@@ -20,7 +20,6 @@
 import * as React from 'react';
 import Modal from 'react-modal';
 import * as Select from 'react-select';
-import { Type } from './utils';
 import {
   getPermissionTemplates,
   PermissionTemplate,
@@ -32,11 +31,11 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 export interface Props {
   onClose: () => void;
   organization: string;
+  provisioned: boolean;
   qualifier: string;
   query: string;
   selection: string[];
   total: number;
-  type: Type;
 }
 
 interface State {
