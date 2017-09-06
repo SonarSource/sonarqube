@@ -50,7 +50,7 @@ public class EsStatusClusterCheckTest {
           .setName(randomAlphanumeric(23))
           .setHost(randomAlphanumeric(23))
           .setPort(1 + random.nextInt(96))
-          .setStarted(1 + random.nextInt(966))
+          .setStartedAt(1 + random.nextInt(966))
           .build())
         .build())
       .collect(Collectors.toSet());

@@ -29,9 +29,6 @@ import org.sonar.server.health.Health;
 import org.sonar.server.health.HealthChecker;
 import org.sonarqube.ws.WsSystem;
 
-import static java.lang.String.valueOf;
-import static org.sonar.api.utils.DateUtils.formatDateTime;
-
 public class HealthActionSupport {
   private static final Comparator<NodeHealth> NODE_HEALTH_COMPARATOR = Comparator.<NodeHealth>comparingInt(s -> s.getDetails().getType().ordinal())
     .thenComparing(a -> a.getDetails().getName())
@@ -99,8 +96,8 @@ public class HealthActionSupport {
       .setType(WsSystem.NodeType.valueOf(details.getType().name()))
       .setName(details.getName())
       .setHost(details.getHost())
-      .setPort(valueOf(details.getPort()))
-      .setStarted(formatDateTime(details.getStarted()));
+      .setPort(details.getPort())
+      .setStartedAt(details.getStartedAt());
     return nodeBuilder.build();
   }
 

@@ -107,9 +107,9 @@ public class NodeDetailsTest {
   @Test
   public void setStarted_throws_IAE_if_arg_is_less_than_1() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("started must be > 0");
+    expectedException.expectMessage("startedAt must be > 0");
 
-    builderUnderTest.setStarted(-random.nextInt(5));
+    builderUnderTest.setStartedAt(-random.nextInt(5));
   }
 
   @Test
@@ -165,7 +165,7 @@ public class NodeDetailsTest {
       .setPort(1 + random.nextInt(33));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("started must be > 0");
+    expectedException.expectMessage("startedAt must be > 0");
 
     builderUnderTest.build();
   }
@@ -209,18 +209,18 @@ public class NodeDetailsTest {
     String name = randomAlphanumeric(3);
     String host = randomAlphanumeric(10);
     int port = 1 + random.nextInt(10);
-    int started = 1 + random.nextInt(666);
+    long startedAt = 1 + random.nextInt(666);
 
     NodeDetails underTest = builderUnderTest
       .setType(randomType)
       .setName(name)
       .setHost(host)
       .setPort(port)
-      .setStarted(started)
+      .setStartedAt(startedAt)
       .build();
 
     assertThat(underTest.toString())
-      .isEqualTo("NodeDetails{type=" + randomType + ", name='" + name + "', host='" + host + "', port=" + port + ", started=" + started + "}");
+      .isEqualTo("NodeDetails{type=" + randomType + ", name='" + name + "', host='" + host + "', port=" + port + ", startedAt=" + startedAt + "}");
   }
 
   @Test
@@ -228,20 +228,20 @@ public class NodeDetailsTest {
     String name = randomAlphanumeric(3);
     String host = randomAlphanumeric(10);
     int port = 1 + random.nextInt(10);
-    int started = 1 + random.nextInt(666);
+    long startedAt = 1 + random.nextInt(666);
 
     NodeDetails underTest = builderUnderTest
       .setType(randomType)
       .setName(name)
       .setHost(host)
       .setPort(port)
-      .setStarted(started)
+      .setStartedAt(startedAt)
       .build();
 
     assertThat(underTest.getType()).isEqualTo(randomType);
     assertThat(underTest.getName()).isEqualTo(name);
     assertThat(underTest.getHost()).isEqualTo(host);
     assertThat(underTest.getPort()).isEqualTo(port);
-    assertThat(underTest.getStarted()).isEqualTo(started);
+    assertThat(underTest.getStartedAt()).isEqualTo(startedAt);
   }
 }

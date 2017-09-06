@@ -46,7 +46,7 @@ public class NodeHealthProviderImpl implements NodeHealthProvider {
       .setType(NodeDetails.Type.APPLICATION)
       .setHost(computeHost(networkUtils))
       .setPort(computePort(configuration))
-      .setStarted(server.getStartedAt().getTime())
+      .setStartedAt(server.getStartedAt().getTime())
       .build();
   }
 

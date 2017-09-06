@@ -154,14 +154,14 @@ public class SearchNodeHealthProviderTest {
 
     NodeHealth nodeHealth = underTest.get();
 
-    assertThat(nodeHealth.getDetails().getStarted()).isEqualTo(now);
+    assertThat(nodeHealth.getDetails().getStartedAt()).isEqualTo(now);
 
     // change now
     when(system2.now()).thenReturn(now);
 
     NodeHealth newNodeHealth = underTest.get();
 
-    assertThat(newNodeHealth.getDetails().getStarted()).isEqualTo(now);
+    assertThat(newNodeHealth.getDetails().getStartedAt()).isEqualTo(now);
   }
 
   @Test

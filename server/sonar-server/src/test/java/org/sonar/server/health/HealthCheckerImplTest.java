@@ -249,7 +249,7 @@ public class HealthCheckerImplTest {
         .setName(randomAlphanumeric(10))
         .setHost(randomAlphanumeric(5))
         .setPort(1 + random.nextInt(333))
-        .setStarted(1 + random.nextInt(444))
+        .setStartedAt(1 + random.nextInt(444))
         .build())
       .build();
   }

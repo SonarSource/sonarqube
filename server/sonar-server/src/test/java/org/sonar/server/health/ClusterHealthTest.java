@@ -116,7 +116,7 @@ public class ClusterHealthTest {
           .setName(randomAlphanumeric(3))
           .setHost(randomAlphanumeric(4))
           .setPort(1 + random.nextInt(344))
-          .setStarted(1 + random.nextInt(999))
+          .setStartedAt(1 + random.nextInt(999))
           .build())
       .build()).collect(Collectors.toSet());
   }

@@ -61,8 +61,8 @@ message Node {
   optional string name = 1;
   optional NodeType type = 2;
   optional string host = 3;
-  optional string port = 4;
-  optional string started = 5;
+  optional int32 port = 4;
+  optional int64 startedAt = 5;
   optional Health health = 6;
   repeated Cause causes = 7;
 }

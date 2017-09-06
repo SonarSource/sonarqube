@@ -241,7 +241,7 @@ public class SharedHealthStateImplTest {
         .setName(randomAlphanumeric(30))
         .setHost(randomAlphanumeric(10))
         .setPort(1 + random.nextInt(666))
-        .setStarted(1 + random.nextInt(852))
+        .setStartedAt(1 + random.nextInt(852))
         .build())
       .build();
   }

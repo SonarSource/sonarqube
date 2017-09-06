@@ -513,7 +513,7 @@ public class SearchNodeClusterCheckTest {
         .setHost(randomAlphanumeric(32))
         .setName(randomAlphanumeric(32))
         .setPort(1 + random.nextInt(88))
-        .setStarted(1 + random.nextInt(54))
+        .setStartedAt(1 + random.nextInt(54))
         .build())
       .build();
   }
