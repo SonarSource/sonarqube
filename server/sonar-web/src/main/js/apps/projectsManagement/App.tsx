@@ -26,7 +26,7 @@ import Projects from './Projects';
 import CreateProjectForm from './CreateProjectForm';
 import ListFooter from '../../components/controls/ListFooter';
 import { PAGE_SIZE, Type, Project } from './utils';
-import { getComponents, getProvisioned, getGhosts } from '../../api/components';
+import { getComponents, getProvisioned } from '../../api/components';
 import { Organization } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
@@ -92,27 +92,7 @@ export default class App extends React.PureComponent<Props, State> {
       case Type.Provisioned:
         this.requestProvisioned();
         break;
-      case Type.Ghosts:
-        this.requestGhosts();
-        break;
     }
-  };
-
-  requestGhosts = () => {
-    const data = this.getFilters();
-    getGhosts(data).then(r => {
-      if (this.mounted) {
-        let projects: Project[] = r.projects.map((project: any) => ({
-          ...project,
-          id: project.uuid,
-          qualifier: 'TRK'
-        }));
-        if (this.state.page > 1) {
-          projects = [...this.state.projects, ...projects];
-        }
-        this.setState({ ready: true, projects, selection: [], total: r.total });
-      }
-    });
   };
 
   requestProvisioned = () => {
