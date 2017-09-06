@@ -23,8 +23,7 @@ export const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP', 'DEV'];
 
 export enum Type {
   All = 'ALL',
-  Provisioned = 'PROVISIONED',
-  Ghosts = 'GHOSTS'
+  Provisioned = 'PROVISIONED'
 }
 
 export interface Project {

@@ -25,8 +25,7 @@ jest.mock('lodash', () => {
 
 jest.mock('../../../api/components', () => ({
   getComponents: jest.fn(),
-  getProvisioned: jest.fn(() => Promise.resolve({ paging: { total: 0 }, projects: [] })),
-  getGhosts: jest.fn(() => Promise.resolve({ projects: [], total: 0 }))
+  getProvisioned: jest.fn(() => Promise.resolve({ paging: { total: 0 }, projects: [] }))
 }));
 
 import * as React from 'react';
@@ -36,7 +35,6 @@ import { Type } from '../utils';
 
 const getComponents = require('../../../api/components').getComponents as jest.Mock<any>;
 const getProvisioned = require('../../../api/components').getProvisioned as jest.Mock<any>;
-const getGhosts = require('../../../api/components').getGhosts as jest.Mock<any>;
 
 const organization = { key: 'org', name: 'org', projectVisibility: 'public' };
 
@@ -52,7 +50,6 @@ beforeEach(() => {
     .mockImplementation(() => Promise.resolve({ paging: { total: 0 }, components: [] }))
     .mockClear();
   getProvisioned.mockClear();
-  getGhosts.mockClear();
 });
 
 it('fetches all projects on mount', () => {
@@ -64,8 +61,6 @@ it('changes type', () => {
   const wrapper = mountRender();
   wrapper.find('Search').prop<Function>('onTypeChanged')(Type.Provisioned);
   expect(getProvisioned).lastCalledWith(defaultSearchParameters);
-  wrapper.find('Search').prop<Function>('onTypeChanged')(Type.Ghosts);
-  expect(getGhosts).lastCalledWith(defaultSearchParameters);
 });
 
 it('changes qualifier and resets type', () => {

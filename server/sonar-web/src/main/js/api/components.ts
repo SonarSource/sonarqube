@@ -28,10 +28,6 @@ export function getProvisioned(data: RequestData): Promise<any> {
   return getJSON('/api/projects/provisioned', data);
 }
 
-export function getGhosts(data: RequestData): Promise<any> {
-  return getJSON('/api/projects/ghosts', data);
-}
-
 export function deleteComponents(projects: string[], organization: string): Promise<void> {
   return post('/api/projects/bulk_delete', { projects: projects.join(), organization });
 }
