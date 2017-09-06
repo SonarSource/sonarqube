@@ -85,10 +85,15 @@ public class ProjectsService extends BaseService {
       .setParam("project", request.getKey()));
   }
 
-  public void bulkDelete(BulkDeleteRequest request) {
+  public void bulkDelete(SearchWsRequest request) {
     PostRequest post = new PostRequest(path("bulk_delete"))
-      .setParam("organization", request.getOrganization())
-      .setParam("projects", String.join(",", request.getProjectKeys()));
+      .setParam(PARAM_ORGANIZATION, request.getOrganization())
+      .setParam(PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers()))
+      .setParam(PARAM_ANALYZED_BEFORE, request.getAnalyzedBefore())
+      .setParam(TEXT_QUERY, request.getQuery())
+      .setParam(PARAM_ON_PROVISIONED_ONLY, request.isOnProvisionedOnly())
+      .setParam(PARAM_PROJECTS, inlineMultipleParamValue(request.getProjects()))
+      .setParam(PARAM_PROJECT_IDS, inlineMultipleParamValue(request.getProjectIds()));
 
     call(post);
   }
@@ -121,8 +126,8 @@ public class ProjectsService extends BaseService {
       .setParam(PAGE, request.getPage())
       .setParam(PAGE_SIZE, request.getPageSize())
       .setParam(PARAM_ON_PROVISIONED_ONLY, request.isOnProvisionedOnly())
-      .setParam(PARAM_PROJECTS, request.getProjects())
-      .setParam(PARAM_PROJECT_IDS, request.getProjectIds());
+      .setParam(PARAM_PROJECTS, inlineMultipleParamValue(request.getProjects()))
+      .setParam(PARAM_PROJECT_IDS, inlineMultipleParamValue(request.getProjectIds()));
     return call(get, SearchWsResponse.parser());
   }
 
