@@ -38,6 +38,7 @@ export interface Props {
 }
 
 interface State {
+  analyzedBefore?: string;
   createProjectForm: boolean;
   page: number;
   projects: Project[];
@@ -78,6 +79,7 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   getFilters = () => ({
+    analyzedBefore: this.state.analyzedBefore,
     organization: this.props.organization.key,
     p: this.state.page !== 1 ? this.state.page : undefined,
     ps: PAGE_SIZE,
@@ -147,6 +149,9 @@ export default class App extends React.PureComponent<Props, State> {
     );
   };
 
+  handleDateChanged = (analyzedBefore?: string) =>
+    this.setState({ ready: false, page: 1, analyzedBefore }, this.requestProjects);
+
   onProjectSelected = (project: string) => {
     const newSelection = uniq([...this.state.selection, project]);
     this.setState({ selection: newSelection });
@@ -187,8 +192,10 @@ export default class App extends React.PureComponent<Props, State> {
         />
 
         <Search
+          analyzedBefore={this.state.analyzedBefore}
           onAllSelected={this.onAllSelected}
           onAllDeselected={this.onAllDeselected}
+          onDateChanged={this.handleDateChanged}
           onDeleteProjects={this.requestProjects}
           onProvisionedChanged={this.onProvisionedChanged}
           onQualifierChanged={this.onQualifierChanged}

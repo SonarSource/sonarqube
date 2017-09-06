@@ -5,7 +5,7 @@
 }
 
 .date-input-control-input {
-  width: 105px;
+  width: 130px;
   padding-left: 24px !important;
   cursor: pointer;
 }
@@ -23,6 +23,13 @@
 
 .date-input-control-input:focus + .date-input-control-icon path {
   fill: #4b9fd5;
+}
+
+.date-input-control-reset {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  border: none;
 }
 
 .boolean-toggle {

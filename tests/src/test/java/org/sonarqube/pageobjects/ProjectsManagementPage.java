@@ -32,7 +32,7 @@ public class ProjectsManagementPage {
   }
 
   public ProjectsManagementPage shouldHaveProjectsCount(int count) {
-    $$("#projects-management-page-projects tr").shouldHaveSize(count);
+    $$("#projects-management-page-projects tbody tr").shouldHaveSize(count);
     return this;
   }
 

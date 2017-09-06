@@ -23,6 +23,7 @@ export const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP'];
 
 export interface Project {
   key: string;
+  lastAnalysisDate?: string;
   name: string;
   qualifier: string;
   visibility: Visibility;

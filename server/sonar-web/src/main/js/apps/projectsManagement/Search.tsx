@@ -29,10 +29,13 @@ import Checkbox from '../../components/controls/Checkbox';
 import { translate } from '../../helpers/l10n';
 import QualifierIcon from '../../components/shared/QualifierIcon';
 import Tooltip from '../../components/controls/Tooltip';
+import DateInput from '../../components/controls/DateInput';
 
 export interface Props {
+  analyzedBefore?: string;
   onAllDeselected: () => void;
   onAllSelected: () => void;
+  onDateChanged: (analyzedBefore?: string) => void;
   onDeleteProjects: () => void;
   onProvisionedChanged: (provisioned: boolean) => void;
   onQualifierChanged: (qualifier: string) => void;
@@ -176,10 +179,24 @@ export default class Search extends React.PureComponent<Props, State> {
         </td>
       : null;
 
+  renderDateFilter = () => {
+    return (
+      <td className="thin nowrap text-middle">
+        <DateInput
+          inputClassName="input-medium"
+          name="analyzed-before"
+          onChange={this.props.onDateChanged}
+          placeholder={translate('analyzed_before')}
+          value={this.props.analyzedBefore}
+        />
+      </td>
+    );
+  };
+
   render() {
     const isSomethingSelected = this.props.projects.length > 0 && this.props.selection.length > 0;
     return (
-      <div className="panel panel-vertical bordered-bottom spacer-bottom">
+      <div className="big-spacer-bottom">
         <table className="data">
           <tbody>
             <tr>
@@ -187,6 +204,7 @@ export default class Search extends React.PureComponent<Props, State> {
                 {this.props.ready ? this.renderCheckbox() : <i className="spinner" />}
               </td>
               {this.renderQualifierFilter()}
+              {this.renderDateFilter()}
               {this.renderTypeFilter()}
               <td className="text-middle">
                 <form onSubmit={this.onSubmit} className="search-box">

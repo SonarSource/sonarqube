@@ -5,6 +5,24 @@ exports[`renders list of projects 1`] = `
   className="data zebra new-loading"
   id="projects-management-page-projects"
 >
+  <thead>
+    <tr>
+      <th />
+      <th>
+        Name
+      </th>
+      <th />
+      <th>
+        Key
+      </th>
+      <th
+        className="thin nowrap text-right"
+      >
+        Last Analysis
+      </th>
+      <th />
+    </tr>
+  </thead>
   <tbody>
     <ProjectRow
       onApplyTemplateClick={[Function]}
