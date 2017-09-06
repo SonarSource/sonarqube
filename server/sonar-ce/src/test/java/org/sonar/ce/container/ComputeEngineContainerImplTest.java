@@ -84,8 +84,8 @@ public class ComputeEngineContainerImplTest {
 
   @Test
   public void real_start_with_cluster() throws IOException {
-    int port = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
-    HazelcastInstance hzInstance = HazelcastTestHelper.createHazelcastCluster(NetworkUtils.getHostname(), port);
+    int port = NetworkUtils.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress());
+    HazelcastInstance hzInstance = HazelcastTestHelper.createHazelcastCluster(NetworkUtils.INSTANCE.getHostname(), port);
 
     Properties properties = getProperties();
     properties.setProperty(CLUSTER_NODE_TYPE, "application");

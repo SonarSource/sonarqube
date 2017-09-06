@@ -96,7 +96,7 @@ public class ProcessProperties {
     if ("0".equals(port)) {
       String address = props.nonNullValue(addressPropertyKey);
       try {
-        props.set(portPropertyKey, String.valueOf(NetworkUtils.getNextAvailablePort(InetAddress.getByName(address))));
+        props.set(portPropertyKey, String.valueOf(NetworkUtils.INSTANCE.getNextAvailablePort(InetAddress.getByName(address))));
       } catch (UnknownHostException e) {
         throw new IllegalStateException("Cannot resolve address [" + address + "] set by property [" + addressPropertyKey + "]", e);
       }
