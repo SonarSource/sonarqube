@@ -26,17 +26,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature.UseCase;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.sonar.server.es.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
+import static org.sonar.server.es.textsearch.JavaTokenizer.split;
 
 /**
  * This class is used in order to do some advanced full text search in an index on component key and component name
@@ -88,14 +85,6 @@ public class ComponentTextSearchQueryFactory {
       this.fieldName = builder.fieldName;
       this.recentlyBrowsedKeys = builder.recentlyBrowsedKeys;
       this.favoriteKeys = builder.favoriteKeys;
-    }
-
-    private static List<String> split(String queryText) {
-      return Arrays.stream(
-        queryText.split(DefaultIndexSettings.SEARCH_TERM_TOKENIZER_PATTERN))
-        .filter(StringUtils::isNotEmpty)
-        .filter(s -> s.length() >= MINIMUM_NGRAM_LENGTH)
-        .collect(MoreCollectors.toList());
     }
 
     public String getQueryText() {

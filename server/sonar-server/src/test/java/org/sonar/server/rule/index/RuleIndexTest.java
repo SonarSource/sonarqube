@@ -212,6 +212,36 @@ public class RuleIndexTest {
   }
 
   @Test
+  public void search_content_by_query() {
+    RuleDefinitionDto rule1 = createRule(rule -> rule.setRuleKey("123").setDescription("My great rule CWE-123 which makes your code 1000 times better!"));
+    RuleDefinitionDto rule2 = createRule(rule -> rule.setRuleKey("124").setDescription("Another great and shiny rule CWE-124"));
+    RuleDefinitionDto rule3 = createRule(rule -> rule.setRuleKey("1000").setDescription("Another great rule CWE-1000"));
+    index();
+
+    // partial match at word boundary
+    assertThat(underTest.search(new RuleQuery().setQueryText("CWE"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule1.getKey(), rule2.getKey(), rule3.getKey());
+
+    // full match
+    assertThat(underTest.search(new RuleQuery().setQueryText("CWE-123"), new SearchOptions()).getIds()).containsExactly(rule1.getKey());
+
+    // match somewhere else in the text
+    assertThat(underTest.search(new RuleQuery().setQueryText("CWE-1000"), new SearchOptions()).getIds()).containsExactly(rule3.getKey());
+    assertThat(underTest.search(new RuleQuery().setQueryText("CWE 1000"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule3.getKey(), rule1.getKey());
+
+    // several words
+    assertThat(underTest.search(new RuleQuery().setQueryText("great rule"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule1.getKey(), rule2.getKey(), rule3.getKey());
+    assertThat(underTest.search(new RuleQuery().setQueryText("rule Another"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule2.getKey(), rule3.getKey());
+
+    // no matches
+    assertThat(underTest.search(new RuleQuery().setQueryText("unexisting"), new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(new RuleQuery().setQueryText("great rule unexisting"), new SearchOptions()).getIds()).isEmpty();
+
+    // stopwords
+    assertThat(underTest.search(new RuleQuery().setQueryText("and"), new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(new RuleQuery().setQueryText("great and shiny"), new SearchOptions()).getIds()).isEmpty();
+  }
+
+  @Test
   public void search_by_any_of_repositories() {
     RuleDefinitionDto findbugs = createRule(
       setRepositoryKey("findbugs"),

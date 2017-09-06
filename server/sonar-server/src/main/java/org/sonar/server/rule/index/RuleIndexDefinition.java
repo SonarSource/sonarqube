@@ -22,16 +22,14 @@ package org.sonar.server.rule.index;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedMap;
 import java.util.Set;
 import org.sonar.api.config.Configuration;
-import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
 import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
@@ -144,12 +142,8 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.keywordFieldBuilder(FIELD_RULE_REPOSITORY).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableNorms().disableSearch().build();
 
-    ruleMapping.keywordFieldBuilder(FIELD_RULE_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_WORDS_ANALYZER).build();
-    ruleMapping.setProperty(FIELD_RULE_HTML_DESCRIPTION, ImmutableSortedMap.of(
-      DefaultIndexSettings.TYPE, DefaultIndexSettings.FIELD_TYPE_TEXT,
-      DefaultIndexSettings.INDEX, DefaultIndexSettings.INDEX_SEARCHABLE,
-      DefaultIndexSettings.ANALYZER, ENGLISH_HTML_ANALYZER.getName(),
-      DefaultIndexSettings.SEARCH_ANALYZER, ENGLISH_HTML_ANALYZER.getName()));
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER).build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_HTML_DESCRIPTION).addSubFields(ENGLISH_HTML_ANALYZER).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_SEVERITY).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_STATUS).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_LANGUAGE).disableNorms().build();

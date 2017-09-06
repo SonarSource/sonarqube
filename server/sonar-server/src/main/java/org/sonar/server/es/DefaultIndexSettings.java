@@ -39,6 +39,7 @@ public class DefaultIndexSettings {
 
   public static final String TOKENIZER = "tokenizer";
   public static final String FILTER = "filter";
+  public static final String CHAR_FILTER = "char_filter";
   public static final String ANALYZER = "analyzer";
   public static final String SEARCH_ANALYZER = "search_analyzer";
 
@@ -71,6 +72,7 @@ public class DefaultIndexSettings {
   public static final String MIN_GRAM = "min_gram";
   public static final String MAX_GRAM = "max_gram";
   public static final String LENGTH = "length";
+  public static final String HTML_STRIP = "html_strip";
 
   private DefaultIndexSettings() {
     // only static stuff
