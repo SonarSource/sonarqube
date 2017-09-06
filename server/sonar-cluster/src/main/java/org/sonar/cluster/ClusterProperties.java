@@ -20,6 +20,7 @@
 package org.sonar.cluster;
 
 import java.util.Properties;
+import java.util.UUID;
 
 import static java.lang.String.valueOf;
 
@@ -49,6 +50,7 @@ public final class ClusterProperties {
     properties.put(CLUSTER_NODE_HOST, "");
     properties.put(CLUSTER_HOSTS, "");
     properties.put(CLUSTER_NODE_PORT, "9003");
+    properties.put(CLUSTER_NODE_NAME, "sonarqube-" + UUID.randomUUID().toString());
     properties.put(HAZELCAST_LOG_LEVEL, "WARN");
   }
 }
