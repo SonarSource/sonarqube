@@ -33,7 +33,7 @@ public class ElasticsearchSettingsTest {
 
   @Test
   public void set_http_port_through_sonar_properties() throws Exception {
-    int port = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
+    int port = NetworkUtils.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress());
     Orchestrator orchestrator = Orchestrator
       .builderEnv()
       .setServerProperty("sonar.search.httpPort", "" + port)

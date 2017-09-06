@@ -31,18 +31,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.NetworkUtils.getNextAvailablePort;
 
-public class NetworkUtilsTest {
+public class NetworkUtilsImplTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  
+  private NetworkUtilsImpl underTest = new NetworkUtilsImpl();
 
   @Test
   public void getNextAvailablePort_never_returns_the_same_port_in_current_jvm() {
     Set<Integer> ports = new HashSet<>();
     for (int i = 0; i < 100; i++) {
-      int port = getNextAvailablePort(getLoopbackAddress());
+      int port = underTest.getNextAvailablePort(getLoopbackAddress());
       assertThat(port).isGreaterThan(1_023);
       ports.add(port);
     }
@@ -51,41 +52,41 @@ public class NetworkUtilsTest {
 
   @Test
   public void getNextAvailablePort_retries_to_get_available_port_when_port_has_already_been_allocated() {
-    NetworkUtils.PortAllocator portAllocator = mock(NetworkUtils.PortAllocator.class);
+    NetworkUtilsImpl.PortAllocator portAllocator = mock(NetworkUtilsImpl.PortAllocator.class);
     when(portAllocator.getAvailable(any(InetAddress.class))).thenReturn(9_000, 9_000, 9_000, 9_100);
 
     InetAddress address = getLoopbackAddress();
-    assertThat(getNextAvailablePort(address, portAllocator)).isEqualTo(9_000);
-    assertThat(getNextAvailablePort(address, portAllocator)).isEqualTo(9_100);
+    assertThat(underTest.getNextAvailablePort(address, portAllocator)).isEqualTo(9_000);
+    assertThat(underTest.getNextAvailablePort(address, portAllocator)).isEqualTo(9_100);
   }
 
   @Test
   public void getNextAvailablePort_does_not_return_special_ports() {
-    NetworkUtils.PortAllocator portAllocator = mock(NetworkUtils.PortAllocator.class);
+    NetworkUtilsImpl.PortAllocator portAllocator = mock(NetworkUtilsImpl.PortAllocator.class);
     when(portAllocator.getAvailable(any(InetAddress.class))).thenReturn(900, 903, 1_059);
 
     // the two first ports are banned because < 1023, so 1_059 is returned
-    assertThat(getNextAvailablePort(getLoopbackAddress(), portAllocator)).isEqualTo(1_059);
+    assertThat(underTest.getNextAvailablePort(getLoopbackAddress(), portAllocator)).isEqualTo(1_059);
   }
 
   @Test
   public void getNextAvailablePort_throws_ISE_if_too_many_attempts() {
-    NetworkUtils.PortAllocator portAllocator = mock(NetworkUtils.PortAllocator.class);
+    NetworkUtilsImpl.PortAllocator portAllocator = mock(NetworkUtilsImpl.PortAllocator.class);
     when(portAllocator.getAvailable(any(InetAddress.class))).thenReturn(900);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Fail to find an available port on ");
 
-    getNextAvailablePort(getLoopbackAddress(), portAllocator);
+    underTest.getNextAvailablePort(getLoopbackAddress(), portAllocator);
   }
 
   @Test
   public void getHostname_must_return_a_value() {
-    assertThat(NetworkUtils.getHostname()).containsPattern(".+");
+    assertThat(underTest.getHostname()).containsPattern(".+");
   }
 
   @Test
   public void getIPAddresses_must_return_a_value() {
-    assertThat(NetworkUtils.getIPAddresses()).matches("(\\d+\\.\\d+\\.\\d+\\.\\d+,?)+");
+    assertThat(underTest.getIPAddresses()).matches("(\\d+\\.\\d+\\.\\d+\\.\\d+,?)+");
   }
 }

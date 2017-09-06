@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.NetworkUtils;
 import org.sonar.application.AppStateListener;
 import org.sonar.process.MessageException;
 import org.sonar.process.NodeType;
@@ -52,8 +53,6 @@ import org.sonar.process.ProcessId;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
-import static org.sonar.NetworkUtils.getHostname;
-import static org.sonar.NetworkUtils.getIPAddresses;
 import static org.sonar.application.cluster.ClusterProperties.HAZELCAST_CLUSTER_NAME;
 import static org.sonar.cluster.ClusterObjectKeys.CLIENT_UUIDS;
 import static org.sonar.cluster.ClusterObjectKeys.CLUSTER_NAME;
@@ -245,9 +244,9 @@ public class HazelcastCluster implements AutoCloseable {
     hzConfig.getMemberAttributeConfig()
       .setStringAttribute(NODE_NAME, clusterProperties.getNodeName());
     hzConfig.getMemberAttributeConfig()
-      .setStringAttribute(HOSTNAME, getHostname());
+      .setStringAttribute(HOSTNAME, NetworkUtils.INSTANCE.getHostname());
     hzConfig.getMemberAttributeConfig()
-      .setStringAttribute(IP_ADDRESSES, getIPAddresses());
+      .setStringAttribute(IP_ADDRESSES, NetworkUtils.INSTANCE.getIPAddresses());
     hzConfig.getMemberAttributeConfig()
       .setStringAttribute(NODE_TYPE, clusterProperties.getNodeType().getValue());
 

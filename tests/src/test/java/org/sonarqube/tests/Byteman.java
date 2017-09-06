@@ -50,7 +50,7 @@ public class Byteman {
   public Byteman(OrchestratorBuilder builder, Process process) {
     this.builder = builder;
     String jar = findBytemanJar();
-    port = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
+    port = NetworkUtils.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress());
     String bytemanArg = format("-javaagent:%s=boot:%s,port:%d", jar, jar, port);
     builder.setServerProperty(process.argument, bytemanArg);
   }

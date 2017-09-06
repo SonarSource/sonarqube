@@ -72,8 +72,8 @@ public class HazelcastLocalClientTest {
 
   @BeforeClass
   public static void setupHazelcastClusterAndHazelcastClient() {
-    int port = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
-    hzCluster = HazelcastTestHelper.createHazelcastCluster(NetworkUtils.getHostname(), port);
+    int port = NetworkUtils.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress());
+    hzCluster = HazelcastTestHelper.createHazelcastCluster(NetworkUtils.INSTANCE.getHostname(), port);
 
     MapSettings settings = createClusterSettings("localhost:" + port);
     hzClient = new HazelcastLocalClient(settings.asConfig());
@@ -149,9 +149,9 @@ public class HazelcastLocalClientTest {
 
   @Test
   public void client_must_connect_to_hazelcast() throws InterruptedException {
-    int port = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
+    int port = NetworkUtils.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress());
     // Launch a fake Hazelcast instance
-    HazelcastInstance hzInstance = HazelcastTestHelper.createHazelcastCluster(NetworkUtils.getHostname(), port);
+    HazelcastInstance hzInstance = HazelcastTestHelper.createHazelcastCluster(NetworkUtils.INSTANCE.getHostname(), port);
     MapSettings settings = createClusterSettings("localhost:" + port);
 
     HazelcastLocalClient hazelcastClientWrapperImpl = new HazelcastLocalClient(settings.asConfig());

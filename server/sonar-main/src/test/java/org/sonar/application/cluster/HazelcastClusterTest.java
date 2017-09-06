@@ -108,7 +108,7 @@ public class HazelcastClusterTest {
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       assertThat(hzCluster.tryToLockWebLeader()).isTrue();
       assertThat(hzCluster.getLeaderHostName().get()).isEqualTo(
-        format("%s (%s)", NetworkUtils.getHostname(), NetworkUtils.getIPAddresses()));
+        format("%s (%s)", NetworkUtils.INSTANCE.getHostname(), NetworkUtils.INSTANCE.getIPAddresses()));
     }
   }
 

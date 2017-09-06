@@ -19,32 +19,12 @@
  */
 package org.sonar;
 
-import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.ServerSocket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import static java.util.Collections.list;
-import static org.apache.commons.lang.StringUtils.isBlank;
+public interface NetworkUtils {
+  NetworkUtils INSTANCE = new NetworkUtilsImpl();
 
-public final class NetworkUtils {
-
-  private static final Set<Integer> ALREADY_ALLOCATED = new HashSet<>();
-  private static final int MAX_TRIES = 50;
-
-  private NetworkUtils() {
-    // prevent instantiation
-  }
-
-  public static int getNextAvailablePort(InetAddress address) {
-    return getNextAvailablePort(address, PortAllocator.INSTANCE);
-  }
+  int getNextAvailablePort(InetAddress address);
 
   /**
    * Identifying the localhost machine
@@ -52,74 +32,12 @@ public final class NetworkUtils {
    *
    * @return "hostname"
    */
-  public static String getHostname() {
-    String hostname;
-    try {
-      hostname = InetAddress.getLocalHost().getHostName();
-    } catch (UnknownHostException e) {
-      hostname = "unresolved hostname";
-    }
-
-    return hostname;
-  }
+  String getHostname();
 
   /**
    * Identifying the IPs addresses
    *
    * @return "ipv4_1, ipv4_2"
    */
-  public static String getIPAddresses() {
-    String ips;
-
-    try {
-      ips = list(NetworkInterface.getNetworkInterfaces()).stream()
-        .flatMap(netif -> list(netif.getInetAddresses()).stream()
-          .filter(inetAddress ->
-            // Removing IPv6 for the time being
-            inetAddress instanceof Inet4Address &&
-              // Removing loopback addresses, useless for identifying a server
-              !inetAddress.isLoopbackAddress() &&
-              // Removing interfaces without IPs
-              !isBlank(inetAddress.getHostAddress()))
-          .map(InetAddress::getHostAddress))
-        .filter(p -> !isBlank(p))
-        .collect(Collectors.joining(","));
-    } catch (SocketException e) {
-      ips = "unresolved IPs";
-    }
-
-    return ips;
-  }
-
-  /**
-   * Warning - the allocated ports are kept in memory and are never clean-up. Besides the memory consumption,
-   * that means that ports already allocated are never freed. As a consequence
-   * no more than ~64512 calls to this method are allowed.
-   */
-  static int getNextAvailablePort(InetAddress address, PortAllocator portAllocator) {
-    for (int i = 0; i < MAX_TRIES; i++) {
-      int port = portAllocator.getAvailable(address);
-      if (isValidPort(port)) {
-        ALREADY_ALLOCATED.add(port);
-        return port;
-      }
-    }
-    throw new IllegalStateException("Fail to find an available port on " + address);
-  }
-
-  private static boolean isValidPort(int port) {
-    return port > 1023 && !ALREADY_ALLOCATED.contains(port);
-  }
-
-  static class PortAllocator {
-    private static final PortAllocator INSTANCE = new PortAllocator();
-
-    int getAvailable(InetAddress address) {
-      try (ServerSocket socket = new ServerSocket(0, 50, address)) {
-        return socket.getLocalPort();
-      } catch (IOException e) {
-        throw new IllegalStateException("Fail to find an available port on " + address, e);
-      }
-    }
-  }
+  String getIPAddresses();
 }

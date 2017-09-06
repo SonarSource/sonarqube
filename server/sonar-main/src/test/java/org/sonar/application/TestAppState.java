@@ -84,7 +84,7 @@ public class TestAppState implements AppState {
 
   @Override
   public Optional<String> getLeaderHostName() {
-    return Optional.of(NetworkUtils.getHostname());
+    return Optional.of(NetworkUtils.INSTANCE.getHostname());
   }
 
   @Override
