@@ -18,32 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as Select from 'react-select';
 import { sortBy } from 'lodash';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
-import { Type, QUALIFIERS_ORDER } from './utils';
+import { QUALIFIERS_ORDER } from './utils';
 import { Project } from './utils';
 import { Organization } from '../../app/types';
-import RadioToggle from '../../components/controls/RadioToggle';
 import Checkbox from '../../components/controls/Checkbox';
 import { translate } from '../../helpers/l10n';
+import QualifierIcon from '../../components/shared/QualifierIcon';
+import Tooltip from '../../components/controls/Tooltip';
 
 export interface Props {
   onAllDeselected: () => void;
   onAllSelected: () => void;
   onDeleteProjects: () => void;
+  onProvisionedChanged: (provisioned: boolean) => void;
   onQualifierChanged: (qualifier: string) => void;
   onSearch: (query: string) => void;
-  onTypeChanged: (type: Type) => void;
   organization: Organization;
   projects: Project[];
+  provisioned: boolean;
   qualifiers: string;
   query: string;
   ready: boolean;
   selection: any[];
   topLevelQualifiers: string[];
   total: number;
-  type: Type;
 }
 
 interface State {
@@ -66,15 +68,11 @@ export default class Search extends React.PureComponent<Props, State> {
     this.props.onSearch(q);
   };
 
-  getTypeOptions = () => [
-    { value: Type.All, label: 'All' },
-    { value: Type.Provisioned, label: 'Provisioned' }
-  ];
-
   getQualifierOptions = () => {
-    const options = this.props.topLevelQualifiers.map(q => {
-      return { value: q, label: translate('qualifiers', q) };
-    });
+    const options = this.props.topLevelQualifiers.map(q => ({
+      label: translate('qualifiers', q),
+      value: q
+    }));
     return sortBy(options, option => QUALIFIERS_ORDER.indexOf(option.value));
   };
 
@@ -111,6 +109,8 @@ export default class Search extends React.PureComponent<Props, State> {
     this.setState({ bulkApplyTemplateModal: false });
   };
 
+  handleQualifierChange = ({ value }: { value: string }) => this.props.onQualifierChanged(value);
+
   renderCheckbox = () => {
     const isAllChecked =
       this.props.projects.length > 0 && this.props.selection.length === this.props.projects.length;
@@ -119,8 +119,21 @@ export default class Search extends React.PureComponent<Props, State> {
       this.props.selection.length > 0 &&
       this.props.selection.length < this.props.projects.length;
     const checked = isAllChecked || thirdState;
-    return <Checkbox checked={checked} thirdState={thirdState} onCheck={this.onCheck} />;
+    return (
+      <Checkbox
+        checked={checked}
+        id="projects-selection"
+        thirdState={thirdState}
+        onCheck={this.onCheck}
+      />
+    );
   };
+
+  renderQualifierOption = (option: { label: string; value: string }) =>
+    <span>
+      <QualifierIcon className="little-spacer-right" qualifier={option.value} />
+      {option.label}
+    </span>;
 
   renderQualifierFilter = () => {
     const options = this.getQualifierOptions();
@@ -129,15 +142,39 @@ export default class Search extends React.PureComponent<Props, State> {
     }
     return (
       <td className="thin nowrap text-middle">
-        <RadioToggle
+        <Select
+          className="input-medium"
+          clearable={false}
+          disabled={!this.props.ready}
+          optionRenderer={this.renderQualifierOption}
           options={this.getQualifierOptions()}
           value={this.props.qualifiers}
+          valueRenderer={this.renderQualifierOption}
           name="projects-qualifier"
-          onCheck={this.props.onQualifierChanged}
+          onChange={this.handleQualifierChange}
+          searchable={false}
         />
       </td>
     );
   };
+
+  renderTypeFilter = () =>
+    this.props.qualifiers === 'TRK'
+      ? <td className="thin nowrap text-middle">
+          <Checkbox
+            className="link-checkbox-control"
+            checked={this.props.provisioned}
+            id="projects-provisioned"
+            onCheck={this.props.onProvisionedChanged}>
+            <span className="little-spacer-left">
+              {translate('provisioning.only_provisioned')}
+              <Tooltip overlay={translate('provisioning.only_provisioned.tooltip')}>
+                <i className="spacer-left icon-help" />
+              </Tooltip>
+            </span>
+          </Checkbox>
+        </td>
+      : null;
 
   render() {
     const isSomethingSelected = this.props.projects.length > 0 && this.props.selection.length > 0;
@@ -150,14 +187,7 @@ export default class Search extends React.PureComponent<Props, State> {
                 {this.props.ready ? this.renderCheckbox() : <i className="spinner" />}
               </td>
               {this.renderQualifierFilter()}
-              <td className="thin nowrap text-middle">
-                <RadioToggle
-                  options={this.getTypeOptions()}
-                  value={this.props.type}
-                  name="projects-type"
-                  onCheck={this.props.onTypeChanged}
-                />
-              </td>
+              {this.renderTypeFilter()}
               <td className="text-middle">
                 <form onSubmit={this.onSubmit} className="search-box">
                   <button className="search-box-submit button-clean">
@@ -194,11 +224,11 @@ export default class Search extends React.PureComponent<Props, State> {
           <BulkApplyTemplateModal
             onClose={this.closeBulkApplyTemplateModal}
             organization={this.props.organization.key}
+            provisioned={this.props.provisioned}
             qualifier={this.props.qualifiers}
             query={this.props.query}
             selection={this.props.selection}
             total={this.props.total}
-            type={this.props.type}
           />}
 
         {this.state.deleteModal &&

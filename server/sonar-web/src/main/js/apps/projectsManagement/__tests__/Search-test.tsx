@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Search, { Props } from '../Search';
-import { Type } from '../utils';
 import { change, click } from '../../../helpers/testUtils';
 
 const organization = { key: 'org', name: 'org', projectVisibility: 'public' };
@@ -36,15 +35,22 @@ it('render qualifiers filter', () => {
 it('updates qualifier', () => {
   const onQualifierChanged = jest.fn();
   const wrapper = shallowRender({ onQualifierChanged, topLevelQualifiers: ['TRK', 'VW', 'APP'] });
-  wrapper.find('RadioToggle[name="projects-qualifier"]').prop<Function>('onCheck')('VW');
+  wrapper.find('Select[name="projects-qualifier"]').prop<Function>('onChange')({ value: 'VW' });
   expect(onQualifierChanged).toBeCalledWith('VW');
 });
 
-it('updates type', () => {
-  const onTypeChanged = jest.fn();
-  const wrapper = shallowRender({ onTypeChanged });
-  wrapper.find('RadioToggle[name="projects-type"]').prop<Function>('onCheck')(Type.Provisioned);
-  expect(onTypeChanged).toBeCalledWith(Type.Provisioned);
+it('selects provisioned', () => {
+  const onProvisionedChanged = jest.fn();
+  const wrapper = shallowRender({ onProvisionedChanged });
+  wrapper.find('Checkbox[id="projects-provisioned"]').prop<Function>('onCheck')(true);
+  expect(onProvisionedChanged).toBeCalledWith(true);
+});
+
+it('does not render provisioned filter for portfolios', () => {
+  const wrapper = shallowRender();
+  expect(wrapper.find('Checkbox[id="projects-provisioned"]').exists()).toBeTruthy();
+  wrapper.setProps({ qualifiers: 'VW' });
+  expect(wrapper.find('Checkbox[id="projects-provisioned"]').exists()).toBeFalsy();
 });
 
 it('searches', () => {
@@ -59,10 +65,10 @@ it('checks all or none projects', () => {
   const onAllSelected = jest.fn();
   const wrapper = shallowRender({ onAllDeselected, onAllSelected });
 
-  wrapper.find('Checkbox').prop<Function>('onCheck')(true);
+  wrapper.find('Checkbox[id="projects-selection"]').prop<Function>('onCheck')(true);
   expect(onAllSelected).toBeCalled();
 
-  wrapper.find('Checkbox').prop<Function>('onCheck')(false);
+  wrapper.find('Checkbox[id="projects-selection"]').prop<Function>('onCheck')(false);
   expect(onAllDeselected).toBeCalled();
 });
 
@@ -89,18 +95,18 @@ function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
       onAllDeselected={jest.fn()}
       onAllSelected={jest.fn()}
       onDeleteProjects={jest.fn()}
+      onProvisionedChanged={jest.fn()}
       onQualifierChanged={jest.fn()}
       onSearch={jest.fn()}
-      onTypeChanged={jest.fn()}
       organization={organization}
       projects={[]}
+      provisioned={false}
       qualifiers="TRK"
       query=""
       ready={true}
       selection={[]}
       topLevelQualifiers={['TRK']}
       total={0}
-      type={Type.All}
       {...props}
     />
   );
