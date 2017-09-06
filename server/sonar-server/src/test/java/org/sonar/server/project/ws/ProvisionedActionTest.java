@@ -64,19 +64,22 @@ public class ProvisionedActionTest {
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private DbClient dbClient = db.getDbClient();
-  private WsActionTester underTest = new WsActionTester(new ProvisionedAction(new ProjectsWsSupport(dbClient, mock(BillingValidationsProxy.class)),
-    dbClient, userSessionRule, defaultOrganizationProvider));
+
+  private WsActionTester ws = new WsActionTester(
+    new ProvisionedAction(new ProjectsWsSupport(dbClient, mock(BillingValidationsProxy.class)), dbClient, userSessionRule, defaultOrganizationProvider));
 
   @Test
-  public void verify_definition() {
-    WebService.Action action = underTest.getDef();
+  public void definition() {
+    WebService.Action action = ws.getDef();
 
-    assertThat(action.description()).isEqualTo("Get the list of provisioned projects.<br /> " +
+    assertThat(action.description()).isEqualTo("Get the list of provisioned projects.<br> " +
+      "Web service is deprecated. Use api/projects/search instead, with onProvisionedOnly=true.<br> " +
       "Require 'Create Projects' permission.");
     assertThat(action.since()).isEqualTo("5.2");
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
       tuple("6.4", "The 'uuid' field is deprecated in the response"),
       tuple("6.4", "Paging response fields is now in a Paging object"));
+    assertThat(action.deprecatedSince()).isEqualTo("6.6");
 
     assertThat(action.params()).hasSize(5);
 
@@ -95,7 +98,7 @@ public class ProvisionedActionTest {
     db.components().insertSnapshot(SnapshotTesting.newAnalysis(analyzedProject));
     userSessionRule.logIn().addPermission(PROVISION_PROJECTS, org);
 
-    TestResponse result = underTest.newRequest()
+    TestResponse result = ws.newRequest()
       .setParam(PARAM_ORGANIZATION, org.getKey())
       .execute();
 
@@ -128,7 +131,7 @@ public class ProvisionedActionTest {
     }
     userSessionRule.logIn().addPermission(PROVISION_PROJECTS, org);
 
-    TestRequest request = underTest.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam(PARAM_ORGANIZATION, org.getKey())
       .setParam(Param.PAGE, "3")
       .setParam(Param.PAGE_SIZE, "4");
@@ -144,7 +147,7 @@ public class ProvisionedActionTest {
     db.components().insertComponent(newProvisionedProject(organization, "1"));
     userSessionRule.logIn().addPermission(PROVISION_PROJECTS, organization);
 
-    String jsonOutput = underTest.newRequest()
+    String jsonOutput = ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(Param.FIELDS, "key")
       .execute().getInput();
@@ -160,7 +163,7 @@ public class ProvisionedActionTest {
     db.components().insertComponents(newProvisionedProject(org, "1"), newProvisionedProject(org, "2"));
     userSessionRule.logIn().addPermission(PROVISION_PROJECTS, org);
 
-    String jsonOutput = underTest.newRequest()
+    String jsonOutput = ws.newRequest()
       .setParam(PARAM_ORGANIZATION, org.getKey())
       .setParam(Param.TEXT_QUERY, "PROVISIONED-name-2")
       .execute().getInput();
@@ -185,7 +188,7 @@ public class ProvisionedActionTest {
     db.components().insertComponents(hBaseProject, roslynProject);
     userSessionRule.logIn().addPermission(PROVISION_PROJECTS, org);
 
-    TestResponse result = underTest.newRequest()
+    TestResponse result = ws.newRequest()
       .setParam(PARAM_ORGANIZATION, org.getKey())
       .execute();
 
@@ -201,12 +204,12 @@ public class ProvisionedActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    underTest.newRequest().execute();
+    ws.newRequest().execute();
   }
 
   @Test
   public void fail_with_NotFoundException_when_organization_with_specified_key_does_not_exist() {
-    TestRequest request = underTest.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam(PARAM_ORGANIZATION, "foo");
     userSessionRule.logIn();
 
