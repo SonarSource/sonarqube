@@ -60,8 +60,8 @@ public class ProjectCleaner {
 
     PurgeConfiguration configuration = newDefaultPurgeConfiguration(projectConfig, idUuidPair, disabledComponentUuids);
 
-    cleanHistoricalData(session, configuration.rootProjectIdUuid().getUuid(), projectConfig);
-    doPurge(session, configuration);
+    periodCleaner.clean(session, configuration.rootProjectIdUuid().getUuid(), projectConfig);
+    purgeDao.purge(session, configuration, purgeListener, profiler);
 
     session.commit();
     logProfiling(start, projectConfig);
@@ -74,24 +74,6 @@ public class ProjectCleaner {
       LOG.info("\n -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------\n");
       profiler.dump(duration, LOG);
       LOG.info("\n -------- End of profiling for purge --------\n");
-    }
-  }
-
-  private void cleanHistoricalData(DbSession session, String rootUuid, Configuration config) {
-    try {
-      periodCleaner.clean(session, rootUuid, config);
-    } catch (Exception e) {
-      // purge errors must no fail the batch
-      LOG.error("Fail to clean historical data [uuid=" + rootUuid + "]", e);
-    }
-  }
-
-  private void doPurge(DbSession session, PurgeConfiguration configuration) {
-    try {
-      purgeDao.purge(session, configuration, purgeListener, profiler);
-    } catch (Exception e) {
-      // purge errors must no fail the report analysis
-      LOG.error("Fail to purge data [id=" + configuration.rootProjectIdUuid().getId() + "]", e);
     }
   }
 }

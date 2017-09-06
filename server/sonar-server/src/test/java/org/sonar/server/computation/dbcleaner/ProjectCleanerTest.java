@@ -86,22 +86,4 @@ public class ProjectCleanerTest {
     verify(periodCleaner).clean(any(DbSession.class), anyString(), any(Configuration.class));
     verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class), any(PurgeProfiler.class));
   }
-
-  @Test
-  public void if_dao_purge_fails_it_should_not_interrupt_program_execution() {
-    doThrow(RuntimeException.class).when(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class), any(PurgeProfiler.class));
-
-    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings.asConfig(), emptyList());
-
-    verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class), any(PurgeProfiler.class));
-  }
-
-  @Test
-  public void if_profiler_cleaning_fails_it_should_not_interrupt_program_execution() {
-    doThrow(RuntimeException.class).when(periodCleaner).clean(any(DbSession.class), anyString(), any(Configuration.class));
-
-    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings.asConfig(), emptyList());
-
-    verify(periodCleaner).clean(any(DbSession.class), anyString(), any(Configuration.class));
-  }
 }
