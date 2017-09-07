@@ -103,6 +103,7 @@ public class Category2Suite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .setServerProperty("sonar.search.httpPort", "9025")
     .addPlugin(xooPlugin())
 
     // issue

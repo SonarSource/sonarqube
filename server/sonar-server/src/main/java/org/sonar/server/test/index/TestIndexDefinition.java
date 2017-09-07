@@ -70,7 +70,7 @@ public class TestIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_STATUS).disableNorms().disableSearch().build();
     mapping.createLongField(FIELD_DURATION_IN_MS);
     mapping.keywordFieldBuilder(FIELD_MESSAGE).disableNorms().disableSearch().build();
-    mapping.keywordFieldBuilder(FIELD_STACKTRACE).disableNorms().disableSearch().build();
+    mapping.keywordFieldBuilder(FIELD_STACKTRACE).disableNorms().disableSearch().disableSortingAndAggregating().build();
     mapping.setProperty(FIELD_COVERED_FILES, ImmutableMap.of("type", "nested", "properties", ImmutableMap.of(
       FIELD_COVERED_FILE_UUID, ImmutableMap.of("type", FIELD_TYPE_KEYWORD, "index", INDEX_SEARCHABLE),
       FIELD_COVERED_FILE_LINES, ImmutableMap.of("type", "integer"))));
