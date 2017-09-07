@@ -71,7 +71,6 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   @Override
   public ProcessMonitor launch(EsCommand esCommand) {
     Process process = null;
-    ProcessId processId = esCommand.getProcessId();
     try {
       writeConfFiles(esCommand);
       ProcessBuilder processBuilder = create(esCommand);
@@ -79,13 +78,13 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
       process = processBuilder.start();
 
-      return new EsProcessMonitor(process, processId, esCommand);
+      return new EsProcessMonitor(process, esCommand, new EsConnectorImpl());
     } catch (Exception e) {
       // just in case
       if (process != null) {
         process.destroyForcibly();
       }
-      throw new IllegalStateException(format("Fail to launch process [%s]", processId.getKey()), e);
+      throw new IllegalStateException(format("Fail to launch process [%s]", esCommand.getProcessId().getKey()), e);
     }
   }
 
