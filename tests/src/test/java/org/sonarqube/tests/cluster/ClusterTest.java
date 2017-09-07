@@ -174,10 +174,7 @@ public class ClusterTest {
       assertThat(app.hasStartupLeaderOperations()).isTrue();
 
       // no errors
-      cluster.getNodes().forEach(node -> {
-        assertThat(node.anyLogsContain(" ERROR ")).isFalse();
-        node.assertThatProcessesAreUp();
-      });
+      cluster.getNodes().forEach(node -> assertThat(node.anyLogsContain(" ERROR ")).isFalse());
     }
   }
 
