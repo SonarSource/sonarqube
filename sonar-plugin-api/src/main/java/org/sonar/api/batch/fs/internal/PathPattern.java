@@ -25,10 +25,18 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.WildcardPattern;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 @ThreadSafe
 public abstract class PathPattern {
 
+  private static final Logger LOG = Loggers.get(PathPattern.class);
+
+  /**
+   * @deprecated since 6.6
+   */
+  @Deprecated
   private static final String ABSOLUTE_PATH_PATTERN_PREFIX = "file:";
   final WildcardPattern pattern;
 
@@ -43,6 +51,7 @@ public abstract class PathPattern {
   public static PathPattern create(String s) {
     String trimmed = StringUtils.trim(s);
     if (StringUtils.startsWithIgnoreCase(trimmed, ABSOLUTE_PATH_PATTERN_PREFIX)) {
+      LOG.warn("Using absolute path pattern is deprecated. Please use relative path instead of '" + trimmed + "'");
       return new AbsolutePathPattern(StringUtils.substring(trimmed, ABSOLUTE_PATH_PATTERN_PREFIX.length()));
     }
     return new RelativePathPattern(trimmed);
@@ -56,6 +65,10 @@ public abstract class PathPattern {
     return result;
   }
 
+  /**
+   * @deprecated since 6.6
+   */
+  @Deprecated
   private static class AbsolutePathPattern extends PathPattern {
     private AbsolutePathPattern(String pattern) {
       super(pattern);
