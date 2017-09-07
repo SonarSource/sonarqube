@@ -20,14 +20,22 @@
 package org.sonar.server.es;
 
 import com.google.common.net.HostAndPort;
+import io.netty.util.ThreadDeathWatcher;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.network.NetworkModule;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.index.reindex.ReindexPlugin;
+import org.elasticsearch.join.ParentJoinPlugin;
+import org.elasticsearch.percolator.PercolatorPlugin;
+import org.elasticsearch.transport.Netty4Plugin;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
@@ -37,6 +45,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.cluster.NodeType;
 import org.sonar.process.ProcessProperties;
 
+import static java.util.Collections.unmodifiableList;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_NAME;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
@@ -60,7 +69,7 @@ public class EsClientProvider extends ProviderAdapter {
 
       boolean clusterEnabled = config.getBoolean(CLUSTER_ENABLED).orElse(false);
       boolean searchNode = !clusterEnabled || SEARCH.equals(NodeType.parse(config.get(CLUSTER_NODE_TYPE).orElse(null)));
-      final TransportClient nativeClient = new PreBuiltTransportClient(esSettings.build());
+      final TransportClient nativeClient = new MinimalTransportClient(esSettings.build());
       if (clusterEnabled && !searchNode) {
         esSettings.put("client.transport.sniff", true);
         Arrays.stream(config.getStringArray(CLUSTER_SEARCH_HOSTS))
@@ -88,5 +97,30 @@ public class EsClientProvider extends ProviderAdapter {
 
   private static String displayedAddresses(TransportClient nativeClient) {
     return nativeClient.transportAddresses().stream().map(TransportAddress::toString).collect(Collectors.joining(", "));
+  }
+
+  static class MinimalTransportClient extends TransportClient {
+
+    MinimalTransportClient(Settings settings) {
+      super(settings, unmodifiableList(Arrays.asList(Netty4Plugin.class, ReindexPlugin.class, PercolatorPlugin.class, ParentJoinPlugin.class)));
+    }
+
+    @Override
+    public void close() {
+      super.close();
+      if (NetworkModule.TRANSPORT_TYPE_SETTING.exists(settings) == false
+        || NetworkModule.TRANSPORT_TYPE_SETTING.get(settings).equals(Netty4Plugin.NETTY_TRANSPORT_NAME)) {
+        try {
+          GlobalEventExecutor.INSTANCE.awaitInactivity(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+        try {
+          ThreadDeathWatcher.awaitInactivity(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+      }
+    }
   }
 }

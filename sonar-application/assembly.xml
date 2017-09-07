@@ -179,6 +179,12 @@
         <exclude>**/*.sh</exclude>
         <exclude>**/ant</exclude>
         <exclude>**/antRun</exclude>
+        <!--exclude ES modules by default in the distribution that we don't use-->
+        <exclude>elasticsearch/modules/lang-expression/</exclude>
+        <exclude>elasticsearch/modules/lang-groovy/</exclude>
+        <exclude>elasticsearch/modules/lang-mustache/</exclude>
+        <exclude>elasticsearch/modules/lang-painless/</exclude>
+        <exclude>elasticsearch/modules/transport-netty3/</exclude>
       </excludes>
       <fileMode>0644</fileMode>
     </fileSet>
