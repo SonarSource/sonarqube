@@ -25,24 +25,47 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.cluster.health.NodeDetails;
 import org.sonar.cluster.health.NodeHealth;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 public class EsStatusClusterCheckTest {
 
   @Rule
   public EsTester esTester = new EsTester();
 
+  private final Random random = new Random();
   private EsStatusClusterCheck underTest = new EsStatusClusterCheck(esTester.client());
 
   @Test
+  public void check_ignores_NodeHealth_arg_and_returns_RED_with_cause_if_an_exception_occurs_checking_ES_cluster_status() {
+    Set<NodeHealth> nodeHealths = randomNodeHealths();
+    EsClient esClient = Mockito.mock(EsClient.class);
+    when(esClient.prepareClusterStats()).thenThrow(new RuntimeException("Faking an exception occuring while using the EsClient"));
+
+    Health health = new EsStatusClusterCheck(esClient).check(nodeHealths);
+
+    assertThat(health.getStatus()).isEqualTo(Health.Status.RED);
+    assertThat(health.getCauses()).containsOnly("Elasticsearch status is RED (can't reach it)");
+  }
+
+  @Test
   public void check_ignores_NodeHealth_arg_and_returns_GREEN_without_cause_if_ES_cluster_status_is_GREEN() {
-    Random random = new Random();
-    Set<NodeHealth> nodeHealths = IntStream.range(0, random.nextInt(20))
+    Set<NodeHealth> nodeHealths = randomNodeHealths();
+
+    Health health = underTest.check(nodeHealths);
+
+    assertThat(health).isEqualTo(Health.GREEN);
+  }
+
+  private Set<NodeHealth> randomNodeHealths() {
+    return IntStream.range(0, random.nextInt(20))
       .mapToObj(i -> NodeHealth.newNodeHealthBuilder()
         .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)])
         .setDetails(NodeDetails.newNodeDetailsBuilder()
@@ -54,9 +77,6 @@ public class EsStatusClusterCheckTest {
           .build())
         .build())
       .collect(Collectors.toSet());
-    Health health = underTest.check(nodeHealths);
-
-    assertThat(health).isEqualTo(Health.GREEN);
   }
 
 }

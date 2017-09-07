@@ -21,9 +21,12 @@ package org.sonar.server.health;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 public class EsStatusNodeCheckTest {
 
@@ -31,6 +34,17 @@ public class EsStatusNodeCheckTest {
   public EsTester esTester = new EsTester();
 
   private EsStatusNodeCheck underTest = new EsStatusNodeCheck(esTester.client());
+
+  @Test
+  public void check_ignores_NodeHealth_arg_and_returns_RED_with_cause_if_an_exception_occurs_checking_ES_cluster_status() {
+    EsClient esClient = Mockito.mock(EsClient.class);
+    when(esClient.prepareClusterStats()).thenThrow(new RuntimeException("Faking an exception occuring while using the EsClient"));
+
+    Health health = new EsStatusNodeCheck(esClient).check();
+
+    assertThat(health.getStatus()).isEqualTo(Health.Status.RED);
+    assertThat(health.getCauses()).containsOnly("Elasticsearch status is RED (can't reach it)");
+  }
 
   @Test
   public void check_returns_GREEN_without_cause_if_ES_cluster_status_is_GREEN() {

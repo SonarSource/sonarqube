@@ -30,7 +30,6 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -249,7 +248,6 @@ public class ClusterTest {
   }
 
   @Test
-  @Ignore("WS api/system/health returns 500")
   public void health_becomes_RED_when_all_search_nodes_go_down() throws Exception {
     try (Cluster cluster = newCluster(2, 1)) {
       cluster.getNodes().forEach(Node::start);
@@ -261,7 +259,7 @@ public class ClusterTest {
 
       app.waitForHealth(WsSystem.Health.RED);
       assertThat(app.getHealth().get().getCausesList()).extracting(WsSystem.Cause::getMessage)
-        .contains("Elasticsearch status is RED");
+        .contains("Elasticsearch status is RED (can't reach it)");
     }
   }
 

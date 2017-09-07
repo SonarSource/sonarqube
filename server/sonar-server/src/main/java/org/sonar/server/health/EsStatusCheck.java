@@ -20,11 +20,15 @@
 package org.sonar.server.health;
 
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.es.EsClient;
 
 import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
-public abstract class EsStatusCheck {
+abstract class EsStatusCheck {
+  private static final Logger LOG = Loggers.get(EsStatusCheck.class);
+
   private static final Health YELLOW_HEALTH = newHealthCheckBuilder()
     .setStatus(Health.Status.YELLOW)
     .addCause("Elasticsearch status is YELLOW")
@@ -33,23 +37,33 @@ public abstract class EsStatusCheck {
     .setStatus(Health.Status.RED)
     .addCause("Elasticsearch status is RED")
     .build();
-  protected final EsClient esClient;
+  private static final Health RED_HEALTH_EXCEPTION_OCCURED = newHealthCheckBuilder()
+    .setStatus(Health.Status.RED)
+    .addCause("Elasticsearch status is RED (can't reach it)")
+    .build();
+
+  private final EsClient esClient;
 
   EsStatusCheck(EsClient esClient) {
     this.esClient = esClient;
   }
 
   Health checkEsStatus() {
-    ClusterHealthStatus esStatus = esClient.prepareClusterStats().get().getStatus();
-    switch (esStatus) {
-      case GREEN:
-        return Health.GREEN;
-      case YELLOW:
-        return YELLOW_HEALTH;
-      case RED:
-        return RED_HEALTH;
-      default:
-        throw new IllegalArgumentException("Unsupported Elasticsearch status " + esStatus);
+    try {
+      ClusterHealthStatus esStatus = esClient.prepareClusterStats().get().getStatus();
+      switch (esStatus) {
+        case GREEN:
+          return Health.GREEN;
+        case YELLOW:
+          return YELLOW_HEALTH;
+        case RED:
+          return RED_HEALTH;
+        default:
+          throw new IllegalArgumentException("Unsupported Elasticsearch status " + esStatus);
+      }
+    } catch (Exception e) {
+      LOG.error("Failed to query ES status", e);
+      return RED_HEALTH_EXCEPTION_OCCURED;
     }
   }
 }
