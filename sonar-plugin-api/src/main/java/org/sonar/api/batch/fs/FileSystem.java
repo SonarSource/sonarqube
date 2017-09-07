@@ -101,7 +101,9 @@ public interface FileSystem {
    * @throws IllegalArgumentException is File is null or not a directory.
    * 
    * @since 4.5
+   * @deprecated since 6.6 Ability to report issues or measures on directories will soon be dropped. Report issues on project if needed. 
    */
+  @Deprecated
   @CheckForNull
   InputDir inputDir(File dir);
 
