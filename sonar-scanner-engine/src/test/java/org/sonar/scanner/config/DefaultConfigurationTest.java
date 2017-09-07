@@ -114,6 +114,12 @@ public class DefaultConfigurationTest {
     assertThat(getStringArray("a , b")).containsExactly("a", "b");
     assertThat(getStringArray("\"a \",\" b\"")).containsExactly("a ", " b");
     assertThat(getStringArray("\"a,b\",c")).containsExactly("a,b", "c");
+    assertThat(getStringArray("\"a\nb\",c")).containsExactly("a\nb", "c");
+    assertThat(getStringArray("\"a\",\n  b\n")).containsExactly("a", "b");
+    assertThat(getStringArray("a\n,b\n")).containsExactly("a", "b");
+    assertThat(getStringArray("a\n,,b\n")).containsExactly("a", "", "b");
+    assertThat(getStringArray("a,\n\nb,c")).containsExactly("a", "b", "c");
+    assertThat(getStringArray("a,b\n\nc,d")).containsExactly("a", "b\nc", "d");
     try {
       getStringArray("\"a ,b");
       fail("Expected exception");
