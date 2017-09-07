@@ -24,6 +24,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -116,16 +117,58 @@ public abstract class DefaultConfiguration implements Configuration {
     List<String> result = new ArrayList<>();
     try (CSVParser csvParser = CSVFormat.RFC4180
       .withHeader((String) null)
-      .withIgnoreSurroundingSpaces(true)
+      .withIgnoreEmptyLines()
+      .withIgnoreSurroundingSpaces()
       .parse(new StringReader(value))) {
       List<CSVRecord> records = csvParser.getRecords();
       if (records.isEmpty()) {
         return ArrayUtils.EMPTY_STRING_ARRAY;
       }
-      records.get(0).iterator().forEachRemaining(result::add);
+      processRecords(result, records);
       return result.toArray(new String[result.size()]);
     } catch (IOException e) {
       throw new IllegalStateException("Property: '" + key + "' doesn't contain a valid CSV value: '" + value + "'", e);
+    }
+  }
+
+  /**
+   * In most cases we expect a single record. <br>Having multiple records means the input value was splitted over multiple lines (this is common in Maven).
+   * For example:
+   * <pre>
+   *   &lt;sonar.exclusions&gt;
+   *     src/foo,
+   *     src/bar,
+   *     src/biz
+   *   &lt;sonar.exclusions&gt;
+   * </pre>
+   * In this case records will be merged to form a single list of items. Last item of a record is appended to first item of next record.
+   * <p>
+   * This is a very curious case, but we try to preserve line break in the middle of an item:
+   * <pre>
+   *   &lt;sonar.exclusions&gt;
+   *     a
+   *     b,
+   *     c
+   *   &lt;sonar.exclusions&gt;
+   * </pre>
+   * will produce ['a\nb', 'c']
+   */
+  private static void processRecords(List<String> result, List<CSVRecord> records) {
+    for (CSVRecord csvRecord : records) {
+      Iterator<String> it = csvRecord.iterator();
+      if (!result.isEmpty()) {
+        String next = it.next();
+        if (!next.isEmpty()) {
+          int lastItemIdx = result.size() - 1;
+          String previous = result.get(lastItemIdx);
+          if (previous.isEmpty()) {
+            result.set(lastItemIdx, next);
+          } else {
+            result.set(lastItemIdx, previous + "\n" + next);
+          }
+        }
+      }
+      it.forEachRemaining(result::add);
     }
   }
 
