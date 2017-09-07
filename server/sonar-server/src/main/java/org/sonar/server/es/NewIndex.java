@@ -271,7 +271,7 @@ public class NewIndex {
   /**
    * Helper to define a string field in mapping of index type
    */
-  public abstract static class StringFieldBuilder {
+  public abstract static class StringFieldBuilder<T extends StringFieldBuilder<T>> {
     private final NewIndexType indexType;
     private final String fieldName;
     private boolean disableSearch = false;
@@ -279,6 +279,7 @@ public class NewIndex {
     private boolean termVectorWithPositionOffsets = false;
     private SortedMap<String, Object> subFields = Maps.newTreeMap();
     private boolean store = false;
+    protected boolean disabledDocValues = false;
 
     private StringFieldBuilder(NewIndexType indexType, String fieldName) {
       this.indexType = indexType;
@@ -289,18 +290,18 @@ public class NewIndex {
      * Add a sub-field. A {@code SortedMap} is required for consistency of the index settings hash.
      * @see IndexDefinitionHash
      */
-    private StringFieldBuilder addSubField(String fieldName, SortedMap<String, String> fieldDefinition) {
+    private T addSubField(String fieldName, SortedMap<String, String> fieldDefinition) {
       subFields.put(fieldName, fieldDefinition);
-      return this;
+      return castThis();
     }
 
     /**
      * Add subfields, one for each analyzer.
      */
-    public StringFieldBuilder addSubFields(DefaultIndexSettingsElement... analyzers) {
+    public T addSubFields(DefaultIndexSettingsElement... analyzers) {
       Arrays.stream(analyzers)
         .forEach(analyzer -> addSubField(analyzer.getSubFieldSuffix(), analyzer.fieldMapping()));
-      return this;
+      return castThis();
     }
 
     /**
@@ -309,17 +310,17 @@ public class NewIndex {
      * https://www.elastic.co/guide/en/elasticsearch/reference/2.3/norms.html
      * https://www.elastic.co/guide/en/elasticsearch/guide/current/scoring-theory.html#field-norm
      */
-    public StringFieldBuilder disableNorms() {
+    public T disableNorms() {
       this.disableNorms = true;
-      return this;
+      return castThis();
     }
 
     /**
      * Position offset term vectors are required for the fast_vector_highlighter (fvh).
      */
-    public StringFieldBuilder termVectorWithPositionOffsets() {
+    public T termVectorWithPositionOffsets() {
       this.termVectorWithPositionOffsets = true;
-      return this;
+      return castThis();
     }
 
     /**
@@ -327,14 +328,19 @@ public class NewIndex {
      * By default field is "true": it is searchable, but index the value exactly
      * as specified.
      */
-    public StringFieldBuilder disableSearch() {
+    public T disableSearch() {
       this.disableSearch = true;
-      return this;
+      return castThis();
     }
 
-    public StringFieldBuilder store() {
+    public T store() {
       this.store = true;
-      return this;
+      return castThis();
+    }
+
+    @SuppressWarnings("unchecked")
+    private T castThis() {
+      return (T) this;
     }
 
     public NewIndexType build() {
@@ -345,16 +351,18 @@ public class NewIndex {
     }
 
     private NewIndexType buildWithoutSubfields() {
-      Map<String, Object> hash = new TreeMap<>();
-      hash.putAll(ImmutableMap.of(
-        "type", getFieldType(),
-        INDEX, disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE,
-        "norms", valueOf(!disableNorms),
-        "store", valueOf(store)));
+      ImmutableMap.Builder<String, String> hash = ImmutableMap.builder();
+      hash.put("type", getFieldType())
+        .put(INDEX, disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE)
+        .put("norms", valueOf(!disableNorms))
+        .put("store", valueOf(store));
+      if (FIELD_TYPE_KEYWORD.equals(getFieldType())) {
+        hash.put("doc_values", valueOf(!disabledDocValues));
+      }
       if (getFieldData()) {
         hash.put(FIELD_FIELDDATA, FIELDDATA_ENABLED);
       }
-      return indexType.setProperty(fieldName, hash);
+      return indexType.setProperty(fieldName, hash.build());
     }
 
     private NewIndexType buildWithSubfields() {
@@ -388,11 +396,15 @@ public class NewIndex {
         hash.put(FIELD_FIELDDATA, FIELDDATA_ENABLED);
       }
 
-      multiFields.put(fieldName, ImmutableMap.of(
-        "type", getFieldType(),
-        INDEX, INDEX_SEARCHABLE,
-        "norms", "false",
-        "store", valueOf(store)));
+      ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+      builder.put("type", getFieldType())
+        .put(INDEX, INDEX_SEARCHABLE)
+        .put("norms", "false")
+        .put("store", valueOf(store));
+      if (FIELD_TYPE_KEYWORD.equals(getFieldType())) {
+        builder.put("doc_values", valueOf(!disabledDocValues));
+      }
+      multiFields.put(fieldName, builder.build());
       hash.put("fields", multiFields);
 
       return indexType.setProperty(fieldName, hash);
@@ -409,7 +421,7 @@ public class NewIndex {
     }
   }
 
-  public static class KeywordFieldBuilder extends StringFieldBuilder {
+  public static class KeywordFieldBuilder extends StringFieldBuilder<KeywordFieldBuilder> {
 
     private KeywordFieldBuilder(NewIndexType indexType, String fieldName) {
       super(indexType, fieldName);
@@ -423,9 +435,20 @@ public class NewIndex {
     protected String getFieldType() {
       return FIELD_TYPE_KEYWORD;
     }
+
+    /**
+     * By default, field is stored on disk in a column-stride fashion, so that it can later be used for sorting,
+     * aggregations, or scripting.
+     * Disabling this reduces the size of the index and drop the constraint of single term max size of
+     * 32766 bytes (which, if there is no tokenizing enabled on the field, equals the size of the whole data).
+     */
+    public KeywordFieldBuilder disableSortingAndAggregating() {
+      this.disabledDocValues = true;
+      return this;
+    }
   }
 
-  public static class TextFieldBuilder extends StringFieldBuilder {
+  public static class TextFieldBuilder extends StringFieldBuilder<TextFieldBuilder> {
 
     private boolean fieldData = false;
 

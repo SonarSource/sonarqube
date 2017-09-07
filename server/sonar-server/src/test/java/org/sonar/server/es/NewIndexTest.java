@@ -128,6 +128,11 @@ public class NewIndexTest {
         DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER,
         DefaultIndexSettingsElement.SORTABLE_ANALYZER)
       .build();
+    mapping.keywordFieldBuilder("dumb_text_storage")
+      .disableSearch()
+      .disableNorms()
+      .disableSortingAndAggregating()
+      .build();
 
     Map<String, Object> props = (Map) mapping.getProperty("basic_field");
     assertThat(props.get("type")).isEqualTo("keyword");
@@ -137,12 +142,23 @@ public class NewIndexTest {
     props = (Map) mapping.getProperty("not_searchable_field");
     assertThat(props.get("type")).isEqualTo("keyword");
     assertThat(props.get("index")).isEqualTo("false");
+    assertThat(props.get("norms")).isEqualTo("true");
+    assertThat(props.get("store")).isEqualTo("false");
+    assertThat(props.get("doc_values")).isEqualTo("true");
     assertThat(props.get("fields")).isNull();
 
     props = (Map) mapping.getProperty("all_capabilities_field");
     assertThat(props.get("type")).isEqualTo("keyword");
     // no need to test values, it's not the scope of this test
     assertThat((Map) props.get("fields")).isNotEmpty();
+
+    props = (Map) mapping.getProperty("dumb_text_storage");
+    assertThat(props.get("type")).isEqualTo("keyword");
+    assertThat(props.get("index")).isEqualTo("false");
+    assertThat(props.get("norms")).isEqualTo("false");
+    assertThat(props.get("store")).isEqualTo("false");
+    assertThat(props.get("doc_values")).isEqualTo("false");
+    assertThat(props.get("fields")).isNull();
   }
 
   @Test
@@ -174,14 +190,14 @@ public class NewIndexTest {
   }
 
   @Test
-  public void use_default_doc_values() {
+  public void use_doc_values_by_default() {
     NewIndex index = new NewIndex("issues", defaultSettingsConfiguration);
     NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.keywordFieldBuilder("the_doc_value").build();
 
     Map<String, Object> props = (Map) mapping.getProperty("the_doc_value");
     assertThat(props.get("type")).isEqualTo("keyword");
-    assertThat(props.get("doc_values")).isNull();
+    assertThat(props.get("doc_values")).isEqualTo("true");
   }
 
   @Test
