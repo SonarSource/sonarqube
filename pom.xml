@@ -715,6 +715,16 @@
         <groupId>org.elasticsearch.client</groupId>
         <artifactId>transport</artifactId>
         <version>${elasticsearch.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.elasticsearch.plugin</groupId>
+            <artifactId>lang-mustache-client</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.elasticsearch.plugin</groupId>
+            <artifactId>transport-netty3-client</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>com.github.tlrx</groupId>

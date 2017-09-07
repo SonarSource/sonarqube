@@ -60,7 +60,7 @@ public class ServerPerfTest extends AbstractPerfTest {
       // compare dates of first and last log
       long firstLogDate = ServerLogs.extractFirstDate(readLines(orchestrator.getServer().getAppLogs())).getTime();
       long startedAtDate = extractStartedAtDate(orchestrator);
-      assertDurationAround(startedAtDate - firstLogDate, 34_000);
+      assertDurationAround(startedAtDate - firstLogDate, 32_000);
 
       ServerLogs.clear(orchestrator);
       orchestrator.stop();
