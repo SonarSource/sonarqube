@@ -28,11 +28,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -40,12 +37,10 @@ import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.ProcessId;
 import org.sonar.process.command.EsCommand;
 
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
-import static org.elasticsearch.common.unit.TimeValue.timeValueSeconds;
 import static org.sonar.application.process.EsProcessMonitor.Status.CONNECTION_REFUSED;
 import static org.sonar.application.process.EsProcessMonitor.Status.GREEN;
 import static org.sonar.application.process.EsProcessMonitor.Status.KO;
@@ -60,11 +55,13 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
   private final AtomicBoolean nodeUp = new AtomicBoolean(false);
   private final AtomicBoolean nodeOperational = new AtomicBoolean(false);
   private final EsCommand esCommand;
+  private final EsConnector esConnector;
   private AtomicReference<TransportClient> transportClient = new AtomicReference<>(null);
 
-  public EsProcessMonitor(Process process, ProcessId processId, EsCommand esCommand) {
-    super(process, processId);
+  public EsProcessMonitor(Process process, EsCommand esCommand, EsConnector esConnector) {
+    super(process, esCommand.getProcessId());
     this.esCommand = esCommand;
+    this.esConnector = esConnector;
   }
 
   @Override
@@ -131,19 +128,16 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
 
   private Status checkStatus() {
     try {
-      ClusterHealthResponse response = getTransportClient().admin().cluster()
-        .health(new ClusterHealthRequest().waitForStatus(ClusterHealthStatus.YELLOW).timeout(timeValueSeconds(30)))
-        .actionGet();
-      if (response.getStatus() == ClusterHealthStatus.GREEN) {
-        return GREEN;
+      switch (esConnector.getClusterHealthStatus(getTransportClient())) {
+        case GREEN:
+          return GREEN;
+        case YELLOW:
+          return YELLOW;
+        case RED:
+          return RED;
+        default:
+          return KO;
       }
-      if (response.getStatus() == ClusterHealthStatus.YELLOW) {
-        return YELLOW;
-      }
-      if (response.getStatus() == ClusterHealthStatus.RED) {
-        return RED;
-      }
-      return KO;
     } catch (NoNodeAvailableException e) {
       return CONNECTION_REFUSED;
     } catch (Exception e) {
