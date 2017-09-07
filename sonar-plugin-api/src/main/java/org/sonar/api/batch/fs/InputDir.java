@@ -26,7 +26,9 @@ import java.nio.file.Path;
  * Layer over {@link java.io.File} for directories. You can access InputDir using {@link FileSystem#inputDir(File)}.
  *
  * @since 4.5
+ * @deprecated since 6.6 Ability to report issues or measures on directories will soon be dropped. Report issues on project if needed. 
  */
+@Deprecated
 public interface InputDir extends InputPath {
 
   /**
