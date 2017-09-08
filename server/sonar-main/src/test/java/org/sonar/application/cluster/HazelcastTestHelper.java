@@ -49,6 +49,10 @@ public class HazelcastTestHelper {
     return hazelcastInstance;
   }
 
+  static HazelcastInstance createHazelcastClient(AppStateClusterImpl appStateCluster) {
+    return createHazelcastClient(appStateCluster.getHazelcastCluster());
+  }
+
   static void closeAllHazelcastClients() {
     HAZELCAST_INSTANCES.stream().forEach(
         hz -> {
@@ -61,15 +65,19 @@ public class HazelcastTestHelper {
     );
   }
 
-  static HazelcastInstance createHazelcastClient(AppStateClusterImpl appStateCluster) {
-    return createHazelcastClient(appStateCluster.getHazelcastCluster());
-  }
-
-  static TestAppSettings newClusterSettings() {
+  static TestAppSettings newApplicationSettings() {
     TestAppSettings settings = new TestAppSettings();
     settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
     settings.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
     settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "application");
+    return settings;
+  }
+
+  static TestAppSettings newSearchSettings() {
+    TestAppSettings settings = new TestAppSettings();
+    settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
+    settings.set(ProcessProperties.CLUSTER_NODE_TYPE, "search");
     return settings;
   }
 }

@@ -57,8 +57,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.application.cluster.HazelcastTestHelper.closeAllHazelcastClients;
 import static org.sonar.application.cluster.HazelcastTestHelper.createHazelcastClient;
-import static org.sonar.application.cluster.HazelcastTestHelper.newClusterSettings;
+import static org.sonar.application.cluster.HazelcastTestHelper.newApplicationSettings;
+import static org.sonar.application.cluster.HazelcastTestHelper.newSearchSettings;
+import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
 import static org.sonar.process.ProcessProperties.CLUSTER_NAME;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_PORT;
 import static org.sonar.process.cluster.ClusterObjectKeys.LEADER;
 import static org.sonar.process.cluster.ClusterObjectKeys.OPERATIONAL_PROCESSES;
 import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
@@ -77,7 +80,7 @@ public class HazelcastClusterTest {
 
   @Test
   public void test_two_tryToLockWebLeader_must_return_true() {
-    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    ClusterProperties clusterProperties = new ClusterProperties(newApplicationSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       assertThat(hzCluster.tryToLockWebLeader()).isEqualTo(true);
       assertThat(hzCluster.tryToLockWebLeader()).isEqualTo(false);
@@ -86,7 +89,7 @@ public class HazelcastClusterTest {
 
   @Test
   public void when_another_process_locked_webleader_tryToLockWebLeader_must_return_false() {
-    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    ClusterProperties clusterProperties = new ClusterProperties(newApplicationSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       HazelcastInstance hzInstance = createHazelcastClient(hzCluster);
       hzInstance.getAtomicReference(LEADER).set("aaaa");
@@ -96,7 +99,7 @@ public class HazelcastClusterTest {
 
   @Test
   public void when_no_leader_getLeaderHostName_must_return_NO_LEADER() {
-    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    ClusterProperties clusterProperties = new ClusterProperties(newApplicationSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       assertThat(hzCluster.getLeaderHostName()).isEmpty();
     }
@@ -104,7 +107,7 @@ public class HazelcastClusterTest {
 
   @Test
   public void when_no_leader_getLeaderHostName_must_return_the_hostname() {
-    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    ClusterProperties clusterProperties = new ClusterProperties(newApplicationSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       assertThat(hzCluster.tryToLockWebLeader()).isTrue();
       assertThat(hzCluster.getLeaderHostName().get()).isEqualTo(
@@ -114,7 +117,7 @@ public class HazelcastClusterTest {
 
   @Test
   public void members_must_be_empty_when_there_is_no_other_node() {
-    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    ClusterProperties clusterProperties = new ClusterProperties(newApplicationSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       assertThat(hzCluster.getMembers()).isEmpty();
     }
@@ -122,7 +125,7 @@ public class HazelcastClusterTest {
 
   @Test
   public void set_operational_is_writing_to_cluster() {
-    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    ClusterProperties clusterProperties = new ClusterProperties(newApplicationSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       hzCluster.setOperational(ProcessId.ELASTICSEARCH);
 
@@ -140,7 +143,7 @@ public class HazelcastClusterTest {
 
   @Test
   public void hazelcast_cluster_name_is_hardcoded_and_not_affected_by_settings() {
-    TestAppSettings testAppSettings = newClusterSettings();
+    TestAppSettings testAppSettings = newApplicationSettings();
     testAppSettings.set(CLUSTER_NAME, "a_cluster_");
     ClusterProperties clusterProperties = new ClusterProperties(testAppSettings);
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
@@ -150,7 +153,7 @@ public class HazelcastClusterTest {
 
   @Test
   public void cluster_must_keep_a_list_of_clients() throws InterruptedException {
-    TestAppSettings testAppSettings = newClusterSettings();
+    TestAppSettings testAppSettings = newApplicationSettings();
     testAppSettings.set(CLUSTER_NAME, "a_cluster_");
     ClusterProperties clusterProperties = new ClusterProperties(testAppSettings);
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
@@ -181,7 +184,7 @@ public class HazelcastClusterTest {
 
   @Test
   public void localUUID_must_not_be_empty() {
-    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    ClusterProperties clusterProperties = new ClusterProperties(newApplicationSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       assertThat(hzCluster.getLocalUUID()).isNotEmpty();
     }
@@ -189,7 +192,7 @@ public class HazelcastClusterTest {
 
   @Test
   public void when_a_process_is_set_operational_listener_must_be_triggered() {
-    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    ClusterProperties clusterProperties = new ClusterProperties(newApplicationSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       AppStateListener listener = mock(AppStateListener.class);
       hzCluster.addListener(listener);
@@ -209,10 +212,9 @@ public class HazelcastClusterTest {
     }
   }
 
-
   @Test
   public void registerSonarQubeVersion_publishes_version_on_first_call() {
-    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    ClusterProperties clusterProperties = new ClusterProperties(newApplicationSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       hzCluster.registerSonarQubeVersion("1.0.0.0");
 
@@ -223,7 +225,7 @@ public class HazelcastClusterTest {
 
   @Test
   public void registerSonarQubeVersion_throws_ISE_if_initial_version_is_different() throws Exception {
-    ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
+    ClusterProperties clusterProperties = new ClusterProperties(newApplicationSettings());
     try (HazelcastCluster hzCluster = HazelcastCluster.create(clusterProperties)) {
       // Register first version
       hzCluster.registerSonarQubeVersion("1.0.0");
@@ -238,7 +240,7 @@ public class HazelcastClusterTest {
 
   @Test
   public void simulate_network_cluster() throws InterruptedException {
-    TestAppSettings settings = newClusterSettings();
+    TestAppSettings settings = newApplicationSettings();
     settings.set(ProcessProperties.CLUSTER_NODE_HOST, InetAddress.getLoopbackAddress().getHostAddress());
     AppStateListener listener = mock(AppStateListener.class);
 
@@ -275,7 +277,7 @@ public class HazelcastClusterTest {
     memoryAppender.start();
     lc.getLogger("com.hazelcast").addAppender(memoryAppender);
 
-    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(newClusterSettings())) {
+    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(newApplicationSettings())) {
     }
 
     assertThat(memoryAppender.events).isNotEmpty();
@@ -284,23 +286,59 @@ public class HazelcastClusterTest {
     );
   }
 
+  @Test
+  public void removing_the_last_application_node_must_clear_web_leader() throws InterruptedException {
+    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(newSearchSettings())) {
+      TestAppSettings appSettings = newApplicationSettings();
+      appSettings.set(CLUSTER_HOSTS, appStateCluster.getHazelcastCluster().getLocalEndPoint());
+      appSettings.set(CLUSTER_NODE_PORT, "9004");
+      ClusterProperties clusterProperties = new ClusterProperties(appSettings);
+
+      // Simulate a connection from an application node
+      HazelcastCluster appNode = HazelcastCluster.create(clusterProperties);
+      appNode.tryToLockWebLeader();
+      appNode.setOperational(ProcessId.WEB_SERVER);
+      appNode.setOperational(ProcessId.COMPUTE_ENGINE);
+      appNode.registerSonarQubeVersion("6.6.0.22999");
+
+      assertThat(appStateCluster.getLeaderHostName()).isPresent();
+      assertThat(appStateCluster.isOperational(ProcessId.WEB_SERVER, false)).isTrue();
+      assertThat(appStateCluster.isOperational(ProcessId.COMPUTE_ENGINE, false)).isTrue();
+      assertThat(appStateCluster.getHazelcastCluster().getSonarQubeVersion()).isEqualTo("6.6.0.22999");
+
+      // Shutdown the node
+      appNode.close();
+
+      // Propagation of all information take some time, let's wait 5s maximum
+      int counter = 10;
+      while (appStateCluster.getHazelcastCluster().getSonarQubeVersion() != null && counter > 0) {
+        Thread.sleep(500);
+        counter--;
+      }
+
+      assertThat(appStateCluster.getLeaderHostName()).isNotPresent();
+      assertThat(appStateCluster.isOperational(ProcessId.WEB_SERVER, false)).isFalse();
+      assertThat(appStateCluster.isOperational(ProcessId.COMPUTE_ENGINE, false)).isFalse();
+      assertThat(appStateCluster.getHazelcastCluster().getSonarQubeVersion()).isNull();
+    }
+  }
+
+  @Test
+  public void configuration_tweaks_of_hazelcast_must_be_present() {
+    try (HazelcastCluster hzCluster = HazelcastCluster.create(new ClusterProperties(newApplicationSettings()))) {
+      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.tcp.join.port.try.count")).isEqualTo("10");
+      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.phone.home.enabled")).isEqualTo("false");
+      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.logging.type")).isEqualTo("slf4j");
+      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.socket.bind.any")).isEqualTo("false");
+    }
+  }
+
   private class MemoryAppender<E> extends AppenderBase<E> {
     private final List<E> events = new ArrayList();
 
     @Override
     protected void append(E eventObject) {
       events.add(eventObject);
-    }
-  }
-
-
-  @Test
-  public void configuration_tweaks_of_hazelcast_must_be_present() {
-    try (HazelcastCluster hzCluster = HazelcastCluster.create(new ClusterProperties(newClusterSettings()))) {
-      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.tcp.join.port.try.count")).isEqualTo("10");
-      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.phone.home.enabled")).isEqualTo("false");
-      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.logging.type")).isEqualTo("slf4j");
-      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.socket.bind.any")).isEqualTo("false");
     }
   }
 }
