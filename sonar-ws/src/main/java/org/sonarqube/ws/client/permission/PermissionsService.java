@@ -45,6 +45,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_Q
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 
 public class PermissionsService extends BaseService {
 
@@ -123,7 +124,7 @@ public class PermissionsService extends BaseService {
       .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
       .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName())
       .setParam("q", request.getQuery())
-      .setParam(PARAM_QUALIFIER, request.getQualifier()));
+      .setParam(PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers())));
   }
 
   public CreateTemplateWsResponse createTemplate(CreateTemplateWsRequest request) {

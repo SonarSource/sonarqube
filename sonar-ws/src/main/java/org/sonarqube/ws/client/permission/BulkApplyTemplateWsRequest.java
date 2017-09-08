@@ -19,15 +19,18 @@
  */
 package org.sonarqube.ws.client.permission;
 
+import java.util.Collection;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import static java.util.Objects.requireNonNull;
 
 public class BulkApplyTemplateWsRequest {
   private String templateId;
   private String organization;
   private String templateName;
   private String query;
-  private String qualifier;
+  private Collection<String> qualifiers;
 
   @CheckForNull
   public String getTemplateId() {
@@ -70,12 +73,12 @@ public class BulkApplyTemplateWsRequest {
   }
 
   @CheckForNull
-  public String getQualifier() {
-    return qualifier;
+  public Collection<String> getQualifiers() {
+    return qualifiers;
   }
 
-  public BulkApplyTemplateWsRequest setQualifier(@Nullable String qualifier) {
-    this.qualifier = qualifier;
+  public BulkApplyTemplateWsRequest setQualifiers(Collection<String> qualifiers) {
+    this.qualifiers = requireNonNull(qualifiers);
     return this;
   }
 }
