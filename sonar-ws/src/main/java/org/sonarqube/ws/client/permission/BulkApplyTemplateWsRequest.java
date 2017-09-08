@@ -22,7 +22,9 @@ package org.sonarqube.ws.client.permission;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
 
+import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
 
 public class BulkApplyTemplateWsRequest {
@@ -30,7 +32,11 @@ public class BulkApplyTemplateWsRequest {
   private String organization;
   private String templateName;
   private String query;
-  private Collection<String> qualifiers;
+  private Collection<String> qualifiers = singleton(Qualifiers.PROJECT);
+  private String visibility;
+  private String analyzedBefore;
+  private boolean onProvisionedOnly = false;
+  private Collection<String> projects;
 
   @CheckForNull
   public String getTemplateId() {
@@ -72,13 +78,51 @@ public class BulkApplyTemplateWsRequest {
     return this;
   }
 
-  @CheckForNull
   public Collection<String> getQualifiers() {
     return qualifiers;
   }
 
   public BulkApplyTemplateWsRequest setQualifiers(Collection<String> qualifiers) {
     this.qualifiers = requireNonNull(qualifiers);
+    return this;
+  }
+
+  @CheckForNull
+  public String getVisibility() {
+    return visibility;
+  }
+
+  public BulkApplyTemplateWsRequest setVisibility(@Nullable String visibility) {
+    this.visibility = visibility;
+    return this;
+  }
+
+  @CheckForNull
+  public String getAnalyzedBefore() {
+    return analyzedBefore;
+  }
+
+  public BulkApplyTemplateWsRequest setAnalyzedBefore(@Nullable String analyzedBefore) {
+    this.analyzedBefore = analyzedBefore;
+    return this;
+  }
+
+  public boolean isOnProvisionedOnly() {
+    return onProvisionedOnly;
+  }
+
+  public BulkApplyTemplateWsRequest setOnProvisionedOnly(boolean onProvisionedOnly) {
+    this.onProvisionedOnly = onProvisionedOnly;
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getProjects() {
+    return projects;
+  }
+
+  public BulkApplyTemplateWsRequest setProjects(@Nullable Collection<String> projects) {
+    this.projects = projects;
     return this;
   }
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
@@ -35,20 +37,28 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.BulkApplyTemplateWsRequest;
 
+import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
-import static org.sonar.server.ws.WsParameterBuilder.createRootQualifiersParameter;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createRootQualifiersParameter;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class BulkApplyTemplateAction implements PermissionsWsAction {
 
@@ -91,6 +101,32 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
       .setDeprecatedKey(PARAM_QUALIFIER, "6.6");
 
     createTemplateParameters(action);
+
+    action
+      .createParam(PARAM_PROJECTS)
+      .setDescription("Comma-separated list of project keys")
+      .setSince("6.6")
+      .setExampleValue(String.join(",", KEY_PROJECT_EXAMPLE_001, KEY_PROJECT_EXAMPLE_002));
+
+    action.createParam(PARAM_VISIBILITY)
+      .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
+        "If no visibility is specified, the default project visibility of the organization will be used.",
+        Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
+      .setRequired(false)
+      .setInternal(true)
+      .setSince("6.6")
+      .setPossibleValues(Visibility.getLabels());
+
+    action.createParam(PARAM_ANALYZED_BEFORE)
+      .setDescription("Filter the projects for which last analysis is older than the given date (exclusive).<br> " +
+        "Format: date or datetime ISO formats.")
+      .setSince("6.6");
+
+    action.createParam(PARAM_ON_PROVISIONED_ONLY)
+      .setDescription("Filter the projects that are provisioned")
+      .setBooleanPossibleValues()
+      .setDefaultValue("false")
+      .setSince("6.6");
   }
 
   @Override
@@ -118,15 +154,29 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
-      .setQuery(request.param(Param.TEXT_QUERY));
+      .setQuery(request.param(Param.TEXT_QUERY))
+      .setVisibility(request.param(PARAM_VISIBILITY))
+      .setOnProvisionedOnly(request.mandatoryParamAsBoolean(PARAM_ON_PROVISIONED_ONLY))
+      .setAnalyzedBefore(request.param(PARAM_ANALYZED_BEFORE))
+      .setProjects(request.paramAsStrings(PARAM_PROJECTS));
   }
 
   private static ComponentQuery buildDbQuery(BulkApplyTemplateWsRequest request) {
-    ComponentQuery.Builder dbQuery = ComponentQuery.builder()
-      .setNameOrKeyQuery(request.getQuery());
-    setNullable(request.getQualifiers(), l -> dbQuery.setQualifiers(l.toArray(new String[0])));
+    Collection<String> qualifiers = request.getQualifiers();
+    ComponentQuery.Builder query = ComponentQuery.builder()
+      .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]));
 
-    return dbQuery.build();
+    setNullable(request.getQuery(), q -> {
+      query.setNameOrKeyQuery(q);
+      query.setPartialMatchOnKey(true);
+      return query;
+    });
+    setNullable(request.getVisibility(), v -> query.setPrivate(Visibility.isPrivate(v)));
+    setNullable(request.getAnalyzedBefore(), d -> query.setAnalyzedBefore(parseDateOrDateTime(d).getTime()));
+    setNullable(request.isOnProvisionedOnly(), query::setOnProvisionedOnly);
+    setNullable(request.getProjects(), keys -> query.setComponentKeys(new HashSet<>(keys)));
+
+    return query.build();
   }
 
 }
