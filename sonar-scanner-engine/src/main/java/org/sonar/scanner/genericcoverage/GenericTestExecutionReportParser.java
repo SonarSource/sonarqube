@@ -20,6 +20,7 @@
 package org.sonar.scanner.genericcoverage;
 
 import com.google.common.base.Preconditions;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.TestCase;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.StaxParser;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -71,15 +73,16 @@ public class GenericTestExecutionReportParser {
     this.testPlanBuilder = testPlanBuilder;
   }
 
-  public void parse(java.io.File reportFile, SensorContext context) {
+  public void parse(File reportFile, SensorContext context) {
     try (InputStream inputStream = new FileInputStream(reportFile)) {
       parse(inputStream, context);
     } catch (Exception e) {
-      throw new IllegalStateException("Error during parsing of test execution report " + reportFile, e);
+      throw MessageException.of(
+        "Error during parsing of generic test execution report '" + reportFile + "'. Look at the SonarQube documentation to know the expected XML format.", e);
     }
   }
 
-  public void parse(InputStream inputStream, SensorContext context) throws XMLStreamException {
+  private void parse(InputStream inputStream, SensorContext context) throws XMLStreamException {
     new StaxParser(rootCursor -> {
       rootCursor.advance();
       parseRootNode(rootCursor, context);

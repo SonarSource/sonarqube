@@ -20,6 +20,7 @@
 package org.sonar.scanner.genericcoverage;
 
 import com.google.common.base.Preconditions;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.StaxParser;
 
 public class GenericCoverageReportParser {
@@ -47,15 +49,16 @@ public class GenericCoverageReportParser {
   private final List<String> firstUnknownFiles = new ArrayList<>();
   private final Set<String> matchedFileKeys = new HashSet<>();
 
-  public void parse(java.io.File reportFile, SensorContext context) {
+  public void parse(File reportFile, SensorContext context) {
     try (InputStream inputStream = new FileInputStream(reportFile)) {
       parse(inputStream, context);
     } catch (Exception e) {
-      throw new IllegalStateException("Error during parsing of coverage report " + reportFile, e);
+      throw MessageException.of("Error during parsing of the generic coverage report '" + reportFile + "'. Look at SonarQube documentation to know the expected XML format.",
+        e);
     }
   }
 
-  void parse(InputStream inputStream, SensorContext context) throws XMLStreamException {
+  private void parse(InputStream inputStream, SensorContext context) throws XMLStreamException {
     new StaxParser(rootCursor -> {
       rootCursor.advance();
       parseRootNode(rootCursor, context);
@@ -88,7 +91,7 @@ public class GenericCoverageReportParser {
         "Line %s of report refers to a file with an unknown language: %s",
         fileCursor.getCursorLocation().getLineNumber(),
         filePath);
-      matchedFileKeys.add(inputFile.absolutePath());
+      matchedFileKeys.add(inputFile.key());
 
       NewCoverage newCoverage = context.newCoverage().onFile(inputFile);
       SMInputCursor lineToCoverCursor = fileCursor.childElementCursor();
