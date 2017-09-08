@@ -44,7 +44,11 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_Q
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class PermissionsServiceTest {
   private static final String ORGANIZATION_VALUE = "organization value";
@@ -220,7 +224,11 @@ public class PermissionsServiceTest {
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
       .setQualifiers(Arrays.asList("TRK", "VW"))
-      .setQuery(QUERY_VALUE));
+      .setQuery(QUERY_VALUE)
+      .setVisibility("private")
+      .setAnalyzedBefore("2017-04-01")
+      .setOnProvisionedOnly(true)
+      .setProjects(Arrays.asList("P1", "P2")));
 
     assertThat(serviceTester.getPostParser()).isNull();
     PostRequest postRequest = serviceTester.getPostRequest();
@@ -231,6 +239,10 @@ public class PermissionsServiceTest {
       .hasParam(PARAM_TEMPLATE_NAME, TEMPLATE_NAME_VALUE)
       .hasParam("q", QUERY_VALUE)
       .hasParam(PARAM_QUALIFIERS, "TRK,VW")
+      .hasParam(PARAM_VISIBILITY, "private")
+      .hasParam(PARAM_ANALYZED_BEFORE, "2017-04-01")
+      .hasParam(PARAM_ON_PROVISIONED_ONLY, "true")
+      .hasParam(PARAM_PROJECTS, "P1,P2")
       .andNoOtherParam();
   }
 

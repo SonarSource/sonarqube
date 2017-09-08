@@ -30,6 +30,7 @@ import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.client.project.ProjectsWsParameters;
 
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
@@ -45,7 +46,6 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_Q
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 
 public class PermissionsService extends BaseService {
 
@@ -124,7 +124,11 @@ public class PermissionsService extends BaseService {
       .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
       .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName())
       .setParam("q", request.getQuery())
-      .setParam(PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers())));
+      .setParam(ProjectsWsParameters.PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers()))
+      .setParam(ProjectsWsParameters.PARAM_VISIBILITY, request.getVisibility())
+      .setParam(ProjectsWsParameters.PARAM_ANALYZED_BEFORE, request.getAnalyzedBefore())
+      .setParam(ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY, request.isOnProvisionedOnly())
+      .setParam(ProjectsWsParameters.PARAM_PROJECTS, inlineMultipleParamValue(request.getProjects())));
   }
 
   public CreateTemplateWsResponse createTemplate(CreateTemplateWsRequest request) {
