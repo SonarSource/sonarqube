@@ -20,6 +20,7 @@
 package org.sonarqube.tests.authorisation;
 
 import com.sonar.orchestrator.Orchestrator;
+import java.util.Arrays;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.ClassRule;
@@ -32,16 +33,19 @@ import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsPermissions;
+import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.WsUsers.CreateWsResponse;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.ApplyTemplateWsRequest;
+import org.sonarqube.ws.client.permission.BulkApplyTemplateWsRequest;
 import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.permission.UsersWsRequest;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PermissionTemplateTest {
@@ -62,9 +66,9 @@ public class PermissionTemplateTest {
   @Test
   public void apply_permission_template_on_project() {
     Organization organization = tester.organizations().generate();
-    Project project = tester.projects().generate(organization, p -> p.setVisibility("private"));
-    WsUsers.CreateWsResponse.User user = tester.users().generateMember(organization);
-    WsUsers.CreateWsResponse.User anotherUser = tester.users().generateMember(organization);
+    Project project = createPrivateProject(organization);
+    CreateWsResponse.User user = tester.users().generateMember(organization);
+    CreateWsResponse.User anotherUser = tester.users().generateMember(organization);
 
     assertThatUserDoesNotHavePermission(user, organization, project);
     assertThatUserDoesNotHavePermission(anotherUser, organization, project);
@@ -81,11 +85,39 @@ public class PermissionTemplateTest {
   }
 
   @Test
+  public void bulk_apply_template_on_projects() {
+    Organization organization = tester.organizations().generate();
+    CreateWsResponse.User user = tester.users().generateMember(organization);
+    CreateWsResponse.User anotherUser = tester.users().generateMember(organization);
+    WsPermissions.PermissionTemplate template = createTemplate(organization).getPermissionTemplate();
+    tester.wsClient().permissions().addUserToTemplate(new AddUserToTemplateWsRequest()
+      .setOrganization(organization.getKey())
+      .setTemplateId(template.getId())
+      .setLogin(user.getLogin())
+      .setPermission("user"));
+    Project project1 = createPrivateProject(organization);
+    Project project2 = createPrivateProject(organization);
+    Project untouchedProject = createPrivateProject(organization);
+
+    tester.wsClient().permissions().bulkApplyTemplate(new BulkApplyTemplateWsRequest()
+      .setOrganization(organization.getKey())
+      .setTemplateId(template.getId())
+      .setProjects(Arrays.asList(project1.getKey(), project2.getKey())));
+
+    assertThatUserDoesNotHavePermission(anotherUser, organization, untouchedProject);
+    assertThatUserDoesNotHavePermission(anotherUser, organization, project1);
+    assertThatUserDoesNotHavePermission(anotherUser, organization, project2);
+    assertThatUserHasPermission(user, organization, project1);
+    assertThatUserHasPermission(user, organization, project2);
+    assertThatUserDoesNotHavePermission(user, organization, untouchedProject);
+  }
+
+  @Test
   public void indexing_errors_are_recovered_when_applying_permission_template_on_project() throws Exception {
     Organization organization = tester.organizations().generate();
-    Project project = tester.projects().generate(organization, p -> p.setVisibility("private"));
-    WsUsers.CreateWsResponse.User user = tester.users().generateMember(organization);
-    WsUsers.CreateWsResponse.User anotherUser = tester.users().generateMember(organization);
+    Project project = createPrivateProject(organization);
+    CreateWsResponse.User user = tester.users().generateMember(organization);
+    CreateWsResponse.User anotherUser = tester.users().generateMember(organization);
 
     lockWritesOnProjectIndices();
 
@@ -122,7 +154,7 @@ public class PermissionTemplateTest {
    * Gives the read access only to the specified user. All other users and groups
    * loose their ability to see the project.
    */
-  private void createAndApplyTemplate(Organization organization, Project project, WsUsers.CreateWsResponse.User user) {
+  private void createAndApplyTemplate(Organization organization, Project project, CreateWsResponse.User user) {
     String templateName = "For user";
     PermissionsService service = tester.wsClient().permissions();
     service.createTemplate(new CreateTemplateWsRequest()
@@ -140,15 +172,25 @@ public class PermissionTemplateTest {
       .setTemplateName(templateName));
   }
 
-  private void assertThatUserHasPermission(WsUsers.CreateWsResponse.User user, Organization organization, Project project) {
-    assertThat(hasAdminPermission(user, organization, project)).isTrue();
+  private CreateTemplateWsResponse createTemplate(Organization organization) {
+    return tester.wsClient().permissions().createTemplate(new CreateTemplateWsRequest()
+      .setOrganization(organization.getKey())
+      .setName(randomAlphabetic(20)));
   }
 
-  private void assertThatUserDoesNotHavePermission(WsUsers.CreateWsResponse.User user, Organization organization, Project project) {
-    assertThat(hasAdminPermission(user, organization, project)).isFalse();
+  private Project createPrivateProject(Organization organization) {
+    return tester.projects().generate(organization, p -> p.setVisibility("private"));
   }
 
-  private boolean userHasAccessToIndexedProject(WsUsers.CreateWsResponse.User user, Organization organization, Project project) {
+  private void assertThatUserHasPermission(CreateWsResponse.User user, Organization organization, Project project) {
+    assertThat(hasBrowsePermission(user, organization, project)).isTrue();
+  }
+
+  private void assertThatUserDoesNotHavePermission(CreateWsResponse.User user, Organization organization, Project project) {
+    assertThat(hasBrowsePermission(user, organization, project)).isFalse();
+  }
+
+  private boolean userHasAccessToIndexedProject(CreateWsResponse.User user, Organization organization, Project project) {
     SearchProjectsRequest request = SearchProjectsRequest.builder().setOrganization(organization.getKey()).build();
     WsClient userSession = tester.as(user.getLogin()).wsClient();
     return userSession.components().searchProjects(request)
@@ -156,7 +198,7 @@ public class PermissionTemplateTest {
       .anyMatch(c -> c.getKey().equals(project.getKey()));
   }
 
-  private boolean hasAdminPermission(WsUsers.CreateWsResponse.User user, Organization organization, Project project) {
+  private boolean hasBrowsePermission(CreateWsResponse.User user, Organization organization, Project project) {
     UsersWsRequest request = new UsersWsRequest()
       .setOrganization(organization.getKey())
       .setProjectKey(project.getKey())
