@@ -235,7 +235,6 @@ public class ProjectScanContainer extends ComponentContainer {
     String branch = tree.root().definition().getBranch();
     if (branch != null) {
       LOG.info("Branch key: {}", branch);
-      LOG.warn("The use of \"sonar.branch\" is deprecated and replaced by \"sonar.branch.name\". See https://redirect.sonarsource.com/doc/branches.html.");
     }
 
     String branchName = props.property(ScannerProperties.BRANCH_NAME);
