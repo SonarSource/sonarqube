@@ -20,14 +20,19 @@
 package org.sonar.process.jmvoptions;
 
 import java.io.File;
-
-import static java.lang.String.format;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class WebJvmOptions extends JvmOptions<WebJvmOptions> {
-  private static final String[] MANDATORY_OPTIONS = {"-Djava.awt.headless=true", "-Dfile.encoding=UTF-8"};
-
   public WebJvmOptions(File tmpDir) {
-    super(MANDATORY_OPTIONS);
-    add(format("-Djava.io.tmpdir=%s", tmpDir.getAbsolutePath()));
+    super(mandatoryOptions(tmpDir));
+  }
+
+  private static Map<String, String> mandatoryOptions(File tmpDir) {
+    Map<String, String> res = new LinkedHashMap<>(3);
+    res.put("-Djava.awt.headless=", "true");
+    res.put("-Dfile.encoding=", "UTF-8");
+    res.put("-Djava.io.tmpdir=", tmpDir.getAbsolutePath());
+    return res;
   }
 }
