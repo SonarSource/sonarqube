@@ -36,8 +36,6 @@ public interface SqlStatement<CHILD extends SqlStatement> extends AutoCloseable 
 
   CHILD setString(int columnIndex, @Nullable String value) throws SQLException;
 
-  CHILD setBytes(int columnIndex, @Nullable byte[] data) throws SQLException;
-
   @Override
   void close();
 }

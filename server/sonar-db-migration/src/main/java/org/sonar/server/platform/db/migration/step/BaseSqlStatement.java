@@ -47,12 +47,6 @@ class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD
   }
 
   @Override
-  public CHILD setBytes(int columnIndex, @Nullable byte[] value) throws SQLException {
-    pstmt.setBytes(columnIndex, value);
-    return (CHILD) this;
-  }
-
-  @Override
   public CHILD setInt(int columnIndex, @Nullable Integer value) throws SQLException {
     if (value == null) {
       pstmt.setNull(columnIndex, Types.INTEGER);
