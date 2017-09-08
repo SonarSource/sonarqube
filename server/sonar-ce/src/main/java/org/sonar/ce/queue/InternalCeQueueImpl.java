@@ -40,9 +40,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.server.computation.task.projectanalysis.component.VisitException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 @ComputeEngineSide
@@ -120,7 +122,11 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       return;
     }
 
-    activityDto.setErrorMessage(error.getMessage());
+    if (error instanceof VisitException && error.getCause() != null) {
+      activityDto.setErrorMessage(format("%s (%s)", error.getCause().getMessage(), error.getMessage()));
+    } else {
+      activityDto.setErrorMessage(error.getMessage());
+    }
     String stacktrace = getStackTraceForPersistence(error);
     if (stacktrace != null) {
       activityDto.setErrorStacktrace(stacktrace);
