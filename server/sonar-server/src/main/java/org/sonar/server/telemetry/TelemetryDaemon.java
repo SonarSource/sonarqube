@@ -48,8 +48,8 @@ import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryD
 public class TelemetryDaemon implements Startable {
   private static final String THREAD_NAME_PREFIX = "sq-telemetry-service-";
   private static final int SEVEN_DAYS = 7 * 24 * 60 * 60 * 1_000;
-  static final String I_PROP_LAST_PING = "telemetry.lastPing";
-  static final String I_PROP_OPT_OUT = "telemetry.optOut";
+  private static final String I_PROP_LAST_PING = "telemetry.lastPing";
+  private static final String I_PROP_OPT_OUT = "telemetry.optOut";
   private static final Logger LOG = Loggers.get(TelemetryDaemon.class);
 
   private final TelemetryDataLoader dataLoader;

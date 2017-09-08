@@ -65,6 +65,7 @@ public class EsFileSystemTest {
     Props props = new Props(new Properties());
     props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
     EsFileSystem underTest = new EsFileSystem(props);
 
@@ -77,6 +78,7 @@ public class EsFileSystemTest {
     Props props = new Props(new Properties());
     props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
     EsFileSystem underTest = new EsFileSystem(props);
 
@@ -91,6 +93,7 @@ public class EsFileSystemTest {
     Props props = new Props(new Properties());
     props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
     props.set(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
 
@@ -100,31 +103,17 @@ public class EsFileSystemTest {
   }
 
   @Test
-  public void getLogDirectory_is_log_subdirectory_of_sq_home_directory_by_default() throws IOException {
+  public void getLogDirectory_is_configured_with_non_nullable_PATH_LOG_variable() throws IOException {
     File sqHomeDir = temp.newFolder();
-    Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
-
-    EsFileSystem underTest = new EsFileSystem(props);
-
-    assertThat(underTest.getLogDirectory()).isEqualTo(new File(sqHomeDir, "log"));
-  }
-
-  @Test
-  public void override_log_dir() throws Exception {
-    File sqHomeDir = temp.newFolder();
-    File tempDir = temp.newFolder();
     File logDir = temp.newFolder();
     Props props = new Props(new Properties());
     props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
-
+    props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
 
     EsFileSystem underTest = new EsFileSystem(props);
 
-    assertThat(underTest.getDataDirectory()).isEqualTo(new File(sqHomeDir, "data/es"));
+    assertThat(underTest.getLogDirectory()).isEqualTo(logDir);
   }
 
   @Test
@@ -133,6 +122,7 @@ public class EsFileSystemTest {
     Props props = new Props(new Properties());
     props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
     EsFileSystem underTest = new EsFileSystem(props);
 
@@ -145,6 +135,7 @@ public class EsFileSystemTest {
     Props props = new Props(new Properties());
     props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
     EsFileSystem underTest = new EsFileSystem(props);
 
@@ -161,6 +152,7 @@ public class EsFileSystemTest {
     Props props = new Props(new Properties());
     props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
     EsFileSystem underTest = new EsFileSystem(props);
 
@@ -173,6 +165,7 @@ public class EsFileSystemTest {
     Props props = new Props(new Properties());
     props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
     EsFileSystem underTest = new EsFileSystem(props);
 
@@ -185,6 +178,7 @@ public class EsFileSystemTest {
     Props props = new Props(new Properties());
     props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
     EsFileSystem underTest = new EsFileSystem(props);
 

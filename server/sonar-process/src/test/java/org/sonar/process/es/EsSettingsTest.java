@@ -54,6 +54,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
 
     EsSettings esSettings = new EsSettings(props, new EsFileSystem(props));
@@ -89,6 +90,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.CLUSTER_NAME, "sonarqube-1");
     props.set(ProcessProperties.CLUSTER_ENABLED, "true");
     props.set(ProcessProperties.CLUSTER_NODE_NAME, "node-1");
@@ -110,6 +112,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     EsSettings esSettings = new EsSettings(props, new EsFileSystem(props));
     Map<String, String> generated = esSettings.build();
     assertThat(generated.get("node.name")).startsWith("sonarqube-");
@@ -125,6 +128,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     EsSettings esSettings = new EsSettings(props, new EsFileSystem(props));
     Map<String, String> generated = esSettings.build();
     assertThat(generated.get("node.name")).isEqualTo("sonarqube");

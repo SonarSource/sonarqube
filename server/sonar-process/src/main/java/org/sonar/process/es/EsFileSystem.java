@@ -44,7 +44,7 @@ public class EsFileSystem {
     this.homeDirectory = new File(sqHomeDir, "elasticsearch");
     this.dataDirectory = buildDataDir(props, sqHomeDir);
     this.confDirectory = buildConfDir(props);
-    this.logDirectory = buildLogPath(props, sqHomeDir);
+    this.logDirectory = buildLogPath(props);
   }
 
   private static File buildDataDir(Props props, File sqHomeDir) {
@@ -55,12 +55,8 @@ public class EsFileSystem {
     return new File(sqHomeDir, "data/es");
   }
 
-  private static File buildLogPath(Props props, File sqHomeDir) {
-    String logPath = props.value(ProcessProperties.PATH_LOGS);
-    if (StringUtils.isNotEmpty(logPath)) {
-      return new File(logPath);
-    }
-    return new File(sqHomeDir, "log");
+  private static File buildLogPath(Props props) {
+    return props.nonNullValueAsFile(ProcessProperties.PATH_LOGS);
   }
 
   private static File buildConfDir(Props props) {
