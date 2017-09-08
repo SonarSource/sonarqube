@@ -19,7 +19,10 @@
  */
 package org.sonar.server.es;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
@@ -30,6 +33,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.es.IndexDefinitions.Index;
+import org.sonar.server.es.metadata.EsDbCompatibility;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 
@@ -45,12 +49,15 @@ public class IndexCreator implements Startable {
   private final MetadataIndex metadataIndex;
   private final EsClient client;
   private final IndexDefinitions definitions;
+  private final EsDbCompatibility esDbCompatibility;
 
-  public IndexCreator(EsClient client, IndexDefinitions definitions, MetadataIndexDefinition metadataIndexDefinition, MetadataIndex metadataIndex) {
+  public IndexCreator(EsClient client, IndexDefinitions definitions, MetadataIndexDefinition metadataIndexDefinition,
+    MetadataIndex metadataIndex, EsDbCompatibility esDbCompatibility) {
     this.client = client;
     this.definitions = definitions;
     this.metadataIndexDefinition = metadataIndexDefinition;
     this.metadataIndex = metadataIndex;
+    this.esDbCompatibility = esDbCompatibility;
   }
 
   @Override
@@ -63,10 +70,12 @@ public class IndexCreator implements Startable {
       createIndex(new Index(index), false);
     }
 
+    checkDbCompatibility();
+
     // create indices that do not exist or that have a new definition (different mapping, cluster enabled, ...)
     for (Index index : definitions.getIndices().values()) {
       boolean exists = client.prepareIndicesExist(index.getName()).get().isExists();
-      if (exists && !index.getName().equals(MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex()) && needsToDeleteIndex(index)) {
+      if (exists && !index.getName().equals(MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex()) && hasDefinitionChange(index)) {
         LOGGER.info("Delete Elasticsearch index {} (structure changed)", index.getName());
         deleteIndex(index.getName());
         exists = false;
@@ -119,11 +128,35 @@ public class IndexCreator implements Startable {
     client.nativeClient().admin().indices().prepareDelete(indexName).get();
   }
 
-  private boolean needsToDeleteIndex(Index index) {
+  private boolean hasDefinitionChange(Index index) {
     return metadataIndex.getHash(index.getName())
       .map(hash -> {
         String defHash = IndexDefinitionHash.of(index);
         return !StringUtils.equals(hash, defHash);
       }).orElse(true);
+  }
+
+  private void checkDbCompatibility() {
+    boolean delete = false;
+    if (loadExistingIndices().isEmpty()) {
+      // no need to verify compatibility when indices don't exist yet.
+      // That avoids having useless logs during the first startup.
+    } else if (!esDbCompatibility.hasSameDbVendor()) {
+      LOGGER.info("Delete Elasticsearch indices (DB vendor changed)");
+      delete = true;
+    } else if (!esDbCompatibility.hasSameDbSchemaVersion()) {
+      LOGGER.info("Delete Elasticsearch indices (DB schema changed)");
+      delete = true;
+    }
+    if (delete) {
+      loadExistingIndices().forEach(this::deleteIndex);
+    }
+    esDbCompatibility.markAsCompatible();
+  }
+
+  private List<String> loadExistingIndices() {
+    return Arrays.stream(client.nativeClient().admin().indices().prepareGetIndex().get().getIndices())
+      .filter(index -> !MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex().equals(index))
+      .collect(Collectors.toList());
   }
 }

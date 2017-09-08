@@ -19,8 +19,10 @@
  */
 package org.sonar.server.es;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.Map;
+import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
@@ -28,36 +30,36 @@ import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.action.support.WriteRequest.RefreshPolicy.IMMEDIATE;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class IndexCreatorTest {
 
-  private static final NewIndex.SettingsConfiguration settingsConfiguration = newBuilder(new MapSettings().asConfig()).build();
+  private static final NewIndex.SettingsConfiguration SETTINGS_CONFIGURATION = newBuilder(new MapSettings().asConfig()).build();
+  private static final String LOG_DB_VENDOR_CHANGED = "Delete Elasticsearch indices (DB vendor changed)";
+  private static final String LOG_DB_SCHEMA_CHANGED = "Delete Elasticsearch indices (DB schema changed)";
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Rule
   public EsTester es = new EsTester();
 
   private MetadataIndexDefinition metadataIndexDefinition = new MetadataIndexDefinition(new MapSettings().asConfig());
   private MetadataIndex metadataIndex = new MetadataIndex(es.client());
+  private TestEsDbCompatibility esDbCompatibility = new TestEsDbCompatibility();
 
   @Test
   public void create_index() throws Exception {
     assertThat(mappings()).isEmpty();
 
-    IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()}, new MapSettings().asConfig());
-    registry.start();
-    IndexCreator creator = new IndexCreator(es.client(), registry, metadataIndexDefinition, metadataIndex);
-    creator.start();
+    IndexCreator underTest = startNewCreator(new FakeIndexDefinition());
 
     // check that index is created with related mapping
     ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = mappings();
@@ -68,39 +70,27 @@ public class IndexCreatorTest {
     assertThat(field(mapping, "updatedAt").get("type")).isEqualTo("date");
 
     // of course do not delete indices on stop
-    creator.stop();
+    underTest.stop();
     assertThat(mappings()).isNotEmpty();
   }
 
   @Test
   public void mark_all_non_existing_index_types_as_uninitialized() throws Exception {
-    MetadataIndex metadataIndexMock = mock(MetadataIndex.class);
-    IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {context -> {
-
-      NewIndex i = context.create("i", settingsConfiguration);
+    startNewCreator(context -> {
+      NewIndex i = context.create("i", SETTINGS_CONFIGURATION);
       i.createType("t1");
       i.createType("t2");
-    }}, new MapSettings().asConfig());
-    registry.start();
-    IndexCreator creator = new IndexCreator(es.client(), registry, metadataIndexDefinition, metadataIndexMock);
-    creator.start();
+    });
 
-    verify(metadataIndexMock).setHash(eq("i"), anyString());
-    verify(metadataIndexMock).setInitialized(eq(new IndexType("i", "t1")), eq(false));
-    verify(metadataIndexMock).setInitialized(eq(new IndexType("i", "t2")), eq(false));
-    verifyNoMoreInteractions(metadataIndexMock);
+    assertThat(metadataIndex.getHash("i")).isNotEmpty();
+    assertThat(metadataIndex.getInitialized(new IndexType("i", "t1"))).isFalse();
+    assertThat(metadataIndex.getInitialized(new IndexType("i", "t2"))).isFalse();
   }
 
   @Test
   public void recreate_index_on_definition_changes() throws Exception {
-    assertThat(mappings()).isEmpty();
-
     // v1
-    IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()}, new MapSettings().asConfig());
-    registry.start();
-    IndexCreator creator = new IndexCreator(es.client(), registry, metadataIndexDefinition, metadataIndex);
-    creator.start();
-    creator.stop();
+    startNewCreator(new FakeIndexDefinition());
 
     IndexType fakeIndexType = new IndexType("fakes", "fake");
     String id = "1";
@@ -108,44 +98,78 @@ public class IndexCreatorTest {
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
 
     // v2
-    registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinitionV2()}, new MapSettings().asConfig());
-    registry.start();
-    creator = new IndexCreator(es.client(), registry, metadataIndexDefinition, metadataIndex);
-    creator.start();
+    startNewCreator(new FakeIndexDefinitionV2());
+
     ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = mappings();
     MappingMetaData mapping = mappings.get("fakes").get("fake");
     assertThat(countMappingFields(mapping)).isEqualTo(3);
     assertThat(field(mapping, "updatedAt").get("type")).isEqualTo("date");
     assertThat(field(mapping, "newField").get("type")).isEqualTo("integer");
-    creator.stop();
 
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isFalse();
   }
 
   @Test
   public void do_not_recreate_index_on_unchanged_definition() throws Exception {
-    assertThat(mappings()).isEmpty();
-
     // v1
-    IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()}, new MapSettings().asConfig());
-    registry.start();
-    IndexCreator creator = new IndexCreator(es.client(), registry, metadataIndexDefinition, metadataIndex);
-    creator.start();
-    creator.stop();
-
+    startNewCreator(new FakeIndexDefinition());
     IndexType fakeIndexType = new IndexType("fakes", "fake");
     String id = "1";
     es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefreshPolicy(IMMEDIATE).get();
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
 
     // v1
-    registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()}, new MapSettings().asConfig());
-    registry.start();
-    creator = new IndexCreator(es.client(), registry, metadataIndexDefinition, metadataIndex);
-    creator.start();
-    creator.stop();
-
+    startNewCreator(new FakeIndexDefinition());
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
+  }
+
+  @Test
+  public void delete_existing_indices_if_db_vendor_changed() {
+    testDeleteOnDbChange(LOG_DB_VENDOR_CHANGED,
+      c -> c.setHasSameDbVendor(false));
+  }
+
+  @Test
+  public void delete_existing_indices_if_db_schema_changed() {
+    testDeleteOnDbChange(LOG_DB_SCHEMA_CHANGED,
+      c -> c.setHasSameDbSchemaVersion(false));
+  }
+
+  @Test
+  public void do_not_check_db_compatibility_on_fresh_es() {
+    // supposed to be ignored
+    esDbCompatibility.setHasSameDbVendor(false);
+    esDbCompatibility.setHasSameDbSchemaVersion(false);
+
+    startNewCreator(new FakeIndexDefinition());
+
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .doesNotContain(LOG_DB_VENDOR_CHANGED)
+      .doesNotContain(LOG_DB_SCHEMA_CHANGED)
+      .contains("Create type fakes/fake")
+      .contains("Create type metadatas/metadata");
+  }
+
+  private void testDeleteOnDbChange(String expectedLog, Consumer<TestEsDbCompatibility> afterFirstStart) {
+    startNewCreator(new FakeIndexDefinition());
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .doesNotContain(expectedLog)
+      .contains("Create type fakes/fake")
+      .contains("Create type metadatas/metadata");
+    putFakeDocument();
+    assertThat(es.countDocuments(FakeIndexDefinition.INDEX_TYPE)).isEqualTo(1);
+
+    afterFirstStart.accept(esDbCompatibility);
+    logTester.clear();
+    startNewCreator(new FakeIndexDefinition());
+
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains(expectedLog)
+      .contains("Create type fakes/fake")
+      // keep existing metadata
+      .doesNotContain("Create type metadatas/metadata");
+    // index has been dropped and re-created
+    assertThat(es.countDocuments(FakeIndexDefinition.INDEX_TYPE)).isEqualTo(0);
   }
 
   private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings() {
@@ -155,7 +179,7 @@ public class IndexCreatorTest {
   @CheckForNull
   @SuppressWarnings("unchecked")
   private Map<String, Object> field(MappingMetaData mapping, String field) throws IOException {
-    Map<String, Object> props = (Map<String,Object>) mapping.getSourceAsMap().get("properties");
+    Map<String, Object> props = (Map<String, Object>) mapping.getSourceAsMap().get("properties");
     return (Map<String, Object>) props.get(field);
   }
 
@@ -163,20 +187,34 @@ public class IndexCreatorTest {
     return ((Map) mapping.getSourceAsMap().get("properties")).size();
   }
 
-  public static class FakeIndexDefinition implements IndexDefinition {
+  private IndexCreator startNewCreator(IndexDefinition... definitions) {
+    IndexDefinitions defs = new IndexDefinitions(definitions, new MapSettings().asConfig());
+    defs.start();
+    IndexCreator creator = new IndexCreator(es.client(), defs, metadataIndexDefinition, metadataIndex, esDbCompatibility);
+    creator.start();
+    return creator;
+  }
+
+  private void putFakeDocument() {
+    es.putDocuments(FakeIndexDefinition.INDEX_TYPE, ImmutableMap.of("key", "foo"));
+  }
+
+  private static class FakeIndexDefinition implements IndexDefinition {
+    private static final IndexType INDEX_TYPE = new IndexType("fakes", "fake");
+
     @Override
     public void define(IndexDefinitionContext context) {
-      NewIndex index = context.create("fakes", settingsConfiguration);
+      NewIndex index = context.create("fakes", SETTINGS_CONFIGURATION);
       NewIndex.NewIndexType mapping = index.createType("fake");
       mapping.keywordFieldBuilder("key").build();
       mapping.createDateTimeField("updatedAt");
     }
   }
 
-  public static class FakeIndexDefinitionV2 implements IndexDefinition {
+  private static class FakeIndexDefinitionV2 implements IndexDefinition {
     @Override
     public void define(IndexDefinitionContext context) {
-      NewIndex index = context.create("fakes", settingsConfiguration);
+      NewIndex index = context.create("fakes", SETTINGS_CONFIGURATION);
       NewIndex.NewIndexType mapping = index.createType("fake");
       mapping.keywordFieldBuilder("key").build();
       mapping.createDateTimeField("updatedAt");

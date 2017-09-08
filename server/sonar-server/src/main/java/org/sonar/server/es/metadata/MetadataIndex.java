@@ -41,7 +41,7 @@ public class MetadataIndex {
   }
 
   public void setHash(String index, String hash) {
-    setMetadata(hash, hashId(index));
+    setMetadata(hashId(index), hash);
   }
 
   private static String hashId(String index) {
@@ -53,14 +53,14 @@ public class MetadataIndex {
   }
 
   public void setInitialized(IndexType indexType, boolean initialized) {
-    setMetadata(String.valueOf(initialized), initializedId(indexType));
+    setMetadata(initializedId(indexType), String.valueOf(initialized));
   }
 
   private static String initializedId(IndexType indexType) {
     return indexType.getIndex() + "." + indexType.getType() + ".initialized";
   }
 
-  private Optional<String> getMetadata(String id) {
+  public Optional<String> getMetadata(String id) {
     GetRequestBuilder request = esClient.prepareGet(MetadataIndexDefinition.INDEX_TYPE_METADATA, id)
       .setStoredFields(MetadataIndexDefinition.FIELD_VALUE);
     GetResponse response = request.get();
@@ -72,10 +72,10 @@ public class MetadataIndex {
     return Optional.empty();
   }
 
-  private void setMetadata(String hash, String id) {
+  public void setMetadata(String id, String value) {
     esClient.prepareIndex(MetadataIndexDefinition.INDEX_TYPE_METADATA)
       .setId(id)
-      .setSource(MetadataIndexDefinition.FIELD_VALUE, hash)
+      .setSource(MetadataIndexDefinition.FIELD_VALUE, value)
       .setRefreshPolicy(REFRESH_IMMEDIATE)
       .get();
   }
