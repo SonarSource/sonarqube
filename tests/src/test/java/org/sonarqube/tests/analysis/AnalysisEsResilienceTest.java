@@ -44,6 +44,7 @@ import org.sonarqube.ws.QualityProfiles.CreateWsResponse.QualityProfile;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsProjects;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.client.ce.TaskWsRequest;
 import org.sonarqube.ws.client.component.SuggestionsWsRequest;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ItUtils;
@@ -157,8 +158,12 @@ public class AnalysisEsResilienceTest {
     String taskUuid = executeAnalysis(projectKey, organization, orgAdministrator, "analysis/resilience/resilience-purge", "2000-01-02");
 
     // The task has failed
-    WsCe.Task task = tester.wsClient().ce().task(taskUuid).getTask();
+    TaskWsRequest request = TaskWsRequest.newBuilder(taskUuid).withErrorStacktrace().build();
+    WsCe.Task task = tester.wsClient().ce().task(request).getTask();
     assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
+    assertThat(task.getErrorMessage()).contains("Unrecoverable indexation failures");
+    assertThat(task.getErrorStacktrace())
+      .contains("Caused by: java.lang.IllegalStateException: Unrecoverable indexation failures");
 
     // The issue must be present with status CLOSED in database
     assertThat(searchFile(fileKey, organization)).isNotEmpty();
