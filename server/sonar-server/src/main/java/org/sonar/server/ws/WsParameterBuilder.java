@@ -45,6 +45,13 @@ public class WsParameterBuilder {
       .setPossibleValues(getRootQualifiers(context.getResourceTypes()));
   }
 
+  public static WebService.NewParam createRootQualifiersParameter(WebService.NewAction action, QualifierParameterContext context) {
+    return action.createParam(PARAM_QUALIFIERS)
+      .setDescription("Comma-separated list of component qualifiers. Filter the results with the specified qualifiers. " +
+        "Possible values are:" + buildRootQualifiersDescription(context))
+      .setPossibleValues(getRootQualifiers(context.getResourceTypes()));
+  }
+
   public static WebService.NewParam createDefaultTemplateQualifierParameter(WebService.NewAction action, QualifierParameterContext context) {
     return action.createParam(PARAM_QUALIFIER)
       .setDescription("Project qualifier. Filter the results with the specified qualifier. Possible values are:" + buildDefaultTemplateQualifiersDescription(context))

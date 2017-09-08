@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.permission;
 
+import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.WsPermissions;
@@ -43,6 +44,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_Q
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 
 public class PermissionsServiceTest {
   private static final String ORGANIZATION_VALUE = "organization value";
@@ -217,7 +219,7 @@ public class PermissionsServiceTest {
       .setOrganization(ORGANIZATION_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
-      .setQualifier(QUALIFIER_VALUE)
+      .setQualifiers(Arrays.asList("TRK", "VW"))
       .setQuery(QUERY_VALUE));
 
     assertThat(serviceTester.getPostParser()).isNull();
@@ -228,7 +230,7 @@ public class PermissionsServiceTest {
       .hasParam(PARAM_TEMPLATE_ID, TEMPLATE_ID_VALUE)
       .hasParam(PARAM_TEMPLATE_NAME, TEMPLATE_NAME_VALUE)
       .hasParam("q", QUERY_VALUE)
-      .hasParam(PARAM_QUALIFIER, QUALIFIER_VALUE)
+      .hasParam(PARAM_QUALIFIERS, "TRK,VW")
       .andNoOtherParam();
   }
 

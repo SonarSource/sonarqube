@@ -22,6 +22,7 @@ package org.sonar.server.permission.ws.template;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
@@ -40,11 +41,12 @@ import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newApplication;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 
 public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyTemplateAction> {
 
@@ -104,7 +106,10 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     ComponentDto view = db.components().insertView(organization);
     loginAsAdmin(organization);
 
-    newRequest().setParam(PARAM_TEMPLATE_ID, template1.getUuid()).execute();
+    newRequest()
+      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
+      .setParam(PARAM_QUALIFIERS, String.join(",", Qualifiers.PROJECT, Qualifiers.VIEW))
+      .execute();
 
     assertTemplate1AppliedToPrivateProject(privateProject);
     assertTemplate1AppliedToPublicProject(publicProject);
@@ -142,18 +147,21 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void apply_template_by_qualifier() throws Exception {
+  public void apply_template_by_qualifiers() throws Exception {
     ComponentDto publicProject = db.components().insertPublicProject(organization);
     ComponentDto privateProject = db.components().insertPrivateProject(organization);
     ComponentDto view = db.components().insertComponent(newView(organization));
+    ComponentDto application = db.components().insertComponent(newApplication(organization));
     loginAsAdmin(organization);
 
     newRequest()
       .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
-      .setParam(PARAM_QUALIFIER, privateProject.qualifier()).execute();
+      .setParam(PARAM_QUALIFIERS, String.join(",", Qualifiers.PROJECT, Qualifiers.APP))
+      .execute();
 
     assertTemplate1AppliedToPrivateProject(privateProject);
     assertTemplate1AppliedToPublicProject(publicProject);
+    assertTemplate1AppliedToPublicProject(application);
     assertNoPermissionOnProject(view);
   }
 
