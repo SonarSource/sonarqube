@@ -1,6 +1,9 @@
 .level {
   display: inline-block;
-  width: 80px;
+  width: auto;
+  min-width: 80px;
+  padding-left: 9px;
+  padding-right: 9px;
   height: 24px;
   line-height: 24px;
   border-radius: 24px;
@@ -14,7 +17,10 @@
 }
 
 .level-small {
-  width: 64px;
+  width: auto;
+  min-width: 64px;
+  padding-left: 9px;
+  padding-right: 9px;
   margin-top: -1px;
   margin-bottom: -1px;
   height: 18px;
