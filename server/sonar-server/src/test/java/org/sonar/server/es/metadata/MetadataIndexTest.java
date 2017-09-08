@@ -34,8 +34,6 @@ public class MetadataIndexTest {
   public EsTester es = new EsTester(new FakeIndexDefinition());
   private final MetadataIndex underTest = new MetadataIndex(es.client());
   private final String index = randomAlphanumeric(20);
-  private final String type = randomAlphanumeric(20);
-
 
   @Test
   public void type_should_be_not_initialized_by_default() throws Exception {
@@ -60,5 +58,19 @@ public class MetadataIndexTest {
     String hash = randomAlphanumeric(20);
     underTest.setHash(index, hash);
     assertThat(underTest.getHash(index)).hasValue(hash);
+  }
+
+  @Test
+  public void database_metadata_are_empty_if_absent_from_index() {
+    assertThat(underTest.getDbVendor()).isNotPresent();
+    assertThat(underTest.getDbSchemaVersion()).isNotPresent();
+  }
+
+  @Test
+  public void database_metadata_are_present_from_index() {
+    underTest.setDbMetadata("postgres", 1_800);
+
+    assertThat(underTest.getDbVendor()).hasValue("postgres");
+    assertThat(underTest.getDbSchemaVersion()).hasValue(1_800L);
   }
 }

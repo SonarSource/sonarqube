@@ -159,6 +159,7 @@ public class EsTester extends ExternalResource {
       container.addSingleton(IndexCreator.class);
       container.addSingleton(MetadataIndex.class);
       container.addSingleton(MetadataIndexDefinition.class);
+      container.addSingleton(TestEsDbCompatibility.class);
       container.startComponents();
       container.stopComponents();
       client().close();
@@ -188,10 +189,11 @@ public class EsTester extends ExternalResource {
   private void afterTest() throws Exception {
     if (cluster != null) {
       MetaData metaData = cluster.client().admin().cluster().prepareState().execute().actionGet().getState().getMetaData();
-      assertEquals("test leaves persistent cluster metadata behind: " + metaData.persistentSettings().getAsMap(), metaData
-        .persistentSettings().getAsMap().size(), 0);
-      assertEquals("test leaves transient cluster metadata behind: " + metaData.transientSettings().getAsMap(), metaData
-        .transientSettings().getAsMap().size(), 0);
+      assertEquals("test leaves persistent cluster metadata behind: " + metaData.persistentSettings().getAsMap(),
+        0,
+        metaData.persistentSettings().getAsMap().size());
+      assertEquals("test leaves transient cluster metadata behind: " + metaData.transientSettings().getAsMap(), 0, metaData
+        .transientSettings().getAsMap().size());
       ensureClusterSizeConsistency();
       ensureClusterStateConsistency();
       cluster.beforeIndexDeletion();
@@ -257,6 +259,23 @@ public class EsTester extends ExternalResource {
           .parent(doc.getParent())
           .routing(doc.getRouting())
           .source(doc.getFields()));
+      }
+      BulkResponse bulkResponse = bulk.get();
+      if (bulkResponse.hasFailures()) {
+        throw new IllegalStateException(bulkResponse.buildFailureMessage());
+      }
+    } catch (Exception e) {
+      throw Throwables.propagate(e);
+    }
+  }
+
+  public void putDocuments(IndexType indexType, Map<String,Object>... docs) {
+    try {
+      BulkRequestBuilder bulk = cluster.client().prepareBulk()
+        .setRefreshPolicy(REFRESH_IMMEDIATE);
+      for (Map<String,Object> doc : docs) {
+        bulk.add(new IndexRequest(indexType.getIndex(), indexType.getType())
+          .source(doc));
       }
       BulkResponse bulkResponse = bulk.get();
       if (bulkResponse.hasFailures()) {
