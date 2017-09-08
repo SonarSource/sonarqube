@@ -55,7 +55,6 @@ public class IndexCreator implements Startable {
 
   @Override
   public void start() {
-
     // create the "metadata" index first
     if (!client.prepareIndicesExist(MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex()).get().isExists()) {
       IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
@@ -68,7 +67,7 @@ public class IndexCreator implements Startable {
     for (Index index : definitions.getIndices().values()) {
       boolean exists = client.prepareIndicesExist(index.getName()).get().isExists();
       if (exists && !index.getName().equals(MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex()) && needsToDeleteIndex(index)) {
-        LOGGER.info(String.format("Delete index %s (settings changed)", index.getName()));
+        LOGGER.info("Delete Elasticsearch index {} (structure changed)", index.getName());
         deleteIndex(index.getName());
         exists = false;
       }

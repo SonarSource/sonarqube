@@ -153,8 +153,9 @@ public class IndexCreatorTest {
   }
 
   @CheckForNull
+  @SuppressWarnings("unchecked")
   private Map<String, Object> field(MappingMetaData mapping, String field) throws IOException {
-    Map<String, Object> props = (Map) mapping.getSourceAsMap().get("properties");
+    Map<String, Object> props = (Map<String,Object>) mapping.getSourceAsMap().get("properties");
     return (Map<String, Object>) props.get(field);
   }
 
