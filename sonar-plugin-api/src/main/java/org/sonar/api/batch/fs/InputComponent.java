@@ -32,6 +32,7 @@ public interface InputComponent {
   /**
    * Component key shared by all part of SonarQube (scanner, server, WS...). 
    * It doesn't include the branch.
+   * Warning. Do not use in SonarLint.
    */
   String key();
 

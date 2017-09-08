@@ -19,16 +19,20 @@
  */
 package org.sonar.scanner.genericcoverage;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
+import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +45,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class GenericTestExecutionReportParserTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private TestPlanBuilder testPlanBuilder;
   private DefaultInputFile fileWithBranches;
@@ -81,45 +88,45 @@ public class GenericTestExecutionReportParserTest {
     verify(testPlan).addTestCase("test3");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = MessageException.class)
   public void unittest_invalid_root_node_name() throws Exception {
     parseUnitTestReport("<mycoverage version=\"1\"></mycoverage>");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = MessageException.class)
   public void unittest_invalid_report_version() throws Exception {
     parseUnitTestReport("<unitTest version=\"2\"></unitTest>");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = MessageException.class)
   public void unittest_duration_in_testCase_should_be_a_number() throws Exception {
     addFileToFs(setupFile("file1"));
     parseUnitTestReport("<unitTest version=\"1\"><file path=\"file1\">"
       + "<testCase name=\"test1\" duration=\"aaa\"/></file></unitTest>");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = MessageException.class)
   public void unittest_failure_should_have_a_message() throws Exception {
     addFileToFs(setupFile("file1"));
     parseUnitTestReport("<unitTest version=\"1\"><file path=\"file1\">"
       + "<testCase name=\"test1\" duration=\"2\"><failure /></testCase></file></unitTest>");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = MessageException.class)
   public void unittest_error_should_have_a_message() throws Exception {
     addFileToFs(setupFile("file1"));
     parseUnitTestReport("<unitTest version=\"1\"><file path=\"file1\">"
       + "<testCase name=\"test1\" duration=\"2\"><error /></testCase></file></unitTest>");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = MessageException.class)
   public void unittest_skipped_should_have_a_message() throws Exception {
     addFileToFs(setupFile("file1"));
     parseUnitTestReport("<unitTest version=\"1\"><file path=\"file1\">"
       + "<testCase name=\"test1\" duration=\"2\"><skipped notmessage=\"\"/></testCase></file></unitTest>");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = MessageException.class)
   public void unittest_duration_in_testCase_should_not_be_negative() throws Exception {
     addFileToFs(setupFile("file1"));
     parseUnitTestReport("<unitTest version=\"1\"><file path=\"file1\">"
@@ -132,13 +139,15 @@ public class GenericTestExecutionReportParserTest {
 
   private GenericTestExecutionReportParser parseUnitTestReport(String string) throws Exception {
     GenericTestExecutionReportParser parser = new GenericTestExecutionReportParser(testPlanBuilder);
-    parser.parse(new ByteArrayInputStream(string.getBytes()), context);
+    File report = temp.newFile();
+    FileUtils.write(report, string, StandardCharsets.UTF_8);
+    parser.parse(report, context);
     return parser;
   }
 
   private GenericTestExecutionReportParser parseReportFile(String reportLocation) throws Exception {
     GenericTestExecutionReportParser parser = new GenericTestExecutionReportParser(testPlanBuilder);
-    parser.parse(this.getClass().getResourceAsStream(reportLocation), context);
+    parser.parse(new File(this.getClass().getResource(reportLocation).toURI()), context);
     return parser;
   }
 
