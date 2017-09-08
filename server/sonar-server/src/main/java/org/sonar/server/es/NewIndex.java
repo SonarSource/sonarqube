@@ -232,7 +232,10 @@ public class NewIndex {
     }
 
     public NewIndexType createDateTimeField(String fieldName) {
-      return setProperty(fieldName, ImmutableMap.of("type", "date", "format", "date_time||epoch_second"));
+      Map<String, String> hash = new TreeMap<>();
+      hash.put("type", "date");
+      hash.put("format", "date_time||epoch_second");
+      return setProperty(fieldName, hash);
     }
 
     public NewIndexType createDoubleField(String fieldName) {
@@ -351,18 +354,18 @@ public class NewIndex {
     }
 
     private NewIndexType buildWithoutSubfields() {
-      ImmutableMap.Builder<String, String> hash = ImmutableMap.builder();
-      hash.put("type", getFieldType())
-        .put(INDEX, disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE)
-        .put("norms", valueOf(!disableNorms))
-        .put("store", valueOf(store));
+      Map<String, Object> hash = new TreeMap<>();
+      hash.put("type", getFieldType());
+      hash.put(INDEX, disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE);
+      hash.put("norms", valueOf(!disableNorms));
+      hash.put("store", valueOf(store));
       if (FIELD_TYPE_KEYWORD.equals(getFieldType())) {
         hash.put("doc_values", valueOf(!disabledDocValues));
       }
       if (getFieldData()) {
         hash.put(FIELD_FIELDDATA, FIELDDATA_ENABLED);
       }
-      return indexType.setProperty(fieldName, hash.build());
+      return indexType.setProperty(fieldName, hash);
     }
 
     private NewIndexType buildWithSubfields() {
@@ -396,15 +399,15 @@ public class NewIndex {
         hash.put(FIELD_FIELDDATA, FIELDDATA_ENABLED);
       }
 
-      ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-      builder.put("type", getFieldType())
-        .put(INDEX, INDEX_SEARCHABLE)
-        .put("norms", "false")
-        .put("store", valueOf(store));
+      Map<String, String> subHash = new TreeMap<>();
+      subHash.put("type", getFieldType());
+      subHash.put(INDEX, INDEX_SEARCHABLE);
+      subHash.put("norms", "false");
+      subHash.put("store", valueOf(store));
       if (FIELD_TYPE_KEYWORD.equals(getFieldType())) {
-        builder.put("doc_values", valueOf(!disabledDocValues));
+        subHash.put("doc_values", valueOf(!disabledDocValues));
       }
-      multiFields.put(fieldName, builder.build());
+      multiFields.put(fieldName, subHash);
       hash.put("fields", multiFields);
 
       return indexType.setProperty(fieldName, hash);
@@ -492,7 +495,7 @@ public class NewIndex {
     }
 
     public NestedFieldBuilder addKeywordField(String fieldName) {
-      return setProperty(fieldName, ImmutableMap.of(
+      return setProperty(fieldName, ImmutableSortedMap.of(
         "type", FIELD_TYPE_KEYWORD,
         INDEX, INDEX_SEARCHABLE));
     }
@@ -507,11 +510,10 @@ public class NewIndex {
 
     public NewIndexType build() {
       checkArgument(!properties.isEmpty(), "At least one sub-field must be declared in nested property '%s'", fieldName);
-      Map<String, Object> hash = new TreeMap<>();
-      hash.put("type", "nested");
-      hash.put("properties", properties);
 
-      return indexType.setProperty(fieldName, hash);
+      return indexType.setProperty(fieldName, ImmutableSortedMap.of(
+        "type", "nested",
+        "properties", properties));
     }
   }
 
