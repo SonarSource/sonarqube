@@ -161,6 +161,11 @@ public class HazelcastCluster implements AutoCloseable {
     }
   }
 
+  public String getSonarQubeVersion() {
+    IAtomicReference<String> sqVersion = hzInstance.getAtomicReference(SONARQUBE_VERSION);
+    return sqVersion.get();
+  }
+
   public void registerClusterName(String nodeValue) {
     IAtomicReference<String> property = hzInstance.getAtomicReference(CLUSTER_NAME);
     if (property.get() == null) {
@@ -190,7 +195,7 @@ public class HazelcastCluster implements AutoCloseable {
         // Removing listeners
         operationalProcesses.removeEntryListener(operationalProcessListenerUUID);
         hzInstance.getClientService().removeClientListener(clientListenerUUID);
-      hzInstance.getCluster().removeMembershipListener(nodeDisconnectedListenerUUID);
+        hzInstance.getCluster().removeMembershipListener(nodeDisconnectedListenerUUID);
 
         // Removing the operationalProcess from the replicated map
         operationalProcesses.keySet().forEach(

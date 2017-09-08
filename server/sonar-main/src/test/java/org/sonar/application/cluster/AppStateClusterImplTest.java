@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.sonar.application.cluster.HazelcastTestHelper.createHazelcastClient;
-import static org.sonar.application.cluster.HazelcastTestHelper.newClusterSettings;
+import static org.sonar.application.cluster.HazelcastTestHelper.newApplicationSettings;
 import static org.sonar.process.cluster.ClusterObjectKeys.CLUSTER_NAME;
 import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
 
@@ -67,7 +67,7 @@ public class AppStateClusterImplTest {
 
   @Test
   public void tryToLockWebLeader_returns_true_only_for_the_first_call() throws Exception {
-    TestAppSettings settings = newClusterSettings();
+    TestAppSettings settings = newApplicationSettings();
 
     try (AppStateClusterImpl underTest = new AppStateClusterImpl(settings)) {
       assertThat(underTest.tryToLockWebLeader()).isEqualTo(true);
@@ -78,7 +78,7 @@ public class AppStateClusterImplTest {
   @Test
   public void log_when_sonarqube_is_joining_a_cluster () throws IOException, InterruptedException, IllegalAccessException, NoSuchFieldException {
     // Now launch an instance that try to be part of the hzInstance cluster
-    TestAppSettings settings = newClusterSettings();
+    TestAppSettings settings = newApplicationSettings();
 
     Logger logger = mock(Logger.class);
     AppStateClusterImpl.setLogger(logger);
@@ -94,7 +94,7 @@ public class AppStateClusterImplTest {
   @Test
   public void test_listeners() throws InterruptedException {
     AppStateListener listener = mock(AppStateListener.class);
-    try (AppStateClusterImpl underTest = new AppStateClusterImpl(newClusterSettings())) {
+    try (AppStateClusterImpl underTest = new AppStateClusterImpl(newApplicationSettings())) {
       underTest.addListener(listener);
 
       underTest.setOperational(ProcessId.ELASTICSEARCH);
@@ -109,7 +109,7 @@ public class AppStateClusterImplTest {
 
   @Test
   public void registerSonarQubeVersion_publishes_version_on_first_call() {
-    TestAppSettings settings = newClusterSettings();
+    TestAppSettings settings = newApplicationSettings();
 
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
       appStateCluster.registerSonarQubeVersion("6.4.1.5");
@@ -124,7 +124,7 @@ public class AppStateClusterImplTest {
 
   @Test
   public void registerClusterName_publishes_clusterName_on_first_call() {
-    TestAppSettings settings = newClusterSettings();
+    TestAppSettings settings = newApplicationSettings();
     String clusterName = randomAlphanumeric(20);
 
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
@@ -140,7 +140,7 @@ public class AppStateClusterImplTest {
 
   @Test
   public void reset_throws_always_ISE() {
-    TestAppSettings settings = newClusterSettings();
+    TestAppSettings settings = newApplicationSettings();
 
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
       expectedException.expect(IllegalStateException.class);
@@ -152,7 +152,7 @@ public class AppStateClusterImplTest {
   @Test
   public void registerSonarQubeVersion_throws_ISE_if_initial_version_is_different() throws Exception {
     // Now launch an instance that try to be part of the hzInstance cluster
-    TestAppSettings settings = newClusterSettings();
+    TestAppSettings settings = newApplicationSettings();
 
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
       // Register first version
@@ -169,7 +169,7 @@ public class AppStateClusterImplTest {
   @Test
   public void registerClusterName_throws_MessageException_if_clusterName_is_different() throws Exception {
     // Now launch an instance that try to be part of the hzInstance cluster
-    TestAppSettings settings = newClusterSettings();
+    TestAppSettings settings = newApplicationSettings();
 
     try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(settings)) {
       // Register first version
