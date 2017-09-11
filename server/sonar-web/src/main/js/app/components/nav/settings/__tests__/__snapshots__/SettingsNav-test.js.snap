@@ -34,7 +34,7 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/settings"
+            to="/admin/settings"
           >
             settings.page
           </IndexLink>
@@ -42,7 +42,7 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/settings/licenses"
+            to="/admin/settings/licenses"
           >
             property.category.licenses
           </IndexLink>
@@ -50,7 +50,7 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/settings/encryption"
+            to="/admin/settings/encryption"
           >
             property.category.security.encryption
           </IndexLink>
@@ -58,7 +58,7 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/settings/server_id"
+            to="/admin/settings/server_id"
           >
             property.category.server_id
           </IndexLink>
@@ -66,7 +66,7 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/metrics"
+            to="/admin/custom_metrics"
           >
             Custom Metrics
           </IndexLink>
@@ -103,7 +103,7 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/users"
+            to="/admin/users"
           >
             users.page
           </IndexLink>
@@ -111,7 +111,7 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/groups"
+            to="/admin/groups"
           >
             user_groups.page
           </IndexLink>
@@ -119,7 +119,7 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/roles/global"
+            to="/admin/permissions"
           >
             global_permissions.page
           </IndexLink>
@@ -127,7 +127,7 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/permission_templates"
+            to="/admin/permission_templates"
           >
             permission_templates
           </IndexLink>
@@ -162,7 +162,7 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/background_tasks"
+            to="/admin/background_tasks"
           >
             background_tasks.page
           </IndexLink>
@@ -189,7 +189,7 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/updatecenter"
+            to="/admin/update_center"
           >
             update_center.page
           </IndexLink>
@@ -197,7 +197,7 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/system"
+            to="/admin/system"
           >
             system_info.page
           </IndexLink>

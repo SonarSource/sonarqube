@@ -71,7 +71,7 @@ const init = function({ el, updateCenterActive }) {
   // Go
   Backbone.history.start({
     pushState: true,
-    root: window.baseUrl + '/updatecenter'
+    root: window.baseUrl + '/admin/update_center'
   });
 };
 

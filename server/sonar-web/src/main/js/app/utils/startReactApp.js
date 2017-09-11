@@ -118,19 +118,36 @@ const startReactApp = () => {
           }}
         />
 
-        <Redirect from="/projects_admin" to="/admin/projects_management" />
+        <Redirect from="/admin" to="/admin/settings" />
+        <Redirect from="/background_tasks" to="/admin/background_tasks" />
         <Redirect from="/component/index" to="/component" />
         <Redirect from="/component_issues" to="/project/issues" />
         <Redirect from="/dashboard/index" to="/dashboard" />
         <Redirect from="/governance" to="/portfolio" />
-        <Redirect from="/view" to="/portfolio" />
+        <Redirect from="/groups" to="/admin/groups" />
         <Redirect from="/extension/governance/governance" to="/portfolio" />
         <Redirect from="/extension/governance/portfolios" to="/portfolios" />
+        <Redirect from="/metrics" to="/admin/custom_metrics" />
+        <Redirect from="/permission_templates" to="/admin/permission_templates" />
         <Redirect from="/profiles/index" to="/profiles" />
+        <Redirect from="/projects_admin" to="/admin/projects_management" />
         <Redirect from="/quality_gates/index" to="/quality_gates" />
-        <Redirect from="/settings/index" to="/settings" />
+        <Redirect from="/roles/global" to="/admin/permissions" />
+        <Redirect from="/settings" to="/admin/settings" />
+        <Redirect from="/settings/encryption" to="/admin/settings/encryption" />
+        <Redirect from="/settings/index" to="/admin/settings" />
+        <Redirect from="/settings/licenses" to="/admin/settings/licenses" />
+        <Redirect from="/settings/server_id" to="/admin/settings/server_id" />
         <Redirect from="/sessions/login" to="/sessions/new" />
-        <Redirect from="/system/index" to="/system" />
+        <Redirect from="/system" to="/admin/system" />
+        <Redirect from="/system/index" to="/admin/system" />
+        <Redirect from="/view" to="/portfolio" />
+        <Redirect from="/users" to="/admin/users" />
+        <Redirect from="/updatecenter" to="/admin/update_center" />
+        <Redirect from="/updatecenter/available" to="/admin/update_center/available" />
+        <Redirect from="/updatecenter/installed" to="/admin/update_center/installed" />
+        <Redirect from="/updatecenter/system" to="/admin/update_center/system" />
+        <Redirect from="/updatecenter/updates" to="/admin/update_center/updates" />
 
         <Route path="markdown/help" component={MarkdownHelp} />
 
@@ -198,23 +215,21 @@ const startReactApp = () => {
                     {projectAdminRoutes}
                   </Route>
 
-                  <Route component={AdminContainer}>
+                  <Route component={AdminContainer} path="admin">
                     <Route
-                      path="admin/extension/:pluginKey/:extensionKey"
+                      path="extension/:pluginKey/:extensionKey"
                       component={GlobalAdminPageExtension}
                     />
                     <Route path="background_tasks" childRoutes={backgroundTasksRoutes} />
+                    <Route path="custom_metrics" childRoutes={metricsRoutes} />
                     <Route path="groups" childRoutes={groupsRoutes} />
-                    <Route path="metrics" childRoutes={metricsRoutes} />
                     <Route path="permission_templates" childRoutes={permissionTemplatesRoutes} />
-                    <Route
-                      path="admin/projects_management"
-                      childRoutes={projectsManagementRoutes}
-                    />
                     <Route path="roles/global" childRoutes={globalPermissionsRoutes} />
+                    <Route path="permissions" childRoutes={globalPermissionsRoutes} />
+                    <Route path="projects_management" childRoutes={projectsManagementRoutes} />
                     <Route path="settings" childRoutes={settingsRoutes} />
                     <Route path="system" childRoutes={systemRoutes} />
-                    <Route path="updatecenter" childRoutes={updateCenterRoutes} />
+                    <Route path="update_center" childRoutes={updateCenterRoutes} />
                     <Route path="users" childRoutes={usersRoutes} />
                   </Route>
                 </Route>
