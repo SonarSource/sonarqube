@@ -21,11 +21,14 @@ package org.sonar.process.command;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.process.ProcessId;
+import org.sonar.process.System2;
 
 import static java.util.Objects.requireNonNull;
 
@@ -34,12 +37,14 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
   private final ProcessId id;
   // program arguments
   private final Map<String, String> arguments = new LinkedHashMap<>();
-  private final Map<String, String> envVariables = new HashMap<>(System.getenv());
+  private final Map<String, String> envVariables;
+  private final Set<String> suppressedEnvVariables = new HashSet<>();
   private final File workDir;
 
-  protected AbstractCommand(ProcessId id, File workDir) {
+  protected AbstractCommand(ProcessId id, File workDir, System2 system2) {
     this.id = requireNonNull(id, "ProcessId can't be null");
     this.workDir = requireNonNull(workDir, "workDir can't be null");
+    this.envVariables = new HashMap<>(system2.getenv());
   }
 
   public ProcessId getProcessId() {
@@ -79,12 +84,21 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
     return envVariables;
   }
 
-  public T setEnvVariable(String key, @Nullable String value) {
-    if (value == null) {
-      envVariables.remove(key);
-    } else {
-      envVariables.put(key, value);
-    }
+  public Set<String> getSuppressedEnvVariables() {
+    return suppressedEnvVariables;
+  }
+
+  public T suppressEnvVariable(String key) {
+    requireNonNull(key, "key can't be null");
+    suppressedEnvVariables.add(key);
+    envVariables.remove(key);
+    return castThis();
+  }
+
+  public T setEnvVariable(String key, String value) {
+    envVariables.put(
+      requireNonNull(key, "key can't be null"),
+      requireNonNull(value, "value can't be null"));
     return castThis();
   }
 }

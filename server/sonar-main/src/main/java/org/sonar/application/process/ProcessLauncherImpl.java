@@ -158,7 +158,9 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     ProcessBuilder processBuilder = processBuilderSupplier.get();
     processBuilder.command(commands);
     processBuilder.directory(javaCommand.getWorkDir());
-    processBuilder.environment().putAll(javaCommand.getEnvVariables());
+    Map<String, String> environment = processBuilder.environment();
+    environment.putAll(javaCommand.getEnvVariables());
+    javaCommand.getSuppressedEnvVariables().forEach(environment::remove);
     processBuilder.redirectErrorStream(true);
     return processBuilder;
   }

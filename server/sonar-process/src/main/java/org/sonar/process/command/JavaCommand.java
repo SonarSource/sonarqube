@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.process.ProcessId;
+import org.sonar.process.System2;
 import org.sonar.process.jmvoptions.JvmOptions;
 
 public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaCommand<T>> {
@@ -33,7 +34,7 @@ public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaComma
   private final List<String> classpath = new ArrayList<>();
 
   public JavaCommand(ProcessId id, File workDir) {
-    super(id, workDir);
+    super(id, workDir, System2.INSTANCE);
   }
 
   public JvmOptions<T> getJvmOptions() {
@@ -72,6 +73,7 @@ public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaComma
       ", classpath=" + classpath +
       ", arguments=" + getArguments() +
       ", envVariables=" + getEnvVariables() +
+      ", suppressedEnvVariables=" + getSuppressedEnvVariables() +
       '}';
   }
 }

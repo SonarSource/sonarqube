@@ -21,14 +21,23 @@ package org.sonar.process.command;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 import org.sonar.process.ProcessId;
+import org.sonar.process.System2;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 public class AbstractCommandTest {
 
@@ -42,7 +51,7 @@ public class AbstractCommandTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("ProcessId can't be null");
 
-    new AbstractCommand<AbstractCommand>(null, temp.newFolder()) {
+    new AbstractCommand<AbstractCommand>(null, temp.newFolder(), System2.INSTANCE) {
 
     };
   }
@@ -52,7 +61,7 @@ public class AbstractCommandTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("workDir can't be null");
 
-    new AbstractCommand<AbstractCommand>(ProcessId.WEB_SERVER, null) {
+    new AbstractCommand<AbstractCommand>(ProcessId.WEB_SERVER, null, System2.INSTANCE) {
 
     };
   }
@@ -60,7 +69,7 @@ public class AbstractCommandTest {
   @Test
   public void test_command_with_complete_information() throws Exception {
     File workDir = temp.newFolder();
-    AbstractCommand command = new AbstractCommand(ProcessId.ELASTICSEARCH, workDir) {
+    AbstractCommand command = new AbstractCommand(ProcessId.ELASTICSEARCH, workDir, System2.INSTANCE) {
 
     };
 
@@ -77,6 +86,63 @@ public class AbstractCommandTest {
     // copy current env variables
     assertThat(command.getEnvVariables().get("JAVA_COMMAND_TEST")).isEqualTo("1000");
     assertThat(command.getEnvVariables().size()).isEqualTo(System.getenv().size() + 1);
+  }
+
+  @Test
+  public void setEnvVariable_fails_with_NPE_if_key_is_null() throws IOException {
+    File workDir = temp.newFolder();
+    AbstractCommand underTest = new AbstractCommand(ProcessId.ELASTICSEARCH, workDir, System2.INSTANCE) {
+
+    };
+
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("key can't be null");
+
+    underTest.setEnvVariable(null, randomAlphanumeric(30));
+  }
+
+  @Test
+  public void setEnvVariable_fails_with_NPE_if_value_is_null() throws IOException {
+    File workDir = temp.newFolder();
+    AbstractCommand underTest = new AbstractCommand(ProcessId.ELASTICSEARCH, workDir, System2.INSTANCE) {
+
+    };
+
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("value can't be null");
+
+    underTest.setEnvVariable(randomAlphanumeric(30), null);
+  }
+
+  @Test
+  public void constructor_puts_System_getEnv_into_map_of_env_variables() throws IOException {
+    File workDir = temp.newFolder();
+    System2 system2 = Mockito.mock(System2.class);
+    Map<String, String> env = IntStream.range(0, 1 + new Random().nextInt(99)).mapToObj(String::valueOf).collect(Collectors.toMap(i -> "key" + i, j -> "value" + j));
+    when(system2.getenv()).thenReturn(env);
+    AbstractCommand underTest = new AbstractCommand(ProcessId.ELASTICSEARCH, workDir, system2) {
+
+    };
+
+    assertThat(underTest.getEnvVariables()).isEqualTo(env);
+  }
+
+  @Test
+  public void suppressEnvVariable_remove_existing_env_variable_and_add_variable_to_set_of_suppressed_variables() throws IOException {
+    File workDir = temp.newFolder();
+    System2 system2 = Mockito.mock(System2.class);
+    Map<String, String> env = new HashMap<>();
+    String key1 = randomAlphanumeric(3);
+    env.put(key1, randomAlphanumeric(9));
+    when(system2.getenv()).thenReturn(env);
+    AbstractCommand underTest = new AbstractCommand(ProcessId.ELASTICSEARCH, workDir, system2) {
+
+    };
+
+    underTest.suppressEnvVariable(key1);
+
+    assertThat(underTest.getEnvVariables()).doesNotContainKey(key1);
+    assertThat(underTest.getSuppressedEnvVariables()).containsOnly(key1);
   }
 
 }

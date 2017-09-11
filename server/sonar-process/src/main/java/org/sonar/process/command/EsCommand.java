@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.sonar.process.ProcessId;
+import org.sonar.process.System2;
 import org.sonar.process.es.EsFileSystem;
 import org.sonar.process.es.EsYmlSettings;
 import org.sonar.process.jmvoptions.EsJvmOptions;
@@ -39,7 +40,7 @@ public class EsCommand extends AbstractCommand<EsCommand> {
   private EsYmlSettings esYmlSettings;
 
   public EsCommand(ProcessId id, File workDir) {
-    super(id, workDir);
+    super(id, workDir, System2.INSTANCE);
   }
 
   public EsFileSystem getFileSystem() {
