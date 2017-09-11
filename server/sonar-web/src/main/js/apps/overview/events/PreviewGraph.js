@@ -33,7 +33,6 @@ import {
 } from '../../projectActivity/utils';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
-import { translate } from '../../../helpers/l10n';
 /*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
 /*:: import type { History, Metric } from '../types'; */
 
@@ -190,17 +189,17 @@ export default class PreviewGraph extends React.PureComponent {
 
   render() {
     const { series } = this.state;
+    if (!hasHistoryDataValue(series)) {
+      return null;
+    }
+
     return (
       <div
         className="overview-analysis-graph big-spacer-bottom spacer-top"
         onClick={this.handleClick}
         tabIndex={0}
         role="link">
-        {hasHistoryDataValue(series)
-          ? this.renderTimeline()
-          : <div className="note text-center spacer-top big-spacer-bottom">
-              {translate('component_measures.no_history')}
-            </div>}
+        {this.renderTimeline()}
       </div>
     );
   }
