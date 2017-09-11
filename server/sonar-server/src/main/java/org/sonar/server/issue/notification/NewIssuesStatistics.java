@@ -50,10 +50,7 @@ public class NewIssuesStatistics {
   }
 
   private Stats getOrCreate(String assignee) {
-    if (assigneesStatistics.get(assignee) == null) {
-      assigneesStatistics.put(assignee, new Stats());
-    }
-    return assigneesStatistics.get(assignee);
+    return assigneesStatistics.computeIfAbsent(assignee, a -> new Stats());
   }
 
   public Map<String, Stats> assigneesStatistics() {

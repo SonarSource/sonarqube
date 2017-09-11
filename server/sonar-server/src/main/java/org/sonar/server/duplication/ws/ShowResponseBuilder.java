@@ -74,11 +74,7 @@ public class ShowResponseBuilder {
     ComponentDto componentDto = duplication.file();
     if (componentDto != null) {
       String componentKey = componentDto.getDbKey();
-      ref = refByComponentKey.get(componentKey);
-      if (ref == null) {
-        ref = Integer.toString(refByComponentKey.size() + 1);
-        refByComponentKey.put(componentKey, ref);
-      }
+      ref = refByComponentKey.computeIfAbsent(componentKey, k -> Integer.toString(refByComponentKey.size() + 1));
     }
 
     Block.Builder block = Block.newBuilder();

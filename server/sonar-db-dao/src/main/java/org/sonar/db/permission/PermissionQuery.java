@@ -183,7 +183,7 @@ public class PermissionQuery {
     }
 
     public PermissionQuery build() {
-      this.organizationUuid = requireNonNull(organizationUuid, "Organization UUID cannot be null");
+      requireNonNull(organizationUuid, "Organization UUID cannot be null");
       this.pageIndex = firstNonNull(pageIndex, DEFAULT_PAGE_INDEX);
       this.pageSize = firstNonNull(pageSize, DEFAULT_PAGE_SIZE);
       checkArgument(searchQuery == null || searchQuery.length() >= SEARCH_QUERY_MIN_LENGTH, "Search query should contains at least %s characters", SEARCH_QUERY_MIN_LENGTH);

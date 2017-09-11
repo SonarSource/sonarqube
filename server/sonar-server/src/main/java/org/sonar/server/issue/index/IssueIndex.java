@@ -543,7 +543,7 @@ public class IssueIndex {
       .offset(offsetInSeconds + "s")
       // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
       .extendedBounds(new ExtendedBounds(startTime, endTime - (offsetInSeconds*1_000L) -1L));
-    dateHistogram = addEffortAggregationIfNeeded(query, dateHistogram);
+    addEffortAggregationIfNeeded(query, dateHistogram);
     return Optional.of(dateHistogram);
   }
 
