@@ -19,17 +19,26 @@
  */
 package org.sonar.application.process;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.discovery.MasterNotDiscoveredException;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessId;
 import org.sonar.process.command.EsCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -90,10 +99,50 @@ public class EsProcessMonitorTest {
     assertThat(underTest.isOperational()).isFalse();
   }
 
+  @Test
+  public void isOperational_must_log_once_when_master_is_not_elected() throws Exception {
+    MemoryAppender<ILoggingEvent> memoryAppender = new MemoryAppender<>();
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.reset();
+    memoryAppender.setContext(lc);
+    memoryAppender.start();
+    lc.getLogger(EsProcessMonitor.class).addAppender(memoryAppender);
+
+    EsConnector esConnector = mock(EsConnector.class);
+    when(esConnector.getClusterHealthStatus(any()))
+      .thenThrow(new MasterNotDiscoveredException("Master not elected -test-"));
+
+    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), getEsCommand(), esConnector);
+    assertThat(underTest.isOperational()).isFalse();
+    assertThat(memoryAppender.events).isNotEmpty();
+    assertThat(memoryAppender.events)
+      .extracting(ILoggingEvent::getLevel, ILoggingEvent::getMessage)
+      .containsOnlyOnce(
+        tuple(Level.INFO, "Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?")
+      );
+
+    // Second call must not log another message
+    assertThat(underTest.isOperational()).isFalse();
+    assertThat(memoryAppender.events)
+      .extracting(ILoggingEvent::getLevel, ILoggingEvent::getMessage)
+      .containsOnlyOnce(
+        tuple(Level.INFO, "Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?")
+      );
+  }
+
   private EsCommand getEsCommand() throws IOException {
     Path tempDirectory = Files.createTempDirectory(getClass().getSimpleName());
     return new EsCommand(ProcessId.ELASTICSEARCH, tempDirectory.toFile())
       .setHost("localhost")
       .setPort(new Random().nextInt(40000));
+  }
+
+  private class MemoryAppender<E> extends AppenderBase<E> {
+    private final List<E> events = new ArrayList();
+
+    @Override
+    protected void append(E eventObject) {
+      events.add(eventObject);
+    }
   }
 }
