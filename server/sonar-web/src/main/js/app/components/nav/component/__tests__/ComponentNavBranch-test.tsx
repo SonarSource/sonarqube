@@ -112,3 +112,13 @@ it('renders no branch support popup', () => {
   click(wrapper.find('a'));
   expect(wrapper.find('BubblePopupHelper').prop('isOpen')).toBe(true);
 });
+
+it('renders nothing on SonarCloud without branch support', () => {
+  const branch: MainBranch = { isMain: true, name: 'master' };
+  const component = {} as Component;
+  const wrapper = shallow(
+    <ComponentNavBranch branches={[branch]} currentBranch={branch} project={component} />,
+    { context: { branchesEnabled: false, onSonarCloud: true } }
+  );
+  expect(wrapper.type()).toBeNull();
+});
