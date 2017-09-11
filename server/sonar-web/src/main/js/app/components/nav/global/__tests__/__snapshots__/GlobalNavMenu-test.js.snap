@@ -70,7 +70,7 @@ exports[`should show administration menu if the user has the rights 1`] = `
       className="is-admin"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/settings"
+      to="/admin"
     >
       layout.settings
     </Link>

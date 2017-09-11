@@ -111,9 +111,10 @@ export default class GlobalNavMenu extends React.PureComponent {
     if (!this.props.appState.canAdmin) {
       return null;
     }
+
     return (
       <li>
-        <Link to="/settings" className="is-admin" activeClassName="active">
+        <Link to="/admin" className="is-admin" activeClassName="active">
           {translate('layout.settings')}
         </Link>
       </li>
