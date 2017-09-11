@@ -46,7 +46,7 @@ import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsRequest;
@@ -59,7 +59,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.scanner.scan.BranchConfiguration.BranchType.SHORT;
+import static org.sonar.scanner.scan.branch.BranchType.SHORT;
 
 public class ReportPublisherTest {
 

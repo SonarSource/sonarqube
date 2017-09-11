@@ -44,7 +44,8 @@ import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchType;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
@@ -168,7 +169,7 @@ public class MetadataPublisherTest {
   public void write_long_lived_branch_info() throws Exception {
     String branchName = "long-lived";
     when(branches.branchName()).thenReturn(branchName);
-    when(branches.branchType()).thenReturn(BranchConfiguration.BranchType.LONG);
+    when(branches.branchType()).thenReturn(BranchType.LONG);
 
     File outputDir = temp.newFolder();
     underTest.publish(new ScannerReportWriter(outputDir));

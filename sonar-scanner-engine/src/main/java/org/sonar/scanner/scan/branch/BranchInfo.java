@@ -17,14 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
+package org.sonar.scanner.scan.branch;
 
-import java.util.List;
-import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
-public class DefaultBranchParamsValidator implements BranchParamsValidator {
-  @Override
-  public void validate(List<String> validationMessages, @Nullable String deprecatedBranchName, boolean incrementalMode) {
-    // no-op
+/**
+ * Container class for information about a branch.
+ */
+@Immutable
+public class BranchInfo {
+  private final String name;
+  private final BranchType type;
+  private final boolean isMain;
+
+  public BranchInfo(String name, BranchType type, boolean isMain) {
+    this.name = name;
+    this.type = type;
+    this.isMain = isMain;
+  }
+
+  public String name() {
+    return name;
+  }
+
+  public BranchType type() {
+    return type;
+  }
+
+  public boolean isMain() {
+    return isMain;
   }
 }

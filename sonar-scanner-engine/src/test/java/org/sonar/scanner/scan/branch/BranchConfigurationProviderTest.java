@@ -17,47 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+package org.sonar.scanner.scan.branch;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.scan.BranchConfiguration.BranchType;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BranchConfigurationProviderTest {
   private BranchConfigurationProvider provider = new BranchConfigurationProvider();
   private GlobalConfiguration globalConfiguration;
   private BranchConfigurationLoader loader;
   private BranchConfiguration config;
+  private ProjectBranches branches;
 
   @Before
   public void setUp() {
     globalConfiguration = mock(GlobalConfiguration.class);
     loader = mock(BranchConfigurationLoader.class);
     config = mock(BranchConfiguration.class);
+    branches = mock(ProjectBranches.class);
   }
 
   @Test
   public void should_cache_config() {
-    BranchConfiguration configuration = provider.provide(null, () -> "project", globalConfiguration);
-    assertThat(provider.provide(null, () -> "project", globalConfiguration)).isSameAs(configuration);
+    BranchConfiguration configuration = provider.provide(null, globalConfiguration, branches);
+    assertThat(provider.provide(null, globalConfiguration, branches)).isSameAs(configuration);
   }
 
   @Test
   public void should_use_loader() {
-    when(loader.load("key", globalConfiguration)).thenReturn(config);
-    BranchConfiguration branchConfig = provider.provide(loader, () -> "key", globalConfiguration);
+    when(loader.load(globalConfiguration, branches)).thenReturn(config);
+    BranchConfiguration branchConfig = provider.provide(loader, globalConfiguration, branches);
 
     assertThat(branchConfig).isSameAs(config);
   }
 
   @Test
   public void should_return_default_if_no_loader() {
-    BranchConfiguration configuration = provider.provide(null, () -> "project", globalConfiguration);
+    BranchConfiguration configuration = provider.provide(null, globalConfiguration, branches);
     assertThat(configuration.branchTarget()).isNull();
     assertThat(configuration.branchType()).isEqualTo(BranchType.LONG);
   }

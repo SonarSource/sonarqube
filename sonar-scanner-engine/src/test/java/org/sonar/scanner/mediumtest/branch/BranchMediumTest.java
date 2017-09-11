@@ -34,7 +34,7 @@ import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -80,7 +80,7 @@ public class BranchMediumTest {
     assertThat(result.getReportReader().readFileSource(fileId)).isNotNull();
 
     // file is skipped for short branches (no report, no coverage, no duplications)
-    TaskResult result2 = getResult(tester.setBranchType(BranchConfiguration.BranchType.SHORT));
+    TaskResult result2 = getResult(tester.setBranchType(BranchType.SHORT));
     assertThat(result2.getReportComponent(result2.inputFile(FILE_PATH).key())).isNull();
     assertThat(result2.getReportReader().readChangesets(fileId)).isNull();
     assertThat(result2.getReportReader().hasCoverage(fileId)).isFalse();
@@ -95,7 +95,7 @@ public class BranchMediumTest {
     TaskResult result = getResult(tester
       .setBranchName(branchName)
       .setBranchTarget(branchTarget)
-      .setBranchType(BranchConfiguration.BranchType.SHORT));
+      .setBranchType(BranchType.SHORT));
 
     ScannerReport.Metadata metadata = result.getReportReader().readMetadata();
     assertThat(metadata.getBranchName()).isEqualTo(branchName);

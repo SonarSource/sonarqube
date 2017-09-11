@@ -40,7 +40,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.index.DefaultIndex;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.sensor.DefaultSensorContext;
 
 public class DeprecatedSensorContext extends DefaultSensorContext implements SensorContext {

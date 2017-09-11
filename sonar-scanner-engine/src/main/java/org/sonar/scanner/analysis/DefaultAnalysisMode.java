@@ -27,7 +27,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.AbstractAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalProperties;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 @Immutable
 public class DefaultAnalysisMode extends AbstractAnalysisMode {

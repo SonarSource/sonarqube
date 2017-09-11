@@ -17,14 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
+package org.sonar.scanner.scan.branch;
 
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.concurrent.Immutable;
 
-@ScannerSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public interface BranchConfigurationLoader {
-  BranchConfiguration load(String projectKey, GlobalConfiguration settings);
+/**
+ * Container class for information about the branches of a project.
+ */
+@Immutable
+public class ProjectBranches {
+
+  private final Map<String, BranchInfo> branches;
+
+  public ProjectBranches(List<BranchInfo> branchInfos) {
+    branches = branchInfos.stream().collect(Collectors.toMap(BranchInfo::name, Function.identity()));
+  }
+
+  public BranchInfo get(String name) {
+    return branches.get(name);
+  }
+
+  public boolean isEmpty() {
+    return branches.isEmpty();
+  }
 }
