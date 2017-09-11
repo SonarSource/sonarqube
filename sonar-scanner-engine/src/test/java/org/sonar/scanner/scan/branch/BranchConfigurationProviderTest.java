@@ -44,21 +44,21 @@ public class BranchConfigurationProviderTest {
 
   @Test
   public void should_cache_config() {
-    BranchConfiguration configuration = provider.provide(null, () -> "project", globalConfiguration, branches);
-    assertThat(provider.provide(null, () -> "project", globalConfiguration, branches)).isSameAs(configuration);
+    BranchConfiguration configuration = provider.provide(null, globalConfiguration, branches);
+    assertThat(provider.provide(null, globalConfiguration, branches)).isSameAs(configuration);
   }
 
   @Test
   public void should_use_loader() {
-    when(loader.load("key", globalConfiguration, branches)).thenReturn(config);
-    BranchConfiguration branchConfig = provider.provide(loader, () -> "key", globalConfiguration, branches);
+    when(loader.load(globalConfiguration, branches)).thenReturn(config);
+    BranchConfiguration branchConfig = provider.provide(loader, globalConfiguration, branches);
 
     assertThat(branchConfig).isSameAs(config);
   }
 
   @Test
   public void should_return_default_if_no_loader() {
-    BranchConfiguration configuration = provider.provide(null, () -> "project", globalConfiguration, branches);
+    BranchConfiguration configuration = provider.provide(null, globalConfiguration, branches);
     assertThat(configuration.branchTarget()).isNull();
     assertThat(configuration.branchType()).isEqualTo(BranchType.LONG);
   }

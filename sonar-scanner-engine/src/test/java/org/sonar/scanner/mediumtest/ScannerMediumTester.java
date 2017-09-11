@@ -439,7 +439,7 @@ public class ScannerMediumTester extends ExternalResource {
 
   private class FakeBranchConfigurationLoader implements BranchConfigurationLoader {
     @Override
-    public BranchConfiguration load(String projectKey, GlobalConfiguration settings, ProjectBranches branches) {
+    public BranchConfiguration load(GlobalConfiguration settings, ProjectBranches branches) {
       return branchConfiguration;
     }
   }
