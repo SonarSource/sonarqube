@@ -54,6 +54,7 @@ public class IndexCreatorTest {
   private MetadataIndexDefinition metadataIndexDefinition = new MetadataIndexDefinition(new MapSettings().asConfig());
   private MetadataIndex metadataIndex = new MetadataIndex(es.client());
   private TestEsDbCompatibility esDbCompatibility = new TestEsDbCompatibility();
+  private MapSettings settings = new MapSettings();
 
   @Test
   public void create_index() throws Exception {
@@ -150,6 +151,28 @@ public class IndexCreatorTest {
       .contains("Create type metadatas/metadata");
   }
 
+  @Test
+  public void do_not_check_db_compatibility_if_disabled_by_configuration() {
+    settings.setProperty("sonar.search.disableDropOnDbMigration", true);
+
+    // initial startup, automatic drop may be ignored because indices do not exist
+    startNewCreator(new FakeIndexDefinition());
+    logTester.clear();
+
+    // second startup, automatic drop can be disabled only by configuration
+
+    // supposed to be ignored
+    esDbCompatibility.setHasSameDbVendor(false);
+    esDbCompatibility.setHasSameDbSchemaVersion(false);
+
+    startNewCreator(new FakeIndexDefinition());
+
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .doesNotContain(LOG_DB_VENDOR_CHANGED)
+      .doesNotContain(LOG_DB_SCHEMA_CHANGED);
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Automatic drop of search indices in turned off (see property sonar.search.disableDropOnDbMigration)");
+  }
+
   private void testDeleteOnDbChange(String expectedLog, Consumer<TestEsDbCompatibility> afterFirstStart) {
     startNewCreator(new FakeIndexDefinition());
     assertThat(logTester.logs(LoggerLevel.INFO))
@@ -190,7 +213,7 @@ public class IndexCreatorTest {
   private IndexCreator startNewCreator(IndexDefinition... definitions) {
     IndexDefinitions defs = new IndexDefinitions(definitions, new MapSettings().asConfig());
     defs.start();
-    IndexCreator creator = new IndexCreator(es.client(), defs, metadataIndexDefinition, metadataIndex, esDbCompatibility);
+    IndexCreator creator = new IndexCreator(es.client(), defs, metadataIndexDefinition, metadataIndex, esDbCompatibility, settings.asConfig());
     creator.start();
     return creator;
   }

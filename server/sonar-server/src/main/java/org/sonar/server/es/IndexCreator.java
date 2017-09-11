@@ -29,6 +29,7 @@ import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.picocontainer.Startable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -44,20 +45,23 @@ import org.sonar.server.es.metadata.MetadataIndexDefinition;
 public class IndexCreator implements Startable {
 
   private static final Logger LOGGER = Loggers.get(IndexCreator.class);
+  private static final String PROPERY_DISABLE_CHECK = "sonar.search.disableDropOnDbMigration";
 
   private final MetadataIndexDefinition metadataIndexDefinition;
   private final MetadataIndex metadataIndex;
   private final EsClient client;
   private final IndexDefinitions definitions;
   private final EsDbCompatibility esDbCompatibility;
+  private final Configuration configuration;
 
   public IndexCreator(EsClient client, IndexDefinitions definitions, MetadataIndexDefinition metadataIndexDefinition,
-    MetadataIndex metadataIndex, EsDbCompatibility esDbCompatibility) {
+    MetadataIndex metadataIndex, EsDbCompatibility esDbCompatibility, Configuration configuration) {
     this.client = client;
     this.definitions = definitions;
     this.metadataIndexDefinition = metadataIndexDefinition;
     this.metadataIndex = metadataIndex;
     this.esDbCompatibility = esDbCompatibility;
+    this.configuration = configuration;
   }
 
   @Override
@@ -137,24 +141,29 @@ public class IndexCreator implements Startable {
   }
 
   private void checkDbCompatibility() {
-    boolean delete = false;
-    if (loadExistingIndices().isEmpty()) {
-      // no need to verify compatibility when indices don't exist yet.
-      // That avoids having useless logs during the first startup.
-    } else if (!esDbCompatibility.hasSameDbVendor()) {
-      LOGGER.info("Delete Elasticsearch indices (DB vendor changed)");
-      delete = true;
-    } else if (!esDbCompatibility.hasSameDbSchemaVersion()) {
-      LOGGER.info("Delete Elasticsearch indices (DB schema changed)");
-      delete = true;
+    boolean disabledCheck = configuration.getBoolean(PROPERY_DISABLE_CHECK).orElse(false);
+    if (disabledCheck) {
+      LOGGER.warn("Automatic drop of search indices in turned off (see property " + PROPERY_DISABLE_CHECK + ")");
     }
-    if (delete) {
-      loadExistingIndices().forEach(this::deleteIndex);
+
+    List<String> existingIndices = loadExistingIndicesExceptMetadata();
+    if (!disabledCheck && !existingIndices.isEmpty()) {
+      boolean delete = false;
+      if (!esDbCompatibility.hasSameDbVendor()) {
+        LOGGER.info("Delete Elasticsearch indices (DB vendor changed)");
+        delete = true;
+      } else if (!esDbCompatibility.hasSameDbSchemaVersion()) {
+        LOGGER.info("Delete Elasticsearch indices (DB schema changed)");
+        delete = true;
+      }
+      if (delete) {
+        existingIndices.forEach(this::deleteIndex);
+      }
     }
     esDbCompatibility.markAsCompatible();
   }
 
-  private List<String> loadExistingIndices() {
+  private List<String> loadExistingIndicesExceptMetadata() {
     return Arrays.stream(client.nativeClient().admin().indices().prepareGetIndex().get().getIndices())
       .filter(index -> !MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex().equals(index))
       .collect(Collectors.toList());
