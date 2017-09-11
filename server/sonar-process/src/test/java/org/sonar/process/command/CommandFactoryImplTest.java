@@ -19,23 +19,35 @@
  */
 package org.sonar.process.command;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.process.System2;
+import org.sonar.process.logging.LogbackHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 public class CommandFactoryImplTest {
+
+  private static final String MEMORY_APPENDER_NAME = "MEMORY_APPENDER";
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -44,12 +56,48 @@ public class CommandFactoryImplTest {
   private File homeDir;
   private File tempDir;
   private File logsDir;
+  private ListAppender listAppender;
 
   @Before
   public void setUp() throws Exception {
     homeDir = temp.newFolder();
     tempDir = temp.newFolder();
     logsDir = temp.newFolder();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    if (listAppender != null) {
+      listAppender.stop();
+      new LogbackHelper().getRootContext().getLogger(CommandFactoryImpl.class)
+          .detachAppender(listAppender);
+    }
+  }
+
+  @Test
+  public void constructor_logs_no_warning_if_env_variable_JAVA_TOOL_OPTIONS_is_not_set() {
+    System2 system2 = Mockito.mock(System2.class);
+    when(system2.getenv(anyString())).thenReturn(null);
+    attachMemoryAppenderToLoggerOf(CommandFactoryImpl.class);
+
+    new CommandFactoryImpl(new Props(new Properties()), tempDir, system2);
+
+    assertThat(listAppender.getLogs()).isEmpty();
+  }
+
+  @Test
+  public void constructor_logs_warning_if_env_variable_JAVA_TOOL_OPTIONS_is_set() {
+    System2 system2 = Mockito.mock(System2.class);
+    when(system2.getenv("JAVA_TOOL_OPTIONS")).thenReturn("sds");
+    attachMemoryAppenderToLoggerOf(CommandFactoryImpl.class);
+
+    new CommandFactoryImpl(new Props(new Properties()), tempDir, system2);
+
+    assertThat(listAppender.getLogs())
+      .extracting(ILoggingEvent::getMessage)
+      .containsOnly(
+        "JAVA_TOOL_OPTIONS is defined but will be ignored. " +
+          "Use properties sonar.*.javaOpts and/or sonar.*.javaAdditionalOpts in sonar.properties to change SQ JVM processes options");
   }
 
   @Test
@@ -86,6 +134,8 @@ public class CommandFactoryImplTest {
 
     assertThat(esCommand.getLog4j2Properties())
       .contains(entry("appender.file_es.fileName", new File(logsDir, "es.log").getAbsolutePath()));
+
+    assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS");
   }
 
   @Test
@@ -132,6 +182,8 @@ public class CommandFactoryImplTest {
       // default settings
       .contains(entry("sonar.web.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"))
       .contains(entry("sonar.cluster.enabled", "false"));
+
+    assertThat(command.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS");
   }
 
   @Test
@@ -153,6 +205,8 @@ public class CommandFactoryImplTest {
       // default settings
       .contains(entry("sonar.web.javaOpts", "-Xmx10G"))
       .contains(entry("sonar.cluster.enabled", "false"));
+
+    assertThat(command.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS");
   }
 
   @Test
@@ -181,6 +235,31 @@ public class CommandFactoryImplTest {
 
     Props props = new Props(p);
     ProcessProperties.completeDefaults(props);
-    return new CommandFactoryImpl(props, tempDir);
+    return new CommandFactoryImpl(props, tempDir, System2.INSTANCE);
+  }
+
+  private <T> void attachMemoryAppenderToLoggerOf(Class<T> loggerClass) {
+    this.listAppender = new ListAppender();
+    new LogbackHelper().getRootContext().getLogger(loggerClass)
+      .addAppender(listAppender);
+    listAppender.start();
+  }
+
+  private static final class ListAppender extends AppenderBase<ILoggingEvent> {
+    private final List<ILoggingEvent> logs = new ArrayList<>();
+
+    @Override
+    public String getName() {
+      return MEMORY_APPENDER_NAME;
+    }
+
+    @Override
+    protected void append(ILoggingEvent eventObject) {
+      logs.add(eventObject);
+    }
+
+    public List<ILoggingEvent> getLogs() {
+      return logs;
+    }
   }
 }

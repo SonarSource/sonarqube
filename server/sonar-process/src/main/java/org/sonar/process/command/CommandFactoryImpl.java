@@ -22,9 +22,11 @@ package org.sonar.process.command;
 import java.io.File;
 import java.util.Map;
 import java.util.Optional;
+import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.process.System2;
 import org.sonar.process.es.EsFileSystem;
 import org.sonar.process.es.EsLogging;
 import org.sonar.process.es.EsSettings;
@@ -40,6 +42,7 @@ import static org.sonar.process.ProcessProperties.HTTP_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.HTTP_PROXY_PORT;
 
 public class CommandFactoryImpl implements CommandFactory {
+  private static final String ENV_VAR_JAVA_TOOL_OPTIONS = "JAVA_TOOL_OPTIONS";
   /**
    * Properties about proxy that must be set as system properties
    */
@@ -56,9 +59,15 @@ public class CommandFactoryImpl implements CommandFactory {
   private final Props props;
   private final File tempDir;
 
-  public CommandFactoryImpl(Props props, File tempDir) {
+  public CommandFactoryImpl(Props props, File tempDir, System2 system2) {
     this.props = props;
     this.tempDir = tempDir;
+    String javaToolOptions = system2.getenv(ENV_VAR_JAVA_TOOL_OPTIONS);
+    if (javaToolOptions != null && !javaToolOptions.trim().isEmpty()) {
+      LoggerFactory.getLogger(CommandFactoryImpl.class)
+        .warn("JAVA_TOOL_OPTIONS is defined but will be ignored. " +
+          "Use properties sonar.*.javaOpts and/or sonar.*.javaAdditionalOpts in sonar.properties to change SQ JVM processes options");
+    }
   }
 
   @Override
@@ -76,13 +85,14 @@ public class CommandFactoryImpl implements CommandFactory {
       .setClusterName(settingsMap.get("cluster.name"))
       .setHost(settingsMap.get("network.host"))
       .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")))
-      .addEsOption("-Epath.conf="+esFileSystem.getConfDirectory().getAbsolutePath())
+      .addEsOption("-Epath.conf=" + esFileSystem.getConfDirectory().getAbsolutePath())
       .setEsJvmOptions(new EsJvmOptions()
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
       .setEsYmlSettings(new EsYmlSettings(settingsMap))
       .setEnvVariable("ES_JVM_OPTIONS", esFileSystem.getJvmOptions().getAbsolutePath())
-      .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"));
+      .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
+      .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
   }
 
   @Override
@@ -107,6 +117,7 @@ public class CommandFactoryImpl implements CommandFactory {
     if (driverPath != null) {
       command.addClasspath(driverPath);
     }
+    command.suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
     return command;
   }
 
@@ -130,6 +141,7 @@ public class CommandFactoryImpl implements CommandFactory {
     if (driverPath != null) {
       command.addClasspath(driverPath);
     }
+    command.suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
     return command;
   }
 
