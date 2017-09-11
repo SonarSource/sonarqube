@@ -53,7 +53,8 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   };
 
   static contextTypes = {
-    branchesEnabled: PropTypes.bool.isRequired
+    branchesEnabled: PropTypes.bool.isRequired,
+    onSonarCloud: PropTypes.bool
   };
 
   componentDidMount() {
@@ -171,6 +172,10 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
 
   render() {
     const { branches, currentBranch } = this.props;
+
+    if (this.context.onSonarCloud && !this.context.branchesEnabled) {
+      return null;
+    }
 
     if (!this.context.branchesEnabled) {
       return (

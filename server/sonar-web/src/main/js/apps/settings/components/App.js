@@ -20,6 +20,8 @@
 // @flow
 import React from 'react';
 import Helmet from 'react-helmet';
+import { Link } from 'react-router';
+import { FormattedMessage } from 'react-intl';
 import PageHeader from './PageHeader';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
 import AllCategoriesList from './AllCategoriesList';
@@ -87,7 +89,25 @@ export default class App extends React.PureComponent {
       <div id="settings-page" className="page page-limited">
         <Helmet title={translate('settings.page')} />
 
-        {branchName == null && <PageHeader branch={branchName} component={this.props.component} />}
+        {branchName
+          ? <div className="alert alert-info">
+              <FormattedMessage
+                defaultMessage={translate('branches.settings_hint')}
+                id="branches.settings_hint"
+                values={{
+                  link: (
+                    <Link
+                      to={{
+                        pathname: '/project/branches',
+                        query: { id: this.props.component && this.props.component.key }
+                      }}>
+                      {translate('branches.settings_hint_tab')}
+                    </Link>
+                  )
+                }}
+              />
+            </div>
+          : <PageHeader branch={branchName} component={this.props.component} />}
         <div className="side-tabs-layout settings-layout">
           {branchName == null &&
             <div className="side-tabs-side">

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import IncrementalBadge from './IncrementalBadge';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import { Branch, Component, ComponentConfiguration } from '../../../types';
@@ -56,7 +55,7 @@ export default function ComponentNavMeta(props: Props) {
         key="isInProgress"
         overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
         mouseLeaveDelay={2}>
-        <li className={classNames({ 'navbar-context-meta-branch': shortBranch })}>
+        <li>
           <i className="spinner" style={{ marginTop: '-1px' }} />{' '}
           <span className="text-info">{translate('background_task.status.IN_PROGRESS')}</span>
         </li>
@@ -71,7 +70,7 @@ export default function ComponentNavMeta(props: Props) {
         key="isPending"
         overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
         mouseLeaveDelay={2}>
-        <li className={classNames({ 'navbar-context-meta-branch': shortBranch })}>
+        <li>
           <PendingIcon /> <span>{translate('background_task.status.PENDING')}</span>
         </li>
       </Tooltip>
@@ -85,7 +84,7 @@ export default function ComponentNavMeta(props: Props) {
         key="isFailed"
         overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
         mouseLeaveDelay={2}>
-        <li className={classNames({ 'navbar-context-meta-branch': shortBranch })}>
+        <li>
           <span className="badge badge-danger">
             {translate('background_task.status.FAILED')}
           </span>
@@ -94,7 +93,7 @@ export default function ComponentNavMeta(props: Props) {
     );
   }
 
-  if (props.component.analysisDate && !shortBranch) {
+  if (props.component.analysisDate) {
     metaList.push(
       <li key="analysisDate">
         <DateTimeFormatter date={props.component.analysisDate} />
@@ -112,16 +111,8 @@ export default function ComponentNavMeta(props: Props) {
 
   if (props.incremental) {
     metaList.push(
-      <li key="incremental" className={classNames({ 'navbar-context-meta-branch': shortBranch })}>
+      <li key="incremental">
         <IncrementalBadge />
-      </li>
-    );
-  }
-
-  if (shortBranch) {
-    metaList.push(
-      <li className="navbar-context-meta-branch" key="branch-status">
-        <BranchStatus branch={props.branch!} />
       </li>
     );
   }
@@ -131,6 +122,10 @@ export default function ComponentNavMeta(props: Props) {
       <ul className="list-inline">
         {metaList}
       </ul>
+      {shortBranch &&
+        <div className="navbar-context-meta-branch">
+          <BranchStatus branch={props.branch!} />
+        </div>}
     </div>
   );
 }
