@@ -44,7 +44,7 @@ export default function EmptyOverview({ component } /*: Props */) {
         <Link
           className="text-danger"
           to={{ pathname: '/project/deletion', query: { id: component.key } }}>
-          {translate('provisioning.no_analysis.delete_it')}
+          {translate('provisioning.no_analysis.delete_project')}
         </Link>
         {tail}
       </div>
