@@ -17,20 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, RouteComponent, IndexRouteProps } from 'react-router';
+package org.sonar.server.platform.monitoring;
 
-const routes = [
-  {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/App').then(i => callback(null, { component: i.default }));
-    }
-  },
-  {
-    path: 'old',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./main').then(i => callback(null, (i as any).default));
-    }
+import org.junit.Test;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
+
+public class SystemSectionTest {
+
+  private SystemSection underTest = new SystemSection();
+
+  @Test
+  public void name() {
+    assertThat(underTest.toProtobuf().getName()).isEqualTo("System");
   }
-];
 
-export default routes;
+  @Test
+  public void system_properties() {
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
+
+    assertThat(attribute(section, "System Date").getStringValue()).isNotEmpty();
+    assertThat(attribute(section, "Processors").getLongValue()).isGreaterThan(0);
+  }
+}

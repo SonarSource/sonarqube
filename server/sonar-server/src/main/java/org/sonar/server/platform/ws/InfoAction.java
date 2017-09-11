@@ -19,15 +19,15 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.util.Map;
+import java.util.Arrays;
 import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.ce.http.CeHttpClient;
+import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.platform.monitoring.Monitor;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.user.UserSession;
 
@@ -40,14 +40,14 @@ public class InfoAction implements SystemWsAction {
 
   private final UserSession userSession;
   private final CeHttpClient ceHttpClient;
-  private final Monitor[] monitors;
+  private final SystemInfoSection[] systemInfoSections;
   private final TelemetryDataLoader statistics;
 
-  public InfoAction(UserSession userSession, CeHttpClient ceHttpClient, TelemetryDataLoader statistics, Monitor... monitors) {
+  public InfoAction(UserSession userSession, CeHttpClient ceHttpClient, TelemetryDataLoader statistics, SystemInfoSection... systemInfoSections) {
     this.userSession = userSession;
     this.ceHttpClient = ceHttpClient;
     this.statistics = statistics;
-    this.monitors = monitors;
+    this.systemInfoSections = systemInfoSections;
   }
 
   @Override
@@ -66,32 +66,19 @@ public class InfoAction implements SystemWsAction {
   public void handle(Request request, Response response) {
     userSession.checkIsSystemAdministrator();
 
-    JsonWriter json = response.newJsonWriter();
-    writeJson(json);
-    json.close();
+    try (JsonWriter json = response.newJsonWriter()) {
+      writeJson(json);
+    }
   }
 
   private void writeJson(JsonWriter json) {
     json.beginObject();
-    for (Monitor monitor : monitors) {
-      Map<String, Object> attributes = monitor.attributes();
-      json.name(monitor.name());
-      json.beginObject();
-      for (Map.Entry<String, Object> attribute : attributes.entrySet()) {
-        json.name(attribute.getKey()).valueObject(attribute.getValue());
-      }
-      json.endObject();
-    }
+    Arrays.stream(systemInfoSections)
+      .map(SystemInfoSection::toProtobuf)
+      .forEach(section -> sectionToJson(section, json));
     Optional<ProtobufSystemInfo.SystemInfo> ceSysInfo = ceHttpClient.retrieveSystemInfo();
     if (ceSysInfo.isPresent()) {
-      for (ProtobufSystemInfo.Section section : ceSysInfo.get().getSectionsList()) {
-        json.name(section.getName());
-        json.beginObject();
-        for (ProtobufSystemInfo.Attribute attribute : section.getAttributesList()) {
-          writeAttribute(json, attribute);
-        }
-        json.endObject();
-      }
+      ceSysInfo.get().getSectionsList().forEach(section -> sectionToJson(section, json));
     }
     writeStatistics(json);
     json.endObject();
@@ -102,19 +89,28 @@ public class InfoAction implements SystemWsAction {
     writeTelemetryData(json, statistics.load());
   }
 
-  private static void writeAttribute(JsonWriter json, ProtobufSystemInfo.Attribute attribute) {
+  private static void sectionToJson(ProtobufSystemInfo.Section section, JsonWriter json) {
+    json.name(section.getName());
+    json.beginObject();
+    for (ProtobufSystemInfo.Attribute attribute : section.getAttributesList()) {
+      attributeToJson(json, attribute);
+    }
+    json.endObject();
+  }
+
+  private static void attributeToJson(JsonWriter json, ProtobufSystemInfo.Attribute attribute) {
     switch (attribute.getValueCase()) {
       case BOOLEAN_VALUE:
-        json.name(attribute.getKey()).valueObject(attribute.getBooleanValue());
+        json.prop(attribute.getKey(), attribute.getBooleanValue());
         break;
       case LONG_VALUE:
-        json.name(attribute.getKey()).valueObject(attribute.getLongValue());
+        json.prop(attribute.getKey(), attribute.getLongValue());
         break;
       case DOUBLE_VALUE:
-        json.name(attribute.getKey()).valueObject(attribute.getDoubleValue());
+        json.prop(attribute.getKey(), attribute.getDoubleValue());
         break;
       case STRING_VALUE:
-        json.name(attribute.getKey()).valueObject(attribute.getStringValue());
+        json.prop(attribute.getKey(), attribute.getStringValue());
         break;
       case VALUE_NOT_SET:
         break;

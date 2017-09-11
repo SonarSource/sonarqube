@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    system_info.page
+  </h1>
+  <PageActions
+    canDownloadLogs={false}
+    canRestart={false}
+    cluster={true}
+    logLevel="INFO"
+  />
+</header>
+`;
+
+exports[`should show a loading spinner and no actions 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    system_info.page
+  </h1>
+  <div
+    className="page-actions"
+  >
+    <i
+      className="spinner"
+    />
+  </div>
+</header>
+`;
