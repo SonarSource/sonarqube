@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.Plugin;
@@ -94,6 +95,7 @@ public class GlobalContainer extends ComponentContainer {
       UriReader.class,
       new FileCacheProvider(),
       System2.INSTANCE,
+      Clock.systemDefaultZone(),
       new MetricsRepositoryProvider(),
       UuidFactoryImpl.INSTANCE);
     addIfMissing(ScannerPluginInstaller.class, PluginInstaller.class);

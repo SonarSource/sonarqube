@@ -20,6 +20,7 @@
 package org.sonar.api.utils;
 
 import java.net.URL;
+import java.time.Clock;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
@@ -72,7 +73,9 @@ public class System2 {
 
   /**
    * Shortcut for {@link System#currentTimeMillis()}
+   * @deprecated since 6.6 use {@link Clock} that is available in pico.
    */
+  @Deprecated
   public long now() {
     return System.currentTimeMillis();
   }

@@ -19,29 +19,62 @@
  */
 package org.sonar.scanner;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ProjectAnalysisInfoTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void testSimpleDateTime() {
+    MapSettings settings = new MapSettings();
+    settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01T12:13:14+0200");
+    settings.appendProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "version");
+    Clock clock = mock(Clock.class);
+    ProjectAnalysisInfo info = new ProjectAnalysisInfo(settings.asConfig(), clock);
+    info.start();
+    OffsetDateTime date = OffsetDateTime.of(2017, 1, 1, 12, 13, 14, 0, ZoneOffset.ofHours(2));
+
+    assertThat(info.analysisDate()).isEqualTo(Date.from(date.toInstant()));
+    assertThat(info.analysisVersion()).isEqualTo("version");
+  }
+
   @Test
   public void testSimpleDate() {
     MapSettings settings = new MapSettings();
     settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
-    settings.appendProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "version");
-    System2 system = mock(System2.class);
-    ProjectAnalysisInfo info = new ProjectAnalysisInfo(settings.asConfig(), system);
+    Clock clock = mock(Clock.class);
+    ProjectAnalysisInfo info = new ProjectAnalysisInfo(settings.asConfig(), clock);
     info.start();
     LocalDate date = LocalDate.of(2017, 1, 1);
 
     assertThat(info.analysisDate()).isEqualTo(Date.from(date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
-    assertThat(info.analysisVersion()).isEqualTo("version");
+  }
+
+  @Test
+  public void emptyDate() {
+    MapSettings settings = new MapSettings();
+    settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "");
+    settings.appendProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "version");
+    Clock clock = mock(Clock.class);
+    ProjectAnalysisInfo info = new ProjectAnalysisInfo(settings.asConfig(), clock);
+
+    thrown.expect(RuntimeException.class);
+
+    info.start();
   }
 }

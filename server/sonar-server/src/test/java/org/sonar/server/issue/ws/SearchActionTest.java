@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import java.time.Clock;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -95,10 +96,11 @@ public class SearchActionTest {
   private DbSession session = db.getSession();
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
-  private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, System2.INSTANCE, userSessionRule);
+  private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSessionRule);
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
-  private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSessionRule, dbClient, new ActionFinder(userSessionRule), new TransitionService(userSessionRule, issueWorkflow));
+  private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSessionRule, dbClient, new ActionFinder(userSessionRule),
+    new TransitionService(userSessionRule, issueWorkflow));
   private Languages languages = new Languages();
   private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), new WsResponseCommonFormat(languages), languages, new AvatarResolverImpl());
   private WsActionTester ws = new WsActionTester(new SearchAction(userSessionRule, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat));

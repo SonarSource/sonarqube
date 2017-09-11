@@ -20,6 +20,7 @@
 package org.sonar.scanner.rule;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.Before;
@@ -28,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.DateUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,7 +81,7 @@ public class ActiveRulesProviderTest {
     List<QualityProfile> profiles = new LinkedList<>();
 
     for (String k : keys) {
-      QualityProfile p = QualityProfile.newBuilder().setKey(k).setLanguage(k).build();
+      QualityProfile p = QualityProfile.newBuilder().setKey(k).setLanguage(k).setRulesUpdatedAt(DateUtils.formatDateTime(new Date())).build();
       profiles.add(p);
     }
 

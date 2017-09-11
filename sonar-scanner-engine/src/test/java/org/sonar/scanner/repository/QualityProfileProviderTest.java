@@ -21,6 +21,7 @@ package org.sonar.scanner.repository;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,6 +29,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.bootstrap.ProjectKey;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.analysis.AnalysisProperties;
@@ -69,7 +71,7 @@ public class QualityProfileProviderTest {
     when(projectRepo.exists()).thenReturn(true);
 
     response = new ArrayList<>(1);
-    response.add(QualityProfile.newBuilder().setKey("profile").setName("profile").setLanguage("lang").build());
+    response.add(QualityProfile.newBuilder().setKey("profile").setName("profile").setLanguage("lang").setRulesUpdatedAt(DateUtils.formatDateTime(new Date())).build());
   }
 
   @Test

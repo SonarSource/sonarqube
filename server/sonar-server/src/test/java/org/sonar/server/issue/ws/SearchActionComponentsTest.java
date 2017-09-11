@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Date;
 import org.junit.Rule;
@@ -93,7 +94,7 @@ public class SearchActionComponentsTest {
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new AuthorizationTypeSupport(userSession));
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
-  private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, System2.INSTANCE, userSession);
+  private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
   private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new ActionFinder(userSession),

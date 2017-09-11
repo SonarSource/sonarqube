@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.SonarException;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -132,7 +131,7 @@ public class RubyUtilsTest {
 
   @Test
   public void toDate_bad_format() {
-    throwable.expect(SonarException.class);
+    throwable.expect(RuntimeException.class);
 
     RubyUtils.toDate("01/02/2013");
   }

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.issue;
 
+import java.time.Clock;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 import org.junit.Rule;
@@ -27,7 +29,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -59,8 +60,8 @@ public class IssueQueryFactoryTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private System2 system = mock(System2.class);
-  private IssueQueryFactory underTest = new IssueQueryFactory(db.getDbClient(), system, userSession);
+  private Clock clock = mock(Clock.class);
+  private IssueQueryFactory underTest = new IssueQueryFactory(db.getDbClient(), clock, userSession);
 
   @Test
   public void create_from_parameters() {
@@ -124,6 +125,26 @@ public class IssueQueryFactoryTest {
 
     assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDate("2013-04-16"));
     assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDate("2013-04-18"));
+  }
+
+  @Test
+  public void creation_date_support_localdate() {
+    SearchWsRequest request = new SearchWsRequest()
+      .setCreatedAt("2013-04-16");
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.createdAt()).isEqualTo(DateUtils.parseDate("2013-04-16"));
+  }
+
+  @Test
+  public void creation_date_support_zoneddatetime() {
+    SearchWsRequest request = new SearchWsRequest()
+      .setCreatedAt("2013-04-16T09:08:24+0200");
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.createdAt()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
   }
 
   @Test
@@ -403,8 +424,8 @@ public class IssueQueryFactoryTest {
       .setComponentKeys(singletonList(file.getKey()))
       .setBranch(branch.getBranch())
       .setOnComponentOnly(true)))
-      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.componentUuids()), IssueQuery::isMainBranch)
-      .containsOnly(branch.uuid(), singletonList(file.uuid()), false);
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.componentUuids()), IssueQuery::isMainBranch)
+        .containsOnly(branch.uuid(), singletonList(file.uuid()), false);
   }
 
   @Test
@@ -415,13 +436,13 @@ public class IssueQueryFactoryTest {
     assertThat(underTest.create(new SearchWsRequest()
       .setProjectKeys(singletonList(project.getKey()))
       .setBranch("master")))
-      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-      .containsOnly(project.uuid(), singletonList(project.uuid()), true);
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+        .containsOnly(project.uuid(), singletonList(project.uuid()), true);
     assertThat(underTest.create(new SearchWsRequest()
       .setComponentKeys(singletonList(project.getKey()))
       .setBranch("master")))
-      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-      .containsOnly(project.uuid(), singletonList(project.uuid()), true);
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+        .containsOnly(project.uuid(), singletonList(project.uuid()), true);
   }
 
   @Test
@@ -441,7 +462,8 @@ public class IssueQueryFactoryTest {
   @Test
   public void set_created_after_from_created_since() {
     Date now = DateUtils.parseDateTime("2013-07-25T07:35:00+0100");
-    when(system.now()).thenReturn(now.getTime());
+    when(clock.instant()).thenReturn(now.toInstant());
+    when(clock.getZone()).thenReturn(ZoneOffset.UTC);
     SearchWsRequest request = new SearchWsRequest()
       .setCreatedInLast("1y2m3w4d");
     assertThat(underTest.create(request).createdAfter()).isEqualTo(DateUtils.parseDateTime("2012-04-30T07:35:00+0100"));

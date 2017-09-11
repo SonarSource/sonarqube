@@ -22,16 +22,13 @@ package org.sonar.api.utils;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Fail.fail;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -52,13 +49,13 @@ public class DateUtilsTest {
 
   @Test
   public void parseDate_not_valid_format() {
-    expectedException.expect(SonarException.class);
+    expectedException.expect(MessageException.class);
     DateUtils.parseDate("2010/05/18");
   }
 
   @Test
   public void parseDate_not_lenient() {
-    expectedException.expect(SonarException.class);
+    expectedException.expect(MessageException.class);
     DateUtils.parseDate("2010-13-18");
   }
 
@@ -71,7 +68,7 @@ public class DateUtilsTest {
 
   @Test
   public void parseDate_fail_if_additional_characters() {
-    expectedException.expect(SonarException.class);
+    expectedException.expect(MessageException.class);
     DateUtils.parseDate("1986-12-04foo");
   }
 
@@ -83,13 +80,13 @@ public class DateUtilsTest {
 
   @Test
   public void parseDateTime_not_valid_format() {
-    expectedException.expect(SonarException.class);
+    expectedException.expect(MessageException.class);
     DateUtils.parseDate("2010/05/18 10:55");
   }
 
   @Test
   public void parseDateTime_fail_if_additional_characters() {
-    expectedException.expect(SonarException.class);
+    expectedException.expect(MessageException.class);
     DateUtils.parseDateTime("1986-12-04T01:02:03+0300foo");
   }
 
@@ -103,7 +100,7 @@ public class DateUtilsTest {
   @Test
   public void shouldFormatDate() {
     assertThat(DateUtils.formatDate(new Date())).startsWith("20");
-    assertThat(DateUtils.formatDate(new Date()).length()).isEqualTo(10);
+    assertThat(DateUtils.formatDate(new Date())).hasSize(10);
   }
 
   @Test
@@ -194,80 +191,4 @@ public class DateUtilsTest {
     parseEndingDateOrDateTime("polop");
   }
 
-  /**
-   * Cordially copied from XStream unit test
-   * See http://koders.com/java/fid8A231D75F2C6E6909FB26BCA11C12D08AD05FB50.aspx?s=ThreadSafeDateFormatTest
-   */
-  @Test
-  public void shouldBeThreadSafe() throws Exception {
-    final DateUtils.ThreadSafeDateFormat format = new DateUtils.ThreadSafeDateFormat("yyyy-MM-dd'T'HH:mm:ss,S z");
-    final Date now = new Date();
-    final List<Throwable> throwables = new ArrayList<>();
-
-    final ThreadGroup tg = new ThreadGroup("shouldBeThreadSafe") {
-      @Override
-      public void uncaughtException(Thread t, Throwable e) {
-        throwables.add(e);
-        super.uncaughtException(t, e);
-      }
-    };
-
-    final int[] counter = new int[1];
-    counter[0] = 0;
-    final Thread[] threads = new Thread[10];
-    for (int i = 0; i < threads.length; ++i) {
-      threads[i] = new Thread(tg, "JUnit Thread " + i) {
-
-        @Override
-        public void run() {
-          int i = 0;
-          try {
-            synchronized (this) {
-              notifyAll();
-              wait();
-            }
-            while (i < 1000 && !interrupted()) {
-              String formatted = format.format(now);
-              Thread.yield();
-              assertThat(now).isEqualTo(format.parse(formatted));
-              ++i;
-            }
-          } catch (Exception e) {
-            fail("Unexpected exception: " + e);
-          }
-          synchronized (counter) {
-            counter[0] += i;
-          }
-        }
-
-      };
-    }
-
-    for (int i = 0; i < threads.length; ++i) {
-      synchronized (threads[i]) {
-        threads[i].start();
-        threads[i].wait();
-      }
-    }
-
-    for (int i = 0; i < threads.length; ++i) {
-      synchronized (threads[i]) {
-        threads[i].notifyAll();
-      }
-    }
-
-    Thread.sleep(1000);
-
-    for (int i = 0; i < threads.length; ++i) {
-      threads[i].interrupt();
-    }
-    for (int i = 0; i < threads.length; ++i) {
-      synchronized (threads[i]) {
-        threads[i].join();
-      }
-    }
-
-    assertThat(throwables).isEmpty();
-    assertThat(counter[0]).isGreaterThanOrEqualTo(threads.length);
-  }
 }

@@ -19,16 +19,14 @@
  */
 package org.sonar.scanner;
 
+import java.time.Clock;
 import java.util.Date;
 import java.util.Optional;
-
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.System2;
 
 /**
  * @since 6.3
@@ -37,15 +35,15 @@ import org.sonar.api.utils.System2;
  */
 @ScannerSide
 public class ProjectAnalysisInfo implements Startable {
-  private final System2 system2;
+  private final Clock clock;
   private Configuration settings;
 
   private Date analysisDate;
   private String analysisVersion;
 
-  public ProjectAnalysisInfo(Configuration settings, System2 system2) {
+  public ProjectAnalysisInfo(Configuration settings, Clock clock) {
     this.settings = settings;
-    this.system2 = system2;
+    this.clock = clock;
   }
 
   public Date analysisDate() {
@@ -59,15 +57,19 @@ public class ProjectAnalysisInfo implements Startable {
   private Date loadAnalysisDate() {
     Optional<String> value = settings.get(CoreProperties.PROJECT_DATE_PROPERTY);
     if (!value.isPresent()) {
-      return new Date(system2.now());
+      return Date.from(clock.instant());
     }
-    Date date;
     try {
       // sonar.projectDate may have been specified as a time
       return DateUtils.parseDateTime(value.get());
-    } catch (SonarException e) {
+    } catch (RuntimeException e) {
       // this is probably just a date
+    }
+    try {
+      // sonar.projectDate may have been specified as a date
       return DateUtils.parseDate(value.get());
+    } catch (RuntimeException e) {
+      throw new IllegalArgumentException("Illegal value for '" + CoreProperties.PROJECT_DATE_PROPERTY + "'", e);
     }
   }
 
