@@ -30,6 +30,9 @@ import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
 public class MetadataIndex {
 
+  private static final String DB_VENDOR_KEY = "dbVendor";
+  private static final String DB_SCHEMA_VERSION_KEY = "dbSchemaVersion";
+
   private final EsClient esClient;
 
   public MetadataIndex(EsClient esClient) {
@@ -60,7 +63,20 @@ public class MetadataIndex {
     return indexType.getIndex() + "." + indexType.getType() + ".initialized";
   }
 
-  public Optional<String> getMetadata(String id) {
+  public Optional<String> getDbVendor() {
+    return getMetadata(DB_VENDOR_KEY);
+  }
+
+  public Optional<Long> getDbSchemaVersion() {
+    return getMetadata(DB_SCHEMA_VERSION_KEY).map(Long::parseLong);
+  }
+
+  public void setDbMetadata(String vendor, long schemaVersion) {
+    setMetadata(DB_VENDOR_KEY, vendor);
+    setMetadata(DB_SCHEMA_VERSION_KEY, String.valueOf(schemaVersion));
+  }
+
+  private Optional<String> getMetadata(String id) {
     GetRequestBuilder request = esClient.prepareGet(MetadataIndexDefinition.INDEX_TYPE_METADATA, id)
       .setStoredFields(MetadataIndexDefinition.FIELD_VALUE);
     GetResponse response = request.get();
@@ -72,7 +88,7 @@ public class MetadataIndex {
     return Optional.empty();
   }
 
-  public void setMetadata(String id, String value) {
+  private void setMetadata(String id, String value) {
     esClient.prepareIndex(MetadataIndexDefinition.INDEX_TYPE_METADATA)
       .setId(id)
       .setSource(MetadataIndexDefinition.FIELD_VALUE, value)

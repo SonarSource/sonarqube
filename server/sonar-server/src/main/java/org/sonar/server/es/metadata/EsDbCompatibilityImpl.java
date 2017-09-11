@@ -19,16 +19,12 @@
  */
 package org.sonar.server.es.metadata;
 
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 
 public class EsDbCompatibilityImpl implements EsDbCompatibility {
-
-  private static final String METADATA_KEY_DB_VENDOR = "dbVendor";
-  private static final String METADATA_KEY_DB_SCHEMA_VERSION = "dbSchemaVersion";
 
   private final DbClient dbClient;
   private final MetadataIndex metadataIndex;
@@ -42,13 +38,13 @@ public class EsDbCompatibilityImpl implements EsDbCompatibility {
 
   @Override
   public boolean hasSameDbVendor() {
-    Optional<String> registeredDbVendor = metadataIndex.getMetadata(METADATA_KEY_DB_VENDOR);
+    Optional<String> registeredDbVendor = metadataIndex.getDbVendor();
     return registeredDbVendor.isPresent() && registeredDbVendor.get().equals(getDbVendor());
   }
 
   @Override
   public boolean hasSameDbSchemaVersion() {
-    Optional<Long> registeredVersion = metadataIndex.getMetadata(METADATA_KEY_DB_SCHEMA_VERSION).map(Long::parseLong);
+    Optional<Long> registeredVersion = metadataIndex.getDbSchemaVersion();
     if (!registeredVersion.isPresent()) {
       return false;
     }
@@ -59,14 +55,12 @@ public class EsDbCompatibilityImpl implements EsDbCompatibility {
 
   @Override
   public void markAsCompatible() {
-    metadataIndex.setMetadata(METADATA_KEY_DB_VENDOR, getDbVendor());
-    metadataIndex.setMetadata(METADATA_KEY_DB_SCHEMA_VERSION, getDbSchemaVersion()
-      .map(String::valueOf)
+    metadataIndex.setDbMetadata(getDbVendor(), getDbSchemaVersion()
       .orElseThrow(() -> new IllegalStateException("DB schema version is not present in database")));
   }
 
   private String getDbVendor() {
-    return dbClient.getDatabase().getDialect().getId().toLowerCase(Locale.ENGLISH);
+    return dbClient.getDatabase().getDialect().getId();
   }
 
   private Optional<Long> getDbSchemaVersion() {

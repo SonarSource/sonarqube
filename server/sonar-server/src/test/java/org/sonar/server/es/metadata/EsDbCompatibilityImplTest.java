@@ -63,7 +63,6 @@ public class EsDbCompatibilityImplTest {
   @Test
   public void hasSameDbVendor_is_false_if_value_is_absent_from_es() {
     prepareDb("mysql", 1_800L);
-    prepareEs(null, null);
 
     assertThat(underTest.hasSameDbVendor()).isFalse();
   }
@@ -95,7 +94,6 @@ public class EsDbCompatibilityImplTest {
   @Test
   public void hasSameDbSchemaVersion_is_false_if_value_is_absent_from_es() {
     prepareDb("mysql", 1_800L);
-    prepareEs("postgres", null);
 
     assertThat(underTest.hasSameDbSchemaVersion()).isFalse();
   }
@@ -106,8 +104,8 @@ public class EsDbCompatibilityImplTest {
 
     underTest.markAsCompatible();
 
-    assertThat(metadataIndex.getMetadata("dbVendor")).hasValue("mysql");
-    assertThat(metadataIndex.getMetadata("dbSchemaVersion")).hasValue("1800");
+    assertThat(metadataIndex.getDbVendor()).hasValue("mysql");
+    assertThat(metadataIndex.getDbSchemaVersion()).hasValue(1_800L);
   }
 
   @Test
@@ -117,8 +115,8 @@ public class EsDbCompatibilityImplTest {
 
     underTest.markAsCompatible();
 
-    assertThat(metadataIndex.getMetadata("dbVendor")).hasValue("postgres");
-    assertThat(metadataIndex.getMetadata("dbSchemaVersion")).hasValue("2000");
+    assertThat(metadataIndex.getDbVendor()).hasValue("postgres");
+    assertThat(metadataIndex.getDbSchemaVersion()).hasValue(2_000L);
   }
 
   @Test
@@ -146,12 +144,7 @@ public class EsDbCompatibilityImplTest {
     when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.ofNullable(dbSchemaVersion));
   }
 
-  private void prepareEs(@Nullable String dbVendor, @Nullable Long dbSchemaVersion) {
-    if (dbVendor != null) {
-      metadataIndex.setMetadata("dbVendor", dbVendor);
-    }
-    if (dbSchemaVersion != null) {
-      metadataIndex.setMetadata("dbSchemaVersion", String.valueOf(dbSchemaVersion));
-    }
+  private void prepareEs(String dbVendor, long dbSchemaVersion) {
+    metadataIndex.setDbMetadata(dbVendor, dbSchemaVersion);
   }
 }
