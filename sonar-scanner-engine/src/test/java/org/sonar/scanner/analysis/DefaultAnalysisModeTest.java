@@ -27,8 +27,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.scanner.bootstrap.GlobalProperties;
-import org.sonar.scanner.scan.BranchConfiguration;
-import org.sonar.scanner.scan.DefaultBranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.branch.DefaultBranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

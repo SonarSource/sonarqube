@@ -25,7 +25,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 public class ProjectRepositoriesProvider extends ProviderAdapter {
   private static final Logger LOG = Loggers.get(ProjectRepositoriesProvider.class);

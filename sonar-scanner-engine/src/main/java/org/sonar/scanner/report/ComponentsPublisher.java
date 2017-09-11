@@ -44,7 +44,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLi
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 /**
  * Adds components and analysis metadata to output report

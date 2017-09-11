@@ -47,7 +47,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.HttpException;

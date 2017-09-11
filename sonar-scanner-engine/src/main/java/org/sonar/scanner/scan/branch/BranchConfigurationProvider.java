@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
+package org.sonar.scanner.scan.branch;
 
 import org.picocontainer.annotations.Nullable;
 import org.picocontainer.injectors.ProviderAdapter;

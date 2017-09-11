@@ -17,48 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
+package org.sonar.scanner.scan.branch;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public interface BranchConfiguration {
-
-  enum BranchType {
-    SHORT, LONG
+public class DefaultBranchConfiguration implements BranchConfiguration {
+  @Override
+  public BranchType branchType() {
+    return BranchType.LONG;
   }
 
-  /**
-   * The type of the branch we're on, determined by:
-   *
-   * - If the specified branch exists on the server, then its type
-   * - If the branch name matches the pattern of long-lived branches, then it's long-lived
-   * - Otherwise it's short-lived
-   *
-   * @return type of the current branch
-   */
-  BranchType branchType();
-
-  default boolean isShortLivingBranch() {
-    return branchType() == BranchType.SHORT;
+  @CheckForNull
+  @Override
+  public String branchName() {
+    return null;
   }
 
-  /**
-   * The name of the branch.
-   */
   @CheckForNull
-  String branchName();
+  @Override
+  public String branchTarget() {
+    return null;
+  }
 
-  /**
-   * The name of the target branch to merge into.
-   */
   @CheckForNull
-  String branchTarget();
-
-  /**
-   * The name of the base branch to determine project repository and changed files.
-   */
-  @CheckForNull
-  String branchBase();
+  @Override
+  public String branchBase() {
+    return null;
+  }
 }

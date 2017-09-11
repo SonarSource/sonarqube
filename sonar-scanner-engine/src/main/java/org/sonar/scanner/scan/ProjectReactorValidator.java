@@ -29,6 +29,8 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.sonar.scanner.scan.branch.BranchParamsValidator;
+import org.sonar.scanner.scan.branch.DefaultBranchParamsValidator;
 
 /**
  * This class aims at validating project reactor

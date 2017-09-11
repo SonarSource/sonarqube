@@ -35,7 +35,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 

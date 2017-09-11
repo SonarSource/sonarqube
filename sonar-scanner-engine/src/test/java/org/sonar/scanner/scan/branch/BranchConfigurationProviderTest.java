@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
+package org.sonar.scanner.scan.branch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -26,7 +26,10 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.scan.BranchConfiguration.BranchType;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration.BranchType;
+import org.sonar.scanner.scan.branch.BranchConfigurationLoader;
+import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
 
 public class BranchConfigurationProviderTest {
   private BranchConfigurationProvider provider = new BranchConfigurationProvider();
