@@ -56,6 +56,7 @@ import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.event.EventTesting.newEvent;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -171,8 +172,25 @@ public class SearchActionTest {
 
     List<Analysis> result = call(application.getDbKey()).getAnalysesList();
 
-    assertThat(result).hasSize(3);
-    assertThat(result).extracting(Analysis::getKey).containsExactly(thirdAnalysis.getUuid(), secondAnalysis.getUuid(), firstAnalysis.getUuid());
+    assertThat(result)
+      .hasSize(3)
+      .extracting(Analysis::getKey).containsExactly(thirdAnalysis.getUuid(), secondAnalysis.getUuid(), firstAnalysis.getUuid());
+  }
+
+  @Test
+  public void return_analyses_of_portfolio() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto view = db.components().insertView(organization);
+    userSession.registerComponents(view);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(view).setCreatedAt(1_000_000L));
+    SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(view).setCreatedAt(2_000_000L));
+    SnapshotDto thirdAnalysis = db.components().insertSnapshot(newAnalysis(view).setCreatedAt(3_000_000L));
+
+    List<Analysis> result = call(view.getDbKey()).getAnalysesList();
+
+    assertThat(result)
+      .hasSize(3)
+      .extracting(Analysis::getKey).containsExactly(thirdAnalysis.getUuid(), secondAnalysis.getUuid(), firstAnalysis.getUuid());
   }
 
   @Test
@@ -370,15 +388,16 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_if_not_a_project_or_application() {
-    ComponentDto view = db.components().insertView();
-    db.components().insertSnapshot(newAnalysis(view));
-    userSession.registerComponents(view);
+  public void fail_if_not_a_project_portfolio_or_application() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    db.components().insertSnapshot(newAnalysis(project));
+    userSession.registerComponents(project, file);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A project or application is required");
+    expectedException.expectMessage("A project, portfolio or application is required");
 
-    call(view.getDbKey());
+    call(file.getDbKey());
   }
 
   @Test
