@@ -44,14 +44,14 @@ import static org.mockito.Mockito.when;
 
 public class ServerIssueStorageTest {
 
-  System2 system2 = mock(System2.class);
+  private System2 system2 = mock(System2.class);
 
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(system2);
 
-  DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = dbTester.getDbClient();
 
-  ServerIssueStorage storage = new ServerIssueStorage(system2, new FakeRuleFinder(), dbClient, mock(IssueIndexer.class));
+  private ServerIssueStorage underTest = new ServerIssueStorage(system2, new FakeRuleFinder(), dbClient, mock(IssueIndexer.class));
 
   @Before
   public void setupDbClient() {
@@ -62,7 +62,7 @@ public class ServerIssueStorageTest {
   public void load_component_id_from_db() {
     dbTester.prepareDbUnit(getClass(), "load_component_id_from_db.xml");
 
-    long componentId = storage.component(dbTester.getSession(), new DefaultIssue().setComponentKey("struts:Action")).getId();
+    long componentId = underTest.component(dbTester.getSession(), new DefaultIssue().setComponentUuid("BCDE")).getId();
 
     assertThat(componentId).isEqualTo(100);
   }
@@ -71,7 +71,7 @@ public class ServerIssueStorageTest {
   public void load_project_id_from_db() {
     dbTester.prepareDbUnit(getClass(), "load_project_id_from_db.xml");
 
-    long projectId = storage.project(dbTester.getSession(), new DefaultIssue().setProjectKey("struts")).getId();
+    long projectId = underTest.project(dbTester.getSession(), new DefaultIssue().setProjectUuid("ABCD")).getId();
 
     assertThat(projectId).isEqualTo(1);
   }
@@ -91,7 +91,8 @@ public class ServerIssueStorageTest {
       .setNew(true)
 
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setProjectKey("struts")
+      .setProjectUuid("ABCD")
+      .setComponentUuid("BCDE")
       .setLine(5000)
       .setEffort(Duration.create(10L))
       .setResolution("OPEN")
@@ -101,11 +102,9 @@ public class ServerIssueStorageTest {
       .addComment(comment)
       .setCreationDate(date)
       .setUpdateDate(date)
-      .setCloseDate(date)
+      .setCloseDate(date);
 
-      .setComponentKey("struts:Action");
-
-    storage.save(issue);
+    underTest.save(issue);
 
     dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
       new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
@@ -150,7 +149,7 @@ public class ServerIssueStorageTest {
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
 
-    storage.save(issue);
+    underTest.save(issue);
 
     dbTester.assertDbUnit(getClass(), "should_update_issues-result.xml",
       new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");

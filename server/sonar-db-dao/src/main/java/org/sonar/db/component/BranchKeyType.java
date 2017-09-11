@@ -17,25 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.component;
+package org.sonar.db.component;
 
 /**
- * The tree of components defined in the scanner report.
+ * Supported values in column project_branches.kee_type
  */
-public interface TreeRootHolder {
+public enum BranchKeyType {
   /**
-   * The root of the tree of Component representing the component in the current ScannerReport.
-   *
-   * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
+   * Branch, whatever long or short, main or not.
    */
-  Component getRoot();
+  BRANCH,
 
   /**
-   * Return a component by its batch reference
-   *
-   * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
-   * @throws IllegalArgumentException if there's no {@link Component} with the specified reference
+   * Pull request
    */
-  Component getComponentByRef(int ref);
-
+  PR
 }
