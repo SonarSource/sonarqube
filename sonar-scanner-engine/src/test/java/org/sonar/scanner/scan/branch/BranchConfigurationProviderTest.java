@@ -32,31 +32,33 @@ public class BranchConfigurationProviderTest {
   private GlobalConfiguration globalConfiguration;
   private BranchConfigurationLoader loader;
   private BranchConfiguration config;
+  private ProjectBranches branches;
 
   @Before
   public void setUp() {
     globalConfiguration = mock(GlobalConfiguration.class);
     loader = mock(BranchConfigurationLoader.class);
     config = mock(BranchConfiguration.class);
+    branches = mock(ProjectBranches.class);
   }
 
   @Test
   public void should_cache_config() {
-    BranchConfiguration configuration = provider.provide(null, () -> "project", globalConfiguration);
-    assertThat(provider.provide(null, () -> "project", globalConfiguration)).isSameAs(configuration);
+    BranchConfiguration configuration = provider.provide(null, () -> "project", globalConfiguration, branches);
+    assertThat(provider.provide(null, () -> "project", globalConfiguration, branches)).isSameAs(configuration);
   }
 
   @Test
   public void should_use_loader() {
-    when(loader.load("key", globalConfiguration)).thenReturn(config);
-    BranchConfiguration branchConfig = provider.provide(loader, () -> "key", globalConfiguration);
+    when(loader.load("key", globalConfiguration, branches)).thenReturn(config);
+    BranchConfiguration branchConfig = provider.provide(loader, () -> "key", globalConfiguration, branches);
 
     assertThat(branchConfig).isSameAs(config);
   }
 
   @Test
   public void should_return_default_if_no_loader() {
-    BranchConfiguration configuration = provider.provide(null, () -> "project", globalConfiguration);
+    BranchConfiguration configuration = provider.provide(null, () -> "project", globalConfiguration, branches);
     assertThat(configuration.branchTarget()).isNull();
     assertThat(configuration.branchType()).isEqualTo(BranchType.LONG);
   }

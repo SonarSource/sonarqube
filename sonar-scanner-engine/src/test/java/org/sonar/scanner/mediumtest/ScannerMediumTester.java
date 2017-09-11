@@ -71,6 +71,7 @@ import org.sonar.scanner.rule.RulesLoader;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchConfigurationLoader;
 import org.sonar.scanner.scan.branch.BranchType;
+import org.sonar.scanner.scan.branch.ProjectBranches;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
@@ -438,7 +439,7 @@ public class ScannerMediumTester extends ExternalResource {
 
   private class FakeBranchConfigurationLoader implements BranchConfigurationLoader {
     @Override
-    public BranchConfiguration load(String projectKey, GlobalConfiguration settings) {
+    public BranchConfiguration load(String projectKey, GlobalConfiguration settings, ProjectBranches branches) {
       return branchConfiguration;
     }
   }
