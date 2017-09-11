@@ -48,6 +48,7 @@ public class GlobalTempFolderProviderTest {
   @Test
   public void createTempFolderProps() throws Exception {
     File workingDir = temp.newFolder();
+    workingDir.delete();
 
     TempFolder tempFolder = tempFolderProvider.provide(new GlobalProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
     tempFolder.newDir();
@@ -124,6 +125,20 @@ public class GlobalTempFolderProviderTest {
     TempFolder tempFolder = tempFolderProvider.provide(globalProperties);
     File newFile = tempFolder.newFile();
     assertThat(newFile.getParentFile().getParentFile().getAbsolutePath()).isEqualTo(sonarHome.getAbsolutePath());
+    assertThat(newFile.getParentFile().getName()).startsWith(".sonartmp_");
+  }
+
+  @Test
+  public void homeIsSymbolicLink() throws IOException {
+    File realSonarHome = temp.newFolder();
+    File symlink = temp.newFolder();
+    symlink.delete();
+    Files.createSymbolicLink(symlink.toPath(), realSonarHome.toPath());
+    GlobalProperties globalProperties = new GlobalProperties(ImmutableMap.of("sonar.userHome", symlink.getAbsolutePath()));
+
+    TempFolder tempFolder = tempFolderProvider.provide(globalProperties);
+    File newFile = tempFolder.newFile();
+    assertThat(newFile.getParentFile().getParentFile().getAbsolutePath()).isEqualTo(symlink.getAbsolutePath());
     assertThat(newFile.getParentFile().getName()).startsWith(".sonartmp_");
   }
 
