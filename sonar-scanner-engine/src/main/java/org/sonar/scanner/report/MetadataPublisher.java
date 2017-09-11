@@ -101,8 +101,8 @@ public class MetadataPublisher implements ReportPublisherStep {
     writer.writeMetadata(builder.build());
   }
 
-  private static BranchType toProtobufBranchType(BranchConfiguration.BranchType branchType) {
-    if (branchType == BranchConfiguration.BranchType.LONG) {
+  private static BranchType toProtobufBranchType(org.sonar.scanner.scan.branch.BranchType branchType) {
+    if (branchType == org.sonar.scanner.scan.branch.BranchType.LONG) {
       return BranchType.LONG;
     }
     return BranchType.SHORT;

@@ -19,17 +19,13 @@
  */
 package org.sonar.scanner.scan.branch;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.scan.branch.BranchConfiguration;
-import org.sonar.scanner.scan.branch.BranchConfiguration.BranchType;
-import org.sonar.scanner.scan.branch.BranchConfigurationLoader;
-import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BranchConfigurationProviderTest {
   private BranchConfigurationProvider provider = new BranchConfigurationProvider();

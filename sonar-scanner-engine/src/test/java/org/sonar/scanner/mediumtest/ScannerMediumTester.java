@@ -70,6 +70,7 @@ import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchConfigurationLoader;
+import org.sonar.scanner.scan.branch.BranchType;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
@@ -420,7 +421,7 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
-  public ScannerMediumTester setBranchType(BranchConfiguration.BranchType branchType) {
+  public ScannerMediumTester setBranchType(BranchType branchType) {
     branchConfiguration.branchType = branchType;
     return this;
   }

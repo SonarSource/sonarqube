@@ -30,7 +30,7 @@ import org.sonar.scanner.bootstrap.GlobalConfiguration;
 public class BranchConfigurationProvider extends ProviderAdapter {
 
   private static final Logger LOG = Loggers.get(BranchConfigurationProvider.class);
-  private static final String LOG_MSG = "Load project branches";
+  private static final String LOG_MSG = "Load branch configuration";
 
   private BranchConfiguration branchConfiguration = null;
 

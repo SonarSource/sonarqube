@@ -87,6 +87,7 @@ import org.sonar.scanner.rule.RulesLoader;
 import org.sonar.scanner.rule.RulesProvider;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
+import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 import org.sonar.scanner.scan.filesystem.InputComponentStoreProvider;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
@@ -253,7 +254,7 @@ public class ProjectScanContainer extends ComponentContainer {
     }
   }
 
-  private static String toDisplayName(BranchConfiguration.BranchType branchType) {
+  private static String toDisplayName(BranchType branchType) {
     switch (branchType) {
       case LONG:
         return "long living";
