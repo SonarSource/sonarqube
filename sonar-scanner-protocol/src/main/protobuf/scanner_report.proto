@@ -41,6 +41,8 @@ message Metadata {
   map<string, Plugin> plugins_by_key = 8;
   bool incremental = 9;
   string branch_name = 10;
+  BranchType branch_type = 11;
+  string merge_branch_name = 12;
 
   message QProfile {
     string key = 1;
@@ -52,6 +54,12 @@ message Metadata {
   message Plugin {
     string key = 1;
     int64 updatedAt = 2;
+  }
+
+  enum BranchType {
+    UNSET = 0;
+    LONG = 1;
+    SHORT = 2;
   }
 }
 
