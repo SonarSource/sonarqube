@@ -38,7 +38,7 @@ type Props = {
   endDate: ?Date,
   height: number,
   width: number,
-  leakPeriodDate: Date,
+  leakPeriodDate?: Date,
   padding: Array<number>,
   series: Array<Serie>,
   showAreas?: boolean,
@@ -394,6 +394,7 @@ export default class ZoomTimeLine extends React.PureComponent {
     }
 
     const { xScale, yScale } = this.getScales();
+
     return (
       <svg className="line-chart " width={this.props.width} height={this.props.height}>
         <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0] + 2})`}>

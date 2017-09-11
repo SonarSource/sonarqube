@@ -40,7 +40,7 @@ import {
 /*::
 type Props = {
   analyses: Array<Analysis>,
-  leakPeriodDate: Date,
+  leakPeriodDate?: Date,
   loading: boolean,
   measuresHistory: Array<MeasureHistory>,
   metrics: Array<Metric>,

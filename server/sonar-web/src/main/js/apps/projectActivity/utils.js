@@ -195,13 +195,26 @@ const parseGraph = (value /*: ?string */) => {
 
 const serializeGraph = (value /*: string */) => (value === DEFAULT_GRAPH ? undefined : value);
 
-export function parseQuery(urlQuery /*: RawQuery */) /*: Query */ {
+function getTopLevelComponent(
+  component /*: { breadcrumbs: Array<{ key: string, qualifier: string}> } */
+) {
+  let current = component.breadcrumbs.length - 1;
+  while (current > 0 && !['TRK', 'VW', 'APP'].includes(component.breadcrumbs[current].qualifier)) {
+    current--;
+  }
+  return component.breadcrumbs[current].key;
+}
+
+export function parseQuery(
+  urlQuery /*: RawQuery */,
+  component /*: { breadcrumbs: Array<{ key: string, qualifier: string}> } */
+) /*: Query */ {
   return {
     category: parseAsString(urlQuery['category']),
     customMetrics: parseAsArray(urlQuery['custom_metrics'], parseAsString),
     from: parseAsDate(urlQuery['from']),
     graph: parseGraph(urlQuery['graph']),
-    project: parseAsString(urlQuery['id']),
+    project: getTopLevelComponent(component),
     to: parseAsDate(urlQuery['to']),
     selectedDate: parseAsDate(urlQuery['selected_date'])
   };

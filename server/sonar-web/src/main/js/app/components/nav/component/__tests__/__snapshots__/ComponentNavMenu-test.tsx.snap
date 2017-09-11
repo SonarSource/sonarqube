@@ -1,5 +1,651 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should work for all qualifiers 1`] = `
+<NavBarTabs>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      overview.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/issues",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      issues.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.measures
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/code",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      code.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/activity",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      project_activity.page
+    </Link>
+  </li>
+  <li
+    className="dropdown"
+  >
+    <a
+      className="dropdown-toggle is-admin"
+      data-toggle="dropdown"
+      href="#"
+      id="component-navigation-admin"
+    >
+      layout.settings
+       
+      <i
+        className="icon-dropdown"
+      />
+    </a>
+    <ul
+      className="dropdown-menu"
+    >
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/settings",
+              "query": Object {
+                "branch": undefined,
+                "id": "foo",
+              },
+            }
+          }
+        >
+          project_settings.page
+        </Link>
+      </li>
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/branches",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          project_branches.page
+        </Link>
+      </li>
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/deletion",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          deletion.page
+        </Link>
+      </li>
+    </ul>
+  </li>
+</NavBarTabs>
+`;
+
+exports[`should work for all qualifiers 2`] = `
+<NavBarTabs>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      overview.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/issues",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      issues.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.measures
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/code",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      code.page
+    </Link>
+  </li>
+  <li
+    className="dropdown"
+  >
+    <a
+      className="dropdown-toggle is-admin"
+      data-toggle="dropdown"
+      href="#"
+      id="component-navigation-admin"
+    >
+      layout.settings
+       
+      <i
+        className="icon-dropdown"
+      />
+    </a>
+    <ul
+      className="dropdown-menu"
+    >
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/settings",
+              "query": Object {
+                "branch": undefined,
+                "id": "foo",
+              },
+            }
+          }
+        >
+          project_settings.page
+        </Link>
+      </li>
+    </ul>
+  </li>
+</NavBarTabs>
+`;
+
+exports[`should work for all qualifiers 3`] = `
+<NavBarTabs>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/portfolio",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      overview.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/issues",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      issues.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.measures
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/code",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      view_projects.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/activity",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      project_activity.page
+    </Link>
+  </li>
+  <li
+    className="dropdown"
+  >
+    <a
+      className="dropdown-toggle is-admin"
+      data-toggle="dropdown"
+      href="#"
+      id="component-navigation-admin"
+    >
+      layout.settings
+       
+      <i
+        className="icon-dropdown"
+      />
+    </a>
+    <ul
+      className="dropdown-menu"
+    >
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/deletion",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          deletion.page
+        </Link>
+      </li>
+    </ul>
+  </li>
+</NavBarTabs>
+`;
+
+exports[`should work for all qualifiers 4`] = `
+<NavBarTabs>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/portfolio",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      overview.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/issues",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      issues.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.measures
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/code",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      view_projects.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/activity",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      project_activity.page
+    </Link>
+  </li>
+</NavBarTabs>
+`;
+
+exports[`should work for all qualifiers 5`] = `
+<NavBarTabs>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      overview.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/issues",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      issues.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.measures
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/code",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      view_projects.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/activity",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      project_activity.page
+    </Link>
+  </li>
+  <li
+    className="dropdown"
+  >
+    <a
+      className="dropdown-toggle is-admin"
+      data-toggle="dropdown"
+      href="#"
+      id="component-navigation-admin"
+    >
+      layout.settings
+       
+      <i
+        className="icon-dropdown"
+      />
+    </a>
+    <ul
+      className="dropdown-menu"
+    >
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/deletion",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          deletion.page
+        </Link>
+      </li>
+    </ul>
+  </li>
+</NavBarTabs>
+`;
+
 exports[`should work for long-living branches 1`] = `
 <NavBarTabs>
   <li>

@@ -28,7 +28,7 @@ import { hasHistoryData } from '../utils';
 type Props = {
   graphEndDate: ?Date,
   graphStartDate: ?Date,
-  leakPeriodDate: Date,
+  leakPeriodDate?: Date,
   loading: boolean,
   metricsType: string,
   series: Array<Serie>,

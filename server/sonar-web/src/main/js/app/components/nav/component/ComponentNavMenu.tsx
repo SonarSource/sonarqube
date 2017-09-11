@@ -65,7 +65,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return this.props.component.qualifier === 'DEV';
   }
 
-  isView() {
+  isPortfolio() {
     const { qualifier } = this.props.component;
     return qualifier === 'VW' || qualifier === 'SVW';
   }
@@ -79,7 +79,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
       return null;
     }
 
-    const pathname = this.isView() ? '/portfolio' : '/dashboard';
+    const pathname = this.isPortfolio() ? '/portfolio' : '/dashboard';
     return (
       <li>
         <Link
@@ -113,7 +113,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
             }
           }}
           activeClassName="active">
-          {this.isView() || this.isApplication() ? (
+          {this.isPortfolio() || this.isApplication() ? (
             translate('view_projects.page')
           ) : (
             translate('code.page')
@@ -124,7 +124,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderActivityLink() {
-    if (!this.isProject() && !this.isApplication()) {
+    if (!this.isProject() && !this.isApplication() && !this.isPortfolio()) {
       return null;
     }
 
@@ -252,7 +252,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderSettingsLink() {
-    if (!this.props.conf.showSettings || this.isApplication() || this.isView()) {
+    if (!this.props.conf.showSettings || this.isApplication() || this.isPortfolio()) {
       return null;
     }
     return (

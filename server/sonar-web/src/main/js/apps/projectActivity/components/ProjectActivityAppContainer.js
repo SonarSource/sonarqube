@@ -46,9 +46,10 @@ type Props = {
   branch?: {},
   location: { pathname: string, query: RawQuery },
   component: {
+    breadcrumbs: Array<{ key: string, qualifier: string}>,
     configuration?: { showHistory: boolean },
     key: string,
-    leakPeriodDate: string,
+    leakPeriodDate?: string,
     qualifier: string
   }
 };
@@ -85,7 +86,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
       initialized: false,
       measuresHistory: [],
       metrics: [],
-      query: parseQuery(props.location.query)
+      query: parseQuery(props.location.query, props.component)
     };
   }
 
@@ -112,7 +113,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
 
   componentWillReceiveProps(nextProps /*: Props */) {
     if (nextProps.location.query !== this.props.location.query) {
-      const query = parseQuery(nextProps.location.query);
+      const query = parseQuery(nextProps.location.query, nextProps.component);
       if (query.graph !== this.state.query.graph || customMetricsChanged(this.state.query, query)) {
         if (this.state.initialized) {
           this.updateGraphData(query.graph, query.customMetrics);
