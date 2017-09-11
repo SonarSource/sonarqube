@@ -13,6 +13,11 @@ exports[`renders main branch 1`] = `
       className="little-spacer-right"
     />
     master
+    <div
+      className="outline-badge spacer-left"
+    >
+      branches.main_branch
+    </div>
   </td>
   <td
     className="thin nowrap text-right"

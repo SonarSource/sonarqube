@@ -116,6 +116,102 @@ exports[`should work for long-living branches 1`] = `
 </NavBarTabs>
 `;
 
+exports[`should work for long-living branches 2`] = `
+<NavBarTabs>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": "release",
+            "id": "foo",
+          },
+        }
+      }
+    >
+      overview.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/issues",
+          "query": Object {
+            "branch": "release",
+            "id": "foo",
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      issues.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "branch": "release",
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.measures
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/code",
+          "query": Object {
+            "branch": "release",
+            "id": "foo",
+          },
+        }
+      }
+    >
+      code.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/activity",
+          "query": Object {
+            "branch": "release",
+            "id": "foo",
+          },
+        }
+      }
+    >
+      project_activity.page
+    </Link>
+  </li>
+</NavBarTabs>
+`;
+
 exports[`should work for short-living branches 1`] = `
 <NavBarTabs>
   <li>

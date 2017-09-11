@@ -24,6 +24,7 @@ import BranchStatus from '../../../../components/common/BranchStatus';
 import { Branch, Component } from '../../../types';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
 import { isShortLivingBranch } from '../../../../helpers/branches';
+import { translate } from '../../../../helpers/l10n';
 import { getProjectBranchUrl } from '../../../../helpers/urls';
 
 interface Props {
@@ -53,6 +54,10 @@ export default function ComponentNavBranchesMenuItem({ branch, ...props }: Props
             })}
           />
           {branch.name}
+          {branch.isMain &&
+            <div className="outline-badge spacer-left">
+              {translate('branches.main_branch')}
+            </div>}
         </div>
         <div className="big-spacer-left note">
           <BranchStatus branch={branch} concise={true} />

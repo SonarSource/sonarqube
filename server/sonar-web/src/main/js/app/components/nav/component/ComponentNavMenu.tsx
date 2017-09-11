@@ -191,7 +191,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   renderAdministration() {
     const { branch } = this.props;
 
-    if (branch && isShortLivingBranch(branch)) {
+    if (!this.props.conf.showSettings || (branch && isShortLivingBranch(branch))) {
       return null;
     }
 

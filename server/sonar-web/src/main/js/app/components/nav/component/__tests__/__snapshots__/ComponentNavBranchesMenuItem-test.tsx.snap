@@ -28,6 +28,11 @@ exports[`renders main branch 1`] = `
         className="little-spacer-right"
       />
       master
+      <div
+        className="outline-badge spacer-left"
+      >
+        branches.main_branch
+      </div>
     </div>
     <div
       className="big-spacer-left note"
