@@ -88,6 +88,7 @@ import org.sonar.scanner.rule.RulesProvider;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
 import org.sonar.scanner.scan.branch.BranchType;
+import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 import org.sonar.scanner.scan.filesystem.InputComponentStoreProvider;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
@@ -140,6 +141,7 @@ public class ProjectScanContainer extends ComponentContainer {
       Storages.class,
       new RulesProvider(),
       new BranchConfigurationProvider(),
+      new ProjectBranchesProvider(),
 
       // temp
       new AnalysisTempFolderProvider(),
