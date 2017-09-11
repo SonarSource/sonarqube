@@ -39,9 +39,9 @@ import org.sonar.db.ResultSetIterator;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.es.EsUtils;
-import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper.Row;
 
+import static org.sonar.server.source.index.FileSourcesUpdaterHelper.preparedStatementToSelectFileSources;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILES;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_LINES;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_UUID;
@@ -68,7 +68,7 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
 
   public static TestResultSetIterator create(DbClient dbClient, DbSession session, @Nullable String projectUuid) {
     try {
-      return new TestResultSetIterator(FileSourcesUpdaterHelper.preparedStatementToSelectFileSources(dbClient, session, FileSourceDto.Type.TEST, projectUuid));
+      return new TestResultSetIterator(preparedStatementToSelectFileSources(dbClient, session, FileSourceDto.Type.TEST, projectUuid));
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all tests", e);
     }
