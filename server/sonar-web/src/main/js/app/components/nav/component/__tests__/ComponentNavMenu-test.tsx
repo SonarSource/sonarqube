@@ -91,10 +91,11 @@ it('should work for short-living branches', () => {
 it('should work for long-living branches', () => {
   const branch: LongLivingBranch = { isMain: false, name: 'release', type: BranchType.LONG };
   const component = { key: 'foo', qualifier: 'TRK' } as Component;
-  const conf = { showSettings: true };
-  expect(
-    shallow(<ComponentNavMenu branch={branch} component={component} conf={conf} />, {
-      context: { branchesEnabled: true }
-    })
-  ).toMatchSnapshot();
+  [true, false].forEach(showSettings =>
+    expect(
+      shallow(<ComponentNavMenu branch={branch} component={component} conf={{ showSettings }} />, {
+        context: { branchesEnabled: true }
+      })
+    ).toMatchSnapshot()
+  );
 });
