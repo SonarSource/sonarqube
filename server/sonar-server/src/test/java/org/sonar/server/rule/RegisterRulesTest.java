@@ -21,6 +21,7 @@ package org.sonar.server.rule;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -179,6 +180,46 @@ public class RegisterRulesTest {
     // verify index
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
       .extracting(RuleKey::rule)
+      .isEmpty();
+  }
+
+  @Test
+  public void mass_insert_then_remove_rule() {
+    int numberOfRules = 5000;
+
+    // register many rules
+    execute(context -> {
+      RulesDefinition.NewRepository repo = context.createRepository("fake", "java");
+      IntStream.range(0, numberOfRules).forEach(i ->
+        repo.createRule(randomAlphanumeric(5))
+        .setName(randomAlphanumeric(20))
+        .setHtmlDescription(randomAlphanumeric(20)));
+      repo.done();
+    });
+
+    // verify db
+    assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession()))
+      .hasSize(numberOfRules)
+      .extracting(RuleDefinitionDto::getStatus)
+      .containsOnly(RuleStatus.READY);
+
+    // verify index
+    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(numberOfRules);
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
+      .isNotEmpty();
+
+    // register no rule
+    execute(context -> context.createRepository("fake", "java").done());
+
+    // verify db
+    assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession()))
+      .hasSize(numberOfRules)
+      .extracting(RuleDefinitionDto::getStatus)
+      .containsOnly(RuleStatus.REMOVED);
+
+    // verify index (documents are still in the index, but all are removed)
+    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(numberOfRules);
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
       .isEmpty();
   }
 
