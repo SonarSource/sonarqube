@@ -79,8 +79,8 @@ public class NewComponent {
   public static class Builder {
     private String organizationUuid;
     private String key;
-    private String branch;
     private String qualifier = PROJECT;
+    private String branch;
     private String name;
     private boolean isPrivate = false;
 
