@@ -190,7 +190,7 @@ public class TelemetryDaemonTest {
 
     underTest.start();
 
-    verify(client, timeout(2_000).atLeastOnce()).upload(anyString());
+    verify(client, timeout(2_000).times(1)).upload(anyString());
     assertThat(internalProperties.read("telemetry.lastPing").get()).isEqualTo(String.valueOf(today));
   }
 
