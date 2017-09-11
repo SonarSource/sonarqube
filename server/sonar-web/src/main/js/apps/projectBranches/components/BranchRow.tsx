@@ -93,6 +93,10 @@ export default class BranchRow extends React.PureComponent<Props, State> {
             })}
           />
           {branch.name}
+          {branch.isMain &&
+            <div className="outline-badge spacer-left">
+              {translate('branches.main_branch')}
+            </div>}
         </td>
         <td className="thin nowrap text-right">
           <BranchStatus branch={branch} />
