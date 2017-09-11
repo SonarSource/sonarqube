@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 public class ScannerPluginPredicateTest {
 
   private MapSettings settings = new MapSettings();
-  private GlobalMode mode = mock(GlobalMode.class);
+  private GlobalAnalysisMode mode = mock(GlobalAnalysisMode.class);
 
   @Test
   public void accept_if_no_inclusions_nor_exclusions() {

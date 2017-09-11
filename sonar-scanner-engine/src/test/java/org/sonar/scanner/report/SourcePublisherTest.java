@@ -27,13 +27,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +48,7 @@ public class SourcePublisherTest {
   private File sourceFile;
   private ScannerReportWriter writer;
   private DefaultInputFile inputFile;
-  private AnalysisMode analysisMode;
+  private DefaultAnalysisMode analysisFlags;
 
   @Before
   public void prepare() throws IOException {
@@ -62,8 +62,8 @@ public class SourcePublisherTest {
       .build();
 
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(moduleKey, baseDir);
-    analysisMode = mock(AnalysisMode.class);
-    InputComponentStore componentStore = new InputComponentStore(rootModule, analysisMode, mock(BranchConfiguration.class));
+    analysisFlags = mock(DefaultAnalysisMode.class);
+    InputComponentStore componentStore = new InputComponentStore(rootModule, analysisFlags, mock(BranchConfiguration.class));
     componentStore.put(inputFile);
 
     publisher = new SourcePublisher(componentStore);
@@ -124,7 +124,7 @@ public class SourcePublisherTest {
 
   @Test
   public void publishChangedSourceInIncrementalMode() throws Exception {
-    when(analysisMode.isIncremental()).thenReturn(true);
+    when(analysisFlags.isIncremental()).thenReturn(true);
     FileUtils.write(sourceFile, "1\n2\n3\n4\n5", StandardCharsets.ISO_8859_1);
     inputFile.setStatus(Status.CHANGED);
 
@@ -136,7 +136,7 @@ public class SourcePublisherTest {
 
   @Test
   public void dontPublishUnchangedSourceInIncrementalMode() throws Exception {
-    when(analysisMode.isIncremental()).thenReturn(true);
+    when(analysisFlags.isIncremental()).thenReturn(true);
     FileUtils.write(sourceFile, "foo", StandardCharsets.ISO_8859_1);
     inputFile.setStatus(Status.SAME);
 

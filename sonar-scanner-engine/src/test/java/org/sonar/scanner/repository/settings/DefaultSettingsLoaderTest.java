@@ -19,7 +19,11 @@
  */
 package org.sonar.scanner.repository.settings;
 
+import java.io.IOException;
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.scanner.WsTestUtil;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.Settings.FieldValues;
 import org.sonarqube.ws.Settings.FieldValues.Value;
 import org.sonarqube.ws.Settings.FieldValues.Value.Builder;
@@ -29,8 +33,17 @@ import org.sonarqube.ws.Settings.Values;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
 
 public class DefaultSettingsLoaderTest {
+  private ScannerWsClient wsClient;
+  private DefaultSettingsLoader loader;
+
+  @Before
+  public void prepare() throws IOException {
+    wsClient = mock(ScannerWsClient.class);
+    loader = new DefaultSettingsLoader(wsClient);
+  }
 
   @Test
   public void should_load_global_multivalue_settings() {
@@ -67,6 +80,12 @@ public class DefaultSettingsLoaderTest {
           entry("sonar.issue.exclusions.multicriteria.1.rulepattern", "*:S12345"),
           entry("sonar.issue.exclusions.multicriteria.2.filepattern", "**/*.java"),
           entry("sonar.issue.exclusions.multicriteria.2.rulepattern", "*:S456"));
+  }
+
+  @Test
+  public void continue_on_error() {
+    WsTestUtil.mockException(wsClient, DefaultSettingsLoader.URL + "?component=project", new IllegalStateException());
+    assertThat(loader.load("project")).isEmpty();
   }
 
 }

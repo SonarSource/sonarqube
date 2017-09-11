@@ -22,25 +22,29 @@ package org.sonar.scanner.scan;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 
 public class ProjectSettingsProvider extends ProviderAdapter {
 
   private ProjectSettings projectSettings;
 
-  public ProjectSettings provide(ProjectReactor reactor, GlobalConfiguration globalSettings, ProjectRepositories projectRepositories, AnalysisMode mode) {
+  public ProjectSettings provide(ProjectReactor reactor, GlobalConfiguration globalSettings, SettingsLoader settingsLoader, GlobalAnalysisMode mode) {
     if (projectSettings == null) {
 
       Map<String, String> settings = new LinkedHashMap<>();
       settings.putAll(globalSettings.getProperties());
-      settings.putAll(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
+      settings.putAll(loadProjectSettings(settingsLoader, reactor.getRoot().getKeyWithBranch()));
       settings.putAll(reactor.getRoot().properties());
 
       projectSettings = new ProjectSettings(globalSettings.getDefinitions(), globalSettings.getEncryption(), mode, settings);
     }
     return projectSettings;
+  }
+
+  private Map<String, String> loadProjectSettings(SettingsLoader settingsLoader, String projectKey) {
+    return settingsLoader.load(projectKey);
   }
 }

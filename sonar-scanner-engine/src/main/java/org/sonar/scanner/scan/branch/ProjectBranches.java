@@ -17,33 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
+package org.sonar.scanner.scan.branch;
 
-import javax.annotation.CheckForNull;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.Immutable;
 
+/**
+ * Container class for information about the branches of a project.
+ */
 @Immutable
-public class DefaultBranchConfiguration implements BranchConfiguration {
-  @Override
-  public BranchType branchType() {
-    return BranchType.LONG;
+public class ProjectBranches {
+
+  private final Map<String, BranchInfo> branches;
+
+  public ProjectBranches(List<BranchInfo> branchInfos) {
+    branches = branchInfos.stream().collect(Collectors.toMap(BranchInfo::name, Function.identity()));
   }
 
-  @CheckForNull
-  @Override
-  public String branchName() {
-    return null;
+  public BranchInfo get(String name) {
+    return branches.get(name);
   }
 
-  @CheckForNull
-  @Override
-  public String branchTarget() {
-    return null;
-  }
-
-  @CheckForNull
-  @Override
-  public String branchBase() {
-    return null;
+  public boolean isEmpty() {
+    return branches.isEmpty();
   }
 }

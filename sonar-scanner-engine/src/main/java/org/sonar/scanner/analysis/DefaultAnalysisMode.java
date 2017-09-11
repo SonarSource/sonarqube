@@ -20,85 +20,107 @@
 package org.sonar.scanner.analysis;
 
 import java.util.Map;
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.bootstrap.AbstractAnalysisMode;
-import org.sonar.scanner.bootstrap.GlobalProperties;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 @Immutable
-public class DefaultAnalysisMode extends AbstractAnalysisMode {
-
+public class DefaultAnalysisMode implements AnalysisMode {
   private static final Logger LOG = Loggers.get(DefaultAnalysisMode.class);
   private static final String KEY_SCAN_ALL = "sonar.scanAllFiles";
+  private static final String KEY_INCREMENTAL = "sonar.incremental";
+
+  private final Map<String, String> analysisProps;
+  private final GlobalAnalysisMode analysisMode;
+  private final BranchConfiguration branchConfig;
+  private final ProjectRepositories projectRepos;
+  private final ValidateIncremental validateIncremental;
 
   private boolean scanAllFiles;
+  private boolean incremental;
 
-  public DefaultAnalysisMode(GlobalProperties globalProps, AnalysisProperties props, BranchConfiguration branchConfig) {
-    init(globalProps.properties(), props.properties(), branchConfig);
+  public DefaultAnalysisMode(AnalysisProperties props, BranchConfiguration branchConfig, GlobalAnalysisMode analysisMode, ProjectRepositories projectRepos) {
+    this(props, branchConfig, analysisMode, projectRepos, null);
+  }
+
+  public DefaultAnalysisMode(AnalysisProperties props, BranchConfiguration branchConfig,
+    GlobalAnalysisMode analysisMode, ProjectRepositories projectRepos, @Nullable ValidateIncremental validateIncremental) {
+    this.branchConfig = branchConfig;
+    this.analysisMode = analysisMode;
+    this.projectRepos = projectRepos;
+    this.validateIncremental = validateIncremental;
+    this.analysisProps = props.properties();
+    load();
+  }
+
+  @Override
+  public boolean isIncremental() {
+    return incremental;
   }
 
   public boolean scanAllFiles() {
     return scanAllFiles;
   }
 
-  private void init(Map<String, String> globalProps, Map<String, String> analysisProps, BranchConfiguration branchConfig) {
-    // make sure analysis is consistent with global properties
-    boolean globalPreview = isIssues(globalProps);
-    boolean analysisPreview = isIssues(analysisProps);
-
-    if (!globalPreview && analysisPreview) {
-      throw new IllegalStateException("Inconsistent properties: global properties doesn't enable issues mode while analysis properties enables it");
-    }
-
-    load(globalProps, analysisProps, branchConfig.isShortLivingBranch());
-  }
-
-  private void load(Map<String, String> globalProps, Map<String, String> analysisProps, boolean isShortLivingBranch) {
-    String mode = getPropertyWithFallback(analysisProps, globalProps, CoreProperties.ANALYSIS_MODE);
-    validate(mode);
-    issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
-    mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, MEDIUM_TEST_ENABLED));
-    String scanAllStr = getPropertyWithFallback(analysisProps, globalProps, KEY_SCAN_ALL);
-    scanAllFiles = !isShortLivingBranch && (!issues || "true".equals(scanAllStr));
-  }
-
-  public void printMode() {
-    if (preview) {
-      LOG.info("Preview mode");
-    } else if (issues) {
-      LOG.info("Issues mode");
-    } else {
-      LOG.info("Publish mode");
-    }
-    if (mediumTestMode) {
-      LOG.info("Medium test mode");
-    }
+  public void printFlags() {
     if (!scanAllFiles) {
       LOG.info("Scanning only changed files");
     }
   }
 
-  @Override
-  public boolean isIncremental() {
+  private void load() {
+    String scanAllStr = analysisProps.get(KEY_SCAN_ALL);
+    scanAllFiles = !branchConfig.isShortLivingBranch() && (!analysisMode.isIssues() || "true".equals(scanAllStr));
+    incremental = incremental();
+  }
+
+  private boolean incremental() {
+    String inc = analysisProps.get(KEY_INCREMENTAL);
+    if ("true".equals(inc)) {
+      if (validateIncremental == null || !validateIncremental.validate()) {
+        throw MessageException.of("Incremental mode is not available. Please contact your administrator.");
+      }
+
+      if (!analysisMode.isPublish()) {
+        throw new IllegalStateException("Incremental analysis is only available in publish mode");
+      }
+
+      if (branchConfig.branchName() != null) {
+        LOG.warn("Incremental analysis mode has been activated but it's not compatible with branches so a full analysis will be done.");
+        return false;
+      }
+
+      if (!projectRepos.exists() || projectRepos.lastAnalysisDate() == null) {
+        LOG.warn("Incremental analysis mode has been activated but the project was never analyzed before so a full analysis is about to be done.");
+        return false;
+      }
+
+      LOG.debug("Reference analysis is {}", DateUtils.formatDateTime(projectRepos.lastAnalysisDate()));
+      return true;
+    }
+
     return false;
   }
 
-  @CheckForNull
-  private static String getPropertyWithFallback(Map<String, String> props1, Map<String, String> props2, String key) {
-    if (props1.containsKey(key)) {
-      return props1.get(key);
-    }
-
-    return props2.get(key);
+  @Override
+  public boolean isPreview() {
+    return analysisMode.isPreview();
   }
 
-  private static boolean isIssues(Map<String, String> props) {
-    String mode = props.get(CoreProperties.ANALYSIS_MODE);
+  @Override
+  public boolean isIssues() {
+    return analysisMode.isIssues();
+  }
 
-    return CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
+  @Override
+  public boolean isPublish() {
+    return analysisMode.isPublish();
   }
 }

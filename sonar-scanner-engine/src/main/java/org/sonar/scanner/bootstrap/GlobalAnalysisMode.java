@@ -20,33 +20,30 @@
 package org.sonar.scanner.bootstrap;
 
 import java.util.Arrays;
+import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.AnalysisMode;
 
-public abstract class AbstractAnalysisMode implements AnalysisMode {
-
-  private static final String[] VALID_MODES = {CoreProperties.ANALYSIS_MODE_PREVIEW, CoreProperties.ANALYSIS_MODE_PUBLISH, CoreProperties.ANALYSIS_MODE_ISSUES};
+@Immutable
+public class GlobalAnalysisMode {
   public static final String MEDIUM_TEST_ENABLED = "sonar.mediumTest.enabled";
+  private static final Logger LOG = LoggerFactory.getLogger(GlobalAnalysisMode.class);
+  private static final String[] VALID_MODES = {CoreProperties.ANALYSIS_MODE_PREVIEW, CoreProperties.ANALYSIS_MODE_PUBLISH, CoreProperties.ANALYSIS_MODE_ISSUES};
 
   protected boolean preview;
   protected boolean issues;
   protected boolean mediumTestMode;
 
-  protected AbstractAnalysisMode() {
-  }
-
-  @Override
   public boolean isPreview() {
     return preview;
   }
 
-  @Override
   public boolean isIssues() {
     return issues;
   }
 
-  @Override
   public boolean isPublish() {
     return !preview && !issues;
   }
@@ -70,4 +67,20 @@ public abstract class AbstractAnalysisMode implements AnalysisMode {
 
   }
 
+  public GlobalAnalysisMode(GlobalProperties props) {
+    String mode = props.property(CoreProperties.ANALYSIS_MODE);
+    validate(mode);
+    issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
+    mediumTestMode = "true".equals(props.property(MEDIUM_TEST_ENABLED));
+    if (preview) {
+      LOG.debug("Preview mode");
+    } else if (issues) {
+      LOG.debug("Issues mode");
+    } else {
+      LOG.debug("Publish mode");
+    }
+    if (mediumTestMode) {
+      LOG.info("Medium test mode");
+    }
+  }
 }

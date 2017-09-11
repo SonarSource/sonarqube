@@ -17,20 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.scan.branch;
 
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.scan.branch.BranchConfiguration;
-
-public class InputComponentStoreProvider extends ProviderAdapter {
-  private InputComponentStore store;
-
-  public InputComponentStore provide(InputModuleHierarchy hierarchy, DefaultAnalysisMode analysisFlags, BranchConfiguration branchConfiguration) {
-    if (store == null) {
-      store = new InputComponentStore(hierarchy.root(), analysisFlags, branchConfiguration);
-    }
-    return store;
-  }
+public enum BranchType {
+  SHORT, LONG
 }

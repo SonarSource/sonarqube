@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.scan.branch;
 
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 
-public class InputComponentStoreProvider extends ProviderAdapter {
-  private InputComponentStore store;
+@ScannerSide
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+public interface ProjectBranchesLoader {
 
-  public InputComponentStore provide(InputModuleHierarchy hierarchy, DefaultAnalysisMode analysisFlags, BranchConfiguration branchConfiguration) {
-    if (store == null) {
-      store = new InputComponentStore(hierarchy.root(), analysisFlags, branchConfiguration);
-    }
-    return store;
-  }
+  /**
+   * Load the branches of a project.
+   */
+  ProjectBranches load(String projectKey);
+
 }

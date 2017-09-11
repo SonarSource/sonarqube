@@ -46,7 +46,7 @@ import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Version;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
 import org.sonar.scanner.sensor.noop.NoOpNewCoverage;
 import org.sonar.scanner.sensor.noop.NoOpNewCpdTokens;

@@ -17,14 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
+package org.sonar.scanner.scan.branch;
 
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import javax.annotation.concurrent.Immutable;
 
-@ScannerSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public interface BranchConfigurationLoader {
-  BranchConfiguration load(String projectKey, GlobalConfiguration settings);
+/**
+ * Container class for information about a branch.
+ */
+@Immutable
+public class BranchInfo {
+  private final String name;
+  private final BranchType type;
+  private final boolean isMain;
+
+  public BranchInfo(String name, BranchType type, boolean isMain) {
+    this.name = name;
+    this.type = type;
+    this.isMain = isMain;
+  }
+
+  public String name() {
+    return name;
+  }
+
+  public BranchType type() {
+    return type;
+  }
+
+  public boolean isMain() {
+    return isMain;
+  }
 }

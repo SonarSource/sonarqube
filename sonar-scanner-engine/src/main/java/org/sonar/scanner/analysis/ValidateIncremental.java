@@ -17,14 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
+package org.sonar.scanner.analysis;
 
-import java.util.List;
-import javax.annotation.Nullable;
-
-public class DefaultBranchParamsValidator implements BranchParamsValidator {
-  @Override
-  public void validate(List<String> validationMessages, @Nullable String deprecatedBranchName, boolean incrementalMode) {
-    // no-op
-  }
+public interface ValidateIncremental {
+  boolean validate();
 }

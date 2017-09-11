@@ -26,7 +26,6 @@ import javax.annotation.concurrent.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.scanner.config.DefaultConfiguration;
@@ -48,7 +47,7 @@ public class GlobalConfiguration extends DefaultConfiguration {
 
   private final Map<String, String> serverSideSettings;
 
-  public GlobalConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, AnalysisMode mode,
+  public GlobalConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, GlobalAnalysisMode mode,
     Map<String, String> settings, Map<String, String> serverSideSettings) {
     super(propertyDefinitions, encryption, mode, settings);
     this.serverSideSettings = serverSideSettings;

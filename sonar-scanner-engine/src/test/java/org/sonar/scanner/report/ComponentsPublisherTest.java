@@ -45,8 +45,8 @@ import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.scan.BranchConfiguration;
-import org.sonar.scanner.scan.BranchConfiguration.BranchType;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.DefaultComponentTree;
 
 import static org.assertj.core.api.Assertions.assertThat;

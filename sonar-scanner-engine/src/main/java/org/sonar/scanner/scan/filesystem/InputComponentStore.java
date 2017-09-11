@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
@@ -44,7 +43,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 /**
  * Store of all files and dirs. This cache is shared amongst all project modules. Inclusion and
@@ -65,12 +65,12 @@ public class InputComponentStore {
   private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
   private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
   private final InputModule root;
-  private final AnalysisMode mode;
+  private final DefaultAnalysisMode analysisFlags;
   private final BranchConfiguration branchConfiguration;
 
-  public InputComponentStore(DefaultInputModule root, AnalysisMode mode, BranchConfiguration branchConfiguration) {
+  public InputComponentStore(DefaultInputModule root, DefaultAnalysisMode analysisFlags, BranchConfiguration branchConfiguration) {
     this.root = root;
-    this.mode = mode;
+    this.analysisFlags = analysisFlags;
     this.branchConfiguration = branchConfiguration;
     this.put(root);
   }
@@ -83,7 +83,7 @@ public class InputComponentStore {
     return inputFileCache.values().stream()
       .map(f -> (DefaultInputFile) f)
       .filter(DefaultInputFile::isPublished)
-      .filter(f -> (!mode.isIncremental() && !branchConfiguration.isShortLivingBranch()) || f.status() != Status.SAME)::iterator;
+      .filter(f -> (!analysisFlags.isIncremental() && !branchConfiguration.isShortLivingBranch()) || f.status() != Status.SAME)::iterator;
   }
 
   public Iterable<InputFile> allFiles() {

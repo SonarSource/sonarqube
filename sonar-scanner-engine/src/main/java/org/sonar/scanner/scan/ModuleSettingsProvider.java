@@ -25,9 +25,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.repository.ProjectRepositories;
@@ -37,7 +37,7 @@ public class ModuleSettingsProvider extends ProviderAdapter {
   private ModuleSettings projectSettings;
 
   public ModuleSettings provide(GlobalConfiguration globalSettings, DefaultInputModule module, ProjectRepositories projectRepos,
-    AnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
+    GlobalAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
     if (projectSettings == null) {
 
       Map<String, String> settings = new LinkedHashMap<>();

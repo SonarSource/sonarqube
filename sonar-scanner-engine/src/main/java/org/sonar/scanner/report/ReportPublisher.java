@@ -45,9 +45,10 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.scan.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.HttpException;
@@ -71,21 +72,23 @@ public class ReportPublisher implements Startable {
   private final ScannerWsClient wsClient;
   private final AnalysisContextReportPublisher contextPublisher;
   private final InputModuleHierarchy moduleHierarchy;
-  private final DefaultAnalysisMode analysisMode;
+  private final GlobalAnalysisMode analysisMode;
   private final TempFolder temp;
   private final ReportPublisherStep[] publishers;
   private final Server server;
   private final BranchConfiguration branchConfiguration;
+  private final DefaultAnalysisMode analysisFlags;
 
   private Path reportDir;
   private ScannerReportWriter writer;
 
-  public ReportPublisher(Configuration settings, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
-                         InputModuleHierarchy moduleHierarchy, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration) {
+  public ReportPublisher(Configuration settings, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher, DefaultAnalysisMode analysisFlags,
+    InputModuleHierarchy moduleHierarchy, GlobalAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration) {
     this.settings = settings;
     this.wsClient = wsClient;
     this.server = server;
     this.contextPublisher = contextPublisher;
+    this.analysisFlags = analysisFlags;
     this.moduleHierarchy = moduleHierarchy;
     this.analysisMode = analysisMode;
     this.temp = temp;
@@ -177,7 +180,7 @@ public class ReportPublisher implements Startable {
       .setParam("projectBranch", moduleHierarchy.root().getBranch())
       .setPart("report", filePart);
 
-    if (analysisMode.isIncremental()) {
+    if (analysisFlags.isIncremental()) {
       post.setParam("characteristic", "incremental=true");
     }
 

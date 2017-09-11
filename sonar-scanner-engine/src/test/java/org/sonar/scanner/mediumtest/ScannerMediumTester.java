@@ -52,8 +52,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.bootstrap.GlobalMode;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.report.ReportPublisher;
@@ -68,8 +67,11 @@ import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
-import org.sonar.scanner.scan.BranchConfiguration;
-import org.sonar.scanner.scan.BranchConfigurationLoader;
+import org.sonar.scanner.scan.ProjectSettings;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfigurationLoader;
+import org.sonar.scanner.scan.branch.BranchType;
+import org.sonar.scanner.scan.branch.ProjectBranches;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
@@ -239,7 +241,7 @@ public class ScannerMediumTester extends ExternalResource {
       throw new IllegalStateException(e);
     }
     registerCoreMetrics();
-    globalProperties.put(GlobalMode.MEDIUM_TEST_ENABLED, "true");
+    globalProperties.put(GlobalAnalysisMode.MEDIUM_TEST_ENABLED, "true");
     globalProperties.put(ReportPublisher.KEEP_REPORT_PROP_KEY, "true");
     globalProperties.put("sonar.userHome", userHome.toString());
   }
@@ -420,7 +422,7 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
-  public ScannerMediumTester setBranchType(BranchConfiguration.BranchType branchType) {
+  public ScannerMediumTester setBranchType(BranchType branchType) {
     branchConfiguration.branchType = branchType;
     return this;
   }
@@ -437,7 +439,7 @@ public class ScannerMediumTester extends ExternalResource {
 
   private class FakeBranchConfigurationLoader implements BranchConfigurationLoader {
     @Override
-    public BranchConfiguration load(String projectKey, GlobalConfiguration settings) {
+    public BranchConfiguration load(ProjectSettings settings, ProjectBranches branches) {
       return branchConfiguration;
     }
   }

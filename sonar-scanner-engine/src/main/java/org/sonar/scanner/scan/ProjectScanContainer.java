@@ -41,6 +41,7 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.ExtensionUtils;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.MetricProvider;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.cpd.CpdSettings;
@@ -75,6 +76,7 @@ import org.sonar.scanner.repository.DefaultQualityProfileLoader;
 import org.sonar.scanner.repository.DefaultServerIssuesLoader;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
+import org.sonar.scanner.repository.ProjectRepositoriesProvider;
 import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.QualityProfileProvider;
 import org.sonar.scanner.repository.ServerIssuesLoader;
@@ -85,6 +87,10 @@ import org.sonar.scanner.rule.DefaultActiveRulesLoader;
 import org.sonar.scanner.rule.DefaultRulesLoader;
 import org.sonar.scanner.rule.RulesLoader;
 import org.sonar.scanner.rule.RulesProvider;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
+import org.sonar.scanner.scan.branch.BranchType;
+import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 import org.sonar.scanner.scan.filesystem.InputComponentStoreProvider;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
@@ -137,6 +143,9 @@ public class ProjectScanContainer extends ComponentContainer {
       Storages.class,
       new RulesProvider(),
       new BranchConfigurationProvider(),
+      new ProjectBranchesProvider(),
+      DefaultAnalysisMode.class,
+      new ProjectRepositoriesProvider(),
 
       // temp
       new AnalysisTempFolderProvider(),
@@ -223,10 +232,9 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    DefaultAnalysisMode analysisMode = getComponentByType(DefaultAnalysisMode.class);
+    GlobalAnalysisMode analysisMode = getComponentByType(GlobalAnalysisMode.class);
     InputModuleHierarchy tree = getComponentByType(InputModuleHierarchy.class);
 
-    analysisMode.printMode();
     LOG.info("Project key: {}", tree.root().key());
     String organization = props.property("sonar.organization");
     if (StringUtils.isNotEmpty(organization)) {
@@ -251,7 +259,7 @@ public class ProjectScanContainer extends ComponentContainer {
     }
   }
 
-  private static String toDisplayName(BranchConfiguration.BranchType branchType) {
+  private static String toDisplayName(BranchType branchType) {
     switch (branchType) {
       case LONG:
         return "long living";
