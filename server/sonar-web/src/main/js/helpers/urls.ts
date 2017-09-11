@@ -31,21 +31,23 @@ interface Location {
   query?: Query;
 }
 
+export function getBaseUrl(): string {
+  return (window as any).baseUrl;
+}
+
 /**
  * Generate URL for a component's home page
  */
 export function getComponentUrl(componentKey: string, branch?: string): string {
   const branchQuery = branch ? `&branch=${encodeURIComponent(branch)}` : '';
-  return (
-    (window as any).baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey) + branchQuery
-  );
+  return getBaseUrl() + '/dashboard?id=' + encodeURIComponent(componentKey) + branchQuery;
 }
 
 export function getProjectUrl(key: string, branch?: string): Location {
   return { pathname: '/dashboard', query: { id: key, branch } };
 }
 
-export function getProjectBranchUrl(key: string, branch: Branch) {
+export function getProjectBranchUrl(key: string, branch: Branch): Location {
   if (isShortLivingBranch(branch)) {
     return {
       pathname: '/project/issues',
@@ -74,13 +76,17 @@ export function getComponentIssuesUrl(componentKey: string, query?: Query): Loca
 
 export function getComponentIssuesUrlAsString(componentKey: string, query?: Query): string {
   const path = getComponentIssuesUrl(componentKey, query);
-  return `${(window as any).baseUrl}${path.pathname}?${stringify(path.query)}`;
+  return `${getBaseUrl()}${path.pathname}?${stringify(path.query)}`;
 }
 
 /**
  * Generate URL for a component's drilldown page
  */
-export function getComponentDrilldownUrl(componentKey: string, metric: string, branch?: string) {
+export function getComponentDrilldownUrl(
+  componentKey: string,
+  metric: string,
+  branch?: string
+): Location {
   return { pathname: '/component_measures', query: { id: componentKey, metric, branch } };
 }
 
@@ -159,9 +165,9 @@ export function getDeprecatedActiveRulesUrl(query = {}, organization?: string | 
 }
 
 export function getProjectsUrl(): string {
-  return (window as any).baseUrl + '/projects';
+  return getBaseUrl() + '/projects';
 }
 
 export function getMarkdownHelpUrl(): string {
-  return (window as any).baseUrl + '/markdown/help';
+  return getBaseUrl() + '/markdown/help';
 }

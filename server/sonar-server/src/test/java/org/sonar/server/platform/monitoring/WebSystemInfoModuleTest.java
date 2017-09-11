@@ -17,20 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, RouteComponent, IndexRouteProps } from 'react-router';
+package org.sonar.server.platform.monitoring;
 
-const routes = [
-  {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/App').then(i => callback(null, { component: i.default }));
-    }
-  },
-  {
-    path: 'old',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./main').then(i => callback(null, (i as any).default));
-    }
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class WebSystemInfoModuleTest {
+
+  @Test
+  public void test_forStandaloneMode() {
+    assertThat(WebSystemInfoModule.forStandaloneMode())
+      .isNotEmpty()
+      .doesNotContainNull();
   }
-];
 
-export default routes;
+  @Test
+  public void test_forClusterMode() {
+    assertThat(WebSystemInfoModule.forClusterMode())
+      .isNotEmpty()
+      .doesNotContainNull();
+  }
+}

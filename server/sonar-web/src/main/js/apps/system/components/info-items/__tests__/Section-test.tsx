@@ -17,20 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, RouteComponent, IndexRouteProps } from 'react-router';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Section from '../Section';
 
-const routes = [
-  {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/App').then(i => callback(null, { component: i.default }));
-    }
-  },
-  {
-    path: 'old',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./main').then(i => callback(null, (i as any).default));
-    }
-  }
-];
+it('should render correctly', () => {
+  expect(
+    shallow(<Section name="foo" items={{ foo: 1, bar: 'Bar', baz: false }} />)
+  ).toMatchSnapshot();
+});
 
-export default routes;
+it('should not render a title', () => {
+  expect(shallow(<Section items={{ foo: 'bar' }} />)).toMatchSnapshot();
+});

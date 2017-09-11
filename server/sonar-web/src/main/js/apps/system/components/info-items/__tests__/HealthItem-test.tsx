@@ -17,20 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, RouteComponent, IndexRouteProps } from 'react-router';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import HealthItem from '../HealthItem';
+import { HealthType } from '../../../../../api/system';
 
-const routes = [
-  {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/App').then(i => callback(null, { component: i.default }));
-    }
-  },
-  {
-    path: 'old',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./main').then(i => callback(null, (i as any).default));
-    }
-  }
-];
+it('should render correctly', () => {
+  expect(
+    shallow(<HealthItem health={HealthType.RED} healthCauses={[{ message: 'foo' }]} />)
+  ).toMatchSnapshot();
+});
 
-export default routes;
+it('should not render health causes', () => {
+  expect(
+    shallow(<HealthItem health={HealthType.GREEN} healthCauses={[{ message: 'foo' }]} />)
+  ).toMatchSnapshot();
+  expect(shallow(<HealthItem health={HealthType.YELLOW} healthCauses={[]} />)).toMatchSnapshot();
+});
+
+it('should render multiple health causes', () => {
+  expect(
+    shallow(
+      <HealthItem
+        health={HealthType.YELLOW}
+        healthCauses={[{ message: 'foo' }, { message: 'bar' }]}
+      />
+    )
+  ).toMatchSnapshot();
+});
