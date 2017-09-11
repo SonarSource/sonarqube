@@ -31,8 +31,8 @@ export function getSystemStatus(): Promise<any> {
   return getJSON('/api/system/status');
 }
 
-export function restart(): Promise<void> {
-  return post('/api/system/restart');
+export function restart(): Promise<void | Response> {
+  return post('/api/system/restart').catch(throwGlobalError);
 }
 
 const POLLING_INTERVAL = 2000;
