@@ -1,0 +1,180 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render object correctly 1`] = `
+Array [
+  <ObjectItem
+    value={
+        Object {
+            "bar": Object {
+              "a": 1,
+              "b": "b",
+            },
+            "baz": true,
+            "foo": "Far",
+          }
+    }
+>
+    <table
+        className="data"
+    >
+        <tbody>
+            <tr>
+                <td
+                    className="thin nowrap"
+                >
+                    foo
+                </td>
+                <td>
+                    <SysInfoItem
+                        name="foo"
+                        value="Far"
+                    >
+                        <code>
+                            Far
+                        </code>
+                    </SysInfoItem>
+                </td>
+            </tr>
+            <tr>
+                <td
+                    className="thin nowrap"
+                >
+                    bar
+                </td>
+                <td>
+                    <SysInfoItem
+                        name="bar"
+                        value={
+                            Object {
+                                "a": 1,
+                                "b": "b",
+                              }
+                        }
+                    >
+                        <ObjectItem
+                            value={
+                                Object {
+                                    "a": 1,
+                                    "b": "b",
+                                  }
+                            }
+                        >
+                            <table
+                                className="data"
+                            >
+                                <tbody>
+                                    <tr>
+                                        <td
+                                            className="thin nowrap"
+                                        >
+                                            a
+                                        </td>
+                                        <td>
+                                            <SysInfoItem
+                                                name="a"
+                                                value={1}
+                                            >
+                                                <code>
+                                                    1
+                                                </code>
+                                            </SysInfoItem>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td
+                                            className="thin nowrap"
+                                        >
+                                            b
+                                        </td>
+                                        <td>
+                                            <SysInfoItem
+                                                name="b"
+                                                value="b"
+                                            >
+                                                <code>
+                                                    b
+                                                </code>
+                                            </SysInfoItem>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </ObjectItem>
+                    </SysInfoItem>
+                </td>
+            </tr>
+            <tr>
+                <td
+                    className="thin nowrap"
+                >
+                    baz
+                </td>
+                <td>
+                    <SysInfoItem
+                        name="baz"
+                        value={true}
+                    >
+                        <BooleanItem
+                            value={true}
+                        >
+                            <i
+                                className="icon-check"
+                            />
+                        </BooleanItem>
+                    </SysInfoItem>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</ObjectItem>,
+  <ObjectItem
+    value={
+        Object {
+            "a": 1,
+            "b": "b",
+          }
+    }
+>
+    <table
+        className="data"
+    >
+        <tbody>
+            <tr>
+                <td
+                    className="thin nowrap"
+                >
+                    a
+                </td>
+                <td>
+                    <SysInfoItem
+                        name="a"
+                        value={1}
+                    >
+                        <code>
+                            1
+                        </code>
+                    </SysInfoItem>
+                </td>
+            </tr>
+            <tr>
+                <td
+                    className="thin nowrap"
+                >
+                    b
+                </td>
+                <td>
+                    <SysInfoItem
+                        name="b"
+                        value="b"
+                    >
+                        <code>
+                            b
+                        </code>
+                    </SysInfoItem>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</ObjectItem>,
+]
+`;

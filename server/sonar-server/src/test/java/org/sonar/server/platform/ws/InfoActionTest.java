@@ -19,8 +19,6 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,8 +26,9 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.ce.http.CeHttpClient;
 import org.sonar.ce.http.CeHttpClientImpl;
+import org.sonar.process.systeminfo.SystemInfoSection;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.platform.monitoring.Monitor;
 import org.sonar.server.telemetry.TelemetryData;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.tester.UserSessionRule;
@@ -40,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 public class InfoActionTest {
   @Rule
@@ -48,12 +48,12 @@ public class InfoActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private Monitor monitor1 = mock(Monitor.class);
-  private Monitor monitor2 = mock(Monitor.class);
+  private SystemInfoSection section1 = mock(SystemInfoSection.class);
+  private SystemInfoSection section2 = mock(SystemInfoSection.class);
   private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class, Mockito.RETURNS_MOCKS);
   private TelemetryDataLoader statistics = mock(TelemetryDataLoader.class);
 
-  private InfoAction underTest = new InfoAction(userSessionRule, ceHttpClient, statistics, monitor1, monitor2);
+  private InfoAction underTest = new InfoAction(userSessionRule, ceHttpClient, statistics, section1, section2);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -84,22 +84,23 @@ public class InfoActionTest {
   public void write_json() {
     logInAsSystemAdministrator();
 
-    Map<String, Object> attributes1 = new LinkedHashMap<>();
-    attributes1.put("foo", "bar");
-    Map<String, Object> attributes2 = new LinkedHashMap<>();
-    attributes2.put("one", 1);
-    attributes2.put("two", 2);
-    when(monitor1.name()).thenReturn("Monitor One");
-    when(monitor1.attributes()).thenReturn(attributes1);
-    when(monitor2.name()).thenReturn("Monitor Two");
-    when(monitor2.attributes()).thenReturn(attributes2);
+    ProtobufSystemInfo.Section.Builder attributes1 = ProtobufSystemInfo.Section.newBuilder()
+      .setName("Section One");
+    setAttribute(attributes1, "foo", "bar");
+    when(section1.toProtobuf()).thenReturn(attributes1.build());
+
+    ProtobufSystemInfo.Section.Builder attributes2 = ProtobufSystemInfo.Section.newBuilder()
+      .setName("Section Two");
+    setAttribute(attributes2, "one", 1);
+    setAttribute(attributes2, "two", 2);
+    when(section2.toProtobuf()).thenReturn(attributes2.build());
     when(ceHttpClient.retrieveSystemInfo()).thenReturn(Optional.empty());
     when(statistics.load()).thenReturn(mock(TelemetryData.class));
 
     TestResponse response = ws.newRequest().execute();
-    // response does not contain empty "Monitor Three"
+    // response does not contain empty "Section Three"
     verify(statistics).load();
-    assertThat(response.getInput()).isEqualTo("{\"Monitor One\":{\"foo\":\"bar\"},\"Monitor Two\":{\"one\":1,\"two\":2}," +
+    assertThat(response.getInput()).isEqualTo("{\"Section One\":{\"foo\":\"bar\"},\"Section Two\":{\"one\":1,\"two\":2}," +
       "\"Statistics\":{\"plugins\":{},\"userCount\":0,\"projectCount\":0,\"lines\":0,\"ncloc\":0,\"projectCountByLanguage\":{},\"nclocByLanguage\":{}}}");
   }
 

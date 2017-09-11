@@ -17,20 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, RouteComponent, IndexRouteProps } from 'react-router';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import ClusterSysInfos from '../ClusterSysInfos';
+import { HealthType, SysInfo } from '../../../../api/system';
 
-const routes = [
-  {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/App').then(i => callback(null, { component: i.default }));
-    }
-  },
-  {
-    path: 'old',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./main').then(i => callback(null, (i as any).default));
-    }
-  }
-];
+const sysInfoData: SysInfo = {
+  Cluster: true,
+  Health: HealthType.RED,
+  Name: 'Foo',
+  'Health Causes': [{ message: 'Database down' }],
+  'Application Nodes': [{ Name: 'Bar', Health: HealthType.GREEN, 'Health Causes': [] }],
+  'Search Nodes': [{ Name: 'Baz', Health: HealthType.YELLOW, 'Health Causes': [] }]
+};
 
-export default routes;
+it('should render correctly', () => {
+  expect(getWrapper()).toMatchSnapshot();
+});
+
+function getWrapper(props = {}) {
+  return shallow(
+    <ClusterSysInfos
+      expandedCards={['System', 'Foo']}
+      sysInfoData={sysInfoData}
+      toggleCard={() => {}}
+      {...props}
+    />
+  );
+}

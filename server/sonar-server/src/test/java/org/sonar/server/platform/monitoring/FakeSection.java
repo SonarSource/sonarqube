@@ -17,20 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, RouteComponent, IndexRouteProps } from 'react-router';
+package org.sonar.server.platform.monitoring;
 
-const routes = [
-  {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/App').then(i => callback(null, { component: i.default }));
-    }
-  },
-  {
-    path: 'old',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./main').then(i => callback(null, (i as any).default));
-    }
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+
+public class FakeSection extends BaseSectionMBean implements FakeSectionMBean {
+
+  @Override
+  public int getFake() {
+    return 42;
   }
-];
 
-export default routes;
+  @Override
+  public String name() {
+    return "fake";
+  }
+
+  @Override
+  public ProtobufSystemInfo.Section toProtobuf() {
+    return ProtobufSystemInfo.Section.newBuilder().build();
+  }
+}

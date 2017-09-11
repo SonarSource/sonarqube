@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.ce.httpd.HttpAction;
-import org.sonar.process.systeminfo.ProcessStateSystemInfo;
+import org.sonar.process.systeminfo.JvmStateSection;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
@@ -44,8 +44,8 @@ public class SystemInfoHttpActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private SystemInfoSection stateProvider1 = new ProcessStateSystemInfo("state1");
-  private SystemInfoSection stateProvider2 = new ProcessStateSystemInfo("state2");
+  private SystemInfoSection stateProvider1 = new JvmStateSection("state1");
+  private SystemInfoSection stateProvider2 = new JvmStateSection("state2");
   private SystemInfoHttpAction underTest;
 
   @Before

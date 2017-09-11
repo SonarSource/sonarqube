@@ -20,8 +20,9 @@
 // @flow
 /* eslint-disable max-len */
 import React from 'react';
-import Tooltip from '../controls/Tooltip';
+import OpenCloseIcon from '../icons-components/OpenCloseIcon';
 import HelpIcon from '../icons-components/HelpIcon';
+import Tooltip from '../controls/Tooltip';
 import { translate } from '../../helpers/l10n';
 
 /*::
@@ -57,29 +58,6 @@ export default class FacetHeader extends React.PureComponent {
       this.props.onClick();
     }
   };
-
-  renderCheckbox() {
-    return (
-      <svg
-        className="little-spacer-right"
-        viewBox="0 0 1792 1792"
-        width="10"
-        height="10"
-        style={{ paddingTop: 3 }}>
-        {this.props.open ? (
-          <path
-            style={{ fill: 'currentColor ' }}
-            d="M1683 808l-742 741q-19 19-45 19t-45-19l-742-741q-19-19-19-45.5t19-45.5l166-165q19-19 45-19t45 19l531 531 531-531q19-19 45-19t45 19l166 165q19 19 19 45.5t-19 45.5z"
-          />
-        ) : (
-          <path
-            style={{ fill: 'currentColor ' }}
-            d="M1363 877l-742 742q-19 19-45 19t-45-19l-166-166q-19-19-19-45t19-45l531-531-531-531q-19-19-19-45t19-45l166-166q19-19 45-19t45 19l742 742q19 19 19 45t-19 45z"
-          />
-        )}
-      </svg>
-    );
-  }
 
   renderHelper() {
     if (!this.props.helper) {
@@ -119,7 +97,7 @@ export default class FacetHeader extends React.PureComponent {
         {this.props.onClick ? (
           <span className="search-navigator-facet-header">
             <a href="#" onClick={this.handleClick}>
-              {this.renderCheckbox()}
+              <OpenCloseIcon className="little-spacer-right" open={this.props.open} />
               {this.props.name}
             </a>
             {this.renderHelper()}

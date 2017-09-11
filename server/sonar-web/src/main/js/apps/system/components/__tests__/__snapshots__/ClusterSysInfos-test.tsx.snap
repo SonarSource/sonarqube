@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ul>
+  <HealthCard
+    biggerHealth={true}
+    health="RED"
+    healthCauses={
+      Array [
+        Object {
+          "message": "Database down",
+        },
+      ]
+    }
+    name="System"
+    onClick={[Function]}
+    open={true}
+    sysInfoData={
+      Object {
+        "Name": "Foo",
+      }
+    }
+  />
+  <li
+    className="note system-info-health-title"
+  >
+    system.application_nodes_title
+  </li>
+  <HealthCard
+    health="GREEN"
+    healthCauses={Array []}
+    name="Bar"
+    onClick={[Function]}
+    open={false}
+    sysInfoData={
+      Object {
+        "Name": "Bar",
+      }
+    }
+  />
+  <li
+    className="note system-info-health-title"
+  >
+    system.search_nodes_title
+  </li>
+  <HealthCard
+    health="YELLOW"
+    healthCauses={Array []}
+    name="Baz"
+    onClick={[Function]}
+    open={false}
+    sysInfoData={
+      Object {
+        "Name": "Baz",
+      }
+    }
+  />
+</ul>
+`;

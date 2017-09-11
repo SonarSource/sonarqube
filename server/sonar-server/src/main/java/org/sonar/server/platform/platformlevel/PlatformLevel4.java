@@ -108,19 +108,13 @@ import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.platform.SettingsChangeNotifier;
-import org.sonar.server.platform.monitoring.DatabaseMonitor;
-import org.sonar.server.platform.monitoring.EsMonitor;
-import org.sonar.server.platform.monitoring.JvmPropsMonitor;
-import org.sonar.server.platform.monitoring.PluginsMonitor;
-import org.sonar.server.platform.monitoring.SettingsMonitor;
-import org.sonar.server.platform.monitoring.SonarQubeMonitor;
-import org.sonar.server.platform.monitoring.SystemMonitor;
+import org.sonar.server.platform.monitoring.WebSystemInfoModule;
 import org.sonar.server.platform.web.WebPagesFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
 import org.sonar.server.platform.ws.ChangeLogLevelAction;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.HealthActionModule;
-import org.sonar.server.platform.ws.InfoActionModule;
+import org.sonar.server.platform.ws.InfoAction;
 import org.sonar.server.platform.ws.L10nWs;
 import org.sonar.server.platform.ws.LogsAction;
 import org.sonar.server.platform.ws.MigrateDbAction;
@@ -192,7 +186,9 @@ import org.sonar.server.source.ws.LinesAction;
 import org.sonar.server.source.ws.RawAction;
 import org.sonar.server.source.ws.ScmAction;
 import org.sonar.server.source.ws.SourcesWs;
-import org.sonar.server.telemetry.TelemetryModule;
+import org.sonar.server.telemetry.TelemetryClient;
+import org.sonar.server.telemetry.TelemetryDaemon;
+import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;
@@ -486,17 +482,9 @@ public class PlatformLevel4 extends PlatformLevel {
       // System
       ServerLogging.class,
       RestartAction.class,
-      InfoActionModule.class,
       PingAction.class,
       UpgradesAction.class,
       StatusAction.class,
-      SystemMonitor.class,
-      SettingsMonitor.class,
-      SonarQubeMonitor.class,
-      EsMonitor.class,
-      PluginsMonitor.class,
-      JvmPropsMonitor.class,
-      DatabaseMonitor.class,
       MigrateDbAction.class,
       LogsAction.class,
       ChangeLogLevelAction.class,
@@ -548,9 +536,14 @@ public class PlatformLevel4 extends PlatformLevel {
 
       RecoveryIndexer.class,
       ProjectIndexersImpl.class);
-    addIfStartupLeader(
-      // Telemetry
-      TelemetryModule.class);
+
+    // telemetry
+    add(TelemetryDataLoader.class);
+    addIfStartupLeader(TelemetryDaemon.class, TelemetryClient.class);
+
+    // system info
+    add(InfoAction.class);
+    addIfCluster(WebSystemInfoModule.forClusterMode()).otherwiseAdd(WebSystemInfoModule.forStandaloneMode());
 
     addAll(level4AddedComponents);
   }

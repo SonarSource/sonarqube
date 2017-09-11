@@ -59,15 +59,15 @@ public class DistributedAnswer<T> {
     return members;
   }
 
-  void setAnswer(Member member, T answer) {
+  public void setAnswer(Member member, T answer) {
     this.answers.put(member, answer);
   }
 
-  void setTimedOut(Member member) {
+  public void setTimedOut(Member member) {
     this.timedOutMembers.add(member);
   }
 
-  void setFailed(Member member, Exception e) {
+  public void setFailed(Member member, Exception e) {
     failedMembers.put(member, e);
   }
 }

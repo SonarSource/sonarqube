@@ -18,21 +18,56 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
-export function setLogLevel(level: string): Promise<void> {
-  return post('/api/system/change_log_level', { level });
+export type SysValue = boolean | string | number | HealthType | SysValueObject | SysValueArray;
+export interface SysValueObject {
+  [key: string]: SysValue;
+}
+export interface SysValueArray extends Array<SysValue> {}
+
+export interface SysInfoSection {
+  [sectionName: string]: SysValueObject;
 }
 
-export function getSystemInfo(): Promise<any> {
-  return getJSON('/api/system/info');
+export enum HealthType {
+  RED = 'RED',
+  YELLOW = 'YELLOW',
+  GREEN = 'GREEN'
+}
+
+export interface HealthCause extends SysValueObject {
+  message: string;
+}
+
+export interface NodeInfo extends SysValueObject {
+  Name: string;
+  Health: HealthType;
+  'Health Causes': HealthCause[];
+}
+
+export interface SysInfo extends SysValueObject {
+  Cluster: boolean;
+  Health: HealthType;
+  'Health Causes': HealthCause[];
+  'Application Nodes': NodeInfo[];
+  'Search Nodes': NodeInfo[];
+}
+
+export function setLogLevel(level: string): Promise<void | Response> {
+  return post('/api/system/change_log_level', { level }).catch(throwGlobalError);
+}
+
+export function getSystemInfo(): Promise<SysInfo> {
+  return getJSON('/api/system/info').catch(throwGlobalError);
 }
 
 export function getSystemStatus(): Promise<any> {
   return getJSON('/api/system/status');
 }
 
-export function restart(): Promise<void> {
-  return post('/api/system/restart');
+export function restart(): Promise<void | Response> {
+  return post('/api/system/restart').catch(throwGlobalError);
 }
 
 const POLLING_INTERVAL = 2000;
