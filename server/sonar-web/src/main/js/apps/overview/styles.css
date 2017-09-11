@@ -392,6 +392,7 @@
 }
 
 .overview-analysis-event {
+  display: inline-block;
 }
 
 .overview-analysis-event.badge {
