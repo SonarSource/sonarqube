@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.process.System2;
 
 import static java.lang.String.valueOf;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
@@ -52,7 +53,7 @@ public class EsSettings {
   private final String clusterName;
   private final String nodeName;
 
-  public EsSettings(Props props, EsFileSystem fileSystem) {
+  public EsSettings(Props props, EsFileSystem fileSystem, System2 system2) {
     this.props = props;
     this.fileSystem = fileSystem;
 
@@ -62,6 +63,11 @@ public class EsSettings {
       this.nodeName = props.value(CLUSTER_NODE_NAME, "sonarqube-" + UUID.randomUUID().toString());
     } else {
       this.nodeName = STANDALONE_NODE_NAME;
+    }
+    String esJvmOptions = system2.getenv("ES_JVM_OPTIONS");
+    if (esJvmOptions != null && !esJvmOptions.trim().isEmpty()) {
+      LOGGER.warn("ES_JVM_OPTIONS is defined but will be ignored. " +
+        "Use sonar.search.javaOpts and/or sonar.search.javaAdditionalOpts in sonar.properties to specify jvm options for Elasticsearch");
     }
   }
 

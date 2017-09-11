@@ -20,11 +20,8 @@
 package org.sonar.process.command;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.AppenderBase;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -38,7 +35,7 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.System2;
-import org.sonar.process.logging.LogbackHelper;
+import org.sonar.process.logging.ListAppender;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -47,7 +44,6 @@ import static org.mockito.Mockito.when;
 
 public class CommandFactoryImplTest {
 
-  private static final String MEMORY_APPENDER_NAME = "MEMORY_APPENDER";
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -68,9 +64,7 @@ public class CommandFactoryImplTest {
   @After
   public void tearDown() throws Exception {
     if (listAppender != null) {
-      listAppender.stop();
-      new LogbackHelper().getRootContext().getLogger(CommandFactoryImpl.class)
-          .detachAppender(listAppender);
+      ListAppender.detachMemoryAppenderToLoggerOf(CommandFactoryImpl.class, listAppender);
     }
   }
 
@@ -239,27 +233,7 @@ public class CommandFactoryImplTest {
   }
 
   private <T> void attachMemoryAppenderToLoggerOf(Class<T> loggerClass) {
-    this.listAppender = new ListAppender();
-    new LogbackHelper().getRootContext().getLogger(loggerClass)
-      .addAppender(listAppender);
-    listAppender.start();
+    this.listAppender = ListAppender.attachMemoryAppenderToLoggerOf(loggerClass);
   }
 
-  private static final class ListAppender extends AppenderBase<ILoggingEvent> {
-    private final List<ILoggingEvent> logs = new ArrayList<>();
-
-    @Override
-    public String getName() {
-      return MEMORY_APPENDER_NAME;
-    }
-
-    @Override
-    protected void append(ILoggingEvent eventObject) {
-      logs.add(eventObject);
-    }
-
-    public List<ILoggingEvent> getLogs() {
-      return logs;
-    }
-  }
 }

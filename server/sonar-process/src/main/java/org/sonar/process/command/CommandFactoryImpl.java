@@ -76,7 +76,7 @@ public class CommandFactoryImpl implements CommandFactory {
     if (!esFileSystem.getExecutable().exists()) {
       throw new IllegalStateException("Cannot find elasticsearch binary");
     }
-    Map<String, String> settingsMap = new EsSettings(props, esFileSystem).build();
+    Map<String, String> settingsMap = new EsSettings(props, esFileSystem, System2.INSTANCE).build();
 
     return new EsCommand(ProcessId.ELASTICSEARCH, esFileSystem.getHomeDirectory())
       .setFileSystem(esFileSystem)
