@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import java.time.Clock;
 import java.util.Properties;
 import javax.annotation.Nullable;
 import org.sonar.NetworkUtils;
@@ -101,6 +102,7 @@ public class PlatformLevel1 extends PlatformLevel {
       TempFolderCleaner.class,
       new TempFolderProvider(),
       System2.INSTANCE,
+      Clock.systemDefaultZone(),
 
       // user session
       ThreadLocalUserSession.class,
