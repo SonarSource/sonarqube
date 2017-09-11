@@ -21,7 +21,7 @@ package org.sonar.scanner.scan.branch;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import org.sonar.scanner.scan.ProjectSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -29,14 +29,14 @@ import static org.mockito.Mockito.when;
 
 public class BranchConfigurationProviderTest {
   private BranchConfigurationProvider provider = new BranchConfigurationProvider();
-  private GlobalConfiguration globalConfiguration;
+  private ProjectSettings projectSettings;
   private BranchConfigurationLoader loader;
   private BranchConfiguration config;
   private ProjectBranches branches;
 
   @Before
   public void setUp() {
-    globalConfiguration = mock(GlobalConfiguration.class);
+    projectSettings = mock(ProjectSettings.class);
     loader = mock(BranchConfigurationLoader.class);
     config = mock(BranchConfiguration.class);
     branches = mock(ProjectBranches.class);
@@ -44,21 +44,21 @@ public class BranchConfigurationProviderTest {
 
   @Test
   public void should_cache_config() {
-    BranchConfiguration configuration = provider.provide(null, globalConfiguration, branches);
-    assertThat(provider.provide(null, globalConfiguration, branches)).isSameAs(configuration);
+    BranchConfiguration configuration = provider.provide(null, projectSettings, branches);
+    assertThat(provider.provide(null, projectSettings, branches)).isSameAs(configuration);
   }
 
   @Test
   public void should_use_loader() {
-    when(loader.load(globalConfiguration, branches)).thenReturn(config);
-    BranchConfiguration branchConfig = provider.provide(loader, globalConfiguration, branches);
+    when(loader.load(projectSettings, branches)).thenReturn(config);
+    BranchConfiguration branchConfig = provider.provide(loader, projectSettings, branches);
 
     assertThat(branchConfig).isSameAs(config);
   }
 
   @Test
   public void should_return_default_if_no_loader() {
-    BranchConfiguration configuration = provider.provide(null, globalConfiguration, branches);
+    BranchConfiguration configuration = provider.provide(null, projectSettings, branches);
     assertThat(configuration.branchTarget()).isNull();
     assertThat(configuration.branchType()).isEqualTo(BranchType.LONG);
   }

@@ -24,7 +24,7 @@ import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.sonar.scanner.bootstrap.GlobalMode;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 public class ProjectRepositoriesProvider extends ProviderAdapter {
@@ -32,7 +32,7 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
   private static final String LOG_MSG = "Load project repositories";
   private ProjectRepositories project = null;
 
-  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode, BranchConfiguration branchConfig) {
+  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, GlobalMode mode, BranchConfiguration branchConfig) {
     return provideInternal(loader, projectKey, mode.isIssues(), branchConfig);
   }
 
