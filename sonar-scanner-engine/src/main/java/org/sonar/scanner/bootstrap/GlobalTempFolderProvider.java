@@ -44,7 +44,7 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
   private static final long CLEAN_MAX_AGE = TimeUnit.DAYS.toMillis(21);
   static final String TMP_NAME_PREFIX = ".sonartmp_";
   private boolean started = false;
-  
+
   private System2 system;
   private DefaultTempFolder tempFolder;
 
@@ -66,7 +66,6 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
         Path home = findSonarHome(bootstrapProps);
         workingPath = home.resolve(workingPath).normalize();
       }
-
       try {
         cleanTempFolders(workingPath);
       } catch (IOException e) {
@@ -80,7 +79,11 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
 
   private static Path createTempFolder(Path workingPath) {
     try {
-      Files.createDirectories(workingPath);
+      Path realPath = workingPath;
+      if (Files.isSymbolicLink(realPath)) {
+        realPath = realPath.toRealPath();
+      }
+      Files.createDirectories(realPath);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to create working path: " + workingPath, e);
     }
@@ -160,7 +163,7 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
 
   @Override
   public void dispose(PicoContainer container) {
-  //nothing to do
+    // nothing to do
   }
 
   @Override
