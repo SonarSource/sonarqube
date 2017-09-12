@@ -41,14 +41,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ASSIGNEE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.DEBT;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.EFFORT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.SEVERITY;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
 
 public class NewIssuesNotificationTest {
 
-  NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats();
+  NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
   UserIndex userIndex = mock(UserIndex.class);
   DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
   Durations durations = mock(Durations.class);
@@ -121,7 +121,7 @@ public class NewIssuesNotificationTest {
 
     underTest.setDebt(Duration.create(55));
 
-    assertThat(underTest.getFieldValue(DEBT + ".count")).isEqualTo("55 min");
+    assertThat(underTest.getFieldValue(EFFORT + ".count")).isEqualTo("55 min");
   }
 
   private void addIssueNTimes(DefaultIssue issue, int times) {

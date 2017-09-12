@@ -123,7 +123,9 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void send_global_new_issues_notification() throws Exception {
     issueCache.newAppender().append(
-      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION)).close();
+      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION)
+        .setCreationDate(new Date(ANALYSE_DATE)))
+      .close();
 
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
@@ -142,8 +144,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     ComponentDto branch = newProjectBranch(project, newBranchDto(project).setKey(BRANCH_NAME));
     ComponentDto file = newFileDto(branch);
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getDbKey()).setPublicKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
-      builder(Component.Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build()
-    ).build());
+      builder(Component.Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build()).build());
     issueCache.newAppender().append(
       new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION)).close();
 
@@ -162,7 +163,9 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void send_new_issues_notification_to_user() throws Exception {
     issueCache.newAppender().append(
-      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE)).close();
+      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE)
+        .setCreationDate(new Date(ANALYSE_DATE)))
+      .close();
 
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
@@ -182,9 +185,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     ComponentDto file = newFileDto(project).setDbKey(FILE.getKey()).setLongName(FILE.getName());
     RuleDefinitionDto ruleDefinitionDto = newRule();
     DefaultIssue issue = newIssue(ruleDefinitionDto, project, file).toDefaultIssue()
-      .setNew(false)
-      .setChanged(true)
-      .setSendNotifications(true);
+      .setNew(false).setChanged(true).setSendNotifications(true).setCreationDate(new Date(ANALYSE_DATE));
     ruleRepository.add(ruleDefinitionDto.getKey()).setName(ruleDefinitionDto.getName());
     issueCache.newAppender().append(issue).close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
@@ -209,8 +210,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     ComponentDto branch = newProjectBranch(project, newBranchDto(project).setKey(BRANCH_NAME));
     ComponentDto file = newFileDto(branch);
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getDbKey()).setPublicKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
-      builder(Component.Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build()
-    ).build());
+      builder(Component.Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build()).build());
     RuleDefinitionDto ruleDefinitionDto = newRule();
     DefaultIssue issue = newIssue(ruleDefinitionDto, branch, file).toDefaultIssue()
       .setNew(false)
