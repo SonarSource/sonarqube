@@ -21,7 +21,6 @@ package org.sonar.server.issue.notification;
 
 import java.io.IOException;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -44,7 +43,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ASSIGNEE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.DEBT;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.EFFORT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.SEVERITY;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
@@ -154,7 +153,7 @@ public class NewIssuesEmailTemplateTest {
       .setFieldValue("projectKey", "org.apache:struts")
       .setFieldValue("projectUuid", "ABCDE")
       .setFieldValue("projectDate", "2010-05-18T14:50:45+0000")
-      .setFieldValue(DEBT + ".count", "1d3h")
+      .setFieldValue(EFFORT + ".count", "1d3h")
       .setFieldValue(SEVERITY + ".count", "32")
       .setFieldValue(SEVERITY + ".INFO.count", "1")
       .setFieldValue(SEVERITY + ".MINOR.count", "3")

@@ -19,9 +19,11 @@
  */
 package org.sonar.server.issue.notification;
 
-import com.google.common.collect.Multiset;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.function.ToIntFunction;
 import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.RuleKey;
@@ -29,6 +31,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -82,7 +85,7 @@ public class NewIssuesNotification extends Notification {
   }
 
   public NewIssuesNotification setStatistics(String projectName, NewIssuesStatistics.Stats stats) {
-    setDefaultMessage(stats.countForMetric(SEVERITY) + " new issues on " + projectName + ".\n");
+    setDefaultMessage(stats.getDistributedMetricStats(SEVERITY).getTotal() + " new issues on " + projectName + ".\n");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       setSeverityStatistics(stats);
@@ -95,59 +98,77 @@ public class NewIssuesNotification extends Notification {
     return this;
   }
 
-  protected void setRuleStatistics(DbSession dbSession, NewIssuesStatistics.Stats stats) {
+  private void setRuleStatistics(DbSession dbSession, NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.RULE;
-    List<Multiset.Entry<String>> metricStats = stats.statsForMetric(metric);
-    for (int i = 0; i < 5 && i < metricStats.size(); i++) {
-      String ruleKey = metricStats.get(i).getElement();
+    int i = 1;
+    for (Map.Entry<String, MetricStatsInt> ruleStats : fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getTotal)) {
+      String ruleKey = ruleStats.getKey();
       RuleDefinitionDto rule = dbClient.ruleDao().selectOrFailDefinitionByKey(dbSession, RuleKey.parse(ruleKey));
       String name = rule.getName() + " (" + rule.getLanguage() + ")";
-      setFieldValue(metric + DOT + (i + 1) + LABEL, name);
-      setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(metricStats.get(i).getCount()));
+      setFieldValue(metric + DOT + i + LABEL, name);
+      setFieldValue(metric + DOT + i + COUNT, String.valueOf(ruleStats.getValue().getTotal()));
+      i++;
     }
   }
 
-  protected void setComponentsStatistics(DbSession dbSession, NewIssuesStatistics.Stats stats) {
+  private void setComponentsStatistics(DbSession dbSession, NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.COMPONENT;
-    List<Multiset.Entry<String>> componentStats = stats.statsForMetric(metric);
-    for (int i = 0; i < 5 && i < componentStats.size(); i++) {
-      String uuid = componentStats.get(i).getElement();
+    int i = 1;
+    for (Map.Entry<String, MetricStatsInt> componentStats : fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getTotal)) {
+      String uuid = componentStats.getKey();
       String componentName = dbClient.componentDao().selectOrFailByUuid(dbSession, uuid).name();
-      setFieldValue(metric + DOT + (i + 1) + LABEL, componentName);
-      setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(componentStats.get(i).getCount()));
+      setFieldValue(metric + DOT + i + LABEL, componentName);
+      setFieldValue(metric + DOT + i + COUNT, String.valueOf(componentStats.getValue().getTotal()));
+      i++;
     }
   }
 
-  protected void setTagsStatistics(NewIssuesStatistics.Stats stats) {
+  private void setTagsStatistics(NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.TAG;
-    List<Multiset.Entry<String>> metricStats = stats.statsForMetric(metric);
-    for (int i = 0; i < 5 && i < metricStats.size(); i++) {
-      setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(metricStats.get(i).getCount()));
-      setFieldValue(metric + DOT + (i + 1) + ".label", metricStats.get(i).getElement());
+    int i = 1;
+    for (Map.Entry<String, MetricStatsInt> tagStats : fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getTotal)) {
+      setFieldValue(metric + DOT + i + COUNT, String.valueOf(tagStats.getValue().getTotal()));
+      setFieldValue(metric + DOT + i + ".label", tagStats.getKey());
+      i++;
     }
   }
 
-  protected void setAssigneesStatistics(NewIssuesStatistics.Stats stats) {
+  private void setAssigneesStatistics(NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.ASSIGNEE;
-    List<Multiset.Entry<String>> metricStats = stats.statsForMetric(metric);
-    for (int i = 0; i < 5 && i < metricStats.size(); i++) {
-      String login = metricStats.get(i).getElement();
+    ToIntFunction<MetricStatsInt> biggerCriteria = MetricStatsInt::getTotal;
+    int i = 1;
+    for (Map.Entry<String, MetricStatsInt> assigneeStats : fiveBiggest(stats.getDistributedMetricStats(metric), biggerCriteria)) {
+      String login = assigneeStats.getKey();
       UserDoc user = userIndex.getNullableByLogin(login);
       String name = user == null ? login : user.name();
-      setFieldValue(metric + DOT + (i + 1) + LABEL, name);
-      setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(metricStats.get(i).getCount()));
+      setFieldValue(metric + DOT + i + LABEL, name);
+      setFieldValue(metric + DOT + i + COUNT, String.valueOf(biggerCriteria.applyAsInt(assigneeStats.getValue())));
+      i++;
     }
+  }
+
+  private static List<Map.Entry<String, MetricStatsInt>> fiveBiggest(DistributedMetricStatsInt distributedMetricStatsInt, ToIntFunction<MetricStatsInt> biggerCriteria) {
+    Comparator<Map.Entry<String, MetricStatsInt>> comparator = Comparator.comparingInt(a -> biggerCriteria.applyAsInt(a.getValue()));
+    return distributedMetricStatsInt.getForLabels()
+      .entrySet()
+      .stream()
+      .sorted(comparator.reversed())
+      .limit(5)
+      .collect(MoreCollectors.toList(5));
   }
 
   public NewIssuesNotification setDebt(Duration debt) {
-    setFieldValue(Metric.DEBT + COUNT, durations.format(debt));
+    setFieldValue(Metric.EFFORT + COUNT, durations.format(debt));
     return this;
   }
 
-  protected void setSeverityStatistics(NewIssuesStatistics.Stats stats) {
-    setFieldValue(SEVERITY + COUNT, String.valueOf(stats.countForMetric(SEVERITY)));
+  private void setSeverityStatistics(NewIssuesStatistics.Stats stats) {
+    DistributedMetricStatsInt distributedMetricStats = stats.getDistributedMetricStats(SEVERITY);
+    setFieldValue(SEVERITY + COUNT, String.valueOf(distributedMetricStats.getTotal()));
     for (String severity : Severity.ALL) {
-      setFieldValue(SEVERITY + DOT + severity + COUNT, String.valueOf(stats.countForMetric(SEVERITY, severity)));
+      setFieldValue(
+        SEVERITY + DOT + severity + COUNT,
+        String.valueOf(distributedMetricStats.getForLabel(severity).map(MetricStatsInt::getTotal).orElse(0)));
     }
   }
 
