@@ -43,7 +43,7 @@ public class SearchNodeHealthProvider implements NodeHealthProvider {
       .setName(props.nonNullValue(CLUSTER_NODE_NAME))
       .setHost(getHost(props, networkUtils))
       .setPort(Integer.valueOf(props.nonNullValue(CLUSTER_NODE_PORT)))
-      .setStarted(system2.now())
+      .setStartedAt(system2.now())
       .build();
   }
 

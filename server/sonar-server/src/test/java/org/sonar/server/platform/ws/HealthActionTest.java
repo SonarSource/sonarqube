@@ -96,7 +96,7 @@ public class HealthActionTest {
                   .setType(NodeDetails.Type.APPLICATION)
                   .setHost("192.168.1.1")
                   .setPort(999)
-                  .setStarted(time)
+                  .setStartedAt(time)
                   .build())
               .build(),
             newNodeHealthBuilder()
@@ -108,7 +108,7 @@ public class HealthActionTest {
                   .setType(NodeDetails.Type.APPLICATION)
                   .setHost("192.168.1.2")
                   .setPort(999)
-                  .setStarted(time)
+                  .setStartedAt(time)
                   .build())
               .build(),
             newNodeHealthBuilder()
@@ -119,7 +119,7 @@ public class HealthActionTest {
                   .setType(NodeDetails.Type.SEARCH)
                   .setHost("192.168.1.3")
                   .setPort(999)
-                  .setStarted(time)
+                  .setStartedAt(time)
                   .build())
               .build(),
             newNodeHealthBuilder()
@@ -130,7 +130,7 @@ public class HealthActionTest {
                   .setType(NodeDetails.Type.SEARCH)
                   .setHost("192.168.1.4")
                   .setPort(999)
-                  .setStarted(time)
+                  .setStartedAt(time)
                   .build())
               .build(),
             newNodeHealthBuilder()
@@ -141,7 +141,7 @@ public class HealthActionTest {
                   .setType(NodeDetails.Type.SEARCH)
                   .setHost("192.168.1.5")
                   .setPort(999)
-                  .setStarted(time)
+                  .setStartedAt(time)
                   .build())
               .build())));
 
@@ -201,8 +201,8 @@ public class HealthActionTest {
       .containsOnly(nodeHealth.getCauses().stream().toArray(String[]::new));
     assertThat(node.getName()).isEqualTo(nodeHealth.getDetails().getName());
     assertThat(node.getHost()).isEqualTo(nodeHealth.getDetails().getHost());
-    assertThat(node.getPort()).isEqualTo(String.valueOf(nodeHealth.getDetails().getPort()));
-    assertThat(node.getStarted()).isEqualTo(formatDateTime(nodeHealth.getDetails().getStarted()));
+    assertThat(node.getPort()).isEqualTo(nodeHealth.getDetails().getPort());
+    assertThat(node.getStartedAt()).isEqualTo(formatDateTime(nodeHealth.getDetails().getStartedAt()));
     assertThat(node.getType().name()).isEqualTo(nodeHealth.getDetails().getType().name());
   }
 
@@ -225,7 +225,7 @@ public class HealthActionTest {
       randomNodeHealth(NodeDetails.Type.SEARCH, "2_name", "1_host", 2, 28),
       randomNodeHealth(NodeDetails.Type.SEARCH, "2_name", "2_host", 1, 66),
       randomNodeHealth(NodeDetails.Type.SEARCH, "2_name", "2_host", 2, 77)));
-    String[] expected = nodeHealths.stream().map(s -> formatDateTime(new Date(s.getDetails().getStarted()))).toArray(String[]::new);
+    String[] expected = nodeHealths.stream().map(s -> formatDateTime(new Date(s.getDetails().getStartedAt()))).toArray(String[]::new);
     Collections.shuffle(nodeHealths);
 
     when(webServer.isStandalone()).thenReturn(false);
@@ -234,7 +234,7 @@ public class HealthActionTest {
     WsSystem.HealthResponse response = underTest.newRequest().executeProtobuf(WsSystem.HealthResponse.class);
 
     assertThat(response.getNodes().getNodesList())
-      .extracting(WsSystem.Node::getStarted)
+      .extracting(WsSystem.Node::getStartedAt)
       .containsExactly(expected);
   }
 
@@ -248,7 +248,7 @@ public class HealthActionTest {
         .setName(randomAlphanumeric(3))
         .setHost(randomAlphanumeric(4))
         .setPort(1 + random.nextInt(3))
-        .setStarted(1 + random.nextInt(23))
+        .setStartedAt(1 + random.nextInt(23))
         .build())
       .build();
   }
@@ -263,7 +263,7 @@ public class HealthActionTest {
         .setName(name)
         .setHost(host)
         .setPort(port)
-        .setStarted(started)
+        .setStartedAt(started)
         .build())
       .build();
   }

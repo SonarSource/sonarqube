@@ -221,14 +221,14 @@ public class NodeHealthProviderImplTest {
 
     NodeHealth nodeHealth = underTest.get();
 
-    assertThat(nodeHealth.getDetails().getStarted()).isEqualTo(date.getTime());
+    assertThat(nodeHealth.getDetails().getStartedAt()).isEqualTo(date.getTime());
 
     // change startedAt value
     setStartedAt();
 
     NodeHealth newNodeHealth = underTest.get();
 
-    assertThat(newNodeHealth.getDetails().getStarted()).isEqualTo(date.getTime());
+    assertThat(newNodeHealth.getDetails().getStartedAt()).isEqualTo(date.getTime());
   }
 
   private void setStartedAt() {

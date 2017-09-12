@@ -71,7 +71,7 @@ public class NodeDetailsTestSupport {
       .setName(randomAlphanumeric(3))
       .setHost(randomAlphanumeric(10))
       .setPort(1 + random.nextInt(10))
-      .setStarted(1 + random.nextInt(666));
+      .setStartedAt(1 + random.nextInt(666));
   }
 
   NodeDetails.Type randomType() {

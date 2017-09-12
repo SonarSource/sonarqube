@@ -37,7 +37,7 @@ public class NodeDetails implements Externalizable {
   private String name;
   private String host;
   private int port;
-  private long started;
+  private long startedAt;
 
   /**
    * Required for Serialization
@@ -50,7 +50,7 @@ public class NodeDetails implements Externalizable {
     this.name = builder.name;
     this.host = builder.host;
     this.port = builder.port;
-    this.started = builder.started;
+    this.startedAt = builder.startedAt;
   }
 
   public static Builder newNodeDetailsBuilder() {
@@ -73,8 +73,8 @@ public class NodeDetails implements Externalizable {
     return port;
   }
 
-  public long getStarted() {
-    return started;
+  public long getStartedAt() {
+    return startedAt;
   }
 
   @Override
@@ -84,7 +84,7 @@ public class NodeDetails implements Externalizable {
       ", name='" + name + '\'' +
       ", host='" + host + '\'' +
       ", port=" + port +
-      ", started=" + started +
+      ", startedAt=" + startedAt +
       '}';
   }
 
@@ -94,7 +94,7 @@ public class NodeDetails implements Externalizable {
     out.writeUTF(name);
     out.writeUTF(host);
     out.writeInt(port);
-    out.writeLong(started);
+    out.writeLong(startedAt);
   }
 
   @Override
@@ -103,7 +103,7 @@ public class NodeDetails implements Externalizable {
     this.name = in.readUTF();
     this.host = in.readUTF();
     this.port = in.readInt();
-    this.started = in.readLong();
+    this.startedAt = in.readLong();
   }
 
   @Override
@@ -116,7 +116,7 @@ public class NodeDetails implements Externalizable {
     }
     NodeDetails that = (NodeDetails) o;
     return port == that.port &&
-      started == that.started &&
+      startedAt == that.startedAt &&
       type == that.type &&
       name.equals(that.name) &&
       host.equals(that.host);
@@ -124,7 +124,7 @@ public class NodeDetails implements Externalizable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(type, name, host, port, started);
+    return Objects.hash(type, name, host, port, startedAt);
   }
 
   public static class Builder {
@@ -132,7 +132,7 @@ public class NodeDetails implements Externalizable {
     private String name;
     private String host;
     private int port;
-    private long started;
+    private long startedAt;
 
     private Builder() {
       // use static factory method
@@ -159,9 +159,9 @@ public class NodeDetails implements Externalizable {
       return this;
     }
 
-    public Builder setStarted(long started) {
-      checkStarted(started);
-      this.started = started;
+    public Builder setStartedAt(long startedAt) {
+      checkStartedAt(startedAt);
+      this.startedAt = startedAt;
       return this;
     }
 
@@ -170,7 +170,7 @@ public class NodeDetails implements Externalizable {
       checkString(name, "name");
       checkString(host, "host");
       checkPort(port);
-      checkStarted(started);
+      checkStartedAt(startedAt);
       return new NodeDetails(this);
     }
 
@@ -189,8 +189,8 @@ public class NodeDetails implements Externalizable {
       checkArgument(port > 0, "port must be > 0");
     }
 
-    private static void checkStarted(long started) {
-      checkArgument(started > 0, "started must be > 0");
+    private static void checkStartedAt(long startedAt) {
+      checkArgument(startedAt > 0, "startedAt must be > 0");
     }
   }
 
