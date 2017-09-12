@@ -19,6 +19,6 @@
  */
 package org.sonar.scanner.analysis;
 
-public interface ValidateIncremental {
-  boolean validate();
+public interface IncrementalScannerHandler {
+  boolean execute();
 }

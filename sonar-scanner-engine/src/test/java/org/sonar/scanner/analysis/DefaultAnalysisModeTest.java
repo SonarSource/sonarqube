@@ -20,10 +20,12 @@
 package org.sonar.scanner.analysis;
 
 import java.util.Collections;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -36,14 +38,14 @@ public class DefaultAnalysisModeTest {
   private BranchConfiguration branchConfig;
   private ProjectRepositories projectRepos;
   private GlobalAnalysisMode globalMode;
-  private ValidateIncremental validateIncremental;
+  private IncrementalScannerHandler validateIncremental;
 
   @Before
   public void setUp() {
     branchConfig = mock(BranchConfiguration.class);
     projectRepos = mock(ProjectRepositories.class);
     globalMode = mock(GlobalAnalysisMode.class);
-    validateIncremental = mock(ValidateIncremental.class);
+    validateIncremental = mock(IncrementalScannerHandler.class);
   }
 
   @Rule
@@ -68,6 +70,53 @@ public class DefaultAnalysisModeTest {
     assertThat(mode.isIssues()).isTrue();
     assertThat(mode.isPublish()).isTrue();
     assertThat(mode.isPreview()).isTrue();
+  }
+
+  @Test
+  public void incremental_not_found() {
+    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.incremental", "true"));
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Incremental mode is not available. Please contact your administrator.");
+    createmode(analysisProps);
+  }
+
+  @Test
+  public void no_incremental_if_not_publish() {
+    when(validateIncremental.execute()).thenReturn(true);
+    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.incremental", "true"));
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Incremental analysis is only available in publish mode");
+    createmode(analysisProps);
+  }
+
+  @Test
+  public void no_incremental_mode_if_branches() {
+    when(globalMode.isPublish()).thenReturn(true);
+    when(validateIncremental.execute()).thenReturn(true);
+    when(branchConfig.branchName()).thenReturn("branch1");
+    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.incremental", "true"));
+    DefaultAnalysisMode analysisMode = createmode(analysisProps);
+    assertThat(analysisMode.isIncremental()).isFalse();
+  }
+
+  @Test
+  public void no_incremental_mode_if_no_previous_analysis() {
+    when(validateIncremental.execute()).thenReturn(true);
+    when(globalMode.isPublish()).thenReturn(true);
+    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.incremental", "true"));
+    DefaultAnalysisMode analysisMode = createmode(analysisProps);
+    assertThat(analysisMode.isIncremental()).isFalse();
+  }
+
+  @Test
+  public void incremental_mode() {
+    when(validateIncremental.execute()).thenReturn(true);
+    when(globalMode.isPublish()).thenReturn(true);
+    when(projectRepos.lastAnalysisDate()).thenReturn(new Date());
+    when(projectRepos.exists()).thenReturn(true);
+    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.incremental", "true"));
+    DefaultAnalysisMode analysisMode = createmode(analysisProps);
+    assertThat(analysisMode.isIncremental()).isTrue();
   }
 
   @Test

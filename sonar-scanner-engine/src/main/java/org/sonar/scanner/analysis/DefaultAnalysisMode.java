@@ -41,7 +41,7 @@ public class DefaultAnalysisMode implements AnalysisMode {
   private final GlobalAnalysisMode analysisMode;
   private final BranchConfiguration branchConfig;
   private final ProjectRepositories projectRepos;
-  private final ValidateIncremental validateIncremental;
+  private final IncrementalScannerHandler validateIncremental;
 
   private boolean scanAllFiles;
   private boolean incremental;
@@ -51,7 +51,7 @@ public class DefaultAnalysisMode implements AnalysisMode {
   }
 
   public DefaultAnalysisMode(AnalysisProperties props, BranchConfiguration branchConfig,
-    GlobalAnalysisMode analysisMode, ProjectRepositories projectRepos, @Nullable ValidateIncremental validateIncremental) {
+    GlobalAnalysisMode analysisMode, ProjectRepositories projectRepos, @Nullable IncrementalScannerHandler validateIncremental) {
     this.branchConfig = branchConfig;
     this.analysisMode = analysisMode;
     this.projectRepos = projectRepos;
@@ -84,12 +84,12 @@ public class DefaultAnalysisMode implements AnalysisMode {
   private boolean incremental() {
     String inc = analysisProps.get(KEY_INCREMENTAL);
     if ("true".equals(inc)) {
-      if (validateIncremental == null || !validateIncremental.validate()) {
+      if (validateIncremental == null || !validateIncremental.execute()) {
         throw MessageException.of("Incremental mode is not available. Please contact your administrator.");
       }
 
       if (!analysisMode.isPublish()) {
-        throw new IllegalStateException("Incremental analysis is only available in publish mode");
+        throw MessageException.of("Incremental analysis is only available in publish mode");
       }
 
       if (branchConfig.branchName() != null) {

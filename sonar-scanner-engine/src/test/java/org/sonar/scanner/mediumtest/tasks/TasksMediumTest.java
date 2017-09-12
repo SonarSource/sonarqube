@@ -19,17 +19,13 @@
  */
 package org.sonar.scanner.mediumtest.tasks;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.File;
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
-
 import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
@@ -37,7 +33,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 
-import com.google.common.collect.ImmutableMap;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TasksMediumTest {
 
@@ -46,9 +42,6 @@ public class TasksMediumTest {
 
   @Rule
   public LogTester logTester = new LogTester();
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
@@ -87,22 +80,6 @@ public class TasksMediumTest {
     tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "foo").build())
-      .execute();
-  }
-
-  @Test
-  public void incrementalNotFound() throws Exception {
-    File baseDir = temp.newFolder();
-    thrown.expect(MessageException.class);
-    thrown.expectMessage(
-      "Incremental mode is not available. Please contact your administrator.");
-
-    tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.projectKey", "key")
-        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-        .put("sonar.sources", ".")
-        .put("sonar.incremental", "true").build())
       .execute();
   }
 
