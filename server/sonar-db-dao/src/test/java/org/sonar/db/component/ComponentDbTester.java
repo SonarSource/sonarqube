@@ -114,45 +114,87 @@ public class ComponentDbTester {
     return insertComponentImpl(newPublicProjectDto(organizationDto, uuid), false, noExtraConfiguration());
   }
 
+  /**
+   * @deprecated since 6.6
+   * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   */
+  @Deprecated
   public ComponentDto insertView() {
     return insertComponentImpl(newView(db.getDefaultOrganization()), false, noExtraConfiguration());
   }
 
+  /**
+   * @deprecated since 6.6
+   * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   */
   public ComponentDto insertView(Consumer<ComponentDto> dtoPopulator) {
     return insertComponentImpl(newView(db.getDefaultOrganization()), false, dtoPopulator);
   }
 
+  /**
+   * @deprecated since 6.6
+   * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   */
   public ComponentDto insertView(OrganizationDto organizationDto) {
     return insertComponentImpl(newView(organizationDto), false, noExtraConfiguration());
   }
 
+  /**
+   * @deprecated since 6.6
+   * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   */
   public ComponentDto insertView(OrganizationDto organizationDto, Consumer<ComponentDto> dtoPopulator) {
     return insertComponentImpl(newView(organizationDto), false, dtoPopulator);
   }
 
+  /**
+   * @deprecated since 6.6
+   * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   */
   public ComponentDto insertView(String uuid) {
     return insertComponentImpl(newView(db.getDefaultOrganization(), uuid), false, noExtraConfiguration());
   }
 
+  /**
+   * @deprecated since 6.6
+   * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   */
   public ComponentDto insertView(OrganizationDto organizationDto, String uuid) {
     return insertComponentImpl(newView(organizationDto, uuid), false, noExtraConfiguration());
   }
 
-  public ComponentDto insertApplication(OrganizationDto organizationDto) {
-    return insertComponentImpl(newApplication(organizationDto), false, noExtraConfiguration());
+  @SafeVarargs
+  public final ComponentDto insertPublicPortfolio(OrganizationDto organization, Consumer<ComponentDto>... dtoPopulators) {
+    return insertComponentImpl(newView(organization).setPrivate(false), false, dtoPopulators);
   }
 
-  public ComponentDto insertApplication(OrganizationDto organizationDto, Consumer<ComponentDto>... dtoPopulators) {
+  @SafeVarargs
+  public final ComponentDto insertPrivatePortfolio(OrganizationDto organization, Consumer<ComponentDto>... dtoPopulators) {
+    return insertComponentImpl(newView(organization).setPrivate(true), true, dtoPopulators);
+  }
+
+  @SafeVarargs
+  public final ComponentDto insertPublicApplication(OrganizationDto organization, Consumer<ComponentDto>... dtoPopulators) {
+    return insertComponentImpl(newApplication(organization).setPrivate(false), false, dtoPopulators);
+  }
+
+  @SafeVarargs
+  public final ComponentDto insertPrivateApplication(OrganizationDto organization, Consumer<ComponentDto>... dtoPopulators) {
+    return insertComponentImpl(newApplication(organization).setPrivate(true), true, dtoPopulators);
+  }
+
+  /**
+   * @deprecated since 6.6
+   * @see #insertPublicApplication(OrganizationDto, Consumer[])
+   */
+  @SafeVarargs
+  public final ComponentDto insertApplication(OrganizationDto organizationDto, Consumer<ComponentDto>... dtoPopulators) {
     return insertComponentImpl(newApplication(organizationDto), false, dtoPopulators);
-  }
-
-  public ComponentDto insertSubView(ComponentDto view, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(newSubView(view), false, dtoPopulator);
   }
 
   @SafeVarargs
   public final ComponentDto insertSubView(ComponentDto view, Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentImpl(newSubView(view), false, dtoPopulators);
+    return insertComponentImpl(newSubView(view), view.isPrivate(), dtoPopulators);
   }
 
   private static <T> Consumer<T> noExtraConfiguration() {
