@@ -19,7 +19,7 @@ exports[`renders 1`] = `
   >
     <h2>
       background_tasks.scanner_context
-      :
+      : 
       foo
        [
       background_task.type.REPORT

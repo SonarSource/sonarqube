@@ -101,7 +101,7 @@ exports[`renders short-living branch 1`] = `
     className="note big-spacer-left text-lowercase"
   >
     from
-
+     
     <strong>
       master
     </strong>

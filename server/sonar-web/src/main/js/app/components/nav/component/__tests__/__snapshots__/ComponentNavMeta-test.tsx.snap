@@ -13,7 +13,7 @@ exports[`renders meta for long-living branch 1`] = `
       />
     </li>
     <li>
-      Version
+      Version 
       0.0.1
     </li>
   </ul>

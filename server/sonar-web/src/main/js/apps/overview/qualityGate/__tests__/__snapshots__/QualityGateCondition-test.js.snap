@@ -484,7 +484,7 @@ exports[`should work with branch 1`] = `
         className="overview-quality-gate-threshold"
       >
         quality_gates.operator.GT.rating
-
+         
         A
       </div>
     </div>
