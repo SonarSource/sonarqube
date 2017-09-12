@@ -21,13 +21,13 @@ package org.sonar.server.notification.ws;
 
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -124,8 +124,8 @@ public class AddAction implements NotificationsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkPermissions(request);
       UserDto user = getUser(dbSession, request);
-      ComponentDto project = searchProject(dbSession, request);
-      notificationUpdater.add(dbSession, request.getChannel(), request.getType(), user, project);
+      Optional<ComponentDto> project = searchProject(dbSession, request);
+      notificationUpdater.add(dbSession, request.getChannel(), request.getType(), user, project.orElse(null));
       dbSession.commit();
     }
   }
@@ -135,12 +135,12 @@ public class AddAction implements NotificationsWsAction {
     return checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' not found", login);
   }
 
-  @CheckForNull
-  private ComponentDto searchProject(DbSession dbSession, AddRequest request) {
+  private Optional<ComponentDto> searchProject(DbSession dbSession, AddRequest request) {
     Optional<ComponentDto> project = request.getProject() == null ? empty() : Optional.of(componentFinder.getByKey(dbSession, request.getProject()));
     project.ifPresent(p -> checkRequest(Qualifiers.PROJECT.equals(p.qualifier()) && Scopes.PROJECT.equals(p.scope()),
       "Component '%s' must be a project", request.getProject()));
-    return project.orElse(null);
+    project.ifPresent(p -> userSession.checkComponentPermission(UserRole.USER, p));
+    return project;
   }
 
   private void checkPermissions(AddRequest request) {

@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -120,9 +121,19 @@ public class AddActionTest {
   }
 
   @Test
-  public void add_a_project_notification() {
+  public void add_notification_on_private_with_USER_permission() {
     ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
 
+    call(request.setProject(project.getDbKey()));
+
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
+  }
+
+  @Test
+  public void add_notification_on_public_project() {
+    ComponentDto project = db.components().insertPublicProject();
+    userSession.registerComponents(project);
     call(request.setProject(project.getDbKey()));
 
     db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
@@ -131,6 +142,7 @@ public class AddActionTest {
   @Test
   public void add_a_global_notification_when_a_project_one_exists() {
     ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
     call(request.setProject(project.getDbKey()));
 
     call(request.setProject(null));
@@ -140,8 +152,22 @@ public class AddActionTest {
   }
 
   @Test
-  public void add_a_project_notification_when_a_global_one_exists() {
+  public void add_a_notification_on_private_project_when_a_global_one_exists() {
     ComponentDto project = db.components().insertPrivateProject();
+    call(request);
+
+    userSession.addProjectPermission(UserRole.USER, project);
+    call(request.setProject(project.getDbKey()));
+
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), null);
+  }
+
+
+  @Test
+  public void add_a_notification_on_public_project_when_a_global_one_exists() {
+    ComponentDto project = db.components().insertPublicProject();
+    userSession.registerComponents(project);
     call(request);
 
     call(request.setProject(project.getDbKey()));
@@ -211,8 +237,19 @@ public class AddActionTest {
   }
 
   @Test
-  public void fail_when_unknown_project_dispatcher() {
+  public void fail_when_unknown_project_dispatcher_on_private_project() {
     ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");
+
+    call(request.setType("Dispatcher42").setProject(project.getDbKey()));
+  }
+
+  @Test
+  public void fail_when_unknown_project_dispatcher_on_public_project() {
+    ComponentDto project = db.components().insertPublicProject();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");
@@ -262,6 +299,18 @@ public class AddActionTest {
     expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
 
     call(request.setProject(branch.getDbKey()));
+  }
+
+  @Test
+  public void fail_when_user_does_not_have_USER_permission_on_private_project() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.logIn().setNonRoot().setNonSystemAdministrator();
+
+    expectedException.expect(ForbiddenException.class);
+
+    call(request
+      .setProject(project.getDbKey())
+      .setLogin(userSession.getLogin()));
   }
 
   private TestResponse call(AddRequest.Builder wsRequestBuilder) {
