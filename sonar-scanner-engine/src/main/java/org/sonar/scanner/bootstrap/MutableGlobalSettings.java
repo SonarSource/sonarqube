@@ -22,7 +22,6 @@ package org.sonar.scanner.bootstrap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 
@@ -32,7 +31,7 @@ import org.sonar.api.utils.MessageException;
 @Deprecated
 public class MutableGlobalSettings extends Settings {
 
-  private final AnalysisMode mode;
+  private final GlobalAnalysisMode mode;
   private final Map<String, String> mutableProperties = new HashMap<>();
 
   public MutableGlobalSettings(GlobalConfiguration globalSettings) {

@@ -31,7 +31,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -46,10 +45,11 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.DefaultComponentTree;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssert.assertThatJson;
@@ -84,7 +84,7 @@ public class JSONReportTest {
     DefaultComponentTree inputComponentTree = new DefaultComponentTree();
     ProjectDefinition def = ProjectDefinition.create().setBaseDir(projectBaseDir).setWorkDir(temp.newFolder()).setKey("struts");
     DefaultInputModule rootModule = new DefaultInputModule(def, 1);
-    InputComponentStore inputComponentStore = new InputComponentStore(rootModule, mock(AnalysisMode.class), mock(BranchConfiguration.class));
+    InputComponentStore inputComponentStore = new InputComponentStore(rootModule, mock(DefaultAnalysisMode.class), mock(BranchConfiguration.class));
 
     DefaultInputModule moduleA = new DefaultInputModule(ProjectDefinition.create().setKey("struts-core").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
     inputComponentTree.index(moduleA, rootModule);

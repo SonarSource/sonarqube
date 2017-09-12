@@ -29,7 +29,7 @@ public class GlobalConfigurationProvider extends ProviderAdapter {
 
   private GlobalConfiguration globalSettings;
 
-  public GlobalConfiguration provide(SettingsLoader loader, GlobalProperties globalProps, PropertyDefinitions propertyDefinitions, GlobalMode mode) {
+  public GlobalConfiguration provide(SettingsLoader loader, GlobalProperties globalProps, PropertyDefinitions propertyDefinitions, GlobalAnalysisMode mode) {
     if (globalSettings == null) {
 
       Map<String, String> serverSideSettings = loader.load(null);

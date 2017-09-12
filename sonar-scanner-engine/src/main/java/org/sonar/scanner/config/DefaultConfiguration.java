@@ -32,7 +32,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang.ArrayUtils;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinition;
@@ -40,6 +39,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.trim;
@@ -51,10 +51,10 @@ public abstract class DefaultConfiguration implements Configuration {
 
   private final PropertyDefinitions definitions;
   private final Encryption encryption;
-  private final AnalysisMode mode;
+  private final GlobalAnalysisMode mode;
   private final Map<String, String> properties = new HashMap<>();
 
-  public DefaultConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, AnalysisMode mode, Map<String, String> props) {
+  public DefaultConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, GlobalAnalysisMode mode, Map<String, String> props) {
     this.definitions = requireNonNull(propertyDefinitions);
     this.encryption = encryption;
     this.mode = mode;
@@ -64,7 +64,7 @@ public abstract class DefaultConfiguration implements Configuration {
     });
   }
 
-  public AnalysisMode getMode() {
+  public GlobalAnalysisMode getMode() {
     return mode;
   }
 

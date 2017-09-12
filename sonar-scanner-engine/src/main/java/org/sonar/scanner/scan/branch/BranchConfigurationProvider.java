@@ -21,11 +21,10 @@ package org.sonar.scanner.scan.branch;
 
 import org.picocontainer.annotations.Nullable;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import org.sonar.scanner.scan.ProjectSettings;
 
 public class BranchConfigurationProvider extends ProviderAdapter {
 
@@ -34,13 +33,13 @@ public class BranchConfigurationProvider extends ProviderAdapter {
 
   private BranchConfiguration branchConfiguration = null;
 
-  public BranchConfiguration provide(@Nullable BranchConfigurationLoader loader, GlobalConfiguration globalConfiguration, ProjectBranches branches) {
+  public BranchConfiguration provide(@Nullable BranchConfigurationLoader loader, ProjectSettings projectSettings, ProjectBranches branches) {
     if (branchConfiguration == null) {
       if (loader == null) {
         branchConfiguration = new DefaultBranchConfiguration();
       } else {
         Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-        branchConfiguration = loader.load(globalConfiguration, branches);
+        branchConfiguration = loader.load(projectSettings, branches);
         profiler.stopInfo();
       }
     }

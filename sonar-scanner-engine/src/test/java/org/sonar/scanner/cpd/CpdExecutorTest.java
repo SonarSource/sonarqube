@@ -30,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -42,6 +41,7 @@ import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
@@ -90,7 +90,7 @@ public class CpdExecutorTest {
 
     index = new SonarCpdBlockIndex(publisher, settings);
     DefaultInputModule inputModule = TestInputFileBuilder.newDefaultInputModule("foo", baseDir);
-    componentStore = new InputComponentStore(inputModule, mock(AnalysisMode.class), mock(BranchConfiguration.class));
+    componentStore = new InputComponentStore(inputModule, mock(DefaultAnalysisMode.class), mock(BranchConfiguration.class));
     executor = new CpdExecutor(settings, index, publisher, componentStore, branchConfig);
     reader = new ScannerReportReader(outputDir);
 

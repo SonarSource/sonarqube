@@ -41,6 +41,7 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.ExtensionUtils;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.MetricProvider;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.cpd.CpdSettings;
@@ -75,6 +76,7 @@ import org.sonar.scanner.repository.DefaultQualityProfileLoader;
 import org.sonar.scanner.repository.DefaultServerIssuesLoader;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
+import org.sonar.scanner.repository.ProjectRepositoriesProvider;
 import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.QualityProfileProvider;
 import org.sonar.scanner.repository.ServerIssuesLoader;
@@ -142,6 +144,8 @@ public class ProjectScanContainer extends ComponentContainer {
       new RulesProvider(),
       new BranchConfigurationProvider(),
       new ProjectBranchesProvider(),
+      DefaultAnalysisMode.class,
+      new ProjectRepositoriesProvider(),
 
       // temp
       new AnalysisTempFolderProvider(),
@@ -228,10 +232,9 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    DefaultAnalysisMode analysisMode = getComponentByType(DefaultAnalysisMode.class);
+    GlobalAnalysisMode analysisMode = getComponentByType(GlobalAnalysisMode.class);
     InputModuleHierarchy tree = getComponentByType(InputModuleHierarchy.class);
 
-    analysisMode.printMode();
     LOG.info("Project key: {}", tree.root().key());
     String organization = props.property("sonar.organization");
     if (StringUtils.isNotEmpty(organization)) {

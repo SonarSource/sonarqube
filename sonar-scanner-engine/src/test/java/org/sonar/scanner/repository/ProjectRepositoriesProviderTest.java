@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.bootstrap.ProjectKey;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +47,7 @@ public class ProjectRepositoriesProviderTest {
   @Mock
   private ProjectKey projectKey;
   @Mock
-  private DefaultAnalysisMode mode;
+  private GlobalAnalysisMode mode;
   @Mock
   private BranchConfiguration branchConfiguration;
 

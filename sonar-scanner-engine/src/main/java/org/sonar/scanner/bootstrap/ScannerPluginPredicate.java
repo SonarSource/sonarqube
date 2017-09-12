@@ -47,9 +47,9 @@ public class ScannerPluginPredicate implements Predicate<String> {
 
   private final Set<String> whites = new HashSet<>();
   private final Set<String> blacks = new HashSet<>();
-  private final GlobalMode mode;
+  private final GlobalAnalysisMode mode;
 
-  public ScannerPluginPredicate(Configuration settings, GlobalMode mode) {
+  public ScannerPluginPredicate(Configuration settings, GlobalAnalysisMode mode) {
     this.mode = mode;
     if (mode.isPreview() || mode.isIssues()) {
       // These default values are not supported by Settings because the class CorePlugin
