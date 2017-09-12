@@ -27,10 +27,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQualityProfile;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.util.UuidFactoryFast;
@@ -57,7 +58,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.rules.Rule.create;
 import static org.sonar.api.rules.RulePriority.MAJOR;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newRuleProfileDto;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
@@ -296,15 +296,23 @@ public class RegisterQualityProfilesNotificationTest {
   }
 
   private void addPluginProfile(RulesProfileDto dbProfile, RuleDefinitionDto... dbRules) {
-    RulesProfile pluginProfile = RulesProfile.create(dbProfile.getName(), dbProfile.getLanguage());
-    Arrays.stream(dbRules).forEach(dbRule -> pluginProfile.activateRule(create(dbRule.getRepositoryKey(), dbRule.getRuleKey()), null));
-    builtInQProfileRepositoryRule.add(newLanguage(dbProfile.getLanguage()), dbProfile.getName(), false, pluginProfile.getActiveRules().toArray(new ActiveRule[0]));
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile(dbProfile.getName(), dbProfile.getLanguage());
+
+    Arrays.stream(dbRules).forEach(dbRule -> newQp.activateRule(dbRule.getRepositoryKey(), dbRule.getRuleKey()).overrideSeverity(Severity.MAJOR));
+    newQp.done();
+    builtInQProfileRepositoryRule.add(newLanguage(dbProfile.getLanguage()), dbProfile.getName(), false,
+      context.profile(dbProfile.getLanguage(), dbProfile.getName()).rules().toArray(new BuiltInActiveRule[0]));
   }
 
   private void addPluginProfile(QProfileDto profile, RuleDefinitionDto... dbRules) {
-    RulesProfile pluginProfile = RulesProfile.create(profile.getName(), profile.getLanguage());
-    Arrays.stream(dbRules).forEach(dbRule -> pluginProfile.activateRule(create(dbRule.getRepositoryKey(), dbRule.getRuleKey()), null));
-    builtInQProfileRepositoryRule.add(newLanguage(profile.getLanguage()), profile.getName(), false, pluginProfile.getActiveRules().toArray(new ActiveRule[0]));
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile(profile.getName(), profile.getLanguage());
+
+    Arrays.stream(dbRules).forEach(dbRule -> newQp.activateRule(dbRule.getRepositoryKey(), dbRule.getRuleKey()).overrideSeverity(Severity.MAJOR));
+    newQp.done();
+    builtInQProfileRepositoryRule.add(newLanguage(profile.getLanguage()), profile.getName(), false,
+      context.profile(profile.getLanguage(), profile.getName()).rules().toArray(new BuiltInActiveRule[0]));
   }
 
   private RulesProfileDto insertBuiltInProfile(String language) {

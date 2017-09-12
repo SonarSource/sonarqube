@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -59,18 +60,16 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
     });
 
     // these rules are not part of the built-in profile anymore
-    toBeDeactivated.forEach(ruleKey ->
-      changes.addAll(ruleActivator.deactivateOnBuiltInRulesProfile(dbSession, ruleProfile, ruleKey, false)));
+    toBeDeactivated.forEach(ruleKey -> changes.addAll(ruleActivator.deactivateOnBuiltInRulesProfile(dbSession, ruleProfile, ruleKey, false)));
 
     activeRuleIndexer.commitAndIndex(dbSession, changes);
     return changes;
   }
 
-  private static RuleActivation convert(org.sonar.api.rules.ActiveRule ar) {
-    String severity = ar.getSeverity() != null ? ar.getSeverity().name() : null;
-    Map<String, String> params = ar.getActiveRuleParams().stream()
-      .collect(MoreCollectors.uniqueIndex(ActiveRuleParam::getKey, ActiveRuleParam::getValue));
-    return RuleActivation.create(ar.getRule().ruleKey(), severity, params);
+  private static RuleActivation convert(BuiltInActiveRule ar) {
+    Map<String, String> params = ar.overriddenParams().stream()
+      .collect(MoreCollectors.uniqueIndex(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
+    return RuleActivation.create(RuleKey.of(ar.repoKey(), ar.ruleKey()), ar.overriddenSeverity(), params);
   }
 
 }

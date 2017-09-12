@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -139,8 +139,8 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     return dto;
   }
 
-  private ActiveRuleChange insertActiveRule(DbSession dbSession, RulesProfileDto rulesProfileDto, org.sonar.api.rules.ActiveRule activeRule, long now) {
-    RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
+  private ActiveRuleChange insertActiveRule(DbSession dbSession, RulesProfileDto rulesProfileDto, BuiltInQualityProfilesDefinition.BuiltInActiveRule activeRule, long now) {
+    RuleKey ruleKey = RuleKey.of(activeRule.repoKey(), activeRule.ruleKey());
     RuleDefinitionDto ruleDefinitionDto = ruleRepository.getDefinition(ruleKey)
       .orElseThrow(() -> new IllegalStateException("RuleDefinition not found for key " + ruleKey));
 
@@ -148,7 +148,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     dto.setProfileId(rulesProfileDto.getId());
     dto.setRuleId(ruleDefinitionDto.getId());
     dto.setKey(ActiveRuleKey.of(rulesProfileDto, ruleDefinitionDto.getKey()));
-    dto.setSeverity(firstNonNull(activeRule.getSeverity().name(), ruleDefinitionDto.getSeverityString()));
+    dto.setSeverity(firstNonNull(activeRule.overriddenSeverity(), ruleDefinitionDto.getSeverityString()));
     dto.setUpdatedAt(now);
     dto.setCreatedAt(now);
     dbClient.activeRuleDao().insert(dbSession, dto);
@@ -161,10 +161,11 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     return change;
   }
 
-  private List<ActiveRuleParamDto> insertActiveRuleParams(DbSession session, org.sonar.api.rules.ActiveRule activeRule, RuleKey ruleKey, ActiveRuleDto activeRuleDto) {
-    Map<String, String> valuesByParamKey = activeRule.getActiveRuleParams()
+  private List<ActiveRuleParamDto> insertActiveRuleParams(DbSession session, BuiltInQualityProfilesDefinition.BuiltInActiveRule activeRule, RuleKey ruleKey,
+    ActiveRuleDto activeRuleDto) {
+    Map<String, String> valuesByParamKey = activeRule.overriddenParams()
       .stream()
-      .collect(MoreCollectors.uniqueIndex(ActiveRuleParam::getParamKey, ActiveRuleParam::getValue));
+      .collect(MoreCollectors.uniqueIndex(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
     return ruleRepository.getRuleParams(ruleKey)
       .stream()
       .map(param -> {

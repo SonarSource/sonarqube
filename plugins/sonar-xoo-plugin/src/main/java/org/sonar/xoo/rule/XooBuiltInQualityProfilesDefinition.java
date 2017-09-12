@@ -17,25 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.profiles;
+package org.sonar.xoo.rule;
 
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-import org.sonar.api.utils.ValidationMessages;
+import org.sonar.xoo.Xoo;
 
-/**
- * Define a profile which is automatically registered during sonar startup.
- * The components <code>AnnotationProfileParser</code> and <code>XMLProfileParser</code> can be used to help implementing the method create().
- *
- * @since 2.3
- * @deprecated since 6.6 use {@link BuiltInQualityProfilesDefinition}
- */
-@ServerSide
-@ExtensionPoint
-@Deprecated
-public abstract class ProfileDefinition {
+import static org.sonar.xoo.rule.XooRulesDefinition.XOO_REPOSITORY;
 
-  public abstract RulesProfile createProfile(ValidationMessages validation);
-
+public class XooBuiltInQualityProfilesDefinition implements BuiltInQualityProfilesDefinition {
+  @Override
+  public void define(Context context) {
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("test BuiltInQualityProfilesDefinition", Xoo.KEY);
+    profile.setDefault(false);
+    NewBuiltInActiveRule rule = profile.activateRule(XOO_REPOSITORY, HasTagSensor.RULE_KEY);
+    rule.overrideSeverity("BLOCKER");
+    rule.overrideParam("tag", "TODO");
+    profile.done();
+  }
 }

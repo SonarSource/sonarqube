@@ -31,11 +31,11 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
 

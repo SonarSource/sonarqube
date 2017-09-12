@@ -66,8 +66,8 @@ public class DeprecatedIssueWrapper implements Issue {
 
   @Override
   public String severity() {
-    Severity overridenSeverity = newIssue.overriddenSeverity();
-    return overridenSeverity != null ? overridenSeverity.name() : null;
+    Severity overriddenSeverity = newIssue.overriddenSeverity();
+    return overriddenSeverity != null ? overriddenSeverity.name() : null;
   }
 
   @Override

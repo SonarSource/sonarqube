@@ -63,6 +63,7 @@ public class BuiltInQualityProfilesTest {
         tuple("Basic", "xoo", true, true),
         tuple("Sonar way", "xoo", true, false),
         tuple("empty", "xoo", true, false),
+        tuple("test BuiltInQualityProfilesDefinition", "xoo", true, false),
         tuple("Basic", "xoo2", true, true),
         tuple("Sonar way", "xoo2", true, false));
   }
@@ -77,6 +78,7 @@ public class BuiltInQualityProfilesTest {
         tuple("default-organization", "Basic", "xoo", true, true),
         tuple("default-organization", "Sonar way", "xoo", true, false),
         tuple("default-organization", "empty", "xoo", true, false),
+        tuple("default-organization", "test BuiltInQualityProfilesDefinition", "xoo", true, false),
         tuple("default-organization", "Basic", "xoo2", true, true),
         tuple("default-organization", "Sonar way", "xoo2", true, false));
   }

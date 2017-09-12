@@ -60,6 +60,7 @@ import org.sonar.xoo.rule.SaveDataTwiceSensor;
 import org.sonar.xoo.rule.Xoo2BasicProfile;
 import org.sonar.xoo.rule.Xoo2SonarWayProfile;
 import org.sonar.xoo.rule.XooBasicProfile;
+import org.sonar.xoo.rule.XooBuiltInQualityProfilesDefinition;
 import org.sonar.xoo.rule.XooEmptyProfile;
 import org.sonar.xoo.rule.XooFakeExporter;
 import org.sonar.xoo.rule.XooFakeImporter;
@@ -160,6 +161,9 @@ public class XooPlugin implements Plugin {
 
     if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(5, 5))) {
       context.addExtension(CpdTokenizerSensor.class);
+    }
+    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(6,6))) {
+      context.addExtension(XooBuiltInQualityProfilesDefinition.class);
     }
   }
 

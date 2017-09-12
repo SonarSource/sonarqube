@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.rules.ExternalResource;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Language;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -60,13 +60,13 @@ public class BuiltInQProfileRepositoryRule extends ExternalResource implements B
     return add(language, profileName, false);
   }
 
-  public BuiltInQProfile add(Language language, String profileName, boolean isDefault, org.sonar.api.rules.ActiveRule... rules) {
+  public BuiltInQProfile add(Language language, String profileName, boolean isDefault, BuiltInQualityProfilesDefinition.BuiltInActiveRule... rules) {
     BuiltInQProfile builtIn = create(language, profileName, isDefault, rules);
     profiles.add(builtIn);
     return builtIn;
   }
 
-  public BuiltInQProfile create(Language language, String profileName, boolean isDefault, org.sonar.api.rules.ActiveRule... rules) {
+  public BuiltInQProfile create(Language language, String profileName, boolean isDefault, BuiltInQualityProfilesDefinition.BuiltInActiveRule... rules) {
     return new BuiltInQProfile.Builder()
       .setLanguage(language.getKey())
       .setName(profileName)
@@ -75,12 +75,12 @@ public class BuiltInQProfileRepositoryRule extends ExternalResource implements B
       .build();
   }
 
-  public BuiltInQProfile create(RulesProfile api) {
+  public BuiltInQProfile create(BuiltInQualityProfilesDefinition.BuiltInQualityProfile api) {
     return new BuiltInQProfile.Builder()
-      .setLanguage(api.getLanguage())
-      .setName(api.getName())
-      .setDeclaredDefault(api.getDefaultProfile())
-      .addRules(new ArrayList<>(api.getActiveRules()))
+      .setLanguage(api.language())
+      .setName(api.name())
+      .setDeclaredDefault(api.isDefault())
+      .addRules(new ArrayList<>(api.rules()))
       .build();
   }
 }

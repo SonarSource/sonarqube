@@ -23,16 +23,16 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.profiles.ProfileDefinition;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
 /**
- * Represent a Quality Profile as computed from {@link ProfileDefinition} provided by installed plugins.
+ * Represent a Quality Profile as computed from {@link BuiltInQualityProfilesDefinition} provided by installed plugins.
  */
 @Immutable
 public final class BuiltInQProfile {
   private final QProfileName qProfileName;
   private final boolean isDefault;
-  private final List<org.sonar.api.rules.ActiveRule> activeRules;
+  private final List<BuiltInQualityProfilesDefinition.BuiltInActiveRule> activeRules;
 
   private BuiltInQProfile(Builder builder) {
     this.qProfileName = new QProfileName(builder.language, builder.name);
@@ -56,7 +56,7 @@ public final class BuiltInQProfile {
     return isDefault;
   }
 
-  public List<org.sonar.api.rules.ActiveRule> getActiveRules() {
+  public List<BuiltInQualityProfilesDefinition.BuiltInActiveRule> getActiveRules() {
     return activeRules;
   }
 
@@ -65,7 +65,7 @@ public final class BuiltInQProfile {
     private String name;
     private boolean declaredDefault;
     private boolean computedDefault;
-    private final List<org.sonar.api.rules.ActiveRule> activeRules = new ArrayList<>();
+    private final List<BuiltInQualityProfilesDefinition.BuiltInActiveRule> activeRules = new ArrayList<>();
 
     public Builder setLanguage(String language) {
       this.language = language;
@@ -95,7 +95,7 @@ public final class BuiltInQProfile {
       return this;
     }
 
-    Builder addRules(List<org.sonar.api.rules.ActiveRule> rules) {
+    Builder addRules(List<BuiltInQualityProfilesDefinition.BuiltInActiveRule> rules) {
       this.activeRules.addAll(rules);
       return this;
     }

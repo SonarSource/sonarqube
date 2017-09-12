@@ -198,7 +198,7 @@ public class LocalIssueTracking {
       tracked.setCreationDate(new Date(dto.getCreationDate()));
 
       if (dto.getManualSeverity()) {
-        // Severity overriden by user
+        // Severity overridden by user
         tracked.setSeverity(dto.getSeverity().name());
       }
       mergeTo.add(tracked);
