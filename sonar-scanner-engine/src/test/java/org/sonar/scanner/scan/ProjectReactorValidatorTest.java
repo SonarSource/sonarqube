@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
@@ -37,13 +38,15 @@ public class ProjectReactorValidatorTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private DefaultAnalysisMode mode;
+  private AnalysisMode mode;
+  private DefaultAnalysisMode analysisFlags;
   private ProjectReactorValidator validator;
 
   @Before
   public void prepare() {
-    mode = mock(DefaultAnalysisMode.class);
-    validator = new ProjectReactorValidator(mode);
+    mode = mock(AnalysisMode.class);
+    analysisFlags = mock(DefaultAnalysisMode.class);
+    validator = new ProjectReactorValidator(mode, analysisFlags);
   }
 
   @Test

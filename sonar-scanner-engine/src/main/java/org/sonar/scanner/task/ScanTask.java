@@ -24,8 +24,6 @@ import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.analysis.AnalysisProperties;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.repository.ProjectRepositoriesProvider;
 import org.sonar.scanner.scan.ProjectScanContainer;
 
 public class ScanTask implements Task {
@@ -47,8 +45,6 @@ public class ScanTask implements Task {
   public void execute() {
     AnalysisProperties props = new AnalysisProperties(taskProps.properties(), taskProps.property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     ProjectScanContainer scanContainer = new ProjectScanContainer(taskContainer, props);
-    scanContainer.add(DefaultAnalysisMode.class);
-    scanContainer.add(new ProjectRepositoriesProvider());
     scanContainer.execute();
   }
 }

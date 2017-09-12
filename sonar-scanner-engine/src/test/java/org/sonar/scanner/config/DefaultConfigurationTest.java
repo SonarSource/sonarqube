@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinition;
@@ -31,6 +30,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -46,7 +46,7 @@ public class DefaultConfigurationTest {
     Configuration config = new DefaultConfiguration(new PropertyDefinitions(Arrays.asList(
       PropertyDefinition.builder("single").multiValues(false).build(),
       PropertyDefinition.builder("multiA").multiValues(true).build())), new Encryption(null),
-      mock(AnalysisMode.class),
+      mock(GlobalAnalysisMode.class),
       ImmutableMap.of("single", "foo", "multiA", "a,b", "notDeclared", "c,d")) {
     };
 
@@ -74,7 +74,7 @@ public class DefaultConfigurationTest {
     Configuration config = new DefaultConfiguration(new PropertyDefinitions(Arrays.asList(
       PropertyDefinition.builder("props").fields(PropertyFieldDefinition.build("foo1").name("Foo1").build(), PropertyFieldDefinition.build("foo2").name("Foo2").build()).build())),
       new Encryption(null),
-      mock(AnalysisMode.class),
+      mock(GlobalAnalysisMode.class),
       ImmutableMap.of("props", "1,2", "props.1.foo1", "a", "props.1.foo2", "b")) {
     };
 
@@ -94,7 +94,7 @@ public class DefaultConfigurationTest {
     Configuration config = new DefaultConfiguration(new PropertyDefinitions(Arrays.asList(
       PropertyDefinition.builder("single").multiValues(false).defaultValue("default").build(),
       PropertyDefinition.builder("multiA").multiValues(true).defaultValue("foo,bar").build())), new Encryption(null),
-      mock(AnalysisMode.class),
+      mock(GlobalAnalysisMode.class),
       ImmutableMap.of()) {
     };
 
@@ -125,7 +125,7 @@ public class DefaultConfigurationTest {
   private String[] getStringArray(String value) {
     return new DefaultConfiguration(new PropertyDefinitions(Arrays.asList(
       PropertyDefinition.builder("multi").multiValues(true).build())), new Encryption(null),
-      mock(AnalysisMode.class),
+      mock(GlobalAnalysisMode.class),
       ImmutableMap.of("multi", value)) {
     }.getStringArray("multi");
   }

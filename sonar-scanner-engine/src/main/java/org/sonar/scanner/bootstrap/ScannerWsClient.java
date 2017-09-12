@@ -50,9 +50,9 @@ public class ScannerWsClient {
 
   private final WsClient target;
   private final boolean hasCredentials;
-  private final GlobalMode globalMode;
+  private final GlobalAnalysisMode globalMode;
 
-  public ScannerWsClient(WsClient target, boolean hasCredentials, GlobalMode globalMode) {
+  public ScannerWsClient(WsClient target, boolean hasCredentials, GlobalAnalysisMode globalMode) {
     this.target = target;
     this.hasCredentials = hasCredentials;
     this.globalMode = globalMode;

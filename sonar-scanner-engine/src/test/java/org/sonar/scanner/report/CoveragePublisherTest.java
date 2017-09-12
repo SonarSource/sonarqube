@@ -25,13 +25,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -59,7 +59,7 @@ public class CoveragePublisherTest {
     String moduleKey = "foo";
     inputFile = new TestInputFileBuilder(moduleKey, "src/Foo.php").setLines(5).build();
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(moduleKey, temp.newFolder());
-    InputComponentStore componentCache = new InputComponentStore(rootModule, mock(AnalysisMode.class), mock(BranchConfiguration.class));
+    InputComponentStore componentCache = new InputComponentStore(rootModule, mock(DefaultAnalysisMode.class), mock(BranchConfiguration.class));
     componentCache.put(inputFile);
 
     measureCache = mock(MeasureCache.class);

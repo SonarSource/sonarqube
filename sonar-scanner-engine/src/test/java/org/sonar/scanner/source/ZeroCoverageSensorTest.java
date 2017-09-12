@@ -21,9 +21,9 @@ package org.sonar.scanner.source;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -36,9 +36,9 @@ public class ZeroCoverageSensorTest {
 
   @Test
   public void dontForceCoverageInIncrementalMode() {
-    AnalysisMode analysisMode = mock(AnalysisMode.class);
-    when(analysisMode.isIncremental()).thenReturn(true);
-    ZeroCoverageSensor zeroCoverageSensor = new ZeroCoverageSensor(null, analysisMode);
+    DefaultAnalysisMode analysisFlags = mock(DefaultAnalysisMode.class);
+    when(analysisFlags.isIncremental()).thenReturn(true);
+    ZeroCoverageSensor zeroCoverageSensor = new ZeroCoverageSensor(null, analysisFlags);
     zeroCoverageSensor.execute(null);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Incremental mode: not forcing coverage to zero");
   }

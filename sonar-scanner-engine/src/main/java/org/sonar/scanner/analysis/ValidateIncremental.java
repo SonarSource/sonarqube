@@ -17,29 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch;
+package org.sonar.scanner.analysis;
 
-import org.sonarsource.api.sonarlint.SonarLintSide;
-
-/**
- * Use this component to find the current running mode.
- * @since 5.1
- */
-@ScannerSide
-@SonarLintSide
-public interface AnalysisMode {
-  boolean isPreview();
-
-  /**
-   * @since 5.2
-   */
-  boolean isIssues();
-
-  boolean isPublish();
-  
-  /**
-   * When incremental analysis is enabled (means not all files of a project are analyzed)
-   * @since 6.6
-   */
-  boolean isIncremental();
+public interface ValidateIncremental {
+  boolean validate();
 }

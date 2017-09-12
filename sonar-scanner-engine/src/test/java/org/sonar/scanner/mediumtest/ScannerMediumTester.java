@@ -52,7 +52,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
-import org.sonar.scanner.bootstrap.GlobalMode;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.report.ReportPublisher;
@@ -241,7 +241,7 @@ public class ScannerMediumTester extends ExternalResource {
       throw new IllegalStateException(e);
     }
     registerCoreMetrics();
-    globalProperties.put(GlobalMode.MEDIUM_TEST_ENABLED, "true");
+    globalProperties.put(GlobalAnalysisMode.MEDIUM_TEST_ENABLED, "true");
     globalProperties.put(ReportPublisher.KEEP_REPORT_PROP_KEY, "true");
     globalProperties.put("sonar.userHome", userHome.toString());
   }

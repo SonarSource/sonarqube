@@ -24,7 +24,7 @@ import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.GlobalMode;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 public class ProjectRepositoriesProvider extends ProviderAdapter {
@@ -32,15 +32,12 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
   private static final String LOG_MSG = "Load project repositories";
   private ProjectRepositories project = null;
 
-  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, GlobalMode mode, BranchConfiguration branchConfig) {
-    return provideInternal(loader, projectKey, mode.isIssues(), branchConfig);
-  }
-
-  protected ProjectRepositories provideInternal(ProjectRepositoriesLoader loader, ProjectKey projectKey, boolean isIssueMode, BranchConfiguration branchConfig) {
+  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, GlobalAnalysisMode mode, BranchConfiguration branchConfig) {
     if (project == null) {
+      boolean isIssuesMode = mode.isIssues();
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      project = loader.load(projectKey.get(), isIssueMode, branchConfig.branchBase());
-      checkProject(isIssueMode);
+      project = loader.load(projectKey.get(), isIssuesMode, branchConfig.branchBase());
+      checkProject(isIssuesMode);
       profiler.stopInfo();
     }
 

@@ -29,13 +29,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalConfigurationProvider;
-import org.sonar.scanner.bootstrap.GlobalMode;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.bootstrap.MutableGlobalSettings;
 import org.sonar.scanner.repository.FileData;
@@ -51,11 +51,11 @@ public class MutableModuleSettingsTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private DefaultAnalysisMode mode;
+  private AnalysisMode mode;
 
   @Before
   public void before() {
-    mode = mock(DefaultAnalysisMode.class);
+    mode = mock(AnalysisMode.class);
   }
 
   private ProjectRepositories createSettings(String module, Map<String, String> settingsMap) {
@@ -157,6 +157,6 @@ public class MutableModuleSettingsTest {
   private GlobalConfiguration newGlobalSettings(Map<String, String> props) {
     GlobalProperties globalProps = new GlobalProperties(props);
     return new GlobalConfigurationProvider().provide(mock(SettingsLoader.class), globalProps, new PropertyDefinitions(),
-      new GlobalMode(globalProps));
+      new GlobalAnalysisMode(globalProps));
   }
 }

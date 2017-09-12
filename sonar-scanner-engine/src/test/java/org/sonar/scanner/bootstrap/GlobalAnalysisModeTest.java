@@ -28,7 +28,7 @@ import org.sonar.api.CoreProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GlobalModeTest {
+public class GlobalAnalysisModeTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -41,8 +41,24 @@ public class GlobalModeTest {
   }
 
   @Test
+  public void incremental_mode_no_longer_valid() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("This mode was removed in SonarQube 5.2");
+
+    createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_INCREMENTAL);
+  }
+
+  @Test
+  public void invalidate_mode() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("[preview, publish, issues]");
+
+    createMode(CoreProperties.ANALYSIS_MODE, "invalid");
+  }
+
+  @Test
   public void testOtherProperty() {
-    GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PUBLISH);
+    GlobalAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PUBLISH);
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isIssues()).isFalse();
     assertThat(mode.isPublish()).isTrue();
@@ -50,7 +66,7 @@ public class GlobalModeTest {
 
   @Test
   public void testIssuesMode() {
-    GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES);
+    GlobalAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES);
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isIssues()).isTrue();
     assertThat(mode.isPublish()).isFalse();
@@ -58,7 +74,7 @@ public class GlobalModeTest {
 
   @Test
   public void preview_mode_fallback_issues() {
-    GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW);
+    GlobalAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW);
 
     assertThat(mode.isIssues()).isTrue();
     assertThat(mode.isPreview()).isFalse();
@@ -66,7 +82,7 @@ public class GlobalModeTest {
 
   @Test
   public void testDefault() {
-    GlobalMode mode = createMode(null, null);
+    GlobalAnalysisMode mode = createMode(null, null);
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isIssues()).isFalse();
     assertThat(mode.isPublish()).isTrue();
@@ -77,12 +93,12 @@ public class GlobalModeTest {
     createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ANALYSIS);
   }
 
-  private GlobalMode createMode(String key, String value) {
+  private GlobalAnalysisMode createMode(String key, String value) {
     Map<String, String> map = new HashMap<>();
     if (key != null) {
       map.put(key, value);
     }
     GlobalProperties props = new GlobalProperties(map);
-    return new GlobalMode(props);
+    return new GlobalAnalysisMode(props);
   }
 }

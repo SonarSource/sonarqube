@@ -22,7 +22,6 @@ package org.sonar.scanner.bootstrap;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.issue.tracking.Tracker;
@@ -49,7 +48,7 @@ public class BatchComponents {
     // only static stuff
   }
 
-  public static Collection<Object> all(AnalysisMode analysisMode) {
+  public static Collection<Object> all(GlobalAnalysisMode analysisMode) {
     List<Object> components = Lists.newArrayList(
       DefaultResourceTypes.get(),
 

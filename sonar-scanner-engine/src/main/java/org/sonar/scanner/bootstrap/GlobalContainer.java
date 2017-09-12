@@ -65,7 +65,7 @@ public class GlobalContainer extends ComponentContainer {
   @Override
   protected void doBeforeStart() {
     GlobalProperties bootstrapProps = new GlobalProperties(bootstrapProperties);
-    GlobalMode globalMode = new GlobalMode(bootstrapProps);
+    GlobalAnalysisMode globalMode = new GlobalAnalysisMode(bootstrapProps);
     add(bootstrapProps);
     add(globalMode);
     addBootstrapComponents();
