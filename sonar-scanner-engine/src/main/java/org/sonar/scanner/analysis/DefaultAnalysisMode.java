@@ -41,7 +41,7 @@ public class DefaultAnalysisMode implements AnalysisMode {
   private final GlobalAnalysisMode analysisMode;
   private final BranchConfiguration branchConfig;
   private final ProjectRepositories projectRepos;
-  private final IncrementalScannerHandler validateIncremental;
+  private final IncrementalScannerHandler incrementalScannerHandler;
 
   private boolean scanAllFiles;
   private boolean incremental;
@@ -51,13 +51,14 @@ public class DefaultAnalysisMode implements AnalysisMode {
   }
 
   public DefaultAnalysisMode(AnalysisProperties props, BranchConfiguration branchConfig,
-    GlobalAnalysisMode analysisMode, ProjectRepositories projectRepos, @Nullable IncrementalScannerHandler validateIncremental) {
+    GlobalAnalysisMode analysisMode, ProjectRepositories projectRepos, @Nullable IncrementalScannerHandler incrementalScannerHandler) {
     this.branchConfig = branchConfig;
     this.analysisMode = analysisMode;
     this.projectRepos = projectRepos;
-    this.validateIncremental = validateIncremental;
+    this.incrementalScannerHandler = incrementalScannerHandler;
     this.analysisProps = props.properties();
     load();
+    printFlags();
   }
 
   @Override
@@ -69,7 +70,10 @@ public class DefaultAnalysisMode implements AnalysisMode {
     return scanAllFiles;
   }
 
-  public void printFlags() {
+  private void printFlags() {
+    if (incremental) {
+      LOG.info("Incremental mode");
+    }
     if (!scanAllFiles) {
       LOG.info("Scanning only changed files");
     }
@@ -77,14 +81,14 @@ public class DefaultAnalysisMode implements AnalysisMode {
 
   private void load() {
     String scanAllStr = analysisProps.get(KEY_SCAN_ALL);
-    scanAllFiles = !branchConfig.isShortLivingBranch() && (!analysisMode.isIssues() || "true".equals(scanAllStr));
     incremental = incremental();
+    scanAllFiles = !incremental && !branchConfig.isShortLivingBranch() && (!analysisMode.isIssues() || "true".equals(scanAllStr));
   }
 
   private boolean incremental() {
     String inc = analysisProps.get(KEY_INCREMENTAL);
     if ("true".equals(inc)) {
-      if (validateIncremental == null || !validateIncremental.execute()) {
+      if (incrementalScannerHandler == null || !incrementalScannerHandler.execute()) {
         throw MessageException.of("Incremental mode is not available. Please contact your administrator.");
       }
 

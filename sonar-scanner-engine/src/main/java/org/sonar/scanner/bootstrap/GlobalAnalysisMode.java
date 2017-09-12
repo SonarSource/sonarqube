@@ -36,6 +36,23 @@ public class GlobalAnalysisMode {
   protected boolean issues;
   protected boolean mediumTestMode;
 
+  public GlobalAnalysisMode(GlobalProperties props) {
+    String mode = props.property(CoreProperties.ANALYSIS_MODE);
+    validate(mode);
+    issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
+    mediumTestMode = "true".equals(props.property(MEDIUM_TEST_ENABLED));
+    if (preview) {
+      LOG.info("Preview mode");
+    } else if (issues) {
+      LOG.info("Issues mode");
+    } else {
+      LOG.info("Publish mode");
+    }
+    if (mediumTestMode) {
+      LOG.info("Medium test mode");
+    }
+  }
+  
   public boolean isPreview() {
     return preview;
   }
@@ -65,22 +82,5 @@ public class GlobalAnalysisMode {
       throw new IllegalStateException("Invalid analysis mode: " + mode + ". Valid modes are: " + Arrays.toString(VALID_MODES));
     }
 
-  }
-
-  public GlobalAnalysisMode(GlobalProperties props) {
-    String mode = props.property(CoreProperties.ANALYSIS_MODE);
-    validate(mode);
-    issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
-    mediumTestMode = "true".equals(props.property(MEDIUM_TEST_ENABLED));
-    if (preview) {
-      LOG.debug("Preview mode");
-    } else if (issues) {
-      LOG.debug("Issues mode");
-    } else {
-      LOG.debug("Publish mode");
-    }
-    if (mediumTestMode) {
-      LOG.info("Medium test mode");
-    }
   }
 }
