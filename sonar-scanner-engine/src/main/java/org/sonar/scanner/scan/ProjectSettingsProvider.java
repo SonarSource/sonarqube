@@ -25,18 +25,18 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.repository.settings.SettingsLoader;
+import org.sonar.scanner.repository.ProjectRepositories;
 
 public class ProjectSettingsProvider extends ProviderAdapter {
 
   private ProjectSettings projectSettings;
 
-  public ProjectSettings provide(ProjectReactor reactor, GlobalConfiguration globalSettings, SettingsLoader settingsLoader, GlobalAnalysisMode mode) {
+  public ProjectSettings provide(ProjectReactor reactor, GlobalConfiguration globalSettings, ProjectRepositories projectRepositories, GlobalAnalysisMode mode) {
     if (projectSettings == null) {
 
       Map<String, String> settings = new LinkedHashMap<>();
       settings.putAll(globalSettings.getProperties());
-      settings.putAll(settingsLoader.load(reactor.getRoot().getKeyWithBranch()));
+      settings.putAll(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
       settings.putAll(reactor.getRoot().properties());
 
       projectSettings = new ProjectSettings(globalSettings.getDefinitions(), globalSettings.getEncryption(), mode, settings);

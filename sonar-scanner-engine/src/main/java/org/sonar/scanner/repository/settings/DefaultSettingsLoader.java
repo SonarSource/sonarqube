@@ -20,19 +20,15 @@
 package org.sonar.scanner.repository.settings;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -42,10 +38,9 @@ import org.sonarqube.ws.Settings.FieldValues.Value;
 import org.sonarqube.ws.Settings.Setting;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.HttpException;
 
 public class DefaultSettingsLoader implements SettingsLoader {
-  static final String URL = "api/settings/values.protobuf";
+
   private ScannerWsClient wsClient;
   private static final Logger LOG = Loggers.get(DefaultSettingsLoader.class);
 
@@ -55,56 +50,21 @@ public class DefaultSettingsLoader implements SettingsLoader {
 
   @Override
   public Map<String, String> load(@Nullable String componentKey) {
+    String url = "api/settings/values.protobuf";
     Profiler profiler = Profiler.create(LOG);
-
-    try {
-      if (componentKey != null) {
-        profiler.startInfo("Load settings for component '" + componentKey + "'");
-        return loadProjectSettings(componentKey);
-      } else {
-        profiler.startInfo("Load global settings");
-        return loadSettings(URL);
-      }
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to load server settings", e);
-    } finally {
-      profiler.stopInfo();
+    if (componentKey != null) {
+      url += "?component=" + ScannerUtils.encodeForUrl(componentKey);
+      profiler.startInfo("Load settings for component '" + componentKey + "'");
+    } else {
+      profiler.startInfo("Load global settings");
     }
-  }
-
-  private Map<String, String> loadSettings(String url) throws IOException {
     try (InputStream is = wsClient.call(new GetRequest(url)).contentStream()) {
       ValuesWsResponse values = ValuesWsResponse.parseFrom(is);
+      profiler.stopInfo();
       return toMap(values.getSettingsList());
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to load server settings", e);
     }
-  }
-
-  private Map<String, String> loadProjectSettings(String componentKey) throws IOException {
-    String url = URL + "?component=" + ScannerUtils.encodeForUrl(componentKey);
-    try {
-      return loadSettings(url);
-    } catch (RuntimeException e) {
-      if (shouldThrow(e)) {
-        throw e;
-      }
-
-      LOG.debug("Project settings not available - continuing without it");
-    }
-    return Collections.emptyMap();
-  }
-
-  private static boolean shouldThrow(Exception e) {
-    for (Throwable t : Throwables.getCausalChain(e)) {
-      if (t instanceof HttpException) {
-        HttpException http = (HttpException) t;
-        return http.code() != HttpURLConnection.HTTP_NOT_FOUND;
-      }
-      if (t instanceof MessageException) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   @VisibleForTesting

@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
@@ -67,7 +68,6 @@ import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
-import org.sonar.scanner.scan.ProjectSettings;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchConfigurationLoader;
 import org.sonar.scanner.scan.branch.BranchType;
@@ -439,7 +439,7 @@ public class ScannerMediumTester extends ExternalResource {
 
   private class FakeBranchConfigurationLoader implements BranchConfigurationLoader {
     @Override
-    public BranchConfiguration load(ProjectSettings settings, ProjectBranches branches) {
+    public BranchConfiguration load(Map<String, String> localSettings, Supplier<Map<String, String>> settingsSupplier, ProjectBranches branches) {
       return branchConfiguration;
     }
   }
