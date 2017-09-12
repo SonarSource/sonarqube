@@ -198,7 +198,7 @@ public class GhostsActionTest {
     ComponentDto ghostBranchProject = db.components().insertProjectBranch(ghostProject);
     userSessionRule.logIn().addPermission(ADMINISTER, organization);
 
-    TestResponse result = underTest.newRequest()
+    TestResponse result = ws.newRequest()
       .setParam("organization", organization.getKey())
       .execute();
 
