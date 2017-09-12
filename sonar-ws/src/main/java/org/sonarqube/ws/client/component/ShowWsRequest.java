@@ -28,6 +28,7 @@ public class ShowWsRequest {
   @CheckForNull
   private String key;
 
+  @CheckForNull
   public String getId() {
     return id;
   }
@@ -37,6 +38,7 @@ public class ShowWsRequest {
     return this;
   }
 
+  @CheckForNull
   public String getKey() {
     return key;
   }

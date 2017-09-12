@@ -148,7 +148,7 @@ public class PostProjectAnalysisTaskTester {
   }
 
   /**
-      * @since 6.1
+   * @since 6.1
    */
   public PostProjectAnalysisTaskTester withScannerContext(ScannerContext scannerContext) {
     this.scannerContext = requireNonNull(scannerContext, SCANNER_CONTEXT_CAN_NOT_BE_NULL);
@@ -166,9 +166,9 @@ public class PostProjectAnalysisTaskTester {
   }
 
   public void execute() {
-    this.ceTask = requireNonNull(ceTask, CE_TASK_CAN_NOT_BE_NULL);
-    this.project = requireNonNull(project, PROJECT_CAN_NOT_BE_NULL);
-    this.date = requireNonNull(date, DATE_CAN_NOT_BE_NULL);
+    requireNonNull(ceTask, CE_TASK_CAN_NOT_BE_NULL);
+    requireNonNull(project, PROJECT_CAN_NOT_BE_NULL);
+    requireNonNull(date, DATE_CAN_NOT_BE_NULL);
 
     this.underTest.finished(
       new PostProjectAnalysisTask.ProjectAnalysis() {
