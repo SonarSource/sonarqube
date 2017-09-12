@@ -37,6 +37,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserSessionFactory;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
@@ -52,7 +53,7 @@ public class UserSessionInitializer {
    * in logs/access.log. The pattern to be configured
    * in property sonar.web.accessLogs.pattern is "%reqAttribute{LOGIN}"
    */
-  public static final String ACCESS_LOG_LOGIN = "LOGIN";
+  private static final String ACCESS_LOG_LOGIN = "LOGIN";
 
   // SONAR-6546 these urls should be get from WebService
   private static final Set<String> SKIPPED_URLS = ImmutableSet.of(
@@ -71,33 +72,27 @@ public class UserSessionInitializer {
     .build();
 
   private final Configuration config;
-  private final JwtHttpHandler jwtHttpHandler;
-  private final BasicAuthenticator basicAuthenticator;
-  private final SsoAuthenticator ssoAuthenticator;
   private final ThreadLocalUserSession threadLocalSession;
   private final AuthenticationEvent authenticationEvent;
   private final UserSessionFactory userSessionFactory;
+  private final Authenticators authenticators;
 
-  public UserSessionInitializer(Configuration config, JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator,
-    SsoAuthenticator ssoAuthenticator, ThreadLocalUserSession threadLocalSession, AuthenticationEvent authenticationEvent,
-    UserSessionFactory userSessionFactory) {
+  public UserSessionInitializer(Configuration config, ThreadLocalUserSession threadLocalSession, AuthenticationEvent authenticationEvent,
+    UserSessionFactory userSessionFactory, Authenticators authenticators) {
     this.config = config;
-    this.jwtHttpHandler = jwtHttpHandler;
-    this.basicAuthenticator = basicAuthenticator;
-    this.ssoAuthenticator = ssoAuthenticator;
     this.threadLocalSession = threadLocalSession;
     this.authenticationEvent = authenticationEvent;
     this.userSessionFactory = userSessionFactory;
+    this.authenticators = authenticators;
   }
 
   public boolean initUserSession(HttpServletRequest request, HttpServletResponse response) {
     String path = request.getRequestURI().replaceFirst(request.getContextPath(), "");
     try {
       // Do not set user session when url is excluded
-      if (!URL_PATTERN.matches(path)) {
-        return true;
+      if (URL_PATTERN.matches(path)) {
+        loadUserSession(request, response);
       }
-      setUserSession(request, response);
       return true;
     } catch (AuthenticationException e) {
       authenticationEvent.loginFailure(request, e);
@@ -120,21 +115,25 @@ public class UserSessionInitializer {
     return provider != AuthenticationEvent.Provider.LOCAL && provider != AuthenticationEvent.Provider.JWT;
   }
 
-  private void setUserSession(HttpServletRequest request, HttpServletResponse response) {
-    Optional<UserDto> user = authenticate(request, response);
+  private void loadUserSession(HttpServletRequest request, HttpServletResponse response) {
+    UserSession session;
+    Optional<UserDto> user = authenticators.authenticate(request, response);
     if (user.isPresent()) {
-      UserSession session = userSessionFactory.create(user.get());
-      threadLocalSession.set(session);
-      request.setAttribute(ACCESS_LOG_LOGIN, session.getLogin());
+      session = userSessionFactory.create(user.get());
     } else {
-      if (config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(false)) {
-        throw AuthenticationException.newBuilder()
-          .setSource(Source.local(Method.BASIC))
-          .setMessage("User must be authenticated")
-          .build();
-      }
-      threadLocalSession.set(userSessionFactory.createAnonymous());
-      request.setAttribute(ACCESS_LOG_LOGIN, "-");
+      failIfAuthenticationIsRequired();
+      session = userSessionFactory.createAnonymous();
+    }
+    threadLocalSession.set(session);
+    request.setAttribute(ACCESS_LOG_LOGIN, defaultString(session.getLogin(), "-"));
+  }
+
+  private void failIfAuthenticationIsRequired() {
+    if (config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(false)) {
+      throw AuthenticationException.newBuilder()
+        .setSource(Source.local(Method.BASIC))
+        .setMessage("User must be authenticated")
+        .build();
     }
   }
 
@@ -142,22 +141,7 @@ public class UserSessionInitializer {
     threadLocalSession.unload();
   }
 
-  // Try first to authenticate from SSO, then JWT token, then try from basic http header
-  private Optional<UserDto> authenticate(HttpServletRequest request, HttpServletResponse response) {
-    // SSO authentication should come first in order to update JWT if user from header is not the same is user from JWT
-    Optional<UserDto> user = ssoAuthenticator.authenticate(request, response);
-    if (user.isPresent()) {
-      return user;
-    }
-    user = jwtHttpHandler.validateToken(request, response);
-    if (user.isPresent()) {
-      return user;
-    }
-    return basicAuthenticator.authenticate(request);
-  }
-
   private static boolean isWsUrl(String path) {
     return path.startsWith("/batch/") || path.startsWith("/api/");
   }
-
 }

@@ -19,18 +19,13 @@
  */
 package org.sonar.server.authentication;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.sonar.db.user.UserDto;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface Authenticators {
 
-public class AuthenticationModuleTest {
-
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new AuthenticationModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 21);
-  }
+  Optional<UserDto> authenticate(HttpServletRequest request, HttpServletResponse response);
 
 }
