@@ -142,14 +142,7 @@ BUILD)
           $MAVEN_ARGS \
           -Pdeploy-sonarsource,release
         
-    INCREMENTAL=true
-    # Triggers a full analysis for every build number ending with 0, 1 or 2
-    if [[ "$TRAVIS_BUILD_NUMBER" =~ [012]$ ]]; then
-      INCREMENTAL=false
-    fi
-
     mvn sonar:sonar \
-          -Dsonar.incremental=$INCREMENTAL \
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.login=$SONAR_TOKEN \
           -Dsonar.projectVersion=$INITIAL_VERSION
