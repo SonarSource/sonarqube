@@ -19,6 +19,8 @@
  */
 package org.sonar.server.project.ws;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -48,6 +50,8 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class UpdateVisibilityAction implements ProjectsWsAction {
+  private static final Set<String> AUTHORIZED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
+
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
@@ -55,7 +59,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   private final ProjectsWsSupport projectsWsSupport;
 
   public UpdateVisibilityAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-                                ProjectIndexers projectIndexers, ProjectsWsSupport projectsWsSupport) {
+    ProjectIndexers projectIndexers, ProjectsWsSupport projectsWsSupport) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
@@ -91,7 +95,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByKey(dbSession, projectKey);
-      checkRequest(component.isRootProject() && Qualifiers.PROJECT.equals(component.qualifier()), "Component must be a project");
+      checkRequest(component.isRootProject() && AUTHORIZED_QUALIFIERS.contains(component.qualifier()), "Component must be a project, a portfolio or an application");
       userSession.checkComponentPermission(UserRole.ADMIN, component);
       checkRequest(noPendingTask(dbSession, component), "Component visibility can't be changed as long as it has background task(s) pending or in progress");
 
@@ -107,6 +111,8 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
         }
         projectIndexers.commitAndIndex(dbSession, singletonList(component), ProjectIndexer.Cause.PERMISSION_CHANGE);
       }
+
+      response.noContent();
     }
   }
 
