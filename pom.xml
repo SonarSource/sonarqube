@@ -11,7 +11,7 @@
   <groupId>org.sonarsource.sonarqube</groupId>
   <artifactId>sonarqube</artifactId>
   <packaging>pom</packaging>
-  <version>6.6-SNAPSHOT</version>
+  <version>6.6-M1</version>
   <name>SonarQube</name>
   <url>http://www.sonarqube.org/</url>
   <description>Open source platform for continuous inspection of code quality</description>
