@@ -27,6 +27,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQualityProfile;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.util.SequenceUuidFactory;
@@ -48,8 +50,6 @@ import org.sonar.server.util.TypeValidations;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.api.rules.RulePriority.CRITICAL;
-import static org.sonar.api.rules.RulePriority.MAJOR;
 
 public class BuiltInQProfileInsertImplTest {
 
@@ -102,11 +102,15 @@ public class BuiltInQProfileInsertImplTest {
     OrganizationDto org = db.organizations().insert();
     RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
     RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
-    RulesProfile apiProfile = RulesProfile.create("the name", "xoo");
-    activeRule(apiProfile, rule1, CRITICAL);
-    activeRule(apiProfile, rule2, MAJOR);
 
-    BuiltInQProfile builtIn = builtInQProfileRepository.create(apiProfile);
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("the name", "xoo");
+
+    newQp.activateRule(rule1.getRepositoryKey(), rule1.getRuleKey()).overrideSeverity(Severity.CRITICAL);
+    newQp.activateRule(rule2.getRepositoryKey(), rule2.getRuleKey()).overrideSeverity(Severity.MAJOR);
+    newQp.done();
+
+    BuiltInQProfile builtIn = builtInQProfileRepository.create(context.profile("xoo", "the name"));
     call(builtIn);
 
     verifyTableSize("rules_profiles", 1);
@@ -122,9 +126,11 @@ public class BuiltInQProfileInsertImplTest {
   @Test
   public void flag_profile_as_default_on_organization_if_declared_as_default_by_api() {
     OrganizationDto org = db.organizations().insert();
-    RulesProfile apiProfile = RulesProfile.create("the name", "xoo");
-    apiProfile.setDefaultProfile(true);
-    BuiltInQProfile builtIn = builtInQProfileRepository.create(apiProfile);
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("the name", "xoo").setDefault(true);
+    newQp.done();
+
+    BuiltInQProfile builtIn = builtInQProfileRepository.create(context.profile("xoo", "the name"));
 
     call(builtIn);
 
@@ -135,26 +141,28 @@ public class BuiltInQProfileInsertImplTest {
 
   @Test
   public void existing_default_profile_in_organization_must_not_be_changed() {
-    RulesProfile apiProfile = RulesProfile.create("the name", "xoo");
-    apiProfile.setDefaultProfile(true);
-    BuiltInQProfile builtIn = builtInQProfileRepository.create(apiProfile);
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("the name", "xoo").setDefault(true);
+    newQp.done();
+    BuiltInQProfile builtIn = builtInQProfileRepository.create(context.profile("xoo", "the name"));
 
     OrganizationDto org = db.organizations().insert();
-    QProfileDto currentDefault = db.qualityProfiles().insert(org, p -> p.setLanguage(apiProfile.getLanguage()));
+    QProfileDto currentDefault = db.qualityProfiles().insert(org, p -> p.setLanguage("xoo"));
     db.qualityProfiles().setAsDefault(currentDefault);
 
     call(builtIn);
 
-    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, org, apiProfile.getLanguage());
+    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, org, "xoo");
     assertThat(defaultProfile.getKee()).isEqualTo(currentDefault.getKee());
   }
 
   @Test
   public void dont_flag_profile_as_default_on_organization_if_not_declared_as_default_by_api() {
     OrganizationDto org = db.organizations().insert();
-    RulesProfile apiProfile = RulesProfile.create("the name", "xoo");
-    apiProfile.setDefaultProfile(false);
-    BuiltInQProfile builtIn = builtInQProfileRepository.create(apiProfile);
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("the name", "xoo").setDefault(false);
+    newQp.done();
+    BuiltInQProfile builtIn = builtInQProfileRepository.create(context.profile("xoo", "the name"));
 
     call(builtIn);
 

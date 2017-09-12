@@ -308,10 +308,7 @@ public class RulesProfile implements Cloneable {
         "The definition of the profile '%s' (language '%s') contains multiple occurrences of the '%s:%s' rule. The plugin which declares this profile should fix this.",
         getName(), getLanguage(), rule.getRepositoryKey(), rule.getKey()));
     }
-    ActiveRule activeRule = new ActiveRule();
-    activeRule.setRule(rule);
-    activeRule.setRulesProfile(this);
-    activeRule.setSeverity(optionalSeverity == null ? rule.getSeverity() : optionalSeverity);
+    ActiveRule activeRule = new ActiveRule(this, rule, optionalSeverity);
     activeRules.add(activeRule);
     return activeRule;
   }

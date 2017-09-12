@@ -152,6 +152,7 @@ import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.property.ws.PropertiesWs;
 import org.sonar.server.qualitygate.QualityGateModule;
+import org.sonar.server.qualityprofile.BuiltInQProfileDefinitionsBridge;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepositoryImpl;
 import org.sonar.server.qualityprofile.QProfileBackuperImpl;
 import org.sonar.server.qualityprofile.QProfileComparison;
@@ -276,6 +277,7 @@ public class PlatformLevel4 extends PlatformLevel {
       BillingValidationsProxyImpl.class,
 
       // quality profile
+      BuiltInQProfileDefinitionsBridge.class,
       BuiltInQProfileRepositoryImpl.class,
       ActiveRuleIndexer.class,
       XMLProfileParser.class,

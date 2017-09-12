@@ -62,7 +62,7 @@ public class CustomRulesTest extends AbstractIssueTest {
     Issue issue = issues.get(0);
     assertThat(issue.ruleKey()).isEqualTo("xoo:MyCustomRule");
     assertThat(issue.line()).isEqualTo(2);
-    // Overriden in quality profile
+    // Overridden in quality profile
     assertThat(issue.severity()).isEqualTo("CRITICAL");
   }
 }

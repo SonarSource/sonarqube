@@ -36,6 +36,7 @@ public class ActiveRule implements Cloneable {
   private Integer id;
   private Rule rule;
   private RulePriority severity;
+  private RulePriority overriddenSeverity;
   private RulesProfile rulesProfile;
   private List<ActiveRuleParam> activeRuleParams = new ArrayList<>();
   private String inheritance;
@@ -53,6 +54,7 @@ public class ActiveRule implements Cloneable {
   @Deprecated
   public ActiveRule(RulesProfile profile, Rule rule, RulePriority severity) {
     this.rule = rule;
+    this.overriddenSeverity = severity;
     if (severity == null && rule != null) {
       this.severity = rule.getSeverity();
     } else {
@@ -117,6 +119,16 @@ public class ActiveRule implements Cloneable {
    */
   public RulePriority getSeverity() {
     return severity;
+  }
+
+  /**
+   * For internal use
+   * @since 6.6
+   * @deprecated
+   */
+  @Deprecated
+  public RulePriority getOverriddenSeverity() {
+    return overriddenSeverity;
   }
 
   /**

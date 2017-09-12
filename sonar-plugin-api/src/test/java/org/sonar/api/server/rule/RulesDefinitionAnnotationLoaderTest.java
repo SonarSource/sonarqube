@@ -60,9 +60,9 @@ public class RulesDefinitionAnnotationLoaderTest {
     RulesDefinition.Context context = new RulesDefinition.Context();
     RulesDefinition.NewRepository newRepository = context.createRepository("squid", "java");
     NewRule newRule = annotationLoader.loadRule(newRepository, RuleWithProperty.class);
-    newRule.setName("Overriden name");
+    newRule.setName("Overridden name");
     newRule.param("property").setDefaultValue("true");
-    newRule.param("property").setDescription("Overriden");
+    newRule.param("property").setDescription("Overridden");
     newRepository.done();
 
     RulesDefinition.Repository repository = context.repository("squid");
@@ -70,14 +70,14 @@ public class RulesDefinitionAnnotationLoaderTest {
     RulesDefinition.Rule rule = repository.rules().get(0);
     assertThat(rule.key()).isEqualTo("foo");
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(rule.name()).isEqualTo("Overriden name");
+    assertThat(rule.name()).isEqualTo("Overridden name");
     assertThat(rule.htmlDescription()).isEqualTo("Foo Bar");
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.params()).hasSize(1);
 
     RulesDefinition.Param prop = rule.param("property");
     assertThat(prop.key()).isEqualTo("property");
-    assertThat(prop.description()).isEqualTo("Overriden");
+    assertThat(prop.description()).isEqualTo("Overridden");
     assertThat(prop.defaultValue()).isEqualTo("true");
     assertThat(prop.type()).isEqualTo(RuleParamType.STRING);
   }
