@@ -98,7 +98,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
     return String.format("%s: %s new issues (new debt: %s)",
       projectName,
       notification.getFieldValue(Metric.SEVERITY + COUNT),
-      notification.getFieldValue(Metric.DEBT + COUNT));
+      notification.getFieldValue(Metric.EFFORT + COUNT));
   }
 
   private static boolean doNotHaveValue(Notification notification, Metric metric) {
@@ -149,7 +149,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
     message
       .append(String.format("%s new issues (new debt: %s)",
         notification.getFieldValue(Metric.SEVERITY + COUNT),
-        notification.getFieldValue(Metric.DEBT + COUNT)))
+        notification.getFieldValue(Metric.EFFORT + COUNT)))
       .append(NEW_LINE).append(NEW_LINE)
       .append(TAB)
       .append("Severity")
