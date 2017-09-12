@@ -26,6 +26,7 @@ import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.
 import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
 public class DbVersion66Test {
+
   private DbVersion66 underTest = new DbVersion66();
 
   @Test
@@ -35,6 +36,7 @@ public class DbVersion66Test {
 
   @Test
   public void verify_migration_count() {
-    verifyMigrationCount(underTest, 6);
+    verifyMigrationCount(underTest, 10);
   }
+
 }

@@ -44,7 +44,6 @@ public class IssueChangeNotificationTest {
     assertThat(result.getFieldValue("key")).isEqualTo("ABCD");
     assertThat(result.getFieldValue("assignee")).isEqualTo("simon");
     assertThat(result.getFieldValue("message")).isEqualTo("Remove this useless method");
-    assertThat(result.getFieldValue("componentKey")).isEqualTo("MyService");
     assertThat(result.getFieldValue("old.resolution")).isEqualTo("FALSE-POSITIVE");
     assertThat(result.getFieldValue("new.resolution")).isEqualTo("FIXED");
   }
@@ -84,16 +83,26 @@ public class IssueChangeNotificationTest {
   }
 
   @Test
-  public void set_project() {
-    IssueChangeNotification result = notification.setProject("MyService", "My Service");
+  public void set_project_without_branch() {
+    IssueChangeNotification result = notification.setProject("MyService", "My Service", null);
     assertThat(result.getFieldValue("projectKey")).isEqualTo("MyService");
     assertThat(result.getFieldValue("projectName")).isEqualTo("My Service");
+    assertThat(result.getFieldValue("branch")).isNull();
+  }
+
+  @Test
+  public void set_project_with_branch() {
+    IssueChangeNotification result = notification.setProject("MyService", "My Service", "feature1");
+    assertThat(result.getFieldValue("projectKey")).isEqualTo("MyService");
+    assertThat(result.getFieldValue("projectName")).isEqualTo("My Service");
+    assertThat(result.getFieldValue("branch")).isEqualTo("feature1");
   }
 
   @Test
   public void set_component() {
     IssueChangeNotification result = notification.setComponent(new ComponentDto().setDbKey("MyService").setLongName("My Service"));
     assertThat(result.getFieldValue("componentName")).isEqualTo("My Service");
+    assertThat(result.getFieldValue("componentKey")).isEqualTo("MyService");
   }
 
   @Test

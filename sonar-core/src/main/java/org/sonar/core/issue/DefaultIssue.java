@@ -96,10 +96,13 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   // all changes
   private List<FieldDiffs> changes = null;
 
-  // true if the the issue did not exist in the previous scan.
+  // true if the issue did not exist in the previous scan.
   private boolean isNew = true;
 
-  // True if the the issue did exist in the previous scan but not in the current one. That means
+  // true if the issue is being copied to a different branch
+  private boolean isCopied = false;
+
+  // True if the issue did exist in the previous scan but not in the current one. That means
   // that this issue should be closed.
   private boolean beingClosed = false;
 
@@ -178,17 +181,13 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
-  /**
-   * Can be null on Views or Devs
-   */
   @Override
-  @CheckForNull
   public String projectUuid() {
     return projectUuid;
   }
 
-  public DefaultIssue setProjectUuid(@Nullable String projectUuid) {
-    this.projectUuid = projectUuid;
+  public DefaultIssue setProjectUuid(String s) {
+    this.projectUuid = s;
     return this;
   }
 
@@ -414,6 +413,16 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   @Override
   public boolean isNew() {
     return isNew;
+  }
+
+  @Override
+  public boolean isCopied() {
+    return isCopied;
+  }
+
+  public DefaultIssue setCopied(boolean b) {
+    isCopied = b;
+    return this;
   }
 
   public DefaultIssue setNew(boolean b) {

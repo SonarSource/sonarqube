@@ -32,12 +32,13 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_COMPON
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_COMPONENT_TREE;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_SEARCH_HISTORY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.CONTROLLER_MEASURES;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_FROM;
@@ -57,8 +58,10 @@ public class MeasuresService extends BaseService {
 
   public ComponentTreeWsResponse componentTree(ComponentTreeWsRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_COMPONENT_TREE))
-      .setParam(PARAM_BASE_COMPONENT_ID, request.getBaseComponentId())
-      .setParam(PARAM_BASE_COMPONENT_KEY, request.getBaseComponentKey())
+      .setParam(DEPRECATED_PARAM_BASE_COMPONENT_ID, request.getBaseComponentId())
+      .setParam(DEPRECATED_PARAM_BASE_COMPONENT_KEY, request.getBaseComponentKey())
+      .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch())
       .setParam(PARAM_STRATEGY, request.getStrategy())
       .setParam(PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers()))
       .setParam(PARAM_METRIC_KEYS, inlineMultipleParamValue(request.getMetricKeys()))
@@ -78,8 +81,10 @@ public class MeasuresService extends BaseService {
 
   public ComponentWsResponse component(ComponentWsRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_COMPONENT))
-      .setParam(PARAM_COMPONENT_ID, request.getComponentId())
-      .setParam(PARAM_COMPONENT_KEY, request.getComponentKey())
+      .setParam(DEPRECATED_PARAM_COMPONENT_ID, request.getComponentId())
+      .setParam(DEPRECATED_PARAM_COMPONENT_KEY, request.getComponentKey())
+      .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch())
       .setParam(PARAM_ADDITIONAL_FIELDS, inlineMultipleParamValue(request.getAdditionalFields()))
       .setParam(PARAM_METRIC_KEYS, inlineMultipleParamValue(request.getMetricKeys()))
       .setParam(PARAM_DEVELOPER_ID, request.getDeveloperId())
@@ -91,6 +96,7 @@ public class MeasuresService extends BaseService {
   public SearchHistoryResponse searchHistory(SearchHistoryRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_SEARCH_HISTORY))
       .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch())
       .setParam(PARAM_METRICS, inlineMultipleParamValue(request.getMetrics()))
       .setParam(PARAM_FROM, request.getFrom())
       .setParam(PARAM_TO, request.getTo())

@@ -45,13 +45,13 @@ public class GlobalConfigurationProviderTest {
   SettingsLoader settingsLoader;
   GlobalProperties bootstrapProps;
 
-  private GlobalMode mode;
+  private GlobalAnalysisMode mode;
 
   @Before
   public void prepare() {
     settingsLoader = mock(SettingsLoader.class);
     bootstrapProps = new GlobalProperties(Collections.<String, String>emptyMap());
-    mode = mock(GlobalMode.class);
+    mode = mock(GlobalAnalysisMode.class);
   }
 
   @Test

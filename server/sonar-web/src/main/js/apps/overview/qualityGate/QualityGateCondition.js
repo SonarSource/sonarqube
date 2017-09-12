@@ -32,6 +32,7 @@ import { getComponentIssuesUrl } from '../../../helpers/urls';
 
 export default class QualityGateCondition extends React.PureComponent {
   /*:: props: {
+    branch?: string,
     component: Component,
     condition: {
       level: string,
@@ -52,16 +53,13 @@ export default class QualityGateCondition extends React.PureComponent {
     }
   }
 
-  getIssuesUrl(sinceLeakPeriod /*: boolean */, customQuery /*: {} */) {
-    const query /*: Object */ = {
-      resolved: 'false',
-      ...customQuery
-    };
+  getIssuesUrl = (sinceLeakPeriod /*: boolean */, customQuery /*: {} */) => {
+    const query /*: Object */ = { resolved: 'false', branch: this.props.branch, ...customQuery };
     if (sinceLeakPeriod) {
       Object.assign(query, { sinceLeakPeriod: 'true' });
     }
     return getComponentIssuesUrl(this.props.component.key, query);
-  }
+  };
 
   getUrlForCodeSmells(sinceLeakPeriod /*: boolean */) {
     return this.getIssuesUrl(sinceLeakPeriod, { types: 'CODE_SMELL' });
@@ -91,7 +89,7 @@ export default class QualityGateCondition extends React.PureComponent {
   }
 
   wrapWithLink(children /*: React.Element<*> */) {
-    const { component, condition } = this.props;
+    const { branch, component, condition } = this.props;
 
     const className = classNames(
       'overview-quality-gate-condition',
@@ -115,6 +113,7 @@ export default class QualityGateCondition extends React.PureComponent {
           {children}
         </Link>
       : <DrilldownLink
+          branch={branch}
           className={className}
           component={component.key}
           metric={condition.measure.metric.key}

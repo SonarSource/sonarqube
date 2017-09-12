@@ -50,6 +50,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsCe.ActivityResponse;
@@ -65,7 +66,10 @@ import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.INCREMENTAL_KEY;
+import static org.sonar.db.component.BranchType.LONG;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -343,7 +347,8 @@ public class ActivityActionTest {
   public void incremental_analysis_on_single_project() {
     ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    CeActivityDto activity = insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    insertCharacteristic(activity, INCREMENTAL_KEY, "true");
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     ActivityResponse activityResponse = call(ws.newRequest()
@@ -359,7 +364,8 @@ public class ActivityActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
     SnapshotDto standardAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(false));
-    insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    CeActivityDto incrementalTask = insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    insertCharacteristic(incrementalTask, INCREMENTAL_KEY, "true");
     insertActivity("T2", project, SUCCESS, standardAnalysis);
     logInAsSystemAdministrator();
 
@@ -377,7 +383,8 @@ public class ActivityActionTest {
   public void incremental_analysis_on_search_uuid() {
     ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    CeActivityDto activity = insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    insertCharacteristic(activity, INCREMENTAL_KEY, "true");
     logInAsSystemAdministrator();
 
     ActivityResponse activityResponse = call(ws.newRequest()
@@ -405,8 +412,48 @@ public class ActivityActionTest {
       .extracting(Task::getId, Task::getIncremental)
       .containsExactlyInAnyOrder(
         tuple("T1", true),
-        tuple("T2", true)
-      );
+        tuple("T2", true));
+  }
+
+  @Test
+  public void long_living_branch_in_past_activity() {
+    logInAsSystemAdministrator();
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    SnapshotDto analysis = db.components().insertSnapshot(longLivingBranch);
+    CeActivityDto activity = insertActivity("T1", project, SUCCESS, analysis);
+    insertCharacteristic(activity, BRANCH_KEY, longLivingBranch.getBranch());
+    insertCharacteristic(activity, BRANCH_TYPE_KEY, LONG.name());
+
+    ActivityResponse response = ws.newRequest().executeProtobuf(ActivityResponse.class);
+
+    assertThat(response.getTasksList())
+      .extracting(Task::getId, WsCe.Task::getBranch, WsCe.Task::getBranchType, WsCe.Task::getStatus, WsCe.Task::getComponentKey)
+      .containsExactlyInAnyOrder(
+        tuple("T1", longLivingBranch.getBranch(), Common.BranchType.LONG, WsCe.TaskStatus.SUCCESS, longLivingBranch.getKey()));
+  }
+
+  @Test
+  public void long_living_branch_in_queue_analysis() {
+    logInAsSystemAdministrator();
+    String branch = "ny_branch";
+    CeQueueDto queue1 = insertQueue("T1", null, IN_PROGRESS);
+    insertCharacteristic(queue1, BRANCH_KEY, branch);
+    insertCharacteristic(queue1, BRANCH_TYPE_KEY, LONG.name());
+    CeQueueDto queue2 = insertQueue("T2", null, PENDING);
+    insertCharacteristic(queue2, BRANCH_KEY, branch);
+    insertCharacteristic(queue2, BRANCH_TYPE_KEY, LONG.name());
+
+    ActivityResponse response = ws.newRequest()
+      .setParam("status", "FAILED,IN_PROGRESS,PENDING")
+      .executeProtobuf(ActivityResponse.class);
+
+    assertThat(response.getTasksList())
+      .extracting(Task::getId, WsCe.Task::getBranch, WsCe.Task::getBranchType, WsCe.Task::getStatus)
+      .containsExactlyInAnyOrder(
+        tuple("T1", branch, Common.BranchType.LONG, WsCe.TaskStatus.IN_PROGRESS),
+        tuple("T2", branch, Common.BranchType.LONG, WsCe.TaskStatus.PENDING));
   }
 
   @Test
@@ -524,9 +571,17 @@ public class ActivityActionTest {
   }
 
   private CeTaskCharacteristicDto insertCharacteristic(CeQueueDto queueDto, String key, String value) {
+    return insertCharacteristic(queueDto.getUuid(), key, value);
+  }
+
+  private CeTaskCharacteristicDto insertCharacteristic(CeActivityDto activityDto, String key, String value) {
+    return insertCharacteristic(activityDto.getUuid(), key, value);
+  }
+
+  private CeTaskCharacteristicDto insertCharacteristic(String taskUuid, String key, String value) {
     CeTaskCharacteristicDto dto = new CeTaskCharacteristicDto()
       .setUuid(Uuids.createFast())
-      .setTaskUuid(queueDto.getUuid())
+      .setTaskUuid(taskUuid)
       .setKey(key)
       .setValue(value);
     db.getDbClient().ceTaskCharacteristicsDao().insert(db.getSession(), Collections.singletonList(dto));

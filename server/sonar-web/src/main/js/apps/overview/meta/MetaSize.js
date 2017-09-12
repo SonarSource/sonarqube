@@ -29,6 +29,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default class MetaSize extends React.PureComponent {
   static propTypes = {
+    branch: PropTypes.string,
     component: PropTypes.object.isRequired,
     measures: PropTypes.array.isRequired
   };
@@ -42,7 +43,7 @@ export default class MetaSize extends React.PureComponent {
       <span className="spacer-right">
         <SizeRating value={ncloc.value} />
       </span>
-      <DrilldownLink component={this.props.component.key} metric="ncloc">
+      <DrilldownLink branch={this.props.branch} component={this.props.component.key} metric="ncloc">
         {formatMeasure(ncloc.value, 'SHORT_INT')}
       </DrilldownLink>
       <div className="overview-domain-measure-label text-muted">
@@ -69,7 +70,10 @@ export default class MetaSize extends React.PureComponent {
       ? <div
           id="overview-projects"
           className="overview-meta-size-ncloc is-half-width bordered-left">
-          <DrilldownLink component={this.props.component.key} metric="projects">
+          <DrilldownLink
+            branch={this.props.branch}
+            component={this.props.component.key}
+            metric="projects">
             {formatMeasure(projects.value, 'SHORT_INT')}
           </DrilldownLink>
           <div className="overview-domain-measure-label text-muted">

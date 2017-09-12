@@ -161,6 +161,11 @@ public class DeprecatedIssueWrapper implements Issue {
   }
 
   @Override
+  public boolean isCopied() {
+    return false;
+  }
+
+  @Override
   public Duration debt() {
     return null;
   }

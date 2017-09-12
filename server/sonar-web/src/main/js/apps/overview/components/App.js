@@ -22,10 +22,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import OverviewApp from './OverviewApp';
 import EmptyOverview from './EmptyOverview';
+import { getBranchName, isShortLivingBranch } from '../../../helpers/branches';
+import { getProjectBranchUrl } from '../../../helpers/urls';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
 /*::
 type Props = {
+  branch?: { name: string },
   component: {
     analysisDate?: string,
     id: string,
@@ -33,6 +36,7 @@ type Props = {
     qualifier: string,
     tags: Array<string>
   },
+  onComponentChange: {} => void,
   router: Object
 };
 */
@@ -52,6 +56,9 @@ export default class App extends React.PureComponent {
         query: { id: this.props.component.key }
       });
     }
+    if (isShortLivingBranch(this.props.branch)) {
+      this.context.router.replace(getProjectBranchUrl(this.props.component.key, this.props.branch));
+    }
   }
 
   isPortfolio() {
@@ -59,16 +66,16 @@ export default class App extends React.PureComponent {
   }
 
   render() {
-    if (this.isPortfolio()) {
+    const { branch, component } = this.props;
+
+    if (this.isPortfolio() || isShortLivingBranch(branch)) {
       return null;
     }
-
-    const { component } = this.props;
 
     if (['FIL', 'UTS'].includes(component.qualifier)) {
       return (
         <div className="page page-limited">
-          <SourceViewer component={component.key} />
+          <SourceViewer branch={branch && getBranchName(branch)} component={component.key} />
         </div>
       );
     }
@@ -77,6 +84,12 @@ export default class App extends React.PureComponent {
       return <EmptyOverview component={component} />;
     }
 
-    return <OverviewApp component={component} />;
+    return (
+      <OverviewApp
+        branch={branch}
+        component={component}
+        onComponentChange={this.props.onComponentChange}
+      />
+    );
   }
 }

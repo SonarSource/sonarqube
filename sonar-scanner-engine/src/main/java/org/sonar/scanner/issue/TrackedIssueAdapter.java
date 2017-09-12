@@ -114,6 +114,11 @@ public class TrackedIssueAdapter implements Issue {
   }
 
   @Override
+  public boolean isCopied() {
+    return false;
+  }
+
+  @Override
   public Map<String, String> attributes() {
     return new HashMap<>();
   }

@@ -19,118 +19,135 @@
  */
 package org.sonar.scanner.analysis;
 
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.Date;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.CoreProperties;
-import org.sonar.scanner.bootstrap.GlobalProperties;
+import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultAnalysisModeTest {
+  private BranchConfiguration branchConfig;
+  private ProjectRepositories projectRepos;
+  private GlobalAnalysisMode globalMode;
+  private IncrementalScannerHandler incrementalScannerHandler;
+
+  @Before
+  public void setUp() {
+    branchConfig = mock(BranchConfiguration.class);
+    projectRepos = mock(ProjectRepositories.class);
+    globalMode = mock(GlobalAnalysisMode.class);
+    incrementalScannerHandler = mock(IncrementalScannerHandler.class);
+  }
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void regular_analysis_by_default() {
-    DefaultAnalysisMode mode = createMode(null, null);
-    assertThat(mode.isPreview()).isFalse();
-    assertThat(mode.isPublish()).isTrue();
-  }
+  public void dont_scan_all_if_short_lived_branch() {
+    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.scanAllFiles", "true"));
+    when(branchConfig.isShortLivingBranch()).thenReturn(true);
+    DefaultAnalysisMode mode = createmode(analysisProps);
 
-  @Test(expected = IllegalStateException.class)
-  public void fail_if_inconsistent() {
-    createMode(null, CoreProperties.ANALYSIS_MODE_ISSUES);
-  }
-
-  @Test
-  public void support_publish_mode() {
-    DefaultAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PUBLISH);
-
-    assertThat(mode.isPreview()).isFalse();
-    assertThat(mode.isPublish()).isTrue();
-  }
-
-  @Test
-  public void incremental_mode_no_longer_valid() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("This mode was removed in SonarQube 5.2");
-
-    createMode(CoreProperties.ANALYSIS_MODE_INCREMENTAL);
-  }
-
-  @Test
-  public void invalidate_mode() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("[preview, publish, issues]");
-
-    createMode("invalid");
-  }
-
-  @Test
-  public void preview_mode_fallback_issues() {
-    DefaultAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
-
-    assertThat(mode.isIssues()).isTrue();
-    assertThat(mode.isPreview()).isFalse();
-  }
-
-  @Test
-  public void scan_all() {
-    Map<String, String> props = new HashMap<>();
-    props.put(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES);
-    GlobalProperties globalProps = new GlobalProperties(props);
-
-    AnalysisProperties analysisProps = new AnalysisProperties(new HashMap<String, String>());
-    DefaultAnalysisMode mode = new DefaultAnalysisMode(globalProps, analysisProps);
-    assertThat(mode.scanAllFiles()).isFalse();
-
-    props.put("sonar.scanAllFiles", "true");
-    analysisProps = new AnalysisProperties(props);
-
-    mode = new DefaultAnalysisMode(globalProps, analysisProps);
-    assertThat(mode.scanAllFiles()).isTrue();
-
-    props.put(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PUBLISH);
-    analysisProps = new AnalysisProperties(props);
-
-    mode = new DefaultAnalysisMode(globalProps, analysisProps);
-    assertThat(mode.scanAllFiles()).isTrue();
-  }
-
-  @Test
-  public void default_publish_mode() {
-    DefaultAnalysisMode mode = createMode(null);
-    assertThat(mode.isPublish()).isTrue();
-    assertThat(mode.scanAllFiles()).isTrue();
-  }
-
-  @Test
-  public void support_issues_mode() {
-    DefaultAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_ISSUES);
-
-    assertThat(mode.isIssues()).isTrue();
     assertThat(mode.scanAllFiles()).isFalse();
   }
 
-  private static DefaultAnalysisMode createMode(@Nullable String mode) {
-    return createMode(mode, mode);
+  @Test
+  public void reuse_global_mode() {
+    when(globalMode.isIssues()).thenReturn(true);
+    when(globalMode.isPublish()).thenReturn(true);
+    when(globalMode.isPreview()).thenReturn(true);
+    DefaultAnalysisMode mode = createmode(new AnalysisProperties(Collections.emptyMap()));
+
+    assertThat(mode.isIssues()).isTrue();
+    assertThat(mode.isPublish()).isTrue();
+    assertThat(mode.isPreview()).isTrue();
   }
 
-  private static DefaultAnalysisMode createMode(@Nullable String bootstrapMode, @Nullable String analysisMode) {
-    Map<String, String> bootstrapMap = new HashMap<>();
-    Map<String, String> analysisMap = new HashMap<>();
+  @Test
+  public void incremental_not_found() {
+    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.incremental", "true"));
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Incremental mode is not available. Please contact your administrator.");
+    createmode(analysisProps);
+  }
 
-    if (bootstrapMode != null) {
-      bootstrapMap.put(CoreProperties.ANALYSIS_MODE, bootstrapMode);
-    }
-    if (analysisMode != null) {
-      analysisMap.put(CoreProperties.ANALYSIS_MODE, analysisMode);
-    }
-    return new DefaultAnalysisMode(new GlobalProperties(bootstrapMap), new AnalysisProperties(analysisMap));
+  @Test
+  public void no_incremental_if_not_publish() {
+    when(incrementalScannerHandler.execute()).thenReturn(true);
+    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.incremental", "true"));
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Incremental analysis is only available in publish mode");
+    createmode(analysisProps);
+  }
+
+  @Test
+  public void no_incremental_mode_if_branches() {
+    when(globalMode.isPublish()).thenReturn(true);
+    when(incrementalScannerHandler.execute()).thenReturn(true);
+    when(branchConfig.branchName()).thenReturn("branch1");
+    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.incremental", "true"));
+    DefaultAnalysisMode analysisMode = createmode(analysisProps);
+    assertThat(analysisMode.isIncremental()).isFalse();
+    assertThat(analysisMode.scanAllFiles()).isTrue();
+  }
+
+  @Test
+  public void no_incremental_mode_if_no_previous_analysis() {
+    when(incrementalScannerHandler.execute()).thenReturn(true);
+    when(globalMode.isPublish()).thenReturn(true);
+    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.incremental", "true"));
+    DefaultAnalysisMode analysisMode = createmode(analysisProps);
+    assertThat(analysisMode.isIncremental()).isFalse();
+    assertThat(analysisMode.scanAllFiles()).isTrue();
+  }
+
+  @Test
+  public void incremental_mode() {
+    when(incrementalScannerHandler.execute()).thenReturn(true);
+    when(globalMode.isPublish()).thenReturn(true);
+    when(projectRepos.lastAnalysisDate()).thenReturn(new Date());
+    when(projectRepos.exists()).thenReturn(true);
+    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.incremental", "true"));
+    DefaultAnalysisMode analysisMode = createmode(analysisProps);
+    assertThat(analysisMode.isIncremental()).isTrue();
+    assertThat(analysisMode.scanAllFiles()).isFalse();
+  }
+
+  @Test
+  public void scan_all_if_publish() {
+    when(globalMode.isIssues()).thenReturn(false);
+    DefaultAnalysisMode mode = createmode(new AnalysisProperties(Collections.emptyMap()));
+
+    assertThat(mode.scanAllFiles()).isTrue();
+  }
+
+  @Test
+  public void scan_all_if_property_set() {
+    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.scanAllFiles", "true"));
+    DefaultAnalysisMode mode = createmode(analysisProps);
+
+    assertThat(mode.scanAllFiles()).isTrue();
+  }
+
+  @Test
+  public void dont_scan_all_if_issues_mode() {
+    when(globalMode.isIssues()).thenReturn(true);
+    DefaultAnalysisMode mode = createmode(new AnalysisProperties(Collections.emptyMap()));
+
+    assertThat(mode.scanAllFiles()).isFalse();
+  }
+
+  private DefaultAnalysisMode createmode(AnalysisProperties analysisProps) {
+    return new DefaultAnalysisMode(analysisProps, branchConfig, globalMode, projectRepos, incrementalScannerHandler);
   }
 
 }

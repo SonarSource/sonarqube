@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
@@ -51,7 +53,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
-import org.sonar.scanner.bootstrap.GlobalMode;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.report.ReportPublisher;
@@ -66,6 +68,10 @@ import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchConfigurationLoader;
+import org.sonar.scanner.scan.branch.BranchType;
+import org.sonar.scanner.scan.branch.ProjectBranches;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
@@ -78,6 +84,8 @@ public class ScannerMediumTester extends ExternalResource {
   private static Path userHome = null;
   private Map<String, String> globalProperties = new HashMap<>();
   private final FakeMetricsRepositoryLoader globalRefProvider = new FakeMetricsRepositoryLoader();
+  private final FakeBranchConfigurationLoader branchConfigurationLoader = new FakeBranchConfigurationLoader();
+  private final FakeBranchConfiguration branchConfiguration = new FakeBranchConfiguration();
   private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
   private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
   private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
@@ -233,7 +241,7 @@ public class ScannerMediumTester extends ExternalResource {
       throw new IllegalStateException(e);
     }
     registerCoreMetrics();
-    globalProperties.put(GlobalMode.MEDIUM_TEST_ENABLED, "true");
+    globalProperties.put(GlobalAnalysisMode.MEDIUM_TEST_ENABLED, "true");
     globalProperties.put(ReportPublisher.KEEP_REPORT_PROP_KEY, "true");
     globalProperties.put("sonar.userHome", userHome.toString());
   }
@@ -288,6 +296,7 @@ public class ScannerMediumTester extends ExternalResource {
           tester.globalRefProvider,
           tester.qualityProfiles,
           tester.rulesLoader,
+          tester.branchConfigurationLoader,
           tester.projectRefProvider,
           tester.activeRules,
           tester.serverIssues,
@@ -365,7 +374,7 @@ public class ScannerMediumTester extends ExternalResource {
     private Date lastAnalysisDate;
 
     @Override
-    public ProjectRepositories load(String projectKey, boolean isIssuesMode) {
+    public ProjectRepositories load(String projectKey, boolean isIssuesMode, @Nullable String branchBase) {
       Table<String, String, String> settings = HashBasedTable.create();
       return new ProjectRepositories(settings, fileDataTable, lastAnalysisDate);
     }
@@ -380,6 +389,59 @@ public class ScannerMediumTester extends ExternalResource {
       return this;
     }
 
+  }
+
+  private static class FakeBranchConfiguration implements BranchConfiguration {
+
+    private BranchType branchType = BranchType.LONG;
+    private String branchName = null;
+    private String branchTarget = null;
+    private String branchBase = null;
+
+    @Override
+    public BranchType branchType() {
+      return branchType;
+    }
+
+    @CheckForNull
+    @Override
+    public String branchName() {
+      return branchName;
+    }
+
+    @CheckForNull
+    @Override
+    public String branchTarget() {
+      return branchTarget;
+    }
+
+    @CheckForNull
+    @Override
+    public String branchBase() {
+      return branchBase;
+    }
+  }
+
+  public ScannerMediumTester setBranchType(BranchType branchType) {
+    branchConfiguration.branchType = branchType;
+    return this;
+  }
+
+  public ScannerMediumTester setBranchName(String branchName) {
+    this.branchConfiguration.branchName = branchName;
+    return this;
+  }
+
+  public ScannerMediumTester setBranchTarget(String branchTarget) {
+    this.branchConfiguration.branchTarget = branchTarget;
+    return this;
+  }
+
+  private class FakeBranchConfigurationLoader implements BranchConfigurationLoader {
+    @Override
+    public BranchConfiguration load(Map<String, String> localSettings, Supplier<Map<String, String>> settingsSupplier, ProjectBranches branches) {
+      return branchConfiguration;
+    }
   }
 
   private static class FakeQualityProfileLoader implements QualityProfileLoader {

@@ -43,6 +43,7 @@ import org.sonar.server.source.index.FileSourceTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import static java.lang.String.format;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -58,10 +59,10 @@ public class LinesActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   SourceService sourceService;
   HtmlSourceDecorator htmlSourceDecorator;
@@ -81,11 +82,11 @@ public class LinesActionTest {
         return "<p>" + invocationOnMock.getArguments()[0] + "</p>";
       }
     });
-    sourceService = new SourceService(dbTester.getDbClient(), htmlSourceDecorator);
+    sourceService = new SourceService(db.getDbClient(), htmlSourceDecorator);
     componentDao = new ComponentDao();
     wsTester = new WsTester(new SourcesWs(
-      new LinesAction(TestComponentFinder.from(dbTester), dbTester.getDbClient(), sourceService, htmlSourceDecorator, userSessionRule)));
-    project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID);
+      new LinesAction(TestComponentFinder.from(db), db.getDbClient(), sourceService, htmlSourceDecorator, userSession)));
+    project = ComponentTesting.newPrivateProjectDto(db.organizations().insert(), PROJECT_UUID);
     file = newFileDto(project, null, FILE_UUID).setDbKey(FILE_KEY);
   }
 
@@ -121,6 +122,26 @@ public class LinesActionTest {
   }
 
   @Test
+  public void branch() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
+      .setProjectUuid(branch.uuid())
+      .setFileUuid(file.uuid())
+      .setSourceData(FileSourceTesting.newFakeData(3).build()));
+    db.commit();
+    userSession.logIn("login").addProjectPermission(UserRole.CODEVIEWER, project, file);
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines")
+      .setParam("key", file.getKey())
+      .setParam("branch", file.getBranch());
+
+    request.execute().assertJson(getClass(), "show_source.json");
+  }
+
+  @Test
   public void fail_when_no_uuid_or_key_param() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either 'uuid' or 'key' must be provided, not both");
@@ -150,7 +171,7 @@ public class LinesActionTest {
   @Test
   public void fail_when_file_is_removed() throws Exception {
     ComponentDto file = newFileDto(project).setDbKey("file-key").setEnabled(false);
-    dbTester.components().insertComponents(project, file);
+    db.components().insertComponents(project, file);
     setUserWithValidPermission();
 
     expectedException.expect(NotFoundException.class);
@@ -161,10 +182,10 @@ public class LinesActionTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void should_check_permission() throws Exception {
+  public void check_permission() throws Exception {
     insertFileWithData(FileSourceTesting.newFakeData(1).build());
 
-    userSessionRule.logIn("login");
+    userSession.logIn("login");
 
     wsTester.newGetRequest("api/sources", "lines")
       .setParam("uuid", FILE_UUID)
@@ -240,22 +261,82 @@ public class LinesActionTest {
     request.execute().assertJson(getClass(), "convert_deprecated_data.json");
   }
 
+  @Test
+  public void fail_if_branch_does_not_exist() throws Exception {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    userSession.addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+
+    wsTester.newGetRequest("api/sources", "lines")
+      .setParam("key", file.getKey())
+      .setParam("branch", "another_branch")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_uuid_and_branch_params_are_used_together() throws Exception {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    userSession.addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'uuid' and 'branch' parameters cannot be used at the same time");
+
+    wsTester.newGetRequest("api/sources", "lines")
+      .setParam("uuid", file.uuid())
+      .setParam("branch", "another_branch")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    wsTester.newGetRequest("api/sources", "lines")
+      .setParam("key", branch.getDbKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_uuid() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
+
+    wsTester.newGetRequest("api/sources", "lines")
+      .setParam("uuid", branch.uuid())
+      .execute();
+  }
+
   private void insertFileWithData(DbFileSources.Data fileData) throws IOException {
     insertFile();
-    dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
+    db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(fileData));
-    dbTester.commit();
+    db.commit();
   }
 
   private void setUserWithValidPermission() {
-    userSessionRule.logIn("login").addProjectPermission(UserRole.CODEVIEWER, project, file);
+    userSession.logIn("login").addProjectPermission(UserRole.CODEVIEWER, project, file);
   }
 
   private void insertFile() throws IOException {
-    componentDao.insert(dbTester.getSession(), project, file);
-    dbTester.getSession().commit();
+    componentDao.insert(db.getSession(), project, file);
+    db.getSession().commit();
   }
 
   private DbFileSources.Line.Builder newLineBuilder() {

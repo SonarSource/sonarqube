@@ -56,9 +56,12 @@ import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.setting.SetRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_FIELD_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
@@ -76,9 +79,10 @@ public class SetAction implements SettingsWsAction {
   private final SettingsUpdater settingsUpdater;
   private final SettingsChangeNotifier settingsChangeNotifier;
   private final SettingValidations validations;
+  private final SettingsWsSupport settingsWsSupport;
 
   public SetAction(PropertyDefinitions propertyDefinitions, DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-    SettingsUpdater settingsUpdater, SettingsChangeNotifier settingsChangeNotifier, SettingValidations validations) {
+    SettingsUpdater settingsUpdater, SettingsChangeNotifier settingsChangeNotifier, SettingValidations validations, SettingsWsSupport settingsWsSupport) {
     this.propertyDefinitions = propertyDefinitions;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
@@ -86,6 +90,7 @@ public class SetAction implements SettingsWsAction {
     this.settingsUpdater = settingsUpdater;
     this.settingsChangeNotifier = settingsChangeNotifier;
     this.validations = validations;
+    this.settingsWsSupport = settingsWsSupport;
   }
 
   @Override
@@ -124,6 +129,7 @@ public class SetAction implements SettingsWsAction {
       .setDescription("Component key")
       .setDeprecatedKey("componentKey", "6.3")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+    settingsWsSupport.addBranchParam(action);
   }
 
   @Override
@@ -190,9 +196,12 @@ public class SetAction implements SettingsWsAction {
 
   private void commonChecks(SetRequest request, Optional<ComponentDto> component) {
     checkValueIsSet(request);
-    SettingData settingData = new SettingData(request.getKey(), valuesFromRequest(request), component.orElse(null));
+    String settingKey = request.getKey();
+    SettingData settingData = new SettingData(settingKey, valuesFromRequest(request), component.orElse(null));
     ImmutableList.of(validations.scope(), validations.qualifier(), validations.valueType())
       .forEach(validation -> validation.accept(settingData));
+    component.map(ComponentDto::getBranch)
+      .ifPresent(b -> checkArgument(SettingsWs.SETTING_ON_BRANCHES.contains(settingKey), format("Setting '%s' cannot be set on a branch", settingKey)));
   }
 
   private static void validatePropertySet(SetRequest request, @Nullable PropertyDefinition definition) {
@@ -278,6 +287,7 @@ public class SetAction implements SettingsWsAction {
       .setValues(request.multiParam(PARAM_VALUES))
       .setFieldValues(request.multiParam(PARAM_FIELD_VALUES))
       .setComponent(request.param(PARAM_COMPONENT))
+      .setBranch(request.param(PARAM_BRANCH))
       .build();
   }
 
@@ -297,7 +307,7 @@ public class SetAction implements SettingsWsAction {
     if (componentKey == null) {
       return Optional.empty();
     }
-    return Optional.of(componentFinder.getByKey(dbSession, componentKey));
+    return Optional.of(componentFinder.getByKeyAndOptionalBranch(dbSession, componentKey, request.getBranch()));
   }
 
   private PropertyDto toProperty(SetRequest request, Optional<ComponentDto> component) {

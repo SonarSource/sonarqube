@@ -43,6 +43,7 @@ import { parseDate } from '../../../helpers/dates';
 // https://github.com/facebook/flow/issues/3147
 // router: { push: ({ pathname: string, query?: RawQuery }) => void }
 /*:: type Props = {|
+  branch?: string,
   className?: string,
   component: Component,
   currentUser: { isLoggedIn: boolean },
@@ -86,7 +87,11 @@ export default class MeasureContent extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps /*: Props */) {
-    if (nextProps.component !== this.props.component || nextProps.metric !== this.props.metric) {
+    if (
+      nextProps.branch !== this.props.branch ||
+      nextProps.component !== this.props.component ||
+      nextProps.metric !== this.props.metric
+    ) {
       this.fetchComponents(nextProps);
     }
   }
@@ -110,7 +115,10 @@ export default class MeasureContent extends React.PureComponent {
   ) => {
     const strategy = view === 'list' ? 'leaves' : 'children';
     const metricKeys = [metric.key];
-    const opts /*: Object */ = { metricSortFilter: 'withMeasuresOnly' };
+    const opts /*: Object */ = {
+      branch: this.props.branch,
+      metricSortFilter: 'withMeasuresOnly'
+    };
     const isDiff = isDiffMetric(metric.key);
     if (isDiff) {
       opts.metricPeriodSort = 1;
@@ -215,7 +223,7 @@ export default class MeasureContent extends React.PureComponent {
   onSelectComponent = (componentKey /*: string */) => this.setState({ selected: componentKey });
 
   renderCode() {
-    const { component, leakPeriod } = this.props;
+    const { branch, component, leakPeriod } = this.props;
     const leakPeriodDate =
       isDiffMetric(this.props.metric.key) && leakPeriod != null ? parseDate(leakPeriod.date) : null;
 
@@ -232,7 +240,7 @@ export default class MeasureContent extends React.PureComponent {
     }
     return (
       <div className="measure-details-viewer">
-        <SourceViewer component={component.key} filterLine={filterLine} />
+        <SourceViewer branch={branch} component={component.key} filterLine={filterLine} />
       </div>
     );
   }
@@ -244,6 +252,7 @@ export default class MeasureContent extends React.PureComponent {
         const selectedIdx = this.getSelectedIndex();
         return (
           <FilesView
+            branch={this.props.branch}
             components={this.state.components}
             fetchMore={this.fetchMoreComponents}
             handleOpen={this.onOpenComponent}
@@ -260,6 +269,7 @@ export default class MeasureContent extends React.PureComponent {
       if (view === 'treemap') {
         return (
           <TreeMapView
+            branch={this.props.branch}
             components={this.state.components}
             handleSelect={this.onOpenComponent}
             metric={metric}
@@ -272,7 +282,7 @@ export default class MeasureContent extends React.PureComponent {
   }
 
   render() {
-    const { component, currentUser, measure, metric, rootComponent, view } = this.props;
+    const { branch, component, currentUser, measure, metric, rootComponent, view } = this.props;
     const isLoggedIn = currentUser && currentUser.isLoggedIn;
     const isFile = isFileType(component);
     const selectedIdx = this.getSelectedIndex();
@@ -286,6 +296,7 @@ export default class MeasureContent extends React.PureComponent {
             <div className="layout-page-main-inner">
               <Breadcrumbs
                 backToFirst={view === 'list'}
+                branch={branch}
                 className="measure-breadcrumbs spacer-right text-ellipsis"
                 component={component}
                 handleSelect={this.onOpenComponent}
@@ -320,6 +331,7 @@ export default class MeasureContent extends React.PureComponent {
           measure != null &&
           <div className="layout-page-main-inner measure-details-content">
             <MeasureHeader
+              branch={branch}
               component={component}
               components={this.state.components}
               handleSelect={this.props.updateSelected}

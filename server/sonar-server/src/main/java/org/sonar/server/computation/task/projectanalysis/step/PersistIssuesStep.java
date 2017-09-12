@@ -73,10 +73,11 @@ public class PersistIssuesStep implements ComputationStep {
   }
 
   private boolean persistIssueIfRequired(IssueMapper mapper, DefaultIssue issue) {
-    if (issue.isNew()) {
+    if (issue.isNew() || issue.isCopied()) {
       persistNewIssue(mapper, issue);
       return true;
     }
+
     if (issue.isChanged()) {
       persistChangedIssue(mapper, issue);
       return true;

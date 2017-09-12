@@ -19,107 +19,339 @@
  */
 package org.sonar.server.component.ws;
 
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.component.SnapshotTesting;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureTesting;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.TestComponentFinder;
-import org.sonar.server.startup.RegisterMetrics;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO_KEY;
-import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
-import static org.sonar.api.measures.CoreMetrics.getMetric;
+import static org.sonar.api.measures.CoreMetrics.TESTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class AppActionTest {
 
-  private static final String PROJECT_KEY = "org.sonarsource.sonarqube:sonarqube";
-  private static final String MODULE_KEY = "org.sonarsource.sonarqube:sonar-plugin-api";
-  private static final String FILE_KEY = "org.sonarsource.sonarqube:sonar-plugin-api:src/main/java/org/sonar/api/Plugin.java";
-  private static final String PROJECT_UUID = "THE_PROJECT_UUID";
-  private static final String MODULE_UUID = "THE_MODULE_UUID";
-  private static final String FILE_UUID = "THE_FILE_UUID";
-  private static final String ANALYSIS_UUID = "THE_ANALYSIS_UUID";
-
-  private Map<String, MetricDto> metricsByKey;
-
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public UserSessionRule userSession = UserSessionRule.standalone();
+  @Rule
+  public DbTester db = DbTester.create();
 
-  private AppAction underTest = new AppAction(dbTester.getDbClient(), userSessionRule, TestComponentFinder.from(dbTester));
-  private WsActionTester wsTester = new WsActionTester(underTest);
+  private WsActionTester ws = new WsActionTester(new AppAction(db.getDbClient(), userSession, TestComponentFinder.from(db)));
 
-  @Before
-  public void setUp() {
-    insertMetrics();
+  @Test
+  public void file_info() throws Exception {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
+    userSession.logIn("john").addProjectPermission(USER, project);
+
+    String result = ws.newRequest()
+      .setParam("component", file.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"key\": \"" + file.getKey() + "\",\n" +
+      "  \"uuid\": \"" + file.uuid() + "\",\n" +
+      "  \"path\": \"" + file.path() + "\",\n" +
+      "  \"name\": \"" + file.name() + "\",\n" +
+      "  \"longName\": \"" + file.longName() + "\",\n" +
+      "  \"q\": \"" + file.qualifier() + "\",\n" +
+      "  \"project\": \"" + project.getKey() + "\",\n" +
+      "  \"projectName\": \"" + project.longName() + "\",\n" +
+      "  \"fav\": false,\n" +
+      "  \"canMarkAsFavorite\": true,\n" +
+      "  \"measures\": {}\n" +
+      "}\n");
+  }
+
+  @Test
+  public void file_on_module() throws Exception {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(module, directory));
+    userSession.logIn("john").addProjectPermission(USER, project);
+
+    String result = ws.newRequest()
+      .setParam("component", file.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"key\": \"" + file.getKey() + "\",\n" +
+      "  \"uuid\": \"" + file.uuid() + "\",\n" +
+      "  \"path\": \"" + file.path() + "\",\n" +
+      "  \"name\": \"" + file.name() + "\",\n" +
+      "  \"longName\": \"" + file.longName() + "\",\n" +
+      "  \"q\": \"" + file.qualifier() + "\",\n" +
+      "  \"subProject\": \"" + module.getKey() + "\",\n" +
+      "  \"subProjectName\": \"" + module.longName() + "\",\n" +
+      "  \"project\": \"" + project.getKey() + "\",\n" +
+      "  \"projectName\": \"" + project.longName() + "\",\n" +
+      "  \"fav\": false,\n" +
+      "  \"canMarkAsFavorite\": true,\n" +
+      "  \"measures\": {}\n" +
+      "}\n");
   }
 
   @Test
   public void file_without_measures() throws Exception {
-    ComponentDto[] components = insertComponentsAndAnalysis();
-    dbTester.commit();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    userSession.logIn("john").addProjectPermission(USER, project);
 
-    userSessionRule.logIn("john").addProjectPermission(UserRole.USER, components);
-    TestRequest request = wsTester.newRequest().setParam("uuid", FILE_UUID);
-    jsonAssert(request, "app.json");
+    String result = ws.newRequest()
+      .setParam("component", file.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"measures\": {}\n" +
+      "}\n");
   }
 
   @Test
   public void file_with_measures() throws Exception {
-    ComponentDto[] components = insertComponentsAndAnalysis();
-    insertFileMeasure(metricsByKey.get(LINES_KEY).getId(), 200d, null);
-    insertFileMeasure(metricsByKey.get(DUPLICATED_LINES_DENSITY_KEY).getId(), 7.4, null);
-    insertFileMeasure(metricsByKey.get(SQALE_RATING_KEY).getId(), null, "C");
-    insertFileMeasure(metricsByKey.get(TECHNICAL_DEBT_KEY).getId(), 182d, null);
-    insertFileMeasure(metricsByKey.get(SQALE_DEBT_RATIO_KEY).getId(), 35d, null);
-    insertFileMeasure(metricsByKey.get(COVERAGE_KEY).getId(), 95.4d, null);
-    dbTester.commit();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
+    SnapshotDto analysis = db.components().insertSnapshot(project);
+    MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
+    db.measures().insertMeasure(file, analysis, lines, m -> m.setValue(200d));
+    MetricDto duplicatedLines = db.measures().insertMetric(m -> m.setKey(DUPLICATED_LINES_DENSITY_KEY));
+    db.measures().insertMeasure(file, analysis, duplicatedLines, m -> m.setValue(7.4));
+    MetricDto tests = db.measures().insertMetric(m -> m.setKey(TESTS_KEY));
+    db.measures().insertMeasure(file, analysis, tests, m -> m.setValue(3d));
+    MetricDto technicalDebt = db.measures().insertMetric(m -> m.setKey(TECHNICAL_DEBT_KEY));
+    db.measures().insertMeasure(file, analysis, technicalDebt, m -> m.setValue(182d));
+    MetricDto issues = db.measures().insertMetric(m -> m.setKey(VIOLATIONS_KEY));
+    db.measures().insertMeasure(file, analysis, issues, m -> m.setValue(231d));
+    MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
+    db.measures().insertMeasure(file, analysis, coverage, m -> m.setValue(95.4d));
+    userSession.logIn("john").addProjectPermission(USER, project);
 
-    userSessionRule
-      .logIn("john")
-      .addProjectPermission(UserRole.USER, components);
-    TestRequest request = wsTester.newRequest().setParam("uuid", FILE_UUID);
-    jsonAssert(request, "app_with_measures.json");
+    String result = ws.newRequest()
+      .setParam("component", file.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"measures\": {\n" +
+      "    \"lines\": \"200.0\",\n" +
+      "    \"coverage\": \"95.4\",\n" +
+      "    \"duplicationDensity\": \"7.4\",\n" +
+      "    \"issues\": \"231.0\",\n" +
+      "    \"tests\": \"3.0\"\n" +
+      "  }" +
+      "}\n");
   }
 
   @Test
-  public void file_with_coverage() throws Exception {
-    ComponentDto[] components = insertComponentsAndAnalysis();
-    insertFileMeasure(metricsByKey.get(COVERAGE_KEY).getId(), 95.4, null);
-    dbTester.commit();
+  public void get_by_uuid() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, project));
+    SnapshotDto analysis = db.components().insertSnapshot(project);
+    MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
+    db.measures().insertMeasure(file, analysis, coverage, m -> m.setValue(95.4d));
+    userSession.logIn("john").addProjectPermission(USER, project);
 
-    userSessionRule.logIn("john")
-      .addProjectPermission(UserRole.USER, components);
-    TestRequest request = wsTester.newRequest().setParam("uuid", FILE_UUID);
-    jsonAssert(request, "app_with_ut_measure.json");
+    String result = ws.newRequest()
+      .setParam("uuid", file.uuid())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"key\": \"" + file.getKey() + "\",\n" +
+      "  \"uuid\": \"" + file.uuid() + "\",\n" +
+      "  \"measures\": {\n" +
+      "    \"coverage\": \"95.4\"\n" +
+      "  }\n" +
+      "}\n");
+  }
+
+  @Test
+  public void canMarkAsFavorite_is_true_when_logged() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.logIn("john").addProjectPermission(USER, project);
+
+    String result = ws.newRequest()
+      .setParam("component", project.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"canMarkAsFavorite\": true,\n" +
+      "}\n");
+  }
+
+  @Test
+  public void canMarkAsFavorite_is_false_when_not_logged() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, project);
+
+    String result = ws.newRequest()
+      .setParam("component", project.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"canMarkAsFavorite\": false,\n" +
+      "}\n");
+  }
+
+  @Test
+  public void component_is_favorite() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.logIn("john").addProjectPermission(USER, project);
+    db.favorites().add(project, userSession.getUserId());
+
+    String result = ws.newRequest()
+      .setParam("component", project.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"fav\": true,\n" +
+      "}\n");
+  }
+
+  @Test
+  public void component_is_not_favorite() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.logIn("john").addProjectPermission(USER, project);
+
+    String result = ws.newRequest()
+      .setParam("component", project.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"fav\": false,\n" +
+      "}\n");
+  }
+
+  @Test
+  public void branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn("john").addProjectPermission(USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(module, directory));
+    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
+    db.measures().insertMeasure(file, analysis, coverage, m -> m.setValue(95.4d));
+
+    String result = ws.newRequest()
+      .setParam("component", file.getKey())
+      .setParam("branch", file.getBranch())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"key\": \"" + file.getKey() + "\",\n" +
+      "  \"branch\": \"" + file.getBranch() + "\",\n" +
+      "  \"uuid\": \"" + file.uuid() + "\",\n" +
+      "  \"path\": \"" + file.path() + "\",\n" +
+      "  \"name\": \"" + file.name() + "\",\n" +
+      "  \"longName\": \"" + file.longName() + "\",\n" +
+      "  \"q\": \"" + file.qualifier() + "\",\n" +
+      "  \"subProject\": \"" + module.getKey() + "\",\n" +
+      "  \"subProjectName\": \"" + module.longName() + "\",\n" +
+      "  \"project\": \"" + project.getKey() + "\",\n" +
+      "  \"projectName\": \"" + project.longName() + "\",\n" +
+      "  \"fav\": false,\n" +
+      "  \"canMarkAsFavorite\": true,\n" +
+      "  \"measures\": {\n" +
+      "    \"coverage\": \"95.4\"\n" +
+      "  }\n" +
+      "}\n");
+  }
+
+  @Test
+  public void fail_if_no_parameter_provided() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Either 'componentId' or 'component' must be provided, not both");
+
+    ws.newRequest().execute();
+  }
+
+  @Test
+  public void fail_if_both_componentId_and_branch_parameters_provided() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'componentId' and 'branch' parameters cannot be used at the same time");
+
+    ws.newRequest()
+      .setParam("uuid", file.uuid())
+      .setParam("branch", file.getBranch())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_component_not_found() throws Exception {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+
+    expectedException.expect(NotFoundException.class);
+
+    ws.newRequest()
+      .setParam("component", "unknown")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_branch_not_found() throws Exception {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    expectedException.expect(NotFoundException.class);
+
+    ws.newRequest()
+      .setParam("component", file.getKey())
+      .setParam("branch", "unknown")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_missing_permission() throws Exception {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+
+    expectedException.expect(ForbiddenException.class);
+
+    ws.newRequest()
+      .setParam("component", file.getKey())
+      .execute();
   }
 
   @Test
   public void define_app_action() {
-    WebService.Action action = wsTester.getDef();
+    WebService.Action action = ws.getDef();
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();
@@ -127,45 +359,4 @@ public class AppActionTest {
     assertThat(action.params()).hasSize(3);
   }
 
-  private void insertMetrics() {
-    metricsByKey = new HashMap<>();
-    for (String metricKey : AppAction.METRIC_KEYS) {
-      MetricDto dto = RegisterMetrics.MetricToDto.INSTANCE.apply(getMetric(metricKey));
-      dbTester.getDbClient().metricDao().insert(dbTester.getSession(), dto);
-      metricsByKey.put(metricKey, dto);
-    }
-    dbTester.commit();
-  }
-
-  private ComponentDto[] insertComponentsAndAnalysis() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), PROJECT_UUID)
-      .setLongName("SonarQube")
-      .setDbKey(PROJECT_KEY);
-    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project)
-      .setLongName("SonarQube :: Plugin API")
-      .setDbKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID)
-      .setDbKey(FILE_KEY)
-      .setName("Plugin.java")
-      .setLongName("src/main/java/org/sonar/api/Plugin.java")
-      .setPath("src/main/java/org/sonar/api/Plugin.java");
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project, module, file);
-    SnapshotDto analysis = SnapshotTesting.newAnalysis(project).setUuid(ANALYSIS_UUID);
-    dbTester.getDbClient().snapshotDao().insert(dbTester.getSession(), analysis);
-    return new ComponentDto[] {project, module, file};
-  }
-
-  private void insertFileMeasure(int metricId, @Nullable Double value, @Nullable String data) {
-    MeasureDto measure = MeasureTesting.newMeasure()
-      .setComponentUuid(FILE_UUID)
-      .setAnalysisUuid(ANALYSIS_UUID)
-      .setMetricId(metricId)
-      .setValue(value)
-      .setData(data);
-    dbTester.getDbClient().measureDao().insert(dbTester.getSession(), measure);
-  }
-
-  private void jsonAssert(TestRequest request, String filename) {
-    JsonAssert.assertJson(request.execute().getInput()).isSimilarTo(getClass().getResource(getClass().getSimpleName()+"/"+ filename));
-  }
 }

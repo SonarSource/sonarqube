@@ -20,20 +20,24 @@
 package org.sonar.scanner.report;
 
 import java.util.Map.Entry;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.AnalysisMode;
+import java.util.Optional;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Configuration;
 import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
+
+import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 
 public class MetadataPublisher implements ReportPublisherStep {
 
@@ -42,11 +46,12 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final ProjectAnalysisInfo projectAnalysisInfo;
   private final InputModuleHierarchy moduleHierarchy;
   private final CpdSettings cpdSettings;
-  private final AnalysisMode mode;
+  private final DefaultAnalysisMode mode;
   private final ScannerPluginRepository pluginRepository;
+  private final BranchConfiguration branchConfiguration;
 
   public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings,
-    ModuleQProfiles qProfiles, CpdSettings cpdSettings, AnalysisMode mode, ScannerPluginRepository pluginRepository) {
+    ModuleQProfiles qProfiles, CpdSettings cpdSettings, DefaultAnalysisMode mode, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration) {
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
@@ -54,6 +59,7 @@ public class MetadataPublisher implements ReportPublisherStep {
     this.cpdSettings = cpdSettings;
     this.mode = mode;
     this.pluginRepository = pluginRepository;
+    this.branchConfiguration = branchConfiguration;
   }
 
   @Override
@@ -68,12 +74,18 @@ public class MetadataPublisher implements ReportPublisherStep {
       .setRootComponentRef(rootProject.batchId())
       .setIncremental(mode.isIncremental());
 
-    settings.get(CoreProperties.PROJECT_ORGANIZATION_PROPERTY).ifPresent(builder::setOrganizationKey);
+    settings.get(ORGANIZATION).ifPresent(builder::setOrganizationKey);
 
-    String branch = rootDef.getBranch();
-    if (branch != null) {
-      builder.setBranch(branch);
+    if (branchConfiguration.branchName() != null) {
+      builder.setBranchName(branchConfiguration.branchName());
+      builder.setBranchType(toProtobufBranchType(branchConfiguration.branchType()));
+      String branchTarget = branchConfiguration.branchTarget();
+      if (branchTarget != null) {
+        builder.setMergeBranchName(branchTarget);
+      }
     }
+    Optional.ofNullable(rootDef.getBranch()).ifPresent(builder::setDeprecatedBranch);
+
     for (QProfile qp : qProfiles.findAll()) {
       builder.getMutableQprofilesPerLanguage().put(qp.getLanguage(), ScannerReport.Metadata.QProfile.newBuilder()
         .setKey(qp.getKey())
@@ -87,5 +99,12 @@ public class MetadataPublisher implements ReportPublisherStep {
         .setUpdatedAt(pluginEntry.getValue().getUpdatedAt()).build());
     }
     writer.writeMetadata(builder.build());
+  }
+
+  private static BranchType toProtobufBranchType(org.sonar.scanner.scan.branch.BranchType branchType) {
+    if (branchType == org.sonar.scanner.scan.branch.BranchType.LONG) {
+      return BranchType.LONG;
+    }
+    return BranchType.SHORT;
   }
 }

@@ -75,6 +75,7 @@ message Component {
   optional string path = 9;
   optional string language = 10;
   repeated Measure measures = 11;
+  optional string branch = 12;
 }
 
 message Period {

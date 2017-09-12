@@ -25,6 +25,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
@@ -52,15 +53,17 @@ public class QualityGateEventsStep implements ComputationStep {
   private final MeasureRepository measureRepository;
   private final EventRepository eventRepository;
   private final NotificationService notificationService;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
   public QualityGateEventsStep(TreeRootHolder treeRootHolder,
     MetricRepository metricRepository, MeasureRepository measureRepository, EventRepository eventRepository,
-    NotificationService notificationService) {
+    NotificationService notificationService, AnalysisMetadataHolder analysisMetadataHolder) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.eventRepository = eventRepository;
     this.notificationService = notificationService;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
@@ -92,7 +95,7 @@ public class QualityGateEventsStep implements ComputationStep {
     }
 
     if (!baseMeasure.get().hasQualityGateStatus()) {
-      LOGGER.warn(String.format("Previous alterStatus for project %s is not a supported value. Can not compute Quality Gate event", project.getKey()));
+      LOGGER.warn(String.format("Previous Quality gate status for project %s is not a supported value. Can not compute Quality Gate event", project.getKey()));
       checkNewQualityGate(project, rawStatus);
       return;
     }
@@ -123,12 +126,14 @@ public class QualityGateEventsStep implements ComputationStep {
     Notification notification = new Notification("alerts")
       .setDefaultMessage(String.format("Alert on %s: %s", project.getName(), label))
       .setFieldValue("projectName", project.getName())
-      .setFieldValue("projectKey", project.getKey())
+      .setFieldValue("projectKey", project.getPublicKey())
       .setFieldValue("projectUuid", project.getUuid())
       .setFieldValue("alertName", label)
       .setFieldValue("alertText", rawStatus.getText())
       .setFieldValue("alertLevel", rawStatus.getStatus().toString())
       .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));
+    analysisMetadataHolder.getBranch().filter(b -> !b.isMain())
+      .ifPresent(branch -> notification.setFieldValue("branch", branch.getName()));
     notificationService.deliver(notification);
   }
 
@@ -140,4 +145,5 @@ public class QualityGateEventsStep implements ComputationStep {
   public String getDescription() {
     return "Generate Quality gate events";
   }
+
 }

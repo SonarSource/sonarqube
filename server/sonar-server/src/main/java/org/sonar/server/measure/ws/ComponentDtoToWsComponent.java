@@ -20,6 +20,7 @@
 package org.sonar.server.measure.ws;
 
 import java.util.Map;
+import org.sonar.core.util.Protobuf;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -54,19 +55,13 @@ class ComponentDtoToWsComponent {
   static Component.Builder componentDtoToWsComponent(ComponentDto component) {
     Component.Builder wsComponent = Component.newBuilder()
       .setId(component.uuid())
-      .setKey(component.getDbKey())
+      .setKey(component.getKey())
       .setName(component.name())
       .setQualifier(component.qualifier());
-    if (component.path() != null) {
-      wsComponent.setPath(component.path());
-    }
-    if (component.description() != null) {
-      wsComponent.setDescription(component.description());
-    }
-    if (component.language() != null) {
-      wsComponent.setLanguage(component.language());
-    }
-
+    Protobuf.setNullable(component.getBranch(), wsComponent::setBranch);
+    Protobuf.setNullable(component.path(), wsComponent::setPath);
+    Protobuf.setNullable(component.description(), wsComponent::setDescription);
+    Protobuf.setNullable(component.language(), wsComponent::setLanguage);
     return wsComponent;
   }
 }

@@ -41,7 +41,6 @@ public class IssueChangeNotification extends Notification {
     setFieldValue("key", issue.key());
     setFieldValue("assignee", issue.assignee());
     setFieldValue("message", issue.message());
-    setFieldValue("componentKey", issue.componentKey());
     FieldDiffs currentChange = issue.currentChange();
     if (currentChange != null) {
       for (Map.Entry<String, FieldDiffs.Diff> entry : currentChange.diffs().entrySet()) {
@@ -55,19 +54,25 @@ public class IssueChangeNotification extends Notification {
   }
 
   public IssueChangeNotification setProject(ComponentDto project) {
-    setFieldValue("projectName", project.longName());
-    setFieldValue("projectKey", project.getDbKey());
-    return this;
+    return setProject(project.getKey(), project.longName(), project.getBranch());
   }
 
-  public IssueChangeNotification setProject(String projectKey, String projectName) {
+  public IssueChangeNotification setProject(String projectKey, String projectName, @Nullable String branch) {
     setFieldValue("projectName", projectName);
     setFieldValue("projectKey", projectKey);
+    if (branch != null) {
+      setFieldValue("branch", branch);
+    }
     return this;
   }
 
   public IssueChangeNotification setComponent(ComponentDto component) {
-    setFieldValue("componentName", component.longName());
+    return setComponent(component.getKey(), component.longName());
+  }
+
+  public IssueChangeNotification setComponent(String componentKey, String componentName) {
+    setFieldValue("componentName", componentName);
+    setFieldValue("componentKey", componentKey);
     return this;
   }
 

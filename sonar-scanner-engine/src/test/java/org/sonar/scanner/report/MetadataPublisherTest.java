@@ -28,13 +28,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdSettings;
@@ -43,6 +44,8 @@ import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchType;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
@@ -63,8 +66,9 @@ public class MetadataPublisherTest {
   private ProjectAnalysisInfo projectAnalysisInfo;
   private CpdSettings cpdSettings;
   private InputModuleHierarchy inputModuleHierarchy;
-  private AnalysisMode analysisMode;
+  private DefaultAnalysisMode analysisMode;
   private ScannerPluginRepository pluginRepository;
+  private BranchConfiguration branches;
 
   @Before
   public void prepare() throws IOException {
@@ -82,8 +86,10 @@ public class MetadataPublisherTest {
     rootModule = new DefaultInputModule(def.setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()), TestInputFileBuilder.nextBatchId());
     inputModuleHierarchy = mock(InputModuleHierarchy.class);
     when(inputModuleHierarchy.root()).thenReturn(rootModule);
-    analysisMode = mock(AnalysisMode.class);
-    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings, analysisMode, pluginRepository);
+    analysisMode = mock(DefaultAnalysisMode.class);
+    branches = mock(BranchConfiguration.class);
+    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings, analysisMode,
+      pluginRepository, branches);
   }
 
   @Test
@@ -141,13 +147,13 @@ public class MetadataPublisherTest {
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
-    assertThat(metadata.getBranch()).isEqualTo("myBranch");
+    assertThat(metadata.getDeprecatedBranch()).isEqualTo("myBranch");
     assertThat(metadata.getCrossProjectDuplicationActivated()).isFalse();
   }
 
   @Test
   public void write_project_organization() throws Exception {
-    settings.setProperty(CoreProperties.PROJECT_ORGANIZATION_PROPERTY, "SonarSource");
+    settings.setProperty(ScannerProperties.ORGANIZATION, "SonarSource");
 
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);
@@ -157,6 +163,38 @@ public class MetadataPublisherTest {
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getOrganizationKey()).isEqualTo("SonarSource");
+  }
+
+  @Test
+  public void write_long_lived_branch_info() throws Exception {
+    String branchName = "long-lived";
+    when(branches.branchName()).thenReturn(branchName);
+    when(branches.branchType()).thenReturn(BranchType.LONG);
+
+    File outputDir = temp.newFolder();
+    underTest.publish(new ScannerReportWriter(outputDir));
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getBranchName()).isEqualTo(branchName);
+    assertThat(metadata.getBranchType()).isEqualTo(ScannerReport.Metadata.BranchType.LONG);
+  }
+
+  @Test
+  public void write_short_lived_branch_info() throws Exception {
+    String branchName = "feature";
+    String branchTarget = "short-lived";
+    when(branches.branchName()).thenReturn(branchName);
+    when(branches.branchTarget()).thenReturn(branchTarget);
+
+    File outputDir = temp.newFolder();
+    underTest.publish(new ScannerReportWriter(outputDir));
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getBranchName()).isEqualTo(branchName);
+    assertThat(metadata.getBranchType()).isEqualTo(ScannerReport.Metadata.BranchType.SHORT);
+    assertThat(metadata.getMergeBranchName()).isEqualTo(branchTarget);
   }
 
 }

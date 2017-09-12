@@ -1,0 +1,6 @@
+projectKey=com.sonarsource.it.samples:multi-modules-sample
+serverUrl=http://localhost:9000
+serverVersion=6.6-SNAPSHOT
+dashboardUrl=http://localhost:9000/dashboard/index/com.sonarsource.it.samples:multi-modules-sample
+ceTaskId=AV2ZBK0ixJXLis3IozUo
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AV2ZBK0ixJXLis3IozUo

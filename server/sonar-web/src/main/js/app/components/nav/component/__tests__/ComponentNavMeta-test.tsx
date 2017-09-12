@@ -20,6 +20,17 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavMeta from '../ComponentNavMeta';
+import { Branch, BranchType, ShortLivingBranch, LongLivingBranch } from '../../../../types';
+
+const component = {
+  analysisDate: '2017-01-02T00:00:00.000Z',
+  breadcrumbs: [],
+  key: 'foo',
+  name: 'Foo',
+  organization: 'org',
+  qualifier: 'TRK',
+  version: '0.0.1'
+};
 
 it('renders incremental badge', () => {
   check(true);
@@ -28,8 +39,38 @@ it('renders incremental badge', () => {
   function check(incremental: boolean) {
     expect(
       shallow(
-        <ComponentNavMeta component={{ key: 'foo' }} conf={{}} incremental={incremental} />
+        <ComponentNavMeta
+          branch={{} as Branch}
+          component={component}
+          conf={{}}
+          incremental={incremental}
+        />
       ).find('IncrementalBadge')
     ).toHaveLength(incremental ? 1 : 0);
   }
+});
+
+it('renders status of short-living branch', () => {
+  const branch: ShortLivingBranch = {
+    isMain: false,
+    mergeBranch: 'master',
+    name: 'feature',
+    status: { bugs: 0, codeSmells: 2, vulnerabilities: 3 },
+    type: BranchType.SHORT
+  };
+  expect(
+    shallow(<ComponentNavMeta branch={branch} component={component} conf={{}} />)
+  ).toMatchSnapshot();
+});
+
+it('renders meta for long-living branch', () => {
+  const branch: LongLivingBranch = {
+    isMain: false,
+    name: 'release',
+    status: { qualityGateStatus: 'OK' },
+    type: BranchType.LONG
+  };
+  expect(
+    shallow(<ComponentNavMeta branch={branch} component={component} conf={{}} />)
+  ).toMatchSnapshot();
 });

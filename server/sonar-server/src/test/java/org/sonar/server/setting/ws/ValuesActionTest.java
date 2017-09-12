@@ -33,6 +33,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -42,6 +43,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -51,6 +53,7 @@ import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -725,6 +728,42 @@ public class ValuesActionTest {
   }
 
   @Test
+  public void branch_values() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    definitions.addComponent(PropertyDefinition.builder("sonar.leak.period").onQualifiers(PROJECT).build());
+    propertyDb.insertProperties(newComponentPropertyDto(branch).setKey("sonar.leak.period").setValue("two"));
+
+    ValuesWsResponse result =  ws.newRequest()
+      .setParam("keys", "sonar.leak.period")
+      .setParam("component", branch.getKey())
+      .setParam("branch", branch.getBranch())
+      .executeProtobuf(ValuesWsResponse.class);
+
+    assertThat(result.getSettingsList()).hasSize(1);
+    assertSetting(result.getSettings(0), "sonar.leak.period", "two", false);
+  }
+
+  @Test
+  public void branch_values_inherit_from_project() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    definitions.addComponent(PropertyDefinition.builder("sonar.leak.period").onQualifiers(PROJECT).build());
+    propertyDb.insertProperties(newComponentPropertyDto(project).setKey("sonar.leak.period").setValue("two"));
+
+    ValuesWsResponse result =  ws.newRequest()
+      .setParam("keys", "sonar.leak.period")
+      .setParam("component", branch.getKey())
+      .setParam("branch", branch.getBranch())
+      .executeProtobuf(ValuesWsResponse.class);
+
+    assertThat(result.getSettingsList()).hasSize(1);
+    assertSetting(result.getSettings(0), "sonar.leak.period", "two", true);
+  }
+
+  @Test
   public void fail_when_user_has_not_project_browse_permission() throws Exception {
     userSession.logIn("project-admin").addProjectPermission(CODEVIEWER, project);
     definitions.addComponent(PropertyDefinition.builder("foo").build());
@@ -747,6 +786,34 @@ public class ValuesActionTest {
     expectedException.expectMessage("'foo' and 'deprecated' cannot be used at the same time as they refer to the same setting");
 
     executeRequestForGlobalProperties("foo", "deprecated");
+  }
+
+  @Test
+  public void fail_when_component_not_found() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'unknown' not found");
+
+    ws.newRequest()
+      .setParam("keys", "foo")
+      .setParam("component", "unknown")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_branch_not_found() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    String settingKey = "not_allowed_on_branch";
+    userSession.logIn().addProjectPermission(USER, project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component '%s' on branch 'unknown' not found", branch.getKey()));
+
+    ws.newRequest()
+      .setParam("keys", settingKey)
+      .setParam("component", branch.getKey())
+      .setParam("branch", "unknown")
+      .execute();
   }
 
   @Test
@@ -779,13 +846,29 @@ public class ValuesActionTest {
   }
 
   @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    ws.newRequest()
+      .setParam("keys", "foo")
+      .setParam("component", branch.getDbKey())
+      .execute();
+  }
+
+  @Test
   public void test_ws_definition() {
     WebService.Action action = ws.getDef();
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("keys", "component", "branch");
   }
 
   private ValuesWsResponse executeRequestForComponentProperties(ComponentDto componentDto, String... keys) {

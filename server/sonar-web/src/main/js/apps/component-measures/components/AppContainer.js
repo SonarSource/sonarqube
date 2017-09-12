@@ -22,12 +22,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import App from './App';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import {
-  getComponent,
-  getCurrentUser,
-  getMetrics,
-  getMetricsKey
-} from '../../../store/rootReducer';
+import { getCurrentUser, getMetrics, getMetricsKey } from '../../../store/rootReducer';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
@@ -35,8 +30,7 @@ import { enhanceMeasure } from '../../../components/measure/utils';
 /*:: import type { Component, Period } from '../types'; */
 /*:: import type { Measure, MeasureEnhanced } from '../../../components/measure/types'; */
 
-const mapStateToProps = (state, ownProps) => ({
-  component: getComponent(state, ownProps.location.query.id),
+const mapStateToProps = state => ({
   currentUser: getCurrentUser(state),
   metrics: getMetrics(state),
   metricsKey: getMetricsKey(state)
@@ -53,15 +47,19 @@ function banQualityGate(component /*: Component */) /*: Array<Measure> */ {
   return component.measures.filter(measure => !bannedMetrics.includes(measure.metric));
 }
 
-const fetchMeasures = (component /*: string */, metricsKey /*: Array<string> */) => (
-  dispatch,
-  getState
-) => {
+const fetchMeasures = (
+  component /*: string */,
+  metricsKey /*: Array<string> */,
+  branch /*: string | void */
+) => (dispatch, getState) => {
   if (metricsKey.length <= 0) {
     return Promise.resolve({ component: {}, measures: [], leakPeriod: null });
   }
 
-  return getMeasuresAndMeta(component, metricsKey, { additionalFields: 'periods' }).then(r => {
+  return getMeasuresAndMeta(component, metricsKey, {
+    additionalFields: 'periods',
+    branch
+  }).then(r => {
     const measures = banQualityGate(r.component).map(measure =>
       enhanceMeasure(measure, getMetrics(getState()))
     );

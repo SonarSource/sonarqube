@@ -24,12 +24,16 @@ import java.util.List;
 import java.util.Locale;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchKeyType;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.ProjectIndexer.Cause;
 import org.sonar.server.es.ProjectIndexers;
@@ -70,6 +74,9 @@ public class ComponentUpdater {
   public ComponentDto create(DbSession dbSession, NewComponent newComponent, @Nullable Integer userId) {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     ComponentDto componentDto = createRootComponent(dbSession, newComponent);
+    if (isRootProject(componentDto)) {
+      createBranch(dbSession, componentDto.uuid());
+    }
     removeDuplicatedProjects(dbSession, componentDto.getDbKey());
     handlePermissionTemplate(dbSession, componentDto, newComponent.getOrganizationUuid(), userId);
     projectIndexers.commitAndIndex(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
@@ -100,7 +107,26 @@ public class ComponentUpdater {
       .setPrivate(newComponent.isPrivate())
       .setCreatedAt(new Date(system2.now()));
     dbClient.componentDao().insert(session, component);
+
     return component;
+  }
+
+  private static boolean isRootProject(ComponentDto componentDto) {
+    return Scopes.PROJECT.equals(componentDto.scope()) && Qualifiers.PROJECT.equals(componentDto.qualifier());
+  }
+
+  private BranchDto createBranch(DbSession session, String componentUuid) {
+    BranchDto branch = new BranchDto()
+      .setBranchType(BranchType.LONG)
+      .setKeeType(BranchKeyType.BRANCH)
+      .setUuid(componentUuid)
+      .setKey(BranchDto.DEFAULT_MAIN_BRANCH_NAME)
+      .setMergeBranchUuid(null)
+      .setPullRequestTitle(null)
+      .setProjectUuid(componentUuid);
+
+    dbClient.branchDao().upsert(session, branch);
+    return branch;
   }
 
   /**

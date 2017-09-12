@@ -24,13 +24,19 @@ import OverviewApp from '../OverviewApp';
 import EmptyOverview from '../EmptyOverview';
 
 it('should render OverviewApp', () => {
-  const component = { id: 'id', analysisDate: '2016-01-01' };
+  const component = { key: 'foo', analysisDate: '2016-01-01' };
   const output = shallow(<App component={component} />);
   expect(output.type()).toBe(OverviewApp);
 });
 
 it('should render EmptyOverview', () => {
-  const component = { id: 'id' };
+  const component = { key: 'foo' };
   const output = shallow(<App component={component} />);
   expect(output.type()).toBe(EmptyOverview);
+});
+
+it('renders SourceViewer with branch', () => {
+  const branch = { isMain: false, name: 'b' };
+  const component = { key: 'foo', qualifier: 'FIL' };
+  expect(shallow(<App branch={branch} component={component} />)).toMatchSnapshot();
 });

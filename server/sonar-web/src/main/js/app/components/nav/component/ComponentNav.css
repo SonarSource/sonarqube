@@ -9,3 +9,20 @@
   padding-top: 5px;
   box-sizing: border-box;
 }
+
+.navbar-context-branches {
+  float: left;
+  padding: 8px 0 6px;
+  margin-left: 16px;
+  line-height: 16px;
+}
+
+.navbar-context-meta-branch {
+  margin-top: 3px;
+  line-height: 16px;
+}
+
+.navbar-context-meta-branch-menu-item {
+  display: flex !important;
+  justify-content: space-between;
+}

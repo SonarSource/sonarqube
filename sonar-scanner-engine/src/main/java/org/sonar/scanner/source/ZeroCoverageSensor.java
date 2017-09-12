@@ -23,7 +23,6 @@ import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.StreamSupport;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -40,6 +39,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
@@ -50,11 +50,11 @@ public final class ZeroCoverageSensor implements Sensor {
   private static final Logger LOG = Loggers.get(ZeroCoverageSensor.class);
 
   private final MeasureCache measureCache;
-  private final AnalysisMode mode;
+  private final DefaultAnalysisMode analysisFlags;
 
-  public ZeroCoverageSensor(MeasureCache measureCache, AnalysisMode mode) {
+  public ZeroCoverageSensor(MeasureCache measureCache, DefaultAnalysisMode analysisFlags) {
     this.measureCache = measureCache;
-    this.mode = mode;
+    this.analysisFlags = analysisFlags;
   }
 
   @Override
@@ -65,7 +65,7 @@ public final class ZeroCoverageSensor implements Sensor {
 
   @Override
   public void execute(final SensorContext context) {
-    if (mode.isIncremental()) {
+    if (analysisFlags.isIncremental()) {
       LOG.debug("Incremental mode: not forcing coverage to zero");
       return;
     }

@@ -10,6 +10,7 @@
     p.project_uuid as projectUuid,
     p.module_uuid as moduleUuid,
     p.module_uuid_path as moduleUuidPath,
+    p.main_branch_project_uuid as mainBranchProjectUuid,
     p.kee as kee,
     p.deprecated_kee as deprecatedKey,
     p.name as name,
@@ -34,6 +35,17 @@
     FROM projects p
     where
       p.kee=#{key,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByKeyAndBranch" parameterType="String" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN project_branches pb on pb.uuid = p.project_uuid
+    <where>
+      (p.kee=#{dbKey,jdbcType=VARCHAR} OR p.kee=#{key,jdbcType=VARCHAR})
+      AND pb.kee=#{branch,jdbcType=VARCHAR}
+    </where>
   </select>
 
   <select id="selectComponentsHavingSameKeyOrderedById" parameterType="String" resultType="Component">
@@ -74,10 +86,26 @@
     from projects p
     where
       p.enabled=${_true}
+      and p.main_branch_project_uuid is null
       and p.kee in
       <foreach collection="keys" open="(" close=")" item="key" separator=",">
         #{key,jdbcType=VARCHAR}
       </foreach>
+  </select>
+
+  <select id="selectByKeysAndBranch" parameterType="String" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN project_branches pb on pb.uuid = p.project_uuid
+    <where>
+    p.enabled=${_true}
+    AND p.kee IN
+    <foreach collection="keys" open="(" close=")" item="key" separator=",">
+      #{key,jdbcType=VARCHAR}
+    </foreach>
+    AND pb.kee=#{branch,jdbcType=VARCHAR}
+    </where>
   </select>
 
   <select id="selectByIds" parameterType="long" resultType="Component">
@@ -204,6 +232,7 @@
       p.enabled=${_true}
       AND p.scope='PRJ'
       AND p.qualifier='TRK'
+      AND p.main_branch_project_uuid IS NULL
   </select>
 
   <select id="selectAllRootsByOrganization" resultType="Component">
@@ -255,7 +284,8 @@
     </if>
     where
       p.enabled=${_true}
-      and p.copy_component_uuid is null
+      AND p.main_branch_project_uuid is null
+      AND p.copy_component_uuid is null
       <if test="organizationUuid!=null">
         and p.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
       </if>
@@ -404,6 +434,7 @@
     where
     s2.id is null
     and p.qualifier='TRK'
+    and p.main_branch_project_uuid is null
     and p.copy_component_uuid is null
     <if test="query!=null">
       and (
@@ -420,6 +451,7 @@
     where
       p.enabled=${_true}
       and p.copy_component_uuid is null
+      and p.main_branch_project_uuid is null
       <if test="projectUuid != null">
         and p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
       </if>
@@ -431,6 +463,7 @@
     from projects p
     <where>
       p.enabled=${_true}
+      AND p.main_branch_project_uuid is null
       AND p.copy_component_uuid is null
       <if test="includeModules == false">
         AND p.qualifier = 'TRK'
@@ -447,39 +480,40 @@
 
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO projects (
-    organization_uuid,
-    kee,
-    deprecated_kee,
-    uuid,
-    uuid_path,
-    project_uuid,
-    module_uuid,
-    module_uuid_path,
-    name,
-    long_name,
-    qualifier,
-    scope,
-    language,
-    description,
-    private,
-    tags,
-    root_uuid,
-    path,
-    copy_component_uuid,
-    developer_uuid,
-    enabled,
-    created_at,
-    b_changed,
-    b_copy_component_uuid,
-    b_description,
-    b_enabled,
-    b_language,
-    b_long_name,
-    b_module_uuid,
-    b_module_uuid_path,
-    b_name,
-    b_path,
-    b_qualifier
+      organization_uuid,
+      kee,
+      deprecated_kee,
+      uuid,
+      uuid_path,
+      project_uuid,
+      module_uuid,
+      module_uuid_path,
+      main_branch_project_uuid,
+      name,
+      long_name,
+      qualifier,
+      scope,
+      language,
+      description,
+      private,
+      tags,
+      root_uuid,
+      path,
+      copy_component_uuid,
+      developer_uuid,
+      enabled,
+      created_at,
+      b_changed,
+      b_copy_component_uuid,
+      b_description,
+      b_enabled,
+      b_language,
+      b_long_name,
+      b_module_uuid,
+      b_module_uuid_path,
+      b_name,
+      b_path,
+      b_qualifier
     )
     VALUES (
     #{organizationUuid,jdbcType=VARCHAR},
@@ -490,6 +524,7 @@
     #{projectUuid,jdbcType=VARCHAR},
     #{moduleUuid,jdbcType=VARCHAR},
     #{moduleUuidPath,jdbcType=VARCHAR},
+    #{mainBranchProjectUuid, jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR},
     #{longName,jdbcType=VARCHAR},
     #{qualifier,jdbcType=VARCHAR},

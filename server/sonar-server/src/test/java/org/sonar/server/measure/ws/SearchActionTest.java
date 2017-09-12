@@ -265,6 +265,20 @@ public class SearchActionTest {
   }
 
   @Test
+  public void does_not_return_branch_when_using_db_key() {
+    MetricDto coverage = insertCoverageMetric();
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    db.measures().insertMeasure(branch, analysis, coverage, m -> m.setValue(10d));
+    setBrowsePermissionOnUser(project);
+
+    SearchWsResponse result = call(asList(branch.getDbKey()), singletonList(coverage.getKey()));
+
+    assertThat(result.getMeasuresList()).isEmpty();
+  }
+
+  @Test
   public void fail_if_no_metric() {
     ComponentDto project = db.components().insertPrivateProject();
     setBrowsePermissionOnUser(project);

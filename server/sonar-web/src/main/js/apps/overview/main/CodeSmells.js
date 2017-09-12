@@ -35,10 +35,10 @@ class CodeSmells extends React.PureComponent {
   }
 
   renderDebt(metric, type) {
-    const { measures, component } = this.props;
+    const { branch, measures, component } = this.props;
     const measure = measures.find(measure => measure.metric.key === metric);
     const value = this.props.getValue(measure);
-    const params = { resolved: 'false', facetMode: 'effort', types: type };
+    const params = { branch, resolved: 'false', facetMode: 'effort', types: type };
 
     if (isDiffMetric(metric)) {
       Object.assign(params, { sinceLeakPeriod: 'true' });

@@ -38,6 +38,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SH
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SUGGESTIONS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.CONTROLLER_COMPONENTS;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
@@ -64,7 +65,9 @@ public class ComponentsService extends BaseService {
   public TreeWsResponse tree(TreeWsRequest request) {
     GetRequest get = new GetRequest(path(ACTION_TREE))
       .setParam(PARAM_COMPONENT_ID, request.getBaseComponentId())
-      .setParam(PARAM_COMPONENT, request.getBaseComponentKey())
+      .setParam("baseComponentKey", request.getBaseComponentKey())
+      .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch())
       .setParam(PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers()))
       .setParam(PARAM_STRATEGY, request.getStrategy())
       .setParam(Param.PAGE, request.getPage())
@@ -77,7 +80,8 @@ public class ComponentsService extends BaseService {
   public ShowWsResponse show(ShowWsRequest request) {
     GetRequest get = new GetRequest(path(ACTION_SHOW))
       .setParam(PARAM_COMPONENT_ID, request.getId())
-      .setParam(PARAM_COMPONENT, request.getKey());
+      .setParam(PARAM_COMPONENT, request.getKey())
+      .setParam(PARAM_BRANCH, request.getBranch());
     return call(get, ShowWsResponse.parser());
   }
 

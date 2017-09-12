@@ -24,43 +24,75 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class TreeWsRequest {
-  @CheckForNull
   private String baseComponentId;
-  @CheckForNull
   private String baseComponentKey;
-  @CheckForNull
+  private String component;
+  private String branch;
   private String strategy;
-  @CheckForNull
   private List<String> qualifiers;
-  @CheckForNull
   private String query;
-  @CheckForNull
   private List<String> sort;
-  @CheckForNull
   private Boolean asc;
-  @CheckForNull
   private Integer page;
-  @CheckForNull
   private Integer pageSize;
 
+  /**
+   * @deprecated since 6.4, please use {@link #getComponent()} instead
+   */
+  @Deprecated
+  @CheckForNull
   public String getBaseComponentId() {
     return baseComponentId;
   }
 
+  /**
+   * @deprecated since 6.4, please use {@link #setComponent(String)} instead
+   */
+  @Deprecated
   public TreeWsRequest setBaseComponentId(@Nullable String baseComponentId) {
     this.baseComponentId = baseComponentId;
     return this;
   }
 
+  /**
+   * @deprecated since 6.4, please use {@link #getComponent()} instead
+   */
+  @Deprecated
+  @CheckForNull
   public String getBaseComponentKey() {
     return baseComponentKey;
   }
 
+  /**
+   * @deprecated since 6.4, please use {@link #setComponent(String)} instead
+   */
+  @Deprecated
   public TreeWsRequest setBaseComponentKey(@Nullable String baseComponentKey) {
     this.baseComponentKey = baseComponentKey;
     return this;
   }
 
+  public TreeWsRequest setComponent(@Nullable String component) {
+    this.component = component;
+    return this;
+  }
+
+  @CheckForNull
+  public String getComponent() {
+    return component;
+  }
+
+  @CheckForNull
+  public String getBranch() {
+    return branch;
+  }
+
+  public TreeWsRequest setBranch(@Nullable String branch) {
+    this.branch = branch;
+    return this;
+  }
+
+  @CheckForNull
   public String getStrategy() {
     return strategy;
   }
@@ -70,6 +102,7 @@ public class TreeWsRequest {
     return this;
   }
 
+  @CheckForNull
   public List<String> getQualifiers() {
     return qualifiers;
   }
@@ -79,6 +112,7 @@ public class TreeWsRequest {
     return this;
   }
 
+  @CheckForNull
   public String getQuery() {
     return query;
   }
@@ -88,6 +122,7 @@ public class TreeWsRequest {
     return this;
   }
 
+  @CheckForNull
   public List<String> getSort() {
     return sort;
   }
@@ -101,25 +136,27 @@ public class TreeWsRequest {
     return asc;
   }
 
-  public TreeWsRequest setAsc(boolean asc) {
+  public TreeWsRequest setAsc(@Nullable Boolean asc) {
     this.asc = asc;
     return this;
   }
 
+  @CheckForNull
   public Integer getPage() {
     return page;
   }
 
-  public TreeWsRequest setPage(int page) {
+  public TreeWsRequest setPage(@Nullable Integer page) {
     this.page = page;
     return this;
   }
 
+  @CheckForNull
   public Integer getPageSize() {
     return pageSize;
   }
 
-  public TreeWsRequest setPageSize(int pageSize) {
+  public TreeWsRequest setPageSize(@Nullable Integer pageSize) {
     this.pageSize = pageSize;
     return this;
   }

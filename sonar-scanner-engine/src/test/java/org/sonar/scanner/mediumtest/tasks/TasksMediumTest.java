@@ -19,11 +19,9 @@
  */
 package org.sonar.scanner.mediumtest.tasks;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
-
 import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,7 +33,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 
-import com.google.common.collect.ImmutableMap;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TasksMediumTest {
 
@@ -82,18 +80,6 @@ public class TasksMediumTest {
     tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "foo").build())
-      .execute();
-  }
-
-  @Test
-  public void incrementalNotFound() throws Exception {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage(
-      "Incremental mode is not available. Please contact your administrator.");
-
-    tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.incremental", "true").build())
       .execute();
   }
 

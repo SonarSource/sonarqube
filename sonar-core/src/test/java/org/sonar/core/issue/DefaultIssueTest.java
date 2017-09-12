@@ -59,6 +59,7 @@ public class DefaultIssueTest {
       .setNew(true)
       .setBeingClosed(true)
       .setOnDisabledRule(true)
+      .setCopied(true)
       .setChanged(true)
       .setSendNotifications(true)
       .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"))
@@ -83,6 +84,7 @@ public class DefaultIssueTest {
     assertThat(issue.authorLogin()).isEqualTo("steph");
     assertThat(issue.checksum()).isEqualTo("c7b5db46591806455cf082bb348631e8");
     assertThat(issue.isNew()).isTrue();
+    assertThat(issue.isCopied()).isTrue();
     assertThat(issue.isBeingClosed()).isTrue();
     assertThat(issue.isOnDisabledRule()).isTrue();
     assertThat(issue.isChanged()).isTrue();

@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
@@ -43,10 +44,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
+import static org.sonar.db.component.ComponentDto.generateBranchKey;
 
 public class ComponentDao implements Dao {
 
@@ -169,6 +172,12 @@ public class ComponentDao implements Dao {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
+  public List<ComponentDto> selectByKeysAndBranch(DbSession session, Collection<String> keys, String branch) {
+    List<String> dbKeys = keys.stream().map(k -> generateBranchKey(k, branch)).collect(toList());
+    List<String> allKeys = Stream.of(keys, dbKeys) .flatMap(x -> x.stream()) .collect(toList());
+    return executeLargeInputs(allKeys, subKeys -> mapper(session).selectByKeysAndBranch(subKeys, branch));
+  }
+
   public List<ComponentDto> selectComponentsHavingSameKeyOrderedById(DbSession session, String key) {
     return mapper(session).selectComponentsHavingSameKeyOrderedById(key);
   }
@@ -214,6 +223,10 @@ public class ComponentDao implements Dao {
     return Optional.fromNullable(mapper(session).selectByKey(key));
   }
 
+  public java.util.Optional<ComponentDto> selectByKeyAndBranch(DbSession session, String key, String branch) {
+    return java.util.Optional.ofNullable(mapper(session).selectByKeyAndBranch(key, generateBranchKey(key, branch), branch));
+  }
+
   public List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(DbSession session) {
     return mapper(session).selectUuidsForQualifiers(Qualifiers.APP, Qualifiers.VIEW, Qualifiers.SUBVIEW);
   }
@@ -225,6 +238,8 @@ public class ComponentDao implements Dao {
   /**
    * Returns all projects (Scope {@link org.sonar.api.resources.Scopes#PROJECT} and qualifier
    * {@link org.sonar.api.resources.Qualifiers#PROJECT}) which are enabled.
+   *
+   * Branches are not returned.
    *
    * Used by Views.
    */

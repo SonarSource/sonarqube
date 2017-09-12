@@ -18,10 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { stringify } from 'querystring';
+import { isShortLivingBranch } from './branches';
 import { getProfilePath } from '../apps/quality-profiles/utils';
+import { Branch } from '../app/types';
 
 interface Query {
-  [x: string]: string;
+  [x: string]: string | undefined;
 }
 
 interface Location {
@@ -32,12 +34,28 @@ interface Location {
 /**
  * Generate URL for a component's home page
  */
-export function getComponentUrl(componentKey: string): string {
-  return (window as any).baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey);
+export function getComponentUrl(componentKey: string, branch?: string): string {
+  const branchQuery = branch ? `&branch=${encodeURIComponent(branch)}` : '';
+  return (
+    (window as any).baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey) + branchQuery
+  );
 }
 
-export function getProjectUrl(key: string): Location {
-  return { pathname: '/dashboard', query: { id: key } };
+export function getProjectUrl(key: string, branch?: string): Location {
+  return { pathname: '/dashboard', query: { id: key, branch } };
+}
+
+export function getProjectBranchUrl(key: string, branch: Branch) {
+  if (isShortLivingBranch(branch)) {
+    return {
+      pathname: '/project/issues',
+      query: { branch: branch.name, id: key, resolved: 'false' }
+    };
+  } else if (!branch.isMain) {
+    return { pathname: '/dashboard', query: { branch: branch.name, id: key } };
+  } else {
+    return { pathname: '/dashboard', query: { id: key } };
+  }
 }
 
 /**
@@ -62,17 +80,21 @@ export function getComponentIssuesUrlAsString(componentKey: string, query?: Quer
 /**
  * Generate URL for a component's drilldown page
  */
-export function getComponentDrilldownUrl(componentKey: string, metric: string): Location {
-  return { pathname: '/component_measures', query: { id: componentKey, metric } };
+export function getComponentDrilldownUrl(componentKey: string, metric: string, branch?: string) {
+  return { pathname: '/component_measures', query: { id: componentKey, metric, branch } };
 }
 
 /**
  * Generate URL for a component's measure history
  */
-export function getComponentMeasureHistory(componentKey: string, metric: string): Location {
+export function getComponentMeasureHistory(
+  componentKey: string,
+  metric: string,
+  branch?: string
+): Location {
   return {
     pathname: '/project/activity',
-    query: { id: componentKey, graph: 'custom', custom_metrics: metric }
+    query: { id: componentKey, graph: 'custom', custom_metrics: metric, branch }
   };
 }
 

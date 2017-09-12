@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component;
 
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,6 +27,9 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchKeyType;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
@@ -94,6 +98,16 @@ public class ComponentUpdaterTest {
     assertThat(db.getDbClient().componentDao().selectOrFailByKey(db.getSession(), DEFAULT_PROJECT_KEY)).isNotNull();
 
     assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
+
+    Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.uuid());
+    assertThat(branch).isPresent();
+    assertThat(branch.get().getKeeType()).isEqualTo(BranchKeyType.BRANCH);
+    assertThat(branch.get().getKey()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
+    assertThat(branch.get().getMergeBranchUuid()).isNull();
+    assertThat(branch.get().getPullRequestTitle()).isNull();
+    assertThat(branch.get().getBranchType()).isEqualTo(BranchType.LONG);
+    assertThat(branch.get().getUuid()).isEqualTo(returned.uuid());
+    assertThat(branch.get().getProjectUuid()).isEqualTo(returned.uuid());
   }
 
   @Test
@@ -154,6 +168,8 @@ public class ComponentUpdaterTest {
     assertThat(loaded.name()).isEqualTo("view-name");
     assertThat(loaded.qualifier()).isEqualTo("VW");
     assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
+    Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.uuid());
+    assertThat(branch).isNotPresent();
   }
 
   @Test
@@ -172,6 +188,8 @@ public class ComponentUpdaterTest {
     assertThat(loaded.name()).isEqualTo("app-name");
     assertThat(loaded.qualifier()).isEqualTo("APP");
     assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
+    Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.uuid());
+    assertThat(branch).isNotPresent();
   }
 
   @Test

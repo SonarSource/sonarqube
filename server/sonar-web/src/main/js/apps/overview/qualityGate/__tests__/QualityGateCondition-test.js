@@ -144,3 +144,16 @@ it('should be able to correctly decide how much decimals to show', () => {
   expect(instance.getDecimalsNumber(85, 85.0000000000000954)).toBe('00000000000009'.length);
   expect(instance.getDecimalsNumber(85, 85.00000000000000009)).toBe(undefined);
 });
+
+it('should work with branch', () => {
+  const condition = mockRatingCondition('new_maintainability_rating');
+  expect(
+    shallow(
+      <QualityGateCondition
+        branch="feature"
+        component={{ key: 'abcd-key' }}
+        condition={condition}
+      />
+    )
+  ).toMatchSnapshot();
+});

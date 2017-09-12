@@ -67,7 +67,7 @@ public class TestIndexer implements ProjectIndexer {
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
     try (DbSession dbSession = dbClient.openSession(false);
-         TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, null)) {
+      TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, null)) {
 
       BulkIndexer bulkIndexer = new BulkIndexer(esClient, INDEX_TYPE_TEST, Size.LARGE);
       bulkIndexer.start();
@@ -77,12 +77,12 @@ public class TestIndexer implements ProjectIndexer {
   }
 
   @Override
-  public void indexOnAnalysis(String projectUuid) {
+  public void indexOnAnalysis(String branchUuid) {
     BulkIndexer bulkIndexer = new BulkIndexer(esClient, INDEX_TYPE_TEST, Size.REGULAR);
     bulkIndexer.start();
-    addProjectDeletionToBulkIndexer(bulkIndexer, projectUuid);
+    addProjectDeletionToBulkIndexer(bulkIndexer, branchUuid);
     try (DbSession dbSession = dbClient.openSession(false);
-         TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, projectUuid)) {
+      TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, branchUuid)) {
       addTestsToBulkIndexer(rowIt, bulkIndexer);
     }
     bulkIndexer.stop();

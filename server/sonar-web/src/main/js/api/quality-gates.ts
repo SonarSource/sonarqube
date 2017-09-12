@@ -24,11 +24,21 @@ export function fetchQualityGatesAppDetails(): Promise<any> {
   return getJSON('/api/qualitygates/app').catch(throwGlobalError);
 }
 
-export function fetchQualityGates(): Promise<any> {
+export interface QualityGate {
+  isDefault?: boolean;
+  id: string;
+  name: string;
+}
+
+export function fetchQualityGates(): Promise<QualityGate[]> {
   return getJSON('/api/qualitygates/list').then(
     r =>
       r.qualitygates.map((qualityGate: any) => {
-        return { ...qualityGate, isDefault: qualityGate.id === r.default };
+        return {
+          ...qualityGate,
+          id: String(qualityGate.id),
+          isDefault: qualityGate.id === r.default
+        };
       }),
     throwGlobalError
   );
@@ -74,8 +84,15 @@ export function deleteCondition(id: string): Promise<void> {
   return post('/api/qualitygates/delete_condition', { id });
 }
 
-export function getGateForProject(projectKey: string): Promise<any> {
-  return getJSON('/api/qualitygates/get_by_project', { projectKey }).then(r => r.qualityGate);
+export function getGateForProject(projectKey: string): Promise<QualityGate | undefined> {
+  return getJSON('/api/qualitygates/get_by_project', { projectKey }).then(
+    r =>
+      r.qualityGate && {
+        id: r.qualityGate.id,
+        isDefault: r.qualityGate.default,
+        name: r.qualityGate.name
+      }
+  );
 }
 
 export function associateGateWithProject(

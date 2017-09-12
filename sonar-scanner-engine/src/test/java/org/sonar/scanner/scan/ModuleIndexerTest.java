@@ -21,10 +21,11 @@ package org.sonar.scanner.scan;
 
 import java.util.Arrays;
 import org.junit.Test;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +39,7 @@ public class ModuleIndexerTest {
   private InputComponentStore componentStore;
 
   public void createIndexer(DefaultInputModule rootModule) {
-    componentStore = new InputComponentStore(rootModule, mock(AnalysisMode.class));
+    componentStore = new InputComponentStore(rootModule, mock(DefaultAnalysisMode.class), mock(BranchConfiguration.class));
     tree = new DefaultComponentTree();
     moduleHierarchy = mock(DefaultInputModuleHierarchy.class);
     indexer = new ModuleIndexer(tree, componentStore, moduleHierarchy);

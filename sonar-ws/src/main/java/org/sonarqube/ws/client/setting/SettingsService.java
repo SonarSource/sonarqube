@@ -31,6 +31,7 @@ import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.CONTROLLER_SETTINGS;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_FIELD_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
@@ -45,14 +46,16 @@ public class SettingsService extends BaseService {
 
   public ListDefinitionsWsResponse listDefinitions(ListDefinitionsRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_LIST_DEFINITIONS))
-      .setParam(PARAM_COMPONENT, request.getComponent());
+      .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch());
     return call(getRequest, ListDefinitionsWsResponse.parser());
   }
 
   public ValuesWsResponse values(ValuesRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_VALUES))
       .setParam(PARAM_KEYS, inlineMultipleParamValue(request.getKeys()))
-      .setParam(PARAM_COMPONENT, request.getComponent());
+      .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch());
     return call(getRequest, ValuesWsResponse.parser());
   }
 
@@ -62,13 +65,15 @@ public class SettingsService extends BaseService {
       .setParam(PARAM_VALUE, request.getValue())
       .setParam(PARAM_VALUES, request.getValues())
       .setParam(PARAM_FIELD_VALUES, request.getFieldValues())
-      .setParam(PARAM_COMPONENT, request.getComponent()));
+      .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch()));
   }
 
   public void reset(ResetRequest request) {
     call(new PostRequest(path(ACTION_RESET))
       .setParam(PARAM_KEYS, inlineMultipleParamValue(request.getKeys()))
-      .setParam(PARAM_COMPONENT, request.getComponent()));
+      .setParam(PARAM_COMPONENT, request.getComponent())
+      .setParam(PARAM_BRANCH, request.getBranch()));
   }
 
 }

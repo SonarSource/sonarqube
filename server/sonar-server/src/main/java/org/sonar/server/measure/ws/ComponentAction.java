@@ -33,6 +33,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -54,12 +55,13 @@ import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
+import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.component.ComponentFinder.ParamNames.DEVELOPER_ID_AND_KEY;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
@@ -67,15 +69,18 @@ import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeve
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_METRICS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PERIODS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
@@ -98,18 +103,29 @@ public class ComponentAction implements MeasuresWsAction {
     WebService.NewAction action = context.createAction(ACTION_COMPONENT)
       .setDescription(format("Return component with specified measures. The %s or the %s parameter must be provided.<br>" +
         "Requires the following permission: 'Browse' on the project of specified component.",
-        PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY))
+        DEPRECATED_PARAM_COMPONENT_ID, PARAM_COMPONENT))
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
+      .setChangelog(
+        new Change("6.6", "the response field id is deprecated. Use key instead."),
+        new Change("6.6", "the response field refId is deprecated. Use refKey instead."))
       .setHandler(this);
 
-    action.createParam(PARAM_COMPONENT_ID)
-      .setDescription("Component id")
-      .setExampleValue(UUID_EXAMPLE_01);
-
-    action.createParam(PARAM_COMPONENT_KEY)
+    action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001)
+      .setDeprecatedKey(DEPRECATED_PARAM_COMPONENT_KEY, "6.6");
+
+    action.createParam(DEPRECATED_PARAM_COMPONENT_ID)
+      .setDescription("Component id")
+      .setExampleValue(UUID_EXAMPLE_01)
+      .setDeprecatedSince("6.6");
+
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("6.6");
 
     createMetricKeysParameter(action);
     createAdditionalFieldsParameter(action);
@@ -124,7 +140,7 @@ public class ComponentAction implements MeasuresWsAction {
 
   private ComponentWsResponse doHandle(ComponentWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.getComponentId(), request.getComponentKey(), COMPONENT_ID_AND_KEY);
+      ComponentDto component = loadComponent(dbSession, request);
       Long developerId = searchDeveloperId(dbSession, request);
       Optional<ComponentDto> refComponent = getReferenceComponent(dbSession, component);
       checkPermissions(component);
@@ -135,6 +151,16 @@ public class ComponentAction implements MeasuresWsAction {
 
       return buildResponse(request, component, refComponent, measures, metrics, periods);
     }
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, ComponentWsRequest request) {
+    String componentKey = request.getComponent();
+    String componentId = request.getComponentId();
+    String branch = request.getBranch();
+    checkArgument(componentId == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", DEPRECATED_PARAM_COMPONENT_ID, PARAM_BRANCH);
+    return branch == null
+      ? componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_COMPONENT)
+      : componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
   }
 
   @CheckForNull
@@ -242,8 +268,9 @@ public class ComponentAction implements MeasuresWsAction {
 
   private static ComponentWsRequest toComponentWsRequest(Request request) {
     ComponentWsRequest componentWsRequest = new ComponentWsRequest()
-      .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setComponentKey(request.param(PARAM_COMPONENT_KEY))
+      .setComponentId(request.param(DEPRECATED_PARAM_COMPONENT_ID))
+      .setComponent(request.param(PARAM_COMPONENT))
+      .setBranch(request.param(PARAM_BRANCH))
       .setAdditionalFields(request.paramAsStrings(PARAM_ADDITIONAL_FIELDS))
       .setMetricKeys(request.mandatoryParamAsStrings(PARAM_METRIC_KEYS))
       .setDeveloperId(request.param(PARAM_DEVELOPER_ID))

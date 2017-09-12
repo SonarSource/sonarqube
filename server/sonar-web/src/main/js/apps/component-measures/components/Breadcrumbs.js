@@ -26,6 +26,7 @@ import { getBreadcrumbs } from '../../../api/components';
 
 /*:: type Props = {|
   backToFirst: boolean,
+  branch?: string,
   className?: string,
   component: Component,
   handleSelect: string => void,
@@ -75,7 +76,7 @@ export default class Breadcrumbs extends React.PureComponent {
     key.unbind('left', 'measures-files');
   }
 
-  fetchBreadcrumbs = ({ component, rootComponent } /*: Props */) => {
+  fetchBreadcrumbs = ({ branch, component, rootComponent } /*: Props */) => {
     const isRoot = component.key === rootComponent.key;
     if (isRoot) {
       if (this.mounted) {
@@ -83,7 +84,7 @@ export default class Breadcrumbs extends React.PureComponent {
       }
       return;
     }
-    getBreadcrumbs(component.key).then(breadcrumbs => {
+    getBreadcrumbs(component.key, branch).then(breadcrumbs => {
       if (this.mounted) {
         this.setState({ breadcrumbs });
       }

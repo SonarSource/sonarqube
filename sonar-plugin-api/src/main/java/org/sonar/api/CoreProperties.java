@@ -50,6 +50,11 @@ public interface CoreProperties {
   String SUBCATEGORY_DUPLICATIONS = "duplications";
 
   /**
+   * @since 6.6
+   */
+  String SUBCATEGORY_BRANCHES = "Branches";
+
+  /**
    * @since 4.0
    */
   String SUBCATEGORY_DIFFERENTIAL_VIEWS = "differentialViews";
@@ -127,11 +132,6 @@ public interface CoreProperties {
   String PROJECT_VERSION_PROPERTY = "sonar.projectVersion";
 
   /**
-   * @since 6.3
-   */
-  String PROJECT_ORGANIZATION_PROPERTY = "sonar.organization";
-
-  /**
    * @since 2.6
    */
   String PROJECT_KEY_PROPERTY = "sonar.projectKey";
@@ -157,6 +157,11 @@ public interface CoreProperties {
    * Value format is yyyy-MM-dd
    */
   String PROJECT_DATE_PROPERTY = "sonar.projectDate";
+
+  /**
+   * @since 6.6
+   */
+  String LONG_LIVED_BRANCHES_REGEX = "sonar.branch.longLivedBranches.regex";
 
   /**
    * @deprecated since 4.2 projects are now multi-language

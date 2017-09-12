@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<td
+  className="thin nowrap text-right"
+/>
+`;
+
+exports[`renders 2`] = `
+<td
+  className="thin nowrap text-right"
+>
+  <TimeFormatter
+    date={2017-01-01T00:00:00.000Z}
+    long={true}
+  />
+</td>
+`;
+
+exports[`renders 3`] = `
+<td
+  className="thin nowrap text-right"
+>
+  <TimeFormatter
+    date={2017-01-01T00:00:00.000Z}
+    long={true}
+  />
+</td>
+`;
+
+exports[`renders 4`] = `
+<td
+  className="thin nowrap text-right"
+>
+  <span
+    className="text-warning little-spacer-right"
+  >
+    (+4d)
+  </span>
+  <TimeFormatter
+    date={2017-01-05T00:00:00.000Z}
+    long={true}
+  />
+</td>
+`;

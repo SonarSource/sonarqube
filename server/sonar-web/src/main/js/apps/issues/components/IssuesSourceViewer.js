@@ -21,10 +21,13 @@
 import React from 'react';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { scrollToElement } from '../../../helpers/scrolling';
+/*:: import type { Component, } from '../utils'; */
 /*:: import type { Issue } from '../../../components/issue/types'; */
 
 /*::
 type Props = {|
+  branch?: string,
+  component: Component,
   loadIssues: (string, number, number) => Promise<*>,
   onIssueChange: Issue => void,
   onIssueSelect: string => void,
@@ -83,6 +86,7 @@ export default class IssuesSourceViewer extends React.PureComponent {
       <div ref={node => (this.node = node)}>
         <SourceViewer
           aroundLine={openIssue.textRange ? openIssue.textRange.endLine : undefined}
+          branch={this.props.branch}
           component={openIssue.component}
           displayAllIssues={true}
           highlightedLocations={locations}

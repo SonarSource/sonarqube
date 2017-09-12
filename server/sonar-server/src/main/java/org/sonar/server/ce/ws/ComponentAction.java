@@ -37,14 +37,14 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 
 import static org.sonar.db.Pagination.forPage;
-import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
+import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsCe.ProjectResponse;
+import static org.sonarqube.ws.client.ce.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 
 public class ComponentAction implements CeWsAction {
-
-  public static final String PARAM_COMPONENT_ID = "componentId";
-  public static final String PARAM_COMPONENT_KEY = "componentKey";
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -64,27 +64,30 @@ public class ComponentAction implements CeWsAction {
       .setDescription("Get the pending tasks, in-progress tasks and the last executed task of a given component (usually a project).<br>" +
         "Requires the following permission: 'Browse' on the specified component.<br>" +
         "Either '%s' or '%s' must be provided, not both.",
-        PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
+        PARAM_COMPONENT_ID, DEPRECATED_PARAM_COMPONENT_KEY)
       .setSince("5.2")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setChangelog(
         new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
-        new Change("6.6", "field \"incremental\" is added"))
+        new Change("6.6", "field \"incremental\" is added"),
+        new Change("6.6", "fields \"branch\" and \"branchType\" added"))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT_ID)
       .setRequired(false)
-      .setExampleValue(Uuids.UUID_EXAMPLE_01);
+      .setExampleValue(Uuids.UUID_EXAMPLE_01)
+      .setDeprecatedSince("6.6");
 
-    action.createParam(PARAM_COMPONENT_KEY)
+    action.createParam(PARAM_COMPONENT)
       .setRequired(false)
-      .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
+      .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001)
+      .setDeprecatedKey("componentKey", "6.6");
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByUuidOrKey(dbSession, wsRequest.param(PARAM_COMPONENT_ID), wsRequest.param(PARAM_COMPONENT_KEY), COMPONENT_ID_AND_KEY);
+      ComponentDto component = loadComponent(dbSession, wsRequest);
       userSession.checkComponentPermission(UserRole.USER, component);
       List<CeQueueDto> queueDtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, component.uuid());
       CeTaskQuery activityQuery = new CeTaskQuery()
@@ -99,5 +102,11 @@ public class ComponentAction implements CeWsAction {
       }
       writeProtobuf(wsResponseBuilder.build(), wsRequest, wsResponse);
     }
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, Request wsRequest) {
+    String componentKey = wsRequest.param(PARAM_COMPONENT);
+    String componentId = wsRequest.param(PARAM_COMPONENT_ID);
+    return componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_COMPONENT);
   }
 }

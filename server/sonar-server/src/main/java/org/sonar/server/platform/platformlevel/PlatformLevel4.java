@@ -35,6 +35,7 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.batch.BatchWsModule;
+import org.sonar.server.branch.BranchFeatureProxyImpl;
 import org.sonar.server.ce.ws.CeWsModule;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
@@ -142,6 +143,7 @@ import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
 import org.sonar.server.project.ws.ProjectsWsModule;
 import org.sonar.server.projectanalysis.ProjectAnalysisModule;
+import org.sonar.server.projectbranch.ws.BranchWsModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
@@ -367,6 +369,7 @@ public class PlatformLevel4 extends PlatformLevel {
       GroupPermissionChanger.class,
 
       // components
+      BranchWsModule.class,
       ProjectsWsModule.class,
       ProjectsEsModule.class,
       ProjectTagsWsModule.class,
@@ -506,6 +509,9 @@ public class PlatformLevel4 extends PlatformLevel {
       UninstallAction.class,
       CancelAllAction.class,
       PluginsWs.class,
+
+      // Branch
+      BranchFeatureProxyImpl.class,
 
       // privileged plugins
       PrivilegedPluginsBootstraper.class,

@@ -20,20 +20,19 @@
 import * as React from 'react';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import { isSameDay, parseDate } from '../../../helpers/dates';
-import { ITask } from '../types';
 
 interface Props {
-  task: ITask;
-  prevTask?: ITask;
+  submittedAt: string;
+  prevSubmittedAt?: string;
 }
 
-export default function TaskDay({ task, prevTask }: Props) {
+export default function TaskDay({ submittedAt, prevSubmittedAt }: Props) {
   const shouldDisplay =
-    !prevTask || !isSameDay(parseDate(task.submittedAt), parseDate(prevTask.submittedAt));
+    !prevSubmittedAt || !isSameDay(parseDate(submittedAt), parseDate(prevSubmittedAt));
 
   return (
     <td className="thin nowrap text-right">
-      {shouldDisplay ? <DateFormatter date={task.submittedAt} long={true} /> : ''}
+      {shouldDisplay ? <DateFormatter date={submittedAt} long={true} /> : ''}
     </td>
   );
 }

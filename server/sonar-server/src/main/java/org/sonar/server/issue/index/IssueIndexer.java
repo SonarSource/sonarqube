@@ -98,8 +98,8 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
   }
 
   @Override
-  public void indexOnAnalysis(String projectUuid) {
-    try (IssueIterator issues = issueIteratorFactory.createForProject(projectUuid)) {
+  public void indexOnAnalysis(String branchUuid) {
+    try (IssueIterator issues = issueIteratorFactory.createForProject(branchUuid)) {
       doIndex(issues, Size.REGULAR, IndexingListener.NOOP);
     }
   }

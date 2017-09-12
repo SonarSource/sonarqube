@@ -26,9 +26,9 @@ import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 public class TrackerExecution {
 
-  private final TrackerBaseInputFactory baseInputFactory;
-  private final TrackerRawInputFactory rawInputFactory;
-  private final Tracker<DefaultIssue, DefaultIssue> tracker;
+  protected final TrackerBaseInputFactory baseInputFactory;
+  protected final TrackerRawInputFactory rawInputFactory;
+  protected final Tracker<DefaultIssue, DefaultIssue> tracker;
 
   public TrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerRawInputFactory rawInputFactory,
     Tracker<DefaultIssue, DefaultIssue> tracker) {

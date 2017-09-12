@@ -24,7 +24,8 @@ public class CeWsParameters {
   public static final String ACTION_WORKER_COUNT = "worker_count";
 
   public static final String PARAM_COMPONENT_ID = "componentId";
-  public static final String PARAM_COMPONENT_KEY = "componentKey";
+  public static final String DEPRECATED_PARAM_COMPONENT_KEY = "componentKey";
+  public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_COMPONENT_QUERY = "componentQuery";
   public static final String PARAM_TYPE = "type";
   public static final String PARAM_STATUS = "status";

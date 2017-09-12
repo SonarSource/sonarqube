@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders meta for long-living branch 1`] = `
+<div
+  className="navbar-context-meta"
+>
+  <ul
+    className="list-inline"
+  >
+    <li>
+      <DateTimeFormatter
+        date="2017-01-02T00:00:00.000Z"
+      />
+    </li>
+    <li>
+      Version 
+      0.0.1
+    </li>
+  </ul>
+</div>
+`;
+
+exports[`renders status of short-living branch 1`] = `
+<div
+  className="navbar-context-meta"
+>
+  <ul
+    className="list-inline"
+  >
+    <li>
+      <DateTimeFormatter
+        date="2017-01-02T00:00:00.000Z"
+      />
+    </li>
+  </ul>
+  <div
+    className="navbar-context-meta-branch"
+  >
+    <BranchStatus
+      branch={
+        Object {
+          "isMain": false,
+          "mergeBranch": "master",
+          "name": "feature",
+          "status": Object {
+            "bugs": 0,
+            "codeSmells": 2,
+            "vulnerabilities": 3,
+          },
+          "type": "SHORT",
+        }
+      }
+    />
+  </div>
+</div>
+`;

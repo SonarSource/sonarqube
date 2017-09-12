@@ -34,6 +34,9 @@ public interface ComponentMapper {
   ComponentDto selectByKey(String key);
 
   @CheckForNull
+  ComponentDto selectByKeyAndBranch(@Param("key") String key, @Param("dbKey") String dbKey, @Param("branch") String branch);
+
+  @CheckForNull
   ComponentDto selectById(long id);
 
   @CheckForNull
@@ -45,6 +48,8 @@ public interface ComponentMapper {
   List<ComponentDto> selectSubProjectsByComponentUuids(@Param("uuids") Collection<String> uuids);
 
   List<ComponentDto> selectByKeys(@Param("keys") Collection<String> keys);
+
+  List<ComponentDto> selectByKeysAndBranch(@Param("keys") Collection<String> keys, @Param("branch") String branch);
 
   List<ComponentDto> selectByIds(@Param("ids") Collection<Long> ids);
 

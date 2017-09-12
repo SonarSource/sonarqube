@@ -32,6 +32,11 @@ public class DbVersion66 implements DbVersion {
       .add(1802, "Delete leak settings on views", DeleteLeakSettingsOnViews.class)
       .add(1803, "Fix empty USERS.EXTERNAL_IDENTITY and USERS.EXTERNAL_IDENTITY_PROVIDER", FixEmptyIdentityProviderInUsers.class)
       .add(1804, "Add rules.plugin_key", AddPluginKeyToRules.class)
-      .add(1805, "Create table plugins", CreateTablePlugins.class);
+      .add(1805, "Create table plugins", CreateTablePlugins.class)
+      .add(1806, "Create table project_branches", CreateTableProjectBranches.class)
+      .add(1807, "Add on project_branches key", AddIndexOnProjectBranchesKey.class)
+      .add(1808, "Add branch column to projects table", AddBranchColumnToProjectsTable.class)
+      .add(1809, "Populate project_branches with existing main branches", PopulateMainProjectBranches.class)
+    ;
   }
 }

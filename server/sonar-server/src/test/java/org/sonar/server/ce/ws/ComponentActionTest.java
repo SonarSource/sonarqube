@@ -40,15 +40,22 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.tuple;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
+import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
+import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.INCREMENTAL_KEY;
-import static org.sonar.server.ce.ws.ComponentAction.PARAM_COMPONENT_ID;
-import static org.sonar.server.ce.ws.ComponentAction.PARAM_COMPONENT_KEY;
+import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.SHORT;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 
 public class ComponentActionTest {
 
@@ -69,7 +76,7 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
 
     WsCe.ProjectResponse response = ws.newRequest()
-      .setParam("componentId", project.uuid())
+      .setParam(PARAM_COMPONENT, project.getKey())
       .executeProtobuf(WsCe.ProjectResponse.class);
 
     assertThat(response.getQueueCount()).isEqualTo(0);
@@ -86,11 +93,11 @@ public class ComponentActionTest {
     insertActivity("T1", project1, CeActivityDto.Status.SUCCESS, analysisProject1);
     insertActivity("T2", project2, CeActivityDto.Status.FAILED, null);
     insertActivity("T3", project1, CeActivityDto.Status.FAILED, null);
-    insertQueue("T4", project1, CeQueueDto.Status.IN_PROGRESS);
-    insertQueue("T5", project1, CeQueueDto.Status.PENDING);
+    insertQueue("T4", project1, IN_PROGRESS);
+    insertQueue("T5", project1, PENDING);
 
     WsCe.ProjectResponse response = ws.newRequest()
-      .setParam("componentId", project1.uuid())
+      .setParam(PARAM_COMPONENT, project1.getKey())
       .executeProtobuf(WsCe.ProjectResponse.class);
     assertThat(response.getQueueCount()).isEqualTo(2);
     assertThat(response.getQueue(0).getId()).isEqualTo("T4");
@@ -114,7 +121,22 @@ public class ComponentActionTest {
     insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
 
     WsCe.ProjectResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEY, project.getDbKey())
+      .setParam(PARAM_COMPONENT, project.getDbKey())
+      .executeProtobuf(WsCe.ProjectResponse.class);
+    assertThat(response.hasCurrent()).isTrue();
+    assertThat(response.getCurrent().getId()).isEqualTo("T1");
+    assertThat(response.getCurrent().getAnalysisId()).isEqualTo(analysis.getUuid());
+  }
+
+  @Test
+  public void search_tasks_by_component_id() {
+    ComponentDto project = db.components().insertPrivateProject();
+    logInWithBrowsePermission(project);
+    SnapshotDto analysis = db.components().insertSnapshot(project);
+    insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
+
+    WsCe.ProjectResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, project.uuid())
       .executeProtobuf(WsCe.ProjectResponse.class);
     assertThat(response.hasCurrent()).isTrue();
     assertThat(response.getCurrent().getId()).isEqualTo("T1");
@@ -132,7 +154,7 @@ public class ComponentActionTest {
     insertActivity("T5", project, CeActivityDto.Status.CANCELED);
 
     WsCe.ProjectResponse response = ws.newRequest()
-      .setParam("componentId", project.uuid())
+      .setParam(PARAM_COMPONENT, project.getKey())
       .executeProtobuf(WsCe.ProjectResponse.class);
     assertThat(response.getQueueCount()).isEqualTo(0);
     // T3 is the latest task executed on PROJECT_1 ignoring Canceled ones
@@ -141,30 +163,15 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void incremental_analysis_by_component_id() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-    SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    insertActivity("T1", project, SUCCESS, incrementalAnalysis);
-
-    WsCe.ProjectResponse response = ws.newRequest()
-      .setParam("componentId", project.uuid())
-      .executeProtobuf(WsCe.ProjectResponse.class);
-
-    assertThat(response.getCurrent())
-      .extracting(WsCe.Task::getId, WsCe.Task::getIncremental)
-      .containsExactlyInAnyOrder("T1", true);
-  }
-
-  @Test
   public void incremental_analysis_by_component_key() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    CeActivityDto activity = insertActivity("T1", project, SUCCESS, incrementalAnalysis);
+    insertCharacteristic(activity, INCREMENTAL_KEY, "true");
 
     WsCe.ProjectResponse response = ws.newRequest()
-      .setParam("componentKey", project.getKey())
+      .setParam(PARAM_COMPONENT, project.getKey())
       .executeProtobuf(WsCe.ProjectResponse.class);
 
     assertThat(response.getCurrent())
@@ -177,28 +184,114 @@ public class ComponentActionTest {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.addProjectPermission(UserRole.USER, project);
-    CeQueueDto queue1 = insertQueue("T1", project, CeQueueDto.Status.IN_PROGRESS);
+    CeQueueDto queue1 = insertQueue("T1", project, IN_PROGRESS);
     insertCharacteristic(queue1, INCREMENTAL_KEY, "true");
-    CeQueueDto queue2 = insertQueue("T2", project, CeQueueDto.Status.PENDING);
+    CeQueueDto queue2 = insertQueue("T2", project, PENDING);
     insertCharacteristic(queue2, INCREMENTAL_KEY, "true");
 
     WsCe.ProjectResponse response = ws.newRequest()
-      .setParam("componentId", project.uuid())
+      .setParam(PARAM_COMPONENT, project.getKey())
       .executeProtobuf(WsCe.ProjectResponse.class);
 
     assertThat(response.getQueueList())
       .extracting(WsCe.Task::getId, WsCe.Task::getIncremental)
       .containsOnly(
         tuple("T1", true),
-        tuple("T2", true)
-      );
+        tuple("T2", true));
+  }
+
+  @Test
+  public void long_living_branch_in_activity() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    SnapshotDto analysis = db.components().insertSnapshot(longLivingBranch);
+    CeActivityDto activity = insertActivity("T1", project, SUCCESS, analysis);
+    insertCharacteristic(activity, BRANCH_KEY, longLivingBranch.getBranch());
+    insertCharacteristic(activity, BRANCH_TYPE_KEY, LONG.name());
+
+    WsCe.ProjectResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, project.getKey())
+      .executeProtobuf(WsCe.ProjectResponse.class);
+
+    assertThat(response.getCurrent())
+      .extracting(WsCe.Task::getId, WsCe.Task::getBranch, WsCe.Task::getBranchType, WsCe.Task::getStatus, WsCe.Task::getComponentKey)
+      .containsOnly(
+        "T1", longLivingBranch.getBranch(), Common.BranchType.LONG, WsCe.TaskStatus.SUCCESS, project.getKey());
+  }
+
+  @Test
+  public void long_living_branch_in_queue_analysis() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    CeQueueDto queue1 = insertQueue("T1", project, IN_PROGRESS);
+    insertCharacteristic(queue1, BRANCH_KEY, longLivingBranch.getBranch());
+    insertCharacteristic(queue1, BRANCH_TYPE_KEY, LONG.name());
+    CeQueueDto queue2 = insertQueue("T2", project, PENDING);
+    insertCharacteristic(queue2, BRANCH_KEY, longLivingBranch.getBranch());
+    insertCharacteristic(queue2, BRANCH_TYPE_KEY, LONG.name());
+
+    WsCe.ProjectResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, longLivingBranch.getKey())
+      .executeProtobuf(WsCe.ProjectResponse.class);
+
+    assertThat(response.getQueueList())
+      .extracting(WsCe.Task::getId, WsCe.Task::getBranch, WsCe.Task::getBranchType, WsCe.Task::getStatus, WsCe.Task::getComponentKey)
+      .containsOnly(
+        tuple("T1", longLivingBranch.getBranch(), Common.BranchType.LONG, WsCe.TaskStatus.IN_PROGRESS, project.getKey()),
+        tuple("T2", longLivingBranch.getBranch(), Common.BranchType.LONG, WsCe.TaskStatus.PENDING, project.getKey()));
+  }
+
+  @Test
+  public void return_many_tasks_from_same_project() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    insertQueue("Main", project, IN_PROGRESS);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG).setKey("long-branch"));
+    CeQueueDto longLivingBranchQueue = insertQueue("Long", project, IN_PROGRESS);
+    insertCharacteristic(longLivingBranchQueue, BRANCH_KEY, longLivingBranch.getBranch());
+    insertCharacteristic(longLivingBranchQueue, BRANCH_TYPE_KEY, LONG.name());
+    ComponentDto shortLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(SHORT).setKey("short-branch"));
+    CeQueueDto shortLivingBranchQueue = insertQueue("Short", project, PENDING);
+    insertCharacteristic(shortLivingBranchQueue, BRANCH_KEY, shortLivingBranch.getBranch());
+    insertCharacteristic(shortLivingBranchQueue, BRANCH_TYPE_KEY, SHORT.name());
+    CeQueueDto incrementalQueue = insertQueue("Incremental", project, PENDING);
+    insertCharacteristic(incrementalQueue, INCREMENTAL_KEY, "true");
+
+    WsCe.ProjectResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, longLivingBranch.getKey())
+      .executeProtobuf(WsCe.ProjectResponse.class);
+
+    assertThat(response.getQueueList())
+      .extracting(WsCe.Task::getId, WsCe.Task::getComponentKey, WsCe.Task::getBranch, WsCe.Task::getBranchType, WsCe.Task::getIncremental)
+      .containsOnly(
+        tuple("Main", project.getKey(), "", Common.BranchType.UNKNOWN_BRANCH_TYPE, false),
+        tuple("Long", longLivingBranch.getKey(), longLivingBranch.getBranch(), Common.BranchType.LONG, false),
+        tuple("Short", shortLivingBranch.getKey(), shortLivingBranch.getBranch(), Common.BranchType.SHORT, false),
+        tuple("Incremental", project.getKey(), "", Common.BranchType.UNKNOWN_BRANCH_TYPE, true));
+  }
+
+  @Test
+  public void deprecated_component_key() {
+    ComponentDto project = db.components().insertPrivateProject();
+    logInWithBrowsePermission(project);
+    SnapshotDto analysis = db.components().insertSnapshot(project);
+    insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
+
+    WsCe.ProjectResponse response = ws.newRequest()
+      .setParam("componentKey", project.getKey())
+      .executeProtobuf(WsCe.ProjectResponse.class);
+    assertThat(response.hasCurrent()).isTrue();
+    assertThat(response.getCurrent().getId()).isEqualTo("T1");
+    assertThat(response.getCurrent().getAnalysisId()).isEqualTo(analysis.getUuid());
   }
 
   @Test
   public void fail_with_404_when_component_does_not_exist() throws Exception {
     expectedException.expect(NotFoundException.class);
     ws.newRequest()
-      .setParam("componentId", "UNKNOWN")
+      .setParam(PARAM_COMPONENT, "UNKNOWN")
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
   }
@@ -212,7 +305,7 @@ public class ComponentActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, project.uuid())
+      .setParam(PARAM_COMPONENT, project.getKey())
       .execute();
   }
 
@@ -258,9 +351,17 @@ public class ComponentActionTest {
   }
 
   private CeTaskCharacteristicDto insertCharacteristic(CeQueueDto queueDto, String key, String value) {
+    return insertCharacteristic(queueDto.getUuid(), key, value);
+  }
+
+  private CeTaskCharacteristicDto insertCharacteristic(CeActivityDto activityDto, String key, String value) {
+    return insertCharacteristic(activityDto.getUuid(), key, value);
+  }
+
+  private CeTaskCharacteristicDto insertCharacteristic(String taskUuid, String key, String value) {
     CeTaskCharacteristicDto dto = new CeTaskCharacteristicDto()
       .setUuid(Uuids.createFast())
-      .setTaskUuid(queueDto.getUuid())
+      .setTaskUuid(taskUuid)
       .setKey(key)
       .setValue(value);
     db.getDbClient().ceTaskCharacteristicsDao().insert(db.getSession(), Collections.singletonList(dto));

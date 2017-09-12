@@ -28,13 +28,16 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
@@ -43,6 +46,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -50,6 +54,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -197,6 +202,24 @@ public class ResetActionTest {
   }
 
   @Test
+  public void remove_setting_on_branch() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
+    propertyDb.insertProperties(newComponentPropertyDto(branch).setKey("foo").setValue("value"));
+    userSession.logIn().addProjectPermission(ADMIN, project);
+
+    ws.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam("keys", "foo")
+      .setParam("component", branch.getKey())
+      .setParam("branch", branch.getBranch())
+      .execute();
+
+    assertProjectPropertyDoesNotExist(branch, "foo");
+  }
+
+  @Test
   public void empty_204_response() {
     logInAsSystemAdministrator();
     TestResponse result = ws.newRequest()
@@ -214,7 +237,7 @@ public class ResetActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isTrue();
     assertThat(action.responseExampleAsString()).isNull();
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("keys", "component", "branch");
   }
 
   @Test
@@ -338,6 +361,51 @@ public class ResetActionTest {
     failForPropertyWithoutDefinitionOnUnsupportedComponent(view, projectCopy);
   }
 
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    ws.newRequest()
+      .setParam("keys", "foo")
+      .setParam("component", branch.getDbKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_component_not_found() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'unknown' not found");
+
+    ws.newRequest()
+      .setParam("keys", "foo")
+      .setParam("component", "unknown")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_branch_not_found() {
+    ComponentDto project = db.components().insertMainBranch();
+    logInAsProjectAdmin(project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    String settingKey = "not_allowed_on_branch";
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component '%s' on branch 'unknown' not found", branch.getKey()));
+
+    ws.newRequest()
+      .setParam("keys", settingKey)
+      .setParam("component", branch.getKey())
+      .setParam("branch", "unknown")
+      .execute();
+  }
+
   private void succeedForPropertyWithoutDefinitionAndValidComponent(ComponentDto root, ComponentDto module) {
     logInAsProjectAdmin(root);
 
@@ -396,8 +464,12 @@ public class ResetActionTest {
     assertThat(dbClient.propertiesDao().selectGlobalProperty(dbSession, key)).isNotNull();
   }
 
+  private void assertProjectPropertyDoesNotExist(ComponentDto component, String key) {
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(component.getId()).setKey(key).build(), dbSession)).isEmpty();
+  }
+
   private void assertProjectPropertyDoesNotExist(String key) {
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(project.getId()).setKey(key).build(), dbSession)).isEmpty();
+    assertProjectPropertyDoesNotExist(project, key);
   }
 
   private void assertProjectPropertyExists(String key) {

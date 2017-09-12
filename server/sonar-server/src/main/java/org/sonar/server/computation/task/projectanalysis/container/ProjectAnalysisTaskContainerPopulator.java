@@ -21,7 +21,9 @@ package org.sonar.server.computation.task.projectanalysis.container;
 
 import java.util.Arrays;
 import java.util.List;
+
 import javax.annotation.Nullable;
+
 import org.sonar.ce.organization.DefaultOrganizationLoader;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.settings.SettingsLoader;
@@ -33,9 +35,12 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.api.posttask.PostProjectAnalysisTasksExecutor;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderImpl;
+import org.sonar.server.computation.task.projectanalysis.component.BranchLoader;
+import org.sonar.server.computation.task.projectanalysis.component.BranchPersister;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DisabledComponentsHolderImpl;
-import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepositoryImpl;
+import org.sonar.server.computation.task.projectanalysis.component.MergeBranchComponentUuids;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationMeasures;
@@ -48,6 +53,7 @@ import org.sonar.server.computation.task.projectanalysis.filemove.SourceSimilari
 import org.sonar.server.computation.task.projectanalysis.filesystem.ComputationTempFolderProvider;
 import org.sonar.server.computation.task.projectanalysis.issue.BaseIssuesLoader;
 import org.sonar.server.computation.task.projectanalysis.issue.CloseIssuesOnRemovedComponentsVisitor;
+import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesLoader;
 import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.ComponentsWithUnprocessedIssues;
 import org.sonar.server.computation.task.projectanalysis.issue.DebtCalculator;
@@ -59,19 +65,24 @@ import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCounter;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCreationDateCalculator;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueLifecycle;
+import org.sonar.server.computation.task.projectanalysis.issue.IssueTrackingDelegator;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueVisitors;
 import org.sonar.server.computation.task.projectanalysis.issue.IssuesRepositoryVisitor;
 import org.sonar.server.computation.task.projectanalysis.issue.LoadComponentUuidsHavingOpenIssuesVisitor;
+import org.sonar.server.computation.task.projectanalysis.issue.MergeBranchTrackerExecution;
 import org.sonar.server.computation.task.projectanalysis.issue.MovedIssueVisitor;
 import org.sonar.server.computation.task.projectanalysis.issue.NewEffortAggregator;
 import org.sonar.server.computation.task.projectanalysis.issue.NewEffortCalculator;
+import org.sonar.server.computation.task.projectanalysis.issue.RemoveProcessedComponentsVisitor;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleTagsCopier;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleTypeCopier;
 import org.sonar.server.computation.task.projectanalysis.issue.ScmAccountToUser;
 import org.sonar.server.computation.task.projectanalysis.issue.ScmAccountToUserLoader;
+import org.sonar.server.computation.task.projectanalysis.issue.ShortBranchTrackerExecution;
 import org.sonar.server.computation.task.projectanalysis.issue.TrackerBaseInputFactory;
 import org.sonar.server.computation.task.projectanalysis.issue.TrackerExecution;
+import org.sonar.server.computation.task.projectanalysis.issue.TrackerMergeBranchInputFactory;
 import org.sonar.server.computation.task.projectanalysis.issue.TrackerRawInputFactory;
 import org.sonar.server.computation.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.server.computation.task.projectanalysis.issue.commonrule.BranchCoverageRule;
@@ -99,6 +110,7 @@ import org.sonar.server.computation.task.projectanalysis.qualitymodel.NewReliabi
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingSettings;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.ReliabilityAndSecurityRatingMeasuresVisitor;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
+import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoDbLoader;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.source.LastCommitVisitor;
 import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepositoryImpl;
@@ -161,8 +173,8 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       ActiveRulesHolderImpl.class,
       MeasureComputersHolderImpl.class,
       MutableTaskResultHolderImpl.class,
-
       BatchReportReaderImpl.class,
+      MergeBranchComponentUuids.class,
 
       // repositories
       LanguageRepositoryImpl.class,
@@ -176,6 +188,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       SourceLinesRepositoryImpl.class,
       SourceHashRepositoryImpl.class,
       ScmInfoRepositoryImpl.class,
+      ScmInfoDbLoader.class,
       DuplicationRepositoryImpl.class,
 
       // issues
@@ -212,6 +225,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       IssueCounter.class,
       MovedIssueVisitor.class,
       IssuesRepositoryVisitor.class,
+      RemoveProcessedComponentsVisitor.class,
 
       // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
       LoadComponentUuidsHavingOpenIssuesVisitor.class,
@@ -227,9 +241,15 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       UpdateConflictResolver.class,
       TrackerBaseInputFactory.class,
       TrackerRawInputFactory.class,
+      TrackerMergeBranchInputFactory.class,
       Tracker.class,
       TrackerExecution.class,
+      ShortBranchTrackerExecution.class,
+      MergeBranchTrackerExecution.class,
+      ComponentIssuesLoader.class,
       BaseIssuesLoader.class,
+      IssueTrackingDelegator.class,
+      BranchPersister.class,
 
       // filemove
       SourceSimilarityImpl.class,
@@ -243,6 +263,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       // views
       ViewIndex.class,
 
+      BranchLoader.class,
       MeasureToMeasureDto.class,
 
       // webhooks

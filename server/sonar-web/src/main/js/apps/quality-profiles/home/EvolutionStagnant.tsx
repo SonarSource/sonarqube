@@ -60,16 +60,17 @@ export default function EvolutionStagnant(props: Props) {
                 {profile.name}
               </ProfileLink>
             </div>
-            <DateFormatter date={profile.rulesUpdatedAt} long={true}>
-              {formattedDate =>
-                <div className="note">
-                  {translateWithParameters(
-                    'quality_profiles.x_updated_on_y',
-                    profile.languageName,
-                    formattedDate
-                  )}
-                </div>}
-            </DateFormatter>
+            {profile.rulesUpdatedAt &&
+              <DateFormatter date={profile.rulesUpdatedAt} long={true}>
+                {formattedDate =>
+                  <div className="note">
+                    {translateWithParameters(
+                      'quality_profiles.x_updated_on_y',
+                      profile.languageName,
+                      formattedDate
+                    )}
+                  </div>}
+              </DateFormatter>}
           </li>
         )}
       </ul>

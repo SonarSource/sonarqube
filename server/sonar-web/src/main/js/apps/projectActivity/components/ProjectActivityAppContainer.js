@@ -19,15 +19,14 @@
  */
 // @flow
 import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import PropTypes from 'prop-types';
 import ProjectActivityApp from './ProjectActivityApp';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import { getComponent } from '../../../store/rootReducer';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import { getMetrics } from '../../../api/metrics';
 import * as api from '../../../api/projectActivity';
 import * as actions from '../actions';
+import { getBranchName } from '../../../helpers/branches';
 import { parseDate } from '../../../helpers/dates';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import {
@@ -44,16 +43,13 @@ import {
 
 /*::
 type Props = {
+  branch?: {},
   location: { pathname: string, query: RawQuery },
-  project: {
+  component: {
     configuration?: { showHistory: boolean },
     key: string,
     leakPeriodDate: string,
     qualifier: string
-  },
-  router: {
-    push: ({ pathname: string, query?: RawQuery }) => void,
-    replace: ({ pathname: string, query?: RawQuery }) => void
   }
 };
 */
@@ -71,10 +67,14 @@ export type State = {
 };
 */
 
-class ProjectActivityAppContainer extends React.PureComponent {
+export default class ProjectActivityAppContainer extends React.PureComponent {
   /*:: mounted: boolean; */
   /*:: props: Props; */
   /*:: state: State; */
+
+  static contextTypes = {
+    router: PropTypes.object.isRequired
+  };
 
   constructor(props /*: Props */) {
     super(props);
@@ -87,24 +87,25 @@ class ProjectActivityAppContainer extends React.PureComponent {
       metrics: [],
       query: parseQuery(props.location.query)
     };
-
-    if (this.shouldRedirect()) {
-      const newQuery = { ...this.state.query, graph: getGraph() };
-      if (isCustomGraph(newQuery.graph)) {
-        newQuery.customMetrics = getCustomGraph();
-      }
-      this.props.router.replace({
-        pathname: props.location.pathname,
-        query: serializeUrlQuery(newQuery)
-      });
-    }
   }
 
   componentDidMount() {
     this.mounted = true;
     const elem = document.querySelector('html');
     elem && elem.classList.add('dashboard-page');
-    if (!this.shouldRedirect()) {
+    if (this.shouldRedirect()) {
+      const newQuery = { ...this.state.query, graph: getGraph() };
+      if (isCustomGraph(newQuery.graph)) {
+        newQuery.customMetrics = getCustomGraph();
+      }
+      this.context.router.replace({
+        pathname: this.props.location.pathname,
+        query: {
+          ...serializeUrlQuery(newQuery),
+          branch: this.props.branch && getBranchName(this.props.branch)
+        }
+      });
+    } else {
       this.firstLoadData(this.state.query);
     }
   }
@@ -169,7 +170,12 @@ class ProjectActivityAppContainer extends React.PureComponent {
       [string]: string
     } */
   ) => {
-    const parameters = { project, p, ps };
+    const parameters = {
+      project,
+      p,
+      ps,
+      branch: this.props.branch && getBranchName(this.props.branch)
+    };
     return api
       .getProjectActivity({ ...parameters, ...additional })
       .then(({ analyses, paging }) => ({
@@ -182,7 +188,9 @@ class ProjectActivityAppContainer extends React.PureComponent {
     if (metrics.length <= 0) {
       return Promise.resolve([]);
     }
-    return getAllTimeMachineData(this.props.project.key, metrics).then(
+    return getAllTimeMachineData(this.props.component.key, metrics, {
+      branch: this.props.branch && getBranchName(this.props.branch)
+    }).then(
       ({ measures }) =>
         measures.map(measure => ({
           metric: measure.metric,
@@ -279,11 +287,12 @@ class ProjectActivityAppContainer extends React.PureComponent {
       ...this.state.query,
       ...newQuery
     });
-    this.props.router.push({
+    this.context.router.push({
       pathname: this.props.location.pathname,
       query: {
         ...query,
-        id: this.props.project.key
+        branch: this.props.branch && getBranchName(this.props.branch),
+        id: this.props.component.key
       }
     });
   };
@@ -306,6 +315,10 @@ class ProjectActivityAppContainer extends React.PureComponent {
   };
 
   render() {
+    if (this.shouldRedirect()) {
+      return null;
+    }
+
     return (
       <ProjectActivityApp
         addCustomEvent={this.addCustomEvent}
@@ -319,16 +332,10 @@ class ProjectActivityAppContainer extends React.PureComponent {
         initializing={!this.state.initialized}
         metrics={this.state.metrics}
         measuresHistory={this.state.measuresHistory}
-        project={this.props.project}
+        project={this.props.component}
         query={this.state.query}
         updateQuery={this.updateQuery}
       />
     );
   }
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  project: getComponent(state, ownProps.location.query.id)
-});
-
-export default connect(mapStateToProps)(withRouter(ProjectActivityAppContainer));

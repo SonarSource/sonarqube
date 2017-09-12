@@ -23,11 +23,14 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -41,15 +44,14 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeQueueDto.Status;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.issue.IssueDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.db.rule.RuleTesting;
-import org.sonar.db.source.FileSourceDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -62,6 +64,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.webhook.WebhookDbTesting.newWebhookDeliveryDto;
 import static org.sonar.db.webhook.WebhookDbTesting.selectAllDeliveryUuids;
@@ -101,10 +104,36 @@ public class PurgeDaoTest {
   }
 
   @Test
+  public void should_purge_inactive_short_living_branches() {
+    when(system2.now()).thenReturn(new Date().getTime());
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto longBranch = dbTester.components().insertProjectBranch(project);
+    ComponentDto recentShortBranch = dbTester.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.SHORT));
+
+    // short branch with other components and issues, updated 31 days ago
+    when(system2.now()).thenReturn(DateUtils.addDays(new Date(), -31).getTime());
+    ComponentDto shortBranch = dbTester.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.SHORT));
+    ComponentDto module = dbTester.components().insertComponent(newModuleDto(shortBranch));
+    ComponentDto subModule = dbTester.components().insertComponent(newModuleDto(module));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(subModule));
+    dbTester.issues().insert(rule, shortBranch, file);
+    dbTester.issues().insert(rule, shortBranch, subModule);
+    dbTester.issues().insert(rule, shortBranch, module);
+
+    // back to present
+    when(system2.now()).thenReturn(new Date().getTime());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    dbSession.commit();
+
+    assertThat(getUuidsInTableProjects()).containsOnly(project.uuid(), longBranch.uuid(), recentShortBranch.uuid());
+  }
+
+  @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
-    PurgeConfiguration conf = new PurgeConfiguration(
-      new IdUuidPair(THE_PROJECT_ID, "ABCD"), new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30, System2.INSTANCE, Collections.emptyList());
+    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "ABCD"), new String[] {Scopes.DIRECTORY, Scopes.FILE},
+      30, Optional.of(30), System2.INSTANCE, Collections.emptyList());
 
     underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
@@ -116,7 +145,7 @@ public class PurgeDaoTest {
   public void close_issues_clean_index_and_file_sources_of_disabled_components_specified_by_uuid_in_configuration() {
     dbTester.prepareDbUnit(getClass(), "close_issues_clean_index_and_files_sources_of_specified_components.xml");
     when(system2.now()).thenReturn(1450000000000L);
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, "P1", "EFGH", "GHIJ"), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, THE_PROJECT_UUID, "P1", "EFGH", "GHIJ"), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
     dbTester.assertDbUnit(getClass(), "close_issues_clean_index_and_files_sources_of_specified_components-result.xml",
       new String[] {"issue_close_date", "issue_update_date"},
@@ -149,7 +178,7 @@ public class PurgeDaoTest {
   public void delete_project_and_associated_data() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteProject.xml");
 
-    underTest.deleteRootComponent(dbSession, "A");
+    underTest.deleteProject(dbSession, "A");
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
@@ -157,6 +186,17 @@ public class PurgeDaoTest {
     assertThat(dbTester.countRowsOfTable("issues")).isZero();
     assertThat(dbTester.countRowsOfTable("issue_changes")).isZero();
     assertThat(dbTester.countRowsOfTable("file_sources")).isZero();
+  }
+
+  @Test
+  public void delete_branch_and_associated_data() {
+    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+
+    underTest.deleteBranch(dbSession, project.uuid());
+    dbSession.commit();
+    assertThat(dbTester.countRowsOfTable("project_branches")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(1);
   }
 
   @Test
@@ -170,7 +210,7 @@ public class PurgeDaoTest {
     insertCeActivity(anotherLivingProject);
     dbSession.commit();
 
-    underTest.deleteRootComponent(dbSession, projectToBeDeleted.uuid());
+    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable("ce_activity")).isEqualTo(1);
@@ -188,18 +228,51 @@ public class PurgeDaoTest {
     dbClient.ceQueueDao().insert(dbSession, createCeQueue(anotherLivingProject, Status.PENDING));
     dbSession.commit();
 
-    underTest.deleteRootComponent(dbSession, projectToBeDeleted.uuid());
+    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable("ce_queue")).isEqualTo(1);
     assertThat(dbTester.countSql("select count(*) from ce_queue where component_uuid='" + projectToBeDeleted.uuid() + "'")).isEqualTo(0);
   }
 
+  private ComponentDto insertProjectWithBranchAndRelatedData() {
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    ComponentDto module = dbTester.components().insertComponent(newModuleDto(branch));
+    ComponentDto subModule = dbTester.components().insertComponent(newModuleDto(module));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(subModule));
+    dbTester.issues().insert(rule, branch, file);
+    dbTester.issues().insert(rule, branch, subModule);
+    dbTester.issues().insert(rule, branch, module);
+    return project;
+  }
+
+  @Test
+  public void delete_branch_content_when_deleting_project() {
+    ComponentDto anotherLivingProject = insertProjectWithBranchAndRelatedData();
+    int projectEntryCount = dbTester.countRowsOfTable("projects");
+    int issueCount = dbTester.countRowsOfTable("issues");
+    int branchCount = dbTester.countRowsOfTable("project_branches");
+
+    ComponentDto projectToDelete = insertProjectWithBranchAndRelatedData();
+    assertThat(dbTester.countRowsOfTable("projects")).isGreaterThan(projectEntryCount);
+    assertThat(dbTester.countRowsOfTable("issues")).isGreaterThan(issueCount);
+    assertThat(dbTester.countRowsOfTable("project_branches")).isGreaterThan(branchCount);
+
+    underTest.deleteProject(dbSession, projectToDelete.uuid());
+    dbSession.commit();
+
+    assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(projectEntryCount);
+    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(issueCount);
+    assertThat(dbTester.countRowsOfTable("project_branches")).isEqualTo(branchCount);
+  }
+
   @Test
   public void delete_view_and_child() {
     dbTester.prepareDbUnit(getClass(), "view_sub_view_and_tech_project.xml");
 
-    underTest.deleteRootComponent(dbSession, "A");
+    underTest.deleteProject(dbSession, "A");
     dbSession.commit();
     assertThat(dbTester.countSql("select count(1) from projects where uuid='A'")).isZero();
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
@@ -213,7 +286,7 @@ public class PurgeDaoTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Couldn't find root component with uuid " + module.uuid());
 
-    underTest.deleteRootComponent(dbSession, module.uuid());
+    underTest.deleteProject(dbSession, module.uuid());
   }
 
   @Test
@@ -224,7 +297,7 @@ public class PurgeDaoTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Couldn't find root component with uuid " + directory.uuid());
 
-    underTest.deleteRootComponent(dbSession, directory.uuid());
+    underTest.deleteProject(dbSession, directory.uuid());
   }
 
   @Test
@@ -235,7 +308,7 @@ public class PurgeDaoTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Couldn't find root component with uuid " + file.uuid());
 
-    underTest.deleteRootComponent(dbSession, file.uuid());
+    underTest.deleteProject(dbSession, file.uuid());
   }
 
   @Test
@@ -246,7 +319,7 @@ public class PurgeDaoTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Couldn't find root component with uuid " + subview.uuid());
 
-    underTest.deleteRootComponent(dbSession, subview.uuid());
+    underTest.deleteProject(dbSession, subview.uuid());
   }
 
   @Test
@@ -254,7 +327,7 @@ public class PurgeDaoTest {
     dbTester.prepareDbUnit(getClass(), "view_sub_view_and_tech_project.xml");
 
     // view
-    underTest.deleteRootComponent(dbSession, "A");
+    underTest.deleteProject(dbSession, "A");
     dbSession.commit();
     assertThat(dbTester.countSql("select count(1) from projects where uuid='A'")).isZero();
   }
@@ -281,7 +354,8 @@ public class PurgeDaoTest {
   @Test
   public void should_delete_all_closed_issues() {
     dbTester.prepareDbUnit(getClass(), "should_delete_all_closed_issues.xml");
-    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[0], 0, System2.INSTANCE, Collections.emptyList());
+    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[0],
+      0, Optional.empty(), System2.INSTANCE, Collections.emptyList());
     underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
     dbTester.assertDbUnit(getClass(), "should_delete_all_closed_issues-result.xml", "issues", "issue_changes");
@@ -293,7 +367,7 @@ public class PurgeDaoTest {
     dbClient.webhookDeliveryDao().insert(dbSession, newWebhookDeliveryDto().setComponentUuid(project.uuid()).setUuid("D1"));
     dbClient.webhookDeliveryDao().insert(dbSession, newWebhookDeliveryDto().setComponentUuid("P2").setUuid("D2"));
 
-    underTest.deleteRootComponent(dbSession, project.uuid());
+    underTest.deleteProject(dbSession, project.uuid());
 
     assertThat(selectAllDeliveryUuids(dbTester, dbSession)).containsOnly("D2");
   }
@@ -302,7 +376,7 @@ public class PurgeDaoTest {
   public void deleteNonRootComponents_has_no_effect_when_parameter_is_empty() {
     DbSession dbSession = mock(DbSession.class);
 
-    underTest.deleteNonRootComponents(dbSession, Collections.emptyList());
+    underTest.deleteNonRootComponentsInView(dbSession, Collections.emptyList());
 
     verifyZeroInteractions(dbSession);
   }
@@ -322,7 +396,7 @@ public class PurgeDaoTest {
 
     List<ComponentDto> componentDtos = Stream.concat(Stream.of(firstRoot), Arrays.stream(otherRoots)).collect(Collectors.toList());
     Collections.shuffle(componentDtos); // order of collection must not matter
-    underTest.deleteNonRootComponents(dbSession, componentDtos);
+    underTest.deleteNonRootComponentsInView(dbSession, componentDtos);
 
     verifyZeroInteractions(dbSession);
   }
@@ -345,7 +419,7 @@ public class PurgeDaoTest {
       dbTester.components().insertComponent(newFileDto(project)));
     Collections.shuffle(components);
 
-    underTest.deleteNonRootComponents(dbSession, components);
+    underTest.deleteNonRootComponentsInView(dbSession, components);
 
     assertThat(getUuidsInTableProjects())
       .containsOnly(project.uuid());
@@ -371,7 +445,7 @@ public class PurgeDaoTest {
       dbTester.components().insertComponent(newProjectCopy("c", projects[2], subview2)));
     Collections.shuffle(components);
 
-    underTest.deleteNonRootComponents(dbSession, components);
+    underTest.deleteNonRootComponentsInView(dbSession, components);
 
     assertThat(getUuidsInTableProjects())
       .containsOnly(view.uuid(), projects[0].uuid(), projects[1].uuid(), projects[2].uuid());
@@ -392,11 +466,11 @@ public class PurgeDaoTest {
     ComponentDto file2 = dbTester.components().insertComponent(newFileDto(module2));
     ComponentDto file3 = dbTester.components().insertComponent(newFileDto(project));
 
-    underTest.deleteNonRootComponents(dbSession, singletonList(file3));
+    underTest.deleteNonRootComponentsInView(dbSession, singletonList(file3));
     assertThat(getUuidsInTableProjects())
       .containsOnly(project.uuid(), module1.uuid(), module2.uuid(), dir1.uuid(), dir2.uuid(), file1.uuid(), file2.uuid());
 
-    underTest.deleteNonRootComponents(dbSession, asList(module1, dir2, file1));
+    underTest.deleteNonRootComponentsInView(dbSession, asList(module1, dir2, file1));
     assertThat(getUuidsInTableProjects())
       .containsOnly(project.uuid(), module2.uuid(), dir1.uuid(), file2.uuid());
   }
@@ -416,32 +490,14 @@ public class PurgeDaoTest {
     ComponentDto pc2 = dbTester.components().insertComponent(newProjectCopy("b", projects[1], subview1));
     ComponentDto pc3 = dbTester.components().insertComponent(newProjectCopy("c", projects[2], subview2));
 
-    underTest.deleteNonRootComponents(dbSession, singletonList(pc3));
+    underTest.deleteNonRootComponentsInView(dbSession, singletonList(pc3));
     assertThat(getUuidsInTableProjects())
       .containsOnly(view.uuid(), projects[0].uuid(), projects[1].uuid(), projects[2].uuid(),
         subview1.uuid(), subview2.uuid(), pc1.uuid(), pc2.uuid());
 
-    underTest.deleteNonRootComponents(dbSession, asList(subview1, pc2));
+    underTest.deleteNonRootComponentsInView(dbSession, asList(subview1, pc2));
     assertThat(getUuidsInTableProjects())
       .containsOnly(view.uuid(), projects[0].uuid(), projects[1].uuid(), projects[2].uuid(), subview2.uuid(), pc1.uuid());
-  }
-
-  @Test
-  public void deleteNonRootComponents_deletes_measures_of_any_non_root_component_of_a_project() {
-    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPublicProject() : dbTester.components().insertPrivateProject();
-    ComponentDto module1 = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto dir1 = dbTester.components().insertComponent(newDirectory(module1, "A/B"));
-    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(dir1));
-    insertIssueAndChangesFor(project, module1, dir1, file1);
-    assertThat(getComponentUuidsOfIssueChanges()).containsOnly(project.uuid(), module1.uuid(), dir1.uuid(), file1.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, singletonList(file1));
-    assertThat(getComponentUuidsOfIssueChanges())
-      .containsOnly(project.uuid(), module1.uuid(), dir1.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, asList(module1, dir1));
-    assertThat(getComponentUuidsOfIssueChanges())
-      .containsOnly(project.uuid());
   }
 
   @Test
@@ -452,109 +508,17 @@ public class PurgeDaoTest {
     insertMeasureFor(view, subview, pc);
     assertThat(getComponentUuidsOfMeasures()).containsOnly(view.uuid(), subview.uuid(), pc.uuid());
 
-    underTest.deleteNonRootComponents(dbSession, singletonList(pc));
+    underTest.deleteNonRootComponentsInView(dbSession, singletonList(pc));
     assertThat(getComponentUuidsOfMeasures())
       .containsOnly(view.uuid(), subview.uuid());
 
-    underTest.deleteNonRootComponents(dbSession, asList(subview));
+    underTest.deleteNonRootComponentsInView(dbSession, singletonList(subview));
     assertThat(getComponentUuidsOfMeasures())
       .containsOnly(view.uuid());
   }
 
   @Test
-  public void deleteNonRootComponents_deletes_issues_and_changes_of_any_non_root_component_of_a_project() {
-    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPublicProject() : dbTester.components().insertPrivateProject();
-    ComponentDto module1 = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto dir1 = dbTester.components().insertComponent(newDirectory(module1, "A/B"));
-    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(dir1));
-    insertIssueAndChangesFor(project, module1, dir1, file1);
-    assertThat(getComponentUuidsOfIssueChanges()).containsOnly(project.uuid(), module1.uuid(), dir1.uuid(), file1.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, singletonList(file1));
-    assertThat(getComponentUuidsOfIssueChanges())
-      .containsOnly(project.uuid(), module1.uuid(), dir1.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, asList(module1, dir1));
-    assertThat(getComponentUuidsOfIssueChanges())
-      .containsOnly(project.uuid());
-  }
-
-  @Test
-  public void deleteNonRootComponents_deletes_issues_and_changes_of_any_non_root_component_of_a_view() {
-    ComponentDto view = dbTester.components().insertView();
-    ComponentDto subview = dbTester.components().insertComponent(ComponentTesting.newSubView(view));
-    ComponentDto pc = dbTester.components().insertComponent(newProjectCopy("a", dbTester.components().insertPrivateProject(), view));
-    insertIssueAndChangesFor(view, subview, pc);
-    assertThat(getComponentUuidsOfIssueChanges()).containsOnly(view.uuid(), subview.uuid(), pc.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, singletonList(pc));
-    assertThat(getComponentUuidsOfIssueChanges())
-      .containsOnly(view.uuid(), subview.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, asList(subview));
-    assertThat(getComponentUuidsOfIssueChanges())
-      .containsOnly(view.uuid());
-  }
-
-  @Test
-  public void deleteNonRootComponents_deletes_file_sources_of_file_component_of_a_project_only() {
-    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPublicProject() : dbTester.components().insertPrivateProject();
-    ComponentDto module1 = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto dir1 = dbTester.components().insertComponent(newDirectory(module1, "A/B"));
-    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(dir1));
-    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(dir1));
-    insertFileSources(project, module1, dir1, file1, file2);
-    assertThat(getComponentUuidsOfFileSources()).containsOnly(project.uuid(), module1.uuid(), dir1.uuid(), file1.uuid(), file2.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, singletonList(file1));
-    assertThat(getComponentUuidsOfFileSources())
-      .containsOnly(project.uuid(), module1.uuid(), dir1.uuid(), file2.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, asList(module1, dir1, file2));
-    assertThat(getComponentUuidsOfFileSources())
-      .containsOnly(project.uuid(), module1.uuid(), dir1.uuid());
-  }
-
-  @Test
-  public void deleteNonRootComponents_does_not_delete_file_sources_of_non_root_components_of_a_view() {
-    ComponentDto view = dbTester.components().insertView();
-    ComponentDto subview = dbTester.components().insertComponent(ComponentTesting.newSubView(view));
-    ComponentDto pc1 = dbTester.components().insertComponent(newProjectCopy("a", dbTester.components().insertPrivateProject(), view));
-    ComponentDto pc2 = dbTester.components().insertComponent(newProjectCopy("b", dbTester.components().insertPrivateProject(), view));
-    insertFileSources(view, subview, pc1, pc2);
-    assertThat(getComponentUuidsOfFileSources()).containsOnly(view.uuid(), subview.uuid(), pc1.uuid(), pc2.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, singletonList(pc1));
-    assertThat(getComponentUuidsOfFileSources())
-      .containsOnly(view.uuid(), subview.uuid(), pc1.uuid(), pc2.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, asList(subview, pc2));
-    assertThat(getComponentUuidsOfFileSources())
-      .containsOnly(view.uuid(), subview.uuid(), pc1.uuid(), pc2.uuid());
-  }
-
-  @Test
-  public void deleteNonRootComponents_deletes_properties_of_modules_of_a_project() {
-    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPublicProject() : dbTester.components().insertPrivateProject();
-    ComponentDto module1 = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto module2 = dbTester.components().insertComponent(ComponentTesting.newModuleDto(module1));
-    ComponentDto module3 = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto dir1 = dbTester.components().insertComponent(newDirectory(module1, "A/B"));
-    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(dir1));
-    insertPropertyFor(project, module1, module2, module3, dir1, file1);
-    assertThat(getResourceIdOfProperties()).containsOnly(project.getId(), module1.getId(), module2.getId(), module3.getId(), dir1.getId(), file1.getId());
-
-    underTest.deleteNonRootComponents(dbSession, singletonList(module3));
-    assertThat(getResourceIdOfProperties())
-      .containsOnly(project.getId(), module1.getId(), module2.getId(), dir1.getId(), file1.getId());
-
-    underTest.deleteNonRootComponents(dbSession, asList(module1, module2, dir1, file1));
-    assertThat(getResourceIdOfProperties())
-      .containsOnly(project.getId(), dir1.getId(), file1.getId());
-  }
-
-  @Test
-  public void deleteNonRootComponents_properties_of_subviews_of_a_view() {
+  public void deleteNonRootComponents_deletes_properties_of_subviews_of_a_view() {
     ComponentDto view = dbTester.components().insertView();
     ComponentDto subview1 = dbTester.components().insertComponent(ComponentTesting.newSubView(view));
     ComponentDto subview2 = dbTester.components().insertComponent(ComponentTesting.newSubView(subview1));
@@ -563,37 +527,17 @@ public class PurgeDaoTest {
     insertPropertyFor(view, subview1, subview2, subview3, pc);
     assertThat(getResourceIdOfProperties()).containsOnly(view.getId(), subview1.getId(), subview2.getId(), subview3.getId(), pc.getId());
 
-    underTest.deleteNonRootComponents(dbSession, singletonList(subview1));
+    underTest.deleteNonRootComponentsInView(dbSession, singletonList(subview1));
     assertThat(getResourceIdOfProperties())
       .containsOnly(view.getId(), subview2.getId(), subview3.getId(), pc.getId());
 
-    underTest.deleteNonRootComponents(dbSession, asList(subview2, subview3, pc));
+    underTest.deleteNonRootComponentsInView(dbSession, asList(subview2, subview3, pc));
     assertThat(getResourceIdOfProperties())
       .containsOnly(view.getId(), pc.getId());
   }
 
   @Test
-  public void deleteNonRootComponents_deletes_manual_measures_of_modules_of_a_project() {
-    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPublicProject() : dbTester.components().insertPrivateProject();
-    ComponentDto module1 = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto module2 = dbTester.components().insertComponent(ComponentTesting.newModuleDto(module1));
-    ComponentDto module3 = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto dir1 = dbTester.components().insertComponent(newDirectory(module1, "A/B"));
-    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(dir1));
-    insertManualMeasureFor(project, module1, module2, module3, dir1, file1);
-    assertThat(getComponentUuidsOfManualMeasures()).containsOnly(project.uuid(), module1.uuid(), module2.uuid(), module3.uuid(), dir1.uuid(), file1.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, singletonList(module3));
-    assertThat(getComponentUuidsOfManualMeasures())
-      .containsOnly(project.uuid(), module1.uuid(), module2.uuid(), dir1.uuid(), file1.uuid());
-
-    underTest.deleteNonRootComponents(dbSession, asList(module1, module2, dir1, file1));
-    assertThat(getComponentUuidsOfManualMeasures())
-      .containsOnly(project.uuid(), dir1.uuid(), file1.uuid());
-  }
-
-  @Test
-  public void deleteNonRootComponents_manual_measures_of_subviews_of_a_view() {
+  public void deleteNonRootComponentsInView_deletes_manual_measures_of_subviews_of_a_view() {
     ComponentDto view = dbTester.components().insertView();
     ComponentDto subview1 = dbTester.components().insertComponent(ComponentTesting.newSubView(view));
     ComponentDto subview2 = dbTester.components().insertComponent(ComponentTesting.newSubView(subview1));
@@ -602,11 +546,11 @@ public class PurgeDaoTest {
     insertManualMeasureFor(view, subview1, subview2, subview3, pc);
     assertThat(getComponentUuidsOfManualMeasures()).containsOnly(view.uuid(), subview1.uuid(), subview2.uuid(), subview3.uuid(), pc.uuid());
 
-    underTest.deleteNonRootComponents(dbSession, singletonList(subview1));
+    underTest.deleteNonRootComponentsInView(dbSession, singletonList(subview1));
     assertThat(getComponentUuidsOfManualMeasures())
       .containsOnly(view.uuid(), subview2.uuid(), subview3.uuid(), pc.uuid());
 
-    underTest.deleteNonRootComponents(dbSession, asList(subview2, subview3, pc));
+    underTest.deleteNonRootComponentsInView(dbSession, asList(subview2, subview3, pc));
     assertThat(getComponentUuidsOfManualMeasures())
       .containsOnly(view.uuid(), pc.uuid());
   }
@@ -648,35 +592,6 @@ public class PurgeDaoTest {
     dbSession.commit();
   }
 
-  private Stream<String> getComponentUuidsOfFileSources() {
-    return dbTester.select("select file_uuid as \"COMPONENT_UUID\" from file_sources").stream()
-      .map(row -> (String) row.get("COMPONENT_UUID"));
-  }
-
-  private void insertFileSources(ComponentDto... components) {
-    Arrays.stream(components).forEach(component -> dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
-      .setFileUuid(component.uuid())
-      .setCreatedAt(new Random().nextInt())
-      .setUpdatedAt(new Random().nextInt())
-      .setProjectUuid(randomAlphabetic(3))
-      .setDataType("SOURCE")
-      .setBinaryData(new byte[] {0, 1})));
-    dbSession.commit();
-  }
-
-  private Stream<String> getComponentUuidsOfIssueChanges() {
-    return dbTester.select("select i.component_uuid as \"COMPONENT_UUID\" from issue_changes ic inner join issues i on i.kee = ic.issue_key").stream()
-      .map(row -> (String) row.get("COMPONENT_UUID"));
-  }
-
-  private void insertIssueAndChangesFor(ComponentDto... components) {
-    Arrays.stream(components).forEach(componentDto -> {
-      IssueDto issue = dbTester.issues().insert(RuleTesting.newRule(), componentDto, componentDto);
-      dbTester.issues().insertComment(issue, "foo", "bar");
-    });
-    dbSession.commit();
-  }
-
   private CeQueueDto createCeQueue(ComponentDto component, Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(Uuids.create());
@@ -709,11 +624,11 @@ public class PurgeDaoTest {
   }
 
   private static PurgeConfiguration newConfigurationWith30Days() {
-    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, System2.INSTANCE, Collections.emptyList());
+    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, Optional.of(30), System2.INSTANCE, Collections.emptyList());
   }
 
-  private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String... disabledComponentUuids) {
-    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, system2, asList(disabledComponentUuids));
+  private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String rootProjectUuid, String... disabledComponentUuids) {
+    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, rootProjectUuid), new String[0], 30, Optional.of(30), system2, asList(disabledComponentUuids));
   }
 
 }

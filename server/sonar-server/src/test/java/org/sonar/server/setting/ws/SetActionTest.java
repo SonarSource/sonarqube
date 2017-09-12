@@ -43,6 +43,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -51,7 +52,10 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -59,6 +63,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -89,7 +94,9 @@ public class SetActionTest {
   private FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
   private SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
   private SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);
-  private SetAction underTest = new SetAction(definitions, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private SetAction underTest = new SetAction(definitions, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations,
+    new SettingsWsSupport(defaultOrganizationProvider, userSession));
 
   private WsActionTester ws = new WsActionTester(underTest);
 
@@ -391,6 +398,29 @@ public class SetActionTest {
 
     assertGlobalSetting("my.key", "ﬁ±∞…");
     assertThat(settingsChangeNotifier.wasCalled).isTrue();
+  }
+
+  @Test
+  public void set_leak_on_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    logInAsProjectAdministrator(project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    String leakKey = "sonar.leak.period";
+    definitions.addComponent(PropertyDefinition.builder(leakKey)
+      .name("Leak")
+      .description("desc")
+      .onQualifiers(Qualifiers.PROJECT)
+      .build());
+    propertyDb.insertProperties(newComponentPropertyDto(leakKey, "1", branch));
+
+    ws.newRequest()
+      .setParam("key", leakKey)
+      .setParam("value", "2")
+      .setParam("component", branch.getKey())
+      .setParam("branch", branch.getBranch())
+      .execute();
+
+    assertComponentSetting(leakKey, "2", branch.getId());
   }
 
   @Test
@@ -899,6 +929,67 @@ public class SetActionTest {
   }
 
   @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    callForProjectSettingByKey("my.key", "My Value", branch.getDbKey());
+  }
+
+  @Test
+  public void fail_when_component_not_found() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'unknown' not found");
+
+    ws.newRequest()
+      .setParam("key", "foo")
+      .setParam("value", "2")
+      .setParam("component", "unknown")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_branch_not_found() {
+    ComponentDto project = db.components().insertMainBranch();
+    logInAsProjectAdministrator(project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    String settingKey = "not_allowed_on_branch";
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component '%s' on branch 'unknown' not found", branch.getKey()));
+
+    ws.newRequest()
+      .setParam("key", settingKey)
+      .setParam("value", "2")
+      .setParam("component", branch.getKey())
+      .setParam("branch", "unknown")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_setting_not_allowed_setting_on_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    logInAsProjectAdministrator(project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    String settingKey = "not_allowed_on_branch";
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("Setting '%s' cannot be set on a branch", settingKey));
+
+    ws.newRequest()
+      .setParam("key", settingKey)
+      .setParam("value", "2")
+      .setParam("component", branch.getKey())
+      .setParam("branch", branch.getBranch())
+      .execute();
+  }
+
+  @Test
   public void definition() {
     WebService.Action definition = ws.getDef();
 
@@ -907,7 +998,12 @@ public class SetActionTest {
     assertThat(definition.isInternal()).isFalse();
     assertThat(definition.since()).isEqualTo("6.1");
     assertThat(definition.params()).extracting(Param::key)
-      .containsOnly("key", "value", "values", "fieldValues", "component");
+      .containsOnly("key", "value", "values", "fieldValues", "component", "branch");
+
+    Param branch = definition.param("branch");
+    assertThat(branch.isInternal()).isTrue();
+    assertThat(branch.since()).isEqualTo("6.6");
+    assertThat(branch.description()).isEqualTo("Branch key. Only available on following settings : sonar.leak.period");
   }
 
   private void assertGlobalSetting(String key, String value) {
@@ -930,6 +1026,7 @@ public class SetActionTest {
     PropertyDto result = dbClient.propertiesDao().selectProjectProperty(componentId, key);
 
     assertThat(result)
+      .isNotNull()
       .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getResourceId)
       .containsExactly(key, value, componentId);
   }

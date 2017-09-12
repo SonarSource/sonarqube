@@ -31,9 +31,10 @@ public class MeasuresWsParameters {
   public static final String ACTION_SEARCH_HISTORY = "search_history";
 
   // parameters
-  public static final String PARAM_BASE_COMPONENT_ID = "baseComponentId";
-  public static final String PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
+  public static final String DEPRECATED_PARAM_BASE_COMPONENT_ID = "baseComponentId";
+  public static final String DEPRECATED_PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
   public static final String PARAM_COMPONENT = "component";
+  public static final String PARAM_BRANCH = "branch";
   public static final String PARAM_STRATEGY = "strategy";
   public static final String PARAM_QUALIFIERS = "qualifiers";
   public static final String PARAM_METRICS = "metrics";
@@ -42,8 +43,8 @@ public class MeasuresWsParameters {
   public static final String PARAM_METRIC_PERIOD_SORT = "metricPeriodSort";
   public static final String PARAM_METRIC_SORT_FILTER = "metricSortFilter";
   public static final String PARAM_ADDITIONAL_FIELDS = "additionalFields";
-  public static final String PARAM_COMPONENT_ID = "componentId";
-  public static final String PARAM_COMPONENT_KEY = "componentKey";
+  public static final String DEPRECATED_PARAM_COMPONENT_ID = "componentId";
+  public static final String DEPRECATED_PARAM_COMPONENT_KEY = "componentKey";
   public static final String PARAM_PROJECT_KEYS = "projectKeys";
   public static final String PARAM_DEVELOPER_ID = "developerId";
   public static final String PARAM_DEVELOPER_KEY = "developerKey";

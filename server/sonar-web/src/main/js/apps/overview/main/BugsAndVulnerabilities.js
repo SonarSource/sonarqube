@@ -31,7 +31,7 @@ import { translate } from '../../../helpers/l10n';
 
 class BugsAndVulnerabilities extends React.PureComponent {
   renderHeader() {
-    const { component } = this.props;
+    const { branch, component } = this.props;
 
     return (
       <div className="overview-card-header">
@@ -41,7 +41,7 @@ class BugsAndVulnerabilities extends React.PureComponent {
           </span>
           <Link
             className="button button-small button-compact spacer-left text-text-bottom"
-            to={getComponentDrilldownUrl(component.key, 'Reliability')}>
+            to={getComponentDrilldownUrl(component.key, 'Reliability', branch)}>
             <BubblesIcon size={14} />
           </Link>
           <span className="big-spacer-left">
@@ -49,7 +49,7 @@ class BugsAndVulnerabilities extends React.PureComponent {
           </span>
           <Link
             className="button button-small button-compact spacer-left text-text-bottom"
-            to={getComponentDrilldownUrl(component.key, 'Security')}>
+            to={getComponentDrilldownUrl(component.key, 'Security', branch)}>
             <BubblesIcon size={14} />
           </Link>
         </div>

@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function getGlobalNavigation(): Promise<any> {
   return getJSON('/api/navigation/global');
 }
 
-export function getComponentNavigation(componentKey: string): Promise<any> {
-  return getJSON('/api/navigation/component', { componentKey });
+export function getComponentNavigation(componentKey: string, branch?: string): Promise<any> {
+  return getJSON('/api/navigation/component', { componentKey, branch }).catch(throwGlobalError);
 }
 
 export function getSettingsNavigation(): Promise<any> {
-  return getJSON('/api/navigation/settings');
+  return getJSON('/api/navigation/settings').catch(throwGlobalError);
 }

@@ -58,9 +58,10 @@ class ComponentDtoToWsComponent {
     WsComponents.Component.Builder wsComponent = WsComponents.Component.newBuilder()
       .setOrganization(organizationDtoKey)
       .setId(dto.uuid())
-      .setKey(dto.getDbKey())
+      .setKey(dto.getKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier());
+    setNullable(emptyToNull(dto.getBranch()), wsComponent::setBranch);
     setNullable(emptyToNull(dto.path()), wsComponent::setPath);
     setNullable(emptyToNull(dto.description()), wsComponent::setDescription);
     setNullable(emptyToNull(dto.language()), wsComponent::setLanguage);
@@ -69,6 +70,7 @@ class ComponentDtoToWsComponent {
       analysis -> {
         wsComponent.setAnalysisDate(formatDateTime(analysis.getCreatedAt()));
         setNullable(analysis.getPeriodDate(), leak -> wsComponent.setLeakPeriodDate(formatDateTime(leak)));
+        setNullable(analysis.getVersion(), wsComponent::setVersion);
       });
     if (QUALIFIERS_WITH_VISIBILITY.contains(dto.qualifier())) {
       wsComponent.setVisibility(Visibility.getLabel(dto.isPrivate()));

@@ -1,0 +1,107 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders status of long-living branches 1`] = `null`;
+
+exports[`renders status of long-living branches 2`] = `
+<Level
+  level="OK"
+  small={true}
+/>
+`;
+
+exports[`renders status of long-living branches 3`] = `
+<Level
+  level="ERROR"
+  small={true}
+/>
+`;
+
+exports[`renders status of short-living branches 1`] = `
+<ul
+  className="list-inline branch-status"
+>
+  <li>
+    <i
+      className="branch-status-indicator is-passed"
+    />
+  </li>
+  <li>
+    0
+    <BugIcon
+      className="little-spacer-left"
+    />
+  </li>
+  <li>
+    0
+    <VulnerabilityIcon
+      className="little-spacer-left"
+    />
+  </li>
+  <li>
+    0
+    <CodeSmellIcon
+      className="little-spacer-left"
+    />
+  </li>
+</ul>
+`;
+
+exports[`renders status of short-living branches 2`] = `
+<ul
+  className="list-inline branch-status"
+>
+  <li>
+    <i
+      className="branch-status-indicator is-failed"
+    />
+  </li>
+  <li>
+    0
+    <BugIcon
+      className="little-spacer-left"
+    />
+  </li>
+  <li>
+    0
+    <VulnerabilityIcon
+      className="little-spacer-left"
+    />
+  </li>
+  <li>
+    1
+    <CodeSmellIcon
+      className="little-spacer-left"
+    />
+  </li>
+</ul>
+`;
+
+exports[`renders status of short-living branches 3`] = `
+<ul
+  className="list-inline branch-status"
+>
+  <li>
+    <i
+      className="branch-status-indicator is-failed"
+    />
+  </li>
+  <li>
+    7
+    <BugIcon
+      className="little-spacer-left"
+    />
+  </li>
+  <li>
+    6
+    <VulnerabilityIcon
+      className="little-spacer-left"
+    />
+  </li>
+  <li>
+    3
+    <CodeSmellIcon
+      className="little-spacer-left"
+    />
+  </li>
+</ul>
+`;

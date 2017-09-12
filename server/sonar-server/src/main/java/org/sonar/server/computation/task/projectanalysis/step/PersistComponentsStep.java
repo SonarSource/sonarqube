@@ -19,14 +19,25 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Predicate;
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Optional.ofNullable;
+import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
+import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
+import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
+import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
@@ -38,6 +49,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
+import org.sonar.server.computation.task.projectanalysis.component.BranchPersister;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.DbIdsRepositoryImpl;
@@ -49,11 +62,7 @@ import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisi
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
-import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
-import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
-import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+import com.google.common.base.Predicate;
 
 /**
  * Persist report components
@@ -66,16 +75,19 @@ public class PersistComponentsStep implements ComputationStep {
   private final System2 system2;
   private final MutableDisabledComponentsHolder disabledComponentsHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final BranchPersister branchPersister;
 
   public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder,
     MutableDbIdsRepository dbIdsRepository, System2 system2,
-    MutableDisabledComponentsHolder disabledComponentsHolder, AnalysisMetadataHolder analysisMetadataHolder) {
+    MutableDisabledComponentsHolder disabledComponentsHolder, AnalysisMetadataHolder analysisMetadataHolder,
+    BranchPersister branchPersister) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.dbIdsRepository = dbIdsRepository;
     this.system2 = system2;
     this.disabledComponentsHolder = disabledComponentsHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.branchPersister = branchPersister;
   }
 
   @Override
@@ -86,6 +98,8 @@ public class PersistComponentsStep implements ComputationStep {
   @Override
   public void execute() {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      branchPersister.persist(dbSession);
+
       String projectUuid = treeRootHolder.getRoot().getUuid();
 
       // safeguard, reset all rows to b-changed=false
@@ -93,9 +107,11 @@ public class PersistComponentsStep implements ComputationStep {
 
       Map<String, ComponentDto> existingDtosByKeys = indexExistingDtosByKey(dbSession);
       boolean isRootPrivate = isRootPrivate(treeRootHolder.getRoot(), existingDtosByKeys);
+      String mainBranchProjectUuid = loadProjectUuidOfMainBranch();
+
       // Insert or update the components in database. They are removed from existingDtosByKeys
       // at the same time.
-      new PathAwareCrawler<>(new PersistComponentStepsVisitor(existingDtosByKeys, dbSession))
+      new PathAwareCrawler<>(new PersistComponentStepsVisitor(existingDtosByKeys, dbSession, mainBranchProjectUuid))
         .visit(treeRootHolder.getRoot());
 
       disableRemainingComponents(dbSession, existingDtosByKeys.values());
@@ -103,6 +119,19 @@ public class PersistComponentsStep implements ComputationStep {
 
       dbSession.commit();
     }
+  }
+
+  /**
+   * See {@link ComponentDto#mainBranchProjectUuid} : value is null on main branches, otherwise it is
+   * the uuid of the main branch.
+   */
+  @CheckForNull
+  private String loadProjectUuidOfMainBranch() {
+    Optional<Branch> branch = analysisMetadataHolder.getBranch();
+    if (branch.isPresent() && !branch.get().isMain()) {
+      return analysisMetadataHolder.getProject().getUuid();
+    }
+    return null;
   }
 
   private void disableRemainingComponents(DbSession dbSession, Collection<ComponentDto> dtos) {
@@ -137,15 +166,17 @@ public class PersistComponentsStep implements ComputationStep {
   private Map<String, ComponentDto> indexExistingDtosByKey(DbSession session) {
     return dbClient.componentDao().selectAllComponentsFromProjectKey(session, treeRootHolder.getRoot().getKey())
       .stream()
-      .collect(java.util.stream.Collectors.toMap(ComponentDto::getDbKey, Function.identity()));
+      .collect(Collectors.toMap(ComponentDto::getDbKey, Function.identity()));
   }
 
   private class PersistComponentStepsVisitor extends PathAwareVisitorAdapter<ComponentDtoHolder> {
 
     private final Map<String, ComponentDto> existingComponentDtosByKey;
     private final DbSession dbSession;
+    @Nullable
+    private final String mainBranchProjectUuid;
 
-    public PersistComponentStepsVisitor(Map<String, ComponentDto> existingComponentDtosByKey, DbSession dbSession) {
+    PersistComponentStepsVisitor(Map<String, ComponentDto> existingComponentDtosByKey, DbSession dbSession, @Nullable String mainBranchProjectUuid) {
       super(
         CrawlerDepthLimit.LEAVES,
         PRE_ORDER,
@@ -169,6 +200,7 @@ public class PersistComponentsStep implements ComputationStep {
         });
       this.existingComponentDtosByKey = existingComponentDtosByKey;
       this.dbSession = dbSession;
+      this.mainBranchProjectUuid = mainBranchProjectUuid;
     }
 
     @Override
@@ -250,141 +282,143 @@ public class PersistComponentsStep implements ComputationStep {
     private void addToCache(Component component, ComponentDto componentDto) {
       dbIdsRepository.setComponentId(component, componentDto.getId());
     }
-  }
 
-  public ComponentDto createForProject(Component project) {
-    ComponentDto res = createBase(project);
+    public ComponentDto createForProject(Component project) {
+      ComponentDto res = createBase(project);
 
-    res.setScope(Scopes.PROJECT);
-    res.setQualifier(Qualifiers.PROJECT);
-    res.setName(project.getName());
-    res.setLongName(res.name());
-    res.setDescription(project.getDescription());
+      res.setScope(Scopes.PROJECT);
+      res.setQualifier(Qualifiers.PROJECT);
+      res.setName(project.getName());
+      res.setLongName(res.name());
+      res.setDescription(project.getDescription());
 
-    res.setProjectUuid(res.uuid());
-    res.setRootUuid(res.uuid());
-    res.setUuidPath(UUID_PATH_OF_ROOT);
-    res.setModuleUuidPath(UUID_PATH_SEPARATOR + res.uuid() + UUID_PATH_SEPARATOR);
+      res.setProjectUuid(res.uuid());
+      res.setRootUuid(res.uuid());
+      res.setUuidPath(UUID_PATH_OF_ROOT);
+      res.setModuleUuidPath(UUID_PATH_SEPARATOR + res.uuid() + UUID_PATH_SEPARATOR);
 
-    return res;
-  }
+      return res;
+    }
 
-  public ComponentDto createForModule(Component module, PathAwareVisitor.Path<ComponentDtoHolder> path) {
-    ComponentDto res = createBase(module);
+    public ComponentDto createForModule(Component module, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+      ComponentDto res = createBase(module);
 
-    res.setScope(Scopes.PROJECT);
-    res.setQualifier(Qualifiers.MODULE);
-    res.setName(module.getName());
-    res.setLongName(res.name());
-    res.setPath(module.getReportAttributes().getPath());
-    res.setDescription(module.getDescription());
+      res.setScope(Scopes.PROJECT);
+      res.setQualifier(Qualifiers.MODULE);
+      res.setName(module.getName());
+      res.setLongName(res.name());
+      res.setPath(module.getReportAttributes().getPath());
+      res.setDescription(module.getDescription());
 
-    setRootAndParentModule(res, path);
+      setRootAndParentModule(res, path);
 
-    return res;
-  }
+      return res;
+    }
 
-  public ComponentDto createForDirectory(Component directory, PathAwareVisitor.Path<ComponentDtoHolder> path) {
-    ComponentDto res = createBase(directory);
+    public ComponentDto createForDirectory(Component directory, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+      ComponentDto res = createBase(directory);
 
-    res.setScope(Scopes.DIRECTORY);
-    res.setQualifier(Qualifiers.DIRECTORY);
-    res.setName(directory.getReportAttributes().getPath());
-    res.setLongName(directory.getReportAttributes().getPath());
-    res.setPath(directory.getReportAttributes().getPath());
+      res.setScope(Scopes.DIRECTORY);
+      res.setQualifier(Qualifiers.DIRECTORY);
+      res.setName(directory.getReportAttributes().getPath());
+      res.setLongName(directory.getReportAttributes().getPath());
+      res.setPath(directory.getReportAttributes().getPath());
 
-    setParentModuleProperties(res, path);
+      setParentModuleProperties(res, path);
 
-    return res;
-  }
+      return res;
+    }
 
-  public ComponentDto createForFile(Component file, PathAwareVisitor.Path<ComponentDtoHolder> path) {
-    ComponentDto res = createBase(file);
+    public ComponentDto createForFile(Component file, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+      ComponentDto res = createBase(file);
 
-    res.setScope(Scopes.FILE);
-    res.setQualifier(getFileQualifier(file));
-    res.setName(FilenameUtils.getName(file.getReportAttributes().getPath()));
-    res.setLongName(file.getReportAttributes().getPath());
-    res.setPath(file.getReportAttributes().getPath());
-    res.setLanguage(file.getFileAttributes().getLanguageKey());
+      res.setScope(Scopes.FILE);
+      res.setQualifier(getFileQualifier(file));
+      res.setName(FilenameUtils.getName(file.getReportAttributes().getPath()));
+      res.setLongName(file.getReportAttributes().getPath());
+      res.setPath(file.getReportAttributes().getPath());
+      res.setLanguage(file.getFileAttributes().getLanguageKey());
 
-    setParentModuleProperties(res, path);
+      setParentModuleProperties(res, path);
 
-    return res;
-  }
+      return res;
+    }
 
-  private ComponentDto createForView(Component view) {
-    ComponentDto res = createBase(view);
+    private ComponentDto createForView(Component view) {
+      ComponentDto res = createBase(view);
 
-    res.setScope(Scopes.PROJECT);
-    res.setQualifier(view.getViewAttributes().getType().getQualifier());
-    res.setName(view.getName());
-    res.setDescription(view.getDescription());
-    res.setLongName(res.name());
+      res.setScope(Scopes.PROJECT);
+      res.setQualifier(view.getViewAttributes().getType().getQualifier());
+      res.setName(view.getName());
+      res.setDescription(view.getDescription());
+      res.setLongName(res.name());
 
-    res.setProjectUuid(res.uuid());
-    res.setRootUuid(res.uuid());
-    res.setUuidPath(UUID_PATH_OF_ROOT);
-    res.setModuleUuidPath(UUID_PATH_SEPARATOR + res.uuid() + UUID_PATH_SEPARATOR);
+      res.setProjectUuid(res.uuid());
+      res.setRootUuid(res.uuid());
+      res.setUuidPath(UUID_PATH_OF_ROOT);
+      res.setModuleUuidPath(UUID_PATH_SEPARATOR + res.uuid() + UUID_PATH_SEPARATOR);
 
-    return res;
-  }
+      return res;
+    }
 
-  private ComponentDto createForSubView(Component subView, PathAwareVisitor.Path<ComponentDtoHolder> path) {
-    ComponentDto res = createBase(subView);
+    private ComponentDto createForSubView(Component subView, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+      ComponentDto res = createBase(subView);
 
-    res.setScope(Scopes.PROJECT);
-    res.setQualifier(Qualifiers.SUBVIEW);
-    res.setName(subView.getName());
-    res.setDescription(subView.getDescription());
-    res.setLongName(res.name());
-    res.setCopyComponentUuid(subView.getSubViewAttributes().getOriginalViewUuid());
+      res.setScope(Scopes.PROJECT);
+      res.setQualifier(Qualifiers.SUBVIEW);
+      res.setName(subView.getName());
+      res.setDescription(subView.getDescription());
+      res.setLongName(res.name());
+      res.setCopyComponentUuid(subView.getSubViewAttributes().getOriginalViewUuid());
 
-    setRootAndParentModule(res, path);
+      setRootAndParentModule(res, path);
 
-    return res;
-  }
+      return res;
+    }
 
-  private ComponentDto createForProjectView(Component projectView, PathAwareVisitor.Path<ComponentDtoHolder> path) {
-    ComponentDto res = createBase(projectView);
+    private ComponentDto createForProjectView(Component projectView, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+      ComponentDto res = createBase(projectView);
 
-    res.setScope(Scopes.FILE);
-    res.setQualifier(Qualifiers.PROJECT);
-    res.setName(projectView.getName());
-    res.setLongName(res.name());
-    res.setCopyComponentUuid(projectView.getProjectViewAttributes().getProjectUuid());
+      res.setScope(Scopes.FILE);
+      res.setQualifier(Qualifiers.PROJECT);
+      res.setName(projectView.getName());
+      res.setLongName(res.name());
+      res.setCopyComponentUuid(projectView.getProjectViewAttributes().getProjectUuid());
 
-    setRootAndParentModule(res, path);
+      setRootAndParentModule(res, path);
 
-    return res;
-  }
+      return res;
+    }
 
-  private ComponentDto createBase(Component component) {
-    String componentKey = component.getKey();
-    String componentUuid = component.getUuid();
+    private ComponentDto createBase(Component component) {
+      String componentKey = component.getKey();
+      String componentUuid = component.getUuid();
 
-    ComponentDto componentDto = new ComponentDto();
-    componentDto.setOrganizationUuid(analysisMetadataHolder.getOrganization().getUuid());
-    componentDto.setUuid(componentUuid);
-    componentDto.setDbKey(componentKey);
-    componentDto.setDeprecatedKey(componentKey);
-    componentDto.setEnabled(true);
-    componentDto.setCreatedAt(new Date(system2.now()));
-    return componentDto;
-  }
+      ComponentDto componentDto = new ComponentDto();
+      componentDto.setOrganizationUuid(analysisMetadataHolder.getOrganization().getUuid());
+      componentDto.setUuid(componentUuid);
+      componentDto.setDbKey(componentKey);
+      componentDto.setDeprecatedKey(componentKey);
+      componentDto.setMainBranchProjectUuid(mainBranchProjectUuid);
+      componentDto.setEnabled(true);
+      componentDto.setCreatedAt(new Date(system2.now()));
 
-  /**
-   * Applies to a node of type either MODULE, SUBVIEW, PROJECT_VIEW
-   */
-  private static void setRootAndParentModule(ComponentDto res, PathAwareVisitor.Path<ComponentDtoHolder> path) {
-    ComponentDto rootDto = path.root().getDto();
-    res.setRootUuid(rootDto.uuid());
-    res.setProjectUuid(rootDto.uuid());
+      return componentDto;
+    }
 
-    ComponentDto parentModule = path.parent().getDto();
-    res.setUuidPath(formatUuidPathFromParent(parentModule));
-    res.setModuleUuid(parentModule.uuid());
-    res.setModuleUuidPath(parentModule.moduleUuidPath() + res.uuid() + UUID_PATH_SEPARATOR);
+    /**
+     * Applies to a node of type either MODULE, SUBVIEW, PROJECT_VIEW
+     */
+    private void setRootAndParentModule(ComponentDto res, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+      ComponentDto rootDto = path.root().getDto();
+      res.setRootUuid(rootDto.uuid());
+      res.setProjectUuid(rootDto.uuid());
+
+      ComponentDto parentModule = path.parent().getDto();
+      res.setUuidPath(formatUuidPathFromParent(parentModule));
+      res.setModuleUuid(parentModule.uuid());
+      res.setModuleUuidPath(parentModule.moduleUuidPath() + res.uuid() + UUID_PATH_SEPARATOR);
+    }
   }
 
   /**
@@ -424,7 +458,7 @@ public class PersistComponentsStep implements ComputationStep {
         .copyFrom(target)
         .setBChanged(true);
     }
-    return Optional.ofNullable(update);
+    return ofNullable(update);
   }
 
   private static String getFileQualifier(Component component) {

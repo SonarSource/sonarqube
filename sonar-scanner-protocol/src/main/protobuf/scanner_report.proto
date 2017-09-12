@@ -33,12 +33,16 @@ message Metadata {
   string organization_key = 2;
   // TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
   string project_key = 3;
-  string branch = 4;
+  // maps the property sonar.branch
+  string deprecated_branch = 4;
   int32 root_component_ref = 5;
   bool cross_project_duplication_activated = 6;
   map<string, QProfile> qprofiles_per_language = 7;
   map<string, Plugin> plugins_by_key = 8;
   bool incremental = 9;
+  string branch_name = 10;
+  BranchType branch_type = 11;
+  string merge_branch_name = 12;
 
   message QProfile {
     string key = 1;
@@ -50,6 +54,12 @@ message Metadata {
   message Plugin {
     string key = 1;
     int64 updatedAt = 2;
+  }
+
+  enum BranchType {
+    UNSET = 0;
+    LONG = 1;
+    SHORT = 2;
   }
 }
 

@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
+import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
@@ -33,9 +34,12 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
@@ -76,10 +80,41 @@ public class MeasuresServiceTest {
   private MeasuresService underTest = serviceTester.getInstanceUnderTest();
 
   @Test
+  public void component() {
+    ComponentWsRequest request = new ComponentWsRequest()
+      .setComponentId(VALUE_BASE_COMPONENT_ID)
+      .setComponentKey(VALUE_BASE_COMPONENT_KEY)
+      .setComponent(VALUE_BASE_COMPONENT_KEY)
+      .setBranch("my_branch")
+      .setMetricKeys(VALUE_METRIC_KEYS)
+      .setAdditionalFields(VALUE_ADDITIONAL_FIELDS)
+      .setMetricKeys(VALUE_METRICS)
+      .setDeveloperId(VALUE_DEVELOPER_ID)
+      .setDeveloperKey(VALUE_DEVELOPER_KEY);
+
+    underTest.component(request);
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(ComponentWsResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasParam(DEPRECATED_PARAM_COMPONENT_ID, VALUE_BASE_COMPONENT_ID)
+      .hasParam(DEPRECATED_PARAM_COMPONENT_KEY, VALUE_BASE_COMPONENT_KEY)
+      .hasParam(PARAM_COMPONENT, VALUE_BASE_COMPONENT_KEY)
+      .hasParam(PARAM_BRANCH, "my_branch")
+      .hasParam(PARAM_METRIC_KEYS, "ncloc,complexity")
+      .hasParam(PARAM_ADDITIONAL_FIELDS, "metrics")
+      .hasParam(PARAM_DEVELOPER_ID, VALUE_DEVELOPER_ID)
+      .hasParam(PARAM_DEVELOPER_KEY, VALUE_DEVELOPER_KEY)
+      .andNoOtherParam();
+  }
+
+  @Test
   public void component_tree() {
     ComponentTreeWsRequest componentTreeRequest = new ComponentTreeWsRequest()
       .setBaseComponentId(VALUE_BASE_COMPONENT_ID)
       .setBaseComponentKey(VALUE_BASE_COMPONENT_KEY)
+      .setComponent(VALUE_BASE_COMPONENT_KEY)
+      .setBranch("my_branch")
       .setMetricKeys(VALUE_METRIC_KEYS)
       .setStrategy(VALUE_STRATEGY)
       .setQualifiers(VALUE_QUALIFIERS)
@@ -99,8 +134,10 @@ public class MeasuresServiceTest {
 
     assertThat(serviceTester.getGetParser()).isSameAs(ComponentTreeWsResponse.parser());
     serviceTester.assertThat(getRequest)
-      .hasParam(PARAM_BASE_COMPONENT_ID, VALUE_BASE_COMPONENT_ID)
-      .hasParam(PARAM_BASE_COMPONENT_KEY, VALUE_BASE_COMPONENT_KEY)
+      .hasParam(DEPRECATED_PARAM_BASE_COMPONENT_ID, VALUE_BASE_COMPONENT_ID)
+      .hasParam(DEPRECATED_PARAM_BASE_COMPONENT_KEY, VALUE_BASE_COMPONENT_KEY)
+      .hasParam(PARAM_COMPONENT, VALUE_BASE_COMPONENT_KEY)
+      .hasParam(PARAM_BRANCH, "my_branch")
       .hasParam(PARAM_METRIC_KEYS, "ncloc,complexity")
       .hasParam(PARAM_STRATEGY, VALUE_STRATEGY)
       .hasParam(PARAM_QUALIFIERS, "FIL,PRJ")
@@ -121,6 +158,7 @@ public class MeasuresServiceTest {
   public void search_history() {
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(VALUE_COMPONENT)
+      .setBranch("my_branch")
       .setMetrics(VALUE_METRICS)
       .setFrom(VALUE_FROM)
       .setTo(VALUE_TO)
@@ -134,6 +172,7 @@ public class MeasuresServiceTest {
     assertThat(serviceTester.getGetParser()).isSameAs(WsMeasures.SearchHistoryResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasParam(PARAM_COMPONENT, VALUE_COMPONENT)
+      .hasParam(PARAM_BRANCH, "my_branch")
       .hasParam(PARAM_METRICS, "ncloc,complexity")
       .hasParam(PARAM_FROM, VALUE_FROM)
       .hasParam(PARAM_TO, VALUE_TO)

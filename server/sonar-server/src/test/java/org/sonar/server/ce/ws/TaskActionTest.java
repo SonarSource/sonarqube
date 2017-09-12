@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Uuids;
@@ -35,16 +36,19 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsCe;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
+import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
 public class TaskActionTest {
@@ -141,22 +145,52 @@ public class TaskActionTest {
     logInAsRoot();
 
     ComponentDto project = db.components().insertPrivateProject();
-    SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    CeQueueDto queueDto = new CeQueueDto()
-      .setTaskType(CeTaskTypes.REPORT)
-      .setUuid(SOME_TASK_UUID)
-      .setComponentUuid(project.uuid());
-    CeActivityDto activityDto = new CeActivityDto(queueDto)
-      .setStatus(CeActivityDto.Status.FAILED)
-      .setExecutionTimeMs(500L)
-      .setAnalysisUuid(analysis.getUuid());
-    persist(activityDto);
+    db.components().insertSnapshot(project, s -> s.setIncremental(true));
+    CeActivityDto activity = createAndPersistArchivedTask(project);
+    insertCharacteristic(activity, "incremental", "true");
 
     WsCe.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
       .executeProtobuf(WsCe.TaskResponse.class);
 
     assertThat(taskResponse.getTask().getIncremental()).isTrue();
+  }
+
+  @Test
+  public void long_living_branch_in_past_activity() {
+    logInAsRoot();
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    db.components().insertSnapshot(longLivingBranch);
+    CeActivityDto activity = createAndPersistArchivedTask(project);
+    insertCharacteristic(activity, BRANCH_KEY, longLivingBranch.getBranch());
+    insertCharacteristic(activity, BRANCH_TYPE_KEY, LONG.name());
+
+    WsCe.TaskResponse taskResponse = ws.newRequest()
+      .setParam("id", SOME_TASK_UUID)
+      .executeProtobuf(WsCe.TaskResponse.class);
+
+    assertThat(taskResponse.getTask())
+      .extracting(WsCe.Task::getId, WsCe.Task::getBranch, WsCe.Task::getBranchType, WsCe.Task::getComponentKey)
+      .containsExactlyInAnyOrder(SOME_TASK_UUID, longLivingBranch.getBranch(), Common.BranchType.LONG, longLivingBranch.getKey());
+  }
+
+  @Test
+  public void long_living_branch_in_queue_analysis() {
+    logInAsRoot();
+    String branch = "my_branch";
+    CeQueueDto queueDto = createAndPersistQueueTask(null);
+    insertCharacteristic(queueDto, BRANCH_KEY, branch);
+    insertCharacteristic(queueDto, BRANCH_TYPE_KEY, LONG.name());
+
+    WsCe.TaskResponse taskResponse = ws.newRequest()
+      .setParam("id", SOME_TASK_UUID)
+      .executeProtobuf(WsCe.TaskResponse.class);
+
+    assertThat(taskResponse.getTask())
+      .extracting(WsCe.Task::getId, WsCe.Task::getBranch, WsCe.Task::getBranchType, WsCe.Task::hasComponentKey)
+      .containsExactlyInAnyOrder(SOME_TASK_UUID, branch, Common.BranchType.LONG, false);
   }
 
   @Test
@@ -388,9 +422,17 @@ public class TaskActionTest {
   }
 
   private CeTaskCharacteristicDto insertCharacteristic(CeQueueDto queueDto, String key, String value) {
+    return insertCharacteristic(queueDto.getUuid(), key, value);
+  }
+
+  private CeTaskCharacteristicDto insertCharacteristic(CeActivityDto activityDto, String key, String value) {
+    return insertCharacteristic(activityDto.getUuid(), key, value);
+  }
+
+  private CeTaskCharacteristicDto insertCharacteristic(String taskUuid, String key, String value) {
     CeTaskCharacteristicDto dto = new CeTaskCharacteristicDto()
       .setUuid(Uuids.createFast())
-      .setTaskUuid(queueDto.getUuid())
+      .setTaskUuid(taskUuid)
       .setKey(key)
       .setValue(value);
     db.getDbClient().ceTaskCharacteristicsDao().insert(db.getSession(), Collections.singletonList(dto));

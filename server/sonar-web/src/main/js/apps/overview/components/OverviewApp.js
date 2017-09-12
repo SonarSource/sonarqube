@@ -36,12 +36,15 @@ import { getLeakPeriod } from '../../../helpers/periods';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { METRICS, HISTORY_METRICS_LIST } from '../utils';
 import { DEFAULT_GRAPH, getDisplayedHistoryMetrics } from '../../projectActivity/utils';
+import { getBranchName } from '../../../helpers/branches';
 /*:: import type { Component, History, MeasuresList, Period } from '../types'; */
 import '../styles.css';
 
 /*::
 type Props = {
-  component: Component
+  branch?: { name: string },
+  component: Component,
+  onComponentChange: {} => void
 };
 */
 
@@ -69,14 +72,15 @@ export default class OverviewApp extends React.PureComponent {
     if (domElement) {
       domElement.classList.add('dashboard-page');
     }
-    this.loadMeasures(this.props.component.key).then(() => this.loadHistory(this.props.component));
+    this.loadMeasures().then(this.loadHistory);
   }
 
   componentDidUpdate(prevProps /*: Props */) {
-    if (this.props.component.key !== prevProps.component.key) {
-      this.loadMeasures(this.props.component.key).then(() =>
-        this.loadHistory(this.props.component)
-      );
+    if (
+      this.props.component.key !== prevProps.component.key ||
+      this.props.branch !== prevProps.branch
+    ) {
+      this.loadMeasures().then(this.loadHistory);
     }
   }
 
@@ -88,11 +92,13 @@ export default class OverviewApp extends React.PureComponent {
     }
   }
 
-  loadMeasures(componentKey /*: string */) {
+  loadMeasures() {
+    const { branch, component } = this.props;
     this.setState({ loading: true });
 
-    return getMeasuresAndMeta(componentKey, METRICS, {
-      additionalFields: 'metrics,periods'
+    return getMeasuresAndMeta(component.key, METRICS, {
+      additionalFields: 'metrics,periods',
+      branch: branch && getBranchName(branch)
     }).then(
       r => {
         if (this.mounted) {
@@ -112,14 +118,18 @@ export default class OverviewApp extends React.PureComponent {
     );
   }
 
-  loadHistory(component /*: Component */) {
+  loadHistory = () => {
+    const { branch, component } = this.props;
+
     let graphMetrics = getDisplayedHistoryMetrics(getGraph(), getCustomGraph());
     if (!graphMetrics || graphMetrics.length <= 0) {
       graphMetrics = getDisplayedHistoryMetrics(DEFAULT_GRAPH, []);
     }
 
     const metrics = uniq(HISTORY_METRICS_LIST.concat(graphMetrics));
-    return getAllTimeMachineData(component.key, metrics).then(r => {
+    return getAllTimeMachineData(component.key, metrics, {
+      branch: branch && getBranchName(branch)
+    }).then(r => {
       if (this.mounted) {
         const history /*: History */ = {};
         r.measures.forEach(measure => {
@@ -133,7 +143,7 @@ export default class OverviewApp extends React.PureComponent {
         this.setState({ history, historyStartDate });
       }
     }, throwGlobalError);
-  }
+  };
 
   getApplicationLeakPeriod = () =>
     this.state.measures.find(measure => measure.metric.key === 'new_bugs') ? { index: 1 } : null;
@@ -147,7 +157,7 @@ export default class OverviewApp extends React.PureComponent {
   }
 
   render() {
-    const { component } = this.props;
+    const { branch, component } = this.props;
     const { loading, measures, periods, history, historyStartDate } = this.state;
 
     if (loading) {
@@ -156,7 +166,15 @@ export default class OverviewApp extends React.PureComponent {
 
     const leakPeriod =
       component.qualifier === 'APP' ? this.getApplicationLeakPeriod() : getLeakPeriod(periods);
-    const domainProps = { component, measures, leakPeriod, history, historyStartDate };
+    const branchName = branch && getBranchName(branch);
+    const domainProps = {
+      branch: branchName,
+      component,
+      measures,
+      leakPeriod,
+      history,
+      historyStartDate
+    };
 
     return (
       <div className="page page-limited">
@@ -164,7 +182,7 @@ export default class OverviewApp extends React.PureComponent {
           <div className="overview-main page-main">
             {component.qualifier === 'APP'
               ? <ApplicationQualityGate component={component} />
-              : <QualityGate component={component} measures={measures} />}
+              : <QualityGate branch={branchName} component={component} measures={measures} />}
 
             <div className="overview-domains-list">
               <BugsAndVulnerabilities {...domainProps} />
@@ -175,7 +193,13 @@ export default class OverviewApp extends React.PureComponent {
           </div>
 
           <div className="page-sidebar-fixed">
-            <Meta component={component} history={history} measures={measures} />
+            <Meta
+              branch={branchName}
+              component={component}
+              history={history}
+              measures={measures}
+              onComponentChange={this.props.onComponentChange}
+            />
           </div>
         </div>
       </div>

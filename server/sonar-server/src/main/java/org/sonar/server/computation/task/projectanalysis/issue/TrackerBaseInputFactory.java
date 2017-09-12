@@ -39,12 +39,12 @@ import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepo
 public class TrackerBaseInputFactory {
   private static final LineHashSequence EMPTY_LINE_HASH_SEQUENCE = new LineHashSequence(Collections.<String>emptyList());
 
-  private final BaseIssuesLoader baseIssuesLoader;
+  private final ComponentIssuesLoader issuesLoader;
   private final DbClient dbClient;
   private final MovedFilesRepository movedFilesRepository;
 
-  public TrackerBaseInputFactory(BaseIssuesLoader baseIssuesLoader, DbClient dbClient, MovedFilesRepository movedFilesRepository) {
-    this.baseIssuesLoader = baseIssuesLoader;
+  public TrackerBaseInputFactory(ComponentIssuesLoader issuesLoader, DbClient dbClient, MovedFilesRepository movedFilesRepository) {
+    this.issuesLoader = issuesLoader;
     this.dbClient = dbClient;
     this.movedFilesRepository = movedFilesRepository;
   }
@@ -80,7 +80,7 @@ public class TrackerBaseInputFactory {
 
     @Override
     protected List<DefaultIssue> loadIssues() {
-      return baseIssuesLoader.loadForComponentUuid(effectiveUuid);
+      return issuesLoader.loadForComponentUuid(effectiveUuid);
     }
   }
 }

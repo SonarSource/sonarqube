@@ -18,20 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortBy } from 'lodash';
+import { Profile as BaseProfile } from '../../api/quality-profiles';
 import { differenceInYears, isValidDate, parseDate } from '../../helpers/dates';
 import { Profile } from './types';
 
-export function sortProfiles(profiles: Profile[]) {
+export function sortProfiles(profiles: BaseProfile[]): Profile[] {
   const result: Profile[] = [];
   const sorted = sortBy(profiles, 'name');
 
-  function retrieveChildren(parent: Profile | null) {
+  function retrieveChildren(parent: BaseProfile | null) {
     return sorted.filter(
       p => (parent == null && p.parentKey == null) || (parent != null && p.parentKey === parent.key)
     );
   }
 
-  function putProfile(profile: Profile | null = null, depth: number = 1) {
+  function putProfile(profile: BaseProfile | null = null, depth: number = 1) {
     const children = retrieveChildren(profile);
 
     if (profile != null) {

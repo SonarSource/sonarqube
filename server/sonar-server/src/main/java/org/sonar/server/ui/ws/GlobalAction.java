@@ -32,6 +32,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.dialect.H2;
+import org.sonar.server.branch.BranchFeatureProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.ui.PageRepository;
@@ -64,10 +65,11 @@ public class GlobalAction implements NavigationWsAction {
   private final DbClient dbClient;
   private final OrganizationFlags organizationFlags;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final BranchFeatureProxy branchFeature;
   private final UserSession userSession;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
-    DbClient dbClient, OrganizationFlags organizationFlags, DefaultOrganizationProvider defaultOrganizationProvider, UserSession userSession) {
+    DbClient dbClient, OrganizationFlags organizationFlags, DefaultOrganizationProvider defaultOrganizationProvider, BranchFeatureProxy branchFeature, UserSession userSession) {
     this.pageRepository = pageRepository;
     this.config = config;
     this.resourceTypes = resourceTypes;
@@ -75,6 +77,7 @@ public class GlobalAction implements NavigationWsAction {
     this.dbClient = dbClient;
     this.organizationFlags = organizationFlags;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.branchFeature = branchFeature;
     this.userSession = userSession;
   }
 
@@ -100,6 +103,7 @@ public class GlobalAction implements NavigationWsAction {
       writeVersion(json);
       writeDatabaseProduction(json);
       writeOrganizationSupport(json);
+      writeBranchSupport(json);
       json.endObject();
     }
   }
@@ -154,5 +158,9 @@ public class GlobalAction implements NavigationWsAction {
       json.prop("organizationsEnabled", organizationFlags.isEnabled(dbSession));
       json.prop("defaultOrganization", defaultOrganizationProvider.get().getKey());
     }
+  }
+
+  private void writeBranchSupport(JsonWriter json) {
+    json.prop("branchesEnabled", branchFeature.isEnabled());
   }
 }

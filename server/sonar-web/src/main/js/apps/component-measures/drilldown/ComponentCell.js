@@ -25,6 +25,7 @@ import { getComponentUrl } from '../../../helpers/urls';
 /*:: import type { ComponentEnhanced } from '../types'; */
 
 /*:: type Props = {
+  branch?: string,
   component: ComponentEnhanced,
   onClick: string => void
 }; */
@@ -66,22 +67,22 @@ export default class ComponentCell extends React.PureComponent {
   }
 
   render() {
-    const { component } = this.props;
+    const { branch, component } = this.props;
     return (
       <td className="measure-details-component-cell">
         <div className="text-ellipsis">
-          {component.refId == null
+          {component.refKey == null
             ? <a
                 id={'component-measures-component-link-' + component.key}
                 className="link-no-underline"
-                href={getComponentUrl(component.key)}
+                href={getComponentUrl(component.key, branch)}
                 onClick={this.handleClick}>
                 {this.renderInner()}
               </a>
             : <a
                 id={'component-measures-component-link-' + component.key}
                 className="link-no-underline"
-                href={getComponentUrl(component.refKey || component.key)}>
+                href={getComponentUrl(component.refKey, branch)}>
                 <span className="big-spacer-right">
                   <i className="icon-detach" />
                 </span>

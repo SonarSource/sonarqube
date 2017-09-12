@@ -19,8 +19,9 @@
  */
 package org.sonar.scanner.cpd;
 
-import static com.google.common.collect.FluentIterable.from;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +30,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
@@ -45,12 +45,11 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
 import org.sonar.scanner.report.ReportPublisher;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.util.ProgressReport;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
+import static com.google.common.collect.FluentIterable.from;
 
 /**
  * Runs on the root module, at the end of the project analysis.
@@ -69,18 +68,25 @@ public class CpdExecutor {
   private final InputComponentStore componentStore;
   private final ProgressReport progressReport;
   private final CpdSettings settings;
+  private final BranchConfiguration branchConfiguration;
   private int count;
   private int total;
 
-  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache) {
+  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache,
+    BranchConfiguration branchConfiguration) {
     this.settings = settings;
     this.index = index;
     this.publisher = publisher;
     this.componentStore = inputComponentCache;
+    this.branchConfiguration = branchConfiguration;
     this.progressReport = new ProgressReport("CPD computation", TimeUnit.SECONDS.toMillis(10));
   }
 
   public void execute() {
+    if (branchConfiguration.isShortLivingBranch()) {
+      LOG.info("Skipping CPD calculation for short living branch");
+      return;
+    }
     execute(TIMEOUT);
   }
 

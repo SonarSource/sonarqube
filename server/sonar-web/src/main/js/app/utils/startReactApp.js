@@ -32,7 +32,7 @@ import Landing from '../components/Landing';
 import ProjectAdminContainer from '../components/ProjectAdminContainer';
 import ProjectPageExtension from '../components/extensions/ProjectPageExtension';
 import ProjectAdminPageExtension from '../components/extensions/ProjectAdminPageExtension';
-import ViewDashboard from '../components/extensions/ViewDashboard';
+import PortfolioDashboard from '../components/extensions/PortfolioDashboard';
 import PortfoliosPage from '../components/extensions/PortfoliosPage';
 import AdminContainer from '../components/AdminContainer';
 import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
@@ -55,6 +55,9 @@ import organizationsRoutes from '../../apps/organizations/routes';
 import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
 import projectActivityRoutes from '../../apps/projectActivity/routes';
 import projectAdminRoutes from '../../apps/project-admin/routes';
+import projectBranchesRoutes from '../../apps/projectBranches/routes';
+import projectQualityGateRoutes from '../../apps/projectQualityGate/routes';
+import projectQualityProfilesRoutes from '../../apps/projectQualityProfiles/routes';
 import projectsRoutes from '../../apps/projects/routes';
 import projectsManagementRoutes from '../../apps/projectsManagement/routes';
 import qualityGatesRoutes from '../../apps/quality-gates/routes';
@@ -169,30 +172,34 @@ const startReactApp = () => {
 
                   <Route
                     getComponent={() =>
-                      import('../components/ProjectContainer').then(i => i.default)}>
+                      import('../components/ComponentContainer').then(i => i.default)}>
                     <Route path="code" childRoutes={codeRoutes} />
                     <Route path="component_measures" childRoutes={componentMeasuresRoutes} />
-                    <Route path="custom_measures" childRoutes={customMeasuresRoutes} />
                     <Route path="dashboard" childRoutes={overviewRoutes} />
-                    <Route path="project">
-                      <Route path="activity" childRoutes={projectActivityRoutes} />
-                      <Route path="admin" component={ProjectAdminContainer}>
-                        <Route
-                          path="extension/:pluginKey/:extensionKey"
-                          component={ProjectAdminPageExtension}
-                        />
-                      </Route>
+                    <Route path="portfolio" component={PortfolioDashboard} />
+                    <Route path="project/activity" childRoutes={projectActivityRoutes} />
+                    <Route
+                      path="project/extension/:pluginKey/:extensionKey"
+                      component={ProjectPageExtension}
+                    />
+                    <Route path="project/issues" childRoutes={issuesRoutes} />
+                    <Route path="project/quality_gate" childRoutes={projectQualityGateRoutes} />
+                    <Route
+                      path="project/quality_profiles"
+                      childRoutes={projectQualityProfilesRoutes}
+                    />
+                    <Route component={ProjectAdminContainer}>
+                      <Route path="custom_measures" childRoutes={customMeasuresRoutes} />
                       <Route
-                        path="extension/:pluginKey/:extensionKey"
-                        component={ProjectPageExtension}
+                        path="project/admin/extension/:pluginKey/:extensionKey"
+                        component={ProjectAdminPageExtension}
                       />
-                      <Route path="background_tasks" childRoutes={backgroundTasksRoutes} />
-                      <Route path="issues" childRoutes={issuesRoutes} />
-                      <Route path="settings" childRoutes={settingsRoutes} />
-                      {projectAdminRoutes}
+                      <Route path="project/background_tasks" childRoutes={backgroundTasksRoutes} />
+                      <Route path="project/branches" childRoutes={projectBranchesRoutes} />
+                      <Route path="project/settings" childRoutes={settingsRoutes} />
+                      <Route path="project_roles" childRoutes={projectPermissionsRoutes} />
                     </Route>
-                    <Route path="project_roles" childRoutes={projectPermissionsRoutes} />
-                    <Route path="portfolio" component={ViewDashboard} />
+                    {projectAdminRoutes}
                   </Route>
 
                   <Route component={AdminContainer}>

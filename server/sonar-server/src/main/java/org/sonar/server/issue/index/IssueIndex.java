@@ -50,6 +50,8 @@ import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuil
 import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
+import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
@@ -76,8 +78,8 @@ import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -86,6 +88,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.BaseDoc.epochMillisToEpochSeconds;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID;
@@ -205,12 +208,15 @@ public class IssueIndex {
     QueryBuilder moduleFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids());
     QueryBuilder directoryFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
     QueryBuilder fileFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
+    QueryBuilder branchFilter = createTermFilter(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, query.branchUuid());
+    filters.put("__is_main_branch", createTermFilter(IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(query.isMainBranch())));
 
     if (BooleanUtils.isTrue(query.onComponentOnly())) {
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentFilter);
     } else {
       filters.put("__view", viewFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectFilter);
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, branchFilter);
       filters.put("__module", moduleRootFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
@@ -248,7 +254,7 @@ public class IssueIndex {
   }
 
   private static void addSimpleStickyFacetIfNeeded(SearchOptions options, StickyFacetBuilder stickyFacetBuilder, SearchRequestBuilder esSearch,
-                                                   String facetName, String fieldName, Object... selectedValues) {
+    String facetName, String fieldName, Object... selectedValues) {
     if (options.getFacets().contains(facetName)) {
       esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(fieldName, facetName, DEFAULT_FACET_SIZE, selectedValues));
     }
@@ -542,7 +548,7 @@ public class IssueIndex {
       .timeZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT")))
       .offset(offsetInSeconds + "s")
       // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
-      .extendedBounds(new ExtendedBounds(startTime, endTime - (offsetInSeconds*1_000L) -1L));
+      .extendedBounds(new ExtendedBounds(startTime, endTime - (offsetInSeconds * 1_000L) - 1L));
     addEffortAggregationIfNeeded(query, dateHistogram);
     return Optional.of(dateHistogram);
   }
@@ -675,8 +681,7 @@ public class IssueIndex {
       .setQuery(
         boolQuery()
           .mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION))
-          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, assignee))
-      )
+          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, assignee)))
       .setSize(0);
     IntStream.range(0, projectUuids.size()).forEach(i -> {
       String projectUuid = projectUuids.get(i);
@@ -685,22 +690,48 @@ public class IssueIndex {
         .addAggregation(AggregationBuilders
           .filter(projectUuid, boolQuery()
             .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectUuid))
-            .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(epochMillisToEpochSeconds(from)))
-          )
+            .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(epochMillisToEpochSeconds(from))))
           .subAggregation(AggregationBuilders.count(projectUuid + "_count").field(IssueIndexDefinition.FIELD_ISSUE_KEY))
-          .subAggregation(AggregationBuilders.max(projectUuid + "_maxFuncCreatedAt").field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT))
-        );
+          .subAggregation(AggregationBuilders.max(projectUuid + "_maxFuncCreatedAt").field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)));
     });
     SearchResponse response = request.get();
     return response.getAggregations().asList().stream()
       .map(x -> (InternalFilter) x)
       .flatMap(projectBucket -> {
-      long count = ((InternalValueCount) projectBucket.getAggregations().get(projectBucket.getName() + "_count")).getValue();
-      if (count < 1L) {
-        return Stream.empty();
-      }
-      long lastIssueDate = (long) ((InternalMax) projectBucket.getAggregations().get(projectBucket.getName() + "_maxFuncCreatedAt")).getValue();
-      return Stream.of(new ProjectStatistics(projectBucket.getName(), count, lastIssueDate));
-    }).collect(MoreCollectors.toList(projectUuids.size()));
+        long count = ((InternalValueCount) projectBucket.getAggregations().get(projectBucket.getName() + "_count")).getValue();
+        if (count < 1L) {
+          return Stream.empty();
+        }
+        long lastIssueDate = (long) ((InternalMax) projectBucket.getAggregations().get(projectBucket.getName() + "_maxFuncCreatedAt")).getValue();
+        return Stream.of(new ProjectStatistics(projectBucket.getName(), count, lastIssueDate));
+      }).collect(MoreCollectors.toList(projectUuids.size()));
   }
+
+  public List<BranchStatistics> searchBranchStatistics(String projectUuid, List<String> branchUuids) {
+    if (branchUuids.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    SearchRequestBuilder request = client.prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
+      .setRouting(projectUuid)
+      .setQuery(
+        boolQuery()
+          .must(termsQuery(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, branchUuids))
+          .mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION))
+          .must(termQuery(IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(false))))
+      .setSize(0)
+      .addAggregation(AggregationBuilders.terms("branchUuids")
+        .field(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID)
+        .size(branchUuids.size())
+        .subAggregation(AggregationBuilders.terms("types")
+          .field(IssueIndexDefinition.FIELD_ISSUE_TYPE)));
+    SearchResponse response = request.get();
+    return ((StringTerms) response.getAggregations().get("branchUuids")).getBuckets().stream()
+      .map(bucket -> new BranchStatistics(bucket.getKeyAsString(),
+        ((StringTerms) bucket.getAggregations().get("types")).getBuckets()
+          .stream()
+          .collect(uniqueIndex(StringTerms.Bucket::getKeyAsString, InternalTerms.Bucket::getDocCount))))
+      .collect(MoreCollectors.toList(branchUuids.size()));
+  }
+
 }

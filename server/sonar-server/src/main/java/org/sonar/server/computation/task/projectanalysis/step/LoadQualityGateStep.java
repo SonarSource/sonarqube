@@ -19,23 +19,19 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
-import org.apache.commons.lang.StringUtils;
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
-import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
-import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.MutableQualityGateHolder;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGate;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateService;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+import com.google.common.base.Optional;
 
 /**
  * This step retrieves the QualityGate and stores it in
@@ -46,37 +42,30 @@ public class LoadQualityGateStep implements ComputationStep {
 
   private static final String PROPERTY_QUALITY_GATE = "sonar.qualitygate";
 
-  private final TreeRootHolder treeRootHolder;
   private final ConfigurationRepository configRepository;
   private final QualityGateService qualityGateService;
   private final MutableQualityGateHolder qualityGateHolder;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public LoadQualityGateStep(TreeRootHolder treeRootHolder, ConfigurationRepository settingsRepository,
-    QualityGateService qualityGateService, MutableQualityGateHolder qualityGateHolder) {
-    this.treeRootHolder = treeRootHolder;
+  public LoadQualityGateStep(ConfigurationRepository settingsRepository, QualityGateService qualityGateService, MutableQualityGateHolder qualityGateHolder,
+    AnalysisMetadataHolder analysisMetadataHolder) {
     this.configRepository = settingsRepository;
     this.qualityGateService = qualityGateService;
     this.qualityGateHolder = qualityGateHolder;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
   public void execute() {
-    new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(CrawlerDepthLimit.PROJECT, PRE_ORDER) {
-        @Override
-        public void visitProject(Component project) {
-          executeForProject(project);
-        }
-      }).visit(treeRootHolder.getRoot());
-  }
-
-  private void executeForProject(Component project) {
-    String projectKey = project.getKey();
-    Configuration config = configRepository.getConfiguration(project);
+    if (analysisMetadataHolder.isShortLivingBranch()) {
+      qualityGateHolder.setNoQualityGate();
+      return;
+    }
+    Configuration config = configRepository.getConfiguration();
     String qualityGateSetting = config.get(PROPERTY_QUALITY_GATE).orElse(null);
 
-    if (StringUtils.isBlank(qualityGateSetting)) {
-      LOGGER.debug("No quality gate is configured for project " + projectKey);
+    if (isBlank(qualityGateSetting)) {
+      LOGGER.debug("No quality gate is configured");
       qualityGateHolder.setNoQualityGate();
       return;
     }

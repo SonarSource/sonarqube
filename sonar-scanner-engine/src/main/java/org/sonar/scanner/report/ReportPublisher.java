@@ -35,7 +35,6 @@ import javax.annotation.Nullable;
 import okhttp3.HttpUrl;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Configuration;
@@ -46,14 +45,18 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 
+import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
+import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 @ScannerSide
@@ -69,24 +72,28 @@ public class ReportPublisher implements Startable {
   private final ScannerWsClient wsClient;
   private final AnalysisContextReportPublisher contextPublisher;
   private final InputModuleHierarchy moduleHierarchy;
-  private final DefaultAnalysisMode analysisMode;
+  private final GlobalAnalysisMode analysisMode;
   private final TempFolder temp;
   private final ReportPublisherStep[] publishers;
   private final Server server;
+  private final BranchConfiguration branchConfiguration;
+  private final DefaultAnalysisMode analysisFlags;
 
   private Path reportDir;
   private ScannerReportWriter writer;
 
-  public ReportPublisher(Configuration settings, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
-    InputModuleHierarchy moduleHierarchy, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
+  public ReportPublisher(Configuration settings, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher, DefaultAnalysisMode analysisFlags,
+    InputModuleHierarchy moduleHierarchy, GlobalAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration) {
     this.settings = settings;
     this.wsClient = wsClient;
     this.server = server;
     this.contextPublisher = contextPublisher;
+    this.analysisFlags = analysisFlags;
     this.moduleHierarchy = moduleHierarchy;
     this.analysisMode = analysisMode;
     this.temp = temp;
     this.publishers = publishers;
+    this.branchConfiguration = branchConfiguration;
   }
 
   @Override
@@ -167,14 +174,20 @@ public class ReportPublisher implements Startable {
     PostRequest.Part filePart = new PostRequest.Part(MediaTypes.ZIP, report);
     PostRequest post = new PostRequest("api/ce/submit")
       .setMediaType(MediaTypes.PROTOBUF)
-      .setParam("organization", settings.get(CoreProperties.PROJECT_ORGANIZATION_PROPERTY).orElse(null))
+      .setParam("organization", settings.get(ORGANIZATION).orElse(null))
       .setParam("projectKey", moduleHierarchy.root().key())
       .setParam("projectName", moduleHierarchy.root().getOriginalName())
       .setParam("projectBranch", moduleHierarchy.root().getBranch())
       .setPart("report", filePart);
 
-    if (analysisMode.isIncremental()) {
+    if (analysisFlags.isIncremental()) {
       post.setParam("characteristic", "incremental=true");
+    }
+
+    String branchName = branchConfiguration.branchName();
+    if (branchName != null) {
+      post.setParam("characteristic", "branch=" + branchName);
+      post.setParam("characteristic", "branchType=" + branchConfiguration.branchType().name());
     }
 
     WsResponse response;
@@ -204,10 +217,11 @@ public class ReportPublisher implements Startable {
 
       Map<String, String> metadata = new LinkedHashMap<>();
       String effectiveKey = moduleHierarchy.root().getKeyWithBranch();
-      settings.get(CoreProperties.PROJECT_ORGANIZATION_PROPERTY).ifPresent(org -> metadata.put("organization", org));
+      settings.get(ORGANIZATION).ifPresent(org -> metadata.put("organization", org));
       metadata.put("projectKey", effectiveKey);
       metadata.put("serverUrl", publicUrl);
       metadata.put("serverVersion", server.getVersion());
+      settings.get(BRANCH_NAME).ifPresent(branch -> metadata.put("branch", branch));
 
       URL dashboardUrl = httpUrl.newBuilder()
         .addPathSegment("dashboard").addPathSegment("index").addPathSegment(effectiveKey)

@@ -31,6 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -40,10 +41,10 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
-import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ShowActionTest {
@@ -76,7 +77,7 @@ public class ShowActionTest {
     assertThat(show.since()).isEqualTo("4.4");
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(2);
+    assertThat(show.params()).hasSize(3);
   }
 
   @Test
@@ -108,6 +109,59 @@ public class ShowActionTest {
   }
 
   @Test
+  public void duplications_by_file_key_and_branch() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(branch));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    db.measures().insertMeasure(file, analysis, dataMetric, m -> m.setData(format("<duplications>\n" +
+      "  <g>\n" +
+      "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
+      "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
+      "  </g>\n" +
+      "</duplications>\n", file.getDbKey(), file.getDbKey())));
+
+    String result = ws.newRequest()
+      .setParam("key", file.getKey())
+      .setParam("branch", branch.getBranch())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo(
+      format("{\n" +
+        "  \"duplications\": [\n" +
+        "    {\n" +
+        "      \"blocks\": [\n" +
+        "        {\n" +
+        "          \"from\": 20,\n" +
+        "          \"size\": 5,\n" +
+        "          \"_ref\": \"1\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"from\": 31,\n" +
+        "          \"size\": 5,\n" +
+        "          \"_ref\": \"1\"\n" +
+        "        }\n" +
+        "      ]\n" +
+        "    }\n" +
+        "  ],\n" +
+        "  \"files\": {\n" +
+        "    \"1\": {\n" +
+        "      \"key\": \"%s\",\n" +
+        "      \"name\": \"%s\",\n" +
+        "      \"uuid\": \"%s\",\n" +
+        "      \"project\": \"%s\",\n" +
+        "      \"projectUuid\": \"%s\",\n" +
+        "      \"projectName\": \"%s\"\n" +
+        "      \"branch\": \"%s\"\n" +
+        "    }\n" +
+        "  }\n" +
+        "}",
+        file.getKey(), file.longName(), file.uuid(), branch.getKey(), branch.uuid(), project.longName(), file.getBranch()));
+  }
+
+  @Test
   public void fail_if_file_does_not_exist() throws Exception {
     expectedException.expect(NotFoundException.class);
 
@@ -132,12 +186,43 @@ public class ShowActionTest {
     newBaseRequest().execute();
   }
 
+  @Test
+  public void fail_when_using_branch_db_key() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+
+    ws.newRequest()
+      .setParam("key", branch.getDbKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_using_branch_uuid() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
+
+    ws.newRequest()
+      .setParam("uuid", branch.uuid())
+      .execute();
+  }
+
   private TestRequest newBaseRequest() {
     return ws.newRequest();
   }
 
   private void verifyCallToFileWithDuplications(Function<ComponentDto, TestRequest> requestFactory) throws Exception {
     ComponentDto project = db.components().insertPrivateProject();
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project).setDbKey("foo.js"));
     SnapshotDto snapshot = db.components().insertSnapshot(newAnalysis(project));
     String xml = "<duplications>\n" +
@@ -146,10 +231,7 @@ public class ShowActionTest {
       "    <b s=\"20\" l=\"5\" r=\"foo.js\"/>\n" +
       "  </g>\n" +
       "</duplications>\n";
-    db.getDbClient().measureDao().insert(db.getSession(), newMeasureDto(dataMetric, file, snapshot).setData(xml));
-    db.commit();
-
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    db.measures().insertMeasure(file, snapshot, dataMetric, m -> m.setData(xml));
 
     TestRequest request = requestFactory.apply(file);
     TestResponse result = request.execute();

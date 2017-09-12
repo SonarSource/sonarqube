@@ -55,6 +55,7 @@ import {
 } from '../utils'; */
 import ListFooter from '../../../components/controls/ListFooter';
 import EmptySearch from '../../../components/common/EmptySearch';
+import { getBranchName } from '../../../helpers/branches';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 /*:: import type { Issue } from '../../../components/issue/types'; */
@@ -63,6 +64,7 @@ import '../styles.css';
 
 /*::
 export type Props = {
+  branch?: { name: string },
   component?: Component,
   currentUser: CurrentUser,
   fetchIssues: (query: RawQuery) => Promise<*>,
@@ -171,6 +173,8 @@ export default class App extends React.PureComponent {
     const { query } = this.props.location;
     const { query: prevQuery } = prevProps.location;
     if (
+      prevProps.component !== this.props.component ||
+      prevProps.branch !== this.props.branch ||
       !areQueriesEqual(prevQuery, query) ||
       areMyIssuesSelected(prevQuery) !== areMyIssuesSelected(query)
     ) {
@@ -306,6 +310,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery(this.state.query),
+        branch: this.props.branch && getBranchName(this.props.branch),
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined,
         open: issue
@@ -324,6 +329,7 @@ export default class App extends React.PureComponent {
         pathname: this.props.location.pathname,
         query: {
           ...serializeQuery(this.state.query),
+          branch: this.props.branch && getBranchName(this.props.branch),
           id: this.props.component && this.props.component.key,
           myIssues: this.state.myIssues ? 'true' : undefined,
           open: undefined
@@ -359,6 +365,8 @@ export default class App extends React.PureComponent {
       : undefined;
 
     const parameters = {
+      branch: this.props.branch && getBranchName(this.props.branch),
+      componentKeys: component && component.key,
       s: 'FILE_LINE',
       ...serializeQuery(query),
       ps: '100',
@@ -366,10 +374,6 @@ export default class App extends React.PureComponent {
       facets,
       ...additional
     };
-
-    if (component) {
-      Object.assign(parameters, { componentKeys: component.key });
-    }
 
     // only sorting by CREATION_DATE is allowed, so let's sort DESC
     if (query.sort) {
@@ -552,6 +556,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery({ ...this.state.query, ...changes }),
+        branch: this.props.branch && getBranchName(this.props.branch),
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined
       }
@@ -567,6 +572,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery({ ...this.state.query, assigned: true, assignees: [] }),
+        branch: this.props.branch && getBranchName(this.props.branch),
         id: this.props.component && this.props.component.key,
         myIssues: myIssues ? 'true' : undefined
       }
@@ -593,6 +599,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...DEFAULT_QUERY,
+        branch: this.props.branch && getBranchName(this.props.branch),
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined
       }
@@ -790,7 +797,7 @@ export default class App extends React.PureComponent {
   }
 
   renderList() {
-    const { component, currentUser, organization } = this.props;
+    const { branch, component, currentUser, organization } = this.props;
     const { issues, openIssue, paging } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex != null ? issues[selectedIndex] : null;
@@ -803,6 +810,7 @@ export default class App extends React.PureComponent {
       <div>
         {paging.total > 0 &&
           <IssuesList
+            branch={this.props.branch && getBranchName(branch)}
             checked={this.state.checked}
             component={component}
             issues={issues}
@@ -865,6 +873,7 @@ export default class App extends React.PureComponent {
                 {openIssue != null
                   ? <div className="pull-left width-60">
                       <ComponentBreadcrumbs
+                        branch={this.props.branch && getBranchName(this.props.branch)}
                         component={component}
                         issue={openIssue}
                         organization={this.props.organization}
@@ -885,6 +894,8 @@ export default class App extends React.PureComponent {
             <div>
               {openIssue
                 ? <IssuesSourceViewer
+                    branch={this.props.branch && getBranchName(this.props.branch)}
+                    component={component}
                     openIssue={openIssue}
                     loadIssues={this.fetchIssuesForComponent}
                     onIssueChange={this.handleIssueChange}

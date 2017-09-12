@@ -160,7 +160,8 @@ public class SearchResponseFormat {
 
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setOrganization(data.getOrganizationKey(component.getOrganizationUuid()));
-    issueBuilder.setComponent(component.getDbKey());
+    issueBuilder.setComponent(component.getKey());
+    setNullable(component.getBranch(), issueBuilder::setBranch);
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
     if (project != null) {
       issueBuilder.setProject(project.getDbKey());
@@ -300,12 +301,13 @@ public class SearchResponseFormat {
       String uuid = dto.uuid();
       Component.Builder builder = Component.newBuilder()
         .setOrganization(data.getOrganizationKey(dto.getOrganizationUuid()))
-        .setKey(dto.getDbKey())
+        .setKey(dto.getKey())
         .setUuid(uuid)
         .setQualifier(dto.qualifier())
         .setName(nullToEmpty(dto.name()))
         .setLongName(nullToEmpty(dto.longName()))
         .setEnabled(dto.isEnabled());
+      setNullable(dto.getBranch(), builder::setBranch);
       String path = dto.path();
       // path is not applicable to the components that are not files.
       // Value must not be "" in this case.

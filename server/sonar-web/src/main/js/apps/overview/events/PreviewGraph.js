@@ -39,6 +39,7 @@ import { translate } from '../../../helpers/l10n';
 
 /*::
 type Props = {
+  branch?: string,
   history: ?History,
   metrics: Array<Metric>,
   project: string,
@@ -137,7 +138,10 @@ export default class PreviewGraph extends React.PureComponent {
   };
 
   handleClick = () => {
-    this.props.router.push({ pathname: '/project/activity', query: { id: this.props.project } });
+    this.props.router.push({
+      pathname: '/project/activity',
+      query: { id: this.props.project, branch: this.props.branch }
+    });
   };
 
   updateTooltip = (

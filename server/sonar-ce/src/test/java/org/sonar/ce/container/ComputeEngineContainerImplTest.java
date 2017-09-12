@@ -96,16 +96,13 @@ public class ComputeEngineContainerImplTest {
     underTest
       .start(new Props(properties));
 
-    try {
-      MutablePicoContainer picoContainer = underTest.getComponentContainer().getPicoContainer();
-      assertThat(
-        picoContainer.getComponentAdapters().stream()
-          .map(ComponentAdapter::getComponentImplementation)
-          .collect(Collectors.toList())).contains((Class) HazelcastClientWrapperImpl.class,
-            (Class) CeDistributedInformationImpl.class);
-    } finally {
-      underTest.stop();
-    }
+    MutablePicoContainer picoContainer = underTest.getComponentContainer().getPicoContainer();
+    assertThat(
+      picoContainer.getComponentAdapters().stream()
+        .map(ComponentAdapter::getComponentImplementation)
+        .collect(Collectors.toList())).contains((Class) HazelcastClientWrapperImpl.class,
+          (Class) CeDistributedInformationImpl.class);
+    underTest.stop();
   }
 
   @Test
@@ -118,49 +115,46 @@ public class ComputeEngineContainerImplTest {
 
     underTest
       .start(new Props(properties));
-    MutablePicoContainer picoContainer = underTest.getComponentContainer().getPicoContainer();
 
-    try {
-      assertThat(picoContainer.getComponentAdapters())
-        .hasSize(
-          CONTAINER_ITSELF
-            + 72 // level 4
-            + 4 // content of CeConfigurationModule
-            + 4 // content of CeQueueModule
-            + 4 // content of CeHttpModule
-            + 3 // content of CeTaskCommonsModule
-            + 4 // content of ProjectAnalysisTaskModule
-            + 5 // content of CeTaskProcessorModule
-            + 3 // CeCleaningModule + its content
-            + 1 // CeDistributedInformation
-      );
-      assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
+    MutablePicoContainer picoContainer = underTest.getComponentContainer().getPicoContainer();
+    assertThat(picoContainer.getComponentAdapters())
+      .hasSize(
         CONTAINER_ITSELF
-          + 5 // level 3
-      );
-      assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
-        CONTAINER_ITSELF
-          + 12 // MigrationConfigurationModule
-          + 17 // level 2
-      );
-      assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
-        COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
-          + 25 // level 1
-          + 48 // content of DaoModule
-          + 3 // content of EsSearchModule
-          + 61 // content of CorePropertyDefinitions
-          + 1 // StopFlagContainer
-      );
-      assertThat(
-        picoContainer.getComponentAdapters().stream()
-          .map(ComponentAdapter::getComponentImplementation)
-          .collect(Collectors.toList())).doesNotContain((Class) HazelcastClientWrapperImpl.class,
-            (Class) CeDistributedInformationImpl.class).contains(
-              (Class) StandaloneCeDistributedInformation.class);
-      assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();
-    } finally {
-      underTest.stop();
-    }
+          + 72 // level 4
+          + 4 // content of CeConfigurationModule
+          + 4 // content of CeQueueModule
+          + 4 // content of CeHttpModule
+          + 3 // content of CeTaskCommonsModule
+          + 4 // content of ProjectAnalysisTaskModule
+          + 5 // content of CeTaskProcessorModule
+          + 3 // CeCleaningModule + its content
+          + 1 // CeDistributedInformation
+    );
+    assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
+      CONTAINER_ITSELF
+        + 5 // level 3
+    );
+    assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
+      CONTAINER_ITSELF
+        + 12 // MigrationConfigurationModule
+        + 17 // level 2
+    );
+    assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
+      COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
+        + 25 // level 1
+        + 49 // content of DaoModule
+        + 3 // content of EsSearchModule
+        + 64 // content of CorePropertyDefinitions
+        + 1 // StopFlagContainer
+    );
+    assertThat(
+      picoContainer.getComponentAdapters().stream()
+        .map(ComponentAdapter::getComponentImplementation)
+        .collect(Collectors.toList())).doesNotContain((Class) HazelcastClientWrapperImpl.class,
+          (Class) CeDistributedInformationImpl.class).contains(
+            (Class) StandaloneCeDistributedInformation.class);
+    assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();
+    underTest.stop();
 
     assertThat(picoContainer.getLifecycleState().isStarted()).isFalse();
     assertThat(picoContainer.getLifecycleState().isStopped()).isFalse();

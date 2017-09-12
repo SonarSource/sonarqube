@@ -1,0 +1,150 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders main branch 1`] = `
+<div
+  className="navbar-context-branches dropdown"
+>
+  <a
+    className="link-base-color link-no-underline"
+    href="#"
+    onClick={[Function]}
+  >
+    <BranchIcon
+      branch={
+        Object {
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      className="little-spacer-right"
+    />
+    master
+    <i
+      className="icon-dropdown little-spacer-left"
+    />
+  </a>
+</div>
+`;
+
+exports[`renders no branch support popup 1`] = `
+<div
+  className="navbar-context-branches"
+>
+  <BranchIcon
+    branch={
+      Object {
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    className="little-spacer-right"
+    color="#cdcdcd"
+  />
+  <span
+    className="note"
+  >
+    master
+  </span>
+  <div
+    className="display-inline-block spacer-left"
+  >
+    <a
+      className="link-no-underline"
+      href="#"
+      onClick={[Function]}
+    >
+      <HelpIcon
+        fill="#cdcdcd"
+      />
+    </a>
+    <BubblePopupHelper
+      isOpen={false}
+      popup={<NoBranchSupportPopup />}
+      position="bottomleft"
+      togglePopup={[Function]}
+    />
+  </div>
+</div>
+`;
+
+exports[`renders short-living branch 1`] = `
+<div
+  className="navbar-context-branches dropdown"
+>
+  <a
+    className="link-base-color link-no-underline"
+    href="#"
+    onClick={[Function]}
+  >
+    <BranchIcon
+      branch={
+        Object {
+          "isMain": false,
+          "mergeBranch": "master",
+          "name": "foo",
+          "status": Object {
+            "bugs": 0,
+            "codeSmells": 0,
+            "vulnerabilities": 0,
+          },
+          "type": "SHORT",
+        }
+      }
+      className="little-spacer-right"
+    />
+    foo
+    <i
+      className="icon-dropdown little-spacer-left"
+    />
+  </a>
+  <span
+    className="note big-spacer-left text-lowercase"
+  >
+    from
+     
+    <strong>
+      master
+    </strong>
+  </span>
+</div>
+`;
+
+exports[`renders single branch popup 1`] = `
+<div
+  className="navbar-context-branches"
+>
+  <BranchIcon
+    branch={
+      Object {
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    className="little-spacer-right"
+  />
+  <span
+    className="note"
+  >
+    master
+  </span>
+  <div
+    className="display-inline-block spacer-left"
+  >
+    <a
+      className="link-no-underline"
+      href="#"
+      onClick={[Function]}
+    >
+      <HelpIcon
+        fill="#4b9fd5"
+      />
+    </a>
+    <BubblePopupHelper
+      isOpen={false}
+      popup={<SingleBranchHelperPopup />}
+      position="bottomleft"
+      togglePopup={[Function]}
+    />
+  </div>
+</div>
+`;

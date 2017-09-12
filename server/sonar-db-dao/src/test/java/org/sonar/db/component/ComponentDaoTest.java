@@ -166,7 +166,8 @@ public class ComponentDaoTest {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(directory)
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory)
+      .setDbKey("org.struts:struts-core:src/org/struts/RequestContext.java")
       .setName("RequestContext.java")
       .setLongName("org.struts.RequestContext")
       .setLanguage("java")
@@ -177,7 +178,7 @@ public class ComponentDaoTest {
     ComponentDto result = optional.get();
     assertThat(result.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(result.uuid()).isEqualTo(file.uuid());
-    assertThat(result.getDbKey()).isEqualTo(file.getDbKey());
+    assertThat(result.getDbKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("src/RequestContext.java");
     assertThat(result.name()).isEqualTo("RequestContext.java");
     assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
@@ -187,6 +188,19 @@ public class ComponentDaoTest {
     assertThat(result.projectUuid()).isEqualTo(project.uuid());
 
     assertThat(underTest.selectByKey(dbSession, "unknown")).isAbsent();
+  }
+
+  @Test
+  public void selectByKeyAndBranch() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    assertThat(underTest.selectByKeyAndBranch(dbSession, project.getKey(), "master").get().uuid()).isEqualTo(project.uuid());
+    assertThat(underTest.selectByKeyAndBranch(dbSession, branch.getKey(), "my_branch").get().uuid()).isEqualTo(branch.uuid());
+    assertThat(underTest.selectByKeyAndBranch(dbSession, file.getKey(), "my_branch").get().uuid()).isEqualTo(file.uuid());
+    assertThat(underTest.selectByKeyAndBranch(dbSession, "unknown", "my_branch")).isNotPresent();
+    assertThat(underTest.selectByKeyAndBranch(dbSession, file.getKey(), "unknown")).isNotPresent();
   }
 
   @Test
@@ -202,7 +216,7 @@ public class ComponentDaoTest {
   public void get_by_key_on_disabled_component() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setEnabled(false));
 
-    ComponentDto result = underTest.selectOrFailByKey(dbSession, project.getKey());
+    ComponentDto result = underTest.selectOrFailByKey(dbSession, project.getDbKey());
 
     assertThat(result.isEnabled()).isFalse();
   }
@@ -211,7 +225,7 @@ public class ComponentDaoTest {
   public void get_by_key_on_a_root_project() {
     ComponentDto project = db.components().insertPrivateProject();
 
-    ComponentDto result = underTest.selectOrFailByKey(dbSession, project.getKey());
+    ComponentDto result = underTest.selectOrFailByKey(dbSession, project.getDbKey());
 
     assertThat(result.getDbKey()).isEqualTo(project.getDbKey());
     assertThat(result.uuid()).isEqualTo(project.uuid());
@@ -225,15 +239,34 @@ public class ComponentDaoTest {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
 
-    List<ComponentDto> results = underTest.selectByKeys(dbSession, asList(project1.getKey(), project2.getKey()));
+    List<ComponentDto> results = underTest.selectByKeys(dbSession, asList(project1.getDbKey(), project2.getDbKey()));
 
     assertThat(results)
-      .extracting(ComponentDto::uuid, ComponentDto::getKey)
+      .extracting(ComponentDto::uuid, ComponentDto::getDbKey)
       .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), project1.getKey()),
-        tuple(project2.uuid(), project2.getKey()));
+        tuple(project1.uuid(), project1.getDbKey()),
+        tuple(project2.uuid(), project2.getDbKey()));
 
     assertThat(underTest.selectByKeys(dbSession, singletonList("unknown"))).isEmpty();
+  }
+
+  @Test
+  public void selectByKeysAndBranch() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(branch));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(branch));
+    ComponentDto anotherBranch = db.components().insertProjectBranch(project, b -> b.setKey("another_branch"));
+    ComponentDto fileOnAnotherBranch = db.components().insertComponent(newFileDto(anotherBranch));
+
+    assertThat(underTest.selectByKeysAndBranch(dbSession, asList(branch.getKey(), file1.getKey(), file2.getKey()), "my_branch")).extracting(ComponentDto::uuid)
+      .containsExactlyInAnyOrder(branch.uuid(), file1.uuid(), file2.uuid());
+    assertThat(underTest.selectByKeysAndBranch(dbSession, asList(file1.getKey(), file2.getKey(), fileOnAnotherBranch.getKey()), "my_branch")).extracting(ComponentDto::uuid)
+      .containsExactlyInAnyOrder(file1.uuid(), file2.uuid());
+    assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList(fileOnAnotherBranch.getKey()), "my_branch")).isEmpty();
+    assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList(file1.getKey()), "unknown")).isEmpty();
+    assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList("unknown"), "my_branch")).isEmpty();
+    assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList(branch.getKey()), "master")).extracting(ComponentDto::uuid).containsExactlyInAnyOrder(project.uuid());
   }
 
   @Test
@@ -244,10 +277,10 @@ public class ComponentDaoTest {
     List<ComponentDto> results = underTest.selectByIds(dbSession, asList(project1.getId(), project2.getId()));
 
     assertThat(results)
-      .extracting(ComponentDto::uuid, ComponentDto::getKey)
+      .extracting(ComponentDto::uuid, ComponentDto::getDbKey)
       .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), project1.getKey()),
-        tuple(project2.uuid(), project2.getKey()));
+        tuple(project1.uuid(), project1.getDbKey()),
+        tuple(project2.uuid(), project2.getDbKey()));
 
     assertThat(underTest.selectByIds(dbSession, singletonList(0L))).isEmpty();
   }
@@ -260,10 +293,10 @@ public class ComponentDaoTest {
     List<ComponentDto> results = underTest.selectByUuids(dbSession, asList(project1.uuid(), project2.uuid()));
 
     assertThat(results)
-      .extracting(ComponentDto::uuid, ComponentDto::getKey)
+      .extracting(ComponentDto::uuid, ComponentDto::getDbKey)
       .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), project1.getKey()),
-        tuple(project2.uuid(), project2.getKey()));
+        tuple(project1.uuid(), project1.getDbKey()),
+        tuple(project2.uuid(), project2.getDbKey()));
 
     assertThat(underTest.selectByUuids(dbSession, singletonList("unknown"))).isEmpty();
   }
@@ -276,7 +309,7 @@ public class ComponentDaoTest {
     List<ComponentDto> results = underTest.selectByUuids(dbSession, asList(project1.uuid(), project2.uuid()));
 
     assertThat(results)
-      .extracting(ComponentDto::getKey, ComponentDto::isEnabled)
+      .extracting(ComponentDto::getDbKey, ComponentDto::isEnabled)
       .containsExactlyInAnyOrder(
         tuple(project1.getDbKey(), true),
         tuple(project2.getDbKey(), false));
@@ -606,8 +639,7 @@ public class ComponentDaoTest {
   public void select_projects() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto provisionedProject = db.components().insertPrivateProject();
-    ComponentDto provisionedView = db.components().insertView(organization, (dto) -> {
-    });
+    ComponentDto provisionedView = db.components().insertView(organization);
     String projectUuid = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization)).getComponentUuid();
     String disabledProjectUuid = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization).setEnabled(false)).getComponentUuid();
     String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization)).getComponentUuid();
@@ -615,6 +647,17 @@ public class ComponentDaoTest {
     assertThat(underTest.selectProjects(dbSession))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid(), projectUuid);
+  }
+
+  @Test
+  public void select_projects_does_not_return_branches() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    assertThat(underTest.selectProjects(dbSession))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(project.uuid());
   }
 
   @Test
@@ -710,6 +753,24 @@ public class ComponentDaoTest {
       .extracting(ComponentDto::uuid)
       .containsOnly(ghostProject.uuid(), ghostProject2.uuid(), disabledGhostProject.uuid());
     assertThat(underTest.countGhostProjects(dbSession, organization.getUuid(), null)).isEqualTo(3);
+  }
+
+  @Test
+  public void dont_select_branch_ghost_projects() {
+    OrganizationDto organization = db.organizations().insert();
+
+    // ghosts because has at least one snapshot with status U but none with status P
+    ComponentDto ghostProject = db.components().insertPrivateProject(organization);
+    db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
+    db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
+    ComponentDto ghostBranchProject = db.components().insertProjectBranch(ghostProject);
+
+    db.components().insertSnapshot(ghostBranchProject, dto -> dto.setStatus("U"));
+
+    assertThat(underTest.selectGhostProjects(dbSession, organization.getUuid(), null, 0, 10))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(ghostProject.uuid());
+    assertThat(underTest.countGhostProjects(dbSession, organization.getUuid(), null)).isEqualTo(1);
   }
 
   @Test
@@ -931,6 +992,23 @@ public class ComponentDaoTest {
       .containsOnly(project2.uuid());
     assertThat(underTest.selectByQuery(dbSession, "non existent organization uuid", ALL_PROJECTS_COMPONENT_QUERY, 0, 2))
       .isEmpty();
+  }
+
+  @Test
+  public void selectByQuery_should_not_return_branches() {
+    ComponentDto main = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(main);
+
+    assertThat(underTest.selectByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY, 0, 2)).hasSize(1);
+    assertThat(underTest.selectByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY, 0, 2).get(0).uuid()).isEqualTo(main.uuid());
+  }
+
+  @Test
+  public void countByQuery_should_not_include_branches() {
+    ComponentDto main = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(main);
+
+    assertThat(underTest.countByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY)).isEqualTo(1);
   }
 
   @Test
@@ -1248,6 +1326,26 @@ public class ComponentDaoTest {
     List<ComponentDto> components = underTest.selectDescendants(dbSession, dbQuery);
     assertThat(components).extracting("uuid").containsOnly("project-copy-uuid", "subview-uuid");
     assertThat(components).extracting("organizationUuid").containsOnly(organizationDto.getUuid());
+  }
+
+  @Test
+  public void select_projects_by_name_ignore_branches() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project1 = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project1"));
+    ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setName("project1"));
+    ComponentDto subModule1 = db.components().insertComponent(newModuleDto(module1).setName("project1"));
+
+    db.components().insertComponent(newFileDto(subModule1).setName("project1"));
+    db.components().insertProjectBranch(project1, b -> b.setKey("branch1"));
+
+    // check that branch is present with same name as main branch
+    assertThat(underTest.selectByKeyAndBranch(dbSession, project1.getKey(), "branch1").get().name()).isEqualTo("project1");
+
+    // branch is not returned
+    assertThat(underTest.selectProjectsByNameQuery(dbSession, null, false)).extracting(ComponentDto::uuid)
+      .containsOnly(project1.uuid());
+    assertThat(underTest.selectProjectsByNameQuery(dbSession, "project", false)).extracting(ComponentDto::uuid)
+      .containsOnly(project1.uuid());
   }
 
   @Test

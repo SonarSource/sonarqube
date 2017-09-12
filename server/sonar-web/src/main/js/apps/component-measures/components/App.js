@@ -25,6 +25,7 @@ import MeasureContentContainer from './MeasureContentContainer';
 import MeasureOverviewContainer from './MeasureOverviewContainer';
 import Sidebar from '../sidebar/Sidebar';
 import { hasBubbleChart, parseQuery, serializeQuery } from '../utils';
+import { getBranchName } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Component, Query, Period } from '../types'; */
 /*:: import type { RawQuery } from '../../../helpers/query'; */
@@ -33,12 +34,14 @@ import { translate } from '../../../helpers/l10n';
 import '../style.css';
 
 /*:: type Props = {|
+  branch?: {},
   component: Component,
   currentUser: { isLoggedIn: boolean },
   location: { pathname: string, query: RawQuery },
   fetchMeasures: (
     component: string,
-    metricsKey: Array<string>
+    metricsKey: Array<string>,
+    branch?: string
   ) => Promise<{ component: Component, measures: Array<MeasureEnhanced>, leakPeriod: ?Period }>,
   fetchMetrics: () => void,
   metrics: { [string]: Metric },
@@ -81,6 +84,7 @@ export default class App extends React.PureComponent {
 
   componentWillReceiveProps(nextProps /*: Props */) {
     if (
+      nextProps.branch !== this.props.branch ||
       nextProps.component.key !== this.props.component.key ||
       nextProps.metrics !== this.props.metrics
     ) {
@@ -97,12 +101,12 @@ export default class App extends React.PureComponent {
     }
   }
 
-  fetchMeasures = ({ component, fetchMeasures, metrics, metricsKey } /*: Props */) => {
+  fetchMeasures = ({ branch, component, fetchMeasures, metrics, metricsKey } /*: Props */) => {
     this.setState({ loading: true });
     const filteredKeys = metricsKey.filter(
       key => !metrics[key].hidden && !['DATA', 'DISTRIB'].includes(metrics[key].type)
     );
-    fetchMeasures(component.key, filteredKeys).then(
+    fetchMeasures(component.key, filteredKeys, branch && getBranchName(branch)).then(
       ({ measures, leakPeriod }) => {
         if (this.mounted) {
           this.setState({
@@ -125,6 +129,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...query,
+        branch: this.props.branch && getBranchName(this.props.branch),
         id: this.props.component.key
       }
     });
@@ -135,7 +140,7 @@ export default class App extends React.PureComponent {
     if (isLoading) {
       return <i className="spinner spinner-margin" />;
     }
-    const { component, fetchMeasures, metrics } = this.props;
+    const { branch, component, fetchMeasures, metrics } = this.props;
     const { leakPeriod } = this.state;
     const query = parseQuery(this.props.location.query);
     const metric = metrics[query.metric];
@@ -159,6 +164,7 @@ export default class App extends React.PureComponent {
 
         {metric != null &&
           <MeasureContentContainer
+            branch={branch && getBranchName(branch)}
             className="layout-page-main"
             currentUser={this.props.currentUser}
             rootComponent={component}
@@ -174,6 +180,7 @@ export default class App extends React.PureComponent {
         {metric == null &&
           hasBubbleChart(query.metric) &&
           <MeasureOverviewContainer
+            branch={branch && getBranchName(branch)}
             className="layout-page-main"
             rootComponent={component}
             currentUser={this.props.currentUser}

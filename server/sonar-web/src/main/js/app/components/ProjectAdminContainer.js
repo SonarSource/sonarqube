@@ -18,14 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { connect } from 'react-redux';
-import { getComponent } from '../../store/rootReducer';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
-class ProjectAdminContainer extends React.PureComponent {
+export default class ProjectAdminContainer extends React.PureComponent {
   /*::
   props: {
-    project: {
+    component: {
       configuration?: {
         showSettings: boolean
       }
@@ -42,7 +40,7 @@ class ProjectAdminContainer extends React.PureComponent {
   }
 
   isProjectAdmin() {
-    const { configuration } = this.props.project;
+    const { configuration } = this.props.component;
     return configuration != null && configuration.showSettings;
   }
 
@@ -57,12 +55,7 @@ class ProjectAdminContainer extends React.PureComponent {
       return null;
     }
 
-    return this.props.children;
+    const { children, ...props } = this.props;
+    return React.cloneElement(children, props);
   }
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  project: getComponent(state, ownProps.location.query.id)
-});
-
-export default connect(mapStateToProps)(ProjectAdminContainer);

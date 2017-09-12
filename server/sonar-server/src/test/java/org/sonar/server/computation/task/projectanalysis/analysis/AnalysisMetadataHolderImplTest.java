@@ -22,9 +22,13 @@ package org.sonar.server.computation.task.projectanalysis.analysis;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AnalysisMetadataHolderImplTest {
 
@@ -199,7 +203,7 @@ public class AnalysisMetadataHolderImplTest {
 
     new AnalysisMetadataHolderImpl().isCrossProjectDuplicationEnabled();
   }
-  
+
   @Test
   public void setIsCrossProjectDuplicationEnabled_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
@@ -219,7 +223,7 @@ public class AnalysisMetadataHolderImplTest {
     expectedException.expectMessage("Incremental analysis flag has already been set");
     underTest.setIncrementalAnalysis(false);
   }
-  
+
   @Test
   public void isIncrementalAnalysis_return_true() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
@@ -260,18 +264,9 @@ public class AnalysisMetadataHolderImplTest {
   public void set_branch() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
-    underTest.setBranch("origin/master");
+    underTest.setBranch(new DefaultBranchImpl("master"));
 
-    assertThat(underTest.getBranch()).isEqualTo("origin/master");
-  }
-
-  @Test
-  public void set_no_branch() {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
-
-    underTest.setBranch(null);
-
-    assertThat(underTest.getBranch()).isNull();
+    assertThat(underTest.getBranch().get().getName()).isEqualTo("master");
   }
 
   @Test
@@ -285,11 +280,39 @@ public class AnalysisMetadataHolderImplTest {
   @Test
   public void setBranch_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
-    underTest.setBranch("origin/master");
+    underTest.setBranch(new DefaultBranchImpl("master"));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Branch has already been set");
-    underTest.setBranch("origin/master");
+    underTest.setBranch(new DefaultBranchImpl("master"));
+  }
+
+  @Test
+  public void set_and_get_project() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    Project project = new Project("U", "K", "N");
+    underTest.setProject(project);
+
+    assertThat(underTest.getProject()).isSameAs(project);
+  }
+
+  @Test
+  public void getProject_throws_ISE_when_holder_is_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Project has not been set");
+
+    new AnalysisMetadataHolderImpl().getProject();
+  }
+
+  @Test
+  public void setProject_throws_ISE_when_called_twice() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setProject(new Project("U", "K", "N"));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Project has already been set");
+    underTest.setProject(new Project("U", "K", "N"));
   }
 
   @Test
@@ -317,5 +340,25 @@ public class AnalysisMetadataHolderImplTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Root component ref has already been set");
     underTest.setRootComponentRef(9);
+  }
+
+  @Test
+  public void getIsShortLivingBranch_throws_ISE_when_holder_is_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Branch has not been set");
+
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.isShortLivingBranch();
+  }
+
+  @Test
+  public void getIsShortLivingBranch_returns_true() {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.SHORT);
+
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setBranch(branch);
+
+    assertThat(underTest.isShortLivingBranch()).isTrue();
   }
 }

@@ -23,10 +23,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class ShowWsRequest {
-  @CheckForNull
   private String id;
-  @CheckForNull
   private String key;
+  private String branch;
 
   @CheckForNull
   public String getId() {
@@ -45,6 +44,16 @@ public class ShowWsRequest {
 
   public ShowWsRequest setKey(@Nullable String key) {
     this.key = key;
+    return this;
+  }
+
+  @CheckForNull
+  public String getBranch() {
+    return branch;
+  }
+
+  public ShowWsRequest setBranch(@Nullable String branch) {
+    this.branch = branch;
     return this;
   }
 }

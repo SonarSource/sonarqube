@@ -17,22 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface Profile {
-  key: string;
-  name: string;
-  isBuiltIn: boolean;
-  isDefault: boolean;
-  isInherited: boolean;
-  language: string;
-  languageName: string;
-  activeRuleCount: number;
-  activeDeprecatedRuleCount: number;
-  projectCount?: number;
-  parentKey?: string;
-  parentName?: string;
-  userUpdatedAt?: string;
-  lastUsed?: string;
-  rulesUpdatedAt: string;
+import { Profile as BaseProfile } from '../../api/quality-profiles';
+
+export interface Profile extends BaseProfile {
   depth: number;
   childrenCount: number;
 }
