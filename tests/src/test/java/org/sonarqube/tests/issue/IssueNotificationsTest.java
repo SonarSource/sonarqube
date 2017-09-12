@@ -172,6 +172,13 @@ public class IssueNotificationsTest extends AbstractIssueTest {
   @Test
   public void notifications_for_personalized_emails() throws Exception {
     setServerProperty(ORCHESTRATOR, "sonar.issues.defaultAssigneeLogin", USER_LOGIN);
+    // 1st analysis without any issue (because no file is analyzed)
+    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-with-scm", "sonar.scm.provider", "xoo", "sonar.scm.disabled", "false", "sonar.exclusions", "**/*");
+
+    waitUntilAllNotificationsAreDelivered(2);
+    assertThat(smtpServer.getMessages()).isEmpty();
+
+    // run 2nd analysis which will generate issues on the leak period
     runProjectAnalysis(ORCHESTRATOR, "issue/xoo-with-scm", "sonar.scm.provider", "xoo", "sonar.scm.disabled", "false");
 
     waitUntilAllNotificationsAreDelivered(2);
