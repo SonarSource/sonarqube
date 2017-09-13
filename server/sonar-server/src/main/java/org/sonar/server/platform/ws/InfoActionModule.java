@@ -26,6 +26,8 @@ public class InfoActionModule extends Module {
   @Override
   protected void configureModule() {
     add(TelemetryDataLoader.class,
-      InfoAction.class);
+      InfoAction.class,
+      ClusterInfoAction.class,
+      StandaloneInfoAction.class);
   }
 }
