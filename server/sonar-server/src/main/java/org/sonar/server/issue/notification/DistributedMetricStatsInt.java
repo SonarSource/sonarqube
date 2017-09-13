@@ -54,4 +54,11 @@ public class DistributedMetricStatsInt {
     return globalStats.getTotal();
   }
 
+  @Override
+  public String toString() {
+    return "DistributedMetricStatsInt{" +
+      "globalStats=" + globalStats +
+      ", statsPerLabel=" + statsPerLabel +
+      '}';
+  }
 }
