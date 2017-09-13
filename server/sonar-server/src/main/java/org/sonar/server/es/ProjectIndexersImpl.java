@@ -31,7 +31,7 @@ import static java.util.Arrays.asList;
 
 public class ProjectIndexersImpl implements ProjectIndexers {
 
-  private final List<ProjectIndexer> indexers;
+  public final List<ProjectIndexer> indexers;
 
   public ProjectIndexersImpl(ProjectIndexer... indexers) {
     this.indexers = asList(indexers);

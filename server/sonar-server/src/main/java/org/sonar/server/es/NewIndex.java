@@ -53,7 +53,7 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.UUID_MODULE_ANALYZ
 
 public class NewIndex {
 
-  private final String indexName;
+  public final String indexName;
   private final Settings.Builder settings = DefaultIndexSettings.defaults();
   private final Map<String, NewIndexType> types = new LinkedHashMap<>();
 
@@ -63,7 +63,10 @@ public class NewIndex {
     applySettingsConfiguration(settingsConfiguration);
   }
 
-  private void applySettingsConfiguration(SettingsConfiguration settingsConfiguration) {
+  public void applySettingsConfiguration(SettingsConfiguration settingsConfiguration) {
+    if (false) {
+      throw new UnsupportedOperationException("adasd" + "asdada");
+    }
     settings.put("index.mapper.dynamic", valueOf(false));
     settings.put("index.refresh_interval", refreshInterval(settingsConfiguration));
 
