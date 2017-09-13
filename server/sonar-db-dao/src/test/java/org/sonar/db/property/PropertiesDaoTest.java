@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -80,79 +81,41 @@ public class PropertiesDaoTest {
 
   @Test
   public void shouldFindUsersForNotification() throws SQLException {
-    ComponentDto project1 = insertProject("uuid_45");
-    ComponentDto project2 = insertProject("uuid_56");
-    int userId1 = insertUser("user1");
-    int userId2 = insertUser("user2");
-    int userId3 = insertUser("user3");
-    insertProperty("notification.NewViolations.Email", "true", project1.getId(), userId2);
-    insertProperty("notification.NewViolations.Twitter", "true", null, userId3);
-    insertProperty("notification.NewViolations.Twitter", "true", project2.getId(), userId1);
-    insertProperty("notification.NewViolations.Twitter", "true", project2.getId(), userId3);
+    ComponentDto project1 = insertPrivateProject("uuid_45");
+    ComponentDto project2 = insertPrivateProject("uuid_56");
+    UserDto user1 = insertUser("user1");
+    UserDto user2 = insertUser("user2");
+    UserDto user3 = insertUser("user3");
+    insertProperty("notification.NewViolations.Email", "true", project1.getId(), user2.getId());
+    insertProperty("notification.NewViolations.Twitter", "true", null, user3.getId());
+    insertProperty("notification.NewViolations.Twitter", "true", project2.getId(), user1.getId());
+    insertProperty("notification.NewViolations.Twitter", "true", project2.getId(), user3.getId());
+    dbTester.users().insertProjectPermissionOnUser(user2, UserRole.USER, project1);
+    dbTester.users().insertProjectPermissionOnUser(user3, UserRole.USER, project2);
+    dbTester.users().insertProjectPermissionOnUser(user1, UserRole.USER, project2);
 
-    assertThat(underTest.selectUsersForNotification("NewViolations", "Email", null))
+    assertThat(underTest.findUsersForNotification("NewViolations", "Email", null))
       .isEmpty();
 
-    assertThat(underTest.selectUsersForNotification("NewViolations", "Email", "uuid_78"))
+    assertThat(underTest.findUsersForNotification("NewViolations", "Email", "uuid_78"))
       .isEmpty();
 
-    assertThat(underTest.selectUsersForNotification("NewViolations", "Email", "uuid_45"))
+    assertThat(underTest.findUsersForNotification("NewViolations", "Email", "uuid_45"))
       .hasSize(1).containsOnly("user2");
 
-    assertThat(underTest.selectUsersForNotification("NewViolations", "Twitter", null))
-      .hasSize(1)
-      .containsOnly("user3");
-
-    assertThat(underTest.selectUsersForNotification("NewViolations", "Twitter", "uuid_78"))
+    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", "uuid_78"))
       .isEmpty();
 
-    assertThat(underTest.selectUsersForNotification("NewViolations", "Twitter", "uuid_56"))
+    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", "uuid_56"))
       .hasSize(2)
       .containsOnly("user1", "user3");
   }
 
   @Test
-  public void findNotificationSubscribers() throws SQLException {
-    int userId1 = insertUser("user1");
-    int userId2 = insertUser("user2");
-    ComponentDto projectDto = insertProject("PROJECT_A");
-    long projectId = projectDto.getId();
-    String projectKey = projectDto.getDbKey();
-
-    // global subscription
-    insertProperty("notification.DispatcherWithGlobalSubscribers.Email", "true", null, userId2);
-    // project subscription
-    insertProperty("notification.DispatcherWithProjectSubscribers.Email", "true", projectId, userId1);
-    insertProperty("notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", 56L, userId1);
-    insertProperty("notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", projectId, userId1);
-    // global subscription
-    insertProperty("notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", null, userId2);
-
-    // Nobody is subscribed
-    assertThat(underTest.selectNotificationSubscribers("NotSexyDispatcher", "Email", projectKey))
-      .isEmpty();
-
-    // Global subscribers
-    assertThat(underTest.selectNotificationSubscribers("DispatcherWithGlobalSubscribers", "Email", projectKey))
-      .containsOnly("user2");
-
-    assertThat(underTest.selectNotificationSubscribers("DispatcherWithGlobalSubscribers", "Email", null))
-      .containsOnly("user2");
-
-    // Project subscribers
-    assertThat(underTest.selectNotificationSubscribers("DispatcherWithProjectSubscribers", "Email", projectKey))
-      .containsOnly("user1");
-
-    // Global + Project subscribers
-    assertThat(underTest.selectNotificationSubscribers("DispatcherWithGlobalAndProjectSubscribers", "Email", projectKey))
-      .containsOnly("user1", "user2");
-  }
-
-  @Test
   public void hasNotificationSubscribers() throws SQLException {
-    int userId1 = insertUser("user1");
-    int userId2 = insertUser("user2");
-    Long projectId = insertProject("PROJECT_A").getId();
+    int userId1 = insertUser("user1").getId();
+    int userId2 = insertUser("user2").getId();
+    Long projectId = insertPrivateProject("PROJECT_A").getId();
     // global subscription
     insertProperty("notification.DispatcherWithGlobalSubscribers.Email", "true", null, userId2);
     // project subscription
@@ -254,7 +217,7 @@ public class PropertiesDaoTest {
 
   @Test
   public void selectProjectProperties() throws SQLException {
-    ComponentDto projectDto = insertProject("A");
+    ComponentDto projectDto = insertPrivateProject("A");
     long projectId = projectDto.getId();
     // global
     insertProperty("global.one", "one", null, null);
@@ -279,7 +242,7 @@ public class PropertiesDaoTest {
   @Test
   @UseDataProvider("allValuesForSelect")
   public void selectProjectProperties_supports_all_values(String dbValue, String expected) throws SQLException {
-    ComponentDto projectDto = insertProject("A");
+    ComponentDto projectDto = insertPrivateProject("A");
     insertProperty("project.one", dbValue, projectDto.getId(), null);
 
     List<PropertyDto> dtos = underTest.selectProjectProperties(projectDto.getDbKey());
@@ -379,8 +342,8 @@ public class PropertiesDaoTest {
 
   @Test
   public void select_global_properties_by_keys() throws Exception {
-    insertProject("A");
-    int userId = insertUser("B");
+    insertPrivateProject("A");
+    int userId = insertUser("B").getId();
 
     String key = "key";
     String anotherKey = "anotherKey";
@@ -705,9 +668,9 @@ public class PropertiesDaoTest {
 
   @Test
   public void delete_project_property() throws SQLException {
-    long projectId1 = insertProject("A").getId();
-    long projectId2 = insertProject("B").getId();
-    long projectId3 = insertProject("C").getId();
+    long projectId1 = insertPrivateProject("A").getId();
+    long projectId2 = insertPrivateProject("B").getId();
+    long projectId3 = insertPrivateProject("C").getId();
     long id1 = insertProperty("global.one", "one", null, null);
     long id2 = insertProperty("global.two", "two", null, null);
     long id3 = insertProperty("struts.one", "one", projectId1, null);
@@ -822,7 +785,6 @@ public class PropertiesDaoTest {
       .hasNoResourceId()
       .hasUserId(100)
       .hasTextValue("new_user");
-
   }
 
   @Test
@@ -1068,7 +1030,7 @@ public class PropertiesDaoTest {
       " and resource_id" + (resourceId == null ? " is null" : "='" + resourceId + "'")).get("id");
   }
 
-  private ComponentDto insertProject(String uuid) {
+  private ComponentDto insertPrivateProject(String uuid) {
     String key = "project" + uuid;
     ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), uuid).setDbKey(key);
     dbClient.componentDao().insert(session, project);
@@ -1076,12 +1038,12 @@ public class PropertiesDaoTest {
     return project;
   }
 
-  private int insertUser(String login) {
+  private UserDto insertUser(String login) {
     UserDto dto = new UserDto().setLogin(login);
     DbSession session = dbTester.getSession();
     dbClient.userDao().insert(session, dto);
     session.commit();
-    return dto.getId();
+    return dto;
   }
 
   private static PropertyDtoAssert assertThatDto(@Nullable PropertyDto dto) {

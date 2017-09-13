@@ -21,24 +21,26 @@ package org.sonar.server.notification;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import java.io.IOException;
 import java.io.InvalidClassException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nullable;
+import java.util.Set;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.notification.NotificationQueueDao;
+import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.notification.NotificationQueueDto;
-import org.sonar.db.property.PropertiesDao;
 
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 
 public class DefaultNotificationManager implements NotificationManager {
 
@@ -47,25 +49,17 @@ public class DefaultNotificationManager implements NotificationManager {
   private static final String UNABLE_TO_READ_NOTIFICATION = "Unable to read notification";
 
   private NotificationChannel[] notificationChannels;
-  private NotificationQueueDao notificationQueueDao;
-  private PropertiesDao propertiesDao;
+  private final DbClient dbClient;
 
   private boolean alreadyLoggedDeserializationIssue = false;
 
   /**
    * Default constructor used by Pico
    */
-  public DefaultNotificationManager(NotificationChannel[] channels, NotificationQueueDao notificationQueueDao, PropertiesDao propertiesDao) {
+  public DefaultNotificationManager(NotificationChannel[] channels,
+    DbClient dbClient) {
     this.notificationChannels = channels;
-    this.notificationQueueDao = notificationQueueDao;
-    this.propertiesDao = propertiesDao;
-  }
-
-  /**
-   * Constructor if no notification channel
-   */
-  public DefaultNotificationManager(NotificationQueueDao notificationQueueDao, PropertiesDao propertiesDao) {
-    this(new NotificationChannel[0], notificationQueueDao, propertiesDao);
+    this.dbClient = dbClient;
   }
 
   /**
@@ -74,18 +68,18 @@ public class DefaultNotificationManager implements NotificationManager {
   @Override
   public void scheduleForSending(Notification notification) {
     NotificationQueueDto dto = NotificationQueueDto.toNotificationQueueDto(notification);
-    notificationQueueDao.insert(singletonList(dto));
+    dbClient.notificationQueueDao().insert(singletonList(dto));
   }
   /**
    * Give the notification queue so that it can be processed
    */
   public Notification getFromQueue() {
     int batchSize = 1;
-    List<NotificationQueueDto> notificationDtos = notificationQueueDao.selectOldest(batchSize);
+    List<NotificationQueueDto> notificationDtos = dbClient.notificationQueueDao().selectOldest(batchSize);
     if (notificationDtos.isEmpty()) {
       return null;
     }
-    notificationQueueDao.delete(notificationDtos);
+    dbClient.notificationQueueDao().delete(notificationDtos);
 
     return convertToNotification(notificationDtos);
   }
@@ -112,15 +106,15 @@ public class DefaultNotificationManager implements NotificationManager {
   }
 
   public long count() {
-    return notificationQueueDao.count();
+    return dbClient.notificationQueueDao().count();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher,
-    @Nullable String projectUuid) {
+  public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, String projectUuid) {
+    requireNonNull(projectUuid, "ProjectUUID is mandatory");
     String dispatcherKey = dispatcher.getKey();
 
     SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
@@ -128,24 +122,15 @@ public class DefaultNotificationManager implements NotificationManager {
       String channelKey = channel.getKey();
 
       // Find users subscribed globally to the dispatcher (i.e. not on a specific project)
-      addUsersToRecipientListForChannel(propertiesDao.selectUsersForNotification(dispatcherKey, channelKey, null), recipients, channel);
+      // And users subscribed to the dispatcher specifically for the project
+      Set<String> subscribedUsers = dbClient.propertiesDao().findUsersForNotification(dispatcherKey, channelKey, projectUuid);
 
-      if (projectUuid != null) {
-        // Find users subscribed to the dispatcher specifically for the project
-        addUsersToRecipientListForChannel(propertiesDao.selectUsersForNotification(dispatcherKey, channelKey, projectUuid), recipients, channel);
+      if (!subscribedUsers.isEmpty()) {
+        try (DbSession dbSession = dbClient.openSession(false)) {
+          Set<String> filteredSubscribedUsers = dbClient.authorizationDao().keepAuthorizedLoginsOnProject(dbSession, subscribedUsers, projectUuid, UserRole.USER);
+          addUsersToRecipientListForChannel(filteredSubscribedUsers, recipients, channel);
+        }
       }
-    }
-
-    return recipients;
-  }
-
-  @Override
-  public Multimap<String, NotificationChannel> findNotificationSubscribers(NotificationDispatcher dispatcher, @Nullable String componentKey) {
-    String dispatcherKey = dispatcher.getKey();
-
-    SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
-    for (NotificationChannel channel : notificationChannels) {
-      addUsersToRecipientListForChannel(propertiesDao.selectNotificationSubscribers(dispatcherKey, channel.getKey(), componentKey), recipients, channel);
     }
 
     return recipients;
@@ -156,10 +141,9 @@ public class DefaultNotificationManager implements NotificationManager {
     return Arrays.asList(notificationChannels);
   }
 
-  private static void addUsersToRecipientListForChannel(List<String> users, SetMultimap<String, NotificationChannel> recipients, NotificationChannel channel) {
+  private static void addUsersToRecipientListForChannel(Collection<String> users, SetMultimap<String, NotificationChannel> recipients, NotificationChannel channel) {
     for (String username : users) {
       recipients.put(username, channel);
     }
   }
-
 }

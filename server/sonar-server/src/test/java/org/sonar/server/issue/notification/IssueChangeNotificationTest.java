@@ -84,16 +84,18 @@ public class IssueChangeNotificationTest {
 
   @Test
   public void set_project_without_branch() {
-    IssueChangeNotification result = notification.setProject("MyService", "My Service", null);
+    IssueChangeNotification result = notification.setProject("MyService", "My Service", null, "uuid1");
     assertThat(result.getFieldValue("projectKey")).isEqualTo("MyService");
+    assertThat(result.getFieldValue("projectUuid")).isEqualTo("uuid1");
     assertThat(result.getFieldValue("projectName")).isEqualTo("My Service");
     assertThat(result.getFieldValue("branch")).isNull();
   }
 
   @Test
   public void set_project_with_branch() {
-    IssueChangeNotification result = notification.setProject("MyService", "My Service", "feature1");
+    IssueChangeNotification result = notification.setProject("MyService", "My Service", "feature1", "uuid2");
     assertThat(result.getFieldValue("projectKey")).isEqualTo("MyService");
+    assertThat(result.getFieldValue("projectUuid")).isEqualTo("uuid2");
     assertThat(result.getFieldValue("projectName")).isEqualTo("My Service");
     assertThat(result.getFieldValue("branch")).isEqualTo("feature1");
   }
