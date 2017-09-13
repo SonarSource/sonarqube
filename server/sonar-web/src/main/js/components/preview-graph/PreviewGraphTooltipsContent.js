@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
+import ChartLegendIcon from '../icons-components/ChartLegendIcon';
 
 /*::
 type Props = {

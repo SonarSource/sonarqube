@@ -21,9 +21,9 @@
 import React from 'react';
 import { Link } from 'react-router';
 import Analysis from './Analysis';
-import PreviewGraph from './PreviewGraph';
 import { getMetrics } from '../../../api/metrics';
 import { getProjectActivity } from '../../../api/projectActivity';
+import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Analysis as AnalysisType } from '../../projectActivity/types'; */
 /*:: import type { History, Metric } from '../types'; */
