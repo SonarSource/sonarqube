@@ -44,4 +44,11 @@ public class MetricStatsInt {
     return onLeak + offLeak;
   }
 
+  @Override
+  public String toString() {
+    return "MetricStatsInt{" +
+      "onLeak=" + onLeak +
+      ", offLeak=" + offLeak +
+      '}';
+  }
 }
