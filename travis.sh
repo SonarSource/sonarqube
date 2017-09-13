@@ -157,7 +157,7 @@ BUILD)
     mvn sonar:sonar \
             -Dsonar.host.url=$SONAR_HOST_URL \
             -Dsonar.login=$SONAR_TOKEN \
-            -Dsonar.branch.name=$TRAVIS_PULL_REQUEST_BRANCH
+            -Dsonar.branch.name=$TRAVIS_BRANCH
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Build and analyze internal pull request'
