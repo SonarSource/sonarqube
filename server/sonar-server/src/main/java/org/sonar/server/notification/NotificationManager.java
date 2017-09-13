@@ -20,7 +20,6 @@
 package org.sonar.server.notification;
 
 import com.google.common.collect.Multimap;
-import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 
@@ -54,6 +53,4 @@ public interface NotificationManager {
    * @return the list of user login along with the subscribed channels
    */
   Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, String projectUuid);
-
-  Multimap<String, NotificationChannel> findNotificationSubscribers(NotificationDispatcher dispatcher, @Nullable String componentKey);
 }
