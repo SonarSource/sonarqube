@@ -165,7 +165,9 @@ BUILD)
         -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
         -Dsonar.github.oauth=$GITHUB_TOKEN \
         -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN
+        -Dsonar.login=$SONAR_TOKEN \
+        -Dsonar.branch.target=$TRAVIS_BRANCH \
+        -Dsonar.branch.name=$TRAVIS_PULL_REQUEST_BRANCH
 
   else
     echo 'Build feature branch or external pull request'
