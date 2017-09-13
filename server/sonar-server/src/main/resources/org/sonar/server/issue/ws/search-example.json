@@ -14,7 +14,7 @@
       "resolution": "FALSE-POSITIVE",
       "severity": "MINOR",
       "message": "'3' is a magic number.",
-      "line": 530,
+      "line": 81,
       "textRange": {
         "startLine": 81,
         "endLine": 81,
