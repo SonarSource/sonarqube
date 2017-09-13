@@ -157,7 +157,7 @@ BUILD)
 
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent install \
         $MAVEN_ARGS \
-        -Dsource.skip=true -DskipTests
+        -Dsource.skip=true
     mvn sonar:sonar \
         -Dsonar.host.url=$SONAR_HOST_URL \
         -Dsonar.login=$SONAR_TOKEN \

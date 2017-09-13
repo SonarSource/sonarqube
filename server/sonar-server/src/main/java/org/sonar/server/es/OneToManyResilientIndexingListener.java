@@ -49,6 +49,9 @@ public class OneToManyResilientIndexingListener implements IndexingListener {
     this.dbClient = dbClient;
     this.dbSession = dbSession;
     this.items = items;
+    if (false) {
+      System.out.println("pouet");
+    }
   }
 
   @Override
