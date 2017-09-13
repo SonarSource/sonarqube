@@ -32,6 +32,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -60,17 +61,14 @@ public class PropertiesDao implements Dao {
    * Returns the logins of users who have subscribed to the given notification dispatcher with the given notification channel.
    * If a resource ID is passed, the search is made on users who have specifically subscribed for the given resource.
    *
+   * Note that {@link  UserRole#USER} permission is not checked here, filter the results with
+   * {@link org.sonar.db.permission.AuthorizationDao#keepAuthorizedLoginsOnProject}
+   *
    * @return the list of logins (maybe be empty - obviously)
    */
-  public List<String> selectUsersForNotification(String notificationDispatcherKey, String notificationChannelKey, @Nullable String projectUuid) {
+  public Set<String> findUsersForNotification(String notificationDispatcherKey, String notificationChannelKey, @Nullable String projectUuid) {
     try (DbSession session = mybatis.openSession(false)) {
       return getMapper(session).findUsersForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectUuid);
-    }
-  }
-
-  public List<String> selectNotificationSubscribers(String notificationDispatcherKey, String notificationChannelKey, @Nullable String componentKey) {
-    try (DbSession session = mybatis.openSession(false)) {
-      return getMapper(session).findNotificationSubscribers(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, componentKey);
     }
   }
 

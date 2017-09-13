@@ -396,4 +396,39 @@
     gr.role = #{permission,jdbcType=VARCHAR} and
     gr.group_id is not null
   </select>
+
+  <select id="keepAuthorizedLoginsOnProject" parameterType="map" resultType="String">
+      SELECT u.login
+      FROM users u
+      INNER JOIN user_roles ur ON ur.user_id = u.id
+      INNER JOIN projects p ON p.uuid = #{projectUuid,jdbcType=VARCHAR}
+      WHERE
+        ur.organization_uuid = p.organization_uuid
+        AND ur.resource_id = p.id
+        AND ur.role = #{permission,jdbcType=VARCHAR}
+        AND u.login IN <foreach collection="logins" open="(" close=")" item="login" separator=",">#{login}</foreach>
+
+      UNION
+
+      SELECT u.login
+      FROM users u
+      INNER JOIN projects p ON p.uuid = #{projectUuid,jdbcType=VARCHAR}
+      INNER JOIN group_roles gr ON gr.organization_uuid = p.organization_uuid
+      INNER JOIN groups_users gu ON gr.group_id = gu.group_id
+      WHERE
+        gu.user_id = u.id
+        AND gr.role = #{permission,jdbcType=VARCHAR}
+        AND u.login IN <foreach collection="logins" open="(" close=")" item="login" separator=",">#{login}</foreach>
+
+    <if test="permission == 'user' or permission == 'codeviewer'">
+      UNION
+
+      SELECT u.login
+      FROM users u
+      INNER JOIN projects p ON p.uuid = #{projectUuid,jdbcType=VARCHAR}
+      WHERE
+        p.private = ${_false}
+        AND u.login IN <foreach collection="logins" open="(" close=")" item="login" separator=",">#{login}</foreach>
+    </if>
+  </select>
 </mapper>

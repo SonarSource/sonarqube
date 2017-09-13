@@ -57,8 +57,8 @@ public class ChangesOnMyIssueNotificationDispatcher extends NotificationDispatch
 
   @Override
   public void dispatch(Notification notification, Context context) {
-    String projectKey = notification.getFieldValue("projectKey");
-    Multimap<String, NotificationChannel> subscribedRecipients = notificationManager.findNotificationSubscribers(this, projectKey);
+    String projectUuid = notification.getFieldValue("projectUuid");
+    Multimap<String, NotificationChannel> subscribedRecipients = notificationManager.findSubscribedRecipientsForDispatcher(this, projectUuid);
 
     // See available fields in the class IssueNotifications.
 
