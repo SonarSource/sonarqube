@@ -1,0 +1,126 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="page-actions"
+>
+  <span>
+    system.logs_level
+    :
+    <strong
+      className="little-spacer-left"
+    >
+      INFO
+    </strong>
+    <a
+      className="spacer-left icon-edit"
+      href="#"
+      id="edit-logs-level-button"
+      onClick={[Function]}
+    />
+  </span>
+  <div
+    className="display-inline-block dropdown spacer-left"
+  >
+    <button
+      data-toggle="dropdown"
+    >
+      system.download_logs
+      <i
+        className="icon-dropdown little-spacer-left"
+      />
+    </button>
+    <ul
+      className="dropdown-menu"
+    >
+      <li>
+        <a
+          download="sonarqube_app.log"
+          href="/api/system/logs?process=app"
+          id="logs-link"
+          target="_blank"
+        >
+          Compute Engine
+        </a>
+      </li>
+      <li>
+        <a
+          download="sonarqube_ce.log"
+          href="/api/system/logs?process=ce"
+          id="ce-logs-link"
+          target="_blank"
+        >
+          Main Process
+        </a>
+      </li>
+      <li>
+        <a
+          download="sonarqube_es.log"
+          href="/api/system/logs?process=es"
+          id="es-logs-link"
+          target="_blank"
+        >
+          Elasticsearch
+        </a>
+      </li>
+      <li>
+        <a
+          download="sonarqube_web.log"
+          href="/api/system/logs?process=web"
+          id="web-logs-link"
+          target="_blank"
+        >
+          Web Server
+        </a>
+      </li>
+    </ul>
+  </div>
+  <a
+    className="button spacer-left"
+    download="sonarqube_system_info.json"
+    href="/api/system/info"
+    id="download-link"
+    target="_blank"
+  >
+    system.download_system_info
+  </a>
+  <button
+    className="spacer-left"
+    id="restart-server-button"
+    onClick={[Function]}
+  >
+    system.restart_server
+  </button>
+</div>
+`;
+
+exports[`should render without restart and log download 1`] = `
+<div
+  className="page-actions"
+>
+  <span>
+    system.logs_level
+    :
+    <strong
+      className="little-spacer-left"
+    >
+      INFO
+    </strong>
+    <a
+      className="spacer-left icon-edit"
+      href="#"
+      id="edit-logs-level-button"
+      onClick={[Function]}
+    />
+  </span>
+  <a
+    className="button spacer-left"
+    download="sonarqube_system_info.json"
+    href="/api/system/info"
+    id="download-link"
+    target="_blank"
+  >
+    system.download_system_info
+  </a>
+</div>
+`;
