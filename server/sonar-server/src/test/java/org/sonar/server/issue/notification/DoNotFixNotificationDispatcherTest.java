@@ -61,9 +61,10 @@ public class DoNotFixNotificationDispatcherTest {
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
     recipients.put("godin", twitterChannel);
-    when(notifications.findNotificationSubscribers(underTest, "struts")).thenReturn(recipients);
+    when(notifications.findSubscribedRecipientsForDispatcher(underTest, "uuid1")).thenReturn(recipients);
 
     Notification fpNotif = new IssueChangeNotification().setFieldValue("projectKey", "struts")
+      .setFieldValue("projectUuid", "uuid1")
       .setFieldValue("changeAuthor", "godin")
       .setFieldValue("new.resolution", Issue.RESOLUTION_FALSE_POSITIVE)
       .setFieldValue("assignee", "freddy");
@@ -81,11 +82,6 @@ public class DoNotFixNotificationDispatcherTest {
    */
   @Test
   public void ignore_other_resolutions() {
-    Multimap<String, NotificationChannel> recipients = HashMultimap.create();
-    recipients.put("simon", emailChannel);
-    recipients.put("freddy", twitterChannel);
-    when(notifications.findNotificationSubscribers(underTest, "struts")).thenReturn(recipients);
-
     Notification fixedNotif = new IssueChangeNotification().setFieldValue("projectKey", "struts")
       .setFieldValue("changeAuthor", "godin")
       .setFieldValue("new.resolution", Issue.RESOLUTION_FIXED)
