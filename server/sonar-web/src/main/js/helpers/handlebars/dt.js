@@ -21,6 +21,9 @@ const { parseDate } = require('../../helpers/dates');
 const { DEFAULT_LANGUAGE } = require('../../helpers/l10n');
 
 module.exports = function(date) {
+  if (!date) {
+    return '';
+  }
   return new Intl.DateTimeFormat(localStorage.getItem('l10n.locale') || DEFAULT_LANGUAGE, {
     year: 'numeric',
     month: 'long',
