@@ -155,10 +155,9 @@ BUILD)
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Build and analyze internal pull request'
 
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent install \
         $MAVEN_ARGS \
-        -Dsource.skip=true \
-        -Pdeploy-sonarsource
+        -Dsource.skip=true -DskipTests
     mvn sonar:sonar \
         -Dsonar.host.url=$SONAR_HOST_URL \
         -Dsonar.login=$SONAR_TOKEN \
@@ -171,7 +170,7 @@ BUILD)
     mvn install $MAVEN_ARGS -Dsource.skip=true
   fi
 
-  ./run-integration-tests.sh "Lite" ""
+
   ;;
 
 WEB_TESTS)
