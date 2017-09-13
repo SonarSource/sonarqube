@@ -159,13 +159,22 @@ BUILD)
         $MAVEN_ARGS \
         -Dsource.skip=true \
         -Pdeploy-sonarsource
+
     mvn sonar:sonar \
+        -Dsonar.host.url=$SONAR_HOST_URL \
+        -Dsonar.login=$SONAR_TOKEN \
+        -Dsonar.branch.name=$TRAVIS_PULL_REQUEST_BRANCH \
+        -Dsonar.branch.target=$TRAVIS_BRANCH
+
+    # second analysis to decorate GitHub pull request
+    # (need support of standard analysis mode in GH plugin)
+    mvn sonar:sonar \
+        -Dsonar.host.url=$SONAR_HOST_URL \
+        -Dsonar.login=$SONAR_TOKEN \
         -Dsonar.analysis.mode=preview \
         -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
         -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
-        -Dsonar.github.oauth=$GITHUB_TOKEN \
-        -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN
+        -Dsonar.github.oauth=$GITHUB_TOKEN
 
   else
     echo 'Build feature branch or external pull request'
