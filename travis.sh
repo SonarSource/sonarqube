@@ -160,13 +160,7 @@ BUILD)
         -Dsource.skip=true \
         -Pdeploy-sonarsource
 
-    mvn sonar:sonar \
-        -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN \
-        -Dsonar.branch.name=$TRAVIS_PULL_REQUEST_BRANCH \
-        -Dsonar.branch.target=$TRAVIS_BRANCH
-
-    # second analysis to decorate GitHub pull request
+    # analysis to decorate GitHub pull request
     # (need support of standard analysis mode in GH plugin)
     mvn sonar:sonar \
         -Dsonar.host.url=$SONAR_HOST_URL \
@@ -176,6 +170,15 @@ BUILD)
         -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
         -Dsonar.github.oauth=$GITHUB_TOKEN
 
+    if [ "$TRAVIS_BRANCH" == "master" ]; then
+      # analysis of short-living branch based on another short-living branch
+      # is currently not supported
+      mvn sonar:sonar \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.login=$SONAR_TOKEN \
+          -Dsonar.branch.name=$TRAVIS_PULL_REQUEST_BRANCH \
+          -Dsonar.branch.target=$TRAVIS_BRANCH
+    fi
   else
     echo 'Build feature branch or external pull request'
 
