@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
-export function setLogLevel(level: string): Promise<void> {
-  return post('/api/system/change_log_level', { level });
+export function setLogLevel(level: string): Promise<void | Response> {
+  return post('/api/system/change_log_level', { level }).catch(throwGlobalError);
 }
 
 export function getSystemInfo(): Promise<any> {
-  return getJSON('/api/system/info');
+  return getJSON('/api/system/info').catch(throwGlobalError);
 }
 
 export function getSystemStatus(): Promise<any> {
