@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.notification;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
@@ -159,7 +160,7 @@ public class NewIssuesStatisticsTest {
   }
 
   @Test
-  public void add_counts_component_if_null_globally_and_per_assignee_as_it_should_not_be_null() {
+  public void add_does_not_count_component_if_null_neither_globally_nor_per_assignee() {
     String assignee = randomAlphanumeric(10);
     underTest.add(new DefaultIssue().setComponentUuid(null).setAssignee(assignee).setNew(new Random().nextBoolean()));
 
@@ -167,8 +168,8 @@ public class NewIssuesStatisticsTest {
     DistributedMetricStatsInt assigneeDistribution = underTest.getAssigneesStatistics().get(assignee).getDistributedMetricStats(Metric.COMPONENT);
     Stream.of(globalDistribution, assigneeDistribution)
       .forEach(distribution -> {
-        assertThat(distribution.getTotal()).isEqualTo(1);
-        assertThat(distribution.getForLabel(null).isPresent()).isTrue();
+        assertThat(distribution.getTotal()).isEqualTo(0);
+        assertThat(distribution.getForLabel(null).isPresent()).isFalse();
       });
   }
 
@@ -204,7 +205,7 @@ public class NewIssuesStatisticsTest {
   }
 
   @Test
-  public void add_does_not_count_ruleKey_if_neither_neither_globally_nor_per_assignee() {
+  public void add_does_not_count_ruleKey_if_null_neither_globally_nor_per_assignee() {
     String assignee = randomAlphanumeric(10);
     underTest.add(new DefaultIssue().setRuleKey(null).setAssignee(assignee).setNew(new Random().nextBoolean()));
 
@@ -376,15 +377,6 @@ public class NewIssuesStatisticsTest {
       .forEach(distribution -> assertThat(distribution.getTotal()).isEqualTo(0));
   }
 
-  private void assertStats(DistributedMetricStatsInt distribution, String label, int onLeak, int offLeak, int total) {
-    Optional<MetricStatsInt> statsOption = distribution.getForLabel(label);
-    assertThat(statsOption.isPresent()).describedAs("distribution for label %s not found", label).isTrue();
-    MetricStatsInt stats = statsOption.get();
-    assertThat(stats.getOnLeak()).isEqualTo(onLeak);
-    assertThat(stats.getOffLeak()).isEqualTo(offLeak);
-    assertThat(stats.getTotal()).isEqualTo(total);
-  }
-
   @Test
   public void add_counts_issue_per_severity_per_assignee() {
     String assignee = randomAlphanumeric(20);
@@ -408,6 +400,50 @@ public class NewIssuesStatisticsTest {
     assertThat(underTest.globalStatistics().hasIssues()).isFalse();
   }
 
+  @Test
+  public void verify_toString() {
+    String componentUuid = randomAlphanumeric(2);
+    String tag = randomAlphanumeric(3);
+    String assignee = randomAlphanumeric(4);
+    int effort = 10 + new Random().nextInt(5);
+    RuleKey ruleKey = RuleKey.of(randomAlphanumeric(5), randomAlphanumeric(6));
+    underTest.add(new DefaultIssue()
+      .setSeverity(Severity.BLOCKER)
+      .setComponentUuid(componentUuid)
+      .setTags(ImmutableSet.of(tag))
+      .setAssignee(assignee)
+      .setRuleKey(ruleKey)
+      .setEffort(Duration.create(effort)));
+
+    assertThat(underTest.toString())
+      .isEqualTo("NewIssuesStatistics{" +
+        "assigneesStatistics={" + assignee + "=" +
+        "Stats{distributions={" +
+        "SEVERITY=DistributedMetricStatsInt{globalStats=MetricStatsInt{onLeak=1, offLeak=0}, " +
+        "statsPerLabel={" + Severity.BLOCKER + "=MetricStatsInt{onLeak=1, offLeak=0}}}, " +
+        "TAG=DistributedMetricStatsInt{globalStats=MetricStatsInt{onLeak=1, offLeak=0}, " +
+        "statsPerLabel={" + tag + "=MetricStatsInt{onLeak=1, offLeak=0}}}, " +
+        "COMPONENT=DistributedMetricStatsInt{globalStats=MetricStatsInt{onLeak=1, offLeak=0}, " +
+        "statsPerLabel={" + componentUuid + "=MetricStatsInt{onLeak=1, offLeak=0}}}, " +
+        "ASSIGNEE=DistributedMetricStatsInt{globalStats=MetricStatsInt{onLeak=1, offLeak=0}, " +
+        "statsPerLabel={" + assignee + "=MetricStatsInt{onLeak=1, offLeak=0}}}, " +
+        "RULE=DistributedMetricStatsInt{globalStats=MetricStatsInt{onLeak=1, offLeak=0}, " +
+        "statsPerLabel={" + ruleKey.toString() + "=MetricStatsInt{onLeak=1, offLeak=0}}}}, " +
+        "effortStats=MetricStatsLong{onLeak=" + effort + ", offLeak=0}}}, " +
+        "globalStatistics=Stats{distributions={" +
+        "SEVERITY=DistributedMetricStatsInt{globalStats=MetricStatsInt{onLeak=1, offLeak=0}, " +
+        "statsPerLabel={" + Severity.BLOCKER + "=MetricStatsInt{onLeak=1, offLeak=0}}}, " +
+        "TAG=DistributedMetricStatsInt{globalStats=MetricStatsInt{onLeak=1, offLeak=0}, " +
+        "statsPerLabel={" + tag + "=MetricStatsInt{onLeak=1, offLeak=0}}}, " +
+        "COMPONENT=DistributedMetricStatsInt{globalStats=MetricStatsInt{onLeak=1, offLeak=0}, " +
+        "statsPerLabel={" + componentUuid + "=MetricStatsInt{onLeak=1, offLeak=0}}}, " +
+        "ASSIGNEE=DistributedMetricStatsInt{globalStats=MetricStatsInt{onLeak=1, offLeak=0}, " +
+        "statsPerLabel={" + assignee + "=MetricStatsInt{onLeak=1, offLeak=0}}}, " +
+        "RULE=DistributedMetricStatsInt{globalStats=MetricStatsInt{onLeak=1, offLeak=0}, " +
+        "statsPerLabel={" + ruleKey.toString() + "=MetricStatsInt{onLeak=1, offLeak=0}}}}, " +
+        "effortStats=MetricStatsLong{onLeak=" + effort + ", offLeak=0}}}");
+  }
+
   @CheckForNull
   private Integer countDistributionTotal(Metric metric, String label) {
     return underTest.globalStatistics()
@@ -417,32 +453,13 @@ public class NewIssuesStatisticsTest {
       .orElse(null);
   }
 
-  @CheckForNull
-  private Integer countDistributionOnLeak(Metric metric, String label) {
-    return underTest.globalStatistics()
-      .getDistributedMetricStats(metric)
-      .getForLabel(label)
-      .map(MetricStatsInt::getOnLeak)
-      .orElse(null);
+  private void assertStats(DistributedMetricStatsInt distribution, String label, int onLeak, int offLeak, int total) {
+    Optional<MetricStatsInt> statsOption = distribution.getForLabel(label);
+    assertThat(statsOption.isPresent()).describedAs("distribution for label %s not found", label).isTrue();
+    MetricStatsInt stats = statsOption.get();
+    assertThat(stats.getOnLeak()).isEqualTo(onLeak);
+    assertThat(stats.getOffLeak()).isEqualTo(offLeak);
+    assertThat(stats.getTotal()).isEqualTo(total);
   }
 
-  @CheckForNull
-  private Integer countDistributionOffLeak(Metric metric, String label) {
-    return underTest.globalStatistics()
-      .getDistributedMetricStats(metric)
-      .getForLabel(label)
-      .map(MetricStatsInt::getOffLeak)
-      .orElse(null);
-  }
-
-  private DefaultIssue defaultIssue() {
-    return new DefaultIssue()
-      .setAssignee("maynard")
-      .setComponentUuid("file-uuid")
-      .setNew(true)
-      .setSeverity(Severity.INFO)
-      .setRuleKey(RuleKey.of("SonarQube", "rule-the-world"))
-      .setTags(Lists.newArrayList("bug", "owasp"))
-      .setEffort(Duration.create(5L));
-  }
 }

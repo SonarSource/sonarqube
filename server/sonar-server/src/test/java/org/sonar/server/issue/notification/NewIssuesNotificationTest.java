@@ -19,24 +19,38 @@
  */
 package org.sonar.server.issue.notification;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.user.index.UserIndex;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ASSIGNEE;
@@ -48,11 +62,22 @@ import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG
 
 public class NewIssuesNotificationTest {
 
-  NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
-  UserIndex userIndex = mock(UserIndex.class);
-  DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
-  Durations durations = mock(Durations.class);
-  NewIssuesNotification underTest = new NewIssuesNotification(userIndex, dbClient, durations);
+  private NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
+  private UserIndex userIndex = mock(UserIndex.class);
+  private DbClient dbClient = mock(DbClient.class);
+  private DbSession dbSession = mock(DbSession.class);
+  private ComponentDao componentDao = mock(ComponentDao.class);
+  private RuleDao ruleDao = mock(RuleDao.class);
+  private Durations durations = mock(Durations.class);
+  private NewIssuesNotification underTest = new NewIssuesNotification(userIndex, dbClient, durations);
+
+  @Before
+  public void setUp() throws Exception {
+    when(dbClient.openSession(anyBoolean())).thenReturn(dbSession);
+    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.ruleDao()).thenReturn(ruleDao);
+    when(componentDao.selectByUuids(same(dbSession), anyCollection())).thenReturn(Collections.emptyList());
+  }
 
   @Test
   public void set_project_without_branch() {
@@ -87,10 +112,15 @@ public class NewIssuesNotificationTest {
   public void set_statistics() {
     addIssueNTimes(newIssue1(), 5);
     addIssueNTimes(newIssue2(), 3);
-    when(dbClient.componentDao().selectOrFailByUuid(any(DbSession.class), eq("file-uuid")).name()).thenReturn("file-name");
-    when(dbClient.componentDao().selectOrFailByUuid(any(DbSession.class), eq("directory-uuid")).name()).thenReturn("directory-name");
-    when(dbClient.ruleDao().selectOrFailDefinitionByKey(any(DbSession.class), eq(RuleKey.of("SonarQube", "rule-the-world")))).thenReturn(newRule("Rule the World", "Java"));
-    when(dbClient.ruleDao().selectOrFailDefinitionByKey(any(DbSession.class), eq(RuleKey.of("SonarQube", "rule-the-universe")))).thenReturn(newRule("Rule the Universe", "Clojure"));
+    when(componentDao.selectByUuids(dbSession, ImmutableSet.of("file-uuid", "directory-uuid")))
+      .thenReturn(Arrays.asList(
+        new ComponentDto().setUuid("file-uuid").setName("file-name"),
+        new ComponentDto().setUuid("directory-uuid").setName("directory-name")));
+    RuleKey rule1 = RuleKey.of("SonarQube", "rule-the-world");
+    RuleKey rule2 = RuleKey.of("SonarQube", "rule-the-universe");
+    when(ruleDao.selectDefinitionByKeys(dbSession, ImmutableSet.of(rule1, rule2)))
+      .thenReturn(
+        ImmutableList.of(newRule(rule1, "Rule the World", "Java"), newRule(rule2, "Rule the Universe", "Clojure")));
 
     underTest.setStatistics("project-long-name", stats);
 
@@ -113,6 +143,83 @@ public class NewIssuesNotificationTest {
     assertThat(underTest.getFieldValue(RULE + ".2.label")).isEqualTo("Rule the Universe (Clojure)");
     assertThat(underTest.getFieldValue(RULE + ".2.count")).isEqualTo("3");
     assertThat(underTest.getDefaultMessage()).startsWith("8 new issues on project-long-name");
+  }
+
+  @Test
+  public void add_only_5_assignees_with_biggest_issue_counts() {
+    Random random = new Random();
+    String[] assignees = IntStream.range(0, 6 + random.nextInt(10)).mapToObj(s -> "assignee" + s).toArray(String[]::new);
+    NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
+    int i = assignees.length;
+    for (String assignee : assignees) {
+      IntStream.range(0, i).mapToObj(j -> new DefaultIssue().setAssignee(assignee)).forEach(stats::add);
+      i--;
+    }
+
+    underTest.setStatistics(randomAlphanumeric(20), stats);
+
+    for (int j = 0; j < 5; j++) {
+      String fieldBase = ASSIGNEE + "." + (j + 1);
+      assertThat(underTest.getFieldValue(fieldBase + ".label")).as("label of %s", fieldBase).isEqualTo(assignees[j]);
+      assertThat(underTest.getFieldValue(fieldBase + ".count")).as("count of %s", fieldBase).isEqualTo(String.valueOf(assignees.length - j));
+    }
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".6.label")).isNull();
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".6.count")).isNull();
+  }
+
+  @Test
+  public void add_only_5_components_with_biggest_issue_counts() {
+    Random random = new Random();
+    String[] componentUuids = IntStream.range(0, 6 + random.nextInt(10)).mapToObj(s -> "component_uuid_" + s).toArray(String[]::new);
+    NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
+    int i = componentUuids.length;
+    for (String component : componentUuids) {
+      IntStream.range(0, i).mapToObj(j -> new DefaultIssue().setComponentUuid(component)).forEach(stats::add);
+      i--;
+    }
+    when(componentDao.selectByUuids(dbSession, Arrays.stream(componentUuids).limit(5).collect(Collectors.toSet())))
+      .thenReturn(
+        Arrays.stream(componentUuids).map(uuid -> new ComponentDto().setUuid(uuid).setName("name_" + uuid)).collect(MoreCollectors.toList()));
+
+    underTest.setStatistics(randomAlphanumeric(20), stats);
+
+    for (int j = 0; j < 5; j++) {
+      String fieldBase = COMPONENT + "." + (j + 1);
+      assertThat(underTest.getFieldValue(fieldBase + ".label")).as("label of %s", fieldBase).isEqualTo("name_" + componentUuids[j]);
+      assertThat(underTest.getFieldValue(fieldBase + ".count")).as("count of %s", fieldBase).isEqualTo(String.valueOf(componentUuids.length - j));
+    }
+    assertThat(underTest.getFieldValue(COMPONENT + ".6.label")).isNull();
+    assertThat(underTest.getFieldValue(COMPONENT + ".6.count")).isNull();
+  }
+
+  @Test
+  public void add_only_5_rules_with_biggest_issue_counts() {
+    Random random = new Random();
+    String repository = randomAlphanumeric(4);
+    String[] ruleKeys = IntStream.range(0, 6 + random.nextInt(10)).mapToObj(s -> "rule_" + s).toArray(String[]::new);
+    NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
+    int i = ruleKeys.length;
+    for (String ruleKey : ruleKeys) {
+      IntStream.range(0, i).mapToObj(j -> new DefaultIssue().setRuleKey(RuleKey.of(repository, ruleKey))).forEach(stats::add);
+      i--;
+    }
+    when(ruleDao.selectDefinitionByKeys(dbSession, Arrays.stream(ruleKeys).limit(5).map(s -> RuleKey.of(repository, s)).collect(MoreCollectors.toSet(5))))
+      .thenReturn(
+        Arrays.stream(ruleKeys).limit(5).map(ruleKey -> new RuleDefinitionDto()
+          .setRuleKey(RuleKey.of(repository, ruleKey))
+          .setName("name_" + ruleKey)
+          .setLanguage("language_" + ruleKey))
+          .collect(MoreCollectors.toList(5)));
+
+    underTest.setStatistics(randomAlphanumeric(20), stats);
+
+    for (int j = 0; j < 5; j++) {
+      String fieldBase = RULE + "." + (j + 1);
+      assertThat(underTest.getFieldValue(fieldBase + ".label")).as("label of %s", fieldBase).isEqualTo("name_" + ruleKeys[j] + " (language_" + ruleKeys[j] + ")");
+      assertThat(underTest.getFieldValue(fieldBase + ".count")).as("count of %s", fieldBase).isEqualTo(String.valueOf(ruleKeys.length - j));
+    }
+    assertThat(underTest.getFieldValue(RULE + ".6.label")).isNull();
+    assertThat(underTest.getFieldValue(RULE + ".6.count")).isNull();
   }
 
   @Test
@@ -150,8 +257,9 @@ public class NewIssuesNotificationTest {
       .setEffort(Duration.create(10L));
   }
 
-  private RuleDefinitionDto newRule(String name, String language) {
+  private RuleDefinitionDto newRule(RuleKey ruleKey, String name, String language) {
     return new RuleDefinitionDto()
+      .setRuleKey(ruleKey)
       .setName(name)
       .setLanguage(language);
   }
