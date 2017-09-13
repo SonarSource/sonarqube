@@ -15,26 +15,10 @@ exports[`should clear 1`] = `
       href="#"
       onClick={[Function]}
     >
-      <svg
+      <OpenCloseIcon
         className="little-spacer-right"
-        height="10"
-        style={
-          Object {
-            "paddingTop": 3,
-          }
-        }
-        viewBox="0 0 1792 1792"
-        width="10"
-      >
-        <path
-          d="M1363 877l-742 742q-19 19-45 19t-45-19l-166-166q-19-19-19-45t19-45l531-531-531-531q-19-19-19-45t19-45l166-166q19-19 45-19t45 19l742 742q19 19 19 45t-19 45z"
-          style={
-            Object {
-              "fill": "currentColor ",
-            }
-          }
-        />
-      </svg>
+        open={false}
+      />
       foo
     </a>
     <span
@@ -55,26 +39,10 @@ exports[`should render closed facet with value 1`] = `
       href="#"
       onClick={[Function]}
     >
-      <svg
+      <OpenCloseIcon
         className="little-spacer-right"
-        height="10"
-        style={
-          Object {
-            "paddingTop": 3,
-          }
-        }
-        viewBox="0 0 1792 1792"
-        width="10"
-      >
-        <path
-          d="M1363 877l-742 742q-19 19-45 19t-45-19l-166-166q-19-19-19-45t19-45l531-531-531-531q-19-19-19-45t19-45l166-166q19-19 45-19t45 19l742 742q19 19 19 45t-19 45z"
-          style={
-            Object {
-              "fill": "currentColor ",
-            }
-          }
-        />
-      </svg>
+        open={false}
+      />
       foo
     </a>
     <span
@@ -95,26 +63,10 @@ exports[`should render closed facet without value 1`] = `
       href="#"
       onClick={[Function]}
     >
-      <svg
+      <OpenCloseIcon
         className="little-spacer-right"
-        height="10"
-        style={
-          Object {
-            "paddingTop": 3,
-          }
-        }
-        viewBox="0 0 1792 1792"
-        width="10"
-      >
-        <path
-          d="M1363 877l-742 742q-19 19-45 19t-45-19l-166-166q-19-19-19-45t19-45l531-531-531-531q-19-19-19-45t19-45l166-166q19-19 45-19t45 19l742 742q19 19 19 45t-19 45z"
-          style={
-            Object {
-              "fill": "currentColor ",
-            }
-          }
-        />
-      </svg>
+        open={false}
+      />
       foo
     </a>
   </span>
@@ -130,26 +82,10 @@ exports[`should render open facet with value 1`] = `
       href="#"
       onClick={[Function]}
     >
-      <svg
+      <OpenCloseIcon
         className="little-spacer-right"
-        height="10"
-        style={
-          Object {
-            "paddingTop": 3,
-          }
-        }
-        viewBox="0 0 1792 1792"
-        width="10"
-      >
-        <path
-          d="M1683 808l-742 741q-19 19-45 19t-45-19l-742-741q-19-19-19-45.5t19-45.5l166-165q19-19 45-19t45 19l531 531 531-531q19-19 45-19t45 19l166 165q19 19 19 45.5t-19 45.5z"
-          style={
-            Object {
-              "fill": "currentColor ",
-            }
-          }
-        />
-      </svg>
+        open={true}
+      />
       foo
     </a>
   </span>
@@ -165,26 +101,10 @@ exports[`should render open facet without value 1`] = `
       href="#"
       onClick={[Function]}
     >
-      <svg
+      <OpenCloseIcon
         className="little-spacer-right"
-        height="10"
-        style={
-          Object {
-            "paddingTop": 3,
-          }
-        }
-        viewBox="0 0 1792 1792"
-        width="10"
-      >
-        <path
-          d="M1683 808l-742 741q-19 19-45 19t-45-19l-742-741q-19-19-19-45.5t19-45.5l166-165q19-19 45-19t45 19l531 531 531-531q19-19 45-19t45 19l166 165q19 19 19 45.5t-19 45.5z"
-          style={
-            Object {
-              "fill": "currentColor ",
-            }
-          }
-        />
-      </svg>
+        open={true}
+      />
       foo
     </a>
   </span>
