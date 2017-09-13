@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import { AutoSizer } from 'react-virtualized';
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import ZoomTimeLine from '../../../components/charts/ZoomTimeLine';
 import { hasHistoryData } from '../utils';
 /*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */

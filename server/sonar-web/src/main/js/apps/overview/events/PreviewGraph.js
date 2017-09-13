@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { minBy } from 'lodash';
-import { AutoSizer } from 'react-virtualized';
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import PreviewGraphTooltips from './PreviewGraphTooltips';
 import {
