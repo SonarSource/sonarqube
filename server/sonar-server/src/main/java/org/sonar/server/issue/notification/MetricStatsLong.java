@@ -44,4 +44,11 @@ public class MetricStatsLong {
     return onLeak + offLeak;
   }
 
+  @Override
+  public String toString() {
+    return "MetricStatsLong{" +
+      "onLeak=" + onLeak +
+      ", offLeak=" + offLeak +
+      '}';
+  }
 }
