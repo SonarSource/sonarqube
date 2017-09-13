@@ -114,7 +114,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     IssueChangeNotification changeNotification = new IssueChangeNotification();
     changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
     changeNotification.setIssue(issue);
-    changeNotification.setProject(project.getPublicKey(), project.getName(), getBranchName());
+    changeNotification.setProject(project.getPublicKey(), project.getName(), getBranchName(), project.getUuid());
     getComponentKey(issue).ifPresent(c -> changeNotification.setComponent(c.getPublicKey(), c.getName()));
     service.deliver(changeNotification);
   }

@@ -3,51 +3,31 @@
 
 <mapper namespace="org.sonar.db.property.PropertiesMapper">
 
-  <select id="findUsersForNotification" parameterType="map" resultType="String">
-    select
+  <select id="findUsersForNotification" parameterType="map" resultType="java.lang.String">
+    SELECT
       u.login
-    from
+    FROM
       users u
-    inner join properties p on
-      p.user_id=u.id
-    <choose>
-      <when test="projectUuid == null">
-        where
-          p.prop_key = #{notifKey,jdbcType=VARCHAR}
-          and p.text_value = 'true'
-          and p.resource_id is null
-      </when>
-      <otherwise>
-        inner join projects c on
-          c.id=p.resource_id
-        where
-          p.prop_key = #{notifKey,jdbcType=VARCHAR}
-          and p.text_value = 'true'
-          and c.uuid = #{projectUuid,jdbcType=VARCHAR}
-          and p.resource_id is not null
-      </otherwise>
-    </choose>
-  </select>
+    INNER JOIN projects c on c.uuid = #{projectUuid,jdbcType=VARCHAR}
+    INNER JOIN properties p ON p.user_id = u.id
+    WHERE
+      p.prop_key = #{notifKey,jdbcType=VARCHAR}
+      AND p.text_value = 'true'
+      AND p.resource_id IS NULL
 
-  <select id="findNotificationSubscribers" parameterType="map" resultType="String">
-    select
+    UNION
+
+    SELECT
       u.login
-    from
-      properties p
-    inner join users u on
-      p.user_id = u.id
-      <if test="componentKey != null">
-        left outer join projects p1 on p.resource_id=p1.id and p1.kee=#{componentKey,jdbcType=VARCHAR}
-      </if>
-    where
-      p.prop_key = #{propKey,jdbcType=VARCHAR}
-      and p.text_value like 'true'
-      and (
-        p.resource_id is null
-        <if test="componentKey != null">
-          or p.resource_id=p1.id
-        </if>
-      )
+    FROM
+      users u
+    INNER JOIN projects c on c.uuid = #{projectUuid,jdbcType=VARCHAR}
+    INNER JOIN properties p ON p.user_id = u.id
+    WHERE
+      p.prop_key = #{notifKey,jdbcType=VARCHAR}
+      AND p.text_value = 'true'
+      AND p.resource_id = c.id
+
   </select>
 
   <sql id="columnsToScrapPropertyDto">

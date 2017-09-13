@@ -60,8 +60,8 @@ public class DoNotFixNotificationDispatcher extends NotificationDispatcher {
     String newResolution = notification.getFieldValue("new.resolution");
     if (Objects.equals(newResolution, Issue.RESOLUTION_FALSE_POSITIVE) || Objects.equals(newResolution, Issue.RESOLUTION_WONT_FIX)) {
       String author = notification.getFieldValue("changeAuthor");
-      String projectKey = notification.getFieldValue("projectKey");
-      Multimap<String, NotificationChannel> subscribedRecipients = notifications.findNotificationSubscribers(this, projectKey);
+      String projectUuid = notification.getFieldValue("projectUuid");
+      Multimap<String, NotificationChannel> subscribedRecipients = notifications.findSubscribedRecipientsForDispatcher(this, projectUuid);
       notify(author, context, subscribedRecipients);
     }
   }

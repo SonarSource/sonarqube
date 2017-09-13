@@ -20,14 +20,13 @@
 package org.sonar.db.property;
 
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
 public interface PropertiesMapper {
 
-  List<String> findUsersForNotification(@Param("notifKey") String notificationKey, @Nullable @Param("projectUuid") String projectUuid);
-
-  List<String> findNotificationSubscribers(@Param("propKey") String propertyKey, @Nullable @Param("componentKey") String componentKey);
+  Set<String> findUsersForNotification(@Param("notifKey") String notificationKey, @Nullable @Param("projectUuid") String projectUuid);
 
   List<PropertyDto> selectGlobalProperties();
 
