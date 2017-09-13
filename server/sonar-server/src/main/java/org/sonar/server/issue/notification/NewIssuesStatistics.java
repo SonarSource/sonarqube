@@ -84,6 +84,14 @@ public class NewIssuesStatistics {
     }
   }
 
+  @Override
+  public String toString() {
+    return "NewIssuesStatistics{" +
+      "assigneesStatistics=" + assigneesStatistics +
+      ", globalStatistics=" + globalStatistics +
+      '}';
+  }
+
   public static class Stats {
     private final Predicate<Issue> onLeakPredicate;
     private final Map<Metric, DistributedMetricStatsInt> distributions = new EnumMap<>(Metric.class);
@@ -101,7 +109,10 @@ public class NewIssuesStatistics {
     public void add(Issue issue) {
       boolean isOnLeak = onLeakPredicate.test(issue);
       distributions.get(SEVERITY).increment(issue.severity(), isOnLeak);
-      distributions.get(COMPONENT).increment(issue.componentUuid(), isOnLeak);
+      String componentUuid = issue.componentUuid();
+      if (componentUuid != null) {
+        distributions.get(COMPONENT).increment(componentUuid, isOnLeak);
+      }
       RuleKey ruleKey = issue.ruleKey();
       if (ruleKey != null) {
         distributions.get(RULE).increment(ruleKey.toString(), isOnLeak);
@@ -139,6 +150,13 @@ public class NewIssuesStatistics {
       return getDistributedMetricStats(SEVERITY).getOffLeak() > 0;
     }
 
+    @Override
+    public String toString() {
+      return "Stats{" +
+        "distributions=" + distributions +
+        ", effortStats=" + effortStats +
+        '}';
+    }
   }
 
 }
