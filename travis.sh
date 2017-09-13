@@ -150,7 +150,14 @@ BUILD)
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build release branch'
 
-    mvn deploy $MAVEN_ARGS -Pdeploy-sonarsource,release
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
+        $MAVEN_ARGS \
+        -Pdeploy-sonarsource,release
+
+    mvn sonar:sonar \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.branch.name=$TRAVIS_PULL_REQUEST_BRANCH
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Build and analyze internal pull request'
