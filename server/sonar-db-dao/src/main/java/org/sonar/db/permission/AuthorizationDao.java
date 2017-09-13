@@ -177,6 +177,13 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).selectLoginsWithGlobalPermission(ADMINISTER.getKey());
   }
 
+  public Set<String> keepAuthorizedLoginsOnProject(DbSession dbSession, Set<String> logins, String projectUuid, String permission) {
+    return executeLargeInputsIntoSet(
+      logins,
+      partitionOfLogins -> mapper(dbSession).keepAuthorizedLoginsOnProject(partitionOfLogins, projectUuid, permission),
+      partitionSize -> partitionSize / 3);
+  }
+
   private static AuthorizationMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(AuthorizationMapper.class);
   }

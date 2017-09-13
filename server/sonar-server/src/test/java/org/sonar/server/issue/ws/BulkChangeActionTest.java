@@ -254,7 +254,7 @@ public class BulkChangeActionTest {
     verify(notificationManager).scheduleForSending(issueChangeNotificationCaptor.capture());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("key")).isEqualTo(issueDto.getKey());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("componentName")).isEqualTo(file.longName());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectName")).isEqualTo(project.longName());
+    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectName")).isEqualTo(project.name());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectKey")).isEqualTo(project.getDbKey());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("ruleName")).isEqualTo(rule.getName());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("changeAuthor")).isEqualTo(user.getLogin());
@@ -282,7 +282,7 @@ public class BulkChangeActionTest {
     verify(notificationManager).scheduleForSending(issueChangeNotificationCaptor.capture());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("key")).isEqualTo(issueDto.getKey());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("componentName")).isEqualTo(fileOnBranch.longName());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectName")).isEqualTo(project.longName());
+    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectName")).isEqualTo(project.name());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectKey")).isEqualTo(project.getDbKey());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("ruleName")).isEqualTo(rule.getName());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("changeAuthor")).isEqualTo(user.getLogin());
