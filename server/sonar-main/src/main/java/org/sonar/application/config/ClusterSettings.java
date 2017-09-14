@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.process.MessageException;
-import org.sonar.cluster.NodeType;
+import org.sonar.process.cluster.NodeType;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
@@ -42,12 +42,12 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_HOSTS;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_HOST;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_WEB_LEADER;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_HOSTS;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_HOST;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_WEB_LEADER;
 import static org.sonar.process.ProcessProperties.JDBC_URL;
 import static org.sonar.process.ProcessProperties.SEARCH_HOST;
 

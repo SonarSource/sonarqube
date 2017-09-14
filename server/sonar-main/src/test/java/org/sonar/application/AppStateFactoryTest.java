@@ -24,9 +24,9 @@ import org.sonar.application.cluster.ClusterAppStateImpl;
 import org.sonar.application.config.TestAppSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NAME;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NAME;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
 
 public class AppStateFactoryTest {
 

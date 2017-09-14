@@ -26,8 +26,8 @@ import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.cluster.health.NodeDetails;
-import org.sonar.cluster.health.NodeHealth;
+import org.sonar.process.cluster.health.NodeDetails;
+import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 

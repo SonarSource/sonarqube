@@ -451,11 +451,6 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-cluster</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-server</artifactId>
         <version>${project.version}</version>
       </dependency>

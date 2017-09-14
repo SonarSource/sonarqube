@@ -27,13 +27,13 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
-import org.sonar.cluster.localclient.HazelcastLocalClient;
+import org.sonar.server.hz.HazelcastLocalClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.cluster.ClusterObjectKeys.WORKER_UUIDS;
+import static org.sonar.process.cluster.ClusterObjectKeys.WORKER_UUIDS;
 
 public class CeDistributedInformationImplTest {
   private String clientUUID1 = "1";
