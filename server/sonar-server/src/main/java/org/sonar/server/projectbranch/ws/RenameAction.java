@@ -33,7 +33,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_RENAME;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
@@ -59,16 +58,7 @@ public class RenameAction implements BranchWsAction {
       .setPost(true)
       .setHandler(this);
 
-    action
-      .createParam(PARAM_PROJECT)
-      .setDescription("Project key")
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001)
-      .setRequired(true);
-    action
-      .createParam(PARAM_BRANCH)
-      .setDescription("New name of the main branch")
-      .setExampleValue("master")
-      .setRequired(true);
+    BranchesWs.addProjectBranchParams(action);
   }
 
   @Override

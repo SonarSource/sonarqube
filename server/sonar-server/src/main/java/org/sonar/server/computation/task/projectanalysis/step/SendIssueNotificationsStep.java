@@ -22,7 +22,6 @@ package org.sonar.server.computation.task.projectanalysis.step;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -64,7 +63,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private final NotificationService service;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final NewIssuesNotificationFactory newIssuesNotificationFactory;
-  private Map<String, Component> componentsByDbKey = new HashMap<>();
+  private Map<String, Component> componentsByDbKey;
 
   public SendIssueNotificationsStep(IssueCache issueCache, RuleRepository rules, TreeRootHolder treeRootHolder,
     NotificationService service, AnalysisMetadataHolder analysisMetadataHolder,
@@ -150,7 +149,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   }
 
   private Optional<Component> getComponentKey(DefaultIssue issue) {
-    if (componentsByDbKey.isEmpty()) {
+    if (componentsByDbKey == null) {
       final ImmutableMap.Builder<String, Component> builder = ImmutableMap.builder();
       new DepthTraversalTypeAwareCrawler(
         new TypeAwareVisitorAdapter(CrawlerDepthLimit.LEAVES, POST_ORDER) {

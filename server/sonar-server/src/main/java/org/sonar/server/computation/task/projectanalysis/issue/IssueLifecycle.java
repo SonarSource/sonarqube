@@ -69,40 +69,19 @@ public class IssueLifecycle {
     raw.setKey(Uuids.create());
     raw.setNew(false);
     raw.setCopied(true);
-    raw.setType(base.type());
-    raw.setCreationDate(base.creationDate());
-    raw.setUpdateDate(base.updateDate());
-    raw.setCloseDate(base.closeDate());
-    raw.setResolution(base.resolution());
-    raw.setStatus(base.status());
-    raw.setAssignee(base.assignee());
-    raw.setAuthorLogin(base.authorLogin());
-    raw.setTags(base.tags());
-    raw.setAttributes(base.attributes());
-    raw.setEffort(debtCalculator.calculate(raw));
-    raw.setOnDisabledRule(base.isOnDisabledRule());
+    copyFields(raw, base);
+
     if (base.manualSeverity()) {
       raw.setManualSeverity(true);
       raw.setSeverity(base.severity());
     }
-    raw.setSelectedAt(base.selectedAt());
   }
 
   public void mergeExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {
-    raw.setNew(false);
     raw.setKey(base.key());
-    raw.setType(base.type());
-    raw.setCreationDate(base.creationDate());
-    raw.setUpdateDate(base.updateDate());
-    raw.setCloseDate(base.closeDate());
-    raw.setResolution(base.resolution());
-    raw.setStatus(base.status());
-    raw.setAssignee(base.assignee());
-    raw.setAuthorLogin(base.authorLogin());
-    raw.setTags(base.tags());
-    raw.setAttributes(base.attributes());
-    raw.setEffort(debtCalculator.calculate(raw));
-    raw.setOnDisabledRule(base.isOnDisabledRule());
+    raw.setNew(false);
+    copyFields(raw, base);
+
     if (base.manualSeverity()) {
       raw.setManualSeverity(true);
       raw.setSeverity(base.severity());
@@ -122,10 +101,25 @@ public class IssueLifecycle {
     updater.setPastMessage(raw, base.getMessage(), changeContext);
     updater.setPastGap(raw, base.gap(), changeContext);
     updater.setPastEffort(raw, base.effort(), changeContext);
-    raw.setSelectedAt(base.selectedAt());
   }
 
   public void doAutomaticTransition(DefaultIssue issue) {
     workflow.doAutomaticTransition(issue, changeContext);
+  }
+
+  private void copyFields(DefaultIssue toIssue, DefaultIssue fromIssue) {
+    toIssue.setType(fromIssue.type());
+    toIssue.setCreationDate(fromIssue.creationDate());
+    toIssue.setUpdateDate(fromIssue.updateDate());
+    toIssue.setCloseDate(fromIssue.closeDate());
+    toIssue.setResolution(fromIssue.resolution());
+    toIssue.setStatus(fromIssue.status());
+    toIssue.setAssignee(fromIssue.assignee());
+    toIssue.setAuthorLogin(fromIssue.authorLogin());
+    toIssue.setTags(fromIssue.tags());
+    toIssue.setAttributes(fromIssue.attributes());
+    toIssue.setEffort(debtCalculator.calculate(toIssue));
+    toIssue.setOnDisabledRule(fromIssue.isOnDisabledRule());
+    toIssue.setSelectedAt(fromIssue.selectedAt());
   }
 }
