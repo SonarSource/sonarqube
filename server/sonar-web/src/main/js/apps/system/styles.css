@@ -1,0 +1,61 @@
+.system-info-health-title {
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+.system-info-health-card {
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.system-info-health-card:hover {
+  border-color: #4b9fd5;
+}
+
+.system-info-health-card-title {
+  font-weight: bold;
+}
+
+.system-info-health-info {
+  margin-top: -4px;
+}
+
+.system-info-health-dot {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: 4px;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+.system-info-health-dot.bigger {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  border-radius: 24px;
+}
+
+.system-info-health-dot.GREEN {
+  background-color: #00aa00;
+}
+
+.system-info-health-dot.YELLOW {
+  background-color: #eabe06;
+}
+.system-info-health-dot.RED {
+  background-color: #d4333f;
+}
+
+.system-info-health-info .alert {
+  display: inline-block;
+  position: relative;
+  top: -8px;
+}
+
+.system-info-section-item-name {
+  width: 25vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should not render health causes 1`] = `
+<div
+  className="system-info-health-info"
+>
+  <span
+    className="system-info-health-dot GREEN"
+  />
+</div>
+`;
+
+exports[`should not render health causes 2`] = `
+<div
+  className="system-info-health-info"
+>
+  <span
+    className="system-info-health-dot YELLOW"
+  />
+</div>
+`;
+
+exports[`should render correctly 1`] = `
+<div
+  className="system-info-health-info"
+>
+  <span
+    className="spacer-right alert alert-danger"
+  >
+    foo
+  </span>
+  <span
+    className="system-info-health-dot RED bigger"
+  />
+</div>
+`;
+
+exports[`should render multiple health causes 1`] = `
+<div
+  className="system-info-health-info"
+>
+  <span
+    className="spacer-right alert alert-warning"
+  >
+    foo
+  </span>
+  <span
+    className="spacer-right alert alert-warning"
+  >
+    bar
+  </span>
+  <span
+    className="system-info-health-dot YELLOW"
+  />
+</div>
+`;
