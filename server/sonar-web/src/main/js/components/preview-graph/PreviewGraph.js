@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import { minBy } from 'lodash';
+import * as PropTypes from 'prop-types';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import AdvancedTimeline from '../charts/AdvancedTimeline';
 import PreviewGraphTooltips from './PreviewGraphTooltips';
@@ -41,8 +42,7 @@ type Props = {
   branch?: string,
   history: ?History,
   metrics: Array<Metric>,
-  project: string,
-  router: { push: ({ pathname: string, query?: {} }) => void }
+  project: string
 };
 */
 
@@ -64,6 +64,10 @@ const MAX_SERIES_PER_GRAPH = 3;
 export default class PreviewGraph extends React.PureComponent {
   /*:: props: Props; */
   /*:: state: State; */
+
+  static contextTypes = {
+    router: PropTypes.object
+  };
 
   constructor(props /*: Props */) {
     super(props);
@@ -137,7 +141,7 @@ export default class PreviewGraph extends React.PureComponent {
   };
 
   handleClick = () => {
-    this.props.router.push({
+    this.context.router.push({
       pathname: '/project/activity',
       query: { id: this.props.project, branch: this.props.branch }
     });

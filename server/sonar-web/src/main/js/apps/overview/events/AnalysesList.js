@@ -114,7 +114,6 @@ export default class AnalysesList extends React.PureComponent {
           history={this.props.history}
           project={this.props.project}
           metrics={this.state.metrics}
-          router={this.props.router}
         />
 
         {this.renderList(analyses)}

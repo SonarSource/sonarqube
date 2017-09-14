@@ -25,6 +25,7 @@ import ReleasabilityBox from './ReleasabilityBox';
 import ReliabilityBox from './ReliabilityBox';
 import SecurityBox from './SecurityBox';
 import MaintainabilityBox from './MaintainabilityBox';
+import Activity from './Activity';
 import { Component } from '../../../app/types';
 import { getMeasures } from '../../../api/measures';
 import { getChildren } from '../../../api/components';
@@ -174,6 +175,7 @@ export default class App extends React.PureComponent<Props, State> {
 
           <aside className="page-sidebar-fixed">
             {measures != undefined && <Summary component={component} measures={measures} />}
+            <Activity component={component.key} />
             <Report component={component} />
           </aside>
         </div>
