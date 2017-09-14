@@ -77,7 +77,7 @@ public class NewIssuesEmailTemplateTest {
 
   @Test
   public void message_id() {
-    Notification notification = newNotification();
+    Notification notification = newNotification(32);
 
     EmailMessage message = template.format(notification);
 
@@ -86,7 +86,7 @@ public class NewIssuesEmailTemplateTest {
 
   @Test
   public void subject() {
-    Notification notification = newNotification();
+    Notification notification = newNotification(32);
 
     EmailMessage message = template.format(notification);
 
@@ -95,7 +95,7 @@ public class NewIssuesEmailTemplateTest {
 
   @Test
   public void format_email_with_all_fields_filled() throws Exception {
-    Notification notification = newNotification();
+    Notification notification = newNotification(32);
     addAssignees(notification);
     addRules(notification);
     addTags(notification);
@@ -133,7 +133,7 @@ public class NewIssuesEmailTemplateTest {
 
   @Test
   public void format_email_with_no_assignees_tags_nor_components() throws Exception {
-    Notification notification = newNotification();
+    Notification notification = newNotification(32);
 
     EmailMessage message = template.format(notification);
 
@@ -150,8 +150,18 @@ public class NewIssuesEmailTemplateTest {
   }
 
   @Test
+  public void format_email_supports_single_issue() {
+    Notification notification = newNotification(1);
+
+    EmailMessage message = template.format(notification);
+
+    assertThat(message.getMessage())
+      .contains("1 new issue (new debt: 1d3h)\n");
+  }
+
+  @Test
   public void format_email_with_issue_on_branch() throws Exception {
-    Notification notification = newNotification()
+    Notification notification = newNotification(32)
       .setFieldValue("branch", "feature1");
 
     EmailMessage message = template.format(notification);
@@ -179,14 +189,14 @@ public class NewIssuesEmailTemplateTest {
     assertThat(message.getMessage()).doesNotContain("See it");
   }
 
-  private Notification newNotification() {
+  private Notification newNotification(int count) {
     return new Notification(NewIssuesNotification.TYPE)
       .setFieldValue("projectName", "Struts")
       .setFieldValue("projectKey", "org.apache:struts")
       .setFieldValue("projectUuid", "ABCDE")
       .setFieldValue("projectDate", "2010-05-18T14:50:45+0000")
       .setFieldValue(EFFORT + ".count", "1d3h")
-      .setFieldValue(RULE_TYPE + ".count", "32")
+      .setFieldValue(RULE_TYPE + ".count", String.valueOf(count))
       .setFieldValue(RULE_TYPE + ".BUG.count", "1")
       .setFieldValue(RULE_TYPE + ".CODE_SMELL.count", "3")
       .setFieldValue(RULE_TYPE + ".VULNERABILITY.count", "10");
