@@ -34,7 +34,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
@@ -101,6 +101,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  private final Random random = new Random();
+  private final RuleType randomRuleType = RuleType.values()[random.nextInt(RuleType.values().length)];
   private NotificationService notificationService = mock(NotificationService.class);
   private NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class);
   private NewIssuesNotification newIssuesNotificationMock = createNewIssuesNotificationMock();
@@ -131,7 +133,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void send_global_new_issues_notification() throws Exception {
     issueCache.newAppender().append(
-      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION)
+      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION)
         .setCreationDate(new Date(ANALYSE_DATE)))
       .close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
@@ -152,10 +154,10 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     Integer[] backDatedEfforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10 + random.nextInt(100)).toArray(Integer[]::new);
     Duration expectedEffort = Duration.create(Arrays.stream(efforts).mapToInt(i -> i).sum());
     List<DefaultIssue> issues = Stream.concat(Arrays.stream(efforts)
-      .map(effort -> new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(Duration.create(effort))
+      .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
         .setCreationDate(new Date(ANALYSE_DATE))),
       Arrays.stream(backDatedEfforts)
-        .map(effort -> new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(Duration.create(effort))
+        .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
           .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))))
       .collect(Collectors.toList());
     Collections.shuffle(issues);
@@ -172,7 +174,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     NewIssuesStatistics.Stats stats = statsCaptor.getValue();
     assertThat(stats.hasIssues()).isTrue();
     // just checking all issues have been added to the stats
-    DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.SEVERITY);
+    DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.RULE_TYPE);
     assertThat(severity.getOnLeak()).isEqualTo(efforts.length);
     assertThat(severity.getOffLeak()).isEqualTo(backDatedEfforts.length);
     assertThat(severity.getTotal()).isEqualTo(backDatedEfforts.length + efforts.length);
@@ -181,7 +183,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void do_not_send_global_new_issues_notification_if_issue_has_been_backdated() {
     issueCache.newAppender().append(
-      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION)
+      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION)
         .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS)))
       .close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
@@ -195,7 +197,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void send_global_new_issues_notification_on_branch() throws Exception {
     ComponentDto branch = setUpProjectWithBranch();
     issueCache.newAppender().append(
-      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
+      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setBranch(newBranch());
 
@@ -212,7 +214,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void do_not_send_global_new_issues_notification_on_branch_if_issue_has_been_backdated() throws Exception {
     ComponentDto branch = setUpProjectWithBranch();
     issueCache.newAppender().append(
-      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))).close();
+      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))).close();
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setBranch(newBranch());
 
@@ -224,7 +226,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void send_new_issues_notification_to_user() throws Exception {
     issueCache.newAppender().append(
-      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE)
+      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE)
         .setCreationDate(new Date(ANALYSE_DATE)))
       .close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
@@ -249,11 +251,11 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     String assignee = randomAlphanumeric(5);
     String otherAssignee = randomAlphanumeric(5);
     List<DefaultIssue> issues = Stream.concat(Arrays.stream(assigned)
-      .map(effort -> new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(Duration.create(effort))
+      .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
         .setAssignee(assignee)
         .setCreationDate(new Date(ANALYSE_DATE))),
       Arrays.stream(assignedToOther)
-        .map(effort -> new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(Duration.create(effort))
+        .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
           .setAssignee(otherAssignee)
           .setCreationDate(new Date(ANALYSE_DATE))))
       .collect(Collectors.toList());
@@ -288,7 +290,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     NewIssuesStatistics.Stats stats = statsCaptor.getValue();
     assertThat(stats.hasIssues()).isTrue();
     // just checking all issues have been added to the stats
-    DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.SEVERITY);
+    DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.RULE_TYPE);
     assertThat(severity.getOnLeak()).isEqualTo(assigned.length);
     assertThat(severity.getOffLeak()).isEqualTo(0);
     assertThat(severity.getTotal()).isEqualTo(assigned.length);
@@ -301,11 +303,11 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     Integer[] backDatedEfforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10 + random.nextInt(100)).toArray(Integer[]::new);
     Duration expectedEffort = Duration.create(Arrays.stream(efforts).mapToInt(i -> i).sum());
     List<DefaultIssue> issues = Stream.concat(Arrays.stream(efforts)
-      .map(effort -> new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(Duration.create(effort))
+      .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
         .setAssignee(ISSUE_ASSIGNEE)
         .setCreationDate(new Date(ANALYSE_DATE))),
       Arrays.stream(backDatedEfforts)
-        .map(effort -> new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(Duration.create(effort))
+        .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
           .setAssignee(ISSUE_ASSIGNEE)
           .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))))
       .collect(Collectors.toList());
@@ -325,7 +327,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     NewIssuesStatistics.Stats stats = statsCaptor.getValue();
     assertThat(stats.hasIssues()).isTrue();
     // just checking all issues have been added to the stats
-    DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.SEVERITY);
+    DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.RULE_TYPE);
     assertThat(severity.getOnLeak()).isEqualTo(efforts.length);
     assertThat(severity.getOffLeak()).isEqualTo(backDatedEfforts.length);
     assertThat(severity.getTotal()).isEqualTo(backDatedEfforts.length + efforts.length);
@@ -334,7 +336,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void do_not_send_new_issues_notification_to_user_if_issue_is_backdated() throws Exception {
     issueCache.newAppender().append(
-      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE)
+      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE)
         .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS)))
       .close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
