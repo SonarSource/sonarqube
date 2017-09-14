@@ -22,7 +22,7 @@ package org.sonar.server.health;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import org.sonar.cluster.health.HealthStateRefresherExecutorService;
+import org.sonar.process.cluster.health.HealthStateRefresherExecutorService;
 import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 
 public class HealthStateRefresherExecutorServiceImpl

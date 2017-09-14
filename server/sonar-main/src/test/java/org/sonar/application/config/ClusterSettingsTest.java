@@ -32,10 +32,10 @@ import org.sonar.process.MessageException;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_HOSTS;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_HOSTS;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
 import static org.sonar.process.ProcessId.ELASTICSEARCH;
 import static org.sonar.process.ProcessId.WEB_SERVER;

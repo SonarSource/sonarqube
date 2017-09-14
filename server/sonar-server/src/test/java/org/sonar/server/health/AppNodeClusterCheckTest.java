@@ -25,15 +25,15 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
-import org.sonar.cluster.health.NodeDetails;
-import org.sonar.cluster.health.NodeHealth;
+import org.sonar.process.cluster.health.NodeDetails;
+import org.sonar.process.cluster.health.NodeHealth;
 
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.of;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.sonar.cluster.health.NodeHealth.Status.GREEN;
-import static org.sonar.cluster.health.NodeHealth.Status.RED;
-import static org.sonar.cluster.health.NodeHealth.Status.YELLOW;
+import static org.sonar.process.cluster.health.NodeHealth.Status.GREEN;
+import static org.sonar.process.cluster.health.NodeHealth.Status.RED;
+import static org.sonar.process.cluster.health.NodeHealth.Status.YELLOW;
 import static org.sonar.server.health.HealthAssert.assertThat;
 
 public class AppNodeClusterCheckTest {

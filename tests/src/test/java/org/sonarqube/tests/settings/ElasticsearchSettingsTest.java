@@ -25,7 +25,7 @@ import com.sonar.orchestrator.http.HttpResponse;
 import java.net.InetAddress;
 import okhttp3.HttpUrl;
 import org.junit.Test;
-import org.sonar.NetworkUtils;
+import org.sonar.process.NetworkUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

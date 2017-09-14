@@ -38,15 +38,15 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
-import org.sonar.application.config.TestAppSettings;
-import org.sonar.application.process.ProcessLauncher;
-import org.sonar.application.process.ProcessMonitor;
-import org.sonar.cluster.localclient.HazelcastClient;
-import org.sonar.process.ProcessId;
 import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.EsCommand;
 import org.sonar.application.command.JavaCommand;
+import org.sonar.application.config.TestAppSettings;
+import org.sonar.application.process.ProcessLauncher;
+import org.sonar.application.process.ProcessMonitor;
+import org.sonar.process.ProcessId;
+import org.sonar.process.cluster.HazelcastClient;
 
 import static java.util.Collections.synchronizedList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -55,14 +55,14 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_HOST;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_NAME;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_PORT;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
 import static org.sonar.process.ProcessId.ELASTICSEARCH;
 import static org.sonar.process.ProcessId.WEB_SERVER;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_HOST;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_NAME;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_PORT;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
 
 public class SchedulerImplTest {
 
