@@ -24,9 +24,8 @@ import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
 import StandAloneSysInfos from './StandAloneSysInfos';
 import { translate } from '../../../helpers/l10n';
-import { getSystemInfo } from '../../../api/system';
-import { parseQuery, serializeQuery } from '../utils';
-import { SysInfo, Query } from '../types';
+import { getSystemInfo, SysInfo } from '../../../api/system';
+import { isCluster, parseQuery, Query, serializeQuery } from '../utils';
 import { RawQuery } from '../../../helpers/query';
 import '../styles.css';
 
@@ -95,7 +94,7 @@ export default class App extends React.PureComponent<Props, State> {
     }
 
     const query = parseQuery(this.props.location.query);
-    if (sysInfoData.cluster) {
+    if (isCluster(sysInfoData)) {
       return (
         <ClusterSysInfos
           sysInfoData={sysInfoData}
@@ -109,14 +108,13 @@ export default class App extends React.PureComponent<Props, State> {
 
   render() {
     const { loading, sysInfoData } = this.state;
-    const isCluster = sysInfoData != undefined && sysInfoData.cluster;
     // TODO Correctly get logLevel, we are not sure yet how we want to do it for cluster mode
     return (
       <div className="page page-limited">
         <Helmet title={translate('system_info.page')} />
         <PageHeader
           loading={loading}
-          isCluster={isCluster}
+          isCluster={isCluster(sysInfoData)}
           logLevel="INFO"
           showActions={sysInfoData != undefined}
         />

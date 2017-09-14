@@ -5,12 +5,24 @@
 
 .system-info-health-card {
   margin-bottom: 8px;
-  cursor: pointer;
   transition: border-color 0.3s ease;
 }
 
-.system-info-health-card:hover {
+.system-info-health-card:not(.no-hover):hover {
   border-color: #4b9fd5;
+}
+
+.system-info-health-card:not(.no-hover):hover .system-info-health-card-title {
+  color: #4b9fd5;
+}
+
+.system-info-health-card .boxed-group-header {
+  cursor: pointer;
+  padding-bottom: 15px;
+}
+
+.system-info-health-card .boxed-group-inner {
+  padding-top: 0;
 }
 
 .system-info-health-card-title {
@@ -30,13 +42,6 @@
   box-sizing: border-box;
 }
 
-.system-info-health-dot.bigger {
-  width: 24px;
-  height: 24px;
-  margin: 0;
-  border-radius: 24px;
-}
-
 .system-info-health-dot.GREEN {
   background-color: #00aa00;
 }
@@ -52,6 +57,21 @@
   display: inline-block;
   position: relative;
   top: -8px;
+}
+
+.system-info-health-info.big-dot .system-info-health-dot {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  border-radius: 24px;
+}
+
+.system-info-health-info.no-margin .system-info-health-dot {
+  margin: 0;
+}
+
+.system-info-section ~ .system-info-section {
+  margin-top: 16px;
 }
 
 .system-info-section-item-name {

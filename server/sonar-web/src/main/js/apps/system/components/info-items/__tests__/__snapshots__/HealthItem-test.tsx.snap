@@ -24,13 +24,17 @@ exports[`should render correctly 1`] = `
 <div
   className="system-info-health-info"
 >
+  <HealthCauseItem
+    className="spacer-right"
+    health="RED"
+    healthCause={
+      Object {
+        "message": "foo",
+      }
+    }
+  />
   <span
-    className="spacer-right alert alert-danger"
-  >
-    foo
-  </span>
-  <span
-    className="system-info-health-dot RED bigger"
+    className="system-info-health-dot RED"
   />
 </div>
 `;
@@ -39,16 +43,24 @@ exports[`should render multiple health causes 1`] = `
 <div
   className="system-info-health-info"
 >
-  <span
-    className="spacer-right alert alert-warning"
-  >
-    foo
-  </span>
-  <span
-    className="spacer-right alert alert-warning"
-  >
-    bar
-  </span>
+  <HealthCauseItem
+    className="spacer-right"
+    health="YELLOW"
+    healthCause={
+      Object {
+        "message": "foo",
+      }
+    }
+  />
+  <HealthCauseItem
+    className="spacer-right"
+    health="YELLOW"
+    healthCause={
+      Object {
+        "message": "bar",
+      }
+    }
+  />
   <span
     className="system-info-health-dot YELLOW"
   />

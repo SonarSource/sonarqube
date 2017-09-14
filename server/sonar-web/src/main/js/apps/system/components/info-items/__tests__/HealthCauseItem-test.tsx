@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import BooleanItem from '../BooleanItem';
+import HealthCauseItem from '../HealthCauseItem';
+import { HealthType } from '../../../../../api/system';
 
-it('should render `true`', () => {
-  const wrapper = shallow(<BooleanItem value={true} />);
-  expect(wrapper.find('.icon-check').length).toBe(1);
-});
-
-it('should render `false`', () => {
-  const wrapper = shallow(<BooleanItem value={false} />);
-  expect(wrapper.find('.icon-delete').length).toBe(1);
+it('should render correctly', () => {
+  expect(
+    shallow(<HealthCauseItem health={HealthType.RED} healthCause={{ message: 'foo' }} />)
+  ).toMatchSnapshot();
+  expect(
+    shallow(<HealthCauseItem health={HealthType.YELLOW} healthCause={{ message: 'foo' }} />)
+  ).toMatchSnapshot();
 });

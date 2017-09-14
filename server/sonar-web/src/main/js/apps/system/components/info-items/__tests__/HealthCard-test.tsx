@@ -21,7 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import HealthCard from '../HealthCard';
 import { click } from '../../../../../helpers/testUtils';
-import { HealthType } from '../../../types';
+import { HealthType } from '../../../../../api/system';
 
 it('should render correctly', () => {
   expect(getShallowWrapper()).toMatchSnapshot();
@@ -33,9 +33,19 @@ it('should display the sysinfo detail', () => {
 
 it('should show the sysinfo detail when the card is clicked', () => {
   const onClick = jest.fn();
-  click(getShallowWrapper({ onClick }));
+  click(getShallowWrapper({ onClick }).find('.boxed-group-header'));
   expect(onClick).toBeCalled();
   expect(onClick).toBeCalledWith('Foobar');
+});
+
+it('should show a main section and multiple sub sections', () => {
+  const sysInfoData = {
+    Name: 'foo',
+    bar: 'Bar',
+    Database: { db: 'test' },
+    Elasticseach: { Elastic: 'search' }
+  };
+  expect(getShallowWrapper({ open: true, sysInfoData })).toMatchSnapshot();
 });
 
 function getShallowWrapper(props = {}) {
@@ -47,6 +57,7 @@ function getShallowWrapper(props = {}) {
       name="Foobar"
       onClick={() => {}}
       open={false}
+      sysInfoData={{}}
       {...props}
     />
   );

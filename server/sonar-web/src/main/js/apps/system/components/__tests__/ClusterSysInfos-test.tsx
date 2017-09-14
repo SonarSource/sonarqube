@@ -18,15 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { shallow } from 'enzyme';
+import ClusterSysInfos from '../ClusterSysInfos';
+import { HealthType, SysInfo } from '../../../../api/system';
 
-interface Props {
-  value: boolean;
-}
+const sysInfoData: SysInfo = {
+  Cluster: true,
+  Health: HealthType.RED,
+  Name: 'Foo',
+  'Health Causes': [{ message: 'Database down' }],
+  'Application Nodes': [{ Name: 'Bar', Health: HealthType.GREEN, 'Health Causes': [] }],
+  'Search Nodes': [{ Name: 'Baz', Health: HealthType.YELLOW, 'Health Causes': [] }]
+};
 
-export default function BooleanItem({ value }: Props) {
-  if (value) {
-    return <i className="icon-check" />;
-  } else {
-    return <i className="icon-delete" />;
-  }
+it('should render correctly', () => {
+  expect(getWrapper()).toMatchSnapshot();
+});
+
+function getWrapper(props = {}) {
+  return shallow(
+    <ClusterSysInfos
+      expandedCards={['System', 'Foo']}
+      sysInfoData={sysInfoData}
+      toggleCard={() => {}}
+      {...props}
+    />
+  );
 }
