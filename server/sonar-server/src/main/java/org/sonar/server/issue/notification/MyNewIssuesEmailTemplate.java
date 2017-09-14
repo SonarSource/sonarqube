@@ -49,7 +49,7 @@ public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
   @Override
   protected String subject(Notification notification, String projectName) {
     return String.format("You have %s new issues on project %s",
-      notification.getFieldValue(Metric.SEVERITY + COUNT),
+      notification.getFieldValue(Metric.RULE_TYPE + COUNT),
       projectName);
   }
 

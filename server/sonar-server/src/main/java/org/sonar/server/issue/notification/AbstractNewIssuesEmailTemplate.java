@@ -19,16 +19,16 @@
  */
 package org.sonar.server.issue.notification;
 
-import com.google.common.collect.Lists;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
@@ -79,7 +79,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
 
     StringBuilder message = new StringBuilder();
     message.append("Project: ").append(projectName).append(NEW_LINE).append(NEW_LINE);
-    appendSeverity(message, notification);
+    appendRuleType(message, notification);
     appendAssignees(message, notification);
     appendRules(message, notification);
     appendTags(message, notification);
@@ -97,7 +97,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
   protected String subject(Notification notification, String projectName) {
     return String.format("%s: %s new issues (new debt: %s)",
       projectName,
-      notification.getFieldValue(Metric.SEVERITY + COUNT),
+      notification.getFieldValue(Metric.RULE_TYPE + COUNT),
       notification.getFieldValue(Metric.EFFORT + COUNT));
   }
 
@@ -145,23 +145,24 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
     genericAppendOfMetric(Metric.RULE, "Rules", message, notification);
   }
 
-  protected void appendSeverity(StringBuilder message, Notification notification) {
+  protected void appendRuleType(StringBuilder message, Notification notification) {
     message
       .append(String.format("%s new issues (new debt: %s)",
-        notification.getFieldValue(Metric.SEVERITY + COUNT),
+        notification.getFieldValue(Metric.RULE_TYPE + COUNT),
         notification.getFieldValue(Metric.EFFORT + COUNT)))
       .append(NEW_LINE).append(NEW_LINE)
       .append(TAB)
-      .append("Severity")
+      .append("Type")
       .append(NEW_LINE)
       .append(TAB)
       .append(TAB);
 
-    for (Iterator<String> severityIterator = Lists.reverse(Severity.ALL).iterator(); severityIterator.hasNext();) {
-      String severity = severityIterator.next();
-      String severityLabel = i18n.message(getLocale(), "severity." + severity, severity);
-      message.append(severityLabel).append(": ").append(notification.getFieldValue(Metric.SEVERITY + DOT + severity + COUNT));
-      if (severityIterator.hasNext()) {
+
+    for (Iterator<RuleType> ruleTypeIterator = Arrays.asList(RuleType.BUG, RuleType.VULNERABILITY, RuleType.CODE_SMELL).iterator(); ruleTypeIterator.hasNext();) {
+      RuleType ruleType = ruleTypeIterator.next();
+      String ruleTypeLabel = i18n.message(getLocale(), "rule_type." + ruleType, ruleType.name());
+      message.append(ruleTypeLabel).append(": ").append(notification.getFieldValue(Metric.RULE_TYPE + DOT + ruleType + COUNT));
+      if (ruleTypeIterator.hasNext()) {
         message.append(TAB);
       }
     }

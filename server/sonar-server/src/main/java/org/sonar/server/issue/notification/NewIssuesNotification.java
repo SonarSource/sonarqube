@@ -19,7 +19,7 @@
  */
 package org.sonar.server.issue.notification;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.function.ToIntFunction;
 import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
@@ -49,7 +49,7 @@ import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_P
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_KEY;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_NAME;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_UUID;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.SEVERITY;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE_TYPE;
 
 public class NewIssuesNotification extends Notification {
 
@@ -90,10 +90,10 @@ public class NewIssuesNotification extends Notification {
   }
 
   public NewIssuesNotification setStatistics(String projectName, NewIssuesStatistics.Stats stats) {
-    setDefaultMessage(stats.getDistributedMetricStats(SEVERITY).getOnLeak() + " new issues on " + projectName + ".\n");
+    setDefaultMessage(stats.getDistributedMetricStats(RULE_TYPE).getOnLeak() + " new issues on " + projectName + ".\n");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      setSeverityStatistics(stats);
+      setRuleTypeStatistics(stats);
       setAssigneesStatistics(stats);
       setTagsStatistics(stats);
       setComponentsStatistics(dbSession, stats);
@@ -111,7 +111,7 @@ public class NewIssuesNotification extends Notification {
       .map(Map.Entry::getKey)
       .map(RuleKey::parse)
       .collect(MoreCollectors.toSet(fiveBiggest.size()));
-    ImmutableMap<String, RuleDefinitionDto> ruleByRuleKey = dbClient.ruleDao().selectDefinitionByKeys(dbSession, ruleKeys)
+    Map<String, RuleDefinitionDto> ruleByRuleKey = dbClient.ruleDao().selectDefinitionByKeys(dbSession, ruleKeys)
       .stream()
       .collect(MoreCollectors.uniqueIndex(s -> s.getKey().toString()));
     int i = 1;
@@ -186,14 +186,13 @@ public class NewIssuesNotification extends Notification {
     return this;
   }
 
-  private void setSeverityStatistics(NewIssuesStatistics.Stats stats) {
-    DistributedMetricStatsInt distributedMetricStats = stats.getDistributedMetricStats(SEVERITY);
-    setFieldValue(SEVERITY + COUNT, String.valueOf(distributedMetricStats.getOnLeak()));
-    for (String severity : Severity.ALL) {
-      setFieldValue(
-        SEVERITY + DOT + severity + COUNT,
-        String.valueOf(distributedMetricStats.getForLabel(severity).map(MetricStatsInt::getOnLeak).orElse(0)));
-    }
+  private void setRuleTypeStatistics(NewIssuesStatistics.Stats stats) {
+    DistributedMetricStatsInt distributedMetricStats = stats.getDistributedMetricStats(RULE_TYPE);
+    setFieldValue(RULE_TYPE + COUNT, String.valueOf(distributedMetricStats.getOnLeak()));
+    Arrays.stream(RuleType.values())
+      .forEach(ruleType -> setFieldValue(
+        RULE_TYPE + DOT + ruleType + COUNT,
+        String.valueOf(distributedMetricStats.getForLabel(ruleType.name()).map(MetricStatsInt::getOnLeak).orElse(0))));
   }
 
   @Override
