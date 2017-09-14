@@ -23,27 +23,27 @@ import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
+import org.sonar.core.issue.DefaultIssue;
 
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ASSIGNEE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.SEVERITY;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE_TYPE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
 
 public class NewIssuesStatistics {
-  private final Predicate<Issue> onLeakPredicate;
+  private final Predicate<DefaultIssue> onLeakPredicate;
   private final Map<String, Stats> assigneesStatistics = new LinkedHashMap<>();
   private final Stats globalStatistics;
 
-  public NewIssuesStatistics(Predicate<Issue> onLeakPredicate) {
+  public NewIssuesStatistics(Predicate<DefaultIssue> onLeakPredicate) {
     this.onLeakPredicate = onLeakPredicate;
     this.globalStatistics = new Stats(onLeakPredicate);
   }
 
-  public void add(Issue issue) {
+  public void add(DefaultIssue issue) {
     globalStatistics.add(issue);
     String login = issue.assignee();
     if (login != null) {
@@ -72,7 +72,7 @@ public class NewIssuesStatistics {
   }
 
   public enum Metric {
-    SEVERITY(true), TAG(true), COMPONENT(true), ASSIGNEE(true), EFFORT(false), RULE(true);
+    RULE_TYPE(true), TAG(true), COMPONENT(true), ASSIGNEE(true), EFFORT(false), RULE(true);
     private final boolean isComputedByDistribution;
 
     Metric(boolean isComputedByDistribution) {
@@ -93,11 +93,11 @@ public class NewIssuesStatistics {
   }
 
   public static class Stats {
-    private final Predicate<Issue> onLeakPredicate;
+    private final Predicate<DefaultIssue> onLeakPredicate;
     private final Map<Metric, DistributedMetricStatsInt> distributions = new EnumMap<>(Metric.class);
     private MetricStatsLong effortStats = new MetricStatsLong();
 
-    public Stats(Predicate<Issue> onLeakPredicate) {
+    public Stats(Predicate<DefaultIssue> onLeakPredicate) {
       this.onLeakPredicate = onLeakPredicate;
       for (Metric metric : Metric.values()) {
         if (metric.isComputedByDistribution()) {
@@ -106,9 +106,9 @@ public class NewIssuesStatistics {
       }
     }
 
-    public void add(Issue issue) {
+    public void add(DefaultIssue issue) {
       boolean isOnLeak = onLeakPredicate.test(issue);
-      distributions.get(SEVERITY).increment(issue.severity(), isOnLeak);
+      distributions.get(RULE_TYPE).increment(issue.type().name(), isOnLeak);
       String componentUuid = issue.componentUuid();
       if (componentUuid != null) {
         distributions.get(COMPONENT).increment(componentUuid, isOnLeak);
@@ -139,15 +139,15 @@ public class NewIssuesStatistics {
     }
 
     public boolean hasIssues() {
-      return getDistributedMetricStats(SEVERITY).getTotal() > 0;
+      return getDistributedMetricStats(RULE_TYPE).getTotal() > 0;
     }
 
     public boolean hasIssuesOnLeak() {
-      return getDistributedMetricStats(SEVERITY).getOnLeak() > 0;
+      return getDistributedMetricStats(RULE_TYPE).getOnLeak() > 0;
     }
 
     public boolean hasIssuesOffLeak() {
-      return getDistributedMetricStats(SEVERITY).getOffLeak() > 0;
+      return getDistributedMetricStats(RULE_TYPE).getOffLeak() > 0;
     }
 
     @Override
