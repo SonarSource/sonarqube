@@ -136,9 +136,9 @@ public class BuiltInQualityProfilesNotificationTest {
       .containsSequence(
         "The following built-in profiles have been updated:",
         "\"Basic\" - Foo: " + url + "/profiles/changelog?language=foo&name=Basic&since=", "&to=",
-        " 1 new rules",
+        " 1 new rule",
         " 3 rules have been updated",
-        " 1 rules removed",
+        " 1 rule removed",
         "This is a good time to review your quality profiles and update them to benefit from the latest evolutions: " + url + "/profiles")
       .isEqualTo(messages.get(1).getMimeMessage().getContent().toString());
   }
