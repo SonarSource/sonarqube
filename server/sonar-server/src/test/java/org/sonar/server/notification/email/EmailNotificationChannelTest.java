@@ -70,7 +70,7 @@ public class EmailNotificationChannelTest {
 
     MimeMessage email = messages.get(0).getMimeMessage();
     assertThat(email.getHeader("Content-Type", null)).isEqualTo("text/plain; charset=UTF-8");
-    assertThat(email.getHeader("From", ",")).isEqualTo("SonarQube <server@nowhere>");
+    assertThat(email.getHeader("From", ",")).isEqualTo("SonarQube from NoWhere <server@nowhere>");
     assertThat(email.getHeader("To", null)).isEqualTo("<user@nowhere>");
     assertThat(email.getHeader("Subject", null)).isEqualTo("[SONARQUBE] Test Message from SonarQube");
     assertThat((String) email.getContent()).startsWith("This is a test message from SonarQube.");
@@ -123,7 +123,7 @@ public class EmailNotificationChannelTest {
     assertThat(email.getHeader("List-ID", null)).isEqualTo("SonarQube <sonar.nemo.sonarsource.org>");
     assertThat(email.getHeader("List-Archive", null)).isEqualTo("http://nemo.sonarsource.org");
 
-    assertThat(email.getHeader("From", ",")).isEqualTo("\"Full Username (SonarQube)\" <server@nowhere>");
+    assertThat(email.getHeader("From", ",")).isEqualTo("\"Full Username (SonarQube from NoWhere)\" <server@nowhere>");
     assertThat(email.getHeader("To", null)).isEqualTo("<user@nowhere>");
     assertThat(email.getHeader("Subject", null)).isEqualTo("[SONARQUBE] Review #3");
     assertThat((String) email.getContent()).startsWith("I'll take care of this violation.");
@@ -151,7 +151,7 @@ public class EmailNotificationChannelTest {
     assertThat(email.getHeader("List-ID", null)).isEqualTo("SonarQube <sonar.nemo.sonarsource.org>");
     assertThat(email.getHeader("List-Archive", null)).isEqualTo("http://nemo.sonarsource.org");
 
-    assertThat(email.getHeader("From", null)).isEqualTo("SonarQube <server@nowhere>");
+    assertThat(email.getHeader("From", null)).isEqualTo("SonarQube from NoWhere <server@nowhere>");
     assertThat(email.getHeader("To", null)).isEqualTo("<user@nowhere>");
     assertThat(email.getHeader("Subject", null)).isEqualTo("[SONARQUBE] Foo");
     assertThat((String) email.getContent()).startsWith("Bar");
@@ -189,6 +189,7 @@ public class EmailNotificationChannelTest {
     when(configuration.getSmtpHost()).thenReturn("localhost");
     when(configuration.getSmtpPort()).thenReturn(smtpServer.getServer().getPort());
     when(configuration.getFrom()).thenReturn("server@nowhere");
+    when(configuration.getFromName()).thenReturn("SonarQube from NoWhere");
     when(configuration.getPrefix()).thenReturn("[SONARQUBE]");
     when(configuration.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
   }

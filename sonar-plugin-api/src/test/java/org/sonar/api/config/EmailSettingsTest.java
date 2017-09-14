@@ -37,12 +37,13 @@ public class EmailSettingsTest {
     assertThat(underTest.getSmtpPassword()).isEmpty();
     assertThat(underTest.getSecureConnection()).isEmpty();
     assertThat(underTest.getFrom()).isEqualTo("noreply@nowhere");
+    assertThat(underTest.getFromName()).isEqualTo("SonarQube");
     assertThat(underTest.getPrefix()).isEqualTo("[SONARQUBE]");
     assertThat(underTest.getServerBaseURL()).isEqualTo(CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
   }
 
   @Test
   public void return_definitions() {
-    assertThat(EmailSettings.definitions()).hasSize(7);
+    assertThat(EmailSettings.definitions()).hasSize(8);
   }
 }

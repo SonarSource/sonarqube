@@ -50,6 +50,8 @@ public class EmailSettings {
   public static final String SMTP_PASSWORD_DEFAULT = "";
   public static final String FROM = "email.from";
   public static final String FROM_DEFAULT = "noreply@nowhere";
+  public static final String FROM_NAME = "email.fromName";
+  public static final String FROM_NAME_DEFAULT = "SonarQube";
   public static final String PREFIX = "email.prefix";
   public static final String PREFIX_DEFAULT = "[SONARQUBE]";
 
@@ -81,6 +83,10 @@ public class EmailSettings {
 
   public String getFrom() {
     return get(FROM, FROM_DEFAULT);
+  }
+
+  public String getFromName() {
+    return get(FROM_NAME, FROM_NAME_DEFAULT);
   }
 
   public String getPrefix() {
@@ -143,6 +149,13 @@ public class EmailSettings {
         .name("From address")
         .description("Emails will come from this address. For example - \"noreply@sonarsource.com\". Note that server may ignore this setting.")
         .defaultValue(FROM_DEFAULT)
+        .category(CATEGORY_GENERAL)
+        .subCategory(SUBCATEGORY_EMAIL)
+        .build(),
+      PropertyDefinition.builder(FROM_NAME)
+        .name("From name")
+        .description("Name that will describe the address emails will come from. For example - \"SonarQube\". Note that server may ignore this setting.")
+        .defaultValue(FROM_NAME_DEFAULT)
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
         .build(),
