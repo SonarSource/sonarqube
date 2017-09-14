@@ -21,24 +21,22 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import Measure from '../../../components/measure/Measure';
-import { Component } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 
 interface Props {
-  component: Component;
+  component: { description?: string; key: string };
   measures: { [key: string]: string | undefined };
 }
 
 export default function Summary({ component, measures }: Props) {
-  const { description } = component;
   const projects = measures['projects'];
   const ncloc = measures['ncloc'];
   const nclocDistribution = measures['ncloc_language_distribution'];
 
   return (
     <section id="portfolio-summary" className="portfolio-section portfolio-section-summary">
-      {description && <div className="big-spacer-bottom">{description}</div>}
+      {component.description && <div className="big-spacer-bottom">{component.description}</div>}
 
       <ul className="portfolio-grid">
         <li>

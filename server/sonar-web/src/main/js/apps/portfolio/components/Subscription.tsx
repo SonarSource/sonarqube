@@ -19,11 +19,10 @@
  */
 import * as React from 'react';
 import { ReportStatus, subscribe, unsubscribe } from '../../../api/report';
-import { Component } from '../../../app/types';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
-  component: Component;
+  component: string;
   currentUser: { email?: string };
   status: ReportStatus;
 }
@@ -71,7 +70,7 @@ export default class Subscription extends React.PureComponent<Props, State> {
     e.preventDefault();
     e.currentTarget.blur();
     this.setState({ loading: true });
-    subscribe(this.props.component.key)
+    subscribe(this.props.component)
       .then(() => this.handleSubscription(true))
       .catch(this.stopLoading);
   };
@@ -80,7 +79,7 @@ export default class Subscription extends React.PureComponent<Props, State> {
     e.preventDefault();
     e.currentTarget.blur();
     this.setState({ loading: true });
-    unsubscribe(this.props.component.key)
+    unsubscribe(this.props.component)
       .then(() => this.handleSubscription(false))
       .catch(this.stopLoading);
   };

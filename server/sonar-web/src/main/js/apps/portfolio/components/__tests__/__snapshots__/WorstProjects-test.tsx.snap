@@ -1,0 +1,420 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="panel panel-white portfolio-sub-components"
+  id="portfolio-sub-components"
+>
+  <table
+    className="data zebra"
+  >
+    <thead>
+      <tr>
+        <th>
+           
+        </th>
+        <th
+          className="text-center"
+          style={
+            Object {
+              "width": 90,
+            }
+          }
+        >
+          metric_domain.Releasability
+        </th>
+        <th
+          className="text-center"
+          style={
+            Object {
+              "width": 90,
+            }
+          }
+        >
+          metric_domain.Reliability
+        </th>
+        <th
+          className="text-center"
+          style={
+            Object {
+              "width": 90,
+            }
+          }
+        >
+          metric_domain.Security
+        </th>
+        <th
+          className="text-center"
+          style={
+            Object {
+              "width": 90,
+            }
+          }
+        >
+          metric_domain.Maintainability
+        </th>
+        <th
+          className="text-center"
+          style={
+            Object {
+              "width": 90,
+            }
+          }
+        >
+          metric.ncloc.name
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <Link
+            className="link-with-icon"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/dashboard",
+                "query": Object {
+                  "branch": undefined,
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            <QualifierIcon
+              qualifier="SVW"
+            />
+             
+            Foo
+          </Link>
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "releasability_rating",
+                  "type": "RATING",
+                },
+                "value": "3",
+              }
+            }
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "reliability_rating",
+                  "type": "RATING",
+                },
+                "value": "2",
+              }
+            }
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "security_rating",
+                  "type": "RATING",
+                },
+                "value": "1",
+              }
+            }
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "sqale_rating",
+                  "type": "RATING",
+                },
+                "value": "4",
+              }
+            }
+          />
+        </td>
+        <td
+          className="text-right"
+        >
+          <span
+            className="note"
+          >
+            <Measure
+              measure={
+                Object {
+                  "metric": Object {
+                    "key": "ncloc",
+                    "type": "SHORT_INT",
+                  },
+                  "value": "200",
+                }
+              }
+            />
+          </span>
+          <svg
+            className="spacer-left"
+            height="16"
+            width="50"
+          >
+            <rect
+              className="bar-chart-bar"
+              height="10"
+              width={50}
+              x="0"
+              y="3"
+            />
+          </svg>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <Link
+            className="link-with-icon"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/dashboard",
+                "query": Object {
+                  "branch": undefined,
+                  "id": "barbar",
+                },
+              }
+            }
+          >
+            <QualifierIcon
+              qualifier="TRK"
+            />
+             
+            Bar
+          </Link>
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "alert_status",
+                  "type": "LEVEL",
+                },
+                "value": "ERROR",
+              }
+            }
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "reliability_rating",
+                  "type": "RATING",
+                },
+                "value": "2",
+              }
+            }
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "security_rating",
+                  "type": "RATING",
+                },
+                "value": "1",
+              }
+            }
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "sqale_rating",
+                  "type": "RATING",
+                },
+                "value": "4",
+              }
+            }
+          />
+        </td>
+        <td
+          className="text-right"
+        >
+          <span
+            className="note"
+          >
+            <Measure
+              measure={
+                Object {
+                  "metric": Object {
+                    "key": "ncloc",
+                    "type": "SHORT_INT",
+                  },
+                  "value": "100",
+                }
+              }
+            />
+          </span>
+          <svg
+            className="spacer-left"
+            height="16"
+            width="50"
+          >
+            <rect
+              className="bar-chart-bar"
+              height="10"
+              width={25}
+              x="0"
+              y="3"
+            />
+          </svg>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <Link
+            className="link-with-icon"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/dashboard",
+                "query": Object {
+                  "branch": undefined,
+                  "id": "bazbaz",
+                },
+              }
+            }
+          >
+            <QualifierIcon
+              qualifier="TRK"
+            />
+             
+            Baz
+          </Link>
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "alert_status",
+                  "type": "LEVEL",
+                },
+                "value": "WARN",
+              }
+            }
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "reliability_rating",
+                  "type": "RATING",
+                },
+                "value": "2",
+              }
+            }
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "security_rating",
+                  "type": "RATING",
+                },
+                "value": "1",
+              }
+            }
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "sqale_rating",
+                  "type": "RATING",
+                },
+                "value": "4",
+              }
+            }
+          />
+        </td>
+        <td
+          className="text-right"
+        >
+          <span
+            className="note"
+          >
+            <Measure
+              measure={
+                Object {
+                  "metric": Object {
+                    "key": "ncloc",
+                    "type": "SHORT_INT",
+                  },
+                  "value": "150",
+                }
+              }
+            />
+          </span>
+          <svg
+            className="spacer-left"
+            height="16"
+            width="50"
+          >
+            <rect
+              className="bar-chart-bar"
+              height="10"
+              width={38}
+              x="0"
+              y="3"
+            />
+          </svg>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;

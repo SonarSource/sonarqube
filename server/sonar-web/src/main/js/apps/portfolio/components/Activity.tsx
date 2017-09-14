@@ -71,22 +71,26 @@ export default class Activity extends React.PureComponent<Props> {
     }
 
     this.setState({ loading: true });
-    return Promise.all([
-      getAllTimeMachineData(component, graphMetrics),
-      getMetrics()
-    ]).then(([timeMachine, metrics]) => {
-      if (this.mounted) {
-        const history: History = {};
-        timeMachine.measures.forEach(measure => {
-          const measureHistory = measure.history.map(analysis => ({
-            date: parseDate(analysis.date),
-            value: analysis.value
-          }));
-          history[measure.metric] = measureHistory;
-        });
-        this.setState({ history, loading: false, metrics });
+    return Promise.all([getAllTimeMachineData(component, graphMetrics), getMetrics()]).then(
+      ([timeMachine, metrics]) => {
+        if (this.mounted) {
+          const history: History = {};
+          timeMachine.measures.forEach(measure => {
+            const measureHistory = measure.history.map(analysis => ({
+              date: parseDate(analysis.date),
+              value: analysis.value
+            }));
+            history[measure.metric] = measureHistory;
+          });
+          this.setState({ history, loading: false, metrics });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   };
 
   render() {

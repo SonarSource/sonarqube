@@ -1,0 +1,96 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<section
+  className="portfolio-section portfolio-section-summary"
+  id="portfolio-summary"
+>
+  <div
+    className="big-spacer-bottom"
+  >
+    blabla
+  </div>
+  <ul
+    className="portfolio-grid"
+  >
+    <li>
+      <div
+        className="portfolio-measure-secondary-value"
+      >
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/component_measures",
+              "query": Object {
+                "branch": undefined,
+                "id": "foo",
+                "metric": "projects",
+              },
+            }
+          }
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "projects",
+                  "type": "SHORT_INT",
+                },
+                "value": "15",
+              }
+            }
+          />
+        </Link>
+      </div>
+      projects
+    </li>
+    <li>
+      <div
+        className="portfolio-measure-secondary-value"
+      >
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/component_measures",
+              "query": Object {
+                "branch": undefined,
+                "id": "foo",
+                "metric": "ncloc",
+              },
+            }
+          }
+        >
+          <Measure
+            measure={
+              Object {
+                "metric": Object {
+                  "key": "ncloc",
+                  "type": "SHORT_INT",
+                },
+                "value": "1234",
+              }
+            }
+          />
+        </Link>
+      </div>
+      metric.ncloc.name
+    </li>
+  </ul>
+  <div
+    className="huge-spacer-top"
+    style={
+      Object {
+        "width": 260,
+      }
+    }
+  >
+    <LanguageDistribution
+      distribution="java=13;js=17"
+    />
+  </div>
+</section>
+`;

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow, ShallowRendererProps, ShallowWrapper } from 'enzyme';
+import { shallow, ShallowRendererProps, ShallowWrapper, ReactWrapper } from 'enzyme';
 import { IntlProvider } from 'react-intl';
 
 export const mockEvent = {
@@ -27,7 +27,7 @@ export const mockEvent = {
   stopPropagation() {}
 };
 
-export function click(element: ShallowWrapper, event = {}): void {
+export function click(element: ShallowWrapper | ReactWrapper, event = {}): void {
   element.simulate('click', { ...mockEvent, ...event });
 }
 

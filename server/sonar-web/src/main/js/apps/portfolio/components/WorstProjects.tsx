@@ -21,7 +21,6 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { max } from 'lodash';
 import { SubComponent } from '../types';
-import { Component } from '../../../app/types';
 import Measure from '../../../components/measure/Measure';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -29,7 +28,7 @@ import { formatMeasure } from '../../../helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
-  component: Component;
+  component: string;
   subComponents: SubComponent[];
   total: number;
 }
@@ -45,7 +44,7 @@ export default function WorstProjects({ component, subComponents, total }: Props
     subComponents.map(component => Number(component.measures['ncloc'] || 0))
   ) as number;
 
-  const projectsPageUrl = { pathname: '/code', query: { id: component.key } };
+  const projectsPageUrl = { pathname: '/code', query: { id: component } };
 
   return (
     <div className="panel panel-white portfolio-sub-components" id="portfolio-sub-components">

@@ -105,7 +105,7 @@ export default class Report extends React.PureComponent<Props, State> {
           </div>
         )}
 
-        {status.canSubscribe && <SubscriptionContainer component={component} status={status} />}
+        {status.canSubscribe && <SubscriptionContainer component={component.key} status={status} />}
       </div>
     );
   }

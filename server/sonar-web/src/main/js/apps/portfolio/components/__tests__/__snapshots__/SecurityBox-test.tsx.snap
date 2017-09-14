@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="portfolio-box portfolio-security"
+>
+  <h2
+    className="portfolio-box-title"
+  >
+    metric_domain.Security
+    <MeasuresButtonLink
+      component="foo"
+      metric="Security"
+    />
+    <HistoryButtonLink
+      component="foo"
+      metric="security_rating"
+    />
+  </h2>
+  <MainRating
+    component="foo"
+    metric="security_rating"
+    value="3"
+  />
+  <RatingFreshness
+    lastChange="{\\"date\\":\\"2017-01-02T00:00:00.000Z\\",\\"value\\":2}"
+  />
+  <Effort
+    component="foo"
+    effort={
+      Object {
+        "projects": 1,
+        "rating": 3,
+      }
+    }
+    metricKey="security_rating"
+  />
+</div>
+`;

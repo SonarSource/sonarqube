@@ -26,14 +26,13 @@ import ReliabilityBox from './ReliabilityBox';
 import SecurityBox from './SecurityBox';
 import MaintainabilityBox from './MaintainabilityBox';
 import Activity from './Activity';
-import { Component } from '../../../app/types';
 import { getMeasures } from '../../../api/measures';
 import { getChildren } from '../../../api/components';
 import { SubComponent } from '../types';
 import '../styles.css';
 
 interface Props {
-  component: Component;
+  component: { key: string; name: string };
 }
 
 interface State {
@@ -166,7 +165,7 @@ export default class App extends React.PureComponent<Props, State> {
             {subComponents != undefined &&
             totalSubComponents != undefined && (
               <WorstProjects
-                component={component}
+                component={component.key}
                 subComponents={subComponents}
                 total={totalSubComponents}
               />

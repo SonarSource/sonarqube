@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="huge-spacer-top"
+>
+  <header
+    className="page-header"
+  >
+    <h3
+      className="page-title"
+    >
+      project_activity.page
+    </h3>
+  </header>
+  <PreviewGraph
+    history={
+      Object {
+        "coverage": Array [
+          Object {
+            "date": "2017-01-01T00:00:00.000Z",
+            "value": "73",
+          },
+          Object {
+            "date": "2017-01-02T00:00:00.000Z",
+            "value": "82",
+          },
+        ],
+      }
+    }
+    metrics={
+      Array [
+        Object {
+          "key": "coverage",
+        },
+      ]
+    }
+    project="foo"
+  />
+</div>
+`;
