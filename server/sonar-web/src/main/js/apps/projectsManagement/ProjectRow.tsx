@@ -64,7 +64,9 @@ export default class ProjectRow extends React.PureComponent<Props> {
         </td>
 
         <td className="thin nowrap">
-          {project.visibility === Visibility.Private && <PrivateBadge />}
+          {project.visibility === Visibility.Private && (
+            <PrivateBadge qualifier={project.qualifier} />
+          )}
         </td>
 
         <td className="nowrap">

@@ -22,5 +22,5 @@ import { shallow } from 'enzyme';
 import PrivateBadge from '../PrivateBadge';
 
 it('renders', () => {
-  expect(shallow(<PrivateBadge />)).toMatchSnapshot();
+  expect(shallow(<PrivateBadge qualifier="TRK" />)).toMatchSnapshot();
 });
