@@ -153,7 +153,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     assertThat(message.getHeader("To", null)).isEqualTo("<tester@example.org>");
     assertThat((String) message.getContent()).contains("Sample");
     assertThat((String) message.getContent()).contains("17 new issues (new debt: 17min)");
-    assertThat((String) message.getContent()).contains("Severity");
+    assertThat((String) message.getContent()).contains("Type");
     assertThat((String) message.getContent()).contains("One Issue Per Line (xoo): 17");
     assertThat((String) message.getContent()).contains(
       "See it in SonarQube: http://localhost:9000/project/issues?id=sample&createdAt=2015-12-15T00%3A00%3A00%2B");

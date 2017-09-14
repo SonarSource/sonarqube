@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
@@ -57,11 +57,13 @@ import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ASS
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.EFFORT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.SEVERITY;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE_TYPE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
 
 public class NewIssuesNotificationTest {
 
+  private final Random random = new Random();
+  private final RuleType randomRuleType = RuleType.values()[random.nextInt(RuleType.values().length)];
   private NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
   private UserIndex userIndex = mock(UserIndex.class);
   private DbClient dbClient = mock(DbClient.class);
@@ -124,8 +126,8 @@ public class NewIssuesNotificationTest {
 
     underTest.setStatistics("project-long-name", stats);
 
-    assertThat(underTest.getFieldValue(SEVERITY + ".INFO.count")).isEqualTo("5");
-    assertThat(underTest.getFieldValue(SEVERITY + ".BLOCKER.count")).isEqualTo("3");
+    assertThat(underTest.getFieldValue(RULE_TYPE + ".BUG.count")).isEqualTo("5");
+    assertThat(underTest.getFieldValue(RULE_TYPE + ".CODE_SMELL.count")).isEqualTo("3");
     assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo("maynard");
     assertThat(underTest.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("5");
     assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo("keenan");
@@ -147,12 +149,11 @@ public class NewIssuesNotificationTest {
 
   @Test
   public void add_only_5_assignees_with_biggest_issue_counts() {
-    Random random = new Random();
     String[] assignees = IntStream.range(0, 6 + random.nextInt(10)).mapToObj(s -> "assignee" + s).toArray(String[]::new);
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
     int i = assignees.length;
     for (String assignee : assignees) {
-      IntStream.range(0, i).mapToObj(j -> new DefaultIssue().setAssignee(assignee)).forEach(stats::add);
+      IntStream.range(0, i).mapToObj(j -> new DefaultIssue().setType(randomRuleType).setAssignee(assignee)).forEach(stats::add);
       i--;
     }
 
@@ -169,12 +170,11 @@ public class NewIssuesNotificationTest {
 
   @Test
   public void add_only_5_components_with_biggest_issue_counts() {
-    Random random = new Random();
     String[] componentUuids = IntStream.range(0, 6 + random.nextInt(10)).mapToObj(s -> "component_uuid_" + s).toArray(String[]::new);
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
     int i = componentUuids.length;
     for (String component : componentUuids) {
-      IntStream.range(0, i).mapToObj(j -> new DefaultIssue().setComponentUuid(component)).forEach(stats::add);
+      IntStream.range(0, i).mapToObj(j -> new DefaultIssue().setType(randomRuleType).setComponentUuid(component)).forEach(stats::add);
       i--;
     }
     when(componentDao.selectByUuids(dbSession, Arrays.stream(componentUuids).limit(5).collect(Collectors.toSet())))
@@ -194,13 +194,12 @@ public class NewIssuesNotificationTest {
 
   @Test
   public void add_only_5_rules_with_biggest_issue_counts() {
-    Random random = new Random();
     String repository = randomAlphanumeric(4);
     String[] ruleKeys = IntStream.range(0, 6 + random.nextInt(10)).mapToObj(s -> "rule_" + s).toArray(String[]::new);
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
     int i = ruleKeys.length;
     for (String ruleKey : ruleKeys) {
-      IntStream.range(0, i).mapToObj(j -> new DefaultIssue().setRuleKey(RuleKey.of(repository, ruleKey))).forEach(stats::add);
+      IntStream.range(0, i).mapToObj(j -> new DefaultIssue().setType(randomRuleType).setRuleKey(RuleKey.of(repository, ruleKey))).forEach(stats::add);
       i--;
     }
     when(ruleDao.selectDefinitionByKeys(dbSession, Arrays.stream(ruleKeys).limit(5).map(s -> RuleKey.of(repository, s)).collect(MoreCollectors.toSet(5))))
@@ -241,7 +240,7 @@ public class NewIssuesNotificationTest {
     return new DefaultIssue()
       .setAssignee("maynard")
       .setComponentUuid("file-uuid")
-      .setSeverity(Severity.INFO)
+      .setType(RuleType.BUG)
       .setTags(Lists.newArrayList("bug", "owasp"))
       .setRuleKey(RuleKey.of("SonarQube", "rule-the-world"))
       .setEffort(Duration.create(5L));
@@ -251,7 +250,7 @@ public class NewIssuesNotificationTest {
     return new DefaultIssue()
       .setAssignee("keenan")
       .setComponentUuid("directory-uuid")
-      .setSeverity(Severity.BLOCKER)
+      .setType(RuleType.CODE_SMELL)
       .setTags(Lists.newArrayList("owasp"))
       .setRuleKey(RuleKey.of("SonarQube", "rule-the-universe"))
       .setEffort(Duration.create(10L));
