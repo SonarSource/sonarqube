@@ -35,7 +35,7 @@ import org.elasticsearch.discovery.MasterNotDiscoveredException;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessId;
-import org.sonar.process.command.EsCommand;
+import org.sonar.application.command.EsCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;

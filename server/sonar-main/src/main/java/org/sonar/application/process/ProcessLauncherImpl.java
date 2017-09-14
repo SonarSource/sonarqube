@@ -31,12 +31,12 @@ import java.util.Properties;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.application.command.AbstractCommand;
+import org.sonar.application.command.EsCommand;
+import org.sonar.application.command.JavaCommand;
+import org.sonar.application.command.JvmOptions;
+import org.sonar.application.es.EsFileSystem;
 import org.sonar.process.ProcessId;
-import org.sonar.process.command.AbstractCommand;
-import org.sonar.process.command.EsCommand;
-import org.sonar.process.command.JavaCommand;
-import org.sonar.process.es.EsFileSystem;
-import org.sonar.process.jmvoptions.JvmOptions;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 

@@ -17,28 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.process;
+package org.sonar.application.command;
 
-import java.io.Closeable;
-import org.sonar.application.command.EsCommand;
-import org.sonar.application.command.JavaCommand;
+import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-public interface ProcessLauncher extends Closeable {
+public class CeJvmOptions extends JvmOptions<CeJvmOptions> {
+  public CeJvmOptions(File tmpDir) {
+    super(mandatoryOptions(tmpDir));
+  }
 
-  @Override
-  void close();
-
-  /**
-   * Launch an ES command.
-   *
-   * @throws IllegalStateException if an error occurs
-   */
-  ProcessMonitor launch(EsCommand esCommand);
-
-  /**
-   * Launch a Java command.
-   * 
-   * @throws IllegalStateException if an error occurs
-   */
-  ProcessMonitor launch(JavaCommand javaCommand);
+  private static Map<String, String> mandatoryOptions(File tmpDir) {
+    Map<String, String> res = new LinkedHashMap<>(3);
+    res.put("-Djava.awt.headless=", "true");
+    res.put("-Dfile.encoding=", "UTF-8");
+    res.put("-Djava.io.tmpdir=", tmpDir.getAbsolutePath());
+    return res;
+  }
 }

@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.process;
+@ParametersAreNonnullByDefault
+package org.sonar.application.command;
 
-import java.io.Closeable;
-import org.sonar.application.command.EsCommand;
-import org.sonar.application.command.JavaCommand;
-
-public interface ProcessLauncher extends Closeable {
-
-  @Override
-  void close();
-
-  /**
-   * Launch an ES command.
-   *
-   * @throws IllegalStateException if an error occurs
-   */
-  ProcessMonitor launch(EsCommand esCommand);
-
-  /**
-   * Launch a Java command.
-   * 
-   * @throws IllegalStateException if an error occurs
-   */
-  ProcessMonitor launch(JavaCommand javaCommand);
-}
+import javax.annotation.ParametersAreNonnullByDefault;
