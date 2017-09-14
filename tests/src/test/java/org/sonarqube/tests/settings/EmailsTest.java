@@ -20,8 +20,10 @@
 package org.sonarqube.tests.settings;
 
 import com.sonar.orchestrator.Orchestrator;
+import java.util.Arrays;
 import java.util.Iterator;
 import javax.annotation.Nullable;
+import javax.mail.Address;
 import javax.mail.internet.MimeMessage;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -37,7 +39,10 @@ import org.sonarqube.ws.client.setting.ValuesRequest;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
+import static java.lang.String.format;
 import static junit.framework.TestCase.fail;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
@@ -72,11 +77,11 @@ public class EmailsTest {
 
   @Test
   public void update_email_settings() throws Exception {
-    updateEmailSettings("localhost", "42", "noreply@email.com", "[EMAIL]", "ssl", "john", "123456");
+    updateEmailSettings("localhost", "42", "noreply@email.com", "The Devil", "[EMAIL]", "ssl", "john", "123456");
 
     Settings.ValuesWsResponse response = tester.settings().service().values(ValuesRequest.builder()
       .setKeys("email.smtp_host.secured", "email.smtp_port.secured", "email.smtp_secure_connection.secured", "email.smtp_username.secured", "email.smtp_password.secured",
-        "email.from", "email.prefix")
+        "email.from", "email.fromName", "email.prefix")
       .build());
 
     assertThat(response.getSettingsList()).extracting(Settings.Setting::getKey, Settings.Setting::getValue)
@@ -87,12 +92,13 @@ public class EmailsTest {
         tuple("email.smtp_username.secured", "john"),
         tuple("email.smtp_password.secured", "123456"),
         tuple("email.from", "noreply@email.com"),
+        tuple("email.fromName", "The Devil"),
         tuple("email.prefix", "[EMAIL]"));
   }
 
   @Test
   public void send_test_email() throws Exception {
-    updateEmailSettings("localhost", Integer.toString(SMTP_SERVER.getServer().getPort()), null, null, null, null, null);
+    updateEmailSettings("localhost", Integer.toString(SMTP_SERVER.getServer().getPort()), null, null, null, null, null, null);
 
     sendEmail("test@example.org", "Test Message from SonarQube", "This is a test message from SonarQube");
 
@@ -100,8 +106,29 @@ public class EmailsTest {
     waitUntilAllNotificationsAreDelivered(1);
     Iterator<WiserMessage> emails = SMTP_SERVER.getMessages().iterator();
     MimeMessage message = emails.next().getMimeMessage();
+    assertThat(Arrays.stream(message.getFrom()).map(Address::toString)).containsOnly("SonarQube <noreply@nowhere>");
     assertThat(message.getHeader("To", null)).isEqualTo("<test@example.org>");
-    assertThat(message.getSubject()).contains("Test Message from SonarQube");
+    assertThat(message.getSubject()).isEqualTo("[SONARQUBE] Test Message from SonarQube");
+    assertThat((String) message.getContent()).contains("This is a test message from SonarQube");
+    assertThat(emails.hasNext()).isFalse();
+  }
+
+  @Test
+  public void send_customized_test_email() throws Exception {
+    String from = randomAlphanumeric(4) + "@" + randomAlphabetic(5);
+    String fromName = randomAlphanumeric(5);
+    String prefix = randomAlphanumeric(6);
+    updateEmailSettings("localhost", Integer.toString(SMTP_SERVER.getServer().getPort()), from, fromName, prefix, null, null, null);
+
+    sendEmail("test@example.org", "Test Message from SonarQube", "This is a test message from SonarQube");
+
+    // We need to wait until all notifications will be delivered
+    waitUntilAllNotificationsAreDelivered(1);
+    Iterator<WiserMessage> emails = SMTP_SERVER.getMessages().iterator();
+    MimeMessage message = emails.next().getMimeMessage();
+    assertThat(Arrays.stream(message.getFrom()).map(Address::toString)).containsOnly(format("%s <%s>", fromName, from));
+    assertThat(message.getHeader("To", null)).isEqualTo("<test@example.org>");
+    assertThat(message.getSubject()).isEqualTo(prefix + " Test Message from SonarQube");
     assertThat((String) message.getContent()).contains("This is a test message from SonarQube");
     assertThat(emails.hasNext()).isFalse();
   }
@@ -113,10 +140,10 @@ public class EmailsTest {
       }
       Thread.sleep(1_000);
     }
-    fail(String.format("Received %d emails, expected %d", SMTP_SERVER.getMessages().size(), expectedNumberOfEmails));
+    fail(format("Received %d emails, expected %d", SMTP_SERVER.getMessages().size(), expectedNumberOfEmails));
   }
 
-  private void updateEmailSettings(@Nullable String host, @Nullable String port, @Nullable String from, @Nullable String prefix, @Nullable String secure,
+  private void updateEmailSettings(@Nullable String host, @Nullable String port, @Nullable String from, @Nullable String fromName, @Nullable String prefix, @Nullable String secure,
     @Nullable String username, @Nullable String password) {
     tester.settings().setGlobalSettings(
       "email.smtp_host.secured", host,
@@ -125,6 +152,7 @@ public class EmailsTest {
       "email.smtp_username.secured", username,
       "email.smtp_password.secured", password,
       "email.from", from,
+      "email.fromName", fromName,
       "email.prefix", prefix);
   }
 
