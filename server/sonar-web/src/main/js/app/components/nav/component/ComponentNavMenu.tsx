@@ -432,8 +432,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
 
   renderExtensions() {
     const extensions = this.props.component.extensions || [];
-    const withoutGovernance = extensions.filter(ext => ext.name !== 'Governance');
-    if (!withoutGovernance.length) {
+    if (!extensions.length) {
       return null;
     }
 
@@ -448,7 +447,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           <i className="icon-dropdown" />
         </a>
         <ul className="dropdown-menu">
-          {withoutGovernance.map(e => this.renderExtension(e, false))}
+          {extensions.map(e => this.renderExtension(e, false))}
         </ul>
       </li>
     );
