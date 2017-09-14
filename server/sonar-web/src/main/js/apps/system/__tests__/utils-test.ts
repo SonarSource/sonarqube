@@ -32,3 +32,12 @@ describe('serializeQuery', () => {
     expect(utils.serializeQuery({ expandedCards: ['foo', 'bar'] })).toEqual({ expand: 'foo,bar' });
   });
 });
+
+describe('groupSections', () => {
+  it('should correctly group the root field into a main section', () => {
+    expect(utils.groupSections({ foo: 'Foo', bar: 3, baz: { a: 'a' } })).toEqual({
+      mainSection: { foo: 'Foo', bar: 3 },
+      sections: { baz: { a: 'a' } }
+    });
+  });
+});

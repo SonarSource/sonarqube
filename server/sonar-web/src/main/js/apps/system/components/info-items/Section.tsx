@@ -19,18 +19,18 @@
  */
 import * as React from 'react';
 import { map } from 'lodash';
-import ValueItem from './ValueItem';
-import { SysValueObject } from '../../types';
+import SysInfoItem from './SysInfoItem';
+import { SysValueObject } from '../../../../api/system';
 
 interface Props {
-  name: string;
+  name?: string;
   items: SysValueObject;
 }
 
 export default function Section({ name, items }: Props) {
   return (
-    <div className="big-spacer-bottom">
-      <h3 className="spacer-bottom">{name}</h3>
+    <div className="system-info-section">
+      {name && <h4 className="spacer-bottom">{name}</h4>}
       <table className="data zebra" id={name}>
         <tbody>
           {map(items, (value, name) => {
@@ -40,7 +40,7 @@ export default function Section({ name, items }: Props) {
                   <div className="system-info-section-item-name">{name}</div>
                 </td>
                 <td style={{ wordBreak: 'break-all' }}>
-                  <ValueItem name={name} value={value} />
+                  <SysInfoItem name={name} value={value} />
                 </td>
               </tr>
             );

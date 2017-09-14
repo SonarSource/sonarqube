@@ -21,7 +21,16 @@ import * as React from 'react';
 import { sortBy } from 'lodash';
 import HealthCard from './info-items/HealthCard';
 import { translate } from '../../../helpers/l10n';
-import { SysInfo } from '../types';
+import {
+  getAppNodes,
+  getHealth,
+  getHealthCauses,
+  getMainCardSection,
+  getNodeName,
+  getSearchNodes,
+  ignoreInfoFields
+} from '../utils';
+import { SysInfo } from '../../../api/system';
 
 interface Props {
   expandedCards: string[];
@@ -29,45 +38,45 @@ interface Props {
   toggleCard: (toggledCard: string) => void;
 }
 
-export default class ClusterSysInfos extends React.PureComponent<Props> {
-  render() {
-    const { expandedCards, sysInfoData } = this.props;
-    const mainCardName = 'SonarQube';
-    return (
-      <ul>
+export default function ClusterSysInfos({ expandedCards, sysInfoData, toggleCard }: Props) {
+  const mainCardName = 'System';
+  return (
+    <ul>
+      <HealthCard
+        biggerHealth={true}
+        health={getHealth(sysInfoData)}
+        healthCauses={getHealthCauses(sysInfoData)}
+        name={mainCardName}
+        onClick={toggleCard}
+        open={expandedCards.includes(mainCardName)}
+        sysInfoData={ignoreInfoFields(getMainCardSection(sysInfoData))}
+      />
+      <li className="note system-info-health-title">
+        {translate('system.application_nodes_title')}
+      </li>
+      {sortBy(getAppNodes(sysInfoData), 'name').map(node => (
         <HealthCard
-          biggerHealth={true}
-          health={sysInfoData.health}
-          healthCauses={sysInfoData.healthCauses}
-          name={mainCardName}
-          onClick={this.props.toggleCard}
-          open={expandedCards.includes(mainCardName)}
+          key={getNodeName(node)}
+          health={getHealth(node)}
+          healthCauses={getHealthCauses(node)}
+          name={getNodeName(node)}
+          onClick={toggleCard}
+          open={expandedCards.includes(getNodeName(node))}
+          sysInfoData={ignoreInfoFields(node)}
         />
-        <li className="note system-info-health-title">
-          {translate('system.application_nodes_title')}
-        </li>
-        {sortBy(sysInfoData.applicationNodes, 'name').map(node => (
-          <HealthCard
-            key={node.name}
-            health={node.health}
-            healthCauses={node.healthCauses}
-            name={node.name}
-            onClick={this.props.toggleCard}
-            open={expandedCards.includes(node.name)}
-          />
-        ))}
-        <li className="note system-info-health-title">{translate('system.search_nodes_title')}</li>
-        {sortBy(sysInfoData.searchNodes, 'name').map(node => (
-          <HealthCard
-            key={node.name}
-            health={node.health}
-            healthCauses={node.healthCauses}
-            name={node.name}
-            onClick={this.props.toggleCard}
-            open={expandedCards.includes(node.name)}
-          />
-        ))}
-      </ul>
-    );
-  }
+      ))}
+      <li className="note system-info-health-title">{translate('system.search_nodes_title')}</li>
+      {sortBy(getSearchNodes(sysInfoData), 'name').map(node => (
+        <HealthCard
+          key={getNodeName(node)}
+          health={getHealth(node)}
+          healthCauses={getHealthCauses(node)}
+          name={getNodeName(node)}
+          onClick={toggleCard}
+          open={expandedCards.includes(getNodeName(node))}
+          sysInfoData={ignoreInfoFields(node)}
+        />
+      ))}
+    </ul>
+  );
 }

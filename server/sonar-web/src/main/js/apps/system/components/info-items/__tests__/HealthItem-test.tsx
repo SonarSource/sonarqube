@@ -20,13 +20,11 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import HealthItem from '../HealthItem';
-import { HealthType } from '../../../types';
+import { HealthType } from '../../../../../api/system';
 
 it('should render correctly', () => {
   expect(
-    shallow(
-      <HealthItem bigger={true} health={HealthType.RED} healthCauses={[{ message: 'foo' }]} />
-    )
+    shallow(<HealthItem health={HealthType.RED} healthCauses={[{ message: 'foo' }]} />)
   ).toMatchSnapshot();
 });
 
@@ -41,7 +39,6 @@ it('should render multiple health causes', () => {
   expect(
     shallow(
       <HealthItem
-        bigger={false}
         health={HealthType.YELLOW}
         healthCauses={[{ message: 'foo' }, { message: 'bar' }]}
       />

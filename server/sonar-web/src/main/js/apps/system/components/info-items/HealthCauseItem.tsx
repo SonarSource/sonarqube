@@ -18,25 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BooleanItem from './BooleanItem';
-import ObjectItem from './ObjectItem';
-import { SysValue, SysValueObject } from '../../types';
+import * as classNames from 'classnames';
+import { HealthCause, HealthType } from '../../../../api/system';
 
 interface Props {
-  name: string;
-  value: SysValue;
+  className?: string;
+  health: HealthType;
+  healthCause: HealthCause;
 }
 
-export default function ValueItem({ name, value }: Props) {
-  if (name === 'health') {
-    return <code>health: {value}</code>;
-  }
-  switch (typeof value) {
-    case 'boolean':
-      return <BooleanItem value={value as boolean} />;
-    case 'object':
-      return <ObjectItem value={value as SysValueObject} />;
-    default:
-      return <code>{value}</code>;
-  }
+export default function HealthCauseItem({ className, health, healthCause }: Props) {
+  return (
+    <span
+      className={classNames(
+        'alert',
+        health === HealthType.RED ? 'alert-danger' : 'alert-warning',
+        className
+      )}>
+      {healthCause.message}
+    </span>
+  );
 }

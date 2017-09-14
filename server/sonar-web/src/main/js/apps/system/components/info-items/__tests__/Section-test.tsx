@@ -26,3 +26,7 @@ it('should render correctly', () => {
     shallow(<Section name="foo" items={{ foo: 1, bar: 'Bar', baz: false }} />)
   ).toMatchSnapshot();
 });
+
+it('should not render a title', () => {
+  expect(shallow(<Section items={{ foo: 'bar' }} />)).toMatchSnapshot();
+});

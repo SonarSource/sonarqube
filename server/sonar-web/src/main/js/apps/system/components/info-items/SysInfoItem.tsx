@@ -19,14 +19,41 @@
  */
 import * as React from 'react';
 import { map } from 'lodash';
-import ValueItem from './ValueItem';
-import { SysValueObject } from '../../types';
+import HealthItem from './HealthItem';
+import { HealthType, SysValue, SysValueObject } from '../../../../api/system';
+import { HEALTH_FIELD } from '../../utils';
 
 interface Props {
-  value: SysValueObject;
+  name: string;
+  value: SysValue;
 }
 
-const ObjectItem: React.StatelessComponent<Props> = ({ value }) => {
+export default function SysInfoItem({ name, value }: Props): JSX.Element {
+  if (name === HEALTH_FIELD) {
+    return <HealthItem className="no-margin" health={value as HealthType} />;
+  }
+  if (value instanceof Array) {
+    return <code>{JSON.stringify(value)}</code>;
+  }
+  switch (typeof value) {
+    case 'boolean':
+      return <BooleanItem value={value as boolean} />;
+    case 'object':
+      return <ObjectItem value={value as SysValueObject} />;
+    default:
+      return <code>{value}</code>;
+  }
+}
+
+function BooleanItem({ value }: { value: boolean }) {
+  if (value) {
+    return <i className="icon-check" />;
+  } else {
+    return <i className="icon-delete" />;
+  }
+}
+
+function ObjectItem({ value }: { value: SysValueObject }) {
   return (
     <table className="data">
       <tbody>
@@ -34,13 +61,11 @@ const ObjectItem: React.StatelessComponent<Props> = ({ value }) => {
           <tr key={name}>
             <td className="thin nowrap">{name}</td>
             <td>
-              <ValueItem name={name} value={value} />
+              <SysInfoItem name={name} value={value} />
             </td>
           </tr>
         ))}
       </tbody>
     </table>
   );
-};
-
-export default ObjectItem;
+}
