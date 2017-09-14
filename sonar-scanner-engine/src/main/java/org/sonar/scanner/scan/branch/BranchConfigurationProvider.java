@@ -53,7 +53,7 @@ public class BranchConfigurationProvider extends ProviderAdapter {
     return branchConfiguration;
   }
 
-  private Supplier<Map<String, String>> createSettingsSupplier(GlobalConfiguration globalConfiguration, ProjectKey projectKey, SettingsLoader settingsLoader) {
+  private static Supplier<Map<String, String>> createSettingsSupplier(GlobalConfiguration globalConfiguration, ProjectKey projectKey, SettingsLoader settingsLoader) {
     return () -> {
       Map<String, String> settings = new HashMap<>();
       settings.putAll(globalConfiguration.getProperties());

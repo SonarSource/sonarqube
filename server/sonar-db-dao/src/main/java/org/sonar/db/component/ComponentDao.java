@@ -174,7 +174,7 @@ public class ComponentDao implements Dao {
 
   public List<ComponentDto> selectByKeysAndBranch(DbSession session, Collection<String> keys, String branch) {
     List<String> dbKeys = keys.stream().map(k -> generateBranchKey(k, branch)).collect(toList());
-    List<String> allKeys = Stream.of(keys, dbKeys) .flatMap(x -> x.stream()) .collect(toList());
+    List<String> allKeys = Stream.of(keys, dbKeys) .flatMap(Collection::stream) .collect(toList());
     return executeLargeInputs(allKeys, subKeys -> mapper(session).selectByKeysAndBranch(subKeys, branch));
   }
 

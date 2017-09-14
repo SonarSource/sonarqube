@@ -67,6 +67,7 @@ public class ReportPublisher implements Startable {
   public static final String KEEP_REPORT_PROP_KEY = "sonar.scanner.keepReport";
   public static final String VERBOSE_KEY = "sonar.verbose";
   public static final String METADATA_DUMP_FILENAME = "report-task.txt";
+  private static final String CHARACTERISTIC = "characteristic";
 
   private final Configuration settings;
   private final ScannerWsClient wsClient;
@@ -181,13 +182,13 @@ public class ReportPublisher implements Startable {
       .setPart("report", filePart);
 
     if (analysisFlags.isIncremental()) {
-      post.setParam("characteristic", "incremental=true");
+      post.setParam(CHARACTERISTIC, "incremental=true");
     }
 
     String branchName = branchConfiguration.branchName();
     if (branchName != null) {
-      post.setParam("characteristic", "branch=" + branchName);
-      post.setParam("characteristic", "branchType=" + branchConfiguration.branchType().name());
+      post.setParam(CHARACTERISTIC, "branch=" + branchName);
+      post.setParam(CHARACTERISTIC, "branchType=" + branchConfiguration.branchType().name());
     }
 
     WsResponse response;

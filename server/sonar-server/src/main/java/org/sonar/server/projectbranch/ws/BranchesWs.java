@@ -22,7 +22,10 @@ package org.sonar.server.projectbranch.ws;
 import java.util.Arrays;
 import org.sonar.api.server.ws.WebService;
 
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.CONTROLLER;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
 
 public class BranchesWs implements WebService {
   private final BranchWsAction[] actions;
@@ -37,6 +40,19 @@ public class BranchesWs implements WebService {
       .setSince("6.6");
     Arrays.stream(actions).forEach(action -> action.define(controller));
     controller.done();
+  }
+
+  static void addProjectBranchParams(NewAction action) {
+    action
+      .createParam(PARAM_PROJECT)
+      .setDescription("Project key")
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001)
+      .setRequired(true);
+    action
+      .createParam(PARAM_BRANCH)
+      .setDescription("Name of the branch to delete. Can't be the main branch of the project.")
+      .setExampleValue("branch1")
+      .setRequired(true);
   }
 
 }
