@@ -64,7 +64,7 @@ public class AlertsEmailTemplateTest {
       "  - violations > 4\n" +
       "  - coverage < 75%\n" +
       "\n" +
-      "See it in SonarQube: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
+      "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
   }
 
   @Test
@@ -83,7 +83,7 @@ public class AlertsEmailTemplateTest {
       "  - violations > 4\n" +
       "  - coverage < 75%\n" +
       "\n" +
-      "See it in SonarQube: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
+      "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
   }
 
   @Test
@@ -101,7 +101,7 @@ public class AlertsEmailTemplateTest {
       "  - violations > 4\n" +
       "  - coverage < 75%\n" +
       "\n" +
-      "See it in SonarQube: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
+      "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
   }
 
   @Test
@@ -117,7 +117,7 @@ public class AlertsEmailTemplateTest {
       "\n" +
       "New quality gate threshold: violations > 4\n" +
       "\n" +
-      "See it in SonarQube: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
+      "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
   }
 
   @Test
@@ -134,7 +134,7 @@ public class AlertsEmailTemplateTest {
       "\n" +
       "New quality gate threshold: violations > 4\n" +
       "\n" +
-      "See it in SonarQube: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
+      "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
   }
 
   @Test
@@ -149,7 +149,7 @@ public class AlertsEmailTemplateTest {
       "Quality gate status: Green (was Red)\n" +
       "\n" +
       "\n" +
-      "See it in SonarQube: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
+      "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
   }
 
   @Test
@@ -165,7 +165,7 @@ public class AlertsEmailTemplateTest {
       "Quality gate status: Green (was Red)\n" +
       "\n" +
       "\n" +
-      "See it in SonarQube: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
+      "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
   }
 
   private Notification createNotification(String alertName, String alertText, String alertLevel, String isNewAlert) {

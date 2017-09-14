@@ -69,7 +69,7 @@ public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
       }
       url += "&createdAt=" + encode(DateUtils.formatDateTime(date));
       message
-        .append("See it in SonarQube: ")
+        .append("More details at: ")
         .append(url)
         .append(NEW_LINE);
     }

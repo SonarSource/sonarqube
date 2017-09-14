@@ -106,7 +106,7 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
   private void appendFooter(StringBuilder sb, Notification notification){
     String issueKey = notification.getFieldValue("key");
     try {
-      sb.append("See it in SonarQube: ").append(settings.getServerBaseURL())
+      sb.append("More details at: ").append(settings.getServerBaseURL())
         .append("/project/issues?id=").append(encode(notification.getFieldValue("projectKey"), "UTF-8"))
         .append("&issues=").append(issueKey)
         .append("&open=").append(issueKey);

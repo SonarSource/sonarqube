@@ -138,7 +138,7 @@ public class NewIssuesEmailTemplateTest {
         "        /path/to/file: 3\n" +
         "        /path/to/directory: 7\n" +
         "\n" +
-        "See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&createdAt=2010-05-1");
+        "More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&createdAt=2010-05-1");
   }
 
   @Test
@@ -156,7 +156,7 @@ public class NewIssuesEmailTemplateTest {
         "    Type\n" +
         "        Bug: 1    Vulnerability: 10    Code Smell: 3\n" +
         "\n" +
-        "See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&createdAt=2010-05-1");
+        "More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&createdAt=2010-05-1");
   }
 
   @Test
@@ -185,7 +185,7 @@ public class NewIssuesEmailTemplateTest {
         "    Type\n" +
         "        Bug: 1    Vulnerability: 10    Code Smell: 3\n" +
         "\n" +
-        "See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&branch=feature1&createdAt=2010-05-1");
+        "More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&branch=feature1&createdAt=2010-05-1");
   }
 
   @Test
