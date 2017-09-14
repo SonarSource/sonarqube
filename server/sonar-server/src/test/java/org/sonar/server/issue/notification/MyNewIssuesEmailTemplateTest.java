@@ -79,7 +79,7 @@ public class MyNewIssuesEmailTemplateTest {
 
   @Test
   public void format_email_with_all_fields_filled() throws Exception {
-    Notification notification = newNotification();
+    Notification notification = newNotification(32);
     addTags(notification);
     addRules(notification);
     addComponents(notification);
@@ -112,7 +112,7 @@ public class MyNewIssuesEmailTemplateTest {
 
   @Test
   public void message_id() {
-    Notification notification = newNotification();
+    Notification notification = newNotification(32);
 
     EmailMessage message = underTest.format(notification);
 
@@ -121,7 +121,7 @@ public class MyNewIssuesEmailTemplateTest {
 
   @Test
   public void subject() {
-    Notification notification = newNotification();
+    Notification notification = newNotification(32);
 
     EmailMessage message = underTest.format(notification);
 
@@ -130,7 +130,7 @@ public class MyNewIssuesEmailTemplateTest {
 
   @Test
   public void format_email_with_no_assignees_tags_nor_components() throws Exception {
-    Notification notification = newNotification();
+    Notification notification = newNotification(32);
 
     EmailMessage message = underTest.format(notification);
 
@@ -141,14 +141,14 @@ public class MyNewIssuesEmailTemplateTest {
         "32 new issues (new debt: 1d3h)\n" +
         "\n" +
         "    Type\n" +
-          "        Bug: 1    Vulnerability: 3    Code Smell: 0\n" +
+        "        Bug: 1    Vulnerability: 3    Code Smell: 0\n" +
         "\n" +
         "See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18");
   }
 
   @Test
   public void format_email_with_issue_on_branch() throws Exception {
-    Notification notification = newNotification()
+    Notification notification = newNotification(32)
       .setFieldValue("branch", "feature1");
 
     EmailMessage message = underTest.format(notification);
@@ -166,6 +166,16 @@ public class MyNewIssuesEmailTemplateTest {
   }
 
   @Test
+  public void format_email_supports_single_issue() {
+    Notification notification = newNotification(1);
+
+    EmailMessage message = underTest.format(notification);
+
+    assertThat(message.getMessage())
+      .contains("1 new issue (new debt: 1d3h)\n");
+  }
+
+  @Test
   public void do_not_add_footer_when_properties_missing() {
     Notification notification = new Notification(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE)
       .setFieldValue(RULE_TYPE + ".count", "32")
@@ -175,7 +185,7 @@ public class MyNewIssuesEmailTemplateTest {
     assertThat(message.getMessage()).doesNotContain("See it");
   }
 
-  private Notification newNotification() {
+  private Notification newNotification(int count) {
     return new Notification(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE)
       .setFieldValue("projectName", "Struts")
       .setFieldValue("projectKey", "org.apache:struts")
@@ -183,7 +193,7 @@ public class MyNewIssuesEmailTemplateTest {
       .setFieldValue("projectDate", "2010-05-18T14:50:45+0000")
       .setFieldValue("assignee", "lo.gin")
       .setFieldValue(EFFORT + ".count", "1d3h")
-      .setFieldValue(RULE_TYPE + ".count", "32")
+      .setFieldValue(RULE_TYPE + ".count", String.valueOf(count))
       .setFieldValue(RULE_TYPE + ".BUG.count", "1")
       .setFieldValue(RULE_TYPE + ".VULNERABILITY.count", "3")
       .setFieldValue(RULE_TYPE + ".CODE_SMELL.count", "0");

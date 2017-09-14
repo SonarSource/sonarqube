@@ -146,9 +146,11 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
   }
 
   protected void appendRuleType(StringBuilder message, Notification notification) {
+    String count = notification.getFieldValue(Metric.RULE_TYPE + COUNT);
     message
-      .append(String.format("%s new issues (new debt: %s)",
-        notification.getFieldValue(Metric.RULE_TYPE + COUNT),
+      .append(String.format("%s new issue%s (new debt: %s)",
+        count,
+        Integer.valueOf(count) > 1 ? "s" : "",
         notification.getFieldValue(Metric.EFFORT + COUNT)))
       .append(NEW_LINE).append(NEW_LINE)
       .append(TAB)
@@ -156,7 +158,6 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
       .append(NEW_LINE)
       .append(TAB)
       .append(TAB);
-
 
     for (Iterator<RuleType> ruleTypeIterator = Arrays.asList(RuleType.BUG, RuleType.VULNERABILITY, RuleType.CODE_SMELL).iterator(); ruleTypeIterator.hasNext();) {
       RuleType ruleType = ruleTypeIterator.next();
