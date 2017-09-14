@@ -94,6 +94,16 @@ public class NewIssuesEmailTemplateTest {
   }
 
   @Test
+  public void subject_on_branch() throws Exception {
+    Notification notification = newNotification(32)
+      .setFieldValue("branch", "feature1");
+
+    EmailMessage message = template.format(notification);
+
+    assertThat(message.getSubject()).isEqualTo("Struts (feature1): 32 new issues (new debt: 1d3h)");
+  }
+
+  @Test
   public void format_email_with_all_fields_filled() throws Exception {
     Notification notification = newNotification(32);
     addAssignees(notification);
@@ -168,7 +178,7 @@ public class NewIssuesEmailTemplateTest {
 
     // TODO datetime to be completed when test is isolated from JVM timezone
     assertThat(message.getMessage())
-      .startsWith("Project: Struts\n" +
+      .startsWith("Project: Struts (feature1)\n" +
         "\n" +
         "32 new issues (new debt: 1d3h)\n" +
         "\n" +

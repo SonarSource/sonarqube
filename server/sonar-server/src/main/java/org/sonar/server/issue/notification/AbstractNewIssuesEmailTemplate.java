@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
+import javax.annotation.Nullable;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.notifications.Notification;
@@ -76,9 +77,11 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
       return null;
     }
     String projectName = checkNotNull(notification.getFieldValue(FIELD_PROJECT_NAME));
+    String branchName = notification.getFieldValue(FIELD_BRANCH);
+    String fullProjectName = computeFullProjectName(projectName, branchName);
 
     StringBuilder message = new StringBuilder();
-    message.append("Project: ").append(projectName).append(NEW_LINE).append(NEW_LINE);
+    message.append("Project: ").append(fullProjectName).append(NEW_LINE).append(NEW_LINE);
     appendRuleType(message, notification);
     appendAssignees(message, notification);
     appendRules(message, notification);
@@ -88,15 +91,22 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
 
     return new EmailMessage()
       .setMessageId(notification.getType() + "/" + notification.getFieldValue(FIELD_PROJECT_KEY))
-      .setSubject(subject(notification, projectName))
+      .setSubject(subject(notification, fullProjectName))
       .setMessage(message.toString());
+  }
+
+  private static String computeFullProjectName(String projectName, @Nullable String branchName) {
+    if (branchName == null || branchName.isEmpty()) {
+      return projectName;
+    }
+    return String.format("%s (%s)", projectName, branchName);
   }
 
   protected abstract boolean shouldNotFormat(Notification notification);
 
-  protected String subject(Notification notification, String projectName) {
+  protected String subject(Notification notification, String fullProjectName) {
     return String.format("%s: %s new issues (new debt: %s)",
-      projectName,
+      fullProjectName,
       notification.getFieldValue(Metric.RULE_TYPE + COUNT),
       notification.getFieldValue(Metric.EFFORT + COUNT));
   }
@@ -180,7 +190,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
       Date date = DateUtils.parseDateTime(dateString);
       String url = String.format("%s/project/issues?id=%s",
         settings.getServerBaseURL(), encode(projectKey));
-      String branchName = notification.getFieldValue("branch");
+      String branchName = notification.getFieldValue(FIELD_BRANCH);
       if (branchName != null) {
         url += "&branch=" + encode(branchName);
       }
