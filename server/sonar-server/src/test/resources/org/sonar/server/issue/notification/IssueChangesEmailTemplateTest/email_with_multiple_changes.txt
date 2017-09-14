@@ -9,4 +9,4 @@ Resolution: FALSE-POSITIVE
 Status: RESOLVED
 Tags: [bug performance]
 
-See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&issues=ABCDE&open=ABCDE
+More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&issues=ABCDE&open=ABCDE
