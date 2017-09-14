@@ -26,7 +26,6 @@ import java.util.Locale;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
@@ -44,7 +43,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.EFFORT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.SEVERITY;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE_TYPE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
 
 public class MyNewIssuesEmailTemplateTest {
@@ -62,17 +61,11 @@ public class MyNewIssuesEmailTemplateTest {
     date = new Date();
     userIndex = mock(UserIndex.class);
     // returns the login passed in parameter
-    when(userIndex.getNullableByLogin(anyString())).thenAnswer(new Answer<UserDoc>() {
-      @Override
-      public UserDoc answer(InvocationOnMock invocationOnMock) throws Throwable {
-        return new UserDoc().setName((String) invocationOnMock.getArguments()[0]);
-      }
-    });
-    when(i18n.message(any(Locale.class), eq("severity.BLOCKER"), anyString())).thenReturn("Blocker");
-    when(i18n.message(any(Locale.class), eq("severity.CRITICAL"), anyString())).thenReturn("Critical");
-    when(i18n.message(any(Locale.class), eq("severity.MAJOR"), anyString())).thenReturn("Major");
-    when(i18n.message(any(Locale.class), eq("severity.MINOR"), anyString())).thenReturn("Minor");
-    when(i18n.message(any(Locale.class), eq("severity.INFO"), anyString())).thenReturn("Info");
+    when(userIndex.getNullableByLogin(anyString()))
+      .thenAnswer((Answer<UserDoc>) invocationOnMock -> new UserDoc().setName((String) invocationOnMock.getArguments()[0]));
+    when(i18n.message(any(Locale.class), eq("rule_type.BUG"), anyString())).thenReturn("Bug");
+    when(i18n.message(any(Locale.class), eq("rule_type.CODE_SMELL"), anyString())).thenReturn("Code Smell");
+    when(i18n.message(any(Locale.class), eq("rule_type.VULNERABILITY"), anyString())).thenReturn("Vulnerability");
 
     underTest = new MyNewIssuesEmailTemplate(settings, i18n);
   }
@@ -94,7 +87,27 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    assertStartsWithFile(message.getMessage(), "MyNewIssuesEmailTemplateTest/email_with_all_details.txt");
+    assertThat(message.getMessage()).startsWith(
+      "Project: Struts\n" +
+        "\n" +
+        "32 new issues (new debt: 1d3h)\n" +
+        "\n" +
+        "    Type\n" +
+        "        Bug: 1    Vulnerability: 3    Code Smell: 0\n" +
+        "\n" +
+        "    Rules\n" +
+        "        Rule the Universe (Clojure): 42\n" +
+        "        Rule the World (Java): 5\n" +
+        "\n" +
+        "    Tags\n" +
+        "        oscar: 3\n" +
+        "        cesar: 10\n" +
+        "\n" +
+        "    Most impacted files\n" +
+        "        /path/to/file: 3\n" +
+        "        /path/to/directory: 7\n" +
+        "\n" +
+        "See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18");
   }
 
   @Test
@@ -122,7 +135,15 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    assertStartsWithFile(message.getMessage(), "MyNewIssuesEmailTemplateTest/email_with_no_assignee_tags_components.txt");
+    assertThat(message.getMessage())
+      .startsWith("Project: Struts\n" +
+        "\n" +
+        "32 new issues (new debt: 1d3h)\n" +
+        "\n" +
+        "    Type\n" +
+          "        Bug: 1    Vulnerability: 3    Code Smell: 0\n" +
+        "\n" +
+        "See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18");
   }
 
   @Test
@@ -133,13 +154,21 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    assertStartsWithFile(message.getMessage(), "MyNewIssuesEmailTemplateTest/email_with_issue_on_branch.txt");
+    assertThat(message.getMessage())
+      .startsWith("Project: Struts\n" +
+        "\n" +
+        "32 new issues (new debt: 1d3h)\n" +
+        "\n" +
+        "    Type\n" +
+        "        Bug: 1    Vulnerability: 3    Code Smell: 0\n" +
+        "\n" +
+        "See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&branch=feature1&createdAt=2010-05-18");
   }
 
   @Test
   public void do_not_add_footer_when_properties_missing() {
     Notification notification = new Notification(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE)
-      .setFieldValue(SEVERITY + ".count", "32")
+      .setFieldValue(RULE_TYPE + ".count", "32")
       .setFieldValue("projectName", "Struts");
 
     EmailMessage message = underTest.format(notification);
@@ -154,12 +183,10 @@ public class MyNewIssuesEmailTemplateTest {
       .setFieldValue("projectDate", "2010-05-18T14:50:45+0000")
       .setFieldValue("assignee", "lo.gin")
       .setFieldValue(EFFORT + ".count", "1d3h")
-      .setFieldValue(SEVERITY + ".count", "32")
-      .setFieldValue(SEVERITY + ".INFO.count", "1")
-      .setFieldValue(SEVERITY + ".MINOR.count", "3")
-      .setFieldValue(SEVERITY + ".MAJOR.count", "10")
-      .setFieldValue(SEVERITY + ".CRITICAL.count", "5")
-      .setFieldValue(SEVERITY + ".BLOCKER.count", "0");
+      .setFieldValue(RULE_TYPE + ".count", "32")
+      .setFieldValue(RULE_TYPE + ".BUG.count", "1")
+      .setFieldValue(RULE_TYPE + ".VULNERABILITY.count", "3")
+      .setFieldValue(RULE_TYPE + ".CODE_SMELL.count", "0");
   }
 
   private void addTags(Notification notification) {

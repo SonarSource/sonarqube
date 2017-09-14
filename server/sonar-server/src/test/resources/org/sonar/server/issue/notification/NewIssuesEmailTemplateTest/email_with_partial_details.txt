@@ -1,8 +1,0 @@
-Project: Struts
-
-32 new issues (new debt: 1d3h)
-
-    Severity
-        Blocker: 0    Critical: 5    Major: 10    Minor: 3    Info: 1
-
-See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&createdAt=2010-05-1
