@@ -37,9 +37,7 @@ export default function Section({ name, items }: Props) {
             return (
               <tr key={name}>
                 <td className="thin">
-                  <div style={{ width: '25vw', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {name}
-                  </div>
+                  <div className="system-info-section-item-name">{name}</div>
                 </td>
                 <td style={{ wordBreak: 'break-all' }}>
                   <ValueItem name={name} value={value} />

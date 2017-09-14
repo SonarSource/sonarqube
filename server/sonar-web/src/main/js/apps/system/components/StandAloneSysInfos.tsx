@@ -23,8 +23,8 @@ interface Props {
   sysInfoData: object;
 }
 
-export default class StandAloneSections extends React.PureComponent<Props> {
+export default class StandAloneSysInfos extends React.PureComponent<Props> {
   render() {
-    return <div>StandAloneSections</div>;
+    return <div>StandAloneSysInfos</div>;
   }
 }
