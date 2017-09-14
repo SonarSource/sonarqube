@@ -81,3 +81,7 @@ export interface SysInfo {
   applicationNodes: ApplicationNode[];
   searchNodes: SearchNode[];
 }
+
+export interface Query {
+  expandedCards: string[];
+}

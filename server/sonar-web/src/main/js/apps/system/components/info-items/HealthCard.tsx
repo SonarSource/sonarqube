@@ -26,16 +26,20 @@ interface Props {
   biggerHealth?: boolean;
   health: HealthType;
   healthCauses: HealthCause[];
+  onClick: (toggledCard: string) => void;
   open: boolean;
   name: string;
 }
 
 export default class HealthCard extends React.PureComponent<Props> {
+  handleClick = () => this.props.onClick(this.props.name);
+
   render() {
+    const { open } = this.props;
     return (
-      <li className="boxed-group system-info-health-card">
+      <li className="boxed-group system-info-health-card" onClick={this.handleClick}>
         <div className="boxed-group-header">
-          <OpenCloseIcon className="spacer-right" open={this.props.open} />
+          <OpenCloseIcon className="spacer-right" open={open} />
           <span className="system-info-health-card-title">{this.props.name}</span>
           <HealthItem
             bigger={this.props.biggerHealth}
@@ -44,7 +48,9 @@ export default class HealthCard extends React.PureComponent<Props> {
             healthCauses={this.props.healthCauses}
           />
         </div>
-        <div className="boxed-group-inner">{/*TODO Add the sys info sections here if open */}</div>
+        <div className="boxed-group-inner">
+          {open && <span>// TODO Add the sys info sections here</span>}
+        </div>
       </li>
     );
   }
