@@ -126,7 +126,7 @@ final class AesCipher implements Cipher {
 
   String getPathToSecretKey() {
     if (StringUtils.isBlank(pathToSecretKey)) {
-      pathToSecretKey = new File(FileUtils.getUserDirectoryPath(), ".sonar/sonar-secret.txt").getPath();
+      pathToSecretKey = new File(System.getProperty("user.home"), ".sonar/sonar-secret.txt").getPath();
     }
     return pathToSecretKey;
   }
