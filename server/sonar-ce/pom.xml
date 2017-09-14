@@ -17,11 +17,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-cluster</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.nanohttpd</groupId>
       <artifactId>nanohttpd</artifactId>
     </dependency>

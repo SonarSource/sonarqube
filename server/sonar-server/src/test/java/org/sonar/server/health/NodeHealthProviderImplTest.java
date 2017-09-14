@@ -26,20 +26,20 @@ import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.NetworkUtils;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
-import org.sonar.cluster.health.NodeDetails;
-import org.sonar.cluster.health.NodeHealth;
+import org.sonar.process.NetworkUtils;
+import org.sonar.process.cluster.health.NodeDetails;
+import org.sonar.process.cluster.health.NodeHealth;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_HOST;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_NAME;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_PORT;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_HOST;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_NAME;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_PORT;
 
 public class NodeHealthProviderImplTest {
   @Rule

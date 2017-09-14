@@ -20,7 +20,7 @@
 package org.sonar.server.health;
 
 import java.util.Set;
-import org.sonar.cluster.health.NodeHealth;
+import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.server.es.EsClient;
 
 public class EsStatusClusterCheck extends EsStatusCheck implements ClusterHealthCheck {

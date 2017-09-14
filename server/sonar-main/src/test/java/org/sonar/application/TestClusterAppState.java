@@ -20,7 +20,7 @@
 package org.sonar.application;
 
 import org.sonar.application.cluster.ClusterAppState;
-import org.sonar.cluster.localclient.HazelcastClient;
+import org.sonar.process.cluster.HazelcastClient;
 
 public class TestClusterAppState extends TestAppState implements ClusterAppState {
   private final HazelcastClient hazelcastClient;

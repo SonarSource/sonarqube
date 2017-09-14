@@ -34,7 +34,7 @@ import org.sonar.process.logging.RootLoggerConfig;
 
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.application.process.StreamGobbler.LOGGER_GOBBLER;
-import static org.sonar.cluster.ClusterProperties.HAZELCAST_LOG_LEVEL;
+import static org.sonar.process.cluster.ClusterProperties.HAZELCAST_LOG_LEVEL;
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 /**
