@@ -86,7 +86,8 @@ public class QualityGateNotificationTest {
 
     // Create quality gate with conditions on variations
     WsQualityGates.CreateWsResponse simple = tester.qGates().generate();
-    tester.qGates().service().createCondition(CreateConditionRequest.builder().setQualityGateId(simple.getId()).setMetricKey("ncloc").setPeriod(1).setOperator("EQ").setWarning("0").build());
+    tester.qGates().service()
+      .createCondition(CreateConditionRequest.builder().setQualityGateId(simple.getId()).setMetricKey("ncloc").setPeriod(1).setOperator("EQ").setWarning("0").build());
     Project project = tester.projects().generate(null);
     tester.qGates().associateProject(simple, project);
 
@@ -108,9 +109,12 @@ public class QualityGateNotificationTest {
     assertThat(emails.hasNext()).isTrue();
     message = emails.next().getMimeMessage();
     assertThat(message.getHeader("To", null)).isEqualTo("<tester@example.org>");
-    assertThat((String) message.getContent()).contains("Quality gate status: Orange (was Green)");
-    assertThat((String) message.getContent()).contains("Quality gate threshold: Lines of Code variation = 0 since previous analysis");
-    assertThat((String) message.getContent()).contains("/dashboard?id=" + project.getKey());
+    assertThat((String) message.getContent())
+      .contains("Project: Sample")
+      .contains("Version: 1.0-SNAPSHOT")
+      .contains("Quality gate status: Orange (was Green)")
+      .contains("Quality gate threshold: Lines of Code variation = 0 since previous analysis")
+      .contains("/dashboard?id=" + project.getKey());
     assertThat(emails.hasNext()).isFalse();
   }
 
