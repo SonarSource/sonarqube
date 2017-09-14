@@ -111,7 +111,7 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
     @Override
     public void close() {
       super.close();
-      if (NetworkModule.TRANSPORT_TYPE_SETTING.exists(settings) == false
+      if (!NetworkModule.TRANSPORT_TYPE_SETTING.exists(settings)
           || NetworkModule.TRANSPORT_TYPE_SETTING.get(settings).equals(Netty4Plugin.NETTY_TRANSPORT_NAME)) {
         try {
           GlobalEventExecutor.INSTANCE.awaitInactivity(5, TimeUnit.SECONDS);
