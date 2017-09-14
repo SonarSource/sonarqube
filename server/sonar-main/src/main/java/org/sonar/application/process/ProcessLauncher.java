@@ -20,8 +20,8 @@
 package org.sonar.application.process;
 
 import java.io.Closeable;
-import org.sonar.process.command.EsCommand;
-import org.sonar.process.command.JavaCommand;
+import org.sonar.application.command.EsCommand;
+import org.sonar.application.command.JavaCommand;
 
 public interface ProcessLauncher extends Closeable {
 

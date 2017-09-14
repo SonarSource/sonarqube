@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.jmvoptions;
+package org.sonar.application.command;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,9 +25,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.test.ExceptionCauseMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class EsJvmOptionsTest {
   @Rule
@@ -101,7 +101,7 @@ public class EsJvmOptionsTest {
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cannot write Elasticsearch jvm options file");
-    expectedException.expectCause(hasType(IOException.class));
+    expectedException.expectCause(ExceptionCauseMatcher.hasType(IOException.class));
 
     underTest.writeToJvmOptionFile(notAFile);
   }

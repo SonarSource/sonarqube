@@ -17,22 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.command;
+package org.sonar.application.command;
 
 import java.io.File;
 import java.util.Map;
 import java.util.Optional;
+import org.sonar.application.es.EsFileSystem;
+import org.sonar.application.es.EsLogging;
+import org.sonar.application.es.EsSettings;
+import org.sonar.application.es.EsYmlSettings;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.process.es.EsFileSystem;
-import org.sonar.process.es.EsLogging;
-import org.sonar.process.es.EsSettings;
-import org.sonar.process.es.EsYmlSettings;
-import org.sonar.process.jmvoptions.CeJvmOptions;
-import org.sonar.process.jmvoptions.EsJvmOptions;
-import org.sonar.process.jmvoptions.JvmOptions;
-import org.sonar.process.jmvoptions.WebJvmOptions;
 
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_PORT;

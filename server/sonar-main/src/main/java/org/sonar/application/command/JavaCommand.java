@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.command;
+package org.sonar.application.command;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.process.ProcessId;
-import org.sonar.process.jmvoptions.JvmOptions;
 
 public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaCommand<T>> {
   // entry point

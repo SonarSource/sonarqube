@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.command;
+package org.sonar.application.command;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.sonar.application.es.EsFileSystem;
+import org.sonar.application.es.EsYmlSettings;
 import org.sonar.process.ProcessId;
-import org.sonar.process.es.EsFileSystem;
-import org.sonar.process.es.EsYmlSettings;
-import org.sonar.process.jmvoptions.EsJvmOptions;
 
 public class EsCommand extends AbstractCommand<EsCommand> {
   private EsFileSystem fileSystem;

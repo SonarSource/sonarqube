@@ -17,26 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.jmvoptions;
+@ParametersAreNonnullByDefault
+package org.sonar.application.es;
 
-import java.io.File;
-import java.io.IOException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class CeJvmOptionsTest {
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-  @Test
-  public void constructor_sets_mandatory_JVM_options() throws IOException {
-    File tmpDir = temporaryFolder.newFolder();
-    CeJvmOptions underTest = new CeJvmOptions(tmpDir);
-
-    assertThat(underTest.getAll()).containsExactly(
-      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

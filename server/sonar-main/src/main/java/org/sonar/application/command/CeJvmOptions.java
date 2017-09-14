@@ -17,7 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.process.es;
+package org.sonar.application.command;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.File;
+
+import static java.lang.String.format;
+
+public class CeJvmOptions extends JvmOptions<CeJvmOptions> {
+  private static final String[] MANDATORY_JVM_OPTIONS = {"-Djava.awt.headless=true", "-Dfile.encoding=UTF-8"};
+
+  public CeJvmOptions(File tmpDir) {
+    super(MANDATORY_JVM_OPTIONS);
+    add(format("-Djava.io.tmpdir=%s", tmpDir.getAbsolutePath()));
+  }
+}

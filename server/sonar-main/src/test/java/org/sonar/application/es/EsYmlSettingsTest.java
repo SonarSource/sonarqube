@@ -1,4 +1,4 @@
-package org.sonar.process.es;/*
+package org.sonar.application.es;/*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
  * mailto:info AT sonarsource DOT com

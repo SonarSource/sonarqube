@@ -17,27 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.jmvoptions;
+package org.sonar.application.command;
 
 import java.io.File;
-import java.io.IOException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.lang.String.format;
 
-public class WebJvmOptionsTest {
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+public class WebJvmOptions extends JvmOptions<WebJvmOptions> {
+  private static final String[] MANDATORY_OPTIONS = {"-Djava.awt.headless=true", "-Dfile.encoding=UTF-8"};
 
-  @Test
-  public void constructor_sets_mandatory_JVM_options() throws IOException {
-    File tmpDir = temporaryFolder.newFolder();
-    WebJvmOptions underTest = new WebJvmOptions(tmpDir);
-
-    assertThat(underTest.getAll()).containsExactly(
-      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
+  public WebJvmOptions(File tmpDir) {
+    super(MANDATORY_OPTIONS);
+    add(format("-Djava.io.tmpdir=%s", tmpDir.getAbsolutePath()));
   }
-
 }

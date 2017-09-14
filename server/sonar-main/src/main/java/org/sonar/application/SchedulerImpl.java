@@ -43,9 +43,9 @@ import org.sonar.application.process.ProcessLifecycleListener;
 import org.sonar.application.process.ProcessMonitor;
 import org.sonar.application.process.SQProcess;
 import org.sonar.process.ProcessId;
-import org.sonar.process.command.CommandFactory;
-import org.sonar.process.command.EsCommand;
-import org.sonar.process.command.JavaCommand;
+import org.sonar.application.command.CommandFactory;
+import org.sonar.application.command.EsCommand;
+import org.sonar.application.command.JavaCommand;
 
 public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLifecycleListener, AppStateListener {
 

@@ -28,8 +28,8 @@ import org.sonar.application.process.ProcessLauncherImpl;
 import org.sonar.application.process.StopRequestWatcher;
 import org.sonar.application.process.StopRequestWatcherImpl;
 import org.sonar.process.SystemExit;
-import org.sonar.process.command.CommandFactory;
-import org.sonar.process.command.CommandFactoryImpl;
+import org.sonar.application.command.CommandFactory;
+import org.sonar.application.command.CommandFactoryImpl;
 
 import static org.sonar.application.config.SonarQubeVersionHelper.getSonarqubeVersion;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_NAME;
