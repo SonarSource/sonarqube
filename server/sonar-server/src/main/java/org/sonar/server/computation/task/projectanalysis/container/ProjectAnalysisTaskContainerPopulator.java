@@ -21,9 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.container;
 
 import java.util.Arrays;
 import java.util.List;
-
 import javax.annotation.Nullable;
-
 import org.sonar.ce.organization.DefaultOrganizationLoader;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.settings.SettingsLoader;
