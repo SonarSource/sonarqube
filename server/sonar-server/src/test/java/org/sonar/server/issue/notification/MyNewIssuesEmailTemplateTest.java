@@ -129,6 +129,16 @@ public class MyNewIssuesEmailTemplateTest {
   }
 
   @Test
+  public void subject_on_branch() {
+    Notification notification = newNotification(32)
+      .setFieldValue("branch", "feature1");
+
+    EmailMessage message = underTest.format(notification);
+
+    assertThat(message.getSubject()).isEqualTo("You have 32 new issues on project Struts (feature1)");
+  }
+
+  @Test
   public void format_email_with_no_assignees_tags_nor_components() throws Exception {
     Notification notification = newNotification(32);
 
@@ -155,7 +165,7 @@ public class MyNewIssuesEmailTemplateTest {
 
     // TODO datetime to be completed when test is isolated from JVM timezone
     assertThat(message.getMessage())
-      .startsWith("Project: Struts\n" +
+      .startsWith("Project: Struts (feature1)\n" +
         "\n" +
         "32 new issues (new debt: 1d3h)\n" +
         "\n" +
