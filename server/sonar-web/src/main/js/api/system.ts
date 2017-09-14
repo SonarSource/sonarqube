@@ -25,7 +25,7 @@ export function setLogLevel(level: string): Promise<void | Response> {
 }
 
 export function getSystemInfo(): Promise<any> {
-  return getJSON('/api/system/info').catch(throwGlobalError);
+  return getJSON('/api/system/cluster_info').catch(throwGlobalError);
 }
 
 export function getSystemStatus(): Promise<any> {
