@@ -91,7 +91,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   private void doExecute(Component project) {
     long analysisDate = analysisMetadataHolder.getAnalysisDate();
-    Predicate<Issue> isOnLeakPredicate = i -> i.isNew() && i.creationDate().getTime() >= truncateToSeconds(analysisDate);
+    Predicate<DefaultIssue> isOnLeakPredicate = i -> i.isNew() && i.creationDate().getTime() >= truncateToSeconds(analysisDate);
     NewIssuesStatistics newIssuesStats = new NewIssuesStatistics(isOnLeakPredicate);
     try (CloseableIterator<DefaultIssue> issues = issueCache.traverse()) {
       processIssues(newIssuesStats, issues, project);
