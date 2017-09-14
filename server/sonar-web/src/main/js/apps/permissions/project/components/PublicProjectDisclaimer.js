@@ -25,7 +25,8 @@ import { translate, translateWithParameters } from '../../../../helpers/l10n';
 /*::
 type Props = {
   component: {
-    name: string
+    name: string,
+    qualifier: string
   },
   onClose: () => void,
   onConfirm: () => void
@@ -47,6 +48,8 @@ export default class PublicProjectDisclaimer extends React.PureComponent {
   };
 
   render() {
+    const { qualifier } = this.props.component;
+
     return (
       <Modal
         isOpen={true}
@@ -61,15 +64,15 @@ export default class PublicProjectDisclaimer extends React.PureComponent {
         </header>
 
         <div className="modal-body">
-          <p>{translate('projects_role.are_you_sure_to_turn_project_to_public')}</p>
+          <p>{translate('projects_role.are_you_sure_to_turn_project_to_public', qualifier)}</p>
           <p className="spacer-top">
-            {translate('projects_role.are_you_sure_to_turn_project_to_public.2')}
+            {translate('projects_role.are_you_sure_to_turn_project_to_public.2', qualifier)}
           </p>
         </div>
 
         <footer className="modal-foot">
           <button id="confirm-turn-to-public" onClick={this.handleConfirmClick}>
-            {translate('projects_role.turn_project_to_public')}
+            {translate('projects_role.turn_project_to_public', qualifier)}
           </button>
           <a href="#" onClick={this.handleCancelClick}>
             {translate('cancel')}
