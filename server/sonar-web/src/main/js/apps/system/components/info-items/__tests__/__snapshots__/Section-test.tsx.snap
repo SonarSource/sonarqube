@@ -1,14 +1,50 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should not render a title 1`] = `
+<div
+  className="system-info-section"
+>
+  <table
+    className="data zebra"
+  >
+    <tbody>
+      <tr>
+        <td
+          className="thin"
+        >
+          <div
+            className="system-info-section-item-name"
+          >
+            foo
+          </div>
+        </td>
+        <td
+          style={
+            Object {
+              "wordBreak": "break-all",
+            }
+          }
+        >
+          <SysInfoItem
+            name="foo"
+            value="bar"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
 exports[`should render correctly 1`] = `
 <div
-  className="big-spacer-bottom"
+  className="system-info-section"
 >
-  <h3
+  <h4
     className="spacer-bottom"
   >
     foo
-  </h3>
+  </h4>
   <table
     className="data zebra"
     id="foo"
@@ -31,7 +67,7 @@ exports[`should render correctly 1`] = `
             }
           }
         >
-          <ValueItem
+          <SysInfoItem
             name="foo"
             value={1}
           />
@@ -54,7 +90,7 @@ exports[`should render correctly 1`] = `
             }
           }
         >
-          <ValueItem
+          <SysInfoItem
             name="bar"
             value="Bar"
           />
@@ -77,7 +113,7 @@ exports[`should render correctly 1`] = `
             }
           }
         >
-          <ValueItem
+          <SysInfoItem
             name="baz"
             value={false}
           />

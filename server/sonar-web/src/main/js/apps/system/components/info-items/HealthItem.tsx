@@ -19,31 +19,24 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { HealthType, HealthCause } from '../../types';
+import HealthCauseItem from './HealthCauseItem';
+import { HealthType, HealthCause } from '../../../../api/system';
 
 interface Props {
-  bigger?: boolean;
   className?: string;
   health: HealthType;
-  healthCauses: HealthCause[];
+  healthCauses?: HealthCause[];
 }
 
-export default function HealthItem({ bigger, className, health, healthCauses }: Props) {
-  const hasCauses = health !== HealthType.GREEN && healthCauses.length > 0;
+export default function HealthItem({ className, health, healthCauses }: Props) {
+  const hasHealthCauses = healthCauses && healthCauses.length > 0 && health !== HealthType.GREEN;
   return (
     <div className={classNames('system-info-health-info', className)}>
-      {hasCauses &&
-        healthCauses.map((cause, idx) => (
-          <span
-            key={idx}
-            className={classNames(
-              'spacer-right alert',
-              health === HealthType.RED ? 'alert-danger' : 'alert-warning'
-            )}>
-            {cause.message}
-          </span>
+      {hasHealthCauses &&
+        healthCauses!.map((cause, idx) => (
+          <HealthCauseItem key={idx} className="spacer-right" health={health} healthCause={cause} />
         ))}
-      <span className={classNames('system-info-health-dot', health, { bigger })} />
+      <span className={classNames('system-info-health-dot', health)} />
     </div>
   );
 }

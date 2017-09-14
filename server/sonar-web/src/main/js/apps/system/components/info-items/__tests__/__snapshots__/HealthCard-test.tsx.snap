@@ -3,23 +3,22 @@
 exports[`should display the sysinfo detail 1`] = `
 <li
   className="boxed-group system-info-health-card"
-  onClick={[Function]}
 >
   <div
     className="boxed-group-header"
+    onClick={[Function]}
   >
-    <OpenCloseIcon
-      className="spacer-right"
-      open={true}
-    />
     <span
       className="system-info-health-card-title"
     >
+      <OpenCloseIcon
+        className="little-spacer-right"
+        open={true}
+      />
       Foobar
     </span>
     <HealthItem
-      bigger={true}
-      className="pull-right"
+      className="pull-right big-dot"
       health="RED"
       healthCauses={
         Array [
@@ -32,33 +31,62 @@ exports[`should display the sysinfo detail 1`] = `
   </div>
   <div
     className="boxed-group-inner"
-  >
-    <span>
-      // TODO Add the sys info sections here
-    </span>
-  </div>
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+  />
 </li>
 `;
 
 exports[`should render correctly 1`] = `
 <li
   className="boxed-group system-info-health-card"
-  onClick={[Function]}
 >
   <div
     className="boxed-group-header"
+    onClick={[Function]}
   >
-    <OpenCloseIcon
-      className="spacer-right"
-      open={false}
-    />
     <span
       className="system-info-health-card-title"
     >
+      <OpenCloseIcon
+        className="little-spacer-right"
+        open={false}
+      />
       Foobar
     </span>
     <HealthItem
-      bigger={false}
+      className="pull-right"
+      health="RED"
+      healthCauses={
+        Array [
+          Object {
+            "message": "foo",
+          },
+        ]
+      }
+    />
+  </div>
+</li>
+`;
+
+exports[`should show a main section and multiple sub sections 1`] = `
+<li
+  className="boxed-group system-info-health-card"
+>
+  <div
+    className="boxed-group-header"
+    onClick={[Function]}
+  >
+    <span
+      className="system-info-health-card-title"
+    >
+      <OpenCloseIcon
+        className="little-spacer-right"
+        open={true}
+      />
+      Foobar
+    </span>
+    <HealthItem
       className="pull-right"
       health="RED"
       healthCauses={
@@ -72,6 +100,33 @@ exports[`should render correctly 1`] = `
   </div>
   <div
     className="boxed-group-inner"
-  />
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+  >
+    <Section
+      items={
+        Object {
+          "Name": "foo",
+          "bar": "Bar",
+        }
+      }
+    />
+    <Section
+      items={
+        Object {
+          "db": "test",
+        }
+      }
+      name="Database"
+    />
+    <Section
+      items={
+        Object {
+          "Elastic": "search",
+        }
+      }
+      name="Elasticseach"
+    />
+  </div>
 </li>
 `;
