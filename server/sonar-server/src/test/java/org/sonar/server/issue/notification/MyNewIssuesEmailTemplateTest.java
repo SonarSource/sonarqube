@@ -107,7 +107,7 @@ public class MyNewIssuesEmailTemplateTest {
         "        /path/to/file: 3\n" +
         "        /path/to/directory: 7\n" +
         "\n" +
-        "See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18");
+        "More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18");
   }
 
   @Test
@@ -153,7 +153,7 @@ public class MyNewIssuesEmailTemplateTest {
         "    Type\n" +
         "        Bug: 1    Vulnerability: 3    Code Smell: 0\n" +
         "\n" +
-        "See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18");
+        "More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18");
   }
 
   @Test
@@ -172,7 +172,7 @@ public class MyNewIssuesEmailTemplateTest {
         "    Type\n" +
         "        Bug: 1    Vulnerability: 3    Code Smell: 0\n" +
         "\n" +
-        "See it in SonarQube: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&branch=feature1&createdAt=2010-05-18");
+        "More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&branch=feature1&createdAt=2010-05-18");
   }
 
   @Test
