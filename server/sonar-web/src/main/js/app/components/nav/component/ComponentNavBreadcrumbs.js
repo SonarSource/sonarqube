@@ -93,7 +93,9 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
           </span>
         )}
         {items}
-        {component.visibility === 'private' && <PrivateBadge className="spacer-left" />}
+        {component.visibility === 'private' && (
+          <PrivateBadge className="spacer-left" qualifier={component.qualifier} />
+        )}
       </h1>
     );
   }

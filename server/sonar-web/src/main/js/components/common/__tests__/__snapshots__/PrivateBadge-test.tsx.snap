@@ -2,7 +2,7 @@
 
 exports[`renders 1`] = `
 <Tooltip
-  overlay="visibility.private.description"
+  overlay="visibility.private.description.TRK"
   placement="bottom"
 >
   <div
