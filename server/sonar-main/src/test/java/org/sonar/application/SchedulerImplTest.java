@@ -43,10 +43,10 @@ import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.ProcessMonitor;
 import org.sonar.cluster.localclient.HazelcastClient;
 import org.sonar.process.ProcessId;
-import org.sonar.process.command.AbstractCommand;
-import org.sonar.process.command.CommandFactory;
-import org.sonar.process.command.EsCommand;
-import org.sonar.process.command.JavaCommand;
+import org.sonar.application.command.AbstractCommand;
+import org.sonar.application.command.CommandFactory;
+import org.sonar.application.command.EsCommand;
+import org.sonar.application.command.JavaCommand;
 
 import static java.util.Collections.synchronizedList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
