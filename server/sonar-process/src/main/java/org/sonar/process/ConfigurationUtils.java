@@ -30,7 +30,7 @@ import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 
-import static org.apache.commons.io.FileUtils.deleteQuietly;
+import static org.sonar.process.FileUtils2.deleteQuietly;
 
 public final class ConfigurationUtils {
 
