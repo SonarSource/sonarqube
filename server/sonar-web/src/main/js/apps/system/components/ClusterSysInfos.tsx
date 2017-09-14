@@ -24,20 +24,24 @@ import { translate } from '../../../helpers/l10n';
 import { SysInfo } from '../types';
 
 interface Props {
+  expandedCards: string[];
   sysInfoData: SysInfo;
+  toggleCard: (toggledCard: string) => void;
 }
 
 export default class ClusterSysInfos extends React.PureComponent<Props> {
   render() {
-    const { sysInfoData } = this.props;
+    const { expandedCards, sysInfoData } = this.props;
+    const mainCardName = 'SonarQube';
     return (
       <ul>
         <HealthCard
           biggerHealth={true}
           health={sysInfoData.health}
           healthCauses={sysInfoData.healthCauses}
-          name="SonarQube"
-          open={false}
+          name={mainCardName}
+          onClick={this.props.toggleCard}
+          open={expandedCards.includes(mainCardName)}
         />
         <li className="note system-info-health-title">
           {translate('system.application_nodes_title')}
@@ -48,7 +52,8 @@ export default class ClusterSysInfos extends React.PureComponent<Props> {
             health={node.health}
             healthCauses={node.healthCauses}
             name={node.name}
-            open={false}
+            onClick={this.props.toggleCard}
+            open={expandedCards.includes(node.name)}
           />
         ))}
         <li className="note system-info-health-title">{translate('system.search_nodes_title')}</li>
@@ -58,7 +63,8 @@ export default class ClusterSysInfos extends React.PureComponent<Props> {
             health={node.health}
             healthCauses={node.healthCauses}
             name={node.name}
-            open={false}
+            onClick={this.props.toggleCard}
+            open={expandedCards.includes(node.name)}
           />
         ))}
       </ul>

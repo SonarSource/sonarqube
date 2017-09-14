@@ -18,23 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
 import StandAloneSysInfos from './StandAloneSysInfos';
 import { translate } from '../../../helpers/l10n';
 import { getSystemInfo } from '../../../api/system';
-import { SysInfo } from '../types';
+import { parseQuery, serializeQuery } from '../utils';
+import { SysInfo, Query } from '../types';
+import { RawQuery } from '../../../helpers/query';
 import '../styles.css';
+
+interface Props {
+  location: { pathname: string; query: RawQuery };
+}
 
 interface State {
   loading: boolean;
   sysInfoData?: SysInfo;
 }
 
-export default class App extends React.PureComponent<any, State> {
+export default class App extends React.PureComponent<Props, State> {
   mounted: boolean;
   state: State = { loading: true };
+
+  static contextTypes = {
+    router: PropTypes.object
+  };
 
   componentDidMount() {
     this.mounted = true;
@@ -61,14 +72,37 @@ export default class App extends React.PureComponent<any, State> {
     );
   };
 
+  toggleSysInfoCards = (toggledCard: string) => {
+    const query = parseQuery(this.props.location.query);
+    let expandedCards;
+    if (query.expandedCards.includes(toggledCard)) {
+      expandedCards = query.expandedCards.filter(card => card !== toggledCard);
+    } else {
+      expandedCards = query.expandedCards.concat(toggledCard);
+    }
+    this.updateQuery({ expandedCards });
+  };
+
+  updateQuery = (newQuery: Query) => {
+    const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
+    this.context.router.push({ pathname: this.props.location.pathname, query });
+  };
+
   renderSysInfo() {
     const { sysInfoData } = this.state;
     if (!sysInfoData) {
       return null;
     }
 
+    const query = parseQuery(this.props.location.query);
     if (sysInfoData.cluster) {
-      return <ClusterSysInfos sysInfoData={sysInfoData} />;
+      return (
+        <ClusterSysInfos
+          sysInfoData={sysInfoData}
+          expandedCards={query.expandedCards}
+          toggleCard={this.toggleSysInfoCards}
+        />
+      );
     }
     return <StandAloneSysInfos sysInfoData={sysInfoData} />;
   }
