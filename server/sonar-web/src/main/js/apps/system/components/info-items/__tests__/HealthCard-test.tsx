@@ -20,18 +20,34 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import HealthCard from '../HealthCard';
+import { click } from '../../../../../helpers/testUtils';
 import { HealthType } from '../../../types';
 
 it('should render correctly', () => {
-  expect(
-    shallow(
-      <HealthCard
-        biggerHealth={true}
-        health={HealthType.RED}
-        healthCauses={[{ message: 'foo' }]}
-        name="Foobar"
-        open={false}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(getShallowWrapper()).toMatchSnapshot();
 });
+
+it('should display the sysinfo detail', () => {
+  expect(getShallowWrapper({ biggerHealth: true, open: true })).toMatchSnapshot();
+});
+
+it('should show the sysinfo detail when the card is clicked', () => {
+  const onClick = jest.fn();
+  click(getShallowWrapper({ onClick }));
+  expect(onClick).toBeCalled();
+  expect(onClick).toBeCalledWith('Foobar');
+});
+
+function getShallowWrapper(props = {}) {
+  return shallow(
+    <HealthCard
+      biggerHealth={false}
+      health={HealthType.RED}
+      healthCauses={[{ message: 'foo' }]}
+      name="Foobar"
+      onClick={() => {}}
+      open={false}
+      {...props}
+    />
+  );
+}

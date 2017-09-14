@@ -1,8 +1,49 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should display the sysinfo detail 1`] = `
+<li
+  className="boxed-group system-info-health-card"
+  onClick={[Function]}
+>
+  <div
+    className="boxed-group-header"
+  >
+    <OpenCloseIcon
+      className="spacer-right"
+      open={true}
+    />
+    <span
+      className="system-info-health-card-title"
+    >
+      Foobar
+    </span>
+    <HealthItem
+      bigger={true}
+      className="pull-right"
+      health="RED"
+      healthCauses={
+        Array [
+          Object {
+            "message": "foo",
+          },
+        ]
+      }
+    />
+  </div>
+  <div
+    className="boxed-group-inner"
+  >
+    <span>
+      // TODO Add the sys info sections here
+    </span>
+  </div>
+</li>
+`;
+
 exports[`should render correctly 1`] = `
 <li
   className="boxed-group system-info-health-card"
+  onClick={[Function]}
 >
   <div
     className="boxed-group-header"
@@ -17,7 +58,7 @@ exports[`should render correctly 1`] = `
       Foobar
     </span>
     <HealthItem
-      bigger={true}
+      bigger={false}
       className="pull-right"
       health="RED"
       healthCauses={
