@@ -69,15 +69,21 @@ public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
           .append("\n");
         int newRules = profile.getNewRules();
         if (newRules > 0) {
-          message.append(" ").append(newRules).append(" new rules\n");
+          message.append(" ").append(newRules).append(" new rule")
+            .append(plural(newRules))
+            .append('\n');
         }
         int updatedRules = profile.getUpdatedRules();
         if (updatedRules > 0) {
-          message.append(" ").append(updatedRules).append(" rules have been updated\n");
+          message.append(" ").append(updatedRules).append(" rule")
+            .append(updatedRules > 1 ? "s have been updated" : " has been updated")
+            .append("\n");
         }
         int removedRules = profile.getRemovedRules();
         if (removedRules > 0) {
-          message.append(" ").append(removedRules).append(" rules removed\n");
+          message.append(" ").append(removedRules).append(" rule")
+            .append(plural(removedRules))
+            .append(" removed\n");
         }
         message.append("\n");
       });
@@ -90,6 +96,10 @@ public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
       .setMessageId(BUILT_IN_QUALITY_PROFILES)
       .setSubject("Built-in quality profiles have been updated")
       .setMessage(message.toString());
+  }
+
+  private static String plural(int count) {
+    return count > 1 ? "s" : "";
   }
 
   public String encode(String text) {
