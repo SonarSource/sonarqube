@@ -17,21 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
+package org.sonar.ce.notification;
 
-import org.sonar.ce.notification.ReportAnalysisFailureNotificationExecutionListener;
 import org.sonar.core.platform.Module;
 
-public class CeTaskProcessorModule extends Module {
+public class ReportAnalysisFailureNotificationModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      CeTaskProcessorRepositoryImpl.class,
-      CeLoggingWorkerExecutionListener.class,
-      ReportAnalysisFailureNotificationExecutionListener.class,
-      CeWorkerFactoryImpl.class,
-      EnabledCeWorkerControllerImpl.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeProcessingSchedulerImpl.class);
+      ReportAnalysisFailureNotificationDispatcher.class,
+      ReportAnalysisFailureNotificationDispatcher.newMetadata(),
+      ReportAnalysisFailureNotificationSerializerImpl.class,
+      ReportAnalysisFailureNotificationEmailTemplate.class);
   }
 }

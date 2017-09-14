@@ -30,6 +30,7 @@ import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.ce.CeModule;
+import org.sonar.ce.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.ce.settings.ProjectConfigurationFactory;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
@@ -520,6 +521,7 @@ public class PlatformLevel4 extends PlatformLevel {
       PrivilegedPluginsStopper.class,
 
       // Compute engine (must be after Views and Developer Cockpit)
+      ReportAnalysisFailureNotificationModule.class,
       CeModule.class,
       CeWsModule.class,
 
