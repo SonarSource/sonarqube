@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
+import { RouterState, IndexRouteProps } from 'react-router';
 
-export interface Language {
-  key: string;
-  name: string;
-}
+const routes = [
+  {
+    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+      import('./components/App').then(i => callback(null, { component: (i as any).default }));
+    }
+  }
+];
 
-export function getLanguages(): Promise<Language[]> {
-  return getJSON('/api/languages/list').then(r => r.languages);
-}
+export default routes;

@@ -29,7 +29,7 @@ import Measure from '../../../components/measure/Measure';
 import Tooltip from '../../../components/controls/Tooltip';
 import { isFileType } from '../utils';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
-import { getComponentMeasureHistory } from '../../../helpers/urls';
+import { getMeasureHistoryUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
 /*:: import type { Component, Period } from '../types'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
@@ -121,7 +121,7 @@ export default class MeasureHeader extends React.PureComponent {
                 overlay={translate('component_measures.show_metric_history')}>
                 <Link
                   className="js-show-history spacer-left button button-small button-compact"
-                  to={getComponentMeasureHistory(component.key, metric.key, branch)}>
+                  to={getMeasureHistoryUrl(component.key, metric.key, branch)}>
                   <HistoryIcon />
                 </Link>
               </Tooltip>

@@ -23,7 +23,7 @@ export function getMeasures(
   componentKey: string,
   metrics: string[],
   branch?: string
-): Promise<any> {
+): Promise<Array<{ metric: string; value?: string }>> {
   const url = '/api/measures/component';
   const data = { componentKey, metricKeys: metrics.join(','), branch };
   return getJSON(url, data).then(r => r.component.measures);

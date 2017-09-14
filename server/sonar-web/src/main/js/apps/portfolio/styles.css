@@ -1,0 +1,91 @@
+.portfolio-measure-secondary-value {
+  line-height: 1.4;
+  margin-bottom: 4px;
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.portfolio-grid {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  height: 80px;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.portfolio-grid > li {
+  vertical-align: top;
+  width: 50%;
+  text-align: center;
+}
+
+.portfolio-grid > li.text-middle {
+  vertical-align: middle;
+}
+
+.portfolio-freshness {
+  line-height: 24px;
+  margin-top: 12px;
+  color: #777;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.portfolio-effort {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.portfolio-boxes {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  margin-bottom: 20px;
+  padding: 15px 0;
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
+}
+
+.portfolio-box {
+  position: relative;
+  width: 25%;
+  padding: 0 5px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.portfolio-box-title {
+  margin-bottom: 25px;
+  font-size: 16px;
+}
+
+.portfolio-box-title > .button-small > svg {
+  margin-top: 0;
+}
+
+.portfolio-box-rating,
+.portfolio-box-rating .rating {
+  display: block;
+  width: 120px;
+  height: 120px;
+  line-height: 120px;
+}
+
+.portfolio-box-rating {
+  margin: 0 auto;
+  border: none;
+}
+
+.portfolio-box-rating .rating {
+  border-radius: 120px;
+  font-size: 60px;
+  text-align: center;
+}
+
+.portfolio-sub-components table.data > thead > tr > th {
+  font-size: 13px;
+  text-transform: none;
+}

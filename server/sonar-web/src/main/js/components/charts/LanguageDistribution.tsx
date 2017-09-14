@@ -17,21 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { find, sortBy } from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
 import { Histogram } from './histogram';
 import { formatMeasure } from '../../helpers/measures';
-import { getLanguages } from '../../api/languages';
+import { getLanguages, Language } from '../../api/languages';
 import { translate } from '../../helpers/l10n';
 
-export default class LanguageDistribution extends React.PureComponent {
-  static propTypes = {
-    alignTicks: PropTypes.bool,
-    distribution: PropTypes.string.isRequired
-  };
+interface Props {
+  alignTicks?: boolean;
+  distribution: string;
+}
 
-  state = {};
+interface State {
+  languages?: Language[];
+}
+
+export default class LanguageDistribution extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = {};
 
   componentDidMount() {
     this.mounted = true;
@@ -50,7 +54,7 @@ export default class LanguageDistribution extends React.PureComponent {
     });
   }
 
-  getLanguageName(langKey) {
+  getLanguageName(langKey: string) {
     if (this.state.languages) {
       const lang = find(this.state.languages, { key: langKey });
       return lang ? lang.name : translate('unknown');
@@ -59,7 +63,7 @@ export default class LanguageDistribution extends React.PureComponent {
     }
   }
 
-  cutLanguageName(name) {
+  cutLanguageName(name: string) {
     return name.length > 10 ? `${name.substr(0, 7)}...` : name;
   }
 

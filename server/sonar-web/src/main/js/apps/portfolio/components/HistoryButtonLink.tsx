@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,13 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
+import * as React from 'react';
+import { Link } from 'react-router';
+import { HistoryIcon } from '../../../components/icons-components/icons';
+import { getMeasureHistoryUrl } from '../../../helpers/urls';
 
-export interface Language {
-  key: string;
-  name: string;
+interface Props {
+  component: string;
+  metric: string;
 }
 
-export function getLanguages(): Promise<Language[]> {
-  return getJSON('/api/languages/list').then(r => r.languages);
+export default function HistoryButtonLink({ component, metric }: Props) {
+  return (
+    <Link
+      className="button button-small button-compact spacer-left text-text-bottom"
+      to={getMeasureHistoryUrl(component, metric)}>
+      <HistoryIcon size={14} />
+    </Link>
+  );
 }

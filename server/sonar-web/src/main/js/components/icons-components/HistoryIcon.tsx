@@ -17,13 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
+import * as React from 'react';
 
-export interface Language {
-  key: string;
-  name: string;
+interface Props {
+  className?: string;
+  size?: number;
 }
 
-export function getLanguages(): Promise<Language[]> {
-  return getJSON('/api/languages/list').then(r => r.languages);
+export default function IconHistory({ className, size = 16 }: Props) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      width={size}
+      height={size}>
+      <path
+        style={{ fill: 'currentColor' }}
+        d="M14.7 3.4v3.3c0 .1 0 .2-.1.2s-.2 0-.3-.1l-.9-.9-4.8 4.8c-.1.1-.1.1-.2.1s-.1 0-.2-.1L6.4 9l-3.2 3.2-1.5-1.5 4.5-4.5c.1-.1.1-.1.2-.1s.1 0 .2.1L8.4 8l3.5-3.5-.9-1c-.1-.1-.1-.2-.1-.3s.1-.1.2-.1h3.3c.1 0 .1 0 .2.1.1 0 .1.1.1.2z"
+      />
+    </svg>
+  );
 }
