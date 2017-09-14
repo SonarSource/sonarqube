@@ -31,8 +31,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.ProcessId;
-import org.sonar.process.command.JavaCommand;
-import org.sonar.process.jmvoptions.JvmOptions;
+import org.sonar.application.command.JavaCommand;
+import org.sonar.application.command.JvmOptions;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 
 import static org.assertj.core.api.Assertions.assertThat;

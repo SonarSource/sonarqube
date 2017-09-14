@@ -38,7 +38,7 @@ import org.elasticsearch.discovery.MasterNotDiscoveredException;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.command.EsCommand;
+import org.sonar.application.command.EsCommand;
 
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;

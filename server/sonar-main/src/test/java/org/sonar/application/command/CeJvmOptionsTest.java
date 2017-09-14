@@ -17,28 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.process;
+package org.sonar.application.command;
 
-import java.io.Closeable;
-import org.sonar.application.command.EsCommand;
-import org.sonar.application.command.JavaCommand;
+import java.io.File;
+import java.io.IOException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
-public interface ProcessLauncher extends Closeable {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  void close();
+public class CeJvmOptionsTest {
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  /**
-   * Launch an ES command.
-   *
-   * @throws IllegalStateException if an error occurs
-   */
-  ProcessMonitor launch(EsCommand esCommand);
+  @Test
+  public void constructor_sets_mandatory_JVM_options() throws IOException {
+    File tmpDir = temporaryFolder.newFolder();
+    CeJvmOptions underTest = new CeJvmOptions(tmpDir);
 
-  /**
-   * Launch a Java command.
-   * 
-   * @throws IllegalStateException if an error occurs
-   */
-  ProcessMonitor launch(JavaCommand javaCommand);
+    assertThat(underTest.getAll()).containsExactly(
+      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
+  }
 }
