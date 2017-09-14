@@ -33,32 +33,31 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
-import org.sonar.NetworkUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.CeDistributedInformationImpl;
 import org.sonar.ce.StandaloneCeDistributedInformation;
-import org.sonar.cluster.internal.HazelcastTestHelper;
-import org.sonar.cluster.localclient.HazelcastLocalClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.server.hz.HazelcastLocalClient;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_LOCALENDPOINT;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
 import static org.sonar.process.ProcessProperties.PATH_HOME;
 import static org.sonar.process.ProcessProperties.PATH_TEMP;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_LOCALENDPOINT;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
 
 public class ComputeEngineContainerImplTest {
   private static final int CONTAINER_ITSELF = 1;

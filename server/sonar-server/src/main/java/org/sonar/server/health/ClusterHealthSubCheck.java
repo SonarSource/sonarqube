@@ -21,7 +21,7 @@ package org.sonar.server.health;
 
 import java.util.Set;
 import java.util.stream.Stream;
-import org.sonar.cluster.health.NodeHealth;
+import org.sonar.process.cluster.health.NodeHealth;
 
 interface ClusterHealthSubCheck extends ClusterHealthCheck {
 

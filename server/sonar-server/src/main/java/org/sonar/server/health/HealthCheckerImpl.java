@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.cluster.health.NodeHealth;
-import org.sonar.cluster.health.SharedHealthState;
+import org.sonar.process.cluster.health.NodeHealth;
+import org.sonar.process.cluster.health.SharedHealthState;
 import org.sonar.server.platform.WebServer;
 
 import static com.google.common.base.Preconditions.checkState;

@@ -34,8 +34,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.cluster.health.NodeDetails;
-import org.sonar.cluster.health.NodeHealth;
+import org.sonar.process.cluster.health.NodeDetails;
+import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.health.ClusterHealth;
 import org.sonar.server.health.Health;
@@ -58,8 +58,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.cluster.health.NodeDetails.newNodeDetailsBuilder;
-import static org.sonar.cluster.health.NodeHealth.newNodeHealthBuilder;
+import static org.sonar.process.cluster.health.NodeDetails.newNodeDetailsBuilder;
+import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
 import static org.sonar.server.health.Health.GREEN;
 import static org.sonar.server.health.Health.newHealthCheckBuilder;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -335,7 +335,7 @@ public class HealthActionTest {
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)]);
     IntStream.range(0, random.nextInt(4)).mapToObj(i -> randomAlphabetic(5)).forEach(builder::addCause);
     return builder.setDetails(
-      NodeDetails.newNodeDetailsBuilder()
+      newNodeDetailsBuilder()
         .setType(random.nextBoolean() ? NodeDetails.Type.APPLICATION : NodeDetails.Type.SEARCH)
         .setName(randomAlphanumeric(3))
         .setHost(randomAlphanumeric(4))
@@ -350,7 +350,7 @@ public class HealthActionTest {
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)]);
     IntStream.range(0, random.nextInt(4)).mapToObj(i -> randomAlphabetic(5)).forEach(builder::addCause);
     return builder.setDetails(
-      NodeDetails.newNodeDetailsBuilder()
+      newNodeDetailsBuilder()
         .setType(type)
         .setName(name)
         .setHost(host)

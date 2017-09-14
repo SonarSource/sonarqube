@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
-import org.sonar.cluster.health.NodeHealth;
+import org.sonar.process.cluster.health.NodeHealth;
 
 final class HealthAssert extends AbstractAssert<HealthAssert, Health> {
   private Set<NodeHealth> nodeHealths;

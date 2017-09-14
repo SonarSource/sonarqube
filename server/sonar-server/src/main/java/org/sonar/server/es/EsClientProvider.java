@@ -42,15 +42,15 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.cluster.NodeType;
+import org.sonar.process.cluster.NodeType;
 import org.sonar.process.ProcessProperties;
 
 import static java.util.Collections.unmodifiableList;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NAME;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
-import static org.sonar.cluster.NodeType.SEARCH;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NAME;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.cluster.NodeType.SEARCH;
 
 @ComputeEngineSide
 @ServerSide

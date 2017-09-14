@@ -19,9 +19,9 @@
  */
 package org.sonar.server.health;
 
-import org.sonar.cluster.health.HealthStateRefresher;
-import org.sonar.cluster.health.SharedHealthStateImpl;
 import org.sonar.core.platform.Module;
+import org.sonar.process.cluster.health.HealthStateRefresher;
+import org.sonar.process.cluster.health.SharedHealthStateImpl;
 
 public class NodeHealthModule extends Module {
   @Override

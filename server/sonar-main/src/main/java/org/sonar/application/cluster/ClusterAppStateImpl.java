@@ -29,12 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.AppStateListener;
 import org.sonar.application.config.AppSettings;
-import org.sonar.cluster.localclient.HazelcastClient;
 import org.sonar.process.ProcessId;
+import org.sonar.process.cluster.HazelcastClient;
 
-import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_LOCALENDPOINT;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_MEMBERUUID;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_LOCALENDPOINT;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_MEMBERUUID;
 
 public class ClusterAppStateImpl implements ClusterAppState {
   private static Logger LOGGER = LoggerFactory.getLogger(ClusterAppStateImpl.class);

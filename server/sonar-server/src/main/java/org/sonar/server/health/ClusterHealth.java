@@ -21,7 +21,7 @@ package org.sonar.server.health;
 
 import java.util.Objects;
 import java.util.Set;
-import org.sonar.cluster.health.NodeHealth;
+import org.sonar.process.cluster.health.NodeHealth;
 
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static java.util.Objects.requireNonNull;

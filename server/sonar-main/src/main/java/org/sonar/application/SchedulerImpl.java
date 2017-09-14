@@ -28,24 +28,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.NetworkUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.application.cluster.ClusterAppState;
+import org.sonar.application.cluster.SearchNodeHealthProvider;
+import org.sonar.application.command.CommandFactory;
+import org.sonar.application.command.EsCommand;
+import org.sonar.application.command.JavaCommand;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.ClusterSettings;
-import org.sonar.application.health.HealthStateSharing;
-import org.sonar.application.health.HealthStateSharingImpl;
-import org.sonar.application.health.SearchNodeHealthProvider;
 import org.sonar.application.process.Lifecycle;
 import org.sonar.application.process.ProcessEventListener;
 import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.ProcessLifecycleListener;
 import org.sonar.application.process.ProcessMonitor;
 import org.sonar.application.process.SQProcess;
+import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
-import org.sonar.application.command.CommandFactory;
-import org.sonar.application.command.EsCommand;
-import org.sonar.application.command.JavaCommand;
+import org.sonar.process.cluster.health.HealthStateSharing;
+import org.sonar.process.cluster.health.HealthStateSharingImpl;
 
 public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLifecycleListener, AppStateListener {
 
@@ -152,7 +151,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
       ClusterAppState clusterAppState = (ClusterAppState) appState;
       this.healthStateSharing = new HealthStateSharingImpl(
         clusterAppState.getHazelcastClient(),
-        new SearchNodeHealthProvider(settings.getProps(), System2.INSTANCE, clusterAppState, NetworkUtils.INSTANCE));
+        new SearchNodeHealthProvider(settings.getProps(), clusterAppState, NetworkUtils.INSTANCE));
       this.healthStateSharing.start();
     }
   }

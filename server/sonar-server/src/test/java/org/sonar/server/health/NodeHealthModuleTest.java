@@ -26,13 +26,13 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
-import org.sonar.NetworkUtils;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
-import org.sonar.cluster.health.SharedHealthStateImpl;
-import org.sonar.cluster.localclient.HazelcastClient;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.process.NetworkUtils;
+import org.sonar.process.cluster.HazelcastClient;
+import org.sonar.process.cluster.health.SharedHealthStateImpl;
 
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;

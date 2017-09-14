@@ -24,7 +24,7 @@ import java.io.File;
 import java.net.InetAddress;
 import java.util.Collections;
 import org.jboss.byteman.agent.submit.Submit;
-import org.sonar.NetworkUtils;
+import org.sonar.process.NetworkUtils;
 
 import static java.lang.String.format;
 

@@ -28,7 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.NetworkUtils;
+import org.sonar.process.NetworkUtils;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;

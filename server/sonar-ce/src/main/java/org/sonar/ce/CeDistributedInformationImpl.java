@@ -25,11 +25,11 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import org.picocontainer.Startable;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
-import org.sonar.cluster.ClusterObjectKeys;
-import org.sonar.cluster.localclient.HazelcastClient;
+import org.sonar.process.cluster.ClusterObjectKeys;
+import org.sonar.process.cluster.HazelcastClient;
 
-import static org.sonar.cluster.ClusterObjectKeys.WORKER_UUIDS;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import static org.sonar.process.cluster.ClusterObjectKeys.WORKER_UUIDS;
 
 /**
  * Provide the set of worker's UUID in a clustered SonarQube instance
