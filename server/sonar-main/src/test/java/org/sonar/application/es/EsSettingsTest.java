@@ -28,15 +28,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.cluster.ClusterProperties;
+import org.sonar.process.cluster.ClusterProperties;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NAME;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NAME;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
 
 public class EsSettingsTest {
 

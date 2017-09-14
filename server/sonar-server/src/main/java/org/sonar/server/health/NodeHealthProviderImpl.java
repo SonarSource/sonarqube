@@ -20,19 +20,19 @@
 package org.sonar.server.health;
 
 import java.util.function.Supplier;
-import org.sonar.NetworkUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
-import org.sonar.cluster.health.NodeDetails;
-import org.sonar.cluster.health.NodeHealth;
-import org.sonar.cluster.health.NodeHealthProvider;
+import org.sonar.process.NetworkUtils;
+import org.sonar.process.cluster.health.NodeDetails;
+import org.sonar.process.cluster.health.NodeHealth;
+import org.sonar.process.cluster.health.NodeHealthProvider;
 
 import static java.lang.String.format;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_HOST;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_NAME;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_PORT;
-import static org.sonar.cluster.health.NodeDetails.newNodeDetailsBuilder;
-import static org.sonar.cluster.health.NodeHealth.newNodeHealthBuilder;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_HOST;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_NAME;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_PORT;
+import static org.sonar.process.cluster.health.NodeDetails.newNodeDetailsBuilder;
+import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
 
 public class NodeHealthProviderImpl implements NodeHealthProvider {
   private final HealthChecker healthChecker;

@@ -22,8 +22,8 @@ package org.sonar.server.platform;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Loggers;
 
-import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_WEB_LEADER;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_WEB_LEADER;
 
 public class WebServerImpl implements WebServer {
 

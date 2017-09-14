@@ -42,9 +42,9 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.sonar.application.cluster.HazelcastClusterTestHelper.createHazelcastClient;
 import static org.sonar.application.cluster.HazelcastClusterTestHelper.newApplicationSettings;
-import static org.sonar.cluster.ClusterObjectKeys.CLUSTER_NAME;
-import static org.sonar.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.process.cluster.ClusterObjectKeys.CLUSTER_NAME;
+import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
 
 public class ClusterAppStateImplTest {
 

@@ -21,13 +21,13 @@ package org.sonar.server.health;
 
 import java.util.Arrays;
 import java.util.Set;
-import org.sonar.cluster.health.NodeDetails;
-import org.sonar.cluster.health.NodeHealth;
+import org.sonar.process.cluster.health.NodeDetails;
+import org.sonar.process.cluster.health.NodeHealth;
 
-import static org.sonar.cluster.health.NodeHealth.Status.GREEN;
-import static org.sonar.cluster.health.NodeHealth.Status.RED;
-import static org.sonar.cluster.health.NodeHealth.Status.YELLOW;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import static org.sonar.process.cluster.health.NodeHealth.Status.GREEN;
+import static org.sonar.process.cluster.health.NodeHealth.Status.RED;
+import static org.sonar.process.cluster.health.NodeHealth.Status.YELLOW;
 import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
 public class AppNodeClusterCheck implements ClusterHealthCheck {

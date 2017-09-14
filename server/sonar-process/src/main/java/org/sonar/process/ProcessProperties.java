@@ -23,9 +23,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Properties;
-import org.sonar.NetworkUtils;
 
-import static org.sonar.cluster.ClusterProperties.putClusterDefaults;
+import static org.sonar.process.cluster.ClusterProperties.putClusterDefaults;
 
 /**
  * Constants shared by search, web server and app processes.

@@ -32,7 +32,7 @@ import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.CommandFactoryImpl;
 
 import static org.sonar.application.config.SonarQubeVersionHelper.getSonarqubeVersion;
-import static org.sonar.cluster.ClusterProperties.CLUSTER_NAME;
+import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NAME;
 
 public class App {
 
