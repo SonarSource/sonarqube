@@ -48,6 +48,7 @@ import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.log.CeProcessLogging;
+import org.sonar.ce.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.queue.CeQueueCleaner;
 import org.sonar.ce.queue.PurgeCeActivities;
@@ -390,6 +391,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       NotificationService.class,
       DefaultNotificationManager.class,
       EmailNotificationChannel.class,
+      ReportAnalysisFailureNotificationModule.class,
 
       // Tests
       TestIndexer.class,
