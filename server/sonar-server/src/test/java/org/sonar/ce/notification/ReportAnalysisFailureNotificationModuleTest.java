@@ -17,39 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
+package org.sonar.ce.notification;
 
 import org.junit.Test;
-import org.picocontainer.ComponentAdapter;
-import org.sonar.ce.notification.ReportAnalysisFailureNotificationExecutionListener;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.notification.NotificationDispatcherMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeTaskProcessorModuleTest {
-  private CeTaskProcessorModule underTest = new CeTaskProcessorModule();
+public class ReportAnalysisFailureNotificationModuleTest {
+  private ReportAnalysisFailureNotificationModule underTest = new ReportAnalysisFailureNotificationModule();
 
   @Test
-  public void defines_CeWorker_ExecutionListener_for_CeLogging() {
+  public void adds_dispatcher_and_its_metadata() {
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
 
-    assertThat(container.getPicoContainer().getComponentAdapters(CeWorker.ExecutionListener.class)
-      .stream()
-      .map(ComponentAdapter::getComponentImplementation))
-        .contains(CeLoggingWorkerExecutionListener.class);
+    assertThat(container.getPicoContainer().getComponentAdapters(NotificationDispatcherMetadata.class)).isNotNull();
+    assertThat(container.getPicoContainer().getComponentAdapters(ReportAnalysisFailureNotificationDispatcher.class)).isNotNull();
   }
 
   @Test
-  public void defines_ExecutionListener_for_report_processing_failure_notifications() {
+  public void adds_template_and_serializer() {
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
 
-    assertThat(container.getPicoContainer().getComponentAdapters(CeWorker.ExecutionListener.class)
-      .stream()
-      .map(ComponentAdapter::getComponentImplementation))
-        .contains(ReportAnalysisFailureNotificationExecutionListener.class);
+    assertThat(container.getPicoContainer().getComponentAdapters(ReportAnalysisFailureNotificationEmailTemplate.class)).isNotNull();
+    assertThat(container.getPicoContainer().getComponentAdapters(ReportAnalysisFailureNotificationSerializer.class)).isNotNull();
   }
 }
