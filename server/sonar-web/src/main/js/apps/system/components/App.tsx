@@ -19,12 +19,13 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import ClusterSections from './ClusterSections';
+import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
-import StandAloneSections from './StandAloneSections';
+import StandAloneSysInfos from './StandAloneSysInfos';
 import { translate } from '../../../helpers/l10n';
 import { getSystemInfo } from '../../../api/system';
 import { SysInfo } from '../types';
+import '../styles.css';
 
 interface State {
   loading: boolean;
@@ -67,9 +68,9 @@ export default class App extends React.PureComponent<any, State> {
     }
 
     if (sysInfoData.cluster) {
-      return <ClusterSections sysInfoData={sysInfoData} />;
+      return <ClusterSysInfos sysInfoData={sysInfoData} />;
     }
-    return <StandAloneSections sysInfoData={sysInfoData} />;
+    return <StandAloneSysInfos sysInfoData={sysInfoData} />;
   }
 
   render() {
