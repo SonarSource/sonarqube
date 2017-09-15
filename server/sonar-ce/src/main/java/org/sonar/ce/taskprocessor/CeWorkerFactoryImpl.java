@@ -22,7 +22,6 @@ package org.sonar.ce.taskprocessor;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.sonar.ce.log.CeLogging;
 import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.core.util.UuidFactory;
 
@@ -32,24 +31,33 @@ public class CeWorkerFactoryImpl implements CeWorkerFactory {
   private final UuidFactory uuidFactory;
   private final Set<String> ceWorkerUUIDs = new HashSet<>();
   private final InternalCeQueue queue;
-  private final CeLogging ceLogging;
   private final CeTaskProcessorRepository taskProcessorRepository;
   private final EnabledCeWorkerController enabledCeWorkerController;
+  private final CeWorker.ExecutionListener[] executionListeners;
 
-  public CeWorkerFactoryImpl(InternalCeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository,
+  /**
+   * Used by Pico when there is no {@link CeWorker.ExecutionListener} in the container.
+   */
+  public CeWorkerFactoryImpl(InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
     UuidFactory uuidFactory, EnabledCeWorkerController enabledCeWorkerController) {
+    this(queue, taskProcessorRepository, uuidFactory, enabledCeWorkerController, new CeWorker.ExecutionListener[0]);
+  }
+
+  public CeWorkerFactoryImpl(InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
+    UuidFactory uuidFactory, EnabledCeWorkerController enabledCeWorkerController,
+    CeWorker.ExecutionListener[] executionListeners) {
     this.queue = queue;
-    this.ceLogging = ceLogging;
     this.taskProcessorRepository = taskProcessorRepository;
     this.uuidFactory = uuidFactory;
     this.enabledCeWorkerController = enabledCeWorkerController;
+    this.executionListeners = executionListeners;
   }
 
   @Override
   public CeWorker create(int ordinal) {
     String uuid = uuidFactory.create();
     ceWorkerUUIDs.add(uuid);
-    return new CeWorkerImpl(ordinal, uuid, queue, ceLogging, taskProcessorRepository, enabledCeWorkerController);
+    return new CeWorkerImpl(ordinal, uuid, queue, taskProcessorRepository, enabledCeWorkerController, executionListeners);
   }
 
   @Override
