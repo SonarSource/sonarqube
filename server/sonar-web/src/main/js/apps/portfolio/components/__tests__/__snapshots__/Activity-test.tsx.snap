@@ -36,6 +36,7 @@ exports[`renders 1`] = `
       ]
     }
     project="foo"
+    renderWhenEmpty={[Function]}
   />
 </div>
 `;

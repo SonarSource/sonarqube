@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface ReportStatus {
   canDownload?: boolean;
@@ -28,7 +29,9 @@ export interface ReportStatus {
 }
 
 export function getReportStatus(component: string): Promise<ReportStatus> {
-  return getJSON('/api/governance_reports/status', { componentKey: component });
+  return getJSON('/api/governance_reports/status', { componentKey: component }).catch(
+    throwGlobalError
+  );
 }
 
 export function getReportUrl(component: string): string {
@@ -39,10 +42,14 @@ export function getReportUrl(component: string): string {
   );
 }
 
-export function subscribe(component: string): Promise<void> {
-  return post('/api/governance_reports/subscribe', { componentKey: component });
+export function subscribe(component: string): Promise<void | Response> {
+  return post('/api/governance_reports/subscribe', { componentKey: component }).catch(
+    throwGlobalError
+  );
 }
 
-export function unsubscribe(component: string): Promise<void> {
-  return post('/api/governance_reports/unsubscribe', { componentKey: component });
+export function unsubscribe(component: string): Promise<void | Response> {
+  return post('/api/governance_reports/unsubscribe', { componentKey: component }).catch(
+    throwGlobalError
+  );
 }

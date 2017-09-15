@@ -23,7 +23,7 @@ import { Link } from 'react-router';
 import ComplexityDistribution from '../../../components/shared/ComplexityDistribution';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
-import LanguageDistribution from '../../../components/charts/LanguageDistribution';
+import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import Measure from '../../../components/measure/Measure';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -137,7 +137,10 @@ export default class MeasureHeader extends React.PureComponent {
         {secondaryMeasure &&
         secondaryMeasure.metric.key === 'ncloc_language_distribution' && (
           <div className="measure-details-secondary">
-            <LanguageDistribution alignTicks={true} distribution={secondaryMeasure.value} />
+            <LanguageDistributionContainer
+              alignTicks={true}
+              distribution={secondaryMeasure.value}
+            />
           </div>
         )}
         {secondaryMeasure &&

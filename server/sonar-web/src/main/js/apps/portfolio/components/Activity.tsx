@@ -93,6 +93,8 @@ export default class Activity extends React.PureComponent<Props> {
     );
   };
 
+  renderWhenEmpty = () => <div className="note">{translate('component_measures.no_history')}</div>;
+
   render() {
     return (
       <div className="huge-spacer-top">
@@ -103,12 +105,13 @@ export default class Activity extends React.PureComponent<Props> {
         {this.state.loading ? (
           <i className="spinner" />
         ) : (
-          this.state.history &&
-          this.state.metrics && (
+          this.state.metrics != undefined &&
+          this.state.history != undefined && (
             <AnyPreviewGraph
               history={this.state.history}
               metrics={this.state.metrics}
               project={this.props.component}
+              renderWhenEmpty={this.renderWhenEmpty}
             />
           )
         )}

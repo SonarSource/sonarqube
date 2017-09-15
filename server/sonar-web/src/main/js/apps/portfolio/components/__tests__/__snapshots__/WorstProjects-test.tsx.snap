@@ -14,52 +14,27 @@ exports[`renders 1`] = `
            
         </th>
         <th
-          className="text-center"
-          style={
-            Object {
-              "width": 90,
-            }
-          }
+          className="text-center portfolio-sub-components-cell"
         >
           metric_domain.Releasability
         </th>
         <th
-          className="text-center"
-          style={
-            Object {
-              "width": 90,
-            }
-          }
+          className="text-center portfolio-sub-components-cell"
         >
           metric_domain.Reliability
         </th>
         <th
-          className="text-center"
-          style={
-            Object {
-              "width": 90,
-            }
-          }
+          className="text-center portfolio-sub-components-cell"
         >
           metric_domain.Security
         </th>
         <th
-          className="text-center"
-          style={
-            Object {
-              "width": 90,
-            }
-          }
+          className="text-center portfolio-sub-components-cell"
         >
           metric_domain.Maintainability
         </th>
         <th
-          className="text-center"
-          style={
-            Object {
-              "width": 90,
-            }
-          }
+          className="text-center portfolio-sub-components-cell"
         >
           metric.ncloc.name
         </th>

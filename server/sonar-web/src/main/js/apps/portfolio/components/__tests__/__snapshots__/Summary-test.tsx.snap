@@ -88,7 +88,7 @@ exports[`renders 1`] = `
       }
     }
   >
-    <LanguageDistribution
+    <Connect(LanguageDistribution)
       distribution="java=13;js=17"
     />
   </div>

@@ -52,19 +52,19 @@ export default function WorstProjects({ component, subComponents, total }: Props
         <thead>
           <tr>
             <th>&nbsp;</th>
-            <th className="text-center" style={{ width: 90 }}>
+            <th className="text-center portfolio-sub-components-cell">
               {translate('metric_domain.Releasability')}
             </th>
-            <th className="text-center" style={{ width: 90 }}>
+            <th className="text-center portfolio-sub-components-cell">
               {translate('metric_domain.Reliability')}
             </th>
-            <th className="text-center" style={{ width: 90 }}>
+            <th className="text-center portfolio-sub-components-cell">
               {translate('metric_domain.Security')}
             </th>
-            <th className="text-center" style={{ width: 90 }}>
+            <th className="text-center portfolio-sub-components-cell">
               {translate('metric_domain.Maintainability')}
             </th>
-            <th className="text-center" style={{ width: 90 }}>
+            <th className="text-center portfolio-sub-components-cell">
               {translate('metric.ncloc.name')}
             </th>
           </tr>
@@ -80,69 +80,14 @@ export default function WorstProjects({ component, subComponents, total }: Props
                 </Link>
               </td>
               {component.qualifier === 'TRK' ? (
-                <td className="text-center">
-                  <Measure
-                    measure={{
-                      metric: { key: 'alert_status', type: 'LEVEL' },
-                      value: component.measures['alert_status']
-                    }}
-                  />
-                </td>
+                renderCell(component.measures, 'alert_status', 'LEVEL')
               ) : (
-                <td className="text-center">
-                  <Measure
-                    measure={{
-                      metric: { key: 'releasability_rating', type: 'RATING' },
-                      value: component.measures['releasability_rating']
-                    }}
-                  />
-                </td>
+                renderCell(component.measures, 'releasability_rating', 'RATING')
               )}
-              <td className="text-center">
-                <Measure
-                  measure={{
-                    metric: { key: 'reliability_rating', type: 'RATING' },
-                    value: component.measures['reliability_rating']
-                  }}
-                />
-              </td>
-              <td className="text-center">
-                <Measure
-                  measure={{
-                    metric: { key: 'security_rating', type: 'RATING' },
-                    value: component.measures['security_rating']
-                  }}
-                />
-              </td>
-              <td className="text-center">
-                <Measure
-                  measure={{
-                    metric: { key: 'sqale_rating', type: 'RATING' },
-                    value: component.measures['sqale_rating']
-                  }}
-                />
-              </td>
-              <td className="text-right">
-                <span className="note">
-                  <Measure
-                    measure={{
-                      metric: { key: 'ncloc', type: 'SHORT_INT' },
-                      value: component.measures['ncloc']
-                    }}
-                  />
-                </span>
-                {maxLoc > 0 && (
-                  <svg width="50" height="16" className="spacer-left">
-                    <rect
-                      className="bar-chart-bar"
-                      x="0"
-                      y="3"
-                      width={getBarWidth(Number(component.measures['ncloc'] || 0), maxLoc, 50)}
-                      height="10"
-                    />
-                  </svg>
-                )}
-              </td>
+              {renderCell(component.measures, 'reliability_rating', 'RATING')}
+              {renderCell(component.measures, 'security_rating', 'RATING')}
+              {renderCell(component.measures, 'sqale_rating', 'RATING')}
+              {renderNcloc(component.measures, maxLoc)}
             </tr>
           ))}
         </tbody>
@@ -164,6 +109,32 @@ export default function WorstProjects({ component, subComponents, total }: Props
   );
 }
 
-function getBarWidth(value: number, max: number, maxWidth: number): number {
-  return Math.max(1, Math.round(value / max * maxWidth));
+function renderCell(measures: { [key: string]: string | undefined }, metric: string, type: string) {
+  return (
+    <td className="text-center">
+      <Measure measure={{ metric: { key: metric, type }, value: measures[metric] }} />
+    </td>
+  );
+}
+
+function renderNcloc(measures: { [key: string]: string | undefined }, maxLoc: number) {
+  const ncloc = Number(measures['ncloc'] || 0);
+  const barWidth = maxLoc > 0 ? Math.max(1, Math.round(ncloc / maxLoc * 50)) : 0;
+  return (
+    <td className="text-right">
+      <span className="note">
+        <Measure
+          measure={{
+            metric: { key: 'ncloc', type: 'SHORT_INT' },
+            value: measures['ncloc']
+          }}
+        />
+      </span>
+      {maxLoc > 0 && (
+        <svg width="50" height="16" className="spacer-left">
+          <rect className="bar-chart-bar" x="0" y="3" width={barWidth} height="10" />
+        </svg>
+      )}
+    </td>
+  );
 }

@@ -32,6 +32,12 @@ jest.mock('../Activity', () => ({
   }
 }));
 
+jest.mock('../Report', () => ({
+  default: function Report() {
+    return null;
+  }
+}));
+
 import * as React from 'react';
 import { shallow, mount } from 'enzyme';
 import App from '../App';

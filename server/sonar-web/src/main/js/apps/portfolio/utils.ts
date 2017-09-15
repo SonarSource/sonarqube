@@ -50,3 +50,43 @@ export function getEffortToNextRating(
   }
   return getWorstSeverity(measure.value);
 }
+
+export const PORTFOLIO_METRICS = [
+  'projects',
+  'ncloc',
+  'ncloc_language_distribution',
+
+  'releasability_rating',
+  'releasability_effort',
+
+  'sqale_rating',
+  'maintainability_rating_effort',
+
+  'reliability_rating',
+  'reliability_rating_effort',
+
+  'security_rating',
+  'security_rating_effort',
+
+  'last_change_on_releasability_rating',
+  'last_change_on_maintainability_rating',
+  'last_change_on_security_rating',
+  'last_change_on_reliability_rating'
+];
+
+export const SUB_COMPONENTS_METRICS = [
+  'ncloc',
+  'releasability_rating',
+  'security_rating',
+  'reliability_rating',
+  'sqale_rating',
+  'alert_status'
+];
+
+export function convertMeasures(measures: Array<{ metric: string; value?: string }>) {
+  const result: { [key: string]: string | undefined } = {};
+  measures.forEach(measure => {
+    result[measure.metric] = measure.value;
+  });
+  return result;
+}

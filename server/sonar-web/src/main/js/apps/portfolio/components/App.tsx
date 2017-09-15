@@ -28,6 +28,7 @@ import MaintainabilityBox from './MaintainabilityBox';
 import Activity from './Activity';
 import { getMeasures } from '../../../api/measures';
 import { getChildren } from '../../../api/components';
+import { PORTFOLIO_METRICS, SUB_COMPONENTS_METRICS, convertMeasures } from '../utils';
 import { SubComponent } from '../types';
 import '../styles.css';
 
@@ -71,7 +72,10 @@ export default class App extends React.PureComponent<Props, State> {
 
   fetchData() {
     this.setState({ loading: true });
-    Promise.all([this.fetchMeasures(), this.fetchChildren()]).then(
+    Promise.all([
+      getMeasures(this.props.component.key, PORTFOLIO_METRICS),
+      getChildren(this.props.component.key, SUB_COMPONENTS_METRICS, { ps: 20 })
+    ]).then(
       ([measures, subComponents]) => {
         if (this.mounted) {
           this.setState({
@@ -91,44 +95,6 @@ export default class App extends React.PureComponent<Props, State> {
         }
       }
     );
-  }
-
-  fetchMeasures() {
-    const METRICS = [
-      'projects',
-      'ncloc',
-      'ncloc_language_distribution',
-
-      'releasability_rating',
-      'releasability_effort',
-
-      'sqale_rating',
-      'maintainability_rating_effort',
-
-      'reliability_rating',
-      'reliability_rating_effort',
-
-      'security_rating',
-      'security_rating_effort',
-
-      'last_change_on_releasability_rating',
-      'last_change_on_maintainability_rating',
-      'last_change_on_security_rating',
-      'last_change_on_reliability_rating'
-    ];
-    return getMeasures(this.props.component.key, METRICS);
-  }
-
-  fetchChildren() {
-    const METRICS = [
-      'ncloc',
-      'releasability_rating',
-      'security_rating',
-      'reliability_rating',
-      'sqale_rating',
-      'alert_status'
-    ];
-    return getChildren(this.props.component.key, METRICS, { ps: 20 });
   }
 
   renderSpinner() {
@@ -181,12 +147,4 @@ export default class App extends React.PureComponent<Props, State> {
       </div>
     );
   }
-}
-
-function convertMeasures(measures: Array<{ metric: string; value?: string }>) {
-  const result: { [key: string]: string | undefined } = {};
-  measures.forEach(measure => {
-    result[measure.metric] = measure.value;
-  });
-  return result;
 }

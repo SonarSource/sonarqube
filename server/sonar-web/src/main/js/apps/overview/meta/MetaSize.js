@@ -21,7 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
-import LanguageDistribution from '../../../components/charts/LanguageDistribution';
+import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
 import SizeRating from '../../../components/ui/SizeRating';
 import { formatMeasure } from '../../../helpers/measures';
 import { getMetricName } from '../helpers/metrics';
@@ -57,7 +57,7 @@ export default class MetaSize extends React.PureComponent {
 
     return languageDistribution ? (
       <div id="overview-language-distribution" className="overview-meta-size-lang-dist">
-        <LanguageDistribution distribution={languageDistribution.value} />
+        <LanguageDistributionContainer distribution={languageDistribution.value} />
       </div>
     ) : null;
   };

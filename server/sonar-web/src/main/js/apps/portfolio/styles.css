@@ -89,3 +89,7 @@
   font-size: 13px;
   text-transform: none;
 }
+
+.portfolio-sub-components-cell {
+  width: 90px;
+}

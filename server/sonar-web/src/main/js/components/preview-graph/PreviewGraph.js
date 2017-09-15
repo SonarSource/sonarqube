@@ -42,7 +42,8 @@ type Props = {
   branch?: string,
   history: ?History,
   metrics: Array<Metric>,
-  project: string
+  project: string,
+  renderWhenEmpty?: () => void
 };
 */
 
@@ -196,7 +197,7 @@ export default class PreviewGraph extends React.PureComponent {
   render() {
     const { series } = this.state;
     if (!hasHistoryDataValue(series)) {
-      return null;
+      return this.props.renderWhenEmpty ? this.props.renderWhenEmpty() : null;
     }
 
     return (

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import LanguageDistribution from '../../../components/charts/LanguageDistribution';
+import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
 import Measure from '../../../components/measure/Measure';
 import { translate } from '../../../helpers/l10n';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
@@ -61,7 +61,7 @@ export default function Summary({ component, measures }: Props) {
 
       {nclocDistribution && (
         <div className="huge-spacer-top" style={{ width: 260 }}>
-          <LanguageDistribution distribution={nclocDistribution} />
+          <LanguageDistributionContainer distribution={nclocDistribution} />
         </div>
       )}
     </section>
