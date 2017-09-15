@@ -61,6 +61,8 @@ import org.sonar.api.server.ServerSide;
  * Note that the name System2 was chosen to not conflict with {@link java.lang.System}.
  * <br>
  * An instance is available in IoC container since 4.3.
+ * 
+ * Since 6.4 you can also inject {@link Clock} instead of {@link System2} if you are only interested by date/time operations
  *
  * @since 4.2
  */
@@ -73,9 +75,8 @@ public class System2 {
 
   /**
    * Shortcut for {@link System#currentTimeMillis()}
-   * @deprecated since 6.6 use {@link Clock} that is available in pico.
+   * Since 6.4 you can also inject {@link Clock} instead of {@link System2}
    */
-  @Deprecated
   public long now() {
     return System.currentTimeMillis();
   }
