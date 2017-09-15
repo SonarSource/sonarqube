@@ -34,10 +34,10 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.lang.String.valueOf;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NAME;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_NAME;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.CLUSTER_NAME;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_NAME;
+import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.SEARCH_MARVEL_HOSTS;
 
 public class EsSettings {

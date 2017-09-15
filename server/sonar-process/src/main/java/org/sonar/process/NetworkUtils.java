@@ -19,7 +19,12 @@
  */
 package org.sonar.process;
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public interface NetworkUtils {
   NetworkUtils INSTANCE = new NetworkUtilsImpl();
@@ -40,4 +45,32 @@ public interface NetworkUtils {
    * @return "ipv4_1, ipv4_2"
    */
   String getIPAddresses();
+
+  /**
+   * Converts a text representation of an IP address or host name to
+   * a {@link InetAddress}.
+   * If text value references an IPv4 or IPv6 address, then DNS is
+   * not used.
+   */
+  InetAddress toInetAddress(String hostOrAddress) throws UnknownHostException;
+
+  boolean isLocalInetAddress(InetAddress address) throws SocketException;
+
+  boolean isLoopbackInetAddress(InetAddress address);
+
+  /**
+   * Returns the machine {@link InetAddress} that matches the specified
+   * predicate. If multiple addresses match then a single one
+   * is picked in a non deterministic way.
+   */
+  Optional<InetAddress> getLocalInetAddress(Predicate<InetAddress> predicate);
+
+  /**
+   * Returns a local {@link InetAddress} that is IPv4 and not
+   * loopback. If multiple addresses match then a single one
+   * is picked in a non deterministic way.
+   */
+  default Optional<InetAddress> getLocalNonLoopbackIpv4Address() {
+    return getLocalInetAddress(a -> !a.isLoopbackAddress() && a instanceof Inet4Address);
+  }
 }
