@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON } from '../helpers/request';
+import { Metric } from '../app/types';
 
-export function getMetrics(): Promise<any> {
+export function getMetrics(): Promise<Metric[]> {
   return getJSON('/api/metrics/search', { ps: 9999 }).then(r => r.metrics);
 }

@@ -84,17 +84,20 @@ export function getComponentDrilldownUrl(componentKey: string, metric: string, b
   return { pathname: '/component_measures', query: { id: componentKey, metric, branch } };
 }
 
+export function getMeasureTreemapUrl(component: string, metric: string, branch?: string) {
+  return {
+    pathname: '/component_measures',
+    query: { id: component, metric, branch, view: 'treemap' }
+  };
+}
+
 /**
  * Generate URL for a component's measure history
  */
-export function getComponentMeasureHistory(
-  componentKey: string,
-  metric: string,
-  branch?: string
-): Location {
+export function getMeasureHistoryUrl(component: string, metric: string, branch?: string) {
   return {
     pathname: '/project/activity',
-    query: { id: componentKey, graph: 'custom', custom_metrics: metric, branch }
+    query: { id: component, graph: 'custom', custom_metrics: metric, branch }
   };
 }
 

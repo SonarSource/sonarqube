@@ -99,3 +99,24 @@ it('should work for long-living branches', () => {
     ).toMatchSnapshot()
   );
 });
+
+it('should work for all qualifiers', () => {
+  ['TRK', 'BRC', 'VW', 'SVW', 'APP'].forEach(checkWithQualifier);
+  expect.assertions(5);
+
+  function checkWithQualifier(qualifier: string) {
+    const component = { key: 'foo', qualifier } as Component;
+    expect(
+      shallow(
+        <ComponentNavMenu
+          branch={mainBranch}
+          component={component}
+          conf={{ showSettings: true }}
+        />,
+        {
+          context: { branchesEnabled: true }
+        }
+      )
+    ).toMatchSnapshot();
+  }
+});

@@ -42,15 +42,18 @@ import {
 /*:: import type { Analysis, MeasureHistory, Metric, Paging, Query } from '../types'; */
 
 /*::
+type Component = {
+  breadcrumbs: Array<{ key: string, qualifier: string}>,
+  configuration?: { showHistory: boolean },
+  key: string,
+  leakPeriodDate?: string,
+  qualifier: string
+};
+
 type Props = {
   branch?: {},
   location: { pathname: string, query: RawQuery },
-  component: {
-    configuration?: { showHistory: boolean },
-    key: string,
-    leakPeriodDate: string,
-    qualifier: string
-  }
+  component: Component
 };
 */
 
@@ -106,7 +109,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
         }
       });
     } else {
-      this.firstLoadData(this.state.query);
+      this.firstLoadData(this.state.query, this.props.component);
     }
   }
 
@@ -117,7 +120,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
         if (this.state.initialized) {
           this.updateGraphData(query.graph, query.customMetrics);
         } else {
-          this.firstLoadData(query);
+          this.firstLoadData(query, nextProps.component);
         }
       }
       this.setState({ query });
@@ -177,7 +180,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
       branch: this.props.branch && getBranchName(this.props.branch)
     };
     return api
-      .getProjectActivity({ ...parameters, ...additional })
+      .getProjectActivity({ ...additional, ...parameters })
       .then(({ analyses, paging }) => ({
         analyses: analyses.map(analysis => ({ ...analysis, date: parseDate(analysis.date) })),
         paging
@@ -227,10 +230,22 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
     });
   };
 
-  firstLoadData(query /*: Query */) {
+  getTopLevelComponent = (component /*: Component */) => {
+    let current = component.breadcrumbs.length - 1;
+    while (
+      current > 0 &&
+      !['TRK', 'VW', 'APP'].includes(component.breadcrumbs[current].qualifier)
+    ) {
+      current--;
+    }
+    return component.breadcrumbs[current].key;
+  };
+
+  firstLoadData(query /*: Query */, component /*: Component */) {
     const graphMetrics = getHistoryMetrics(query.graph, query.customMetrics);
+    const topLevelComponent = this.getTopLevelComponent(component);
     Promise.all([
-      this.fetchActivity(query.project, 1, 100, serializeQuery(query)),
+      this.fetchActivity(topLevelComponent, 1, 100, serializeQuery(query)),
       this.fetchMetrics(),
       this.fetchMeasuresHistory(graphMetrics)
     ]).then(
@@ -246,7 +261,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
             paging: response[0].paging
           });
 
-          this.loadAllActivities(query.project).then(({ analyses, paging }) => {
+          this.loadAllActivities(topLevelComponent).then(({ analyses, paging }) => {
             if (this.mounted) {
               this.setState({
                 analyses,

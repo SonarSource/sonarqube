@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Link
+  className="portfolio-box-rating"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/component_measures",
+      "query": Object {
+        "branch": undefined,
+        "id": "foo",
+        "metric": "security_rating",
+        "view": "treemap",
+      },
+    }
+  }
+>
+  <Rating
+    value="3"
+  />
+</Link>
+`;

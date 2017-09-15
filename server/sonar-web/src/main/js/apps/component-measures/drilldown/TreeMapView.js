@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import { AutoSizer } from 'react-virtualized';
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
 import ColorGradientLegend from '../../../components/charts/ColorGradientLegend';

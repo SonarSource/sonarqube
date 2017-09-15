@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { AutoSizer } from 'react-virtualized';
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import GraphsTooltips from './GraphsTooltips';
 import GraphsLegendCustom from './GraphsLegendCustom';

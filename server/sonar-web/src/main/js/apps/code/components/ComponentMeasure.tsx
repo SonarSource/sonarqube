@@ -42,10 +42,7 @@ export default function ComponentMeasure({ component, metricKey, metricType }: P
     return <span />;
   }
 
-  // TODO
-  const AnyMeasure = Measure as any;
-
   return (
-    <AnyMeasure measure={{ ...measure, metric: { key: finalMetricKey, type: finalMetricType } }} />
+    <Measure measure={{ ...measure, metric: { key: finalMetricKey, type: finalMetricType } }} />
   );
 }

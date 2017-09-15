@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,19 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ProjectPageExtension from './ProjectPageExtension';
-import { Component } from '../../types';
+import { shallow } from 'enzyme';
+import Summary from '../Summary';
 
-interface Props {
-  component: Component;
-  location: { query: { id: string } };
-}
-
-export default function PortfolioDashboard(props: Props) {
-  return (
-    <ProjectPageExtension
-      {...props}
-      params={{ pluginKey: 'governance', extensionKey: 'governance' }}
-    />
-  );
-}
+it('renders', () => {
+  expect(
+    shallow(
+      <Summary
+        component={{ description: 'blabla', key: 'foo' }}
+        measures={{ ncloc: '1234', ncloc_language_distribution: 'java=13;js=17', projects: '15' }}
+      />
+    )
+  ).toMatchSnapshot();
+});

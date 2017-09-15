@@ -35,7 +35,7 @@ type Props = {
   graphs: Array<Array<Serie>>,
   graphEndDate: ?Date,
   graphStartDate: ?Date,
-  leakPeriodDate: Date,
+  leakPeriodDate?: Date,
   loading: boolean,
   measuresHistory: Array<MeasureHistory>,
   removeCustomMetric: (metric: string) => void,

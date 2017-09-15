@@ -20,8 +20,9 @@
 // @flow
 import React from 'react';
 import { minBy } from 'lodash';
-import { AutoSizer } from 'react-virtualized';
-import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
+import * as PropTypes from 'prop-types';
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
+import AdvancedTimeline from '../charts/AdvancedTimeline';
 import PreviewGraphTooltips from './PreviewGraphTooltips';
 import {
   DEFAULT_GRAPH,
@@ -30,11 +31,11 @@ import {
   getSeriesMetricType,
   hasHistoryDataValue,
   splitSeriesInGraphs
-} from '../../projectActivity/utils';
-import { getCustomGraph, getGraph } from '../../../helpers/storage';
-import { formatMeasure, getShortType } from '../../../helpers/measures';
-/*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
-/*:: import type { History, Metric } from '../types'; */
+} from '../../apps/projectActivity/utils';
+import { getCustomGraph, getGraph } from '../../helpers/storage';
+import { formatMeasure, getShortType } from '../../helpers/measures';
+/*:: import type { Serie } from '../charts/AdvancedTimeline'; */
+/*:: import type { History, Metric } from '../../apps/overview/types'; */
 
 /*::
 type Props = {
@@ -42,7 +43,7 @@ type Props = {
   history: ?History,
   metrics: Array<Metric>,
   project: string,
-  router: { push: ({ pathname: string, query?: {} }) => void }
+  renderWhenEmpty?: () => void
 };
 */
 
@@ -64,6 +65,10 @@ const MAX_SERIES_PER_GRAPH = 3;
 export default class PreviewGraph extends React.PureComponent {
   /*:: props: Props; */
   /*:: state: State; */
+
+  static contextTypes = {
+    router: PropTypes.object
+  };
 
   constructor(props /*: Props */) {
     super(props);
@@ -137,7 +142,7 @@ export default class PreviewGraph extends React.PureComponent {
   };
 
   handleClick = () => {
-    this.props.router.push({
+    this.context.router.push({
       pathname: '/project/activity',
       query: { id: this.props.project, branch: this.props.branch }
     });
@@ -192,7 +197,7 @@ export default class PreviewGraph extends React.PureComponent {
   render() {
     const { series } = this.state;
     if (!hasHistoryDataValue(series)) {
-      return null;
+      return this.props.renderWhenEmpty ? this.props.renderWhenEmpty() : null;
     }
 
     return (

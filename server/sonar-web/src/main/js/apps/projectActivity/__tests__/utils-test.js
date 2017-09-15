@@ -221,8 +221,8 @@ describe('parseQuery', () => {
     expect(
       utils.parseQuery({
         from: '2017-04-27T08:21:32.000Z',
-        id: 'foo',
-        custom_metrics: 'foo,bar,baz'
+        custom_metrics: 'foo,bar,baz',
+        id: 'foo'
       })
     ).toEqual(QUERY);
   });

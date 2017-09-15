@@ -49,15 +49,15 @@ export default class ComponentContainer extends React.PureComponent<Props, State
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchComponent();
+    this.fetchComponent(this.props);
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentWillReceiveProps(nextProps: Props) {
     if (
-      prevProps.location.query.id !== this.props.location.query.id ||
-      prevProps.location.query.branch !== this.props.location.query.branch
+      nextProps.location.query.id !== this.props.location.query.id ||
+      nextProps.location.query.branch !== this.props.location.query.branch
     ) {
-      this.fetchComponent();
+      this.fetchComponent(nextProps);
     }
   }
 
@@ -70,8 +70,8 @@ export default class ComponentContainer extends React.PureComponent<Props, State
     qualifier: component.breadcrumbs[component.breadcrumbs.length - 1].qualifier
   });
 
-  fetchComponent() {
-    const { branch, id } = this.props.location.query;
+  fetchComponent(props: Props) {
+    const { branch, id } = props.location.query;
     this.setState({ loading: true });
 
     const onError = (error: any) => {
