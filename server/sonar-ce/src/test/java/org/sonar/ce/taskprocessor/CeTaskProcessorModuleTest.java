@@ -19,17 +19,24 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import org.sonar.core.platform.Module;
+import org.junit.Test;
+import org.picocontainer.ComponentAdapter;
+import org.sonar.core.platform.ComponentContainer;
 
-public class CeTaskProcessorModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      CeTaskProcessorRepositoryImpl.class,
-      CeLoggingWorkerExecutionListener.class,
-      CeWorkerFactoryImpl.class,
-      EnabledCeWorkerControllerImpl.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeProcessingSchedulerImpl.class);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class CeTaskProcessorModuleTest {
+  private CeTaskProcessorModule underTest = new CeTaskProcessorModule();
+
+  @Test
+  public void defines_CeWorker_ExecutionListener_for_CeLogging() {
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+    assertThat(container.getPicoContainer().getComponentAdapters(CeWorker.ExecutionListener.class)
+      .stream()
+      .map(ComponentAdapter::getComponentImplementation))
+        .contains(CeLoggingWorkerExecutionListener.class);
   }
 }

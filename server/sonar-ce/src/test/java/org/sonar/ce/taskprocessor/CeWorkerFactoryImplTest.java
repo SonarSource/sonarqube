@@ -20,12 +20,13 @@
 
 package org.sonar.ce.taskprocessor;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.Test;
-import org.sonar.ce.log.CeLogging;
 import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.core.util.UuidFactoryImpl;
 
@@ -34,7 +35,7 @@ import static org.mockito.Mockito.mock;
 
 public class CeWorkerFactoryImplTest {
   private int randomOrdinal = new Random().nextInt(20);
-  private CeWorkerFactoryImpl underTest = new CeWorkerFactoryImpl(mock(InternalCeQueue.class), mock(CeLogging.class),
+  private CeWorkerFactoryImpl underTest = new CeWorkerFactoryImpl(mock(InternalCeQueue.class),
     mock(CeTaskProcessorRepository.class), UuidFactoryImpl.INSTANCE, mock(EnabledCeWorkerController.class));
 
   @Test
@@ -42,6 +43,22 @@ public class CeWorkerFactoryImplTest {
     CeWorker ceWorker = underTest.create(randomOrdinal);
 
     assertThat(ceWorker.getOrdinal()).isEqualTo(randomOrdinal);
+  }
+
+  @Test
+  public void create_returns_CeWorker_with_listeners_passed_to_factory_constructor() throws NoSuchFieldException, IllegalAccessException {
+    CeWorker.ExecutionListener executionListener1 = mock(CeWorker.ExecutionListener.class);
+    CeWorker.ExecutionListener executionListener2 = mock(CeWorker.ExecutionListener.class);
+    CeWorkerFactoryImpl underTest = new CeWorkerFactoryImpl(mock(InternalCeQueue.class),
+      mock(CeTaskProcessorRepository.class), UuidFactoryImpl.INSTANCE, mock(EnabledCeWorkerController.class),
+      new CeWorker.ExecutionListener[] {executionListener1, executionListener2});
+
+    CeWorker ceWorker = underTest.create(randomOrdinal);
+
+    Field f = CeWorkerImpl.class.getDeclaredField("listeners");
+    f.setAccessible(true);
+    assertThat((List<CeWorker.ExecutionListener>) f.get(ceWorker)).containsExactly(
+      executionListener1, executionListener2);
   }
 
   @Test
