@@ -19,14 +19,15 @@
  */
 package org.sonar.ce.container;
 
-import com.hazelcast.core.HazelcastInstance;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,19 +46,22 @@ import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.server.hz.HazelcastLocalClient;
+import org.sonar.server.cluster.StartableHazelcastMember;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_KEY;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
+import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
 import static org.sonar.process.ProcessProperties.PATH_HOME;
 import static org.sonar.process.ProcessProperties.PATH_TEMP;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_LOCALENDPOINT;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
 
 public class ComputeEngineContainerImplTest {
   private static final int CONTAINER_ITSELF = 1;
@@ -83,13 +87,16 @@ public class ComputeEngineContainerImplTest {
 
   @Test
   public void real_start_with_cluster() throws IOException {
-    int port = NetworkUtils.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress());
-    HazelcastInstance hzInstance = HazelcastTestHelper.createHazelcastCluster(NetworkUtils.INSTANCE.getHostname(), port);
+    Optional<InetAddress> localhost = NetworkUtils.INSTANCE.getLocalNonLoopbackIpv4Address();
+    // test is ignored if offline
+    assumeThat(localhost.isPresent(), CoreMatchers.is(true));
 
     Properties properties = getProperties();
-    properties.setProperty(CLUSTER_NODE_TYPE, "application");
+    properties.setProperty(PROPERTY_PROCESS_KEY, ProcessId.COMPUTE_ENGINE.getKey());
     properties.setProperty(CLUSTER_ENABLED, "true");
-    properties.setProperty(CLUSTER_LOCALENDPOINT, String.format("%s:%d", hzInstance.getCluster().getLocalMember().getAddress().getHost(), port));
+    properties.setProperty(CLUSTER_NODE_TYPE, "application");
+    properties.setProperty(CLUSTER_NODE_HOST, localhost.get().getHostAddress());
+    properties.setProperty(CLUSTER_NODE_PORT, "" + NetworkUtils.INSTANCE.getNextAvailablePort(localhost.get()));
 
     // required persisted properties
     insertProperty(CoreProperties.SERVER_ID, "a_startup_id");
@@ -102,7 +109,7 @@ public class ComputeEngineContainerImplTest {
     assertThat(
       picoContainer.getComponentAdapters().stream()
         .map(ComponentAdapter::getComponentImplementation)
-        .collect(Collectors.toList())).contains((Class) HazelcastLocalClient.class,
+        .collect(Collectors.toList())).contains((Class) StartableHazelcastMember.class,
           (Class) CeDistributedInformationImpl.class);
     underTest.stop();
   }
@@ -143,7 +150,7 @@ public class ComputeEngineContainerImplTest {
     );
     assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
       COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
-        + 25 // level 1
+        + 26 // level 1
         + 49 // content of DaoModule
         + 3 // content of EsSearchModule
         + 64 // content of CorePropertyDefinitions
@@ -152,7 +159,7 @@ public class ComputeEngineContainerImplTest {
     assertThat(
       picoContainer.getComponentAdapters().stream()
         .map(ComponentAdapter::getComponentImplementation)
-        .collect(Collectors.toList())).doesNotContain((Class) HazelcastLocalClient.class,
+        .collect(Collectors.toList())).doesNotContain((Class) StartableHazelcastMember.class,
           (Class) CeDistributedInformationImpl.class).contains(
             (Class) StandaloneCeDistributedInformation.class);
     assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();

@@ -23,12 +23,9 @@ package org.sonar.ce.container;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.core.Client;
-import com.hazelcast.core.ClientListener;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import java.net.InetAddress;
-import org.sonar.process.cluster.ClusterObjectKeys;
 
 /**
  * TODO move outside main sources
@@ -75,25 +72,6 @@ public class HazelcastTestHelper {
     // We are not using the partition group of Hazelcast, so disabling it
     hzConfig.getPartitionGroupConfig().setEnabled(false);
     HazelcastInstance hzInstance = Hazelcast.newHazelcastInstance(hzConfig);
-    hzInstance.getClientService().addClientListener(new ConnectedClientListener(hzInstance));
     return hzInstance;
-  }
-
-  private static class ConnectedClientListener implements ClientListener {
-    private final HazelcastInstance hzInstance;
-
-    private ConnectedClientListener(HazelcastInstance hzInstance) {
-      this.hzInstance = hzInstance;
-    }
-
-    @Override
-    public void clientConnected(Client client) {
-      hzInstance.getSet(ClusterObjectKeys.LOCAL_MEMBER_UUIDS).add(client.getUuid());
-    }
-
-    @Override
-    public void clientDisconnected(Client client) {
-      hzInstance.getSet(ClusterObjectKeys.LOCAL_MEMBER_UUIDS).remove(client.getUuid());
-    }
   }
 }

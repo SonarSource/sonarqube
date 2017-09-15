@@ -18,14 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.process.cluster;
+package org.sonar.process.cluster.hz;
+
+import org.sonar.process.ProcessId;
+import org.sonar.process.cluster.NodeType;
 
 /**
  * This class holds all object keys accessible via Hazelcast
  */
-public final class ClusterObjectKeys {
+public final class HazelcastObjects {
 
-  private ClusterObjectKeys() {
+  private HazelcastObjects() {
     // Holder for clustered objects
   }
 
@@ -38,23 +41,6 @@ public final class ClusterObjectKeys {
    */
   public static final String LEADER = "LEADER";
   /**
-   * The key of the hostname attribute of a member
-   */
-  public static final String HOSTNAME = "HOSTNAME";
-  /**
-   * The key of the ips list attribute of a member
-   */
-  public static final String IP_ADDRESSES = "IP_ADDRESSES";
-  /**
-   * The key of the node name attribute of a member
-   */
-  public static final String NODE_NAME = "NODE_NAME";
-  /**
-   * The role of the sonar-application inside the SonarQube cluster
-   * {@link NodeType}
-   */
-  public static final String NODE_TYPE = "NODE_TYPE";
-  /**
    * The key of atomic reference holding the SonarQube version of the cluster
    */
   public static final String SONARQUBE_VERSION = "SONARQUBE_VERSION";
@@ -62,10 +48,6 @@ public final class ClusterObjectKeys {
    * The key of atomic reference holding the name of the cluster (used for precondition checks)
    */
   public static final String CLUSTER_NAME = "CLUSTER_NAME";
-  /**
-   * The key of the Set holding the UUIDs of clients
-   */
-  public static final String LOCAL_MEMBER_UUIDS = "LOCAL_MEMBER_UUIDS";
   /**
    * The key of replicated map holding the CeWorker UUIDs
    */

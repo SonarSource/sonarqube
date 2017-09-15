@@ -37,9 +37,9 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_NAME;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_NAME;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_PORT;
 
 public class NodeHealthProviderImplTest {
   @Rule

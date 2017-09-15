@@ -46,10 +46,10 @@ import org.sonar.process.cluster.NodeType;
 import org.sonar.process.ProcessProperties;
 
 import static java.util.Collections.unmodifiableList;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NAME;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.CLUSTER_NAME;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
+import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.cluster.NodeType.SEARCH;
 
 @ComputeEngineSide
