@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.cluster.ClusterAppState;
-import org.sonar.application.cluster.SearchNodeHealthProvider;
+import org.sonar.application.cluster.health.SearchNodeHealthProvider;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.EsCommand;
 import org.sonar.application.command.JavaCommand;
@@ -43,8 +43,8 @@ import org.sonar.application.process.ProcessMonitor;
 import org.sonar.application.process.SQProcess;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
-import org.sonar.process.cluster.health.HealthStateSharing;
-import org.sonar.process.cluster.health.HealthStateSharingImpl;
+import org.sonar.application.cluster.health.HealthStateSharing;
+import org.sonar.application.cluster.health.HealthStateSharingImpl;
 
 public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLifecycleListener, AppStateListener {
 
@@ -150,7 +150,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
       && ClusterSettings.isLocalElasticsearchEnabled(settings)) {
       ClusterAppState clusterAppState = (ClusterAppState) appState;
       this.healthStateSharing = new HealthStateSharingImpl(
-        clusterAppState.getHazelcastClient(),
+        clusterAppState.getHazelcastMember(),
         new SearchNodeHealthProvider(settings.getProps(), clusterAppState, NetworkUtils.INSTANCE));
       this.healthStateSharing.start();
     }

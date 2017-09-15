@@ -72,16 +72,17 @@ import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.purge.PurgeProfiler;
+import org.sonar.process.NetworkUtils;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.process.cluster.ClusterProperties;
 import org.sonar.process.logging.LogbackHelper;
+import org.sonar.server.cluster.StartableHazelcastMember;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.event.NewAlerts;
-import org.sonar.server.hz.HazelcastLocalClient;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -233,6 +234,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       SonarRuntimeImpl.forSonarQube(ApiVersion.load(System2.INSTANCE), SonarQubeSide.COMPUTE_ENGINE),
       CeProcessLogging.class,
       UuidFactoryImpl.INSTANCE,
+      NetworkUtils.INSTANCE,
       WebServerImpl.class,
       LogbackHelper.class,
       DefaultDatabase.class,
@@ -415,9 +417,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // cleaning
       CeCleaningModule.class);
 
-    if (props.valueAsBoolean(ClusterProperties.CLUSTER_ENABLED)) {
+    if (props.valueAsBoolean(ProcessProperties.CLUSTER_ENABLED)) {
       container.add(
-        HazelcastLocalClient.class,
+        StartableHazelcastMember.class,
         CeDistributedInformationImpl.class);
     } else {
       container.add(StandaloneCeDistributedInformation.class);

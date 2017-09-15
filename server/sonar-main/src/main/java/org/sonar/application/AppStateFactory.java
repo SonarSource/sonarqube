@@ -22,6 +22,14 @@ package org.sonar.application;
 import org.sonar.application.cluster.ClusterAppStateImpl;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.ClusterSettings;
+import org.sonar.process.ProcessId;
+import org.sonar.process.ProcessProperties;
+import org.sonar.process.Props;
+import org.sonar.process.cluster.NodeType;
+import org.sonar.process.cluster.hz.HazelcastMember;
+import org.sonar.process.cluster.hz.HazelcastMemberBuilder;
+
+import static java.util.Arrays.asList;
 
 public class AppStateFactory {
 
@@ -32,6 +40,22 @@ public class AppStateFactory {
   }
 
   public AppState create() {
-    return ClusterSettings.isClusterEnabled(settings) ? new ClusterAppStateImpl(settings) : new AppStateImpl();
+    if (ClusterSettings.isClusterEnabled(settings)) {
+      HazelcastMember hzMember = createHzMember(settings.getProps());
+      return new ClusterAppStateImpl(hzMember);
+    }
+    return new AppStateImpl();
+  }
+
+  private static HazelcastMember createHzMember(Props props) {
+    HazelcastMemberBuilder builder = new HazelcastMemberBuilder()
+      .setClusterName("sonarqube")
+      .setNetworkInterface(props.nonNullValue(ProcessProperties.CLUSTER_NODE_HOST))
+      .setMembers(asList(props.nonNullValue(ProcessProperties.CLUSTER_HOSTS).split(",")))
+      .setNodeType(NodeType.parse(props.nonNullValue(ProcessProperties.CLUSTER_NODE_TYPE)))
+      .setNodeName(props.nonNullValue(ProcessProperties.CLUSTER_NODE_NAME))
+      .setPort(Integer.parseInt(props.nonNullValue(ProcessProperties.CLUSTER_NODE_PORT)))
+      .setProcessId(ProcessId.APP);
+    return builder.build();
   }
 }

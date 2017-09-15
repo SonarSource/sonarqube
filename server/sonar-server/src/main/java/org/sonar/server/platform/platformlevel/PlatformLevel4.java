@@ -37,6 +37,7 @@ import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.branch.BranchFeatureProxyImpl;
 import org.sonar.server.ce.ws.CeWsModule;
+import org.sonar.server.cluster.StartableHazelcastMember;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
@@ -62,7 +63,6 @@ import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.event.NewAlerts;
 import org.sonar.server.favorite.FavoriteModule;
 import org.sonar.server.health.NodeHealthModule;
-import org.sonar.server.hz.HazelcastLocalClient;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.CommentAction;
@@ -246,7 +246,7 @@ public class PlatformLevel4 extends PlatformLevel {
       EsDbCompatibilityImpl.class);
 
     addIfCluster(
-      HazelcastLocalClient.class,
+      StartableHazelcastMember.class,
       NodeHealthModule.class);
 
     add(

@@ -20,7 +20,6 @@
 package org.sonar.process.cluster;
 
 import static java.util.Arrays.stream;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
 
 public enum NodeType {
   APPLICATION("application"), SEARCH("search");
@@ -39,7 +38,7 @@ public enum NodeType {
     return stream(values())
       .filter(t -> nodeType.equals(t.value))
       .findFirst()
-      .orElseThrow(() -> new IllegalArgumentException("Invalid value for [" + CLUSTER_NODE_TYPE + "]: [" + nodeType + "]"));
+      .orElseThrow(() -> new IllegalArgumentException("Invalid value: " + nodeType));
   }
 
   public static boolean isValid(String nodeType) {

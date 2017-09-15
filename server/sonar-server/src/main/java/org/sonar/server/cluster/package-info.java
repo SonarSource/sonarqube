@@ -17,10 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.cluster.health;
+@ParametersAreNonnullByDefault
+package org.sonar.server.cluster;
 
-public interface HealthStateSharing {
-  void start();
-
-  void stop();
-}
+import javax.annotation.ParametersAreNonnullByDefault;

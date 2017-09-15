@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.cluster;
+package org.sonar.application.cluster.health;
 
+import org.sonar.application.cluster.ClusterAppState;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
@@ -26,9 +27,9 @@ import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.process.cluster.health.NodeHealthProvider;
 
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_NAME;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_NAME;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_PORT;
 
 public class SearchNodeHealthProvider implements NodeHealthProvider {
 

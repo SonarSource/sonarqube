@@ -31,8 +31,8 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.process.NetworkUtils;
-import org.sonar.process.cluster.HazelcastClient;
 import org.sonar.process.cluster.health.SharedHealthStateImpl;
+import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -61,7 +61,7 @@ public class NodeHealthModuleTest {
       mapSettings.asConfig(),
       server,
       networkUtils,
-      mock(HazelcastClient.class));
+      mock(HazelcastMember.class));
     // HealthAction dependencies
     container.add(mock(HealthChecker.class));
 

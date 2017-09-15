@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.cluster.health;
+package org.sonar.application.cluster.health;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,6 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.sonar.process.cluster.health.HealthStateRefresherExecutorService;
 
 class DelegateHealthStateRefresherExecutorService implements HealthStateRefresherExecutorService {
   private final ScheduledExecutorService delegate;
