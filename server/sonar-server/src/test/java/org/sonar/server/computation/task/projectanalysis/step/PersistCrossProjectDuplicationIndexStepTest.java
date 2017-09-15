@@ -37,10 +37,10 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
@@ -95,12 +95,14 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     when(baseAnalysis.getUuid()).thenReturn(BASE_ANALYSIS_UUID);
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
     analysisMetadataHolder.setBaseAnalysis(baseAnalysis);
+    analysisMetadataHolder.setIncrementalAnalysis(false);
     underTest = new PersistCrossProjectDuplicationIndexStep(crossProjectDuplicationStatusHolder, dbClient, treeRootHolder, analysisMetadataHolder, reportReader);
   }
 
   @Test
   public void copy_base_analysis_in_incremental_mode() {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
+    analysisMetadataHolder.setIncrementalAnalysis(true);
     DuplicationUnitDto dup = new DuplicationUnitDto();
     dup.setAnalysisUuid(BASE_ANALYSIS_UUID);
     dup.setComponentUuid(FILE_2_UUID);
@@ -124,7 +126,6 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     assertThat(dto.get("INDEX_IN_FILE")).isEqualTo(0L);
     assertThat(dto.get("COMPONENT_UUID")).isEqualTo(FILE_2.getUuid());
     assertThat(dto.get("ANALYSIS_UUID")).isEqualTo(ANALYSIS_UUID);
-
   }
 
   @Test

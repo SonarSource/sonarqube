@@ -95,7 +95,7 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
     }
 
     private void visitComponent(Component component) {
-      if (component.getStatus() == Status.SAME) {
+      if (analysisMetadataHolder.isIncrementalAnalysis() && component.getStatus() == Status.SAME) {
         readFromDb(component);
       } else {
         readFromReport(component);
