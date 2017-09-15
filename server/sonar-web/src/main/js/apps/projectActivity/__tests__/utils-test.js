@@ -219,10 +219,11 @@ describe('getHistoryMetrics', () => {
 describe('parseQuery', () => {
   it('should parse query with default values', () => {
     expect(
-      utils.parseQuery(
-        { from: '2017-04-27T08:21:32.000Z', custom_metrics: 'foo,bar,baz' },
-        { breadcrumbs: [{ key: 'foo', qualifier: 'TRK' }] }
-      )
+      utils.parseQuery({
+        from: '2017-04-27T08:21:32.000Z',
+        custom_metrics: 'foo,bar,baz',
+        id: 'foo'
+      })
     ).toEqual(QUERY);
   });
 });
