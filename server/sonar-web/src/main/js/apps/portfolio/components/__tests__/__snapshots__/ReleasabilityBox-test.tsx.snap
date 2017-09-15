@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="portfolio-box portfolio-releasability"
+>
+  <h2
+    className="portfolio-box-title"
+  >
+    metric_domain.Releasability
+  </h2>
+  <Link
+    className="portfolio-box-rating"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/component_measures",
+        "query": Object {
+          "branch": undefined,
+          "id": "foo",
+          "metric": "alert_status",
+        },
+      }
+    }
+  >
+    <Rating
+      value="3"
+    />
+  </Link>
+  <RatingFreshness
+    lastChange="{\\"date\\":\\"2017-01-02T00:00:00.000Z\\",\\"value\\":2}"
+  />
+  <div
+    className="portfolio-effort"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+            "metric": "alert_status",
+          },
+        }
+      }
+    >
+      <span>
+        <Measure
+          measure={
+            Object {
+              "metric": Object {
+                "key": "projects",
+                "type": "SHORT_INT",
+              },
+              "value": "7",
+            }
+          }
+        />
+         
+        projects
+      </span>
+    </Link>
+     
+    <span
+      className="level level-ERROR level-small"
+    >
+      metric.level.ERROR
+    </span>
+  </div>
+</div>
+`;

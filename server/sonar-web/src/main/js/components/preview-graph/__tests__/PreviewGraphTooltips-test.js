@@ -20,8 +20,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import PreviewGraphTooltips from '../PreviewGraphTooltips';
-import { DEFAULT_GRAPH } from '../../../projectActivity/utils';
-import { parseDate } from '../../../../helpers/dates';
+import { DEFAULT_GRAPH } from '../../../apps/projectActivity/utils';
+import { parseDate } from '../../../helpers/dates';
 
 const SERIES_ISSUES = [
   {

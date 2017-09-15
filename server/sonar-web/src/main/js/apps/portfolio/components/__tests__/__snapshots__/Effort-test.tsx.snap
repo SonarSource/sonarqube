@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="portfolio-effort"
+>
+  <FormattedMessage
+    defaultMessage="portfolio.x_in_y"
+    id="portfolio.x_in_y"
+    values={
+      Object {
+        "projects": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+              Object {
+                  "pathname": "/component_measures",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "foo",
+                    "metric": "security_rating",
+                  },
+                }
+          }
+      >
+          <span>
+              <Measure
+                  measure={
+                      Object {
+                          "metric": Object {
+                            "key": "projects",
+                            "type": "SHORT_INT",
+                          },
+                          "value": "3",
+                        }
+                  }
+              />
+               
+              projects_
+          </span>
+      </Link>,
+        "rating": <Rating
+          small={true}
+          value={2}
+      />,
+      }
+    }
+  />
+</div>
+`;

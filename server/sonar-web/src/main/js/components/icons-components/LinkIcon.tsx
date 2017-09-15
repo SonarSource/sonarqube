@@ -25,7 +25,6 @@ interface Props {
 }
 
 export default function LinkIcon({ className, size = 14 }: Props) {
-  /* eslint-disable max-len */
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

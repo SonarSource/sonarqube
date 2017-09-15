@@ -67,6 +67,7 @@ export interface Component {
     qualifier: string;
   }>;
   configuration?: ComponentConfiguration;
+  description?: string;
   extensions?: ComponentExtension[];
   isFavorite?: boolean;
   key: string;

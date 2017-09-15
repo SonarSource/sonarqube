@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, RequestData } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function getMeasures(
   componentKey: string,
   metrics: string[],
   branch?: string
-): Promise<any> {
+): Promise<Array<{ metric: string; value?: string }>> {
   const url = '/api/measures/component';
   const data = { componentKey, metricKeys: metrics.join(','), branch };
-  return getJSON(url, data).then(r => r.component.measures);
+  return getJSON(url, data).then(r => r.component.measures, throwGlobalError);
 }
 
 export function getMeasuresAndMeta(

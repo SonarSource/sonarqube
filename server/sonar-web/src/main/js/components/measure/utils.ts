@@ -37,7 +37,7 @@ export interface Measure extends MeasureIntern {
 }
 
 export interface MeasureEnhanced extends MeasureIntern {
-  metric: Metric;
+  metric: { key: string; type: string };
   leak?: string | undefined | undefined;
 }
 
@@ -53,11 +53,16 @@ export function enhanceMeasure(
   };
 }
 
-export function formatLeak(value: string | undefined, metric: Metric, options: any): string {
-  if (isDiffMetric(metric.key)) {
-    return formatMeasure(value, metric.type, options);
+export function formatLeak(
+  value: string | undefined,
+  metricKey: string,
+  metricType: string,
+  options: any
+): string {
+  if (isDiffMetric(metricKey)) {
+    return formatMeasure(value, metricType, options);
   } else {
-    return formatMeasureVariation(value, metric.type, options);
+    return formatMeasureVariation(value, metricType, options);
   }
 }
 

@@ -19,6 +19,11 @@
  */
 import { getJSON } from '../helpers/request';
 
-export function getLanguages(): Promise<any> {
+export interface Language {
+  key: string;
+  name: string;
+}
+
+export function getLanguages(): Promise<Language[]> {
   return getJSON('/api/languages/list').then(r => r.languages);
 }

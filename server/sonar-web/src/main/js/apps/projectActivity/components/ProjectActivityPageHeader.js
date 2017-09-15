@@ -54,17 +54,19 @@ export default class ProjectActivityPageHeader extends React.PureComponent {
 
     return (
       <header className="page-header">
-        <Select
-          className="input-medium pull-left big-spacer-right"
-          placeholder={translate('project_activity.filter_events') + '...'}
-          clearable={true}
-          searchable={false}
-          value={this.props.category}
-          optionComponent={ProjectActivityEventSelectOption}
-          valueComponent={ProjectActivityEventSelectValue}
-          options={this.options}
-          onChange={this.handleCategoryChange}
-        />
+        {!['VW', 'SVW'].includes(this.props.project.qualifier) && (
+          <Select
+            className="input-medium pull-left big-spacer-right"
+            placeholder={translate('project_activity.filter_events') + '...'}
+            clearable={true}
+            searchable={false}
+            value={this.props.category}
+            optionComponent={ProjectActivityEventSelectOption}
+            valueComponent={ProjectActivityEventSelectValue}
+            options={this.options}
+            onChange={this.handleCategoryChange}
+          />
+        )}
         <ProjectActivityDateInput
           className="pull-left"
           from={this.props.from}

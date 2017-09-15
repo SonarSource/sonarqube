@@ -21,6 +21,7 @@ import * as ReactRedux from 'react-redux';
 import * as ReactRouter from 'react-router';
 import Select from 'react-select';
 import Modal from 'react-modal';
+import throwGlobalError from './throwGlobalError';
 import * as measures from '../../helpers/measures';
 import * as request from '../../helpers/request';
 import * as icons from '../../components/icons-components/icons';
@@ -41,7 +42,7 @@ const exposeLibraries = () => {
   window.ReactRouter = ReactRouter;
   window.SonarIcons = icons;
   window.SonarMeasures = measures;
-  window.SonarRequest = request;
+  window.SonarRequest = { ...request, throwGlobalError };
   window.SonarComponents = {
     DateFromNow,
     DateFormatter,
