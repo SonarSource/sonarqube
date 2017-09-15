@@ -152,22 +152,21 @@ export default ModalView.extend({
         .filter(metric => metric.type !== 'DATA' && !metric.hidden)
         .map(metric => metric.key);
 
-      return getMeasures(
-        this.options.component.key,
-        metricsToRequest,
-        this.options.branch
-      ).then(measures => {
-        let nextMeasures = this.options.component.measures || {};
-        measures.forEach(measure => {
-          const metric = metrics.find(metric => metric.key === measure.metric);
-          nextMeasures[metric.key] = formatMeasure(measure.value, metric.type);
-          nextMeasures[metric.key + '_raw'] = measure.value;
-          metric.value = nextMeasures[metric.key];
-        });
-        nextMeasures = this.calcAdditionalMeasures(nextMeasures);
-        this.measures = nextMeasures;
-        this.measuresToDisplay = this.prepareMetrics(metrics);
-      });
+      return getMeasures(this.options.component.key, metricsToRequest, this.options.branch).then(
+        measures => {
+          let nextMeasures = this.options.component.measures || {};
+          measures.forEach(measure => {
+            const metric = metrics.find(metric => metric.key === measure.metric);
+            nextMeasures[metric.key] = formatMeasure(measure.value, metric.type);
+            nextMeasures[metric.key + '_raw'] = measure.value;
+            metric.value = nextMeasures[metric.key];
+          });
+          nextMeasures = this.calcAdditionalMeasures(nextMeasures);
+          this.measures = nextMeasures;
+          this.measuresToDisplay = this.prepareMetrics(metrics);
+        },
+        () => {}
+      );
     });
   },
 

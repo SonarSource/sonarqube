@@ -27,10 +27,14 @@ import { formatLeak, getRatingTooltip, MeasureEnhanced } from './utils';
 interface Props {
   className?: string;
   decimals?: number | null;
-  measure: MeasureEnhanced;
+  measure?: MeasureEnhanced;
 }
 
 export default function Measure({ className, decimals, measure }: Props) {
+  if (measure == undefined) {
+    return <span>{'–'}</span>;
+  }
+
   const metric = measure.metric;
   const value = isDiffMetric(metric.key) ? measure.leak : measure.value;
 
@@ -44,7 +48,7 @@ export default function Measure({ className, decimals, measure }: Props) {
 
   if (metric.type !== 'RATING') {
     const formattedValue = isDiffMetric(metric.key)
-      ? formatLeak(measure.leak, metric, { decimals })
+      ? formatLeak(measure.leak, metric.key, metric.type, { decimals })
       : formatMeasure(measure.value, metric.type, { decimals });
     return <span className={className}>{formattedValue != null ? formattedValue : '–'}</span>;
   }

@@ -82,7 +82,7 @@ it('should render with branch', () => {
 
 it('should display secondary measure too', () => {
   const wrapper = shallow(<MeasureHeader {...PROPS} secondaryMeasure={SECONDARY} />);
-  expect(wrapper.find('LanguageDistribution')).toHaveLength(1);
+  expect(wrapper.find('Connect(LanguageDistribution)')).toHaveLength(1);
 });
 
 it('shohuld display correctly for open file', () => {

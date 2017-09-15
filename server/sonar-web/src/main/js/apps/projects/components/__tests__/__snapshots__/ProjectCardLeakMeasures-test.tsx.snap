@@ -21,7 +21,6 @@ exports[`should render correctly with all data 1`] = `
               "leak": "8",
               "metric": Object {
                 "key": "new_bugs",
-                "name": "new_bugs",
                 "type": "SHORT_INT",
               },
             }
@@ -58,7 +57,6 @@ exports[`should render correctly with all data 1`] = `
               "leak": "2",
               "metric": Object {
                 "key": "new_vulnerabilities",
-                "name": "new_vulnerabilities",
                 "type": "SHORT_INT",
               },
             }
@@ -95,7 +93,6 @@ exports[`should render correctly with all data 1`] = `
               "leak": "0",
               "metric": Object {
                 "key": "new_code_smells",
-                "name": "new_code_smells",
                 "type": "SHORT_INT",
               },
             }
@@ -131,7 +128,6 @@ exports[`should render correctly with all data 1`] = `
               "leak": "26.55",
               "metric": Object {
                 "key": "new_coverage",
-                "name": "new_coverage",
                 "type": "PERCENT",
               },
             }
@@ -161,7 +157,6 @@ exports[`should render correctly with all data 1`] = `
               "leak": "0.55",
               "metric": Object {
                 "key": "new_duplicated_lines_density",
-                "name": "new_duplicated_lines_density",
                 "type": "PERCENT",
               },
             }
@@ -191,7 +186,6 @@ exports[`should render correctly with all data 1`] = `
               "leak": "87",
               "metric": Object {
                 "key": "new_lines",
-                "name": "new_lines",
                 "type": "SHORT_INT",
               },
             }
@@ -229,7 +223,6 @@ exports[`should render no data style new coverage, new duplications and new line
               "leak": "8",
               "metric": Object {
                 "key": "new_bugs",
-                "name": "new_bugs",
                 "type": "SHORT_INT",
               },
             }
@@ -266,7 +259,6 @@ exports[`should render no data style new coverage, new duplications and new line
               "leak": "2",
               "metric": Object {
                 "key": "new_vulnerabilities",
-                "name": "new_vulnerabilities",
                 "type": "SHORT_INT",
               },
             }
@@ -303,7 +295,6 @@ exports[`should render no data style new coverage, new duplications and new line
               "leak": "0",
               "metric": Object {
                 "key": "new_code_smells",
-                "name": "new_code_smells",
                 "type": "SHORT_INT",
               },
             }
@@ -339,7 +330,6 @@ exports[`should render no data style new coverage, new duplications and new line
               "leak": undefined,
               "metric": Object {
                 "key": "new_coverage",
-                "name": "new_coverage",
                 "type": "PERCENT",
               },
             }
@@ -369,7 +359,6 @@ exports[`should render no data style new coverage, new duplications and new line
               "leak": undefined,
               "metric": Object {
                 "key": "new_duplicated_lines_density",
-                "name": "new_duplicated_lines_density",
                 "type": "PERCENT",
               },
             }
@@ -399,7 +388,6 @@ exports[`should render no data style new coverage, new duplications and new line
               "leak": undefined,
               "metric": Object {
                 "key": "new_lines",
-                "name": "new_lines",
                 "type": "SHORT_INT",
               },
             }

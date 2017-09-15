@@ -17,32 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
+import { connect } from 'react-redux';
+import { getLanguages } from '../../store/rootReducer';
+import LanguageDistribution from './LanguageDistribution';
 
-/*::
-type Props = {
-  style: string,
-  translatedName: string,
-  value: string
-};
-*/
+const mapStateToProps = (state: any) => ({
+  languages: getLanguages(state)
+});
 
-export default function PreviewGraphTooltipsContent({ style, translatedName, value } /*: Props */) {
-  return (
-    <tr className="overview-analysis-graph-tooltip-line">
-      <td className="thin">
-        <ChartLegendIcon
-          className={'little-spacer-right line-chart-legend line-chart-legend-' + style}
-        />
-      </td>
-      <td className="overview-analysis-graph-tooltip-value text-right little-spacer-right thin">
-        {value}
-      </td>
-      <td className="text-ellipsis overview-analysis-graph-tooltip-description">
-        {translatedName}
-      </td>
-    </tr>
-  );
-}
+export default connect<any, any, any>(mapStateToProps)(LanguageDistribution);

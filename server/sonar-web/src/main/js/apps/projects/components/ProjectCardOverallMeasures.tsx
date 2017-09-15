@@ -76,7 +76,7 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
             )}
             <Measure
               measure={{
-                metric: { key: 'coverage', name: 'coverage', type: 'PERCENT' },
+                metric: { key: 'coverage', type: 'PERCENT' },
                 value: measures['coverage']
               }}
             />
@@ -95,11 +95,7 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
             )}
             <Measure
               measure={{
-                metric: {
-                  key: 'duplicated_lines_density',
-                  name: 'duplicated_lines_density',
-                  type: 'PERCENT'
-                },
+                metric: { key: 'duplicated_lines_density', type: 'PERCENT' },
                 value: measures['duplicated_lines_density']
               }}
             />
@@ -119,7 +115,7 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
               </span>
               <Measure
                 measure={{
-                  metric: { key: 'ncloc', name: 'ncloc', type: 'SHORT_INT' },
+                  metric: { key: 'ncloc', type: 'SHORT_INT' },
                   value: measures['ncloc']
                 }}
               />

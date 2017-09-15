@@ -32,7 +32,6 @@ import Landing from '../components/Landing';
 import ProjectAdminContainer from '../components/ProjectAdminContainer';
 import ProjectPageExtension from '../components/extensions/ProjectPageExtension';
 import ProjectAdminPageExtension from '../components/extensions/ProjectAdminPageExtension';
-import PortfolioDashboard from '../components/extensions/PortfolioDashboard';
 import PortfoliosPage from '../components/extensions/PortfoliosPage';
 import AdminContainer from '../components/AdminContainer';
 import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
@@ -53,6 +52,7 @@ import metricsRoutes from '../../apps/metrics/routes';
 import overviewRoutes from '../../apps/overview/routes';
 import organizationsRoutes from '../../apps/organizations/routes';
 import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
+import portfolioRoutes from '../../apps/portfolio/routes';
 import projectActivityRoutes from '../../apps/projectActivity/routes';
 import projectAdminRoutes from '../../apps/project-admin/routes';
 import projectBranchesRoutes from '../../apps/projectBranches/routes';
@@ -125,7 +125,6 @@ const startReactApp = () => {
         <Redirect from="/dashboard/index" to="/dashboard" />
         <Redirect from="/governance" to="/portfolio" />
         <Redirect from="/groups" to="/admin/groups" />
-        <Redirect from="/extension/governance/governance" to="/portfolio" />
         <Redirect from="/extension/governance/portfolios" to="/portfolios" />
         <Redirect from="/metrics" to="/admin/custom_metrics" />
         <Redirect from="/permission_templates" to="/admin/permission_templates" />
@@ -189,7 +188,7 @@ const startReactApp = () => {
                     <Route path="code" childRoutes={codeRoutes} />
                     <Route path="component_measures" childRoutes={componentMeasuresRoutes} />
                     <Route path="dashboard" childRoutes={overviewRoutes} />
-                    <Route path="portfolio" component={PortfolioDashboard} />
+                    <Route path="portfolio" childRoutes={portfolioRoutes} />
                     <Route path="project/activity" childRoutes={projectActivityRoutes} />
                     <Route
                       path="project/extension/:pluginKey/:extensionKey"

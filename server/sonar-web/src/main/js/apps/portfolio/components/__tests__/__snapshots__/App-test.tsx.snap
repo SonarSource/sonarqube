@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="page-with-sidebar"
+  >
+    <div
+      className="page-main"
+    >
+      <div
+        className="portfolio-boxes"
+      >
+        <ReleasabilityBox
+          component="foo"
+          measures={Object {}}
+        />
+        <ReliabilityBox
+          component="foo"
+          measures={Object {}}
+        />
+        <SecurityBox
+          component="foo"
+          measures={Object {}}
+        />
+        <MaintainabilityBox
+          component="foo"
+          measures={Object {}}
+        />
+      </div>
+      <WorstProjects
+        component="foo"
+        subComponents={Array []}
+        total={0}
+      />
+    </div>
+    <aside
+      className="page-sidebar-fixed"
+    >
+      <Summary
+        component={
+          Object {
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+        measures={Object {}}
+      />
+      <Activity
+        component="foo"
+      />
+      <Report
+        component={
+          Object {
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+      />
+    </aside>
+  </div>
+</div>
+`;
