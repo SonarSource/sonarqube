@@ -170,12 +170,13 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
     const selectedDate = this.props.query.selectedDate
       ? this.props.query.selectedDate.valueOf()
       : null;
+
     return (
       <ul
         className={classNames('project-activity-versions-list', this.props.className)}
         onScroll={this.handleScroll}
         ref={element => (this.scrollContainer = element)}
-        style={{ paddingTop: this.props.project.qualifier === 'APP' ? undefined : 52 }}>
+        style={{ paddingTop: this.props.project.qualifier === 'TRK' ? 52 : undefined }}>
         {byVersionByDay.map((version, idx) => {
           const days = Object.keys(version.byDay);
           if (days.length <= 0) {
@@ -205,7 +206,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
                             addVersion={this.props.addVersion}
                             analysis={analysis}
                             canAdmin={this.props.canAdmin}
-                            canCreateVersion={this.props.project.qualifier !== 'APP'}
+                            canCreateVersion={this.props.project.qualifier === 'TRK'}
                             changeEvent={this.props.changeEvent}
                             deleteAnalysis={this.props.deleteAnalysis}
                             deleteEvent={this.props.deleteEvent}

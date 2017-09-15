@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Link
+  className="button button-small button-compact spacer-left text-text-bottom"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/component_measures",
+      "query": Object {
+        "branch": undefined,
+        "id": "foo",
+        "metric": "security_rating",
+      },
+    }
+  }
+>
+  <BubblesIcon
+    size={14}
+  />
+</Link>
+`;

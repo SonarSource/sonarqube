@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import BubblePopup from '../../../components/common/BubblePopup';
-import DateFormatter from '../../../components/intl/DateFormatter';
+import BubblePopup from '../common/BubblePopup';
+import DateFormatter from '../intl/DateFormatter';
 import PreviewGraphTooltipsContent from './PreviewGraphTooltipsContent';
 /*:: import type { Metric } from '../types'; */
-/*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
+/*:: import type { Serie } from '../charts/AdvancedTimeline'; */
 
 /*::
 type Props = {

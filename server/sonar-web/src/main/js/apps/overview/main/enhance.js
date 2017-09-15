@@ -39,7 +39,7 @@ import { getPeriodDate } from '../../../helpers/periods';
 import {
   getComponentDrilldownUrl,
   getComponentIssuesUrl,
-  getComponentMeasureHistory
+  getMeasureHistoryUrl
 } from '../../../helpers/urls';
 
 export default function enhance(ComposedComponent) {
@@ -175,7 +175,7 @@ export default function enhance(ComposedComponent) {
       return (
         <Link
           className={linkClass}
-          to={getComponentMeasureHistory(this.props.component.key, metricKey, this.props.branch)}>
+          to={getMeasureHistoryUrl(this.props.component.key, metricKey, this.props.branch)}>
           <HistoryIcon />
         </Link>
       );
