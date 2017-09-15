@@ -19,14 +19,21 @@
  */
 package org.sonar.application;
 
+import java.net.InetAddress;
+import java.util.Optional;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.sonar.application.cluster.ClusterAppStateImpl;
 import org.sonar.application.config.TestAppSettings;
+import org.sonar.process.NetworkUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NAME;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_TYPE;
+import static org.junit.Assume.assumeThat;
+import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
+import static org.sonar.process.ProcessProperties.CLUSTER_NAME;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
 
 public class AppStateFactoryTest {
 
@@ -35,13 +42,18 @@ public class AppStateFactoryTest {
 
   @Test
   public void create_cluster_implementation_if_cluster_is_enabled() {
+    Optional<InetAddress> ip = NetworkUtils.INSTANCE.getLocalNonLoopbackIpv4Address();
+    assumeThat(ip.isPresent(), CoreMatchers.is(true));
+
     settings.set(CLUSTER_ENABLED, "true");
     settings.set(CLUSTER_NODE_TYPE, "application");
+    settings.set(CLUSTER_NODE_HOST, ip.get().getHostAddress());
+    settings.set(CLUSTER_HOSTS, ip.get().getHostAddress());
     settings.set(CLUSTER_NAME, "foo");
 
     AppState appState = underTest.create();
     assertThat(appState).isInstanceOf(ClusterAppStateImpl.class);
-    ((ClusterAppStateImpl) appState).close();
+    appState.close();
   }
 
   @Test

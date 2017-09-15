@@ -27,8 +27,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.cluster.ClusterObjectKeys;
-import org.sonar.process.cluster.HazelcastClient;
+import org.sonar.process.cluster.hz.HazelcastMember;
+import org.sonar.process.cluster.hz.HazelcastObjects;
 
 import static java.util.Objects.requireNonNull;
 
@@ -36,10 +36,10 @@ public class SharedHealthStateImpl implements SharedHealthState {
   private static final Logger LOG = LoggerFactory.getLogger(SharedHealthStateImpl.class);
   private static final int TIMEOUT_30_SECONDS = 30 * 1000;
 
-  private final HazelcastClient hazelcastClient;
+  private final HazelcastMember hzMember;
 
-  public SharedHealthStateImpl(HazelcastClient hazelcastClient) {
-    this.hazelcastClient = hazelcastClient;
+  public SharedHealthStateImpl(HazelcastMember hzMember) {
+    this.hzMember = hzMember;
   }
 
   @Override
@@ -50,13 +50,13 @@ public class SharedHealthStateImpl implements SharedHealthState {
     if (LOG.isTraceEnabled()) {
       LOG.trace("Reading {} and adding {}", new HashMap<>(sqHealthState), nodeHealth);
     }
-    sqHealthState.put(hazelcastClient.getUUID(), new TimestampedNodeHealth(nodeHealth, hazelcastClient.getClusterTime()));
+    sqHealthState.put(hzMember.getUuid(), new TimestampedNodeHealth(nodeHealth, hzMember.getClusterTime()));
   }
 
   @Override
   public void clearMine() {
     Map<String, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
-    String clientUUID = hazelcastClient.getUUID();
+    String clientUUID = hzMember.getUuid();
     if (LOG.isTraceEnabled()) {
       LOG.trace("Reading {} and clearing for {}", new HashMap<>(sqHealthState), clientUUID);
     }
@@ -65,10 +65,10 @@ public class SharedHealthStateImpl implements SharedHealthState {
 
   @Override
   public Set<NodeHealth> readAll() {
-    long clusterTime = hazelcastClient.getClusterTime();
+    long clusterTime = hzMember.getClusterTime();
     long timeout = clusterTime - TIMEOUT_30_SECONDS;
     Map<String, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
-    Set<String> hzMemberUUIDs = hazelcastClient.getMemberUuids();
+    Set<String> hzMemberUUIDs = hzMember.getMemberUuids();
     Set<NodeHealth> existingNodeHealths = sqHealthState.entrySet().stream()
       .filter(outOfDate(timeout))
       .filter(ofNonExistentMember(hzMemberUUIDs))
@@ -101,7 +101,7 @@ public class SharedHealthStateImpl implements SharedHealthState {
   }
 
   private Map<String, TimestampedNodeHealth> readReplicatedMap() {
-    return hazelcastClient.getReplicatedMap(ClusterObjectKeys.SQ_HEALTH_STATE);
+    return hzMember.getReplicatedMap(HazelcastObjects.SQ_HEALTH_STATE);
   }
 
 }

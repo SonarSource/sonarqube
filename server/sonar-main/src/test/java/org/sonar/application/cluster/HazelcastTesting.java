@@ -17,20 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application;
+package org.sonar.application.cluster;
 
-import org.sonar.application.cluster.ClusterAppState;
+import java.net.InetAddress;
+import org.sonar.process.NetworkUtils;
+import org.sonar.process.ProcessId;
+import org.sonar.process.cluster.NodeType;
 import org.sonar.process.cluster.hz.HazelcastMember;
+import org.sonar.process.cluster.hz.HazelcastMemberBuilder;
 
-public class TestClusterAppState extends TestAppState implements ClusterAppState {
-  private final HazelcastMember hazelcastMember;
+public class HazelcastTesting {
 
-  public TestClusterAppState(HazelcastMember hazelcastMember) {
-    this.hazelcastMember = hazelcastMember;
+  private HazelcastTesting() {
+    // do not instantiate
   }
 
-  @Override
-  public HazelcastMember getHazelcastMember() {
-    return hazelcastMember;
+  public static HazelcastMember newHzMember() {
+    // use loopback for support of offline builds
+    InetAddress loopback = InetAddress.getLoopbackAddress();
+
+    return new HazelcastMemberBuilder()
+      .setNodeType(NodeType.APPLICATION)
+      .setProcessId(ProcessId.COMPUTE_ENGINE)
+      .setClusterName("foo")
+      .setNodeName("bar")
+      .setPort(NetworkUtils.INSTANCE.getNextAvailablePort(loopback))
+      .setNetworkInterface(loopback.getHostAddress())
+      .build();
   }
 }

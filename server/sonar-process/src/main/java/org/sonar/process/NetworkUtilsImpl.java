@@ -20,6 +20,7 @@
 package org.sonar.process;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.net.InetAddresses;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -27,17 +28,20 @@ import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.list;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
-public final class NetworkUtilsImpl implements NetworkUtils {
+public class NetworkUtilsImpl implements NetworkUtils {
 
-  private static final Set<Integer> ALREADY_ALLOCATED = new HashSet<>();
-  private static final int MAX_TRIES = 50;
+  private static final Set<Integer> PORTS_ALREADY_ALLOCATED = new HashSet<>();
+  private static final int PORT_MAX_TRIES = 50;
 
   NetworkUtilsImpl() {
     // prevent instantiation
@@ -55,10 +59,10 @@ public final class NetworkUtilsImpl implements NetworkUtils {
    */
   @VisibleForTesting
   static int getNextAvailablePort(InetAddress address, PortAllocator portAllocator) {
-    for (int i = 0; i < MAX_TRIES; i++) {
+    for (int i = 0; i < PORT_MAX_TRIES; i++) {
       int port = portAllocator.getAvailable(address);
       if (isValidPort(port)) {
-        ALREADY_ALLOCATED.add(port);
+        PORTS_ALREADY_ALLOCATED.add(port);
         return port;
       }
     }
@@ -66,7 +70,7 @@ public final class NetworkUtilsImpl implements NetworkUtils {
   }
 
   private static boolean isValidPort(int port) {
-    return port > 1023 && !ALREADY_ALLOCATED.contains(port);
+    return port > 1023 && !PORTS_ALREADY_ALLOCATED.contains(port);
   }
 
   static class PortAllocator {
@@ -117,5 +121,36 @@ public final class NetworkUtilsImpl implements NetworkUtils {
     }
 
     return ips;
+  }
+
+  @Override
+  public InetAddress toInetAddress(String hostOrAddress) throws UnknownHostException {
+    if (InetAddresses.isInetAddress(hostOrAddress)) {
+      return InetAddresses.forString(hostOrAddress);
+    }
+    return InetAddress.getByName(hostOrAddress);
+  }
+
+  @Override
+  public boolean isLocalInetAddress(InetAddress address) throws SocketException {
+    return NetworkInterface.getByInetAddress(address) != null ;
+  }
+
+  @Override
+  public boolean isLoopbackInetAddress(InetAddress address) {
+    return address.isLoopbackAddress();
+  }
+
+  @Override
+  public Optional<InetAddress> getLocalInetAddress(Predicate<InetAddress> predicate) {
+    try {
+      return Collections.list(NetworkInterface.getNetworkInterfaces()).stream()
+        .flatMap(ni -> Collections.list(ni.getInetAddresses()).stream())
+        .filter(a -> a.getHostAddress() != null)
+        .filter(predicate)
+        .findFirst();
+    } catch (SocketException e) {
+      throw new IllegalStateException("Can not retrieve network interfaces", e);
+    }
   }
 }

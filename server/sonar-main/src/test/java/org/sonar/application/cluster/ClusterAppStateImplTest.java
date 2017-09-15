@@ -19,32 +19,23 @@
  */
 package org.sonar.application.cluster;
 
-import com.hazelcast.core.HazelcastInstance;
-import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.slf4j.Logger;
 import org.sonar.application.AppStateListener;
-import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessId;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.sonar.application.cluster.HazelcastClusterTestHelper.createHazelcastClient;
-import static org.sonar.application.cluster.HazelcastClusterTestHelper.newApplicationSettings;
-import static org.sonar.process.cluster.ClusterObjectKeys.CLUSTER_NAME;
-import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_ENABLED;
+import static org.sonar.application.cluster.HazelcastTesting.newHzMember;
+import static org.sonar.process.cluster.hz.HazelcastObjects.CLUSTER_NAME;
+import static org.sonar.process.cluster.hz.HazelcastObjects.SONARQUBE_VERSION;
 
 public class ClusterAppStateImplTest {
 
@@ -55,45 +46,17 @@ public class ClusterAppStateImplTest {
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   @Test
-  public void instantiation_throws_ISE_if_cluster_mode_is_disabled() throws Exception {
-    TestAppSettings settings = new TestAppSettings();
-    settings.set(CLUSTER_ENABLED, "false");
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Cluster is not enabled on this instance");
-
-    new ClusterAppStateImpl(settings);
-  }
-
-  @Test
   public void tryToLockWebLeader_returns_true_only_for_the_first_call() throws Exception {
-    TestAppSettings settings = newApplicationSettings();
-
-    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(settings)) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(newHzMember())) {
       assertThat(underTest.tryToLockWebLeader()).isEqualTo(true);
       assertThat(underTest.tryToLockWebLeader()).isEqualTo(false);
     }
   }
 
   @Test
-  public void log_when_sonarqube_is_joining_a_cluster() throws IOException, InterruptedException, IllegalAccessException, NoSuchFieldException {
-    // Now launch an instance that try to be part of the hzInstance cluster
-    TestAppSettings settings = newApplicationSettings();
-
-    Logger logger = mock(Logger.class);
-    ClusterAppStateImpl.setLogger(logger);
-
-    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
-      verify(logger).info(
-        eq("Joined a SonarQube cluster that contains the following hosts : [{}]"),
-        anyString());
-    }
-  }
-
-  @Test
   public void test_listeners() throws InterruptedException {
     AppStateListener listener = mock(AppStateListener.class);
-    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(newApplicationSettings())) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(newHzMember())) {
       underTest.addListener(listener);
 
       underTest.setOperational(ProcessId.ELASTICSEARCH);
@@ -108,77 +71,61 @@ public class ClusterAppStateImplTest {
 
   @Test
   public void registerSonarQubeVersion_publishes_version_on_first_call() {
-    TestAppSettings settings = newApplicationSettings();
 
-    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
-      appStateCluster.registerSonarQubeVersion("6.4.1.5");
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(newHzMember())) {
+      underTest.registerSonarQubeVersion("6.4.1.5");
 
-      HazelcastInstance hzInstance = createHazelcastClient(appStateCluster);
-      assertThat(hzInstance.getAtomicReference(SONARQUBE_VERSION).get())
-        .isNotNull()
-        .isInstanceOf(String.class)
+      assertThat(underTest.getHazelcastMember().getAtomicReference(SONARQUBE_VERSION).get())
         .isEqualTo("6.4.1.5");
     }
   }
 
   @Test
   public void registerClusterName_publishes_clusterName_on_first_call() {
-    TestAppSettings settings = newApplicationSettings();
-    String clusterName = randomAlphanumeric(20);
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(newHzMember())) {
+      underTest.registerClusterName("foo");
 
-    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
-      appStateCluster.registerClusterName(clusterName);
-
-      HazelcastInstance hzInstance = createHazelcastClient(appStateCluster);
-      assertThat(hzInstance.getAtomicReference(CLUSTER_NAME).get())
-        .isNotNull()
-        .isInstanceOf(String.class)
-        .isEqualTo(clusterName);
+      assertThat(underTest.getHazelcastMember().getAtomicReference(CLUSTER_NAME).get())
+        .isEqualTo("foo");
     }
   }
 
   @Test
-  public void reset_throws_always_ISE() {
-    TestAppSettings settings = newApplicationSettings();
-
-    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
+  public void reset_always_throws_ISE() {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(newHzMember())) {
       expectedException.expect(IllegalStateException.class);
       expectedException.expectMessage("state reset is not supported in cluster mode");
-      appStateCluster.reset();
+
+      underTest.reset();
     }
   }
 
   @Test
   public void registerSonarQubeVersion_throws_ISE_if_initial_version_is_different() throws Exception {
     // Now launch an instance that try to be part of the hzInstance cluster
-    TestAppSettings settings = newApplicationSettings();
-
-    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(newHzMember())) {
       // Register first version
-      appStateCluster.registerSonarQubeVersion("1.0.0");
+      underTest.getHazelcastMember().getAtomicReference(SONARQUBE_VERSION).set("6.6.0.1111");
 
       expectedException.expect(IllegalStateException.class);
-      expectedException.expectMessage("The local version 2.0.0 is not the same as the cluster 1.0.0");
+      expectedException.expectMessage("The local version 6.7.0.9999 is not the same as the cluster 6.6.0.1111");
 
       // Registering a second different version must trigger an exception
-      appStateCluster.registerSonarQubeVersion("2.0.0");
+      underTest.registerSonarQubeVersion("6.7.0.9999");
     }
   }
 
   @Test
   public void registerClusterName_throws_MessageException_if_clusterName_is_different() throws Exception {
-    // Now launch an instance that try to be part of the hzInstance cluster
-    TestAppSettings settings = newApplicationSettings();
-
-    try (ClusterAppStateImpl appStateCluster = new ClusterAppStateImpl(settings)) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(newHzMember())) {
       // Register first version
-      appStateCluster.registerClusterName("goodClusterName");
+      underTest.getHazelcastMember().getAtomicReference(CLUSTER_NAME).set("goodClusterName");
 
       expectedException.expect(MessageException.class);
       expectedException.expectMessage("This node has a cluster name [badClusterName], which does not match [goodClusterName] from the cluster");
 
       // Registering a second different cluster name must trigger an exception
-      appStateCluster.registerClusterName("badClusterName");
+      underTest.registerClusterName("badClusterName");
     }
   }
 }

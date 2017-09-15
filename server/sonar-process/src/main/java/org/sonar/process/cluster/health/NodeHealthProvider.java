@@ -21,7 +21,7 @@ package org.sonar.process.cluster.health;
 
 public interface NodeHealthProvider {
   /**
-   * Returns the {@link NodeHealth} for the current SonarQube instance.
+   * Returns the {@link NodeHealth} for the current SonarQube node.
    *
    * <p>Implementation must support being called very frequently and from concurrent threads</p>
    */

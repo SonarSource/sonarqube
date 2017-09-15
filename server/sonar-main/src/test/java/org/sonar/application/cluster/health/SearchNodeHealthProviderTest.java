@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.cluster;
+package org.sonar.application.cluster.health;
 
 import java.util.Properties;
 import java.util.Random;
@@ -25,10 +25,11 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.application.cluster.ClusterAppState;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
-import org.sonar.process.cluster.ClusterProperties;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.cluster.health.NodeHealth;
 
 import static java.lang.String.valueOf;
@@ -36,9 +37,9 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_NAME;
-import static org.sonar.process.cluster.ClusterProperties.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_NAME;
+import static org.sonar.process.ProcessProperties.CLUSTER_NODE_PORT;
 
 public class SearchNodeHealthProviderTest {
   @Rule
@@ -62,7 +63,7 @@ public class SearchNodeHealthProviderTest {
   @Test
   public void constructor_throws_NPE_if_NetworkUtils_getHostname_returns_null_and_property_is_not_set() {
     Properties properties = new Properties();
-    properties.put(ClusterProperties.CLUSTER_NODE_NAME, randomAlphanumeric(3));
+    properties.put(ProcessProperties.CLUSTER_NODE_NAME, randomAlphanumeric(3));
     Props props = new Props(properties);
 
     expectedException.expect(NullPointerException.class);
@@ -73,7 +74,7 @@ public class SearchNodeHealthProviderTest {
   @Test
   public void constructor_throws_IAE_if_property_node_port_is_not_set() {
     Properties properties = new Properties();
-    properties.put(ClusterProperties.CLUSTER_NODE_NAME, randomAlphanumeric(3));
+    properties.put(ProcessProperties.CLUSTER_NODE_NAME, randomAlphanumeric(3));
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(34));
     Props props = new Props(properties);
 
@@ -87,8 +88,8 @@ public class SearchNodeHealthProviderTest {
   public void constructor_throws_FormatException_if_property_node_port_is_not_an_integer() {
     String port = randomAlphanumeric(3);
     Properties properties = new Properties();
-    properties.put(ClusterProperties.CLUSTER_NODE_NAME, randomAlphanumeric(3));
-    properties.put(ClusterProperties.CLUSTER_NODE_PORT, port);
+    properties.put(ProcessProperties.CLUSTER_NODE_NAME, randomAlphanumeric(3));
+    properties.put(ProcessProperties.CLUSTER_NODE_PORT, port);
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(34));
     Props props = new Props(properties);
 

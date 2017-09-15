@@ -23,8 +23,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Properties;
-
-import static org.sonar.process.cluster.ClusterProperties.putClusterDefaults;
+import java.util.UUID;
 
 /**
  * Constants shared by search, web server and app processes.
@@ -76,6 +75,17 @@ public class ProcessProperties {
   public static final String HTTP_PROXY_USER = "http.proxyUser";
   public static final String HTTP_PROXY_PASSWORD = "http.proxyPassword";
 
+  public static final String CLUSTER_ENABLED = "sonar.cluster.enabled";
+  public static final String CLUSTER_NODE_TYPE = "sonar.cluster.node.type";
+  public static final String CLUSTER_SEARCH_HOSTS = "sonar.cluster.search.hosts";
+  public static final String CLUSTER_HOSTS = "sonar.cluster.hosts";
+  public static final String CLUSTER_NODE_PORT = "sonar.cluster.node.port";
+  public static final int CLUSTER_NODE_PORT_DEFAULT_VALUE = 9003;
+  public static final String CLUSTER_NODE_HOST = "sonar.cluster.node.host";
+  public static final String CLUSTER_NODE_NAME = "sonar.cluster.node.name";
+  public static final String CLUSTER_NAME = "sonar.cluster.name";
+  public static final String CLUSTER_WEB_STARTUP_LEADER = "sonar.cluster.web.startupLeader";
+
   private ProcessProperties() {
     // only static stuff
   }
@@ -87,18 +97,6 @@ public class ProcessProperties {
     }
 
     fixPortIfZero(props, SEARCH_HOST, SEARCH_PORT);
-  }
-
-  private static void fixPortIfZero(Props props, String addressPropertyKey, String portPropertyKey) {
-    String port = props.value(portPropertyKey);
-    if ("0".equals(port)) {
-      String address = props.nonNullValue(addressPropertyKey);
-      try {
-        props.set(portPropertyKey, String.valueOf(NetworkUtils.INSTANCE.getNextAvailablePort(InetAddress.getByName(address))));
-      } catch (UnknownHostException e) {
-        throw new IllegalStateException("Cannot resolve address [" + address + "] set by property [" + addressPropertyKey + "]", e);
-      }
-    }
   }
 
   public static Properties defaults() {
@@ -124,8 +122,23 @@ public class ProcessProperties {
     defaults.put(JDBC_MIN_EVICTABLE_IDLE_TIME_MILLIS, "600000");
     defaults.put(JDBC_TIME_BETWEEN_EVICTION_RUNS_MILLIS, "30000");
 
-    putClusterDefaults(defaults);
+    defaults.put(CLUSTER_ENABLED, "false");
+    defaults.put(CLUSTER_NAME, "sonarqube");
+    defaults.put(CLUSTER_NODE_PORT, Integer.toString(CLUSTER_NODE_PORT_DEFAULT_VALUE));
+    defaults.put(CLUSTER_NODE_NAME, "sonarqube-" + UUID.randomUUID().toString());
 
     return defaults;
+  }
+
+  private static void fixPortIfZero(Props props, String addressPropertyKey, String portPropertyKey) {
+    String port = props.value(portPropertyKey);
+    if ("0".equals(port)) {
+      String address = props.nonNullValue(addressPropertyKey);
+      try {
+        props.set(portPropertyKey, String.valueOf(NetworkUtils.INSTANCE.getNextAvailablePort(InetAddress.getByName(address))));
+      } catch (UnknownHostException e) {
+        throw new IllegalStateException("Cannot resolve address [" + address + "] set by property [" + addressPropertyKey + "]", e);
+      }
+    }
   }
 }

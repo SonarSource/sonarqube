@@ -18,6 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 @ParametersAreNonnullByDefault
-package org.sonar.server.hz;
+package org.sonar.application.cluster.health;
 
 import javax.annotation.ParametersAreNonnullByDefault;

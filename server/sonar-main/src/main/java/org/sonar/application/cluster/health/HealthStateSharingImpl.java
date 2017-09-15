@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.cluster.health;
+package org.sonar.application.cluster.health;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.concurrent.Executors;
@@ -25,20 +25,24 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.cluster.HazelcastClient;
+import org.sonar.process.cluster.health.HealthStateRefresher;
+import org.sonar.process.cluster.health.HealthStateRefresherExecutorService;
+import org.sonar.process.cluster.health.NodeHealthProvider;
+import org.sonar.process.cluster.health.SharedHealthStateImpl;
+import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static java.lang.String.format;
 
 public class HealthStateSharingImpl implements HealthStateSharing {
   private static final Logger LOG = LoggerFactory.getLogger(HealthStateSharingImpl.class);
 
-  private final HazelcastClient hazelcastClient;
+  private final HazelcastMember hzMember;
   private final NodeHealthProvider nodeHealthProvider;
   private HealthStateRefresherExecutorService executorService;
   private HealthStateRefresher healthStateRefresher;
 
-  public HealthStateSharingImpl(HazelcastClient hazelcastClient, NodeHealthProvider nodeHealthProvider) {
-    this.hazelcastClient = hazelcastClient;
+  public HealthStateSharingImpl(HazelcastMember hzMember, NodeHealthProvider nodeHealthProvider) {
+    this.hzMember = hzMember;
     this.nodeHealthProvider = nodeHealthProvider;
   }
 
@@ -50,7 +54,7 @@ public class HealthStateSharingImpl implements HealthStateSharing {
           .setDaemon(false)
           .setNameFormat("health_state_refresh-%d")
           .build()));
-    healthStateRefresher = new HealthStateRefresher(executorService, nodeHealthProvider, new SharedHealthStateImpl(hazelcastClient));
+    healthStateRefresher = new HealthStateRefresher(executorService, nodeHealthProvider, new SharedHealthStateImpl(hzMember));
     healthStateRefresher.start();
   }
 

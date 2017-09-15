@@ -17,18 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.process.cluster.hz;
 
-package org.sonar.process.cluster;
-
+import com.hazelcast.core.Cluster;
+import com.hazelcast.core.IAtomicReference;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
+import org.sonar.process.ProcessId;
+import org.sonar.process.cluster.NodeType;
 
-/**
- * The interface Hazelcast client wrapper.
- */
-public interface HazelcastClient {
+public interface HazelcastMember extends AutoCloseable {
+
+  interface Attribute {
+    /**
+     * The key of the hostname attribute of a member
+     */
+    String HOSTNAME = "HOSTNAME";
+    /**
+     * The key of the ips list attribute of a member
+     */
+    String IP_ADDRESSES = "IP_ADDRESSES";
+    /**
+     * The key of the node name attribute of a member
+     */
+    String NODE_NAME = "NODE_NAME";
+    /**
+     * The role of the sonar-application inside the SonarQube cluster
+     * {@link NodeType}
+     */
+    String NODE_TYPE = "NODE_TYPE";
+    /**
+     * Key of process as defined by {@link ProcessId#getKey()}
+     */
+    String PROCESS_KEY = "PROCESS_KEY";
+  }
+
+  <E> IAtomicReference<E> getAtomicReference(String name);
+
   /**
    * Gets the set shared by the cluster and identified by name
    */
@@ -45,17 +72,13 @@ public interface HazelcastClient {
   <K, V> Map<K, V> getMap(String name);
 
   /**
-   * Gets the replicated map shared by the cluster and identified by name
+   * Gets the replicated map shared by the cluster and identified by name.
+   * Result can be casted to {@link com.hazelcast.core.ReplicatedMap} if needed to
+   * benefit from listeners.
    */
-  <K,V> Map<K,V> getReplicatedMap(String name);
+  <K, V> Map<K, V> getReplicatedMap(String name);
 
-  /**
-   * The UUID of the Hazelcast client.
-   *
-   * <p>The uuid of the member of the current client is a member, otherwise the UUID of the client if the
-   * member is a local client of one of the members.</p>
-   */
-  String getUUID();
+  String getUuid();
 
   /**
    * The UUIDs of all the members (both members and local clients of these members) currently connected to the
@@ -69,7 +92,12 @@ public interface HazelcastClient {
   Lock getLock(String name);
 
   /**
-   * Retrieves the cluster time which is (alsmost) identical on all members of the cluster.
+   * Retrieves the cluster time which is (almost) identical on all members of the cluster.
    */
   long getClusterTime();
+
+  Cluster getCluster();
+
+  @Override
+  void close();
 }

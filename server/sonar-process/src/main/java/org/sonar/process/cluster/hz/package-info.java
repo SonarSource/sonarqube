@@ -17,20 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application;
+@ParametersAreNonnullByDefault
+package org.sonar.process.cluster.hz;
 
-import org.sonar.application.cluster.ClusterAppState;
-import org.sonar.process.cluster.hz.HazelcastMember;
-
-public class TestClusterAppState extends TestAppState implements ClusterAppState {
-  private final HazelcastMember hazelcastMember;
-
-  public TestClusterAppState(HazelcastMember hazelcastMember) {
-    this.hazelcastMember = hazelcastMember;
-  }
-
-  @Override
-  public HazelcastMember getHazelcastMember() {
-    return hazelcastMember;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -19,12 +19,10 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.process.cluster.ClusterProperties;
-
 public interface WebServer {
 
   /**
-   * WebServer is standalone when property {@link ClusterProperties#CLUSTER_ENABLED} is {@code false} or
+   * WebServer is standalone when property {@link org.sonar.process.ProcessProperties#CLUSTER_ENABLED} is {@code false} or
    * undefined.
    */
   boolean isStandalone();
