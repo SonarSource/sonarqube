@@ -20,8 +20,8 @@
 package org.sonar.application.cluster;
 
 import org.sonar.application.AppState;
-import org.sonar.process.cluster.HazelcastClient;
+import org.sonar.process.cluster.hz.HazelcastMember;
 
 public interface ClusterAppState extends AppState {
-  HazelcastClient getHazelcastClient();
+  HazelcastMember getHazelcastMember();
 }

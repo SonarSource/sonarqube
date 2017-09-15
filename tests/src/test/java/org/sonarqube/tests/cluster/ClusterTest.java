@@ -38,6 +38,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.ws.WsSystem;
+import org.sonarqube.ws.client.GetRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,6 +67,24 @@ public class ClusterTest {
     checkState(!db.getClient().getDialect().equals("h2"), "H2 is not supported in cluster mode");
     db.start();
     db.stop();
+  }
+
+  /**
+   * TODO WIP
+   */
+  @Test
+  public void wip() throws Exception {
+    try (Cluster cluster = newCluster(3, 2)) {
+      cluster.getNodes().forEach(Node::start);
+
+      Node app = cluster.getAppNode(0);
+      app.waitForHealthGreen();
+
+      System.out.println("-----------------------------------------------------------------------");
+      String json = app.wsClient().wsConnector().call(new GetRequest("api/system/cluster_info")).content();
+      System.out.println(json);
+      System.out.println("-----------------------------------------------------------------------");
+    }
   }
 
   @Test
