@@ -19,17 +19,30 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import org.sonar.core.platform.Module;
+import javax.annotation.Nullable;
+import org.sonar.ce.log.CeLogging;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.queue.CeTaskResult;
+import org.sonar.db.ce.CeActivityDto;
 
-public class CeTaskProcessorModule extends Module {
+/**
+ * {@link CeWorker.ExecutionListener} responsible of calling {@link CeLogging#initForTask(CeTask)} and
+ * {@link CeLogging#clearForTask()}.
+ */
+public class CeLoggingWorkerExecutionListener implements CeWorker.ExecutionListener {
+  private final CeLogging ceLogging;
+
+  public CeLoggingWorkerExecutionListener(CeLogging ceLogging) {
+    this.ceLogging = ceLogging;
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      CeTaskProcessorRepositoryImpl.class,
-      CeLoggingWorkerExecutionListener.class,
-      CeWorkerFactoryImpl.class,
-      EnabledCeWorkerControllerImpl.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeProcessingSchedulerImpl.class);
+  public void onStart(CeTask ceTask) {
+    ceLogging.initForTask(ceTask);
+  }
+
+  @Override
+  public void onEnd(CeTask ceTask, CeActivityDto.Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
+    ceLogging.clearForTask();
   }
 }
