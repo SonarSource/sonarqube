@@ -19,13 +19,15 @@
  */
 package org.sonar.ce.taskprocessor;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.ce.log.CeLogging;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskResult;
 import org.sonar.ce.queue.InternalCeQueue;
@@ -45,19 +47,20 @@ public class CeWorkerImpl implements CeWorker {
   private final int ordinal;
   private final String uuid;
   private final InternalCeQueue queue;
-  private final CeLogging ceLogging;
   private final CeTaskProcessorRepository taskProcessorRepository;
   private final EnabledCeWorkerController enabledCeWorkerController;
+  private final List<ExecutionListener> listeners;
 
   public CeWorkerImpl(int ordinal, String uuid,
-    InternalCeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository,
-    EnabledCeWorkerController enabledCeWorkerController) {
+    InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
+    EnabledCeWorkerController enabledCeWorkerController,
+    ExecutionListener... listeners) {
     this.ordinal = checkOrdinal(ordinal);
     this.uuid = uuid;
     this.queue = queue;
-    this.ceLogging = ceLogging;
     this.taskProcessorRepository = taskProcessorRepository;
     this.enabledCeWorkerController = enabledCeWorkerController;
+    this.listeners = Arrays.asList(listeners);
   }
 
   private static int checkOrdinal(int ordinal) {
@@ -68,6 +71,17 @@ public class CeWorkerImpl implements CeWorker {
   @Override
   public Result call() throws Exception {
     return withCustomizedThreadName(this::findAndProcessTask);
+  }
+
+  private <T> T withCustomizedThreadName(Supplier<T> supplier) {
+    Thread currentThread = Thread.currentThread();
+    String oldName = currentThread.getName();
+    try {
+      currentThread.setName(String.format("Worker %s (UUID=%s) on %s", getOrdinal(), getUUID(), oldName));
+      return supplier.get();
+    } finally {
+      currentThread.setName(oldName);
+    }
   }
 
   private Result findAndProcessTask() {
@@ -85,17 +99,6 @@ public class CeWorkerImpl implements CeWorker {
       LOG.error(format("An error occurred while executing task with uuid '%s'", ceTask.get().getUuid()), e);
     }
     return TASK_PROCESSED;
-  }
-
-  private <T> T withCustomizedThreadName(Supplier<T> supplier) {
-    Thread currentThread = Thread.currentThread();
-    String oldName = currentThread.getName();
-    try {
-      currentThread.setName(String.format("Worker %s (UUID=%s) on %s", getOrdinal(), getUUID(), oldName));
-      return supplier.get();
-    } finally {
-      currentThread.setName(oldName);
-    }
   }
 
   private Optional<CeTask> tryAndFindTaskToExecute() {
@@ -118,7 +121,7 @@ public class CeWorkerImpl implements CeWorker {
   }
 
   private void executeTask(CeTask task) {
-    ceLogging.initForTask(task);
+    callListeners(t -> t.onStart(task));
     Profiler ceProfiler = startActivityProfiler(task);
 
     CeActivityDto.Status status = CeActivityDto.Status.FAILED;
@@ -135,13 +138,25 @@ public class CeWorkerImpl implements CeWorker {
         status = CeActivityDto.Status.FAILED;
       }
     } catch (MessageException e) {
+      // error
       error = e;
     } catch (Throwable e) {
+      // error
       LOG.error(format("Failed to execute task %s", task.getUuid()), e);
       error = e;
     } finally {
       finalizeTask(task, ceProfiler, status, taskResult, error);
     }
+  }
+
+  private void callListeners(Consumer<ExecutionListener> call) {
+    listeners.forEach(listener -> {
+      try {
+        call.accept(listener);
+      } catch (Throwable t) {
+        LOG.error(format("Call to listener %s failed.", listener.getClass().getSimpleName()), t);
+      }
+    });
   }
 
   private void finalizeTask(CeTask task, Profiler ceProfiler, CeActivityDto.Status status,
@@ -156,8 +171,9 @@ public class CeWorkerImpl implements CeWorker {
         LOG.error(errorMessage, e);
       }
     } finally {
+      // finalize
       stopActivityProfiler(ceProfiler, task, status);
-      ceLogging.clearForTask();
+      callListeners(t -> t.onEnd(task, status, taskResult, error));
     }
   }
 
