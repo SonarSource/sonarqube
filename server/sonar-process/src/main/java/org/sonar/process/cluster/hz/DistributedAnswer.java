@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Answer of {@link DistributedCall}, aggregating the answers from
@@ -69,5 +70,22 @@ public class DistributedAnswer<T> {
 
   public void setFailed(Member member, Exception e) {
     failedMembers.put(member, e);
+  }
+
+  public void propagateExceptions() {
+    if (!failedMembers.isEmpty()) {
+      String failedMemberNames = failedMembers.keySet().stream()
+        .map(m -> m.getStringAttribute(HazelcastMember.Attribute.NODE_NAME))
+        .collect(Collectors.joining(", "));
+      throw new IllegalStateException("Distributed cluster action in cluster nodes " + failedMemberNames + " (other nodes may have timed out)",
+        failedMembers.values().iterator().next());
+    }
+
+    if (!timedOutMembers.isEmpty()) {
+      String timedOutMemberNames = timedOutMembers.stream()
+        .map(m -> m.getStringAttribute(HazelcastMember.Attribute.NODE_NAME))
+        .collect(Collectors.joining(", "));
+      throw new IllegalStateException("Distributed cluster action timed out in cluster nodes " + timedOutMemberNames);
+    }
   }
 }

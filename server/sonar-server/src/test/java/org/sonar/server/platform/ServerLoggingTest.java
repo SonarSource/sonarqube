@@ -34,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.db.Database;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.LogbackHelper;
@@ -41,9 +42,15 @@ import org.sonar.server.app.ServerProcessLogging;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
+import static org.sonar.api.utils.log.LoggerLevel.ERROR;
+import static org.sonar.api.utils.log.LoggerLevel.INFO;
+import static org.sonar.api.utils.log.LoggerLevel.TRACE;
+import static org.sonar.api.utils.log.LoggerLevel.WARN;
 
 @RunWith(DataProviderRunner.class)
 public class ServerLoggingTest {
@@ -56,7 +63,9 @@ public class ServerLoggingTest {
   private final String rootLoggerName = RandomStringUtils.randomAlphabetic(20);
   private LogbackHelper logbackHelper = spy(new LogbackHelper());
   private MapSettings settings = new MapSettings();
-  private ServerLogging underTest = new ServerLogging(logbackHelper, settings.asConfig());
+  private final ServerProcessLogging serverProcessLogging = mock(ServerProcessLogging.class);
+  private final Database database = mock(Database.class);
+  private ServerLogging underTest = new ServerLogging(logbackHelper, settings.asConfig(), serverProcessLogging, database);
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -71,28 +80,45 @@ public class ServerLoggingTest {
 
   @Test
   public void getRootLoggerLevel() {
-    logTester.setLevel(LoggerLevel.TRACE);
-    assertThat(underTest.getRootLoggerLevel()).isEqualTo(LoggerLevel.TRACE);
+    logTester.setLevel(TRACE);
+    assertThat(underTest.getRootLoggerLevel()).isEqualTo(TRACE);
   }
 
   @Test
   @UseDataProvider("supportedSonarApiLevels")
   public void changeLevel_calls_changeRoot_with_LogLevelConfig_and_level_converted_to_logback_class_then_log_INFO_message(LoggerLevel level) {
-    ServerProcessLogging serverProcessLogging = mock(ServerProcessLogging.class);
     LogLevelConfig logLevelConfig = LogLevelConfig.newBuilder(rootLoggerName).build();
     when(serverProcessLogging.getLogLevelConfig()).thenReturn(logLevelConfig);
 
-    underTest.changeLevel(serverProcessLogging, level);
+    underTest.changeLevel(level);
 
     verify(logbackHelper).changeRoot(logLevelConfig, Level.valueOf(level.name()));
+  }
+
+  @Test
+  public void changeLevel_to_trace_enables_db_logging() {
+    LogLevelConfig logLevelConfig = LogLevelConfig.newBuilder(rootLoggerName).build();
+    when(serverProcessLogging.getLogLevelConfig()).thenReturn(logLevelConfig);
+
+    reset(database);
+    underTest.changeLevel(INFO);
+    verify(database).enableSqlLogging(false);
+
+    reset(database);
+    underTest.changeLevel(DEBUG);
+    verify(database).enableSqlLogging(false);
+
+    reset(database);
+    underTest.changeLevel(TRACE);
+    verify(database).enableSqlLogging(true);
   }
 
   @DataProvider
   public static Object[][] supportedSonarApiLevels() {
     return new Object[][] {
-      {LoggerLevel.INFO},
-      {LoggerLevel.DEBUG},
-      {LoggerLevel.TRACE}
+      {INFO},
+      {DEBUG},
+      {TRACE}
     };
   }
 
@@ -101,7 +127,7 @@ public class ServerLoggingTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("ERROR log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
 
-    underTest.changeLevel(mock(ServerProcessLogging.class), LoggerLevel.ERROR);
+    underTest.changeLevel(ERROR);
   }
 
   @Test
@@ -109,6 +135,6 @@ public class ServerLoggingTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("WARN log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
 
-    underTest.changeLevel(mock(ServerProcessLogging.class), LoggerLevel.WARN);
+    underTest.changeLevel(WARN);
   }
 }

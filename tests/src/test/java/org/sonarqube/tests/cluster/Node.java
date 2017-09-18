@@ -207,7 +207,7 @@ class Node {
     return content.hasText(message);
   }
 
-  private boolean webLogsContain(String message) {
+  boolean webLogsContain(String message) {
     if (orchestrator.getServer() == null) {
       return false;
     }

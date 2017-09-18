@@ -23,10 +23,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.ce.http.CeHttpClient;
-import org.sonar.db.Database;
-import org.sonar.server.app.WebServerProcessLogging;
-import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.process.logging.LogbackHelper.allowedLogLevels;
@@ -36,17 +32,11 @@ public class ChangeLogLevelAction implements SystemWsAction {
   private static final String PARAM_LEVEL = "level";
 
   private final UserSession userSession;
-  private final ServerLogging logging;
-  private final Database db;
-  private final CeHttpClient ceHttpClient;
-  private final WebServerProcessLogging webServerProcessLogging;
+  private final ChangeLogLevelService service;
 
-  public ChangeLogLevelAction(UserSession userSession, ServerLogging logging, Database db, CeHttpClient ceHttpClient, WebServerProcessLogging webServerProcessLogging) {
+  public ChangeLogLevelAction(UserSession userSession, ChangeLogLevelService service) {
     this.userSession = userSession;
-    this.logging = logging;
-    this.db = db;
-    this.ceHttpClient = ceHttpClient;
-    this.webServerProcessLogging = webServerProcessLogging;
+    this.service = service;
   }
 
   @Override
@@ -69,9 +59,7 @@ public class ChangeLogLevelAction implements SystemWsAction {
     userSession.checkIsSystemAdministrator();
 
     LoggerLevel level = LoggerLevel.valueOf(wsRequest.mandatoryParam(PARAM_LEVEL));
-    db.enableSqlLogging(level.equals(LoggerLevel.TRACE));
-    logging.changeLevel(webServerProcessLogging, level);
-    ceHttpClient.changeLogLevel(level);
+    service.changeLogLevel(level);
     wsResponse.noContent();
   }
 }
