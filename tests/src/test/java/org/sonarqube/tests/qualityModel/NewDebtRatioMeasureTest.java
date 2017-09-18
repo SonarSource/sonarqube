@@ -20,13 +20,13 @@
 package org.sonarqube.tests.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category2Suite;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonarqube.tests.Category2Suite;
 import util.ItUtils;
 
 import static org.apache.commons.lang.time.DateUtils.addDays;
@@ -136,7 +136,8 @@ public class NewDebtRatioMeasureTest {
       "measure/xoo-new-debt-ratio-" + projectVersion,
       ItUtils.concat(properties,
         // disable standard scm support so that it does not interfere with Xoo Scm sensor
-        "sonar.scm.disabled", "false"));
+        "sonar.scm.disabled", "false",
+        "sonar.projectVersion", projectVersion));
   }
 
 }
