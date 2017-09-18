@@ -97,7 +97,7 @@ export default class Activity extends React.PureComponent<Props> {
 
   render() {
     return (
-      <div className="huge-spacer-top">
+      <div className="huge-spacer-bottom">
         <header className="page-header">
           <h3 className="page-title">{translate('project_activity.page')}</h3>
         </header>
