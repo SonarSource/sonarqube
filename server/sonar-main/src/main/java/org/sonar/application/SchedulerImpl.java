@@ -28,8 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.application.cluster.ClusterAppState;
-import org.sonar.application.cluster.health.SearchNodeHealthProvider;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.EsCommand;
 import org.sonar.application.command.JavaCommand;
@@ -41,10 +39,7 @@ import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.ProcessLifecycleListener;
 import org.sonar.application.process.ProcessMonitor;
 import org.sonar.application.process.SQProcess;
-import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
-import org.sonar.application.cluster.health.HealthStateSharing;
-import org.sonar.application.cluster.health.HealthStateSharingImpl;
 
 public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLifecycleListener, AppStateListener {
 
@@ -65,7 +60,6 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private final AtomicInteger stopCountDown = new AtomicInteger(0);
   private StopperThread stopperThread;
   private RestarterThread restarterThread;
-  private HealthStateSharing healthStateSharing;
   private long processWatcherDelayMs = SQProcess.DEFAULT_WATCHER_DELAY_MS;
 
   public SchedulerImpl(AppSettings settings, AppReloader appReloader, CommandFactory commandFactory,
@@ -105,7 +99,6 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   }
 
   private void tryToStartAll() {
-    tryToStartHealthStateSharing();
     tryToStartEs();
     tryToStartWeb();
     tryToStartCe();
@@ -144,18 +137,6 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     }
   }
 
-  private void tryToStartHealthStateSharing() {
-    if (healthStateSharing == null
-      && appState instanceof ClusterAppState
-      && ClusterSettings.isLocalElasticsearchEnabled(settings)) {
-      ClusterAppState clusterAppState = (ClusterAppState) appState;
-      this.healthStateSharing = new HealthStateSharingImpl(
-        clusterAppState.getHazelcastMember(),
-        new SearchNodeHealthProvider(settings.getProps(), clusterAppState, NetworkUtils.INSTANCE));
-      this.healthStateSharing.start();
-    }
-  }
-
   private boolean isEsClientStartable() {
     boolean requireLocalEs = ClusterSettings.isLocalElasticsearchEnabled(settings);
     return appState.isOperational(ProcessId.ELASTICSEARCH, requireLocalEs);
@@ -190,7 +171,6 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     stopProcess(ProcessId.COMPUTE_ENGINE);
     stopProcess(ProcessId.WEB_SERVER);
     stopProcess(ProcessId.ELASTICSEARCH);
-    stopHealthStateSharing();
   }
 
   /**
@@ -201,12 +181,6 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     SQProcess process = processesById.get(processId);
     if (process != null) {
       process.stop(1, TimeUnit.MINUTES);
-    }
-  }
-
-  private void stopHealthStateSharing() {
-    if (healthStateSharing != null) {
-      healthStateSharing.stop();
     }
   }
 
