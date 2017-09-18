@@ -27,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 import { getSystemInfo, SysInfo } from '../../../api/system';
 import {
   ClusterSysInfo,
-  getLogsLevel,
+  getSystemLogsLevel,
   isCluster,
   parseQuery,
   Query,
@@ -128,7 +128,7 @@ export default class App extends React.PureComponent<Props, State> {
         <PageHeader
           loading={loading}
           isCluster={isCluster(sysInfoData)}
-          logLevel={getLogsLevel(sysInfoData)}
+          logLevel={getSystemLogsLevel(sysInfoData)}
           showActions={sysInfoData != undefined}
         />
         {this.renderSysInfo()}

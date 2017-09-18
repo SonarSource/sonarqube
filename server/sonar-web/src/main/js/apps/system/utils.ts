@@ -63,18 +63,21 @@ export function getHealthCauses(sysInfoObject: SysValueObject): HealthCause[] {
   return sysInfoObject[HEALTHCAUSES_FIELD] as HealthCause[];
 }
 
-export function getLogsLevel(sysInfoData?: SysInfo): string {
-  const defaultLevel = LOGS_LEVELS[0];
+export function getLogsLevel(sysInfoObject: SysValueObject): string {
+  return (sysInfoObject['Logs Level'] || LOGS_LEVELS[0]) as string;
+}
+
+export function getSystemLogsLevel(sysInfoData?: SysInfo): string {
   if (!sysInfoData) {
-    return defaultLevel;
+    return LOGS_LEVELS[0];
   }
   if (isCluster(sysInfoData)) {
     const nodes = sortBy(getAppNodes(sysInfoData as ClusterSysInfo), node =>
       LOGS_LEVELS.indexOf(node['Logs Level'])
     );
-    return nodes[nodes.length - 1]['Logs Level'] || defaultLevel;
+    return getLogsLevel(nodes[nodes.length - 1]);
   } else {
-    return (sysInfoData as StandaloneSysInfo)['Logs Level'] || defaultLevel;
+    return getLogsLevel(sysInfoData);
   }
 }
 
