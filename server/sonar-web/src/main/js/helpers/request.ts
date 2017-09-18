@@ -170,10 +170,10 @@ export function postJSON(url: string, data?: RequestData): Promise<any> {
  * Shortcut to do a POST request
  */
 export function post(url: string, data?: RequestData): Promise<void> {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     request(url).setMethod('POST').setData(data).submit().then(checkStatus).then(() => {
       resolve();
-    });
+    }, reject);
   });
 }
 
