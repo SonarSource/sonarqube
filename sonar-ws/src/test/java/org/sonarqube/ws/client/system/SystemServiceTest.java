@@ -64,4 +64,25 @@ public class SystemServiceTest {
         .hasPath("restart")
         .andNoOtherParam();
   }
+
+  @Test
+  public void test_changeLogLevel() throws Exception {
+    underTest.changeLogLevel("TRACE");
+
+    PostRequest postRequest = serviceTester.getPostRequest();
+    serviceTester.assertThat(postRequest)
+        .hasPath("change_log_level")
+        .hasParam("level", "TRACE")
+        .andNoOtherParam();
+  }
+
+  @Test
+  public void test_info() throws Exception {
+    underTest.info();
+
+    GetRequest getRequest = serviceTester.getGetRequest();
+    serviceTester.assertThat(getRequest)
+        .hasPath("info")
+        .andNoOtherParam();
+  }
 }

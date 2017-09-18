@@ -72,4 +72,20 @@ public class PlatformLevelTest {
     PlatformLevel.AddIfCluster addIfCluster = underTest.addIfCluster();
     IntStream.range(0, 1 + new Random().nextInt(4)).forEach(i -> assertThat(underTest.addIfCluster()).isSameAs(addIfCluster));
   }
+
+  @Test
+  public void addIfStandalone_throws_ISE_if_container_does_not_have_WebServer_object() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("WebServer not available in Pico yet");
+
+    underTest.addIfCluster();
+  }
+
+  @Test
+  public void addIfStandalone_always_returns_the_same_instance() {
+    underTest.add(Mockito.mock(WebServer.class));
+
+    PlatformLevel.AddIfCluster addIfCluster = underTest.addIfCluster();
+    IntStream.range(0, 1 + new Random().nextInt(4)).forEach(i -> assertThat(underTest.addIfCluster()).isSameAs(addIfCluster));
+  }
 }

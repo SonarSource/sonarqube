@@ -26,8 +26,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.httpd.HttpAction;
-import org.sonar.ce.log.CeProcessLogging;
-import org.sonar.db.Database;
 import org.sonar.server.platform.ServerLogging;
 
 import static fi.iki.elonen.NanoHTTPD.Method.GET;
@@ -42,9 +40,7 @@ import static org.sonar.ce.httpd.CeHttpUtils.createHttpSession;
 
 public class ChangeLogLevelHttpActionTest {
   private ServerLogging serverLogging = mock(ServerLogging.class);
-  private Database database = mock(Database.class);
-  private CeProcessLogging ceProcessLogging = new CeProcessLogging();
-  private ChangeLogLevelHttpAction underTest = new ChangeLogLevelHttpAction(serverLogging, database, ceProcessLogging);
+  private ChangeLogLevelHttpAction underTest = new ChangeLogLevelHttpAction(serverLogging);
 
   @Test
   public void register_to_path_changeLogLevel() {
@@ -78,42 +74,38 @@ public class ChangeLogLevelHttpActionTest {
   }
 
   @Test
-  public void changes_server_logging_and_disabled_database_logging_if_level_is_ERROR() {
+  public void changes_server_logging_if_level_is_ERROR() {
     NanoHTTPD.Response response = underTest.serve(createHttpSession(POST, ImmutableMap.of("level", "ERROR")));
 
     assertThat(response.getStatus()).isEqualTo(OK);
 
-    verify(serverLogging).changeLevel(ceProcessLogging, LoggerLevel.ERROR);
-    verify(database).enableSqlLogging(false);
+    verify(serverLogging).changeLevel(LoggerLevel.ERROR);
   }
 
   @Test
-  public void changes_server_logging_and_disabled_database_logging_if_level_is_INFO() {
+  public void changes_server_logging_if_level_is_INFO() {
     NanoHTTPD.Response response = underTest.serve(createHttpSession(POST, ImmutableMap.of("level", "INFO")));
 
     assertThat(response.getStatus()).isEqualTo(OK);
 
-    verify(serverLogging).changeLevel(ceProcessLogging, LoggerLevel.INFO);
-    verify(database).enableSqlLogging(false);
+    verify(serverLogging).changeLevel(LoggerLevel.INFO);
   }
 
   @Test
-  public void changes_server_logging_and_disabled_database_logging_if_level_is_DEBUG() {
+  public void changes_server_logging_if_level_is_DEBUG() {
     NanoHTTPD.Response response = underTest.serve(createHttpSession(POST, ImmutableMap.of("level", "DEBUG")));
 
     assertThat(response.getStatus()).isEqualTo(OK);
 
-    verify(serverLogging).changeLevel(ceProcessLogging, LoggerLevel.DEBUG);
-    verify(database).enableSqlLogging(false);
+    verify(serverLogging).changeLevel(LoggerLevel.DEBUG);
   }
 
   @Test
-  public void changes_server_logging_and_enable_database_logging_if_level_is_TRACE() {
+  public void changes_server_logging_if_level_is_TRACE() {
     NanoHTTPD.Response response = underTest.serve(createHttpSession(POST, ImmutableMap.of("level", "TRACE")));
 
     assertThat(response.getStatus()).isEqualTo(OK);
 
-    verify(serverLogging).changeLevel(ceProcessLogging, LoggerLevel.TRACE);
-    verify(database).enableSqlLogging(true);
+    verify(serverLogging).changeLevel(LoggerLevel.TRACE);
   }
 }

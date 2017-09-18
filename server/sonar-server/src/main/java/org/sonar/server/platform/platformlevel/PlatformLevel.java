@@ -38,6 +38,7 @@ public abstract class PlatformLevel {
   private final ComponentContainer container;
   private AddIfStartupLeader addIfStartupLeader;
   private AddIfCluster addIfCluster;
+  private AddIfStandalone addIfStandalone;
 
   public PlatformLevel(String name) {
     this.name = name;
@@ -156,6 +157,19 @@ public abstract class PlatformLevel {
     return addIfCluster;
   }
 
+  /**
+   * Add a component to container only if this is a standalone instance, without clustering.
+   *
+   * @throws IllegalStateException if called from PlatformLevel1, when cluster settings are not loaded
+   */
+  AddIfStandalone addIfStandalone(Object... objects) {
+    if (addIfStandalone == null) {
+      addIfStandalone = new AddIfStandalone(getWebServer().isStandalone());
+    }
+    addIfStandalone.ifAdd(objects);
+    return addIfStandalone;
+  }
+
   private WebServer getWebServer() {
     return getOptional(WebServer.class)
       .orElseThrow(() -> new IllegalStateException("WebServer not available in Pico yet"));
@@ -189,6 +203,12 @@ public abstract class PlatformLevel {
 
   public final class AddIfCluster extends AddIf {
     private AddIfCluster(boolean condition) {
+      super(condition);
+    }
+  }
+
+  public final class AddIfStandalone extends AddIf {
+    private AddIfStandalone(boolean condition) {
       super(condition);
     }
   }

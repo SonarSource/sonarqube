@@ -19,12 +19,14 @@
  */
 package org.sonarqube.tests.cluster;
 
+import com.google.gson.internal.LinkedTreeMap;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.db.DefaultDatabase;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
@@ -38,8 +40,9 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.ws.WsSystem;
-import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
+import util.ItUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,24 +71,6 @@ public class ClusterTest {
     checkState(!db.getClient().getDialect().equals("h2"), "H2 is not supported in cluster mode");
     db.start();
     db.stop();
-  }
-
-  /**
-   * TODO WIP
-   */
-  @Test
-  public void wip() throws Exception {
-    try (Cluster cluster = newCluster(3, 2)) {
-      cluster.getNodes().forEach(Node::start);
-
-      Node app = cluster.getAppNode(0);
-      app.waitForHealthGreen();
-
-      System.out.println("-----------------------------------------------------------------------");
-      String json = app.wsClient().wsConnector().call(new GetRequest("api/system/info")).content();
-      System.out.println(json);
-      System.out.println("-----------------------------------------------------------------------");
-    }
   }
 
   @Test
@@ -261,6 +246,37 @@ public class ClusterTest {
       assertThat(startupFollower.hasStartupLeaderOperations()).isFalse();
       assertThat(startupFollower.hasCreatedSearchIndices()).isFalse();
       assertThat(startupFollower).isNotSameAs(startupLeader);
+    }
+  }
+
+  @Test
+  public void set_log_level_affects_all_nodes() throws Exception {
+    try (Cluster cluster = newCluster(2, 2)) {
+      cluster.getNodes().forEach(Node::start);
+      cluster.getAppNodes().forEach(Node::waitForStatusUp);
+
+      cluster.getAppNodes().forEach(node -> {
+        assertThat(node.webLogsContain(" TRACE web[")).isFalse();
+      });
+
+      cluster.getAppNode(0).wsClient().system().changeLogLevel("TRACE");
+
+      cluster.getAppNodes().forEach(node -> {
+
+        // do something, that will produce logging
+        node.wsClient().issues().search(new SearchWsRequest());
+
+        // check logs
+        assertThat(node.webLogsContain(" TRACE web[")).isTrue();
+      });
+
+      Map<String, Object> data = ItUtils.jsonToMap(cluster.getAppNode(0).wsClient().system().info().content());
+      ArrayList<Object> applicationNodes = (ArrayList<Object>) data.get("Application Nodes");
+      applicationNodes.forEach(node -> {
+        LinkedTreeMap<Object, Object> nodeData = (LinkedTreeMap<Object, Object>) node;
+        LinkedTreeMap<Object, Object> ceLoggingData = (LinkedTreeMap<Object, Object>) nodeData.get("Compute Engine Logging");
+        assertThat(ceLoggingData.get("Logs Level")).as("Compute engine logs level of a node").isEqualTo("TRACE");
+      });
     }
   }
 
