@@ -39,7 +39,13 @@ import java.util.concurrent.locks.Lock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.AppStateListener;
+import org.sonar.application.cluster.health.HealthStateSharing;
+import org.sonar.application.cluster.health.HealthStateSharingImpl;
+import org.sonar.application.cluster.health.SearchNodeHealthProvider;
+import org.sonar.application.config.AppSettings;
+import org.sonar.application.config.ClusterSettings;
 import org.sonar.process.MessageException;
+import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.NodeType;
 import org.sonar.process.cluster.hz.HazelcastMember;
@@ -60,14 +66,20 @@ public class ClusterAppStateImpl implements ClusterAppState {
   private final ReplicatedMap<ClusterProcess, Boolean> operationalProcesses;
   private final String operationalProcessListenerUUID;
   private final String nodeDisconnectedListenerUUID;
+  private HealthStateSharing healthStateSharing = null;
 
-  public ClusterAppStateImpl(HazelcastMember hzMember) {
+  public ClusterAppStateImpl(AppSettings settings, HazelcastMember hzMember) {
     this.hzMember = hzMember;
 
     // Get or create the replicated map
     operationalProcesses = (ReplicatedMap) hzMember.getReplicatedMap(OPERATIONAL_PROCESSES);
     operationalProcessListenerUUID = operationalProcesses.addEntryListener(new OperationalProcessListener());
     nodeDisconnectedListenerUUID = hzMember.getCluster().addMembershipListener(new NodeDisconnectedListener());
+
+    if (ClusterSettings.isLocalElasticsearchEnabled(settings)) {
+      this.healthStateSharing = new HealthStateSharingImpl(hzMember, new SearchNodeHealthProvider(settings.getProps(), this, NetworkUtils.INSTANCE));
+      this.healthStateSharing.start();
+    }
   }
 
   @Override
@@ -184,6 +196,9 @@ public class ClusterAppStateImpl implements ClusterAppState {
   @Override
   public void close() {
     if (hzMember != null) {
+      if (healthStateSharing != null) {
+        healthStateSharing.stop();
+      }
       try {
         // Removing listeners
         operationalProcesses.removeEntryListener(operationalProcessListenerUUID);

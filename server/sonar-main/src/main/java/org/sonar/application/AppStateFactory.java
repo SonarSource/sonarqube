@@ -42,7 +42,7 @@ public class AppStateFactory {
   public AppState create() {
     if (ClusterSettings.isClusterEnabled(settings)) {
       HazelcastMember hzMember = createHzMember(settings.getProps());
-      return new ClusterAppStateImpl(hzMember);
+      return new ClusterAppStateImpl(settings, hzMember);
     }
     return new AppStateImpl();
   }

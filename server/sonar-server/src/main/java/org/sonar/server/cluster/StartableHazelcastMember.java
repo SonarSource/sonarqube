@@ -21,6 +21,7 @@ package org.sonar.server.cluster;
 
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.IAtomicReference;
+import com.hazelcast.core.MemberSelector;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -33,6 +34,8 @@ import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.cluster.NodeType;
+import org.sonar.process.cluster.hz.DistributedAnswer;
+import org.sonar.process.cluster.hz.DistributedCall;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberBuilder;
 
@@ -108,6 +111,12 @@ public class StartableHazelcastMember implements HazelcastMember, Startable {
   @Override
   public Cluster getCluster() {
     return nonNullMember().getCluster();
+  }
+
+  @Override
+  public <T> DistributedAnswer<T> call(DistributedCall<T> callable, MemberSelector memberSelector, long timeoutMs)
+    throws InterruptedException {
+    return nonNullMember().call(callable, memberSelector, timeoutMs);
   }
 
   private HazelcastMember nonNullMember() {
