@@ -27,6 +27,7 @@ import org.sonar.ce.http.CeHttpClientImpl;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.WebServer;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.user.UserSession;
@@ -41,7 +42,7 @@ public class SystemWsTest {
   @Test
   public void define() {
     RestartAction action1 = new RestartAction(mock(UserSession.class), mock(Configuration.class), mock(Platform.class), mock(ProcessCommandWrapper.class),
-      mock(RestartFlagHolder.class));
+      mock(RestartFlagHolder.class), mock(WebServer.class));
     InfoAction action2 = new InfoAction(new AnonymousMockUserSession(), ceHttpClient, mock(TelemetryDataLoader.class));
     SystemWs ws = new SystemWs(action1, action2);
     WebService.Context context = new WebService.Context();
