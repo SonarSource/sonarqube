@@ -18,13 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { shallow } from 'enzyme';
+import StandaloneSysInfos from '../StandaloneSysInfos';
+import { HealthType } from '../../../../api/system';
+import { StandaloneSysInfo } from '../../utils';
 
-interface Props {
-  sysInfoData: object;
-}
+const sysInfoData: StandaloneSysInfo = {
+  Cluster: true,
+  Health: HealthType.RED,
+  'Logs Level': 'DEBUG',
+  Name: 'Foo',
+  'Health Causes': [{ message: 'Database down' }],
+  'Web JVM': { 'Max Memory': '2Gb' },
+  'Compute Engine': { Pending: 4 },
+  Elasticsearch: { 'Number of Nodes': 1 }
+};
 
-export default class StandAloneSysInfos extends React.PureComponent<Props> {
-  render() {
-    return <div>StandAloneSysInfos</div>;
-  }
+it('should render correctly', () => {
+  expect(getWrapper()).toMatchSnapshot();
+});
+
+function getWrapper(props = {}) {
+  return shallow(
+    <StandaloneSysInfos
+      expandedCards={['Compute Engine', 'Foo']}
+      sysInfoData={sysInfoData}
+      toggleCard={() => {}}
+      {...props}
+    />
+  );
 }

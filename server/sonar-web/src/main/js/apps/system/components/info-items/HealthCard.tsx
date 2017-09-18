@@ -28,8 +28,8 @@ import { groupSections } from '../../utils';
 
 interface Props {
   biggerHealth?: boolean;
-  health: HealthType;
-  healthCauses: HealthCause[];
+  health?: HealthType;
+  healthCauses?: HealthCause[];
   onClick: (toggledCard: string) => void;
   open: boolean;
   name: string;
@@ -48,7 +48,7 @@ export default class HealthCard extends React.PureComponent<Props, State> {
   onDetailLeave = () => this.setState({ hoveringDetail: false });
 
   render() {
-    const { open, sysInfoData } = this.props;
+    const { health, open, sysInfoData } = this.props;
     const { mainSection, sections } = groupSections(sysInfoData);
     const showFields = open && mainSection && Object.keys(mainSection).length > 0;
     const showSections = open && sections;
@@ -62,11 +62,13 @@ export default class HealthCard extends React.PureComponent<Props, State> {
             <OpenCloseIcon className="little-spacer-right" open={open} />
             {this.props.name}
           </span>
-          <HealthItem
-            className={classNames('pull-right', { 'big-dot': this.props.biggerHealth })}
-            health={this.props.health}
-            healthCauses={this.props.healthCauses}
-          />
+          {health && (
+            <HealthItem
+              className={classNames('pull-right', { 'big-dot': this.props.biggerHealth })}
+              health={health}
+              healthCauses={this.props.healthCauses}
+            />
+          )}
         </div>
         {open && (
           <div

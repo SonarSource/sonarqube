@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { each, omit, memoize } from 'lodash';
+import { each, omit, memoize, sortBy } from 'lodash';
 import {
   cleanQuery,
   parseAsArray,
@@ -38,15 +38,21 @@ export interface Query {
   expandedCards: string[];
 }
 
+export interface ClusterSysInfo extends SysInfo {
+  'Application Nodes': NodeInfo[];
+  'Search Nodes': NodeInfo[];
+}
+
+export interface StandaloneSysInfo extends SysInfo {
+  'Logs Level': string;
+}
+
+export const LOGS_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
 export const HEALTH_FIELD = 'Health';
 export const HEALTHCAUSES_FIELD = 'Health Causes';
 
 export function ignoreInfoFields(sysInfoObject: SysValueObject): SysValueObject {
   return omit(sysInfoObject, ['Cluster', HEALTH_FIELD, HEALTHCAUSES_FIELD]);
-}
-
-export function getAppNodes(sysInfoData: SysInfo): NodeInfo[] {
-  return sysInfoData['Application Nodes'];
 }
 
 export function getHealth(sysInfoObject: SysValueObject): HealthType {
@@ -57,15 +63,70 @@ export function getHealthCauses(sysInfoObject: SysValueObject): HealthCause[] {
   return sysInfoObject[HEALTHCAUSES_FIELD] as HealthCause[];
 }
 
-export function getMainCardSection(sysInfoData: SysInfo): SysValueObject {
-  return omit(sysInfoData, ['Application Nodes', 'Search Nodes', 'Settings', 'Statistics']);
+export function getLogsLevel(sysInfoData?: SysInfo): string {
+  const defaultLevel = LOGS_LEVELS[0];
+  if (!sysInfoData) {
+    return defaultLevel;
+  }
+  if (isCluster(sysInfoData)) {
+    const nodes = sortBy(getAppNodes(sysInfoData as ClusterSysInfo), node =>
+      LOGS_LEVELS.indexOf(node['Logs Level'])
+    );
+    return nodes[nodes.length - 1]['Logs Level'] || defaultLevel;
+  } else {
+    return (sysInfoData as StandaloneSysInfo)['Logs Level'] || defaultLevel;
+  }
 }
 
 export function getNodeName(nodeInfo: NodeInfo): string {
   return nodeInfo['Name'];
 }
 
-export function getSearchNodes(sysInfoData: SysInfo): NodeInfo[] {
+export function getClusterMainCardSection(sysInfoData: ClusterSysInfo): SysValueObject {
+  return omit(sysInfoData, ['Application Nodes', 'Search Nodes', 'Settings', 'Statistics']);
+}
+
+export function getStandaloneMainSections(sysInfoData: StandaloneSysInfo): SysValueObject {
+  return omit(sysInfoData, [
+    'Settings',
+    'Statistics',
+    'Compute Engine',
+    'Compute Engine JVM',
+    'Compute Engine JVM Properties',
+    'Elasticsearch',
+    'Search JVM',
+    'Search JVM Properties',
+    'Web Database Connectivity',
+    'Web JVM',
+    'Web JVM Properties'
+  ]);
+}
+
+export function getStandaloneSecondarySections(sysInfoData: StandaloneSysInfo): SysInfoSection {
+  return {
+    Web: {
+      'Web Database Connectivity': sysInfoData['Web Database Connectivity'],
+      'Web JVM': sysInfoData['Web JVM'],
+      'Web JVM Properties': sysInfoData['Web JVM Properties']
+    },
+    'Compute Engine': {
+      ...sysInfoData['Compute Engine'] as SysValueObject,
+      'Compute Engine JVM': sysInfoData['Compute Engine JVM'],
+      'Compute Engine JVM Properties': sysInfoData['Compute Engine JVM Properties']
+    },
+    Search: {
+      Elasticsearch: sysInfoData['Elasticsearch'] as SysValueObject,
+      'Search JVM': sysInfoData['Search JVM'],
+      'Search JVM Properties': sysInfoData['Search JVM Properties']
+    }
+  };
+}
+
+export function getAppNodes(sysInfoData: ClusterSysInfo): NodeInfo[] {
+  return sysInfoData['Application Nodes'];
+}
+
+export function getSearchNodes(sysInfoData: ClusterSysInfo): NodeInfo[] {
   return sysInfoData['Search Nodes'];
 }
 
@@ -83,7 +144,7 @@ export function groupSections(sysInfoData: SysValueObject) {
 }
 
 export function isCluster(sysInfoData?: SysInfo): boolean {
-  return sysInfoData != undefined && sysInfoData['Cluster'];
+  return sysInfoData != undefined && sysInfoData['Cluster'] === true;
 }
 
 export const parseQuery = memoize((urlQuery: RawQuery): Query => {

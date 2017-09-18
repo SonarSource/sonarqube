@@ -22,10 +22,18 @@ import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
-import StandAloneSysInfos from './StandAloneSysInfos';
+import StandaloneSysInfos from './StandaloneSysInfos';
 import { translate } from '../../../helpers/l10n';
 import { getSystemInfo, SysInfo } from '../../../api/system';
-import { isCluster, parseQuery, Query, serializeQuery } from '../utils';
+import {
+  ClusterSysInfo,
+  getLogsLevel,
+  isCluster,
+  parseQuery,
+  Query,
+  serializeQuery,
+  StandaloneSysInfo
+} from '../utils';
 import { RawQuery } from '../../../helpers/query';
 import '../styles.css';
 
@@ -84,7 +92,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   updateQuery = (newQuery: Query) => {
     const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
-    this.context.router.push({ pathname: this.props.location.pathname, query });
+    this.context.router.replace({ pathname: this.props.location.pathname, query });
   };
 
   renderSysInfo() {
@@ -97,25 +105,30 @@ export default class App extends React.PureComponent<Props, State> {
     if (isCluster(sysInfoData)) {
       return (
         <ClusterSysInfos
-          sysInfoData={sysInfoData}
           expandedCards={query.expandedCards}
+          sysInfoData={sysInfoData as ClusterSysInfo}
           toggleCard={this.toggleSysInfoCards}
         />
       );
     }
-    return <StandAloneSysInfos sysInfoData={sysInfoData} />;
+    return (
+      <StandaloneSysInfos
+        expandedCards={query.expandedCards}
+        sysInfoData={sysInfoData as StandaloneSysInfo}
+        toggleCard={this.toggleSysInfoCards}
+      />
+    );
   }
 
   render() {
     const { loading, sysInfoData } = this.state;
-    // TODO Correctly get logLevel, we are not sure yet how we want to do it for cluster mode
     return (
       <div className="page page-limited">
         <Helmet title={translate('system_info.page')} />
         <PageHeader
           loading={loading}
           isCluster={isCluster(sysInfoData)}
-          logLevel="INFO"
+          logLevel={getLogsLevel(sysInfoData)}
           showActions={sysInfoData != undefined}
         />
         {this.renderSysInfo()}
