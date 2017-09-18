@@ -39,6 +39,7 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.ws.WsSystem;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.HttpException;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -260,6 +261,25 @@ public class ClusterTest {
       assertThat(startupFollower.hasStartupLeaderOperations()).isFalse();
       assertThat(startupFollower.hasCreatedSearchIndices()).isFalse();
       assertThat(startupFollower).isNotSameAs(startupLeader);
+    }
+  }
+
+  @Test
+  public void restart_action_is_not_allowed_for_cluster_nodes() throws Exception {
+    try (Cluster cluster = newCluster(2, 1)) {
+      cluster.getNodes().forEach(Node::start);
+      cluster.getAppNodes().forEach(Node::waitForStatusUp);
+
+      cluster.getAppNodes().forEach(node -> {
+        try {
+          node.wsClient().system().restart();
+          fail("The restart webservice must not succeed on cluster nodes");
+        } catch (HttpException e) {
+          // all good, we expected this!
+          assertThat(e.code()).isEqualTo(400);
+          assertThat(e.content()).contains("Restart not allowed for cluster nodes");
+        }
+      });
     }
   }
 
