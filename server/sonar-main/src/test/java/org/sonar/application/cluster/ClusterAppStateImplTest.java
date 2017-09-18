@@ -19,6 +19,7 @@
  */
 package org.sonar.application.cluster;
 
+import java.net.InetAddress;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -27,13 +28,16 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.application.AppStateListener;
 import org.sonar.process.MessageException;
+import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
+import org.sonar.process.cluster.NodeType;
+import org.sonar.process.cluster.hz.HazelcastMember;
+import org.sonar.process.cluster.hz.HazelcastMemberBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.sonar.application.cluster.HazelcastTesting.newHzMember;
 import static org.sonar.process.cluster.hz.HazelcastObjects.CLUSTER_NAME;
 import static org.sonar.process.cluster.hz.HazelcastObjects.SONARQUBE_VERSION;
 
@@ -127,5 +131,19 @@ public class ClusterAppStateImplTest {
       // Registering a second different cluster name must trigger an exception
       underTest.registerClusterName("badClusterName");
     }
+  }
+
+  private static HazelcastMember newHzMember() {
+    // use loopback for support of offline builds
+    InetAddress loopback = InetAddress.getLoopbackAddress();
+
+    return new HazelcastMemberBuilder()
+      .setNodeType(NodeType.APPLICATION)
+      .setProcessId(ProcessId.COMPUTE_ENGINE)
+      .setClusterName("foo")
+      .setNodeName("bar")
+      .setPort(NetworkUtils.INSTANCE.getNextAvailablePort(loopback))
+      .setNetworkInterface(loopback.getHostAddress())
+      .build();
   }
 }
