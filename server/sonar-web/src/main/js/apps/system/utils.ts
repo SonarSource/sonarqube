@@ -68,14 +68,15 @@ export function getLogsLevel(sysInfoObject: SysValueObject): string {
 }
 
 export function getSystemLogsLevel(sysInfoData?: SysInfo): string {
+  const defaultLevel = LOGS_LEVELS[0];
   if (!sysInfoData) {
-    return LOGS_LEVELS[0];
+    return defaultLevel;
   }
   if (isCluster(sysInfoData)) {
     const nodes = sortBy(getAppNodes(sysInfoData as ClusterSysInfo), node =>
-      LOGS_LEVELS.indexOf(node['Logs Level'])
+      LOGS_LEVELS.indexOf(getLogsLevel(node))
     );
-    return getLogsLevel(nodes[nodes.length - 1]);
+    return nodes.length > 0 ? getLogsLevel(nodes[nodes.length - 1]) : defaultLevel;
   } else {
     return getLogsLevel(sysInfoData);
   }
