@@ -23,10 +23,16 @@ import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.IAtomicReference;
+import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
+import com.hazelcast.core.MemberSelector;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
@@ -87,6 +93,32 @@ class HazelcastMemberImpl implements HazelcastMember {
   @Override
   public Cluster getCluster() {
     return hzInstance.getCluster();
+  }
+
+  @Override
+  public <T> DistributedAnswer<T> call(DistributedCall<T> callable, MemberSelector memberSelector, long timeoutMs)
+    throws InterruptedException {
+
+    IExecutorService executor = hzInstance.getExecutorService("default");
+    Map<Member, Future<T>> futures = executor.submitToMembers(callable, memberSelector);
+    try {
+      DistributedAnswer<T> distributedAnswer = new DistributedAnswer<>();
+      long maxTime = System.currentTimeMillis() + timeoutMs;
+      for (Map.Entry<Member, Future<T>> entry : futures.entrySet()) {
+        long remainingMs = Math.max(maxTime - System.currentTimeMillis(), 5L);
+        try {
+          T answer = entry.getValue().get(remainingMs, TimeUnit.MILLISECONDS);
+          distributedAnswer.setAnswer(entry.getKey(), answer);
+        } catch (ExecutionException e) {
+          distributedAnswer.setFailed(entry.getKey(), e);
+        } catch (TimeoutException e) {
+          distributedAnswer.setTimedOut(entry.getKey());
+        }
+      }
+      return distributedAnswer;
+    } finally {
+      futures.values().forEach(f -> f.cancel(true));
+    }
   }
 
   @Override
