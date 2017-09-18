@@ -24,6 +24,7 @@ import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.client.WsResponse;
 
 public class SystemService extends BaseService {
   public SystemService(WsConnector wsConnector) {
@@ -40,5 +41,13 @@ public class SystemService extends BaseService {
 
   public WsSystem.StatusResponse status() {
     return call(new GetRequest(path("status")), WsSystem.StatusResponse.parser());
+  }
+
+  public void changeLogLevel(String level) {
+    call(new PostRequest(path("change_log_level")).setParam("level", level));
+  }
+
+  public WsResponse info() {
+    return call(new GetRequest(path("info")));
   }
 }
