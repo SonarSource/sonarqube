@@ -25,7 +25,13 @@ import { click } from '../../../../helpers/testUtils';
 it('should render correctly', () => {
   expect(
     shallow(
-      <PageActions canDownloadLogs={true} canRestart={true} cluster={false} logLevel="INFO" />
+      <PageActions
+        canDownloadLogs={true}
+        canRestart={true}
+        cluster={false}
+        logLevel="INFO"
+        onLogLevelChange={() => {}}
+      />
     )
   ).toMatchSnapshot();
 });
@@ -33,14 +39,26 @@ it('should render correctly', () => {
 it('should render without restart and log download', () => {
   expect(
     shallow(
-      <PageActions canDownloadLogs={false} canRestart={false} cluster={true} logLevel="INFO" />
+      <PageActions
+        canDownloadLogs={false}
+        canRestart={false}
+        cluster={true}
+        logLevel="INFO"
+        onLogLevelChange={() => {}}
+      />
     )
   ).toMatchSnapshot();
 });
 
 it('should open restart modal', () => {
   const wrapper = shallow(
-    <PageActions canDownloadLogs={true} canRestart={true} cluster={false} logLevel="INFO" />
+    <PageActions
+      canDownloadLogs={true}
+      canRestart={true}
+      cluster={false}
+      logLevel="INFO"
+      onLogLevelChange={() => {}}
+    />
   );
   click(wrapper.find('#restart-server-button'));
   expect(wrapper.find('RestartForm')).toHaveLength(1);
@@ -48,7 +66,13 @@ it('should open restart modal', () => {
 
 it('should open change log level modal', () => {
   const wrapper = shallow(
-    <PageActions canDownloadLogs={true} canRestart={true} cluster={false} logLevel="INFO" />
+    <PageActions
+      canDownloadLogs={true}
+      canRestart={true}
+      cluster={false}
+      logLevel="INFO"
+      onLogLevelChange={() => {}}
+    />
   );
   click(wrapper.find('#edit-logs-level-button'));
   expect(wrapper.find('ChangeLogLevelForm')).toHaveLength(1);

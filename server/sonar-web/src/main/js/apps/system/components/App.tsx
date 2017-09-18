@@ -130,6 +130,7 @@ export default class App extends React.PureComponent<Props, State> {
           isCluster={isCluster(sysInfoData)}
           logLevel={getSystemLogsLevel(sysInfoData)}
           showActions={sysInfoData != undefined}
+          onLogLevelChange={this.fetchSysInfo}
         />
         {this.renderSysInfo()}
       </div>
