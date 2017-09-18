@@ -32,7 +32,7 @@ public class InfoActionModuleTest {
 
     new InfoActionModule().configure(container);
 
-    assertThat(container.size()).isEqualTo(3 + COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
+    assertThat(container.size()).isEqualTo(4 + COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
   }
 
 }
