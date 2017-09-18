@@ -26,6 +26,7 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.sonarqube.tests.authorisation.PermissionTemplateTest;
+import org.sonarqube.tests.ce.ReportFailureNotificationTest;
 import org.sonarqube.tests.issue.IssueTagsTest;
 import org.sonarqube.tests.issue.OrganizationIssueAssignTest;
 import org.sonarqube.tests.issue.OrganizationIssuesPageTest;
@@ -81,7 +82,8 @@ import static util.ItUtils.xooPlugin;
   ProjectProvisioningTest.class,
   ProjectKeyUpdateTest.class,
   ProjectSearchTest.class,
-  PermissionTemplateTest.class
+  PermissionTemplateTest.class,
+  ReportFailureNotificationTest.class
 })
 public class Category6Suite {
 
