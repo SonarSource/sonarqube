@@ -49,7 +49,24 @@ const component = { key: 'foo', name: 'Foo' };
 
 it('renders', () => {
   const wrapper = shallow(<App component={component} />);
-  wrapper.setState({ loading: false, measures: {}, subComponents: [], totalSubComponents: 0 });
+  wrapper.setState({
+    loading: false,
+    measures: { ncloc: '173', reliability_rating: '1' },
+    subComponents: [],
+    totalSubComponents: 0
+  });
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('renders when portfolio is empty', () => {
+  const wrapper = shallow(<App component={component} />);
+  wrapper.setState({ loading: false, measures: { reliability_rating: '1' } });
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('renders when portfolio is not computed', () => {
+  const wrapper = shallow(<App component={component} />);
+  wrapper.setState({ loading: false, measures: { ncloc: '173' } });
   expect(wrapper).toMatchSnapshot();
 });
 

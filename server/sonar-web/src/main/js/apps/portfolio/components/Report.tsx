@@ -71,7 +71,7 @@ export default class Report extends React.PureComponent<Props, State> {
 
     if (loading) {
       return (
-        <div className="huge-spacer-top">
+        <div>
           {this.renderHeader()}
           <i className="spinner" />
         </div>
@@ -83,7 +83,7 @@ export default class Report extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className="huge-spacer-top">
+      <div>
         {this.renderHeader()}
 
         {!status.canDownload && (
