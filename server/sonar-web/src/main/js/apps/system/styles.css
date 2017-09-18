@@ -21,6 +21,10 @@
   padding-bottom: 15px;
 }
 
+.system-info-health-card .boxed-group-header > .alert {
+  margin-top: -6px;
+}
+
 .system-info-health-card .boxed-group-inner {
   padding-top: 0;
 }

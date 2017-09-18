@@ -1,5 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should display the log level alert 1`] = `
+<span
+  className="pull-right alert alert-danger"
+>
+  system.log_level.warning.short
+</span>
+`;
+
 exports[`should display the sysinfo detail 1`] = `
 <li
   className="boxed-group system-info-health-card"
@@ -18,7 +26,7 @@ exports[`should display the sysinfo detail 1`] = `
       Foobar
     </span>
     <HealthItem
-      className="pull-right big-dot"
+      className="pull-right spacer-left big-dot"
       health="RED"
       healthCauses={
         Array [
@@ -55,7 +63,7 @@ exports[`should render correctly 1`] = `
       Foobar
     </span>
     <HealthItem
-      className="pull-right"
+      className="pull-right spacer-left"
       health="RED"
       healthCauses={
         Array [
@@ -87,7 +95,7 @@ exports[`should show a main section and multiple sub sections 1`] = `
       Foobar
     </span>
     <HealthItem
-      className="pull-right"
+      className="pull-right spacer-left"
       health="RED"
       healthCauses={
         Array [

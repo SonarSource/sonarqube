@@ -24,7 +24,8 @@ import HealthItem from './HealthItem';
 import OpenCloseIcon from '../../../../components/icons-components/OpenCloseIcon';
 import Section from './Section';
 import { HealthType, HealthCause, SysValueObject } from '../../../../api/system';
-import { groupSections } from '../../utils';
+import { LOGS_LEVELS, groupSections, getLogsLevel } from '../../utils';
+import { translate } from '../../../../helpers/l10n';
 
 interface Props {
   biggerHealth?: boolean;
@@ -52,6 +53,8 @@ export default class HealthCard extends React.PureComponent<Props, State> {
     const { mainSection, sections } = groupSections(sysInfoData);
     const showFields = open && mainSection && Object.keys(mainSection).length > 0;
     const showSections = open && sections;
+    const logLevel = getLogsLevel(sysInfoData);
+    const showLogLevelWarning = logLevel && logLevel !== LOGS_LEVELS[0];
     return (
       <li
         className={classNames('boxed-group system-info-health-card', {
@@ -64,10 +67,17 @@ export default class HealthCard extends React.PureComponent<Props, State> {
           </span>
           {health && (
             <HealthItem
-              className={classNames('pull-right', { 'big-dot': this.props.biggerHealth })}
+              className={classNames('pull-right spacer-left', {
+                'big-dot': this.props.biggerHealth
+              })}
               health={health}
               healthCauses={this.props.healthCauses}
             />
+          )}
+          {showLogLevelWarning && (
+            <span className="pull-right alert alert-danger">
+              {translate('system.log_level.warning.short')}
+            </span>
           )}
         </div>
         {open && (
