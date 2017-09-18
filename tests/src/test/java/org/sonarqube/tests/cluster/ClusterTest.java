@@ -39,6 +39,7 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.ws.WsSystem;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 import org.sonarqube.ws.client.HttpException;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -261,6 +262,29 @@ public class ClusterTest {
       assertThat(startupFollower.hasStartupLeaderOperations()).isFalse();
       assertThat(startupFollower.hasCreatedSearchIndices()).isFalse();
       assertThat(startupFollower).isNotSameAs(startupLeader);
+    }
+  }
+
+  @Test
+  public void set_log_level_affects_all_nodes() throws Exception {
+    try (Cluster cluster = newCluster(2, 2)) {
+      cluster.getNodes().forEach(Node::start);
+      cluster.getAppNodes().forEach(Node::waitForStatusUp);
+
+      cluster.getAppNodes().forEach(node -> {
+        assertThat(node.anyLogsContain("TRACE")).isFalse();
+      });
+
+      cluster.getAppNode(0).wsClient().system().changeLogLevel(" TRACE ");
+
+      cluster.getAppNodes().forEach(node -> {
+
+        // do something, that will produce logging
+        node.wsClient().issues().search(new SearchWsRequest());
+
+        // check logs
+        assertThat(node.webLogsContain(" TRACE web[")).isTrue();
+      });
     }
   }
 

@@ -46,7 +46,7 @@ public class ChangeLogLevelActionTest {
   private Database db = mock(Database.class);
   private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class);
   private WebServerProcessLogging webServerProcessLogging = new WebServerProcessLogging();
-  private ChangeLogLevelAction underTest = new ChangeLogLevelAction(userSession, serverLogging, db, ceHttpClient, webServerProcessLogging);
+  private ChangeLogLevelAction underTest = new ChangeLogLevelAction(userSession, new ChangeLogLevelStandaloneService(serverLogging, db, ceHttpClient, webServerProcessLogging));
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test

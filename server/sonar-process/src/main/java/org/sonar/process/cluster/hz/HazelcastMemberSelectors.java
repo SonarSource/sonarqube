@@ -17,32 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.system;
+package org.sonar.process.cluster.hz;
 
-import org.sonarqube.ws.WsSystem;
-import org.sonarqube.ws.client.BaseService;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsConnector;
+import com.hazelcast.core.MemberSelector;
+import org.sonar.process.ProcessId;
 
-public class SystemService extends BaseService {
-  public SystemService(WsConnector wsConnector) {
-    super(wsConnector, "api/system");
+import static org.sonar.process.ProcessId.fromKey;
+
+public class HazelcastMemberSelectors {
+
+  private HazelcastMemberSelectors() {
   }
 
-  public WsSystem.HealthResponse health() {
-    return call(new GetRequest(path("health")), WsSystem.HealthResponse.parser());
-  }
-
-  public void restart() {
-    call(new PostRequest(path("restart")));
-  }
-
-  public WsSystem.StatusResponse status() {
-    return call(new GetRequest(path("status")), WsSystem.StatusResponse.parser());
-  }
-
-  public void changeLogLevel(String level) {
-    call(new PostRequest(path("change_log_level")).setParam("level", level));
+  public static MemberSelector selectorForProcessId(ProcessId processId) {
+    return member -> {
+      ProcessId memberProcessId = fromKey(member.getStringAttribute(HazelcastMember.Attribute.PROCESS_KEY));
+      return memberProcessId == processId;
+    };
   }
 }

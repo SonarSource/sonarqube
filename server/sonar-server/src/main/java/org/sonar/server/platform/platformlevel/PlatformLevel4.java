@@ -112,6 +112,8 @@ import org.sonar.server.platform.monitoring.WebSystemInfoModule;
 import org.sonar.server.platform.web.WebPagesFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
 import org.sonar.server.platform.ws.ChangeLogLevelAction;
+import org.sonar.server.platform.ws.ChangeLogLevelClusterService;
+import org.sonar.server.platform.ws.ChangeLogLevelStandaloneService;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.HealthActionModule;
 import org.sonar.server.platform.ws.L10nWs;
@@ -242,7 +244,10 @@ public class PlatformLevel4 extends PlatformLevel {
 
     addIfCluster(
       StartableHazelcastMember.class,
-      NodeHealthModule.class);
+      NodeHealthModule.class,
+      ChangeLogLevelClusterService.class);
+    addIfStandalone(
+      ChangeLogLevelStandaloneService.class);
 
     add(
       PluginDownloader.class,
