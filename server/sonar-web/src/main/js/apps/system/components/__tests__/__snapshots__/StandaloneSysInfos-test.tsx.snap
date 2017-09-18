@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ul>
+  <HealthCard
+    biggerHealth={true}
+    health="RED"
+    healthCauses={
+      Array [
+        Object {
+          "message": "Database down",
+        },
+      ]
+    }
+    name="System"
+    onClick={[Function]}
+    open={false}
+    sysInfoData={
+      Object {
+        "Logs Level": "DEBUG",
+        "Name": "Foo",
+      }
+    }
+  />
+  <HealthCard
+    name="Web"
+    onClick={[Function]}
+    open={false}
+    sysInfoData={
+      Object {
+        "Web Database Connectivity": undefined,
+        "Web JVM": Object {
+          "Max Memory": "2Gb",
+        },
+        "Web JVM Properties": undefined,
+      }
+    }
+  />
+  <HealthCard
+    name="Compute Engine"
+    onClick={[Function]}
+    open={true}
+    sysInfoData={
+      Object {
+        "Compute Engine JVM": undefined,
+        "Compute Engine JVM Properties": undefined,
+        "Pending": 4,
+      }
+    }
+  />
+  <HealthCard
+    name="Search"
+    onClick={[Function]}
+    open={false}
+    sysInfoData={
+      Object {
+        "Elasticsearch": Object {
+          "Number of Nodes": 1,
+        },
+        "Search JVM": undefined,
+        "Search JVM Properties": undefined,
+      }
+    }
+  />
+</ul>
+`;

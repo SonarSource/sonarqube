@@ -44,14 +44,13 @@ export interface NodeInfo extends SysValueObject {
   Name: string;
   Health: HealthType;
   'Health Causes': HealthCause[];
+  'Logs Level': string;
 }
 
 export interface SysInfo extends SysValueObject {
   Cluster: boolean;
   Health: HealthType;
   'Health Causes': HealthCause[];
-  'Application Nodes': NodeInfo[];
-  'Search Nodes': NodeInfo[];
 }
 
 export function setLogLevel(level: string): Promise<void | Response> {
