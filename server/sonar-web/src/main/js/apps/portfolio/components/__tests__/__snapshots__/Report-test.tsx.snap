@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders 1`] = `
-<div
-  className="huge-spacer-top"
->
+<div>
   <header
     className="page-header"
   >
@@ -20,9 +18,7 @@ exports[`renders 1`] = `
 `;
 
 exports[`renders 2`] = `
-<div
-  className="huge-spacer-top"
->
+<div>
   <header
     className="page-header"
   >
