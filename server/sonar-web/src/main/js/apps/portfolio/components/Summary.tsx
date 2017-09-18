@@ -35,7 +35,7 @@ export default function Summary({ component, measures }: Props) {
   const nclocDistribution = measures['ncloc_language_distribution'];
 
   return (
-    <section id="portfolio-summary" className="portfolio-section portfolio-section-summary">
+    <section id="portfolio-summary" className="huge-spacer-bottom">
       {component.description && <div className="big-spacer-bottom">{component.description}</div>}
 
       <ul className="portfolio-grid">

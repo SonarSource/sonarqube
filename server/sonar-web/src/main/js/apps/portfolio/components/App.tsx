@@ -31,6 +31,7 @@ import { getChildren } from '../../../api/components';
 import { PORTFOLIO_METRICS, SUB_COMPONENTS_METRICS, convertMeasures } from '../utils';
 import { SubComponent } from '../types';
 import '../styles.css';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   component: { key: string; name: string };
@@ -97,6 +98,11 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 
+  isEmpty = () => this.state.measures == undefined || this.state.measures['ncloc'] == undefined;
+
+  isNotComputed = () =>
+    this.state.measures && this.state.measures['reliability_rating'] == undefined;
+
   renderSpinner() {
     return (
       <div className="page page-limited">
@@ -107,9 +113,59 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 
+  renderEmpty() {
+    return (
+      <div className="empty-search">
+        <h3>{translate('portfolio.empty')}</h3>
+        <p>{translate('portfolio.empty.hint')}</p>
+      </div>
+    );
+  }
+
+  renderWhenNotComputed() {
+    return (
+      <div className="empty-search">
+        <h3>{translate('portfolio.not_computed')}</h3>
+      </div>
+    );
+  }
+
+  renderMain() {
+    const { component } = this.props;
+    const { measures, subComponents, totalSubComponents } = this.state;
+
+    if (this.isEmpty()) {
+      return this.renderEmpty();
+    }
+
+    if (this.isNotComputed()) {
+      return this.renderWhenNotComputed();
+    }
+
+    return (
+      <div>
+        <div className="portfolio-boxes">
+          <ReleasabilityBox component={component.key} measures={measures!} />
+          <ReliabilityBox component={component.key} measures={measures!} />
+          <SecurityBox component={component.key} measures={measures!} />
+          <MaintainabilityBox component={component.key} measures={measures!} />
+        </div>
+
+        {subComponents != undefined &&
+        totalSubComponents != undefined && (
+          <WorstProjects
+            component={component.key}
+            subComponents={subComponents}
+            total={totalSubComponents}
+          />
+        )}
+      </div>
+    );
+  }
+
   render() {
     const { component } = this.props;
-    const { loading, measures, subComponents, totalSubComponents } = this.state;
+    const { loading, measures } = this.state;
 
     if (loading) {
       return this.renderSpinner();
@@ -118,28 +174,11 @@ export default class App extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited">
         <div className="page-with-sidebar">
-          <div className="page-main">
-            {measures != undefined && (
-              <div className="portfolio-boxes">
-                <ReleasabilityBox component={component.key} measures={measures} />
-                <ReliabilityBox component={component.key} measures={measures} />
-                <SecurityBox component={component.key} measures={measures} />
-                <MaintainabilityBox component={component.key} measures={measures} />
-              </div>
-            )}
-
-            {subComponents != undefined &&
-            totalSubComponents != undefined && (
-              <WorstProjects
-                component={component.key}
-                subComponents={subComponents}
-                total={totalSubComponents}
-              />
-            )}
-          </div>
+          <div className="page-main">{this.renderMain()}</div>
 
           <aside className="page-sidebar-fixed">
-            {measures != undefined && <Summary component={component} measures={measures} />}
+            {!this.isEmpty() &&
+            !this.isNotComputed() && <Summary component={component} measures={measures!} />}
             <Activity component={component.key} />
             <Report component={component} />
           </aside>

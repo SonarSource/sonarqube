@@ -10,31 +10,53 @@ exports[`renders 1`] = `
     <div
       className="page-main"
     >
-      <div
-        className="portfolio-boxes"
-      >
-        <ReleasabilityBox
+      <div>
+        <div
+          className="portfolio-boxes"
+        >
+          <ReleasabilityBox
+            component="foo"
+            measures={
+              Object {
+                "ncloc": "173",
+                "reliability_rating": "1",
+              }
+            }
+          />
+          <ReliabilityBox
+            component="foo"
+            measures={
+              Object {
+                "ncloc": "173",
+                "reliability_rating": "1",
+              }
+            }
+          />
+          <SecurityBox
+            component="foo"
+            measures={
+              Object {
+                "ncloc": "173",
+                "reliability_rating": "1",
+              }
+            }
+          />
+          <MaintainabilityBox
+            component="foo"
+            measures={
+              Object {
+                "ncloc": "173",
+                "reliability_rating": "1",
+              }
+            }
+          />
+        </div>
+        <WorstProjects
           component="foo"
-          measures={Object {}}
-        />
-        <ReliabilityBox
-          component="foo"
-          measures={Object {}}
-        />
-        <SecurityBox
-          component="foo"
-          measures={Object {}}
-        />
-        <MaintainabilityBox
-          component="foo"
-          measures={Object {}}
+          subComponents={Array []}
+          total={0}
         />
       </div>
-      <WorstProjects
-        component="foo"
-        subComponents={Array []}
-        total={0}
-      />
     </div>
     <aside
       className="page-sidebar-fixed"
@@ -46,8 +68,90 @@ exports[`renders 1`] = `
             "name": "Foo",
           }
         }
-        measures={Object {}}
+        measures={
+          Object {
+            "ncloc": "173",
+            "reliability_rating": "1",
+          }
+        }
       />
+      <Activity
+        component="foo"
+      />
+      <Report
+        component={
+          Object {
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+      />
+    </aside>
+  </div>
+</div>
+`;
+
+exports[`renders when portfolio is empty 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="page-with-sidebar"
+  >
+    <div
+      className="page-main"
+    >
+      <div
+        className="empty-search"
+      >
+        <h3>
+          portfolio.empty
+        </h3>
+        <p>
+          portfolio.empty.hint
+        </p>
+      </div>
+    </div>
+    <aside
+      className="page-sidebar-fixed"
+    >
+      <Activity
+        component="foo"
+      />
+      <Report
+        component={
+          Object {
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+      />
+    </aside>
+  </div>
+</div>
+`;
+
+exports[`renders when portfolio is not computed 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="page-with-sidebar"
+  >
+    <div
+      className="page-main"
+    >
+      <div
+        className="empty-search"
+      >
+        <h3>
+          portfolio.not_computed
+        </h3>
+      </div>
+    </div>
+    <aside
+      className="page-sidebar-fixed"
+    >
       <Activity
         component="foo"
       />
