@@ -22,14 +22,14 @@ package org.sonar.server.platform.ws;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.ce.http.CeHttpClient;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.db.Database;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.DistributedCall;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberSelectors;
-import org.sonar.server.app.WebServerProcessLogging;
-import org.sonar.server.platform.Platform;
+import org.sonar.server.app.ServerProcessLogging;
+import org.sonar.core.platform.HazelcastDistributedCallComponentContainer;
 import org.sonar.server.platform.ServerLogging;
 
 public class ChangeLogLevelClusterService implements ChangeLogLevelService {
@@ -38,17 +38,14 @@ public class ChangeLogLevelClusterService implements ChangeLogLevelService {
   private static final Logger LOGGER = Loggers.get(ChangeLogLevelClusterService.class);
 
   private final HazelcastMember member;
-  private final Database db;
 
-  public ChangeLogLevelClusterService(HazelcastMember member, Database db) {
+  public ChangeLogLevelClusterService(HazelcastMember member) {
     this.member = member;
-    this.db = db;
   }
 
   public void changeLogLevel(LoggerLevel level) {
-    db.enableSqlLogging(level.equals(LoggerLevel.TRACE));
     try {
-      member.call(setLogLevelForNode(level), HazelcastMemberSelectors.selectorForProcessId(ProcessId.WEB_SERVER), CLUSTER_TIMEOUT)
+      member.call(setLogLevelForNode(level), HazelcastMemberSelectors.selectorForProcessIds(ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE), CLUSTER_TIMEOUT)
         .propagateExceptions();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -58,17 +55,16 @@ public class ChangeLogLevelClusterService implements ChangeLogLevelService {
   private static DistributedCall<Object> setLogLevelForNode(LoggerLevel level) {
     return () -> {
       try {
-        Platform picoContainer = Platform.getInstance();
+        ComponentContainer componentContainer = HazelcastDistributedCallComponentContainer.get();
 
-        // set log level of web process
-        ServerLogging logging = (ServerLogging) picoContainer.getComponent(ServerLogging.class);
-        WebServerProcessLogging webServerProcessLogging = (WebServerProcessLogging) picoContainer.getComponent(WebServerProcessLogging.class);
-        logging.changeLevel(webServerProcessLogging, level);
+        // set SQL log level
+        Database db = componentContainer.getComponentByType(Database.class);
+        db.enableSqlLogging(level.equals(LoggerLevel.TRACE));
 
-        // set log level of ce process
-        CeHttpClient ceHttpClient = (CeHttpClient) picoContainer.getComponent(CeHttpClient.class);
-        ceHttpClient.changeLogLevel(level);
-
+        // set log level of this process
+        ServerLogging logging = componentContainer.getComponentByType(ServerLogging.class);
+        ServerProcessLogging serverProcessLogging = componentContainer.getComponentByType(ServerProcessLogging.class);
+        logging.changeLevel(serverProcessLogging, level);
       } catch (Exception e) {
         LOGGER.error("Setting log level to '" + level.name() + "' in this cluster node failed", e);
         throw new IllegalStateException("Setting log level to '" + level.name() + "' in this cluster node failed", e);

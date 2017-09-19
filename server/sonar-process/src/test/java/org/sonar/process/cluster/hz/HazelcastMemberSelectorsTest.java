@@ -22,33 +22,44 @@ package org.sonar.process.cluster.hz;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberSelector;
 import org.junit.Test;
-import org.sonar.process.ProcessId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.ProcessId.APP;
+import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
+import static org.sonar.process.ProcessId.WEB_SERVER;
+import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.PROCESS_KEY;
 
 public class HazelcastMemberSelectorsTest {
 
   @Test
-  public void selecting_search_nodes_does_not_select_web_servers() throws Exception {
+  public void selecting_ce_nodes() throws Exception {
     Member member = mock(Member.class);
-    when(member.getStringAttribute(HazelcastMember.Attribute.PROCESS_KEY)).thenReturn(ProcessId.WEB_SERVER.getKey());
-    MemberSelector underTest = HazelcastMemberSelectors.selectorForProcessId(ProcessId.ELASTICSEARCH);
+    MemberSelector underTest = HazelcastMemberSelectors.selectorForProcessIds(COMPUTE_ENGINE);
 
-    boolean result = underTest.select(member);
+    when(member.getStringAttribute(PROCESS_KEY)).thenReturn(COMPUTE_ENGINE.getKey());
+    assertThat(underTest.select(member)).isTrue();
 
-    assertThat(result).isFalse();
+    when(member.getStringAttribute(PROCESS_KEY)).thenReturn(WEB_SERVER.getKey());
+    assertThat(underTest.select(member)).isFalse();
+
+    when(member.getStringAttribute(PROCESS_KEY)).thenReturn(APP.getKey());
+    assertThat(underTest.select(member)).isFalse();
   }
 
   @Test
-  public void selecting_ce_nodes() throws Exception {
+  public void selecting_web_and_app_nodes() throws Exception {
     Member member = mock(Member.class);
-    when(member.getStringAttribute(HazelcastMember.Attribute.PROCESS_KEY)).thenReturn(ProcessId.COMPUTE_ENGINE.getKey());
-    MemberSelector underTest = HazelcastMemberSelectors.selectorForProcessId(ProcessId.COMPUTE_ENGINE);
+    MemberSelector underTest = HazelcastMemberSelectors.selectorForProcessIds(WEB_SERVER, APP);
 
-    boolean result = underTest.select(member);
+    when(member.getStringAttribute(PROCESS_KEY)).thenReturn(COMPUTE_ENGINE.getKey());
+    assertThat(underTest.select(member)).isFalse();
 
-    assertThat(result).isTrue();
+    when(member.getStringAttribute(PROCESS_KEY)).thenReturn(WEB_SERVER.getKey());
+    assertThat(underTest.select(member)).isTrue();
+
+    when(member.getStringAttribute(PROCESS_KEY)).thenReturn(APP.getKey());
+    assertThat(underTest.select(member)).isTrue();
   }
 }

@@ -272,10 +272,10 @@ public class ClusterTest {
       cluster.getAppNodes().forEach(Node::waitForStatusUp);
 
       cluster.getAppNodes().forEach(node -> {
-        assertThat(node.anyLogsContain("TRACE")).isFalse();
+        assertThat(node.webLogsContain(" TRACE web[")).isFalse();
       });
 
-      cluster.getAppNode(0).wsClient().system().changeLogLevel(" TRACE ");
+      cluster.getAppNode(0).wsClient().system().changeLogLevel("TRACE");
 
       cluster.getAppNodes().forEach(node -> {
 

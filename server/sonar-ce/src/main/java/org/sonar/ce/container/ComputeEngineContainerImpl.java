@@ -112,6 +112,7 @@ import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.ws.template.DefaultTemplatesResolverImpl;
+import org.sonar.core.platform.HazelcastDistributedCallComponentContainer;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -163,6 +164,10 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private ComponentContainer level1;
   @CheckForNull
   private ComponentContainer level4;
+
+  public ComputeEngineContainerImpl() {
+    HazelcastDistributedCallComponentContainer.put(() -> (level4 == null ? level1 : level4));
+  }
 
   @Override
   public void setComputeEngineStatus(ComputeEngineStatus computeEngineStatus) {

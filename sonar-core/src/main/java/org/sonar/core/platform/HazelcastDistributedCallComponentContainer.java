@@ -17,25 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.cluster.hz;
+package org.sonar.core.platform;
 
-import com.hazelcast.core.MemberSelector;
-import java.util.List;
-import org.sonar.process.ProcessId;
+import java.util.function.Supplier;
 
-import static java.util.Arrays.asList;
-import static org.sonar.process.ProcessId.fromKey;
+import static java.util.Objects.requireNonNull;
 
-public class HazelcastMemberSelectors {
+/**
+ * Helper class, that makes some components available statically, so that they can be used
+ * when a distributed call is sent to cluster members of both web and ce type.
+ */
+public class HazelcastDistributedCallComponentContainer {
+  private static Supplier<ComponentContainer> provider;
 
-  private HazelcastMemberSelectors() {
+  private HazelcastDistributedCallComponentContainer() {
   }
 
-  public static MemberSelector selectorForProcessIds(ProcessId... processIds) {
-    List<ProcessId> processIdList = asList(processIds);
-    return member -> {
-      ProcessId memberProcessId = fromKey(member.getStringAttribute(HazelcastMember.Attribute.PROCESS_KEY));
-      return processIdList.contains(memberProcessId);
-    };
+  public static void put(Supplier<ComponentContainer> provider) {
+    HazelcastDistributedCallComponentContainer.provider = provider;
+  }
+
+  public static ComponentContainer get() {
+    return requireNonNull(provider, "The ComponentContainer has not yet been registered").get();
   }
 }
