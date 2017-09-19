@@ -67,9 +67,8 @@ export default class HealthCard extends React.PureComponent<Props, State> {
           </span>
           {health && (
             <HealthItem
-              className={classNames('pull-right spacer-left', {
-                'big-dot': this.props.biggerHealth
-              })}
+              biggerHealth={this.props.biggerHealth}
+              className="pull-right spacer-left"
               health={health}
               healthCauses={this.props.healthCauses}
             />

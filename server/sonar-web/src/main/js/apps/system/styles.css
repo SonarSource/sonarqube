@@ -37,40 +37,16 @@
   margin-top: -12px;
 }
 
-.system-info-health-dot {
-  display: inline-block;
+.system-info-health-info .status-indicator {
   position: relative;
   top: 8px;
-  width: 16px;
-  height: 16px;
-  margin: 4px;
-  border-radius: 16px;
-  box-sizing: border-box;
-}
-
-.system-info-health-dot.GREEN {
-  background-color: #00aa00;
-}
-
-.system-info-health-dot.YELLOW {
-  background-color: #eabe06;
-}
-.system-info-health-dot.RED {
-  background-color: #d4333f;
 }
 
 .system-info-health-info .alert {
   display: inline-block;
 }
 
-.system-info-health-info.big-dot .system-info-health-dot {
-  width: 24px;
-  height: 24px;
-  margin: 0;
-  border-radius: 24px;
-}
-
-.system-info-health-info.no-margin .system-info-health-dot {
+.system-info-health-info.no-margin .status-indicator {
   margin: 0;
 }
 

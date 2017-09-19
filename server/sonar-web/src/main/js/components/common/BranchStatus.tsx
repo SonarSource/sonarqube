@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import { Branch } from '../../app/types';
 import Level from '../ui/Level';
 import BugIcon from '../icons-components/BugIcon';
 import CodeSmellIcon from '../icons-components/CodeSmellIcon';
+import StatusIndicator from './StatusIndicator';
 import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
 import { isShortLivingBranch } from '../../helpers/branches';
 import './BranchStatus.css';
@@ -44,12 +44,7 @@ export default function BranchStatus({ branch, concise = false }: Props) {
     return (
       <ul className="list-inline branch-status">
         <li>
-          <i
-            className={classNames('branch-status-indicator', {
-              'is-failed': totalIssues > 0,
-              'is-passed': totalIssues === 0
-            })}
-          />
+          <StatusIndicator color={totalIssues > 0 ? 'red' : 'green'} size="small" />
         </li>
         {concise && <li>{totalIssues}</li>}
         {!concise && (
