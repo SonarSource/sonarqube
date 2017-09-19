@@ -19,9 +19,10 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import java.util.Collection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 
 public class SystemInfoTesting {
@@ -40,5 +41,11 @@ public class SystemInfoTesting {
     ProtobufSystemInfo.Attribute value = attribute(section, key);
     assertThat(value).as(key).isNotNull();
     assertThat(value.getBooleanValue()).isEqualTo(expectedValue);
+  }
+
+  public static void assertThatAttributeHasOnlyValues(ProtobufSystemInfo.Section section, String key, Collection<String> expectedValues) {
+    ProtobufSystemInfo.Attribute value = attribute(section, key);
+    assertThat(value).as(key).isNotNull();
+    assertThat((Collection<String>)value.getStringValuesList()).containsExactlyInAnyOrder(expectedValues.toArray(new String[expectedValues.size()]));
   }
 }
