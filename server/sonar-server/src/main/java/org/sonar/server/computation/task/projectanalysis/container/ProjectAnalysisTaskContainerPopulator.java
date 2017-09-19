@@ -70,7 +70,6 @@ import org.sonar.server.computation.task.projectanalysis.issue.LoadComponentUuid
 import org.sonar.server.computation.task.projectanalysis.issue.MergeBranchTrackerExecution;
 import org.sonar.server.computation.task.projectanalysis.issue.MovedIssueVisitor;
 import org.sonar.server.computation.task.projectanalysis.issue.NewEffortAggregator;
-import org.sonar.server.computation.task.projectanalysis.issue.NewEffortCalculator;
 import org.sonar.server.computation.task.projectanalysis.issue.RemoveProcessedComponentsVisitor;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleTagsCopier;
@@ -217,7 +216,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       IssueCreationDateCalculator.class,
       DebtCalculator.class,
       EffortAggregator.class,
-      NewEffortCalculator.class,
       NewEffortAggregator.class,
       IssueAssigner.class,
       IssueCounter.class,

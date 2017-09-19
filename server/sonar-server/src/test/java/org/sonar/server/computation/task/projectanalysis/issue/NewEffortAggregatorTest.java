@@ -19,12 +19,12 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
+import java.util.Date;
+import java.util.Random;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.db.DbClient;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
@@ -35,12 +35,6 @@ import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderRule
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT_KEY;
@@ -56,158 +50,166 @@ import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PRE
 public class NewEffortAggregatorTest {
 
   private static final Period PERIOD = new Period(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, null, 1_500_000_000L, "U1");
+  private static final long[] OLD_ISSUES_DATES = new long[] {
+    PERIOD.getSnapshotDate(),
+    PERIOD.getSnapshotDate() - 1,
+    PERIOD.getSnapshotDate() - 1_200_000L,
+  };
 
   private static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1).setUuid("FILE").build();
   private static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 2).addChildren(FILE).build();
 
-  private NewEffortCalculator calculator = mock(NewEffortCalculator.class);
-
   @org.junit.Rule
   public PeriodHolderRule periodsHolder = new PeriodHolderRule();
-
   @org.junit.Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(NEW_TECHNICAL_DEBT)
     .add(NEW_RELIABILITY_REMEDIATION_EFFORT)
     .add(NEW_SECURITY_REMEDIATION_EFFORT);
-
   @org.junit.Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create();
 
-  private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
-
-  private NewEffortAggregator underTest = new NewEffortAggregator(calculator, periodsHolder, dbClient, metricRepository, measureRepository);
+  private final Random random = new Random();
+  private NewEffortAggregator underTest = new NewEffortAggregator(periodsHolder, metricRepository, measureRepository);
 
   @Test
   public void sum_new_maintainability_effort_of_issues() {
     periodsHolder.setPeriod(PERIOD);
     DefaultIssue unresolved1 = newCodeSmellIssue(10L);
+    DefaultIssue old1 = oldCodeSmellIssue(100L);
     DefaultIssue unresolved2 = newCodeSmellIssue(30L);
+    DefaultIssue old2 = oldCodeSmellIssue(300L);
     DefaultIssue unresolvedWithoutDebt = newCodeSmellIssueWithoutEffort();
     DefaultIssue resolved = newCodeSmellIssue(50L).setResolution(RESOLUTION_FIXED);
 
-    when(calculator.calculate(same(unresolved1), anyList(), same(PERIOD))).thenReturn(4L);
-    when(calculator.calculate(same(unresolved2), anyList(), same(PERIOD))).thenReturn(3L);
-    verifyNoMoreInteractions(calculator);
-
     underTest.beforeComponent(FILE);
     underTest.onIssue(FILE, unresolved1);
+    underTest.onIssue(FILE, old1);
     underTest.onIssue(FILE, unresolved2);
+    underTest.onIssue(FILE, old2);
     underTest.onIssue(FILE, unresolvedWithoutDebt);
     underTest.onIssue(FILE, resolved);
     underTest.afterComponent(FILE);
 
-    assertVariation(FILE, NEW_TECHNICAL_DEBT_KEY, 3 + 4);
+    assertVariation(FILE, NEW_TECHNICAL_DEBT_KEY, 10 + 30);
   }
 
   @Test
   public void new_maintainability_effort_is_only_computed_using_code_smell_issues() {
     periodsHolder.setPeriod(PERIOD);
     DefaultIssue codeSmellIssue = newCodeSmellIssue(10);
+    DefaultIssue oldSmellIssue = oldCodeSmellIssue(100);
     // Issues of type BUG and VULNERABILITY should be ignored
     DefaultIssue bugIssue = newBugIssue(15);
+    DefaultIssue oldBugIssue = oldBugIssue(150);
     DefaultIssue vulnerabilityIssue = newVulnerabilityIssue(12);
-
-    when(calculator.calculate(same(codeSmellIssue), anyList(), same(PERIOD))).thenReturn(4L);
-    when(calculator.calculate(same(bugIssue), anyList(), same(PERIOD))).thenReturn(3L);
-    when(calculator.calculate(same(vulnerabilityIssue), anyList(), same(PERIOD))).thenReturn(5L);
+    DefaultIssue oldVulnerabilityIssue = oldVulnerabilityIssue(120);
 
     underTest.beforeComponent(FILE);
     underTest.onIssue(FILE, codeSmellIssue);
+    underTest.onIssue(FILE, oldSmellIssue);
     underTest.onIssue(FILE, bugIssue);
+    underTest.onIssue(FILE, oldBugIssue);
     underTest.onIssue(FILE, vulnerabilityIssue);
+    underTest.onIssue(FILE, oldVulnerabilityIssue);
     underTest.afterComponent(FILE);
 
     // Only effort of CODE SMELL issue is used
-    assertVariation(FILE, NEW_TECHNICAL_DEBT_KEY, 4);
+    assertVariation(FILE, NEW_TECHNICAL_DEBT_KEY, 10);
   }
 
   @Test
   public void sum_new_reliability_effort_of_issues() {
     periodsHolder.setPeriod(PERIOD);
     DefaultIssue unresolved1 = newBugIssue(10L);
+    DefaultIssue old1 = oldBugIssue(100L);
     DefaultIssue unresolved2 = newBugIssue(30L);
+    DefaultIssue old2 = oldBugIssue(300L);
     DefaultIssue unresolvedWithoutDebt = newBugIssueWithoutEffort();
     DefaultIssue resolved = newBugIssue(50L).setResolution(RESOLUTION_FIXED);
 
-    when(calculator.calculate(same(unresolved1), anyList(), same(PERIOD))).thenReturn(4L);
-    when(calculator.calculate(same(unresolved2), anyList(), same(PERIOD))).thenReturn(3L);
-    verifyNoMoreInteractions(calculator);
-
     underTest.beforeComponent(FILE);
     underTest.onIssue(FILE, unresolved1);
+    underTest.onIssue(FILE, old1);
     underTest.onIssue(FILE, unresolved2);
+    underTest.onIssue(FILE, old2);
     underTest.onIssue(FILE, unresolvedWithoutDebt);
     underTest.onIssue(FILE, resolved);
     underTest.afterComponent(FILE);
 
-    assertVariation(FILE, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 3 + 4);
+    assertVariation(FILE, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 10 + 30);
   }
 
   @Test
   public void new_reliability_effort_is_only_computed_using_bug_issues() {
     periodsHolder.setPeriod(PERIOD);
     DefaultIssue bugIssue = newBugIssue(15);
+    DefaultIssue oldBugIssue = oldBugIssue(150);
     // Issues of type CODE SMELL and VULNERABILITY should be ignored
     DefaultIssue codeSmellIssue = newCodeSmellIssue(10);
+    DefaultIssue oldCodeSmellIssue = oldCodeSmellIssue(100);
     DefaultIssue vulnerabilityIssue = newVulnerabilityIssue(12);
-
-    when(calculator.calculate(same(bugIssue), anyList(), same(PERIOD))).thenReturn(3L);
-    when(calculator.calculate(same(codeSmellIssue), anyList(), same(PERIOD))).thenReturn(4L);
-    when(calculator.calculate(same(vulnerabilityIssue), anyList(), same(PERIOD))).thenReturn(5L);
+    DefaultIssue oldVulnerabilityIssue = oldVulnerabilityIssue(120);
 
     underTest.beforeComponent(FILE);
     underTest.onIssue(FILE, bugIssue);
+    underTest.onIssue(FILE, oldBugIssue);
     underTest.onIssue(FILE, codeSmellIssue);
+    underTest.onIssue(FILE, oldCodeSmellIssue);
     underTest.onIssue(FILE, vulnerabilityIssue);
+    underTest.onIssue(FILE, oldVulnerabilityIssue);
     underTest.afterComponent(FILE);
 
     // Only effort of BUG issue is used
-    assertVariation(FILE, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 3);
+    assertVariation(FILE, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 15);
   }
 
   @Test
-  public void sum_new_securtiy_effort_of_issues() {
+  public void sum_new_vulnerability_effort_of_issues() {
     periodsHolder.setPeriod(PERIOD);
     DefaultIssue unresolved1 = newVulnerabilityIssue(10L);
+    DefaultIssue old1 = oldVulnerabilityIssue(100L);
     DefaultIssue unresolved2 = newVulnerabilityIssue(30L);
+    DefaultIssue old2 = oldVulnerabilityIssue(300L);
     DefaultIssue unresolvedWithoutDebt = newVulnerabilityIssueWithoutEffort();
     DefaultIssue resolved = newVulnerabilityIssue(50L).setResolution(RESOLUTION_FIXED);
-
-    when(calculator.calculate(same(unresolved1), anyList(), same(PERIOD))).thenReturn(4L);
-    when(calculator.calculate(same(unresolved2), anyList(), same(PERIOD))).thenReturn(3L);
-    verifyNoMoreInteractions(calculator);
+    DefaultIssue oldResolved = oldVulnerabilityIssue(500L).setResolution(RESOLUTION_FIXED);
 
     underTest.beforeComponent(FILE);
     underTest.onIssue(FILE, unresolved1);
+    underTest.onIssue(FILE, old1);
     underTest.onIssue(FILE, unresolved2);
+    underTest.onIssue(FILE, old2);
     underTest.onIssue(FILE, unresolvedWithoutDebt);
     underTest.onIssue(FILE, resolved);
+    underTest.onIssue(FILE, oldResolved);
     underTest.afterComponent(FILE);
 
-    assertVariation(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 3 + 4);
+    assertVariation(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 10 + 30);
   }
 
   @Test
   public void new_security_effort_is_only_computed_using_vulnerability_issues() {
     periodsHolder.setPeriod(PERIOD);
     DefaultIssue vulnerabilityIssue = newVulnerabilityIssue(12);
+    DefaultIssue oldVulnerabilityIssue = oldVulnerabilityIssue(120);
     // Issues of type CODE SMELL and BUG should be ignored
     DefaultIssue codeSmellIssue = newCodeSmellIssue(10);
+    DefaultIssue oldCodeSmellIssue = oldCodeSmellIssue(100);
     DefaultIssue bugIssue = newBugIssue(15);
-
-    when(calculator.calculate(same(vulnerabilityIssue), anyList(), same(PERIOD))).thenReturn(5L);
-    when(calculator.calculate(same(codeSmellIssue), anyList(), same(PERIOD))).thenReturn(4L);
-    when(calculator.calculate(same(bugIssue), anyList(), same(PERIOD))).thenReturn(3L);
+    DefaultIssue oldBugIssue = oldBugIssue(150);
 
     underTest.beforeComponent(FILE);
     underTest.onIssue(FILE, codeSmellIssue);
+    underTest.onIssue(FILE, oldCodeSmellIssue);
     underTest.onIssue(FILE, bugIssue);
+    underTest.onIssue(FILE, oldBugIssue);
     underTest.onIssue(FILE, vulnerabilityIssue);
+    underTest.onIssue(FILE, oldVulnerabilityIssue);
     underTest.afterComponent(FILE);
 
     // Only effort of VULNERABILITY issue is used
-    assertVariation(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 5);
+    assertVariation(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 12);
   }
 
   @Test
@@ -215,40 +217,45 @@ public class NewEffortAggregatorTest {
     periodsHolder.setPeriod(PERIOD);
 
     DefaultIssue codeSmellIssue = newCodeSmellIssue(10);
-    when(calculator.calculate(same(codeSmellIssue), anyList(), same(PERIOD))).thenReturn(4L);
+    DefaultIssue oldCodeSmellIssue = oldCodeSmellIssue(100);
     DefaultIssue bugIssue = newBugIssue(8);
-    when(calculator.calculate(same(bugIssue), anyList(), same(PERIOD))).thenReturn(3L);
+    DefaultIssue oldBugIssue = oldBugIssue(80);
     DefaultIssue vulnerabilityIssue = newVulnerabilityIssue(12);
-    when(calculator.calculate(same(vulnerabilityIssue), anyList(), same(PERIOD))).thenReturn(6L);
+    DefaultIssue oldVulnerabilityIssue = oldVulnerabilityIssue(120);
 
     DefaultIssue codeSmellProjectIssue = newCodeSmellIssue(30);
-    when(calculator.calculate(same(codeSmellProjectIssue), anyList(), same(PERIOD))).thenReturn(1L);
+    DefaultIssue oldCodeSmellProjectIssue = oldCodeSmellIssue(300);
     DefaultIssue bugProjectIssue = newBugIssue(28);
-    when(calculator.calculate(same(bugProjectIssue), anyList(), same(PERIOD))).thenReturn(2L);
+    DefaultIssue oldBugProjectIssue = oldBugIssue(280);
     DefaultIssue vulnerabilityProjectIssue = newVulnerabilityIssue(32);
-    when(calculator.calculate(same(vulnerabilityProjectIssue), anyList(), same(PERIOD))).thenReturn(4L);
+    DefaultIssue oldVulnerabilityProjectIssue = oldVulnerabilityIssue(320);
 
     underTest.beforeComponent(FILE);
     underTest.onIssue(FILE, codeSmellIssue);
+    underTest.onIssue(FILE, oldCodeSmellIssue);
     underTest.onIssue(FILE, bugIssue);
+    underTest.onIssue(FILE, oldBugIssue);
     underTest.onIssue(FILE, vulnerabilityIssue);
+    underTest.onIssue(FILE, oldVulnerabilityIssue);
     underTest.afterComponent(FILE);
     underTest.beforeComponent(PROJECT);
     underTest.onIssue(PROJECT, codeSmellProjectIssue);
+    underTest.onIssue(PROJECT, oldCodeSmellProjectIssue);
     underTest.onIssue(PROJECT, bugProjectIssue);
+    underTest.onIssue(PROJECT, oldBugProjectIssue);
     underTest.onIssue(PROJECT, vulnerabilityProjectIssue);
+    underTest.onIssue(PROJECT, oldVulnerabilityProjectIssue);
     underTest.afterComponent(PROJECT);
 
-    assertVariation(PROJECT, NEW_TECHNICAL_DEBT_KEY, 4 + 1);
-    assertVariation(PROJECT, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 3 + 2);
-    assertVariation(PROJECT, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 6 + 4);
+    assertVariation(PROJECT, NEW_TECHNICAL_DEBT_KEY, 10 + 30);
+    assertVariation(PROJECT, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 8 + 28);
+    assertVariation(PROJECT, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 12 + 32);
   }
 
   @Test
   public void no_measures_if_no_periods() {
     periodsHolder.setPeriod(null);
-    DefaultIssue unresolved = new DefaultIssue().setEffort(Duration.create(10));
-    verifyZeroInteractions(calculator);
+    DefaultIssue unresolved = newCodeSmellIssue(10);
 
     underTest.beforeComponent(FILE);
     underTest.onIssue(FILE, unresolved);
@@ -263,19 +270,51 @@ public class NewEffortAggregatorTest {
   }
 
   private static DefaultIssue newCodeSmellIssue(long effort) {
-    return newCodeSmellIssueWithoutEffort().setEffort(Duration.create(effort)).setType(RuleType.CODE_SMELL);
+    return newCodeSmellIssueWithoutEffort()
+      .setEffort(Duration.create(effort))
+      .setType(RuleType.CODE_SMELL)
+      .setCreationDate(new Date(PERIOD.getSnapshotDate() + 10_000L));
+  }
+
+  private DefaultIssue oldCodeSmellIssue(long effort) {
+    return newCodeSmellIssueWithoutEffort()
+      .setEffort(Duration.create(effort))
+      .setType(RuleType.CODE_SMELL)
+      .setCreationDate(new Date(OLD_ISSUES_DATES[random.nextInt(OLD_ISSUES_DATES.length)]));
   }
 
   private static DefaultIssue newBugIssue(long effort) {
-    return newCodeSmellIssueWithoutEffort().setEffort(Duration.create(effort)).setType(RuleType.BUG);
+    return newCodeSmellIssueWithoutEffort()
+      .setEffort(Duration.create(effort))
+      .setType(RuleType.BUG)
+      .setCreationDate(new Date(PERIOD.getSnapshotDate() + 10_000L));
+  }
+
+  private DefaultIssue oldBugIssue(long effort) {
+    return newCodeSmellIssueWithoutEffort()
+      .setEffort(Duration.create(effort))
+      .setType(RuleType.BUG)
+      .setCreationDate(new Date(OLD_ISSUES_DATES[random.nextInt(OLD_ISSUES_DATES.length)]));
   }
 
   private static DefaultIssue newVulnerabilityIssue(long effort) {
-    return newCodeSmellIssueWithoutEffort().setEffort(Duration.create(effort)).setType(RuleType.VULNERABILITY);
+    return newCodeSmellIssueWithoutEffort()
+      .setEffort(Duration.create(effort))
+      .setType(RuleType.VULNERABILITY)
+      .setCreationDate(new Date(PERIOD.getSnapshotDate() + 10_000L));
+  }
+
+  private DefaultIssue oldVulnerabilityIssue(long effort) {
+    return newCodeSmellIssueWithoutEffort()
+      .setEffort(Duration.create(effort))
+      .setType(RuleType.VULNERABILITY)
+      .setCreationDate(new Date(OLD_ISSUES_DATES[random.nextInt(OLD_ISSUES_DATES.length)]));
   }
 
   private static DefaultIssue newCodeSmellIssueWithoutEffort() {
-    return new DefaultIssue().setType(CODE_SMELL);
+    return new DefaultIssue()
+      .setType(CODE_SMELL)
+      .setCreationDate(new Date(PERIOD.getSnapshotDate() + 10_000L));
   }
 
   private static DefaultIssue newBugIssueWithoutEffort() {
