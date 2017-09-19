@@ -27,6 +27,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -87,7 +88,9 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private static final String ISSUE_ASSIGNEE = "John";
 
   private static final Component FILE = builder(Component.Type.FILE, 11).build();
-  private static final Component PROJECT = builder(Type.PROJECT, 1).addChildren(FILE).build();
+  private static final Component PROJECT = builder(Type.PROJECT, 1)
+    .setVersion(RandomStringUtils.randomAlphanumeric(10))
+    .addChildren(FILE).build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
@@ -423,6 +426,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private NewIssuesNotification createNewIssuesNotificationMock() {
     NewIssuesNotification notification = mock(NewIssuesNotification.class);
     when(notification.setProject(anyString(), anyString(), anyString(), anyString())).thenReturn(notification);
+    when(notification.setProjectVersion(anyString())).thenReturn(notification);
     when(notification.setAnalysisDate(any(Date.class))).thenReturn(notification);
     when(notification.setStatistics(anyString(), any(NewIssuesStatistics.Stats.class))).thenReturn(notification);
     when(notification.setDebt(any(Duration.class))).thenReturn(notification);
@@ -433,6 +437,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     MyNewIssuesNotification notification = mock(MyNewIssuesNotification.class);
     when(notification.setAssignee(anyString())).thenReturn(notification);
     when(notification.setProject(anyString(), anyString(), anyString(), anyString())).thenReturn(notification);
+    when(notification.setProjectVersion(anyString())).thenReturn(notification);
     when(notification.setAnalysisDate(any(Date.class))).thenReturn(notification);
     when(notification.setStatistics(anyString(), any(NewIssuesStatistics.Stats.class))).thenReturn(notification);
     when(notification.setDebt(any(Duration.class))).thenReturn(notification);

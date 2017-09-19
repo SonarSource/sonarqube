@@ -140,13 +140,15 @@ public class MyNewIssuesEmailTemplateTest {
 
   @Test
   public void format_email_with_no_assignees_tags_nor_components() throws Exception {
-    Notification notification = newNotification(32);
+    Notification notification = newNotification(32)
+      .setFieldValue("projectVersion", "52.0");
 
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
     assertThat(message.getMessage())
       .startsWith("Project: Struts\n" +
+        "Version: 52.0\n" +
         "\n" +
         "32 new issues (new debt: 1d3h)\n" +
         "\n" +
@@ -159,6 +161,7 @@ public class MyNewIssuesEmailTemplateTest {
   @Test
   public void format_email_with_issue_on_branch() throws Exception {
     Notification notification = newNotification(32)
+      .setFieldValue("projectVersion", "52.0")
       .setFieldValue("branch", "feature1");
 
     EmailMessage message = underTest.format(notification);
@@ -166,6 +169,7 @@ public class MyNewIssuesEmailTemplateTest {
     // TODO datetime to be completed when test is isolated from JVM timezone
     assertThat(message.getMessage())
       .startsWith("Project: Struts (feature1)\n" +
+        "Version: 52.0\n" +
         "\n" +
         "32 new issues (new debt: 1d3h)\n" +
         "\n" +
@@ -183,6 +187,25 @@ public class MyNewIssuesEmailTemplateTest {
 
     assertThat(message.getMessage())
       .contains("1 new issue (new debt: 1d3h)\n");
+  }
+
+  @Test
+  public void format_supports_null_version() {
+    Notification notification = newNotification(32)
+      .setFieldValue("branch", "feature1");
+
+    EmailMessage message = underTest.format(notification);
+
+    // TODO datetime to be completed when test is isolated from JVM timezone
+    assertThat(message.getMessage())
+      .startsWith("Project: Struts (feature1)\n" +
+        "\n" +
+        "32 new issues (new debt: 1d3h)\n" +
+        "\n" +
+        "    Type\n" +
+        "        Bug: 1    Vulnerability: 3    Code Smell: 0\n" +
+        "\n" +
+        "More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&branch=feature1&createdAt=2010-05-18");
   }
 
   @Test

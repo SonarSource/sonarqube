@@ -52,6 +52,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
   static final String FIELD_PROJECT_KEY = "projectKey";
   static final String FIELD_PROJECT_DATE = "projectDate";
   static final String FIELD_PROJECT_UUID = "projectUuid";
+  static final String FIELD_PROJECT_VERSION = "projectVersion";
   static final String FIELD_ASSIGNEE = "assignee";
   static final String FIELD_BRANCH = "branch";
 
@@ -81,7 +82,12 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
     String fullProjectName = computeFullProjectName(projectName, branchName);
 
     StringBuilder message = new StringBuilder();
-    message.append("Project: ").append(fullProjectName).append(NEW_LINE).append(NEW_LINE);
+    message.append("Project: ").append(fullProjectName).append(NEW_LINE);
+    String version = notification.getFieldValue(FIELD_PROJECT_VERSION);
+    if (version != null) {
+      message.append("Version: ").append(version).append(NEW_LINE);
+    }
+    message.append(NEW_LINE);
     appendRuleType(message, notification);
     appendAssignees(message, notification);
     appendRules(message, notification);
