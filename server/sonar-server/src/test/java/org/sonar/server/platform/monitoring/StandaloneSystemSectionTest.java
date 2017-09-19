@@ -121,7 +121,7 @@ public class StandaloneSystemSectionTest {
 
   @Test
   public void not_an_official_distribution() throws Exception {
-    when(officialDistribution.check()).thenReturn(true);
+    when(officialDistribution.check()).thenReturn(false);
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeIs(protobuf, "Official Distribution", false);

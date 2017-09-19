@@ -35,6 +35,7 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.health.ClusterHealth;
 import org.sonar.server.health.HealthChecker;
+import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
@@ -44,13 +45,15 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
   private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
   private final Configuration config;
+  private final ServerIdLoader serverIdLoader;
   private final SecurityRealmFactory securityRealmFactory;
   private final IdentityProviderRepository identityProviderRepository;
   private final HealthChecker healthChecker;
 
-  public GlobalSystemSection(Configuration config, SecurityRealmFactory securityRealmFactory,
-                             IdentityProviderRepository identityProviderRepository, HealthChecker healthChecker) {
+  public GlobalSystemSection(Configuration config, ServerIdLoader serverIdLoader, SecurityRealmFactory securityRealmFactory,
+    IdentityProviderRepository identityProviderRepository, HealthChecker healthChecker) {
     this.config = config;
+    this.serverIdLoader = serverIdLoader;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
     this.healthChecker = healthChecker;
@@ -65,10 +68,14 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
 
     setAttribute(protobuf, "Health", health.getHealth().getStatus().name());
     setAttribute(protobuf, "Health Causes", health.getHealth().getCauses());
+    serverIdLoader.get().ifPresent(serverId -> {
+      setAttribute(protobuf, "Server ID", serverId.getId());
+      setAttribute(protobuf, "Server ID validated", serverId.isValid());
+    });
+    setAttribute(protobuf, "High Availability", true);
     setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
     addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());
     addIfNotEmpty(protobuf, "External identity providers whose users are allowed to sign themselves up", getAllowsToSignUpEnabledIdentityProviders());
-    setAttribute(protobuf, "High Availability", true);
     setAttribute(protobuf, "Force authentication", getForceAuthentication());
     return protobuf.build();
   }

@@ -24,6 +24,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.server.ServerSide;
 import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
@@ -31,6 +32,7 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import static org.apache.commons.lang.StringUtils.abbreviate;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
+@ServerSide
 public class SettingsSection implements SystemInfoSection, Global {
 
   static final int MAX_VALUE_LENGTH = 500;
