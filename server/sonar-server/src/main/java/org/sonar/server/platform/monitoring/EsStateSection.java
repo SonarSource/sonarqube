@@ -66,6 +66,7 @@ public class EsStateSection implements SystemInfoSection {
       setAttribute(protobuf, "Disk Available", byteCountToDisplaySize(stats.getFs().getTotal().getAvailable().getBytes()));
       setAttribute(protobuf, "Store Size", byteCountToDisplaySize(stats.getIndices().getStore().getSizeInBytes()));
       setAttribute(protobuf, "Open Files", stats.getProcess().getOpenFileDescriptors());
+      setAttribute(protobuf, "Spinning", stats.getFs().getTotal().getSpins());
       setAttribute(protobuf, "JVM Heap Usage", formatPercent(stats.getJvm().getMem().getHeapUsedPercent()));
       setAttribute(protobuf, "JVM Heap Used", byteCountToDisplaySize(stats.getJvm().getMem().getHeapUsed().getBytes()));
       setAttribute(protobuf, "JVM Heap Max", byteCountToDisplaySize(stats.getJvm().getMem().getHeapMax().getBytes()));

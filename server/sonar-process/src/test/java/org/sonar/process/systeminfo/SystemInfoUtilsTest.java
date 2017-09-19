@@ -31,6 +31,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SystemInfoUtilsTest {
 
   @Test
+  public void test_setAttribute_with_boolean_parameter() {
+    Section.Builder builder = Section.newBuilder();
+    SystemInfoUtils.setAttribute(builder, "isNull", (Boolean)null);
+    SystemInfoUtils.setAttribute(builder, "isTrue", true);
+    SystemInfoUtils.setAttribute(builder, "isFalse", false);
+
+    Section section = builder.build();
+    assertThat(SystemInfoUtils.attribute(section, "isNull")).isNull();
+    assertThat(SystemInfoUtils.attribute(section, "isTrue").getBooleanValue()).isTrue();
+    assertThat(SystemInfoUtils.attribute(section, "isFalse").getBooleanValue()).isFalse();
+  }
+
+  @Test
   public void test_order() {
     Collection<Section> sections = asList(
       newSection("end2"),
