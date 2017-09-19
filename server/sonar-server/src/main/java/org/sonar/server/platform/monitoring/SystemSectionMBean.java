@@ -21,7 +21,7 @@ package org.sonar.server.platform.monitoring;
 
 import javax.annotation.CheckForNull;
 
-public interface SonarQubeSectionMBean {
+public interface SystemSectionMBean {
   @CheckForNull
   String getServerId();
 
