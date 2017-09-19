@@ -46,6 +46,8 @@
   },
   "devDependencies": {
     "@types/classnames": "2.2.0",
+    "@types/d3-array": "1.2.1",
+    "@types/d3-scale": "1.0.10",
     "@types/date-fns": "2.6.0",
     "@types/enzyme": "2.8.6",
     "@types/escape-html": "0.0.19",

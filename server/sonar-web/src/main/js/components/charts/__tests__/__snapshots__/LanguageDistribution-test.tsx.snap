@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Histogram
+  bars={
+    Array [
+      1734,
+      845,
+      73,
+      15,
+    ]
+  }
+  height={100}
+  padding={
+    Array [
+      0,
+      60,
+      0,
+      80,
+    ]
+  }
+  width={100}
+  yTicks={
+    Array [
+      "Java",
+      "JavaScript",
+      "cpp",
+      "unknown",
+    ]
+  }
+  yTooltips={
+    Array [
+      "1,734",
+      "",
+      "",
+      "",
+    ]
+  }
+  yValues={
+    Array [
+      "1.7k",
+      "845",
+      "73",
+      "15",
+    ]
+  }
+/>
+`;
