@@ -34,11 +34,11 @@ import static util.ItUtils.getLeakPeriodValue;
 import static util.ItUtils.setServerProperty;
 
 /**
- * SONAR-4776
+ * SONAR-4776, SONAR-9534
  */
 public class TechnicalDebtAndIssueNewMeasuresTest {
 
-  private static final String DATE_31_DAYS_AGO = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now().minusDays(31));// "2013-01-01";
+  private static final String DATE_31_DAYS_AGO = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now().minusDays(31));
 
   @ClassRule
   public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
@@ -54,286 +54,244 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
   }
 
   @Test
-  public void new_technical_debt_measures_from_new_issues() throws Exception {
+  public void since_previous_analysis_with_constant_effort() throws Exception {
     setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
+    defineQualityProfile("one-issue-per-line");
+    provisionSampleProject();
 
     // Execute an analysis in the past to have a past snapshot without any issues
-    provisionSampleProject();
     setSampleProjectQualityProfile("empty");
-    runSampleProjectAnalysis("sonar.projectDate", DATE_31_DAYS_AGO);
+    runSampleProjectAnalysis("v1", "sonar.projectDate", DATE_31_DAYS_AGO);
 
-    // Second analysis -> issues will be created
-    defineQualityProfile("one-issue-per-line");
+    // Second analysis issues will be created -> new issues and new technical debt
     setSampleProjectQualityProfile("one-issue-per-line");
-
-    // New technical debt only comes from new issues
-    runSampleProjectAnalysis();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_technical_debt")).isEqualTo(17d);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_violations")).isEqualTo(17);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_code_smells")).isEqualTo(17);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_minor_violations")).isEqualTo(17);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_info_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isEqualTo(17d);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isEqualTo(17);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_code_smells")).isEqualTo(17);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_minor_violations")).isEqualTo(17);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_info_violations")).isZero();
+    runSampleProjectAnalysis("v1");
+    assertLeakPeriodForComponent("sample", 26, 26);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
 
     // Third analysis, with exactly the same profile -> no new issues so no new technical debt
-    runSampleProjectAnalysis();
-    // No variation => measure is 0 (best value)
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_technical_debt")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_code_smells")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_minor_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_info_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_code_smells")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_minor_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_info_violations")).isZero();
+    runSampleProjectAnalysis("v1");
+    assertLeakPeriodForComponent("sample", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 0, 0);
+
+    // Fourth analysis, with new files and modified files -> new issues and new technical debt
+    runSampleProjectAnalysis("v2");
+    assertLeakPeriodForComponent("sample", 17, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 4, 4);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 13, 13);
+
+    // Fifth analysis, no change -> no new issues so no new technical debt
+    runSampleProjectAnalysis("v2");
+    assertLeakPeriodForComponent("sample", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 0, 0);
   }
 
   @Test
-  public void new_technical_debt_measures_from_technical_debt_update_since_previous_analysis() throws Exception {
+  public void since_previous_analysis_with_effort_change() throws Exception {
     setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
-
-    // Execute twice analysis
-    defineQualityProfile("one-issue-per-file");
+    defineQualityProfile("one-issue-per-line");
     provisionSampleProject();
-    setSampleProjectQualityProfile("one-issue-per-file");
-    runSampleProjectAnalysis();
-    runSampleProjectAnalysis();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_technical_debt")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_code_smells")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_minor_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_info_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_code_smells")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_minor_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_info_violations")).isZero();
-
-    // Third analysis, existing issues on OneIssuePerFile will have their technical debt updated with the effort to fix
-    runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_technical_debt")).isEqualTo(90);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_code_smells")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_minor_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_info_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isEqualTo(90);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_code_smells")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_minor_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_info_violations")).isZero();
-
-    // Fourth analysis, with exactly the same profile -> no new issues so no new technical debt since previous analysis
-    runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_technical_debt")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_code_smells")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_minor_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_info_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_code_smells")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_minor_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_info_violations")).isZero();
-  }
-
-  @Test
-  public void new_technical_debt_measures_from_technical_debt_update_since_30_days_with_constant_effort() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "30");
 
     // Execute an analysis in the past to have a past snapshot without any issues
-    provisionSampleProject();
     setSampleProjectQualityProfile("empty");
-    runSampleProjectAnalysis("sonar.projectDate", DATE_31_DAYS_AGO);
+    runSampleProjectAnalysis("v1", "sonar.projectDate", DATE_31_DAYS_AGO);
 
-    // Second analysis -> issues will be created
-    String profileXmlFile = "one-issue-per-file";
-    defineQualityProfile(profileXmlFile);
-    setSampleProjectQualityProfile("one-issue-per-file");
-    runSampleProjectAnalysis();
+    // Second analysis issues will be created -> new issues and new technical debt
+    setSampleProjectQualityProfile("one-issue-per-line");
+    runSampleProjectAnalysis("v1");
+    assertLeakPeriodForComponent("sample", 26, 26);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
 
-    // no new issue and no change in debt but still one issue on the leak period (30d)
-    runSampleProjectAnalysis();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_technical_debt")).isEqualTo(10);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_code_smells")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_minor_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_info_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isEqualTo(10);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_code_smells")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_minor_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_info_violations")).isZero();
+    // Third analysis, no change but increased effort is ignored but only new issues are considered -> no new issues so no new technical debt
+    runSampleProjectAnalysis("v1", "sonar.oneIssuePerLine.effortToFix", "10");
+    assertLeakPeriodForComponent("sample", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 0, 0);
 
-    // Fourth analysis, with exactly the same profile -> no new issues so no new technical debt since previous analysis but still since 30
-    // days
-    runSampleProjectAnalysis();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_technical_debt")).isEqualTo(10);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_code_smells")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_minor_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_info_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isEqualTo(10);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_code_smells")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_minor_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_info_violations")).isZero();
+    // Fourth analysis, with new files, modified files and increased effort -> new issues and new technical debt
+    runSampleProjectAnalysis("v2", "sonar.oneIssuePerLine.effortToFix", "10");
+    assertLeakPeriodForComponent("sample", 170, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 40, 4);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 130, 13);
+
+    // Fifth analysis, no change -> no new issues so no new technical debt
+    runSampleProjectAnalysis("v2", "sonar.oneIssuePerLine.effortToFix", "10");
+    assertLeakPeriodForComponent("sample", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 0, 0);
   }
 
   @Test
-  public void new_technical_debt_measures_from_technical_debt_update_since_30_days_with_effort_change() throws Exception {
+  public void since_30_days_with_constant_effort() throws Exception {
     setServerProperty(orchestrator, "sonar.leak.period", "30");
+    defineQualityProfile("one-issue-per-line");
+    provisionSampleProject();
 
     // Execute an analysis in the past to have a past snapshot without any issues
-    provisionSampleProject();
     setSampleProjectQualityProfile("empty");
-    runSampleProjectAnalysis("sonar.projectDate", DATE_31_DAYS_AGO);
+    runSampleProjectAnalysis("v1", "sonar.projectDate", DATE_31_DAYS_AGO);
 
-    // Second analysis -> issues will be created
-    String profileXmlFile = "one-issue-per-file";
-    defineQualityProfile(profileXmlFile);
-    setSampleProjectQualityProfile("one-issue-per-file");
-    runSampleProjectAnalysis();
+    // Second analysis issues will be created -> new issues and new technical debt
+    setSampleProjectQualityProfile("one-issue-per-line");
+    runSampleProjectAnalysis("v1");
+    assertLeakPeriodForComponent("sample", 26, 26);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
 
-    // Third analysis, existing issues on OneIssuePerFile will have their technical debt updated with the effort to fix
-    runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_technical_debt")).isEqualTo(100);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_code_smells")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_minor_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_info_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isEqualTo(100);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_code_smells")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_minor_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_info_violations")).isZero();
+    // Third analysis, with exactly the same profile -> no new issues but still the same on leak => same values as before
+    runSampleProjectAnalysis("v1");
+    assertLeakPeriodForComponent("sample", 26, 26);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
 
-    // Fourth analysis, with exactly the same profile -> no new issues so no new technical debt since previous analysis but still since 30
-    // days
-    runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_technical_debt")).isEqualTo(100);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_code_smells")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_minor_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample", "new_info_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isEqualTo(100);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_code_smells")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_bugs")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_vulnerabilities")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_blocker_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_critical_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_major_violations")).isZero();
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_minor_violations")).isEqualTo(1);
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_info_violations")).isZero();
+    // Fourth analysis, with new files and modified files -> new issues and new technical debt
+    runSampleProjectAnalysis("v2");
+    assertLeakPeriodForComponent("sample", 43, 43);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 17, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 13, 13);
+
+    // Fifth analysis, no change -> no new issues but still the same on leak => same values as before
+    runSampleProjectAnalysis("v2");
+    assertLeakPeriodForComponent("sample", 43, 43);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 17, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 13, 13);
   }
 
-  /**
-   * SONAR-5059
-   */
   @Test
-  public void new_technical_debt_measures_should_never_be_negative() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
-
-    // Execute an analysis with a big effort to fix
-    defineQualityProfile("one-issue-per-file");
+  public void since_30_days_with_effort_change() throws Exception {
+    setServerProperty(orchestrator, "sonar.leak.period", "30");
+    defineQualityProfile("one-issue-per-line");
     provisionSampleProject();
-    setSampleProjectQualityProfile("one-issue-per-file");
-    runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "100");
 
-    // Execute a second analysis with a smaller effort to fix -> Added technical debt should be 0, not negative
-    runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isZero();
+    // Execute an analysis in the past to have a past snapshot without any issues
+    setSampleProjectQualityProfile("empty");
+    runSampleProjectAnalysis("v1", "sonar.projectDate", DATE_31_DAYS_AGO);
+
+    // Second analysis issues will be created -> new issues and new technical debt
+    setSampleProjectQualityProfile("one-issue-per-line");
+    runSampleProjectAnalysis("v1");
+    assertLeakPeriodForComponent("sample", 26, 26);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
+
+    // Third analysis, with exactly the same profile -> no new issues but still the same on leak => same values as before
+    runSampleProjectAnalysis("v1", "sonar.oneIssuePerLine.effortToFix", "10");
+    assertLeakPeriodForComponent("sample", 260, 26);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 130, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 130, 13);
+
+    // Fourth analysis, with new files, modified files and increased effort -> new issues and new technical debt
+    runSampleProjectAnalysis("v2", "sonar.oneIssuePerLine.effortToFix", "10");
+    assertLeakPeriodForComponent("sample", 430, 43);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 130, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 170, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 130, 13);
+
+    // Fifth analysis, effort divided by 2 -> no new issues but still the same on leak => same values as before
+    runSampleProjectAnalysis("v2", "sonar.oneIssuePerLine.effortToFix", "5");
+    assertLeakPeriodForComponent("sample", 215, 43);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 65, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 85, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 65, 13);
+  }
+
+  @Test
+  public void since_previous_version_with_constant_effort() throws Exception {
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
+    defineQualityProfile("one-issue-per-line");
+    provisionSampleProject();
+
+    // Execute an analysis in the past to have a past snapshot without any issues
+    setSampleProjectQualityProfile("empty");
+    runSampleProjectAnalysis("v1", "sonar.projectDate", DATE_31_DAYS_AGO);
+
+    // Second analysis issues will be created -> new issues and new technical debt
+    setSampleProjectQualityProfile("one-issue-per-line");
+    runSampleProjectAnalysis("v1");
+    assertLeakPeriodForComponent("sample", 26, 26);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
+
+    // Third analysis, with exactly the same profile -> no new issues but still the same on leak => same values as before
+    runSampleProjectAnalysis("v1");
+    assertLeakPeriodForComponent("sample", 26, 26);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
+
+    // Fourth analysis, with new files and modified files -> new issues and new technical debt
+    runSampleProjectAnalysis("v2");
+    assertLeakPeriodForComponent("sample", 17, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 4, 4);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 13, 13);
+
+    // Fifth analysis, no change -> no new issues but still the same on leak => same values as before
+    runSampleProjectAnalysis("v2");
+    assertLeakPeriodForComponent("sample", 17, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 4, 4);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 13, 13);
+  }
+
+  @Test
+  public void since_previous_version_with_effort_change() throws Exception {
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
+    defineQualityProfile("one-issue-per-line");
+    provisionSampleProject();
+
+    // Execute an analysis in the past to have a past snapshot without any issues
+    setSampleProjectQualityProfile("empty");
+    runSampleProjectAnalysis("v1", "sonar.projectDate", DATE_31_DAYS_AGO);
+
+    // Second analysis issues will be created -> new issues and new technical debt
+    setSampleProjectQualityProfile("one-issue-per-line");
+    runSampleProjectAnalysis("v1");
+    assertLeakPeriodForComponent("sample", 26, 26);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
+
+    // Third analysis, with exactly the same profile -> no new issues but still the same on leak => same values as before
+    runSampleProjectAnalysis("v1", "sonar.oneIssuePerLine.effortToFix", "10");
+    assertLeakPeriodForComponent("sample", 260, 26);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 130, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 130, 13);
+
+    // Fourth analysis, with new files, modified files and increased effort -> new issues and new technical debt
+    runSampleProjectAnalysis("v2", "sonar.oneIssuePerLine.effortToFix", "10");
+    assertLeakPeriodForComponent("sample", 170, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 40, 4);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 130, 13);
+
+    // Fifth analysis, no change -> no new issues but still the same on leak => same values as before
+    runSampleProjectAnalysis("v2", "sonar.oneIssuePerLine.effortToFix", "10");
+    assertLeakPeriodForComponent("sample", 170, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 40, 4);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 130, 13);
+  }
+
+  private void assertLeakPeriodForComponent(String componentKey, int expectedDebt, int expectedIssues) {
+    assertThat(getLeakPeriodValue(orchestrator, componentKey, "new_technical_debt")).isEqualTo(expectedDebt);
+    assertThat(getLeakPeriodValue(orchestrator, componentKey, "new_violations")).isEqualTo(expectedIssues);
+    assertThat(getLeakPeriodValue(orchestrator, componentKey, "new_code_smells")).isEqualTo(expectedIssues);
+    assertThat(getLeakPeriodValue(orchestrator, componentKey, "new_bugs")).isZero();
+    assertThat(getLeakPeriodValue(orchestrator, componentKey, "new_vulnerabilities")).isZero();
+    assertThat(getLeakPeriodValue(orchestrator, componentKey, "new_blocker_violations")).isZero();
+    assertThat(getLeakPeriodValue(orchestrator, componentKey, "new_critical_violations")).isZero();
+    assertThat(getLeakPeriodValue(orchestrator, componentKey, "new_major_violations")).isZero();
+    assertThat(getLeakPeriodValue(orchestrator, componentKey, "new_minor_violations")).isEqualTo(expectedIssues);
+    assertThat(getLeakPeriodValue(orchestrator, componentKey, "new_info_violations")).isZero();
   }
 
   private void setSampleProjectQualityProfile(String qualityProfileKey) {
@@ -348,8 +306,8 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/measure/" + qualityProfileKey + ".xml"));
   }
 
-  private void runSampleProjectAnalysis(String... properties) {
-    ItUtils.runVerboseProjectAnalysis(TechnicalDebtAndIssueNewMeasuresTest.orchestrator, "shared/xoo-sample", properties);
+  private void runSampleProjectAnalysis(String version, String... properties) {
+    ItUtils.runVerboseProjectAnalysis(orchestrator, "shared/xoo-history-" + version, properties);
   }
 
 }
