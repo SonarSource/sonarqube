@@ -23,10 +23,8 @@ import HealthCauseItem from '../HealthCauseItem';
 import { HealthType } from '../../../../../api/system';
 
 it('should render correctly', () => {
+  expect(shallow(<HealthCauseItem health={HealthType.RED} healthCause="foo" />)).toMatchSnapshot();
   expect(
-    shallow(<HealthCauseItem health={HealthType.RED} healthCause={{ message: 'foo' }} />)
-  ).toMatchSnapshot();
-  expect(
-    shallow(<HealthCauseItem health={HealthType.YELLOW} healthCause={{ message: 'foo' }} />)
+    shallow(<HealthCauseItem health={HealthType.YELLOW} healthCause="foo" />)
   ).toMatchSnapshot();
 });

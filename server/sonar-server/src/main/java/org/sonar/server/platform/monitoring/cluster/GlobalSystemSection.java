@@ -33,8 +33,6 @@ import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepository;
-import org.sonar.server.health.ClusterHealth;
-import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.user.SecurityRealmFactory;
 
@@ -48,15 +46,13 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
   private final ServerIdLoader serverIdLoader;
   private final SecurityRealmFactory securityRealmFactory;
   private final IdentityProviderRepository identityProviderRepository;
-  private final HealthChecker healthChecker;
 
   public GlobalSystemSection(Configuration config, ServerIdLoader serverIdLoader, SecurityRealmFactory securityRealmFactory,
-    IdentityProviderRepository identityProviderRepository, HealthChecker healthChecker) {
+    IdentityProviderRepository identityProviderRepository) {
     this.config = config;
     this.serverIdLoader = serverIdLoader;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
-    this.healthChecker = healthChecker;
   }
 
   @Override
@@ -64,10 +60,6 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
     protobuf.setName("System");
 
-    ClusterHealth health = healthChecker.checkCluster();
-
-    setAttribute(protobuf, "Health", health.getHealth().getStatus().name());
-    setAttribute(protobuf, "Health Causes", health.getHealth().getCauses());
     serverIdLoader.get().ifPresent(serverId -> {
       setAttribute(protobuf, "Server ID", serverId.getId());
       setAttribute(protobuf, "Server ID validated", serverId.isValid());

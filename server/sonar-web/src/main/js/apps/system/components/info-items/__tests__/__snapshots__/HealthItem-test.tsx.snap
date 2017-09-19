@@ -27,11 +27,7 @@ exports[`should render correctly 1`] = `
   <HealthCauseItem
     className="spacer-right"
     health="RED"
-    healthCause={
-      Object {
-        "message": "foo",
-      }
-    }
+    healthCause="foo"
   />
   <StatusIndicator
     color="red"
@@ -47,20 +43,12 @@ exports[`should render multiple health causes 1`] = `
   <HealthCauseItem
     className="spacer-right"
     health="YELLOW"
-    healthCause={
-      Object {
-        "message": "foo",
-      }
-    }
+    healthCause="foo"
   />
   <HealthCauseItem
     className="spacer-right"
     health="YELLOW"
-    healthCause={
-      Object {
-        "message": "bar",
-      }
-    }
+    healthCause="bar"
   />
   <StatusIndicator
     color="yellow"

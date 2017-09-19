@@ -60,27 +60,37 @@ public class EsStateSection implements SystemInfoSection {
   }
 
   private void completeNodeAttributes(ProtobufSystemInfo.Section.Builder protobuf) {
-    NodesStatsResponse nodesStats = esClient.prepareNodesStats().all().get();
+    NodesStatsResponse nodesStats = esClient.prepareNodesStats()
+      .setFs(true)
+      .setProcess(true)
+      .setJvm(true)
+      .setIndices(true)
+      .setBreaker(true)
+      .get();
     if (!nodesStats.getNodes().isEmpty()) {
       NodeStats stats = nodesStats.getNodes().get(0);
-      setAttribute(protobuf, "Disk Available", byteCountToDisplaySize(stats.getFs().getTotal().getAvailable().getBytes()));
-      setAttribute(protobuf, "Store Size", byteCountToDisplaySize(stats.getIndices().getStore().getSizeInBytes()));
-      setAttribute(protobuf, "Open File Descriptors", stats.getProcess().getOpenFileDescriptors());
-      setAttribute(protobuf, "Max File Descriptors", stats.getProcess().getMaxFileDescriptors());
-      setAttribute(protobuf, "Spinning", stats.getFs().getTotal().getSpins());
-      setAttribute(protobuf, "JVM Heap Usage", formatPercent(stats.getJvm().getMem().getHeapUsedPercent()));
-      setAttribute(protobuf, "JVM Heap Used", byteCountToDisplaySize(stats.getJvm().getMem().getHeapUsed().getBytes()));
-      setAttribute(protobuf, "JVM Heap Max", byteCountToDisplaySize(stats.getJvm().getMem().getHeapMax().getBytes()));
-      setAttribute(protobuf, "JVM Non Heap Used", byteCountToDisplaySize(stats.getJvm().getMem().getNonHeapUsed().getBytes()));
-      setAttribute(protobuf, "JVM Threads", stats.getJvm().getThreads().getCount());
-      setAttribute(protobuf, "Field Data Memory", byteCountToDisplaySize(stats.getIndices().getFieldData().getMemorySizeInBytes()));
-      setAttribute(protobuf, "Field Data Circuit Breaker Limit", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.FIELDDATA).getLimit()));
-      setAttribute(protobuf, "Field Data Circuit Breaker Estimation", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.FIELDDATA).getEstimated()));
-      setAttribute(protobuf, "Request Circuit Breaker Limit", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.REQUEST).getLimit()));
-      setAttribute(protobuf, "Request Circuit Breaker Estimation", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.REQUEST).getEstimated()));
-      setAttribute(protobuf, "Query Cache Memory", byteCountToDisplaySize(stats.getIndices().getQueryCache().getMemorySizeInBytes()));
-      setAttribute(protobuf, "Request Cache Memory", byteCountToDisplaySize(stats.getIndices().getRequestCache().getMemorySizeInBytes()));
+      toProtobuf(stats, protobuf);
     }
+  }
+
+  public static void toProtobuf(NodeStats stats, ProtobufSystemInfo.Section.Builder protobuf) {
+    setAttribute(protobuf, "Disk Available", byteCountToDisplaySize(stats.getFs().getTotal().getAvailable().getBytes()));
+    setAttribute(protobuf, "Store Size", byteCountToDisplaySize(stats.getIndices().getStore().getSizeInBytes()));
+    setAttribute(protobuf, "Open File Descriptors", stats.getProcess().getOpenFileDescriptors());
+    setAttribute(protobuf, "Max File Descriptors", stats.getProcess().getMaxFileDescriptors());
+    setAttribute(protobuf, "Spinning", stats.getFs().getTotal().getSpins());
+    setAttribute(protobuf, "JVM Heap Usage", formatPercent(stats.getJvm().getMem().getHeapUsedPercent()));
+    setAttribute(protobuf, "JVM Heap Used", byteCountToDisplaySize(stats.getJvm().getMem().getHeapUsed().getBytes()));
+    setAttribute(protobuf, "JVM Heap Max", byteCountToDisplaySize(stats.getJvm().getMem().getHeapMax().getBytes()));
+    setAttribute(protobuf, "JVM Non Heap Used", byteCountToDisplaySize(stats.getJvm().getMem().getNonHeapUsed().getBytes()));
+    setAttribute(protobuf, "JVM Threads", stats.getJvm().getThreads().getCount());
+    setAttribute(protobuf, "Field Data Memory", byteCountToDisplaySize(stats.getIndices().getFieldData().getMemorySizeInBytes()));
+    setAttribute(protobuf, "Field Data Circuit Breaker Limit", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.FIELDDATA).getLimit()));
+    setAttribute(protobuf, "Field Data Circuit Breaker Estimation", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.FIELDDATA).getEstimated()));
+    setAttribute(protobuf, "Request Circuit Breaker Limit", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.REQUEST).getLimit()));
+    setAttribute(protobuf, "Request Circuit Breaker Estimation", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.REQUEST).getEstimated()));
+    setAttribute(protobuf, "Query Cache Memory", byteCountToDisplaySize(stats.getIndices().getQueryCache().getMemorySizeInBytes()));
+    setAttribute(protobuf, "Request Cache Memory", byteCountToDisplaySize(stats.getIndices().getRequestCache().getMemorySizeInBytes()));
   }
 
   private ClusterStatsResponse clusterStats() {

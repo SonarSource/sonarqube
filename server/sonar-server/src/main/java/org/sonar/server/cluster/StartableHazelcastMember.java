@@ -22,7 +22,6 @@ package org.sonar.server.cluster;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.IAtomicReference;
 import com.hazelcast.core.MemberSelector;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
@@ -55,12 +54,12 @@ import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
 public class StartableHazelcastMember implements HazelcastMember, Startable {
 
   private final Configuration config;
-  private final NetworkUtils networkUtils;
+  private final NetworkUtils network;
   private HazelcastMember member = null;
 
-  public StartableHazelcastMember(Configuration config, NetworkUtils networkUtils) {
+  public StartableHazelcastMember(Configuration config, NetworkUtils network) {
     this.config = config;
-    this.networkUtils = networkUtils;
+    this.network = network;
   }
 
   @Override
@@ -136,7 +135,7 @@ public class StartableHazelcastMember implements HazelcastMember, Startable {
     String networkAddress = config.get(CLUSTER_NODE_HOST).orElseThrow(() -> new IllegalStateException("Missing node host"));
     int freePort;
     try {
-      freePort = networkUtils.getNextAvailablePort(InetAddress.getByName(networkAddress));
+      freePort = network.getNextAvailablePort(network.toInetAddress(networkAddress));
     } catch (UnknownHostException e) {
       throw new IllegalStateException(format("Can not resolve address %s", networkAddress), e);
     }

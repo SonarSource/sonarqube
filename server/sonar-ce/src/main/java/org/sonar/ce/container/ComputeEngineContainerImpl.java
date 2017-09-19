@@ -49,7 +49,6 @@ import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.log.CeProcessLogging;
-import org.sonar.ce.monitoring.CeSystemInfoModule;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.queue.CeQueueCleaner;
 import org.sonar.ce.queue.PurgeCeActivities;
@@ -127,6 +126,9 @@ import org.sonar.server.platform.UrlSettings;
 import org.sonar.server.platform.WebServerImpl;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
+import org.sonar.server.platform.monitoring.DatabaseSection;
+import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
+import org.sonar.server.platform.monitoring.cluster.LoggingSection;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
@@ -423,8 +425,14 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     if (props.valueAsBoolean(ProcessProperties.CLUSTER_ENABLED)) {
       container.add(
         StartableHazelcastMember.class,
-        CeDistributedInformationImpl.class);
-      container.add(CeSystemInfoModule.forClusterMode());
+
+        // system health
+        CeDistributedInformationImpl.class,
+
+        // system info
+        DatabaseSection.class,
+        ProcessInfoProvider.class,
+        LoggingSection.class);
     } else {
       container.add(StandaloneCeDistributedInformation.class);
     }
