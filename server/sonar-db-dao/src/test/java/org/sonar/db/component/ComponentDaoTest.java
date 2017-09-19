@@ -661,6 +661,36 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void select_all_roots_by_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto module = db.components().insertComponent(newModuleDto(project1));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(module, directory));
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    ComponentDto view = db.components().insertView(organization);
+    ComponentDto application = db.components().insertApplication(organization);
+    OrganizationDto otherOrganization = db.organizations().insert();
+    ComponentDto projectOnOtherOrganization = db.components().insertPrivateProject(otherOrganization);
+
+    assertThat(underTest.selectAllRootsByOrganization(dbSession, organization.getUuid()))
+      .extracting(ComponentDto::uuid)
+      .containsExactlyInAnyOrder(project1.uuid(), project2.uuid(), view.uuid(), application.uuid());
+  }
+
+  @Test
+  public void select_all_roots_by_organization_does_not_return_branches() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    assertThat(underTest.selectAllRootsByOrganization(dbSession, organization.getUuid()))
+      .extracting(ComponentDto::uuid)
+      .containsExactlyInAnyOrder(project.uuid())
+      .doesNotContain(branch.uuid());
+  }
+
+  @Test
   public void select_provisioned() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto provisionedProject = db.components()

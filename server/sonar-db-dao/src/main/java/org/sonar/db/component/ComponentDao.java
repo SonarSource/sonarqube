@@ -249,6 +249,8 @@ public class ComponentDao implements Dao {
 
   /**
    * Select all root components (projects and views), including disabled ones, for a given organization.
+   *
+   * Branches are not returned
    */
   public List<ComponentDto> selectAllRootsByOrganization(DbSession dbSession, String organizationUuid) {
     return mapper(dbSession).selectAllRootsByOrganization(organizationUuid);
