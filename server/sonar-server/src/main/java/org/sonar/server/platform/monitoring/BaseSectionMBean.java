@@ -17,22 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.server.platform.monitoring;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.picocontainer.Startable;
+import org.sonar.process.Jmx;
+import org.sonar.process.systeminfo.SystemInfoSection;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+/**
+ * Base implementation of a {@link SystemInfoSection}
+ * that is exported as a JMX bean
+ */
+public abstract class BaseSectionMBean implements SystemInfoSection, Startable {
 
-public class InfoActionModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-
-    new InfoActionModule().configure(container);
-
-    assertThat(container.size()).isEqualTo(4 + COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
+  /**
+   * Auto-registers to MBean server
+   */
+  @Override
+  public void start() {
+    Jmx.register(objectName(), this);
   }
 
+  /**
+   * Unregister, if needed
+   */
+  @Override
+  public void stop() {
+    Jmx.unregister(objectName());
+  }
+
+  String objectName() {
+    return "SonarQube:name=" + name();
+  }
+
+  /**
+   * Name of section in System Info page
+   */
+  abstract String name();
 }

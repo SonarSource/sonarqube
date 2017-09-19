@@ -17,26 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.process.systeminfo;
 
 import java.util.Map;
-import org.junit.Test;
+import java.util.Objects;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
-public class SystemMonitorTest {
+/**
+ * Dumps {@link System#getProperties()}
+ */
+public class JvmPropertiesSection implements SystemInfoSection {
 
-  SystemMonitor underTest = new SystemMonitor();
+  private final String name;
 
-  @Test
-  public void name() {
-    assertThat(underTest.name()).isEqualTo("System");
+  public JvmPropertiesSection(String name) {
+    this.name = name;
   }
 
-  @Test
-  public void system_properties() {
-    Map<String, Object> attributes = underTest.attributes();
+  @Override
+  public ProtobufSystemInfo.Section toProtobuf() {
+    ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
+    protobuf.setName(name);
 
-    assertThat(attributes).containsKeys("System Date", "Processors");
+    for (Map.Entry<Object, Object> systemProp : System.getProperties().entrySet()) {
+      if (systemProp.getValue() != null) {
+        setAttribute(protobuf, Objects.toString(systemProp.getKey()), Objects.toString(systemProp.getValue()));
+      }
+    }
+    return protobuf.build();
   }
 }

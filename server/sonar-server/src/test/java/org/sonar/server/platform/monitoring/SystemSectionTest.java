@@ -19,23 +19,26 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.Collections;
-import java.util.Map;
+import org.junit.Test;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-public class FakeMonitor extends BaseMonitorMBean implements FakeMonitorMBean {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 
-  @Override
-  public int getFake() {
-    return 42;
+public class SystemSectionTest {
+
+  private SystemSection underTest = new SystemSection();
+
+  @Test
+  public void name() {
+    assertThat(underTest.toProtobuf().getName()).isEqualTo("System");
   }
 
-  @Override
-  public String name() {
-    return "fake";
-  }
+  @Test
+  public void system_properties() {
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
-  @Override
-  public Map<String, Object> attributes() {
-    return Collections.emptyMap();
+    assertThat(attribute(section, "System Date").getStringValue()).isNotEmpty();
+    assertThat(attribute(section, "Processors").getLongValue()).isGreaterThan(0);
   }
 }

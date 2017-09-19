@@ -19,39 +19,33 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.process.systeminfo.SystemInfoSection;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.updatecenter.common.Version;
 
-/**
- * Installed plugins (excluding core plugins)
- */
-public class PluginsMonitor implements Monitor {
+import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
+
+public class PluginsSection implements SystemInfoSection {
   private final PluginRepository repository;
 
-  public PluginsMonitor(PluginRepository repository) {
+  public PluginsSection(PluginRepository repository) {
     this.repository = repository;
   }
 
   @Override
-  public String name() {
-    return "Plugins";
-  }
-
-  @Override
-  public Map<String, Object> attributes() {
-    Map<String, Object> attributes = new LinkedHashMap<>();
+  public ProtobufSystemInfo.Section toProtobuf() {
+    ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
+    protobuf.setName("Plugins");
     for (PluginInfo plugin : repository.getPluginInfos()) {
-      LinkedHashMap<String, Object> pluginAttributes = new LinkedHashMap<>();
-      pluginAttributes.put("Name", plugin.getName());
+      String label = "[" + plugin.getName() + "]";
       Version version = plugin.getVersion();
       if (version != null) {
-        pluginAttributes.put("Version", version.getName());
+        label = version.getName() + " " + label;
       }
-      attributes.put(plugin.getKey(), pluginAttributes);
+      setAttribute(protobuf, plugin.getKey(), label);
     }
-    return attributes;
+    return protobuf.build();
   }
 }

@@ -19,25 +19,27 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
+import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
-public class DatabaseMonitorTest {
+public class DatabaseSectionTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private DatabaseVersion databaseVersion = mock(DatabaseVersion.class);
-  private DatabaseMonitor underTest = new DatabaseMonitor(databaseVersion, dbTester.getDbClient());
+  private DatabaseSection underTest = new DatabaseSection(databaseVersion, dbTester.getDbClient());
 
   @Before
   public void setUp() throws Exception {
@@ -51,16 +53,16 @@ public class DatabaseMonitorTest {
 
   @Test
   public void db_info() {
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes.get("Database")).isEqualTo("H2");
-    assertThat(attributes.get("Database Version").toString()).startsWith("1.");
-    assertThat(attributes.get("Username")).isEqualTo("SONAR");
-    assertThat(attributes.get("Driver Version").toString()).startsWith("1.");
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
+    assertThatAttributeIs(section, "Database", "H2");
+    assertThat(attribute(section, "Database Version").getStringValue()).startsWith("1.");
+    assertThatAttributeIs(section, "Username", "SONAR");
+    assertThat(attribute(section, "Driver Version").getStringValue()).startsWith("1.");
   }
 
   @Test
   public void pool_info() {
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat((int) attributes.get("Pool Max Connections")).isGreaterThan(0);
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
+    assertThat(attribute(section, "Pool Max Connections").getLongValue()).isGreaterThan(0L);
   }
 }

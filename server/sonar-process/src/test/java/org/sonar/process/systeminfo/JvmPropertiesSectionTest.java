@@ -17,24 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.process.systeminfo;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-public class JvmPropsMonitor implements Monitor {
-  @Override
-  public String name() {
-    return "JvmProperties";
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
+
+public class JvmPropertiesSectionTest {
+
+  private JvmPropertiesSection underTest = new JvmPropertiesSection("Web JVM Properties");
+
+  @Test
+  public void name_is_not_empty() {
+    assertThat(underTest.toProtobuf().getName()).isEqualTo("Web JVM Properties");
   }
 
-  @Override
-  public Map<String, Object> attributes() {
-    Map<String, Object> sortedProps = new TreeMap<>();
-    for (Map.Entry<Object, Object> systemProp : System.getProperties().entrySet()) {
-      sortedProps.put(Objects.toString(systemProp.getKey()), Objects.toString(systemProp.getValue()));
-    }
-    return sortedProps;
+  @Test
+  public void test_toProtobuf() {
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
+
+    Assertions.assertThat(attribute(section, "java.vm.vendor").getStringValue()).isNotEmpty();
+    Assertions.assertThat(attribute(section, "os.name").getStringValue()).isNotEmpty();
   }
 }

@@ -28,13 +28,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ProcessStateSystemInfoTest {
+public class JvmStateSectionTest {
 
   public static final String PROCESS_NAME = "the process name";
 
   @Test
   public void toSystemInfoSection() {
-    ProcessStateSystemInfo underTest = new ProcessStateSystemInfo(PROCESS_NAME);
+    JvmStateSection underTest = new JvmStateSection(PROCESS_NAME);
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
     assertThat(section.getName()).isEqualTo(PROCESS_NAME);
@@ -47,7 +47,7 @@ public class ProcessStateSystemInfoTest {
     MemoryMXBean memoryBean = mock(MemoryMXBean.class, Mockito.RETURNS_DEEP_STUBS);
     when(memoryBean.getHeapMemoryUsage().getCommitted()).thenReturn(-1L);
 
-    ProcessStateSystemInfo underTest = new ProcessStateSystemInfo(PROCESS_NAME);
+    JvmStateSection underTest = new JvmStateSection(PROCESS_NAME);
     ProtobufSystemInfo.Section section = underTest.toProtobuf(memoryBean);
 
     assertThat(section.getAttributesList()).extracting("key").doesNotContain("Heap Committed (MB)");

@@ -21,9 +21,7 @@ package org.sonar.server.platform.monitoring;
 
 import com.google.common.base.Joiner;
 import java.io.File;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
@@ -33,12 +31,15 @@ import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.ProcessProperties;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
-public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonitorMBean {
+import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
+
+public class SonarQubeSection extends BaseSectionMBean implements SonarQubeSectionMBean {
 
   private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
@@ -51,7 +52,7 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   private final ServerLogging serverLogging;
   private final ServerIdLoader serverIdLoader;
 
-  public SonarQubeMonitor(Configuration config, SecurityRealmFactory securityRealmFactory,
+  public SonarQubeSection(Configuration config, SecurityRealmFactory securityRealmFactory,
     IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging,
     ServerIdLoader serverIdLoader) {
     this.config = config;
@@ -118,39 +119,31 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   }
 
   @Override
-  public Map<String, Object> attributes() {
-    Map<String, Object> attributes = new LinkedHashMap<>();
-    completeWithServerIdAttributes(attributes);
-    attributes.put("Version", getVersion());
-    addIfNotNull("External User Authentication", getExternalUserAuthentication(), attributes);
-    addIfNotEmpty("Accepted external identity providers", getEnabledIdentityProviders(), attributes);
-    addIfNotEmpty("External identity providers whose users are allowed to sign themselves up", getAllowsToSignUpEnabledIdentityProviders(), attributes);
-    attributes.put("Force authentication", getForceAuthentication());
-    attributes.put("Official Distribution", isOfficialDistribution());
-    attributes.put("Home Dir", config.get(ProcessProperties.PATH_HOME).orElse(null));
-    attributes.put("Data Dir", config.get(ProcessProperties.PATH_DATA).orElse(null));
-    attributes.put("Temp Dir", config.get(ProcessProperties.PATH_TEMP).orElse(null));
-    attributes.put("Logs Dir", config.get(ProcessProperties.PATH_LOGS).orElse(null));
-    attributes.put("Logs Level", getLogLevel());
-    return attributes;
-  }
+  public ProtobufSystemInfo.Section toProtobuf() {
+    ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
+    protobuf.setName(name());
 
-  private void completeWithServerIdAttributes(Map<String, Object> attributes) {
     serverIdLoader.get().ifPresent(serverId -> {
-      attributes.put("Server ID", serverId.getId());
-      attributes.put("Server ID validated", serverId.isValid());
+      setAttribute(protobuf, "Server ID", serverId.getId());
+      setAttribute(protobuf, "Server ID validated", serverId.isValid());
     });
+    setAttribute(protobuf, "Version", getVersion());
+    setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
+    addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());
+    addIfNotEmpty(protobuf, "External identity providers whose users are allowed to sign themselves up", getAllowsToSignUpEnabledIdentityProviders());
+    setAttribute(protobuf, "Force authentication", getForceAuthentication());
+    setAttribute(protobuf, "Official Distribution", isOfficialDistribution());
+    setAttribute(protobuf, "Home Dir", config.get(ProcessProperties.PATH_HOME).orElse(null));
+    setAttribute(protobuf, "Data Dir", config.get(ProcessProperties.PATH_DATA).orElse(null));
+    setAttribute(protobuf, "Temp Dir", config.get(ProcessProperties.PATH_TEMP).orElse(null));
+    setAttribute(protobuf, "Logs Dir", config.get(ProcessProperties.PATH_LOGS).orElse(null));
+    setAttribute(protobuf, "Logs Level", getLogLevel());
+    return protobuf.build();
   }
 
-  private static void addIfNotNull(String key, @Nullable String value, Map<String, Object> attributes) {
-    if (value != null) {
-      attributes.put(key, value);
-    }
-  }
-
-  private static void addIfNotEmpty(String key, List<String> values, Map<String, Object> attributes) {
-    if (!values.isEmpty()) {
-      attributes.put(key, COMMA_JOINER.join(values));
+  private static void addIfNotEmpty(ProtobufSystemInfo.Section.Builder protobuf, String key, @Nullable List<String> values) {
+    if (values != null && !values.isEmpty()) {
+      setAttribute(protobuf, key, COMMA_JOINER.join(values));
     }
   }
 }

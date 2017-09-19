@@ -20,49 +20,43 @@
 package org.sonar.server.platform.monitoring;
 
 import java.util.Arrays;
-import java.util.Map;
 import org.junit.Test;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
-public class PluginsMonitorTest {
+public class PluginsSectionTest {
 
-  PluginRepository repo = mock(PluginRepository.class);
-  PluginsMonitor underTest = new PluginsMonitor(repo);
+  private PluginRepository repo = mock(PluginRepository.class);
+  private PluginsSection underTest = new PluginsSection(repo);
 
   @Test
   public void name() {
-    assertThat(underTest.name()).isEqualTo("Plugins");
+    assertThat(underTest.toProtobuf().getName()).isEqualTo("Plugins");
   }
 
   @Test
   public void plugin_name_and_version() {
     when(repo.getPluginInfos()).thenReturn(Arrays.asList(
       new PluginInfo("key-1")
-        .setName("plugin-1")
+        .setName("Plugin 1")
         .setVersion(Version.create("1.1")),
       new PluginInfo("key-2")
-        .setName("plugin-2")
+        .setName("Plugin 2")
         .setVersion(Version.create("2.2")),
       new PluginInfo("no-version")
         .setName("No Version")));
 
-    Map<String, Object> attributes = underTest.attributes();
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
-    assertThat(attributes).containsKeys("key-1", "key-2");
-    assertThat((Map) attributes.get("key-1"))
-      .containsEntry("Name", "plugin-1")
-      .containsEntry("Version", "1.1");
-    assertThat((Map) attributes.get("key-2"))
-      .containsEntry("Name", "plugin-2")
-      .containsEntry("Version", "2.2");
-    assertThat((Map) attributes.get("no-version"))
-      .containsEntry("Name", "No Version")
-      .doesNotContainKey("Version");
+    assertThatAttributeIs(section, "key-1", "1.1 [Plugin 1]");
+    assertThatAttributeIs(section, "key-2", "2.2 [Plugin 2]");
+    assertThatAttributeIs(section, "no-version", "[No Version]");
   }
 }

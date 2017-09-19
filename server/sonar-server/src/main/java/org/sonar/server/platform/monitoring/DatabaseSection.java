@@ -19,25 +19,25 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
+
+import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 /**
  * Information about database and connection pool
  */
-public class DatabaseMonitor extends BaseMonitorMBean implements DatabaseMonitorMBean {
+public class DatabaseSection extends BaseSectionMBean implements DatabaseSectionMBean {
 
   private final DatabaseVersion dbVersion;
   private final DbClient dbClient;
 
-  public DatabaseMonitor(DatabaseVersion dbVersion, DbClient dbClient) {
+  public DatabaseSection(DatabaseVersion dbVersion, DbClient dbClient) {
     this.dbVersion = dbVersion;
     this.dbClient = dbClient;
   }
@@ -98,40 +98,40 @@ public class DatabaseMonitor extends BaseMonitorMBean implements DatabaseMonitor
   }
 
   @Override
-  public Map<String, Object> attributes() {
-    Map<String, Object> attributes = new LinkedHashMap<>();
-    completeDbAttributes(attributes);
-    completePoolAttributes(attributes);
-    return attributes;
+  public Section toProtobuf() {
+    Section.Builder protobuf = Section.newBuilder();
+    protobuf.setName(name());
+    completeDbAttributes(protobuf);
+    completePoolAttributes(protobuf);
+    return protobuf.build();
   }
 
-  private void completePoolAttributes(Map<String, Object> attributes) {
-    attributes.put("Pool Active Connections", getPoolActiveConnections());
-    attributes.put("Pool Max Connections", getPoolMaxActiveConnections());
-    attributes.put("Pool Initial Size", getPoolInitialSize());
-    attributes.put("Pool Idle Connections", getPoolIdleConnections());
-    attributes.put("Pool Min Idle Connections", getPoolMinIdleConnections());
-    attributes.put("Pool Max Idle Connections", getPoolMaxIdleConnections());
-    attributes.put("Pool Max Wait (ms)", getPoolMaxWaitMillis());
-    attributes.put("Pool Remove Abandoned", getPoolRemoveAbandoned());
-    attributes.put("Pool Remove Abandoned Timeout (seconds)", getPoolRemoveAbandonedTimeoutSeconds());
+  private void completePoolAttributes(Section.Builder protobuf) {
+    setAttribute(protobuf, "Pool Active Connections", getPoolActiveConnections());
+    setAttribute(protobuf, "Pool Max Connections", getPoolMaxActiveConnections());
+    setAttribute(protobuf, "Pool Initial Size", getPoolInitialSize());
+    setAttribute(protobuf, "Pool Idle Connections", getPoolIdleConnections());
+    setAttribute(protobuf, "Pool Min Idle Connections", getPoolMinIdleConnections());
+    setAttribute(protobuf, "Pool Max Idle Connections", getPoolMaxIdleConnections());
+    setAttribute(protobuf, "Pool Max Wait (ms)", getPoolMaxWaitMillis());
+    setAttribute(protobuf, "Pool Remove Abandoned", getPoolRemoveAbandoned());
+    setAttribute(protobuf, "Pool Remove Abandoned Timeout (seconds)", getPoolRemoveAbandonedTimeoutSeconds());
   }
 
   private BasicDataSource commonsDbcp() {
     return (BasicDataSource) dbClient.getDatabase().getDataSource();
   }
 
-  private void completeDbAttributes(Map<String, Object> attributes) {
-    try (DbSession dbSession = dbClient.openSession(false);
-      Connection connection = dbSession.getConnection()) {
-      DatabaseMetaData metadata = connection.getMetaData();
-      attributes.put("Database", metadata.getDatabaseProductName());
-      attributes.put("Database Version", metadata.getDatabaseProductVersion());
-      attributes.put("Username", metadata.getUserName());
-      attributes.put("URL", metadata.getURL());
-      attributes.put("Driver", metadata.getDriverName());
-      attributes.put("Driver Version", metadata.getDriverVersion());
-      attributes.put("Version Status", getMigrationStatus());
+  private void completeDbAttributes(Section.Builder protobuf) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      DatabaseMetaData metadata = dbSession.getConnection().getMetaData();
+      setAttribute(protobuf, "Database", metadata.getDatabaseProductName());
+      setAttribute(protobuf, "Database Version", metadata.getDatabaseProductVersion());
+      setAttribute(protobuf, "Username", metadata.getUserName());
+      setAttribute(protobuf, "URL", metadata.getURL());
+      setAttribute(protobuf, "Driver", metadata.getDriverName());
+      setAttribute(protobuf, "Driver Version", metadata.getDriverVersion());
+      setAttribute(protobuf, "Version Status", getMigrationStatus());
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to get DB metadata", e);
     }
