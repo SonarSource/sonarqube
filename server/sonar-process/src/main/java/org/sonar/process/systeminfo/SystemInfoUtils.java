@@ -55,11 +55,13 @@ public class SystemInfoUtils {
     }
   }
 
-  public static void setAttribute(Section.Builder section, String key, boolean value) {
-    section.addAttributesBuilder()
-      .setKey(key)
-      .setBooleanValue(value)
-      .build();
+  public static void setAttribute(Section.Builder section, String key, @Nullable Boolean value) {
+    if (value != null) {
+      section.addAttributesBuilder()
+        .setKey(key)
+        .setBooleanValue(value)
+        .build();
+    }
   }
 
   public static void setAttribute(Section.Builder section, String key, long value) {
