@@ -223,17 +223,19 @@ export default class Search extends React.PureComponent<Props, State> {
               </td>
               <td className="thin nowrap text-middle">
                 <button
-                  className="spacer-right js-bulk-apply-permission-template"
+                  className="js-bulk-apply-permission-template"
                   disabled={this.props.total === 0}
                   onClick={this.handleBulkApplyTemplateClick}>
                   {translate('permission_templates.bulk_apply_permission_template')}
                 </button>
-                <button
-                  className="js-delete button-red"
-                  disabled={this.props.total === 0}
-                  onClick={this.handleDeleteClick}>
-                  {translate('delete')}
-                </button>
+                {this.props.qualifiers === 'TRK' && (
+                  <button
+                    className="js-delete spacer-left button-red"
+                    disabled={this.props.total === 0}
+                    onClick={this.handleDeleteClick}>
+                    {translate('delete')}
+                  </button>
+                )}
               </td>
             </tr>
           </tbody>
