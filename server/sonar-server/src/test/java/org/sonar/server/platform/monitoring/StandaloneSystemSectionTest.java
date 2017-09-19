@@ -204,4 +204,10 @@ public class StandaloneSystemSectionTest {
     assertThatAttributeIs(protobuf, "Health", "YELLOW");
     SystemInfoTesting.assertThatAttributeHasOnlyValues(protobuf, "Health Causes", asList("foo", "bar"));
   }
+
+  @Test
+  public void return_nb_of_processors() {
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThat(attribute(protobuf, "Processors").getLongValue()).isGreaterThan(0);
+  }
 }

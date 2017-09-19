@@ -138,6 +138,7 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
     setAttribute(protobuf, "Temp Dir", config.get(ProcessProperties.PATH_TEMP).orElse(null));
     setAttribute(protobuf, "Logs Dir", config.get(ProcessProperties.PATH_LOGS).orElse(null));
     setAttribute(protobuf, "Logs Level", getLogLevel());
+    setAttribute(protobuf, "Processors", Runtime.getRuntime().availableProcessors());
     return protobuf.build();
   }
 
