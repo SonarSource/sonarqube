@@ -19,42 +19,26 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.Map;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.cluster.node.stats.NodeStats;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
-import org.elasticsearch.action.admin.indices.stats.IndexStats;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.breaker.CircuitBreaker;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.es.EsClient;
 
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
-public class EsSection extends BaseSectionMBean implements EsSectionMBean {
+public class EsStateSection implements SystemInfoSection {
 
   private final EsClient esClient;
 
-  public EsSection(EsClient esClient) {
+  public EsStateSection(EsClient esClient) {
     this.esClient = esClient;
-  }
-
-  @Override
-  public String name() {
-    return "Elasticsearch";
-  }
-
-  /**
-   * MXBean does not allow to return enum {@link ClusterHealthStatus}, so
-   * returning String.
-   */
-  @Override
-  public String getState() {
-    return getStateAsEnum().name();
   }
 
   private ClusterHealthStatus getStateAsEnum() {
@@ -64,27 +48,15 @@ public class EsSection extends BaseSectionMBean implements EsSectionMBean {
   @Override
   public ProtobufSystemInfo.Section toProtobuf() {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
-    protobuf.setName(name());
+    protobuf.setName("Search State");
     try {
       setAttribute(protobuf, "State", getStateAsEnum().name());
       completeNodeAttributes(protobuf);
-      completeIndexAttributes(protobuf);
-
-    } catch (Exception es) {
-      Loggers.get(EsSection.class).warn("Failed to retrieve ES attributes. There will be only a single \"state\" attribute.", es);
+   } catch (Exception es) {
+      Loggers.get(EsStateSection.class).warn("Failed to retrieve ES attributes. There will be only a single \"state\" attribute.", es);
       setAttribute(protobuf, "State", es.getCause() instanceof ElasticsearchException ? es.getCause().getMessage() : es.getMessage());
     }
     return protobuf.build();
-  }
-
-  private void completeIndexAttributes(ProtobufSystemInfo.Section.Builder protobuf) {
-    IndicesStatsResponse indicesStats = esClient.prepareStats().all().get();
-    for (Map.Entry<String, IndexStats> indexStats : indicesStats.getIndices().entrySet()) {
-      String prefix = "Index " + indexStats.getKey() + " - ";
-      setAttribute(protobuf, prefix + "Docs", indexStats.getValue().getPrimaries().getDocs().getCount());
-      setAttribute(protobuf, prefix + "Shards", indexStats.getValue().getShards().length);
-      setAttribute(protobuf, prefix + "Store Size", byteCountToDisplaySize(indexStats.getValue().getPrimaries().getStore().getSizeInBytes()));
-    }
   }
 
   private void completeNodeAttributes(ProtobufSystemInfo.Section.Builder protobuf) {
