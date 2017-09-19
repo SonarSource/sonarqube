@@ -19,12 +19,12 @@
  */
 package org.sonar.process.systeminfo;
 
-import org.assertj.core.api.Assertions;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Test;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 
 public class JvmPropertiesSectionTest {
 
@@ -36,10 +36,15 @@ public class JvmPropertiesSectionTest {
   }
 
   @Test
-  public void test_toProtobuf() {
+  public void system_properties_are_returned_in_alphabetical_order() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
-    Assertions.assertThat(attribute(section, "java.vm.vendor").getStringValue()).isNotEmpty();
-    Assertions.assertThat(attribute(section, "os.name").getStringValue()).isNotEmpty();
+    List<String> keys = section.getAttributesList()
+      .stream()
+      .map(ProtobufSystemInfo.Attribute::getKey)
+      .collect(Collectors.toList());
+
+    assertThat(keys).contains("java.vm.vendor", "os.name");
+    assertThat(keys.indexOf("java.vm.vendor")).isLessThan(keys.indexOf("os.name"));
   }
 }
