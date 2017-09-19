@@ -19,6 +19,7 @@
  */
 package org.sonar.process.systeminfo;
 
+import java.util.Collection;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
@@ -34,6 +35,15 @@ public class SystemInfoUtils {
       section.addAttributesBuilder()
         .setKey(key)
         .setStringValue(value)
+        .build();
+    }
+  }
+
+  public static void setAttribute(ProtobufSystemInfo.Section.Builder section, String key, @Nullable Collection<String> values) {
+    if (values != null) {
+      section.addAttributesBuilder()
+        .setKey(key)
+        .addAllStringValues(values)
         .build();
     }
   }

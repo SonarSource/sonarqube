@@ -113,6 +113,7 @@ public class InfoAction implements SystemWsAction {
         json.prop(attribute.getKey(), attribute.getStringValue());
         break;
       case VALUE_NOT_SET:
+        json.name(attribute.getKey()).beginArray().values(attribute.getStringValuesList()).endArray();
         break;
       default:
         throw new IllegalArgumentException("Unsupported type: " + attribute.getValueCase());

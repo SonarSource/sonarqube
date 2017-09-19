@@ -33,11 +33,14 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepositoryRule;
 import org.sonar.server.authentication.TestIdentityProvider;
+import org.sonar.server.health.Health;
+import org.sonar.server.health.TestStandaloneHealthChecker;
 import org.sonar.server.platform.ServerId;
 import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -60,9 +63,10 @@ public class SonarQubeSectionTest {
   private ServerIdLoader serverIdLoader = mock(ServerIdLoader.class);
   private ServerLogging serverLogging = mock(ServerLogging.class);
   private SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
+  private TestStandaloneHealthChecker healthChecker = new TestStandaloneHealthChecker();
 
   private SonarQubeSection underTest = new SonarQubeSection(settings.asConfig(), securityRealmFactory, identityProviderRepository, server,
-    serverLogging, serverIdLoader);
+    serverLogging, serverIdLoader, healthChecker);
 
   @Before
   public void setUp() throws Exception {
@@ -196,5 +200,18 @@ public class SonarQubeSectionTest {
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeIs(protobuf, "External identity providers whose users are allowed to sign themselves up", "GitHub");
+  }
+
+  @Test
+  public void return_health() {
+    healthChecker.setHealth(Health.newHealthCheckBuilder()
+      .setStatus(Health.Status.YELLOW)
+      .addCause("foo")
+      .addCause("bar")
+      .build());
+
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Health", "YELLOW");
+    SystemInfoTesting.assertThatAttributeHasOnlyValues(protobuf, "Health Causes", asList("foo", "bar"));
   }
 }
