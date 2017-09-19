@@ -19,10 +19,17 @@
  */
 package org.sonar.process.systeminfo;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section;
+
+import static java.util.Arrays.stream;
 
 public class SystemInfoUtils {
 
@@ -30,7 +37,7 @@ public class SystemInfoUtils {
     // prevent instantiation
   }
 
-  public static void setAttribute(ProtobufSystemInfo.Section.Builder section, String key, @Nullable String value) {
+  public static void setAttribute(Section.Builder section, String key, @Nullable String value) {
     if (value != null) {
       section.addAttributesBuilder()
         .setKey(key)
@@ -39,7 +46,7 @@ public class SystemInfoUtils {
     }
   }
 
-  public static void setAttribute(ProtobufSystemInfo.Section.Builder section, String key, @Nullable Collection<String> values) {
+  public static void setAttribute(Section.Builder section, String key, @Nullable Collection<String> values) {
     if (values != null) {
       section.addAttributesBuilder()
         .setKey(key)
@@ -48,14 +55,14 @@ public class SystemInfoUtils {
     }
   }
 
-  public static void setAttribute(ProtobufSystemInfo.Section.Builder section, String key, boolean value) {
+  public static void setAttribute(Section.Builder section, String key, boolean value) {
     section.addAttributesBuilder()
       .setKey(key)
       .setBooleanValue(value)
       .build();
   }
 
-  public static void setAttribute(ProtobufSystemInfo.Section.Builder section, String key, long value) {
+  public static void setAttribute(Section.Builder section, String key, long value) {
     section.addAttributesBuilder()
       .setKey(key)
       .setLongValue(value)
@@ -63,12 +70,27 @@ public class SystemInfoUtils {
   }
 
   @CheckForNull
-  public static ProtobufSystemInfo.Attribute attribute(ProtobufSystemInfo.Section section, String key) {
+  public static ProtobufSystemInfo.Attribute attribute(Section section, String key) {
     for (ProtobufSystemInfo.Attribute attribute : section.getAttributesList()) {
       if (attribute.getKey().equals(key)) {
         return attribute;
       }
     }
     return null;
+  }
+
+  public static List<Section> order(Collection<Section> sections, String... orderedNames) {
+    Map<String, Section> alphabeticalOrderedMap = new TreeMap<>();
+    sections.forEach(section -> alphabeticalOrderedMap.put(section.getName(), section));
+
+    List<Section> result = new ArrayList<>(sections.size());
+    stream(orderedNames).forEach(name -> {
+      Section section = alphabeticalOrderedMap.remove(name);
+      if (section != null) {
+        result.add(section);
+      }
+    });
+    result.addAll(alphabeticalOrderedMap.values());
+    return result;
   }
 }

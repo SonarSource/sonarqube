@@ -49,6 +49,7 @@ import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.log.CeProcessLogging;
+import org.sonar.ce.monitoring.CeSystemInfoModule;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.queue.CeQueueCleaner;
 import org.sonar.ce.queue.PurgeCeActivities;
@@ -423,6 +424,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       container.add(
         StartableHazelcastMember.class,
         CeDistributedInformationImpl.class);
+      container.add(CeSystemInfoModule.forClusterMode());
     } else {
       container.add(StandaloneCeDistributedInformation.class);
     }
