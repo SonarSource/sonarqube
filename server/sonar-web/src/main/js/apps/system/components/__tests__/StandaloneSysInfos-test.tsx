@@ -20,18 +20,19 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import StandaloneSysInfos from '../StandaloneSysInfos';
-import { HealthType } from '../../../../api/system';
-import { StandaloneSysInfo } from '../../utils';
+import { HealthType, SysInfo } from '../../../../api/system';
 
-const sysInfoData: StandaloneSysInfo = {
-  Cluster: true,
-  Health: HealthType.RED,
-  'Logs Level': 'DEBUG',
-  Name: 'Foo',
-  'Health Causes': [{ message: 'Database down' }],
+const sysInfoData: SysInfo = {
+  System: {
+    Health: HealthType.RED,
+    'Health Causes': [],
+    'High Availability': true,
+    'Logs Level': 'DEBUG'
+  },
+  'Health Causes': ['Database down'],
   'Web JVM': { 'Max Memory': '2Gb' },
   'Compute Engine': { Pending: 4 },
-  Elasticsearch: { 'Number of Nodes': 1 }
+  Search: { 'Number of Nodes': 1 }
 };
 
 it('should render correctly', () => {

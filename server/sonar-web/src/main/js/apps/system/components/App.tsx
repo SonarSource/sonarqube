@@ -31,8 +31,7 @@ import {
   isCluster,
   parseQuery,
   Query,
-  serializeQuery,
-  StandaloneSysInfo
+  serializeQuery
 } from '../utils';
 import { RawQuery } from '../../../helpers/query';
 import '../styles.css';
@@ -114,7 +113,7 @@ export default class App extends React.PureComponent<Props, State> {
     return (
       <StandaloneSysInfos
         expandedCards={query.expandedCards}
-        sysInfoData={sysInfoData as StandaloneSysInfo}
+        sysInfoData={sysInfoData}
         toggleCard={this.toggleSysInfoCards}
       />
     );

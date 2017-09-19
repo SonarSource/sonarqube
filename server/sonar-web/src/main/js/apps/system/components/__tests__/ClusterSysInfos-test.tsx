@@ -24,10 +24,12 @@ import { HealthType } from '../../../../api/system';
 import { ClusterSysInfo } from '../../utils';
 
 const sysInfoData: ClusterSysInfo = {
-  Cluster: true,
-  Health: HealthType.RED,
-  Name: 'Foo',
-  'Health Causes': [{ message: 'Database down' }],
+  System: {
+    Health: HealthType.RED,
+    'Health Causes': ['Database down'],
+    'High Availability': true,
+    'Logs Level': 'INFO'
+  },
   'Application Nodes': [
     { Name: 'Bar', Health: HealthType.GREEN, 'Health Causes': [], 'Logs Level': 'INFO' }
   ],

@@ -31,9 +31,7 @@ exports[`should display the sysinfo detail 1`] = `
       health="RED"
       healthCauses={
         Array [
-          Object {
-            "message": "foo",
-          },
+          "foo",
         ]
       }
     />
@@ -69,9 +67,7 @@ exports[`should render correctly 1`] = `
       health="RED"
       healthCauses={
         Array [
-          Object {
-            "message": "foo",
-          },
+          "foo",
         ]
       }
     />
@@ -102,9 +98,7 @@ exports[`should show a main section and multiple sub sections 1`] = `
       health="RED"
       healthCauses={
         Array [
-          Object {
-            "message": "foo",
-          },
+          "foo",
         ]
       }
     />

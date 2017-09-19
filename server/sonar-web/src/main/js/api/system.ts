@@ -36,21 +36,20 @@ export enum HealthType {
   GREEN = 'GREEN'
 }
 
-export interface HealthCause extends SysValueObject {
-  message: string;
-}
-
 export interface NodeInfo extends SysValueObject {
   Name: string;
   Health: HealthType;
-  'Health Causes': HealthCause[];
+  'Health Causes': string[];
   'Logs Level': string;
 }
 
 export interface SysInfo extends SysValueObject {
-  Cluster: boolean;
-  Health: HealthType;
-  'Health Causes': HealthCause[];
+  System: {
+    Health: HealthType;
+    'Health Causes': string[];
+    'High Availability': boolean;
+    'Logs Level': string;
+  };
 }
 
 export function setLogLevel(level: string): Promise<void | Response> {

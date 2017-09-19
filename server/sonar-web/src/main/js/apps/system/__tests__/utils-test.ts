@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as u from '../utils';
+import { SysInfo } from '../../../api/system';
 
 describe('parseQuery', () => {
   it('should correctly parse the expand array', () => {
@@ -44,14 +45,14 @@ describe('groupSections', () => {
 
 describe('getSystemLogsLevel', () => {
   it('should correctly return log level for standalone mode', () => {
-    expect(u.getSystemLogsLevel({ 'Logs Level': 'FOO' } as u.StandaloneSysInfo)).toBe('FOO');
-    expect(u.getSystemLogsLevel({} as u.StandaloneSysInfo)).toBe('INFO');
+    expect(u.getSystemLogsLevel({ System: { 'Logs Level': 'FOO' } } as SysInfo)).toBe('FOO');
+    expect(u.getSystemLogsLevel({} as SysInfo)).toBe('INFO');
     expect(u.getSystemLogsLevel()).toBe('INFO');
   });
   it('should return the worst log level for cluster mode', () => {
     expect(
       u.getSystemLogsLevel({
-        Cluster: true,
+        System: { 'High Availability': true },
         'Application Nodes': [{ 'Logs Level': 'INFO' }, { 'Logs Level': 'DEBUG' }]
       } as u.ClusterSysInfo)
     ).toBe('DEBUG');

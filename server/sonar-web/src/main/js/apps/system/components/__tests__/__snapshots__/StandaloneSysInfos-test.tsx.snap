@@ -5,20 +5,13 @@ exports[`should render correctly 1`] = `
   <HealthCard
     biggerHealth={true}
     health="RED"
-    healthCauses={
-      Array [
-        Object {
-          "message": "Database down",
-        },
-      ]
-    }
+    healthCauses={Array []}
     name="System"
     onClick={[Function]}
     open={false}
     sysInfoData={
       Object {
         "Logs Level": "DEBUG",
-        "Name": "Foo",
       }
     }
   />
@@ -28,11 +21,9 @@ exports[`should render correctly 1`] = `
     open={false}
     sysInfoData={
       Object {
-        "Web Database Connectivity": undefined,
         "Web JVM": Object {
           "Max Memory": "2Gb",
         },
-        "Web JVM Properties": undefined,
       }
     }
   />
@@ -42,9 +33,9 @@ exports[`should render correctly 1`] = `
     open={true}
     sysInfoData={
       Object {
-        "Compute Engine JVM": undefined,
-        "Compute Engine JVM Properties": undefined,
-        "Pending": 4,
+        "Compute Engine": Object {
+          "Pending": 4,
+        },
       }
     }
   />
@@ -54,11 +45,9 @@ exports[`should render correctly 1`] = `
     open={false}
     sysInfoData={
       Object {
-        "Elasticsearch": Object {
+        "Search": Object {
           "Number of Nodes": 1,
         },
-        "Search JVM": undefined,
-        "Search JVM Properties": undefined,
       }
     }
   />

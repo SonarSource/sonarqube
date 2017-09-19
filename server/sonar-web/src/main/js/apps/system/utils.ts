@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { each, omit, memoize, sortBy } from 'lodash';
+import { each, memoize, omit, omitBy, pickBy, sortBy } from 'lodash';
 import {
   cleanQuery,
   parseAsArray,
@@ -25,14 +25,7 @@ import {
   RawQuery,
   serializeStringArray
 } from '../../helpers/query';
-import {
-  HealthCause,
-  HealthType,
-  NodeInfo,
-  SysInfo,
-  SysInfoSection,
-  SysValueObject
-} from '../../api/system';
+import { HealthType, NodeInfo, SysInfo, SysInfoSection, SysValueObject } from '../../api/system';
 
 export interface Query {
   expandedCards: string[];
@@ -43,28 +36,48 @@ export interface ClusterSysInfo extends SysInfo {
   'Search Nodes': NodeInfo[];
 }
 
-export interface StandaloneSysInfo extends SysInfo {
-  'Logs Level': string;
-}
-
 export const LOGS_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
+export const HA_FIELD = 'High Availability';
 export const HEALTH_FIELD = 'Health';
 export const HEALTHCAUSES_FIELD = 'Health Causes';
 
 export function ignoreInfoFields(sysInfoObject: SysValueObject): SysValueObject {
-  return omit(sysInfoObject, ['Cluster', HEALTH_FIELD, HEALTHCAUSES_FIELD]);
+  return omit(sysInfoObject, [HA_FIELD, HEALTH_FIELD, HEALTHCAUSES_FIELD]);
 }
 
 export function getHealth(sysInfoObject: SysValueObject): HealthType {
+  if (sysInfoObject['System']) {
+    return (sysInfoObject as SysInfo)['System'][HEALTH_FIELD];
+  }
   return sysInfoObject[HEALTH_FIELD] as HealthType;
 }
 
-export function getHealthCauses(sysInfoObject: SysValueObject): HealthCause[] {
-  return sysInfoObject[HEALTHCAUSES_FIELD] as HealthCause[];
+export function getHealthCauses(sysInfoObject: SysValueObject): string[] {
+  if (sysInfoObject['System']) {
+    return (sysInfoObject as SysInfo)['System'][HEALTHCAUSES_FIELD];
+  }
+  return sysInfoObject[HEALTHCAUSES_FIELD] as string[];
 }
 
 export function getLogsLevel(sysInfoObject: SysValueObject): string {
+  if (sysInfoObject['System']) {
+    return (sysInfoObject as SysInfo)['System']['Logs Level'];
+  }
   return (sysInfoObject['Logs Level'] || LOGS_LEVELS[0]) as string;
+}
+
+export function getAppNodes(sysInfoData: ClusterSysInfo): NodeInfo[] {
+  return sysInfoData['Application Nodes'];
+}
+
+export function getSearchNodes(sysInfoData: ClusterSysInfo): NodeInfo[] {
+  return sysInfoData['Search Nodes'];
+}
+
+export function isCluster(sysInfoData?: SysInfo): boolean {
+  return (
+    sysInfoData != undefined && sysInfoData['System'] && sysInfoData['System'][HA_FIELD] === true
+  );
 }
 
 export function getSystemLogsLevel(sysInfoData?: SysInfo): string {
@@ -87,51 +100,40 @@ export function getNodeName(nodeInfo: NodeInfo): string {
 }
 
 export function getClusterMainCardSection(sysInfoData: ClusterSysInfo): SysValueObject {
-  return omit(sysInfoData, ['Application Nodes', 'Search Nodes', 'Settings', 'Statistics']);
-}
-
-export function getStandaloneMainSections(sysInfoData: StandaloneSysInfo): SysValueObject {
-  return omit(sysInfoData, [
-    'Settings',
-    'Statistics',
-    'Compute Engine',
-    'Compute Engine JVM',
-    'Compute Engine JVM Properties',
-    'Elasticsearch',
-    'Search JVM',
-    'Search JVM Properties',
-    'Web Database Connectivity',
-    'Web JVM',
-    'Web JVM Properties'
-  ]);
-}
-
-export function getStandaloneSecondarySections(sysInfoData: StandaloneSysInfo): SysInfoSection {
   return {
-    Web: {
-      'Web Database Connectivity': sysInfoData['Web Database Connectivity'],
-      'Web JVM': sysInfoData['Web JVM'],
-      'Web JVM Properties': sysInfoData['Web JVM Properties']
-    },
-    'Compute Engine': {
-      ...sysInfoData['Compute Engine'] as SysValueObject,
-      'Compute Engine JVM': sysInfoData['Compute Engine JVM'],
-      'Compute Engine JVM Properties': sysInfoData['Compute Engine JVM Properties']
-    },
-    Search: {
-      Elasticsearch: sysInfoData['Elasticsearch'] as SysValueObject,
-      'Search JVM': sysInfoData['Search JVM'],
-      'Search JVM Properties': sysInfoData['Search JVM Properties']
-    }
+    ...sysInfoData['System'],
+    ...omit(sysInfoData, [
+      'Application Nodes',
+      'Plugins',
+      'Search Nodes',
+      'Settings',
+      'Statistics',
+      'System'
+    ])
   };
 }
 
-export function getAppNodes(sysInfoData: ClusterSysInfo): NodeInfo[] {
-  return sysInfoData['Application Nodes'];
+export function getStandaloneMainSections(sysInfoData: SysInfo): SysValueObject {
+  return {
+    ...sysInfoData['System'],
+    ...omitBy(
+      sysInfoData,
+      (value, key) =>
+        value == null ||
+        ['Plugins', 'Settings', 'Statistics', 'System'].includes(key) ||
+        key.startsWith('Compute Engine') ||
+        key.startsWith('Search') ||
+        key.startsWith('Web')
+    )
+  };
 }
 
-export function getSearchNodes(sysInfoData: ClusterSysInfo): NodeInfo[] {
-  return sysInfoData['Search Nodes'];
+export function getStandaloneSecondarySections(sysInfoData: SysInfo): SysInfoSection {
+  return {
+    Web: pickBy(sysInfoData, (_, key) => key.startsWith('Web')),
+    'Compute Engine': pickBy(sysInfoData, (_, key) => key.startsWith('Compute Engine')),
+    Search: pickBy(sysInfoData, (_, key) => key.startsWith('Search'))
+  };
 }
 
 export function groupSections(sysInfoData: SysValueObject) {
@@ -147,18 +149,12 @@ export function groupSections(sysInfoData: SysValueObject) {
   return { mainSection, sections };
 }
 
-export function isCluster(sysInfoData?: SysInfo): boolean {
-  return sysInfoData != undefined && sysInfoData['Cluster'] === true;
-}
+export const parseQuery = memoize((urlQuery: RawQuery): Query => ({
+  expandedCards: parseAsArray(urlQuery.expand, parseAsString)
+}));
 
-export const parseQuery = memoize((urlQuery: RawQuery): Query => {
-  return {
-    expandedCards: parseAsArray(urlQuery.expand, parseAsString)
-  };
-});
-
-export const serializeQuery = memoize((query: Query): RawQuery => {
-  return cleanQuery({
+export const serializeQuery = memoize((query: Query): RawQuery =>
+  cleanQuery({
     expand: serializeStringArray(query.expandedCards)
-  });
-});
+  })
+);
