@@ -40,4 +40,5 @@ message Attribute {
     double double_value = 4;
     string string_value = 5;
   }
+  repeated string string_values = 6;
 }
