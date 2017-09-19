@@ -178,14 +178,14 @@ exports[`render qualifiers filter 1`] = `
           className="thin nowrap text-middle"
         >
           <button
-            className="spacer-right js-bulk-apply-permission-template"
+            className="js-bulk-apply-permission-template"
             disabled={false}
             onClick={[Function]}
           >
             permission_templates.bulk_apply_permission_template
           </button>
           <button
-            className="js-delete button-red"
+            className="js-delete spacer-left button-red"
             disabled={false}
             onClick={[Function]}
           >
@@ -280,14 +280,14 @@ exports[`renders 1`] = `
           className="thin nowrap text-middle"
         >
           <button
-            className="spacer-right js-bulk-apply-permission-template"
+            className="js-bulk-apply-permission-template"
             disabled={false}
             onClick={[Function]}
           >
             permission_templates.bulk_apply_permission_template
           </button>
           <button
-            className="js-delete button-red"
+            className="js-delete spacer-left button-red"
             disabled={false}
             onClick={[Function]}
           >
