@@ -20,18 +20,18 @@
 import * as React from 'react';
 import { map } from 'lodash';
 import HealthCard from './info-items/HealthCard';
+import { SysInfo } from '../../../api/system';
 import {
   getHealth,
   getHealthCauses,
   getStandaloneMainSections,
   getStandaloneSecondarySections,
-  ignoreInfoFields,
-  StandaloneSysInfo
+  ignoreInfoFields
 } from '../utils';
 
 interface Props {
   expandedCards: string[];
-  sysInfoData: StandaloneSysInfo;
+  sysInfoData: SysInfo;
   toggleCard: (toggledCard: string) => void;
 }
 

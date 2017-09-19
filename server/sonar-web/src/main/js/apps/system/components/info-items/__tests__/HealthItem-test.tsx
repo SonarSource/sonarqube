@@ -24,26 +24,19 @@ import { HealthType } from '../../../../../api/system';
 
 it('should render correctly', () => {
   expect(
-    shallow(
-      <HealthItem biggerHealth={true} health={HealthType.RED} healthCauses={[{ message: 'foo' }]} />
-    )
+    shallow(<HealthItem biggerHealth={true} health={HealthType.RED} healthCauses={['foo']} />)
   ).toMatchSnapshot();
 });
 
 it('should not render health causes', () => {
   expect(
-    shallow(<HealthItem health={HealthType.GREEN} healthCauses={[{ message: 'foo' }]} />)
+    shallow(<HealthItem health={HealthType.GREEN} healthCauses={['foo']} />)
   ).toMatchSnapshot();
   expect(shallow(<HealthItem health={HealthType.YELLOW} healthCauses={[]} />)).toMatchSnapshot();
 });
 
 it('should render multiple health causes', () => {
   expect(
-    shallow(
-      <HealthItem
-        health={HealthType.YELLOW}
-        healthCauses={[{ message: 'foo' }, { message: 'bar' }]}
-      />
-    )
+    shallow(<HealthItem health={HealthType.YELLOW} healthCauses={['foo', 'bar']} />)
   ).toMatchSnapshot();
 });
