@@ -241,7 +241,6 @@ function pushMetricToArray(
   conditionsArray: string[],
   convertFunction: (metric: string, value: any) => string
 ): void {
-  query.foo;
   const metric = mapPropertyToMetric(property);
   if (query[property] != null && metric) {
     conditionsArray.push(convertFunction(metric, query[property]));
