@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.pageobjects.SystemInfoPage;
 import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.client.GetRequest;
@@ -48,7 +49,29 @@ public class SystemInfoTest {
   @Test
   public void test_system_info_page() {
     tester.users().generateAdministrator(u -> u.setLogin(ADMIN_USER_LOGIN).setPassword(ADMIN_USER_LOGIN));
-    tester.runHtmlTests("/serverSystem/ServerSystemTest/system_info.html");
+    SystemInfoPage page = tester.openBrowser().logIn().submitCredentials(ADMIN_USER_LOGIN).openSystemInfo();
+    page.shouldHaveCards("System", "Web", "Compute Engine", "Search");
+
+    page.getCardItem("System")
+      .shouldHaveHealth()
+      .shouldHaveSection("Database")
+      .shouldHaveMainSection()
+      .shouldHaveField("Official Distribution")
+      .shouldHaveField("Version")
+      .shouldHaveField("Logs Level");
+
+    page.getCardItem("Web")
+      .shouldHaveSection("Web JVM Properties")
+      .shouldHaveSection("Web JVM State");
+
+    page.getCardItem("Compute Engine")
+      .shouldHaveSection("Compute Engine Database Connection")
+      .shouldHaveSection("Compute Engine JVM State")
+      .shouldHaveSection("Compute Engine Tasks");
+
+    page.getCardItem("Search")
+      .shouldHaveSection("Search State")
+      .shouldHaveSection("Search Statistics");
   }
 
   @Test

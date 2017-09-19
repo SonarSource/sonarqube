@@ -36,6 +36,8 @@ import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.connectors.HttpClient4Connector;
 import org.sonar.wsclient.services.AuthenticationQuery;
 import org.sonar.wsclient.user.UserParameters;
+import org.sonarqube.pageobjects.SystemInfoPage;
+import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.user.CreateRequest;
@@ -81,6 +83,9 @@ public class RealmAuthenticationTest {
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
 
+  @Rule
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
+
   @Before
   @After
   public void resetData() throws Exception {
@@ -121,7 +126,8 @@ public class RealmAuthenticationTest {
     runSelenese(orchestrator, "/user/ExternalAuthenticationTest/external-user-details.html");
 
     // SONAR-4462
-    runSelenese(orchestrator, "/user/ExternalAuthenticationTest/system-info.html");
+    SystemInfoPage page = tester.openBrowser().logIn().submitCredentials(ADMIN_USER_LOGIN).openSystemInfo();
+    page.getCardItem("System").shouldHaveFieldWithValue("External User Authentication", "FakeRealm");
   }
 
   /**
