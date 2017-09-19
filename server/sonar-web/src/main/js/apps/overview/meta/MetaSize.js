@@ -57,7 +57,7 @@ export default class MetaSize extends React.PureComponent {
 
     return languageDistribution ? (
       <div id="overview-language-distribution" className="overview-meta-size-lang-dist">
-        <LanguageDistributionContainer distribution={languageDistribution.value} />
+        <LanguageDistributionContainer distribution={languageDistribution.value} width={160} />
       </div>
     ) : null;
   };
