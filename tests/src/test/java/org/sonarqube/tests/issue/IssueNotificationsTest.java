@@ -21,6 +21,7 @@ package org.sonarqube.tests.issue;
 
 import java.util.Iterator;
 import javax.mail.internet.MimeMessage;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -132,12 +133,14 @@ public class IssueNotificationsTest extends AbstractIssueTest {
       .setParam("type", "SQ-MyNewIssues")
       .setParam("channel", "EmailNotificationChannel"))
       .failIfNotSuccessful();
-
   }
 
   @Test
   public void notifications_for_new_issues_and_issue_changes() throws Exception {
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample", "sonar.projectDate", "2015-12-15");
+    String version = RandomStringUtils.randomAlphanumeric(10);
+    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample",
+      "sonar.projectDate", "2015-12-15",
+      "sonar.projectVersion", version);
 
     // change assignee
     Issues issues = issueClient.find(IssueQuery.create().componentRoots(PROJECT_KEY));
@@ -151,35 +154,44 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     assertThat(emails.hasNext()).isTrue();
     MimeMessage message = emails.next().getMimeMessage();
     assertThat(message.getHeader("To", null)).isEqualTo("<tester@example.org>");
-    assertThat((String) message.getContent()).contains("Sample");
-    assertThat((String) message.getContent()).contains("17 new issues (new debt: 17min)");
-    assertThat((String) message.getContent()).contains("Type");
-    assertThat((String) message.getContent()).contains("One Issue Per Line (xoo): 17");
-    assertThat((String) message.getContent()).contains(
-      "More details at: http://localhost:9000/project/issues?id=sample&createdAt=2015-12-15T00%3A00%3A00%2B");
+    assertThat((String) message.getContent())
+      .contains("Project: Sample")
+      .contains("Version: " + version)
+      .contains("17 new issues (new debt: 17min)")
+      .contains("Type")
+      .contains("One Issue Per Line (xoo): 17")
+      .contains("More details at: http://localhost:9000/project/issues?id=sample&createdAt=2015-12-15T00%3A00%3A00%2B");
 
     assertThat(emails.hasNext()).isTrue();
     message = emails.next().getMimeMessage();
     assertThat(message.getHeader("To", null)).isEqualTo("<tester@example.org>");
-    assertThat((String) message.getContent()).contains("sample/Sample.xoo");
-    assertThat((String) message.getContent()).contains("Assignee changed to Tester");
-    assertThat((String) message.getContent()).contains(
-      "More details at: http://localhost:9000/project/issues?id=sample&issues=" + issue.key() + "&open=" + issue.key());
+    assertThat((String) message.getContent())
+      .contains("sample/Sample.xoo")
+      .contains("Assignee changed to Tester")
+      .contains("More details at: http://localhost:9000/project/issues?id=sample&issues=" + issue.key() + "&open=" + issue.key());
 
     assertThat(emails.hasNext()).isFalse();
   }
 
   @Test
   public void notifications_for_personalized_emails() throws Exception {
+    String version = RandomStringUtils.randomAlphanumeric(10);
     setServerProperty(ORCHESTRATOR, "sonar.issues.defaultAssigneeLogin", USER_LOGIN);
     // 1st analysis without any issue (because no file is analyzed)
-    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-with-scm", "sonar.scm.provider", "xoo", "sonar.scm.disabled", "false", "sonar.exclusions", "**/*");
+    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-with-scm",
+      "sonar.scm.provider", "xoo",
+      "sonar.scm.disabled", "false",
+      "sonar.exclusions", "**/*",
+      "sonar.projectVersion", version);
 
     waitUntilAllNotificationsAreDelivered(2);
     assertThat(smtpServer.getMessages()).isEmpty();
 
     // run 2nd analysis which will generate issues on the leak period
-    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-with-scm", "sonar.scm.provider", "xoo", "sonar.scm.disabled", "false");
+    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-with-scm",
+      "sonar.scm.provider", "xoo",
+      "sonar.scm.disabled", "false",
+      "sonar.projectVersion", version);
 
     waitUntilAllNotificationsAreDelivered(2);
 
@@ -190,6 +202,9 @@ public class IssueNotificationsTest extends AbstractIssueTest {
 
     assertThat(message.getHeader("To", null)).isEqualTo("<tester@example.org>");
     assertThat(message.getSubject()).contains("You have 13 new issues");
+    assertThat((String) message.getContent())
+      .contains("Project: Sample")
+      .contains("Version: " + version);
   }
 
   /**
