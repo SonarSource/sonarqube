@@ -60,8 +60,8 @@ export default function Summary({ component, measures }: Props) {
       </ul>
 
       {nclocDistribution && (
-        <div className="huge-spacer-top" style={{ width: 260 }}>
-          <LanguageDistributionContainer distribution={nclocDistribution} />
+        <div className="huge-spacer-top">
+          <LanguageDistributionContainer distribution={nclocDistribution} width={260} />
         </div>
       )}
     </section>

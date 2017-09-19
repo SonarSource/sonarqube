@@ -82,14 +82,10 @@ exports[`renders 1`] = `
   </ul>
   <div
     className="huge-spacer-top"
-    style={
-      Object {
-        "width": 260,
-      }
-    }
   >
     <Connect(LanguageDistribution)
       distribution="java=13;js=17"
+      width={260}
     />
   </div>
 </section>

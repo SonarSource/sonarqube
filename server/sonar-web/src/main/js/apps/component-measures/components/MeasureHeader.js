@@ -140,6 +140,7 @@ export default class MeasureHeader extends React.PureComponent {
             <LanguageDistributionContainer
               alignTicks={true}
               distribution={secondaryMeasure.value}
+              width={260}
             />
           </div>
         )}
