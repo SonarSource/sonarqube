@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { find, sortBy } from 'lodash';
-import { Histogram } from './histogram';
+import Histogram from './Histogram';
 import { formatMeasure } from '../../helpers/measures';
 import { Language } from '../../api/languages';
 import { translate } from '../../helpers/l10n';
@@ -28,37 +28,44 @@ interface Props {
   alignTicks?: boolean;
   distribution: string;
   languages?: Language[];
+  width: number;
 }
 
 export default function LanguageDistribution(props: Props) {
-  let data = props.distribution.split(';').map((point, index) => {
+  let distribution = props.distribution.split(';').map(point => {
     const tokens = point.split('=');
-    return { x: parseInt(tokens[1], 10), y: index, value: tokens[0] };
+    return { language: tokens[0], lines: parseInt(tokens[1], 10) };
   });
 
-  data = sortBy(data, d => -d.x);
+  distribution = sortBy(distribution, d => -d.lines);
 
-  const yTicks = data.map(point => getLanguageName(point.value)).map(cutLanguageName);
-  const yValues = data.map(point => formatMeasure(point.x, 'SHORT_INT'));
+  const data = distribution.map(d => d.lines);
+  const yTicks = distribution.map(d => getLanguageName(d.language)).map(cutLanguageName);
+  const yTooltips = distribution.map(d => (d.lines > 1000 ? formatMeasure(d.lines, 'INT') : ''));
+  const yValues = distribution.map(d => formatMeasure(d.lines, 'SHORT_INT'));
 
   return (
     <Histogram
       alignTicks={props.alignTicks}
-      data={data}
-      yTicks={yTicks}
-      yValues={yValues}
-      barsWidth={10}
-      height={data.length * 25}
+      bars={data}
+      height={distribution.length * 25}
       padding={[0, 60, 0, 80]}
+      yTicks={yTicks}
+      yTooltips={yTooltips}
+      yValues={yValues}
+      width={props.width}
     />
   );
 
   function getLanguageName(langKey: string) {
+    if (langKey === '<null>') {
+      return translate('unknown');
+    }
     const lang = find(props.languages, { key: langKey });
-    return lang ? lang.name : translate('unknown');
+    return lang ? lang.name : langKey;
   }
+}
 
-  function cutLanguageName(name: string) {
-    return name.length > 10 ? `${name.substr(0, 7)}...` : name;
-  }
+function cutLanguageName(name: string) {
+  return name.length > 10 ? `${name.substr(0, 7)}...` : name;
 }
