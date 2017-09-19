@@ -57,7 +57,7 @@ public class ResourceTypesRule extends ResourceTypes {
   public ResourceTypesRule setRootQualifiers(String... qualifiers) {
     Set<ResourceType> resourceTypes = new LinkedHashSet<>();
     for (String qualifier : qualifiers) {
-      resourceTypes.add(ResourceType.builder(qualifier).build());
+      resourceTypes.add(ResourceType.builder(qualifier).setProperty("deletable", true).build());
     }
     rootResourceTypes = ImmutableSet.copyOf(resourceTypes);
 
@@ -77,7 +77,7 @@ public class ResourceTypesRule extends ResourceTypes {
   public ResourceTypesRule setAllQualifiers(String... qualifiers) {
     Set<ResourceType> resourceTypes = new HashSet<>();
     for (String qualifier : qualifiers) {
-      resourceTypes.add(ResourceType.builder(qualifier).build());
+      resourceTypes.add(ResourceType.builder(qualifier).setProperty("deletable", true).build());
     }
     allResourceTypes = ImmutableSet.copyOf(resourceTypes);
 
