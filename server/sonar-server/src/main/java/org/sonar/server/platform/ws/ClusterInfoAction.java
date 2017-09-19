@@ -22,236 +22,82 @@ package org.sonar.server.platform.ws;
 import java.util.Collection;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+import org.sonar.server.health.ClusterHealth;
+import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.monitoring.cluster.AppNodesInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.NodeInfo;
+import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoader;
 import org.sonar.server.user.UserSession;
 
-public class ClusterInfoAction implements SystemWsAction {
+public class ClusterInfoAction extends BaseInfoWsAction {
 
-  private final UserSession userSession;
   private final GlobalInfoLoader globalInfoLoader;
   private final AppNodesInfoLoader appNodesInfoLoader;
+  private final SearchNodesInfoLoader searchNodesInfoLoader;
+  private final HealthChecker healthChecker;
 
-  public ClusterInfoAction(UserSession userSession, GlobalInfoLoader globalInfoLoader, AppNodesInfoLoader appNodesInfoLoader) {
-    this.userSession = userSession;
+  public ClusterInfoAction(UserSession userSession, GlobalInfoLoader globalInfoLoader,
+    AppNodesInfoLoader appNodesInfoLoader, SearchNodesInfoLoader searchNodesInfoLoader, HealthChecker healthChecker) {
+    super(userSession);
     this.globalInfoLoader = globalInfoLoader;
     this.appNodesInfoLoader = appNodesInfoLoader;
+    this.searchNodesInfoLoader = searchNodesInfoLoader;
+    this.healthChecker = healthChecker;
   }
 
   @Override
-  public void define(WebService.NewController controller) {
-    controller.createAction("cluster_info")
-      .setDescription("WIP")
-      .setSince("6.6")
-      .setInternal(true)
-      .setResponseExample(getClass().getResource("/org/sonar/server/platform/ws/info-example.json"))
-      .setHandler(this);
-  }
-
-  @Override
-  public void handle(Request request, Response response) {
-    userSession.checkIsSystemAdministrator();
-
+  protected void doHandle(Request request, Response response) {
+    ClusterHealth clusterHealth = healthChecker.checkCluster();
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
-      writeGlobal(json);
-      writeApplicationNodes(json);
+
+      json.prop("Health", clusterHealth.getHealth().getStatus().name());
+      json.name("Health Causes").beginArray().values(clusterHealth.getHealth().getCauses()).endArray();
+
+      writeGlobalSections(json);
+      writeApplicationNodes(json, clusterHealth);
+      writeSearchNodes(json, clusterHealth);
       json.endObject();
     }
-
-//    try (JsonWriter json = response.newJsonWriter()) {
-//      json.beginObject();
-//
-//      // global section
-//      json.prop("Cluster", true);
-//      json.prop("Cluster Name", "foo");
-//      json.prop("Server Id", "ABC123");
-//      json.prop("Health", "RED");
-//      json
-//        .name("Health Causes")
-//        .beginArray().beginObject().prop("message", "Requires at least two search nodes").endObject().endArray();
-//
-//      json.name("Settings");
-//      json.beginObject();
-//      json.prop("sonar.forceAuthentication", true);
-//      json.prop("sonar.externalIdentityProviders", "GitHub, BitBucket");
-//      json.endObject();
-//
-//      json.name("Database");
-//      json
-//        .beginObject()
-//        .prop("Name", "PostgreSQL")
-//        .prop("Version", "9.6.3")
-//        .endObject();
-//
-//      json.name("Compute Engine");
-//      json
-//        .beginObject()
-//        .prop("Pending", 5)
-//        .prop("In Progress", 4)
-//        .prop("workers", 8)
-//        .prop("workersPerNode", 4)
-//        .endObject();
-//
-//      json.name("Elasticsearch");
-//      json
-//        .beginObject()
-//        .prop("Health", "GREEN")
-//        .prop("Number of Nodes", 4)
-//        .prop("Index Components - Docs", 152_515_155)
-//        .prop("Index Components - Shards", 20)
-//        .prop("Index Components - Size", "25GB")
-//        .prop("Index Issues - Docs", 5)
-//        .prop("Index Issues - Shards", 5)
-//        .prop("Index Issues - Size", "52MB")
-//        .prop("Index Tests - Docs", 56605)
-//        .prop("Index Tests - Shards", 2)
-//        .prop("Index Tests - Size", "520MB")
-//        .endObject();
-//
-//      json.name("Application Nodes");
-//      json
-//        .beginArray()
-//        .beginObject()
-//        .prop("Name", "Mont Blanc")
-//        .prop("Host", "10.158.92.16")
-//        .prop("Health", "YELLOW")
-//        .name("healthCauses").beginArray().beginObject().prop("message", "Db connectivity error").endObject().endArray()
-//        .prop("Start Time", "2017-05-30T10:23:45")
-//        .prop("Official Distribution", true)
-//        .prop("Processors", 4);
-//      json
-//        .name("Web JVM").beginObject()
-//        .prop("JVM Name", "Java HotSpot(TM) 64-Bit Server VM")
-//        .prop("JVM Vendor", "Oracle Corporation")
-//        .prop("Max Memory", "948MB")
-//        .prop("Free Memory", "38MB")
-//        .endObject()
-//
-//        .name("Web JVM Properties").beginObject()
-//        .prop("catalina.home", "/sonarsource/var/tmp/sonarsource/sssonarqube/tc")
-//        .prop("glowroot.tmp.dir", "/var/tmp/sonarsource/ssglowroot-agent")
-//        .prop("glowroot.adad.dir", "/var/tmp/sonarsource/ssglowroot-agent")
-//        .prop("java.specification.version", "1.8")
-//        .endObject()
-//
-//        .name("Web Database Connectivity").beginObject()
-//        .prop("Driver", "PostgreSQL JDBC Driver")
-//        .prop("Driver Version", "PostgreSQL JDBC Driver")
-//        .prop("Pool Idle Connections", 2)
-//        .prop("Pool Max Connections", 50)
-//        .prop("URL", "jdbc:postgresql://next-rds.cn6pfc2xc6oq.us-east-1.rds.amazonaws.com/dory")
-//        .endObject();
-//
-//      json
-//        .name("Compute Engine JVM").beginObject()
-//        .prop("JVM Name", "Java HotSpot(TM) 64-Bit Server VM")
-//        .prop("JVM Vendor", "Oracle Corporation")
-//        .prop("Max Memory", "25MB")
-//        .prop("Free Memory", "8MB")
-//        .endObject();
-//
-//      json
-//        .name("Compute Engine JVM Properties").beginObject()
-//        .prop("java.ext.dirs", "/opt/sonarsource/jvm/java-1.8.0-sun-x64/jre/lib/ext:/usr/java/packages/lib/ext")
-//        .prop("java.io.tmpdir", "/opt/sonarsource/jvm/java-1.8.0-sun-x64/jre/lib/ext:/usr/java/packages/lib/ext")
-//        .prop("java.library.path", "/opt/sonarsource/jvm/java-1.8.0-sun-x64/jre/lib/ext:/usr/java/packages/lib/ext")
-//        .prop("java.net.preferIPv4Stack", true)
-//        .prop("java.rmi.server.randomIDs", true)
-//        .prop("java.specification.version", "1.8")
-//        .endObject();
-//
-//      json.endObject().endArray();
-//
-//      json.name("Search Nodes");
-//      json
-//        .beginArray()
-//        .beginObject()
-//        .prop("Name", "Parmelan")
-//        .prop("Host", "10.158.92.19")
-//        .prop("Health", "GREEN")
-//        .name("Health Causes").beginArray().endArray()
-//        .prop("Start Time", "2017-05-30T10:23:45")
-//        .prop("Processors", 2)
-//        .prop("Disk Available", "25GB")
-//        .prop("JVM Threads", 52)
-//
-//        .name("JVM Properties").beginObject()
-//        .prop("java.ext.dirs", "/opt/sonarsource/jvm/java-1.8.0-sun-x64/jre/lib/ext:/usr/java/packages/lib/ext")
-//        .prop("java.io.tmpdir", "/opt/sonarsource/jvm/java-1.8.0-sun-x64/jre/lib/ext:/usr/java/packages/lib/ext")
-//        .prop("java.library.path", "/opt/sonarsource/jvm/java-1.8.0-sun-x64/jre/lib/ext:/usr/java/packages/lib/ext")
-//        .prop("java.net.preferIPv4Stack", true)
-//        .prop("java.rmi.server.randomIDs", true)
-//        .endObject()
-//
-//        .name("JVM").beginObject()
-//        .prop("java.ext.dirs", "/opt/sonarsource/jvm/java-1.8.0-sun-x64/jre/lib/ext:/usr/java/packages/lib/ext")
-//        .prop("java.io.tmpdir", "/opt/sonarsource/jvm/java-1.8.0-sun-x64/jre/lib/ext:/usr/java/packages/lib/ext")
-//        .prop("java.library.path", "/opt/sonarsource/jvm/java-1.8.0-sun-x64/jre/lib/ext:/usr/java/packages/lib/ext")
-//        .prop("java.net.preferIPv4Stack", true)
-//        .prop("java.rmi.server.randomIDs", true)
-//        .endObject()
-//
-//        .endObject()
-//        .endArray();
-//
-//      json.endObject();
-//    }
   }
 
-  private void writeGlobal(JsonWriter json) {
-    globalInfoLoader.load().forEach(section -> sectionToJson(section, json));
+  private void writeGlobalSections(JsonWriter json) {
+    globalInfoLoader.load().forEach(section -> writeSectionToJson(section, json));
   }
 
-  private void writeApplicationNodes(JsonWriter json) {
+  private void writeApplicationNodes(JsonWriter json, ClusterHealth clusterHealth) {
     json.name("Application Nodes").beginArray();
 
     Collection<NodeInfo> appNodes = appNodesInfoLoader.load();
     for (NodeInfo applicationNode : appNodes) {
-      writeApplicationNode(json, applicationNode);
+      writeNodeInfoToJson(applicationNode, clusterHealth, json);
     }
     json.endArray();
   }
 
-  private void writeApplicationNode(JsonWriter json, NodeInfo applicationNode) {
-    json.beginObject();
-    json.prop("Name", applicationNode.getName());
-    applicationNode.getSections().forEach(section -> sectionToJson(section, json));
-    json.endObject();
+  private void writeSearchNodes(JsonWriter json, ClusterHealth clusterHealth) {
+    json.name("Search Nodes").beginArray();
+
+    Collection<NodeInfo> searchNodes = searchNodesInfoLoader.load();
+    searchNodes.forEach(node -> writeNodeInfoToJson(node, clusterHealth, json));
+    json.endArray();
   }
 
-  private static void sectionToJson(ProtobufSystemInfo.Section section, JsonWriter json) {
-    json.name(section.getName());
+  private void writeNodeInfoToJson(NodeInfo nodeInfo, ClusterHealth clusterHealth, JsonWriter json) {
     json.beginObject();
-    for (ProtobufSystemInfo.Attribute attribute : section.getAttributesList()) {
-      attributeToJson(json, attribute);
-    }
-    json.endObject();
-  }
+    json.prop("Name", nodeInfo.getName());
+    json.prop("Error", nodeInfo.getErrorMessage().orElse(null));
+    json.prop("Host", nodeInfo.getHost().orElse(null));
+    json.prop("Started At", nodeInfo.getStartedAt().orElse(null));
 
-  private static void attributeToJson(JsonWriter json, ProtobufSystemInfo.Attribute attribute) {
-    switch (attribute.getValueCase()) {
-      case BOOLEAN_VALUE:
-        json.prop(attribute.getKey(), attribute.getBooleanValue());
-        break;
-      case LONG_VALUE:
-        json.prop(attribute.getKey(), attribute.getLongValue());
-        break;
-      case DOUBLE_VALUE:
-        json.prop(attribute.getKey(), attribute.getDoubleValue());
-        break;
-      case STRING_VALUE:
-        json.prop(attribute.getKey(), attribute.getStringValue());
-        break;
-      case VALUE_NOT_SET:
-        json.name(attribute.getKey()).beginArray().values(attribute.getStringValuesList()).endArray();
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported type: " + attribute.getValueCase());
-    }
+    clusterHealth.getNodeHealth(nodeInfo.getName()).ifPresent(h -> {
+      json.prop("Health", h.getStatus().name());
+      json.name("Health Causes").beginArray().values(h.getCauses()).endArray();
+    });
+
+    writeSectionsToJson(nodeInfo.getSections(), json);
+    json.endObject();
   }
 }

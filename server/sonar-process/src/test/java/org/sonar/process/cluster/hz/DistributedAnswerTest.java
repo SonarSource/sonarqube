@@ -21,7 +21,9 @@ package org.sonar.process.cluster.hz;
 
 import com.hazelcast.core.Member;
 import java.io.IOException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -30,8 +32,20 @@ import static org.mockito.Mockito.when;
 
 public class DistributedAnswerTest {
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   private Member member = newMember("member1");
   private DistributedAnswer underTest = new DistributedAnswer();
+
+  @Test
+  public void getMembers_return_all_members() {
+    underTest.setAnswer(member, "foo");
+    underTest.setTimedOut(newMember("bar"));
+    underTest.setFailed(newMember("baz"), new IOException("BOOM"));
+
+    assertThat(underTest.getMembers()).hasSize(3);
+  }
 
   @Test
   public void test_call_with_unknown_member() {
@@ -46,6 +60,7 @@ public class DistributedAnswerTest {
 
     assertThat(underTest.getAnswer(member)).hasValue("foo");
     assertThat(underTest.hasTimedOut(member)).isFalse();
+    assertThat(underTest.getFailed(member)).isEmpty();
   }
 
   @Test
@@ -54,6 +69,7 @@ public class DistributedAnswerTest {
 
     assertThat(underTest.getAnswer(member)).isEmpty();
     assertThat(underTest.hasTimedOut(member)).isTrue();
+    assertThat(underTest.getFailed(member)).isEmpty();
   }
 
   @Test
@@ -61,6 +77,8 @@ public class DistributedAnswerTest {
     IOException e = new IOException();
     underTest.setFailed(member, e);
 
+    assertThat(underTest.getAnswer(member)).isEmpty();
+    assertThat(underTest.hasTimedOut(member)).isFalse();
     assertThat(underTest.getFailed(member)).hasValue(e);
   }
 
@@ -76,9 +94,46 @@ public class DistributedAnswerTest {
     assertThat(underTest.getFailed(member)).hasValue(exception);
   }
 
+  @Test
+  public void propagateExceptions_does_nothing_if_no_members() {
+    // no errors
+    underTest.propagateExceptions();
+  }
+
+  @Test
+  public void propagateExceptions_does_nothing_if_no_errors() {
+    underTest.setAnswer(newMember("foo"), "bar");
+
+    // no errors
+    underTest.propagateExceptions();
+  }
+
+  @Test
+  public void propagateExceptions_throws_ISE_if_at_least_one_timeout() {
+    underTest.setAnswer(newMember("bar"), "baz");
+    underTest.setTimedOut(newMember("foo"));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Distributed cluster action timed out in cluster nodes foo");
+
+    underTest.propagateExceptions();
+  }
+
+  @Test
+  public void propagateExceptions_throws_ISE_if_at_least_one_failure() {
+    underTest.setAnswer(newMember("bar"), "baz");
+    underTest.setFailed(newMember("foo"), new IOException("BOOM"));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Distributed cluster action in cluster nodes foo (other nodes may have timed out)");
+
+    underTest.propagateExceptions();
+  }
+
   private static Member newMember(String uuid) {
     Member member = mock(Member.class);
     when(member.getUuid()).thenReturn(uuid);
+    when(member.getStringAttribute(HazelcastMember.Attribute.NODE_NAME)).thenReturn(uuid);
     return member;
   }
 }

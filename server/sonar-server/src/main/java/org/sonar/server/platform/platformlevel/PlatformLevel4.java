@@ -114,7 +114,6 @@ import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
 import org.sonar.server.platform.ws.ChangeLogLevelAction;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.HealthActionModule;
-import org.sonar.server.platform.ws.InfoAction;
 import org.sonar.server.platform.ws.L10nWs;
 import org.sonar.server.platform.ws.LogsAction;
 import org.sonar.server.platform.ws.MigrateDbAction;
@@ -540,7 +539,6 @@ public class PlatformLevel4 extends PlatformLevel {
     addIfStartupLeader(TelemetryDaemon.class, TelemetryClient.class);
 
     // system info
-    add(InfoAction.class);
     addIfCluster(WebSystemInfoModule.forClusterMode()).otherwiseAdd(WebSystemInfoModule.forStandaloneMode());
 
     addAll(level4AddedComponents);

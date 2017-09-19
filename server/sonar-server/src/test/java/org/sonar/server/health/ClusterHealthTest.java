@@ -19,7 +19,9 @@
  */
 package org.sonar.server.health;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -100,6 +102,17 @@ public class ClusterHealthTest {
     assertThat(underTest.toString()).isEqualTo("ClusterHealth{health=" + health + ", nodes=" + nodeHealths + "}");
   }
 
+  @Test
+  public void test_getNodeHealth() {
+    Health health = randomHealth();
+    Set<NodeHealth> nodeHealths = new HashSet<>(Arrays.asList(newNodeHealth("foo"), newNodeHealth("bar")));
+
+    ClusterHealth underTest = new ClusterHealth(health, nodeHealths);
+
+    assertThat(underTest.getNodeHealth("does_not_exist")).isEmpty();
+    assertThat(underTest.getNodeHealth("bar")).isPresent();
+  }
+
   private Health randomHealth() {
     Health.Builder healthBuilder = Health.newHealthCheckBuilder();
     healthBuilder.setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)]);
@@ -119,5 +132,18 @@ public class ClusterHealthTest {
           .setStartedAt(1 + random.nextInt(999))
           .build())
       .build()).collect(Collectors.toSet());
+  }
+
+  private static NodeHealth newNodeHealth(String nodeName) {
+    return NodeHealth.newNodeHealthBuilder()
+      .setStatus(NodeHealth.Status.YELLOW)
+      .setDetails(NodeDetails.newNodeDetailsBuilder()
+        .setType(NodeDetails.Type.APPLICATION)
+        .setName(nodeName)
+        .setHost(randomAlphanumeric(4))
+        .setPort(3000)
+        .setStartedAt(1_000L)
+        .build())
+      .build();
   }
 }

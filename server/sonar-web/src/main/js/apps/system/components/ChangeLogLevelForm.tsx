@@ -49,7 +49,7 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { newLevel } = this.state;
-    if (!this.state.updating && newLevel !== this.props.logLevel) {
+    if (!this.state.updating) {
       this.setState({ updating: true });
       setLogLevel(newLevel).then(
         () => this.props.onChange(newLevel),
@@ -64,7 +64,6 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
   render() {
     const { updating, newLevel } = this.state;
     const header = translate('system.set_log_level');
-    const disableSubmit = updating || newLevel === this.props.logLevel;
     return (
       <Modal
         isOpen={true}
@@ -100,7 +99,7 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
           </div>
           <div className="modal-foot">
             {updating && <i className="spinner spacer-right" />}
-            <button disabled={disableSubmit} id="set-log-level-submit">
+            <button disabled={updating} id="set-log-level-submit">
               {translate('save')}
             </button>
             <a href="#" id="set-log-level-cancel" onClick={this.handleCancelClick}>

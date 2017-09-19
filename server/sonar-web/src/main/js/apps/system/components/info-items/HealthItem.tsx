@@ -21,13 +21,13 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import HealthCauseItem from './HealthCauseItem';
 import StatusIndicator from '../../../../components/common/StatusIndicator';
-import { HealthType, HealthCause } from '../../../../api/system';
+import { HealthType } from '../../../../api/system';
 
 interface Props {
   biggerHealth?: boolean;
   className?: string;
   health: HealthType;
-  healthCauses?: HealthCause[];
+  healthCauses?: string[];
 }
 
 export default function HealthItem({ biggerHealth, className, health, healthCauses }: Props) {

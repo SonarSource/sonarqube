@@ -29,6 +29,7 @@ import org.sonar.ce.http.CeHttpClientImpl;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.health.TestStandaloneHealthChecker;
 import org.sonar.server.telemetry.TelemetryData;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.tester.UserSessionRule;
@@ -51,9 +52,10 @@ public class InfoActionTest {
   private SystemInfoSection section1 = mock(SystemInfoSection.class);
   private SystemInfoSection section2 = mock(SystemInfoSection.class);
   private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class, Mockito.RETURNS_MOCKS);
+  private TestStandaloneHealthChecker healthChecker = new TestStandaloneHealthChecker();
   private TelemetryDataLoader statistics = mock(TelemetryDataLoader.class);
 
-  private InfoAction underTest = new InfoAction(userSessionRule, ceHttpClient, statistics, section1, section2);
+  private InfoAction underTest = new InfoAction(userSessionRule, ceHttpClient, healthChecker, statistics, section1, section2);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -100,7 +102,7 @@ public class InfoActionTest {
     TestResponse response = ws.newRequest().execute();
     // response does not contain empty "Section Three"
     verify(statistics).load();
-    assertThat(response.getInput()).isEqualTo("{\"Section One\":{\"foo\":\"bar\"},\"Section Two\":{\"one\":1,\"two\":2}," +
+    assertThat(response.getInput()).isEqualTo("{\"Health\":\"GREEN\",\"Health Causes\":[],\"Section One\":{\"foo\":\"bar\"},\"Section Two\":{\"one\":1,\"two\":2}," +
       "\"Statistics\":{\"plugins\":{},\"userCount\":0,\"projectCount\":0,\"lines\":0,\"ncloc\":0,\"projectCountByLanguage\":{},\"nclocByLanguage\":{}}}");
   }
 

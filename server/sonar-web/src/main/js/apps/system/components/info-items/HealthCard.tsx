@@ -23,14 +23,14 @@ import { map } from 'lodash';
 import HealthItem from './HealthItem';
 import OpenCloseIcon from '../../../../components/icons-components/OpenCloseIcon';
 import Section from './Section';
-import { HealthType, HealthCause, SysValueObject } from '../../../../api/system';
+import { HealthType, SysValueObject } from '../../../../api/system';
 import { LOGS_LEVELS, groupSections, getLogsLevel } from '../../utils';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
   biggerHealth?: boolean;
   health?: HealthType;
-  healthCauses?: HealthCause[];
+  healthCauses?: string[];
   onClick: (toggledCard: string) => void;
   open: boolean;
   name: string;

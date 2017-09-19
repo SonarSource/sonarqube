@@ -24,16 +24,8 @@ import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
 import StandaloneSysInfos from './StandaloneSysInfos';
 import { translate } from '../../../helpers/l10n';
-import { getSystemInfo, SysInfo } from '../../../api/system';
-import {
-  ClusterSysInfo,
-  getSystemLogsLevel,
-  isCluster,
-  parseQuery,
-  Query,
-  serializeQuery,
-  StandaloneSysInfo
-} from '../utils';
+import { ClusterSysInfo, getSystemInfo, SysInfo } from '../../../api/system';
+import { getSystemLogsLevel, isCluster, parseQuery, Query, serializeQuery } from '../utils';
 import { RawQuery } from '../../../helpers/query';
 import '../styles.css';
 
@@ -114,7 +106,7 @@ export default class App extends React.PureComponent<Props, State> {
     return (
       <StandaloneSysInfos
         expandedCards={query.expandedCards}
-        sysInfoData={sysInfoData as StandaloneSysInfo}
+        sysInfoData={sysInfoData}
         toggleCard={this.toggleSysInfoCards}
       />
     );

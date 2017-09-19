@@ -82,7 +82,7 @@ public class ClusterTest {
       app.waitForHealthGreen();
 
       System.out.println("-----------------------------------------------------------------------");
-      String json = app.wsClient().wsConnector().call(new GetRequest("api/system/cluster_info")).content();
+      String json = app.wsClient().wsConnector().call(new GetRequest("api/system/info")).content();
       System.out.println(json);
       System.out.println("-----------------------------------------------------------------------");
     }
