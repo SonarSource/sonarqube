@@ -19,36 +19,32 @@
  */
 package org.sonar.process.systeminfo;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Test;
-import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JvmPropertiesSectionTest {
-
-  private JvmPropertiesSection underTest = new JvmPropertiesSection("Web JVM Properties");
+public class SystemInfoUtilsTest {
 
   @Test
-  public void name_is_not_empty() {
-    assertThat(underTest.toProtobuf().getName()).isEqualTo("Web JVM Properties");
+  public void test_order() {
+    Collection<Section> sections = asList(
+      newSection("end2"),
+      newSection("bar"),
+      newSection("end1"),
+      newSection("foo"));
+
+    List<String> ordered = SystemInfoUtils.order(sections, "foo", "bar").stream()
+      .map(Section::getName)
+      .collect(Collectors.toList());
+    assertThat(ordered).isEqualTo(asList("foo", "bar", "end1", "end2"));
   }
 
-  @Test
-  public void system_properties_are_returned_in_alphabetical_order() {
-    ProtobufSystemInfo.Section section = underTest.toProtobuf();
-
-    List<String> keys = section.getAttributesList()
-      .stream()
-      .map(ProtobufSystemInfo.Attribute::getKey)
-      .collect(Collectors.toList());
-    assertThat(keys).contains("java.vm.vendor", "os.name");
-
-    List<String> sortedKeys = new ArrayList<>(keys);
-    Collections.sort(sortedKeys);
-    assertThat(sortedKeys).isEqualTo(keys);
+  private static Section newSection(String name) {
+    return Section.newBuilder().setName(name).build();
   }
 }
