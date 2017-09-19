@@ -18,27 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { sortBy } from 'lodash';
+import { map } from 'lodash';
 import HealthCard from './info-items/HealthCard';
-import { translate } from '../../../helpers/l10n';
 import {
-  ClusterSysInfo,
-  getAppNodes,
   getHealth,
   getHealthCauses,
-  getClusterMainCardSection,
-  getNodeName,
-  getSearchNodes,
-  ignoreInfoFields
+  getStandaloneMainSections,
+  getStandaloneSecondarySections,
+  ignoreInfoFields,
+  StandaloneSysInfo
 } from '../utils';
 
 interface Props {
   expandedCards: string[];
-  sysInfoData: ClusterSysInfo;
+  sysInfoData: StandaloneSysInfo;
   toggleCard: (toggledCard: string) => void;
 }
 
-export default function ClusterSysInfos({ expandedCards, sysInfoData, toggleCard }: Props) {
+export default function StandAloneSysInfos({ expandedCards, sysInfoData, toggleCard }: Props) {
   const mainCardName = 'System';
   return (
     <ul>
@@ -49,32 +46,15 @@ export default function ClusterSysInfos({ expandedCards, sysInfoData, toggleCard
         name={mainCardName}
         onClick={toggleCard}
         open={expandedCards.includes(mainCardName)}
-        sysInfoData={ignoreInfoFields(getClusterMainCardSection(sysInfoData))}
+        sysInfoData={ignoreInfoFields(getStandaloneMainSections(sysInfoData))}
       />
-      <li className="note system-info-health-title">
-        {translate('system.application_nodes_title')}
-      </li>
-      {sortBy(getAppNodes(sysInfoData), 'name').map(node => (
+      {map(getStandaloneSecondarySections(sysInfoData), (section, name) => (
         <HealthCard
-          key={getNodeName(node)}
-          health={getHealth(node)}
-          healthCauses={getHealthCauses(node)}
-          name={getNodeName(node)}
+          key={name}
+          name={name}
           onClick={toggleCard}
-          open={expandedCards.includes(getNodeName(node))}
-          sysInfoData={ignoreInfoFields(node)}
-        />
-      ))}
-      <li className="note system-info-health-title">{translate('system.search_nodes_title')}</li>
-      {sortBy(getSearchNodes(sysInfoData), 'name').map(node => (
-        <HealthCard
-          key={getNodeName(node)}
-          health={getHealth(node)}
-          healthCauses={getHealthCauses(node)}
-          name={getNodeName(node)}
-          onClick={toggleCard}
-          open={expandedCards.includes(getNodeName(node))}
-          sysInfoData={ignoreInfoFields(node)}
+          open={expandedCards.includes(name)}
+          sysInfoData={ignoreInfoFields(section)}
         />
       ))}
     </ul>

@@ -26,21 +26,23 @@ interface Props {
   loading: boolean;
   logLevel: string;
   showActions: boolean;
+  onLogLevelChange: () => void;
 }
 
-export default function PageHeader({ isCluster, loading, logLevel, showActions }: Props) {
+export default function PageHeader(props: Props) {
   return (
     <header className="page-header">
       <h1 className="page-title">{translate('system_info.page')}</h1>
-      {showActions && (
+      {props.showActions && (
         <PageActions
-          canDownloadLogs={!isCluster}
-          canRestart={!isCluster}
-          cluster={isCluster}
-          logLevel={logLevel}
+          canDownloadLogs={!props.isCluster}
+          canRestart={!props.isCluster}
+          cluster={props.isCluster}
+          logLevel={props.logLevel}
+          onLogLevelChange={props.onLogLevelChange}
         />
       )}
-      {loading && (
+      {props.loading && (
         <div className="page-actions">
           <i className="spinner" />
         </div>

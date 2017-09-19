@@ -28,6 +28,7 @@ interface Props {
   canRestart: boolean;
   cluster: boolean;
   logLevel: string;
+  onLogLevelChange: () => void;
 }
 
 interface State {
@@ -40,9 +41,9 @@ export default class PageActions extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
+      logLevel: props.logLevel,
       openLogsLevelForm: false,
-      openRestartForm: false,
-      logLevel: props.logLevel
+      openRestartForm: false
     };
   }
 
@@ -59,6 +60,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
 
   handleLogsLevelChange = (logLevel: string) => {
     this.setState({ logLevel });
+    this.props.onLogLevelChange();
     this.handleLogsLevelClose();
   };
 

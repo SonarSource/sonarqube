@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should support more than two nodes 1`] = `
 <ul>
   <HealthCard
     biggerHealth={true}
@@ -34,6 +34,7 @@ exports[`should render correctly 1`] = `
     open={false}
     sysInfoData={
       Object {
+        "Logs Level": "INFO",
         "Name": "Bar",
       }
     }
@@ -51,6 +52,7 @@ exports[`should render correctly 1`] = `
     open={false}
     sysInfoData={
       Object {
+        "Logs Level": "INFO",
         "Name": "Baz",
       }
     }

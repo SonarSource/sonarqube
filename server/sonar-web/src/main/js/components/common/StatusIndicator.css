@@ -1,0 +1,34 @@
+.status-indicator {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border-radius: 16px;
+  margin: 4px;
+}
+
+.status-indicator.small-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 8px;
+  margin: 8px;
+}
+
+.status-indicator.big-status-indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: 24px;
+  margin: 0;
+}
+
+.status-indicator.red {
+  background-color: #d4333f;
+}
+
+.sstatus-indicator.yellow {
+  background-color: #eabe06;
+}
+
+.status-indicator.green {
+  background-color: #00aa00;
+}

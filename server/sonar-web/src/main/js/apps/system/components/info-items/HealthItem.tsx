@@ -20,15 +20,17 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import HealthCauseItem from './HealthCauseItem';
+import StatusIndicator from '../../../../components/common/StatusIndicator';
 import { HealthType, HealthCause } from '../../../../api/system';
 
 interface Props {
+  biggerHealth?: boolean;
   className?: string;
   health: HealthType;
   healthCauses?: HealthCause[];
 }
 
-export default function HealthItem({ className, health, healthCauses }: Props) {
+export default function HealthItem({ biggerHealth, className, health, healthCauses }: Props) {
   const hasHealthCauses = healthCauses && healthCauses.length > 0 && health !== HealthType.GREEN;
   return (
     <div className={classNames('system-info-health-info', className)}>
@@ -36,7 +38,7 @@ export default function HealthItem({ className, health, healthCauses }: Props) {
         healthCauses!.map((cause, idx) => (
           <HealthCauseItem key={idx} className="spacer-right" health={health} healthCause={cause} />
         ))}
-      <span className={classNames('system-info-health-dot', health)} />
+      <StatusIndicator color={health.toLowerCase()} size={biggerHealth ? 'big' : undefined} />
     </div>
   );
 }

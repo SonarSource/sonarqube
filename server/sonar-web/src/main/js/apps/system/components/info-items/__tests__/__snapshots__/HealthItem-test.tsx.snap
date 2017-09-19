@@ -4,8 +4,8 @@ exports[`should not render health causes 1`] = `
 <div
   className="system-info-health-info"
 >
-  <span
-    className="system-info-health-dot GREEN"
+  <StatusIndicator
+    color="green"
   />
 </div>
 `;
@@ -14,8 +14,8 @@ exports[`should not render health causes 2`] = `
 <div
   className="system-info-health-info"
 >
-  <span
-    className="system-info-health-dot YELLOW"
+  <StatusIndicator
+    color="yellow"
   />
 </div>
 `;
@@ -33,8 +33,9 @@ exports[`should render correctly 1`] = `
       }
     }
   />
-  <span
-    className="system-info-health-dot RED"
+  <StatusIndicator
+    color="red"
+    size="big"
   />
 </div>
 `;
@@ -61,8 +62,8 @@ exports[`should render multiple health causes 1`] = `
       }
     }
   />
-  <span
-    className="system-info-health-dot YELLOW"
+  <StatusIndicator
+    color="yellow"
   />
 </div>
 `;

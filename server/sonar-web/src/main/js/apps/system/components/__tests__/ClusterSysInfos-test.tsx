@@ -20,18 +20,38 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ClusterSysInfos from '../ClusterSysInfos';
-import { HealthType, SysInfo } from '../../../../api/system';
+import { HealthType } from '../../../../api/system';
+import { ClusterSysInfo } from '../../utils';
 
-const sysInfoData: SysInfo = {
+const sysInfoData: ClusterSysInfo = {
   Cluster: true,
   Health: HealthType.RED,
   Name: 'Foo',
   'Health Causes': [{ message: 'Database down' }],
-  'Application Nodes': [{ Name: 'Bar', Health: HealthType.GREEN, 'Health Causes': [] }],
-  'Search Nodes': [{ Name: 'Baz', Health: HealthType.YELLOW, 'Health Causes': [] }]
+  'Application Nodes': [
+    { Name: 'Bar', Health: HealthType.GREEN, 'Health Causes': [], 'Logs Level': 'INFO' }
+  ],
+  'Search Nodes': [
+    { Name: 'Baz', Health: HealthType.YELLOW, 'Health Causes': [], 'Logs Level': 'INFO' }
+  ]
 };
 
 it('should render correctly', () => {
+  expect(
+    getWrapper({
+      sysInfoData: {
+        ...sysInfoData,
+        'Application Nodes': [
+          { Name: 'Foo', Health: HealthType.GREEN, 'Health Causes': [], 'Logs Level': 'INFO' },
+          { Name: 'Bar', Health: HealthType.RED, 'Health Causes': [], 'Logs Level': 'DEBUG' },
+          { Name: 'Baz', Health: HealthType.YELLOW, 'Health Causes': [], 'Logs Level': 'TRACE' }
+        ]
+      }
+    }).find('HealthCard')
+  ).toHaveLength(5);
+});
+
+it('should support more than two nodes', () => {
   expect(getWrapper()).toMatchSnapshot();
 });
 

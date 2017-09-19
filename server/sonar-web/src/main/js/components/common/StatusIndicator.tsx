@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,15 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+import * as React from 'react';
+import * as classNames from 'classnames';
+import './StatusIndicator.css';
 
-import javax.annotation.CheckForNull;
+interface Props {
+  className?: string;
+  color?: string;
+  size?: string;
+}
 
-public interface SonarQubeSectionMBean {
-  @CheckForNull
-  String getServerId();
-
-  String getVersion();
-
-  String getLogLevel();
+export default function StatusIndicator({ className, color, size }: Props) {
+  return (
+    <i
+      className={classNames(
+        'status-indicator',
+        color,
+        {
+          'small-status-indicator': size === 'small',
+          'big-status-indicator': size === 'big'
+        },
+        className
+      )}
+    />
+  );
 }

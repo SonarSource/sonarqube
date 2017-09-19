@@ -19,33 +19,108 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.lang.management.ClassLoadingMXBean;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.lang.management.RuntimeMXBean;
-import java.lang.management.ThreadMXBean;
-import java.util.Date;
-import org.sonar.api.utils.System2;
-import org.sonar.process.systeminfo.SystemInfoSection;
+import com.google.common.base.Joiner;
+import java.io.File;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.platform.Server;
+import org.sonar.api.security.SecurityRealm;
+import org.sonar.api.server.authentication.IdentityProvider;
+import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+import org.sonar.server.authentication.IdentityProviderRepository;
+import org.sonar.server.health.Health;
+import org.sonar.server.health.HealthChecker;
+import org.sonar.server.platform.ServerIdLoader;
+import org.sonar.server.platform.ServerLogging;
+import org.sonar.server.user.SecurityRealmFactory;
 
-import static java.lang.String.format;
-import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
-/**
- * JVM runtime information. Not exported as a MXBean because these information
- * are natively provided.
- */
-public class SystemSection implements SystemInfoSection {
-  private final System2 system;
+public class SystemSection extends BaseSectionMBean implements SystemSectionMBean {
 
-  public SystemSection() {
-    this(System2.INSTANCE);
+  private static final Joiner COMMA_JOINER = Joiner.on(", ");
+
+  static final String BRANDING_FILE_PATH = "web/WEB-INF/classes/com/sonarsource/branding";
+
+  private final Configuration config;
+  private final SecurityRealmFactory securityRealmFactory;
+  private final IdentityProviderRepository identityProviderRepository;
+  private final Server server;
+  private final ServerLogging serverLogging;
+  private final ServerIdLoader serverIdLoader;
+  private final HealthChecker healthChecker;
+
+  public SystemSection(Configuration config, SecurityRealmFactory securityRealmFactory,
+    IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging,
+    ServerIdLoader serverIdLoader, HealthChecker healthChecker) {
+    this.config = config;
+    this.securityRealmFactory = securityRealmFactory;
+    this.identityProviderRepository = identityProviderRepository;
+    this.server = server;
+    this.serverLogging = serverLogging;
+    this.serverIdLoader = serverIdLoader;
+    this.healthChecker = healthChecker;
   }
 
-  SystemSection(System2 system) {
-    this.system = system;
+  @Override
+  public String getServerId() {
+    return serverIdLoader.getRaw().orElse(null);
+  }
+
+  @Override
+  public String getVersion() {
+    return server.getVersion();
+  }
+
+  @Override
+  public String getLogLevel() {
+    return serverLogging.getRootLoggerLevel().name();
+  }
+
+  @CheckForNull
+  private String getExternalUserAuthentication() {
+    SecurityRealm realm = securityRealmFactory.getRealm();
+    return realm == null ? null : realm.getName();
+  }
+
+  private List<String> getEnabledIdentityProviders() {
+    return identityProviderRepository.getAllEnabledAndSorted()
+      .stream()
+      .filter(IdentityProvider::isEnabled)
+      .map(IdentityProvider::getName)
+      .collect(MoreCollectors.toList());
+  }
+
+  private List<String> getAllowsToSignUpEnabledIdentityProviders() {
+    return identityProviderRepository.getAllEnabledAndSorted()
+      .stream()
+      .filter(IdentityProvider::isEnabled)
+      .filter(IdentityProvider::allowsUsersToSignUp)
+      .map(IdentityProvider::getName)
+      .collect(MoreCollectors.toList());
+  }
+
+  private boolean getForceAuthentication() {
+    return config.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(false);
+  }
+
+  private boolean isOfficialDistribution() {
+    // the dependency com.sonarsource:sonarsource-branding is shaded to webapp
+    // during release (see sonar-web pom)
+    File brandingFile = new File(server.getRootDir(), BRANDING_FILE_PATH);
+    // no need to check that the file exists. java.io.File#length() returns zero in this case.
+    return brandingFile.length() > 0L;
+  }
+
+  @Override
+  public String name() {
+    // JMX name
+    return "SonarQube";
   }
 
   @Override
@@ -53,51 +128,31 @@ public class SystemSection implements SystemInfoSection {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
     protobuf.setName("System");
 
-    setAttribute(protobuf, "System Date", formatDateTime(new Date(system.now())));
-    setAttribute(protobuf, "Start Time", formatDateTime(new Date(runtimeMXBean().getStartTime())));
-    setAttribute(protobuf, "JVM Vendor", runtimeMXBean().getVmVendor());
-    setAttribute(protobuf, "JVM Name", runtimeMXBean().getVmName());
-    setAttribute(protobuf, "JVM Version", runtimeMXBean().getVmVersion());
-    setAttribute(protobuf, "Processors", runtime().availableProcessors());
-    setAttribute(protobuf, "System Classpath", runtimeMXBean().getClassPath());
-    setAttribute(protobuf, "BootClassPath", runtimeMXBean().getBootClassPath());
-    setAttribute(protobuf, "Library Path", runtimeMXBean().getLibraryPath());
-    setAttribute(protobuf, "Total Memory", formatMemory(runtime().totalMemory()));
-    setAttribute(protobuf, "Free Memory", formatMemory(runtime().freeMemory()));
-    setAttribute(protobuf, "Max Memory", formatMemory(runtime().maxMemory()));
-    setAttribute(protobuf, "Heap", memoryMXBean().getHeapMemoryUsage().toString());
-    setAttribute(protobuf, "Non Heap", memoryMXBean().getNonHeapMemoryUsage().toString());
-    setAttribute(protobuf, "System Load Average", format("%.1f%% (last minute)", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage() * 100.0));
-    setAttribute(protobuf, "Loaded Classes", classLoadingMXBean().getLoadedClassCount());
-    setAttribute(protobuf, "Total Loaded Classes", classLoadingMXBean().getTotalLoadedClassCount());
-    setAttribute(protobuf, "Unloaded Classes", classLoadingMXBean().getUnloadedClassCount());
-    setAttribute(protobuf, "Threads", threadMXBean().getThreadCount());
-    setAttribute(protobuf, "Threads Peak", threadMXBean().getPeakThreadCount());
-    setAttribute(protobuf, "Daemon Thread", threadMXBean().getDaemonThreadCount());
+    serverIdLoader.get().ifPresent(serverId -> {
+      setAttribute(protobuf, "Server ID", serverId.getId());
+      setAttribute(protobuf, "Server ID validated", serverId.isValid());
+    });
+    Health health = healthChecker.checkNode();
+    setAttribute(protobuf, "Health", health.getStatus().name());
+    setAttribute(protobuf, "Health Causes", health.getCauses());
+    setAttribute(protobuf, "Version", getVersion());
+    setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
+    addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());
+    addIfNotEmpty(protobuf, "External identity providers whose users are allowed to sign themselves up", getAllowsToSignUpEnabledIdentityProviders());
+    setAttribute(protobuf, "High Availability", false);
+    setAttribute(protobuf, "Official Distribution", isOfficialDistribution());
+    setAttribute(protobuf, "Force authentication", getForceAuthentication());
+    setAttribute(protobuf, "Home Dir", config.get(ProcessProperties.PATH_HOME).orElse(null));
+    setAttribute(protobuf, "Data Dir", config.get(ProcessProperties.PATH_DATA).orElse(null));
+    setAttribute(protobuf, "Temp Dir", config.get(ProcessProperties.PATH_TEMP).orElse(null));
+    setAttribute(protobuf, "Logs Dir", config.get(ProcessProperties.PATH_LOGS).orElse(null));
+    setAttribute(protobuf, "Logs Level", getLogLevel());
     return protobuf.build();
   }
 
-  private static RuntimeMXBean runtimeMXBean() {
-    return ManagementFactory.getRuntimeMXBean();
-  }
-
-  private static Runtime runtime() {
-    return Runtime.getRuntime();
-  }
-
-  private static MemoryMXBean memoryMXBean() {
-    return ManagementFactory.getMemoryMXBean();
-  }
-
-  private static ClassLoadingMXBean classLoadingMXBean() {
-    return ManagementFactory.getClassLoadingMXBean();
-  }
-
-  private static ThreadMXBean threadMXBean() {
-    return ManagementFactory.getThreadMXBean();
-  }
-
-  private static String formatMemory(long memoryInBytes) {
-    return format("%d MB", memoryInBytes / 1_000_000);
+  private static void addIfNotEmpty(ProtobufSystemInfo.Section.Builder protobuf, String key, @Nullable List<String> values) {
+    if (values != null && !values.isEmpty()) {
+      setAttribute(protobuf, key, COMMA_JOINER.join(values));
+    }
   }
 }

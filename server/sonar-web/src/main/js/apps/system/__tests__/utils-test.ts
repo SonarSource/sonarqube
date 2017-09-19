@@ -17,27 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as utils from '../utils';
+import * as u from '../utils';
 
 describe('parseQuery', () => {
   it('should correctly parse the expand array', () => {
-    expect(utils.parseQuery({})).toEqual({ expandedCards: [] });
-    expect(utils.parseQuery({ expand: 'foo,bar' })).toEqual({ expandedCards: ['foo', 'bar'] });
+    expect(u.parseQuery({})).toEqual({ expandedCards: [] });
+    expect(u.parseQuery({ expand: 'foo,bar' })).toEqual({ expandedCards: ['foo', 'bar'] });
   });
 });
 
 describe('serializeQuery', () => {
   it('should correctly serialize the expand array', () => {
-    expect(utils.serializeQuery({ expandedCards: [] })).toEqual({});
-    expect(utils.serializeQuery({ expandedCards: ['foo', 'bar'] })).toEqual({ expand: 'foo,bar' });
+    expect(u.serializeQuery({ expandedCards: [] })).toEqual({});
+    expect(u.serializeQuery({ expandedCards: ['foo', 'bar'] })).toEqual({ expand: 'foo,bar' });
   });
 });
 
 describe('groupSections', () => {
   it('should correctly group the root field into a main section', () => {
-    expect(utils.groupSections({ foo: 'Foo', bar: 3, baz: { a: 'a' } })).toEqual({
+    expect(u.groupSections({ foo: 'Foo', bar: 3, baz: { a: 'a' } })).toEqual({
       mainSection: { foo: 'Foo', bar: 3 },
       sections: { baz: { a: 'a' } }
     });
+  });
+});
+
+describe('getSystemLogsLevel', () => {
+  it('should correctly return log level for standalone mode', () => {
+    expect(u.getSystemLogsLevel({ 'Logs Level': 'FOO' } as u.StandaloneSysInfo)).toBe('FOO');
+    expect(u.getSystemLogsLevel({} as u.StandaloneSysInfo)).toBe('INFO');
+    expect(u.getSystemLogsLevel()).toBe('INFO');
+  });
+  it('should return the worst log level for cluster mode', () => {
+    expect(
+      u.getSystemLogsLevel({
+        Cluster: true,
+        'Application Nodes': [{ 'Logs Level': 'INFO' }, { 'Logs Level': 'DEBUG' }]
+      } as u.ClusterSysInfo)
+    ).toBe('DEBUG');
   });
 });

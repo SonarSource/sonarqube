@@ -57,8 +57,11 @@ public class JvmStateSection implements SystemInfoSection {
     addAttributeInMb(protobuf, "Non Heap Init (MB)", nonHeap.getInit());
     addAttributeInMb(protobuf, "Non Heap Max (MB)", nonHeap.getMax());
     addAttributeInMb(protobuf, "Non Heap Used (MB)", nonHeap.getUsed());
+
     ThreadMXBean thread = ManagementFactory.getThreadMXBean();
-    setAttribute(protobuf, "Thread Count", thread.getThreadCount());
+    setAttribute(protobuf, "Threads", thread.getThreadCount());
+
+    setAttribute(protobuf,"Processors", Runtime.getRuntime().availableProcessors());
 
     return protobuf.build();
   }

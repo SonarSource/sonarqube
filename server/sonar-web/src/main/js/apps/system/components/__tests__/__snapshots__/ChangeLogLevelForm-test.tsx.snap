@@ -34,12 +34,17 @@ exports[`should display some warning messages for non INFO levels 1`] = `
         <input
           checked={false}
           className="spacer-right text-middle"
+          id="loglevel-INFO"
           name="system.log_levels"
           onChange={[Function]}
           type="radio"
           value="INFO"
         />
-        INFO
+        <label
+          htmlFor="loglevel-INFO"
+        >
+          INFO
+        </label>
       </p>
       <p
         className="spacer-bottom"
@@ -47,12 +52,17 @@ exports[`should display some warning messages for non INFO levels 1`] = `
         <input
           checked={true}
           className="spacer-right text-middle"
+          id="loglevel-DEBUG"
           name="system.log_levels"
           onChange={[Function]}
           type="radio"
           value="DEBUG"
         />
-        DEBUG
+        <label
+          htmlFor="loglevel-DEBUG"
+        >
+          DEBUG
+        </label>
       </p>
       <p
         className="spacer-bottom"
@@ -60,12 +70,17 @@ exports[`should display some warning messages for non INFO levels 1`] = `
         <input
           checked={false}
           className="spacer-right text-middle"
+          id="loglevel-TRACE"
           name="system.log_levels"
           onChange={[Function]}
           type="radio"
           value="TRACE"
         />
-        TRACE
+        <label
+          htmlFor="loglevel-TRACE"
+        >
+          TRACE
+        </label>
       </p>
       <div
         className="alert alert-info spacer-top"
@@ -133,12 +148,17 @@ exports[`should render correctly 1`] = `
         <input
           checked={true}
           className="spacer-right text-middle"
+          id="loglevel-INFO"
           name="system.log_levels"
           onChange={[Function]}
           type="radio"
           value="INFO"
         />
-        INFO
+        <label
+          htmlFor="loglevel-INFO"
+        >
+          INFO
+        </label>
       </p>
       <p
         className="spacer-bottom"
@@ -146,12 +166,17 @@ exports[`should render correctly 1`] = `
         <input
           checked={false}
           className="spacer-right text-middle"
+          id="loglevel-DEBUG"
           name="system.log_levels"
           onChange={[Function]}
           type="radio"
           value="DEBUG"
         />
-        DEBUG
+        <label
+          htmlFor="loglevel-DEBUG"
+        >
+          DEBUG
+        </label>
       </p>
       <p
         className="spacer-bottom"
@@ -159,12 +184,17 @@ exports[`should render correctly 1`] = `
         <input
           checked={false}
           className="spacer-right text-middle"
+          id="loglevel-TRACE"
           name="system.log_levels"
           onChange={[Function]}
           type="radio"
           value="TRACE"
         />
-        TRACE
+        <label
+          htmlFor="loglevel-TRACE"
+        >
+          TRACE
+        </label>
       </p>
       <div
         className="alert alert-info spacer-top"
