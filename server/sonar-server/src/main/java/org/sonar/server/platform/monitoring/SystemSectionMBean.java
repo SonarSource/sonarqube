@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+package org.sonar.server.platform.monitoring;
 
-interface Props {
-  sysInfoData: object;
-}
+import javax.annotation.CheckForNull;
 
-export default class StandAloneSysInfos extends React.PureComponent<Props> {
-  render() {
-    return <div>StandAloneSysInfos</div>;
-  }
+public interface SystemSectionMBean {
+  @CheckForNull
+  String getServerId();
+
+  String getVersion();
+
+  String getLogLevel();
 }

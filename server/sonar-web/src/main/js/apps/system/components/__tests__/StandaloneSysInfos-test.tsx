@@ -17,29 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import ItemBoolean from './item-boolean';
-import ItemObject from './item-object';
-import ItemLogLevel from './item-log-level';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import StandaloneSysInfos from '../StandaloneSysInfos';
+import { HealthType } from '../../../../api/system';
+import { StandaloneSysInfo } from '../../utils';
 
-export default class ItemValue extends React.PureComponent {
-  render() {
-    if (this.props.name === 'Logs Level') {
-      return <ItemLogLevel value={this.props.value} />;
-    }
+const sysInfoData: StandaloneSysInfo = {
+  Cluster: true,
+  Health: HealthType.RED,
+  'Logs Level': 'DEBUG',
+  Name: 'Foo',
+  'Health Causes': [{ message: 'Database down' }],
+  'Web JVM': { 'Max Memory': '2Gb' },
+  'Compute Engine': { Pending: 4 },
+  Elasticsearch: { 'Number of Nodes': 1 }
+};
 
-    const rawValue = this.props.value;
-    let formattedValue;
-    switch (typeof this.props.value) {
-      case 'boolean':
-        formattedValue = <ItemBoolean value={rawValue} />;
-        break;
-      case 'object':
-        formattedValue = <ItemObject value={rawValue} />;
-        break;
-      default:
-        formattedValue = <code>{rawValue}</code>;
-    }
-    return formattedValue;
-  }
+it('should render correctly', () => {
+  expect(getWrapper()).toMatchSnapshot();
+});
+
+function getWrapper(props = {}) {
+  return shallow(
+    <StandaloneSysInfos
+      expandedCards={['Compute Engine', 'Foo']}
+      sysInfoData={sysInfoData}
+      toggleCard={() => {}}
+      {...props}
+    />
+  );
 }

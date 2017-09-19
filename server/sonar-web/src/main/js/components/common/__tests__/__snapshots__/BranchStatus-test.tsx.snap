@@ -23,8 +23,9 @@ exports[`renders status of short-living branches 1`] = `
   <li
     className="spacer-right"
   >
-    <i
-      className="branch-status-indicator is-passed"
+    <StatusIndicator
+      color="green"
+      size="small"
     />
   </li>
   <li>
@@ -49,8 +50,9 @@ exports[`renders status of short-living branches 2`] = `
   <li
     className="spacer-right"
   >
-    <i
-      className="branch-status-indicator is-failed"
+    <StatusIndicator
+      color="red"
+      size="small"
     />
   </li>
   <li>
@@ -75,8 +77,9 @@ exports[`renders status of short-living branches 3`] = `
   <li
     className="spacer-right"
   >
-    <i
-      className="branch-status-indicator is-failed"
+    <StatusIndicator
+      color="red"
+      size="small"
     />
   </li>
   <li>

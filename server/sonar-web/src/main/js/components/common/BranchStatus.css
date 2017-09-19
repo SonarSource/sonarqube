@@ -3,18 +3,6 @@
   text-align: right;
 }
 
-.branch-status-indicator {
-  display: block;
-  width: 8px;
-  height: 8px;
-  border-radius: 8px;
-  margin: 4px 0;
-}
-
-.branch-status-indicator.is-failed {
-  background-color: #d4333f;
-}
-
-.branch-status-indicator.is-passed {
-  background-color: #00aa00;
+.branch-status .status-indicator {
+  margin: 0;
 }

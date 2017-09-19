@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 
 public class JvmStateSectionTest {
 
-  public static final String PROCESS_NAME = "the process name";
+  private static final String PROCESS_NAME = "the process name";
 
   @Test
   public void toSystemInfoSection() {
@@ -39,7 +39,7 @@ public class JvmStateSectionTest {
 
     assertThat(section.getName()).isEqualTo(PROCESS_NAME);
     assertThat(section.getAttributesCount()).isGreaterThan(0);
-    assertThat(section.getAttributesList()).extracting("key").contains("Thread Count");
+    assertThat(section.getAttributesList()).extracting("key").contains("Threads", "Processors");
   }
 
   @Test

@@ -23,12 +23,28 @@ import PageHeader from '../PageHeader';
 
 it('should render correctly', () => {
   expect(
-    shallow(<PageHeader isCluster={true} loading={false} logLevel="INFO" showActions={true} />)
+    shallow(
+      <PageHeader
+        isCluster={true}
+        loading={false}
+        logLevel="INFO"
+        showActions={true}
+        onLogLevelChange={() => {}}
+      />
+    )
   ).toMatchSnapshot();
 });
 
 it('should show a loading spinner and no actions', () => {
   expect(
-    shallow(<PageHeader isCluster={true} loading={true} logLevel="INFO" showActions={false} />)
+    shallow(
+      <PageHeader
+        isCluster={true}
+        loading={true}
+        logLevel="INFO"
+        showActions={false}
+        onLogLevelChange={() => {}}
+      />
+    )
   ).toMatchSnapshot();
 });

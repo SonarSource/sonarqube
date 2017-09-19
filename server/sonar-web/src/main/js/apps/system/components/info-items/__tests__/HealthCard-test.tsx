@@ -48,6 +48,12 @@ it('should show a main section and multiple sub sections', () => {
   expect(getShallowWrapper({ open: true, sysInfoData })).toMatchSnapshot();
 });
 
+it('should display the log level alert', () => {
+  expect(
+    getShallowWrapper({ sysInfoData: { 'Logs Level': 'DEBUG' } }).find('.alert')
+  ).toMatchSnapshot();
+});
+
 function getShallowWrapper(props = {}) {
   return shallow(
     <HealthCard

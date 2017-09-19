@@ -35,10 +35,10 @@ public class WebSystemInfoModule {
       new JvmPropertiesSection("Web JVM Properties"),
       new JvmStateSection("Web JVM State"),
       DatabaseSection.class,
-      EsSection.class,
+      EsStateSection.class,
+      EsStatisticsSection.class,
       PluginsSection.class,
       SettingsSection.class,
-      SonarQubeSection.class,
       SystemSection.class,
 
       StandaloneInfoAction.class
@@ -50,7 +50,7 @@ public class WebSystemInfoModule {
       new JvmPropertiesSection("Web JVM Properties"),
       new JvmStateSection("Web JVM State"),
       DatabaseSection.class,
-      EsSection.class,
+      EsStateSection.class,
       PluginsSection.class,
 
       ClusterInfoAction.class

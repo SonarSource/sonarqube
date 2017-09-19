@@ -21,6 +21,7 @@ import * as React from 'react';
 import Modal from 'react-modal';
 import { setLogLevel } from '../../../api/system';
 import { translate } from '../../../helpers/l10n';
+import { LOGS_LEVELS } from '../utils';
 
 interface Props {
   infoMsg: string;
@@ -33,8 +34,6 @@ interface State {
   newLevel: string;
   updating: boolean;
 }
-
-const LOG_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
 
 export default class ChangeLogLevelForm extends React.PureComponent<Props, State> {
   constructor(props: Props) {
@@ -78,9 +77,10 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
             <h2>{header}</h2>
           </div>
           <div className="modal-body">
-            {LOG_LEVELS.map(level => (
+            {LOGS_LEVELS.map(level => (
               <p key={level} className="spacer-bottom">
                 <input
+                  id={`loglevel-${level}`}
                   type="radio"
                   className="spacer-right text-middle"
                   name="system.log_levels"
@@ -88,7 +88,7 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
                   checked={level === newLevel}
                   onChange={this.handleLevelChange}
                 />
-                {level}
+                <label htmlFor={`loglevel-${level}`}>{level}</label>
               </p>
             ))}
             <div className="alert alert-info spacer-top">{this.props.infoMsg}</div>
