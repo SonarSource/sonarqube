@@ -33,6 +33,8 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepository;
+import org.sonar.server.health.Health;
+import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
@@ -51,16 +53,18 @@ public class SonarQubeSection extends BaseSectionMBean implements SonarQubeSecti
   private final Server server;
   private final ServerLogging serverLogging;
   private final ServerIdLoader serverIdLoader;
+  private final HealthChecker healthChecker;
 
   public SonarQubeSection(Configuration config, SecurityRealmFactory securityRealmFactory,
     IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging,
-    ServerIdLoader serverIdLoader) {
+    ServerIdLoader serverIdLoader, HealthChecker healthChecker) {
     this.config = config;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
     this.server = server;
     this.serverLogging = serverLogging;
     this.serverIdLoader = serverIdLoader;
+    this.healthChecker = healthChecker;
   }
 
   @Override
@@ -127,6 +131,9 @@ public class SonarQubeSection extends BaseSectionMBean implements SonarQubeSecti
       setAttribute(protobuf, "Server ID", serverId.getId());
       setAttribute(protobuf, "Server ID validated", serverId.isValid());
     });
+    Health health = healthChecker.checkNode();
+    setAttribute(protobuf, "Health", health.getStatus().name());
+    setAttribute(protobuf, "Health Causes", health.getCauses());
     setAttribute(protobuf, "Version", getVersion());
     setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
     addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());
