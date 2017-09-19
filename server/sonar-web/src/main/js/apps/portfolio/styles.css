@@ -1,7 +1,6 @@
 .portfolio-measure-secondary-value {
-  line-height: 1.4;
-  margin-bottom: 4px;
-  font-size: 24px;
+  line-height: 24px;
+  font-size: 18px;
   font-weight: 300;
 }
 
@@ -9,7 +8,6 @@
   position: relative;
   z-index: 10;
   display: flex;
-  height: 80px;
   justify-content: space-around;
   align-items: center;
 }

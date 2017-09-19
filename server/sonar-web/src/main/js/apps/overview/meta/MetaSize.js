@@ -46,7 +46,7 @@ export default class MetaSize extends React.PureComponent {
       <DrilldownLink branch={this.props.branch} component={this.props.component.key} metric="ncloc">
         {formatMeasure(ncloc.value, 'SHORT_INT')}
       </DrilldownLink>
-      <div className="overview-domain-measure-label text-muted">{getMetricName('ncloc')}</div>
+      <div className="spacer-top text-muted">{getMetricName('ncloc')}</div>
     </div>
   );
 
@@ -55,8 +55,11 @@ export default class MetaSize extends React.PureComponent {
       measure => measure.metric.key === 'ncloc_language_distribution'
     );
 
+    const className =
+      this.props.component.qualifier === 'TRK' ? 'overview-meta-size-lang-dist' : 'big-spacer-top';
+
     return languageDistribution ? (
-      <div id="overview-language-distribution" className="overview-meta-size-lang-dist">
+      <div id="overview-language-distribution" className={className}>
         <LanguageDistributionContainer distribution={languageDistribution.value} width={160} />
       </div>
     ) : null;
@@ -66,16 +69,14 @@ export default class MetaSize extends React.PureComponent {
     const projects = this.props.measures.find(measure => measure.metric.key === 'projects');
 
     return projects ? (
-      <div id="overview-projects" className="overview-meta-size-ncloc is-half-width bordered-left">
+      <div id="overview-projects" className="overview-meta-size-ncloc is-half-width">
         <DrilldownLink
           branch={this.props.branch}
           component={this.props.component.key}
           metric="projects">
           {formatMeasure(projects.value, 'SHORT_INT')}
         </DrilldownLink>
-        <div className="overview-domain-measure-label text-muted">
-          {translate('metric.projects.name')}
-        </div>
+        <div className="spacer-top text-muted">{translate('metric.projects.name')}</div>
       </div>
     ) : null;
   };
@@ -89,12 +90,9 @@ export default class MetaSize extends React.PureComponent {
 
     return (
       <div id="overview-size" className="overview-meta-card">
+        {this.props.component.qualifier === 'APP' && this.renderProjects()}
         {this.renderLoC(ncloc)}
-        {this.props.component.qualifier === 'APP' ? (
-          this.renderProjects()
-        ) : (
-          this.renderLoCDistribution()
-        )}
+        {this.renderLoCDistribution()}
       </div>
     );
   }

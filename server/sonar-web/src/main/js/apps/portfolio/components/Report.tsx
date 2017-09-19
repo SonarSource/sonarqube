@@ -59,11 +59,7 @@ export default class Report extends React.PureComponent<Props, State> {
     );
   }
 
-  renderHeader = () => (
-    <header className="page-header">
-      <h3 className="page-title">{translate('report.page')}</h3>
-    </header>
-  );
+  renderHeader = () => <h4>{translate('report.page')}</h4>;
 
   render() {
     const { component } = this.props;
