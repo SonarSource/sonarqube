@@ -17,14 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.telemetry;
+package org.sonar.server.platform.monitoring.cluster;
 
-import org.sonar.core.platform.Module;
+import org.junit.Test;
 
-public class TelemetryModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(TelemetryDaemon.class,
-      TelemetryClient.class);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class NodeInfoTest {
+
+  @Test
+  public void test_equals_and_hashCode() {
+    NodeInfo foo = new NodeInfo("foo");
+    NodeInfo bar = new NodeInfo("bar");
+    NodeInfo bar2 = new NodeInfo("bar");
+
+    assertThat(foo.equals(foo)).isTrue();
+    assertThat(foo.equals(bar)).isFalse();
+    assertThat(bar.equals(bar2)).isTrue();
+
+    assertThat(bar.hashCode()).isEqualTo(bar.hashCode());
+    assertThat(bar.hashCode()).isEqualTo(bar2.hashCode());
   }
+
 }

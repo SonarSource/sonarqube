@@ -21,6 +21,7 @@ package org.sonar.process.systeminfo;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
@@ -41,7 +42,8 @@ public class JvmPropertiesSection implements SystemInfoSection {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
     protobuf.setName(name);
 
-    for (Map.Entry<Object, Object> systemProp : System.getProperties().entrySet()) {
+    Map<Object, Object> sortedProperties = new TreeMap<>(System.getProperties());
+    for (Map.Entry<Object, Object> systemProp : sortedProperties.entrySet()) {
       if (systemProp.getValue() != null) {
         setAttribute(protobuf, Objects.toString(systemProp.getKey()), Objects.toString(systemProp.getValue()));
       }

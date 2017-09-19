@@ -61,8 +61,6 @@ public class JvmStateSection implements SystemInfoSection {
     ThreadMXBean thread = ManagementFactory.getThreadMXBean();
     setAttribute(protobuf, "Threads", thread.getThreadCount());
 
-    setAttribute(protobuf,"Processors", Runtime.getRuntime().availableProcessors());
-
     return protobuf.build();
   }
 

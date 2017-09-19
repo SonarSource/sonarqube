@@ -19,18 +19,20 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.ce.http.CeHttpClient;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.systeminfo.SystemInfoSection;
+import org.sonar.process.systeminfo.SystemInfoUtils;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Arrays.stream;
 import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryData;
 
 /**
@@ -38,6 +40,9 @@ import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryD
  */
 public class InfoAction implements SystemWsAction {
 
+  private static final String[] ORDERED_SECTION_NAMES = {
+    "System", "Database", "Web JVM Properties", "Web JVM State", "Search State", "Search Statistics",
+    "Compute Engine Database Connection", "Compute Engine JVM State", "Compute Engine Tasks"};
   private final UserSession userSession;
   private final CeHttpClient ceHttpClient;
   private final SystemInfoSection[] systemInfoSections;
@@ -73,14 +78,18 @@ public class InfoAction implements SystemWsAction {
 
   private void writeJson(JsonWriter json) {
     json.beginObject();
-    Arrays.stream(systemInfoSections)
+
+    List<ProtobufSystemInfo.Section> sections = stream(systemInfoSections)
       .map(SystemInfoSection::toProtobuf)
+      .collect(MoreCollectors.toArrayList());
+    ceHttpClient.retrieveSystemInfo()
+      .ifPresent(ce -> sections.addAll(ce.getSectionsList()));
+    SystemInfoUtils
+      .order(sections, ORDERED_SECTION_NAMES)
       .forEach(section -> sectionToJson(section, json));
-    Optional<ProtobufSystemInfo.SystemInfo> ceSysInfo = ceHttpClient.retrieveSystemInfo();
-    if (ceSysInfo.isPresent()) {
-      ceSysInfo.get().getSectionsList().forEach(section -> sectionToJson(section, json));
-    }
+
     writeStatistics(json);
+
     json.endObject();
   }
 

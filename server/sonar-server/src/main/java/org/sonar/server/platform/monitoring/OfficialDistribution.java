@@ -17,17 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.server.platform.monitoring;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.telemetry.TelemetryDataLoader;
+import java.io.File;
+import org.sonar.api.platform.Server;
+import org.sonar.api.server.ServerSide;
 
-public class InfoActionModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(TelemetryDataLoader.class,
-      InfoAction.class,
-      ClusterInfoAction.class,
-      StandaloneInfoAction.class);
+@ServerSide
+public class OfficialDistribution {
+  static final String BRANDING_FILE_PATH = "web/WEB-INF/classes/com/sonarsource/branding";
+
+  private final Server server;
+
+  public OfficialDistribution(Server server) {
+    this.server = server;
+  }
+
+  public boolean check() {
+    // the dependency com.sonarsource:sonarsource-branding is shaded to webapp
+    // during release (see sonar-web pom)
+    File brandingFile = new File(server.getRootDir(), BRANDING_FILE_PATH);
+    // no need to check that the file exists. java.io.File#length() returns zero in this case.
+    return brandingFile.length() > 0L;
   }
 }

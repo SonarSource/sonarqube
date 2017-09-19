@@ -17,37 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.server.platform.monitoring.cluster;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.sonar.api.Startable;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginRepository;
+import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.updatecenter.common.Version;
-
-import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
-public class PluginsSection implements SystemInfoSection {
-  private final PluginRepository repository;
+@ComputeEngineSide
+public class ProcessInfoProvider implements Startable {
 
-  public PluginsSection(PluginRepository repository) {
-    this.repository = repository;
+  /** Used for Hazelcast's distributed queries in cluster mode */
+  private static ProcessInfoProvider INSTANCE;
+  private final List<SystemInfoSection> sections;
+
+  public ProcessInfoProvider(SystemInfoSection[] sections) {
+    this.sections = Arrays.stream(sections)
+      .filter(section -> !(section instanceof Global))
+      .collect(Collectors.toList());
   }
 
   @Override
-  public ProtobufSystemInfo.Section toProtobuf() {
-    ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
-    protobuf.setName("Plugins");
-    for (PluginInfo plugin : repository.getPluginInfos()) {
-      String label = "[" + plugin.getName() + "]";
-      Version version = plugin.getVersion();
-      if (version != null) {
-        label = version.getName() + " " + label;
-      }
-      setAttribute(protobuf, plugin.getKey(), label);
-    }
+  public void start() {
+    INSTANCE = this;
+  }
+
+  @Override
+  public void stop() {
+    INSTANCE = null;
+  }
+
+  public static ProtobufSystemInfo.SystemInfo provide() {
+    ProtobufSystemInfo.SystemInfo.Builder protobuf = ProtobufSystemInfo.SystemInfo.newBuilder();
+    INSTANCE.sections.forEach(section -> protobuf.addSections(section.toProtobuf()));
     return protobuf.build();
   }
 }
