@@ -26,7 +26,8 @@ exports[`should display the sysinfo detail 1`] = `
       Foobar
     </span>
     <HealthItem
-      className="pull-right spacer-left big-dot"
+      biggerHealth={true}
+      className="pull-right spacer-left"
       health="RED"
       healthCauses={
         Array [
@@ -63,6 +64,7 @@ exports[`should render correctly 1`] = `
       Foobar
     </span>
     <HealthItem
+      biggerHealth={false}
       className="pull-right spacer-left"
       health="RED"
       healthCauses={
@@ -95,6 +97,7 @@ exports[`should show a main section and multiple sub sections 1`] = `
       Foobar
     </span>
     <HealthItem
+      biggerHealth={false}
       className="pull-right spacer-left"
       health="RED"
       healthCauses={
