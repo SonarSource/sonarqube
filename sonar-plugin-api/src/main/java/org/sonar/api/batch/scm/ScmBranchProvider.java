@@ -17,20 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
 
-import org.junit.Test;
-import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.scm.ScmChangedFiles;
+package org.sonar.api.batch.scm;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import java.nio.file.Path;
+import java.util.Collection;
+import javax.annotation.Nullable;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 
-public class StatusDetectionFactoryTest {
-  @Test
-  public void testCreate() throws Exception {
-    StatusDetectionFactory factory = new StatusDetectionFactory(mock(ProjectRepositories.class), mock(ScmChangedFiles.class));
-    StatusDetection detection = factory.create();
-    assertThat(detection).isNotNull();
+/**
+ * A {@link ScmProvider} with the capability of finding out which files were changed in a branch.
+ * @since 6.6
+ */
+@ScannerSide
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+@ExtensionPoint
+public abstract class ScmBranchProvider extends ScmProvider {
+
+  /**
+   * Return absolute path of files changed in the current branch, compared to the provided target branch.
+   * @return null if SCM provider was not able to compute the list of files.
+   */
+  @Nullable
+  public Collection<Path> branchChangedFiles(String targetBranchName, Path rootBaseDir) {
+    return null;
   }
 }

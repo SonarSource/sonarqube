@@ -21,17 +21,20 @@ package org.sonar.scanner.scan.filesystem;
 
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.scm.ScmChangedFiles;
 
 @ScannerSide
 public class StatusDetectionFactory {
 
   private final ProjectRepositories projectReferentials;
+  private final ScmChangedFiles scmChangedFiles;
 
-  public StatusDetectionFactory(ProjectRepositories projectReferentials) {
+  public StatusDetectionFactory(ProjectRepositories projectReferentials, ScmChangedFiles scmChangedFiles) {
     this.projectReferentials = projectReferentials;
+    this.scmChangedFiles = scmChangedFiles;
   }
 
   StatusDetection create() {
-    return new StatusDetection(projectReferentials);
+    return new StatusDetection(projectReferentials, scmChangedFiles);
   }
 }

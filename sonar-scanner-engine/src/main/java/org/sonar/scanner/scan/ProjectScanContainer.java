@@ -93,9 +93,11 @@ import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 import org.sonar.scanner.scan.filesystem.InputComponentStoreProvider;
+import org.sonar.scanner.scan.filesystem.StatusDetectionFactory;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
 import org.sonar.scanner.scan.measure.DeprecatedMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
+import org.sonar.scanner.scm.ScmChangedFilesProvider;
 import org.sonar.scanner.storage.Storages;
 
 public class ProjectScanContainer extends ComponentContainer {
@@ -157,6 +159,8 @@ public class ProjectScanContainer extends ComponentContainer {
       new InputModuleHierarchyProvider(),
       DefaultComponentTree.class,
       BatchIdGenerator.class,
+      new ScmChangedFilesProvider(),
+      StatusDetectionFactory.class,
 
       // rules
       new ActiveRulesProvider(),

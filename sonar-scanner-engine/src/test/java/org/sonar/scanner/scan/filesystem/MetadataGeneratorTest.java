@@ -140,10 +140,9 @@ public class MetadataGeneratorTest {
     FileUtils.write(srcFile.toFile(), "single line");
 
     // status
-    when(statusDetection.status("foo", "src/main/java/foo/Bar.java", "6c1d64c0b3555892fe7273e954f6fb5a"))
+    DefaultInputFile inputFile = createInputFileWithMetadata(baseDir, "src/main/java/foo/Bar.java");
+    when(statusDetection.status("foo", inputFile, "6c1d64c0b3555892fe7273e954f6fb5a"))
       .thenReturn(InputFile.Status.ADDED);
-
-    InputFile inputFile = createInputFileWithMetadata(baseDir, "src/main/java/foo/Bar.java");
 
     assertThat(inputFile.type()).isEqualTo(InputFile.Type.MAIN);
     assertThat(inputFile.file()).isEqualTo(srcFile.toFile());

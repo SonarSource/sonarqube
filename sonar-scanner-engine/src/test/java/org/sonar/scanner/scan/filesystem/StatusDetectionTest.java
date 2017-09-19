@@ -22,23 +22,47 @@ package org.sonar.scanner.scan.filesystem;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
+import java.nio.file.Paths;
+import java.util.Collections;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.scm.ScmChangedFiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StatusDetectionTest {
   @Test
   public void detect_status() {
-    Table<String, String, String> t = ImmutableTable.of();
-    ProjectRepositories ref = new ProjectRepositories(t, createTable(), null);
-    StatusDetection statusDetection = new StatusDetection(ref);
+    ProjectRepositories ref = new ProjectRepositories(ImmutableTable.of(), createTable(), null);
+    ScmChangedFiles changedFiles = new ScmChangedFiles(null);
+    StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
 
-    assertThat(statusDetection.status("foo", "src/Foo.java", "ABCDE")).isEqualTo(InputFile.Status.SAME);
-    assertThat(statusDetection.status("foo", "src/Foo.java", "XXXXX")).isEqualTo(InputFile.Status.CHANGED);
-    assertThat(statusDetection.status("foo", "src/Other.java", "QWERT")).isEqualTo(InputFile.Status.ADDED);
+    assertThat(statusDetection.status("foo", createFile("src/Foo.java"), "ABCDE")).isEqualTo(InputFile.Status.SAME);
+    assertThat(statusDetection.status("foo", createFile("src/Foo.java"), "XXXXX")).isEqualTo(InputFile.Status.CHANGED);
+    assertThat(statusDetection.status("foo", createFile("src/Other.java"), "QWERT")).isEqualTo(InputFile.Status.ADDED);
+  }
+
+  @Test
+  public void detect_status_branches_exclude() {
+    ProjectRepositories ref = new ProjectRepositories(ImmutableTable.of(), createTable(), null);
+    ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.emptyList());
+    StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
+
+    // normally changed
+    assertThat(statusDetection.status("foo", createFile("src/Foo.java"), "XXXXX")).isEqualTo(InputFile.Status.SAME);
+  }
+
+  @Test
+  public void detect_status_branches_confirm() {
+    ProjectRepositories ref = new ProjectRepositories(ImmutableTable.of(), createTable(), null);
+    ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.singletonList(Paths.get("module", "src", "Foo.java")));
+    StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
+
+    assertThat(statusDetection.status("foo", createFile("src/Foo.java"), "XXXXX")).isEqualTo(InputFile.Status.CHANGED);
   }
 
   private static Table<String, String, FileData> createTable() {
@@ -48,5 +72,9 @@ public class StatusDetectionTest {
     t.put("foo", "src/Bar.java", new FileData("FGHIJ", "123456789"));
 
     return t;
+  }
+
+  private static DefaultInputFile createFile(String relativePath) {
+    return new TestInputFileBuilder("module", relativePath).build();
   }
 }

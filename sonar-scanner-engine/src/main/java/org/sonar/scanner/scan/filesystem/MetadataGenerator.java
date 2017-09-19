@@ -62,15 +62,15 @@ class MetadataGenerator {
       if (charsetDetector.run()) {
         charset = charsetDetector.charset();
       } else {
-        LOG.debug("Failed to detect a valid charset for file '{}'. Using default charset.", inputFile.relativePath());
+        LOG.debug("Failed to detect a valid charset for file '{}'. Using default charset.", inputFile);
         charset = defaultEncoding;
       }
       InputStream is = charsetDetector.inputStream();
       inputFile.setCharset(charset);
       Metadata metadata = fileMetadata.readMetadata(is, charset, inputFile.absolutePath(), exclusionsScanner.createCharHandlerFor(inputFile.key()));
       inputFile.setMetadata(metadata);
-      inputFile.setStatus(statusDetection.status(inputModule.definition().getKeyWithBranch(), inputFile.relativePath(), metadata.hash()));
-      LOG.debug("'{}' generated metadata {} with charset '{}'", inputFile.relativePath(), inputFile.type() == Type.TEST ? "as test " : "", charset);
+      inputFile.setStatus(statusDetection.status(inputModule.definition().getKeyWithBranch(), inputFile, metadata.hash()));
+      LOG.debug("'{}' generated metadata {} with charset '{}'", inputFile, inputFile.type() == Type.TEST ? "as test " : "", charset);
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }

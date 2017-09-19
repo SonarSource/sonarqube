@@ -20,23 +20,26 @@
 package org.sonar.scanner.scan.filesystem;
 
 import javax.annotation.concurrent.Immutable;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.scm.ScmChangedFiles;
 
 @Immutable
 class StatusDetection {
 
   private final ProjectRepositories projectRepositories;
+  private final ScmChangedFiles scmChangedFiles;
 
-  StatusDetection(ProjectRepositories projectSettings) {
+  StatusDetection(ProjectRepositories projectSettings, ScmChangedFiles scmChangedFiles) {
     this.projectRepositories = projectSettings;
+    this.scmChangedFiles = scmChangedFiles;
   }
 
-  InputFile.Status status(String projectKeyWithBranch, String relativePath, String hash) {
-    FileData fileDataPerPath = projectRepositories.fileData(projectKeyWithBranch, relativePath);
+  InputFile.Status status(String projectKeyWithBranch, DefaultInputFile inputFile, String hash) {
+    FileData fileDataPerPath = projectRepositories.fileData(projectKeyWithBranch, inputFile.relativePath());
     if (fileDataPerPath == null) {
       return InputFile.Status.ADDED;
     }
@@ -46,6 +49,9 @@ class StatusDetection {
     }
     if (StringUtils.isEmpty(previousHash)) {
       return InputFile.Status.ADDED;
+    }
+    if (!scmChangedFiles.confirmChanged(inputFile.path())) {
+      return InputFile.Status.SAME;
     }
     return InputFile.Status.CHANGED;
   }
