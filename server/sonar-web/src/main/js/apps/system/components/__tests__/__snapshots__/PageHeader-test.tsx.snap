@@ -14,6 +14,7 @@ exports[`should render correctly 1`] = `
     canRestart={false}
     cluster={true}
     logLevel="INFO"
+    onLogLevelChange={[Function]}
   />
 </header>
 `;

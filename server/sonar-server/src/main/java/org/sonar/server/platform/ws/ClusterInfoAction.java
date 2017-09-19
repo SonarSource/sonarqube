@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
+import java.util.Arrays;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -50,22 +51,22 @@ public class ClusterInfoAction implements SystemWsAction {
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
 
-      // global section
-      json.prop("Cluster", true);
-      json.prop("Cluster Name", "foo");
+      json.name("System");
+      json.beginObject();
+      json.prop("High Availability", true);
+      json.prop("Cluster Name", "fooo");
       json.prop("Server Id", "ABC123");
       json.prop("Health", "RED");
       json
         .name("Health Causes")
-        .beginArray().beginObject().prop("message", "Requires at least two search nodes").endObject().endArray();
+        .beginArray().values(Arrays.asList("foo", "bar")).endArray();
+      json.endObject();
 
       json.name("Settings");
       json.beginObject();
       json.prop("sonar.forceAuthentication", true);
       json.prop("sonar.externalIdentityProviders", "GitHub, BitBucket");
       json.endObject();
-
-
 
       json.name("Database");
       json
@@ -83,7 +84,7 @@ public class ClusterInfoAction implements SystemWsAction {
         .prop("workersPerNode", 4)
         .endObject();
 
-      json.name("Elasticsearch");
+      json.name("Search");
       json
         .beginObject()
         .prop("Health", "GREEN")
