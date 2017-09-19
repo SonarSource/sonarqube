@@ -19,41 +19,37 @@
  */
 package org.sonar.server.platform.monitoring.cluster;
 
-import org.sonar.api.config.Configuration;
-import org.sonar.api.platform.Server;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.systeminfo.SystemInfoSection;
+import org.sonar.process.systeminfo.SystemInfoUtils;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.platform.monitoring.OfficialDistribution;
+import org.sonar.server.platform.ServerLogging;
 
-import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
-
+@ComputeEngineSide
 @ServerSide
-public class NodeSystemSection implements SystemInfoSection {
+public class LoggingSection implements SystemInfoSection {
 
-  private final Configuration config;
-  private final Server server;
-  private final OfficialDistribution officialDistribution;
+  private final SonarRuntime runtime;
+  private final ServerLogging logging;
 
-  public NodeSystemSection(Configuration config, Server server, OfficialDistribution officialDistribution) {
-    this.config = config;
-    this.server = server;
-    this.officialDistribution = officialDistribution;
+  public LoggingSection(SonarRuntime runtime, ServerLogging logging) {
+    this.runtime = runtime;
+    this.logging = logging;
   }
 
   @Override
   public ProtobufSystemInfo.Section toProtobuf() {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
-    protobuf.setName("System");
-
-    setAttribute(protobuf, "Version", server.getVersion());
-    setAttribute(protobuf, "Official Distribution", officialDistribution.check());
-    setAttribute(protobuf, "Home Dir", config.get(ProcessProperties.PATH_HOME).orElse(null));
-    setAttribute(protobuf, "Data Dir", config.get(ProcessProperties.PATH_DATA).orElse(null));
-    setAttribute(protobuf, "Temp Dir", config.get(ProcessProperties.PATH_TEMP).orElse(null));
-    setAttribute(protobuf, "Processors", Runtime.getRuntime().availableProcessors());
+    if (runtime.getSonarQubeSide() == SonarQubeSide.COMPUTE_ENGINE) {
+      protobuf.setName("Compute Engine Logging");
+    } else {
+      protobuf.setName("Web Logging");
+    }
+    SystemInfoUtils.setAttribute(protobuf, "Logs Level", logging.getRootLoggerLevel().name());
+    SystemInfoUtils.setAttribute(protobuf, "Logs Dir", logging.getLogsDir().getAbsolutePath());
     return protobuf.build();
   }
-
 }

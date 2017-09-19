@@ -21,8 +21,8 @@ import * as React from 'react';
 import { sortBy } from 'lodash';
 import HealthCard from './info-items/HealthCard';
 import { translate } from '../../../helpers/l10n';
+import { ClusterSysInfo } from '../../../api/system';
 import {
-  ClusterSysInfo,
   getAppNodes,
   getHealth,
   getHealthCauses,

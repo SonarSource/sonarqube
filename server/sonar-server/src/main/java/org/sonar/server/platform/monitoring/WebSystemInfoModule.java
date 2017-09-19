@@ -25,9 +25,11 @@ import org.sonar.server.platform.monitoring.cluster.AppNodesInfoLoaderImpl;
 import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.GlobalSystemSection;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
+import org.sonar.server.platform.monitoring.cluster.LoggingSection;
 import org.sonar.server.platform.monitoring.cluster.NodeSystemSection;
+import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoaderImpl;
 import org.sonar.server.platform.ws.ClusterInfoAction;
-import org.sonar.server.platform.ws.StandaloneInfoAction;
+import org.sonar.server.platform.ws.InfoAction;
 
 public class WebSystemInfoModule {
 
@@ -48,7 +50,7 @@ public class WebSystemInfoModule {
 
       OfficialDistribution.class,
 
-      StandaloneInfoAction.class
+      InfoAction.class
     };
   }
 
@@ -59,6 +61,7 @@ public class WebSystemInfoModule {
       DatabaseSection.class,
       EsStatisticsSection.class,
       GlobalSystemSection.class,
+      LoggingSection.class,
       NodeSystemSection.class,
       PluginsSection.class,
       SettingsSection.class,
@@ -68,6 +71,7 @@ public class WebSystemInfoModule {
       ProcessInfoProvider.class,
       GlobalInfoLoader.class,
       AppNodesInfoLoaderImpl.class,
+      SearchNodesInfoLoaderImpl.class,
       ClusterInfoAction.class
     };
   }

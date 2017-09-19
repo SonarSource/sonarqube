@@ -59,7 +59,7 @@ function getShallowWrapper(props = {}) {
     <HealthCard
       biggerHealth={false}
       health={HealthType.RED}
-      healthCauses={[{ message: 'foo' }]}
+      healthCauses={['foo']}
       name="Foobar"
       onClick={() => {}}
       open={false}

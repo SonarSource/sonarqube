@@ -10,6 +10,7 @@
 
   <artifactId>sonar-process</artifactId>
   <name>SonarQube :: Process</name>
+  <description>Library shared by all kinds of server processes: main, web and compute engine</description>
 
   <properties>
     <sonar.exclusions>target/generated-sources/**/*</sonar.exclusions>

@@ -26,6 +26,8 @@ import org.sonar.ce.http.CeHttpClient;
 import org.sonar.ce.http.CeHttpClientImpl;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.app.RestartFlagHolder;
+import org.sonar.server.health.HealthChecker;
+import org.sonar.server.health.TestStandaloneHealthChecker;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.WebServer;
 import org.sonar.server.telemetry.TelemetryDataLoader;
@@ -37,13 +39,14 @@ import static org.mockito.Mockito.mock;
 
 public class SystemWsTest {
 
-  CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class);
+  private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class);
+  private HealthChecker healthChecker = new TestStandaloneHealthChecker();
 
   @Test
   public void define() {
     RestartAction action1 = new RestartAction(mock(UserSession.class), mock(Configuration.class), mock(Platform.class), mock(ProcessCommandWrapper.class),
       mock(RestartFlagHolder.class), mock(WebServer.class));
-    InfoAction action2 = new InfoAction(new AnonymousMockUserSession(), ceHttpClient, mock(TelemetryDataLoader.class));
+    InfoAction action2 = new InfoAction(new AnonymousMockUserSession(), ceHttpClient, healthChecker, mock(TelemetryDataLoader.class));
     SystemWs ws = new SystemWs(action1, action2);
     WebService.Context context = new WebService.Context();
 

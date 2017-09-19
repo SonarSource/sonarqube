@@ -20,20 +20,33 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ClusterSysInfos from '../ClusterSysInfos';
-import { HealthType } from '../../../../api/system';
-import { ClusterSysInfo } from '../../utils';
+import { ClusterSysInfo, HealthType } from '../../../../api/system';
 
 const sysInfoData: ClusterSysInfo = {
-  Cluster: true,
   Health: HealthType.RED,
-  Name: 'Foo',
-  'Health Causes': [{ message: 'Database down' }],
+  'Health Causes': ['Database down'],
   'Application Nodes': [
-    { Name: 'Bar', Health: HealthType.GREEN, 'Health Causes': [], 'Logs Level': 'INFO' }
+    {
+      Name: 'Bar',
+      Health: HealthType.GREEN,
+      'Health Causes': [],
+      'Compute Engine Logging': { 'Logs Level': 'INFO' },
+      'Web Logging': { 'Logs Level': 'INFO' }
+    }
   ],
   'Search Nodes': [
-    { Name: 'Baz', Health: HealthType.YELLOW, 'Health Causes': [], 'Logs Level': 'INFO' }
-  ]
+    {
+      Name: 'Baz',
+      Health: HealthType.YELLOW,
+      'Health Causes': [],
+      'Compute Engine Logging': { 'Logs Level': 'INFO' },
+      'Web Logging': { 'Logs Level': 'INFO' }
+    }
+  ],
+  System: {
+    'High Availability': true,
+    'Logs Level': 'INFO'
+  }
 };
 
 it('should render correctly', () => {
@@ -42,9 +55,27 @@ it('should render correctly', () => {
       sysInfoData: {
         ...sysInfoData,
         'Application Nodes': [
-          { Name: 'Foo', Health: HealthType.GREEN, 'Health Causes': [], 'Logs Level': 'INFO' },
-          { Name: 'Bar', Health: HealthType.RED, 'Health Causes': [], 'Logs Level': 'DEBUG' },
-          { Name: 'Baz', Health: HealthType.YELLOW, 'Health Causes': [], 'Logs Level': 'TRACE' }
+          {
+            Name: 'Foo',
+            Health: HealthType.GREEN,
+            'Health Causes': [],
+            'Compute Engine Logging': { 'Logs Level': 'INFO' },
+            'Web Logging': { 'Logs Level': 'INFO' }
+          },
+          {
+            Name: 'Bar',
+            Health: HealthType.RED,
+            'Health Causes': [],
+            'Compute Engine Logging': { 'Logs Level': 'INFO' },
+            'Web Logging': { 'Logs Level': 'DEBUG' }
+          },
+          {
+            Name: 'Baz',
+            Health: HealthType.YELLOW,
+            'Health Causes': [],
+            'Compute Engine Logging': { 'Logs Level': 'TRACE' },
+            'Web Logging': { 'Logs Level': 'DEBUG' }
+          }
         ]
       }
     }).find('HealthCard')

@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { HealthCause, HealthType } from '../../../../api/system';
+import { HealthType } from '../../../../api/system';
 
 interface Props {
   className?: string;
   health: HealthType;
-  healthCause: HealthCause;
+  healthCause: string;
 }
 
 export default function HealthCauseItem({ className, health, healthCause }: Props) {
@@ -35,7 +35,7 @@ export default function HealthCauseItem({ className, health, healthCause }: Prop
         health === HealthType.RED ? 'alert-danger' : 'alert-warning',
         className
       )}>
-      {healthCause.message}
+      {healthCause}
     </span>
   );
 }

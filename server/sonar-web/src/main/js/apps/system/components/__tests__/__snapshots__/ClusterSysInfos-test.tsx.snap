@@ -7,9 +7,7 @@ exports[`should support more than two nodes 1`] = `
     health="RED"
     healthCauses={
       Array [
-        Object {
-          "message": "Database down",
-        },
+        "Database down",
       ]
     }
     name="System"
@@ -17,7 +15,8 @@ exports[`should support more than two nodes 1`] = `
     open={true}
     sysInfoData={
       Object {
-        "Name": "Foo",
+        "High Availability": true,
+        "Logs Level": "INFO",
       }
     }
   />
@@ -34,8 +33,12 @@ exports[`should support more than two nodes 1`] = `
     open={false}
     sysInfoData={
       Object {
-        "Logs Level": "INFO",
-        "Name": "Bar",
+        "Compute Engine Logging": Object {
+          "Logs Level": "INFO",
+        },
+        "Web Logging": Object {
+          "Logs Level": "INFO",
+        },
       }
     }
   />
@@ -52,8 +55,12 @@ exports[`should support more than two nodes 1`] = `
     open={false}
     sysInfoData={
       Object {
-        "Logs Level": "INFO",
-        "Name": "Baz",
+        "Compute Engine Logging": Object {
+          "Logs Level": "INFO",
+        },
+        "Web Logging": Object {
+          "Logs Level": "INFO",
+        },
       }
     }
   />

@@ -174,6 +174,10 @@ public class Navigation {
     return open("/settings/server_id", ServerIdPage.class);
   }
 
+  public SystemInfoPage openSystemInfo() {
+    return open("/admin/system", SystemInfoPage.class);
+  }
+
   public NotificationsPage openNotifications() {
     return open("/account/notifications", NotificationsPage.class);
   }

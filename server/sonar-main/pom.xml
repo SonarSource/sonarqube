@@ -12,6 +12,8 @@
 
   <artifactId>sonar-main</artifactId>
   <name>SonarQube :: Main Process</name>
+  <description>Server process used to bootstrap Elasticsearch, Web Server and
+  Compute Engine processes. Could be merged with sonar-application.</description>
 
   <properties>
     <!--

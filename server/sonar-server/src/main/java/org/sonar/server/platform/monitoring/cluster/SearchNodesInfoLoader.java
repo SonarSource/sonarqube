@@ -17,25 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.monitoring;
+package org.sonar.server.platform.monitoring.cluster;
 
-import org.sonar.process.systeminfo.JvmPropertiesSection;
-import org.sonar.process.systeminfo.JvmStateSection;
-import org.sonar.server.platform.monitoring.DatabaseSection;
-import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
 
-public class CeSystemInfoModule {
+import java.util.Collection;
 
-  private CeSystemInfoModule() {
-    // do not instantiate
-  }
-
-  public static Object[] forClusterMode() {
-    return new Object[] {
-      new JvmPropertiesSection("Compute Engine JVM Properties"),
-      new JvmStateSection("Compute Engine JVM State"),
-      DatabaseSection.class,
-      ProcessInfoProvider.class
-    };
-  }
+/**
+ * Loads "system information" of all Elasticsearch nodes.
+ */
+public interface SearchNodesInfoLoader {
+  Collection<NodeInfo> load();
 }

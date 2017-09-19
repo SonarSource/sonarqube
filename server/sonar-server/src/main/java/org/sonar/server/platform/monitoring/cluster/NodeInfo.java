@@ -20,15 +20,23 @@
 package org.sonar.server.platform.monitoring.cluster;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
+/**
+ * Represents the system information of a cluster node. In the case of
+ * application node, it merges information from Web Server and Compute
+ * Engine processes.
+ *
+ */
 public class NodeInfo {
 
   private final String name;
-  private final Map<String, String> attributes = new LinkedHashMap<>();
+  private String host = null;
+  private Long startedAt = null;
+  private String errorMessage = null;
   private final List<ProtobufSystemInfo.Section> sections = new ArrayList<>();
 
   public NodeInfo(String name) {
@@ -39,13 +47,28 @@ public class NodeInfo {
     return name;
   }
 
-  public NodeInfo setAttribute(String key, String value) {
-    this.attributes.put(key, value);
-    return this;
+  public Optional<String> getHost() {
+    return Optional.ofNullable(host);
   }
 
-  public Map<String, String> getAttributes() {
-    return attributes;
+  public void setHost(@Nullable String s) {
+    this.host = s;
+  }
+
+  public Optional<Long> getStartedAt() {
+    return Optional.ofNullable(startedAt);
+  }
+
+  public void setStartedAt(@Nullable Long l) {
+    this.startedAt = l;
+  }
+
+  public Optional<String> getErrorMessage() {
+    return Optional.ofNullable(errorMessage);
+  }
+
+  public void setErrorMessage(@Nullable String s) {
+    this.errorMessage = s;
   }
 
   public NodeInfo addSection(ProtobufSystemInfo.Section section) {

@@ -24,6 +24,8 @@ import org.sonar.ce.monitoring.CeTasksMBeanImpl;
 import org.sonar.ce.queue.CeQueueInitializer;
 import org.sonar.ce.queue.InternalCeQueueImpl;
 import org.sonar.core.platform.Module;
+import org.sonar.process.systeminfo.JvmPropertiesSection;
+import org.sonar.process.systeminfo.JvmStateSection;
 
 public class CeQueueModule extends Module {
   @Override
@@ -35,7 +37,9 @@ public class CeQueueModule extends Module {
       // queue monitoring
       CEQueueStatusImpl.class,
       CeTasksMBeanImpl.class,
-      
+      new JvmStateSection("Compute Engine JVM State"),
+      new JvmPropertiesSection("Compute Engine JVM Properties"),
+
       // init queue state and queue processing
       CeQueueInitializer.class);
   }
