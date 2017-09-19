@@ -66,13 +66,13 @@ export default class ApplicationQualityGateProject extends React.PureComponent {
     const isDiff = isDiffMetric(condition.metric);
 
     return (
-      <li key={condition.metric}>
+      <li className={classNames({ 'is-on-leak': isDiff })} key={condition.metric}>
         <span className="text-limited">
           <strong>{formatMeasure(condition.value, metric.type)}</strong> {metricName}
           {!isDiff && condition.onLeak && ' ' + translate('quality_gates.conditions.leak')}
         </span>
         <span
-          className={classNames('pull-right', 'big-spacer-left', {
+          className={classNames('big-spacer-left', {
             'text-danger': condition.status === 'ERROR',
             'text-warning': condition.status === 'WARN'
           })}>

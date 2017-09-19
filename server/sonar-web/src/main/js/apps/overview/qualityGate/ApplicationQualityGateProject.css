@@ -11,5 +11,16 @@
 }
 
 .application-quality-gate-project-conditions > li {
-  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.application-quality-gate-project-conditions > li.is-on-leak {
+  margin-left: -9px;
+  margin-right: -9px;
+  padding-left: 9px;
+  padding-right: 9px;
+  background-color: #fbf3d5;
 }

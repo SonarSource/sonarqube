@@ -24,7 +24,9 @@ exports[`renders 1`] = `
     <ul
       className="application-quality-gate-project-conditions"
     >
-      <li>
+      <li
+        className="is-on-leak"
+      >
         <span
           className="text-limited"
         >
@@ -35,14 +37,16 @@ exports[`renders 1`] = `
           Coverage on New Code
         </span>
         <span
-          className="pull-right big-spacer-left text-danger"
+          className="big-spacer-left text-danger"
         >
           quality_gates.operator.LT.short
            
           85.0%
         </span>
       </li>
-      <li>
+      <li
+        className=""
+      >
         <span
           className="text-limited"
         >
@@ -53,14 +57,16 @@ exports[`renders 1`] = `
           Bugs
         </span>
         <span
-          className="pull-right big-spacer-left text-warning"
+          className="big-spacer-left text-warning"
         >
           quality_gates.operator.GT.short
            
           0
         </span>
       </li>
-      <li>
+      <li
+        className=""
+      >
         <span
           className="text-limited"
         >
@@ -72,7 +78,7 @@ exports[`renders 1`] = `
            quality_gates.conditions.leak
         </span>
         <span
-          className="pull-right big-spacer-left text-danger"
+          className="big-spacer-left text-danger"
         >
           quality_gates.operator.GT.short
            

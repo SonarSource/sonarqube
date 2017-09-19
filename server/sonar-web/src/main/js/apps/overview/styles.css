@@ -32,10 +32,12 @@
 }
 
 .overview-quality-gate-conditions-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 .overview-quality-gate-condition {
-  float: left;
   display: block;
   margin-top: 15px;
   margin-right: 30px;
