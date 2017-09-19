@@ -243,6 +243,7 @@
       p.scope='PRJ'
     and (p.qualifier='TRK' or p.qualifier='VW' or p.qualifier='APP')
       and p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+      and p.main_branch_project_uuid IS NULL
   </select>
 
   <select id="selectComponentsByQualifiers" resultType="Component">

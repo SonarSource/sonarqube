@@ -244,6 +244,20 @@ public class DeleteActionTest {
   }
 
   @Test
+  public void delete_branches() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    logInAsAdministrator(organization);
+
+    sendRequest(organization);
+
+    verifyOrganizationDoesNotExist(organization);
+    assertThat(db.countRowsOfTable(db.getSession(), "projects")).isZero();
+    assertThat(db.countRowsOfTable(db.getSession(), "project_branches")).isZero();
+  }
+
+  @Test
   public void delete_permissions_templates_and_permissions_and_groups_of_specified_organization() {
     OrganizationDto org = db.organizations().insert();
     OrganizationDto otherOrg = db.organizations().insert();
