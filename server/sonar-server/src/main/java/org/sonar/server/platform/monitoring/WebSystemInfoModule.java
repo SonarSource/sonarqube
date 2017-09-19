@@ -27,7 +27,6 @@ import org.sonar.server.platform.monitoring.cluster.GlobalSystemSection;
 import org.sonar.server.platform.monitoring.cluster.NodeSystemSection;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProviderImpl;
 import org.sonar.server.platform.ws.ClusterInfoAction;
-import org.sonar.server.platform.ws.StandaloneInfoAction;
 
 public class WebSystemInfoModule {
 
@@ -47,8 +46,6 @@ public class WebSystemInfoModule {
       StandaloneSystemSection.class,
 
       OfficialDistribution.class,
-
-      StandaloneInfoAction.class
     };
   }
 
