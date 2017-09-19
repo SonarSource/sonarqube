@@ -24,6 +24,7 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.es.EsClient;
@@ -31,7 +32,7 @@ import org.sonar.server.es.EsClient;
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
-public class EsStatisticsSection implements SystemInfoSection {
+public class EsStatisticsSection implements SystemInfoSection, Global {
 
   private final EsClient esClient;
 

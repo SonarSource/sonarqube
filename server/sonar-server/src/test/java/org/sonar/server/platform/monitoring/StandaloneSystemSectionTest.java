@@ -19,13 +19,10 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.io.File;
 import java.util.Optional;
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
@@ -47,13 +44,10 @@ import static org.mockito.Mockito.when;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
-public class SystemSectionTest {
+public class StandaloneSystemSectionTest {
 
   private static final String SERVER_ID_PROPERTY = "Server ID";
   private static final String SERVER_ID_VALIDATED_PROPERTY = "Server ID validated";
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
   public IdentityProviderRepositoryRule identityProviderRepository = new IdentityProviderRepositoryRule();
@@ -64,9 +58,10 @@ public class SystemSectionTest {
   private ServerLogging serverLogging = mock(ServerLogging.class);
   private SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
   private TestStandaloneHealthChecker healthChecker = new TestStandaloneHealthChecker();
+  private OfficialDistribution officialDistribution = mock(OfficialDistribution.class);
 
-  private SystemSection underTest = new SystemSection(settings.asConfig(), securityRealmFactory, identityProviderRepository, server,
-    serverLogging, serverIdLoader, healthChecker);
+  private StandaloneSystemSection underTest = new StandaloneSystemSection(settings.asConfig(), securityRealmFactory, identityProviderRepository, server,
+    serverLogging, serverIdLoader, officialDistribution, healthChecker);
 
   @Before
   public void setUp() throws Exception {
@@ -118,10 +113,7 @@ public class SystemSectionTest {
 
   @Test
   public void official_distribution() throws Exception {
-    File rootDir = temp.newFolder();
-    FileUtils.write(new File(rootDir, SystemSection.BRANDING_FILE_PATH), "1.2");
-
-    when(server.getRootDir()).thenReturn(rootDir);
+    when(officialDistribution.check()).thenReturn(true);
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeIs(protobuf, "Official Distribution", true);
@@ -129,9 +121,7 @@ public class SystemSectionTest {
 
   @Test
   public void not_an_official_distribution() throws Exception {
-    File rootDir = temp.newFolder();
-    // branding file is missing
-    when(server.getRootDir()).thenReturn(rootDir);
+    when(officialDistribution.check()).thenReturn(true);
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeIs(protobuf, "Official Distribution", false);

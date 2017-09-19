@@ -20,7 +20,6 @@
 package org.sonar.server.platform.monitoring;
 
 import com.google.common.base.Joiner;
-import java.io.File;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -41,11 +40,9 @@ import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
-public class SystemSection extends BaseSectionMBean implements SystemSectionMBean {
+public class StandaloneSystemSection extends BaseSectionMBean implements SystemSectionMBean {
 
   private static final Joiner COMMA_JOINER = Joiner.on(", ");
-
-  static final String BRANDING_FILE_PATH = "web/WEB-INF/classes/com/sonarsource/branding";
 
   private final Configuration config;
   private final SecurityRealmFactory securityRealmFactory;
@@ -53,17 +50,19 @@ public class SystemSection extends BaseSectionMBean implements SystemSectionMBea
   private final Server server;
   private final ServerLogging serverLogging;
   private final ServerIdLoader serverIdLoader;
+  private final OfficialDistribution officialDistribution;
   private final HealthChecker healthChecker;
 
-  public SystemSection(Configuration config, SecurityRealmFactory securityRealmFactory,
+  public StandaloneSystemSection(Configuration config, SecurityRealmFactory securityRealmFactory,
     IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging,
-    ServerIdLoader serverIdLoader, HealthChecker healthChecker) {
+    ServerIdLoader serverIdLoader, OfficialDistribution officialDistribution, HealthChecker healthChecker) {
     this.config = config;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
     this.server = server;
     this.serverLogging = serverLogging;
     this.serverIdLoader = serverIdLoader;
+    this.officialDistribution = officialDistribution;
     this.healthChecker = healthChecker;
   }
 
@@ -109,14 +108,6 @@ public class SystemSection extends BaseSectionMBean implements SystemSectionMBea
     return config.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(false);
   }
 
-  private boolean isOfficialDistribution() {
-    // the dependency com.sonarsource:sonarsource-branding is shaded to webapp
-    // during release (see sonar-web pom)
-    File brandingFile = new File(server.getRootDir(), BRANDING_FILE_PATH);
-    // no need to check that the file exists. java.io.File#length() returns zero in this case.
-    return brandingFile.length() > 0L;
-  }
-
   @Override
   public String name() {
     // JMX name
@@ -140,7 +131,7 @@ public class SystemSection extends BaseSectionMBean implements SystemSectionMBea
     addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());
     addIfNotEmpty(protobuf, "External identity providers whose users are allowed to sign themselves up", getAllowsToSignUpEnabledIdentityProviders());
     setAttribute(protobuf, "High Availability", false);
-    setAttribute(protobuf, "Official Distribution", isOfficialDistribution());
+    setAttribute(protobuf, "Official Distribution", officialDistribution.check());
     setAttribute(protobuf, "Force authentication", getForceAuthentication());
     setAttribute(protobuf, "Home Dir", config.get(ProcessProperties.PATH_HOME).orElse(null));
     setAttribute(protobuf, "Data Dir", config.get(ProcessProperties.PATH_DATA).orElse(null));

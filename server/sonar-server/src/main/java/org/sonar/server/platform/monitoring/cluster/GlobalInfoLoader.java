@@ -17,37 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.server.platform.monitoring.cluster;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginRepository;
+import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.updatecenter.common.Version;
-
-import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
-public class PluginsSection implements SystemInfoSection {
-  private final PluginRepository repository;
+public class GlobalInfoLoader {
+  private final List<SystemInfoSection> globalSections;
 
-  public PluginsSection(PluginRepository repository) {
-    this.repository = repository;
+  public GlobalInfoLoader(SystemInfoSection[] sections) {
+    this.globalSections = Arrays.stream(sections)
+      .filter(section -> section instanceof Global)
+      .collect(Collectors.toList());
   }
 
-  @Override
-  public ProtobufSystemInfo.Section toProtobuf() {
-    ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
-    protobuf.setName("Plugins");
-    for (PluginInfo plugin : repository.getPluginInfos()) {
-      String label = "[" + plugin.getName() + "]";
-      Version version = plugin.getVersion();
-      if (version != null) {
-        label = version.getName() + " " + label;
-      }
-      setAttribute(protobuf, plugin.getKey(), label);
-    }
-    return protobuf.build();
+  public List<ProtobufSystemInfo.Section> load() {
+    return globalSections.stream()
+      .map(SystemInfoSection::toProtobuf)
+      .collect(Collectors.toList());
   }
 }
