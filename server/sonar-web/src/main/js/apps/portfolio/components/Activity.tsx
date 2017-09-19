@@ -97,10 +97,8 @@ export default class Activity extends React.PureComponent<Props> {
 
   render() {
     return (
-      <div className="huge-spacer-bottom">
-        <header className="page-header">
-          <h3 className="page-title">{translate('project_activity.page')}</h3>
-        </header>
+      <div className="big-spacer-bottom">
+        <h4>{translate('project_activity.page')}</h4>
 
         {this.state.loading ? (
           <i className="spinner" />

@@ -2,17 +2,11 @@
 
 exports[`renders 1`] = `
 <div
-  className="huge-spacer-bottom"
+  className="big-spacer-bottom"
 >
-  <header
-    className="page-header"
-  >
-    <h3
-      className="page-title"
-    >
-      project_activity.page
-    </h3>
-  </header>
+  <h4>
+    project_activity.page
+  </h4>
   <PreviewGraph
     history={
       Object {

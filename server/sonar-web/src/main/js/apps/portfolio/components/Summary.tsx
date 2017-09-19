@@ -35,7 +35,7 @@ export default function Summary({ component, measures }: Props) {
   const nclocDistribution = measures['ncloc_language_distribution'];
 
   return (
-    <section id="portfolio-summary" className="huge-spacer-bottom">
+    <section id="portfolio-summary" className="big-spacer-bottom">
       {component.description && <div className="big-spacer-bottom">{component.description}</div>}
 
       <ul className="portfolio-grid">
@@ -47,7 +47,7 @@ export default function Summary({ component, measures }: Props) {
               />
             </Link>
           </div>
-          {translate('projects')}
+          <div className="spacer-top text-muted">{translate('projects')}</div>
         </li>
         <li>
           <div className="portfolio-measure-secondary-value">
@@ -55,12 +55,12 @@ export default function Summary({ component, measures }: Props) {
               <Measure measure={{ metric: { key: 'ncloc', type: 'SHORT_INT' }, value: ncloc }} />
             </Link>
           </div>
-          {translate('metric.ncloc.name')}
+          <div className="spacer-top text-muted">{translate('metric.ncloc.name')}</div>
         </li>
       </ul>
 
       {nclocDistribution && (
-        <div className="huge-spacer-top">
+        <div className="big-spacer-top">
           <LanguageDistributionContainer distribution={nclocDistribution} width={260} />
         </div>
       )}

@@ -2,7 +2,7 @@
 
 exports[`renders 1`] = `
 <section
-  className="huge-spacer-bottom"
+  className="big-spacer-bottom"
   id="portfolio-summary"
 >
   <div
@@ -44,7 +44,11 @@ exports[`renders 1`] = `
           />
         </Link>
       </div>
-      projects
+      <div
+        className="spacer-top text-muted"
+      >
+        projects
+      </div>
     </li>
     <li>
       <div
@@ -77,11 +81,15 @@ exports[`renders 1`] = `
           />
         </Link>
       </div>
-      metric.ncloc.name
+      <div
+        className="spacer-top text-muted"
+      >
+        metric.ncloc.name
+      </div>
     </li>
   </ul>
   <div
-    className="huge-spacer-top"
+    className="big-spacer-top"
   >
     <Connect(LanguageDistribution)
       distribution="java=13;js=17"

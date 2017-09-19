@@ -2,15 +2,9 @@
 
 exports[`renders 1`] = `
 <div>
-  <header
-    className="page-header"
-  >
-    <h3
-      className="page-title"
-    >
-      report.page
-    </h3>
-  </header>
+  <h4>
+    report.page
+  </h4>
   <i
     className="spinner"
   />
@@ -19,15 +13,9 @@ exports[`renders 1`] = `
 
 exports[`renders 2`] = `
 <div>
-  <header
-    className="page-header"
-  >
-    <h3
-      className="page-title"
-    >
-      report.page
-    </h3>
-  </header>
+  <h4>
+    report.page
+  </h4>
   <div
     className="js-report-can-download"
   >
