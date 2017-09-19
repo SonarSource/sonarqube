@@ -102,6 +102,23 @@ public class NewIssuesNotificationTest {
   }
 
   @Test
+  public void set_project_version() {
+    String version = randomAlphanumeric(5);
+
+    underTest.setProjectVersion(version);
+
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_VERSION)).isEqualTo(version);
+  }
+
+  @Test
+  public void set_project_version_supports_null() {
+    underTest.setProjectVersion(null);
+
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_VERSION)).isNull();
+
+  }
+
+  @Test
   public void set_date() {
     Date date = new Date();
 

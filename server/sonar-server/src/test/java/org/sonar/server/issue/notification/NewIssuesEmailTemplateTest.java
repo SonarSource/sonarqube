@@ -105,7 +105,8 @@ public class NewIssuesEmailTemplateTest {
 
   @Test
   public void format_email_with_all_fields_filled() throws Exception {
-    Notification notification = newNotification(32);
+    Notification notification = newNotification(32)
+      .setFieldValue("projectVersion", "42.1.1");
     addAssignees(notification);
     addRules(notification);
     addTags(notification);
@@ -116,6 +117,7 @@ public class NewIssuesEmailTemplateTest {
     // TODO datetime to be completed when test is isolated from JVM timezone
     assertThat(message.getMessage())
       .startsWith("Project: Struts\n" +
+        "Version: 42.1.1\n" +
         "\n" +
         "32 new issues (new debt: 1d3h)\n" +
         "\n" +
@@ -142,7 +144,7 @@ public class NewIssuesEmailTemplateTest {
   }
 
   @Test
-  public void format_email_with_no_assignees_tags_nor_components() throws Exception {
+  public void format_email_with_no_assignees_tags_nor_components_nor_version() throws Exception {
     Notification notification = newNotification(32);
 
     EmailMessage message = template.format(notification);
@@ -179,6 +181,27 @@ public class NewIssuesEmailTemplateTest {
     // TODO datetime to be completed when test is isolated from JVM timezone
     assertThat(message.getMessage())
       .startsWith("Project: Struts (feature1)\n" +
+        "\n" +
+        "32 new issues (new debt: 1d3h)\n" +
+        "\n" +
+        "    Type\n" +
+        "        Bug: 1    Vulnerability: 10    Code Smell: 3\n" +
+        "\n" +
+        "More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&branch=feature1&createdAt=2010-05-1");
+  }
+
+  @Test
+  public void format_email_with_issue_on_branch_with_version() throws Exception {
+    Notification notification = newNotification(32)
+      .setFieldValue("branch", "feature1")
+      .setFieldValue("projectVersion", "42.1.1");
+
+    EmailMessage message = template.format(notification);
+
+    // TODO datetime to be completed when test is isolated from JVM timezone
+    assertThat(message.getMessage())
+      .startsWith("Project: Struts (feature1)\n" +
+        "Version: 42.1.1\n" +
         "\n" +
         "32 new issues (new debt: 1d3h)\n" +
         "\n" +
