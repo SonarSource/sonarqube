@@ -17,20 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.scm;
 
-import org.junit.Test;
-import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.scm.ScmChangedFiles;
+import java.nio.file.Path;
+import java.util.Collection;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+@Immutable
+public class ScmChangedFiles {
+  @Nullable
+  private final Collection<Path> fileCollection;
 
-public class StatusDetectionFactoryTest {
-  @Test
-  public void testCreate() throws Exception {
-    StatusDetectionFactory factory = new StatusDetectionFactory(mock(ProjectRepositories.class), mock(ScmChangedFiles.class));
-    StatusDetection detection = factory.create();
-    assertThat(detection).isNotNull();
+  public ScmChangedFiles(@Nullable Collection<Path> changedFiles) {
+    this.fileCollection = changedFiles;
+  }
+
+  public boolean verifyChanged(Path file) {
+    return fileCollection == null || fileCollection.contains(file);
+  }
+
+  Collection<Path> get() {
+    return fileCollection;
   }
 }

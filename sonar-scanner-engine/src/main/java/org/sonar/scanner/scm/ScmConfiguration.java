@@ -19,9 +19,10 @@
  */
 package org.sonar.scanner.scm;
 
-import com.google.common.base.Joiner;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
@@ -51,7 +52,7 @@ import org.sonar.api.utils.log.Loggers;
 })
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ScannerSide
-public final class ScmConfiguration implements Startable {
+public class ScmConfiguration implements Startable {
   private static final Logger LOG = Loggers.get(ScmConfiguration.class);
 
   public static final String FORCE_RELOAD_KEY = "sonar.scm.forceReloadAll";
@@ -103,7 +104,8 @@ public final class ScmConfiguration implements Startable {
     if (providerPerKey.containsKey(forcedProviderKey)) {
       this.provider = providerPerKey.get(forcedProviderKey);
     } else {
-      String supportedProviders = providerPerKey.isEmpty() ? "No SCM provider installed" : ("Supported SCM providers are " + Joiner.on(",").join(providerPerKey.keySet()));
+      String supportedProviders = providerPerKey.isEmpty() ? "No SCM provider installed"
+        : ("Supported SCM providers are " + providerPerKey.keySet().stream().collect(Collectors.joining(",")));
       throw new IllegalArgumentException("SCM provider was set to \"" + forcedProviderKey + "\" but no SCM provider found for this key. " + supportedProviders);
     }
   }
@@ -132,6 +134,7 @@ public final class ScmConfiguration implements Startable {
     }
   }
 
+  @CheckForNull
   public ScmProvider provider() {
     return provider;
   }

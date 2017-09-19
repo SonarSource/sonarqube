@@ -119,7 +119,6 @@ public class ModuleScanContainer extends ComponentContainer {
       ExclusionFilters.class,
       new MetadataGeneratorProvider(),
       FileMetadata.class,
-      StatusDetectionFactory.class,
       LanguageDetection.class,
       FileIndexer.class,
       InputFileBuilder.class,
