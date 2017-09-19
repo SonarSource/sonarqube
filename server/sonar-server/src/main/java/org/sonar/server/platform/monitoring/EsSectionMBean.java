@@ -19,32 +19,10 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.picocontainer.Startable;
-import org.sonar.process.Jmx;
-
 /**
- * Base implementation of a {@link org.sonar.server.platform.monitoring.Monitor}
- * that is exported as a JMX bean
+ * The public attributes of {@link EsSection}
+ * to be exported in JMX bean.
  */
-public abstract class BaseMonitorMBean implements Monitor, Startable {
-
-  /**
-   * Auto-registers to MBean server
-   */
-  @Override
-  public void start() {
-    Jmx.register(objectName(), this);
-  }
-
-  /**
-   * Unregister, if needed
-   */
-  @Override
-  public void stop() {
-    Jmx.unregister(objectName());
-  }
-
-  String objectName() {
-    return "SonarQube:name=" + name();
-  }
+public interface EsSectionMBean {
+  String getState();
 }

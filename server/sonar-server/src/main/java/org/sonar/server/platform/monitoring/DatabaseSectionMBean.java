@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
-public interface DatabaseMonitorMBean {
+public interface DatabaseSectionMBean {
 
   /**
    * Is database schema up-to-date or should it be upgraded ?

@@ -19,12 +19,12 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.Map;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -32,13 +32,15 @@ import org.sonar.server.issue.index.IssueIndexDefinition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
+import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
-public class EsMonitorTest {
+public class EsSectionTest {
 
   @Rule
   public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
 
-  private EsMonitor underTest = new EsMonitor(esTester.client());
+  private EsSection underTest = new EsSection(esTester.client());
 
   @Test
   public void name() {
@@ -46,67 +48,54 @@ public class EsMonitorTest {
   }
 
   @Test
-  public void cluster_attributes() {
-    Map<String, Object> attributes = underTest.attributes();
+  public void es_state() {
     assertThat(underTest.getState()).isEqualTo(ClusterHealthStatus.GREEN.name());
-    assertThat(attributes.get("State")).isEqualTo(ClusterHealthStatus.GREEN);
-    assertThat(attributes.get("Number of Nodes")).isEqualTo(1);
+    assertThatAttributeIs(underTest.toProtobuf(), "State", ClusterHealthStatus.GREEN.name());
   }
 
   @Test
   public void node_attributes() {
-    Map<String, Object> attributes = underTest.attributes();
-    Map nodesAttributes = (Map) attributes.get("Nodes");
-
-    // one node
-    assertThat(nodesAttributes).hasSize(1);
-    Map nodeAttributes = (Map) nodesAttributes.values().iterator().next();
-    assertThat(nodeAttributes.get("Type")).isEqualTo("Master");
-    assertThat(nodeAttributes.get("Store Size")).isNotNull();
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
+    assertThat(attribute(section, "Store Size")).isNotNull();
   }
 
   @Test
   public void index_attributes() {
-    Map<String, Object> attributes = underTest.attributes();
-    Map indicesAttributes = (Map) attributes.get("Indices");
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
     // one index "issues"
-    Map indexAttributes = (Map) indicesAttributes.get(IssueIndexDefinition.INDEX_TYPE_ISSUE.getIndex());
-    assertThat(indexAttributes.get("Docs")).isEqualTo(0L);
-    assertThat((int) indexAttributes.get("Shards")).isGreaterThan(0);
-    assertThat(indexAttributes.get("Store Size")).isNotNull();
+    assertThat(attribute(section, "Index issues - Docs").getLongValue()).isEqualTo(0L);
+    assertThat(attribute(section, "Index issues - Shards").getLongValue()).isGreaterThan(0);
+    assertThat(attribute(section, "Index issues - Store Size").getStringValue()).isNotNull();
   }
 
   @Test
   public void attributes_displays_exception_message_when_cause_null_when_client_fails() {
     EsClient esClientMock = mock(EsClient.class);
-    EsMonitor underTest = new EsMonitor(esClientMock);
+    EsSection underTest = new EsSection(esClientMock);
     when(esClientMock.prepareClusterStats()).thenThrow(new RuntimeException("RuntimeException with no cause"));
 
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).hasSize(1);
-    assertThat(attributes.get("State")).isEqualTo("RuntimeException with no cause");
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
+    assertThatAttributeIs(section, "State", "RuntimeException with no cause");
   }
 
   @Test
   public void attributes_displays_exception_message_when_cause_is_not_ElasticSearchException_when_client_fails() {
     EsClient esClientMock = mock(EsClient.class);
-    EsMonitor underTest = new EsMonitor(esClientMock);
+    EsSection underTest = new EsSection(esClientMock);
     when(esClientMock.prepareClusterStats()).thenThrow(new RuntimeException("RuntimeException with cause not ES", new IllegalArgumentException("some cause message")));
 
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).hasSize(1);
-    assertThat(attributes.get("State")).isEqualTo("RuntimeException with cause not ES");
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
+    assertThatAttributeIs(section, "State", "RuntimeException with cause not ES");
   }
 
   @Test
   public void attributes_displays_cause_message_when_cause_is_ElasticSearchException_when_client_fails() {
     EsClient esClientMock = mock(EsClient.class);
-    EsMonitor underTest = new EsMonitor(esClientMock);
+    EsSection underTest = new EsSection(esClientMock);
     when(esClientMock.prepareClusterStats()).thenThrow(new RuntimeException("RuntimeException with ES cause", new ElasticsearchException("some cause message")));
 
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).hasSize(1);
-    assertThat(attributes.get("State")).isEqualTo("some cause message");
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
+    assertThatAttributeIs(section, "State", "some cause message");
   }
 }

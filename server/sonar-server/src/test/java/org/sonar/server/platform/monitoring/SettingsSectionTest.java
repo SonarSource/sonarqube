@@ -19,53 +19,57 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.SortedMap;
 import org.junit.Test;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
+import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
+import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
-public class SettingsMonitorTest {
+public class SettingsSectionTest {
 
   private static final String PASSWORD_PROPERTY = "sonar.password";
 
-  PropertyDefinitions defs = new PropertyDefinitions(PropertyDefinition.builder(PASSWORD_PROPERTY).type(PropertyType.PASSWORD).build());
-  Settings settings = new MapSettings(defs);
-  SettingsMonitor underTest = new SettingsMonitor(settings);
+  private PropertyDefinitions defs = new PropertyDefinitions(PropertyDefinition.builder(PASSWORD_PROPERTY).type(PropertyType.PASSWORD).build());
+  private Settings settings = new MapSettings(defs);
+  private SettingsSection underTest = new SettingsSection(settings);
 
   @Test
   public void return_properties_and_sort_by_key() {
     settings.setProperty("foo", "foo value");
     settings.setProperty("bar", "bar value");
 
-    SortedMap<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).containsExactly(entry("bar", "bar value"), entry("foo", "foo value"));
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "bar", "bar value");
+    assertThatAttributeIs(protobuf, "foo", "foo value");
   }
 
   @Test
   public void truncate_long_property_values() {
     settings.setProperty("foo", repeat("abcde", 1_000));
 
-    String value = (String) underTest.attributes().get("foo");
-    assertThat(value).hasSize(SettingsMonitor.MAX_VALUE_LENGTH).startsWith("abcde");
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    String value = attribute(protobuf, "foo").getStringValue();
+    assertThat(value).hasSize(SettingsSection.MAX_VALUE_LENGTH).startsWith("abcde");
   }
 
   @Test
   public void exclude_password_properties() {
     settings.setProperty(PASSWORD_PROPERTY, "abcde");
 
-    assertThat(underTest.attributes()).isEmpty();
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThat(attribute(protobuf, PASSWORD_PROPERTY)).isNull();
   }
 
   @Test
   public void test_monitor_name() {
-    assertThat(underTest.name()).isEqualTo("Settings");
+    assertThat(underTest.toProtobuf().getName()).isEqualTo("Settings");
 
   }
 }

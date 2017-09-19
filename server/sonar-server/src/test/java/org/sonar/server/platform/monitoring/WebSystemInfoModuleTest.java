@@ -19,13 +19,23 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import javax.annotation.CheckForNull;
+import org.junit.Test;
 
-public interface SonarQubeMonitorMBean {
-  @CheckForNull
-  String getServerId();
+import static org.assertj.core.api.Assertions.assertThat;
 
-  String getVersion();
+public class WebSystemInfoModuleTest {
 
-  String getLogLevel();
+  @Test
+  public void test_forStandaloneMode() {
+    assertThat(WebSystemInfoModule.forStandaloneMode())
+      .isNotEmpty()
+      .doesNotContainNull();
+  }
+
+  @Test
+  public void test_forClusterMode() {
+    assertThat(WebSystemInfoModule.forClusterMode())
+      .isNotEmpty()
+      .doesNotContainNull();
+  }
 }

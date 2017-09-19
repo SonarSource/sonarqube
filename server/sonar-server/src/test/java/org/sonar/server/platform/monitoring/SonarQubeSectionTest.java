@@ -20,7 +20,6 @@
 package org.sonar.server.platform.monitoring;
 
 import java.io.File;
-import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -31,6 +30,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepositoryRule;
 import org.sonar.server.authentication.TestIdentityProvider;
 import org.sonar.server.platform.ServerId;
@@ -39,11 +39,12 @@ import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
+import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
-public class SonarQubeMonitorTest {
+public class SonarQubeSectionTest {
 
   private static final String SERVER_ID_PROPERTY = "Server ID";
   private static final String SERVER_ID_VALIDATED_PROPERTY = "Server ID validated";
@@ -54,13 +55,13 @@ public class SonarQubeMonitorTest {
   @Rule
   public IdentityProviderRepositoryRule identityProviderRepository = new IdentityProviderRepositoryRule();
 
-  MapSettings settings = new MapSettings();
-  Server server = mock(Server.class);
-  ServerIdLoader serverIdLoader = mock(ServerIdLoader.class);
-  ServerLogging serverLogging = mock(ServerLogging.class);
-  SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
+  private MapSettings settings = new MapSettings();
+  private Server server = mock(Server.class);
+  private ServerIdLoader serverIdLoader = mock(ServerIdLoader.class);
+  private ServerLogging serverLogging = mock(ServerLogging.class);
+  private SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
 
-  SonarQubeMonitor underTest = new SonarQubeMonitor(settings.asConfig(), securityRealmFactory, identityProviderRepository, server,
+  private SonarQubeSection underTest = new SonarQubeSection(settings.asConfig(), securityRealmFactory, identityProviderRepository, server,
     serverLogging, serverIdLoader);
 
   @Before
@@ -80,7 +81,7 @@ public class SonarQubeMonitorTest {
     when(serverIdLoader.getRaw()).thenReturn(Optional.of("ABC"));
     assertThat(underTest.getServerId()).isEqualTo("ABC");
 
-    when(serverIdLoader.getRaw()).thenReturn(Optional.<String>empty());
+    when(serverIdLoader.getRaw()).thenReturn(Optional.empty());
     assertThat(underTest.getServerId()).isNull();
   }
 
@@ -88,35 +89,38 @@ public class SonarQubeMonitorTest {
   public void attributes_contain_information_about_valid_server_id() {
     when(serverIdLoader.get()).thenReturn(Optional.of(new ServerId("ABC", true)));
 
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).contains(entry(SERVER_ID_PROPERTY, "ABC"), entry(SERVER_ID_VALIDATED_PROPERTY, true));
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, SERVER_ID_PROPERTY, "ABC");
+    assertThatAttributeIs(protobuf, SERVER_ID_VALIDATED_PROPERTY, true);
   }
 
   @Test
   public void attributes_contain_information_about_non_valid_server_id() {
     when(serverIdLoader.get()).thenReturn(Optional.of(new ServerId("ABC", false)));
 
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).contains(entry(SERVER_ID_PROPERTY, "ABC"), entry(SERVER_ID_VALIDATED_PROPERTY, false));
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, SERVER_ID_PROPERTY, "ABC");
+    assertThatAttributeIs(protobuf, SERVER_ID_VALIDATED_PROPERTY, false);
   }
 
   @Test
   public void attributes_do_not_contain_information_about_server_id_if_absent() {
-    when(serverIdLoader.get()).thenReturn(Optional.<ServerId>empty());
+    when(serverIdLoader.get()).thenReturn(Optional.empty());
 
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).doesNotContainKeys(SERVER_ID_PROPERTY, SERVER_ID_VALIDATED_PROPERTY);
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThat(attribute(protobuf, SERVER_ID_PROPERTY)).isNull();
+    assertThat(attribute(protobuf, SERVER_ID_VALIDATED_PROPERTY)).isNull();
   }
 
   @Test
   public void official_distribution() throws Exception {
     File rootDir = temp.newFolder();
-    FileUtils.write(new File(rootDir, SonarQubeMonitor.BRANDING_FILE_PATH), "1.2");
+    FileUtils.write(new File(rootDir, SonarQubeSection.BRANDING_FILE_PATH), "1.2");
 
     when(server.getRootDir()).thenReturn(rootDir);
 
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).containsEntry("Official Distribution", Boolean.TRUE);
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Official Distribution", true);
   }
 
   @Test
@@ -125,14 +129,14 @@ public class SonarQubeMonitorTest {
     // branding file is missing
     when(server.getRootDir()).thenReturn(rootDir);
 
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).containsEntry("Official Distribution", Boolean.FALSE);
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Official Distribution", false);
   }
 
   @Test
   public void get_log_level() throws Exception {
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).containsEntry("Logs Level", "DEBUG");
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Logs Level", "DEBUG");
   }
 
   @Test
@@ -141,16 +145,16 @@ public class SonarQubeMonitorTest {
     when(realm.getName()).thenReturn("LDAP");
     when(securityRealmFactory.getRealm()).thenReturn(realm);
 
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).containsEntry("External User Authentication", "LDAP");
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "External User Authentication", "LDAP");
   }
 
   @Test
   public void no_realm() throws Exception {
     when(securityRealmFactory.getRealm()).thenReturn(null);
 
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).doesNotContainKey("External User Authentication");
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThat(attribute(protobuf, "External User Authentication")).isNull();
   }
 
   @Test
@@ -168,8 +172,8 @@ public class SonarQubeMonitorTest {
       .setName("Disabled")
       .setEnabled(false));
 
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).containsEntry("Accepted external identity providers", "Bitbucket, GitHub");
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Accepted external identity providers", "Bitbucket, GitHub");
   }
 
   @Test
@@ -190,7 +194,7 @@ public class SonarQubeMonitorTest {
       .setEnabled(false)
       .setAllowsUsersToSignUp(true));
 
-    Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).containsEntry("External identity providers whose users are allowed to sign themselves up", "GitHub");
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "External identity providers whose users are allowed to sign themselves up", "GitHub");
   }
 }

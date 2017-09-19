@@ -19,24 +19,26 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.Map;
-import org.junit.Test;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 
-public class JvmPropsMonitorTest {
+public class SystemInfoTesting {
 
-  JvmPropsMonitor underTest = new JvmPropsMonitor();
-
-  @Test
-  public void name_is_not_empty() {
-    assertThat(underTest.name()).isNotEmpty();
+  private SystemInfoTesting() {
+    // do not instantiate
   }
 
-  @Test
-  public void attributes() {
-    Map<String, Object> attributes = underTest.attributes();
+  public static void assertThatAttributeIs(ProtobufSystemInfo.Section section, String key, String expectedValue) {
+    ProtobufSystemInfo.Attribute value = attribute(section, key);
+    assertThat(value).as(key).isNotNull();
+    assertThat(value.getStringValue()).isEqualTo(expectedValue);
+  }
 
-    assertThat(attributes).containsKeys("java.vm.vendor", "os.name");
+  public static void assertThatAttributeIs(ProtobufSystemInfo.Section section, String key, boolean expectedValue) {
+    ProtobufSystemInfo.Attribute value = attribute(section, key);
+    assertThat(value).as(key).isNotNull();
+    assertThat(value.getBooleanValue()).isEqualTo(expectedValue);
   }
 }

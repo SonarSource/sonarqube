@@ -19,23 +19,6 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.Map;
-import org.sonar.api.server.ServerSide;
-import org.sonar.server.platform.ws.InfoAction;
-
-/**
- * Any component that is involved in the information returned by the web service api/system/info
- */
-@ServerSide
-public interface Monitor {
-  /**
-   * Name of section in System Info page
-   */
-  String name();
-
-  /**
-   * Type of attribute values must be supported by {@link org.sonar.api.utils.text.JsonWriter#valueObject(Object)}
-   * because of JSON export by {@link InfoAction}.
-   */
-  Map<String, Object> attributes();
+public interface FakeSectionMBean {
+  int getFake();
 }

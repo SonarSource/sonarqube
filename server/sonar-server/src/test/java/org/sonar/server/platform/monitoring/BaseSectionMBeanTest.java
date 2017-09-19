@@ -28,9 +28,9 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BaseMonitorMBeanTest {
+public class BaseSectionMBeanTest {
 
-  FakeMonitor underTest = new FakeMonitor();
+  private FakeSection underTest = new FakeSection();
 
   @Test
   public void test_registration() throws Exception {

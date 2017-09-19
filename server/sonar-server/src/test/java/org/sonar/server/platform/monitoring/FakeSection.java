@@ -19,11 +19,22 @@
  */
 package org.sonar.server.platform.monitoring;
 
-/**
- * The public attributes of {@link org.sonar.server.platform.monitoring.EsMonitor}
- * to be exported in JMX bean.
- */
-public interface EsMonitorMBean {
-  String getState();
-  int getNumberOfNodes();
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+
+public class FakeSection extends BaseSectionMBean implements FakeSectionMBean {
+
+  @Override
+  public int getFake() {
+    return 42;
+  }
+
+  @Override
+  public String name() {
+    return "fake";
+  }
+
+  @Override
+  public ProtobufSystemInfo.Section toProtobuf() {
+    return ProtobufSystemInfo.Section.newBuilder().build();
+  }
 }

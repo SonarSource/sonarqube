@@ -25,11 +25,16 @@ import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadMXBean;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-public class ProcessStateSystemInfo implements SystemInfoSection {
+import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
+
+/**
+ * Dumps state of JVM (memory, threads)
+ */
+public class JvmStateSection implements SystemInfoSection {
   private static final long MEGABYTE = 1024L * 1024L;
   private final String name;
 
-  public ProcessStateSystemInfo(String name) {
+  public JvmStateSection(String name) {
     this.name = name;
   }
 
@@ -40,26 +45,27 @@ public class ProcessStateSystemInfo implements SystemInfoSection {
 
   // Visible for testing
   ProtobufSystemInfo.Section toProtobuf(MemoryMXBean memoryBean) {
-    ProtobufSystemInfo.Section.Builder builder = ProtobufSystemInfo.Section.newBuilder();
-    builder.setName(name);
+    ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
+    protobuf.setName(name);
     MemoryUsage heap = memoryBean.getHeapMemoryUsage();
-    addAttributeInMb(builder, "Heap Committed (MB)", heap.getCommitted());
-    addAttributeInMb(builder, "Heap Init (MB)", heap.getInit());
-    addAttributeInMb(builder, "Heap Max (MB)", heap.getMax());
-    addAttributeInMb(builder, "Heap Used (MB)", heap.getUsed());
+    addAttributeInMb(protobuf, "Heap Committed (MB)", heap.getCommitted());
+    addAttributeInMb(protobuf, "Heap Init (MB)", heap.getInit());
+    addAttributeInMb(protobuf, "Heap Max (MB)", heap.getMax());
+    addAttributeInMb(protobuf, "Heap Used (MB)", heap.getUsed());
     MemoryUsage nonHeap = memoryBean.getNonHeapMemoryUsage();
-    addAttributeInMb(builder, "Non Heap Committed (MB)", nonHeap.getCommitted());
-    addAttributeInMb(builder, "Non Heap Init (MB)", nonHeap.getInit());
-    addAttributeInMb(builder, "Non Heap Max (MB)", nonHeap.getMax());
-    addAttributeInMb(builder, "Non Heap Used (MB)", nonHeap.getUsed());
+    addAttributeInMb(protobuf, "Non Heap Committed (MB)", nonHeap.getCommitted());
+    addAttributeInMb(protobuf, "Non Heap Init (MB)", nonHeap.getInit());
+    addAttributeInMb(protobuf, "Non Heap Max (MB)", nonHeap.getMax());
+    addAttributeInMb(protobuf, "Non Heap Used (MB)", nonHeap.getUsed());
     ThreadMXBean thread = ManagementFactory.getThreadMXBean();
-    builder.addAttributesBuilder().setKey("Thread Count").setLongValue(thread.getThreadCount()).build();
-    return builder.build();
+    setAttribute(protobuf, "Thread Count", thread.getThreadCount());
+
+    return protobuf.build();
   }
 
-  private static void addAttributeInMb(ProtobufSystemInfo.Section.Builder builder, String key, long valueInBytes) {
+  private static void addAttributeInMb(ProtobufSystemInfo.Section.Builder protobuf, String key, long valueInBytes) {
     if (valueInBytes >= 0L) {
-      builder.addAttributesBuilder().setKey(key).setLongValue(valueInBytes / MEGABYTE).build();
+      setAttribute(protobuf, key, valueInBytes / MEGABYTE);
     }
   }
 }

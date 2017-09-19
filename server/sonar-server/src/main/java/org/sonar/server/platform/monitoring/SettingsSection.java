@@ -19,41 +19,39 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.collect.ImmutableSortedMap;
 import java.util.Map;
-import java.util.SortedMap;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.process.systeminfo.SystemInfoSection;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.apache.commons.lang.StringUtils.abbreviate;
+import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
-public class SettingsMonitor implements Monitor {
+public class SettingsSection implements SystemInfoSection {
 
   static final int MAX_VALUE_LENGTH = 500;
   private final Settings settings;
 
-  public SettingsMonitor(Settings settings) {
+  public SettingsSection(Settings settings) {
     this.settings = settings;
   }
 
   @Override
-  public String name() {
-    return "Settings";
-  }
+  public ProtobufSystemInfo.Section toProtobuf() {
+    ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
+    protobuf.setName("Settings");
 
-  @Override
-  public SortedMap<String, Object> attributes() {
     PropertyDefinitions definitions = settings.getDefinitions();
-    ImmutableSortedMap.Builder<String, Object> builder = ImmutableSortedMap.naturalOrder();
     for (Map.Entry<String, String> prop : settings.getProperties().entrySet()) {
       String key = prop.getKey();
       PropertyDefinition def = definitions.get(key);
       if (def == null || def.type() != PropertyType.PASSWORD) {
-        builder.put(key, abbreviate(prop.getValue(), MAX_VALUE_LENGTH));
+        setAttribute(protobuf, key, abbreviate(prop.getValue(), MAX_VALUE_LENGTH));
       }
     }
-    return builder.build();
+    return protobuf.build();
   }
 }
