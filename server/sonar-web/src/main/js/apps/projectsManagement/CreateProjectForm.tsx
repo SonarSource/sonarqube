@@ -34,6 +34,7 @@ interface Props {
 }
 
 interface State {
+  advanced: boolean;
   branch: string;
   createdProject?: { key: string; name: string };
   key: string;
@@ -50,6 +51,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
   constructor(props: Props) {
     super(props);
     this.state = {
+      advanced: false,
       branch: '',
       key: '',
       loading: false,
@@ -69,6 +71,12 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
   handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.onClose();
+  };
+
+  handleAdvancedClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    this.setState(state => ({ advanced: !state.advanced }));
   };
 
   handleInputChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
@@ -163,17 +171,6 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
                 />
               </div>
               <div className="modal-field">
-                <label htmlFor="create-project-branch">{translate('branch')}</label>
-                <input
-                  id="create-project-branch"
-                  maxLength={200}
-                  name="branch"
-                  onChange={this.handleInputChange}
-                  type="text"
-                  value={this.state.branch}
-                />
-              </div>
-              <div className="modal-field">
                 <label htmlFor="create-project-key">
                   {translate('key')}
                   <em className="mandatory">*</em>
@@ -202,6 +199,29 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
                   </div>
                 )}
               </div>
+              {this.state.advanced ? (
+                <div className="modal-field big-spacer-top">
+                  <label htmlFor="create-project-branch">{translate('branch')}</label>
+                  <input
+                    autoFocus={true}
+                    id="create-project-branch"
+                    maxLength={200}
+                    name="branch"
+                    onChange={this.handleInputChange}
+                    type="text"
+                    value={this.state.branch}
+                  />
+                </div>
+              ) : (
+                <div className="modal-field big-spacer-top">
+                  <a
+                    className="js-more text-muted note"
+                    href="#"
+                    onClick={this.handleAdvancedClick}>
+                    {translate('more')}
+                  </a>
+                </div>
+              )}
             </div>
 
             <footer className="modal-foot">
