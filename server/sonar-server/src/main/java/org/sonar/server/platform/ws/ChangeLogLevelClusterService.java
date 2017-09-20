@@ -22,8 +22,6 @@ package org.sonar.server.platform.ws;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.platform.HazelcastDistributedCallComponentContainer;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.DistributedCall;
 import org.sonar.process.cluster.hz.HazelcastMember;
@@ -53,9 +51,7 @@ public class ChangeLogLevelClusterService implements ChangeLogLevelService {
   private static DistributedCall<Object> setLogLevelForNode(LoggerLevel level) {
     return () -> {
       try {
-        ComponentContainer componentContainer = HazelcastDistributedCallComponentContainer.get();
-        ServerLogging logging = componentContainer.getComponentByType(ServerLogging.class);
-        logging.changeLevel(level);
+        ServerLogging.changeLevelFromHazelcastDistributedQuery(level);
       } catch (Exception e) {
         LOGGER.error("Setting log level to '" + level.name() + "' in this cluster node failed", e);
         throw new IllegalStateException("Setting log level to '" + level.name() + "' in this cluster node failed", e);

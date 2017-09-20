@@ -23,6 +23,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
+import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
@@ -38,8 +39,10 @@ import static org.sonar.api.utils.log.LoggerLevel.TRACE;
 
 @ServerSide
 @ComputeEngineSide
-public class ServerLogging {
+public class ServerLogging implements Startable {
 
+  /** Used for Hazelcast's distributed queries in cluster mode */
+  private static ServerLogging INSTANCE;
   private final LogbackHelper helper;
   private final Configuration config;
   private final ServerProcessLogging serverProcessLogging;
@@ -55,6 +58,20 @@ public class ServerLogging {
     this.config = config;
     this.serverProcessLogging = serverProcessLogging;
     this.database = database;
+  }
+
+  @Override
+  public void start() {
+    INSTANCE = this;
+  }
+
+  @Override
+  public void stop() {
+    INSTANCE = null;
+  }
+
+  public static void changeLevelFromHazelcastDistributedQuery(LoggerLevel level) {
+    INSTANCE.changeLevel(level);
   }
 
   public void changeLevel(LoggerLevel level) {

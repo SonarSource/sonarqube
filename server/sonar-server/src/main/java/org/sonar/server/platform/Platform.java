@@ -30,7 +30,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.platform.HazelcastDistributedCallComponentContainer;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.platformlevel.PlatformLevel;
@@ -70,7 +69,6 @@ public class Platform {
       ProcessCommandWrapper processCommandWrapper = getContainer().getComponentByType(ProcessCommandWrapper.class);
       return new AsynchronousAutoStarter(processCommandWrapper);
     };
-    HazelcastDistributedCallComponentContainer.put(() -> currentLevel.getContainer());
   }
 
   protected Platform(Supplier<AutoStarter> autoStarterSupplier) {
