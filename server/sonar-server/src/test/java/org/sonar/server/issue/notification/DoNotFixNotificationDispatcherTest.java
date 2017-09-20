@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.web.UserRole;
 import org.sonar.server.notification.NotificationDispatcher;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;
@@ -61,7 +62,7 @@ public class DoNotFixNotificationDispatcherTest {
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
     recipients.put("godin", twitterChannel);
-    when(notifications.findSubscribedRecipientsForDispatcher(underTest, "uuid1")).thenReturn(recipients);
+    when(notifications.findSubscribedRecipientsForDispatcher(underTest, "uuid1", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
 
     Notification fpNotif = new IssueChangeNotification().setFieldValue("projectKey", "struts")
       .setFieldValue("projectUuid", "uuid1")
