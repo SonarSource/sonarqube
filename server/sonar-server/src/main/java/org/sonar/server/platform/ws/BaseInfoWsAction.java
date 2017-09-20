@@ -31,8 +31,10 @@ import org.sonar.server.user.UserSession;
 public abstract class BaseInfoWsAction implements SystemWsAction {
 
   private static final String[] ORDERED_SECTION_NAMES = {
-    "System", "Database", "Web JVM State", "Web JVM Properties", "Search State", "Search Statistics",
-    "Compute Engine Database Connection", "Compute Engine JVM State", "Compute Engine Tasks"};
+    "System", "Database", "Plugins",
+    "Web JVM State", "Web Logging", "Web JVM Properties",
+    "Search State", "Search Statistics",
+    "Compute Engine Database Connection", "Compute Engine JVM State", "Compute Engine Logging", "Compute Engine Tasks", "Compute Engine JVM Properties"};
 
   private final UserSession userSession;
 
