@@ -63,7 +63,7 @@ public class RemoveUserWsRequest {
   }
 
   public static class Builder {
-    private long id;
+    private Long id;
     private String name;
     private String login;
     private String organization;
