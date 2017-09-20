@@ -24,13 +24,16 @@ import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.web.UserRole;
 import org.sonar.server.notification.NotificationDispatcher;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject;
 
 public class ReportAnalysisFailureNotificationDispatcher extends NotificationDispatcher {
 
   public static final String KEY = "CeReportTaskFailure";
+  private static final SubscriberPermissionsOnProject REQUIRED_SUBSCRIBER_PERMISSIONS = new SubscriberPermissionsOnProject(UserRole.ADMIN, UserRole.USER);
 
   private final NotificationManager manager;
 
@@ -54,7 +57,7 @@ public class ReportAnalysisFailureNotificationDispatcher extends NotificationDis
   public void dispatch(Notification notification, Context context) {
     String projectUuid = notification.getFieldValue("project.uuid");
     Multimap<String, NotificationChannel> subscribedRecipients = manager.findSubscribedRecipientsForDispatcher(
-      this, projectUuid, NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER);
+      this, projectUuid, REQUIRED_SUBSCRIBER_PERMISSIONS);
 
     for (Map.Entry<String, Collection<NotificationChannel>> channelsByRecipients : subscribedRecipients.asMap().entrySet()) {
       String userLogin = channelsByRecipients.getKey();
