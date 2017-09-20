@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceTypes;
@@ -43,6 +44,7 @@ import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
@@ -312,13 +314,13 @@ public class ComponentTreeAction implements MeasuresWsAction {
       "The '%s' parameter must have at least %d characters", Param.TEXT_QUERY, QUERY_MINIMUM_LENGTH);
     String metricSortValue = componentTreeWsRequest.getMetricSort();
     checkRequest(!componentTreeWsRequest.getMetricKeys().isEmpty(), "The '%s' parameter must contain at least one metric key", PARAM_METRIC_KEYS);
-    checkRequest(metricSortValue == null ^ componentTreeWsRequest.getSort().contains(METRIC_SORT)
-      ^ componentTreeWsRequest.getSort().contains(METRIC_PERIOD_SORT),
+    List<String> sorts = Optional.ofNullable(componentTreeWsRequest.getSort()).orElse(emptyList());
+    checkRequest(metricSortValue == null ^ sorts.contains(METRIC_SORT) ^ sorts.contains(METRIC_PERIOD_SORT),
       "To sort by a metric, the '%s' parameter must contain '%s' or '%s', and a metric key must be provided in the '%s' parameter",
       Param.SORT, METRIC_SORT, METRIC_PERIOD_SORT, PARAM_METRIC_SORT);
     checkRequest(metricSortValue == null ^ componentTreeWsRequest.getMetricKeys().contains(metricSortValue),
       "To sort by the '%s' metric, it must be in the list of metric keys in the '%s' parameter", metricSortValue, PARAM_METRIC_KEYS);
-    checkRequest(componentTreeWsRequest.getMetricPeriodSort() == null ^ componentTreeWsRequest.getSort().contains(METRIC_PERIOD_SORT),
+    checkRequest(componentTreeWsRequest.getMetricPeriodSort() == null ^ sorts.contains(METRIC_PERIOD_SORT),
       "To sort by a metric period, the '%s' parameter must contain '%s' and the '%s' must be provided.", Param.SORT, METRIC_PERIOD_SORT, PARAM_METRIC_PERIOD_SORT);
     checkRequest(ALL_METRIC_SORT_FILTER.equals(componentTreeWsRequest.getMetricSortFilter()) || metricSortValue != null,
       "To filter components based on the sort metric, the '%s' parameter must contain '%s' or '%s' and the '%s' parameter must be provided",
