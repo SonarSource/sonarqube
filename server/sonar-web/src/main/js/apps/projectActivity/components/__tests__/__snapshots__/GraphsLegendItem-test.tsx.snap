@@ -33,7 +33,7 @@ exports[`should render correctly an actionable legend 1`] = `
 
 exports[`should render correctly legends with warning 1`] = `
 <span
-  className="alert-warning myclass"
+  className="myclass"
 >
   <AlertWarnIcon
     className="spacer-right"
