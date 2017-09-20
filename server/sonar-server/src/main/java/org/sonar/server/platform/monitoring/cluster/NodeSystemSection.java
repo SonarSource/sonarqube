@@ -25,8 +25,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.health.Health;
-import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.platform.monitoring.OfficialDistribution;
 
@@ -39,15 +37,13 @@ public class NodeSystemSection implements SystemInfoSection {
   private final Server server;
   private final ServerLogging serverLogging;
   private final OfficialDistribution officialDistribution;
-  private final HealthChecker healthChecker;
 
   public NodeSystemSection(Configuration config, Server server, ServerLogging serverLogging,
-    OfficialDistribution officialDistribution, HealthChecker healthChecker) {
+    OfficialDistribution officialDistribution) {
     this.config = config;
     this.server = server;
     this.serverLogging = serverLogging;
     this.officialDistribution = officialDistribution;
-    this.healthChecker = healthChecker;
   }
 
   @Override
@@ -55,9 +51,6 @@ public class NodeSystemSection implements SystemInfoSection {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
     protobuf.setName("System");
 
-    Health health = healthChecker.checkNode();
-    setAttribute(protobuf, "Health", health.getStatus().name());
-    setAttribute(protobuf, "Health Causes", health.getCauses());
     setAttribute(protobuf, "Version", server.getVersion());
     setAttribute(protobuf, "Official Distribution", officialDistribution.check());
     setAttribute(protobuf, "Home Dir", config.get(ProcessProperties.PATH_HOME).orElse(null));

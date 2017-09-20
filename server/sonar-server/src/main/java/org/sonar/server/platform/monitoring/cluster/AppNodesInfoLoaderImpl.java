@@ -51,9 +51,6 @@ public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
         if (nodeInfo == null) {
           nodeInfo = new NodeInfo(nodeName);
           nodesByName.put(nodeName, nodeInfo);
-
-          String hostname = member.getStringAttribute(HazelcastMember.Attribute.HOSTNAME);
-          nodeInfo.setAttribute("Hostname", hostname);
         }
         completeNodeInfo(distributedAnswer, member, nodeInfo);
       }
@@ -65,13 +62,13 @@ public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
     }
   }
 
-  private void completeNodeInfo(DistributedAnswer<ProtobufSystemInfo.SystemInfo> distributedAnswer, Member member, NodeInfo nodeInfo) {
+  private static void completeNodeInfo(DistributedAnswer<ProtobufSystemInfo.SystemInfo> distributedAnswer, Member member, NodeInfo nodeInfo) {
     Optional<ProtobufSystemInfo.SystemInfo> nodeAnswer = distributedAnswer.getAnswer(member);
     Optional<Exception> failure = distributedAnswer.getFailed(member);
     if (distributedAnswer.hasTimedOut(member)) {
-      nodeInfo.setAttribute("Error", "Failed to retrieve information on time");
+      nodeInfo.setErrorMessage("Failed to retrieve information on time");
     } else if (failure.isPresent()) {
-      nodeInfo.setAttribute("Error", "Failed to retrieve information: " + failure.get().getMessage());
+      nodeInfo.setErrorMessage("Failed to retrieve information: " + failure.get().getMessage());
     } else if (nodeAnswer.isPresent()) {
       nodeAnswer.get().getSectionsList().forEach(nodeInfo::addSection);
     }

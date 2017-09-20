@@ -23,11 +23,15 @@ import java.util.Collection;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+import org.sonar.server.health.ClusterHealth;
+import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.monitoring.cluster.AppNodesInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.NodeInfo;
+import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoader;
 import org.sonar.server.user.UserSession;
 
 public class ClusterInfoAction implements SystemWsAction {
@@ -35,11 +39,16 @@ public class ClusterInfoAction implements SystemWsAction {
   private final UserSession userSession;
   private final GlobalInfoLoader globalInfoLoader;
   private final AppNodesInfoLoader appNodesInfoLoader;
+  private final SearchNodesInfoLoader searchNodesInfoLoader;
+  private final HealthChecker healthChecker;
 
-  public ClusterInfoAction(UserSession userSession, GlobalInfoLoader globalInfoLoader, AppNodesInfoLoader appNodesInfoLoader) {
+  public ClusterInfoAction(UserSession userSession, GlobalInfoLoader globalInfoLoader,
+    AppNodesInfoLoader appNodesInfoLoader, SearchNodesInfoLoader searchNodesInfoLoader, HealthChecker healthChecker) {
     this.userSession = userSession;
     this.globalInfoLoader = globalInfoLoader;
     this.appNodesInfoLoader = appNodesInfoLoader;
+    this.searchNodesInfoLoader = searchNodesInfoLoader;
+    this.healthChecker = healthChecker;
   }
 
   @Override
@@ -56,45 +65,64 @@ public class ClusterInfoAction implements SystemWsAction {
   public void handle(Request request, Response response) {
     userSession.checkIsSystemAdministrator();
 
+    ClusterHealth clusterHealth = healthChecker.checkCluster();
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
-      writeGlobal(json);
-      writeApplicationNodes(json);
+      writeGlobalSections(json, clusterHealth);
+      writeApplicationNodes(json, clusterHealth);
+      writeSearchNodes(json, clusterHealth);
       json.endObject();
+    } catch (Throwable throwable) {
+      Loggers.get(getClass()).error("fff", throwable);
     }
   }
 
-  private void writeGlobal(JsonWriter json) {
-    globalInfoLoader.load().forEach(section -> sectionToJson(section, json));
+  private void writeGlobalSections(JsonWriter json, ClusterHealth clusterHealth) {
+    globalInfoLoader.load().forEach(section -> writeSectionToJson(section, json));
   }
 
-  private void writeApplicationNodes(JsonWriter json) {
+  private void writeApplicationNodes(JsonWriter json, ClusterHealth clusterHealth) {
     json.name("Application Nodes").beginArray();
 
     Collection<NodeInfo> appNodes = appNodesInfoLoader.load();
     for (NodeInfo applicationNode : appNodes) {
-      writeApplicationNode(json, applicationNode);
+      writeNodeInfoToJson(applicationNode, clusterHealth, json);
     }
     json.endArray();
   }
 
-  private void writeApplicationNode(JsonWriter json, NodeInfo applicationNode) {
+  private void writeSearchNodes(JsonWriter json, ClusterHealth clusterHealth) {
+    json.name("Search Nodes").beginArray();
+
+    Collection<NodeInfo> searchNodes = searchNodesInfoLoader.load();
+    searchNodes.forEach(node -> writeNodeInfoToJson(node, clusterHealth, json));
+    json.endArray();
+  }
+
+  private static void writeNodeInfoToJson(NodeInfo nodeInfo, ClusterHealth clusterHealth, JsonWriter json) {
     json.beginObject();
-    json.prop("Name", applicationNode.getName());
-    applicationNode.getSections().forEach(section -> sectionToJson(section, json));
+    json.prop("Name", nodeInfo.getName());
+    json.prop("Error", nodeInfo.getErrorMessage().orElse(null));
+    json.prop("Host", nodeInfo.getHost().orElse(null));
+    json.prop("Started At", nodeInfo.getStartedAt().orElse(null));
+
+    clusterHealth.getNodeHealth(nodeInfo.getName()).ifPresent(h -> {
+      json.prop("Health", h.getStatus().name());
+      json.name("Health Causes").beginArray().values(h.getCauses()).endArray();
+    });
+
+    nodeInfo.getSections().forEach(section -> writeSectionToJson(section, json));
     json.endObject();
   }
 
-  private static void sectionToJson(ProtobufSystemInfo.Section section, JsonWriter json) {
+  private static void writeSectionToJson(ProtobufSystemInfo.Section section, JsonWriter json) {
     json.name(section.getName());
     json.beginObject();
-    for (ProtobufSystemInfo.Attribute attribute : section.getAttributesList()) {
-      attributeToJson(json, attribute);
-    }
+    section.getAttributesList().forEach(attribute -> writeAttributeToJson(json, attribute));
     json.endObject();
   }
 
-  private static void attributeToJson(JsonWriter json, ProtobufSystemInfo.Attribute attribute) {
+  private static void writeAttributeToJson(JsonWriter json, ProtobufSystemInfo.Attribute attribute) {
     switch (attribute.getValueCase()) {
       case BOOLEAN_VALUE:
         json.prop(attribute.getKey(), attribute.getBooleanValue());

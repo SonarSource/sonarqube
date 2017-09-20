@@ -26,6 +26,7 @@ import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.GlobalSystemSection;
 import org.sonar.server.platform.monitoring.cluster.NodeSystemSection;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProviderImpl;
+import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoaderImpl;
 import org.sonar.server.platform.ws.ClusterInfoAction;
 
 public class WebSystemInfoModule {
@@ -65,6 +66,7 @@ public class WebSystemInfoModule {
       ProcessInfoProviderImpl.class,
       GlobalInfoLoader.class,
       AppNodesInfoLoaderImpl.class,
+      SearchNodesInfoLoaderImpl.class,
       ClusterInfoAction.class
     };
   }
