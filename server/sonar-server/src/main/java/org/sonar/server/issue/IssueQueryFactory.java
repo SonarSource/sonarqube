@@ -201,7 +201,7 @@ public class IssueQueryFactory {
     Collection<String> componentRoots = request.getComponentRoots();
     String branch = request.getBranch();
 
-    boolean effectiveOnComponentOnly = false;
+    boolean effectiveOnComponentOnly;
 
     checkArgument(atMostOneNonNullElement(components, componentUuids, componentKeys, componentRootUuids, componentRoots),
       "At most one of the following parameters can be provided: %s, %s, %s, %s, %s",
@@ -222,6 +222,8 @@ public class IssueQueryFactory {
     } else if (componentKeys != null) {
       allComponents.addAll(getComponentsFromKeys(session, componentKeys, branch));
       effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
+    } else {
+      effectiveOnComponentOnly = false;
     }
 
     return effectiveOnComponentOnly;
