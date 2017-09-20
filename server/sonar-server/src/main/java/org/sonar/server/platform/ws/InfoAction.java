@@ -41,7 +41,7 @@ import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryD
 public class InfoAction implements SystemWsAction {
 
   private static final String[] ORDERED_SECTION_NAMES = {
-    "System", "Database", "Web JVM Properties", "Web JVM State", "Search State", "Search Statistics",
+    "System", "Database", "Web JVM State", "Web JVM Properties", "Search State", "Search Statistics",
     "Compute Engine Database Connection", "Compute Engine JVM State", "Compute Engine Tasks"};
   private final UserSession userSession;
   private final CeHttpClient ceHttpClient;
