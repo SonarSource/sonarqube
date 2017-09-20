@@ -212,7 +212,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
               pathname: '/project/settings',
               query: { branch: getBranchName(branch), id: this.props.component.key }
             }}>
-            {translate('layout.settings')}&nbsp;
+            {translate('branches.branch_settings')}
           </Link>
         </li>
       );

@@ -755,8 +755,7 @@ exports[`should work for long-living branches 1`] = `
         }
       }
     >
-      layout.settings
-       
+      branches.branch_settings
     </Link>
   </li>
 </NavBarTabs>
