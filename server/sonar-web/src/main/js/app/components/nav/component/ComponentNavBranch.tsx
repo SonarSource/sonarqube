@@ -22,7 +22,6 @@ import * as classNames from 'classnames';
 import * as PropTypes from 'prop-types';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
 import SingleBranchHelperPopup from './SingleBranchHelperPopup';
-import NoBranchSupportPopup from './NoBranchSupportPopup';
 import { Branch, Component } from '../../../types';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
 import { isShortLivingBranch } from '../../../../helpers/branches';
@@ -53,8 +52,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   };
 
   static contextTypes = {
-    branchesEnabled: PropTypes.bool.isRequired,
-    onSonarCloud: PropTypes.bool
+    branchesEnabled: PropTypes.bool.isRequired
   };
 
   componentDidMount() {
@@ -160,35 +158,11 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     </div>
   );
 
-  renderNoBranchSupportPopup = () => (
-    <div className="display-inline-block spacer-left">
-      <a className="link-no-underline" href="#" onClick={this.handleNoBranchSupportClick}>
-        <HelpIcon fill="#cdcdcd" />
-      </a>
-      <BubblePopupHelper
-        isOpen={this.state.noBranchSupportPopupOpen}
-        position="bottomleft"
-        popup={<NoBranchSupportPopup />}
-        togglePopup={this.toggleNoBranchSupportPopup}
-      />
-    </div>
-  );
-
   render() {
     const { branches, currentBranch } = this.props;
 
-    if (this.context.onSonarCloud && !this.context.branchesEnabled) {
-      return null;
-    }
-
     if (!this.context.branchesEnabled) {
-      return (
-        <div className="navbar-context-branches">
-          <BranchIcon branch={currentBranch} className="little-spacer-right" color="#cdcdcd" />
-          <span className="note">{currentBranch.name}</span>
-          {this.renderNoBranchSupportPopup()}
-        </div>
-      );
+      return null;
     }
 
     if (branches.length < 2) {
