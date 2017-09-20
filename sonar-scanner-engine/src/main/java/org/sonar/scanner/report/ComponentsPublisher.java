@@ -188,9 +188,8 @@ public class ComponentsPublisher implements ReportPublisherStep {
     return false;
   }
 
-  private static void writeVersion(DefaultInputModule module, ScannerReport.Component.Builder builder) {
-    ProjectDefinition def = module.definition();
-    String version = getVersion(def);
+  private void writeVersion(DefaultInputModule module, ScannerReport.Component.Builder builder) {
+    String version = getVersion(module);
     if (version != null) {
       builder.setVersion(version);
     }
@@ -215,13 +214,15 @@ public class ComponentsPublisher implements ReportPublisherStep {
     throw new IllegalStateException("Unkown component: " + component.getClass());
   }
 
-  private static String getVersion(ProjectDefinition def) {
-    String version = def.getOriginalVersion();
+  private String getVersion(DefaultInputModule module) {
+    String version = module.getOriginalVersion();
     if (StringUtils.isNotBlank(version)) {
       return version;
     }
 
-    return def.getParent() != null ? getVersion(def.getParent()) : null;
+    DefaultInputModule parent = moduleHierarchy.parent(module);
+
+    return parent != null ? getVersion(parent) : null;
   }
 
   private static void writeLinks(InputComponent c, ScannerReport.Component.Builder builder) {

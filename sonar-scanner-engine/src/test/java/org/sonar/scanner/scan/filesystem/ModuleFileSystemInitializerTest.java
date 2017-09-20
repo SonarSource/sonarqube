@@ -48,7 +48,7 @@ public class ModuleFileSystemInitializerTest {
     File workDir = temp.newFolder("work");
     ProjectDefinition module = ProjectDefinition.create().setBaseDir(baseDir).setWorkDir(workDir);
 
-    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(new DefaultInputModule(module), module);
+    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(new DefaultInputModule(module));
 
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("Base dir: " + baseDir.toPath().toAbsolutePath().toString());
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("Working dir: " + workDir.toPath().toAbsolutePath().toString());
@@ -73,7 +73,7 @@ public class ModuleFileSystemInitializerTest {
       .addSources("src/main/java", "src/main/unknown")
       .addTests("src/test/java", "src/test/unknown");
 
-    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(new DefaultInputModule(project), project);
+    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(new DefaultInputModule(project));
 
     assertThat(initializer.sources()).hasSize(1);
     assertThat(path(initializer.sources().get(0))).endsWith("src/main/java");
@@ -96,7 +96,7 @@ public class ModuleFileSystemInitializerTest {
       .addSources("\"my,File.cs\"")
       .addTests("\"my,TestFile.cs\"");
 
-    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(new DefaultInputModule(project), project);
+    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(new DefaultInputModule(project));
 
     assertThat(initializer.sources()).hasSize(1);
     assertThat(initializer.sources().get(0)).isEqualTo(sourceFile.toPath());

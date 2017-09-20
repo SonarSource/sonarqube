@@ -21,7 +21,6 @@ package org.sonar.scanner.report;
 
 import java.util.Map.Entry;
 import java.util.Optional;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Configuration;
@@ -65,11 +64,10 @@ public class MetadataPublisher implements ReportPublisherStep {
   @Override
   public void publish(ScannerReportWriter writer) {
     DefaultInputModule rootProject = moduleHierarchy.root();
-    ProjectDefinition rootDef = rootProject.definition();
     ScannerReport.Metadata.Builder builder = ScannerReport.Metadata.newBuilder()
       .setAnalysisDate(projectAnalysisInfo.analysisDate().getTime())
       // Here we want key without branch
-      .setProjectKey(rootDef.getKey())
+      .setProjectKey(rootProject.key())
       .setCrossProjectDuplicationActivated(cpdSettings.isCrossProjectDuplicationEnabled())
       .setRootComponentRef(rootProject.batchId())
       .setIncremental(mode.isIncremental());
@@ -84,7 +82,7 @@ public class MetadataPublisher implements ReportPublisherStep {
         builder.setMergeBranchName(branchTarget);
       }
     }
-    Optional.ofNullable(rootDef.getBranch()).ifPresent(builder::setDeprecatedBranch);
+    Optional.ofNullable(rootProject.getBranch()).ifPresent(builder::setDeprecatedBranch);
 
     for (QProfile qp : qProfiles.findAll()) {
       builder.getMutableQprofilesPerLanguage().put(qp.getLanguage(), ScannerReport.Metadata.QProfile.newBuilder()

@@ -31,7 +31,7 @@ import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.Metadata;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 
-class MetadataGenerator {
+public class MetadataGenerator {
   private static final Logger LOG = LoggerFactory.getLogger(MetadataGenerator.class);
   @VisibleForTesting
   static final Charset UTF_32BE = Charset.forName("UTF-32BE");
@@ -44,7 +44,7 @@ class MetadataGenerator {
   private final DefaultInputModule inputModule;
   private final IssueExclusionsLoader exclusionsScanner;
 
-  MetadataGenerator(DefaultInputModule inputModule, StatusDetection statusDetection, FileMetadata fileMetadata, IssueExclusionsLoader exclusionsScanner) {
+  public MetadataGenerator(DefaultInputModule inputModule, StatusDetection statusDetection, FileMetadata fileMetadata, IssueExclusionsLoader exclusionsScanner) {
     this.inputModule = inputModule;
     this.statusDetection = statusDetection;
     this.fileMetadata = fileMetadata;
