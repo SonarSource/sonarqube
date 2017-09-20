@@ -25,4 +25,5 @@
 .navbar-context-meta-branch-menu-item {
   display: flex !important;
   justify-content: space-between;
+  align-items: center;
 }
