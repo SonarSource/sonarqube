@@ -209,10 +209,8 @@ public class IssueQueryFactory {
 
     if (componentRootUuids != null) {
       allComponents.addAll(getComponentsFromUuids(session, componentRootUuids));
-      effectiveOnComponentOnly = false;
     } else if (componentRoots != null) {
       allComponents.addAll(getComponentsFromKeys(session, componentRoots, branch));
-      effectiveOnComponentOnly = false;
     } else if (components != null) {
       allComponents.addAll(getComponentsFromKeys(session, components, branch));
       effectiveOnComponentOnly = true;
