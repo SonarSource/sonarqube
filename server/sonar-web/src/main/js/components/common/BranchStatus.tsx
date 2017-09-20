@@ -41,33 +41,33 @@ export default function BranchStatus({ branch, concise = false }: Props) {
     const totalIssues =
       branch.status.bugs + branch.status.vulnerabilities + branch.status.codeSmells;
 
+    const indicatorClassName = classNames('branch-status-indicator', {
+      'is-failed': totalIssues > 0,
+      'is-passed': totalIssues === 0
+    });
+
     return (
       <ul className="list-inline branch-status">
-        <li>
-          <i
-            className={classNames('branch-status-indicator', {
-              'is-failed': totalIssues > 0,
-              'is-passed': totalIssues === 0
-            })}
-          />
+        <li className="spacer-right">
+          <i className={indicatorClassName} />
         </li>
         {concise && <li>{totalIssues}</li>}
         {!concise && (
           <li>
             {branch.status.bugs}
-            <BugIcon className="little-spacer-left" />
+            <BugIcon />
           </li>
         )}
         {!concise && (
           <li>
             {branch.status.vulnerabilities}
-            <VulnerabilityIcon className="little-spacer-left" />
+            <VulnerabilityIcon />
           </li>
         )}
         {!concise && (
           <li>
             {branch.status.codeSmells}
-            <CodeSmellIcon className="little-spacer-left" />
+            <CodeSmellIcon />
           </li>
         )}
       </ul>
