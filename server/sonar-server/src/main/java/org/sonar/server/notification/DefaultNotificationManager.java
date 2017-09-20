@@ -20,7 +20,8 @@
 package org.sonar.server.notification;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import java.io.IOException;
@@ -28,8 +29,10 @@ import java.io.InvalidClassException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.SonarException;
@@ -120,27 +123,72 @@ public class DefaultNotificationManager implements NotificationManager {
     requireNonNull(projectUuid, "ProjectUUID is mandatory");
     String dispatcherKey = dispatcher.getKey();
 
-    SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
-    for (NotificationChannel channel : notificationChannels) {
-      String channelKey = channel.getKey();
+    Set<SubscriberAndChannel> subscriberAndChannels = Arrays.stream(notificationChannels)
+      .flatMap(notificationChannel -> toSubscriberAndChannels(dispatcherKey, projectUuid, notificationChannel))
+      .collect(Collectors.toSet());
 
-      // Find users subscribed globally to the dispatcher (i.e. not on a specific project)
-      // And users subscribed to the dispatcher specifically for the project
-      Set<Subscriber> subscribedUsers = dbClient.propertiesDao().findUsersForNotification(dispatcherKey, channelKey, projectUuid);
-
-      if (!subscribedUsers.isEmpty()) {
-        try (DbSession dbSession = dbClient.openSession(false)) {
-          Set<String> filteredSubscribedUsers = dbClient.authorizationDao().keepAuthorizedLoginsOnProject(
-            dbSession,
-            subscribedUsers.stream().map(Subscriber::getLogin).collect(Collectors.toSet()),
-            projectUuid,
-            UserRole.USER);
-          addUsersToRecipientListForChannel(filteredSubscribedUsers, recipients, channel);
-        }
-      }
+    if (subscriberAndChannels.isEmpty()) {
+      return ImmutableMultimap.of();
     }
 
-    return recipients;
+    ImmutableSetMultimap.Builder<String, NotificationChannel> builder = ImmutableSetMultimap.builder();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Set<String> authorizedLogins = keepAuthorizedLogins(projectUuid, subscriberAndChannels, dbSession);
+      subscriberAndChannels.stream()
+        .filter(subscriberAndChannel -> authorizedLogins.contains(subscriberAndChannel.getSubscriber().getLogin()))
+        .forEach(subscriberAndChannel -> builder.put(subscriberAndChannel.getSubscriber().getLogin(), subscriberAndChannel.getChannel()));
+    }
+    return builder.build();
+  }
+
+  private Stream<SubscriberAndChannel> toSubscriberAndChannels(String dispatcherKey, String projectUuid, NotificationChannel notificationChannel) {
+    return dbClient.propertiesDao().findUsersForNotification(dispatcherKey, notificationChannel.getKey(), projectUuid)
+      .stream()
+      .map(login -> new SubscriberAndChannel(login, notificationChannel));
+  }
+
+  private Set<String> keepAuthorizedLogins(String projectUuid, Set<SubscriberAndChannel> subscriberAndChannels, DbSession dbSession) {
+    Set<String> logins = subscriberAndChannels.stream()
+      .map(DefaultNotificationManager.SubscriberAndChannel::getSubscriber)
+      .map(Subscriber::getLogin)
+      .collect(Collectors.toSet());
+    return dbClient.authorizationDao().keepAuthorizedLoginsOnProject(dbSession, logins, projectUuid, UserRole.USER);
+  }
+
+  private final class SubscriberAndChannel {
+    private final Subscriber subscriber;
+    private final NotificationChannel channel;
+
+    private SubscriberAndChannel(Subscriber subscriber, NotificationChannel channel) {
+      this.subscriber = subscriber;
+      this.channel = channel;
+    }
+
+    public Subscriber getSubscriber() {
+      return subscriber;
+    }
+
+    public NotificationChannel getChannel() {
+      return channel;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      SubscriberAndChannel that = (SubscriberAndChannel) o;
+      return Objects.equals(subscriber, that.subscriber) &&
+        Objects.equals(channel, that.channel);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(subscriber, channel);
+    }
   }
 
   @VisibleForTesting
