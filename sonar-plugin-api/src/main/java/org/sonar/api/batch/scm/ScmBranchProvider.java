@@ -21,7 +21,7 @@
 package org.sonar.api.batch.scm;
 
 import java.nio.file.Path;
-import java.util.Collection;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -37,11 +37,11 @@ import org.sonar.api.batch.ScannerSide;
 public abstract class ScmBranchProvider extends ScmProvider {
 
   /**
-   * Return absolute path of files changed in the current branch, compared to the provided target branch.
+   * Return absolute path of the files changed in the current branch, compared to the provided target branch.
    * @return null if SCM provider was not able to compute the list of files.
    */
   @Nullable
-  public Collection<Path> branchChangedFiles(String targetBranchName, Path rootBaseDir) {
+  public Set<Path> branchChangedFiles(String targetBranchName, Path rootBaseDir) {
     return null;
   }
 }

@@ -24,15 +24,17 @@ import java.util.Collection;
 import javax.annotation.CheckForNull;
 import org.picocontainer.annotations.Nullable;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.scm.ScmBranchProvider;
 import org.sonar.api.batch.scm.ScmProvider;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 public class ScmChangedFilesProvider extends ProviderAdapter {
-  private static final Logger LOG = LoggerFactory.getLogger(ScmChangedFilesProvider.class);
+  private static final Logger LOG = Loggers.get(ScmChangedFilesProvider.class);
+  private static final String LOG_MSG = "SCM collecting changed files in the branch";
 
   private ScmChangedFiles scmBranchChangedFiles;
 
@@ -46,10 +48,17 @@ public class ScmChangedFilesProvider extends ProviderAdapter {
       } else {
         Path rootBaseDir = inputModuleHierarchy.root().getBaseDir();
         Collection<Path> changedFiles = loadChangedFilesIfNeeded(scmConfiguration, branchConfiguration, rootBaseDir);
+        validatePaths(changedFiles);
         scmBranchChangedFiles = new ScmChangedFiles(changedFiles);
       }
     }
     return scmBranchChangedFiles;
+  }
+
+  private static void validatePaths(@javax.annotation.Nullable Collection<Path> paths) {
+    if (paths != null && paths.stream().anyMatch(p -> !p.isAbsolute())) {
+      throw new IllegalStateException("SCM provider returned a changed file with a relative path but paths must be absolute. Please fix the provider.");
+    }
   }
 
   @CheckForNull
@@ -57,10 +66,12 @@ public class ScmChangedFilesProvider extends ProviderAdapter {
     if (branchConfiguration.isShortLivingBranch()) {
       ScmProvider scmProvider = scmConfiguration.provider();
       if (scmProvider != null && (scmProvider instanceof ScmBranchProvider)) {
+        Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
         ScmBranchProvider scmBranchProvider = (ScmBranchProvider) scmProvider;
         Collection<Path> changedFiles = scmBranchProvider.branchChangedFiles(branchConfiguration.branchTarget(), rootBaseDir);
+        profiler.stopInfo();
         if (changedFiles != null) {
-          LOG.debug("SCM reported {} files changed in the branch", changedFiles.size());
+          LOG.debug("SCM reported {} {} changed in the branch", changedFiles.size(), pluralize("file", changedFiles.size()));
           return changedFiles;
         }
       }
@@ -68,6 +79,13 @@ public class ScmChangedFilesProvider extends ProviderAdapter {
       LOG.debug("SCM information about changed files in the branch is not available");
     }
     return null;
+  }
+
+  private static String pluralize(String str, int i) {
+    if (i == 1) {
+      return str;
+    }
+    return str + "s";
   }
 
 }

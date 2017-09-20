@@ -20,45 +20,39 @@
 package org.sonar.scanner.scan.filesystem;
 
 import java.util.function.Predicate;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Status;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.OperatorPredicate;
 import org.sonar.api.batch.fs.internal.StatusPredicate;
-import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.repository.ProjectRepositories;
 
 public class SameInputFilePredicate implements Predicate<InputFile> {
-  private final ProjectRepositories projectRepositories;
+  private final StatusDetection statusDetection;
   private final String moduleKeyWithBranch;
   private final FilePredicate currentPredicate;
 
-  public SameInputFilePredicate(FilePredicate currentPredicate, ProjectRepositories projectRepositories, String moduleKeyWithBranch) {
+  public SameInputFilePredicate(FilePredicate currentPredicate, StatusDetection statusDetection, String moduleKeyWithBranch) {
     this.currentPredicate = currentPredicate;
-    this.projectRepositories = projectRepositories;
+    this.statusDetection = statusDetection;
     this.moduleKeyWithBranch = moduleKeyWithBranch;
   }
 
   @Override
   public boolean test(InputFile inputFile) {
     if (hasExplicitFilterOnStatus(currentPredicate)) {
-      // If user explicitely requested a given status, don't change the result
-      return true;
-    }
-    // Try to avoid initializing metadata
-    FileData fileDataPerPath = projectRepositories.fileData(moduleKeyWithBranch, inputFile.relativePath());
-    if (fileDataPerPath == null) {
-      // ADDED
-      return true;
-    }
-    String previousHash = fileDataPerPath.hash();
-    if (StringUtils.isEmpty(previousHash)) {
-      // ADDED
+      // If user explicitly requested a given status, don't change the result
       return true;
     }
 
+    // TODO: the inputFile could try to calculate the status itself without generating metadata
+    Status status = statusDetection.getStatusWithoutMetadata(moduleKeyWithBranch, (DefaultInputFile) inputFile);
+    if (status != null) {
+      return status != Status.SAME;
+    }
+
     // this will trigger computation of metadata
-    return inputFile.status() != InputFile.Status.SAME;
+    return inputFile.status() != Status.SAME;
   }
 
   static boolean hasExplicitFilterOnStatus(FilePredicate predicate) {

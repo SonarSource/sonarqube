@@ -23,7 +23,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -48,6 +50,9 @@ public class ScmChangedFilesProviderTest {
   @Mock
   private ScmBranchProvider scmProvider;
 
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
+
   private Path rootBaseDir = Paths.get("root");
   private ScmChangedFilesProvider provider;
 
@@ -67,6 +72,18 @@ public class ScmChangedFilesProviderTest {
 
     assertThat(scmChangedFiles.get()).isNull();
     verify(scmConfiguration).provider();
+  }
+
+  @Test
+  public void testFailIfRelativePath() {
+    when(branchConfiguration.branchTarget()).thenReturn("target");
+    when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
+    when(scmConfiguration.provider()).thenReturn(scmProvider);
+    when(scmProvider.branchChangedFiles("target", rootBaseDir)).thenReturn(Collections.singleton(Paths.get("changedFile")));
+
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("changed file with a relative path");
+    provider.provide(scmConfiguration, branchConfiguration, inputModuleHierarchy);
   }
 
   @Test
@@ -108,10 +125,10 @@ public class ScmChangedFilesProviderTest {
     when(branchConfiguration.branchTarget()).thenReturn("target");
     when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
     when(scmConfiguration.provider()).thenReturn(scmProvider);
-    when(scmProvider.branchChangedFiles("target", rootBaseDir)).thenReturn(Collections.singletonList(Paths.get("changedFile")));
+    when(scmProvider.branchChangedFiles("target", rootBaseDir)).thenReturn(Collections.singleton(Paths.get("changedFile").toAbsolutePath()));
     ScmChangedFiles scmChangedFiles = provider.provide(scmConfiguration, branchConfiguration, inputModuleHierarchy);
 
-    assertThat(scmChangedFiles.get()).containsOnly(Paths.get("changedFile"));
+    assertThat(scmChangedFiles.get()).containsOnly(Paths.get("changedFile").toAbsolutePath());
     verify(scmProvider).branchChangedFiles("target", rootBaseDir);
   }
 
