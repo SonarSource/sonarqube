@@ -43,10 +43,7 @@ export default class GraphsLegendItem extends React.PureComponent<Props> {
   render() {
     const isActionable = this.props.removeMetric != null;
     const legendClass = classNames(
-      {
-        'project-activity-graph-legend-actionable': isActionable,
-        'alert-warning': this.props.showWarning
-      },
+      { 'project-activity-graph-legend-actionable': isActionable },
       this.props.className
     );
     return (
