@@ -28,6 +28,8 @@ import org.sonar.server.notification.NotificationDispatcher;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;
 
+import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
+
 /**
  * This dispatcher means: "notify me when new issues are introduced during project analysis"
  */
@@ -55,7 +57,8 @@ public class NewIssuesNotificationDispatcher extends NotificationDispatcher {
   @Override
   public void dispatch(Notification notification, Context context) {
     String projectUuid = notification.getFieldValue("projectUuid");
-    Multimap<String, NotificationChannel> subscribedRecipients = manager.findSubscribedRecipientsForDispatcher(this, projectUuid);
+    Multimap<String, NotificationChannel> subscribedRecipients = manager.findSubscribedRecipientsForDispatcher(
+      this, projectUuid, ALL_MUST_HAVE_ROLE_USER);
 
     for (Map.Entry<String, Collection<NotificationChannel>> channelsByRecipients : subscribedRecipients.asMap().entrySet()) {
       String userLogin = channelsByRecipients.getKey();

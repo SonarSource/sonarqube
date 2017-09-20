@@ -30,6 +30,8 @@ import org.sonar.server.notification.NotificationDispatcher;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;
 
+import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
+
 /**
  * This dispatcher means: "notify me when an issue is resolved as false positive or won't fix".
  */
@@ -61,7 +63,8 @@ public class DoNotFixNotificationDispatcher extends NotificationDispatcher {
     if (Objects.equals(newResolution, Issue.RESOLUTION_FALSE_POSITIVE) || Objects.equals(newResolution, Issue.RESOLUTION_WONT_FIX)) {
       String author = notification.getFieldValue("changeAuthor");
       String projectUuid = notification.getFieldValue("projectUuid");
-      Multimap<String, NotificationChannel> subscribedRecipients = notifications.findSubscribedRecipientsForDispatcher(this, projectUuid);
+      Multimap<String, NotificationChannel> subscribedRecipients = notifications.findSubscribedRecipientsForDispatcher(
+        this, projectUuid, ALL_MUST_HAVE_ROLE_USER);
       notify(author, context, subscribedRecipients);
     }
   }
