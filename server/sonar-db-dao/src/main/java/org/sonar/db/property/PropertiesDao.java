@@ -64,9 +64,9 @@ public class PropertiesDao implements Dao {
    * Note that {@link  UserRole#USER} permission is not checked here, filter the results with
    * {@link org.sonar.db.permission.AuthorizationDao#keepAuthorizedLoginsOnProject}
    *
-   * @return the list of logins (maybe be empty - obviously)
+   * @return the list of Subscriber (maybe be empty - obviously)
    */
-  public Set<String> findUsersForNotification(String notificationDispatcherKey, String notificationChannelKey, @Nullable String projectUuid) {
+  public Set<Subscriber> findUsersForNotification(String notificationDispatcherKey, String notificationChannelKey, @Nullable String projectUuid) {
     try (DbSession session = mybatis.openSession(false)) {
       return getMapper(session).findUsersForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectUuid);
     }

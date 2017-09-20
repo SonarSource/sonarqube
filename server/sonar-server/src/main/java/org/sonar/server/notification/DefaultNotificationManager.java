@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.SonarException;
@@ -38,6 +39,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.notification.NotificationQueueDto;
+import org.sonar.db.property.Subscriber;
 
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
@@ -70,6 +72,7 @@ public class DefaultNotificationManager implements NotificationManager {
     NotificationQueueDto dto = NotificationQueueDto.toNotificationQueueDto(notification);
     dbClient.notificationQueueDao().insert(singletonList(dto));
   }
+
   /**
    * Give the notification queue so that it can be processed
    */
@@ -123,11 +126,15 @@ public class DefaultNotificationManager implements NotificationManager {
 
       // Find users subscribed globally to the dispatcher (i.e. not on a specific project)
       // And users subscribed to the dispatcher specifically for the project
-      Set<String> subscribedUsers = dbClient.propertiesDao().findUsersForNotification(dispatcherKey, channelKey, projectUuid);
+      Set<Subscriber> subscribedUsers = dbClient.propertiesDao().findUsersForNotification(dispatcherKey, channelKey, projectUuid);
 
       if (!subscribedUsers.isEmpty()) {
         try (DbSession dbSession = dbClient.openSession(false)) {
-          Set<String> filteredSubscribedUsers = dbClient.authorizationDao().keepAuthorizedLoginsOnProject(dbSession, subscribedUsers, projectUuid, UserRole.USER);
+          Set<String> filteredSubscribedUsers = dbClient.authorizationDao().keepAuthorizedLoginsOnProject(
+            dbSession,
+            subscribedUsers.stream().map(Subscriber::getLogin).collect(Collectors.toSet()),
+            projectUuid,
+            UserRole.USER);
           addUsersToRecipientListForChannel(filteredSubscribedUsers, recipients, channel);
         }
       }
