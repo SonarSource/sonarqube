@@ -64,6 +64,7 @@ import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
+import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 
 /**
  * For each component, computes the measures related to number of issues:
@@ -138,7 +139,7 @@ public class IssueCounter extends IssueVisitor {
     }
     Period period = periodHolder.getPeriod();
     // Add one second to not take into account issues created during current analysis
-    if (issue.creationDate().getTime() >= period.getSnapshotDate() + 1000L) {
+    if (issue.creationDate().getTime() > truncateToSeconds(period.getSnapshotDate())) {
       currentCounters.addOnPeriod(issue);
     }
   }

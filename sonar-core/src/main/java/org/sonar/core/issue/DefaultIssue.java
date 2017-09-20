@@ -26,8 +26,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,6 +49,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.tracking.Trackable;
 
 import static java.lang.String.format;
+import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 
 public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.Issue {
 
@@ -366,16 +365,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   public DefaultIssue setCreationDate(Date d) {
     this.creationDate = truncateToSeconds(d);
     return this;
-  }
-
-  @CheckForNull
-  private static Date truncateToSeconds(@Nullable Date d) {
-    if (d == null) {
-      return null;
-    }
-    Instant instant = d.toInstant();
-    instant = instant.truncatedTo(ChronoUnit.SECONDS);
-    return Date.from(instant);
   }
 
   @Override

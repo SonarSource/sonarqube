@@ -43,6 +43,7 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
+import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit.LEAVES;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -167,7 +168,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
 
     private static boolean isOnPeriod(DefaultIssue issue, Period period) {
       // Add one second to not take into account issues created during current analysis
-      return issue.creationDate().getTime() >= period.getSnapshotDate() + 1000L;
+      return issue.creationDate().getTime() > truncateToSeconds(period.getSnapshotDate());
     }
   }
 

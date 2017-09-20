@@ -285,4 +285,22 @@ public final class DateUtils {
     return Date.from(date.toInstant().plus(numberOfDays, ChronoUnit.DAYS));
   }
 
+  @CheckForNull
+  public static Date truncateToSeconds(@Nullable Date d) {
+    if (d == null) {
+      return null;
+    }
+    return truncateToSecondsImpl(d);
+  }
+
+  public static long truncateToSeconds(long dateTime) {
+    return truncateToSecondsImpl(new Date(dateTime)).getTime();
+  }
+
+  private static Date truncateToSecondsImpl(Date d) {
+    Instant instant = d.toInstant();
+    instant = instant.truncatedTo(ChronoUnit.SECONDS);
+    return Date.from(instant);
+  }
+
 }

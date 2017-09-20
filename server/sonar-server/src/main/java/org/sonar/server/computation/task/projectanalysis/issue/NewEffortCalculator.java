@@ -24,7 +24,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -33,7 +32,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.time.DateUtils;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.issue.IssueChangeDto;
@@ -41,6 +39,7 @@ import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 
 /**
  * Gets the issue debt that was introduced on a period. The algorithm
@@ -52,15 +51,10 @@ public class NewEffortCalculator {
    * Changelog have to be sorted from newest to oldest.
    * Null date should be the first as this happen when technical debt has changed since previous analysis.
    */
-  private static final Comparator<FieldDiffs> CHANGE_ORDERING = Ordering.natural().reverse().nullsFirst().onResultOf(new Function<FieldDiffs, Date>() {
-    @Override
-    public Date apply(@Nonnull FieldDiffs dto) {
-      return dto.creationDate();
-    }
-  });
+  private static final Comparator<FieldDiffs> CHANGE_ORDERING = Ordering.natural().reverse().nullsFirst().onResultOf((Function<FieldDiffs, Date>) dto -> dto.creationDate());
 
   public long calculate(DefaultIssue issue, Collection<IssueChangeDto> debtChangelog, Period period) {
-    if (issue.creationDate().getTime() > period.getSnapshotDate() + 1000L) {
+    if (issue.creationDate().getTime() > truncateToSeconds(period.getSnapshotDate())) {
       return MoreObjects.firstNonNull(issue.effortInMinutes(), 0L);
     }
     return calculateFromChangelog(issue, debtChangelog, period.getSnapshotDate());
@@ -104,7 +98,7 @@ public class NewEffortCalculator {
   }
 
   private static boolean isBeforeOrEqual(@Nullable Date changeDate, Date periodDate) {
-    return (changeDate != null) && (DateUtils.truncatedCompareTo(changeDate, periodDate, Calendar.SECOND) <= 0);
+    return (changeDate != null) && (truncateToSeconds(changeDate.getTime()) <= truncateToSeconds(periodDate.getTime()));
   }
 
   private static FieldDiffs.Diff debtDiff(FieldDiffs diffs) {
