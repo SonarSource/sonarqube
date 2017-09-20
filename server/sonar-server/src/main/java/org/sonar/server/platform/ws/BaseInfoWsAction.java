@@ -26,7 +26,11 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.process.systeminfo.SystemInfoUtils;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+import org.sonar.server.health.Health;
+import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryData;
 
 public abstract class BaseInfoWsAction implements SystemWsAction {
 
@@ -37,9 +41,11 @@ public abstract class BaseInfoWsAction implements SystemWsAction {
     "Compute Engine Database Connection", "Compute Engine JVM State", "Compute Engine Logging", "Compute Engine Tasks", "Compute Engine JVM Properties"};
 
   private final UserSession userSession;
+  private final TelemetryDataLoader telemetry;
 
-  public BaseInfoWsAction(UserSession userSession) {
+  public BaseInfoWsAction(UserSession userSession, TelemetryDataLoader telemetry) {
     this.userSession = userSession;
+    this.telemetry = telemetry;
   }
 
   @Override
@@ -62,22 +68,22 @@ public abstract class BaseInfoWsAction implements SystemWsAction {
 
   protected abstract void doHandle(Request request, Response response);
 
-  protected void writeSectionsToJson(Collection<ProtobufSystemInfo.Section> sections, JsonWriter json) {
+  protected void writeSections(Collection<ProtobufSystemInfo.Section> sections, JsonWriter json) {
     SystemInfoUtils
       .order(sections, ORDERED_SECTION_NAMES)
-      .forEach(section -> writeSectionToJson(section, json));
+      .forEach(section -> writeSection(section, json));
   }
 
-  protected void writeSectionToJson(ProtobufSystemInfo.Section section, JsonWriter json) {
+  private void writeSection(ProtobufSystemInfo.Section section, JsonWriter json) {
     json.name(section.getName());
     json.beginObject();
     for (ProtobufSystemInfo.Attribute attribute : section.getAttributesList()) {
-      writeAttributeToJson(attribute, json);
+      writeAttribute(attribute, json);
     }
     json.endObject();
   }
 
-  protected void writeAttributeToJson(ProtobufSystemInfo.Attribute attribute, JsonWriter json) {
+  private void writeAttribute(ProtobufSystemInfo.Attribute attribute, JsonWriter json) {
     switch (attribute.getValueCase()) {
       case BOOLEAN_VALUE:
         json.prop(attribute.getKey(), attribute.getBooleanValue());
@@ -97,5 +103,15 @@ public abstract class BaseInfoWsAction implements SystemWsAction {
       default:
         throw new IllegalArgumentException("Unsupported type: " + attribute.getValueCase());
     }
+  }
+
+  protected void writeHealth(Health health, JsonWriter json) {
+    json.prop("Health", health.getStatus().name());
+    json.name("Health Causes").beginArray().values(health.getCauses()).endArray();
+  }
+
+  protected void writeTelemetry(JsonWriter json) {
+    json.name("Statistics");
+    writeTelemetryData(json, telemetry.load());
   }
 }

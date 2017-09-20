@@ -33,7 +33,6 @@ import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Arrays.stream;
-import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryData;
 
 /**
  * Implementation of the {@code info} action for the System WebService.
@@ -43,14 +42,12 @@ public class InfoAction extends BaseInfoWsAction {
   private final CeHttpClient ceHttpClient;
   private final SystemInfoSection[] systemInfoSections;
   private final HealthChecker healthChecker;
-  private final TelemetryDataLoader statistics;
 
-  public InfoAction(UserSession userSession, CeHttpClient ceHttpClient, HealthChecker healthChecker, TelemetryDataLoader statistics,
+  public InfoAction(UserSession userSession, TelemetryDataLoader telemetry, CeHttpClient ceHttpClient, HealthChecker healthChecker,
     SystemInfoSection... systemInfoSections) {
-    super(userSession);
+    super(userSession, telemetry);
     this.ceHttpClient = ceHttpClient;
     this.healthChecker = healthChecker;
-    this.statistics = statistics;
     this.systemInfoSections = systemInfoSections;
   }
 
@@ -64,28 +61,22 @@ public class InfoAction extends BaseInfoWsAction {
   private void writeJson(JsonWriter json) {
     json.beginObject();
 
-    writeHealthToJson(json);
+    writeHealth(json);
+
     List<ProtobufSystemInfo.Section> sections = stream(systemInfoSections)
       .map(SystemInfoSection::toProtobuf)
       .collect(MoreCollectors.toArrayList());
     ceHttpClient.retrieveSystemInfo()
       .ifPresent(ce -> sections.addAll(ce.getSectionsList()));
 
-    writeSectionsToJson(sections, json);
-    writeStatisticsToJson(json);
+    writeSections(sections, json);
+    writeTelemetry(json);
 
     json.endObject();
   }
 
-  private void writeHealthToJson(JsonWriter json) {
+  private void writeHealth(JsonWriter json) {
     Health health = healthChecker.checkNode();
-    json.prop("Health", health.getStatus().name());
-    json.name("Health Causes").beginArray().values(health.getCauses()).endArray();
+    writeHealth(health, json);
   }
-
-  private void writeStatisticsToJson(JsonWriter json) {
-    json.name("Statistics");
-    writeTelemetryData(json, statistics.load());
-  }
-
 }
