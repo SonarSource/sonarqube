@@ -52,14 +52,18 @@ public class ClusterInfoAction extends BaseInfoWsAction {
     ClusterHealth clusterHealth = healthChecker.checkCluster();
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
-      writeGlobalSections(json, clusterHealth);
+
+      json.prop("Health", clusterHealth.getHealth().getStatus().name());
+      json.name("Health Causes").beginArray().values(clusterHealth.getHealth().getCauses()).endArray();
+
+      writeGlobalSections(json);
       writeApplicationNodes(json, clusterHealth);
       writeSearchNodes(json, clusterHealth);
       json.endObject();
     }
   }
 
-  private void writeGlobalSections(JsonWriter json, ClusterHealth clusterHealth) {
+  private void writeGlobalSections(JsonWriter json) {
     globalInfoLoader.load().forEach(section -> writeSectionToJson(section, json));
   }
 
