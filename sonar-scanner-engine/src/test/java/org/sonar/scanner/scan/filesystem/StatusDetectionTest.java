@@ -33,6 +33,10 @@ import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.scm.ScmChangedFiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class StatusDetectionTest {
   @Test
@@ -54,6 +58,26 @@ public class StatusDetectionTest {
 
     // normally changed
     assertThat(statusDetection.status("foo", createFile("src/Foo.java"), "XXXXX")).isEqualTo(InputFile.Status.SAME);
+
+    // normally added
+    assertThat(statusDetection.status("foo", createFile("src/Other.java"), "QWERT")).isEqualTo(InputFile.Status.SAME);
+  }
+
+  @Test
+  public void detect_status_without_metadata() {
+    DefaultInputFile mockedFile = mock(DefaultInputFile.class);
+    when(mockedFile.relativePath()).thenReturn("module/src/Foo.java");
+    when(mockedFile.path()).thenReturn(Paths.get("module", "src", "Foo.java"));
+
+    ProjectRepositories ref = new ProjectRepositories(ImmutableTable.of(), createTable(), null);
+    ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.singletonList(Paths.get("module", "src", "Foo.java")));
+    StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
+
+    assertThat(statusDetection.getStatusWithoutMetadata("foo", mockedFile)).isEqualTo(InputFile.Status.ADDED);
+
+    verify(mockedFile).path();
+    verify(mockedFile).relativePath();
+    verifyNoMoreInteractions(mockedFile);
   }
 
   @Test

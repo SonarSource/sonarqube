@@ -23,29 +23,28 @@ import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.repository.ProjectRepositories;
 
 public class DefaultModuleFileSystem extends DefaultFileSystem {
 
   public DefaultModuleFileSystem(ModuleInputComponentStore moduleInputFileCache, DefaultInputModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
-    ProjectRepositories projectRepositories) {
+    StatusDetection statusDetection) {
     super(module.getBaseDir(), moduleInputFileCache);
-    setFields(module, initializer, mode, projectRepositories);
+    setFields(module, initializer, mode, statusDetection);
   }
 
   @VisibleForTesting
-  public DefaultModuleFileSystem(DefaultInputModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode, ProjectRepositories projectRepositories) {
+  public DefaultModuleFileSystem(DefaultInputModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode, StatusDetection statusDetection) {
     super(module.getBaseDir());
-    setFields(module, initializer, mode, projectRepositories);
+    setFields(module, initializer, mode, statusDetection);
   }
 
-  private void setFields(DefaultInputModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode, ProjectRepositories projectRepositories) {
+  private void setFields(DefaultInputModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode, StatusDetection statusDetection) {
     setWorkDir(module.getWorkDir());
     setEncoding(initializer.defaultEncoding());
 
     // filter the files sensors have access to
     if (!mode.scanAllFiles()) {
-      setDefaultPredicate(p -> new SameInputFilePredicate(p, projectRepositories, module.definition().getKeyWithBranch()));
+      setDefaultPredicate(p -> new SameInputFilePredicate(p, statusDetection, module.definition().getKeyWithBranch()));
     }
   }
 
