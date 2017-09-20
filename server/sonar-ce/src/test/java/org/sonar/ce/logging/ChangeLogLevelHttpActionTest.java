@@ -26,7 +26,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.httpd.HttpAction;
-import org.sonar.ce.log.CeProcessLogging;
 import org.sonar.db.Database;
 import org.sonar.server.platform.ServerLogging;
 
@@ -43,8 +42,7 @@ import static org.sonar.ce.httpd.CeHttpUtils.createHttpSession;
 public class ChangeLogLevelHttpActionTest {
   private ServerLogging serverLogging = mock(ServerLogging.class);
   private Database database = mock(Database.class);
-  private CeProcessLogging ceProcessLogging = new CeProcessLogging();
-  private ChangeLogLevelHttpAction underTest = new ChangeLogLevelHttpAction(serverLogging, database, ceProcessLogging);
+  private ChangeLogLevelHttpAction underTest = new ChangeLogLevelHttpAction(serverLogging, database);
 
   @Test
   public void register_to_path_changeLogLevel() {
@@ -83,7 +81,7 @@ public class ChangeLogLevelHttpActionTest {
 
     assertThat(response.getStatus()).isEqualTo(OK);
 
-    verify(serverLogging).changeLevel(ceProcessLogging, LoggerLevel.ERROR);
+    verify(serverLogging).changeLevel(LoggerLevel.ERROR);
     verify(database).enableSqlLogging(false);
   }
 
@@ -93,7 +91,7 @@ public class ChangeLogLevelHttpActionTest {
 
     assertThat(response.getStatus()).isEqualTo(OK);
 
-    verify(serverLogging).changeLevel(ceProcessLogging, LoggerLevel.INFO);
+    verify(serverLogging).changeLevel(LoggerLevel.INFO);
     verify(database).enableSqlLogging(false);
   }
 
@@ -103,7 +101,7 @@ public class ChangeLogLevelHttpActionTest {
 
     assertThat(response.getStatus()).isEqualTo(OK);
 
-    verify(serverLogging).changeLevel(ceProcessLogging, LoggerLevel.DEBUG);
+    verify(serverLogging).changeLevel(LoggerLevel.DEBUG);
     verify(database).enableSqlLogging(false);
   }
 
@@ -113,7 +111,7 @@ public class ChangeLogLevelHttpActionTest {
 
     assertThat(response.getStatus()).isEqualTo(OK);
 
-    verify(serverLogging).changeLevel(ceProcessLogging, LoggerLevel.TRACE);
+    verify(serverLogging).changeLevel(LoggerLevel.TRACE);
     verify(database).enableSqlLogging(true);
   }
 }

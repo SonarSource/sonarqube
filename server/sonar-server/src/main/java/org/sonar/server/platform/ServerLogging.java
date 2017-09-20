@@ -39,18 +39,20 @@ public class ServerLogging {
 
   private final LogbackHelper helper;
   private final Configuration config;
+  private final ServerProcessLogging serverProcessLogging;
 
-  public ServerLogging(Configuration config) {
-    this(new LogbackHelper(), config);
+  public ServerLogging(Configuration config, ServerProcessLogging serverProcessLogging) {
+    this(new LogbackHelper(), config, serverProcessLogging);
   }
 
   @VisibleForTesting
-  ServerLogging(LogbackHelper helper, Configuration config) {
+  ServerLogging(LogbackHelper helper, Configuration config, ServerProcessLogging serverProcessLogging) {
     this.helper = helper;
     this.config = config;
+    this.serverProcessLogging = serverProcessLogging;
   }
 
-  public void changeLevel(ServerProcessLogging serverProcessLogging, LoggerLevel level) {
+  public void changeLevel(LoggerLevel level) {
     Level logbackLevel = Level.toLevel(level.name());
     helper.changeRoot(serverProcessLogging.getLogLevelConfig(), logbackLevel);
     LoggerFactory.getLogger(ServerLogging.class).info("Level of logs changed to {}", level);

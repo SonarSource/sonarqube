@@ -23,7 +23,6 @@ import fi.iki.elonen.NanoHTTPD;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.httpd.HttpAction;
-import org.sonar.ce.log.CeProcessLogging;
 import org.sonar.db.Database;
 import org.sonar.server.platform.ServerLogging;
 
@@ -41,12 +40,10 @@ public class ChangeLogLevelHttpAction implements HttpAction {
 
   private final ServerLogging logging;
   private final Database db;
-  private final CeProcessLogging ceProcessLogging;
 
-  public ChangeLogLevelHttpAction(ServerLogging logging, Database db, CeProcessLogging ceProcessLogging) {
+  public ChangeLogLevelHttpAction(ServerLogging logging, Database db) {
     this.logging = logging;
     this.db = db;
-    this.ceProcessLogging = ceProcessLogging;
   }
 
   @Override
@@ -67,7 +64,7 @@ public class ChangeLogLevelHttpAction implements HttpAction {
     try {
       LoggerLevel level = LoggerLevel.valueOf(levelStr);
       db.enableSqlLogging(level.equals(LoggerLevel.TRACE));
-      logging.changeLevel(ceProcessLogging, level);
+      logging.changeLevel(level);
       return newFixedLengthResponse(OK, MIME_PLAINTEXT, null);
     } catch (IllegalArgumentException e) {
       Loggers.get(ChangeLogLevelHttpAction.class).debug("Value '{}' for parameter '{}' is invalid", levelStr, PARAM_LEVEL, e);

@@ -45,8 +45,7 @@ public class ChangeLogLevelActionTest {
   private ServerLogging serverLogging = mock(ServerLogging.class);
   private Database db = mock(Database.class);
   private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class);
-  private WebServerProcessLogging webServerProcessLogging = new WebServerProcessLogging();
-  private ChangeLogLevelAction underTest = new ChangeLogLevelAction(userSession, new ChangeLogLevelStandaloneService(serverLogging, db, ceHttpClient, webServerProcessLogging));
+  private ChangeLogLevelAction underTest = new ChangeLogLevelAction(userSession, new ChangeLogLevelStandaloneService(serverLogging, db, ceHttpClient));
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -74,7 +73,7 @@ public class ChangeLogLevelActionTest {
       .setMethod("POST")
       .execute();
 
-    verify(serverLogging).changeLevel(webServerProcessLogging, LoggerLevel.DEBUG);
+    verify(serverLogging).changeLevel(LoggerLevel.DEBUG);
     verify(ceHttpClient).changeLogLevel(LoggerLevel.DEBUG);
     verify(db).enableSqlLogging(false);
   }
@@ -88,7 +87,7 @@ public class ChangeLogLevelActionTest {
       .setMethod("POST")
       .execute();
 
-    verify(serverLogging).changeLevel(webServerProcessLogging, LoggerLevel.TRACE);
+    verify(serverLogging).changeLevel(LoggerLevel.TRACE);
     verify(ceHttpClient).changeLogLevel(LoggerLevel.TRACE);
     verify(db).enableSqlLogging(true);
   }

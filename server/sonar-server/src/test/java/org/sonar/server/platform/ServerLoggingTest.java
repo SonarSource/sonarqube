@@ -56,7 +56,8 @@ public class ServerLoggingTest {
   private final String rootLoggerName = RandomStringUtils.randomAlphabetic(20);
   private LogbackHelper logbackHelper = spy(new LogbackHelper());
   private MapSettings settings = new MapSettings();
-  private ServerLogging underTest = new ServerLogging(logbackHelper, settings.asConfig());
+  private final ServerProcessLogging serverProcessLogging = mock(ServerProcessLogging.class);
+  private ServerLogging underTest = new ServerLogging(logbackHelper, settings.asConfig(), serverProcessLogging);
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -78,11 +79,10 @@ public class ServerLoggingTest {
   @Test
   @UseDataProvider("supportedSonarApiLevels")
   public void changeLevel_calls_changeRoot_with_LogLevelConfig_and_level_converted_to_logback_class_then_log_INFO_message(LoggerLevel level) {
-    ServerProcessLogging serverProcessLogging = mock(ServerProcessLogging.class);
     LogLevelConfig logLevelConfig = LogLevelConfig.newBuilder(rootLoggerName).build();
     when(serverProcessLogging.getLogLevelConfig()).thenReturn(logLevelConfig);
 
-    underTest.changeLevel(serverProcessLogging, level);
+    underTest.changeLevel(level);
 
     verify(logbackHelper).changeRoot(logLevelConfig, Level.valueOf(level.name()));
   }
@@ -101,7 +101,7 @@ public class ServerLoggingTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("ERROR log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
 
-    underTest.changeLevel(mock(ServerProcessLogging.class), LoggerLevel.ERROR);
+    underTest.changeLevel(LoggerLevel.ERROR);
   }
 
   @Test
@@ -109,6 +109,6 @@ public class ServerLoggingTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("WARN log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
 
-    underTest.changeLevel(mock(ServerProcessLogging.class), LoggerLevel.WARN);
+    underTest.changeLevel(LoggerLevel.WARN);
   }
 }

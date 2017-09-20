@@ -23,13 +23,12 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.HazelcastDistributedCallComponentContainer;
 import org.sonar.db.Database;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.DistributedCall;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberSelectors;
-import org.sonar.server.app.ServerProcessLogging;
-import org.sonar.core.platform.HazelcastDistributedCallComponentContainer;
 import org.sonar.server.platform.ServerLogging;
 
 public class ChangeLogLevelClusterService implements ChangeLogLevelService {
@@ -63,8 +62,7 @@ public class ChangeLogLevelClusterService implements ChangeLogLevelService {
 
         // set log level of this process
         ServerLogging logging = componentContainer.getComponentByType(ServerLogging.class);
-        ServerProcessLogging serverProcessLogging = componentContainer.getComponentByType(ServerProcessLogging.class);
-        logging.changeLevel(serverProcessLogging, level);
+        logging.changeLevel(level);
       } catch (Exception e) {
         LOGGER.error("Setting log level to '" + level.name() + "' in this cluster node failed", e);
         throw new IllegalStateException("Setting log level to '" + level.name() + "' in this cluster node failed", e);
