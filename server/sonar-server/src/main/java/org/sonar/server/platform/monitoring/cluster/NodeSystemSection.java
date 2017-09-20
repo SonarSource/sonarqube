@@ -25,7 +25,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.platform.monitoring.OfficialDistribution;
 
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
@@ -35,14 +34,11 @@ public class NodeSystemSection implements SystemInfoSection {
 
   private final Configuration config;
   private final Server server;
-  private final ServerLogging serverLogging;
   private final OfficialDistribution officialDistribution;
 
-  public NodeSystemSection(Configuration config, Server server, ServerLogging serverLogging,
-    OfficialDistribution officialDistribution) {
+  public NodeSystemSection(Configuration config, Server server, OfficialDistribution officialDistribution) {
     this.config = config;
     this.server = server;
-    this.serverLogging = serverLogging;
     this.officialDistribution = officialDistribution;
   }
 
@@ -56,8 +52,6 @@ public class NodeSystemSection implements SystemInfoSection {
     setAttribute(protobuf, "Home Dir", config.get(ProcessProperties.PATH_HOME).orElse(null));
     setAttribute(protobuf, "Data Dir", config.get(ProcessProperties.PATH_DATA).orElse(null));
     setAttribute(protobuf, "Temp Dir", config.get(ProcessProperties.PATH_TEMP).orElse(null));
-    setAttribute(protobuf, "Logs Dir", config.get(ProcessProperties.PATH_LOGS).orElse(null));
-    setAttribute(protobuf, "Logs Level", serverLogging.getRootLoggerLevel().name());
     return protobuf.build();
   }
 
