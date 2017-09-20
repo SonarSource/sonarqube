@@ -21,23 +21,19 @@ package org.sonar.server.platform.ws;
 
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.http.CeHttpClient;
-import org.sonar.db.Database;
 import org.sonar.server.platform.ServerLogging;
 
 public class ChangeLogLevelStandaloneService implements ChangeLogLevelService {
 
   private final ServerLogging logging;
-  private final Database db;
   private final CeHttpClient ceHttpClient;
 
-  public ChangeLogLevelStandaloneService(ServerLogging logging, Database db, CeHttpClient ceHttpClient) {
+  public ChangeLogLevelStandaloneService(ServerLogging logging, CeHttpClient ceHttpClient) {
     this.logging = logging;
-    this.db = db;
     this.ceHttpClient = ceHttpClient;
   }
 
   public void changeLogLevel(LoggerLevel level) {
-    db.enableSqlLogging(level.equals(LoggerLevel.TRACE));
     logging.changeLevel(level);
     ceHttpClient.changeLogLevel(level);
   }

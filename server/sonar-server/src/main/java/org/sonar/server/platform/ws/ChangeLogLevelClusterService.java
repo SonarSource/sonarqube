@@ -24,7 +24,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.HazelcastDistributedCallComponentContainer;
-import org.sonar.db.Database;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.DistributedCall;
 import org.sonar.process.cluster.hz.HazelcastMember;
@@ -55,12 +54,6 @@ public class ChangeLogLevelClusterService implements ChangeLogLevelService {
     return () -> {
       try {
         ComponentContainer componentContainer = HazelcastDistributedCallComponentContainer.get();
-
-        // set SQL log level
-        Database db = componentContainer.getComponentByType(Database.class);
-        db.enableSqlLogging(level.equals(LoggerLevel.TRACE));
-
-        // set log level of this process
         ServerLogging logging = componentContainer.getComponentByType(ServerLogging.class);
         logging.changeLevel(level);
       } catch (Exception e) {

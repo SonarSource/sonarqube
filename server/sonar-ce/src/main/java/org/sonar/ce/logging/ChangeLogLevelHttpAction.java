@@ -23,7 +23,6 @@ import fi.iki.elonen.NanoHTTPD;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.httpd.HttpAction;
-import org.sonar.db.Database;
 import org.sonar.server.platform.ServerLogging;
 
 import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
@@ -39,11 +38,9 @@ public class ChangeLogLevelHttpAction implements HttpAction {
   private static final String PARAM_LEVEL = "level";
 
   private final ServerLogging logging;
-  private final Database db;
 
-  public ChangeLogLevelHttpAction(ServerLogging logging, Database db) {
+  public ChangeLogLevelHttpAction(ServerLogging logging) {
     this.logging = logging;
-    this.db = db;
   }
 
   @Override
@@ -63,7 +60,6 @@ public class ChangeLogLevelHttpAction implements HttpAction {
     }
     try {
       LoggerLevel level = LoggerLevel.valueOf(levelStr);
-      db.enableSqlLogging(level.equals(LoggerLevel.TRACE));
       logging.changeLevel(level);
       return newFixedLengthResponse(OK, MIME_PLAINTEXT, null);
     } catch (IllegalArgumentException e) {

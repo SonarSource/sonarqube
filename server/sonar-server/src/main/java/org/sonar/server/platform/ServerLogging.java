@@ -29,9 +29,12 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.Database;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.app.ServerProcessLogging;
+
+import static org.sonar.api.utils.log.LoggerLevel.TRACE;
 
 @ServerSide
 @ComputeEngineSide
@@ -40,20 +43,23 @@ public class ServerLogging {
   private final LogbackHelper helper;
   private final Configuration config;
   private final ServerProcessLogging serverProcessLogging;
+  private final Database database;
 
-  public ServerLogging(Configuration config, ServerProcessLogging serverProcessLogging) {
-    this(new LogbackHelper(), config, serverProcessLogging);
+  public ServerLogging(Configuration config, ServerProcessLogging serverProcessLogging, Database database) {
+    this(new LogbackHelper(), config, serverProcessLogging, database);
   }
 
   @VisibleForTesting
-  ServerLogging(LogbackHelper helper, Configuration config, ServerProcessLogging serverProcessLogging) {
+  ServerLogging(LogbackHelper helper, Configuration config, ServerProcessLogging serverProcessLogging, Database database) {
     this.helper = helper;
     this.config = config;
     this.serverProcessLogging = serverProcessLogging;
+    this.database = database;
   }
 
   public void changeLevel(LoggerLevel level) {
     Level logbackLevel = Level.toLevel(level.name());
+    database.enableSqlLogging(level == TRACE);
     helper.changeRoot(serverProcessLogging.getLogLevelConfig(), logbackLevel);
     LoggerFactory.getLogger(ServerLogging.class).info("Level of logs changed to {}", level);
   }
