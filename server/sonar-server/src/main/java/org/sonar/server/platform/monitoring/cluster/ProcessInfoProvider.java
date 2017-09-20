@@ -25,19 +25,19 @@ import java.util.stream.Collectors;
 import org.sonar.api.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.process.cluster.info.ProcessInfoProvider;
-import org.sonar.process.cluster.info.ProcessInfoProviderRef;
 import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 @ServerSide
 @ComputeEngineSide
-public class ProcessInfoProviderImpl implements ProcessInfoProvider, Startable {
+public class ProcessInfoProvider implements Startable {
 
+  /** Used for Hazelcast's distributed queries in cluster mode */
+  private static ProcessInfoProvider INSTANCE;
   private final List<SystemInfoSection> sections;
 
-  public ProcessInfoProviderImpl(SystemInfoSection[] sections) {
+  public ProcessInfoProvider(SystemInfoSection[] sections) {
     this.sections = Arrays.stream(sections)
       .filter(section -> !(section instanceof Global))
       .collect(Collectors.toList());
@@ -45,18 +45,17 @@ public class ProcessInfoProviderImpl implements ProcessInfoProvider, Startable {
 
   @Override
   public void start() {
-    ProcessInfoProviderRef.setProcessInfoProvider(this);
+    INSTANCE = this;
   }
 
   @Override
   public void stop() {
-    ProcessInfoProviderRef.setProcessInfoProvider(null);
+    INSTANCE = null;
   }
 
-  @Override
-  public ProtobufSystemInfo.SystemInfo provide() {
+  public static ProtobufSystemInfo.SystemInfo provide() {
     ProtobufSystemInfo.SystemInfo.Builder protobuf = ProtobufSystemInfo.SystemInfo.newBuilder();
-    sections.forEach(section -> protobuf.addSections(section.toProtobuf()));
+    INSTANCE.sections.forEach(section -> protobuf.addSections(section.toProtobuf()));
     return protobuf.build();
   }
 }

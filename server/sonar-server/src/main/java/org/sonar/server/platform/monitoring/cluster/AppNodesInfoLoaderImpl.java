@@ -29,7 +29,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.DistributedAnswer;
 import org.sonar.process.cluster.hz.HazelcastMember;
-import org.sonar.process.cluster.info.ProcessInfoCall;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 @ServerSide
@@ -44,7 +43,7 @@ public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
   public Collection<NodeInfo> load() {
     try {
       Map<String, NodeInfo> nodesByName = new HashMap<>();
-      DistributedAnswer<ProtobufSystemInfo.SystemInfo> distributedAnswer = hzMember.call(new ProcessInfoCall(), new CeWebMemberSelector(), 15_000L);
+      DistributedAnswer<ProtobufSystemInfo.SystemInfo> distributedAnswer = hzMember.call(ProcessInfoProvider::provide, new CeWebMemberSelector(), 15_000L);
       for (Member member : distributedAnswer.getMembers()) {
         String nodeName = member.getStringAttribute(HazelcastMember.Attribute.NODE_NAME);
         NodeInfo nodeInfo = nodesByName.get(nodeName);
