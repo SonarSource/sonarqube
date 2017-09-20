@@ -24,7 +24,7 @@ import ComponentNavMeta from './ComponentNavMeta';
 import ComponentNavMenu from './ComponentNavMenu';
 import ComponentNavBranch from './ComponentNavBranch';
 import RecentHistory from '../../RecentHistory';
-import { Branch, Component, ComponentConfiguration } from '../../../types';
+import { Branch, Component } from '../../../types';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
 import { getTasksForComponent } from '../../../../api/ce';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
@@ -34,7 +34,6 @@ interface Props {
   branches: Branch[];
   currentBranch?: Branch;
   component: Component;
-  conf: ComponentConfiguration;
   location: {};
 }
 
@@ -112,7 +111,6 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
         <ComponentNavMeta
           branch={this.props.currentBranch}
           component={this.props.component}
-          conf={this.props.conf}
           incremental={this.state.incremental}
           isInProgress={this.state.isInProgress}
           isFailed={this.state.isFailed}
@@ -122,7 +120,6 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
         <ComponentNavMenu
           branch={this.props.currentBranch}
           component={this.props.component}
-          conf={this.props.conf}
           // to re-render selected menu item
           location={this.props.location}
         />
