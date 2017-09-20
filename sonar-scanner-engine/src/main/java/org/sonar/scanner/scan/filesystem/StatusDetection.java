@@ -28,12 +28,12 @@ import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.scm.ScmChangedFiles;
 
 @Immutable
-class StatusDetection {
+public class StatusDetection {
 
   private final ProjectRepositories projectRepositories;
   private final ScmChangedFiles scmChangedFiles;
 
-  StatusDetection(ProjectRepositories projectSettings, ScmChangedFiles scmChangedFiles) {
+  public StatusDetection(ProjectRepositories projectSettings, ScmChangedFiles scmChangedFiles) {
     this.projectRepositories = projectSettings;
     this.scmChangedFiles = scmChangedFiles;
   }
@@ -50,7 +50,7 @@ class StatusDetection {
     if (StringUtils.isEmpty(previousHash)) {
       return InputFile.Status.ADDED;
     }
-    if (!scmChangedFiles.confirmChanged(inputFile.path())) {
+    if (!scmChangedFiles.verifyChanged(inputFile.path())) {
       return InputFile.Status.SAME;
     }
     return InputFile.Status.CHANGED;

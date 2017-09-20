@@ -21,18 +21,19 @@ package org.sonar.scanner.scan;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionUtils;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.deprecated.DeprecatedSensorContext;
 import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
@@ -64,10 +65,9 @@ import org.sonar.scanner.scan.filesystem.ExclusionFilters;
 import org.sonar.scanner.scan.filesystem.FileIndexer;
 import org.sonar.scanner.scan.filesystem.InputFileBuilder;
 import org.sonar.scanner.scan.filesystem.LanguageDetection;
-import org.sonar.scanner.scan.filesystem.MetadataGeneratorProvider;
+import org.sonar.scanner.scan.filesystem.MetadataGenerator;
 import org.sonar.scanner.scan.filesystem.ModuleFileSystemInitializer;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
-import org.sonar.scanner.scan.filesystem.StatusDetectionFactory;
 import org.sonar.scanner.scan.report.IssuesReports;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.sensor.SensorOptimizer;
@@ -77,10 +77,12 @@ import org.sonar.scanner.source.SymbolizableBuilder;
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
   private final DefaultInputModule module;
+  private final GlobalAnalysisMode analysisMode;
 
-  public ModuleScanContainer(ProjectScanContainer parent, DefaultInputModule module) {
+  public ModuleScanContainer(ProjectScanContainer parent, DefaultInputModule module, GlobalAnalysisMode analysisMode) {
     super(parent);
     this.module = module;
+    this.analysisMode = analysisMode;
   }
 
   @Override
@@ -99,11 +101,13 @@ public class ModuleScanContainer extends ComponentContainer {
       MutableModuleSettings.class,
       new ModuleSettingsProvider());
 
-    if (getComponentByType(AnalysisMode.class).isIssues()) {
-      add(IssuesPhaseExecutor.class,
+    if (analysisMode.isIssues()) {
+      add(
+        IssuesPhaseExecutor.class,
         IssuesReports.class);
     } else {
-      add(PublishPhaseExecutor.class);
+      add(
+        PublishPhaseExecutor.class);
     }
 
     add(
@@ -117,7 +121,7 @@ public class ModuleScanContainer extends ComponentContainer {
       ModuleInputComponentStore.class,
       FileExclusions.class,
       ExclusionFilters.class,
-      new MetadataGeneratorProvider(),
+      MetadataGenerator.class,
       FileMetadata.class,
       LanguageDetection.class,
       FileIndexer.class,
@@ -145,7 +149,7 @@ public class ModuleScanContainer extends ComponentContainer {
       // issues
       IssuableFactory.class,
       ModuleIssues.class,
-      org.sonar.api.issue.NoSonarFilter.class,
+      NoSonarFilter.class,
 
       // issue exclusions
       IssueInclusionPatternInitializer.class,

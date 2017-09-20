@@ -93,7 +93,7 @@ import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 import org.sonar.scanner.scan.filesystem.InputComponentStoreProvider;
-import org.sonar.scanner.scan.filesystem.StatusDetectionFactory;
+import org.sonar.scanner.scan.filesystem.StatusDetection;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
 import org.sonar.scanner.scan.measure.DeprecatedMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
@@ -160,7 +160,7 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultComponentTree.class,
       BatchIdGenerator.class,
       new ScmChangedFilesProvider(),
-      StatusDetectionFactory.class,
+      StatusDetection.class,
 
       // rules
       new ActiveRulesProvider(),
@@ -256,7 +256,7 @@ public class ProjectScanContainer extends ComponentContainer {
     }
 
     LOG.debug("Start recursive analysis of project modules");
-    scanRecursively(tree, tree.root());
+    scanRecursively(tree, tree.root(), analysisMode);
 
     if (analysisMode.isMediumTest()) {
       getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();
@@ -274,16 +274,16 @@ public class ProjectScanContainer extends ComponentContainer {
     }
   }
 
-  private void scanRecursively(InputModuleHierarchy tree, DefaultInputModule module) {
+  private void scanRecursively(InputModuleHierarchy tree, DefaultInputModule module, GlobalAnalysisMode analysisMode) {
     for (DefaultInputModule child : tree.children(module)) {
-      scanRecursively(tree, child);
+      scanRecursively(tree, child, analysisMode);
     }
-    scan(module);
+    scan(module, analysisMode);
   }
 
   @VisibleForTesting
-  void scan(DefaultInputModule module) {
-    new ModuleScanContainer(this, module).execute();
+  void scan(DefaultInputModule module, GlobalAnalysisMode analysisMode) {
+    new ModuleScanContainer(this, module, analysisMode).execute();
   }
 
   static class BatchExtensionFilter implements ExtensionMatcher {

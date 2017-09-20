@@ -50,31 +50,31 @@ public class ModuleFileSystemInitializer {
   private final List<Path> testDirsOrFiles;
   private final Charset encoding;
 
-  public ModuleFileSystemInitializer(DefaultInputModule inputModule, ProjectDefinition module) {
+  public ModuleFileSystemInitializer(DefaultInputModule inputModule) {
     logDir("Base dir: ", inputModule.getBaseDir());
     logDir("Working dir: ", inputModule.getWorkDir());
-    sourceDirsOrFiles = initSources(module, inputModule.getBaseDir(), ProjectDefinition.SOURCES_PROPERTY, "Source paths: ");
-    testDirsOrFiles = initSources(module, inputModule.getBaseDir(), ProjectDefinition.TESTS_PROPERTY, "Test paths: ");
-    encoding = initEncoding(module);
+    sourceDirsOrFiles = initSources(inputModule, ProjectDefinition.SOURCES_PROPERTY, "Source paths: ");
+    testDirsOrFiles = initSources(inputModule, ProjectDefinition.TESTS_PROPERTY, "Test paths: ");
+    encoding = initEncoding(inputModule);
   }
 
-  private static List<Path> initSources(ProjectDefinition module, Path baseDir, String propertyKey, String logLabel) {
+  private static List<Path> initSources(DefaultInputModule module, String propertyKey, String logLabel) {
     List<Path> result = new ArrayList<>();
     PathResolver pathResolver = new PathResolver();
     String srcPropValue = module.properties().get(propertyKey);
     if (srcPropValue != null) {
       for (String sourcePath : parseAsCsv(propertyKey, srcPropValue)) {
-        File dirOrFile = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
+        File dirOrFile = pathResolver.relativeFile(module.getBaseDir().toFile(), sourcePath);
         if (dirOrFile.exists()) {
           result.add(dirOrFile.toPath());
         }
       }
     }
-    logPaths(logLabel, baseDir, result);
+    logPaths(logLabel, module.getBaseDir(), result);
     return result;
   }
 
-  private static Charset initEncoding(ProjectDefinition module) {
+  private static Charset initEncoding(DefaultInputModule module) {
     String encodingStr = module.properties().get(CoreProperties.ENCODING_PROPERTY);
     Charset result;
     if (StringUtils.isNotEmpty(encodingStr)) {

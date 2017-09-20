@@ -104,6 +104,7 @@ public class ComponentsPublisherTest {
     moduleHierarchy = mock(InputModuleHierarchy.class);
     when(moduleHierarchy.root()).thenReturn(root);
     when(moduleHierarchy.children(root)).thenReturn(Collections.singleton(module1));
+    when(moduleHierarchy.parent(module1)).thenReturn(root);
     tree.index(module1, root);
 
     DefaultInputDir dir = new DefaultInputDir("module1", "src", 3);
@@ -471,6 +472,7 @@ public class ComponentsPublisherTest {
     moduleHierarchy = mock(InputModuleHierarchy.class);
     when(moduleHierarchy.root()).thenReturn(root);
     when(moduleHierarchy.children(root)).thenReturn(Collections.singleton(module1));
+    when(moduleHierarchy.parent(module1)).thenReturn(root);
     tree.index(module1, root);
 
     DefaultInputDir dir = new DefaultInputDir("module1", "src", 3);
