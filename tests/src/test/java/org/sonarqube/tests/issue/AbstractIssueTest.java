@@ -20,13 +20,13 @@
 package org.sonarqube.tests.issue;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category2Suite;
 import java.util.List;
 import org.junit.ClassRule;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
+import org.sonarqube.tests.Category2Suite;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

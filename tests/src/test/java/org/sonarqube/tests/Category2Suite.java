@@ -36,7 +36,6 @@ import org.sonarqube.tests.issue.IssueFilterExtensionTest;
 import org.sonarqube.tests.issue.IssueFilterOnCommonRulesTest;
 import org.sonarqube.tests.issue.IssueFilterTest;
 import org.sonarqube.tests.issue.IssueMeasureTest;
-import org.sonarqube.tests.issue.IssueNotificationsTest;
 import org.sonarqube.tests.issue.IssuePurgeTest;
 import org.sonarqube.tests.issue.IssueSearchTest;
 import org.sonarqube.tests.issue.IssueTrackingTest;
@@ -81,7 +80,6 @@ import static util.ItUtils.xooPlugin;
   IssueFilterTest.class,
   IssueFilterExtensionTest.class,
   IssueMeasureTest.class,
-  IssueNotificationsTest.class,
   IssuePurgeTest.class,
   IssueSearchTest.class,
   IssueTrackingTest.class,
@@ -114,6 +112,8 @@ public class Category2Suite {
 
     // 1 second. Required for notification test.
     .setServerProperty("sonar.notifications.delay", "1")
+
+    .setServerProperty("organization.enabled", "true")
 
     // reduce memory for Elasticsearch to 128M
     .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
