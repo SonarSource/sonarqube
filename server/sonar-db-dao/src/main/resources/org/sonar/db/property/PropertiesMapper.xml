@@ -3,9 +3,10 @@
 
 <mapper namespace="org.sonar.db.property.PropertiesMapper">
 
-  <select id="findUsersForNotification" parameterType="map" resultType="java.lang.String">
+  <select id="findUsersForNotification" parameterType="map" resultType="org.sonar.db.property.Subscriber">
     SELECT
-      u.login
+      u.login as "login",
+      ${_true} as "global"
     FROM
       users u
     INNER JOIN properties p ON p.user_id = u.id
@@ -17,7 +18,8 @@
     UNION
 
     SELECT
-      u.login
+      u.login as "login",
+      ${_false} as "global"
     FROM
       users u
     INNER JOIN projects c on c.uuid = #{projectUuid,jdbcType=VARCHAR}
