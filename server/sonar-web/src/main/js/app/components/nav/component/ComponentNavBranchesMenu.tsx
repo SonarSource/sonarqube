@@ -125,8 +125,20 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
   };
 
   getSelected = () => {
+    if (this.state.selected) {
+      return this.state.selected;
+    }
+
     const branches = this.getFilteredBranches();
-    return this.state.selected || (branches.length > 0 && branches[0].name);
+    if (branches.find(b => b.name === this.props.currentBranch.name)) {
+      return this.props.currentBranch.name;
+    }
+
+    if (branches.length > 0) {
+      return branches[0].name;
+    }
+
+    return undefined;
   };
 
   getProjectBranchUrl = (branch: Branch) => getProjectBranchUrl(this.props.project.key, branch);
