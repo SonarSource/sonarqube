@@ -26,7 +26,7 @@ import org.apache.ibatis.annotations.Param;
 
 public interface PropertiesMapper {
 
-  Set<String> findUsersForNotification(@Param("notifKey") String notificationKey, @Nullable @Param("projectUuid") String projectUuid);
+  Set<Subscriber> findUsersForNotification(@Param("notifKey") String notificationKey, @Nullable @Param("projectUuid") String projectUuid);
 
   List<PropertyDto> selectGlobalProperties();
 
