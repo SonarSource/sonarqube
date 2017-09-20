@@ -27,6 +27,8 @@ import org.sonar.ce.http.CeHttpClient;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+import org.sonar.server.health.Health;
+import org.sonar.server.health.HealthChecker;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.user.UserSession;
 
@@ -40,11 +42,14 @@ public class InfoAction extends BaseInfoWsAction {
 
   private final CeHttpClient ceHttpClient;
   private final SystemInfoSection[] systemInfoSections;
+  private final HealthChecker healthChecker;
   private final TelemetryDataLoader statistics;
 
-  public InfoAction(UserSession userSession, CeHttpClient ceHttpClient, TelemetryDataLoader statistics, SystemInfoSection... systemInfoSections) {
+  public InfoAction(UserSession userSession, CeHttpClient ceHttpClient, HealthChecker healthChecker, TelemetryDataLoader statistics,
+    SystemInfoSection... systemInfoSections) {
     super(userSession);
     this.ceHttpClient = ceHttpClient;
+    this.healthChecker = healthChecker;
     this.statistics = statistics;
     this.systemInfoSections = systemInfoSections;
   }
@@ -59,6 +64,7 @@ public class InfoAction extends BaseInfoWsAction {
   private void writeJson(JsonWriter json) {
     json.beginObject();
 
+    writeHealthToJson(json);
     List<ProtobufSystemInfo.Section> sections = stream(systemInfoSections)
       .map(SystemInfoSection::toProtobuf)
       .collect(MoreCollectors.toArrayList());
@@ -69,6 +75,12 @@ public class InfoAction extends BaseInfoWsAction {
     writeStatisticsToJson(json);
 
     json.endObject();
+  }
+
+  private void writeHealthToJson(JsonWriter json) {
+    Health health = healthChecker.checkNode();
+    json.prop("Health", health.getStatus().name());
+    json.name("Health Causes").beginArray().values(health.getCauses()).endArray();
   }
 
   private void writeStatisticsToJson(JsonWriter json) {
