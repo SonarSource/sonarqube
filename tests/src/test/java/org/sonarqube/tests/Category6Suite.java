@@ -26,6 +26,7 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.sonarqube.tests.authorisation.PermissionTemplateTest;
+import org.sonarqube.tests.issue.IssueNotificationsTest;
 import org.sonarqube.tests.ce.ReportFailureNotificationTest;
 import org.sonarqube.tests.issue.IssueTagsTest;
 import org.sonarqube.tests.issue.OrganizationIssueAssignTest;
@@ -83,7 +84,8 @@ import static util.ItUtils.xooPlugin;
   ProjectKeyUpdateTest.class,
   ProjectSearchTest.class,
   PermissionTemplateTest.class,
-  ReportFailureNotificationTest.class
+  ReportFailureNotificationTest.class,
+  IssueNotificationsTest.class
 })
 public class Category6Suite {
 
@@ -96,6 +98,7 @@ public class Category6Suite {
     .setServerProperty("sonar.search.httpPort", "" + SEARCH_HTTP_PORT)
     .setServerProperty("sonar.search.recovery.delayInMs", "1000")
     .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
+    .setServerProperty("sonar.notifications.delay", "1")
 
     .addPlugin(xooPlugin())
     .addPlugin(pluginArtifact("base-auth-plugin"))
