@@ -49,7 +49,7 @@ import org.sonarqube.tests.qualityModel.NewDebtRatioMeasureTest;
 import org.sonarqube.tests.qualityModel.ReliabilityMeasureTest;
 import org.sonarqube.tests.qualityModel.SecurityMeasureTest;
 import org.sonarqube.tests.qualityModel.TechnicalDebtInIssueChangelogTest;
-import org.sonarqube.tests.qualityModel.TechnicalDebtMeasureVariationTest;
+import org.sonarqube.tests.qualityModel.TechnicalDebtAndIssueNewMeasuresTest;
 import org.sonarqube.tests.qualityModel.TechnicalDebtTest;
 import org.sonarqube.tests.scm.ScmTest;
 import org.sonarqube.tests.test.CoverageTest;
@@ -95,7 +95,7 @@ import static util.ItUtils.xooPlugin;
   ReliabilityMeasureTest.class,
   SecurityMeasureTest.class,
   TechnicalDebtInIssueChangelogTest.class,
-  TechnicalDebtMeasureVariationTest.class,
+  TechnicalDebtAndIssueNewMeasuresTest.class,
   TechnicalDebtTest.class,
   // ui
   IssuesPageTest.class,
