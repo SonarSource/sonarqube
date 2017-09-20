@@ -24,6 +24,7 @@ import com.google.common.collect.Multimap;
 import org.junit.Test;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.web.UserRole;
 import org.sonar.server.notification.NotificationDispatcher;
 import org.sonar.server.notification.NotificationManager;
 
@@ -50,7 +51,7 @@ public class NewAlertsTest {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("user1", emailChannel);
     recipients.put("user2", twitterChannel);
-    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, "uuid_34")).thenReturn(recipients);
+    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, "uuid_34", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
 
     Notification notification = new Notification("alerts").setFieldValue("projectUuid", "uuid_34");
     dispatcher.performDispatch(notification, context);
@@ -65,7 +66,7 @@ public class NewAlertsTest {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("user1", emailChannel);
     recipients.put("user2", twitterChannel);
-    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, "uuid_34")).thenReturn(recipients);
+    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, "uuid_34", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
 
     Notification notification = new Notification("alerts");
     dispatcher.performDispatch(notification, context);

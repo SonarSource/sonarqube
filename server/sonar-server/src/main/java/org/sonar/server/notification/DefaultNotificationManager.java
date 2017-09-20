@@ -28,17 +28,18 @@ import java.io.IOException;
 import java.io.InvalidClassException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.notification.NotificationQueueDto;
@@ -119,7 +120,8 @@ public class DefaultNotificationManager implements NotificationManager {
    * {@inheritDoc}
    */
   @Override
-  public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, String projectUuid) {
+  public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, String projectUuid,
+    SubscriberPermissionsOnProject subscriberPermissionsOnProject) {
     requireNonNull(projectUuid, "ProjectUUID is mandatory");
     String dispatcherKey = dispatcher.getKey();
 
@@ -133,7 +135,7 @@ public class DefaultNotificationManager implements NotificationManager {
 
     ImmutableSetMultimap.Builder<String, NotificationChannel> builder = ImmutableSetMultimap.builder();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Set<String> authorizedLogins = keepAuthorizedLogins(projectUuid, subscriberAndChannels, dbSession);
+      Set<String> authorizedLogins = keepAuthorizedLogins(dbSession, projectUuid, subscriberAndChannels, subscriberPermissionsOnProject);
       subscriberAndChannels.stream()
         .filter(subscriberAndChannel -> authorizedLogins.contains(subscriberAndChannel.getSubscriber().getLogin()))
         .forEach(subscriberAndChannel -> builder.put(subscriberAndChannel.getSubscriber().getLogin(), subscriberAndChannel.getChannel()));
@@ -142,20 +144,38 @@ public class DefaultNotificationManager implements NotificationManager {
   }
 
   private Stream<SubscriberAndChannel> toSubscriberAndChannels(String dispatcherKey, String projectUuid, NotificationChannel notificationChannel) {
-    return dbClient.propertiesDao().findUsersForNotification(dispatcherKey, notificationChannel.getKey(), projectUuid)
+    Set<Subscriber> usersForNotification = dbClient.propertiesDao().findUsersForNotification(dispatcherKey, notificationChannel.getKey(), projectUuid);
+    return usersForNotification
       .stream()
       .map(login -> new SubscriberAndChannel(login, notificationChannel));
   }
 
-  private Set<String> keepAuthorizedLogins(String projectUuid, Set<SubscriberAndChannel> subscriberAndChannels, DbSession dbSession) {
-    Set<String> logins = subscriberAndChannels.stream()
-      .map(DefaultNotificationManager.SubscriberAndChannel::getSubscriber)
-      .map(Subscriber::getLogin)
-      .collect(Collectors.toSet());
-    return dbClient.authorizationDao().keepAuthorizedLoginsOnProject(dbSession, logins, projectUuid, UserRole.USER);
+  private Set<String> keepAuthorizedLogins(DbSession dbSession, String projectUuid, Set<SubscriberAndChannel> subscriberAndChannels,
+    SubscriberPermissionsOnProject requiredPermissions) {
+    if (requiredPermissions.getGlobalSubscribers().equals(requiredPermissions.getProjectSubscribers())) {
+      return keepAuthorizedLogins(dbSession, projectUuid, subscriberAndChannels, null, requiredPermissions.getGlobalSubscribers());
+    } else {
+      return Stream
+        .concat(
+          keepAuthorizedLogins(dbSession, projectUuid, subscriberAndChannels, true, requiredPermissions.getGlobalSubscribers()).stream(),
+          keepAuthorizedLogins(dbSession, projectUuid, subscriberAndChannels, false, requiredPermissions.getProjectSubscribers()).stream())
+        .collect(Collectors.toSet());
+    }
   }
 
-  private final class SubscriberAndChannel {
+  private Set<String> keepAuthorizedLogins(DbSession dbSession, String projectUuid, Set<SubscriberAndChannel> subscriberAndChannels,
+    @Nullable Boolean global, String permission) {
+    Set<String> logins = subscriberAndChannels.stream()
+      .filter(s -> global == null || s.getSubscriber().isGlobal() == global)
+      .map(s -> s.getSubscriber().getLogin())
+      .collect(Collectors.toSet());
+    if (logins.isEmpty()) {
+      return Collections.emptySet();
+    }
+    return dbClient.authorizationDao().keepAuthorizedLoginsOnProject(dbSession, logins, projectUuid, permission);
+  }
+
+  private static final class SubscriberAndChannel {
     private final Subscriber subscriber;
     private final NotificationChannel channel;
 
@@ -164,11 +184,11 @@ public class DefaultNotificationManager implements NotificationManager {
       this.channel = channel;
     }
 
-    public Subscriber getSubscriber() {
+    Subscriber getSubscriber() {
       return subscriber;
     }
 
-    public NotificationChannel getChannel() {
+    NotificationChannel getChannel() {
       return channel;
     }
 
