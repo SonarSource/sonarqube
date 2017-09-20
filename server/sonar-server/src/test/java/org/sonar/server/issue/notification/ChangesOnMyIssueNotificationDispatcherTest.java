@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.web.UserRole;
 import org.sonar.server.notification.NotificationDispatcher;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;
@@ -83,7 +84,8 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
     recipients.put("godin", twitterChannel);
-    when(notifications.findSubscribedRecipientsForDispatcher(dispatcher, "uuid1")).thenReturn(recipients);
+    when(notifications.findSubscribedRecipientsForDispatcher(dispatcher, "uuid1",
+        new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
 
     Notification notification = new IssueChangeNotification()
       .setFieldValue("projectKey", "struts")
@@ -103,7 +105,7 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
     recipients.put("godin", twitterChannel);
-    when(notifications.findSubscribedRecipientsForDispatcher(dispatcher, "uuid1")).thenReturn(recipients);
+    when(notifications.findSubscribedRecipientsForDispatcher(dispatcher, "uuid1", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
 
     // change author is the assignee
     dispatcher.performDispatch(

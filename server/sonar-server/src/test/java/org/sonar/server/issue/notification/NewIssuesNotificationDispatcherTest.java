@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.web.UserRole;
 import org.sonar.server.notification.NotificationDispatcher;
 import org.sonar.server.notification.NotificationManager;
 
@@ -56,7 +57,7 @@ public class NewIssuesNotificationDispatcherTest {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("user1", emailChannel);
     recipients.put("user2", twitterChannel);
-    when(notifications.findSubscribedRecipientsForDispatcher(dispatcher, "uuid1")).thenReturn(recipients);
+    when(notifications.findSubscribedRecipientsForDispatcher(dispatcher, "uuid1", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
 
     Notification notification = new Notification(NewIssuesNotification.TYPE)
       .setFieldValue("projectKey", "struts")
