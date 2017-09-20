@@ -63,10 +63,14 @@ export default class DomainFacet extends React.PureComponent {
     return measureSelected || overviewSelected;
   };
 
+  renderItemFacetStat = (item /*: MeasureEnhanced */) =>
+    hasFacetStat(item.metric.key) ? <FacetMeasureValue measure={item} /> : null;
+
   renderItemsFacet = () => {
     const { domain, selected } = this.props;
     const items = addMeasureCategories(domain.name, filterMeasures(domain.measures));
     const hasCategories = items.some(item => typeof item === 'string');
+    const translateMetric = hasCategories ? getLocalizedCategoryMetricName : getLocalizedMetricName;
     const sortedItems = sortMeasures(domain.name, items);
     return sortedItems.map(
       item =>
@@ -83,15 +87,11 @@ export default class DomainFacet extends React.PureComponent {
             key={item.metric.key}
             name={
               <span className="big-spacer-left" id={`measure-${item.metric.key}-name`}>
-                {hasCategories ? (
-                  getLocalizedCategoryMetricName(item.metric)
-                ) : (
-                  getLocalizedMetricName(item.metric)
-                )}
+                {translateMetric(item.metric)}
               </span>
             }
             onClick={this.props.onChange}
-            stat={hasFacetStat(item.metric.key) ? <FacetMeasureValue measure={item} /> : null}
+            stat={this.renderItemFacetStat(item)}
             value={item.metric.key}
           />
         )
