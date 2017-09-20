@@ -27,6 +27,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.server.notification.NotificationDispatcher;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,7 +90,7 @@ public class ReportAnalysisFailureNotificationDispatcherTest {
     multimap.put(login1, channel2);
     multimap.put(login2, channel2);
     multimap.put(login2, channel3);
-    when(notificationManager.findSubscribedRecipientsForDispatcher(underTest, projectUuid, new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER)))
+    when(notificationManager.findSubscribedRecipientsForDispatcher(underTest, projectUuid, new SubscriberPermissionsOnProject(UserRole.ADMIN, UserRole.USER)))
       .thenReturn(multimap);
 
     underTest.performDispatch(notificationMock, contextMock);
@@ -107,7 +108,7 @@ public class ReportAnalysisFailureNotificationDispatcherTest {
     String projectUuid = randomAlphanumeric(9);
     when(notificationMock.getFieldValue("project.uuid")).thenReturn(projectUuid);
     HashMultimap<String, NotificationChannel> multimap = HashMultimap.create();
-    when(notificationManager.findSubscribedRecipientsForDispatcher(underTest, projectUuid, new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER)))
+    when(notificationManager.findSubscribedRecipientsForDispatcher(underTest, projectUuid, new SubscriberPermissionsOnProject(UserRole.ADMIN, UserRole.USER)))
       .thenReturn(multimap);
 
     underTest.performDispatch(notificationMock, contextMock);
