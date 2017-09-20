@@ -22,12 +22,10 @@ package org.sonar.server.platform.ws;
 import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.ce.http.CeHttpClient;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.systeminfo.SystemInfoSection;
-import org.sonar.process.systeminfo.SystemInfoUtils;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.user.UserSession;
@@ -38,39 +36,21 @@ import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryD
 /**
  * Implementation of the {@code info} action for the System WebService.
  */
-public class InfoAction implements SystemWsAction {
+public class InfoAction extends BaseInfoWsAction {
 
-  private static final String[] ORDERED_SECTION_NAMES = {
-    "System", "Database", "Web JVM State", "Web JVM Properties", "Search State", "Search Statistics",
-    "Compute Engine Database Connection", "Compute Engine JVM State", "Compute Engine Tasks"};
-  private final UserSession userSession;
   private final CeHttpClient ceHttpClient;
   private final SystemInfoSection[] systemInfoSections;
   private final TelemetryDataLoader statistics;
 
   public InfoAction(UserSession userSession, CeHttpClient ceHttpClient, TelemetryDataLoader statistics, SystemInfoSection... systemInfoSections) {
-    this.userSession = userSession;
+    super(userSession);
     this.ceHttpClient = ceHttpClient;
     this.statistics = statistics;
     this.systemInfoSections = systemInfoSections;
   }
 
   @Override
-  public void define(WebService.NewController controller) {
-    controller.createAction("info")
-      .setDescription("Get detailed information about system configuration.<br/>" +
-        "Requires 'Administer' permissions.<br/>" +
-        "Since 5.5, this web service becomes internal in order to more easily update result.")
-      .setSince("5.1")
-      .setInternal(true)
-      .setResponseExample(getClass().getResource("/org/sonar/server/platform/ws/info-example.json"))
-      .setHandler(this);
-  }
-
-  @Override
-  public void handle(Request request, Response response) {
-    userSession.checkIsSystemAdministrator();
-
+  protected void doHandle(Request request, Response response) {
     try (JsonWriter json = response.newJsonWriter()) {
       writeJson(json);
     }
@@ -84,48 +64,16 @@ public class InfoAction implements SystemWsAction {
       .collect(MoreCollectors.toArrayList());
     ceHttpClient.retrieveSystemInfo()
       .ifPresent(ce -> sections.addAll(ce.getSectionsList()));
-    SystemInfoUtils
-      .order(sections, ORDERED_SECTION_NAMES)
-      .forEach(section -> sectionToJson(section, json));
 
-    writeStatistics(json);
+    writeSectionsToJson(sections, json);
+    writeStatisticsToJson(json);
 
     json.endObject();
   }
 
-  private void writeStatistics(JsonWriter json) {
+  private void writeStatisticsToJson(JsonWriter json) {
     json.name("Statistics");
     writeTelemetryData(json, statistics.load());
   }
 
-  private static void sectionToJson(ProtobufSystemInfo.Section section, JsonWriter json) {
-    json.name(section.getName());
-    json.beginObject();
-    for (ProtobufSystemInfo.Attribute attribute : section.getAttributesList()) {
-      attributeToJson(json, attribute);
-    }
-    json.endObject();
-  }
-
-  private static void attributeToJson(JsonWriter json, ProtobufSystemInfo.Attribute attribute) {
-    switch (attribute.getValueCase()) {
-      case BOOLEAN_VALUE:
-        json.prop(attribute.getKey(), attribute.getBooleanValue());
-        break;
-      case LONG_VALUE:
-        json.prop(attribute.getKey(), attribute.getLongValue());
-        break;
-      case DOUBLE_VALUE:
-        json.prop(attribute.getKey(), attribute.getDoubleValue());
-        break;
-      case STRING_VALUE:
-        json.prop(attribute.getKey(), attribute.getStringValue());
-        break;
-      case VALUE_NOT_SET:
-        json.name(attribute.getKey()).beginArray().values(attribute.getStringValuesList()).endArray();
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported type: " + attribute.getValueCase());
-    }
-  }
 }

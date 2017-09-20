@@ -22,10 +22,7 @@ package org.sonar.server.platform.ws;
 import java.util.Collection;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.health.ClusterHealth;
 import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.monitoring.cluster.AppNodesInfoLoader;
@@ -34,9 +31,8 @@ import org.sonar.server.platform.monitoring.cluster.NodeInfo;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoader;
 import org.sonar.server.user.UserSession;
 
-public class ClusterInfoAction implements SystemWsAction {
+public class ClusterInfoAction extends BaseInfoWsAction {
 
-  private final UserSession userSession;
   private final GlobalInfoLoader globalInfoLoader;
   private final AppNodesInfoLoader appNodesInfoLoader;
   private final SearchNodesInfoLoader searchNodesInfoLoader;
@@ -44,7 +40,7 @@ public class ClusterInfoAction implements SystemWsAction {
 
   public ClusterInfoAction(UserSession userSession, GlobalInfoLoader globalInfoLoader,
     AppNodesInfoLoader appNodesInfoLoader, SearchNodesInfoLoader searchNodesInfoLoader, HealthChecker healthChecker) {
-    this.userSession = userSession;
+    super(userSession);
     this.globalInfoLoader = globalInfoLoader;
     this.appNodesInfoLoader = appNodesInfoLoader;
     this.searchNodesInfoLoader = searchNodesInfoLoader;
@@ -52,19 +48,7 @@ public class ClusterInfoAction implements SystemWsAction {
   }
 
   @Override
-  public void define(WebService.NewController controller) {
-    controller.createAction("cluster_info")
-      .setDescription("WIP")
-      .setSince("6.6")
-      .setInternal(true)
-      .setResponseExample(getClass().getResource("/org/sonar/server/platform/ws/info-example.json"))
-      .setHandler(this);
-  }
-
-  @Override
-  public void handle(Request request, Response response) {
-    userSession.checkIsSystemAdministrator();
-
+  protected void doHandle(Request request, Response response) {
     ClusterHealth clusterHealth = healthChecker.checkCluster();
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
@@ -72,8 +56,6 @@ public class ClusterInfoAction implements SystemWsAction {
       writeApplicationNodes(json, clusterHealth);
       writeSearchNodes(json, clusterHealth);
       json.endObject();
-    } catch (Throwable throwable) {
-      Loggers.get(getClass()).error("fff", throwable);
     }
   }
 
@@ -99,7 +81,7 @@ public class ClusterInfoAction implements SystemWsAction {
     json.endArray();
   }
 
-  private static void writeNodeInfoToJson(NodeInfo nodeInfo, ClusterHealth clusterHealth, JsonWriter json) {
+  private void writeNodeInfoToJson(NodeInfo nodeInfo, ClusterHealth clusterHealth, JsonWriter json) {
     json.beginObject();
     json.prop("Name", nodeInfo.getName());
     json.prop("Error", nodeInfo.getErrorMessage().orElse(null));
@@ -111,36 +93,7 @@ public class ClusterInfoAction implements SystemWsAction {
       json.name("Health Causes").beginArray().values(h.getCauses()).endArray();
     });
 
-    nodeInfo.getSections().forEach(section -> writeSectionToJson(section, json));
+    writeSectionsToJson(nodeInfo.getSections(), json);
     json.endObject();
-  }
-
-  private static void writeSectionToJson(ProtobufSystemInfo.Section section, JsonWriter json) {
-    json.name(section.getName());
-    json.beginObject();
-    section.getAttributesList().forEach(attribute -> writeAttributeToJson(json, attribute));
-    json.endObject();
-  }
-
-  private static void writeAttributeToJson(JsonWriter json, ProtobufSystemInfo.Attribute attribute) {
-    switch (attribute.getValueCase()) {
-      case BOOLEAN_VALUE:
-        json.prop(attribute.getKey(), attribute.getBooleanValue());
-        break;
-      case LONG_VALUE:
-        json.prop(attribute.getKey(), attribute.getLongValue());
-        break;
-      case DOUBLE_VALUE:
-        json.prop(attribute.getKey(), attribute.getDoubleValue());
-        break;
-      case STRING_VALUE:
-        json.prop(attribute.getKey(), attribute.getStringValue());
-        break;
-      case VALUE_NOT_SET:
-        json.name(attribute.getKey()).beginArray().values(attribute.getStringValuesList()).endArray();
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported type: " + attribute.getValueCase());
-    }
   }
 }
