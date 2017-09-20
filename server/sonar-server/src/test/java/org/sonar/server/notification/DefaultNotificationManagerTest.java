@@ -42,6 +42,7 @@ import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.permission.AuthorizationDao;
 import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.Subscriber;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,7 +104,7 @@ public class DefaultNotificationManagerTest {
   public void shouldProvideChannelList() {
     assertThat(underTest.getChannels()).containsOnly(emailChannel, twitterChannel);
 
-    underTest = new DefaultNotificationManager(new NotificationChannel[] {} , db.getDbClient());
+    underTest = new DefaultNotificationManager(new NotificationChannel[] {}, db.getDbClient());
     assertThat(underTest.getChannels()).hasSize(0);
   }
 
@@ -129,7 +130,6 @@ public class DefaultNotificationManagerTest {
     inOrder.verify(notificationQueueDao).delete(dtos);
   }
 
-
   // SONAR-4739
   @Test
   public void shouldNotFailWhenUnableToDeserialize() throws Exception {
@@ -153,13 +153,13 @@ public class DefaultNotificationManagerTest {
   @Test
   public void shouldFindSubscribedRecipientForGivenResource() {
     when(propertiesDao.findUsersForNotification("NewViolations", "Email", "uuid_45"))
-      .thenReturn(newHashSet("user1", "user3"));
+      .thenReturn(newHashSet(new Subscriber("user1", false), new Subscriber("user3", false), new Subscriber("user3", true)));
     when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", "uuid_56"))
-      .thenReturn(newHashSet("user2"));
+      .thenReturn(newHashSet(new Subscriber("user2", false)));
     when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", "uuid_45"))
-      .thenReturn(newHashSet("user3"));
+      .thenReturn(newHashSet(new Subscriber("user3", true)));
     when(propertiesDao.findUsersForNotification("NewAlerts", "Twitter", "uuid_45"))
-      .thenReturn(newHashSet("user4"));
+      .thenReturn(newHashSet(new Subscriber("user4", false)));
 
     when(authorizationDao.keepAuthorizedLoginsOnProject(any(), eq(newHashSet("user1", "user3")), eq("uuid_45"), eq("user")))
       .thenReturn(newHashSet("user1", "user3"));
