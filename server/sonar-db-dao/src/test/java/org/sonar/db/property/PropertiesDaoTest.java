@@ -89,6 +89,7 @@ public class PropertiesDaoTest {
     insertProperty("notification.NewViolations.Email", "true", project1.getId(), user2.getId());
     insertProperty("notification.NewViolations.Twitter", "true", null, user3.getId());
     insertProperty("notification.NewViolations.Twitter", "true", project2.getId(), user1.getId());
+    insertProperty("notification.NewViolations.Twitter", "true", project1.getId(), user2.getId());
     insertProperty("notification.NewViolations.Twitter", "true", project2.getId(), user3.getId());
     dbTester.users().insertProjectPermissionOnUser(user2, UserRole.USER, project1);
     dbTester.users().insertProjectPermissionOnUser(user3, UserRole.USER, project2);
@@ -100,14 +101,22 @@ public class PropertiesDaoTest {
     assertThat(underTest.findUsersForNotification("NewViolations", "Email", "uuid_78"))
       .isEmpty();
 
-    assertThat(underTest.findUsersForNotification("NewViolations", "Email", "uuid_45"))
-      .hasSize(1).containsOnly("user2");
+    assertThat(underTest.findUsersForNotification("NewViolations", "Email", project1.uuid()))
+      .containsOnly("user2");
 
-    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", "uuid_78"))
+    assertThat(underTest.findUsersForNotification("NewViolations", "Email", project2.uuid()))
       .isEmpty();
 
-    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", "uuid_56"))
-      .hasSize(2)
+    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", null))
+      .containsOnly("user3");
+
+    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", "uuid_78"))
+      .containsOnly("user3");
+
+    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", project1.uuid()))
+      .containsOnly("user2", "user3");
+
+    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", project2.uuid()))
       .containsOnly("user1", "user3");
   }
 

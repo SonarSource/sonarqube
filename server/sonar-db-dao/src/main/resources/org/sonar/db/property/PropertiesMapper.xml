@@ -8,7 +8,6 @@
       u.login
     FROM
       users u
-    INNER JOIN projects c on c.uuid = #{projectUuid,jdbcType=VARCHAR}
     INNER JOIN properties p ON p.user_id = u.id
     WHERE
       p.prop_key = #{notifKey,jdbcType=VARCHAR}
