@@ -24,6 +24,7 @@ import org.sonar.process.systeminfo.JvmStateSection;
 import org.sonar.server.platform.monitoring.cluster.AppNodesInfoLoaderImpl;
 import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.GlobalSystemSection;
+import org.sonar.server.platform.monitoring.cluster.LoggingSection;
 import org.sonar.server.platform.monitoring.cluster.NodeSystemSection;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProviderImpl;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoaderImpl;
@@ -57,6 +58,7 @@ public class WebSystemInfoModule {
       DatabaseSection.class,
       EsStatisticsSection.class,
       GlobalSystemSection.class,
+      LoggingSection.class,
       NodeSystemSection.class,
       PluginsSection.class,
       SettingsSection.class,
