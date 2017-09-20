@@ -38,13 +38,13 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 public class InfoActionTest {
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn("login")
+  public UserSessionRule userSessionRule = UserSessionRule.standalone()
+    .logIn("login")
     .setName("name");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -53,9 +53,9 @@ public class InfoActionTest {
   private SystemInfoSection section2 = mock(SystemInfoSection.class);
   private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class, Mockito.RETURNS_MOCKS);
   private TestStandaloneHealthChecker healthChecker = new TestStandaloneHealthChecker();
-  private TelemetryDataLoader statistics = mock(TelemetryDataLoader.class);
+  private TelemetryDataLoader telemetry = mock(TelemetryDataLoader.class);
 
-  private InfoAction underTest = new InfoAction(userSessionRule, ceHttpClient, healthChecker, statistics, section1, section2);
+  private InfoAction underTest = new InfoAction(userSessionRule, telemetry, ceHttpClient, healthChecker, section1, section2);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -97,11 +97,10 @@ public class InfoActionTest {
     setAttribute(attributes2, "two", 2);
     when(section2.toProtobuf()).thenReturn(attributes2.build());
     when(ceHttpClient.retrieveSystemInfo()).thenReturn(Optional.empty());
-    when(statistics.load()).thenReturn(mock(TelemetryData.class));
+    when(telemetry.load()).thenReturn(mock(TelemetryData.class));
 
     TestResponse response = ws.newRequest().execute();
     // response does not contain empty "Section Three"
-    verify(statistics).load();
     assertThat(response.getInput()).isEqualTo("{\"Health\":\"GREEN\",\"Health Causes\":[],\"Section One\":{\"foo\":\"bar\"},\"Section Two\":{\"one\":1,\"two\":2}," +
       "\"Statistics\":{\"plugins\":{},\"userCount\":0,\"projectCount\":0,\"lines\":0,\"ncloc\":0,\"projectCountByLanguage\":{},\"nclocByLanguage\":{}}}");
   }

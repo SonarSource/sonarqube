@@ -46,7 +46,7 @@ public class SystemWsTest {
   public void define() {
     RestartAction action1 = new RestartAction(mock(UserSession.class), mock(Configuration.class), mock(Platform.class), mock(ProcessCommandWrapper.class),
       mock(RestartFlagHolder.class), mock(WebServer.class));
-    InfoAction action2 = new InfoAction(new AnonymousMockUserSession(), ceHttpClient, healthChecker, mock(TelemetryDataLoader.class));
+    InfoAction action2 = new InfoAction(new AnonymousMockUserSession(), mock(TelemetryDataLoader.class), ceHttpClient, healthChecker);
     SystemWs ws = new SystemWs(action1, action2);
     WebService.Context context = new WebService.Context();
 
