@@ -44,6 +44,7 @@ import org.junit.Test;
 import org.sonar.api.web.UserRole;
 import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsProjects;
 import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.PostRequest;
@@ -87,7 +88,10 @@ public class ReportFailureNotificationTest {
       "email.smtp_port.secured", valueOf(smtpServer.getServer().getPort()));
 
     smtpServer.getMessages().clear();
+  }
 
+  @After
+  public void tearDown() throws Exception {
     tester.elasticsearch().unlockWrites("components");
   }
 
@@ -98,12 +102,13 @@ public class ReportFailureNotificationTest {
 
   @Test
   public void send_notification_on_report_processing_failures_to_global_and_project_subscribers() throws Exception {
-    WsUsers.CreateWsResponse.User user1 = tester.users().generate(t -> t.setPassword("user1").setEmail("user1@bar.com"));
-    WsUsers.CreateWsResponse.User user2 = tester.users().generate(t -> t.setPassword("user2").setEmail("user2@bar.com"));
-    WsUsers.CreateWsResponse.User user3 = tester.users().generate(t -> t.setPassword("user3").setEmail("user3@bar.com"));
-    WsProjects.CreateWsResponse.Project project1 = tester.projects().generate(null, t -> t.setName("Project1"));
-    WsProjects.CreateWsResponse.Project project2 = tester.projects().generate(null, t -> t.setName("Project2"));
-    WsProjects.CreateWsResponse.Project project3 = tester.projects().generate(null, t -> t.setName("Project3"));
+    Organizations.Organization organization = tester.organizations().getDefaultOrganization();
+    WsUsers.CreateWsResponse.User user1 = tester.users().generateMember(organization, t -> t.setPassword("user1").setEmail("user1@bar.com"));
+    WsUsers.CreateWsResponse.User user2 = tester.users().generateMember(organization, t -> t.setPassword("user2").setEmail("user2@bar.com"));
+    WsUsers.CreateWsResponse.User user3 = tester.users().generateMember(organization, t -> t.setPassword("user3").setEmail("user3@bar.com"));
+    WsProjects.CreateWsResponse.Project project1 = tester.projects().generate(organization, t -> t.setName("Project1"));
+    WsProjects.CreateWsResponse.Project project2 = tester.projects().generate(organization, t -> t.setName("Project2"));
+    WsProjects.CreateWsResponse.Project project3 = tester.projects().generate(organization, t -> t.setName("Project3"));
     // user 1 is admin of project 1 and will subscribe to global notifications
     tester.wsClient().permissions().addUser(new AddUserWsRequest()
       .setLogin(user1.getLogin())
