@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
+import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.tests.LogsTailer;
 import org.sonarqube.ws.WsSystem;
 import org.sonarqube.ws.client.WsClient;
@@ -212,6 +213,10 @@ class Node {
       return false;
     }
     return fileContains(orchestrator.getServer().getWebLogs(), message);
+  }
+
+  Navigation openBrowser() {
+    return Navigation.create(orchestrator);
   }
 
   private static boolean fileContains(@Nullable File logFile, String message) {

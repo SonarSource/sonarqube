@@ -32,8 +32,13 @@ public class SystemInfoPage {
     $(".page-title").should(exist).shouldHave(text("System Info"));
   }
 
+  public SystemInfoPage shouldHaveCard(String title) {
+    $$(".system-info-health-card-title").find(text(title)).should(exist);
+    return this;
+  }
+
   public SystemInfoPage shouldHaveCards(String... titles) {
-    $$(".system-info-health-card").shouldHave(CollectionCondition.texts(titles));
+    $$(".system-info-health-card-title").shouldHave(CollectionCondition.texts(titles));
     return this;
   }
 
