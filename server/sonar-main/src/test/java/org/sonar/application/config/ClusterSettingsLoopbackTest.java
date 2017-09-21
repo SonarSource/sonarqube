@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.process.MessageException;
 import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessProperties;
 
 import static org.junit.Assume.assumeThat;
@@ -49,7 +50,7 @@ public class ClusterSettingsLoopbackTest {
 
   private InetAddress loopback = InetAddress.getLoopbackAddress();
   private InetAddress nonLoopbackLocal;
-  private NetworkUtils network = spy(NetworkUtils.INSTANCE);
+  private NetworkUtils network = spy(NetworkUtilsImpl.INSTANCE);
 
   @Before
   public void setUp() throws Exception {

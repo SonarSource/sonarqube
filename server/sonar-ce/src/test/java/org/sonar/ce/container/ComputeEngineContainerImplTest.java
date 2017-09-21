@@ -42,7 +42,7 @@ import org.sonar.ce.CeDistributedInformationImpl;
 import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -87,7 +87,7 @@ public class ComputeEngineContainerImplTest {
 
   @Test
   public void real_start_with_cluster() throws IOException {
-    Optional<InetAddress> localhost = NetworkUtils.INSTANCE.getLocalNonLoopbackIpv4Address();
+    Optional<InetAddress> localhost = NetworkUtilsImpl.INSTANCE.getLocalNonLoopbackIpv4Address();
     // test is ignored if offline
     assumeThat(localhost.isPresent(), CoreMatchers.is(true));
 
@@ -96,7 +96,7 @@ public class ComputeEngineContainerImplTest {
     properties.setProperty(CLUSTER_ENABLED, "true");
     properties.setProperty(CLUSTER_NODE_TYPE, "application");
     properties.setProperty(CLUSTER_NODE_HOST, localhost.get().getHostAddress());
-    properties.setProperty(CLUSTER_NODE_PORT, "" + NetworkUtils.INSTANCE.getNextAvailablePort(localhost.get()));
+    properties.setProperty(CLUSTER_NODE_PORT, "" + NetworkUtilsImpl.INSTANCE.getNextAvailablePort(localhost.get()));
 
     // required persisted properties
     insertProperty(CoreProperties.SERVER_ID, "a_startup_id");

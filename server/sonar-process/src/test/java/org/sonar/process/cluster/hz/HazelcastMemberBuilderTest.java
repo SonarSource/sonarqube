@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.cluster.NodeType;
@@ -49,7 +49,7 @@ public class HazelcastMemberBuilderTest {
       .setProcessId(ProcessId.COMPUTE_ENGINE)
       .setClusterName("foo")
       .setNodeName("bar")
-      .setPort(NetworkUtils.INSTANCE.getNextAvailablePort(loopback))
+      .setPort(NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback))
       .setNetworkInterface(loopback.getHostAddress())
       .build();
 

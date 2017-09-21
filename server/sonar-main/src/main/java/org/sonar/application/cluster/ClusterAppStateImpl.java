@@ -45,12 +45,15 @@ import org.sonar.application.cluster.health.SearchNodeHealthProvider;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.ClusterSettings;
 import org.sonar.process.MessageException;
-import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.NodeType;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static java.lang.String.format;
+import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.HOSTNAME;
+import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.IP_ADDRESSES;
+import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.NODE_TYPE;
 import static org.sonar.process.cluster.hz.HazelcastObjects.CLUSTER_NAME;
 import static org.sonar.process.cluster.hz.HazelcastObjects.LEADER;
 import static org.sonar.process.cluster.hz.HazelcastObjects.OPERATIONAL_PROCESSES;
@@ -77,7 +80,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
     nodeDisconnectedListenerUUID = hzMember.getCluster().addMembershipListener(new NodeDisconnectedListener());
 
     if (ClusterSettings.isLocalElasticsearchEnabled(settings)) {
-      this.healthStateSharing = new HealthStateSharingImpl(hzMember, new SearchNodeHealthProvider(settings.getProps(), this, NetworkUtils.INSTANCE));
+      this.healthStateSharing = new HealthStateSharingImpl(hzMember, new SearchNodeHealthProvider(settings.getProps(), this, NetworkUtilsImpl.INSTANCE));
       this.healthStateSharing.start();
     }
   }
@@ -187,7 +190,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
       Optional<Member> leader = hzMember.getCluster().getMembers().stream().filter(m -> m.getUuid().equals(leaderId)).findFirst();
       if (leader.isPresent()) {
         return Optional.of(
-          format("%s (%s)", leader.get().getStringAttribute(HazelcastMember.Attribute.HOSTNAME), leader.get().getStringAttribute(HazelcastMember.Attribute.IP_ADDRESSES)));
+          format("%s (%s)", leader.get().getStringAttribute(HOSTNAME.getKey()), leader.get().getStringAttribute(IP_ADDRESSES.getKey())));
       }
     }
     return Optional.empty();
@@ -278,7 +281,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
     }
 
     private boolean isAppNode(Member member) {
-      return NodeType.APPLICATION.getValue().equals(member.getStringAttribute(HazelcastMember.Attribute.NODE_TYPE));
+      return NodeType.APPLICATION.getValue().equals(member.getStringAttribute(NODE_TYPE.getKey()));
     }
 
     private void removeOperationalProcess(String uuid) {
