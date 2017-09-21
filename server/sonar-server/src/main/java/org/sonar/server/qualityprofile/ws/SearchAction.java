@@ -48,6 +48,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.util.LanguageParamUtils;
+import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.component.ComponentsWsParameters;
@@ -239,6 +240,7 @@ public class SearchAction implements QProfileWsAction {
     Map<String, QProfileDto> profilesByKey = profiles.stream().collect(Collectors.toMap(QProfileDto::getKee, identity()));
 
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
+    response.setActions(SearchWsResponse.Actions.newBuilder().setCreate(true));
 
     for (QProfileDto profile : profiles) {
       QualityProfile.Builder profileBuilder = response.addProfilesBuilder();
@@ -262,6 +264,11 @@ public class SearchAction implements QProfileWsAction {
       writeParentFields(profileBuilder, profile, profilesByKey);
       profileBuilder.setIsInherited(profile.getParentKee() != null);
       profileBuilder.setIsBuiltIn(profile.isBuiltIn());
+
+      profileBuilder.setActions(SearchWsResponse.Actions.newBuilder()
+        .setEdit(true)
+        .setSetAsDefault(false)
+        .setCopy(false));
     }
 
     return response.build();

@@ -27,6 +27,7 @@ option optimize_for = SPEED;
 // WS api/qualityprofiles/search
 message SearchWsResponse {
   repeated QualityProfile profiles = 1;
+  optional Actions actions = 2;
 
   message QualityProfile {
     optional string key = 1;
@@ -45,6 +46,14 @@ message SearchWsResponse {
     optional string userUpdatedAt = 14;
     optional string organization = 15;
     optional bool isBuiltIn = 16;
+    optional Actions actions = 17;
+  }
+
+  message Actions {
+    optional bool create = 1;
+    optional bool edit = 2;
+    optional bool setAsDefault = 3;
+    optional bool copy = 4;
   }
 }
 
@@ -128,3 +137,4 @@ message ShowResponse {
     optional int64 missingRuleCount = 3;
   }
 }
+

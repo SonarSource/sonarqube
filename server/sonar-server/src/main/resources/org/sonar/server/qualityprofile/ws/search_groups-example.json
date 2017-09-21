@@ -1,0 +1,19 @@
+{
+  "groups": [
+    {
+      "name": "users",
+      "description": "Users",
+      "selected": true
+    },
+    {
+      "name": "administrators",
+      "description": "Administrators",
+      "selected": false
+    }
+  ],
+  "paging": {
+    "pageSize": 100,
+    "total": 2,
+    "pageIndex": 1
+  }
+}
