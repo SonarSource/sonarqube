@@ -120,7 +120,8 @@ public class NewDebtRatioMeasureTest {
       "measure/xoo-new-debt-ratio-" + projectVersion,
       ItUtils.concat(properties,
         // disable standard scm support so that it does not interfere with Xoo Scm sensor
-        "sonar.scm.disabled", "false"));
+        "sonar.scm.disabled", "false",
+        "sonar.projectVersion", projectVersion));
   }
 
   private Resource getFileResourceWithVariations(String metricKey) {
