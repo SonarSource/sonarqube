@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.picocontainer.Startable;
@@ -76,13 +77,15 @@ public class MetricRepositoryImpl implements MetricRepository, Startable {
 
   @Override
   public Metric getById(long id) {
+    return getOptionalById(id)
+      .orElseThrow(() -> new IllegalStateException(String.format("Metric with id '%s' does not exist", id)));
+  }
+
+  @Override
+  public Optional<Metric> getOptionalById(long id) {
     verifyMetricsInitialized();
 
-    Metric res = this.metricsById.get(id);
-    if (res == null) {
-      throw new IllegalStateException(String.format("Metric with id '%s' does not exist", id));
-    }
-    return res;
+    return Optional.ofNullable(this.metricsById.get(id));
   }
 
   @Override

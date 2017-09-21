@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.metric;
 
+import java.util.Optional;
+
 public interface MetricRepository {
 
   /**
@@ -38,6 +40,11 @@ public interface MetricRepository {
    * @throws IllegalStateException if no Metric with the specified id is found
    */
   Metric getById(long id);
+
+  /**
+   * Gets the {@link Metric} with the specific id if it exists in the repository.
+   */
+  Optional<Metric> getOptionalById(long id);
 
   /**
    * Get iterable of all {@link Metric}.

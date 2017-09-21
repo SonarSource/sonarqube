@@ -21,12 +21,12 @@ package org.sonar.server.computation.task.projectanalysis.qualitygate;
 
 import com.google.common.base.Optional;
 import java.util.Collection;
+import java.util.Objects;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 
 public class QualityGateServiceImpl implements QualityGateService {
@@ -54,10 +54,10 @@ public class QualityGateServiceImpl implements QualityGateService {
     Collection<QualityGateConditionDto> dtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getId());
 
     Iterable<Condition> conditions = dtos.stream()
-      .map(input -> {
-        Metric metric = metricRepository.getById(input.getMetricId());
-        return new Condition(metric, input.getOperator(), input.getErrorThreshold(), input.getWarningThreshold(), input.getPeriod() != null);
-      })
+      .map(input -> metricRepository.getOptionalById(input.getMetricId())
+        .map(metric -> new Condition(metric, input.getOperator(), input.getErrorThreshold(), input.getWarningThreshold(), input.getPeriod() != null))
+        .orElse(null))
+      .filter(Objects::nonNull)
       .collect(MoreCollectors.toList(dtos.size()));
 
     return new QualityGate(qualityGateDto.getId(), qualityGateDto.getName(), conditions);
