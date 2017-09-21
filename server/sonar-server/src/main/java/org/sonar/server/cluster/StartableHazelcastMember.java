@@ -140,7 +140,6 @@ public class StartableHazelcastMember implements HazelcastMember, Startable {
       throw new IllegalStateException(format("Can not resolve address %s", networkAddress), e);
     }
     this.member = new HazelcastMemberBuilder()
-      .setClusterName(config.get(ProcessProperties.CLUSTER_NAME).orElseThrow(() -> new IllegalStateException("Missing cluster name")))
       .setNodeName(config.get(ProcessProperties.CLUSTER_NODE_NAME).orElseThrow(() -> new IllegalStateException("Missing node name")))
       .setNodeType(NodeType.parse(config.get(CLUSTER_NODE_TYPE).orElseThrow(() -> new IllegalStateException("Missing node type"))))
       .setPort(freePort)

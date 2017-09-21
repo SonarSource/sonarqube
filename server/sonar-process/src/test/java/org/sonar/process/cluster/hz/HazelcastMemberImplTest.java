@@ -114,7 +114,6 @@ public class HazelcastMemberImplTest {
     return new HazelcastMemberBuilder()
       .setNodeType(NodeType.APPLICATION)
       .setProcessId(ProcessId.COMPUTE_ENGINE)
-      .setClusterName("foo")
       .setNodeName("name" + port)
       .setPort(port)
       .setNetworkInterface(loopback.getHostAddress())
