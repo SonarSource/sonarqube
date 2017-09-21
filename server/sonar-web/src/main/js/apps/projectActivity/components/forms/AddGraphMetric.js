@@ -60,6 +60,7 @@ export default class AddGraphMetric extends React.PureComponent {
         if (
           metric.hidden ||
           isDiffMetric(metric.key) ||
+          ['DATA', 'DISTRIB'].includes(metric.type) ||
           this.props.selectedMetrics.includes(metric.key)
         ) {
           return false;
