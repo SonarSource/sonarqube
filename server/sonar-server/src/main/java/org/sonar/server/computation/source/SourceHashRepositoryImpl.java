@@ -59,14 +59,11 @@ public class SourceHashRepositoryImpl implements SourceHashRepository {
 
   private String computeRawSourceHash(Component file) {
     SourceHashComputer sourceHashComputer = new SourceHashComputer();
-    CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
-    try {
+    try (CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file)) {
       while (linesIterator.hasNext()) {
         sourceHashComputer.addLine(linesIterator.next(), linesIterator.hasNext());
       }
       return sourceHashComputer.getHash();
-    } finally {
-      linesIterator.close();
     }
   }
 

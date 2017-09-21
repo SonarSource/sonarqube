@@ -25,6 +25,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.duplication.DuplicationUnitDto;
@@ -95,10 +96,13 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
 
     @Override
     public void visitFile(Component file) {
-      List<CpdTextBlock> cpdTextBlocks = newArrayList(reportReader.readCpdTextBlocks(file.getReportAttributes().getRef()));
-      LOGGER.trace("Found {} cpd blocks on file {}", cpdTextBlocks.size(), file.getKey());
-      if (cpdTextBlocks.isEmpty()) {
-        return;
+      List<CpdTextBlock> cpdTextBlocks;
+      try (CloseableIterator<CpdTextBlock> blocksIt = reportReader.readCpdTextBlocks(file.getReportAttributes().getRef())) {
+        cpdTextBlocks = newArrayList(blocksIt);
+        LOGGER.trace("Found {} cpd blocks on file {}", cpdTextBlocks.size(), file.getKey());
+        if (cpdTextBlocks.isEmpty()) {
+          return;
+        }
       }
 
       Collection<String> hashes = from(cpdTextBlocks).transform(CpdTextBlockToHash.INSTANCE).toList();

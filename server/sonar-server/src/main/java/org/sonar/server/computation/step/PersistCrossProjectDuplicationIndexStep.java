@@ -88,8 +88,7 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
 
     private void visitComponent(Component component) {
       int indexInFile = 0;
-      CloseableIterator<ScannerReport.CpdTextBlock> blocks = reportReader.readCpdTextBlocks(component.getReportAttributes().getRef());
-      try {
+      try (CloseableIterator<ScannerReport.CpdTextBlock> blocks = reportReader.readCpdTextBlocks(component.getReportAttributes().getRef())) {
         while (blocks.hasNext()) {
           ScannerReport.CpdTextBlock block = blocks.next();
           dbClient.duplicationDao().insert(
@@ -104,8 +103,6 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
             );
           indexInFile++;
         }
-      } finally {
-        blocks.close();
       }
     }
   }

@@ -124,17 +124,13 @@ public class PersistFileSourcesStep implements ComputationStep {
     public void visitFile(Component file) {
       int fileRef = file.getReportAttributes().getRef();
       ScannerReport.Component component = reportReader.readComponent(fileRef);
-      CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
-      LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, duplicationRepository, file);
-      try {
+      try (CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
+        LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, duplicationRepository, file)) {
         ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), component.getLines());
         ComputeFileSourceData.Data fileSourceData = computeFileSourceData.compute();
         persistSource(fileSourceData, file.getUuid(), lineReaders.getLatestChange());
       } catch (Exception e) {
         throw new IllegalStateException(String.format("Cannot persist sources of %s", file.getKey()), e);
-      } finally {
-        linesIterator.close();
-        lineReaders.close();
       }
     }
 
@@ -190,7 +186,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     }
   }
 
-  private static class LineReaders {
+  private static class LineReaders implements AutoCloseable {
     private final List<LineReader> readers = new ArrayList<>();
     private final List<CloseableIterator<?>> closeables = new ArrayList<>();
     @CheckForNull
@@ -226,7 +222,8 @@ public class PersistFileSourcesStep implements ComputationStep {
       return readers;
     }
 
-    void close() {
+    @Override
+    public void close() {
       for (CloseableIterator<?> reportIterator : closeables) {
         reportIterator.close();
       }

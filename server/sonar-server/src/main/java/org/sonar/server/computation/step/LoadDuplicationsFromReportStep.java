@@ -66,15 +66,12 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
         @Override
         public void visitFile(Component file) {
-          CloseableIterator<ScannerReport.Duplication> duplications = batchReportReader.readComponentDuplications(file.getReportAttributes().getRef());
-          try {
+          try (CloseableIterator<ScannerReport.Duplication> duplications = batchReportReader.readComponentDuplications(file.getReportAttributes().getRef())) {
             int idGenerator = 1;
             while (duplications.hasNext()) {
               loadDuplications(file, duplications.next(), idGenerator);
               idGenerator++;
             }
-          } finally {
-            duplications.close();
           }
         }
       }).visit(treeRootHolder.getRoot());
