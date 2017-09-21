@@ -35,6 +35,7 @@ notifications:
   on_start: always
 
 addons:
+  firefox: "46.0.1"
   apt:
     packages:
       # upgrade java 8 as the default version 1.8.0_31 prevents from compile sources
