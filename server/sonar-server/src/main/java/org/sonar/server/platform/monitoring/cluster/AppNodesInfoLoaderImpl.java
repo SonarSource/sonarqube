@@ -31,6 +31,9 @@ import org.sonar.process.cluster.hz.DistributedAnswer;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
+import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.NODE_NAME;
+import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.PROCESS_KEY;
+
 @ServerSide
 public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
 
@@ -45,7 +48,7 @@ public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
       Map<String, NodeInfo> nodesByName = new HashMap<>();
       DistributedAnswer<ProtobufSystemInfo.SystemInfo> distributedAnswer = hzMember.call(ProcessInfoProvider::provide, new CeWebMemberSelector(), 15_000L);
       for (Member member : distributedAnswer.getMembers()) {
-        String nodeName = member.getStringAttribute(HazelcastMember.Attribute.NODE_NAME);
+        String nodeName = member.getStringAttribute(NODE_NAME.getKey());
         NodeInfo nodeInfo = nodesByName.get(nodeName);
         if (nodeInfo == null) {
           nodeInfo = new NodeInfo(nodeName);
@@ -76,7 +79,7 @@ public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
   private static class CeWebMemberSelector implements MemberSelector {
     @Override
     public boolean select(Member member) {
-      String processKey = member.getStringAttribute(HazelcastMember.Attribute.PROCESS_KEY);
+      String processKey = member.getStringAttribute(PROCESS_KEY.getKey());
       return processKey.equals(ProcessId.WEB_SERVER.getKey()) || processKey.equals(ProcessId.COMPUTE_ENGINE.getKey());
     }
   }

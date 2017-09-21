@@ -25,6 +25,7 @@ import org.sonar.process.ProcessId;
 
 import static java.util.Arrays.asList;
 import static org.sonar.process.ProcessId.fromKey;
+import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.PROCESS_KEY;
 
 public class HazelcastMemberSelectors {
 
@@ -34,7 +35,7 @@ public class HazelcastMemberSelectors {
   public static MemberSelector selectorForProcessIds(ProcessId... processIds) {
     List<ProcessId> processIdList = asList(processIds);
     return member -> {
-      ProcessId memberProcessId = fromKey(member.getStringAttribute(HazelcastMember.Attribute.PROCESS_KEY));
+      ProcessId memberProcessId = fromKey(member.getStringAttribute(PROCESS_KEY.getKey()));
       return processIdList.contains(memberProcessId);
     };
   }

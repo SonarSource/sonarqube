@@ -34,7 +34,7 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 public class ProcessInfoProvider implements Startable {
 
   /** Used for Hazelcast's distributed queries in cluster mode */
-  private static ProcessInfoProvider INSTANCE;
+  private static ProcessInfoProvider instance;
   private final List<SystemInfoSection> sections;
 
   public ProcessInfoProvider(SystemInfoSection[] sections) {
@@ -45,17 +45,17 @@ public class ProcessInfoProvider implements Startable {
 
   @Override
   public void start() {
-    INSTANCE = this;
+    instance = this;
   }
 
   @Override
   public void stop() {
-    INSTANCE = null;
+    instance = null;
   }
 
   public static ProtobufSystemInfo.SystemInfo provide() {
     ProtobufSystemInfo.SystemInfo.Builder protobuf = ProtobufSystemInfo.SystemInfo.newBuilder();
-    INSTANCE.sections.forEach(section -> protobuf.addSections(section.toProtobuf()));
+    instance.sections.forEach(section -> protobuf.addSections(section.toProtobuf()));
     return protobuf.build();
   }
 }

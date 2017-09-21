@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
-import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 
 public class TestAppState implements AppState {
@@ -84,7 +84,7 @@ public class TestAppState implements AppState {
 
   @Override
   public Optional<String> getLeaderHostName() {
-    return Optional.of(NetworkUtils.INSTANCE.getHostname());
+    return Optional.of(NetworkUtilsImpl.INSTANCE.getHostname());
   }
 
   @Override

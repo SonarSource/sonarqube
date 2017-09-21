@@ -30,7 +30,7 @@ import java.util.Properties;
 import java.util.function.Consumer;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ConfigurationUtils;
-import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
@@ -44,7 +44,7 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
 
   public AppSettingsLoaderImpl(String[] cliArguments) {
     this(cliArguments, detectHomeDir(),
-      new FileSystemSettings(), new JdbcSettings(), new ClusterSettings(NetworkUtils.INSTANCE));
+      new FileSystemSettings(), new JdbcSettings(), new ClusterSettings(NetworkUtilsImpl.INSTANCE));
   }
 
   AppSettingsLoaderImpl(String[] cliArguments, File homeDir, Consumer<Props>... consumers) {

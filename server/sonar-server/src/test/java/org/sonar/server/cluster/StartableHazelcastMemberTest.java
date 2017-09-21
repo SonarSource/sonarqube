@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -45,7 +46,7 @@ public class StartableHazelcastMemberTest {
   @Test
   public void start_initializes_hazelcast() {
     completeValidSettings();
-    StartableHazelcastMember underTest = new StartableHazelcastMember(settings.asConfig(), NetworkUtils.INSTANCE);
+    StartableHazelcastMember underTest = new StartableHazelcastMember(settings.asConfig(), NetworkUtilsImpl.INSTANCE);
     verifyStopped(underTest);
 
     underTest.start();

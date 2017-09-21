@@ -20,9 +20,6 @@
 
 package org.sonar.process.cluster.hz;
 
-import org.sonar.process.ProcessId;
-import org.sonar.process.cluster.NodeType;
-
 /**
  * This class holds all object keys accessible via Hazelcast
  */

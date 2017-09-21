@@ -24,7 +24,7 @@ import java.io.File;
 import java.net.InetAddress;
 import java.util.Collections;
 import org.jboss.byteman.agent.submit.Submit;
-import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 
 import static java.lang.String.format;
 
@@ -50,7 +50,7 @@ public class Byteman {
   public Byteman(OrchestratorBuilder builder, Process process) {
     this.builder = builder;
     String jar = findBytemanJar();
-    port = NetworkUtils.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress());
+    port = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress());
     String bytemanArg = format("-javaagent:%s=boot:%s,port:%d", jar, jar, port);
     builder.setServerProperty(process.argument, bytemanArg);
   }
