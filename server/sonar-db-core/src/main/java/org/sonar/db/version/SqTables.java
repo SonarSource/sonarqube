@@ -86,6 +86,7 @@ public final class SqTables {
     "project_qprofiles",
     "properties",
     "qprofile_changes",
+    "qprofile_edit_users",
     "quality_gates",
     "quality_gate_conditions",
     "rules",
