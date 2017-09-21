@@ -46,30 +46,30 @@ export default function BranchStatus({ branch, concise = false }: Props) {
       'is-passed': totalIssues === 0
     });
 
-    return (
+    return concise ? (
+      <ul className="list-inline branch-status">
+        <li>{totalIssues}</li>
+        <li className="spacer-left">
+          <i className={indicatorClassName} />
+        </li>
+      </ul>
+    ) : (
       <ul className="list-inline branch-status">
         <li className="spacer-right">
           <i className={indicatorClassName} />
         </li>
-        {concise && <li>{totalIssues}</li>}
-        {!concise && (
-          <li>
-            {branch.status.bugs}
-            <BugIcon />
-          </li>
-        )}
-        {!concise && (
-          <li>
-            {branch.status.vulnerabilities}
-            <VulnerabilityIcon />
-          </li>
-        )}
-        {!concise && (
-          <li>
-            {branch.status.codeSmells}
-            <CodeSmellIcon />
-          </li>
-        )}
+        <li>
+          {branch.status.bugs}
+          <BugIcon />
+        </li>
+        <li>
+          {branch.status.vulnerabilities}
+          <VulnerabilityIcon />
+        </li>
+        <li>
+          {branch.status.codeSmells}
+          <CodeSmellIcon />
+        </li>
       </ul>
     );
   } else {

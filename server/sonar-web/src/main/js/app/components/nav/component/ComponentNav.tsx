@@ -35,6 +35,7 @@ interface Props {
   currentBranch?: Branch;
   component: Component;
   location: {};
+  onBranchesChange: () => void;
 }
 
 interface State {
@@ -101,10 +102,11 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
         {this.props.currentBranch && (
           <ComponentNavBranch
             branches={this.props.branches}
+            component={this.props.component}
             currentBranch={this.props.currentBranch}
             // to close dropdown on any location change
             location={this.props.location}
-            project={this.props.component}
+            onBranchesChange={this.props.onBranchesChange}
           />
         )}
 

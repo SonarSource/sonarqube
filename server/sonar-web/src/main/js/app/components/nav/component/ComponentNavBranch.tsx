@@ -32,9 +32,10 @@ import Tooltip from '../../../../components/controls/Tooltip';
 
 interface Props {
   branches: Branch[];
+  component: Component;
   currentBranch: Branch;
   location?: any;
-  project: Component;
+  onBranchesChange: () => void;
 }
 
 interface State {
@@ -61,8 +62,8 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
 
   componentWillReceiveProps(nextProps: Props) {
     if (
-      nextProps.project !== this.props.project ||
-      nextProps.currentBranch !== this.props.currentBranch ||
+      nextProps.component !== this.props.component ||
+      this.differentBranches(nextProps.currentBranch, this.props.currentBranch) ||
       nextProps.location !== this.props.location
     ) {
       this.setState({ dropdownOpen: false, singleBranchPopupOpen: false });
@@ -71,6 +72,11 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
 
   componentWillUnmount() {
     this.mounted = false;
+  }
+
+  differentBranches(a: Branch, b: Branch) {
+    // if main branch changes name, we should not close the dropdown
+    return a.isMain && b.isMain ? false : a.name !== b.name;
   }
 
   handleClick = (event: React.SyntheticEvent<HTMLElement>) => {
@@ -115,12 +121,15 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   };
 
   renderDropdown = () => {
+    const { configuration } = this.props.component;
     return this.state.dropdownOpen ? (
       <ComponentNavBranchesMenu
         branches={this.props.branches}
+        canAdmin={configuration && configuration.showSettings}
+        component={this.props.component}
         currentBranch={this.props.currentBranch}
+        onBranchesChange={this.props.onBranchesChange}
         onClose={this.closeDropdown}
-        project={this.props.project}
       />
     ) : null;
   };

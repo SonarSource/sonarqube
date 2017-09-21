@@ -38,8 +38,9 @@ it('renders main branch', () => {
     shallow(
       <ComponentNavBranch
         branches={[branch, fooBranch]}
+        component={component}
         currentBranch={branch}
-        project={component}
+        onBranchesChange={jest.fn()}
       />,
       { context: { branchesEnabled: true } }
     )
@@ -59,8 +60,9 @@ it('renders short-living branch', () => {
     shallow(
       <ComponentNavBranch
         branches={[branch, fooBranch]}
+        component={component}
         currentBranch={branch}
-        project={component}
+        onBranchesChange={jest.fn()}
       />,
       { context: { branchesEnabled: true } }
     )
@@ -73,8 +75,9 @@ it('opens menu', () => {
   const wrapper = shallow(
     <ComponentNavBranch
       branches={[branch, fooBranch]}
+      component={component}
       currentBranch={branch}
-      project={component}
+      onBranchesChange={jest.fn()}
     />,
     { context: { branchesEnabled: true } }
   );
@@ -87,7 +90,12 @@ it('renders single branch popup', () => {
   const branch: MainBranch = { isMain: true, name: 'master' };
   const component = {} as Component;
   const wrapper = shallow(
-    <ComponentNavBranch branches={[branch]} currentBranch={branch} project={component} />,
+    <ComponentNavBranch
+      branches={[branch]}
+      component={component}
+      currentBranch={branch}
+      onBranchesChange={jest.fn()}
+    />,
     { context: { branchesEnabled: true } }
   );
   expect(wrapper).toMatchSnapshot();
@@ -102,8 +110,9 @@ it('renders nothing when no branch support', () => {
   const wrapper = shallow(
     <ComponentNavBranch
       branches={[branch, fooBranch]}
+      component={component}
       currentBranch={branch}
-      project={component}
+      onBranchesChange={jest.fn()}
     />,
     { context: { branchesEnabled: false } }
   );

@@ -55,7 +55,6 @@ import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
 import portfolioRoutes from '../../apps/portfolio/routes';
 import projectActivityRoutes from '../../apps/projectActivity/routes';
 import projectAdminRoutes from '../../apps/project-admin/routes';
-import projectBranchesRoutes from '../../apps/projectBranches/routes';
 import projectQualityGateRoutes from '../../apps/projectQualityGate/routes';
 import projectQualityProfilesRoutes from '../../apps/projectQualityProfiles/routes';
 import projectsRoutes from '../../apps/projects/routes';
@@ -207,7 +206,6 @@ const startReactApp = () => {
                         component={ProjectAdminPageExtension}
                       />
                       <Route path="project/background_tasks" childRoutes={backgroundTasksRoutes} />
-                      <Route path="project/branches" childRoutes={projectBranchesRoutes} />
                       <Route path="project/settings" childRoutes={settingsRoutes} />
                       <Route path="project_roles" childRoutes={projectPermissionsRoutes} />
                     </Route>

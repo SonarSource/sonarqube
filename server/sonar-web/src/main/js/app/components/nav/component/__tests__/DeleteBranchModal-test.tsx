@@ -17,40 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-jest.mock('../../../../api/branches', () => ({ renameBranch: jest.fn() }));
+jest.mock('../../../../../api/branches', () => ({ deleteBranch: jest.fn() }));
 
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
-import RenameBranchModal from '../RenameBranchModal';
-import { MainBranch } from '../../../../app/types';
-import { submit, doAsync, click, change } from '../../../../helpers/testUtils';
-import { renameBranch } from '../../../../api/branches';
+import DeleteBranchModal from '../DeleteBranchModal';
+import { ShortLivingBranch, BranchType } from '../../../../../app/types';
+import { submit, doAsync, click } from '../../../../../helpers/testUtils';
+import { deleteBranch } from '../../../../../api/branches';
 
 beforeEach(() => {
-  (renameBranch as jest.Mock<any>).mockClear();
+  (deleteBranch as jest.Mock<any>).mockClear();
 });
 
 it('renders', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
-  wrapper.setState({ name: 'dev' });
-  expect(wrapper).toMatchSnapshot();
   wrapper.setState({ loading: true });
   expect(wrapper).toMatchSnapshot();
 });
 
-it('renames branch', () => {
-  (renameBranch as jest.Mock<any>).mockImplementation(() => Promise.resolve());
-  const onRename = jest.fn();
-  const wrapper = shallowRender(onRename);
+it('deletes branch', () => {
+  (deleteBranch as jest.Mock<any>).mockImplementation(() => Promise.resolve());
+  const onDelete = jest.fn();
+  const wrapper = shallowRender(onDelete);
 
-  fillAndSubmit(wrapper);
+  submitForm(wrapper);
 
   return doAsync().then(() => {
     wrapper.update();
     expect(wrapper.state().loading).toBe(false);
-    expect(onRename).toBeCalled();
-    expect(renameBranch).toBeCalledWith('foo', 'dev');
+    expect(onDelete).toBeCalled();
+    expect(deleteBranch).toBeCalledWith('foo', 'feature');
   });
 });
 
@@ -66,30 +64,35 @@ it('cancels', () => {
 });
 
 it('stops loading on WS error', () => {
-  (renameBranch as jest.Mock<any>).mockImplementation(() => Promise.reject(null));
-  const onRename = jest.fn();
-  const wrapper = shallowRender(onRename);
+  (deleteBranch as jest.Mock<any>).mockImplementation(() => Promise.reject(null));
+  const onDelete = jest.fn();
+  const wrapper = shallowRender(onDelete);
 
-  fillAndSubmit(wrapper);
+  submitForm(wrapper);
 
   return doAsync().then(() => {
     wrapper.update();
     expect(wrapper.state().loading).toBe(false);
-    expect(onRename).not.toBeCalled();
+    expect(onDelete).not.toBeCalled();
+    expect(deleteBranch).toBeCalledWith('foo', 'feature');
   });
 });
 
-function shallowRender(onRename: () => void = jest.fn(), onClose: () => void = jest.fn()) {
-  const branch: MainBranch = { isMain: true, name: 'master' };
+function shallowRender(onDelete: () => void = jest.fn(), onClose: () => void = jest.fn()) {
+  const branch: ShortLivingBranch = {
+    isMain: false,
+    name: 'feature',
+    mergeBranch: 'master',
+    type: BranchType.SHORT
+  };
   const wrapper = shallow(
-    <RenameBranchModal branch={branch} component="foo" onClose={onClose} onRename={onRename} />
+    <DeleteBranchModal branch={branch} component="foo" onClose={onClose} onDelete={onDelete} />
   );
   (wrapper.instance() as any).mounted = true;
   return wrapper;
 }
 
-function fillAndSubmit(wrapper: ShallowWrapper<any, any>) {
-  change(wrapper.find('input'), 'dev');
+function submitForm(wrapper: ShallowWrapper<any, any>) {
   submit(wrapper.find('form'));
   expect(wrapper.state().loading).toBe(true);
 }

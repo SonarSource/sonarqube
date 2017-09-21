@@ -137,6 +137,7 @@ export default class ComponentContainer extends React.PureComponent<Props, State
             currentBranch={branch}
             component={component}
             location={this.props.location}
+            onBranchesChange={this.handleBranchesChange}
           />
         )}
         {loading ? (
@@ -147,8 +148,7 @@ export default class ComponentContainer extends React.PureComponent<Props, State
           React.cloneElement(this.props.children, {
             branch,
             branches,
-            component: component,
-            onBranchesChange: this.handleBranchesChange,
+            component,
             onComponentChange: this.handleComponentChange
           })
         )}

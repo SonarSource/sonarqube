@@ -106,20 +106,3 @@ it("doesn't load branches portfolio", () => {
     expect(wrapper.find(Inner).exists()).toBeTruthy();
   });
 });
-
-it('updates branches on change', () => {
-  (getBranches as jest.Mock<any>).mockImplementation(() => Promise.resolve([]));
-  const wrapper = shallow(
-    <ComponentContainer location={{ query: { id: 'portfolioKey' } }}>
-      <Inner />
-    </ComponentContainer>
-  );
-  (wrapper.instance() as ComponentContainer).mounted = true;
-  wrapper.setState({
-    branches: [{ isMain: true }],
-    component: { breadcrumbs: [{ key: 'projectKey', name: 'project', qualifier: 'TRK' }] },
-    loading: false
-  });
-  (wrapper.find(Inner).prop('onBranchesChange') as Function)();
-  expect(getBranches).toBeCalledWith('projectKey');
-});
