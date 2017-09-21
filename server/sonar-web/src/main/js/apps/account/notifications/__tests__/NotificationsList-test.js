@@ -17,10 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable import/first */
+jest.mock('../../../../helpers/l10n', () => {
+  const l10n = require.requireActual('../../../../helpers/l10n');
+  l10n.hasMessage = jest.fn();
+  return l10n;
+});
+
 import React from 'react';
 import { shallow } from 'enzyme';
 import NotificationsList from '../NotificationsList';
 import Checkbox from '../../../../components/controls/Checkbox';
+import { hasMessage } from '../../../../helpers/l10n';
 
 const channels = ['channel1', 'channel2'];
 const types = ['type1', 'type2'];
@@ -30,6 +38,10 @@ const notifications = [
   { channel: 'channel2', type: 'type2' }
 ];
 const checkboxId = (t, c) => `checkbox-io-${t}-${c}`;
+
+beforeEach(() => {
+  hasMessage.mockImplementation(() => false).mockClear();
+});
 
 it('should match snapshot', () => {
   expect(
@@ -44,6 +56,25 @@ it('should match snapshot', () => {
       />
     )
   ).toMatchSnapshot();
+});
+
+it('renders project-specific labels', () => {
+  hasMessage.mockImplementation(() => true);
+  expect(
+    shallow(
+      <NotificationsList
+        onAdd={jest.fn()}
+        onRemove={jest.fn()}
+        channels={channels}
+        checkboxId={checkboxId}
+        project={true}
+        types={types}
+        notifications={notifications}
+      />
+    )
+  ).toMatchSnapshot();
+  expect(hasMessage).toBeCalledWith('notification.dispatcher', 'type1', 'project');
+  expect(hasMessage).toBeCalledWith('notification.dispatcher', 'type2', 'project');
 });
 
 it('should call `onAdd` and `onRemove`', () => {
