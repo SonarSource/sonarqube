@@ -56,20 +56,40 @@ public class SettingsSectionTest {
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     String value = attribute(protobuf, "foo").getStringValue();
-    assertThat(value).hasSize(SettingsSection.MAX_VALUE_LENGTH).startsWith("abcde");
+    assertThat(value).hasSize(500).startsWith("abcde");
   }
 
   @Test
-  public void exclude_password_properties() {
-    settings.setProperty(PASSWORD_PROPERTY, "abcde");
+  public void value_is_obfuscated_if_key_matches_patterns() {
+    verifyObfuscated(PASSWORD_PROPERTY);
+    verifyObfuscated("foo.password.something");
+    // case insensitive search of "password" term
+    verifyObfuscated("bar.CheckPassword");
+    verifyObfuscated("foo.passcode.something");
+    // case insensitive search of "passcode" term
+    verifyObfuscated("bar.CheckPassCode");
+    verifyObfuscated("foo.something.secured");
+    verifyObfuscated("bar.something.Secured");
+    verifyObfuscated("sonar.auth.jwtBase64Hs256Secret");
 
+    verifyNotObfuscated("securedStuff");
+    verifyNotObfuscated("foo");
+  }
+
+  private void verifyObfuscated(String key) {
+    settings.setProperty(key, "foo");
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
-    assertThat(attribute(protobuf, PASSWORD_PROPERTY)).isNull();
+    assertThatAttributeIs(protobuf, key, "xxxxxxxx");
+  }
+
+  private void verifyNotObfuscated(String key) {
+    settings.setProperty(key, "foo");
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, key, "foo");
   }
 
   @Test
   public void test_monitor_name() {
     assertThat(underTest.toProtobuf().getName()).isEqualTo("Settings");
-
   }
 }

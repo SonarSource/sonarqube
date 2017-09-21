@@ -38,6 +38,7 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.process.ProcessProperties.AUTH_JWT_SECRET;
 import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
 import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
@@ -72,7 +73,7 @@ public class ClusterSettings implements Consumer<Props> {
     switch (nodeType) {
       case APPLICATION:
         ensureNotH2(props);
-        requireValue(props, "sonar.auth.jwtBase64Hs256Secret");
+        requireValue(props, AUTH_JWT_SECRET);
         break;
       case SEARCH:
         requireValue(props, SEARCH_HOST);
