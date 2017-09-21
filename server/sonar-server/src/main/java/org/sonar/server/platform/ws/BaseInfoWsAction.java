@@ -36,9 +36,9 @@ public abstract class BaseInfoWsAction implements SystemWsAction {
 
   private static final String[] ORDERED_SECTION_NAMES = {
     "System", "Database", "Plugins",
-    "Web JVM State", "Web Logging", "Web JVM Properties",
-    "Search State", "Search Statistics",
-    "Compute Engine Database Connection", "Compute Engine JVM State", "Compute Engine Logging", "Compute Engine Tasks", "Compute Engine JVM Properties"};
+    "Web JVM State", "Web Database Connection", "Web Logging", "Web JVM Properties",
+    "Search State", "Search Indexes",
+    "Compute Engine Tasks", "Compute Engine JVM State", "Compute Engine Database Connection", "Compute Engine Logging", "Compute Engine JVM Properties"};
 
   private final UserSession userSession;
   private final TelemetryDataLoader telemetry;

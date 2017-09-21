@@ -20,6 +20,7 @@
 package org.sonar.server.platform.monitoring;
 
 import java.util.Map;
+import java.util.TreeMap;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -52,7 +53,8 @@ public class SettingsSection implements SystemInfoSection, Global {
     protobuf.setName("Settings");
 
     PropertyDefinitions definitions = settings.getDefinitions();
-    for (Map.Entry<String, String> prop : settings.getProperties().entrySet()) {
+    TreeMap<String, String> orderedProps = new TreeMap<>(settings.getProperties());
+    for (Map.Entry<String, String> prop : orderedProps.entrySet()) {
       String key = prop.getKey();
       String value = obfuscateValue(definitions, key, prop.getValue());
       setAttribute(protobuf, key, value);
