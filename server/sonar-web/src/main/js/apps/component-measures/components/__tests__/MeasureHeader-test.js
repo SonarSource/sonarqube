@@ -85,7 +85,7 @@ it('should display secondary measure too', () => {
   expect(wrapper.find('Connect(LanguageDistribution)')).toHaveLength(1);
 });
 
-it('shohuld display correctly for open file', () => {
+it('should display correctly for open file', () => {
   const wrapper = shallow(
     <MeasureHeader
       {...PROPS}

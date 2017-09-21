@@ -52,18 +52,14 @@ export default class ListView extends React.PureComponent {
 
   componentDidMount() {
     this.attachShortcuts();
+    if (this.props.selectedKey != null) {
+      this.scrollToElement();
+    }
   }
 
   componentDidUpdate(prevProps /*: Props */) {
-    if (
-      this.listContainer &&
-      this.props.selectedKey != null &&
-      prevProps.selectedKey !== this.props.selectedKey
-    ) {
-      const elem = this.listContainer.getElementsByClassName('selected')[0];
-      if (elem) {
-        scrollToElement(elem, { topOffset: 215, bottomOffset: 100 });
-      }
+    if (this.props.selectedKey != null && prevProps.selectedKey !== this.props.selectedKey) {
+      this.scrollToElement();
     }
   }
 
@@ -111,6 +107,15 @@ export default class ListView extends React.PureComponent {
       this.props.handleSelect(this.props.components[selectedIdx + 1].key);
     } else {
       this.props.handleSelect(this.props.components[0].key);
+    }
+  };
+
+  scrollToElement = () => {
+    if (this.listContainer) {
+      const elem = this.listContainer.getElementsByClassName('selected')[0];
+      if (elem) {
+        scrollToElement(elem, { topOffset: 215, bottomOffset: 100 });
+      }
     }
   };
 

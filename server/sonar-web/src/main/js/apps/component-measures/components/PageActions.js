@@ -29,22 +29,27 @@ import { translate } from '../../../helpers/l10n';
   loading: boolean,
   isFile: ?boolean,
   paging: ?Paging,
+  totalLoadedComponents?: number,
   view?: string
 |}; */
 
 export default function PageActions(props /*: Props */) {
-  const { isFile, paging } = props;
+  const { isFile, paging, totalLoadedComponents } = props;
   const showShortcuts = ['list', 'tree'].includes(props.view);
   return (
     <div className="pull-right">
       {!isFile && showShortcuts && renderShortcuts()}
-      {isFile && renderFileShortcuts()}
+      {isFile && paging && renderFileShortcuts()}
       <div className="measure-details-page-actions">
         <DeferredSpinner loading={props.loading}>
           <i className="spinner-placeholder" />
         </DeferredSpinner>
         {paging != null && (
-          <FilesCounter className="spacer-left" current={props.current} total={paging.total} />
+          <FilesCounter
+            className="spacer-left"
+            current={props.current}
+            total={isFile && totalLoadedComponents != null ? totalLoadedComponents : paging.total}
+          />
         )}
       </div>
     </div>
@@ -73,8 +78,9 @@ function renderFileShortcuts() {
   return (
     <span className="note spacer-right">
       <span>
-        <span className="shortcut-button little-spacer-right">←</span>
-        {translate('component_measures.to_navigate_back')}
+        <span className="shortcut-button little-spacer-right">j</span>
+        <span className="shortcut-button little-spacer-right">k</span>
+        {translate('component_measures.to_navigate_files')}
       </span>
     </span>
   );
