@@ -233,6 +233,24 @@ public class ClusterTest {
   }
 
   @Test
+  public void cluster_name_can_be_overridden() throws Exception {
+    try (Cluster cluster = new Cluster("foo")) {
+      NodeConfig searchConfig1 = newSearchConfig("Search 1");
+      NodeConfig searchConfig2 = newSearchConfig("Search 2");
+      NodeConfig appConfig = newApplicationConfig("App 1");
+      NodeConfig.interconnectBus(searchConfig1, searchConfig2, appConfig);
+      NodeConfig.interconnectSearch(searchConfig1, searchConfig2, appConfig);
+
+      cluster.startNode(searchConfig1, nothing());
+      cluster.startNode(searchConfig2, nothing());
+      cluster.startNode(appConfig, nothing());
+
+      Node appNode = cluster.getAppNode(0);
+      appNode.waitForStatusUp();
+    }
+  }
+
+  @Test
   public void node_fails_to_join_cluster_if_different_cluster_name() throws Exception {
     try (Cluster cluster = new Cluster("foo")) {
       NodeConfig searchConfig1 = newSearchConfig("Search 1");

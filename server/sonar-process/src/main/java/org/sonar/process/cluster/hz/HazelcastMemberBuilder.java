@@ -41,18 +41,12 @@ import static java.util.Objects.requireNonNull;
 
 public class HazelcastMemberBuilder {
 
-  private String clusterName;
   private String nodeName;
   private int port;
   private NodeType nodeType;
   private ProcessId processId;
   private String networkInterface;
   private List<String> members = new ArrayList<>();
-
-  public HazelcastMemberBuilder setClusterName(String s) {
-    this.clusterName = s;
-    return this;
-  }
 
   public HazelcastMemberBuilder setNodeName(String s) {
     this.nodeName = s;
@@ -97,7 +91,11 @@ public class HazelcastMemberBuilder {
 
   public HazelcastMember build() {
     Config config = new Config();
-    config.getGroupConfig().setName(requireNonNull(clusterName, "Cluster name is missing"));
+    // do not use the value defined by property sonar.cluster.name.
+    // Hazelcast does not fail when joining a cluster with different name.
+    // Apparently this behavior exists since Hazelcast 3.8.2 (see note
+    // at http://docs.hazelcast.org/docs/3.8.6/manual/html-single/index.html#creating-cluster-groups)
+    config.getGroupConfig().setName("SonarQube");
 
     // Configure network
     NetworkConfig netConfig = config.getNetworkConfig();

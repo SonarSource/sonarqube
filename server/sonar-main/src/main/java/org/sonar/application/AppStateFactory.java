@@ -49,7 +49,6 @@ public class AppStateFactory {
 
   private static HazelcastMember createHzMember(Props props) {
     HazelcastMemberBuilder builder = new HazelcastMemberBuilder()
-      .setClusterName("sonarqube")
       .setNetworkInterface(props.nonNullValue(ProcessProperties.CLUSTER_NODE_HOST))
       .setMembers(asList(props.nonNullValue(ProcessProperties.CLUSTER_HOSTS).split(",")))
       .setNodeType(NodeType.parse(props.nonNullValue(ProcessProperties.CLUSTER_NODE_TYPE)))
