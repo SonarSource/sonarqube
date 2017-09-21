@@ -22,9 +22,13 @@ package org.sonar.server.view.index;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 import org.elasticsearch.action.search.SearchResponse;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -38,6 +42,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.RecoveryIndexer;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.index.IssueIndex;
@@ -49,13 +54,18 @@ import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
+import static org.sonar.server.view.index.ViewIndexDefinition.INDEX_TYPE_VIEW;
 
 public class ViewIndexerTest {
 
   private System2 system2 = System2.INSTANCE;
+
+  @Rule
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
@@ -192,6 +202,52 @@ public class ViewIndexerTest {
     assertThat(issueIndex.search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new SearchOptions()).getHits()).hasSize(2);
   }
 
+  @Test
+  public void delete_should_delete_the_view() {
+    ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
+    ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2", "P3", "P4"));
+    ViewDoc view3 = new ViewDoc().setUuid("UUID3").setProjects(asList("P2", "P3", "P4"));
+    esTester.putDocuments(INDEX_TYPE_VIEW, view1);
+    esTester.putDocuments(INDEX_TYPE_VIEW, view2);
+    esTester.putDocuments(INDEX_TYPE_VIEW, view3);
+
+    assertThat(esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
+      .containsOnly(view1.uuid(), view2.uuid(), view3.uuid());
+
+    underTest.delete(dbSession, asList(view1.uuid(), view2.uuid()));
+
+    assertThat(esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
+      .containsOnly(view3.uuid());
+  }
+
+  @Test
+  public void delete_should_be_resilient() throws InterruptedException {
+    ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
+    ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2", "P3", "P4"));
+    ViewDoc view3 = new ViewDoc().setUuid("UUID3").setProjects(asList("P2", "P3", "P4"));
+    esTester.putDocuments(INDEX_TYPE_VIEW, view1);
+    esTester.putDocuments(INDEX_TYPE_VIEW, view2);
+    esTester.putDocuments(INDEX_TYPE_VIEW, view3);
+
+    assertThat(esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
+      .containsOnly(view1.uuid(), view2.uuid(), view3.uuid());
+
+    // Lock writes
+    esTester.lockWrites(INDEX_TYPE_VIEW);
+    underTest.delete(dbSession, asList(view1.uuid(), view2.uuid()));
+
+    assertThat(esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
+      .containsOnly(view1.uuid(), view2.uuid(), view3.uuid());
+
+    // Unlock writes
+    esTester.unlockWrites(INDEX_TYPE_VIEW);
+
+    doRecover(() -> esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID).size() == 3);
+
+    assertThat(esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
+      .containsOnly(view3.uuid());
+  }
+
   private ComponentDto addProjectWithIssue(RuleDto rule, OrganizationDto org) {
     ComponentDto project = ComponentTesting.newPublicProjectDto(org);
     ComponentDto file = ComponentTesting.newFileDto(project, null);
@@ -204,4 +260,20 @@ public class ViewIndexerTest {
     return project;
   }
 
+  private void doRecover(BooleanSupplier condition) throws InterruptedException {
+    MapSettings settings = new MapSettings()
+      .setProperty("sonar.search.recovery.initialDelayInMs", "0")
+      .setProperty("sonar.search.recovery.minAgeInMs", "1")
+      .setProperty("sonar.search.recovery.delayInMs", "1");
+
+    RecoveryIndexer recoveryIndexer = new RecoveryIndexer(System2.INSTANCE, settings.asConfig(), dbClient, underTest);
+    recoveryIndexer.start();
+
+    // Wait for recovery
+    while (condition.getAsBoolean()) {
+      Thread.sleep(1_000);
+    }
+
+    recoveryIndexer.stop();
+  }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.view.index;
 
-import java.util.Collection;
 import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -28,13 +27,10 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
 @ServerSide
 @ComputeEngineSide
@@ -74,11 +70,5 @@ public class ViewIndex {
       }
     }
     return result;
-  }
-
-  public void delete(Collection<String> viewUuids) {
-    SearchRequestBuilder searchRequest = esClient.prepareSearch(ViewIndexDefinition.INDEX_TYPE_VIEW)
-      .setQuery(boolQuery().must(matchAllQuery()).filter(termsQuery(ViewIndexDefinition.FIELD_UUID, viewUuids)));
-    BulkIndexer.delete(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW, searchRequest);
   }
 }
