@@ -22,15 +22,24 @@ import { shallow } from 'enzyme';
 import PageActions from '../PageActions';
 
 it('should display correctly for a project', () => {
-  expect(shallow(<PageActions loading={true} isFile={false} view="list" />)).toMatchSnapshot();
+  expect(
+    shallow(<PageActions loading={true} isFile={false} view="list" totalLoadedComponents={20} />)
+  ).toMatchSnapshot();
 });
 
 it('should display correctly for a file', () => {
-  expect(shallow(<PageActions loading={false} isFile={true} view="tree" />)).toMatchSnapshot();
+  const wrapper = shallow(
+    <PageActions loading={false} isFile={true} view="tree" totalLoadedComponents={10} />
+  );
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setProps({ paging: { total: 100 } });
+  expect(wrapper).toMatchSnapshot();
 });
 
 it('should not display shortcuts for treemap', () => {
-  expect(shallow(<PageActions loading={true} isFile={false} view="treemap" />)).toMatchSnapshot();
+  expect(
+    shallow(<PageActions loading={true} isFile={false} view="treemap" totalLoadedComponents={20} />)
+  ).toMatchSnapshot();
 });
 
 it('should display the total of files', () => {
@@ -41,6 +50,19 @@ it('should display the total of files', () => {
         loading={true}
         isFile={false}
         view="treemap"
+        totalLoadedComponents={20}
+        paging={{ total: 120 }}
+      />
+    )
+  ).toMatchSnapshot();
+  expect(
+    shallow(
+      <PageActions
+        current={12}
+        loading={false}
+        isFile={true}
+        view="list"
+        totalLoadedComponents={20}
         paging={{ total: 120 }}
       />
     )

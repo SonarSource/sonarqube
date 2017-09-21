@@ -1,32 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`shohuld display correctly for open file 1`] = `
+exports[`should display correctly for open file 1`] = `
 <div
   className="measure-details-primary-actions"
 >
-  <div
-    className="display-inline-block"
-  >
-    <span
-      className="note spacer-right"
-    >
-      component_measures.x_of_y.2.3
-    </span>
-    <div
-      className="button-group"
-    >
-      <button
-        onClick={[Function]}
-      >
-        &lt;
-      </button>
-      <button
-        onClick={[Function]}
-      >
-        &gt;
-      </button>
-    </div>
-  </div>
   <LeakPeriodLegend
     className="spacer-left"
     component={
@@ -47,28 +24,10 @@ exports[`shohuld display correctly for open file 1`] = `
 </div>
 `;
 
-exports[`shohuld display correctly for open file 2`] = `
+exports[`should display correctly for open file 2`] = `
 <div
   className="measure-details-primary-actions"
 >
-  <div
-    className="display-inline-block"
-  >
-    <span
-      className="note spacer-right"
-    >
-      component_measures.x_of_y.2.2
-    </span>
-    <div
-      className="button-group"
-    >
-      <button
-        onClick={[Function]}
-      >
-        &lt;
-      </button>
-    </div>
-  </div>
   <LeakPeriodLegend
     className="spacer-left"
     component={

@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
+import CodeView from '../drilldown/CodeView';
 import Breadcrumbs from './Breadcrumbs';
 import FilesView from '../drilldown/FilesView';
 import MeasureFavoriteContainer from './MeasureFavoriteContainer';
@@ -27,14 +28,12 @@ import MeasureHeader from './MeasureHeader';
 import MeasureViewSelect from './MeasureViewSelect';
 import MetricNotFound from './MetricNotFound';
 import PageActions from './PageActions';
-import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import TreeMapView from '../drilldown/TreeMapView';
 import { getComponentTree } from '../../../api/components';
 import { complementary } from '../config/complementary';
 import { enhanceComponent, isFileType, isViewType } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
-import { parseDate } from '../../../helpers/dates';
 /*:: import type { Component, ComponentEnhanced, Paging, Period } from '../types'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
@@ -223,24 +222,17 @@ export default class MeasureContent extends React.PureComponent {
   onSelectComponent = (componentKey /*: string */) => this.setState({ selected: componentKey });
 
   renderCode() {
-    const { branch, component, leakPeriod } = this.props;
-    const leakPeriodDate =
-      isDiffMetric(this.props.metric.key) && leakPeriod != null ? parseDate(leakPeriod.date) : null;
-
-    let filterLine;
-    if (leakPeriodDate != null) {
-      filterLine = line => {
-        if (line.scmDate) {
-          const scmDate = parseDate(line.scmDate);
-          return scmDate >= leakPeriodDate;
-        } else {
-          return false;
-        }
-      };
-    }
     return (
       <div className="measure-details-viewer">
-        <SourceViewer branch={branch} component={component.key} filterLine={filterLine} />
+        <CodeView
+          branch={this.props.branch}
+          component={this.props.component}
+          components={this.state.components}
+          leakPeriod={this.props.leakPeriod}
+          metric={this.props.metric}
+          selectedIdx={this.getSelectedIndex()}
+          updateSelected={this.props.updateSelected}
+        />
       </div>
     );
   }
@@ -322,6 +314,7 @@ export default class MeasureContent extends React.PureComponent {
                 loading={this.props.loading}
                 isFile={isFile}
                 paging={this.state.paging}
+                totalLoadedComponents={this.state.components.length}
                 view={view}
               />
             </div>
@@ -337,11 +330,9 @@ export default class MeasureContent extends React.PureComponent {
               branch={branch}
               component={component}
               components={this.state.components}
-              handleSelect={this.props.updateSelected}
               leakPeriod={this.props.leakPeriod}
               measure={measure}
               secondaryMeasure={this.props.secondaryMeasure}
-              selectedIdx={selectedIdx}
             />
             {isFileType(component) ? this.renderCode() : this.renderMeasure()}
           </div>
