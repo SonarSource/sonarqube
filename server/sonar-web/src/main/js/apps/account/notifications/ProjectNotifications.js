@@ -99,6 +99,7 @@ class ProjectNotifications extends React.PureComponent {
           checkboxId={(d, c) => `project-notification-${project.key}-${d}-${c}`}
           onAdd={n => this.handleAddNotification(n)}
           onRemove={n => this.handleRemoveNotification(n)}
+          project={true}
         />
       </table>
     );

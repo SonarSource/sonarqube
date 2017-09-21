@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
-import { translate } from '../../../helpers/l10n';
+import { translate, hasMessage } from '../../../helpers/l10n';
 /*:: import type {
   Notification,
   NotificationsState,
@@ -33,6 +33,7 @@ export default class NotificationsList extends React.PureComponent {
     onRemove: (n: Notification) => void,
     channels: ChannelsState,
     checkboxId: (string, string) => string,
+    project?: boolean,
     types: TypesState,
     notifications: NotificationsState
   };
@@ -52,6 +53,15 @@ export default class NotificationsList extends React.PureComponent {
     }
   }
 
+  getDispatcherLabel(dispatcher /*: string */) {
+    const globalMessageKey = ['notification.dispatcher', dispatcher];
+    const projectMessageKey = [...globalMessageKey, 'project'];
+    const shouldUseProjectMessage = this.props.project && hasMessage(...projectMessageKey);
+    return shouldUseProjectMessage
+      ? translate(...projectMessageKey)
+      : translate(...globalMessageKey);
+  }
+
   render() {
     const { channels, checkboxId, types } = this.props;
 
@@ -59,7 +69,7 @@ export default class NotificationsList extends React.PureComponent {
       <tbody>
         {types.map(type => (
           <tr key={type}>
-            <td>{translate('notification.dispatcher', type)}</td>
+            <td>{this.getDispatcherLabel(type)}</td>
             {channels.map(channel => (
               <td key={channel} className="text-center">
                 <Checkbox
