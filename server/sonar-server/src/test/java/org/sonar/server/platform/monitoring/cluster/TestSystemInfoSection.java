@@ -19,9 +19,18 @@
  */
 package org.sonar.server.platform.monitoring.cluster;
 
-import java.util.Collection;
+import org.sonar.process.systeminfo.SystemInfoSection;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-public interface AppNodesInfoLoader {
+class TestSystemInfoSection implements SystemInfoSection {
+  private final String name;
 
-  Collection<NodeInfo> load() throws InterruptedException;
+  TestSystemInfoSection(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public ProtobufSystemInfo.Section toProtobuf() {
+    return ProtobufSystemInfo.Section.newBuilder().setName(name).build();
+  }
 }

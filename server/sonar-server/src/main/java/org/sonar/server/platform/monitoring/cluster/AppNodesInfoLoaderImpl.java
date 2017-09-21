@@ -29,13 +29,18 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.DistributedAnswer;
 import org.sonar.process.cluster.hz.HazelcastMember;
+import org.sonar.process.cluster.hz.HazelcastMemberSelectors;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.NODE_NAME;
-import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.PROCESS_KEY;
 
 @ServerSide
 public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
+
+  /**
+   * Timeout to get information from all nodes
+   */
+  private static final long DISTRIBUTED_TIMEOUT_MS = 15_000L;
 
   private final HazelcastMember hzMember;
 
@@ -43,25 +48,16 @@ public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
     this.hzMember = hzMember;
   }
 
-  public Collection<NodeInfo> load() {
-    try {
-      Map<String, NodeInfo> nodesByName = new HashMap<>();
-      DistributedAnswer<ProtobufSystemInfo.SystemInfo> distributedAnswer = hzMember.call(ProcessInfoProvider::provide, new CeWebMemberSelector(), 15_000L);
-      for (Member member : distributedAnswer.getMembers()) {
-        String nodeName = member.getStringAttribute(NODE_NAME.getKey());
-        NodeInfo nodeInfo = nodesByName.get(nodeName);
-        if (nodeInfo == null) {
-          nodeInfo = new NodeInfo(nodeName);
-          nodesByName.put(nodeName, nodeInfo);
-        }
-        completeNodeInfo(distributedAnswer, member, nodeInfo);
-      }
-      return nodesByName.values();
-
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new IllegalStateException(e);
+  public Collection<NodeInfo> load() throws InterruptedException {
+    Map<String, NodeInfo> nodesByName = new HashMap<>();
+    MemberSelector memberSelector = HazelcastMemberSelectors.selectorForProcessIds(ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);
+    DistributedAnswer<ProtobufSystemInfo.SystemInfo> distributedAnswer = hzMember.call(ProcessInfoProvider::provide, memberSelector, DISTRIBUTED_TIMEOUT_MS);
+    for (Member member : distributedAnswer.getMembers()) {
+      String nodeName = member.getStringAttribute(NODE_NAME.getKey());
+      NodeInfo nodeInfo = nodesByName.computeIfAbsent(nodeName, NodeInfo::new);
+      completeNodeInfo(distributedAnswer, member, nodeInfo);
     }
+    return nodesByName.values();
   }
 
   private static void completeNodeInfo(DistributedAnswer<ProtobufSystemInfo.SystemInfo> distributedAnswer, Member member, NodeInfo nodeInfo) {
@@ -73,14 +69,6 @@ public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
       nodeInfo.setErrorMessage("Failed to retrieve information: " + failure.get().getMessage());
     } else if (nodeAnswer.isPresent()) {
       nodeAnswer.get().getSectionsList().forEach(nodeInfo::addSection);
-    }
-  }
-
-  private static class CeWebMemberSelector implements MemberSelector {
-    @Override
-    public boolean select(Member member) {
-      String processKey = member.getStringAttribute(PROCESS_KEY.getKey());
-      return processKey.equals(ProcessId.WEB_SERVER.getKey()) || processKey.equals(ProcessId.COMPUTE_ENGINE.getKey());
     }
   }
 }
