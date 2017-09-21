@@ -48,6 +48,11 @@ public class SettingsSectionTest {
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeIs(protobuf, "bar", "bar value");
     assertThatAttributeIs(protobuf, "foo", "foo value");
+
+    // keys are ordered alphabetically
+    assertThat(protobuf.getAttributesList())
+      .extracting(ProtobufSystemInfo.Attribute::getKey)
+      .containsExactly("bar", "foo");
   }
 
   @Test
