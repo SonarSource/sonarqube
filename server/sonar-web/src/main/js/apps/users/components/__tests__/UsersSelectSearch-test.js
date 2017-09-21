@@ -48,7 +48,7 @@ it('should render correctly', () => {
     />
   );
   expect(wrapper).toMatchSnapshot();
-  const searchResult = wrapper.instance().filterSearchResult({ users });
+  const searchResult = wrapper.instance().filterSearchResult(users);
   expect(searchResult).toMatchSnapshot();
   expect(wrapper.setState({ searchResult })).toMatchSnapshot();
 });

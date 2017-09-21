@@ -71,7 +71,7 @@ const apiResponseActive = {
 // Mock api some api functions
 (apiRules as any).searchRules = (data: any) =>
   Promise.resolve(data.activation === 'true' ? apiResponseActive : apiResponseAll);
-(apiQP as any).getQualityProfiles = () =>
+(apiQP as any).getQualityProfile = () =>
   Promise.resolve({
     compareToSonarWay: {
       profile: 'sonarway',
@@ -123,7 +123,7 @@ it('should not show a button to activate more rules on built in profiles', () =>
 });
 
 it('should not show sonarway comparison for built in profiles', () => {
-  (apiQP as any).getQualityProfiles = jest.fn(() => Promise.resolve());
+  (apiQP as any).getQualityProfile = jest.fn(() => Promise.resolve());
   const wrapper = shallow(
     <ProfileRules canAdmin={true} organization={null} profile={{ ...PROFILE, isBuiltIn: true }} />
   );
@@ -132,13 +132,13 @@ it('should not show sonarway comparison for built in profiles', () => {
   instance.loadRules();
   return doAsync(() => {
     wrapper.update();
-    expect(apiQP.getQualityProfiles).toHaveBeenCalledTimes(0);
+    expect(apiQP.getQualityProfile).toHaveBeenCalledTimes(0);
     expect(wrapper.find('ProfileRulesSonarWayComparison')).toHaveLength(0);
   });
 });
 
 it('should not show sonarway comparison if there is no missing rules', () => {
-  (apiQP as any).getQualityProfiles = jest.fn(() =>
+  (apiQP as any).getQualityProfile = jest.fn(() =>
     Promise.resolve({
       compareToSonarWay: {
         profile: 'sonarway',
@@ -153,7 +153,7 @@ it('should not show sonarway comparison if there is no missing rules', () => {
   instance.loadRules();
   return doAsync(() => {
     wrapper.update();
-    expect(apiQP.getQualityProfiles).toHaveBeenCalledTimes(1);
+    expect(apiQP.getQualityProfile).toHaveBeenCalledTimes(1);
     expect(wrapper.find('ProfileRulesSonarWayComparison')).toHaveLength(0);
   });
 });

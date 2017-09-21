@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="clearfix big-spacer-bottom"
+>
+  <a
+    className="pull-right spacer-top spacer-left spacer-right button-icon"
+    href="#"
+    onClick={[Function]}
+  >
+    <DeleteIcon />
+  </a>
+  <Connect(Avatar)
+    className="pull-left spacer-right"
+    name="Luke Skywalker"
+    size={36}
+  />
+  <div
+    className="overflow-hidden"
+  >
+    <strong>
+      Luke Skywalker
+    </strong>
+    <div
+      className="note little-spacer-top"
+    >
+      luke
+    </div>
+  </div>
+</div>
+`;

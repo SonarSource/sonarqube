@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="boxed-group"
+>
+  <h2>
+    permissions.page
+  </h2>
+  <div
+    className="boxed-group-inner"
+  >
+    <p
+      className="note"
+    >
+      quality_profiles.default_permissions
+    </p>
+    <div
+      className="big-spacer-top"
+    >
+      <i
+        className="spinner"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`renders 2`] = `
+<div
+  className="boxed-group"
+>
+  <h2>
+    permissions.page
+  </h2>
+  <div
+    className="boxed-group-inner"
+  >
+    <p
+      className="note"
+    >
+      quality_profiles.default_permissions
+    </p>
+    <div
+      className="big-spacer-top"
+    >
+      <ProfilePermissionsUser
+        onDelete={[Function]}
+        profile={
+          Object {
+            "language": "js",
+            "name": "Sonar way",
+          }
+        }
+        user={
+          Object {
+            "login": "luke",
+            "name": "Luke Skywalker",
+          }
+        }
+      />
+      <div
+        className="text-right"
+      >
+        <button
+          onClick={[Function]}
+        >
+          quality_profiles.grant_permissions_to_more_users
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;

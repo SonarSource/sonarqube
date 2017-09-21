@@ -61,7 +61,7 @@ export default class AddMemberForm extends React.PureComponent {
     if (!query) {
       return searchMembers(data);
     }
-    return searchMembers({ ...data, q: query });
+    return searchMembers({ ...data, q: query }).then(r => r.users);
   };
 
   handleSubmit = (e /*: Object */) => {

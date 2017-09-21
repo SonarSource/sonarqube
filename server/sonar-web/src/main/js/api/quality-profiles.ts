@@ -53,7 +53,7 @@ export function searchQualityProfiles(data: {
   return getJSON('/api/qualityprofiles/search', data).then(r => r.profiles);
 }
 
-export function getQualityProfiles(data: {
+export function getQualityProfile(data: {
   compareToSonarWay?: boolean;
   profile: string;
 }): Promise<any> {
@@ -128,4 +128,44 @@ export function associateProject(profileKey: string, projectKey: string): Promis
 
 export function dissociateProject(profileKey: string, projectKey: string): Promise<void> {
   return post('/api/qualityprofiles/remove_project', { profileKey, projectKey });
+}
+
+export interface SearchUsersParameters {
+  language: string;
+  organization?: string;
+  profile: string;
+  q?: string;
+  selected: boolean;
+}
+
+export type SearchUsersResponse = Array<{
+  avatar?: string;
+  login: string;
+  name: string;
+}>;
+
+export function searchUsers(_parameters: SearchUsersParameters): Promise<SearchUsersResponse> {
+  // return getJSON('/api/qualityprofiles/search_users', parameters);
+  const response: SearchUsersResponse = [
+    { login: 'john', name: 'John' },
+    { login: 'bob', name: 'Bob' }
+  ];
+  return new Promise(resolve => setTimeout(() => resolve(response), 500));
+}
+
+export interface AddRemoveUserParameters {
+  language: string;
+  organization?: string;
+  profile: string;
+  user: string;
+}
+
+export function addUser(_parameters: AddRemoveUserParameters): Promise<void> {
+  // return post('/api/qualityprofiles/add_user', parameters);
+  return new Promise(resolve => setTimeout(resolve, 1000));
+}
+
+export function removeUser(_parameters: AddRemoveUserParameters): Promise<void> {
+  // return post('/api/qualityprofiles/remove_user', parameters);
+  return new Promise(resolve => setTimeout(resolve, 1000));
 }

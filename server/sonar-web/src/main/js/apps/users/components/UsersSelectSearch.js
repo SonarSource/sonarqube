@@ -38,7 +38,7 @@ export type Option = {
 /*::
 type Props = {
   autoFocus?: boolean,
-  excludedUsers: Array<string>,
+  excludedUsers?: Array<string>,
   handleValueChange: Option => void,
   searchUsers: (string, number) => Promise<*>,
   selectedUser?: Option
@@ -65,6 +65,7 @@ export default class UsersSelectSearch extends React.PureComponent {
     this.handleSearch = debounce(this.handleSearch, 250);
     this.state = { searchResult: [], isLoading: false, search: '' };
   }
+
   componentDidMount() {
     this.mounted = true;
     this.handleSearch(this.state.search);
@@ -80,12 +81,15 @@ export default class UsersSelectSearch extends React.PureComponent {
     this.mounted = false;
   }
 
-  filterSearchResult = ({ users } /*: { users: Array<Option> } */) =>
-    users.filter(user => !this.props.excludedUsers.includes(user.login)).slice(0, LIST_SIZE);
+  filterSearchResult = (users /*: Array<Option> */) => {
+    const { excludedUsers = [] } = this.props;
+    return users.filter(user => !excludedUsers.includes(user.login)).slice(0, LIST_SIZE);
+  };
 
   handleSearch = (search /*: string */) => {
+    const { excludedUsers = [] } = this.props;
     this.props
-      .searchUsers(search, Math.min(this.props.excludedUsers.length + LIST_SIZE, 500))
+      .searchUsers(search, Math.min(excludedUsers.length + LIST_SIZE, 500))
       .then(this.filterSearchResult)
       .then(searchResult => {
         if (this.mounted) {
