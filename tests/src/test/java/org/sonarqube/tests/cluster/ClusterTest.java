@@ -39,6 +39,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.pageobjects.SystemInfoPage;
 import org.sonarqube.ws.WsSystem;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
@@ -110,6 +112,9 @@ public class ClusterTest {
         app.waitForCeLogsContain("Compute Engine is operational");
         assertThat(app.anyLogsContain("Process[ce] is up")).isTrue();
       });
+
+      testSystemInfoPage(cluster, cluster.getAppNode(0));
+      testSystemInfoPage(cluster, cluster.getAppNode(1));
     }
   }
 
@@ -126,6 +131,50 @@ public class ClusterTest {
       assertThat(healthNode.getCausesCount()).isEqualTo(0);
       assertThat(healthNode.getHealth()).isEqualTo(WsSystem.Health.GREEN);
     });
+  }
+
+  private void testSystemInfoPage(Cluster cluster, Node node) {
+    Navigation nav = node.openBrowser().logIn().submitCredentials("admin");
+    node.wsClient().users().skipOnboardingTutorial();
+    SystemInfoPage page = nav.openSystemInfo();
+
+    page.getCardItem("System")
+      .shouldHaveHealth()
+      .shouldHaveMainSection()
+      .shouldNotHaveSection("Database")
+      .shouldNotHaveSection("Settings")
+      .shouldNotHaveSection("Plugins")
+      .shouldHaveField("High Availability")
+      .shouldNotHaveField("Official Distribution")
+      .shouldNotHaveField("Version")
+      .shouldNotHaveField("Logs Level")
+      .shouldNotHaveField("Health")
+      .shouldNotHaveField("Health Causes");
+
+    cluster.getNodes().forEach(clusterNodes -> {
+      page.shouldHaveCard(clusterNodes.getConfig().getName().get());
+    });
+
+    page.getCardItem(String.valueOf(node.getConfig().getName().get()))
+      .shouldHaveHealth()
+      .shouldHaveSection("System")
+      .shouldHaveSection("Database")
+      .shouldHaveSection("Web Logging")
+      .shouldHaveSection("Compute Engine Logging")
+      .shouldNotHaveSection("Settings")
+      .shouldHaveField("Version")
+      .shouldHaveField("Official Distribution")
+      .shouldHaveField("Processors")
+      .shouldNotHaveField("Health")
+      .shouldNotHaveField("Health Causes");
+
+    page.getCardItem(cluster.getSearchNode(0).getConfig().getName().get())
+      .shouldHaveHealth()
+      .shouldHaveSection("Search State")
+      .shouldHaveField("Disk Available")
+      .shouldHaveField("Max File Descriptors")
+      .shouldNotHaveField("Health")
+      .shouldNotHaveField("Health Causes");
   }
 
   @Test
@@ -156,9 +205,9 @@ public class ClusterTest {
   @Test
   public void configuration_of_connection_to_other_nodes_can_be_non_exhaustive() throws Exception {
     try (Cluster cluster = new Cluster(null)) {
-      NodeConfig searchConfig1 = newSearchConfig();
-      NodeConfig searchConfig2 = newSearchConfig();
-      NodeConfig appConfig = newApplicationConfig();
+      NodeConfig searchConfig1 = newSearchConfig("Search 1");
+      NodeConfig searchConfig2 = newSearchConfig("Search 2");
+      NodeConfig appConfig = newApplicationConfig("App 1");
 
       // HZ bus : app -> search 2 -> search1, which is not recommended at all !!!
       searchConfig2.addConnectionToBus(searchConfig1);
@@ -186,14 +235,14 @@ public class ClusterTest {
   @Test
   public void node_fails_to_join_cluster_if_different_cluster_name() throws Exception {
     try (Cluster cluster = new Cluster("foo")) {
-      NodeConfig searchConfig1 = newSearchConfig();
-      NodeConfig searchConfig2 = newSearchConfig();
+      NodeConfig searchConfig1 = newSearchConfig("Search 1");
+      NodeConfig searchConfig2 = newSearchConfig("Search 2");
       NodeConfig.interconnectBus(searchConfig1, searchConfig2);
       NodeConfig.interconnectSearch(searchConfig1, searchConfig2);
       cluster.startNode(searchConfig1, nothing());
       cluster.startNode(searchConfig2, nothing());
 
-      NodeConfig searchConfig3 = newSearchConfig()
+      NodeConfig searchConfig3 = newSearchConfig("Search 3")
         .addConnectionToSearch(searchConfig1)
         .addConnectionToBus(searchConfig1, searchConfig2);
       Node search3 = cluster.addNode(searchConfig3, b -> b
@@ -322,7 +371,7 @@ public class ClusterTest {
 
     try (Cluster cluster = newCluster(2, 0)) {
       // add an application node that pauses during startup
-      NodeConfig appConfig = NodeConfig.newApplicationConfig()
+      NodeConfig appConfig = NodeConfig.newApplicationConfig("App 1")
         .addConnectionToBus(cluster.getSearchNode(0).getConfig())
         .addConnectionToSearch(cluster.getSearchNode(0).getConfig());
       Node appNode = cluster.addNode(appConfig, b -> b.setServerProperty("sonar.web.startupLock.path", startupLock.getAbsolutePath()));
@@ -358,8 +407,8 @@ public class ClusterTest {
     Cluster cluster = new Cluster(null);
 
     List<NodeConfig> configs = new ArrayList<>();
-    IntStream.range(0, nbOfSearchNodes).forEach(i -> configs.add(newSearchConfig()));
-    IntStream.range(0, nbOfAppNodes).forEach(i -> configs.add(newApplicationConfig()));
+    IntStream.range(0, nbOfSearchNodes).forEach(i -> configs.add(newSearchConfig("Search " + i)));
+    IntStream.range(0, nbOfAppNodes).forEach(i -> configs.add(newApplicationConfig("App " + i)));
     NodeConfig[] configsArray = configs.toArray(new NodeConfig[configs.size()]);
 
     // a node is connected to all nodes, including itself (see sonar.cluster.hosts)
