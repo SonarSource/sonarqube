@@ -136,12 +136,12 @@ class NodeConfig {
     return searchNodes;
   }
 
-  static NodeConfig newApplicationConfig() {
-    return new NodeConfig(NodeType.APPLICATION, null);
+  static NodeConfig newApplicationConfig(String name) {
+    return new NodeConfig(NodeType.APPLICATION, name);
   }
 
-  static NodeConfig newSearchConfig() {
-    return new NodeConfig(NodeType.SEARCH, null);
+  static NodeConfig newSearchConfig(String name) {
+    return new NodeConfig(NodeType.SEARCH, name);
   }
 
   /**
