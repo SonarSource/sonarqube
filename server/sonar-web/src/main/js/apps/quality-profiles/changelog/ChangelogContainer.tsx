@@ -169,7 +169,7 @@ export default class ChangelogContainer extends React.PureComponent<Props, State
       this.state.events.length < this.state.total;
 
     return (
-      <div className="quality-profile-box js-profile-changelog">
+      <div className="boxed-group boxed-group-inner js-profile-changelog">
         <header className="spacer-bottom">
           <ChangelogSearch
             fromDate={query.since}

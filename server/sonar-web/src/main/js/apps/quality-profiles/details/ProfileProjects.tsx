@@ -127,21 +127,29 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <div className="quality-profile-projects">
-        <header className="page-header">
-          <h2 className="page-title">{translate('projects')}</h2>
+      <div className="boxed-group">
+        {this.props.canAdmin &&
+        !this.props.profile.isDefault && (
+          <div className="boxed-group-actions">
+            <button className="js-change-projects" onClick={this.handleChangeClick}>
+              {translate('quality_profiles.change_projects')}
+            </button>
+          </div>
+        )}
 
-          {this.props.canAdmin &&
-          !this.props.profile.isDefault && (
-            <div className="pull-right">
-              <button className="js-change-projects" onClick={this.handleChangeClick}>
-                {translate('quality_profiles.change_projects')}
-              </button>
-            </div>
-          )}
+        <header className="boxed-group-header">
+          <h2>{translate('projects')}</h2>
         </header>
 
-        {this.props.profile.isDefault ? this.renderDefault() : this.renderProjects()}
+        <div className="boxed-group-inner">
+          {this.state.loading ? (
+            <i className="spinner" />
+          ) : this.props.profile.isDefault ? (
+            this.renderDefault()
+          ) : (
+            this.renderProjects()
+          )}
+        </div>
 
         {this.state.formOpen && (
           <ChangeProjectsForm
