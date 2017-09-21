@@ -19,9 +19,26 @@
  */
 package org.sonar.server.platform.monitoring.cluster;
 
-import java.util.Collection;
+import java.util.List;
+import org.junit.Test;
+import org.sonar.process.systeminfo.SystemInfoSection;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-public interface AppNodesInfoLoader {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  Collection<NodeInfo> load() throws InterruptedException;
+public class GlobalInfoLoaderTest {
+
+  @Test
+  public void call_only_SystemInfoSection_that_inherit_Global() {
+    // two globals and one standard
+    SystemInfoSection[] sections = new SystemInfoSection[] {
+      new TestGlobalSystemInfoSection("foo"), new TestSystemInfoSection("bar"), new TestGlobalSystemInfoSection("baz")};
+
+    GlobalInfoLoader underTest = new GlobalInfoLoader(sections);
+    List<ProtobufSystemInfo.Section> loadedInfo = underTest.load();
+
+    assertThat(loadedInfo).extracting(ProtobufSystemInfo.Section::getName)
+      .containsExactlyInAnyOrder("foo", "baz");
+  }
+
 }

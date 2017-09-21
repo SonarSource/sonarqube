@@ -61,12 +61,12 @@ public abstract class BaseInfoWsAction implements SystemWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) {
+  public void handle(Request request, Response response) throws InterruptedException {
     userSession.checkIsSystemAdministrator();
     doHandle(request, response);
   }
 
-  protected abstract void doHandle(Request request, Response response);
+  protected abstract void doHandle(Request request, Response response) throws InterruptedException;
 
   protected void writeSections(Collection<ProtobufSystemInfo.Section> sections, JsonWriter json) {
     SystemInfoUtils
