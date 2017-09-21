@@ -29,7 +29,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.cluster.NodeType;
@@ -130,11 +130,11 @@ public class HazelcastMemberBuilder {
       .setProperty("hazelcast.logging.type", "slf4j");
 
     MemberAttributeConfig attributes = config.getMemberAttributeConfig();
-    attributes.setStringAttribute(Attribute.HOSTNAME, NetworkUtils.INSTANCE.getHostname());
-    attributes.setStringAttribute(Attribute.IP_ADDRESSES, NetworkUtils.INSTANCE.getIPAddresses());
-    attributes.setStringAttribute(Attribute.NODE_NAME, requireNonNull(nodeName, "Node name is missing"));
-    attributes.setStringAttribute(Attribute.NODE_TYPE, requireNonNull(nodeType, "Node type is missing").getValue());
-    attributes.setStringAttribute(Attribute.PROCESS_KEY, requireNonNull(processId, "Process key is missing").getKey());
+    attributes.setStringAttribute(Attribute.HOSTNAME.getKey(), NetworkUtilsImpl.INSTANCE.getHostname());
+    attributes.setStringAttribute(Attribute.IP_ADDRESSES.getKey(), NetworkUtilsImpl.INSTANCE.getIPAddresses());
+    attributes.setStringAttribute(Attribute.NODE_NAME.getKey(), requireNonNull(nodeName, "Node name is missing"));
+    attributes.setStringAttribute(Attribute.NODE_TYPE.getKey(), requireNonNull(nodeType, "Node type is missing").getValue());
+    attributes.setStringAttribute(Attribute.PROCESS_KEY.getKey(), requireNonNull(processId, "Process key is missing").getKey());
 
     return new HazelcastMemberImpl(Hazelcast.newHazelcastInstance(config));
   }

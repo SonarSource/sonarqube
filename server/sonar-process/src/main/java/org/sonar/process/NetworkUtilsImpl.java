@@ -40,6 +40,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class NetworkUtilsImpl implements NetworkUtils {
 
+  public static final NetworkUtils INSTANCE = new NetworkUtilsImpl();
   private static final Set<Integer> PORTS_ALREADY_ALLOCATED = new HashSet<>();
   private static final int PORT_MAX_TRIES = 50;
 

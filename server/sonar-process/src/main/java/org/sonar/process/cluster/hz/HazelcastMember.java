@@ -31,28 +31,38 @@ import org.sonar.process.cluster.NodeType;
 
 public interface HazelcastMember extends AutoCloseable {
 
-  interface Attribute {
+  enum Attribute {
     /**
      * The key of the hostname attribute of a member
      */
-    String HOSTNAME = "HOSTNAME";
+    HOSTNAME("HOSTNAME"),
     /**
      * The key of the ips list attribute of a member
      */
-    String IP_ADDRESSES = "IP_ADDRESSES";
+    IP_ADDRESSES("IP_ADDRESSES"),
     /**
      * The key of the node name attribute of a member
      */
-    String NODE_NAME = "NODE_NAME";
+    NODE_NAME("NODE_NAME"),
     /**
      * The role of the sonar-application inside the SonarQube cluster
      * {@link NodeType}
      */
-    String NODE_TYPE = "NODE_TYPE";
+    NODE_TYPE("NODE_TYPE"),
     /**
      * Key of process as defined by {@link ProcessId#getKey()}
      */
-    String PROCESS_KEY = "PROCESS_KEY";
+    PROCESS_KEY("PROCESS_KEY");
+
+    private final String key;
+
+    Attribute(String key) {
+      this.key = key;
+    }
+
+    public String getKey() {
+      return key;
+    }
   }
 
   <E> IAtomicReference<E> getAtomicReference(String name);

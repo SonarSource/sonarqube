@@ -22,7 +22,6 @@ package org.sonar.server.platform.platformlevel;
 import java.time.Clock;
 import java.util.Properties;
 import javax.annotation.Nullable;
-import org.sonar.process.NetworkUtils;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.internal.ApiVersion;
@@ -40,6 +39,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.semaphore.SemaphoresImpl;
+import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.app.ProcessCommandWrapperImpl;
 import org.sonar.server.app.RestartFlagHolderImpl;
@@ -86,7 +86,7 @@ public class PlatformLevel1 extends PlatformLevel {
       ProcessCommandWrapperImpl.class,
       RestartFlagHolderImpl.class,
       UuidFactoryImpl.INSTANCE,
-      NetworkUtils.INSTANCE,
+      NetworkUtilsImpl.INSTANCE,
       UrlSettings.class,
       EmbeddedDatabaseFactory.class,
       LogbackHelper.class,

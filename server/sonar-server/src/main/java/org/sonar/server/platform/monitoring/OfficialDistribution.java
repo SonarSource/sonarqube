@@ -20,23 +20,23 @@
 package org.sonar.server.platform.monitoring;
 
 import java.io.File;
-import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
+import org.sonar.server.platform.ServerFileSystem;
 
 @ServerSide
 public class OfficialDistribution {
   static final String BRANDING_FILE_PATH = "web/WEB-INF/classes/com/sonarsource/branding";
 
-  private final Server server;
+  private final ServerFileSystem serverFileSystem;
 
-  public OfficialDistribution(Server server) {
-    this.server = server;
+  public OfficialDistribution(ServerFileSystem serverFileSystem) {
+    this.serverFileSystem = serverFileSystem;
   }
 
   public boolean check() {
     // the dependency com.sonarsource:sonarsource-branding is shaded to webapp
     // during release (see sonar-web pom)
-    File brandingFile = new File(server.getRootDir(), BRANDING_FILE_PATH);
+    File brandingFile = new File(serverFileSystem.getHomeDir(), BRANDING_FILE_PATH);
     // no need to check that the file exists. java.io.File#length() returns zero in this case.
     return brandingFile.length() > 0L;
   }

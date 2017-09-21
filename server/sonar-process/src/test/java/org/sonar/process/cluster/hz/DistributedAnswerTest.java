@@ -28,6 +28,7 @@ import org.junit.rules.ExpectedException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.NODE_NAME;
 
 
 public class DistributedAnswerTest {
@@ -133,7 +134,7 @@ public class DistributedAnswerTest {
   private static Member newMember(String uuid) {
     Member member = mock(Member.class);
     when(member.getUuid()).thenReturn(uuid);
-    when(member.getStringAttribute(HazelcastMember.Attribute.NODE_NAME)).thenReturn(uuid);
+    when(member.getStringAttribute(NODE_NAME.getKey())).thenReturn(uuid);
     return member;
   }
 }

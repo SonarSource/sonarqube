@@ -42,7 +42,7 @@ import static org.sonar.api.utils.log.LoggerLevel.TRACE;
 public class ServerLogging implements Startable {
 
   /** Used for Hazelcast's distributed queries in cluster mode */
-  private static ServerLogging INSTANCE;
+  private static ServerLogging instance;
   private final LogbackHelper helper;
   private final Configuration config;
   private final ServerProcessLogging serverProcessLogging;
@@ -62,16 +62,16 @@ public class ServerLogging implements Startable {
 
   @Override
   public void start() {
-    INSTANCE = this;
+    instance = this;
   }
 
   @Override
   public void stop() {
-    INSTANCE = null;
+    instance = null;
   }
 
   public static void changeLevelFromHazelcastDistributedQuery(LoggerLevel level) {
-    INSTANCE.changeLevel(level);
+    instance.changeLevel(level);
   }
 
   public void changeLevel(LoggerLevel level) {

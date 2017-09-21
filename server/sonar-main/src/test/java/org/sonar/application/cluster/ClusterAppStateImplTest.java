@@ -29,7 +29,7 @@ import org.junit.rules.Timeout;
 import org.sonar.application.AppStateListener;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.MessageException;
-import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.NodeType;
 import org.sonar.process.cluster.hz.HazelcastMember;
@@ -143,7 +143,7 @@ public class ClusterAppStateImplTest {
       .setProcessId(ProcessId.COMPUTE_ENGINE)
       .setClusterName("foo")
       .setNodeName("bar")
-      .setPort(NetworkUtils.INSTANCE.getNextAvailablePort(loopback))
+      .setPort(NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback))
       .setNetworkInterface(loopback.getHostAddress())
       .build();
   }

@@ -35,7 +35,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.NodeType;
 
@@ -56,9 +56,9 @@ public class HazelcastMemberImplTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    int port1 = NetworkUtils.INSTANCE.getNextAvailablePort(loopback);
-    int port2 = NetworkUtils.INSTANCE.getNextAvailablePort(loopback);
-    int port3 = NetworkUtils.INSTANCE.getNextAvailablePort(loopback);
+    int port1 = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback);
+    int port2 = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback);
+    int port3 = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback);
     member1 = newHzMember(port1, port2, port3);
     member2 = newHzMember(port2, port1, port3);
     member3 = newHzMember(port3, port1, port2);

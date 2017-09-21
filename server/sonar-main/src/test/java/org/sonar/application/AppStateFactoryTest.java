@@ -25,7 +25,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.sonar.application.cluster.ClusterAppStateImpl;
 import org.sonar.application.config.TestAppSettings;
-import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeThat;
@@ -42,7 +42,7 @@ public class AppStateFactoryTest {
 
   @Test
   public void create_cluster_implementation_if_cluster_is_enabled() {
-    Optional<InetAddress> ip = NetworkUtils.INSTANCE.getLocalNonLoopbackIpv4Address();
+    Optional<InetAddress> ip = NetworkUtilsImpl.INSTANCE.getLocalNonLoopbackIpv4Address();
     assumeThat(ip.isPresent(), CoreMatchers.is(true));
 
     settings.set(CLUSTER_ENABLED, "true");

@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.process.MessageException;
 import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +50,7 @@ public class ClusterSettingsTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private InetAddress nonLoopbackLocal = InetAddress.getLoopbackAddress();
-  private NetworkUtils network = spy(NetworkUtils.INSTANCE);
+  private NetworkUtils network = spy(NetworkUtilsImpl.INSTANCE);
 
   @Before
   public void setUp() throws Exception {

@@ -28,7 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.process.NetworkUtils;
+import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +55,7 @@ public class EmbeddedTomcatTest {
 
     // start server on a random port
     InetAddress address = InetAddress.getLoopbackAddress();
-    int httpPort = NetworkUtils.INSTANCE.getNextAvailablePort(address);
+    int httpPort = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(address);
     props.set("sonar.web.host", address.getHostAddress());
     props.set("sonar.web.port", String.valueOf(httpPort));
     EmbeddedTomcat tomcat = new EmbeddedTomcat(props);

@@ -38,13 +38,13 @@ public class HazelcastMemberSelectorsTest {
     Member member = mock(Member.class);
     MemberSelector underTest = HazelcastMemberSelectors.selectorForProcessIds(COMPUTE_ENGINE);
 
-    when(member.getStringAttribute(PROCESS_KEY)).thenReturn(COMPUTE_ENGINE.getKey());
+    when(member.getStringAttribute(PROCESS_KEY.getKey())).thenReturn(COMPUTE_ENGINE.getKey());
     assertThat(underTest.select(member)).isTrue();
 
-    when(member.getStringAttribute(PROCESS_KEY)).thenReturn(WEB_SERVER.getKey());
+    when(member.getStringAttribute(PROCESS_KEY.getKey())).thenReturn(WEB_SERVER.getKey());
     assertThat(underTest.select(member)).isFalse();
 
-    when(member.getStringAttribute(PROCESS_KEY)).thenReturn(APP.getKey());
+    when(member.getStringAttribute(PROCESS_KEY.getKey())).thenReturn(APP.getKey());
     assertThat(underTest.select(member)).isFalse();
   }
 
@@ -53,13 +53,13 @@ public class HazelcastMemberSelectorsTest {
     Member member = mock(Member.class);
     MemberSelector underTest = HazelcastMemberSelectors.selectorForProcessIds(WEB_SERVER, APP);
 
-    when(member.getStringAttribute(PROCESS_KEY)).thenReturn(COMPUTE_ENGINE.getKey());
+    when(member.getStringAttribute(PROCESS_KEY.getKey())).thenReturn(COMPUTE_ENGINE.getKey());
     assertThat(underTest.select(member)).isFalse();
 
-    when(member.getStringAttribute(PROCESS_KEY)).thenReturn(WEB_SERVER.getKey());
+    when(member.getStringAttribute(PROCESS_KEY.getKey())).thenReturn(WEB_SERVER.getKey());
     assertThat(underTest.select(member)).isTrue();
 
-    when(member.getStringAttribute(PROCESS_KEY)).thenReturn(APP.getKey());
+    when(member.getStringAttribute(PROCESS_KEY.getKey())).thenReturn(APP.getKey());
     assertThat(underTest.select(member)).isTrue();
   }
 }
