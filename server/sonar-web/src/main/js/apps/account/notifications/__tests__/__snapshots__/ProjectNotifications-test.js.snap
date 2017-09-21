@@ -74,6 +74,7 @@ exports[`should match snapshot 1`] = `
     }
     onAdd={[Function]}
     onRemove={[Function]}
+    project={true}
     types={
       Array [
         "type1",
