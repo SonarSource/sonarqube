@@ -87,8 +87,8 @@ public class QualityGateServiceImplTest {
     when(qualityGateDao.selectById(any(DbSession.class), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
     when(qualityGateConditionDao.selectForQualityGate(any(DbSession.class), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     // metrics are always supposed to be there
-    when(metricRepository.getById(METRIC_ID_1)).thenReturn(METRIC_1);
-    when(metricRepository.getById(METRIC_ID_2)).thenReturn(METRIC_2);
+    when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(java.util.Optional.of(METRIC_1));
+    when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(java.util.Optional.of(METRIC_2));
 
     Optional<QualityGate> res = underTest.findById(SOME_ID);
 
@@ -97,6 +97,23 @@ public class QualityGateServiceImplTest {
     assertThat(res.get().getName()).isEqualTo(SOME_NAME);
     assertThat(res.get().getConditions()).containsOnly(
       new Condition(METRIC_1, CONDITION_1.getOperator(), CONDITION_1.getErrorThreshold(), CONDITION_1.getWarningThreshold(), true),
+      new Condition(METRIC_2, CONDITION_2.getOperator(), CONDITION_2.getErrorThreshold(), CONDITION_2.getWarningThreshold(), false));
+  }
+
+  @Test
+  public void findById_ignores_conditions_on_missing_metrics() {
+    when(qualityGateDao.selectById(any(DbSession.class), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
+    when(qualityGateConditionDao.selectForQualityGate(any(DbSession.class), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
+    // metrics are always supposed to be there
+    when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(java.util.Optional.empty());
+    when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(java.util.Optional.of(METRIC_2));
+
+    Optional<QualityGate> res = underTest.findById(SOME_ID);
+
+    assertThat(res).isPresent();
+    assertThat(res.get().getId()).isEqualTo(SOME_ID);
+    assertThat(res.get().getName()).isEqualTo(SOME_NAME);
+    assertThat(res.get().getConditions()).containsOnly(
       new Condition(METRIC_2, CONDITION_2.getOperator(), CONDITION_2.getErrorThreshold(), CONDITION_2.getWarningThreshold(), false));
   }
 }
