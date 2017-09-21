@@ -58,6 +58,7 @@ import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.DefaultQProfileDao;
 import org.sonar.db.qualityprofile.QProfileChangeDao;
+import org.sonar.db.qualityprofile.QProfileEditUsersDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
@@ -126,6 +127,7 @@ public class DbClient {
   private final EsQueueDao esQueueDao;
   private final PluginDao pluginDao;
   private final BranchDao branchDao;
+  private final QProfileEditUsersDao qProfileEditUsersDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -185,6 +187,7 @@ public class DbClient {
     esQueueDao = getDao(map, EsQueueDao.class);
     pluginDao = getDao(map, PluginDao.class);
     branchDao = getDao(map, BranchDao.class);
+    qProfileEditUsersDao = getDao(map, QProfileEditUsersDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -389,6 +392,10 @@ public class DbClient {
 
   public BranchDao branchDao() {
     return branchDao;
+  }
+
+  public QProfileEditUsersDao qProfileEditUsersDao() {
+    return qProfileEditUsersDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

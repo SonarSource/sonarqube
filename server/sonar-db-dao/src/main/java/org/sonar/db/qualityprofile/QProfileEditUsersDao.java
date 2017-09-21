@@ -17,18 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.qualityprofile;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class QProfileEditUsersDao implements Dao {
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 50);
+  private final System2 system2;
+
+  public QProfileEditUsersDao(System2 system2) {
+    this.system2 = system2;
+  }
+
+  public boolean exists(DbSession dbSession, QProfileDto profile, UserDto user) {
+    return mapper(dbSession).selectByQProfileAndUser(profile.getKee(), user.getId()) != null;
+  }
+
+  public void insert(DbSession dbSession, QProfileEditUsersDto dto) {
+    mapper(dbSession).insert(dto, system2.now());
+  }
+
+  private static QProfileEditUsersMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(QProfileEditUsersMapper.class);
   }
 }
