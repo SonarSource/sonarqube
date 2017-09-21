@@ -29,11 +29,15 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
@@ -94,12 +98,46 @@ public class QProfileWsSupport {
     return profile;
   }
 
-  public void checkPermission(DbSession dbSession, QProfileDto rulesProfile) {
-    OrganizationDto organization = getOrganization(dbSession, rulesProfile);
+  public QProfileDto getProfile(DbSession dbSession, OrganizationDto organization, String name, String language) {
+    QProfileDto profile = dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, name, language);
+    checkFound(profile, "Quality Profile for language '%s' and name '%s' does not exist in organization '%s'", language, name, organization.getKey());
+    return profile;
+  }
+
+  public UserDto getUser(DbSession dbSession, OrganizationDto organization, String login) {
+    UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
+    checkFound(user, "User with login '%s' is not found'", login);
+    checkMembership(dbSession, organization, user);
+    return user;
+  }
+
+  public void checkPermission(DbSession dbSession, QProfileDto profile) {
+    OrganizationDto organization = getOrganization(dbSession, profile);
     userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+  }
+
+  public void checkCanEdit(DbSession dbSession, QProfileDto profile) {
+    checkNotBuiltInt(profile);
+    OrganizationDto organization = getOrganization(dbSession, profile);
+    userSession.checkLoggedIn();
+    if (userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization)) {
+      return;
+    }
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, userSession.getLogin());
+    checkState(user != null, "User from session does not exist");
+    if (dbClient.qProfileEditUsersDao().exists(dbSession, profile, user)) {
+      return;
+    }
+    throw insufficientPrivilegesException();
   }
 
   public void checkNotBuiltInt(QProfileDto profile) {
     checkRequest(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s' with language '%s'", profile.getName(), profile.getLanguage());
   }
+
+  public void checkMembership(DbSession dbSession, OrganizationDto organization, UserDto user) {
+    checkArgument(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId()).isPresent(),
+      "User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey());
+  }
+
 }
