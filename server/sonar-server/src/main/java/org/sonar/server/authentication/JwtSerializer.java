@@ -45,14 +45,13 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.jsonwebtoken.impl.crypto.MacProvider.generateKey;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.process.ProcessProperties.AUTH_JWT_SECRET;
 
 /**
  * This class can be used to encode or decode a JWT token
  */
 @ServerSide
 public class JwtSerializer implements Startable {
-
-  private static final String SECRET_KEY_PROPERTY = "sonar.auth.jwtBase64Hs256Secret";
 
   private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
 
@@ -75,7 +74,7 @@ public class JwtSerializer implements Startable {
 
   @Override
   public void start() {
-    Optional<String> encodedKey = config.get(SECRET_KEY_PROPERTY);
+    Optional<String> encodedKey = config.get(AUTH_JWT_SECRET);
     if (encodedKey.isPresent()) {
       this.secretKey = decodeSecretKeyProperty(encodedKey.get());
     } else {

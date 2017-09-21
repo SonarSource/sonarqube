@@ -30,12 +30,16 @@ import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.apache.commons.lang.StringUtils.abbreviate;
+import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
+import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
+import static org.sonar.process.ProcessProperties.AUTH_JWT_SECRET;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
 public class SettingsSection implements SystemInfoSection, Global {
 
-  static final int MAX_VALUE_LENGTH = 500;
+  private static final int MAX_VALUE_LENGTH = 500;
+  private static final String PASSWORD_VALUE = "xxxxxxxx";
   private final Settings settings;
 
   public SettingsSection(Settings settings) {
@@ -50,11 +54,23 @@ public class SettingsSection implements SystemInfoSection, Global {
     PropertyDefinitions definitions = settings.getDefinitions();
     for (Map.Entry<String, String> prop : settings.getProperties().entrySet()) {
       String key = prop.getKey();
-      PropertyDefinition def = definitions.get(key);
-      if (def == null || def.type() != PropertyType.PASSWORD) {
-        setAttribute(protobuf, key, abbreviate(prop.getValue(), MAX_VALUE_LENGTH));
-      }
+      String value = obfuscateValue(definitions, key, prop.getValue());
+      setAttribute(protobuf, key, value);
     }
     return protobuf.build();
+  }
+
+  private static String obfuscateValue(PropertyDefinitions definitions, String key, String value) {
+    PropertyDefinition def = definitions.get(key);
+    if (def != null && def.type() == PropertyType.PASSWORD) {
+      return PASSWORD_VALUE;
+    }
+    if (endsWithIgnoreCase(key, ".secured") ||
+      containsIgnoreCase(key, "password") ||
+      containsIgnoreCase(key, "passcode") ||
+      AUTH_JWT_SECRET.equals(key)) {
+      return PASSWORD_VALUE;
+    }
+    return abbreviate(value, MAX_VALUE_LENGTH);
   }
 }
