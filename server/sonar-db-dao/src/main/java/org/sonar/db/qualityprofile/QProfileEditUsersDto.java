@@ -17,18 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.qualityprofile;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+public class QProfileEditUsersDto {
 
-import static org.assertj.core.api.Assertions.assertThat;
+  private String uuid;
+  private int userId;
+  private String qProfileUuid;
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 50);
+  public String getUuid() {
+    return uuid;
   }
+
+  public QProfileEditUsersDto setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  public int getUserId() {
+    return userId;
+  }
+
+  public QProfileEditUsersDto setUserId(int userId) {
+    this.userId = userId;
+    return this;
+  }
+
+  public String getQProfileUuid() {
+    return qProfileUuid;
+  }
+
+  public QProfileEditUsersDto setQProfileUuid(String qProfileUuid) {
+    this.qProfileUuid = qProfileUuid;
+    return this;
+  }
+
 }
