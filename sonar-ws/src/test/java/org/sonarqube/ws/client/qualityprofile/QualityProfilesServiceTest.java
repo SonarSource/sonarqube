@@ -36,11 +36,13 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARAMS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO_NAME;
@@ -193,6 +195,25 @@ public class QualityProfilesServiceTest {
       .hasParam(PARAM_ORGANIZATION, "O1")
       .hasParam(PARAM_PARAMS, "PS1")
       .hasParam(PARAM_SEVERITY, Severity.INFO.toString())
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void add_user() {
+    underTest.addUser(AddUserRequest.builder()
+      .setOrganization("O1")
+      .setQualityProfile("P1")
+      .setLanguage("Xoo")
+      .setUserLogin("john")
+      .build());
+    PostRequest request = serviceTester.getPostRequest();
+
+    serviceTester.assertThat(request)
+      .hasPath("add_user")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_QUALITY_PROFILE, "P1")
+      .hasParam(PARAM_LANGUAGE, "Xoo")
+      .hasParam(PARAM_LOGIN, "john")
       .andNoOtherParam();
   }
 }

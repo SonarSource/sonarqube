@@ -25,19 +25,33 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.QProfileEditUsersDto;
+import org.sonar.db.user.UserDto;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_USER;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LOGIN;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class AddUserAction implements QProfileWsAction {
 
+  private final DbClient dbClient;
+  private final UuidFactory uuidFactory;
+  private final QProfileWsSupport wsSupport;
   private final Languages languages;
 
-  public AddUserAction(Languages languages) {
+  public AddUserAction(DbClient dbClient, UuidFactory uuidFactory, QProfileWsSupport wsSupport, Languages languages) {
+    this.dbClient = dbClient;
+    this.uuidFactory = uuidFactory;
+    this.wsSupport = wsSupport;
     this.languages = languages;
   }
 
@@ -73,6 +87,26 @@ public class AddUserAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    // TODO
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
+      QProfileDto profile = wsSupport.getProfile(dbSession, organization, request.mandatoryParam(PARAM_QUALITY_PROFILE), request.mandatoryParam(PARAM_LANGUAGE));
+      wsSupport.checkCanEdit(dbSession, profile);
+      UserDto user = wsSupport.getUser(dbSession, organization, request.mandatoryParam(PARAM_LOGIN));
+      addUser(dbSession, profile, user);
+    }
+    response.noContent();
   }
+
+  private void addUser(DbSession dbSession, QProfileDto profile, UserDto user) {
+    if (dbClient.qProfileEditUsersDao().exists(dbSession, profile, user)) {
+      return;
+    }
+    dbClient.qProfileEditUsersDao().insert(dbSession,
+      new QProfileEditUsersDto()
+        .setUuid(uuidFactory.create())
+        .setUserId(user.getId())
+        .setQProfileUuid(profile.getKee()));
+    dbSession.commit();
+  }
+
 }
