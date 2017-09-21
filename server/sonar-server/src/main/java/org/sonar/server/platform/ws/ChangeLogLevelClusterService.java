@@ -39,13 +39,9 @@ public class ChangeLogLevelClusterService implements ChangeLogLevelService {
     this.member = member;
   }
 
-  public void changeLogLevel(LoggerLevel level) {
-    try {
-      member.call(setLogLevelForNode(level), HazelcastMemberSelectors.selectorForProcessIds(ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE), CLUSTER_TIMEOUT_MILLIS)
-        .propagateExceptions();
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    }
+  public void changeLogLevel(LoggerLevel level) throws InterruptedException {
+    member.call(setLogLevelForNode(level), HazelcastMemberSelectors.selectorForProcessIds(ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE), CLUSTER_TIMEOUT_MILLIS)
+      .propagateExceptions();
   }
 
   private static DistributedCall<Object> setLogLevelForNode(LoggerLevel level) {

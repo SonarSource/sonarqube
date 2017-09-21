@@ -23,6 +23,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 
 public interface ChangeLogLevelService {
 
-  void changeLogLevel(LoggerLevel level);
+  void changeLogLevel(LoggerLevel level) throws InterruptedException;
 
 }
