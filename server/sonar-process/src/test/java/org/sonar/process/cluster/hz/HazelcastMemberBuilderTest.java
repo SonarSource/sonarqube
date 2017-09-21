@@ -47,7 +47,6 @@ public class HazelcastMemberBuilderTest {
     HazelcastMember member = underTest
       .setNodeType(NodeType.APPLICATION)
       .setProcessId(ProcessId.COMPUTE_ENGINE)
-      .setClusterName("foo")
       .setNodeName("bar")
       .setPort(NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback))
       .setNetworkInterface(loopback.getHostAddress())
