@@ -55,19 +55,4 @@ public class ViewIndexTest {
 
     assertThat(result).isEmpty();
   }
-
-  @Test
-  public void delete_views() throws Exception {
-    ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
-    ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2", "P3", "P4"));
-    ViewDoc view3 = new ViewDoc().setUuid("UUID3").setProjects(asList("P2", "P3", "P4"));
-    esTester.putDocuments(INDEX_TYPE_VIEW, view1);
-    esTester.putDocuments(INDEX_TYPE_VIEW, view2);
-    esTester.putDocuments(INDEX_TYPE_VIEW, view3);
-
-    index.delete(asList(view1.uuid(), view2.uuid()));
-
-    assertThat(esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID)).containsOnly(view3.uuid());
-  }
-
 }
