@@ -50,7 +50,7 @@ public class ClusterInfoAction extends BaseInfoWsAction {
   }
 
   @Override
-  protected void doHandle(Request request, Response response) {
+  protected void doHandle(Request request, Response response) throws InterruptedException {
     ClusterHealth clusterHealth = healthChecker.checkCluster();
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
@@ -69,7 +69,8 @@ public class ClusterInfoAction extends BaseInfoWsAction {
     writeSections(globalInfoLoader.load(), json);
   }
 
-  private void writeApplicationNodes(JsonWriter json, ClusterHealth clusterHealth) {
+  private void writeApplicationNodes(JsonWriter json, ClusterHealth clusterHealth)
+    throws InterruptedException {
     json.name("Application Nodes").beginArray();
 
     Collection<NodeInfo> appNodes = appNodesInfoLoader.load();
