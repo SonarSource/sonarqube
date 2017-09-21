@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.qualityprofile.QProfileEditUsersMapper">
+
+  <sql id="sqlColumns">
+    qeu.uuid as "uuid",
+    qeu.user_id as "userId",
+    qeu.qprofile_uuid as "qProfileUuid"
+  </sql>
+
+  <select id="selectByQProfileAndUser" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileEditUsersDto">
+    select
+    <include refid="sqlColumns"/>
+    from qprofile_edit_users qeu
+    where
+    qeu.user_id = #{userId, jdbcType=INTEGER}
+    and qeu.qprofile_uuid = #{qProfileUuid, jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insert" useGeneratedKeys="false" parameterType="map">
+    insert into qprofile_edit_users(
+    uuid,
+    user_id,
+    qprofile_uuid,
+    created_at,
+    ) values (
+    #{dto.uuid, jdbcType=VARCHAR},
+    #{dto.userId, jdbcType=INTEGER},
+    #{dto.qProfileUuid, jdbcType=VARCHAR},
+    #{now, jdbcType=BIGINT}
+    )
+  </insert>
+
+</mapper>
+
