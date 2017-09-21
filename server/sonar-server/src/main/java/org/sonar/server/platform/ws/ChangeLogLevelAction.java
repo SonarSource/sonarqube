@@ -55,7 +55,7 @@ public class ChangeLogLevelAction implements SystemWsAction {
   }
 
   @Override
-  public void handle(Request wsRequest, Response wsResponse) {
+  public void handle(Request wsRequest, Response wsResponse) throws InterruptedException {
     userSession.checkIsSystemAdministrator();
 
     LoggerLevel level = LoggerLevel.valueOf(wsRequest.mandatoryParam(PARAM_LEVEL));
