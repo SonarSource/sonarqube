@@ -150,6 +150,29 @@ public class ReportSubmitterTest {
   }
 
   @Test
+  public void submit_a_report_on_a_branch_requires_scan_permission_on_that_branch() {
+    userSession.addProjectPermissions(GlobalPermissions.SCAN_EXECUTION, "theProject:theBranch");
+
+    when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
+    when(componentService.getNullableByKey("theProject:theBranch")).thenReturn(new ComponentDto().setUuid(PROJECT_UUID));
+
+    underTest.submit("theProject", "theBranch", PROJECT_NAME, IOUtils.toInputStream("{binary}"));
+
+    verify(queue).submit(any(CeTaskSubmit.class));
+  }
+
+  @Test
+  public void submit_a_report_on_a_branch_fails_if_user_has_only_permission_on_project() {
+    userSession.addProjectPermissions(GlobalPermissions.SCAN_EXECUTION, "theProject");
+    when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
+    when(componentService.getNullableByKey("theProject:theBranch")).thenReturn(new ComponentDto().setUuid(PROJECT_UUID));
+
+    thrown.expect(ForbiddenException.class);
+
+    underTest.submit("theProject", "theBranch", PROJECT_NAME, IOUtils.toInputStream("{binary}"));
+  }
+
+  @Test
   public void fail_with_forbidden_exception_when_no_scan_permission() {
     userSession.setGlobalPermissions(GlobalPermissions.DASHBOARD_SHARING);
 

@@ -71,7 +71,7 @@ public class ReportSubmitter {
       permissionService.applyDefaultPermissionTemplate(project.getKey());
     } else {
       // the project exists -> require global or project permission
-      userSession.checkComponentPermission(SCAN_EXECUTION, projectKey);
+      userSession.checkComponentPermission(SCAN_EXECUTION, effectiveProjectKey);
     }
 
     // the report file must be saved before submitting the task
