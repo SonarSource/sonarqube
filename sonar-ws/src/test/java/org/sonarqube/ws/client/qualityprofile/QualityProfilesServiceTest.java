@@ -216,4 +216,23 @@ public class QualityProfilesServiceTest {
       .hasParam(PARAM_LOGIN, "john")
       .andNoOtherParam();
   }
+
+  @Test
+  public void remove_user() {
+    underTest.removeUser(RemoveUserRequest.builder()
+      .setOrganization("O1")
+      .setQualityProfile("P1")
+      .setLanguage("Xoo")
+      .setUserLogin("john")
+      .build());
+    PostRequest request = serviceTester.getPostRequest();
+
+    serviceTester.assertThat(request)
+      .hasPath("remove_user")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_QUALITY_PROFILE, "P1")
+      .hasParam(PARAM_LANGUAGE, "Xoo")
+      .hasParam(PARAM_LOGIN, "john")
+      .andNoOtherParam();
+  }
 }
