@@ -25,7 +25,6 @@ import javax.annotation.CheckForNull;
 import org.picocontainer.annotations.Nullable;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
-import org.sonar.api.batch.scm.ScmBranchProvider;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -65,10 +64,9 @@ public class ScmChangedFilesProvider extends ProviderAdapter {
   private static Collection<Path> loadChangedFilesIfNeeded(ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, Path rootBaseDir) {
     if (branchConfiguration.isShortLivingBranch()) {
       ScmProvider scmProvider = scmConfiguration.provider();
-      if (scmProvider != null && (scmProvider instanceof ScmBranchProvider)) {
+      if (scmProvider != null) {
         Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-        ScmBranchProvider scmBranchProvider = (ScmBranchProvider) scmProvider;
-        Collection<Path> changedFiles = scmBranchProvider.branchChangedFiles(branchConfiguration.branchTarget(), rootBaseDir);
+        Collection<Path> changedFiles = scmProvider.branchChangedFiles(branchConfiguration.branchTarget(), rootBaseDir);
         profiler.stopInfo();
         if (changedFiles != null) {
           LOG.debug("SCM reported {} {} changed in the branch", changedFiles.size(), pluralize("file", changedFiles.size()));
