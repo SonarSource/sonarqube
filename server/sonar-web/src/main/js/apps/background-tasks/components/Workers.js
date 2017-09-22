@@ -95,18 +95,11 @@ export default class Workers extends React.PureComponent {
         )}
 
         {!loading &&
-          (canSetWorkerCount ? (
-            <Tooltip overlay={translate('background_tasks.change_number_of_workers')}>
-              <a className="icon-edit spacer-left" href="#" onClick={this.handleChangeClick} />
-            </Tooltip>
-          ) : (
-            <a
-              className="button button-promote spacer-left"
-              href="https://redirect.sonarsource.com/plugins/governance.html"
-              target="_blank">
-              {translate('background_tasks.add_more_with_governance')}
-            </a>
-          ))}
+        canSetWorkerCount && (
+          <Tooltip overlay={translate('background_tasks.change_number_of_workers')}>
+            <a className="icon-edit spacer-left" href="#" onClick={this.handleChangeClick} />
+          </Tooltip>
+        )}
 
         {formOpen && <WorkersForm onClose={this.closeForm} workerCount={this.state.workerCount} />}
       </div>

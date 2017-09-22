@@ -84,13 +84,6 @@ exports[`renders 3`] = `
   >
     1
   </strong>
-  <a
-    className="button button-promote spacer-left"
-    href="https://redirect.sonarsource.com/plugins/governance.html"
-    target="_blank"
-  >
-    background_tasks.add_more_with_governance
-  </a>
 </div>
 `;
 
@@ -110,13 +103,6 @@ exports[`renders 4`] = `
   >
     2
   </strong>
-  <a
-    className="button button-promote spacer-left"
-    href="https://redirect.sonarsource.com/plugins/governance.html"
-    target="_blank"
-  >
-    background_tasks.add_more_with_governance
-  </a>
 </div>
 `;
 
