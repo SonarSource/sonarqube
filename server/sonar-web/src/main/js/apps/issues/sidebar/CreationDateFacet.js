@@ -106,7 +106,7 @@ export default class CreationDateFacet extends React.PureComponent {
       createdAt: undefined,
       createdInLast: undefined,
       sinceLeakPeriod: undefined,
-      [property]: toShortNotSoISOString(parseDate(value))
+      [property]: value ? toShortNotSoISOString(parseDate(value)) : undefined
     });
   };
 
@@ -199,12 +199,14 @@ export default class CreationDateFacet extends React.PureComponent {
       <div className="search-navigator-date-facet-selection">
         <DateInput
           className="search-navigator-date-facet-selection-dropdown-left"
+          inputClassName="search-navigator-date-facet-selection-input"
           onChange={this.handlePeriodChangeAfter}
           placeholder={translate('from')}
           value={createdAfter ? toShortNotSoISOString(createdAfter) : undefined}
         />
         <DateInput
           className="search-navigator-date-facet-selection-dropdown-right"
+          inputClassName="search-navigator-date-facet-selection-input"
           onChange={this.handlePeriodChangeBefore}
           placeholder={translate('to')}
           value={createdBefore ? toShortNotSoISOString(createdBefore) : undefined}
