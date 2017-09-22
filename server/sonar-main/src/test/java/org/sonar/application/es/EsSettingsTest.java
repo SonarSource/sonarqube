@@ -98,6 +98,7 @@ public class EsSettingsTest {
   private Props minimalProps() {
     Props props = new Props(new Properties());
     props.set(ProcessProperties.PATH_HOME, randomAlphanumeric(12));
+    props.set(ProcessProperties.PATH_DATA, randomAlphanumeric(12));
     props.set(ProcessProperties.PATH_TEMP, randomAlphanumeric(12));
     props.set(ProcessProperties.PATH_LOGS, randomAlphanumeric(12));
     props.set(CLUSTER_NAME, randomAlphanumeric(12));
@@ -111,6 +112,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.SEARCH_PORT, "1234");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     props.set(CLUSTER_NAME, "sonarqube");
@@ -147,6 +149,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.SEARCH_PORT, "1234");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.CLUSTER_NAME, "sonarqube-1");
@@ -169,6 +172,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.SEARCH_PORT, "1234");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     EsSettings esSettings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE);
@@ -185,6 +189,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.SEARCH_PORT, "1234");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     EsSettings esSettings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE);

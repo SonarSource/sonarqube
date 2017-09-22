@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Supplier;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.command.AbstractCommand;
@@ -72,6 +73,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   public ProcessMonitor launch(EsCommand esCommand) {
     Process process = null;
     try {
+      cleanupOutdatedEsData(esCommand);
       writeConfFiles(esCommand);
       ProcessBuilder processBuilder = create(esCommand);
       logLaunchedCommand(esCommand, processBuilder);
@@ -86,6 +88,20 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       }
       throw new IllegalStateException(format("Fail to launch process [%s]", esCommand.getProcessId().getKey()), e);
     }
+  }
+
+  private static void cleanupOutdatedEsData(EsCommand esCommand) {
+    EsFileSystem esFileSystem = esCommand.getFileSystem();
+    esFileSystem.getOutdatedDataDirectories().forEach(outdatedDir -> {
+      if (outdatedDir.exists()) {
+        LOG.info("Deleting outdated search index data directory {}", outdatedDir.getAbsolutePath());
+        try {
+          FileUtils.deleteDirectory(outdatedDir);
+        } catch (IOException e) {
+          LOG.info("Failed to delete outdated search index data directory " + outdatedDir.getAbsolutePath(), e);
+        }
+      }
+    });
   }
 
   private static void writeConfFiles(EsCommand esCommand) {

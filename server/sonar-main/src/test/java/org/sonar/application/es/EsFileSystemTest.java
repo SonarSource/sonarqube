@@ -51,6 +51,7 @@ public class EsFileSystemTest {
   @Test
   public void constructor_fails_with_IAE_if_temp_dir_property_is_not_defined() throws IOException {
     Props props = new Props(new Properties());
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -60,9 +61,21 @@ public class EsFileSystemTest {
   }
 
   @Test
+  public void constructor_fails_with_IAE_if_data_dir_property_is_not_defined() throws IOException {
+    Props props = new Props(new Properties());
+    props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Missing property: sonar.path.data");
+
+    new EsFileSystem(props);
+  }
+
+  @Test
   public void getHomeDirectory_is_elasticsearch_subdirectory_of_sq_home_directory() throws IOException {
     File sqHomeDir = temp.newFolder();
     Props props = new Props(new Properties());
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
@@ -70,19 +83,6 @@ public class EsFileSystemTest {
     EsFileSystem underTest = new EsFileSystem(props);
 
     assertThat(underTest.getHomeDirectory()).isEqualTo(new File(sqHomeDir, "elasticsearch"));
-  }
-
-  @Test
-  public void getDataDirectory_is_data_es_subdirectory_of_sq_home_directory_by_default() throws IOException {
-    File sqHomeDir = temp.newFolder();
-    Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
-
-    EsFileSystem underTest = new EsFileSystem(props);
-
-    assertThat(underTest.getDataDirectory()).isEqualTo(new File(sqHomeDir, "data/es"));
   }
 
   @Test
@@ -99,7 +99,7 @@ public class EsFileSystemTest {
 
     EsFileSystem underTest = new EsFileSystem(props);
 
-    assertThat(underTest.getDataDirectory()).isEqualTo(new File(dataDir, "es"));
+    assertThat(underTest.getDataDirectory()).isEqualTo(new File(dataDir, "es5"));
   }
 
   @Test
@@ -107,6 +107,7 @@ public class EsFileSystemTest {
     File sqHomeDir = temp.newFolder();
     File logDir = temp.newFolder();
     Props props = new Props(new Properties());
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
@@ -120,6 +121,7 @@ public class EsFileSystemTest {
   public void conf_directory_is_conf_es_subdirectory_of_sq_temp_directory() throws IOException {
     File tempDir = temp.newFolder();
     Props props = new Props(new Properties());
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
@@ -133,6 +135,7 @@ public class EsFileSystemTest {
   public void getExecutable_resolve_executable_for_platform() throws IOException {
     File sqHomeDir = temp.newFolder();
     Props props = new Props(new Properties());
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
@@ -150,6 +153,7 @@ public class EsFileSystemTest {
   public void getLog4j2Properties_is_in_es_conf_directory() throws IOException {
     File tempDir = temp.newFolder();
     Props props = new Props(new Properties());
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
@@ -163,6 +167,7 @@ public class EsFileSystemTest {
   public void getElasticsearchYml_is_in_es_conf_directory() throws IOException {
     File tempDir = temp.newFolder();
     Props props = new Props(new Properties());
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
@@ -176,6 +181,7 @@ public class EsFileSystemTest {
   public void getJvmOptions_is_in_es_conf_directory() throws IOException {
     File tempDir = temp.newFolder();
     Props props = new Props(new Properties());
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
