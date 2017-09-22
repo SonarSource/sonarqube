@@ -25,19 +25,29 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.user.UserDto;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_USER;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LOGIN;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class RemoveUserAction implements QProfileWsAction {
 
+  private final DbClient dbClient;
+  private final QProfileWsSupport wsSupport;
   private final Languages languages;
 
-  public RemoveUserAction(Languages languages) {
+  public RemoveUserAction(DbClient dbClient, QProfileWsSupport wsSupport, Languages languages) {
+    this.dbClient = dbClient;
+    this.wsSupport = wsSupport;
     this.languages = languages;
   }
 
@@ -73,6 +83,21 @@ public class RemoveUserAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    // TODO
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION));
+      QProfileDto profile = wsSupport.getProfile(dbSession, organization, request.mandatoryParam(PARAM_QUALITY_PROFILE), request.mandatoryParam(PARAM_LANGUAGE));
+      wsSupport.checkCanEdit(dbSession, profile);
+      UserDto user = wsSupport.getUser(dbSession, organization, request.mandatoryParam(PARAM_LOGIN));
+      removeUser(dbSession, profile, user);
+    }
+    response.noContent();
+  }
+
+  private void removeUser(DbSession dbSession, QProfileDto profile, UserDto user) {
+    if (!dbClient.qProfileEditUsersDao().exists(dbSession, profile, user)) {
+      return;
+    }
+    dbClient.qProfileEditUsersDao().deleteByQProfileAndUser(dbSession, profile, user);
+    dbSession.commit();
   }
 }
