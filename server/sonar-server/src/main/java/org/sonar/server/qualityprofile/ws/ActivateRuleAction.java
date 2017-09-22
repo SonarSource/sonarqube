@@ -37,7 +37,7 @@ import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARAMS;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RESET;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
@@ -65,7 +65,7 @@ public class ActivateRuleAction implements QProfileWsAction {
       .setPost(true)
       .setSince("4.4");
 
-    activate.createParam(PARAM_PROFILE)
+    activate.createParam(PARAM_KEY)
       .setDescription("Quality Profile key. Can be obtained through <code>api/qualityprofiles/search</code>")
       .setDeprecatedKey("profile_key", "6.5")
       .setRequired(true)
@@ -94,7 +94,7 @@ public class ActivateRuleAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String profileKey = request.mandatoryParam(PARAM_PROFILE);
+      String profileKey = request.mandatoryParam(PARAM_KEY);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
       wsSupport.checkPermission(dbSession, profile);
       wsSupport.checkNotBuiltInt(profile);

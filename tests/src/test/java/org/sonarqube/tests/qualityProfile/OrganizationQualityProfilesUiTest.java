@@ -188,7 +188,7 @@ public class OrganizationQualityProfilesUiTest {
   private void addProfileToProject(String language, String profileName, String projectKey) {
     tester.wsClient().qualityProfiles().addProject(AddProjectRequest.builder()
       .setLanguage(language)
-      .setProfileName(profileName)
+      .setQualityProfile(profileName)
       .setProjectKey(projectKey)
       .setOrganization(organization.getKey())
       .build());

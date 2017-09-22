@@ -31,7 +31,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 
 public class DeactivateRuleAction implements QProfileWsAction {
@@ -57,7 +57,7 @@ public class DeactivateRuleAction implements QProfileWsAction {
       .setPost(true)
       .setSince("4.4");
 
-    deactivate.createParam(PARAM_PROFILE)
+    deactivate.createParam(PARAM_KEY)
       .setDescription("Quality Profile key. Can be obtained through <code>api/qualityprofiles/search</code>")
       .setDeprecatedKey("profile_key", "6.5")
       .setRequired(true)
@@ -73,7 +73,7 @@ public class DeactivateRuleAction implements QProfileWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     RuleKey ruleKey = RuleKey.parse(request.mandatoryParam(PARAM_RULE));
-    String qualityProfileKey = request.mandatoryParam(PARAM_PROFILE);
+    String qualityProfileKey = request.mandatoryParam(PARAM_KEY);
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(qualityProfileKey));

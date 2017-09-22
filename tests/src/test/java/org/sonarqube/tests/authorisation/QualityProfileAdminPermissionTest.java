@@ -60,7 +60,7 @@ public class QualityProfileAdminPermissionTest {
   private void createProfile(String language, String name) {
     tester.wsClient().qualityProfiles().create(CreateRequest.builder()
       .setLanguage(language)
-      .setProfileName(name)
+      .setName(name)
       .build());
   }
 

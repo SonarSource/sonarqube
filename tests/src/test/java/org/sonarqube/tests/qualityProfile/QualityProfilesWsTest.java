@@ -57,7 +57,7 @@ public class QualityProfilesWsTest {
     tester.qProfiles().activateRule(xooProfile, RULE_ONE_BUG_PER_LINE);
     tester.qProfiles().activateRule(xooProfile, RULE_ONE_ISSUE_PER_LINE);
 
-    ShowResponse result = tester.qProfiles().service().show(new ShowRequest().setProfile(xooProfile.getKey()));
+    ShowResponse result = tester.qProfiles().service().show(new ShowRequest().setKey(xooProfile.getKey()));
 
     assertThat(result.getProfile())
       .extracting(QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getIsBuiltIn, QualityProfile::getIsDefault,
@@ -74,7 +74,7 @@ public class QualityProfilesWsTest {
     SearchWsResponse.QualityProfile sonarWay = getProfile(org, p -> "Sonar way".equals(p.getName()) && "xoo".equals(p.getLanguage()) && p.getIsBuiltIn());
 
     CompareToSonarWay result = tester.qProfiles().service().show(new ShowRequest()
-      .setProfile(xooProfile.getKey())
+      .setKey(xooProfile.getKey())
       .setCompareToSonarWay(true)).getCompareToSonarWay();
 
     assertThat(result)
@@ -92,14 +92,14 @@ public class QualityProfilesWsTest {
 
     // Bulk activate missing rules from the Sonar way profile
     tester.wsClient().wsConnector().call(new PostRequest("api/qualityprofiles/activate_rules")
-      .setParam("targetProfile", xooProfile.getKey())
+      .setParam("targetKey", xooProfile.getKey())
       .setParam("qprofile", xooProfile.getKey())
       .setParam("activation", "false")
       .setParam("compareToProfile", sonarWay.getKey())).failIfNotSuccessful();
 
     // Check that the profile has no missing rule from the Sonar way profile
     assertThat(tester.qProfiles().service().show(new ShowRequest()
-      .setProfile(xooProfile.getKey())
+      .setKey(xooProfile.getKey())
       .setCompareToSonarWay(true)).getCompareToSonarWay())
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
       .containsExactly(sonarWay.getKey(), sonarWay.getName(), 0L);
@@ -113,7 +113,9 @@ public class QualityProfilesWsTest {
     assertThat(response.content()).isEqualTo("xoo -> Basic -> 1");
 
     // Check 'name' parameter is taken into account
-    assertThat(tester.wsClient().wsConnector().call(new GetRequest("profiles/export?language=xoo&name=empty&format=XooFakeExporter")).content()).isEqualTo("xoo -> empty -> 0");
+    assertThat(tester.wsClient().wsConnector()
+      .call(new GetRequest("profiles/export?language=xoo&qualityProfile=empty&format=XooFakeExporter")).content())
+      .isEqualTo("xoo -> empty -> 0");
   }
 
   private SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<SearchWsResponse.QualityProfile> filter) {

@@ -209,7 +209,7 @@ public class OrganizationIssueAssignTest {
         .setProjectKey(projectKey)
         .setOrganization(organization)
         .setLanguage("xoo")
-        .setProfileName("one-issue-per-file-profile")
+        .setQualityProfile("one-issue-per-file-profile")
         .build());
   }
 

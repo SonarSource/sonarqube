@@ -22,6 +22,7 @@ package org.sonarqube.ws.client.qualityprofile;
 public class QualityProfileWsParameters {
 
   public static final String CONTROLLER_QUALITY_PROFILES = "api/qualityprofiles";
+
   public interface RestoreActionParameters {
 
     String PARAM_BACKUP = "backup";
@@ -48,11 +49,10 @@ public class QualityProfileWsParameters {
   public static final String PARAM_LANGUAGE = "language";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_PARAMS = "params";
-  public static final String PARAM_PARENT_NAME = "parentName";
-  public static final String PARAM_PARENT_PROFILE = "parentProfile";
-  public static final String PARAM_PROFILE = "profile";
-  public static final String PARAM_PROFILE_KEY = "profileKey";
-  public static final String PARAM_PROFILE_NAME = "profileName";
+  public static final String PARAM_PARENT_KEY = "parentKey";
+  public static final String PARAM_PARENT_QUALITY_PROFILE = "parentQualityProfile";
+  public static final String PARAM_KEY = "key";
+  public static final String PARAM_QUALITY_PROFILE = "qualityProfile";
   public static final String PARAM_PROJECT = "project";
   public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_PROJECT_UUID = "projectUuid";
@@ -60,7 +60,7 @@ public class QualityProfileWsParameters {
   public static final String PARAM_RULE = "rule";
   public static final String PARAM_SEVERITY = "severity";
   public static final String PARAM_SINCE = "since";
-  public static final String PARAM_TARGET_PROFILE = "targetProfile";
+  public static final String PARAM_TARGET_KEY = "targetKey";
   public static final String PARAM_TARGET_SEVERITY = "targetSeverity";
   public static final String PARAM_TO = "to";
   public static final String PARAM_TO_NAME = "toName";

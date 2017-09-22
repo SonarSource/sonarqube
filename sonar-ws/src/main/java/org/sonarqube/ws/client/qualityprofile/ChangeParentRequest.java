@@ -25,17 +25,17 @@ import javax.annotation.Nullable;
 public class ChangeParentRequest {
   private final String language;
   private final String parentKey;
-  private final String parentName;
-  private final String profileKey;
-  private final String profileName;
+  private final String parentQualityProfile;
+  private final String key;
+  private final String qualityProfile;
   private final String organization;
 
   public ChangeParentRequest(Builder builder) {
     this.language = builder.language;
     this.parentKey = builder.parentKey;
-    this.parentName = builder.parentName;
-    this.profileKey = builder.profileKey;
-    this.profileName = builder.profileName;
+    this.parentQualityProfile = builder.parentName;
+    this.key = builder.profileKey;
+    this.qualityProfile = builder.profileName;
     this.organization = builder.organization;
   }
 
@@ -47,16 +47,16 @@ public class ChangeParentRequest {
     return parentKey;
   }
 
-  public String getParentName() {
-    return parentName;
+  public String getParentQualityProfile() {
+    return parentQualityProfile;
   }
 
-  public String getProfileKey() {
-    return profileKey;
+  public String getKey() {
+    return key;
   }
 
-  public String getProfileName() {
-    return profileName;
+  public String getQualityProfile() {
+    return qualityProfile;
   }
 
   public String getOrganization() {

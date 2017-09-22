@@ -49,7 +49,7 @@ import org.sonar.server.ws.WsActionTester;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 
 public class ExportActionTest {
 
@@ -73,16 +73,17 @@ public class ExportActionTest {
 
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.isInternal()).isFalse();
-    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("profile", "language", "name", "organization");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("key", "language", "qualityProfile", "organization");
     WebService.Param organizationParam = definition.param("organization");
     assertThat(organizationParam.since()).isEqualTo("6.4");
     assertThat(organizationParam.isInternal()).isTrue();
-    WebService.Param profile = definition.param("profile");
-    assertThat(profile.since()).isEqualTo("6.5");
-    WebService.Param name = definition.param("name");
-    assertThat(name.deprecatedSince()).isEqualTo("6.5");
+    WebService.Param key = definition.param("key");
+    assertThat(key.since()).isEqualTo("6.5");
+    assertThat(key.deprecatedSince()).isEqualTo("6.6");
+    WebService.Param name = definition.param("qualityProfile");
+    assertThat(name.deprecatedSince()).isNullOrEmpty();
     WebService.Param language = definition.param("language");
-    assertThat(language.deprecatedSince()).isEqualTo("6.5");
+    assertThat(language.deprecatedSince()).isNullOrEmpty();
   }
 
   @Test
@@ -91,7 +92,7 @@ public class ExportActionTest {
 
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.isInternal()).isFalse();
-    assertThat(definition.params()).extracting("key").containsExactlyInAnyOrder("profile", "language", "name", "organization", "exporterKey");
+    assertThat(definition.params()).extracting("key").containsExactlyInAnyOrder("key", "language", "qualityProfile", "organization", "exporterKey");
     WebService.Param exportersParam = definition.param("exporterKey");
     assertThat(exportersParam.possibleValues()).containsOnly("polop", "palap");
     assertThat(exportersParam.deprecatedKey()).isEqualTo("format");
@@ -105,7 +106,7 @@ public class ExportActionTest {
 
     WsActionTester tester = newWsActionTester(newExporter("polop"), newExporter("palap"));
     String result = tester.newRequest()
-      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_KEY, profile.getKee())
       .setParam("exporterKey", "polop").execute()
       .getInput();
 
@@ -119,7 +120,7 @@ public class ExportActionTest {
 
     WsActionTester ws = newWsActionTester(newExporter("polop"), newExporter("palap"));
     ws.newRequest()
-      .setParam(PARAM_PROFILE, "PROFILE-KEY-404")
+      .setParam(PARAM_KEY, "PROFILE-KEY-404")
       .setParam("exporterKey", "polop").execute()
       .getInput();
   }
@@ -129,11 +130,11 @@ public class ExportActionTest {
     QProfileDto profile = createProfile(db.getDefaultOrganization(), false);
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Either 'profile' or 'language' must be provided.");
+    expectedException.expectMessage("Either 'key' or 'language' must be provided.");
 
     WsActionTester ws = newWsActionTester(newExporter("polop"), newExporter("palap"));
     ws.newRequest()
-      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
       .setParam("exporterKey", "polop").execute()
       .getInput();
@@ -146,7 +147,7 @@ public class ExportActionTest {
     WsActionTester tester = newWsActionTester(newExporter("polop"), newExporter("palap"));
     String result = tester.newRequest()
       .setParam("language", profile.getLanguage())
-      .setParam("name", profile.getName())
+      .setParam("qualityProfile", profile.getName())
       .setParam("exporterKey", "polop").execute()
       .getInput();
 
@@ -162,7 +163,7 @@ public class ExportActionTest {
     String result = tester.newRequest()
       .setParam("organization", organization.getKey())
       .setParam("language", profile.getLanguage())
-      .setParam("name", profile.getName())
+      .setParam("qualityProfile", profile.getName())
       .setParam("exporterKey", "polop").execute()
       .getInput();
 
@@ -227,7 +228,7 @@ public class ExportActionTest {
 
     String result = newWsActionTester(newExporter("polop")).newRequest()
       .setParam("language", profile.getLanguage())
-      .setParam("name", profile.getName())
+      .setParam("qualityProfile", profile.getName())
       .execute()
       .getInput();
 

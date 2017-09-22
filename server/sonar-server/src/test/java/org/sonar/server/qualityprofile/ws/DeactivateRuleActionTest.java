@@ -50,7 +50,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 
 public class DeactivateRuleActionTest {
@@ -80,8 +80,8 @@ public class DeactivateRuleActionTest {
     WebService.Action definition = wsActionTester.getDef();
     assertThat(definition).isNotNull();
     assertThat(definition.isPost()).isTrue();
-    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("profile", "rule");
-    WebService.Param profileKey = definition.param("profile");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("key", "rule");
+    WebService.Param profileKey = definition.param("key");
     assertThat(profileKey.deprecatedKey()).isEqualTo("profile_key");
     WebService.Param ruleKey = definition.param("rule");
     assertThat(ruleKey.deprecatedKey()).isEqualTo("rule_key");
@@ -92,7 +92,7 @@ public class DeactivateRuleActionTest {
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, RuleTesting.newRuleDto().getKey().toString())
-      .setParam(PARAM_PROFILE, randomAlphanumeric(UUID_SIZE));
+      .setParam(PARAM_KEY, randomAlphanumeric(UUID_SIZE));
 
     expectedException.expect(UnauthorizedException.class);
 
@@ -106,7 +106,7 @@ public class DeactivateRuleActionTest {
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, RuleTesting.newRuleDto().getKey().toString())
-      .setParam(PARAM_PROFILE, qualityProfile.getKee());
+      .setParam(PARAM_KEY, qualityProfile.getKee());
 
     expectedException.expect(ForbiddenException.class);
 
@@ -121,7 +121,7 @@ public class DeactivateRuleActionTest {
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, RuleTesting.newRuleDto().getKey().toString())
-      .setParam(PARAM_PROFILE, qualityProfile.getKee());
+      .setParam(PARAM_KEY, qualityProfile.getKee());
 
     expectedException.expect(BadRequestException.class);
 
@@ -136,7 +136,7 @@ public class DeactivateRuleActionTest {
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, ruleKey.toString())
-      .setParam(PARAM_PROFILE, qualityProfile.getKee());
+      .setParam(PARAM_KEY, qualityProfile.getKee());
 
     TestResponse response = request.execute();
 
@@ -157,7 +157,7 @@ public class DeactivateRuleActionTest {
       .setMethod("POST")
       .setParam("organization", organization.getKey())
       .setParam(PARAM_RULE, ruleKey.toString())
-      .setParam(PARAM_PROFILE, qualityProfile.getKee());
+      .setParam(PARAM_KEY, qualityProfile.getKee());
 
     TestResponse response = request.execute();
 

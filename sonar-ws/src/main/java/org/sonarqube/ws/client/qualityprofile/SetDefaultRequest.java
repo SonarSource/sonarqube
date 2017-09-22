@@ -21,13 +21,13 @@
 package org.sonarqube.ws.client.qualityprofile;
 
 public class SetDefaultRequest {
-  private final String profileKey;
+  private final String key;
 
-  public SetDefaultRequest(String profileKey) {
-    this.profileKey = profileKey;
+  public SetDefaultRequest(String key) {
+    this.key = key;
   }
 
-  public String getProfileKey() {
-    return profileKey;
+  public String getKey() {
+    return key;
   }
 }

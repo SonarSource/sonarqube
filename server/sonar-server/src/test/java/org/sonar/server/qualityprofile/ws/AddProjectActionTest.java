@@ -72,15 +72,13 @@ public class AddProjectActionTest {
 
     // parameters
     assertThat(definition.params()).extracting(WebService.Param::key)
-      .containsExactlyInAnyOrder("profile", "profileName", "project", "language", "projectUuid", "organization");
-    WebService.Param profile = definition.param("profile");
+      .containsExactlyInAnyOrder("key", "qualityProfile", "project", "language", "projectUuid", "organization");
+    WebService.Param profile = definition.param("key");
     assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
-    WebService.Param profileName = definition.param("profileName");
-    assertThat(profileName.deprecatedSince()).isEqualTo("6.5");
+    assertThat(profile.deprecatedSince()).isEqualTo("6.6");
     WebService.Param languageParam = definition.param("language");
     assertThat(languageParam.possibleValues()).containsOnly(LANGUAGE_1, LANGUAGE_2);
     assertThat(languageParam.exampleValue()).isNull();
-    assertThat(languageParam.deprecatedSince()).isEqualTo("6.5");
     WebService.Param project = definition.param("project");
     assertThat(project.deprecatedKey()).isEqualTo("projectKey");
     WebService.Param projectUuid = definition.param("projectUuid");
@@ -293,7 +291,7 @@ public class AddProjectActionTest {
   private TestResponse call(ComponentDto project, QProfileDto qualityProfile) {
     TestRequest request = tester.newRequest()
       .setParam("projectUuid", project.uuid())
-      .setParam("profile", qualityProfile.getKee());
+      .setParam("key", qualityProfile.getKee());
     return request.execute();
   }
 
@@ -302,7 +300,7 @@ public class AddProjectActionTest {
       .setParam("organization", organization.getKey())
       .setParam("projectUuid", project.uuid())
       .setParam("language", qualityProfile.getLanguage())
-      .setParam("profileName", qualityProfile.getName());
+      .setParam("qualityProfile", qualityProfile.getName());
     return request.execute();
   }
 }

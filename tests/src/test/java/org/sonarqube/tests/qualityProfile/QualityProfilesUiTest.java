@@ -153,7 +153,7 @@ public class QualityProfilesUiTest {
   private void createProfile(String language, String name) {
     tester.wsClient().qualityProfiles().create(CreateRequest.builder()
       .setLanguage(language)
-      .setProfileName(name)
+      .setName(name)
       .build());
   }
 
@@ -172,7 +172,7 @@ public class QualityProfilesUiTest {
   private void addProfileToProject(String language, String profileName, String projectKey) {
     tester.wsClient().qualityProfiles().addProject(AddProjectRequest.builder()
       .setLanguage(language)
-      .setProfileName(profileName)
+      .setQualityProfile(profileName)
       .setProjectKey(projectKey)
       .build());
   }

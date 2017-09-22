@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -65,8 +64,8 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class SearchAction implements QProfileWsAction {
   private static final Comparator<QProfileDto> Q_PROFILE_COMPARATOR = Comparator
@@ -119,8 +118,9 @@ public class SearchAction implements QProfileWsAction {
       .setDescription("Language key. If provided, only profiles for the given language are returned.")
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
 
-    action.createParam(PARAM_PROFILE_NAME)
-      .setDescription("Profile name")
+    action.createParam(PARAM_QUALITY_PROFILE)
+      .setDescription("Quality profile name")
+      .setDeprecatedKey("profileName", "6.6")
       .setExampleValue("SonarQube Way");
   }
 
@@ -134,13 +134,12 @@ public class SearchAction implements QProfileWsAction {
     return new SearchWsRequest()
       .setOrganizationKey(request.param(PARAM_ORGANIZATION))
       .setProjectKey(request.param(PARAM_PROJECT))
-      .setProfileName(request.param(PARAM_PROFILE_NAME))
+      .setQualityProfile(request.param(PARAM_QUALITY_PROFILE))
       .setDefaults(request.paramAsBoolean(PARAM_DEFAULTS))
       .setLanguage(request.param(PARAM_LANGUAGE));
   }
 
-  @VisibleForTesting
-  SearchWsResponse doHandle(SearchWsRequest request) {
+  private SearchWsResponse doHandle(SearchWsRequest request) {
     SearchData data = load(request);
     return buildResponse(data);
   }
@@ -204,7 +203,7 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private static Predicate<QProfileDto> byName(SearchWsRequest request) {
-    return p -> request.getProfileName() == null || Objects.equals(p.getName(), request.getProfileName());
+    return p -> request.getQualityProfile() == null || Objects.equals(p.getName(), request.getQualityProfile());
   }
 
   private static Predicate<QProfileDto> byLanguage(SearchWsRequest request) {

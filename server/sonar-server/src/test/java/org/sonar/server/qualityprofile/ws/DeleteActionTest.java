@@ -104,7 +104,7 @@ public class DeleteActionTest {
     TestResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam("language", profile1.getLanguage())
-      .setParam("profileName", profile1.getName())
+      .setParam("qualityProfile", profile1.getName())
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
@@ -126,7 +126,7 @@ public class DeleteActionTest {
       .setMethod("POST")
       .setParam("organization", organization.getKey())
       .setParam("language", profile1.getLanguage())
-      .setParam("profileName", profile1.getName())
+      .setParam("qualityProfile", profile1.getName())
       .execute();
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
@@ -292,13 +292,14 @@ public class DeleteActionTest {
   public void definition() {
     WebService.Action definition = ws.getDef();
 
-    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("language", "organization", "profile", "profileName");
-    Param profile = definition.param("profile");
-    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
-    Param profileName = definition.param("profileName");
-    assertThat(profileName.deprecatedSince()).isEqualTo("6.5");
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("language", "organization", "key", "qualityProfile");
+    Param key = definition.param("key");
+    assertThat(key.deprecatedKey()).isEqualTo("profileKey");
+    assertThat(key.deprecatedSince()).isEqualTo("6.6");
+    Param profileName = definition.param("qualityProfile");
+    assertThat(profileName.deprecatedSince()).isNullOrEmpty();
     Param language = definition.param("language");
-    assertThat(language.deprecatedSince()).isEqualTo("6.5");
+    assertThat(language.deprecatedSince()).isNullOrEmpty();
   }
 
   private void logInAsQProfileAdministrator(OrganizationDto organization) {

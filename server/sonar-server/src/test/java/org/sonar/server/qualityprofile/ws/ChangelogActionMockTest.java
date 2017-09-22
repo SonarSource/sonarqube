@@ -44,7 +44,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SINCE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO;
 
@@ -72,7 +72,7 @@ public class ChangelogActionMockTest {
     when(wsSupport.getProfile(any(DbSession.class), eq(QProfileReference.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1(organization));
     when(changelogLoader.load(any(DbSession.class), any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(0, Collections.emptyList()));
 
-    ws.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_PROFILE, XOO_P1_KEY)
+    ws.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_KEY, XOO_P1_KEY)
       .execute().assertJson(getClass(), "changelog_empty.json");
   }
 
@@ -84,7 +84,7 @@ public class ChangelogActionMockTest {
     List<ChangelogLoader.Change> changes = asList(change1, change2);
     when(changelogLoader.load(any(DbSession.class), any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(10, changes));
 
-    ws.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_PROFILE, XOO_P1_KEY)
+    ws.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_KEY, XOO_P1_KEY)
       .execute().assertJson(getClass(), "changelog_nominal.json");
   }
 
@@ -97,7 +97,7 @@ public class ChangelogActionMockTest {
     List<ChangelogLoader.Change> changes = asList(change1);
     when(changelogLoader.load(any(DbSession.class), any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(10, changes));
 
-    ws.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_PROFILE, XOO_P1_KEY)
+    ws.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_KEY, XOO_P1_KEY)
       .execute().assertJson(getClass(), "changelog_full.json");
   }
 
@@ -107,7 +107,7 @@ public class ChangelogActionMockTest {
     when(changelogLoader.load(any(DbSession.class), any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(0, Collections.emptyList()));
 
     ws.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog")
-      .setParam(PARAM_PROFILE, XOO_P1_KEY)
+      .setParam(PARAM_KEY, XOO_P1_KEY)
       .setParam(PARAM_SINCE, "2016-09-01")
       .setParam(PARAM_TO, "2016-09-01")
       .execute();
@@ -122,6 +122,6 @@ public class ChangelogActionMockTest {
   public void fail_on_unknown_profile() throws Exception {
     when(wsSupport.getProfile(any(DbSession.class), eq(QProfileReference.fromKey(XOO_P1_KEY)))).thenThrow(new NotFoundException("Profile not found"));
 
-    ws.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_PROFILE, XOO_P1_KEY).execute();
+    ws.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_KEY, XOO_P1_KEY).execute();
   }
 }

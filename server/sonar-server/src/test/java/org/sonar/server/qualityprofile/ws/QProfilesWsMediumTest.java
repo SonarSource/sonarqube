@@ -63,11 +63,11 @@ import org.sonar.server.ws.WsActionTester;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RESET;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_SEVERITY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
@@ -119,7 +119,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Deactivate Rule
     wsDeactivateRule.newRequest().setMethod("POST")
-      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_RULE, rule.getKey().toString())
       .execute();
     dbSession.clearCache();
@@ -147,7 +147,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Deactivate Rule
     wsDeactivateRules.newRequest().setMethod("POST")
-      .setParam(PARAM_TARGET_PROFILE, profile.getKee())
+      .setParam(PARAM_TARGET_KEY, profile.getKee())
       .execute();
     dbSession.clearCache();
 
@@ -173,7 +173,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Deactivate Rule
     wsDeactivateRules.newRequest().setMethod("POST")
-      .setParam(PARAM_TARGET_PROFILE, profile.getKee())
+      .setParam(PARAM_TARGET_KEY, profile.getKee())
       .execute();
     dbSession.clearCache();
 
@@ -197,7 +197,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Deactivate Rule
     wsDeactivateRules.newRequest().setMethod("POST")
-      .setParam(PARAM_TARGET_PROFILE, profile.getKee())
+      .setParam(PARAM_TARGET_KEY, profile.getKee())
       .setParam(Param.TEXT_QUERY, "hello")
       .execute();
     dbSession.clearCache();
@@ -217,7 +217,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule
     wsActivateRule.newRequest().setMethod("POST")
-      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_RULE, rule.getKey().toString())
       .execute();
     dbSession.clearCache();
@@ -238,7 +238,7 @@ public class QProfilesWsMediumTest {
     try {
       // 1. Activate Rule
       wsActivateRule.newRequest().setMethod("POST")
-        .setParam(PARAM_PROFILE, profile.getKee())
+        .setParam(PARAM_KEY, profile.getKee())
         .setParam(PARAM_RULE, rule.getKey().toString())
         .execute();
       dbSession.clearCache();
@@ -259,7 +259,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule
     wsActivateRule.newRequest().setMethod("POST")
-      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_SEVERITY, "MINOR")
       .execute();
@@ -287,7 +287,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule
     wsActivateRules.newRequest().setMethod("POST")
-      .setParam(PARAM_TARGET_PROFILE, profile.getKee())
+      .setParam(PARAM_TARGET_KEY, profile.getKee())
       .setParam(PARAM_LANGUAGES, "java")
       .execute()
       .assertJson(getClass(), "bulk_activate_rule.json");
@@ -312,7 +312,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule
     wsActivateRules.newRequest().setMethod("POST")
-      .setParam(PARAM_TARGET_PROFILE, php.getKee())
+      .setParam(PARAM_TARGET_KEY, php.getKee())
       .setParam(PARAM_LANGUAGES, "php")
       .execute()
       .assertJson(getClass(), "bulk_activate_rule_not_all.json");
@@ -336,7 +336,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule with query returning 0 hits
     wsActivateRules.newRequest().setMethod("POST")
-      .setParam(PARAM_TARGET_PROFILE, profile.getKee())
+      .setParam(PARAM_TARGET_KEY, profile.getKee())
       .setParam(Param.TEXT_QUERY, "php")
       .execute();
     dbSession.clearCache();
@@ -346,7 +346,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule with query returning 1 hits
     wsActivateRules.newRequest().setMethod("POST")
-      .setParam(PARAM_TARGET_PROFILE, profile.getKee())
+      .setParam(PARAM_TARGET_KEY, profile.getKee())
       .setParam(Param.TEXT_QUERY, "world")
       .execute();
     dbSession.commit();
@@ -372,7 +372,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule with query returning 2 hits
     wsActivateRules.newRequest().setMethod("POST")
-      .setParam(PARAM_TARGET_PROFILE, profile.getKee())
+      .setParam(PARAM_TARGET_KEY, profile.getKee())
       .setParam(PARAM_TARGET_SEVERITY, "MINOR")
       .execute();
     dbSession.commit();
@@ -398,7 +398,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule
     wsActivateRules.newRequest().setMethod("POST")
-      .setParam(PARAM_TARGET_PROFILE, javaProfile.getKee())
+      .setParam(PARAM_TARGET_KEY, javaProfile.getKee())
       .setParam(PARAM_QPROFILE, javaProfile.getKee())
       .setParam("activation", "false")
       .execute()
@@ -433,7 +433,7 @@ public class QProfilesWsMediumTest {
 
     // 1. reset child rule
     wsActivateRule.newRequest().setMethod("POST")
-      .setParam(PARAM_PROFILE, subProfile.getKee())
+      .setParam(PARAM_KEY, subProfile.getKee())
       .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_RESET, "true")
       .execute();

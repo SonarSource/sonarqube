@@ -44,7 +44,7 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 
 public class ProjectsActionTest {
 
@@ -94,7 +94,7 @@ public class ProjectsActionTest {
 
     dbSession.commit();
 
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam("selected", "selected").execute().assertJson(this.getClass(), "authorized_selected.json");
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam("selected", "selected").execute().assertJson(this.getClass(), "authorized_selected.json");
   }
 
   @Test
@@ -109,20 +109,20 @@ public class ProjectsActionTest {
 
     dbSession.commit();
 
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "2")
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "2")
       .execute().assertJson(this.getClass(), "selected_page1.json");
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "2").setParam(Param.PAGE, "2")
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "2").setParam(Param.PAGE, "2")
       .execute().assertJson(this.getClass(), "selected_page2.json");
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "2").setParam(Param.PAGE, "3")
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "2").setParam(Param.PAGE, "3")
       .execute().assertJson(this.getClass(), "empty.json");
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "2").setParam(Param.PAGE, "4")
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "2").setParam(Param.PAGE, "4")
       .execute().assertJson(this.getClass(), "empty.json");
 
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "1")
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "1")
       .execute().assertJson(this.getClass(), "selected_ps3_page1.json");
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "2")
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "2")
       .execute().assertJson(this.getClass(), "selected_ps3_page2.json");
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "3")
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam("selected", "selected").setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "3")
       .execute().assertJson(this.getClass(), "empty.json");
   }
 
@@ -138,7 +138,7 @@ public class ProjectsActionTest {
 
     dbSession.commit();
 
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam("selected", "deselected").execute().assertJson(this.getClass(), "deselected.json");
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam("selected", "deselected").execute().assertJson(this.getClass(), "deselected.json");
   }
 
   @Test
@@ -155,7 +155,7 @@ public class ProjectsActionTest {
 
     dbSession.commit();
 
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam("selected", "all").execute().assertJson(this.getClass(), "all.json");
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam("selected", "all").execute().assertJson(this.getClass(), "all.json");
   }
 
   @Test
@@ -170,14 +170,14 @@ public class ProjectsActionTest {
 
     dbSession.commit();
 
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam("selected", "all").setParam(Param.TEXT_QUERY, "project t").execute().assertJson(this.getClass(), "all_filtered.json");
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam("selected", "all").setParam(Param.TEXT_QUERY, "project t").execute().assertJson(this.getClass(), "all_filtered.json");
   }
 
   @Test
   public void should_fail_on_nonexistent_profile() throws Exception {
     expectedException.expect(NotFoundException.class);
 
-    newRequest().setParam(PARAM_PROFILE, "unknown").setParam("selected", "all").execute();
+    newRequest().setParam(PARAM_KEY, "unknown").setParam("selected", "all").execute();
   }
 
   @Test
@@ -194,7 +194,7 @@ public class ProjectsActionTest {
 
     dbSession.commit();
 
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam("selected", "all").execute().assertJson(this.getClass(), "return_deprecated_uuid_field.json");
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam("selected", "all").execute().assertJson(this.getClass(), "return_deprecated_uuid_field.json");
   }
 
   @Test
@@ -202,7 +202,7 @@ public class ProjectsActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'ps' parameter must be less than 500");
 
-    newRequest().setParam(PARAM_PROFILE, xooP1.getKee()).setParam(Param.PAGE_SIZE, "501").execute();
+    newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam(Param.PAGE_SIZE, "501").execute();
   }
 
   @Test
@@ -211,9 +211,9 @@ public class ProjectsActionTest {
 
     assertThat(definition.key()).isEqualTo("projects");
     assertThat(definition.responseExampleAsString()).isNotEmpty();
-    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("profile", "p", "ps", "q", "selected");
-    Param profile = definition.param("profile");
-    assertThat(profile.deprecatedKey()).isEqualTo("key");
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("key", "p", "ps", "q", "selected");
+    Param profile = definition.param("key");
+    assertThat(profile.deprecatedKey()).isNullOrEmpty();
     Param page = definition.param("p");
     assertThat(page.deprecatedKey()).isEqualTo("page");
     Param pageSize = definition.param("ps");

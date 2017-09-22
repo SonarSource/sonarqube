@@ -43,7 +43,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 
 public class ActivateRulesActionTest {
 
@@ -90,14 +90,14 @@ public class ActivateRulesActionTest {
       "active_severities",
       "s",
       "repositories",
-      "targetProfile",
+      "targetKey",
       "statuses",
       "rule_key",
       "available_since",
       "activation",
       "severities",
       "organization");
-    WebService.Param targetProfile = definition.param("targetProfile");
+    WebService.Param targetProfile = definition.param("targetKey");
     assertThat(targetProfile.deprecatedKey()).isEqualTo("profile_key");
     WebService.Param targetSeverity = definition.param("targetSeverity");
     assertThat(targetSeverity.deprecatedKey()).isEqualTo("activation_severity");
@@ -107,7 +107,7 @@ public class ActivateRulesActionTest {
   public void should_fail_if_not_logged_in() {
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_TARGET_PROFILE, randomAlphanumeric(UUID_SIZE));
+      .setParam(PARAM_TARGET_KEY, randomAlphanumeric(UUID_SIZE));
 
     expectedException.expect(UnauthorizedException.class);
 
@@ -120,7 +120,7 @@ public class ActivateRulesActionTest {
     QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization, p -> p.setIsBuiltIn(true));
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_TARGET_PROFILE, qualityProfile.getKee());
+      .setParam(PARAM_TARGET_KEY, qualityProfile.getKee());
 
     expectedException.expect(BadRequestException.class);
 
@@ -133,7 +133,7 @@ public class ActivateRulesActionTest {
     QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_TARGET_PROFILE, qualityProfile.getKee());
+      .setParam(PARAM_TARGET_KEY, qualityProfile.getKee());
 
     expectedException.expect(ForbiddenException.class);
 

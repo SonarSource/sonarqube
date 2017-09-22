@@ -27,12 +27,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 @Immutable
 public class CreateRequest {
 
-  private final String profileName;
+  private final String name;
   private final String language;
   private final String organizationKey;
 
   private CreateRequest(Builder builder) {
-    this.profileName = builder.profileName;
+    this.name = builder.name;
     this.language = builder.language;
     this.organizationKey = builder.organizationKey;
   }
@@ -41,8 +41,8 @@ public class CreateRequest {
     return language;
   }
 
-  public String getProfileName() {
-    return profileName;
+  public String getName() {
+    return name;
   }
 
   public String getOrganizationKey() {
@@ -55,7 +55,7 @@ public class CreateRequest {
 
   public static class Builder {
     private String language;
-    private String profileName;
+    private String name;
     private String organizationKey;
 
     private Builder() {
@@ -67,8 +67,8 @@ public class CreateRequest {
       return this;
     }
 
-    public Builder setProfileName(@Nullable String profileName) {
-      this.profileName = profileName;
+    public Builder setName(@Nullable String profileName) {
+      this.name = profileName;
       return this;
     }
 
@@ -79,7 +79,7 @@ public class CreateRequest {
 
     public CreateRequest build() {
       checkArgument(language != null && !language.isEmpty(), "Language is mandatory and must not be empty.");
-      checkArgument(profileName != null && !profileName.isEmpty(), "Profile name is mandatory and must not be empty.");
+      checkArgument(name != null && !name.isEmpty(), "Profile name is mandatory and must not be empty.");
       checkArgument(organizationKey == null || !organizationKey.isEmpty(), "Organization key may be either null or not empty. Empty organization key is invalid.");
       return new CreateRequest(this);
     }

@@ -27,15 +27,15 @@ import javax.annotation.concurrent.Immutable;
 public class RemoveProjectRequest {
 
   private final String language;
-  private final String profileName;
-  private final String profileKey;
+  private final String qualityProfile;
+  private final String key;
   private final String projectKey;
   private final String projectUuid;
 
   private RemoveProjectRequest(Builder builder) {
     this.language = builder.language;
-    this.profileName = builder.profileName;
-    this.profileKey = builder.profileKey;
+    this.qualityProfile = builder.qualityProfile;
+    this.key = builder.key;
     this.projectKey = builder.projectKey;
     this.projectUuid = builder.projectUuid;
   }
@@ -46,13 +46,13 @@ public class RemoveProjectRequest {
   }
 
   @CheckForNull
-  public String getProfileName() {
-    return profileName;
+  public String getQualityProfile() {
+    return qualityProfile;
   }
 
   @CheckForNull
-  public String getProfileKey() {
-    return profileKey;
+  public String getKey() {
+    return key;
   }
 
   @CheckForNull
@@ -71,8 +71,8 @@ public class RemoveProjectRequest {
 
   public static class Builder {
     private String language;
-    private String profileName;
-    private String profileKey;
+    private String qualityProfile;
+    private String key;
     private String projectKey;
     private String projectUuid;
 
@@ -85,13 +85,13 @@ public class RemoveProjectRequest {
       return this;
     }
 
-    public Builder setProfileName(@Nullable String profileName) {
-      this.profileName = profileName;
+    public Builder setQualityProfile(@Nullable String qualityProfile) {
+      this.qualityProfile = qualityProfile;
       return this;
     }
 
-    public Builder setProfileKey(@Nullable String profileKey) {
-      this.profileKey = profileKey;
+    public Builder setKey(@Nullable String key) {
+      this.key = key;
       return this;
     }
 

@@ -34,33 +34,33 @@ public class AddProjectRequestTest {
 
   @Test
   public void create_request_from_profile_key_and_project_key() {
-    AddProjectRequest result = underTest.setProfileKey("SonarWay").setProjectKey("sample").build();
+    AddProjectRequest result = underTest.setKey("SonarWay").setProjectKey("sample").build();
 
     assertThat(result.getLanguage()).isNull();
-    assertThat(result.getProfileKey()).isEqualTo("SonarWay");
-    assertThat(result.getProfileName()).isNull();
+    assertThat(result.getKey()).isEqualTo("SonarWay");
+    assertThat(result.getQualityProfile()).isNull();
     assertThat(result.getProjectKey()).isEqualTo("sample");
     assertThat(result.getProjectUuid()).isNull();
   }
 
   @Test
   public void create_request_from_profile_name_and_language_and_project_key() {
-    AddProjectRequest result = underTest.setLanguage("xoo").setProfileName("Sonar Way").setProjectKey("sample").build();
+    AddProjectRequest result = underTest.setLanguage("xoo").setQualityProfile("Sonar Way").setProjectKey("sample").build();
 
     assertThat(result.getLanguage()).isEqualTo("xoo");
-    assertThat(result.getProfileKey()).isNull();
-    assertThat(result.getProfileName()).isEqualTo("Sonar Way");
+    assertThat(result.getKey()).isNull();
+    assertThat(result.getQualityProfile()).isEqualTo("Sonar Way");
     assertThat(result.getProjectKey()).isEqualTo("sample");
     assertThat(result.getProjectUuid()).isNull();
   }
 
   @Test
   public void create_request_from_profile_key_and_project_uuid() {
-    AddProjectRequest result = underTest.setProfileKey("SonarWay").setProjectUuid("123").build();
+    AddProjectRequest result = underTest.setKey("SonarWay").setProjectUuid("123").build();
 
     assertThat(result.getLanguage()).isNull();
-    assertThat(result.getProfileKey()).isEqualTo("SonarWay");
-    assertThat(result.getProfileName()).isNull();
+    assertThat(result.getKey()).isEqualTo("SonarWay");
+    assertThat(result.getQualityProfile()).isNull();
     assertThat(result.getProjectKey()).isNull();
     assertThat(result.getProjectUuid()).isEqualTo("123");
   }

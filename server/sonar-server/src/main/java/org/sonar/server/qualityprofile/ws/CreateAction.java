@@ -45,8 +45,8 @@ import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganiz
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 
 public class CreateAction implements QProfileWsAction {
 
@@ -91,14 +91,14 @@ public class CreateAction implements QProfileWsAction {
     createOrganizationParam(create)
       .setSince("6.4");
 
-    create.createParam(PARAM_PROFILE_NAME)
-      .setDescription("Name for the new quality profile")
+    create.createParam(PARAM_NAME)
+      .setDescription("Quality profile name")
       .setExampleValue("My Sonar way")
-      .setDeprecatedKey("name", "6.1")
+      .setDeprecatedKey("profileName", "6.6")
       .setRequired(true);
 
     create.createParam(PARAM_LANGUAGE)
-      .setDescription("The language for the quality profile.")
+      .setDescription("Quality profile language")
       .setExampleValue("js")
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages))
       .setRequired(true);
@@ -123,7 +123,7 @@ public class CreateAction implements QProfileWsAction {
   private CreateWsResponse doHandle(DbSession dbSession, CreateRequest createRequest, Request request, OrganizationDto organization) {
     QProfileResult result = new QProfileResult();
     QProfileDto profile = profileFactory.checkAndCreateCustom(dbSession, organization,
-      QProfileName.createFor(createRequest.getLanguage(), createRequest.getProfileName()));
+      QProfileName.createFor(createRequest.getLanguage(), createRequest.getName()));
     result.setProfile(profile);
     for (ProfileImporter importer : importers) {
       String importerKey = importer.getKey();
@@ -140,7 +140,7 @@ public class CreateAction implements QProfileWsAction {
     CreateRequest.Builder builder = CreateRequest.builder()
       .setOrganizationKey(organization.getKey())
       .setLanguage(request.mandatoryParam(PARAM_LANGUAGE))
-      .setProfileName(request.mandatoryParam(PARAM_PROFILE_NAME));
+      .setName(request.mandatoryParam(PARAM_NAME));
     return builder.build();
   }
 

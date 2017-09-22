@@ -75,18 +75,18 @@ public class RemoveProjectActionTest {
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.key()).isEqualTo("remove_project");
 
-    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("profile", "profileName", "project", "language", "projectUuid", "organization");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("key", "qualityProfile", "project", "language", "projectUuid", "organization");
     WebService.Param languageParam = definition.param("language");
     assertThat(languageParam.possibleValues()).containsOnly(LANGUAGE_1, LANGUAGE_2);
     assertThat(languageParam.exampleValue()).isNull();
-    assertThat(languageParam.deprecatedSince()).isEqualTo("6.5");
+    assertThat(languageParam.deprecatedSince()).isNullOrEmpty();
     WebService.Param organizationParam = definition.param("organization");
     assertThat(organizationParam.since()).isEqualTo("6.4");
     assertThat(organizationParam.isInternal()).isTrue();
-    WebService.Param profile = definition.param("profile");
+    WebService.Param profile = definition.param("key");
     assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
-    WebService.Param profileName = definition.param("profileName");
-    assertThat(profileName.deprecatedSince()).isEqualTo("6.5");
+    WebService.Param profileName = definition.param("qualityProfile");
+    assertThat(profileName.deprecatedSince()).isNullOrEmpty();
     WebService.Param project = definition.param("project");
     assertThat(project.deprecatedKey()).isEqualTo("projectKey");
     WebService.Param projectUuid = definition.param("projectUuid");
