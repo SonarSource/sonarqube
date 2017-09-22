@@ -78,7 +78,10 @@ public class PluginsTest {
     "fxcop",
 
     // SONAR-7770 Realm plugins cannot be installed as no external configuration is used
-    "crowd","ldap","pam"
+    "crowd","ldap","pam",
+
+    // conflict with SonarPLSQL : https://docs.sonarqube.org/display/PLUG/SonarTSQL
+    "tsql"
   );
 
   static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
