@@ -39,6 +39,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DELETE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_PROJECT;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_USER;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_RESTORE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SET_DEFAULT;
@@ -176,6 +177,14 @@ public class QualityProfilesService extends BaseService {
 
   public void addUser(AddUserRequest request) {
     call(new PostRequest(path(ACTION_ADD_USER))
+      .setParam(PARAM_ORGANIZATION, request.getOrganization())
+      .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
+      .setParam(PARAM_LANGUAGE, request.getLanguage())
+      .setParam(PARAM_LOGIN, request.getUserLogin()));
+  }
+
+  public void removeUser(RemoveUserRequest request) {
+    call(new PostRequest(path(ACTION_REMOVE_USER))
       .setParam(PARAM_ORGANIZATION, request.getOrganization())
       .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
       .setParam(PARAM_LANGUAGE, request.getLanguage())

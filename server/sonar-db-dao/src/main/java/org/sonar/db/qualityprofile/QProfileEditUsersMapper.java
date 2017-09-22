@@ -26,4 +26,6 @@ public interface QProfileEditUsersMapper {
   QProfileEditUsersDto selectByQProfileAndUser(@Param("qProfileUuid") String qProfileUuid, @Param("userId") int userId);
 
   void insert(@Param("dto") QProfileEditUsersDto dto, @Param("now") long now);
+
+  void delete(@Param("qProfileUuid") String qProfileUuid, @Param("userId") int userId);
 }
