@@ -19,53 +19,72 @@
  */
 import * as React from 'react';
 import Modal from 'react-modal';
-import UsersSelectSearch from '../../users/components/UsersSelectSearch';
-import { searchUsers, addUser } from '../../../api/quality-profiles';
+import ProfilePermissionsFormSelect from './ProfilePermissionsFormSelect';
+import { searchUsers, searchGroups, addUser, addGroup } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
-import { User } from './ProfilePermissions';
+import { User, Group } from './ProfilePermissions';
 
 interface Props {
-  onAdd: (user: User) => void;
   onClose: () => void;
+  onGroupAdd: (group: Group) => void;
+  onUserAdd: (user: User) => void;
   organization?: string;
   profile: { language: string; name: string };
 }
 
 interface State {
-  selected?: User;
+  selected?: User | Group;
   submitting: boolean;
 }
 
-export default class ProfilePermissionsAddUserForm extends React.PureComponent<Props, State> {
+export default class ProfilePermissionsForm extends React.PureComponent<Props, State> {
   state: State = { submitting: false };
+
+  handleUserAdd = (user: User) =>
+    addUser({
+      language: this.props.profile.language,
+      organization: this.props.organization,
+      profile: this.props.profile.name,
+      user: user.login
+    }).then(() => this.props.onUserAdd(user), () => {});
+
+  handleGroupAdd = (group: Group) =>
+    addGroup({
+      group: group.name,
+      language: this.props.profile.language,
+      organization: this.props.organization,
+      profile: this.props.profile.name
+    }).then(() => this.props.onGroupAdd(group), () => {});
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { selected } = this.state;
     if (selected) {
       this.setState({ submitting: true });
-      const { organization, profile } = this.props;
-      addUser({
-        language: profile.language,
-        organization,
-        profile: profile.name,
-        user: selected.login
-      }).then(() => this.props.onAdd(selected), () => {});
+      if ((selected as User).login != undefined) {
+        this.handleUserAdd(selected as User);
+      } else {
+        this.handleGroupAdd(selected as Group);
+      }
     }
   };
 
   handleSearch = (q: string) => {
     const { organization, profile } = this.props;
-    return searchUsers({
+    const parameters = {
       language: profile.language,
       organization,
       profile: profile.name,
       q,
       selected: false
-    });
+    };
+    return Promise.all([
+      searchUsers(parameters),
+      searchGroups(parameters)
+    ]).then(([users, groups]) => [...users, ...groups]);
   };
 
-  handleValueChange = (selected: any) => {
+  handleValueChange = (selected: User | Group) => {
     this.setState({ selected });
   };
 
@@ -86,11 +105,10 @@ export default class ProfilePermissionsAddUserForm extends React.PureComponent<P
           <div className="modal-body">
             <div className="modal-large-field">
               <label>{translate('quality_profiles.search_description')}</label>
-              <UsersSelectSearch
-                autoFocus={true}
-                selectedUser={this.state.selected}
-                searchUsers={this.handleSearch}
-                handleValueChange={this.handleValueChange}
+              <ProfilePermissionsFormSelect
+                selected={this.state.selected}
+                onChange={this.handleValueChange}
+                onSearch={this.handleSearch}
               />
             </div>
           </div>

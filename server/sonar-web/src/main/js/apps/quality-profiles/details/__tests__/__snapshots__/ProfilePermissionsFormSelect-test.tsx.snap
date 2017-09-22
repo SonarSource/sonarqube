@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<Select
+  addLabelText="Add \\"{label}\\"?"
+  arrowRenderer={[Function]}
+  autofocus={true}
+  autosize={true}
+  backspaceRemoves={true}
+  backspaceToRemoveMessage="Press backspace to remove {label}"
+  className="Select-big"
+  clearAllText="Clear all"
+  clearRenderer={[Function]}
+  clearValueText="Clear value"
+  clearable={false}
+  deleteRemoves={true}
+  delimiter=","
+  disabled={false}
+  escapeClearsValue={true}
+  filterOptions={[Function]}
+  ignoreAccents={true}
+  ignoreCase={true}
+  inputProps={Object {}}
+  isLoading={false}
+  joinValues={false}
+  labelKey="label"
+  matchPos="any"
+  matchProp="any"
+  menuBuffer={0}
+  menuRenderer={[Function]}
+  multi={false}
+  noResultsText="no_results"
+  onBlurResetsInput={true}
+  onChange={[Function]}
+  onCloseResetsInput={true}
+  onInputChange={[Function]}
+  optionComponent={[Function]}
+  optionRenderer={[Function]}
+  options={Array []}
+  pageSize={5}
+  placeholder=""
+  required={false}
+  scrollMenuIntoView={true}
+  searchable={true}
+  simpleValue={false}
+  tabSelectsValue={true}
+  value="group:lambda"
+  valueComponent={[Function]}
+  valueKey="value"
+  valueRenderer={[Function]}
+/>
+`;

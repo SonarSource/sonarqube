@@ -11,22 +11,21 @@ exports[`renders 1`] = `
   >
     <DeleteIcon />
   </a>
-  <Connect(Avatar)
+  <GroupIcon
     className="pull-left spacer-right"
-    name="Luke Skywalker"
     size={32}
   />
   <div
     className="overflow-hidden"
+    style={
+      Object {
+        "lineHeight": "32px",
+      }
+    }
   >
     <strong>
-      Luke Skywalker
+      lambda
     </strong>
-    <div
-      className="note"
-    >
-      luke
-    </div>
   </div>
 </div>
 `;

@@ -59,6 +59,20 @@ exports[`renders 2`] = `
           }
         }
       />
+      <ProfilePermissionsGroup
+        group={
+          Object {
+            "name": "Lambda",
+          }
+        }
+        onDelete={[Function]}
+        profile={
+          Object {
+            "language": "js",
+            "name": "Sonar way",
+          }
+        }
+      />
       <div
         className="text-right"
       >

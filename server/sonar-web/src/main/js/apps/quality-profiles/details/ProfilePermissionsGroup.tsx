@@ -19,25 +19,25 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { User } from './ProfilePermissions';
-import { removeUser } from '../../../api/quality-profiles';
+import { Group } from './ProfilePermissions';
+import { removeGroup } from '../../../api/quality-profiles';
 import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
 import DeleteIcon from '../../../components/icons-components/DeleteIcon';
-import Avatar from '../../../components/ui/Avatar';
+import GroupIcon from '../../../components/icons-components/GroupIcon';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  onDelete: (user: User) => void;
+  group: Group;
+  onDelete: (group: Group) => void;
   organization?: string;
   profile: { language: string; name: string };
-  user: User;
 }
 
 interface State {
   deleteModal: boolean;
 }
 
-export default class ProfilePermissionsUser extends React.PureComponent<Props, State> {
+export default class ProfilePermissionsGroup extends React.PureComponent<Props, State> {
   mounted: boolean;
   state: State = { deleteModal: false };
 
@@ -62,31 +62,31 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
   };
 
   handleDelete = () => {
-    const { organization, profile, user } = this.props;
+    const { group, organization, profile } = this.props;
 
-    return removeUser({
+    return removeGroup({
+      group: group.name,
       language: profile.language,
       organization,
-      profile: profile.name,
-      user: user.login
+      profile: profile.name
     }).then(() => {
       this.handleDeleteModalClose();
-      this.props.onDelete(user);
+      this.props.onDelete(group);
     });
   };
 
   renderDeleteModal = (props: ChildrenProps) => (
     <div>
       <header className="modal-head">
-        <h2>{translate('users.remove')}</h2>
+        <h2>{translate('groups.remove')}</h2>
       </header>
 
       <div className="modal-body">
         <FormattedMessage
-          defaultMessage={translate('users.remove.confirmation')}
-          id="users.remove.confirmation"
+          defaultMessage={translate('groups.remove.confirmation')}
+          id="groups.remove.confirmation"
           values={{
-            user: <strong>{this.props.user.name}</strong>
+            user: <strong>{this.props.group.name}</strong>
           }}
         />
       </div>
@@ -104,7 +104,7 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
   );
 
   render() {
-    const { user } = this.props;
+    const { group } = this.props;
 
     return (
       <div className="clearfix big-spacer-bottom">
@@ -114,15 +114,14 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
           onClick={this.handleDeleteClick}>
           <DeleteIcon />
         </a>
-        <Avatar className="pull-left spacer-right" hash={user.avatar} name={user.name} size={32} />
-        <div className="overflow-hidden">
-          <strong>{user.name}</strong>
-          <div className="note">{user.login}</div>
+        <GroupIcon className="pull-left spacer-right" size={32} />
+        <div className="overflow-hidden" style={{ lineHeight: '32px' }}>
+          <strong>{group.name}</strong>
         </div>
 
         {this.state.deleteModal && (
           <SimpleModal
-            header={translate('users.remove')}
+            header={translate('group.remove')}
             onClose={this.handleDeleteModalClose}
             onSubmit={this.handleDelete}>
             {this.renderDeleteModal}

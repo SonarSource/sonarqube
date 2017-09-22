@@ -18,42 +18,53 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 jest.mock('../../../../api/quality-profiles', () => ({
-  addUser: jest.fn(() => Promise.resolve())
+  removeGroup: jest.fn(() => Promise.resolve())
 }));
 
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ProfilePermissionsAddUserForm from '../ProfilePermissionsAddUserForm';
-import { submit } from '../../../../helpers/testUtils';
+import ProfilePermissionsGroup from '../ProfilePermissionsGroup';
+import { click } from '../../../../helpers/testUtils';
 
-const addUser = require('../../../../api/quality-profiles').addUser as jest.Mock<any>;
+const removeGroup = require('../../../../api/quality-profiles').removeGroup as jest.Mock<any>;
 
 const profile = { language: 'js', name: 'Sonar way' };
+const group = { name: 'lambda' };
 
-it('adds user', async () => {
-  const onAdd = jest.fn();
+beforeEach(() => {
+  removeGroup.mockClear();
+});
+
+it('renders', () => {
+  expect(
+    shallow(<ProfilePermissionsGroup group={group} onDelete={jest.fn()} profile={profile} />)
+  ).toMatchSnapshot();
+});
+
+it('removes user', async () => {
+  const onDelete = jest.fn();
   const wrapper = shallow(
-    <ProfilePermissionsAddUserForm
-      onAdd={onAdd}
-      onClose={jest.fn()}
+    <ProfilePermissionsGroup
+      group={group}
+      onDelete={onDelete}
       organization="org"
       profile={profile}
     />
   );
-  expect(wrapper).toMatchSnapshot();
+  (wrapper.instance() as ProfilePermissionsGroup).mounted = true;
+  expect(wrapper.find('SimpleModal').exists()).toBeFalsy();
 
-  wrapper.setState({ selected: { login: 'luke' } });
-  expect(wrapper).toMatchSnapshot();
+  click(wrapper.find('a'));
+  expect(wrapper.find('SimpleModal').exists()).toBeTruthy();
 
-  submit(wrapper.find('form'));
-  expect(wrapper).toMatchSnapshot();
-  expect(addUser).toBeCalledWith({
+  wrapper.find('SimpleModal').prop<Function>('onSubmit')();
+  expect(removeGroup).toBeCalledWith({
+    group: 'lambda',
     language: 'js',
     organization: 'org',
-    profile: 'Sonar way',
-    user: 'luke'
+    profile: 'Sonar way'
   });
 
   await new Promise(setImmediate);
-  expect(onAdd).toBeCalledWith({ login: 'luke' });
+  expect(onDelete).toBeCalledWith(group);
 });

@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 jest.mock('../../../../api/quality-profiles', () => ({
-  searchUsers: jest.fn(() => Promise.resolve([]))
+  searchUsers: jest.fn(() => Promise.resolve([])),
+  searchGroups: jest.fn(() => Promise.resolve([]))
 }));
 
 import * as React from 'react';
@@ -27,18 +28,24 @@ import ProfilePermissions from '../ProfilePermissions';
 import { click } from '../../../../helpers/testUtils';
 
 const searchUsers = require('../../../../api/quality-profiles').searchUsers as jest.Mock<any>;
+const searchGroups = require('../../../../api/quality-profiles').searchGroups as jest.Mock<any>;
 
 const profile = { name: 'Sonar way', language: 'js' };
 
 beforeEach(() => {
   searchUsers.mockClear();
+  searchGroups.mockClear();
 });
 
 it('renders', () => {
   const wrapper = shallow(<ProfilePermissions profile={profile} />);
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.setState({ loading: false, users: [{ login: 'luke', name: 'Luke Skywalker' }] });
+  wrapper.setState({
+    groups: [{ name: 'Lambda' }],
+    loading: false,
+    users: [{ login: 'luke', name: 'Luke Skywalker' }]
+  });
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -46,13 +53,13 @@ it('opens add users form', () => {
   const wrapper = shallow(<ProfilePermissions profile={profile} />);
   (wrapper.instance() as ProfilePermissions).mounted = true;
   wrapper.setState({ loading: false, users: [{ login: 'luke', name: 'Luke Skywalker' }] });
-  expect(wrapper.find('ProfilePermissionsAddUserForm').exists()).toBeFalsy();
+  expect(wrapper.find('ProfilePermissionsForm').exists()).toBeFalsy();
 
   click(wrapper.find('button'));
-  expect(wrapper.find('ProfilePermissionsAddUserForm').exists()).toBeTruthy();
+  expect(wrapper.find('ProfilePermissionsForm').exists()).toBeTruthy();
 
-  wrapper.find('ProfilePermissionsAddUserForm').prop<Function>('onClose')();
-  expect(wrapper.find('ProfilePermissionsAddUserForm').exists()).toBeFalsy();
+  wrapper.find('ProfilePermissionsForm').prop<Function>('onClose')();
+  expect(wrapper.find('ProfilePermissionsForm').exists()).toBeFalsy();
 });
 
 it('removes user', () => {
@@ -71,9 +78,31 @@ it('removes user', () => {
   expect(wrapper.find('ProfilePermissionsUser')).toHaveLength(1);
 });
 
-it('fetches users on mount', () => {
+it('removes group', () => {
+  const wrapper = shallow(<ProfilePermissions profile={profile} />);
+  (wrapper.instance() as ProfilePermissions).mounted = true;
+
+  const lambda = { name: 'Lambda' };
+  wrapper.setState({ loading: false, groups: [{ name: 'Atlas' }, lambda] });
+  expect(wrapper.find('ProfilePermissionsGroup')).toHaveLength(2);
+
+  wrapper
+    .find('ProfilePermissionsGroup')
+    .first()
+    .prop<Function>('onDelete')(lambda);
+  wrapper.update();
+  expect(wrapper.find('ProfilePermissionsGroup')).toHaveLength(1);
+});
+
+it('fetches users and groups on mount', () => {
   mount(<ProfilePermissions organization="org" profile={profile} />);
   expect(searchUsers).toBeCalledWith({
+    language: 'js',
+    organization: 'org',
+    profile: 'Sonar way',
+    selected: true
+  });
+  expect(searchGroups).toBeCalledWith({
     language: 'js',
     organization: 'org',
     profile: 'Sonar way',

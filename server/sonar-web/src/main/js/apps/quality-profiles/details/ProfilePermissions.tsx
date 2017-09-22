@@ -18,15 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { uniqBy } from 'lodash';
+import { sortBy, uniqBy } from 'lodash';
 import ProfilePermissionsUser from './ProfilePermissionsUser';
-import ProfilePermissionsAddUserForm from './ProfilePermissionsAddUserForm';
-import { searchUsers } from '../../../api/quality-profiles';
+import ProfilePermissionsGroup from './ProfilePermissionsGroup';
+import ProfilePermissionsForm from './ProfilePermissionsForm';
+import { searchUsers, searchGroups } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
 
 export interface User {
   avatar?: string;
   login: string;
+  name: string;
+}
+
+export interface Group {
   name: string;
 }
 
@@ -37,6 +42,7 @@ interface Props {
 
 interface State {
   addUserForm: boolean;
+  groups?: Group[];
   loading: boolean;
   users?: User[];
 }
@@ -66,14 +72,15 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
   fetchUsersAndGroups() {
     this.setState({ loading: true });
     const { organization, profile } = this.props;
-    searchUsers({
+    const parameters = {
       language: profile.language,
       organization,
       profile: profile.name,
       selected: true
-    }).then(users => {
+    };
+    Promise.all([searchUsers(parameters), searchGroups(parameters)]).then(([users, groups]) => {
       if (this.mounted) {
-        this.setState({ loading: false, users });
+        this.setState({ groups, loading: false, users });
       }
     });
   }
@@ -107,6 +114,23 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     }
   };
 
+  handleGroupAdd = (addedGroup: Group) => {
+    if (this.mounted) {
+      this.setState((state: State) => ({
+        addUserForm: false,
+        groups: state.groups && uniqBy([...state.groups, addedGroup], group => group.name)
+      }));
+    }
+  };
+
+  handleGroupDelete = (removedGroup: Group) => {
+    if (this.mounted) {
+      this.setState((state: State) => ({
+        groups: state.groups && state.groups.filter(group => group !== removedGroup)
+      }));
+    }
+  };
+
   render() {
     return (
       <div className="boxed-group">
@@ -121,13 +145,23 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
           ) : (
             <div className="big-spacer-top">
               {this.state.users &&
-                this.state.users.map(user => (
+                sortBy(this.state.users, 'name').map(user => (
                   <ProfilePermissionsUser
                     key={user.login}
                     onDelete={this.handleUserDelete}
                     organization={this.props.organization}
                     profile={this.props.profile}
                     user={user}
+                  />
+                ))}
+              {this.state.groups &&
+                sortBy(this.state.groups, 'name').map(group => (
+                  <ProfilePermissionsGroup
+                    group={group}
+                    key={group.name}
+                    onDelete={this.handleGroupDelete}
+                    organization={this.props.organization}
+                    profile={this.props.profile}
                   />
                 ))}
               <div className="text-right">
@@ -140,9 +174,10 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
         </div>
 
         {this.state.addUserForm && (
-          <ProfilePermissionsAddUserForm
+          <ProfilePermissionsForm
             onClose={this.handleAddUserFormClose}
-            onAdd={this.handleUserAdd}
+            onGroupAdd={this.handleGroupAdd}
+            onUserAdd={this.handleUserAdd}
             profile={this.props.profile}
             organization={this.props.organization}
           />

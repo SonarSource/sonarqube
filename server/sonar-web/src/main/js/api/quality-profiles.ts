@@ -130,7 +130,7 @@ export function dissociateProject(profileKey: string, projectKey: string): Promi
   return post('/api/qualityprofiles/remove_project', { profileKey, projectKey });
 }
 
-export interface SearchUsersParameters {
+export interface SearchUsersGroupsParameters {
   language: string;
   organization?: string;
   profile: string;
@@ -144,12 +144,24 @@ export type SearchUsersResponse = Array<{
   name: string;
 }>;
 
-export function searchUsers(_parameters: SearchUsersParameters): Promise<SearchUsersResponse> {
+export function searchUsers(
+  _parameters: SearchUsersGroupsParameters
+): Promise<SearchUsersResponse> {
   // return getJSON('/api/qualityprofiles/search_users', parameters);
   const response: SearchUsersResponse = [
     { login: 'john', name: 'John' },
     { login: 'bob', name: 'Bob' }
   ];
+  return new Promise(resolve => setTimeout(() => resolve(response), 500));
+}
+
+export type SearchGroupsResponse = Array<{ name: string }>;
+
+export function searchGroups(
+  _parameters: SearchUsersGroupsParameters
+): Promise<SearchGroupsResponse> {
+  // return getJSON('/api/qualityprofiles/search_groups', parameters);
+  const response: SearchGroupsResponse = [{ name: 'sonar-administators' }, { name: 'sonar-users' }];
   return new Promise(resolve => setTimeout(() => resolve(response), 500));
 }
 
@@ -167,5 +179,22 @@ export function addUser(_parameters: AddRemoveUserParameters): Promise<void> {
 
 export function removeUser(_parameters: AddRemoveUserParameters): Promise<void> {
   // return post('/api/qualityprofiles/remove_user', parameters);
+  return new Promise(resolve => setTimeout(resolve, 1000));
+}
+
+export interface AddRemoveGroupParameters {
+  group: string;
+  language: string;
+  organization?: string;
+  profile: string;
+}
+
+export function addGroup(_parameters: AddRemoveGroupParameters): Promise<void> {
+  // return post('/api/qualityprofiles/add_group', parameters);
+  return new Promise(resolve => setTimeout(resolve, 1000));
+}
+
+export function removeGroup(_parameters: AddRemoveGroupParameters): Promise<void> {
+  // return post('/api/qualityprofiles/remove_group', parameters);
   return new Promise(resolve => setTimeout(resolve, 1000));
 }
