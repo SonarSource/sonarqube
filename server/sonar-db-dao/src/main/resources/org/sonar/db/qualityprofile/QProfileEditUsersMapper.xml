@@ -32,5 +32,11 @@
     )
   </insert>
 
+  <delete id="delete" parameterType="map">
+    delete from qprofile_edit_users
+    where qprofile_uuid = #{qProfileUuid, jdbcType=VARCHAR}
+    and user_id = #{userId, jdbcType=INTEGER}
+  </delete>
+
 </mapper>
 
