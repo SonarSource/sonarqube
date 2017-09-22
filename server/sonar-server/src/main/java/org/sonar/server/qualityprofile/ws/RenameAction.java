@@ -37,7 +37,7 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_NAME;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 
 public class RenameAction implements QProfileWsAction {
 
@@ -62,22 +62,22 @@ public class RenameAction implements QProfileWsAction {
       .setPost(true)
       .setHandler(this);
 
+    setDefault.createParam(PARAM_KEY)
+      .setDescription("Quality profile key")
+      .setExampleValue(UUID_EXAMPLE_01)
+      .setRequired(true);
+
     setDefault.createParam(PARAM_NAME)
       .setDescription("New quality profile name")
       .setExampleValue("My Sonar way")
       .setRequired(true);
 
-    setDefault.createParam(PARAM_PROFILE)
-      .setDescription("Quality profile key")
-      .setDeprecatedKey("key", "6.5")
-      .setExampleValue(UUID_EXAMPLE_01)
-      .setRequired(true);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String newName = request.mandatoryParam(PARAM_NAME);
-    String profileKey = request.mandatoryParam(PARAM_PROFILE);
+    String profileKey = request.mandatoryParam(PARAM_KEY);
     doHandle(newName, profileKey);
     response.noContent();
   }

@@ -65,8 +65,8 @@ public class CustomQualityProfilesTest {
     // create two profiles with same names in two organizations
     Organization org1 = tester.organizations().generate();
     Organization org2 = tester.organizations().generate();
-    QualityProfile profileInOrg1 = tester.qProfiles().createXooProfile(org1, p -> p.setProfileName("foo"));
-    QualityProfile profileInOrg2 = tester.qProfiles().createXooProfile(org2, p -> p.setProfileName("foo"));
+    QualityProfile profileInOrg1 = tester.qProfiles().createXooProfile(org1, p -> p.setName("foo"));
+    QualityProfile profileInOrg2 = tester.qProfiles().createXooProfile(org2, p -> p.setName("foo"));
 
     tester.qProfiles()
       .assertThatNumberOfActiveRulesEqualsTo(profileInOrg1, 0)
@@ -133,7 +133,7 @@ public class CustomQualityProfilesTest {
       CreateRequest.builder()
         .setLanguage(parentProfile.getLanguage())
         .setOrganizationKey(org.getKey())
-        .setProfileName("inherited_profile")
+        .setName("inherited_profile")
         .build())
       .getProfile();
 
@@ -145,7 +145,7 @@ public class CustomQualityProfilesTest {
       CreateRequest.builder()
         .setLanguage(parentProfile.getLanguage())
         .setOrganizationKey(org.getKey())
-        .setProfileName("inherited_profile2")
+        .setName("inherited_profile2")
         .build())
       .getProfile();
 
@@ -223,7 +223,7 @@ public class CustomQualityProfilesTest {
       CreateRequest.builder()
         .setLanguage(parentProfile.getLanguage())
         .setOrganizationKey(org.getKey())
-        .setProfileName("inherited_profile")
+        .setName("inherited_profile")
         .build())
       .getProfile();
 
@@ -295,7 +295,7 @@ public class CustomQualityProfilesTest {
       .setParam("organization", org.getKey()));
 
     adminSession.qProfiles().service().addProject(AddProjectRequest.builder()
-      .setProfileKey(newXooProfile.getKey())
+      .setKey(newXooProfile.getKey())
       .setProjectKey(projectKey)
       .build());
 

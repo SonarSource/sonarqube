@@ -27,7 +27,7 @@ import static java.util.Objects.requireNonNull;
 
 public class ActivateRuleWsRequest {
   private final Optional<String> params;
-  private final String profileKey;
+  private final String key;
   private final Optional<Boolean> reset;
   private final String ruleKey;
   private final Optional<Severity> severity;
@@ -36,7 +36,7 @@ public class ActivateRuleWsRequest {
   private ActivateRuleWsRequest(Builder builder) {
     organization = requireNonNull(builder.organization);
     params = requireNonNull(builder.params);
-    profileKey = requireNonNull(builder.profileKey);
+    key = requireNonNull(builder.key);
     reset = requireNonNull(builder.reset);
     ruleKey = requireNonNull(builder.ruleKey);
     severity = requireNonNull(builder.severity);
@@ -50,8 +50,8 @@ public class ActivateRuleWsRequest {
     return params;
   }
 
-  public String getProfileKey() {
-    return profileKey;
+  public String getKey() {
+    return key;
   }
 
   public Optional<Boolean> getReset() {
@@ -73,7 +73,7 @@ public class ActivateRuleWsRequest {
   public static class Builder {
     private Optional<String> organization = Optional.empty();
     private Optional<String> params = Optional.empty();
-    private String profileKey;
+    private String key;
     private Optional<Boolean> reset = Optional.empty();
     private String ruleKey;
     private Optional<Severity> severity = Optional.empty();
@@ -91,8 +91,8 @@ public class ActivateRuleWsRequest {
       return this;
     }
 
-    public Builder setProfileKey(String profileKey) {
-      this.profileKey = profileKey;
+    public Builder setKey(String key) {
+      this.key = key;
       return this;
     }
 

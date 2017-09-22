@@ -140,7 +140,7 @@ public class RenameActionTest {
     logInAsQProfileAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'profile' parameter is missing");
+    expectedException.expectMessage("The 'key' parameter is missing");
 
     call(null, "Other Sonar Way");
   }
@@ -242,9 +242,9 @@ public class RenameActionTest {
 
     assertThat(definition.key()).isEqualTo("rename");
     assertThat(definition.isPost()).isTrue();
-    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("profile", "name");
-    Param profile = definition.param("profile");
-    assertThat(profile.deprecatedKey()).isEqualTo("key");
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("key", "name");
+    Param profile = definition.param("key");
+    assertThat(profile.deprecatedKey()).isNullOrEmpty();
   }
 
   private String createNewValidQualityProfileKey() {
@@ -272,7 +272,7 @@ public class RenameActionTest {
     TestRequest request = ws.newRequest()
       .setMethod("POST");
 
-    setNullable(key, k -> request.setParam("profile", k));
+    setNullable(key, k -> request.setParam("key", k));
     setNullable(name, n -> request.setParam("name", n));
 
     request.execute();

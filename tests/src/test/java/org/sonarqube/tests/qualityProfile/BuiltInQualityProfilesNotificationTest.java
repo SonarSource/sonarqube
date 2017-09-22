@@ -110,7 +110,7 @@ public class BuiltInQualityProfilesNotificationTest {
     WsUsers.CreateWsResponse.User noProfileAdmin = userRule.generate();
 
     // Create a child profile on the built-in profile => The notification should not take into account updates of this profile
-    wsClient.qualityProfiles().create(CreateRequest.builder().setLanguage("foo").setProfileName("child").build());
+    wsClient.qualityProfiles().create(CreateRequest.builder().setLanguage("foo").setName("child").build());
     wsClient.qualityProfiles().changeParent(ChangeParentRequest.builder().setProfileName("child").setParentName("Basic").setLanguage("foo").build());
 
     // uninstall plugin V1

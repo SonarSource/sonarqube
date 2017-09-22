@@ -45,7 +45,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Comparator.comparing;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 
 public class ProjectsAction implements QProfileWsAction {
 
@@ -74,9 +74,8 @@ public class ProjectsAction implements QProfileWsAction {
       new Change("6.0", "'uuid' response field is deprecated and replaced by 'id'"),
       new Change("6.0", "'key' response field has been added to return the project key"));
 
-    action.createParam(PARAM_PROFILE)
-      .setDescription("Quality profile key.")
-      .setDeprecatedKey("key", "6.5")
+    action.createParam(PARAM_KEY)
+      .setDescription("Quality profile key")
       .setRequired(true)
       .setExampleValue(UUID_EXAMPLE_01);
     action.addSelectionModeParam();
@@ -92,7 +91,7 @@ public class ProjectsAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String profileKey = request.mandatoryParam(PARAM_PROFILE);
+    String profileKey = request.mandatoryParam(PARAM_KEY);
 
     try (DbSession session = dbClient.openSession(false)) {
       checkProfileExists(profileKey, session);

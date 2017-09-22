@@ -28,6 +28,7 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
@@ -106,8 +107,8 @@ public class QProfilesWsTest {
     assertThat(create.param("organization")).isNotNull();
     assertThat(create.param("organization").isRequired()).isFalse();
     assertThat(create.param("organization").isInternal()).isTrue();
-    assertThat(create.param("profileName")).isNotNull();
-    assertThat(create.param("profileName").isRequired()).isTrue();
+    assertThat(create.param("name")).isNotNull();
+    assertThat(create.param("name").isRequired()).isTrue();
     assertThat(create.param("language").possibleValues()).containsOnly(xoo1Key, xoo2Key);
     assertThat(create.param("language").isRequired()).isTrue();
     assertThat(create.param("backup_" + xoo1Key)).isNotNull();
@@ -152,8 +153,8 @@ public class QProfilesWsTest {
     WebService.Action delete = controller.action("delete");
     assertThat(delete).isNotNull();
     assertThat(delete.isPost()).isTrue();
-    assertThat(delete.params()).hasSize(4).extracting("key").containsOnly(
-      "organization", "profile", "language", "profileName");
+    assertThat(delete.params()).hasSize(4).extracting(Param::key).containsOnly(
+      "organization", "key", "language", "qualityProfile");
   }
 
   @Test
@@ -170,8 +171,8 @@ public class QProfilesWsTest {
     WebService.Action inheritance = controller.action("inheritance");
     assertThat(inheritance).isNotNull();
     assertThat(inheritance.isPost()).isFalse();
-    assertThat(inheritance.params()).hasSize(4).extracting("key").containsExactlyInAnyOrder(
-      "organization", "profile", "language", "profileName");
+    assertThat(inheritance.params()).hasSize(4).extracting(Param::key).containsExactlyInAnyOrder(
+      "organization", "key", "language", "qualityProfile");
     assertThat(inheritance.responseExampleAsString()).isNotEmpty();
   }
 }

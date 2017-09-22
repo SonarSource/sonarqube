@@ -58,7 +58,7 @@ public class QProfileTester {
     CreateRequest.Builder request = CreateRequest.builder()
       .setOrganizationKey(organization.getKey())
       .setLanguage("xoo")
-      .setProfileName("Profile" + id);
+      .setName("Profile" + id);
     stream(populators).forEach(p -> p.accept(request));
     return service().create(request.build()).getProfile();
   }
@@ -69,7 +69,7 @@ public class QProfileTester {
 
   public QProfileTester activateRule(String profileKey, String ruleKey) {
     ActivateRuleWsRequest request = ActivateRuleWsRequest.builder()
-      .setProfileKey(profileKey)
+      .setKey(profileKey)
       .setRuleKey(ruleKey)
       .build();
     service().activateRule(request);
@@ -84,7 +84,7 @@ public class QProfileTester {
   public QProfileTester assignQProfileToProject(QualityProfile profile, Project project) {
     service().addProject(AddProjectRequest.builder()
       .setProjectKey(project.getKey())
-      .setProfileKey(profile.getKey())
+      .setKey(profile.getKey())
       .build());
     return this;
   }

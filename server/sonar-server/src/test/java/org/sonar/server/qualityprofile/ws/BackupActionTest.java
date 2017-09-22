@@ -40,7 +40,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 
 public class BackupActionTest {
 
@@ -69,13 +69,13 @@ public class BackupActionTest {
     assertThat(definition.isPost()).isFalse();
 
     // parameters
-    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("profile", "organization", "profileName", "language");
-    Param profile = definition.param("profile");
-    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("key", "organization", "qualityProfile", "language");
+    Param key = definition.param("key");
+    assertThat(key.deprecatedKey()).isEqualTo("profileKey");
+    assertThat(key.deprecatedSince()).isEqualTo("6.6");
     Param language = definition.param("language");
-    assertThat(language.deprecatedSince()).isEqualTo("6.5");
-    Param profileName = definition.param("profileName");
-    assertThat(profileName.deprecatedSince()).isEqualTo("6.5");
+    assertThat(language.deprecatedSince()).isNullOrEmpty();
+    Param profileName = definition.param("qualityProfile");
     Param orgParam = definition.param("organization");
     assertThat(orgParam.since()).isEqualTo("6.4");
   }
@@ -84,7 +84,7 @@ public class BackupActionTest {
   public void returns_backup_of_profile_with_specified_key() throws Exception {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
-    TestResponse response = tester.newRequest().setParam(PARAM_PROFILE, profile.getKee()).execute();
+    TestResponse response = tester.newRequest().setParam(PARAM_KEY, profile.getKee()).execute();
     assertThat(response.getMediaType()).isEqualTo("application/xml");
     assertThat(response.getInput()).isXmlEqualTo(xmlForProfileWithoutRules(profile));
     assertThat(response.getHeader("Content-Disposition")).isEqualTo("attachment; filename=" + profile.getKee() + ".xml");
@@ -96,7 +96,7 @@ public class BackupActionTest {
 
     TestResponse response = tester.newRequest()
       .setParam("language", profile.getLanguage())
-      .setParam("profileName", profile.getName())
+      .setParam("qualityProfile", profile.getName())
       .execute();
     assertThat(response.getInput()).isXmlEqualTo(xmlForProfileWithoutRules(profile));
   }
@@ -109,7 +109,7 @@ public class BackupActionTest {
     TestResponse response = tester.newRequest()
       .setParam("organization", org.getKey())
       .setParam("language", profile.getLanguage())
-      .setParam("profileName", profile.getName())
+      .setParam("qualityProfile", profile.getName())
       .execute();
     assertThat(response.getInput()).isXmlEqualTo(xmlForProfileWithoutRules(profile));
   }
@@ -119,7 +119,7 @@ public class BackupActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile with key 'missing' does not exist");
 
-    tester.newRequest().setParam(PARAM_PROFILE, "missing").execute();
+    tester.newRequest().setParam(PARAM_KEY, "missing").execute();
   }
 
   @Test
@@ -130,7 +130,7 @@ public class BackupActionTest {
     tester.newRequest()
       .setParam("organization", "the-missing-org")
       .setParam("language", A_LANGUAGE)
-      .setParam("profileName", "the-name")
+      .setParam("qualityProfile", "the-name")
       .execute();
   }
 
@@ -147,7 +147,7 @@ public class BackupActionTest {
     tester.newRequest()
       .setParam("organization", org2.getKey())
       .setParam("language", profileInOrg1.getLanguage())
-      .setParam("profileName", profileInOrg1.getName())
+      .setParam("qualityProfile", profileInOrg1.getName())
       .execute();
   }
 

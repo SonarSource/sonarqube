@@ -24,16 +24,16 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class ShowRequest {
-  private String profile;
+  private String key;
   private Boolean compareToSonarWay;
 
   @CheckForNull
-  public String getProfile() {
-    return profile;
+  public String getKey() {
+    return key;
   }
 
-  public ShowRequest setProfile(@Nullable String profile) {
-    this.profile = profile;
+  public ShowRequest setKey(@Nullable String key) {
+    this.key = key;
     return this;
   }
 

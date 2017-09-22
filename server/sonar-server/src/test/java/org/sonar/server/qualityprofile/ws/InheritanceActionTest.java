@@ -63,7 +63,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.qualityprofile.QProfileTesting.newQProfileDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 
 public class InheritanceActionTest {
 
@@ -144,7 +144,7 @@ public class InheritanceActionTest {
 
     String response = ws.newRequest()
       .setMethod("GET")
-      .setParam(PARAM_PROFILE, buWide.getKee())
+      .setParam(PARAM_KEY, buWide.getKee())
       .execute()
       .getInput();
 
@@ -172,7 +172,7 @@ public class InheritanceActionTest {
     InputStream response = ws.newRequest()
       .setMethod("GET")
       .setMediaType(PROTOBUF)
-      .setParam(PARAM_PROFILE, child.getKee())
+      .setParam(PARAM_KEY, child.getKee())
       .execute()
       .getInputStream();
 
@@ -199,7 +199,7 @@ public class InheritanceActionTest {
     InputStream response = ws.newRequest()
       .setMethod("GET")
       .setMediaType(PROTOBUF)
-      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_KEY, profile.getKee())
       .execute()
       .getInputStream();
 
@@ -215,7 +215,7 @@ public class InheritanceActionTest {
 
     String response = ws.newRequest()
       .setMethod("GET")
-      .setParam(PARAM_PROFILE, remi.getKee())
+      .setParam(PARAM_KEY, remi.getKee())
       .execute()
       .getInput();
 
@@ -225,7 +225,7 @@ public class InheritanceActionTest {
   @Test(expected = NotFoundException.class)
   public void fail_if_not_found() throws Exception {
     ws.newRequest()
-      .setMethod("GET").setParam(PARAM_PROFILE, "polop").execute();
+      .setMethod("GET").setParam(PARAM_KEY, "polop").execute();
   }
 
   @Test
@@ -233,13 +233,14 @@ public class InheritanceActionTest {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.key()).isEqualTo("inheritance");
-    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("profile", "language", "profileName", "organization");
-    Param profile = definition.param("profile");
-    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
-    Param profileName = definition.param("profileName");
-    assertThat(profileName.deprecatedSince()).isEqualTo("6.5");
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("key", "language", "qualityProfile", "organization");
+    Param key = definition.param("key");
+    assertThat(key.deprecatedKey()).isEqualTo("profileKey");
+    assertThat(key.deprecatedSince()).isEqualTo("6.6");
+    Param profileName = definition.param("qualityProfile");
+    assertThat(profileName.deprecatedSince()).isNullOrEmpty();
     Param language = definition.param("language");
-    assertThat(language.deprecatedSince()).isEqualTo("6.5");
+    assertThat(language.deprecatedSince()).isNullOrEmpty();
   }
 
   private QProfileDto createProfile(String lang, String name, String key) {

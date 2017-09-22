@@ -50,12 +50,12 @@ import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganiz
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class ExportAction implements QProfileWsAction {
 
-  private static final String PARAM_NAME = "name";
   private static final String PARAM_EXPORTER_KEY = "exporterKey";
 
   private final DbClient dbClient;
@@ -80,20 +80,20 @@ public class ExportAction implements QProfileWsAction {
       .setResponseExample(getClass().getResource("export-example.xml"))
       .setHandler(this);
 
-    action.createParam(PARAM_PROFILE)
+    action.createParam(PARAM_KEY)
       .setDescription("Quality profile key")
       .setSince("6.5")
+      .setDeprecatedSince("6.6")
       .setExampleValue(UUID_EXAMPLE_01);
 
-    action.createParam(PARAM_NAME)
+    action.createParam(PARAM_QUALITY_PROFILE)
       .setDescription("Quality profile name to export. If left empty, the default profile for the language is exported. If this parameter is set, '%s' must not be set.",
-        PARAM_PROFILE)
-      .setDeprecatedSince("6.5")
+        PARAM_KEY)
+      .setDeprecatedKey("profileName", "6.6")
       .setExampleValue("My Sonar way");
 
     action.createParam(PARAM_LANGUAGE)
-      .setDescription("Quality profile language.  If this parameter is set, '%s' must not be set.", PARAM_PROFILE)
-      .setDeprecatedSince("6.5")
+      .setDescription("Quality profile language.  If this parameter is set, '%s' must not be set.", PARAM_KEY)
       .setExampleValue(LanguageParamUtils.getExampleValue(languages))
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
 
@@ -117,10 +117,10 @@ public class ExportAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String key = request.param(PARAM_PROFILE);
-    String name = request.param(PARAM_NAME);
+    String key = request.param(PARAM_KEY);
+    String name = request.param(PARAM_QUALITY_PROFILE);
     String language = request.param(PARAM_LANGUAGE);
-    checkRequest(key != null ^ language != null, "Either '%s' or '%s' must be provided.", PARAM_PROFILE, PARAM_LANGUAGE);
+    checkRequest(key != null ^ language != null, "Either '%s' or '%s' must be provided.", PARAM_KEY, PARAM_LANGUAGE);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));

@@ -26,7 +26,7 @@ public class SearchWsRequest {
   private String organizationKey;
   private boolean defaults;
   private String language;
-  private String profileName;
+  private String qualityProfile;
   private String projectKey;
 
   public String getOrganizationKey() {
@@ -58,12 +58,12 @@ public class SearchWsRequest {
   }
 
   @CheckForNull
-  public String getProfileName() {
-    return profileName;
+  public String getQualityProfile() {
+    return qualityProfile;
   }
 
-  public SearchWsRequest setProfileName(@Nullable String profileName) {
-    this.profileName = profileName;
+  public SearchWsRequest setQualityProfile(@Nullable String qualityProfile) {
+    this.qualityProfile = qualityProfile;
     return this;
   }
 

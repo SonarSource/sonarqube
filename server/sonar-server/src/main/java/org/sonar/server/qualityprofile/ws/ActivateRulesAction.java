@@ -36,7 +36,7 @@ import static org.sonar.server.qualityprofile.ws.BulkChangeWsResponse.writeRespo
 import static org.sonar.server.qualityprofile.ws.QProfileReference.fromKey;
 import static org.sonar.server.rule.ws.SearchAction.defineRuleSearchParameters;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULES;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_SEVERITY;
 
 public class ActivateRulesAction implements QProfileWsAction {
@@ -66,8 +66,8 @@ public class ActivateRulesAction implements QProfileWsAction {
 
     defineRuleSearchParameters(activate);
 
-    activate.createParam(PARAM_TARGET_PROFILE)
-      .setDescription("Quality Profile key on which the rule activation is done. To retrieve a profile key please see <code>api/qualityprofiles/search</code>")
+    activate.createParam(PARAM_TARGET_KEY)
+      .setDescription("Quality Profile key on which the rule activation is done. To retrieve a quality profile key please see <code>api/qualityprofiles/search</code>")
       .setDeprecatedKey("profile_key", "6.5")
       .setRequired(true)
       .setExampleValue(UUID_EXAMPLE_03);
@@ -80,7 +80,7 @@ public class ActivateRulesAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String qualityProfileKey = request.mandatoryParam(PARAM_TARGET_PROFILE);
+    String qualityProfileKey = request.mandatoryParam(PARAM_TARGET_KEY);
     userSession.checkLoggedIn();
     BulkChangeResult result;
     try (DbSession dbSession = dbClient.openSession(false)) {

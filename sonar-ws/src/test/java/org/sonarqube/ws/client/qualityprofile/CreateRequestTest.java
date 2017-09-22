@@ -36,17 +36,17 @@ public class CreateRequestTest {
   public void create_set_request() {
     CreateRequest result = underTest
       .setLanguage("java")
-      .setProfileName("Sonar way")
+      .setName("Sonar way")
       .build();
 
     assertThat(result.getLanguage()).isEqualTo("java");
-    assertThat(result.getProfileName()).isEqualTo("Sonar way");
+    assertThat(result.getName()).isEqualTo("Sonar way");
   }
 
   @Test
   public void fail_when_no_language() {
     expectedException.expect(IllegalArgumentException.class);
-    underTest.setProfileName("Sonar way").build();
+    underTest.setName("Sonar way").build();
   }
 
   @Test

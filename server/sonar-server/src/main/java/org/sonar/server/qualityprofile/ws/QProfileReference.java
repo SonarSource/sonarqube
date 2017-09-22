@@ -35,8 +35,8 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 /**
  * Reference to a Quality profile as defined by requests to web services api/qualityprofiles.
@@ -150,10 +150,10 @@ public class QProfileReference {
   }
 
   public static QProfileReference from(Request request) {
-    String key = request.param(PARAM_PROFILE);
+    String key = request.param(PARAM_KEY);
     String organizationKey = request.param(PARAM_ORGANIZATION);
     String lang = request.param(PARAM_LANGUAGE);
-    String name = request.param(PARAM_PROFILE_NAME);
+    String name = request.param(PARAM_QUALITY_PROFILE);
     return from(key, organizationKey, lang, name);
   }
 
@@ -175,19 +175,19 @@ public class QProfileReference {
   }
 
   public static void defineParams(WebService.NewAction action, Languages languages) {
-    action.createParam(PARAM_PROFILE)
+    action.createParam(PARAM_KEY)
       .setDescription("Quality profile key")
       .setDeprecatedKey("profileKey", "6.5")
+      .setDeprecatedSince("6.6")
       .setExampleValue(UUID_EXAMPLE_01);
 
-    action.createParam(PARAM_PROFILE_NAME)
-      .setDescription("Quality profile name. If this parameter is set, '%s' must not be set and '%s' must be set to disambiguate.", PARAM_PROFILE, PARAM_LANGUAGE)
-      .setDeprecatedSince("6.5")
+    action.createParam(PARAM_QUALITY_PROFILE)
+      .setDescription("Quality profile name. If this parameter is set, '%s' must not be set and '%s' must be set to disambiguate.", PARAM_KEY, PARAM_LANGUAGE)
+      .setDeprecatedKey("profileName", "6.6")
       .setExampleValue("Sonar way");
 
     action.createParam(PARAM_LANGUAGE)
-      .setDescription("Quality profile language. If this parameter is set, '%s' must not be set and '%s' must be set to disambiguate.", PARAM_PROFILE, PARAM_LANGUAGE)
-      .setDeprecatedSince("6.5")
+      .setDescription("Quality profile language. If this parameter is set, '%s' must not be set and '%s' must be set to disambiguate.", PARAM_KEY, PARAM_LANGUAGE)
       .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(MoreCollectors.toSet()));
   }
 }

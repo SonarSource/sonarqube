@@ -61,7 +61,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 
 public class SearchActionTest {
@@ -116,9 +116,9 @@ public class SearchActionTest {
     assertThat(language.deprecatedSince()).isNull();
     assertThat(language.description()).isEqualTo("Language key. If provided, only profiles for the given language are returned.");
 
-    WebService.Param profileName = definition.param("profileName");
+    WebService.Param profileName = definition.param("qualityProfile");
     assertThat(profileName.deprecatedSince()).isNull();
-    assertThat(profileName.description()).isEqualTo("Profile name");
+    assertThat(profileName.description()).isEqualTo("Quality profile name");
   }
 
   @Test
@@ -228,7 +228,7 @@ public class SearchActionTest {
     QProfileDto sonarWayInCamelCase = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setName("Sonar Way").setLanguage(XOO2.getKey()));
     QProfileDto anotherProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setName("Another").setLanguage(XOO2.getKey()));
 
-    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROFILE_NAME, "Sonar way"));
+    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_QUALITY_PROFILE, "Sonar way"));
 
     assertThat(result.getProfilesList()).extracting(QualityProfile::getKey)
       .containsExactlyInAnyOrder(sonarWayOnXoo1.getKee(), sonarWayOnXoo2.getKee())
@@ -244,7 +244,7 @@ public class SearchActionTest {
 
     SearchWsResponse result = call(ws.newRequest()
       .setParam(PARAM_DEFAULTS, "true")
-      .setParam(PARAM_PROFILE_NAME, "Sonar way"));
+      .setParam(PARAM_QUALITY_PROFILE, "Sonar way"));
 
     assertThat(result.getProfilesList()).extracting(QualityProfile::getKey)
       .containsExactlyInAnyOrder(sonarWayOnXoo1.getKee())

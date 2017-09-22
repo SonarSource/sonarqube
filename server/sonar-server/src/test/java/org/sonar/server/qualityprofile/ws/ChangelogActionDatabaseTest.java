@@ -42,8 +42,8 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class ChangelogActionDatabaseTest {
 
@@ -76,13 +76,11 @@ public class ChangelogActionDatabaseTest {
 
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.params()).extracting(WebService.Param::key)
-      .containsExactlyInAnyOrder("profile", "profileName", "language", "organization", "since", "to", "p", "ps");
-    WebService.Param profile = definition.param("profile");
-    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
-    WebService.Param profileName = definition.param("profileName");
-    assertThat(profileName.deprecatedSince()).isEqualTo("6.5");
+      .containsExactlyInAnyOrder("key", "qualityProfile", "language", "organization", "since", "to", "p", "ps");
+    WebService.Param profileName = definition.param("qualityProfile");
+    assertThat(profileName.deprecatedSince()).isNullOrEmpty();
     WebService.Param language = definition.param("language");
-    assertThat(language.deprecatedSince()).isEqualTo("6.5");
+    assertThat(language.deprecatedSince()).isNullOrEmpty();
   }
 
   @Test
@@ -91,7 +89,7 @@ public class ChangelogActionDatabaseTest {
 
     String response = ws.newRequest()
       .setMethod("GET")
-      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_KEY, profile.getKee())
       .execute()
       .getInput();
 
@@ -105,7 +103,7 @@ public class ChangelogActionDatabaseTest {
     String response = ws.newRequest()
       .setMethod("GET")
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
-      .setParam(PARAM_PROFILE_NAME, qualityProfile.getName())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
       .execute()
       .getInput();
 
@@ -119,7 +117,7 @@ public class ChangelogActionDatabaseTest {
     String response = ws.newRequest()
       .setMethod("GET")
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
-      .setParam(PARAM_PROFILE_NAME, qualityProfile.getName())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
@@ -137,7 +135,7 @@ public class ChangelogActionDatabaseTest {
     TestRequest request = ws.newRequest()
       .setMethod("GET")
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
-      .setParam(PARAM_PROFILE_NAME, qualityProfile.getName())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
       .setParam(PARAM_ORGANIZATION, organization2.getKey());
 
     thrown.expect(NotFoundException.class);
@@ -151,7 +149,7 @@ public class ChangelogActionDatabaseTest {
 
     String response = ws.newRequest()
       .setMethod("GET")
-      .setParam(PARAM_PROFILE, qualityProfile.getKee())
+      .setParam(PARAM_KEY, qualityProfile.getKee())
       .execute()
       .getInput();
 
@@ -172,7 +170,7 @@ public class ChangelogActionDatabaseTest {
 
     String response = ws.newRequest()
       .setMethod("GET")
-      .setParam(PARAM_PROFILE, qualityProfile.getKee())
+      .setParam(PARAM_KEY, qualityProfile.getKee())
       .execute()
       .getInput();
 
