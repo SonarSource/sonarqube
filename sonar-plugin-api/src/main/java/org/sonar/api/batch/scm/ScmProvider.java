@@ -19,12 +19,14 @@
  */
 package org.sonar.api.batch.scm;
 
-import org.sonar.api.batch.ScannerSide;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.InstantiationStrategy;
-
-import java.io.File;
+import org.sonar.api.batch.ScannerSide;
 
 /**
  * See {@link CoreProperties#LINKS_SOURCES_DEV} to get old Maven URL format.
@@ -54,4 +56,12 @@ public abstract class ScmProvider {
     throw new UnsupportedOperationException("Blame command is not supported by " + key() + " provider");
   }
 
+  /**
+   * Return absolute path of the files changed in the current branch, compared to the provided target branch.
+   * @return null if SCM provider was not able to compute the list of files.
+   */
+  @Nullable
+  public Set<Path> branchChangedFiles(String targetBranchName, Path rootBaseDir) {
+    return null;
+  }
 }

@@ -30,7 +30,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
-import org.sonar.api.batch.scm.ScmBranchProvider;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
@@ -48,7 +47,7 @@ public class ScmChangedFilesProviderTest {
   @Mock
   private InputModuleHierarchy inputModuleHierarchy;
   @Mock
-  private ScmBranchProvider scmProvider;
+  private ScmProvider scmProvider;
 
   @Rule
   public ExpectedException exception = ExpectedException.none();
@@ -109,7 +108,13 @@ public class ScmChangedFilesProviderTest {
 
   @Test
   public void testLegacyScmProvider() {
-    ScmProvider legacy = mock(ScmProvider.class);
+    ScmProvider legacy = new ScmProvider() {
+      @Override
+      public String key() {
+        return null;
+      }
+    };
+
     when(scmConfiguration.provider()).thenReturn(legacy);
     when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
 
@@ -117,7 +122,6 @@ public class ScmChangedFilesProviderTest {
 
     assertThat(scmChangedFiles.get()).isNull();
     verify(scmConfiguration).provider();
-    verifyZeroInteractions(legacy);
   }
 
   @Test
