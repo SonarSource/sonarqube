@@ -1,0 +1,126 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonarqube.tests.qualityProfile;
+
+import com.sonar.orchestrator.Orchestrator;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonarqube.tests.Category6Suite;
+import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Organizations.Organization;
+import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
+import org.sonarqube.ws.QualityProfiles.SearchUsersResponse;
+import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.client.qualityprofile.AddUserRequest;
+import org.sonarqube.ws.client.qualityprofile.RemoveUserRequest;
+import org.sonarqube.ws.client.qualityprofile.SearchUsersRequest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
+public class QualityProfilesEditTest {
+
+  @ClassRule
+  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+
+  @Rule
+  public Tester tester = new Tester(orchestrator);
+
+  @Test
+  public void search_users_allowed_to_edit_a_profile() {
+    Organization organization = tester.organizations().generate();
+    WsUsers.CreateWsResponse.User user1 = tester.users().generateMember(organization);
+    WsUsers.CreateWsResponse.User user2 = tester.users().generateMember(organization);
+    CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
+    tester.qProfiles().service().addUser(AddUserRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setUserLogin(user1.getLogin())
+      .build());
+
+    SearchUsersResponse users = tester.qProfiles().service().searchUsers(SearchUsersRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setSelected("all")
+      .build());
+
+    assertThat(users.getUsersList()).extracting(SearchUsersResponse.User::getLogin, SearchUsersResponse.User::getName, SearchUsersResponse.User::getSelected)
+      .containsExactlyInAnyOrder(
+        tuple(user1.getLogin(), user1.getName(), true),
+        tuple(user2.getLogin(), user2.getName(), false),
+        tuple("admin", "Administrator", false));
+    assertThat(users.getPaging()).extracting(Common.Paging::getPageIndex, Common.Paging::getPageSize, Common.Paging::getTotal)
+      .containsExactlyInAnyOrder(1, 25, 3);
+  }
+
+  @Test
+  public void add_and_remove_user() {
+    Organization organization = tester.organizations().generate();
+    WsUsers.CreateWsResponse.User user1 = tester.users().generateMember(organization);
+    WsUsers.CreateWsResponse.User user2 = tester.users().generateMember(organization);
+    CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
+
+    // No user added
+    assertThat(tester.qProfiles().service().searchUsers(SearchUsersRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setSelected("selected")
+      .build()).getUsersList())
+      .extracting(SearchUsersResponse.User::getLogin)
+      .isEmpty();
+
+    // Add user 1
+    tester.qProfiles().service().addUser(AddUserRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setUserLogin(user1.getLogin())
+      .build());
+    assertThat(tester.qProfiles().service().searchUsers(SearchUsersRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setSelected("selected")
+      .build()).getUsersList())
+      .extracting(SearchUsersResponse.User::getLogin)
+      .containsExactlyInAnyOrder(user1.getLogin());
+
+    // Remove user 1
+    tester.qProfiles().service().removeUser(RemoveUserRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setUserLogin(user1.getLogin())
+      .build());
+    assertThat(tester.qProfiles().service().searchUsers(SearchUsersRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setSelected("selected")
+      .build()).getUsersList())
+      .extracting(SearchUsersResponse.User::getLogin)
+      .isEmpty();
+  }
+}
