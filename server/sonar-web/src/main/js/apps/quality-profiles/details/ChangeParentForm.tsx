@@ -112,7 +112,7 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
           <div className="modal-body">
             <div className="modal-field">
               <label htmlFor="change-profile-parent">
-                {translate('quality_profiles.parent')}: <em className="mandatory">*</em>
+                {translate('quality_profiles.parent')} <em className="mandatory">*</em>
               </label>
               <Select
                 clearable={false}
