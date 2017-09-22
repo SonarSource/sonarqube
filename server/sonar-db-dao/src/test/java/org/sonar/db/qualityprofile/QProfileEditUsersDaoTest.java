@@ -71,4 +71,17 @@ public class QProfileEditUsersDaoTest {
       entry("createdAt", NOW));
   }
 
+  @Test
+  public void deleteByQProfileAndUser() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    UserDto user = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(profile, user);
+    assertThat(underTest.exists(db.getSession(), profile, user)).isTrue();
+
+    underTest.deleteByQProfileAndUser(db.getSession(), profile, user);
+
+    assertThat(underTest.exists(db.getSession(), profile, user)).isFalse();
+  }
+
 }
