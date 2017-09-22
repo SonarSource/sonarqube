@@ -17,21 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.qualityprofile;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
-import org.sonar.db.Pagination;
+package org.sonar.server.issue.ws;
 
-public interface QProfileEditUsersMapper {
+import org.sonar.db.user.UserDto;
 
-  QProfileEditUsersDto selectByQProfileAndUser(@Param("qProfileUuid") String qProfileUuid, @Param("userId") int userId);
+public class FakeAvatarResolver implements AvatarResolver {
 
-  int countByQuery(@Param("query") SearchUsersQuery query);
+  @Override
+  public String create(UserDto user) {
+    return user.getEmail() + "_avatar";
+  }
 
-  List<UserMembershipDto> selectByQuery(@Param("query") SearchUsersQuery query, @Param("pagination") Pagination pagination);
-
-  void insert(@Param("dto") QProfileEditUsersDto dto, @Param("now") long now);
-
-  void delete(@Param("qProfileUuid") String qProfileUuid, @Param("userId") int userId);
 }

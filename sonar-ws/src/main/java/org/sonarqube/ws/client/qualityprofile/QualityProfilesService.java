@@ -23,6 +23,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.CopyWsResponse;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
+import org.sonarqube.ws.QualityProfiles.SearchUsersResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.ShowResponse;
 import org.sonarqube.ws.client.BaseService;
@@ -30,6 +31,10 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.SELECTED;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_PROJECT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_USER;
@@ -42,6 +47,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_USER;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_RESTORE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH_USERS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SET_DEFAULT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES;
@@ -189,5 +195,18 @@ public class QualityProfilesService extends BaseService {
       .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
       .setParam(PARAM_LANGUAGE, request.getLanguage())
       .setParam(PARAM_LOGIN, request.getUserLogin()));
+  }
+
+  public SearchUsersResponse searchUsers(SearchUsersRequest request) {
+    return call(
+      new GetRequest(path(ACTION_SEARCH_USERS))
+        .setParam(PARAM_ORGANIZATION, request.getOrganization())
+        .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
+        .setParam(PARAM_LANGUAGE, request.getLanguage())
+        .setParam(TEXT_QUERY, request.getQuery())
+        .setParam(SELECTED, request.getSelected())
+        .setParam(PAGE, request.getPage())
+        .setParam(PAGE_SIZE, request.getPageSize()),
+      SearchUsersResponse.parser());
   }
 }

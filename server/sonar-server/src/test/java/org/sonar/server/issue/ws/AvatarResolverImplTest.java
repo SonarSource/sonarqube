@@ -42,6 +42,13 @@ public class AvatarResolverImplTest {
   }
 
   @Test
+  public void create_when_empty_email() throws Exception {
+    String avatar = underTest.create(newUserDto("john", "John", ""));
+
+    assertThat(avatar).isEqualTo("d41d8cd98f00b204e9800998ecf8427e");
+  }
+
+  @Test
   public void create_is_case_insensitive() throws Exception {
     assertThat(underTest.create(newUserDto("john", "John", "john@doo.com"))).isEqualTo(underTest.create(newUserDto("john", "John", "John@Doo.com")));
   }
