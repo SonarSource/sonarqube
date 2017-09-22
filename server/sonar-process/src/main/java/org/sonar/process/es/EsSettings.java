@@ -21,13 +21,9 @@ package org.sonar.process.es;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessProperties;
@@ -39,7 +35,6 @@ import static org.sonar.cluster.ClusterProperties.CLUSTER_ENABLED;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_NAME;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_NODE_NAME;
 import static org.sonar.cluster.ClusterProperties.CLUSTER_SEARCH_HOSTS;
-import static org.sonar.process.ProcessProperties.SEARCH_MARVEL_HOSTS;
 
 public class EsSettings {
 
@@ -76,7 +71,6 @@ public class EsSettings {
     configureFileSystem(builder);
     configureNetwork(builder);
     configureCluster(builder);
-    configureMarvel(builder);
     configureAction(builder);
     return builder;
   }
@@ -146,18 +140,6 @@ public class EsSettings {
     builder.put("node.name", nodeName);
     builder.put("node.data", valueOf(true));
     builder.put("node.master", valueOf(true));
-  }
-
-  private void configureMarvel(Map<String, String> builder) {
-    Set<String> marvels = new TreeSet<>();
-    marvels.addAll(Arrays.asList(StringUtils.split(props.value(SEARCH_MARVEL_HOSTS, ""), ",")));
-
-    // If we're collecting indexing data send them to the Marvel host(s)
-    if (!marvels.isEmpty()) {
-      String hosts = StringUtils.join(marvels, ",");
-      LOGGER.info("Elasticsearch Marvel is enabled for %s", hosts);
-      builder.put("marvel.agent.exporter.es.hosts", hosts);
-    }
   }
 
   private static void configureAction(Map<String, String> builder) {
