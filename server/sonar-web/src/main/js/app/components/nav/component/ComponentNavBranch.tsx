@@ -83,7 +83,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     event.preventDefault();
     event.stopPropagation();
     event.currentTarget.blur();
-    this.setState({ dropdownOpen: true });
+    this.setState(state => ({ dropdownOpen: !state.dropdownOpen }));
   };
 
   closeDropdown = () => {

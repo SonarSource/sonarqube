@@ -63,8 +63,8 @@ export default class ComponentNavBranchesMenuItem extends React.PureComponent<Pr
   };
 
   handleBranchDelete = () => {
-    this.setState({ deleteBranchModal: false });
     this.props.onBranchesChange();
+    this.setState({ deleteBranchModal: false });
   };
 
   handleRenameBranchClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
@@ -78,8 +78,8 @@ export default class ComponentNavBranchesMenuItem extends React.PureComponent<Pr
   };
 
   handleBranchRename = () => {
-    this.setState({ renameBranchModal: false });
     this.props.onBranchesChange();
+    this.setState({ renameBranchModal: false });
   };
 
   render() {

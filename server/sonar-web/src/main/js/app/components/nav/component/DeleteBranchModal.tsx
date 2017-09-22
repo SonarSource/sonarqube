@@ -66,6 +66,7 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
 
   handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    event.stopPropagation();
     this.props.onClose();
   };
 
