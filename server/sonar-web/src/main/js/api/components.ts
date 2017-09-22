@@ -61,8 +61,12 @@ export function bulkDeleteProjects(parameters: BaseSearchProjectsParameters): Pr
   return post('/api/projects/bulk_delete', parameters);
 }
 
-export function deleteProject(project: string): Promise<void> {
-  return post('/api/projects/delete', { project });
+export function deleteProject(project: string): Promise<void | Response> {
+  return post('/api/projects/delete', { project }).catch(throwGlobalError);
+}
+
+export function deletePortfolio(portfolio: string): Promise<void | Response> {
+  return post('/api/views/delete', { key: portfolio }).catch(throwGlobalError);
 }
 
 export function createProject(data: {

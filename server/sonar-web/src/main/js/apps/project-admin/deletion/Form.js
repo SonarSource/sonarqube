@@ -20,7 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'react-modal';
-import { deleteProject } from '../../../api/components';
+import { deleteProject, deletePortfolio } from '../../../api/components';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class Form extends React.PureComponent {
@@ -58,7 +58,9 @@ export default class Form extends React.PureComponent {
   handleSubmit = event => {
     event.preventDefault();
     this.setState({ loading: true });
-    deleteProject(this.props.component.key)
+    const { component } = this.props;
+    const deleteMethod = component.qualifier === 'TRK' ? deleteProject : deletePortfolio;
+    deleteMethod(component.key)
       .then(() => this.context.router.replace('/'))
       .catch(this.stopLoading);
   };
