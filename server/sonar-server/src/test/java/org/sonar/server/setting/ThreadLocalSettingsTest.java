@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import javax.annotation.Nullable;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,8 +36,12 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.PropertyDefinitions;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
 public class ThreadLocalSettingsTest {
@@ -45,12 +50,10 @@ public class ThreadLocalSettingsTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
-  private MapSettingLoader dbSettingLoader = new MapSettingLoader();
-
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  private MapSettingLoader dbSettingLoader = new MapSettingLoader();
   private ThreadLocalSettings underTest = null;
 
   @After
@@ -167,6 +170,25 @@ public class ThreadLocalSettingsTest {
   }
 
   @Test
+  public void getProperties_is_not_cached_in_thread_cache() {
+    insertPropertyIntoDb("foo", "bar");
+    underTest = create(Collections.emptyMap());
+    underTest.load();
+
+    assertThat(underTest.getProperties())
+      .containsOnly(entry("foo", "bar"));
+
+    insertPropertyIntoDb("foo2", "bar2");
+    assertThat(underTest.getProperties())
+      .containsOnly(entry("foo", "bar"), entry("foo2", "bar2"));
+
+    underTest.unload();
+
+    assertThat(underTest.getProperties())
+      .containsOnly(entry("foo", "bar"), entry("foo2", "bar2"));
+  }
+
+  @Test
   public void load_creates_a_thread_specific_cache() throws InterruptedException {
     insertPropertyIntoDb(A_KEY, "v1");
 
@@ -231,6 +253,89 @@ public class ThreadLocalSettingsTest {
     assertThat(underTest.get(A_KEY)).isNotPresent();
     assertThat(underTest.get(A_KEY)).isNotPresent();
     underTest.unload();
+  }
+
+  @Test
+  public void getProperties_return_empty_if_DB_error_on_first_call_ever_out_of_thread_cache() {
+    SettingLoader settingLoaderMock = mock(SettingLoader.class);
+    PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
+    doThrow(toBeThrown).when(settingLoaderMock).loadAll(any(ImmutableMap.Builder.class));
+    underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
+
+    assertThat(underTest.getProperties())
+      .isEmpty();
+  }
+
+  @Test
+  public void getProperties_returns_empty_if_DB_error_on_first_call_ever_in_thread_cache() {
+    SettingLoader settingLoaderMock = mock(SettingLoader.class);
+    PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
+    doThrow(toBeThrown).when(settingLoaderMock).loadAll(any(ImmutableMap.Builder.class));
+    underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
+    underTest.load();
+
+    assertThat(underTest.getProperties())
+      .isEmpty();
+  }
+
+  @Test
+  public void getProperties_return_properties_from_previous_thread_cache_if_DB_error_on_not_first_call() {
+    String key = randomAlphanumeric(3);
+    String value1 = randomAlphanumeric(4);
+    String value2 = randomAlphanumeric(5);
+    SettingLoader settingLoaderMock = mock(SettingLoader.class);
+    PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
+    doAnswer(invocationOnMock -> {
+      ImmutableMap.Builder<String, String> builder = (ImmutableMap.Builder<String, String>) invocationOnMock.getArguments()[0];
+      builder.put(key, value1);
+      return null;
+    }).doThrow(toBeThrown)
+      .doAnswer(invocationOnMock -> {
+        ImmutableMap.Builder<String, String> builder = (ImmutableMap.Builder<String, String>) invocationOnMock.getArguments()[0];
+        builder.put(key, value2);
+        return null;
+      })
+      .when(settingLoaderMock)
+      .loadAll(any(ImmutableMap.Builder.class));
+    underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
+
+    underTest.load();
+    assertThat(underTest.getProperties())
+      .containsOnly(entry(key, value1));
+    underTest.unload();
+
+    underTest.load();
+    assertThat(underTest.getProperties())
+      .containsOnly(entry(key, value1));
+    underTest.unload();
+
+    underTest.load();
+    assertThat(underTest.getProperties())
+      .containsOnly(entry(key, value2));
+    underTest.unload();
+  }
+
+  @Test
+  public void get_returns_empty_if_DB_error_on_first_call_ever_out_of_thread_cache() {
+    SettingLoader settingLoaderMock = mock(SettingLoader.class);
+    PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
+    String key = randomAlphanumeric(3);
+    doThrow(toBeThrown).when(settingLoaderMock).load(key);
+    underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
+
+    assertThat(underTest.get(key)).isEmpty();
+  }
+
+  @Test
+  public void get_returns_empty_if_DB_error_on_first_call_ever_in_thread_cache() {
+    SettingLoader settingLoaderMock = mock(SettingLoader.class);
+    PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
+    String key = randomAlphanumeric(3);
+    doThrow(toBeThrown).when(settingLoaderMock).load(key);
+    underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
+    underTest.load();
+
+    assertThat(underTest.get(key)).isEmpty();
   }
 
   private void insertPropertyIntoDb(String key, @Nullable String value) {
