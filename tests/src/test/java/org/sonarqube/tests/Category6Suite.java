@@ -47,6 +47,7 @@ import org.sonarqube.tests.qualityGate.OrganizationQualityGateUiTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesTest;
 import org.sonarqube.tests.qualityProfile.CustomQualityProfilesTest;
 import org.sonarqube.tests.qualityProfile.OrganizationQualityProfilesUiTest;
+import org.sonarqube.tests.qualityProfile.QualityProfilesEditTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesWsTest;
 import org.sonarqube.tests.rule.RulesWsTest;
 import org.sonarqube.tests.ui.OrganizationUiExtensionsTest;
@@ -72,6 +73,7 @@ import static util.ItUtils.xooPlugin;
   OrganizationUiExtensionsTest.class,
   PersonalOrganizationTest.class,
   BuiltInQualityProfilesTest.class,
+  QualityProfilesEditTest.class,
   QualityProfilesWsTest.class,
   CustomQualityProfilesTest.class,
   BillingTest.class,
