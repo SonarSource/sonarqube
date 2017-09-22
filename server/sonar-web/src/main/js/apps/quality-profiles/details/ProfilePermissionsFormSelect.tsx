@@ -60,11 +60,18 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
 
   handleSearch = (query: string) => {
     this.setState({ loading: true });
-    this.props.onSearch(query).then(searchResults => {
-      if (this.mounted) {
-        this.setState({ loading: false, searchResults });
+    this.props.onSearch(query).then(
+      searchResults => {
+        if (this.mounted) {
+          this.setState({ loading: false, searchResults });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   };
 
   handleInputChange = (query: string) => {

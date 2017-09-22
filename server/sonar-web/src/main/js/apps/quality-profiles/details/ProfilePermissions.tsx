@@ -78,11 +78,22 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
       profile: profile.name,
       selected: true
     };
-    Promise.all([searchUsers(parameters), searchGroups(parameters)]).then(([users, groups]) => {
-      if (this.mounted) {
-        this.setState({ groups, loading: false, users });
+    Promise.all([searchUsers(parameters), searchGroups(parameters)]).then(
+      ([usersResponse, groupsResponse]) => {
+        if (this.mounted) {
+          this.setState({
+            groups: groupsResponse.groups,
+            loading: false,
+            users: usersResponse.users
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   }
 
   handleAddUserButtonClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {

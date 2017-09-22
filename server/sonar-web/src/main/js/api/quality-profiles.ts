@@ -26,6 +26,8 @@ import {
   postJSON,
   RequestData
 } from '../helpers/request';
+import { Paging } from '../app/types';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface Profile {
   key: string;
@@ -138,31 +140,29 @@ export interface SearchUsersGroupsParameters {
   selected: boolean;
 }
 
-export type SearchUsersResponse = Array<{
-  avatar?: string;
-  login: string;
-  name: string;
-}>;
-
-export function searchUsers(
-  _parameters: SearchUsersGroupsParameters
-): Promise<SearchUsersResponse> {
-  // return getJSON('/api/qualityprofiles/search_users', parameters);
-  const response: SearchUsersResponse = [
-    { login: 'john', name: 'John' },
-    { login: 'bob', name: 'Bob' }
-  ];
-  return new Promise(resolve => setTimeout(() => resolve(response), 500));
+export interface SearchUsersResponse {
+  users: Array<{
+    avatar?: string;
+    login: string;
+    name: string;
+    selected?: boolean;
+  }>;
+  paging: Paging;
 }
 
-export type SearchGroupsResponse = Array<{ name: string }>;
+export function searchUsers(parameters: SearchUsersGroupsParameters): Promise<SearchUsersResponse> {
+  return getJSON('/api/qualityprofiles/search_users', parameters).catch(throwGlobalError);
+}
+
+export interface SearchGroupsResponse {
+  groups: Array<{ name: string }>;
+  paging: Paging;
+}
 
 export function searchGroups(
-  _parameters: SearchUsersGroupsParameters
+  parameters: SearchUsersGroupsParameters
 ): Promise<SearchGroupsResponse> {
-  // return getJSON('/api/qualityprofiles/search_groups', parameters);
-  const response: SearchGroupsResponse = [{ name: 'sonar-administators' }, { name: 'sonar-users' }];
-  return new Promise(resolve => setTimeout(() => resolve(response), 500));
+  return getJSON('/api/qualityprofiles/search_groups', parameters).catch(throwGlobalError);
 }
 
 export interface AddRemoveUserParameters {
@@ -172,14 +172,12 @@ export interface AddRemoveUserParameters {
   user: string;
 }
 
-export function addUser(_parameters: AddRemoveUserParameters): Promise<void> {
-  // return post('/api/qualityprofiles/add_user', parameters);
-  return new Promise(resolve => setTimeout(resolve, 1000));
+export function addUser(parameters: AddRemoveUserParameters): Promise<void | Response> {
+  return post('/api/qualityprofiles/add_user', parameters).catch(throwGlobalError);
 }
 
-export function removeUser(_parameters: AddRemoveUserParameters): Promise<void> {
-  // return post('/api/qualityprofiles/remove_user', parameters);
-  return new Promise(resolve => setTimeout(resolve, 1000));
+export function removeUser(parameters: AddRemoveUserParameters): Promise<void | Response> {
+  return post('/api/qualityprofiles/remove_user', parameters).catch(throwGlobalError);
 }
 
 export interface AddRemoveGroupParameters {
@@ -189,12 +187,10 @@ export interface AddRemoveGroupParameters {
   profile: string;
 }
 
-export function addGroup(_parameters: AddRemoveGroupParameters): Promise<void> {
-  // return post('/api/qualityprofiles/add_group', parameters);
-  return new Promise(resolve => setTimeout(resolve, 1000));
+export function addGroup(parameters: AddRemoveGroupParameters): Promise<void | Response> {
+  return post('/api/qualityprofiles/add_group', parameters).catch(throwGlobalError);
 }
 
-export function removeGroup(_parameters: AddRemoveGroupParameters): Promise<void> {
-  // return post('/api/qualityprofiles/remove_group', parameters);
-  return new Promise(resolve => setTimeout(resolve, 1000));
+export function removeGroup(parameters: AddRemoveGroupParameters): Promise<void | Response> {
+  return post('/api/qualityprofiles/remove_group', parameters).catch(throwGlobalError);
 }

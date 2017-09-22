@@ -81,7 +81,10 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
     return Promise.all([
       searchUsers(parameters),
       searchGroups(parameters)
-    ]).then(([users, groups]) => [...users, ...groups]);
+    ]).then(([usersResponse, groupsResponse]) => [
+      ...usersResponse.users,
+      ...groupsResponse.groups
+    ]);
   };
 
   handleValueChange = (selected: User | Group) => {
