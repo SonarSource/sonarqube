@@ -20,7 +20,8 @@
 package org.sonar.application.es;
 
 import java.io.File;
-import org.apache.commons.lang.StringUtils;
+import java.util.Collections;
+import java.util.List;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
@@ -34,6 +35,7 @@ import org.sonar.process.Props;
  */
 public class EsFileSystem {
   private final File homeDirectory;
+  private final List<File> outdatedDataDirectories;
   private final File dataDirectory;
   private final File confDirectory;
   private final File logDirectory;
@@ -42,17 +44,20 @@ public class EsFileSystem {
     File sqHomeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
 
     this.homeDirectory = new File(sqHomeDir, "elasticsearch");
-    this.dataDirectory = buildDataDir(props, sqHomeDir);
+    this.outdatedDataDirectories = buildOutdatedDataDirs(props);
+    this.dataDirectory = buildDataDir(props);
     this.confDirectory = buildConfDir(props);
     this.logDirectory = buildLogPath(props);
   }
 
-  private static File buildDataDir(Props props, File sqHomeDir) {
-    String dataPath = props.value(ProcessProperties.PATH_DATA);
-    if (StringUtils.isNotEmpty(dataPath)) {
-      return new File(dataPath, "es");
-    }
-    return new File(sqHomeDir, "data/es");
+  private static List<File> buildOutdatedDataDirs(Props props) {
+    String dataPath = props.nonNullValue(ProcessProperties.PATH_DATA);
+    return Collections.singletonList(new File(dataPath, "es"));
+  }
+
+  private static File buildDataDir(Props props) {
+    String dataPath = props.nonNullValue(ProcessProperties.PATH_DATA);
+    return new File(dataPath, "es5");
   }
 
   private static File buildLogPath(Props props) {
@@ -66,6 +71,10 @@ public class EsFileSystem {
 
   public File getHomeDirectory() {
     return homeDirectory;
+  }
+
+  public List<File> getOutdatedDataDirectories() {
+    return Collections.unmodifiableList(outdatedDataDirectories);
   }
 
   public File getDataDirectory() {
