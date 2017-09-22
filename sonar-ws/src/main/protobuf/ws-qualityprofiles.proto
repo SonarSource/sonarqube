@@ -20,6 +20,8 @@ syntax = "proto2";
 
 package sonarqube.ws.qualityprofiles;
 
+import "ws-commons.proto";
+
 option java_package = "org.sonarqube.ws";
 option java_outer_classname = "QualityProfiles";
 option optimize_for = SPEED;
@@ -138,3 +140,14 @@ message ShowResponse {
   }
 }
 
+// WS api/qualityprofiles/search_users
+message SearchUsersResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated User users = 2;
+
+  message User {
+    optional string login = 1;
+    optional string name = 2;
+    optional bool selected = 3;
+  }
+}

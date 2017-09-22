@@ -22,6 +22,7 @@ package org.sonarqube.ws.client.qualityprofile;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.Common.Severity;
+import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.ShowResponse;
 import org.sonarqube.ws.client.GetRequest;
@@ -31,6 +32,10 @@ import org.sonarqube.ws.client.WsConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.SELECTED;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
@@ -233,6 +238,33 @@ public class QualityProfilesServiceTest {
       .hasParam(PARAM_QUALITY_PROFILE, "P1")
       .hasParam(PARAM_LANGUAGE, "Xoo")
       .hasParam(PARAM_LOGIN, "john")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void search_users() {
+    underTest.searchUsers(SearchUsersRequest.builder()
+      .setOrganization("O1")
+      .setQualityProfile("P1")
+      .setLanguage("Xoo")
+      .setQuery("john")
+      .setSelected("all")
+      .setPage(5)
+      .setPageSize(50)
+      .build()
+    );
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(QualityProfiles.SearchUsersResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasPath("search_users")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_QUALITY_PROFILE, "P1")
+      .hasParam(PARAM_LANGUAGE, "Xoo")
+      .hasParam(TEXT_QUERY, "john")
+      .hasParam(SELECTED, "all")
+      .hasParam(PAGE, 5)
+      .hasParam(PAGE_SIZE, 50)
       .andNoOtherParam();
   }
 }
