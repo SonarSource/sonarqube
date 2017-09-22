@@ -41,35 +41,35 @@ export default function BranchStatus({ branch, concise = false }: Props) {
     const totalIssues =
       branch.status.bugs + branch.status.vulnerabilities + branch.status.codeSmells;
 
-    return (
+    const indicatorClassName = classNames('branch-status-indicator', {
+      'is-failed': totalIssues > 0,
+      'is-passed': totalIssues === 0
+    });
+
+    return concise ? (
       <ul className="list-inline branch-status">
-        <li>
-          <i
-            className={classNames('branch-status-indicator', {
-              'is-failed': totalIssues > 0,
-              'is-passed': totalIssues === 0
-            })}
-          />
+        <li>{totalIssues}</li>
+        <li className="spacer-left">
+          <i className={indicatorClassName} />
         </li>
-        {concise && <li>{totalIssues}</li>}
-        {!concise && (
-          <li>
-            {branch.status.bugs}
-            <BugIcon className="little-spacer-left" />
-          </li>
-        )}
-        {!concise && (
-          <li>
-            {branch.status.vulnerabilities}
-            <VulnerabilityIcon className="little-spacer-left" />
-          </li>
-        )}
-        {!concise && (
-          <li>
-            {branch.status.codeSmells}
-            <CodeSmellIcon className="little-spacer-left" />
-          </li>
-        )}
+      </ul>
+    ) : (
+      <ul className="list-inline branch-status">
+        <li className="spacer-right">
+          <i className={indicatorClassName} />
+        </li>
+        <li>
+          {branch.status.bugs}
+          <BugIcon />
+        </li>
+        <li>
+          {branch.status.vulnerabilities}
+          <VulnerabilityIcon />
+        </li>
+        <li>
+          {branch.status.codeSmells}
+          <CodeSmellIcon />
+        </li>
       </ul>
     );
   } else {

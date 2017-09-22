@@ -19,63 +19,61 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ComponentNavBranchesMenuItem from '../ComponentNavBranchesMenuItem';
+import ComponentNavBranchesMenuItem, { Props } from '../ComponentNavBranchesMenuItem';
 import { BranchType, MainBranch, ShortLivingBranch, Component } from '../../../../types';
+import { click } from '../../../../../helpers/testUtils';
+
+const component = { key: 'component' } as Component;
+
+const shortBranch: ShortLivingBranch = {
+  isMain: false,
+  mergeBranch: 'master',
+  name: 'foo',
+  status: { bugs: 1, codeSmells: 2, vulnerabilities: 3 },
+  type: BranchType.SHORT
+};
+
+const mainBranch: MainBranch = { isMain: true, name: 'master' };
 
 it('renders main branch', () => {
-  const component = { key: 'component' } as Component;
-  const mainBranch: MainBranch = { isMain: true, name: 'master' };
-  expect(
-    shallow(
-      <ComponentNavBranchesMenuItem
-        branch={mainBranch}
-        component={component}
-        onSelect={jest.fn()}
-        selected={false}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender({ branch: mainBranch })).toMatchSnapshot();
 });
 
 it('renders short-living branch', () => {
-  const component = { key: 'component' } as Component;
-  const shortBranch: ShortLivingBranch = {
-    isMain: false,
-    mergeBranch: 'master',
-    name: 'foo',
-    status: { bugs: 1, codeSmells: 2, vulnerabilities: 3 },
-    type: BranchType.SHORT
-  };
-  expect(
-    shallow(
-      <ComponentNavBranchesMenuItem
-        branch={shortBranch}
-        component={component}
-        onSelect={jest.fn()}
-        selected={false}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('renders short-living orhpan branch', () => {
-  const component = { key: 'component' } as Component;
-  const shortBranch: ShortLivingBranch = {
-    isMain: false,
-    isOrphan: true,
-    mergeBranch: 'master',
-    name: 'foo',
-    status: { bugs: 1, codeSmells: 2, vulnerabilities: 3 },
-    type: BranchType.SHORT
-  };
-  expect(
-    shallow(
-      <ComponentNavBranchesMenuItem
-        branch={shortBranch}
-        component={component}
-        onSelect={jest.fn()}
-        selected={false}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender({ branch: { ...shortBranch, isOrphan: true } })).toMatchSnapshot();
 });
+
+it('renames main branch', () => {
+  const onBranchesChange = jest.fn();
+  const wrapper = shallowRender({ branch: mainBranch, canAdmin: true, onBranchesChange });
+
+  click(wrapper.find('.js-rename'));
+  (wrapper.find('RenameBranchModal').prop('onRename') as Function)();
+  expect(onBranchesChange).toBeCalled();
+});
+
+it('deletes short-living branch', () => {
+  const onBranchesChange = jest.fn();
+  const wrapper = shallowRender({ canAdmin: true, onBranchesChange });
+
+  click(wrapper.find('.js-delete'));
+  (wrapper.find('DeleteBranchModal').prop('onDelete') as Function)();
+  expect(onBranchesChange).toBeCalled();
+});
+
+function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
+  return shallow(
+    <ComponentNavBranchesMenuItem
+      branch={shortBranch}
+      component={component}
+      onBranchesChange={jest.fn()}
+      onSelect={jest.fn()}
+      selected={false}
+      {...props}
+    />
+  );
+}

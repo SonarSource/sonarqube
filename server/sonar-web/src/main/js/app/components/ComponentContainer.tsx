@@ -122,36 +122,36 @@ export default class ComponentContainer extends React.PureComponent<Props, State
     const { query } = this.props.location;
     const { branches, component, loading } = this.state;
 
-    if (loading) {
-      return <i className="spinner" />;
-    }
-
-    if (!component) {
+    if (!loading && !component) {
       return <ComponentContainerNotFound />;
     }
 
     const branch = branches.find(b => (query.branch ? b.name === query.branch : b.isMain));
-    const isFile = ['FIL', 'UTS'].includes(component.qualifier);
-    const configuration = component.configuration || {};
 
     return (
       <div>
-        {!isFile && (
+        {component &&
+        !['FIL', 'UTS'].includes(component.qualifier) && (
           <ComponentNav
             branches={branches}
             currentBranch={branch}
             component={component}
-            conf={configuration}
             location={this.props.location}
+            onBranchesChange={this.handleBranchesChange}
           />
         )}
-        {React.cloneElement(this.props.children, {
-          branch,
-          branches,
-          component: component,
-          onBranchesChange: this.handleBranchesChange,
-          onComponentChange: this.handleComponentChange
-        })}
+        {loading ? (
+          <div className="page page-limited">
+            <i className="spinner" />
+          </div>
+        ) : (
+          React.cloneElement(this.props.children, {
+            branch,
+            branches,
+            component,
+            onComponentChange: this.handleComponentChange
+          })
+        )}
       </div>
     );
   }

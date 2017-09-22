@@ -28,14 +28,15 @@ import {
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectBranchUrl } from '../../../../helpers/urls';
-import { Link } from 'react-router';
 import Tooltip from '../../../../components/controls/Tooltip';
 
 interface Props {
   branches: Branch[];
+  canAdmin?: boolean;
+  component: Component;
   currentBranch: Branch;
+  onBranchesChange: () => void;
   onClose: () => void;
-  project: Component;
 }
 
 interface State {
@@ -65,7 +66,9 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     );
 
   handleClickOutside = (event: Event) => {
-    if (!this.node || !this.node.contains(event.target as HTMLElement)) {
+    // do not close when rename or delete branch modal is open
+    const modal = document.querySelector('.modal');
+    if (!modal && (!this.node || !this.node.contains(event.target as HTMLElement))) {
       this.props.onClose();
     }
   };
@@ -125,11 +128,23 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
   };
 
   getSelected = () => {
+    if (this.state.selected) {
+      return this.state.selected;
+    }
+
     const branches = this.getFilteredBranches();
-    return this.state.selected || (branches.length > 0 && branches[0].name);
+    if (branches.find(b => b.name === this.props.currentBranch.name)) {
+      return this.props.currentBranch.name;
+    }
+
+    if (branches.length > 0) {
+      return branches[0].name;
+    }
+
+    return undefined;
   };
 
-  getProjectBranchUrl = (branch: Branch) => getProjectBranchUrl(this.props.project.key, branch);
+  getProjectBranchUrl = (branch: Branch) => getProjectBranchUrl(this.props.component.key, branch);
 
   isSelected = (branch: Branch) => branch.name === this.getSelected();
 
@@ -179,8 +194,10 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       menu.push(
         <ComponentNavBranchesMenuItem
           branch={branch}
-          component={this.props.project}
+          canAdmin={this.props.canAdmin}
+          component={this.props.component}
           key={branch.name}
+          onBranchesChange={this.props.onBranchesChange}
           onSelect={this.handleSelect}
           selected={branch.name === selected}
         />
@@ -191,23 +208,10 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
   };
 
   render() {
-    const { project } = this.props;
-    const showManageLink =
-      project.qualifier === 'TRK' && project.configuration && project.configuration.showSettings;
-
     return (
       <div className="dropdown-menu dropdown-menu-shadow" ref={node => (this.node = node)}>
         {this.renderSearch()}
         {this.renderBranchesList()}
-        {showManageLink && (
-          <div className="dropdown-bottom-hint text-right">
-            <Link
-              className="text-muted"
-              to={{ pathname: '/project/branches', query: { id: project.key } }}>
-              {translate('branches.manage')}
-            </Link>
-          </div>
-        )}
       </div>
     );
   }

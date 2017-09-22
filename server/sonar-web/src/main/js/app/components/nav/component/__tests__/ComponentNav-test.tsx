@@ -62,13 +62,15 @@ const component = {
 
 it('loads status', () => {
   getTasksForComponent.mockClear();
-  mount(<ComponentNav branches={[]} component={component} conf={{}} location={{}} />);
+  mount(
+    <ComponentNav branches={[]} component={component} location={{}} onBranchesChange={jest.fn()} />
+  );
   expect(getTasksForComponent).toBeCalledWith('component');
 });
 
 it('renders', () => {
   const wrapper = shallow(
-    <ComponentNav branches={[]} component={component} conf={{}} location={{}} />
+    <ComponentNav branches={[]} component={component} location={{}} onBranchesChange={jest.fn()} />
   );
   wrapper.setState({
     incremental: true,

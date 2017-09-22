@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
 import * as PropTypes from 'prop-types';
-import { Branch, Component, ComponentExtension, ComponentConfiguration } from '../../../types';
+import { Branch, Component, ComponentExtension } from '../../../types';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
 import {
   isShortLivingBranch,
@@ -48,7 +48,6 @@ const SETTINGS_URLS = [
 interface Props {
   branch?: Branch;
   component: Component;
-  conf: ComponentConfiguration;
   location?: any;
 }
 
@@ -72,6 +71,10 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
 
   isApplication() {
     return this.props.component.qualifier === 'APP';
+  }
+
+  getConfiguration() {
+    return this.props.component.configuration || {};
   }
 
   renderDashboardLink() {
@@ -193,7 +196,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   renderAdministration() {
     const { branch } = this.props;
 
-    if (!this.props.conf.showSettings || (branch && isShortLivingBranch(branch))) {
+    if (!this.getConfiguration().showSettings || (branch && isShortLivingBranch(branch))) {
       return null;
     }
 
@@ -209,7 +212,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
               pathname: '/project/settings',
               query: { branch: getBranchName(branch), id: this.props.component.key }
             }}>
-            {translate('layout.settings')}&nbsp;
+            {translate('branches.branch_settings')}
           </Link>
         </li>
       );
@@ -238,7 +241,6 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   renderAdministrationLinks() {
     return [
       this.renderSettingsLink(),
-      this.renderBranchesLink(),
       this.renderProfilesLink(),
       this.renderQualityGateLink(),
       this.renderCustomMeasuresLink(),
@@ -252,7 +254,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderSettingsLink() {
-    if (!this.props.conf.showSettings || this.isApplication() || this.isPortfolio()) {
+    if (!this.getConfiguration().showSettings || this.isApplication() || this.isPortfolio()) {
       return null;
     }
     return (
@@ -272,23 +274,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     );
   }
 
-  renderBranchesLink() {
-    if (!this.context.branchesEnabled || !this.isProject() || !this.props.conf.showSettings) {
-      return null;
-    }
-    return (
-      <li key="branches">
-        <Link
-          to={{ pathname: '/project/branches', query: { id: this.props.component.key } }}
-          activeClassName="active">
-          {translate('project_branches.page')}
-        </Link>
-      </li>
-    );
-  }
-
   renderProfilesLink() {
-    if (!this.props.conf.showQualityProfiles) {
+    if (!this.getConfiguration().showQualityProfiles) {
       return null;
     }
     return (
@@ -303,7 +290,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderQualityGateLink() {
-    if (!this.props.conf.showQualityGates) {
+    if (!this.getConfiguration().showQualityGates) {
       return null;
     }
     return (
@@ -318,7 +305,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderCustomMeasuresLink() {
-    if (!this.props.conf.showManualMeasures) {
+    if (!this.getConfiguration().showManualMeasures) {
       return null;
     }
     return (
@@ -333,7 +320,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderLinksLink() {
-    if (!this.props.conf.showLinks) {
+    if (!this.getConfiguration().showLinks) {
       return null;
     }
     return (
@@ -348,7 +335,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderPermissionsLink() {
-    if (!this.props.conf.showPermissions) {
+    if (!this.getConfiguration().showPermissions) {
       return null;
     }
     return (
@@ -363,7 +350,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderBackgroundTasksLink() {
-    if (!this.props.conf.showBackgroundTasks) {
+    if (!this.getConfiguration().showBackgroundTasks) {
       return null;
     }
     return (
@@ -378,7 +365,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderUpdateKeyLink() {
-    if (!this.props.conf.showUpdateKey) {
+    if (!this.getConfiguration().showUpdateKey) {
       return null;
     }
     return (
@@ -395,7 +382,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   renderDeletionLink() {
     const { qualifier } = this.props.component;
 
-    if (!this.props.conf.showSettings) {
+    if (!this.getConfiguration().showSettings) {
       return null;
     }
 
@@ -426,7 +413,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   };
 
   renderAdminExtensions() {
-    const extensions = this.props.conf.extensions || [];
+    const extensions = this.getConfiguration().extensions || [];
     return extensions.map(e => this.renderExtension(e, true));
   }
 
@@ -446,9 +433,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           {translate('more')}&nbsp;
           <i className="icon-dropdown" />
         </a>
-        <ul className="dropdown-menu">
-          {extensions.map(e => this.renderExtension(e, false))}
-        </ul>
+        <ul className="dropdown-menu">{extensions.map(e => this.renderExtension(e, false))}</ul>
       </li>
     );
   }

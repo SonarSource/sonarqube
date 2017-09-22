@@ -20,55 +20,47 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavMenu from '../ComponentNavMenu';
-import {
-  Component,
-  ShortLivingBranch,
-  BranchType,
-  LongLivingBranch,
-  MainBranch
-} from '../../../../types';
+import { ShortLivingBranch, BranchType, LongLivingBranch, MainBranch } from '../../../../types';
 
-const mainBranch: MainBranch = {
-  isMain: true,
-  name: 'master'
+const mainBranch: MainBranch = { isMain: true, name: 'master' };
+
+const baseComponent = {
+  breadcrumbs: [],
+  key: 'foo',
+  name: 'foo',
+  organization: 'org',
+  qualifier: 'TRK'
 };
 
 it('should work with extensions', () => {
   const component = {
-    key: 'foo',
-    qualifier: 'TRK',
+    ...baseComponent,
+    configuration: { showSettings: true, extensions: [{ key: 'foo', name: 'Foo' }] },
     extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
   };
-  const conf = {
-    showSettings: true,
-    extensions: [{ key: 'foo', name: 'Foo' }]
-  };
   expect(
-    shallow(
-      <ComponentNavMenu branch={mainBranch} component={component as Component} conf={conf} />,
-      { context: { branchesEnabled: true } }
-    )
+    shallow(<ComponentNavMenu branch={mainBranch} component={component} />, {
+      context: { branchesEnabled: true }
+    })
   ).toMatchSnapshot();
 });
 
 it('should work with multiple extensions', () => {
   const component = {
-    key: 'foo',
-    qualifier: 'TRK',
+    ...baseComponent,
+    configuration: {
+      showSettings: true,
+      extensions: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
+    },
     extensions: [
       { key: 'component-foo', name: 'ComponentFoo' },
       { key: 'component-bar', name: 'ComponentBar' }
     ]
   };
-  const conf = {
-    showSettings: true,
-    extensions: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
-  };
   expect(
-    shallow(
-      <ComponentNavMenu branch={mainBranch} component={component as Component} conf={conf} />,
-      { context: { branchesEnabled: true } }
-    )
+    shallow(<ComponentNavMenu branch={mainBranch} component={component} />, {
+      context: { branchesEnabled: true }
+    })
   ).toMatchSnapshot();
 });
 
@@ -79,10 +71,9 @@ it('should work for short-living branches', () => {
     name: 'feature',
     type: BranchType.SHORT
   };
-  const component = { key: 'foo', qualifier: 'TRK' } as Component;
-  const conf = { showSettings: true };
+  const component = { ...baseComponent, configuration: { showSettings: true } };
   expect(
-    shallow(<ComponentNavMenu branch={branch} component={component} conf={conf} />, {
+    shallow(<ComponentNavMenu branch={branch} component={component} />, {
       context: { branchesEnabled: true }
     })
   ).toMatchSnapshot();
@@ -90,12 +81,15 @@ it('should work for short-living branches', () => {
 
 it('should work for long-living branches', () => {
   const branch: LongLivingBranch = { isMain: false, name: 'release', type: BranchType.LONG };
-  const component = { key: 'foo', qualifier: 'TRK' } as Component;
   [true, false].forEach(showSettings =>
     expect(
-      shallow(<ComponentNavMenu branch={branch} component={component} conf={{ showSettings }} />, {
-        context: { branchesEnabled: true }
-      })
+      shallow(
+        <ComponentNavMenu
+          branch={branch}
+          component={{ ...baseComponent, configuration: { showSettings } }}
+        />,
+        { context: { branchesEnabled: true } }
+      )
     ).toMatchSnapshot()
   );
 });
@@ -103,20 +97,12 @@ it('should work for long-living branches', () => {
 it('should work for all qualifiers', () => {
   ['TRK', 'BRC', 'VW', 'SVW', 'APP'].forEach(checkWithQualifier);
   expect.assertions(5);
-
   function checkWithQualifier(qualifier: string) {
-    const component = { key: 'foo', qualifier } as Component;
+    const component = { ...baseComponent, configuration: { showSettings: true }, qualifier };
     expect(
-      shallow(
-        <ComponentNavMenu
-          branch={mainBranch}
-          component={component}
-          conf={{ showSettings: true }}
-        />,
-        {
-          context: { branchesEnabled: true }
-        }
-      )
+      shallow(<ComponentNavMenu branch={mainBranch} component={component} />, {
+        context: { branchesEnabled: true }
+      })
     ).toMatchSnapshot();
   }
 });

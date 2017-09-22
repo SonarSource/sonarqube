@@ -79,7 +79,7 @@ export interface Component {
   version?: string;
 }
 
-export interface ComponentConfiguration {
+interface ComponentConfiguration {
   extensions?: ComponentExtension[];
   showBackgroundTasks?: boolean;
   showLinks?: boolean;

@@ -26,7 +26,7 @@ jest.mock('../../../api/components', () => ({
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import CreateProjectForm from '../CreateProjectForm';
-import { change, submit } from '../../../helpers/testUtils';
+import { change, submit, click } from '../../../helpers/testUtils';
 
 const createProject = require('../../../api/components').createProject as jest.Mock<any>;
 
@@ -46,9 +46,6 @@ it('creates project', async () => {
   change(wrapper.find('input[name="name"]'), 'name', {
     currentTarget: { name: 'name', value: 'name' }
   });
-  change(wrapper.find('input[name="branch"]'), 'branch', {
-    currentTarget: { name: 'branch', value: 'branch' }
-  });
   change(wrapper.find('input[name="key"]'), 'key', {
     currentTarget: { name: 'key', value: 'key' }
   });
@@ -58,7 +55,7 @@ it('creates project', async () => {
 
   submit(wrapper.find('form'));
   expect(createProject).toBeCalledWith({
-    branch: 'branch',
+    branch: '',
     name: 'name',
     organization: 'org',
     project: 'key',
@@ -66,7 +63,21 @@ it('creates project', async () => {
   });
   expect(wrapper).toMatchSnapshot();
 
-  await new Promise(resolve => setImmediate(resolve));
+  await new Promise(setImmediate);
   wrapper.update();
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('shows more', () => {
+  const wrapper = shallow(
+    <CreateProjectForm
+      onClose={jest.fn()}
+      onProjectCreated={jest.fn()}
+      organization={organization}
+    />
+  );
+  expect(wrapper).toMatchSnapshot();
+
+  click(wrapper.find('.js-more'));
   expect(wrapper).toMatchSnapshot();
 });

@@ -39,6 +39,7 @@ exports[`renders list 1`] = `
           "key": "component",
         }
       }
+      onBranchesChange={[Function]}
       onSelect={[Function]}
       selected={true}
     />
@@ -78,6 +79,7 @@ exports[`renders list 1`] = `
           "key": "component",
         }
       }
+      onBranchesChange={[Function]}
       onSelect={[Function]}
       selected={false}
     />
@@ -101,6 +103,7 @@ exports[`renders list 1`] = `
           "key": "component",
         }
       }
+      onBranchesChange={[Function]}
       onSelect={[Function]}
       selected={false}
     />
@@ -120,6 +123,7 @@ exports[`renders list 1`] = `
           "key": "component",
         }
       }
+      onBranchesChange={[Function]}
       onSelect={[Function]}
       selected={false}
     />
@@ -159,6 +163,7 @@ exports[`renders list 1`] = `
           "key": "component",
         }
       }
+      onBranchesChange={[Function]}
       onSelect={[Function]}
       selected={false}
     />
@@ -213,6 +218,7 @@ exports[`searches 1`] = `
           "key": "component",
         }
       }
+      onBranchesChange={[Function]}
       onSelect={[Function]}
       selected={true}
     />
@@ -232,6 +238,7 @@ exports[`searches 1`] = `
           "key": "component",
         }
       }
+      onBranchesChange={[Function]}
       onSelect={[Function]}
       selected={false}
     />

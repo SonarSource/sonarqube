@@ -50,7 +50,6 @@ exports[`renders 1`] = `
         "qualifier": "TRK",
       }
     }
-    conf={Object {}}
     incremental={true}
     isFailed={true}
     isInProgress={true}
@@ -72,7 +71,6 @@ exports[`renders 1`] = `
         "qualifier": "TRK",
       }
     }
-    conf={Object {}}
     location={Object {}}
   />
 </ContextNavBar>

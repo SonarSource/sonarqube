@@ -19,22 +19,23 @@
  */
 import * as React from 'react';
 import Modal from 'react-modal';
-import { deleteBranch } from '../../../api/branches';
-import { Branch } from '../../../app/types';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { renameBranch } from '../../../../api/branches';
+import { Branch } from '../../../../app/types';
+import { translate } from '../../../../helpers/l10n';
 
 interface Props {
   branch: Branch;
   component: string;
   onClose: () => void;
-  onDelete: () => void;
+  onRename: () => void;
 }
 
 interface State {
   loading: boolean;
+  name?: string;
 }
 
-export default class DeleteBranchModal extends React.PureComponent<Props, State> {
+export default class RenameBranchModal extends React.PureComponent<Props, State> {
   mounted: boolean;
   state: State = { loading: false };
 
@@ -48,12 +49,15 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
 
   handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!this.state.name) {
+      return;
+    }
     this.setState({ loading: true });
-    deleteBranch(this.props.component, this.props.branch.name).then(
+    renameBranch(this.props.component, this.state.name).then(
       () => {
         if (this.mounted) {
           this.setState({ loading: false });
-          this.props.onDelete();
+          this.props.onRename();
         }
       },
       () => {
@@ -66,12 +70,19 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
 
   handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    event.stopPropagation();
     this.props.onClose();
+  };
+
+  handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ name: event.currentTarget.value });
   };
 
   render() {
     const { branch } = this.props;
-    const header = translate('branches.delete');
+    const header = translate('branches.rename');
+    const submitDisabled =
+      this.state.loading || !this.state.name || this.state.name === branch.name;
 
     return (
       <Modal
@@ -85,12 +96,28 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
-            {translateWithParameters('branches.delete.are_you_sure', branch.name)}
+            <div className="modal-field">
+              <label htmlFor="rename-branch-name">
+                {translate('new_name')}
+                <em className="mandatory">*</em>
+              </label>
+              <input
+                autoFocus={true}
+                id="rename-branch-name"
+                maxLength={100}
+                name="name"
+                onChange={this.handleNameChange}
+                required={true}
+                size={50}
+                type="text"
+                value={this.state.name != undefined ? this.state.name : branch.name}
+              />
+            </div>
           </div>
           <footer className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}
-            <button className="button-red" disabled={this.state.loading} type="submit">
-              {translate('delete')}
+            <button disabled={submitDisabled} type="submit">
+              {translate('rename')}
             </button>
             <a href="#" onClick={this.handleCancelClick}>
               {translate('cancel')}

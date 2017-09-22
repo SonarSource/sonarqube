@@ -22,7 +22,6 @@ import * as classNames from 'classnames';
 import * as PropTypes from 'prop-types';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
 import SingleBranchHelperPopup from './SingleBranchHelperPopup';
-import NoBranchSupportPopup from './NoBranchSupportPopup';
 import { Branch, Component } from '../../../types';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
 import { isShortLivingBranch } from '../../../../helpers/branches';
@@ -33,9 +32,10 @@ import Tooltip from '../../../../components/controls/Tooltip';
 
 interface Props {
   branches: Branch[];
+  component: Component;
   currentBranch: Branch;
   location?: any;
-  project: Component;
+  onBranchesChange: () => void;
 }
 
 interface State {
@@ -53,8 +53,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   };
 
   static contextTypes = {
-    branchesEnabled: PropTypes.bool.isRequired,
-    onSonarCloud: PropTypes.bool
+    branchesEnabled: PropTypes.bool.isRequired
   };
 
   componentDidMount() {
@@ -63,8 +62,8 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
 
   componentWillReceiveProps(nextProps: Props) {
     if (
-      nextProps.project !== this.props.project ||
-      nextProps.currentBranch !== this.props.currentBranch ||
+      nextProps.component !== this.props.component ||
+      this.differentBranches(nextProps.currentBranch, this.props.currentBranch) ||
       nextProps.location !== this.props.location
     ) {
       this.setState({ dropdownOpen: false, singleBranchPopupOpen: false });
@@ -75,11 +74,16 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     this.mounted = false;
   }
 
+  differentBranches(a: Branch, b: Branch) {
+    // if main branch changes name, we should not close the dropdown
+    return a.isMain && b.isMain ? false : a.name !== b.name;
+  }
+
   handleClick = (event: React.SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
     event.stopPropagation();
     event.currentTarget.blur();
-    this.setState({ dropdownOpen: true });
+    this.setState(state => ({ dropdownOpen: !state.dropdownOpen }));
   };
 
   closeDropdown = () => {
@@ -117,12 +121,15 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   };
 
   renderDropdown = () => {
+    const { configuration } = this.props.component;
     return this.state.dropdownOpen ? (
       <ComponentNavBranchesMenu
         branches={this.props.branches}
+        canAdmin={configuration && configuration.showSettings}
+        component={this.props.component}
         currentBranch={this.props.currentBranch}
+        onBranchesChange={this.props.onBranchesChange}
         onClose={this.closeDropdown}
-        project={this.props.project}
       />
     ) : null;
   };
@@ -160,35 +167,11 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     </div>
   );
 
-  renderNoBranchSupportPopup = () => (
-    <div className="display-inline-block spacer-left">
-      <a className="link-no-underline" href="#" onClick={this.handleNoBranchSupportClick}>
-        <HelpIcon fill="#cdcdcd" />
-      </a>
-      <BubblePopupHelper
-        isOpen={this.state.noBranchSupportPopupOpen}
-        position="bottomleft"
-        popup={<NoBranchSupportPopup />}
-        togglePopup={this.toggleNoBranchSupportPopup}
-      />
-    </div>
-  );
-
   render() {
     const { branches, currentBranch } = this.props;
 
-    if (this.context.onSonarCloud && !this.context.branchesEnabled) {
-      return null;
-    }
-
     if (!this.context.branchesEnabled) {
-      return (
-        <div className="navbar-context-branches">
-          <BranchIcon branch={currentBranch} className="little-spacer-right" color="#cdcdcd" />
-          <span className="note">{currentBranch.name}</span>
-          {this.renderNoBranchSupportPopup()}
-        </div>
-      );
+      return null;
     }
 
     if (branches.length < 2) {

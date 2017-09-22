@@ -36,9 +36,10 @@ it('renders list', () => {
     shallow(
       <ComponentNavBranchesMenu
         branches={[mainBranch(), shortBranch('foo'), longBranch('bar'), shortBranch('baz', true)]}
+        component={project}
         currentBranch={mainBranch()}
+        onBranchesChange={jest.fn()}
         onClose={jest.fn()}
-        project={project}
       />
     )
   ).toMatchSnapshot();
@@ -48,9 +49,10 @@ it('searches', () => {
   const wrapper = shallow(
     <ComponentNavBranchesMenu
       branches={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
+      component={project}
       currentBranch={mainBranch()}
+      onBranchesChange={jest.fn()}
       onClose={jest.fn()}
-      project={project}
     />
   );
   wrapper.setState({ query: 'bar' });
@@ -61,9 +63,10 @@ it('selects next & previous', () => {
   const wrapper = shallow(
     <ComponentNavBranchesMenu
       branches={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
+      component={project}
       currentBranch={mainBranch()}
+      onBranchesChange={jest.fn()}
       onClose={jest.fn()}
-      project={project}
     />
   );
   elementKeydown(wrapper.find('input'), 40);

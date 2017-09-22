@@ -20,7 +20,7 @@
 import * as React from 'react';
 import IncrementalBadge from './IncrementalBadge';
 import BranchStatus from '../../../../components/common/BranchStatus';
-import { Branch, Component, ComponentConfiguration } from '../../../types';
+import { Branch, Component } from '../../../types';
 import Tooltip from '../../../../components/controls/Tooltip';
 import PendingIcon from '../../../../components/icons-components/PendingIcon';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
@@ -30,7 +30,6 @@ import { isShortLivingBranch } from '../../../../helpers/branches';
 interface Props {
   branch?: Branch;
   component: Component;
-  conf: ComponentConfiguration;
   incremental?: boolean;
   isInProgress?: boolean;
   isFailed?: boolean;
@@ -39,7 +38,8 @@ interface Props {
 
 export default function ComponentNavMeta(props: Props) {
   const metaList = [];
-  const canSeeBackgroundTasks = props.conf.showBackgroundTasks;
+  const canSeeBackgroundTasks =
+    props.component.configuration != undefined && props.component.configuration.showBackgroundTasks;
   const backgroundTasksUrl =
     (window as any).baseUrl +
     `/project/background_tasks?id=${encodeURIComponent(props.component.key)}`;

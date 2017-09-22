@@ -56,19 +56,23 @@ export default class App extends React.PureComponent {
         query: { id: this.props.component.key }
       });
     }
-    if (isShortLivingBranch(this.props.branch)) {
+    if (isShortLivingBranch(this.props.branch) && !this.isFile()) {
       this.context.router.replace(getProjectBranchUrl(this.props.component.key, this.props.branch));
     }
   }
 
   isPortfolio() {
-    return this.props.component.qualifier === 'VW' || this.props.component.qualifier === 'SVW';
+    return ['VW', 'SVW'].includes(this.props.component.qualifier);
+  }
+
+  isFile() {
+    return ['FIL', 'UTS'].includes(this.props.component.qualifier);
   }
 
   render() {
     const { branch, component } = this.props;
 
-    if (this.isPortfolio() || isShortLivingBranch(branch)) {
+    if (this.isPortfolio() || (isShortLivingBranch(branch) && !this.isFile())) {
       return null;
     }
 
