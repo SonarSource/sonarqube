@@ -269,15 +269,6 @@ public class EsSettingsTest {
   }
 
   @Test
-  public void enable_marvel() throws Exception {
-    Props props = minProps(CLUSTER_DISABLED);
-    props.set("sonar.search.marvelHosts", "127.0.0.2,127.0.0.3");
-    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE).build();
-
-    assertThat(settings.get("marvel.agent.exporter.es.hosts")).isEqualTo("127.0.0.2,127.0.0.3");
-  }
-
-  @Test
   public void enable_http_connector() throws Exception {
     Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");

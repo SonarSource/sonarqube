@@ -57,7 +57,6 @@ public class ProcessProperties {
   public static final String SEARCH_REPLICAS = "sonar.search.replicas";
   public static final String SEARCH_MINIMUM_MASTER_NODES = "sonar.search.minimumMasterNodes";
   public static final String SEARCH_INITIAL_STATE_TIMEOUT = "sonar.search.initialStateTimeout";
-  public static final String SEARCH_MARVEL_HOSTS = "sonar.search.marvelHosts";
 
   public static final String WEB_JAVA_OPTS = "sonar.web.javaOpts";
   public static final String WEB_JAVA_ADDITIONAL_OPTS = "sonar.web.javaAdditionalOpts";
