@@ -39,7 +39,11 @@ public class JvmStateSectionTest {
 
     assertThat(section.getName()).isEqualTo(PROCESS_NAME);
     assertThat(section.getAttributesCount()).isGreaterThan(0);
-    assertThat(section.getAttributesList()).extracting("key").contains("Threads", "Heap Max (MB)");
+    assertThat(section.getAttributesList()).extracting("key")
+      .contains(
+        "Max Memory (MB)", "Free Memory (MB)",
+        "Heap Max (MB)",
+        "System Load Average", "Threads");
   }
 
   @Test
