@@ -55,7 +55,9 @@ public class ProcessInfoProvider implements Startable {
 
   public static ProtobufSystemInfo.SystemInfo provide() {
     ProtobufSystemInfo.SystemInfo.Builder protobuf = ProtobufSystemInfo.SystemInfo.newBuilder();
-    instance.sections.forEach(section -> protobuf.addSections(section.toProtobuf()));
+    if (instance != null) {
+      instance.sections.forEach(section -> protobuf.addSections(section.toProtobuf()));
+    }
     return protobuf.build();
   }
 }

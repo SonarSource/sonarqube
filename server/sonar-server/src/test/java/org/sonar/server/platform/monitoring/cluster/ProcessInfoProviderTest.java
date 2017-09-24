@@ -34,19 +34,6 @@ public class ProcessInfoProviderTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void set_self_as_statically_shared_instance() {
-    ProcessInfoProvider underTest = new ProcessInfoProvider(new SystemInfoSection[0]);
-
-    underTest.start();
-    assertThat(ProcessInfoProvider.provide()).isNotNull();
-
-    underTest.stop();
-
-    expectedException.expect(NullPointerException.class);
-    ProcessInfoProvider.provide();
-  }
-
-  @Test
   public void remove_global_sections_from_results() {
     ProcessInfoProvider underTest = new ProcessInfoProvider(new SystemInfoSection[]{
       new TestGlobalSystemInfoSection("foo"),
@@ -71,5 +58,20 @@ public class ProcessInfoProviderTest {
       .containsExactlyInAnyOrder("foo", "bar");
 
     underTest.stop();
+  }
+
+  @Test
+  public void empty_result_is_returned_if_not_started_yet() {
+    ProcessInfoProvider underTest = new ProcessInfoProvider(new SystemInfoSection[]{
+      new TestSystemInfoSection("foo"),
+      new TestSystemInfoSection("bar")});
+
+    assertThat(ProcessInfoProvider.provide().getSectionsCount()).isEqualTo(0);
+
+    underTest.start();
+    assertThat(ProcessInfoProvider.provide().getSectionsCount()).isEqualTo(2);
+
+    underTest.stop();
+    assertThat(ProcessInfoProvider.provide().getSectionsCount()).isEqualTo(0);
   }
 }
