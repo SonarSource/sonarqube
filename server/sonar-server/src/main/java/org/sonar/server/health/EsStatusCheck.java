@@ -37,7 +37,7 @@ abstract class EsStatusCheck {
     .setStatus(Health.Status.RED)
     .addCause("Elasticsearch status is RED")
     .build();
-  private static final Health RED_HEALTH_EXCEPTION_OCCURED = newHealthCheckBuilder()
+  private static final Health RED_HEALTH_UNAVAILABLE = newHealthCheckBuilder()
     .setStatus(Health.Status.RED)
     .addCause("Elasticsearch status is RED (unavailable)")
     .build();
@@ -51,6 +51,9 @@ abstract class EsStatusCheck {
   Health checkEsStatus() {
     try {
       ClusterHealthStatus esStatus = esClient.prepareClusterStats().get().getStatus();
+      if (esStatus == null) {
+        return RED_HEALTH_UNAVAILABLE;
+      }
       switch (esStatus) {
         case GREEN:
           return Health.GREEN;
@@ -63,7 +66,7 @@ abstract class EsStatusCheck {
       }
     } catch (Exception e) {
       LOG.error("Failed to query ES status", e);
-      return RED_HEALTH_EXCEPTION_OCCURED;
+      return RED_HEALTH_UNAVAILABLE;
     }
   }
 }

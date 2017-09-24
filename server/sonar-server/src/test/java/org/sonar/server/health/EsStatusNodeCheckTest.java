@@ -38,7 +38,7 @@ public class EsStatusNodeCheckTest {
   @Test
   public void check_ignores_NodeHealth_arg_and_returns_RED_with_cause_if_an_exception_occurs_checking_ES_cluster_status() {
     EsClient esClient = Mockito.mock(EsClient.class);
-    when(esClient.prepareClusterStats()).thenThrow(new RuntimeException("Faking an exception occuring while using the EsClient"));
+    when(esClient.prepareClusterStats()).thenThrow(new RuntimeException("Faking an exception occurring while using the EsClient"));
 
     Health health = new EsStatusNodeCheck(esClient).check();
 
