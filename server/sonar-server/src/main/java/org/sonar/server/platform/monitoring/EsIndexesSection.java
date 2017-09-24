@@ -34,22 +34,22 @@ import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
-public class EsStatisticsSection implements SystemInfoSection, Global {
+public class EsIndexesSection implements SystemInfoSection, Global {
 
   private final EsClient esClient;
 
-  public EsStatisticsSection(EsClient esClient) {
+  public EsIndexesSection(EsClient esClient) {
     this.esClient = esClient;
   }
 
   @Override
   public ProtobufSystemInfo.Section toProtobuf() {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
-    protobuf.setName("Search Statistics");
+    protobuf.setName("Search Indexes");
     try {
       completeIndexAttributes(protobuf);
     } catch (Exception es) {
-      Loggers.get(EsStatisticsSection.class).warn("Failed to retrieve ES attributes. There will be only a single \"Error\" attribute.", es);
+      Loggers.get(EsIndexesSection.class).warn("Failed to retrieve ES attributes. There will be only a single \"Error\" attribute.", es);
       setAttribute(protobuf, "Error", es.getCause() instanceof ElasticsearchException ? es.getCause().getMessage() : es.getMessage());
     }
     return protobuf.build();

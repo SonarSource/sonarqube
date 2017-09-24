@@ -34,16 +34,16 @@ import static org.mockito.Mockito.when;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
-public class EsStatisticsSectionTest {
+public class EsIndexesSectionTest {
 
   @Rule
   public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
 
-  private EsStatisticsSection underTest = new EsStatisticsSection(esTester.client());
+  private EsIndexesSection underTest = new EsIndexesSection(esTester.client());
 
   @Test
   public void name() {
-    assertThat(underTest.toProtobuf().getName()).isEqualTo("Search Statistics");
+    assertThat(underTest.toProtobuf().getName()).isEqualTo("Search Indexes");
   }
 
   @Test
@@ -59,7 +59,7 @@ public class EsStatisticsSectionTest {
   @Test
   public void attributes_displays_exception_message_when_cause_null_when_client_fails() {
     EsClient esClientMock = mock(EsClient.class);
-    EsStatisticsSection underTest = new EsStatisticsSection(esClientMock);
+    EsIndexesSection underTest = new EsIndexesSection(esClientMock);
     when(esClientMock.prepareStats()).thenThrow(new RuntimeException("RuntimeException with no cause"));
 
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
@@ -69,7 +69,7 @@ public class EsStatisticsSectionTest {
   @Test
   public void attributes_displays_exception_message_when_cause_is_not_ElasticSearchException_when_client_fails() {
     EsClient esClientMock = mock(EsClient.class);
-    EsStatisticsSection underTest = new EsStatisticsSection(esClientMock);
+    EsIndexesSection underTest = new EsIndexesSection(esClientMock);
     when(esClientMock.prepareStats()).thenThrow(new RuntimeException("RuntimeException with cause not ES", new IllegalArgumentException("some cause message")));
 
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
@@ -79,7 +79,7 @@ public class EsStatisticsSectionTest {
   @Test
   public void attributes_displays_cause_message_when_cause_is_ElasticSearchException_when_client_fails() {
     EsClient esClientMock = mock(EsClient.class);
-    EsStatisticsSection underTest = new EsStatisticsSection(esClientMock);
+    EsIndexesSection underTest = new EsIndexesSection(esClientMock);
     when(esClientMock.prepareStats()).thenThrow(new RuntimeException("RuntimeException with ES cause", new ElasticsearchException("some cause message")));
 
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
