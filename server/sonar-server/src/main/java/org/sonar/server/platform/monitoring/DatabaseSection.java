@@ -22,6 +22,8 @@ package org.sonar.server.platform.monitoring;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section;
@@ -36,10 +38,12 @@ public class DatabaseSection extends BaseSectionMBean implements DatabaseSection
 
   private final DatabaseVersion dbVersion;
   private final DbClient dbClient;
+  private final SonarRuntime runtime;
 
-  public DatabaseSection(DatabaseVersion dbVersion, DbClient dbClient) {
+  public DatabaseSection(DatabaseVersion dbVersion, DbClient dbClient, SonarRuntime runtime) {
     this.dbVersion = dbVersion;
     this.dbClient = dbClient;
+    this.runtime = runtime;
   }
 
   @Override
@@ -100,7 +104,8 @@ public class DatabaseSection extends BaseSectionMBean implements DatabaseSection
   @Override
   public Section toProtobuf() {
     Section.Builder protobuf = Section.newBuilder();
-    protobuf.setName(name());
+    String side = runtime.getSonarQubeSide() == SonarQubeSide.COMPUTE_ENGINE ? "Compute Engine" : "Web";
+    protobuf.setName(side + " Database Connection");
     completeDbAttributes(protobuf);
     completePoolAttributes(protobuf);
     return protobuf.build();

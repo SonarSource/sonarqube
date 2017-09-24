@@ -22,6 +22,8 @@ package org.sonar.server.platform.monitoring;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
@@ -39,7 +41,8 @@ public class DatabaseSectionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private DatabaseVersion databaseVersion = mock(DatabaseVersion.class);
-  private DatabaseSection underTest = new DatabaseSection(databaseVersion, dbTester.getDbClient());
+  private SonarRuntime runtime = mock(SonarRuntime.class);
+  private DatabaseSection underTest = new DatabaseSection(databaseVersion, dbTester.getDbClient(), runtime);
 
   @Before
   public void setUp() throws Exception {
@@ -47,8 +50,8 @@ public class DatabaseSectionTest {
   }
 
   @Test
-  public void name_is_not_empty() {
-    assertThat(underTest.name()).isNotEmpty();
+  public void jmx_name_is_not_empty() {
+    assertThat(underTest.name()).isEqualTo("Database");
   }
 
   @Test
@@ -64,5 +67,14 @@ public class DatabaseSectionTest {
   public void pool_info() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
     assertThat(attribute(section, "Pool Max Connections").getLongValue()).isGreaterThan(0L);
+  }
+
+  @Test
+  public void section_name_depends_on_runtime_side() {
+    when(runtime.getSonarQubeSide()).thenReturn(SonarQubeSide.COMPUTE_ENGINE);
+    assertThat(underTest.toProtobuf().getName()).isEqualTo("Compute Engine Database Connection");
+
+    when(runtime.getSonarQubeSide()).thenReturn(SonarQubeSide.SERVER );
+    assertThat(underTest.toProtobuf().getName()).isEqualTo("Web Database Connection");
   }
 }

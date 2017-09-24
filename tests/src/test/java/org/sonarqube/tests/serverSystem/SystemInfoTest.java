@@ -55,7 +55,7 @@ public class SystemInfoTest {
     page.getCardItem("System")
       .shouldHaveHealth()
       .shouldHaveMainSection()
-      .shouldHaveSection("Database")
+      .shouldHaveSection("Web Database Connection")
       .shouldNotHaveSection("Settings")
       .shouldNotHaveSection("Plugins")
       .shouldNotHaveSection("Statistics")
