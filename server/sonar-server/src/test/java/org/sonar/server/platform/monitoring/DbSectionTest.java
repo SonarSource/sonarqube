@@ -19,37 +19,22 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
-public class DatabaseSectionTest {
+public class DbSectionTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DatabaseVersion databaseVersion = mock(DatabaseVersion.class);
-  private DatabaseSection underTest = new DatabaseSection(databaseVersion, dbTester.getDbClient());
-
-  @Before
-  public void setUp() throws Exception {
-    when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.UP_TO_DATE);
-  }
-
-  @Test
-  public void name_is_not_empty() {
-    assertThat(underTest.name()).isNotEmpty();
-  }
+  private DbSection underTest = new DbSection(dbTester.getDbClient());
 
   @Test
   public void db_info() {
@@ -58,11 +43,5 @@ public class DatabaseSectionTest {
     assertThat(attribute(section, "Database Version").getStringValue()).startsWith("1.");
     assertThatAttributeIs(section, "Username", "SONAR");
     assertThat(attribute(section, "Driver Version").getStringValue()).startsWith("1.");
-  }
-
-  @Test
-  public void pool_info() {
-    ProtobufSystemInfo.Section section = underTest.toProtobuf();
-    assertThat(attribute(section, "Pool Max Connections").getLongValue()).isGreaterThan(0L);
   }
 }

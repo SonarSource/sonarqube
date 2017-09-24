@@ -35,10 +35,13 @@ import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryD
 public abstract class BaseInfoWsAction implements SystemWsAction {
 
   private static final String[] ORDERED_SECTION_NAMES = {
+    // standalone
     "System", "Database", "Plugins",
+
+    // cluster
     "Web JVM State", "Web Database Connection", "Web Logging", "Web JVM Properties",
-    "Search State", "Search Indexes",
-    "Compute Engine Tasks", "Compute Engine JVM State", "Compute Engine Database Connection", "Compute Engine Logging", "Compute Engine JVM Properties"};
+    "Compute Engine Tasks", "Compute Engine JVM State", "Compute Engine Database Connection", "Compute Engine Logging", "Compute Engine JVM Properties",
+    "Search State", "Search Indexes"};
 
   private final UserSession userSession;
   private final TelemetryDataLoader telemetry;

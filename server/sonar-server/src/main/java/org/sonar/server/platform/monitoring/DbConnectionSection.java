@@ -19,27 +19,28 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 /**
- * Information about database and connection pool
+ * Information about database connection pool
  */
-public class DatabaseSection extends BaseSectionMBean implements DatabaseSectionMBean {
+public class DbConnectionSection extends BaseSectionMBean implements DbConnectionSectionMBean {
 
   private final DatabaseVersion dbVersion;
   private final DbClient dbClient;
+  private final SonarRuntime runtime;
 
-  public DatabaseSection(DatabaseVersion dbVersion, DbClient dbClient) {
+  public DbConnectionSection(DatabaseVersion dbVersion, DbClient dbClient, SonarRuntime runtime) {
     this.dbVersion = dbVersion;
     this.dbClient = dbClient;
+    this.runtime = runtime;
   }
 
   @Override
@@ -100,8 +101,8 @@ public class DatabaseSection extends BaseSectionMBean implements DatabaseSection
   @Override
   public Section toProtobuf() {
     Section.Builder protobuf = Section.newBuilder();
-    protobuf.setName(name());
-    completeDbAttributes(protobuf);
+    String side = runtime.getSonarQubeSide() == SonarQubeSide.COMPUTE_ENGINE ? "Compute Engine" : "Web";
+    protobuf.setName(side + " Database Connection");
     completePoolAttributes(protobuf);
     return protobuf.build();
   }
@@ -120,20 +121,5 @@ public class DatabaseSection extends BaseSectionMBean implements DatabaseSection
 
   private BasicDataSource commonsDbcp() {
     return (BasicDataSource) dbClient.getDatabase().getDataSource();
-  }
-
-  private void completeDbAttributes(Section.Builder protobuf) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      DatabaseMetaData metadata = dbSession.getConnection().getMetaData();
-      setAttribute(protobuf, "Database", metadata.getDatabaseProductName());
-      setAttribute(protobuf, "Database Version", metadata.getDatabaseProductVersion());
-      setAttribute(protobuf, "Username", metadata.getUserName());
-      setAttribute(protobuf, "URL", metadata.getURL());
-      setAttribute(protobuf, "Driver", metadata.getDriverName());
-      setAttribute(protobuf, "Driver Version", metadata.getDriverVersion());
-      setAttribute(protobuf, "Version Status", getMigrationStatus());
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to get DB metadata", e);
-    }
   }
 }
