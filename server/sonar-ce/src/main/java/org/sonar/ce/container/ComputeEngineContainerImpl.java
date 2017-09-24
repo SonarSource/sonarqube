@@ -126,7 +126,7 @@ import org.sonar.server.platform.UrlSettings;
 import org.sonar.server.platform.WebServerImpl;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
-import org.sonar.server.platform.monitoring.DatabaseSection;
+import org.sonar.server.platform.monitoring.DbSection;
 import org.sonar.server.platform.monitoring.cluster.LoggingSection;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
@@ -430,7 +430,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
         CeDistributedInformationImpl.class,
 
         // system info
-        DatabaseSection.class,
+        DbSection.class,
         ProcessInfoProvider.class,
         LoggingSection.class);
     } else {

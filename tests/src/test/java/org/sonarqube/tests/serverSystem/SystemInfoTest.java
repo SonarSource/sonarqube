@@ -77,7 +77,7 @@ public class SystemInfoTest {
 
     page.getCardItem("Search")
       .shouldHaveSection("Search State")
-      .shouldHaveSection("Search Statistics");
+      .shouldHaveSection("Search Indexes");
   }
 
   @Test

@@ -21,6 +21,7 @@ package org.sonarqube.pageobjects;
 
 import com.codeborne.selenide.SelenideElement;
 
+import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.text;
 
@@ -62,7 +63,7 @@ public class SystemInfoPageItem {
 
   public SystemInfoPageItem shouldNotHaveField(String field) {
     ensureOpen();
-    elt.$$(".system-info-section-item-name").findBy(text(field)).shouldNot(exist);
+    elt.$$(".system-info-section-item-name").findBy(exactText(field)).shouldNot(exist);
     return this;
   }
 
