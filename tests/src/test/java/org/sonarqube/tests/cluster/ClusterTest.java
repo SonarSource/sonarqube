@@ -125,7 +125,6 @@ public class ClusterTest {
         .filter(n -> n.getPort() == node.getConfig().getHzPort())
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("Node with port " + node.getConfig().getHzPort() + " not found in api/system/health"));
-      // TODO assertions to be improved
       assertThat(healthNode.getStartedAt()).isNotEmpty();
       assertThat(healthNode.getHost()).isNotEmpty();
       assertThat(healthNode.getCausesCount()).isEqualTo(0);
