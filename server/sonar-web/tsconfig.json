@@ -8,7 +8,9 @@
     "strict": true,
     "target": "es5",
     "jsx": "react",
-    "lib": ["es2017", "dom"],
+    // remove "es2015.promise", "es2015.iterable" when upgrading to TypeScript 2.5
+    // see https://github.com/Microsoft/TypeScript/issues/16017
+    "lib": ["es2015.promise", "es2015.iterable", "es2017", "dom"],
     "module": "esnext",
     "moduleResolution": "node",
     "typeRoots": ["./src/main/js/typings", "./node_modules/@types"]

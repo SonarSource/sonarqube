@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import GroupIcon from './GroupIcon';
+import GroupIcon from '../../../../components/icons-components/GroupIcon';
 
 export default class GroupHolder extends React.PureComponent {
   static propTypes = {
