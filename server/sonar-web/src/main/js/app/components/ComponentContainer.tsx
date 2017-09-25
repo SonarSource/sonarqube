@@ -137,7 +137,6 @@ export default class ComponentContainer extends React.PureComponent<Props, State
             currentBranch={branch}
             component={component}
             location={this.props.location}
-            onBranchesChange={this.handleBranchesChange}
           />
         )}
         {loading ? (
@@ -149,6 +148,7 @@ export default class ComponentContainer extends React.PureComponent<Props, State
             branch,
             branches,
             component,
+            onBranchesChange: this.handleBranchesChange,
             onComponentChange: this.handleComponentChange
           })
         )}

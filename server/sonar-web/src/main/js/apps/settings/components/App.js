@@ -98,7 +98,7 @@ export default class App extends React.PureComponent {
                 link: (
                   <Link
                     to={{
-                      pathname: '/project/settings',
+                      pathname: '/project/branches',
                       query: { id: this.props.component && this.props.component.key }
                     }}>
                     {translate('branches.settings_hint_tab')}

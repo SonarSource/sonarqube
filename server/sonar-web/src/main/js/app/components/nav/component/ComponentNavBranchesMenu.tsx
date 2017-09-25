@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
+import { Link } from 'react-router';
 import ComponentNavBranchesMenuItem from './ComponentNavBranchesMenuItem';
 import { Branch, Component } from '../../../types';
 import {
@@ -35,7 +36,6 @@ interface Props {
   canAdmin?: boolean;
   component: Component;
   currentBranch: Branch;
-  onBranchesChange: () => void;
   onClose: () => void;
 }
 
@@ -66,9 +66,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     );
 
   handleClickOutside = (event: Event) => {
-    // do not close when rename or delete branch modal is open
-    const modal = document.querySelector('.modal');
-    if (!modal && (!this.node || !this.node.contains(event.target as HTMLElement))) {
+    if (!this.node || !this.node.contains(event.target as HTMLElement)) {
       this.props.onClose();
     }
   };
@@ -194,10 +192,8 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       menu.push(
         <ComponentNavBranchesMenuItem
           branch={branch}
-          canAdmin={this.props.canAdmin}
           component={this.props.component}
           key={branch.name}
-          onBranchesChange={this.props.onBranchesChange}
           onSelect={this.handleSelect}
           selected={branch.name === selected}
         />
@@ -208,10 +204,25 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
   };
 
   render() {
+    const { component } = this.props;
+    const showManageLink =
+      component.qualifier === 'TRK' &&
+      component.configuration &&
+      component.configuration.showSettings;
+
     return (
       <div className="dropdown-menu dropdown-menu-shadow" ref={node => (this.node = node)}>
         {this.renderSearch()}
         {this.renderBranchesList()}
+        {showManageLink && (
+          <div className="dropdown-bottom-hint text-right">
+            <Link
+              className="text-muted"
+              to={{ pathname: '/project/branches', query: { id: component.key } }}>
+              {translate('branches.manage')}
+            </Link>
+          </div>
+        )}
       </div>
     );
   }

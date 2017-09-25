@@ -21,7 +21,6 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavBranchesMenuItem, { Props } from '../ComponentNavBranchesMenuItem';
 import { BranchType, MainBranch, ShortLivingBranch, Component } from '../../../../types';
-import { click } from '../../../../../helpers/testUtils';
 
 const component = { key: 'component' } as Component;
 
@@ -47,30 +46,11 @@ it('renders short-living orhpan branch', () => {
   expect(shallowRender({ branch: { ...shortBranch, isOrphan: true } })).toMatchSnapshot();
 });
 
-it('renames main branch', () => {
-  const onBranchesChange = jest.fn();
-  const wrapper = shallowRender({ branch: mainBranch, canAdmin: true, onBranchesChange });
-
-  click(wrapper.find('.js-rename'));
-  (wrapper.find('RenameBranchModal').prop('onRename') as Function)();
-  expect(onBranchesChange).toBeCalled();
-});
-
-it('deletes short-living branch', () => {
-  const onBranchesChange = jest.fn();
-  const wrapper = shallowRender({ canAdmin: true, onBranchesChange });
-
-  click(wrapper.find('.js-delete'));
-  (wrapper.find('DeleteBranchModal').prop('onDelete') as Function)();
-  expect(onBranchesChange).toBeCalled();
-});
-
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
   return shallow(
     <ComponentNavBranchesMenuItem
       branch={shortBranch}
       component={component}
-      onBranchesChange={jest.fn()}
       onSelect={jest.fn()}
       selected={false}
       {...props}

@@ -241,6 +241,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   renderAdministrationLinks() {
     return [
       this.renderSettingsLink(),
+      this.renderBranchesLink(),
       this.renderProfilesLink(),
       this.renderQualityGateLink(),
       this.renderCustomMeasuresLink(),
@@ -269,6 +270,26 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           }}
           activeClassName="active">
           {translate('project_settings.page')}
+        </Link>
+      </li>
+    );
+  }
+
+  renderBranchesLink() {
+    if (
+      !this.context.branchesEnabled ||
+      !this.isProject() ||
+      !this.getConfiguration().showSettings
+    ) {
+      return null;
+    }
+
+    return (
+      <li key="branches">
+        <Link
+          to={{ pathname: '/project/branches', query: { id: this.props.component.key } }}
+          activeClassName="active">
+          {translate('project_branches.page')}
         </Link>
       </li>
     );
