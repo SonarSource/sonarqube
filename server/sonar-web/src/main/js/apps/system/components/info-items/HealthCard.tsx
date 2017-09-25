@@ -65,19 +65,19 @@ export default class HealthCard extends React.PureComponent<Props, State> {
             <OpenCloseIcon className="little-spacer-right" open={open} />
             {this.props.name}
           </span>
+          {showLogLevelWarning && (
+            <span className="alert alert-danger spacer-left">
+              {translate('system.log_level.warning.short')}
+            </span>
+          )}
           {health && (
             <HealthItem
               biggerHealth={this.props.biggerHealth}
-              className="pull-right spacer-left"
+              className="pull-right"
               health={health}
               healthCauses={this.props.healthCauses}
               name={this.props.name}
             />
-          )}
-          {showLogLevelWarning && (
-            <span className="pull-right alert alert-danger">
-              {translate('system.log_level.warning.short')}
-            </span>
           )}
         </div>
         {open && (

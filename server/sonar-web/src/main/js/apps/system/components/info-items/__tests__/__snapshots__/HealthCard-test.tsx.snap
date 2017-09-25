@@ -2,7 +2,7 @@
 
 exports[`should display the log level alert 1`] = `
 <span
-  className="pull-right alert alert-danger"
+  className="alert alert-danger spacer-left"
 >
   system.log_level.warning.short
 </span>
@@ -27,7 +27,7 @@ exports[`should display the sysinfo detail 1`] = `
     </span>
     <HealthItem
       biggerHealth={true}
-      className="pull-right spacer-left"
+      className="pull-right"
       health="RED"
       healthCauses={
         Array [
@@ -64,7 +64,7 @@ exports[`should render correctly 1`] = `
     </span>
     <HealthItem
       biggerHealth={false}
-      className="pull-right spacer-left"
+      className="pull-right"
       health="RED"
       healthCauses={
         Array [
@@ -96,7 +96,7 @@ exports[`should show a main section and multiple sub sections 1`] = `
     </span>
     <HealthItem
       biggerHealth={false}
-      className="pull-right spacer-left"
+      className="pull-right"
       health="RED"
       healthCauses={
         Array [

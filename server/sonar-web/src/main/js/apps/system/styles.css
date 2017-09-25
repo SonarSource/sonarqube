@@ -22,7 +22,9 @@
 }
 
 .system-info-health-card .boxed-group-header > .alert {
-  margin-top: -6px;
+  display: inline-block;
+  margin-bottom: -3px;
+  margin-top: -3px;
 }
 
 .system-info-health-card .boxed-group-inner {
