@@ -35,6 +35,7 @@ import org.sonar.api.ce.posttask.ScannerContext;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.server.computation.task.projectanalysis.api.posttask.BranchImpl;
+import org.sonar.server.webhook.WebhookPayload;
 
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
