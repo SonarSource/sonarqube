@@ -177,60 +177,61 @@ public class PostProjectAnalysisTaskTester {
     return this;
   }
 
-  public void execute() {
+  public PostProjectAnalysisTask.ProjectAnalysis execute() {
     requireNonNull(ceTask, CE_TASK_CAN_NOT_BE_NULL);
     requireNonNull(project, PROJECT_CAN_NOT_BE_NULL);
     requireNonNull(date, DATE_CAN_NOT_BE_NULL);
 
-    this.underTest.finished(
-      new PostProjectAnalysisTask.ProjectAnalysis() {
-        @Override
-        public ScannerContext getScannerContext() {
-          return scannerContext;
-        }
+    PostProjectAnalysisTask.ProjectAnalysis projectAnalysis = new PostProjectAnalysisTask.ProjectAnalysis() {
+      @Override
+      public ScannerContext getScannerContext() {
+        return scannerContext;
+      }
 
-        @Override
-        public CeTask getCeTask() {
-          return ceTask;
-        }
+      @Override
+      public CeTask getCeTask() {
+        return ceTask;
+      }
 
-        @Override
-        public Project getProject() {
-          return project;
-        }
+      @Override
+      public Project getProject() {
+        return project;
+      }
 
-        @Override
-        public Optional<Branch> getBranch() {
-          return Optional.ofNullable(branch);
-        }
+      @Override
+      public Optional<Branch> getBranch() {
+        return Optional.ofNullable(branch);
+      }
 
-        @Override
-        public QualityGate getQualityGate() {
-          return qualityGate;
-        }
+      @Override
+      public QualityGate getQualityGate() {
+        return qualityGate;
+      }
 
-        @Override
-        public Date getDate() {
-          return date;
-        }
+      @Override
+      public Date getDate() {
+        return date;
+      }
 
-        @Override
-        public Optional<Date> getAnalysisDate() {
-          return Optional.of(date);
-        }
+      @Override
+      public Optional<Date> getAnalysisDate() {
+        return Optional.of(date);
+      }
 
-        @Override
-        public String toString() {
-          return "ProjectAnalysis{" +
+      @Override
+      public String toString() {
+        return "ProjectAnalysis{" +
             "ceTask=" + ceTask +
             ", project=" + project +
             ", date=" + date.getTime() +
             ", analysisDate=" + date.getTime() +
             ", qualityGate=" + qualityGate +
             '}';
-        }
-      });
+      }
+    };
+    this.underTest.finished(projectAnalysis);
 
+    return projectAnalysis;
   }
 
   public static final class CeTaskBuilder {

@@ -17,28 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.webhook;
+package org.sonar.server.webhook;
 
-import javax.annotation.concurrent.Immutable;
+import org.sonar.core.platform.Module;
 
-import static java.util.Objects.requireNonNull;
-
-@Immutable
-public class WebhookPayload {
-
-  private final String projectKey;
-  private final String json;
-
-  public WebhookPayload(String projectKey, String json) {
-    this.projectKey = requireNonNull(projectKey);
-    this.json = requireNonNull(json);
-  }
-
-  public String getProjectKey() {
-    return projectKey;
-  }
-
-  public String getJson() {
-    return json;
+public class WebhookModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      WebhookCallerImpl.class,
+      WebhookDeliveryStorage.class,
+      WebHooksImpl.class);
   }
 }

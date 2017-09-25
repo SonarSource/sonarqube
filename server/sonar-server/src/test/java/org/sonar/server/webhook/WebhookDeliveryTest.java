@@ -17,10 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.webhook;
+package org.sonar.server.webhook;
 
 import java.io.IOException;
 import org.junit.Test;
+import org.sonar.server.webhook.Webhook;
+import org.sonar.server.webhook.WebhookDelivery;
+import org.sonar.server.webhook.WebhookPayload;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
