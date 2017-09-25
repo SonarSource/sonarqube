@@ -32,6 +32,8 @@ import Router from '../../components/navigator/router';
 import WorkspaceListView from './workspace-list-view';
 import WorkspaceHeaderView from './workspace-header-view';
 import FacetsView from './facets-view';
+import { searchQualityProfiles } from '../../api/quality-profiles';
+import { getRulesApp } from '../../api/rules';
 import { areThereCustomOrganizations } from '../../store/organizations/utils';
 
 const App = new Marionette.Application();
@@ -45,20 +47,16 @@ App.on('start', function(
 ) {
   App.organization = options.organization;
   const data = options.organization ? { organization: options.organization } : {};
-  $.get(window.baseUrl + '/api/rules/app', data)
-    .done(r => {
+  Promise.all([getRulesApp(data), searchQualityProfiles(data)])
+    .then(([appResponse, profilesResponse]) => {
       App.customRules = !areThereCustomOrganizations();
-      App.canWrite = r.canWrite;
+      App.canWrite = appResponse.canWrite;
       App.organization = options.organization;
-      App.qualityProfiles = sortBy(r.qualityprofiles, ['name', 'lang']);
-      App.languages = { ...r.languages, none: 'None' };
-      App.qualityProfiles.forEach(profile => {
-        profile.language = App.languages[profile.lang];
-      });
-      App.repositories = r.repositories;
-      App.statuses = r.statuses;
-    })
-    .done(() => {
+      App.qualityProfiles = sortBy(profilesResponse.profiles, ['name', 'lang']);
+      App.languages = { ...appResponse.languages, none: 'None' };
+      App.repositories = appResponse.repositories;
+      App.statuses = appResponse.statuses;
+
       this.layout = new Layout({ el: options.el });
       this.layout.render();
       $('#footer').addClass('page-footer-with-sidebar');
@@ -109,6 +107,9 @@ App.on('start', function(
         app: this
       });
       Backbone.history.start();
+    })
+    .catch(() => {
+      // do nothing in case of WS error
     });
 });
 

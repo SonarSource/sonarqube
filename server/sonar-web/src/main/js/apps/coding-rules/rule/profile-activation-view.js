@@ -133,7 +133,7 @@ export default ModalForm.extend({
       profile => !activeQualityProfiles.findWhere({ key: profile.key })
     );
     return inactiveProfiles
-      .filter(profile => profile.lang === lang)
+      .filter(profile => profile.language === lang)
       .filter(profile => !profile.isBuiltIn);
   },
 
