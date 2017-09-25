@@ -19,127 +19,73 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
-import java.io.IOException;
 import java.util.Date;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import org.junit.Rule;
+import java.util.Random;
+import java.util.function.Supplier;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.ce.posttask.CeTask;
+import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester;
-import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.ce.posttask.Project;
+import org.sonar.api.config.Configuration;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
-import org.sonar.server.computation.task.projectanalysis.component.TestSettingsRepository;
+import org.sonar.server.webhook.WebHooks;
+import org.sonar.server.webhook.WebhookPayload;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newCeTaskBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newProjectBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newScannerContextBuilder;
 
 public class WebhookPostTaskTest {
 
-  private static final long NOW = 1_500_000_000_000L;
-  private static final String PROJECT_UUID = "P1_UUID";
+  private final Configuration configuration = mock(Configuration.class);
+  private final WebhookPayload webhookPayload = mock(WebhookPayload.class);
+  private final WebhookPayloadFactory payloadFactory = mock(WebhookPayloadFactory.class);
+  private final WebHooks webHooks = mock(WebHooks.class);
+  private final ConfigurationRepository configurationRepository = mock(ConfigurationRepository.class);
+  private WebhookPostTask underTest = new WebhookPostTask(configurationRepository, payloadFactory, webHooks);
 
-  @Rule
-  public LogTester logTester = new LogTester().setLevel(LoggerLevel.DEBUG);
-
-  private final MapSettings settings = new MapSettings();
-  private final TestWebhookCaller caller = new TestWebhookCaller();
-  private final WebhookPayloadFactory payloadFactory = new TestWebhookPayloadFactory();
-  private final WebhookDeliveryStorage deliveryStorage = mock(WebhookDeliveryStorage.class);
-
-  @Test
-  public void do_nothing_if_no_webhooks() {
-    execute();
-
-    assertThat(caller.countSent()).isEqualTo(0);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
-    verifyZeroInteractions(deliveryStorage);
+  @Before
+  public void wireMocks() throws Exception {
+    when(payloadFactory.create(any(PostProjectAnalysisTask.ProjectAnalysis.class))).thenReturn(webhookPayload);
+    when(configurationRepository.getConfiguration()).thenReturn(configuration);
   }
 
   @Test
-  public void send_global_webhooks() {
-    settings.setProperty("sonar.webhooks.global", "1,2");
-    settings.setProperty("sonar.webhooks.global.1.name", "First");
-    settings.setProperty("sonar.webhooks.global.1.url", "http://url1");
-    settings.setProperty("sonar.webhooks.global.2.name", "Second");
-    settings.setProperty("sonar.webhooks.global.2.url", "http://url2");
-    caller.enqueueSuccess(NOW, 200, 1_234);
-    caller.enqueueFailure(NOW, new IOException("Fail to connect"));
+  public void call_webhooks() {
+    Project project = newProjectBuilder()
+      .setUuid(randomAlphanumeric(3))
+      .setKey(randomAlphanumeric(4))
+      .setName(randomAlphanumeric(5))
+      .build();
+    CeTask ceTask = newCeTaskBuilder()
+      .setStatus(CeTask.Status.values()[new Random().nextInt(CeTask.Status.values().length)])
+      .setId(randomAlphanumeric(6))
+      .build();
 
-    execute();
-
-    assertThat(caller.countSent()).isEqualTo(2);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Failed to send webhook 'Second' | url=http://url2 | message=Fail to connect");
-    verify(deliveryStorage, times(2)).persist(any(WebhookDelivery.class));
-    verify(deliveryStorage).purge(PROJECT_UUID);
-  }
-
-  @Test
-  public void send_project_webhooks() {
-    settings.setProperty("sonar.webhooks.project", "1");
-    settings.setProperty("sonar.webhooks.project.1.name", "First");
-    settings.setProperty("sonar.webhooks.project.1.url", "http://url1");
-    caller.enqueueSuccess(NOW, 200, 1_234);
-
-    execute();
-
-    assertThat(caller.countSent()).isEqualTo(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
-    verify(deliveryStorage).persist(any(WebhookDelivery.class));
-    verify(deliveryStorage).purge(PROJECT_UUID);
-  }
-
-  @Test
-  public void process_only_the_10_first_global_webhooks() {
-    testMaxWebhooks("sonar.webhooks.global");
-  }
-
-  @Test
-  public void process_only_the_10_first_project_webhooks() {
-    testMaxWebhooks("sonar.webhooks.project");
-  }
-
-  private void testMaxWebhooks(String property) {
-    IntStream.range(1, 15)
-      .forEach(i -> {
-        settings.setProperty(property + "." + i + ".name", "First");
-        settings.setProperty(property + "." + i + ".url", "http://url");
-        caller.enqueueSuccess(NOW, 200, 1_234);
-      });
-    settings.setProperty(property, IntStream.range(1, 15).mapToObj(String::valueOf).collect(Collectors.joining(",")));
-
-    execute();
-
-    assertThat(caller.countSent()).isEqualTo(10);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).stream().filter(log -> log.contains("Sent"))).hasSize(10);
-  }
-
-  private void execute() {
-    ConfigurationRepository settingsRepository = new TestSettingsRepository(settings.asConfig());
-    WebhookPostTask task = new WebhookPostTask(settingsRepository, payloadFactory, caller, deliveryStorage);
-
-    PostProjectAnalysisTaskTester.of(task)
+    PostProjectAnalysisTask.ProjectAnalysis projectAnalysis = PostProjectAnalysisTaskTester.of(underTest)
       .at(new Date())
-      .withCeTask(newCeTaskBuilder()
-        .setStatus(CeTask.Status.SUCCESS)
-        .setId("#1")
-        .build())
-      .withProject(newProjectBuilder()
-        .setUuid(PROJECT_UUID)
-        .setKey("P1")
-        .setName("Project One")
-        .build())
+      .withCeTask(ceTask)
+      .withProject(project)
       .withScannerContext(newScannerContextBuilder().build())
       .execute();
+
+    ArgumentCaptor<Supplier> supplierCaptor = ArgumentCaptor.forClass(Supplier.class);
+    verify(webHooks).sendProjectAnalysisUpdate(same(configuration), eq(new WebHooks.Analysis(project.getUuid(), ceTask.getId())), supplierCaptor.capture());
+
+    assertThat(supplierCaptor.getValue().get()).isSameAs(webhookPayload);
+
+    verify(payloadFactory).create(same(projectAnalysis));
   }
+
 }

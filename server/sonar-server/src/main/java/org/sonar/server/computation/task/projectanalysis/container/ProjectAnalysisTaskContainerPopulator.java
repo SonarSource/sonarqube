@@ -21,9 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.container;
 
 import java.util.Arrays;
 import java.util.List;
-
 import javax.annotation.Nullable;
-
 import org.sonar.ce.organization.DefaultOrganizationLoader;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.settings.SettingsLoader;
@@ -116,11 +114,13 @@ import org.sonar.server.computation.task.projectanalysis.source.LastCommitVisito
 import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.step.ReportComputationSteps;
-import org.sonar.server.computation.task.projectanalysis.webhook.WebhookModule;
+import org.sonar.server.computation.task.projectanalysis.webhook.WebhookPayloadFactoryImpl;
+import org.sonar.server.computation.task.projectanalysis.webhook.WebhookPostTask;
 import org.sonar.server.computation.task.step.ComputationStepExecutor;
 import org.sonar.server.computation.task.step.ComputationSteps;
 import org.sonar.server.computation.taskprocessor.MutableTaskResultHolderImpl;
 import org.sonar.server.view.index.ViewIndex;
+import org.sonar.server.webhook.WebhookModule;
 
 public final class ProjectAnalysisTaskContainerPopulator implements ContainerPopulator<TaskContainer> {
   private static final ReportAnalysisComponentProvider[] NO_REPORT_ANALYSIS_COMPONENT_PROVIDERS = new ReportAnalysisComponentProvider[0];
@@ -267,7 +267,9 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       MeasureToMeasureDto.class,
 
       // webhooks
-      WebhookModule.class);
+      WebhookModule.class,
+      WebhookPayloadFactoryImpl.class,
+      WebhookPostTask.class);
   }
 
 }

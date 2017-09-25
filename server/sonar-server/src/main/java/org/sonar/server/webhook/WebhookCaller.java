@@ -17,40 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.webhook;
+package org.sonar.server.webhook;
 
-import javax.annotation.concurrent.Immutable;
+public interface WebhookCaller {
 
-import static java.util.Objects.requireNonNull;
+  /**
+   * Call webhook by sending a HTTP(S) POST request containing
+   * the JSON payload.
+   * <br/>
+   * Errors are silently ignored. They don't generate logs or
+   * throw exceptions. The error status is stored in the
+   * returned {@link WebhookDelivery}.
+   */
+  WebhookDelivery call(Webhook webhook, WebhookPayload payload);
 
-@Immutable
-public class Webhook {
-
-  private final String componentUuid;
-  private final String ceTaskUuid;
-  private final String name;
-  private final String url;
-
-  public Webhook(String componentUuid, String ceTaskUuid, String name, String url) {
-    this.componentUuid = requireNonNull(componentUuid);
-    this.ceTaskUuid = requireNonNull(ceTaskUuid);
-    this.name = requireNonNull(name);
-    this.url = requireNonNull(url);
-  }
-
-  public String getComponentUuid() {
-    return componentUuid;
-  }
-
-  public String getCeTaskUuid() {
-    return ceTaskUuid;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getUrl() {
-    return url;
-  }
 }
