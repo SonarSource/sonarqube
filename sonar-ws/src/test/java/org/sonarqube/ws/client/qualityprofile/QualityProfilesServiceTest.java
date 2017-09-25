@@ -306,4 +306,31 @@ public class QualityProfilesServiceTest {
       .hasParam(PARAM_GROUP, "users")
       .andNoOtherParam();
   }
+
+  @Test
+  public void search_groups() {
+    underTest.searchGroups(SearchGroupsRequest.builder()
+      .setOrganization("O1")
+      .setQualityProfile("P1")
+      .setLanguage("Xoo")
+      .setQuery("users")
+      .setSelected("all")
+      .setPage(5)
+      .setPageSize(50)
+      .build()
+    );
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(QualityProfiles.SearchGroupsResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasPath("search_groups")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_QUALITY_PROFILE, "P1")
+      .hasParam(PARAM_LANGUAGE, "Xoo")
+      .hasParam(TEXT_QUERY, "users")
+      .hasParam(SELECTED, "all")
+      .hasParam(PAGE, 5)
+      .hasParam(PAGE_SIZE, 50)
+      .andNoOtherParam();
+  }
 }
