@@ -57,18 +57,21 @@ export function getHealthCauses(sysInfoObject: SysValueObject): string[] {
   return sysInfoObject[HEALTHCAUSES_FIELD] as string[];
 }
 
-export function getLogsLevel(sysInfoObject: SysValueObject): string {
-  if (sysInfoObject['Web Logging']) {
+export function getLogsLevel(sysInfoObject?: SysValueObject): string {
+  if (!sysInfoObject) {
+    return LOGS_LEVELS[0];
+  }
+  if (sysInfoObject['Web Logging'] || sysInfoObject['Compute Engine Logging']) {
     return sortBy(
       [
-        (sysInfoObject as NodeInfo)['Compute Engine Logging']['Logs Level'],
-        (sysInfoObject as NodeInfo)['Web Logging']['Logs Level']
+        getLogsLevel((sysInfoObject as NodeInfo)['Web Logging']),
+        getLogsLevel((sysInfoObject as NodeInfo)['Compute Engine Logging'])
       ],
       logLevel => LOGS_LEVELS.indexOf(logLevel)
     )[1];
   }
   if (sysInfoObject['System']) {
-    return (sysInfoObject as SysInfo)['System']['Logs Level'];
+    return getLogsLevel((sysInfoObject as SysInfo)['System']);
   }
   return (sysInfoObject['Logs Level'] || LOGS_LEVELS[0]) as string;
 }
