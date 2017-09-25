@@ -231,8 +231,8 @@ public class SearchAction implements IssuesWsAction {
       .setDefaultValue("false");
 
     action.createParam(PARAM_COMPONENT_KEYS)
-      .setDescription("To retrieve issues associated to a specific list of components sub-components (comma-separated list of component keys). " +
-        "A component can be a view, project, module, directory or file.")
+      .setDescription("Comma-separated list of component keys. Retrieve issues associated to a specific list of components (and all its descendants). " +
+        "A component can be a portfolio, project, module, directory or file.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(PARAM_COMPONENTS)
@@ -265,14 +265,13 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_PROJECT_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project IDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
-        "Views are not supported. If this parameter is set, projectKeys must not be set.")
+        "Portfolios are not supported. If this parameter is set, '%s' must not be set.", PARAM_PROJECTS)
       .setInternal(true)
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
     action.createParam(PARAM_MODULE_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module IDs). " +
-        INTERNAL_PARAMETER_DISCLAIMER +
-        "Views are not supported. If this parameter is set, moduleKeys must not be set.")
+        INTERNAL_PARAMETER_DISCLAIMER)
       .setInternal(true)
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 

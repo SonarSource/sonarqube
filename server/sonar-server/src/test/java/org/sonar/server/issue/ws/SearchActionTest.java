@@ -145,6 +145,11 @@ public class SearchActionTest {
     assertThat(branch.isInternal()).isTrue();
     assertThat(branch.isRequired()).isFalse();
     assertThat(branch.since()).isEqualTo("6.6");
+
+    WebService.Param projectUuids = def.param("projectUuids");
+    assertThat(projectUuids.description()).isEqualTo("To retrieve issues associated to a specific list of projects (comma-separated list of project IDs). " +
+      "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. " +
+      "Portfolios are not supported. If this parameter is set, 'projects' must not be set.");
   }
 
   @Test
