@@ -69,11 +69,13 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class ComponentAction implements NavigationWsAction {
 
   static final String PARAM_COMPONENT = "component";
+  static final String PARAM_BRANCH = "branch";
 
   private static final String PROPERTY_CONFIGURABLE = "configurable";
   private static final String PROPERTY_HAS_ROLE_POLICY = "hasRolePolicy";
@@ -119,13 +121,20 @@ public class ComponentAction implements NavigationWsAction {
       .setDescription("A component key.")
       .setDeprecatedKey("componentKey", "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+
+    projectNavigation
+      .createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setInternal(true)
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String componentKey = request.mandatoryParam(PARAM_COMPONENT);
     try (DbSession session = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByKey(session, componentKey);
+      String branch = request.param(PARAM_BRANCH);
+      ComponentDto component = componentFinder.getByKeyAndOptionalBranch(session, componentKey, branch);
       if (!userSession.hasComponentPermission(USER, component) &&
         !userSession.hasComponentPermission(ADMIN, component) &&
         !userSession.isSystemAdministrator()) {
@@ -281,7 +290,7 @@ public class ComponentAction implements NavigationWsAction {
 
     for (ComponentDto c : breadcrumb) {
       json.beginObject()
-        .prop("key", c.getDbKey())
+        .prop("key", c.getKey())
         .prop("name", c.name())
         .prop("qualifier", c.qualifier())
         .endObject();
