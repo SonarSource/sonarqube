@@ -33,6 +33,7 @@ import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.ce.posttask.ScannerContext;
 import org.sonar.api.platform.Server;
+import org.sonar.api.utils.System2;
 import org.sonar.server.computation.task.projectanalysis.api.posttask.BranchImpl;
 
 import static java.util.Collections.emptyMap;
@@ -51,12 +52,13 @@ public class WebhookPayloadFactoryImplTest {
   private static final String PROJECT_KEY = "P1";
 
   private Server server = mock(Server.class);
-  private WebhookPayloadFactory underTest = new WebhookPayloadFactoryImpl(server);
+  private System2 system2 = mock(System2.class);
+  private WebhookPayloadFactory underTest = new WebhookPayloadFactoryImpl(server, system2);
 
   @Before
   public void setUp() throws Exception {
     when(server.getPublicRootUrl()).thenReturn("http://foo");
-
+    when(system2.now()).thenReturn(1_500_999L);
   }
 
   @Test
@@ -77,11 +79,39 @@ public class WebhookPayloadFactoryImplTest {
         .setErrorThreshold("70.0")
         .build(QualityGate.EvaluationStatus.WARN, "74.0"))
       .build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, null, emptyMap());
+    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
     assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
-    assertJson(payload.getJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/success.json"));
+    assertJson(payload.getJson())
+      .isSimilarTo("{" +
+        "  \"serverUrl\": \"http://foo\"," +
+        "  \"taskId\": \"#1\"," +
+        "  \"status\": \"SUCCESS\"," +
+        "  \"analysedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"project\": {" +
+        "    \"key\": \"P1\"," +
+        "    \"name\": \"Project One\"" +
+        "  }," +
+        "  \"qualityGate\": {" +
+        "    \"name\": \"Gate One\"," +
+        "    \"status\": \"WARN\"," +
+        "    \"conditions\": [" +
+        "      {" +
+        "        \"metric\": \"coverage\"," +
+        "        \"operator\": \"GREATER_THAN\"," +
+        "        \"value\": \"74.0\"," +
+        "        \"status\": \"WARN\"," +
+        "        \"onLeakPeriod\": true," +
+        "        \"errorThreshold\": \"70.0\"," +
+        "        \"warningThreshold\": \"75.0\"" +
+        "      }" +
+        "    ]" +
+        "  }," +
+        "  \"properties\": {" +
+        "  }" +
+        "}");
   }
 
   @Test
@@ -101,11 +131,36 @@ public class WebhookPayloadFactoryImplTest {
         .setErrorThreshold("70.0")
         .buildNoValue())
       .build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, null, emptyMap());
+    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
     assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
-    assertJson(payload.getJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/gate_condition_without_value.json"));
+    assertJson(payload.getJson())
+      .isSimilarTo("{" +
+        "  \"serverUrl\": \"http://foo\"," +
+        "  \"taskId\": \"#1\"," +
+        "  \"status\": \"SUCCESS\"," +
+        "  \"analysedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"project\": {" +
+        "    \"key\": \"P1\"," +
+        "    \"name\": \"Project One\"" +
+        "  }," +
+        "  \"qualityGate\": {" +
+        "    \"name\": \"Gate One\"," +
+        "    \"status\": \"WARN\"," +
+        "    \"conditions\": [" +
+        "      {" +
+        "        \"metric\": \"coverage\"," +
+        "        \"operator\": \"GREATER_THAN\"," +
+        "        \"status\": \"NO_VALUE\"," +
+        "        \"onLeakPeriod\": false," +
+        "        \"errorThreshold\": \"70.0\"," +
+        "        \"warningThreshold\": \"75.0\"" +
+        "      }" +
+        "    ]" +
+        "  }" +
+        "}");
   }
 
   @Test
@@ -124,10 +179,31 @@ public class WebhookPayloadFactoryImplTest {
       "sonar.analysis.buildNumber", "B123",
       "not.prefixed.with.sonar.analysis", "should be ignored",
       "ignored", "should be ignored too");
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, null, scannerProperties);
+    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, scannerProperties);
 
     WebhookPayload payload = underTest.create(analysis);
-    assertJson(payload.getJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/with_analysis_properties.json"));
+    assertJson(payload.getJson())
+      .isSimilarTo("{" +
+        "  \"serverUrl\": \"http://foo\"," +
+        "  \"taskId\": \"#1\"," +
+        "  \"status\": \"SUCCESS\"," +
+        "  \"analysedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"project\": {" +
+        "    \"key\": \"P1\"," +
+        "    \"name\": \"Project One\"" +
+        "  }," +
+        "  \"qualityGate\": {" +
+        "    \"name\": \"Gate One\"," +
+        "    \"status\": \"WARN\"," +
+        "    \"conditions\": [" +
+        "    ]" +
+        "  }," +
+        "  \"properties\": {" +
+        "    \"sonar.analysis.revision\": \"ab45d24\"," +
+        "    \"sonar.analysis.buildNumber\": \"B123\"" +
+        "  }" +
+        "}");
     assertThat(payload.getJson())
       .doesNotContain("not.prefixed.with.sonar.analysis")
       .doesNotContain("ignored");
@@ -136,12 +212,47 @@ public class WebhookPayloadFactoryImplTest {
   @Test
   public void create_payload_for_failed_analysis() {
     CeTask ceTask = newCeTaskBuilder().setStatus(CeTask.Status.FAILED).setId("#1").build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(ceTask, null, null, emptyMap());
+    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(ceTask, null, null, 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
 
     assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
-    assertJson(payload.getJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/failed.json"));
+    assertJson(payload.getJson())
+      .isSimilarTo("{" +
+        "  \"serverUrl\": \"http://foo\"," +
+        "  \"taskId\": \"#1\"," +
+        "  \"status\": \"FAILED\"," +
+        "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"project\": {" +
+        "    \"key\": \"P1\"," +
+        "    \"name\": \"Project One\"" +
+        "  }," +
+        "  \"properties\": {" +
+        "  }" +
+        "}");
+  }
+
+  @Test
+  public void create_payload_for_no_analysis_date() {
+    CeTask ceTask = newCeTaskBuilder().setStatus(CeTask.Status.FAILED).setId("#1").build();
+    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(ceTask, null, null, null, emptyMap());
+
+    WebhookPayload payload = underTest.create(analysis);
+
+    assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
+    assertJson(payload.getJson())
+      .isSimilarTo("{" +
+        "  \"serverUrl\": \"http://foo\"," +
+        "  \"taskId\": \"#1\"," +
+        "  \"status\": \"FAILED\"," +
+        "  \"changedAt\": \"1970-01-01T01:25:00+0100\"," +
+        "  \"project\": {" +
+        "    \"key\": \"P1\"," +
+        "    \"name\": \"Project One\"" +
+        "  }," +
+        "  \"properties\": {" +
+        "  }" +
+        "}");
   }
 
   @Test
@@ -150,7 +261,7 @@ public class WebhookPayloadFactoryImplTest {
       .setStatus(CeTask.Status.SUCCESS)
       .setId("#1")
       .build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, null, new BranchImpl(false, "feature/foo", Branch.Type.SHORT), emptyMap());
+    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, null, new BranchImpl(false, "feature/foo", Branch.Type.SHORT), 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
     assertJson(payload.getJson()).isSimilarTo("{" +
@@ -168,7 +279,7 @@ public class WebhookPayloadFactoryImplTest {
       .setStatus(CeTask.Status.SUCCESS)
       .setId("#1")
       .build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, null, new BranchImpl(true, null, Branch.Type.LONG), emptyMap());
+    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, null, new BranchImpl(true, null, Branch.Type.LONG), 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
     assertJson(payload.getJson()).isSimilarTo("{" +
@@ -179,8 +290,8 @@ public class WebhookPayloadFactoryImplTest {
       "}");
   }
 
-  private static PostProjectAnalysisTask.ProjectAnalysis newAnalysis(CeTask task, @Nullable QualityGate gate, @Nullable Branch branch,
-                                                                     Map<String, String> scannerProperties) {
+  private static PostProjectAnalysisTask.ProjectAnalysis newAnalysis(CeTask task, @Nullable QualityGate gate,
+    @Nullable Branch branch, @Nullable Long analysisDate, Map<String, String> scannerProperties) {
     return new PostProjectAnalysisTask.ProjectAnalysis() {
       @Override
       public CeTask getCeTask() {
@@ -213,7 +324,7 @@ public class WebhookPayloadFactoryImplTest {
 
       @Override
       public Optional<Date> getAnalysisDate() {
-        return Optional.of(new Date(1_500_000_000_000L));
+        return Optional.ofNullable(analysisDate).map(Date::new);
       }
 
       @Override
