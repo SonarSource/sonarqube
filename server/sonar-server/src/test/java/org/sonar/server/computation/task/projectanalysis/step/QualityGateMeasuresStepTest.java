@@ -89,7 +89,7 @@ public class QualityGateMeasuresStepTest {
 
   private EvaluationResultTextConverter resultTextConverter = mock(EvaluationResultTextConverter.class);
   private QualityGateMeasuresStep underTest = new QualityGateMeasuresStep(treeRootHolder, qualityGateHolder, qualityGateStatusHolder, measureRepository, metricRepository,
-    resultTextConverter);
+    resultTextConverter, new SmallChangesetQualityGateSpecialCase(measureRepository, metricRepository));
 
   @Before
   public void setUp() {
