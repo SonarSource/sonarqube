@@ -56,7 +56,7 @@ class App extends React.PureComponent<Props, State> {
     this.props
       .fetchCurrentUser()
       .then(() => Promise.all([this.fetchAppState(), this.props.fetchLanguages()]))
-      .then(this.finishLoading, this.finishLoading);
+      .then(this.finishLoading, () => {});
   }
 
   componentWillUnmount() {
