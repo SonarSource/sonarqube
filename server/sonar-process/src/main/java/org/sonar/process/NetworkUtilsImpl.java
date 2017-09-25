@@ -22,7 +22,6 @@ package org.sonar.process;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.InetAddresses;
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
@@ -33,10 +32,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import static java.util.Collections.list;
-import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class NetworkUtilsImpl implements NetworkUtils {
 
@@ -85,7 +80,6 @@ public class NetworkUtilsImpl implements NetworkUtils {
         throw new IllegalStateException("Fail to find an available port on " + address, e);
       }
     }
-
   }
 
   @Override
@@ -98,30 +92,6 @@ public class NetworkUtilsImpl implements NetworkUtils {
     }
 
     return hostname;
-  }
-
-  @Override
-  public String getIPAddresses() {
-    String ips;
-
-    try {
-      ips = list(NetworkInterface.getNetworkInterfaces()).stream()
-        .flatMap(netif -> list(netif.getInetAddresses()).stream()
-          .filter(inetAddress ->
-          // Removing IPv6 for the time being
-          inetAddress instanceof Inet4Address &&
-          // Removing loopback addresses, useless for identifying a server
-            !inetAddress.isLoopbackAddress() &&
-            // Removing interfaces without IPs
-            !isBlank(inetAddress.getHostAddress()))
-          .map(InetAddress::getHostAddress))
-        .filter(p -> !isBlank(p))
-        .collect(Collectors.joining(","));
-    } catch (SocketException e) {
-      ips = "unresolved IPs";
-    }
-
-    return ips;
   }
 
   @Override
