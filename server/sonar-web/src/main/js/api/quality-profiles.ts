@@ -26,6 +26,8 @@ import {
   postJSON,
   RequestData
 } from '../helpers/request';
+import { Paging } from '../app/types';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface Profile {
   key: string;
@@ -53,7 +55,7 @@ export function searchQualityProfiles(data: {
   return getJSON('/api/qualityprofiles/search', data).then(r => r.profiles);
 }
 
-export function getQualityProfiles(data: {
+export function getQualityProfile(data: {
   compareToSonarWay?: boolean;
   profile: string;
 }): Promise<any> {
@@ -128,4 +130,67 @@ export function associateProject(profileKey: string, projectKey: string): Promis
 
 export function dissociateProject(profileKey: string, projectKey: string): Promise<void> {
   return post('/api/qualityprofiles/remove_project', { profileKey, projectKey });
+}
+
+export interface SearchUsersGroupsParameters {
+  language: string;
+  organization?: string;
+  profile: string;
+  q?: string;
+  selected: boolean;
+}
+
+export interface SearchUsersResponse {
+  users: Array<{
+    avatar?: string;
+    login: string;
+    name: string;
+    selected?: boolean;
+  }>;
+  paging: Paging;
+}
+
+export function searchUsers(parameters: SearchUsersGroupsParameters): Promise<SearchUsersResponse> {
+  return getJSON('/api/qualityprofiles/search_users', parameters).catch(throwGlobalError);
+}
+
+export interface SearchGroupsResponse {
+  groups: Array<{ name: string }>;
+  paging: Paging;
+}
+
+export function searchGroups(
+  parameters: SearchUsersGroupsParameters
+): Promise<SearchGroupsResponse> {
+  return getJSON('/api/qualityprofiles/search_groups', parameters).catch(throwGlobalError);
+}
+
+export interface AddRemoveUserParameters {
+  language: string;
+  organization?: string;
+  profile: string;
+  user: string;
+}
+
+export function addUser(parameters: AddRemoveUserParameters): Promise<void | Response> {
+  return post('/api/qualityprofiles/add_user', parameters).catch(throwGlobalError);
+}
+
+export function removeUser(parameters: AddRemoveUserParameters): Promise<void | Response> {
+  return post('/api/qualityprofiles/remove_user', parameters).catch(throwGlobalError);
+}
+
+export interface AddRemoveGroupParameters {
+  group: string;
+  language: string;
+  organization?: string;
+  profile: string;
+}
+
+export function addGroup(parameters: AddRemoveGroupParameters): Promise<void | Response> {
+  return post('/api/qualityprofiles/add_group', parameters).catch(throwGlobalError);
+}
+
+export function removeGroup(parameters: AddRemoveGroupParameters): Promise<void | Response> {
+  return post('/api/qualityprofiles/remove_group', parameters).catch(throwGlobalError);
 }

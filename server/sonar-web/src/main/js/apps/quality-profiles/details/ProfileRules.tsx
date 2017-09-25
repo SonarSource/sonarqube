@@ -25,7 +25,7 @@ import ProfileRulesRowTotal from './ProfileRulesRowTotal';
 import ProfileRulesDeprecatedWarning from './ProfileRulesDeprecatedWarning';
 import ProfileRulesSonarWayComparison from './ProfileRulesSonarWayComparison';
 import { searchRules, takeFacet } from '../../../api/rules';
-import { getQualityProfiles } from '../../../api/quality-profiles';
+import { getQualityProfile } from '../../../api/quality-profiles';
 import { getRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
@@ -83,7 +83,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     if (this.props.profile.isBuiltIn) {
       return Promise.resolve(null);
     }
-    return getQualityProfiles({
+    return getQualityProfile({
       compareToSonarWay: true,
       profile: this.props.profile.key
     });
@@ -148,7 +148,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     );
 
     return (
-      <div className="quality-profile-rules">
+      <div className="boxed-group quality-profile-rules">
         <div className="quality-profile-rules-distribution">
           <table className="data condensed">
             <thead>

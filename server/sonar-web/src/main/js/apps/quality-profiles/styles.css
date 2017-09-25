@@ -1,14 +1,5 @@
-.quality-profile-box {
-  padding: 20px;
-  border: 1px solid #e6e6e6;
-  border-radius: 2px;
-  background-color: #fff;
-}
-
 .quality-profiles-table {
-  margin-top: 20px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 7px;
 }
 
 .quality-profiles-table-name {
@@ -26,6 +17,7 @@
 
 .quality-profiles-list-header {
   line-height: 24px;
+  margin-bottom: 20px;
   padding: 5px 10px;
   border-bottom: 1px solid #e6e6e6;
 }
@@ -46,66 +38,21 @@
   margin-left: 20px;
 }
 
-.quality-profile-rules,
-.quality-profile-projects,
-.quality-profile-inheritance,
-.quality-profile-evolution {
-  border: 1px solid #e6e6e6;
-  border-radius: 2px;
-  background-color: #fff;
-}
-
-.quality-profile-evolution {
-  padding: 20px;
-}
-
-.quality-profile-projects,
-.quality-profile-inheritance {
-  padding: 15px 20px 20px;
-}
-
-.quality-profile-rules {
-  min-height: 182px;
-}
-
-.quality-profile-rules > header {
-  padding: 15px 20px;
-}
-
 .quality-profile-rules-distribution {
-  margin-bottom: 20px;
-  padding: 5px 20px 0;
+  margin-bottom: 15px;
+  padding: 7px 20px 0;
 }
 
 .quality-profile-rules-deprecated {
+  margin-top: 20px;
   padding: 15px 20px;
   background-color: #f2dede;
 }
 
 .quality-profile-rules-sonarway-missing {
+  margin-top: 20px;
   padding: 15px 20px;
   background-color: #fcf8e3;
-}
-
-.quality-profile-exporters {
-  margin-top: 20px;
-}
-
-.quality-profile-evolution {
-  display: flex;
-  margin-top: 20px;
-}
-
-.quality-profile-evolution > div {
-  width: 50%;
-  text-align: center;
-}
-
-.quality-profile-projects {
-  margin-top: 20px;
-}
-
-.quality-profile-inheritance {
 }
 
 .quality-profile-not-found {
@@ -118,20 +65,13 @@
 }
 
 .quality-profiles-evolution-deprecated {
-  margin-bottom: 20px;
   border-color: #ebccd1;
   background-color: #f2dede;
 }
 
 .quality-profiles-evolution-stagnant {
-  margin-bottom: 20px;
   border-color: #faebcc;
   background-color: #fcf8e3;
-}
-
-.quality-profiles-evolution-rules {
-  border: 1px solid #e6e6e6;
-  background-color: #fff;
 }
 
 .quality-profile-comparison-table {

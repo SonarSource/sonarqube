@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="clearfix big-spacer-bottom"
+>
+  <a
+    className="pull-right spacer-top spacer-left spacer-right button-icon"
+    href="#"
+    onClick={[Function]}
+  >
+    <DeleteIcon />
+  </a>
+  <GroupIcon
+    className="pull-left spacer-right"
+    size={32}
+  />
+  <div
+    className="overflow-hidden"
+    style={
+      Object {
+        "lineHeight": "32px",
+      }
+    }
+  >
+    <strong>
+      lambda
+    </strong>
+  </div>
+</div>
+`;
