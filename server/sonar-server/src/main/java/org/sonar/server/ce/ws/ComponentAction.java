@@ -35,11 +35,11 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
+import org.sonarqube.ws.WsCe.ProjectResponse;
 
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.WsCe.ProjectResponse;
 import static org.sonarqube.ws.client.ce.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
@@ -69,7 +69,6 @@ public class ComponentAction implements CeWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setChangelog(
         new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
-        new Change("6.6", "field \"incremental\" is added"),
         new Change("6.6", "fields \"branch\" and \"branchType\" added"))
       .setHandler(this);
 

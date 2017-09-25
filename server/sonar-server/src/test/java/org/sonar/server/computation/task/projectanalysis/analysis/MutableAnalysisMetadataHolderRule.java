@@ -155,17 +155,6 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public boolean isIncrementalAnalysis() {
-    return delegate.isIncrementalAnalysis();
-  }
-
-  @Override
-  public MutableAnalysisMetadataHolder setIncrementalAnalysis(boolean isIncrementalAnalysis) {
-    delegate.setIncrementalAnalysis(isIncrementalAnalysis);
-    return this;
-  }
-
-  @Override
   public boolean isShortLivingBranch() {
     return delegate.isShortLivingBranch();
   }

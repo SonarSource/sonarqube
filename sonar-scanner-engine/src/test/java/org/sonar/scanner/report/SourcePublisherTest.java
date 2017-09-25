@@ -27,18 +27,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SourcePublisherTest {
 
@@ -48,7 +45,6 @@ public class SourcePublisherTest {
   private File sourceFile;
   private ScannerReportWriter writer;
   private DefaultInputFile inputFile;
-  private DefaultAnalysisMode analysisFlags;
 
   @Before
   public void prepare() throws IOException {
@@ -62,8 +58,7 @@ public class SourcePublisherTest {
       .build();
 
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(moduleKey, baseDir);
-    analysisFlags = mock(DefaultAnalysisMode.class);
-    InputComponentStore componentStore = new InputComponentStore(rootModule, analysisFlags, mock(BranchConfiguration.class));
+    InputComponentStore componentStore = new InputComponentStore(rootModule, mock(BranchConfiguration.class));
     componentStore.put(inputFile);
 
     publisher = new SourcePublisher(componentStore);
@@ -122,27 +117,4 @@ public class SourcePublisherTest {
     assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("\n2\n3\n4\n5");
   }
 
-  @Test
-  public void publishChangedSourceInIncrementalMode() throws Exception {
-    when(analysisFlags.isIncremental()).thenReturn(true);
-    FileUtils.write(sourceFile, "1\n2\n3\n4\n5", StandardCharsets.ISO_8859_1);
-    inputFile.setStatus(Status.CHANGED);
-
-    publisher.publish(writer);
-
-    File out = writer.getSourceFile(inputFile.batchId());
-    assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("1\n2\n3\n4\n5");
-  }
-
-  @Test
-  public void dontPublishUnchangedSourceInIncrementalMode() throws Exception {
-    when(analysisFlags.isIncremental()).thenReturn(true);
-    FileUtils.write(sourceFile, "foo", StandardCharsets.ISO_8859_1);
-    inputFile.setStatus(Status.SAME);
-
-    publisher.publish(writer);
-
-    File out = writer.getSourceFile(inputFile.batchId());
-    assertThat(out).doesNotExist();
-  }
 }

@@ -20,50 +20,30 @@
 package org.sonar.scanner.analysis;
 
 import java.util.Map;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 @Immutable
 public class DefaultAnalysisMode implements AnalysisMode {
   private static final Logger LOG = Loggers.get(DefaultAnalysisMode.class);
   private static final String KEY_SCAN_ALL = "sonar.scanAllFiles";
-  private static final String KEY_INCREMENTAL = "sonar.incremental";
 
   private final Map<String, String> analysisProps;
   private final GlobalAnalysisMode analysisMode;
   private final BranchConfiguration branchConfig;
-  private final ProjectRepositories projectRepos;
-  private final IncrementalScannerHandler incrementalScannerHandler;
 
   private boolean scanAllFiles;
-  private boolean incremental;
 
-  public DefaultAnalysisMode(AnalysisProperties props, BranchConfiguration branchConfig, GlobalAnalysisMode analysisMode, ProjectRepositories projectRepos) {
-    this(props, branchConfig, analysisMode, projectRepos, null);
-  }
-
-  public DefaultAnalysisMode(AnalysisProperties props, BranchConfiguration branchConfig,
-    GlobalAnalysisMode analysisMode, ProjectRepositories projectRepos, @Nullable IncrementalScannerHandler incrementalScannerHandler) {
+  public DefaultAnalysisMode(AnalysisProperties props, BranchConfiguration branchConfig, GlobalAnalysisMode analysisMode) {
     this.branchConfig = branchConfig;
     this.analysisMode = analysisMode;
-    this.projectRepos = projectRepos;
-    this.incrementalScannerHandler = incrementalScannerHandler;
     this.analysisProps = props.properties();
     load();
     printFlags();
-  }
-
-  @Override
-  public boolean isIncremental() {
-    return incremental;
   }
 
   public boolean scanAllFiles() {
@@ -71,9 +51,6 @@ public class DefaultAnalysisMode implements AnalysisMode {
   }
 
   private void printFlags() {
-    if (incremental) {
-      LOG.info("Incremental mode");
-    }
     if (!scanAllFiles) {
       LOG.info("Scanning only changed files");
     }
@@ -81,36 +58,7 @@ public class DefaultAnalysisMode implements AnalysisMode {
 
   private void load() {
     String scanAllStr = analysisProps.get(KEY_SCAN_ALL);
-    incremental = incremental();
-    scanAllFiles = !incremental && !branchConfig.isShortLivingBranch() && (!analysisMode.isIssues() || "true".equals(scanAllStr));
-  }
-
-  private boolean incremental() {
-    String inc = analysisProps.get(KEY_INCREMENTAL);
-    if ("true".equals(inc)) {
-      if (incrementalScannerHandler == null || !incrementalScannerHandler.execute()) {
-        throw MessageException.of("Incremental mode is not available. Please contact your administrator.");
-      }
-
-      if (!analysisMode.isPublish()) {
-        throw MessageException.of("Incremental analysis is only available in publish mode");
-      }
-
-      if (branchConfig.branchName() != null) {
-        LOG.warn("Incremental analysis mode has been activated but it's not compatible with branches so a full analysis will be done.");
-        return false;
-      }
-
-      if (!projectRepos.exists() || projectRepos.lastAnalysisDate() == null) {
-        LOG.warn("Incremental analysis mode has been activated but the project was never analyzed before so a full analysis is about to be done.");
-        return false;
-      }
-
-      LOG.debug("Reference analysis is {}", DateUtils.formatDateTime(projectRepos.lastAnalysisDate()));
-      return true;
-    }
-
-    return false;
+    scanAllFiles = !branchConfig.isShortLivingBranch() && (!analysisMode.isIssues() || "true".equals(scanAllStr));
   }
 
   @Override

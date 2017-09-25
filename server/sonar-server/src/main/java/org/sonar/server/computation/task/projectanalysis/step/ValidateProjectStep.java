@@ -19,17 +19,12 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import static com.google.common.collect.FluentIterable.from;
-import static java.lang.String.format;
-import static org.sonar.api.utils.DateUtils.formatDateTime;
-
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Nullable;
-
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.MessageException;
@@ -47,11 +42,11 @@ import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthL
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
-import org.sonar.server.computation.task.projectanalysis.validation.ValidateIncremental;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
+import static com.google.common.collect.FluentIterable.from;
+import static java.lang.String.format;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 /**
  * Validate project and modules. It will fail in the following cases :
@@ -71,19 +66,13 @@ public class ValidateProjectStep implements ComputationStep {
   private final BatchReportReader reportReader;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final ValidateIncremental validateIncremental;
-
-  public ValidateProjectStep(DbClient dbClient, BatchReportReader reportReader, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder) {
-    this(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, null);
-  }
 
   public ValidateProjectStep(DbClient dbClient, BatchReportReader reportReader, TreeRootHolder treeRootHolder,
-    AnalysisMetadataHolder analysisMetadataHolder, @Nullable ValidateIncremental validateIncremental) {
+    AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
-    this.validateIncremental = validateIncremental;
   }
 
   @Override
@@ -126,8 +115,6 @@ public class ValidateProjectStep implements ComputationStep {
     public void visitProject(Component rawProject) {
       this.rawProject = rawProject;
       String rawProjectKey = rawProject.getKey();
-      validateIncremental(rawProjectKey);
-      validateNotIncrementalAndFirstAnalysis(rawProjectKey);
       validateBatchKey(rawProject);
 
       Optional<ComponentDto> baseProject = loadBaseComponent(rawProjectKey);
@@ -143,25 +130,6 @@ public class ValidateProjectStep implements ComputationStep {
         if (!Qualifiers.PROJECT.equals(componentDto.qualifier()) || !Scopes.PROJECT.equals(componentDto.scope())) {
           validationMessages.add(format("Component (uuid=%s, key=%s) is not a project", rawProject.getUuid(), rawProject.getKey()));
         }
-      }
-    }
-
-    private void validateIncremental(String rawProjectKey) {
-      if (analysisMetadataHolder.isIncrementalAnalysis()) {
-        if (validateIncremental == null) {
-          validationMessages.add(format("Can't process an incremental analysis of the project \"%s\" because the incremental plugin is not loaded."
-            + " Please install the plugin or launch a full analysis of the project.", rawProjectKey));
-        } else if (!validateIncremental.execute()) {
-          validationMessages.add(format("The installation of the incremental plugin is invalid. Can't process the incremental analysis "
-            + "of the project \"%s\".", rawProjectKey));
-        }
-      }
-    }
-
-    private void validateNotIncrementalAndFirstAnalysis(String rawProjectKey) {
-      if (analysisMetadataHolder.isIncrementalAnalysis() && analysisMetadataHolder.isFirstAnalysis()) {
-        validationMessages.add(format("The project \"%s\" hasn't been analysed before and the first analysis can't be incremental."
-          + " Please launch a full analysis of the project.", rawProjectKey));
       }
     }
 

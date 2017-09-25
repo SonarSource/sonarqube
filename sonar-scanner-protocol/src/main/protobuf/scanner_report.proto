@@ -39,10 +39,9 @@ message Metadata {
   bool cross_project_duplication_activated = 6;
   map<string, QProfile> qprofiles_per_language = 7;
   map<string, Plugin> plugins_by_key = 8;
-  bool incremental = 9;
-  string branch_name = 10;
-  BranchType branch_type = 11;
-  string merge_branch_name = 12;
+  string branch_name = 9;
+  BranchType branch_type = 10;
+  string merge_branch_name = 11;
 
   message QProfile {
     string key = 1;
@@ -118,7 +117,6 @@ message Component {
 	  FILE = 4;
 	}
 	
-	// For incremental mode
 	enum FileStatus {
 	  UNAVAILABLE = 0;
 	  SAME = 1;

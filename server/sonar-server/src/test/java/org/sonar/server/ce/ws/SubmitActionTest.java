@@ -19,20 +19,10 @@
  */
 package org.sonar.server.ce.ws;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -49,6 +39,15 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SubmitActionTest {
 
@@ -97,7 +96,7 @@ public class SubmitActionTest {
     when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"),
       anyMapOf(String.class, String.class), any(InputStream.class))).thenReturn(A_CE_TASK);
 
-    String[] characteristics = {"branch=branch1", "incremental=true", "key=value1=value2"};
+    String[] characteristics = {"branch=branch1", "key=value1=value2"};
     WsCe.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
@@ -110,7 +109,7 @@ public class SubmitActionTest {
     verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"),
       map.capture(), any(InputStream.class));
 
-    assertThat(map.getValue()).containsOnly(entry("incremental", "true"), entry("branch", "branch1"), entry("key", "value1=value2"));
+    assertThat(map.getValue()).containsOnly(entry("branch", "branch1"), entry("key", "value1=value2"));
   }
 
   @Test

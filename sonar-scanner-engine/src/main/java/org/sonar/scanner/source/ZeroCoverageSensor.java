@@ -37,9 +37,6 @@ import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
@@ -47,14 +44,10 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 @Phase(name = Phase.Name.POST)
 public final class ZeroCoverageSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(ZeroCoverageSensor.class);
-
   private final MeasureCache measureCache;
-  private final DefaultAnalysisMode analysisFlags;
 
-  public ZeroCoverageSensor(MeasureCache measureCache, DefaultAnalysisMode analysisFlags) {
+  public ZeroCoverageSensor(MeasureCache measureCache) {
     this.measureCache = measureCache;
-    this.analysisFlags = analysisFlags;
   }
 
   @Override
@@ -65,10 +58,6 @@ public final class ZeroCoverageSensor implements Sensor {
 
   @Override
   public void execute(final SensorContext context) {
-    if (analysisFlags.isIncremental()) {
-      LOG.debug("Incremental mode: not forcing coverage to zero");
-      return;
-    }
     FileSystem fs = context.fileSystem();
     for (InputFile f : fs.inputFiles(fs.predicates().hasType(Type.MAIN))) {
       if (((DefaultInputFile) f).isExcludedForCoverage()) {

@@ -19,18 +19,14 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -69,9 +65,7 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
 
     try (DbSession dbSession = dbClient.openSession(true)) {
       Component project = treeRootHolder.getRoot();
-      Analysis baseAnalysis = analysisMetadataHolder.getBaseAnalysis();
-      String lastAnalysysUuid = (baseAnalysis != null) ? baseAnalysis.getUuid() : null;
-      new DepthTraversalTypeAwareCrawler(new DuplicationVisitor(dbSession, analysisMetadataHolder.getUuid(), lastAnalysysUuid)).visit(project);
+      new DepthTraversalTypeAwareCrawler(new DuplicationVisitor(dbSession, analysisMetadataHolder.getUuid())).visit(project);
       dbSession.commit();
     }
   }
@@ -80,13 +74,11 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
 
     private final DbSession session;
     private final String analysisUuid;
-    private final String lastAnalysisUuid;
 
-    private DuplicationVisitor(DbSession session, String analysisUuid, @Nullable String lastAnalysisUuid) {
+    private DuplicationVisitor(DbSession session, String analysisUuid) {
       super(CrawlerDepthLimit.FILE, PRE_ORDER);
       this.session = session;
       this.analysisUuid = analysisUuid;
-      this.lastAnalysisUuid = lastAnalysisUuid;
     }
 
     @Override
@@ -95,11 +87,7 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
     }
 
     private void visitComponent(Component component) {
-      if (analysisMetadataHolder.isIncrementalAnalysis() && component.getStatus() == Status.SAME) {
-        readFromDb(component);
-      } else {
-        readFromReport(component);
-      }
+      readFromReport(component);
     }
 
     private void readFromReport(Component component) {
@@ -121,16 +109,6 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
       }
     }
 
-    private void readFromDb(Component component) {
-      int indexInFile = 0;
-      List<DuplicationUnitDto> units = dbClient.duplicationDao().selectComponent(session, component.getUuid(), lastAnalysisUuid);
-      for (DuplicationUnitDto unit : units) {
-        unit.setAnalysisUuid(analysisUuid);
-        unit.setIndexInFile(indexInFile);
-        dbClient.duplicationDao().insert(session, unit);
-        indexInFile++;
-      }
-    }
   }
 
   @Override

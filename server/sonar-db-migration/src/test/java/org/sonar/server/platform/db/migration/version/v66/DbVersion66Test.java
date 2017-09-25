@@ -30,13 +30,13 @@ public class DbVersion66Test {
   private DbVersion66 underTest = new DbVersion66();
 
   @Test
-  public void migrationNumber_starts_at_1800() {
-    verifyMinimumMigrationNumber(underTest, 1800);
+  public void migrationNumber_starts_at_1801() {
+    verifyMinimumMigrationNumber(underTest, 1801);
   }
 
   @Test
   public void verify_migration_count() {
-    verifyMigrationCount(underTest, 10);
+    verifyMigrationCount(underTest, 9);
   }
 
 }

@@ -56,11 +56,6 @@ public interface AnalysisMetadataHolder {
   boolean isFirstAnalysis();
 
   /**
-   * Whether this is an incremental analysis or a full analysis.
-   */
-  boolean isIncrementalAnalysis();
-
-  /**
    * Return the last analysis of the project.
    * If it's the first analysis, it will return null.
    *

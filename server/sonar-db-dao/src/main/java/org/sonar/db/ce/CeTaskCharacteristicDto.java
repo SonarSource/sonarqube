@@ -21,7 +21,6 @@ package org.sonar.db.ce;
 
 public class CeTaskCharacteristicDto {
 
-  public static final String INCREMENTAL_KEY = "incremental";
   public static final String BRANCH_KEY = "branch";
   public static final String BRANCH_TYPE_KEY = "branchType";
 

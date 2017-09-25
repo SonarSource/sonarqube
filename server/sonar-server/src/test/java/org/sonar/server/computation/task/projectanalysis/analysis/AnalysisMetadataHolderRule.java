@@ -42,8 +42,6 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
 
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
 
-  private final InitializedProperty<Boolean> incremental = new InitializedProperty<>();
-
   private final InitializedProperty<Analysis> baseAnalysis = new InitializedProperty<>();
 
   private final InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
@@ -202,18 +200,6 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   public Map<String, ScannerPlugin> getScannerPluginsByKey() {
     checkState(pluginsByKey.isInitialized(), "Plugins per key has not been set");
     return pluginsByKey.getProperty();
-  }
-
-  @Override
-  public boolean isIncrementalAnalysis() {
-    checkState(incremental.isInitialized(), "Incremental mode flag has not been set");
-    return incremental.getProperty();
-  }
-
-  @Override
-  public AnalysisMetadataHolderRule setIncrementalAnalysis(boolean isIncrementalAnalysis) {
-    this.incremental.setProperty(isIncrementalAnalysis);
-    return this;
   }
 
   @Override
