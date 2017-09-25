@@ -44,12 +44,14 @@ export default PopupView.extend({
     const profileKey = query.qprofile;
     const profile = this.options.app.qualityProfiles.find(p => p.key === profileKey);
     const activation = '' + query.activation;
+    const canChangeProfile =
+      profile != null && !profile.isBuiltIn && profile.actions && profile.actions.edit;
 
     return {
       qualityProfile: profileKey,
       qualityProfileName: profile != null ? profile.name : null,
-      allowActivateOnProfile: profile != null && activation === 'false' && !profile.isBuiltIn,
-      allowDeactivateOnProfile: profileKey != null && activation === 'true'
+      allowActivateOnProfile: canChangeProfile && activation === 'false',
+      allowDeactivateOnProfile: canChangeProfile && activation === 'true'
     };
   }
 });

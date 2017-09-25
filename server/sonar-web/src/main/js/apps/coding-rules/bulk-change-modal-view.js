@@ -107,9 +107,11 @@ export default ModalFormView.extend({
     const languages = queryLanguages && queryLanguages.length > 0 ? queryLanguages.split(',') : [];
     let profiles = this.options.app.qualityProfiles;
     if (languages.length > 0) {
-      profiles = profiles.filter(profile => languages.indexOf(profile.lang) !== -1);
+      profiles = profiles.filter(profile => languages.indexOf(profile.language) !== -1);
     }
-    return profiles.filter(profile => !profile.isBuiltIn);
+    return profiles
+      .filter(profile => profile.actions && profile.actions.edit)
+      .filter(profile => !profile.isBuiltIn);
   },
 
   serializeData() {
