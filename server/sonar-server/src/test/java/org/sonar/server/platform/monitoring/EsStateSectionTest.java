@@ -55,6 +55,8 @@ public class EsStateSectionTest {
   @Test
   public void node_attributes() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
+    assertThat(attribute(section, "CPU Usage (%)")).isNotNull();
+    assertThat(attribute(section, "Disk Available")).isNotNull();
     assertThat(attribute(section, "Store Size")).isNotNull();
   }
 

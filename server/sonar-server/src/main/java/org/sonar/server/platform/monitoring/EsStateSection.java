@@ -74,6 +74,7 @@ public class EsStateSection implements SystemInfoSection {
   }
 
   public static void toProtobuf(NodeStats stats, ProtobufSystemInfo.Section.Builder protobuf) {
+    setAttribute(protobuf, "CPU Usage (%)", stats.getProcess().getCpu().getPercent());
     setAttribute(protobuf, "Disk Available", byteCountToDisplaySize(stats.getFs().getTotal().getAvailable().getBytes()));
     setAttribute(protobuf, "Store Size", byteCountToDisplaySize(stats.getIndices().getStore().getSizeInBytes()));
     setAttribute(protobuf, "Open File Descriptors", stats.getProcess().getOpenFileDescriptors());
