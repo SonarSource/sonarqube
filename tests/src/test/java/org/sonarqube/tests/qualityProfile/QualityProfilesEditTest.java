@@ -28,14 +28,20 @@ import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
+import org.sonarqube.ws.QualityProfiles.SearchGroupsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchUsersResponse;
+import org.sonarqube.ws.WsUserGroups;
 import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.client.qualityprofile.AddGroupRequest;
 import org.sonarqube.ws.client.qualityprofile.AddUserRequest;
+import org.sonarqube.ws.client.qualityprofile.RemoveGroupRequest;
 import org.sonarqube.ws.client.qualityprofile.RemoveUserRequest;
+import org.sonarqube.ws.client.qualityprofile.SearchGroupsRequest;
 import org.sonarqube.ws.client.qualityprofile.SearchUsersRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonarqube.ws.QualityProfiles.SearchGroupsResponse.Group;
 
 public class QualityProfilesEditTest {
 
@@ -121,6 +127,90 @@ public class QualityProfilesEditTest {
       .setSelected("selected")
       .build()).getUsersList())
       .extracting(SearchUsersResponse.User::getLogin)
+      .isEmpty();
+  }
+
+  @Test
+  public void search_groups_allowed_to_edit_a_profile() {
+    Organization organization = tester.organizations().generate();
+    WsUserGroups.Group group1 = tester.groups().generate(organization);
+    WsUserGroups.Group group2 = tester.groups().generate(organization);
+    WsUserGroups.Group group3 = tester.groups().generate(organization);
+    CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
+    tester.qProfiles().service().addGroup(AddGroupRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setGroup(group1.getName())
+      .build());
+    tester.qProfiles().service().addGroup(AddGroupRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setGroup(group2.getName())
+      .build());
+
+    SearchGroupsResponse groups = tester.qProfiles().service().searchGroups(SearchGroupsRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .build());
+
+    assertThat(groups.getGroupsList()).extracting(Group::getName, Group::getDescription, Group::getSelected)
+      .containsExactlyInAnyOrder(
+        tuple(group1.getName(), group1.getDescription(), true),
+        tuple(group2.getName(), group2.getDescription(), true));
+    assertThat(groups.getPaging()).extracting(Common.Paging::getPageIndex, Common.Paging::getPageSize, Common.Paging::getTotal)
+      .containsExactlyInAnyOrder(1, 25, 2);
+  }
+
+  @Test
+  public void add_and_remove_group() {
+    Organization organization = tester.organizations().generate();
+    WsUserGroups.Group group1 = tester.groups().generate(organization);
+    WsUserGroups.Group group2 = tester.groups().generate(organization);
+    CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
+
+    // No group added
+    assertThat(tester.qProfiles().service().searchGroups(SearchGroupsRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setSelected("selected")
+      .build()).getGroupsList())
+      .extracting(Group::getName)
+      .isEmpty();
+
+    // Add user 1
+    tester.qProfiles().service().addGroup(AddGroupRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setGroup(group1.getName())
+      .build());
+    assertThat(tester.qProfiles().service().searchGroups(SearchGroupsRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setSelected("selected")
+      .build()).getGroupsList())
+      .extracting(Group::getName)
+      .containsExactlyInAnyOrder(group1.getName());
+
+    // Remove user 1
+    tester.qProfiles().service().removeGroup(RemoveGroupRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setGroup(group1.getName())
+      .build());
+    assertThat(tester.qProfiles().service().searchGroups(SearchGroupsRequest.builder()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(xooProfile.getName())
+      .setLanguage(xooProfile.getLanguage())
+      .setSelected("selected")
+      .build()).getGroupsList())
+      .extracting(Group::getName)
       .isEmpty();
   }
 }
