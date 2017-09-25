@@ -31,7 +31,7 @@ interface Props {
 }
 
 export default function SysInfoItem({ name, value }: Props): JSX.Element {
-  if (name === HEALTH_FIELD) {
+  if (name === HEALTH_FIELD || name === 'State') {
     return <HealthItem className="no-margin" health={value as HealthType} />;
   }
   if (value instanceof Array) {
