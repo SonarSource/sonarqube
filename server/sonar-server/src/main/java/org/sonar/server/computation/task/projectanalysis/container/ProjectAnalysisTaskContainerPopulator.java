@@ -116,6 +116,7 @@ import org.sonar.server.computation.task.projectanalysis.source.LastCommitVisito
 import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.step.ReportComputationSteps;
+import org.sonar.server.computation.task.projectanalysis.step.SmallChangesetQualityGateSpecialCase;
 import org.sonar.server.computation.task.projectanalysis.webhook.WebhookModule;
 import org.sonar.server.computation.task.step.ComputationStepExecutor;
 import org.sonar.server.computation.task.step.ComputationSteps;
@@ -267,6 +268,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
 
       BranchLoader.class,
       MeasureToMeasureDto.class,
+      SmallChangesetQualityGateSpecialCase.class,
 
       // webhooks
       WebhookModule.class);

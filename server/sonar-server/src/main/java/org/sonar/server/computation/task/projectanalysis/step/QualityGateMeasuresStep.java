@@ -83,17 +83,19 @@ public class QualityGateMeasuresStep implements ComputationStep {
   private final MeasureRepository measureRepository;
   private final MetricRepository metricRepository;
   private final EvaluationResultTextConverter evaluationResultTextConverter;
+  private final SmallChangesetQualityGateSpecialCase smallChangesetQualityGateSpecialCase;
 
   public QualityGateMeasuresStep(TreeRootHolder treeRootHolder,
     QualityGateHolder qualityGateHolder, MutableQualityGateStatusHolder qualityGateStatusHolder,
     MeasureRepository measureRepository, MetricRepository metricRepository,
-    EvaluationResultTextConverter evaluationResultTextConverter) {
+    EvaluationResultTextConverter evaluationResultTextConverter, SmallChangesetQualityGateSpecialCase smallChangesetQualityGateSpecialCase) {
     this.treeRootHolder = treeRootHolder;
     this.qualityGateHolder = qualityGateHolder;
     this.qualityGateStatusHolder = qualityGateStatusHolder;
     this.evaluationResultTextConverter = evaluationResultTextConverter;
     this.measureRepository = measureRepository;
     this.metricRepository = metricRepository;
+    this.smallChangesetQualityGateSpecialCase = smallChangesetQualityGateSpecialCase;
   }
 
   @Override
@@ -179,16 +181,17 @@ public class QualityGateMeasuresStep implements ComputationStep {
         continue;
       }
 
-      MetricEvaluationResult metricEvaluationResult = evaluateQualityGate(measure.get(), entry.getValue());
-      String text = evaluationResultTextConverter.asText(metricEvaluationResult.condition, metricEvaluationResult.evaluationResult);
+      final MetricEvaluationResult metricEvaluationResult = evaluateQualityGate(measure.get(), entry.getValue());
+      final MetricEvaluationResult finalMetricEvaluationResult = smallChangesetQualityGateSpecialCase.applyIfNeeded(project, metricEvaluationResult);
+      String text = evaluationResultTextConverter.asText(finalMetricEvaluationResult.condition, finalMetricEvaluationResult.evaluationResult);
       builder.addLabel(text);
 
       Measure updatedMeasure = Measure.updatedMeasureBuilder(measure.get())
-        .setQualityGateStatus(new QualityGateStatus(metricEvaluationResult.evaluationResult.getLevel(), text))
+        .setQualityGateStatus(new QualityGateStatus(finalMetricEvaluationResult.evaluationResult.getLevel(), text))
         .create();
       measureRepository.update(project, metric, updatedMeasure);
 
-      builder.addEvaluatedCondition(metricEvaluationResult);
+      builder.addEvaluatedCondition(finalMetricEvaluationResult);
     }
   }
 
@@ -268,11 +271,11 @@ public class QualityGateMeasuresStep implements ComputationStep {
     }
   }
 
-  private static class MetricEvaluationResult {
-    private final EvaluationResult evaluationResult;
-    private final Condition condition;
+  static class MetricEvaluationResult {
+    final EvaluationResult evaluationResult;
+    final Condition condition;
 
-    private MetricEvaluationResult(EvaluationResult evaluationResult, Condition condition) {
+    MetricEvaluationResult(EvaluationResult evaluationResult, Condition condition) {
       this.evaluationResult = evaluationResult;
       this.condition = condition;
     }
