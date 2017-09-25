@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
@@ -39,6 +40,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
@@ -109,6 +111,12 @@ public class QProfileWsSupport {
     checkFound(user, "User with login '%s' is not found'", login);
     checkMembership(dbSession, organization, user);
     return user;
+  }
+
+  public GroupDto getGroup(DbSession dbSession, OrganizationDto organization, String groupName) {
+    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), groupName);
+    checkFoundWithOptional(group, "No group with name '%s' in organization '%s'", groupName, organization.getKey());
+    return group.get();
   }
 
   public void checkPermission(DbSession dbSession, QProfileDto profile) {

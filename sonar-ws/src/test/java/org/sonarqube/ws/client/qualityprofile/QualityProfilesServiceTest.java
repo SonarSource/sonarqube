@@ -39,6 +39,7 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LOGIN;
@@ -265,6 +266,25 @@ public class QualityProfilesServiceTest {
       .hasParam(SELECTED, "all")
       .hasParam(PAGE, 5)
       .hasParam(PAGE_SIZE, 50)
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void add_group() {
+    underTest.addGroup(AddGroupRequest.builder()
+      .setOrganization("O1")
+      .setQualityProfile("P1")
+      .setLanguage("Xoo")
+      .setGroup("users")
+      .build());
+    PostRequest request = serviceTester.getPostRequest();
+
+    serviceTester.assertThat(request)
+      .hasPath("add_group")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_QUALITY_PROFILE, "P1")
+      .hasParam(PARAM_LANGUAGE, "Xoo")
+      .hasParam(PARAM_GROUP, "users")
       .andNoOtherParam();
   }
 }
