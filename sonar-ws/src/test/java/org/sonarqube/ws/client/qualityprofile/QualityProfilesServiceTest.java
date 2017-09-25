@@ -287,4 +287,23 @@ public class QualityProfilesServiceTest {
       .hasParam(PARAM_GROUP, "users")
       .andNoOtherParam();
   }
+
+  @Test
+  public void remove_group() {
+    underTest.removeGroup(RemoveGroupRequest.builder()
+      .setOrganization("O1")
+      .setQualityProfile("P1")
+      .setLanguage("Xoo")
+      .setGroup("users")
+      .build());
+    PostRequest request = serviceTester.getPostRequest();
+
+    serviceTester.assertThat(request)
+      .hasPath("remove_group")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_QUALITY_PROFILE, "P1")
+      .hasParam(PARAM_LANGUAGE, "Xoo")
+      .hasParam(PARAM_GROUP, "users")
+      .andNoOtherParam();
+  }
 }

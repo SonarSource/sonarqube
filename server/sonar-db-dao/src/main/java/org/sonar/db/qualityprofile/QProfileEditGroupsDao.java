@@ -40,6 +40,10 @@ public class QProfileEditGroupsDao implements Dao {
     mapper(dbSession).insert(dto, system2.now());
   }
 
+  public void deleteByQProfileAndGroup(DbSession dbSession, QProfileDto profile, GroupDto group) {
+    mapper(dbSession).delete(profile.getKee(), group.getId());
+  }
+
   private static QProfileEditGroupsMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(QProfileEditGroupsMapper.class);
   }

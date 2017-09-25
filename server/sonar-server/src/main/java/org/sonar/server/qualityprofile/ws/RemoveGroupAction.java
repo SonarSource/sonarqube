@@ -19,17 +19,37 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Arrays;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.user.GroupDto;
 
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_GROUP;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class RemoveGroupAction implements QProfileWsAction {
+
+  private final DbClient dbClient;
+  private final QProfileWsSupport wsSupport;
+  private final Languages languages;
+
+  public RemoveGroupAction(DbClient dbClient, QProfileWsSupport wsSupport, Languages languages) {
+    this.dbClient = dbClient;
+    this.wsSupport = wsSupport;
+    this.languages = languages;
+  }
 
   @Override
   public void define(WebService.NewController context) {
@@ -42,10 +62,16 @@ public class RemoveGroupAction implements QProfileWsAction {
       .setInternal(true)
       .setSince("6.6");
 
-    action.createParam(PARAM_PROFILE)
-      .setDescription("Quality Profile key.")
+    action.createParam(PARAM_QUALITY_PROFILE)
+      .setDescription("Quality Profile name")
       .setRequired(true)
-      .setExampleValue(UUID_EXAMPLE_01);
+      .setExampleValue("Recommended quality profile");
+
+    action
+      .createParam(PARAM_LANGUAGE)
+      .setDescription("Quality profile language")
+      .setRequired(true)
+      .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(toSet()));
 
     action.createParam(PARAM_GROUP)
       .setDescription("Group name")
@@ -57,6 +83,21 @@ public class RemoveGroupAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    // TODO
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION));
+      QProfileDto profile = wsSupport.getProfile(dbSession, organization, request.mandatoryParam(PARAM_QUALITY_PROFILE), request.mandatoryParam(PARAM_LANGUAGE));
+      wsSupport.checkCanEdit(dbSession, profile);
+      GroupDto group = wsSupport.getGroup(dbSession, organization, request.mandatoryParam(PARAM_GROUP));
+      removeGroup(dbSession, profile, group);
+    }
+    response.noContent();
+  }
+
+  private void removeGroup(DbSession dbSession, QProfileDto profile, GroupDto group) {
+    if (!dbClient.qProfileEditGroupsDao().exists(dbSession, profile, group)) {
+      return;
+    }
+    dbClient.qProfileEditGroupsDao().deleteByQProfileAndGroup(dbSession, profile, group);
+    dbSession.commit();
   }
 }
