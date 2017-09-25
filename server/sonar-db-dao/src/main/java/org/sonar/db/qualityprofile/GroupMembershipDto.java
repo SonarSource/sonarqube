@@ -19,20 +19,23 @@
  */
 package org.sonar.db.qualityprofile;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
-import org.sonar.db.Pagination;
+public class GroupMembershipDto {
 
-public interface QProfileEditGroupsMapper {
+  private int groupId;
+  // Set by MyBatis
+  private String uuid;
 
-  QProfileEditGroupsDto selectByQProfileAndGroup(@Param("qProfileUuid") String qProfileUuid, @Param("groupId") int groupId);
+  public int getGroupId() {
+    return groupId;
+  }
 
-  int countByQuery(@Param("query") SearchGroupsQuery query);
+  public GroupMembershipDto setGroupId(int groupId) {
+    this.groupId = groupId;
+    return this;
+  }
 
-  List<GroupMembershipDto> selectByQuery(@Param("query") SearchGroupsQuery query, @Param("pagination") Pagination pagination);
-
-  void insert(@Param("dto") QProfileEditGroupsDto dto, @Param("now") long now);
-
-  void delete(@Param("qProfileUuid") String qProfileUuid, @Param("groupId") int groupId);
+  public boolean isSelected() {
+    return uuid != null;
+  }
 
 }
