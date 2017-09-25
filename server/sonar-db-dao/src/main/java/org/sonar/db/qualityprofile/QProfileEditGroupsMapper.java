@@ -27,4 +27,6 @@ public interface QProfileEditGroupsMapper {
 
   void insert(@Param("dto") QProfileEditGroupsDto dto, @Param("now") long now);
 
+  void delete(@Param("qProfileUuid") String qProfileUuid, @Param("groupId") int groupId);
+
 }
