@@ -61,18 +61,19 @@ public class SystemInfoTest {
       .shouldNotHaveSection("Statistics")
       .shouldHaveField("Official Distribution")
       .shouldHaveField("Version")
-      .shouldHaveField("Logs Level")
       .shouldHaveField("High Availability")
       .shouldNotHaveField("Health")
       .shouldNotHaveField("Health Causes");
 
     page.getCardItem("Web")
       .shouldHaveSection("Web JVM Properties")
+      .shouldHaveSection("Web Logging")
       .shouldHaveSection("Web JVM State");
 
     page.getCardItem("Compute Engine")
       .shouldHaveSection("Compute Engine Database Connection")
       .shouldHaveSection("Compute Engine JVM State")
+      .shouldHaveSection("Compute Engine Logging")
       .shouldHaveSection("Compute Engine Tasks");
 
     page.getCardItem("Search")
