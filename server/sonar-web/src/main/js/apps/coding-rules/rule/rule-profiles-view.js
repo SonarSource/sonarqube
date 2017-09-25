@@ -85,9 +85,14 @@ export default Marionette.CompositeView.extend({
   },
 
   serializeData() {
+    // show "Activate" button only if user has at least one QP which he administates
+    const canActivate = this.collection
+      .toJSON()
+      .some(profile => profile.actions && profile.actions.edit);
+
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
-      canWrite: this.options.app.canWrite
+      canActivate
     };
   }
 });

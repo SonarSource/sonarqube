@@ -164,6 +164,7 @@ export default Marionette.ItemView.extend({
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       parent,
+      actions: this.model.get('actions') || {},
       canWrite: this.options.app.canWrite,
       parameters: this.enhanceParameters(parent),
       templateKey: this.options.rule.get('templateKey'),
