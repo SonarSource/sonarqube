@@ -40,7 +40,6 @@ it('renders main branch', () => {
         branches={[branch, fooBranch]}
         component={component}
         currentBranch={branch}
-        onBranchesChange={jest.fn()}
       />,
       { context: { branchesEnabled: true } }
     )
@@ -62,7 +61,6 @@ it('renders short-living branch', () => {
         branches={[branch, fooBranch]}
         component={component}
         currentBranch={branch}
-        onBranchesChange={jest.fn()}
       />,
       { context: { branchesEnabled: true } }
     )
@@ -77,7 +75,6 @@ it('opens menu', () => {
       branches={[branch, fooBranch]}
       component={component}
       currentBranch={branch}
-      onBranchesChange={jest.fn()}
     />,
     { context: { branchesEnabled: true } }
   );
@@ -90,12 +87,7 @@ it('renders single branch popup', () => {
   const branch: MainBranch = { isMain: true, name: 'master' };
   const component = {} as Component;
   const wrapper = shallow(
-    <ComponentNavBranch
-      branches={[branch]}
-      component={component}
-      currentBranch={branch}
-      onBranchesChange={jest.fn()}
-    />,
+    <ComponentNavBranch branches={[branch]} component={component} currentBranch={branch} />,
     { context: { branchesEnabled: true } }
   );
   expect(wrapper).toMatchSnapshot();
@@ -112,7 +104,6 @@ it('renders nothing when no branch support', () => {
       branches={[branch, fooBranch]}
       component={component}
       currentBranch={branch}
-      onBranchesChange={jest.fn()}
     />,
     { context: { branchesEnabled: false } }
   );

@@ -35,7 +35,6 @@ interface Props {
   component: Component;
   currentBranch: Branch;
   location?: any;
-  onBranchesChange: () => void;
 }
 
 interface State {
@@ -128,7 +127,6 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
         canAdmin={configuration && configuration.showSettings}
         component={this.props.component}
         currentBranch={this.props.currentBranch}
-        onBranchesChange={this.props.onBranchesChange}
         onClose={this.closeDropdown}
       />
     ) : null;
