@@ -42,7 +42,8 @@ export default function ProfileDetails(props: Props) {
         <div className="quality-profile-grid-left">
           <ProfileRules {...props} />
           <ProfileExporters {...props} />
-          {props.canAdmin && (
+          {props.canAdmin &&
+          !props.profile.isBuiltIn && (
             <ProfilePermissions
               organization={props.organization || undefined}
               profile={props.profile}

@@ -65,6 +65,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
 
   loadProjects() {
     if (this.props.profile.isDefault) {
+      this.setState({ loading: false });
       return;
     }
 

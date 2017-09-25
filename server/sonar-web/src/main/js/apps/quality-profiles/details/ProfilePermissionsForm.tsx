@@ -38,7 +38,22 @@ interface State {
 }
 
 export default class ProfilePermissionsForm extends React.PureComponent<Props, State> {
+  mounted: boolean;
   state: State = { submitting: false };
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  stopSubmitting = () => {
+    if (this.mounted) {
+      this.setState({ submitting: false });
+    }
+  };
 
   handleUserAdd = (user: User) =>
     addUser({
@@ -46,7 +61,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
       organization: this.props.organization,
       profile: this.props.profile.name,
       user: user.login
-    }).then(() => this.props.onUserAdd(user), () => {});
+    }).then(() => this.props.onUserAdd(user), this.stopSubmitting);
 
   handleGroupAdd = (group: Group) =>
     addGroup({
@@ -54,7 +69,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
       language: this.props.profile.language,
       organization: this.props.organization,
       profile: this.props.profile.name
-    }).then(() => this.props.onGroupAdd(group), () => {});
+    }).then(() => this.props.onGroupAdd(group), this.stopSubmitting);
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
