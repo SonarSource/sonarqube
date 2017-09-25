@@ -92,7 +92,8 @@ public class WebhookPayloadFactoryImplTest {
         "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
-        "    \"name\": \"Project One\"" +
+        "    \"name\": \"Project One\"," +
+        "    \"url\": \"http://foo/project/dashboard?id=P1\"" +
         "  }," +
         "  \"qualityGate\": {" +
         "    \"name\": \"Gate One\"," +
@@ -144,7 +145,8 @@ public class WebhookPayloadFactoryImplTest {
         "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
-        "    \"name\": \"Project One\"" +
+        "    \"name\": \"Project One\"," +
+        "    \"url\": \"http://foo/project/dashboard?id=P1\"" +
         "  }," +
         "  \"qualityGate\": {" +
         "    \"name\": \"Gate One\"," +
@@ -191,7 +193,8 @@ public class WebhookPayloadFactoryImplTest {
         "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
-        "    \"name\": \"Project One\"" +
+        "    \"name\": \"Project One\"," +
+        "    \"url\": \"http://foo/project/dashboard?id=P1\"" +
         "  }," +
         "  \"qualityGate\": {" +
         "    \"name\": \"Gate One\"," +
@@ -225,7 +228,8 @@ public class WebhookPayloadFactoryImplTest {
         "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
-        "    \"name\": \"Project One\"" +
+        "    \"name\": \"Project One\"," +
+        "    \"url\": \"http://foo/project/dashboard?id=P1\"" +
         "  }," +
         "  \"properties\": {" +
         "  }" +
@@ -256,7 +260,7 @@ public class WebhookPayloadFactoryImplTest {
   }
 
   @Test
-  public void create_payload_on_branch() {
+  public void create_payload_on_short_branch() {
     CeTask task = newCeTaskBuilder()
       .setStatus(CeTask.Status.SUCCESS)
       .setId("#1")
@@ -264,13 +268,35 @@ public class WebhookPayloadFactoryImplTest {
     PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, null, new BranchImpl(false, "feature/foo", Branch.Type.SHORT), 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
-    assertJson(payload.getJson()).isSimilarTo("{" +
-      "\"branch\": {" +
-      "  \"name\": \"feature/foo\"" +
-      "  \"type\": \"SHORT\"" +
-      "  \"isMain\": false" +
-      "}" +
-      "}");
+    assertJson(payload.getJson())
+      .isSimilarTo("{" +
+        "\"branch\": {" +
+        "  \"name\": \"feature/foo\"" +
+        "  \"type\": \"SHORT\"" +
+        "  \"isMain\": false," +
+        "  \"url\": \"http://foo/project/issues?branch=feature%2Ffoo&id=P1&resolved=false\"" +
+        "}" +
+        "}");
+  }
+
+  @Test
+  public void create_payload_on_long_branch() {
+    CeTask task = newCeTaskBuilder()
+      .setStatus(CeTask.Status.SUCCESS)
+      .setId("#1")
+      .build();
+    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, null, new BranchImpl(false, "feature/foo", Branch.Type.LONG), 1_500_000_000_000L, emptyMap());
+
+    WebhookPayload payload = underTest.create(analysis);
+    assertJson(payload.getJson())
+      .isSimilarTo("{" +
+        "\"branch\": {" +
+        "  \"name\": \"feature/foo\"" +
+        "  \"type\": \"LONG\"" +
+        "  \"isMain\": false," +
+        "  \"url\": \"http://foo/project/dashboard?branch=feature%2Ffoo&id=P1\"" +
+        "}" +
+        "}");
   }
 
   @Test
@@ -282,12 +308,14 @@ public class WebhookPayloadFactoryImplTest {
     PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, null, new BranchImpl(true, null, Branch.Type.LONG), 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
-    assertJson(payload.getJson()).isSimilarTo("{" +
-      "\"branch\": {" +
-      "  \"type\": \"LONG\"" +
-      "  \"isMain\": true" +
-      "}" +
-      "}");
+    assertJson(payload.getJson())
+      .isSimilarTo("{" +
+        "\"branch\": {" +
+        "  \"type\": \"LONG\"" +
+        "  \"isMain\": true," +
+        "  \"url\": \"http://foo/project/dashboard?id=P1\"" +
+        "}" +
+        "}");
   }
 
   private static PostProjectAnalysisTask.ProjectAnalysis newAnalysis(CeTask task, @Nullable QualityGate gate,
