@@ -124,12 +124,6 @@ public class StandaloneSystemSectionTest {
   }
 
   @Test
-  public void get_log_level() throws Exception {
-    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
-    assertThatAttributeIs(protobuf, "Logs Level", "DEBUG");
-  }
-
-  @Test
   public void get_realm() throws Exception {
     SecurityRealm realm = mock(SecurityRealm.class);
     when(realm.getName()).thenReturn("LDAP");
