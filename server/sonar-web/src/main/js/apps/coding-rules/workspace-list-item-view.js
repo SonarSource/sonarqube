@@ -118,10 +118,13 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
       this.options.app.qualityProfiles.find(profile => profile.key === selectedProfileKey);
     const isSelectedProfileBuiltIn = selectedProfile != null && selectedProfile.isBuiltIn;
 
+    const canEditQualityProfile =
+      selectedProfile && selectedProfile.actions && selectedProfile.actions.edit;
+
     return {
       ...WorkspaceListItemView.prototype.serializeData.apply(this, arguments),
+      canEditQualityProfile,
       tags: union(this.model.get('sysTags'), this.model.get('tags')),
-      canWrite: this.options.app.canWrite,
       selectedProfile: selectedProfileKey,
       isSelectedProfileBuiltIn
     };
