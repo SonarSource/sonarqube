@@ -46,6 +46,7 @@ public class WebSystemInfoModule {
       DbConnectionSection.class,
       EsStateSection.class,
       EsIndexesSection.class,
+      LoggingSection.class,
       PluginsSection.class,
       SettingsSection.class,
       StandaloneSystemSection.class,
