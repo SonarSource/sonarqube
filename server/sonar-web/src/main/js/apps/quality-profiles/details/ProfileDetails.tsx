@@ -22,6 +22,7 @@ import ProfileRules from './ProfileRules';
 import ProfileProjects from './ProfileProjects';
 import ProfileInheritance from './ProfileInheritance';
 import ProfileExporters from './ProfileExporters';
+import ProfilePermissions from './ProfilePermissions';
 import { Exporter, Profile } from '../types';
 
 interface Props {
@@ -41,6 +42,13 @@ export default function ProfileDetails(props: Props) {
         <div className="quality-profile-grid-left">
           <ProfileRules {...props} />
           <ProfileExporters {...props} />
+          {props.canAdmin &&
+          !props.profile.isBuiltIn && (
+            <ProfilePermissions
+              organization={props.organization || undefined}
+              profile={props.profile}
+            />
+          )}
         </div>
         <div className="quality-profile-grid-right">
           <ProfileInheritance {...props} />

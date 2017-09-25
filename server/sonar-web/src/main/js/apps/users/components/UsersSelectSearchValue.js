@@ -29,7 +29,7 @@ type Props = {
 };
 */
 
-const AVATAR_SIZE /*: number */ = 20;
+const AVATAR_SIZE /*: number */ = 16;
 
 export default class UsersSelectSearchValue extends React.PureComponent {
   /*:: props: Props; */
