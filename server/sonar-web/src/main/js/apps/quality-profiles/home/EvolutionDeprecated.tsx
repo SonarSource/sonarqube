@@ -42,7 +42,7 @@ export default function EvolutionDeprecated(props: Props) {
   const sortedProfiles = sortBy(profilesWithDeprecations, p => -p.activeDeprecatedRuleCount);
 
   return (
-    <div className="quality-profile-box quality-profiles-evolution-deprecated">
+    <div className="boxed-group boxed-group-inner quality-profiles-evolution-deprecated">
       <div className="spacer-bottom">
         <strong>{translate('quality_profiles.deprecated_rules')}</strong>
       </div>
