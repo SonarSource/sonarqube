@@ -24,9 +24,10 @@ import RestoreProfileForm from './RestoreProfileForm';
 import { getProfilePath } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
+import { Actions } from '../../../api/quality-profiles';
 
 interface Props {
-  canAdmin: boolean;
+  actions: Actions;
   languages: Array<{ key: string; name: string }>;
   onRequestFail: (reason: any) => void;
   organization: string | null;
@@ -80,7 +81,7 @@ export default class PageHeader extends React.PureComponent<Props, State> {
       <header className="page-header">
         <h1 className="page-title">{translate('quality_profiles.page')}</h1>
 
-        {this.props.canAdmin && (
+        {this.props.actions.create && (
           <div className="page-actions button-group dropdown">
             <button id="quality-profiles-create" onClick={this.handleCreateClick}>
               {translate('create')}

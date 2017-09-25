@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { searchQualityProfiles, getExporters } from '../../../api/quality-profiles';
+import { searchQualityProfiles, getExporters, Actions } from '../../../api/quality-profiles';
 import { sortProfiles } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
@@ -27,13 +27,13 @@ import { Exporter, Profile } from '../types';
 
 interface Props {
   children: React.ReactElement<any>;
-  currentUser: { permissions: { global: Array<string> } };
   languages: Array<{}>;
   onRequestFail: (reasong: any) => void;
-  organization: { name: string; canAdmin?: boolean; key: string } | null;
+  organization: { name: string; key: string } | null;
 }
 
 interface State {
+  actions?: Actions;
   loading: boolean;
   exporters?: Exporter[];
   profiles?: Profile[];
@@ -73,10 +73,11 @@ export default class App extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     Promise.all([getExporters(), this.fetchProfiles()]).then(responses => {
       if (this.mounted) {
-        const [exporters, profiles] = responses;
+        const [exporters, profilesResponse] = responses;
         this.setState({
+          actions: profilesResponse.actions,
           exporters,
-          profiles: sortProfiles(profiles),
+          profiles: sortProfiles(profilesResponse.profiles),
           loading: false
         });
       }
@@ -84,9 +85,9 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   updateProfiles = () => {
-    return this.fetchProfiles().then((profiles: any) => {
+    return this.fetchProfiles().then(r => {
       if (this.mounted) {
-        this.setState({ profiles: sortProfiles(profiles) });
+        this.setState({ profiles: sortProfiles(r.profiles) });
       }
     });
   };
@@ -98,18 +99,14 @@ export default class App extends React.PureComponent<Props, State> {
     const { organization } = this.props;
     const finalLanguages = Object.values(this.props.languages);
 
-    const canAdmin = organization
-      ? organization.canAdmin
-      : this.props.currentUser.permissions.global.includes('profileadmin');
-
     return React.cloneElement(this.props.children, {
+      actions: this.state.actions || {},
       profiles: this.state.profiles,
       languages: finalLanguages,
       exporters: this.state.exporters,
       updateProfiles: this.updateProfiles,
       onRequestFail: this.props.onRequestFail,
-      organization: organization ? organization.key : null,
-      canAdmin
+      organization: organization ? organization.key : null
     });
   }
 

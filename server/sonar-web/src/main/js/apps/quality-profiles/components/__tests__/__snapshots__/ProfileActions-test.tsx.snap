@@ -1,0 +1,172 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders with all permissions 1`] = `
+<ul
+  className="dropdown-menu dropdown-menu-right"
+>
+  <li>
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/org/rules#qprofile=foo|activation=false"
+    >
+      quality_profiles.activate_more_rules
+    </Link>
+  </li>
+  <li>
+    <a
+      href="/api/qualityprofiles/backup?profileKey=foo"
+      id="quality-profile-backup"
+    >
+      backup_verb
+    </a>
+  </li>
+  <li>
+    <Link
+      id="quality-profile-compare"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/organizations/org/quality_profiles/compare",
+          "query": Object {
+            "language": "java",
+            "name": "Foo",
+          },
+        }
+      }
+    >
+      compare
+    </Link>
+  </li>
+  <li>
+    <a
+      href="#"
+      id="quality-profile-copy"
+      onClick={[Function]}
+    >
+      copy
+    </a>
+  </li>
+  <li>
+    <a
+      href="#"
+      id="quality-profile-rename"
+      onClick={[Function]}
+    >
+      rename
+    </a>
+  </li>
+  <li>
+    <a
+      href="#"
+      id="quality-profile-set-as-default"
+      onClick={[Function]}
+    >
+      set_as_default
+    </a>
+  </li>
+  <li>
+    <a
+      href="#"
+      id="quality-profile-delete"
+      onClick={[Function]}
+    >
+      delete
+    </a>
+  </li>
+</ul>
+`;
+
+exports[`renders with no permissions 1`] = `
+<ul
+  className="dropdown-menu dropdown-menu-right"
+>
+  <li>
+    <a
+      href="/api/qualityprofiles/backup?profileKey=foo"
+      id="quality-profile-backup"
+    >
+      backup_verb
+    </a>
+  </li>
+  <li>
+    <Link
+      id="quality-profile-compare"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/organizations/org/quality_profiles/compare",
+          "query": Object {
+            "language": "java",
+            "name": "Foo",
+          },
+        }
+      }
+    >
+      compare
+    </Link>
+  </li>
+</ul>
+`;
+
+exports[`renders with permission to edit 1`] = `
+<ul
+  className="dropdown-menu dropdown-menu-right"
+>
+  <li>
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/org/rules#qprofile=foo|activation=false"
+    >
+      quality_profiles.activate_more_rules
+    </Link>
+  </li>
+  <li>
+    <a
+      href="/api/qualityprofiles/backup?profileKey=foo"
+      id="quality-profile-backup"
+    >
+      backup_verb
+    </a>
+  </li>
+  <li>
+    <Link
+      id="quality-profile-compare"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/organizations/org/quality_profiles/compare",
+          "query": Object {
+            "language": "java",
+            "name": "Foo",
+          },
+        }
+      }
+    >
+      compare
+    </Link>
+  </li>
+  <li>
+    <a
+      href="#"
+      id="quality-profile-rename"
+      onClick={[Function]}
+    >
+      rename
+    </a>
+  </li>
+  <li>
+    <a
+      href="#"
+      id="quality-profile-delete"
+      onClick={[Function]}
+    >
+      delete
+    </a>
+  </li>
+</ul>
+`;

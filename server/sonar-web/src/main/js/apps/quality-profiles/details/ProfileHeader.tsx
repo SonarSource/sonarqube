@@ -33,7 +33,6 @@ import {
 import { Profile } from '../types';
 
 interface Props {
-  canAdmin: boolean;
   onRequestFail: (reasong: any) => void;
   profile: Profile;
   organization: string | null;
@@ -113,7 +112,6 @@ export default class ProfileHeader extends React.PureComponent<Props> {
                   {translate('actions')} <i className="icon-dropdown" />
                 </button>
                 <ProfileActions
-                  canAdmin={this.props.canAdmin}
                   onRequestFail={this.props.onRequestFail}
                   organization={organization}
                   profile={profile}

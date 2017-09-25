@@ -30,7 +30,6 @@ import { getProfilePath, getProfileComparePath, getProfilesPath } from '../utils
 import { Profile } from '../types';
 
 interface Props {
-  canAdmin: boolean;
   fromList?: boolean;
   onRequestFail: (reasong: any) => void;
   organization: string | null;
@@ -45,10 +44,6 @@ interface State {
 }
 
 export default class ProfileActions extends React.PureComponent<Props, State> {
-  static defaultProps = {
-    fromList: false
-  };
-
   static contextTypes = {
     router: PropTypes.object
   };
@@ -119,7 +114,8 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { profile, canAdmin } = this.props;
+    const { profile } = this.props;
+    const { actions = {} } = profile;
 
     // FIXME use org, name and lang
     const backupUrl =
@@ -137,7 +133,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
 
     return (
       <ul className="dropdown-menu dropdown-menu-right">
-        {canAdmin &&
+        {actions.edit &&
         !profile.isBuiltIn && (
           <li>
             <Link to={activateMoreUrl}>{translate('quality_profiles.activate_more_rules')}</Link>
@@ -157,14 +153,14 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
             {translate('compare')}
           </Link>
         </li>
-        {canAdmin && (
+        {actions.copy && (
           <li>
             <a id="quality-profile-copy" href="#" onClick={this.handleCopyClick}>
               {translate('copy')}
             </a>
           </li>
         )}
-        {canAdmin &&
+        {actions.edit &&
         !profile.isBuiltIn && (
           <li>
             <a id="quality-profile-rename" href="#" onClick={this.handleRenameClick}>
@@ -172,7 +168,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
             </a>
           </li>
         )}
-        {canAdmin &&
+        {actions.setAsDefault &&
         !profile.isDefault && (
           <li>
             <a id="quality-profile-set-as-default" href="#" onClick={this.handleSetDefaultClick}>
@@ -180,7 +176,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
             </a>
           </li>
         )}
-        {canAdmin &&
+        {actions.edit &&
         !profile.isDefault &&
         !profile.isBuiltIn && (
           <li>

@@ -20,7 +20,7 @@
 jest.mock('../../../api/quality-profiles', () => ({
   associateProject: jest.fn(() => Promise.resolve()),
   dissociateProject: jest.fn(() => Promise.resolve()),
-  searchQualityProfiles: jest.fn()
+  searchQualityProfiles: jest.fn(() => Promise.resolve())
 }));
 
 jest.mock('../../../app/utils/addGlobalSuccessMessage', () => ({

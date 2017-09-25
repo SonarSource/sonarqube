@@ -70,8 +70,8 @@ export default class QualityProfiles extends React.PureComponent<Props, State> {
     const { component } = this.props;
     const organization = this.props.customOrganizations ? component.organization : undefined;
     Promise.all([
-      searchQualityProfiles({ organization }),
-      searchQualityProfiles({ organization, projectKey: component.key })
+      searchQualityProfiles({ organization }).then(r => r.profiles),
+      searchQualityProfiles({ organization, projectKey: component.key }).then(r => r.profiles)
     ]).then(
       ([allProfiles, profiles]) => {
         if (this.mounted) {

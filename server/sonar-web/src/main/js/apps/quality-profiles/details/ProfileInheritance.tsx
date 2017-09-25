@@ -26,7 +26,6 @@ import { getProfileInheritance } from '../../../api/quality-profiles';
 import { Profile } from '../types';
 
 interface Props {
-  canAdmin: boolean;
   onRequestFail: (reason: any) => void;
   organization: string | null;
   profile: Profile;
@@ -120,8 +119,9 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
 
     return (
       <div className="boxed-group quality-profile-inheritance">
-        {this.props.canAdmin &&
-        !this.props.profile.isBuiltIn && (
+        {profile.actions &&
+        profile.actions.edit &&
+        !profile.isBuiltIn && (
           <div className="boxed-group-actions">
             <button className="pull-right js-change-parent" onClick={this.handleChangeParentClick}>
               {translate('quality_profiles.change_parent')}

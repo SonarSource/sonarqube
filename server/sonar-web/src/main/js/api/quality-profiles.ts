@@ -29,7 +29,18 @@ import {
 import { Paging } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
+export interface ProfileActions {
+  copy?: boolean;
+  edit?: boolean;
+  setAsDefault?: boolean;
+}
+
+export interface Actions {
+  create?: boolean;
+}
+
 export interface Profile {
+  actions?: ProfileActions;
   key: string;
   name: string;
   language: string;
@@ -48,11 +59,16 @@ export interface Profile {
   projectCount?: number;
 }
 
+export interface SearchQualityProfilesResponse {
+  actions?: Actions;
+  profiles: Profile[];
+}
+
 export function searchQualityProfiles(data: {
   organization?: string;
   projectKey?: string;
-}): Promise<Profile[]> {
-  return getJSON('/api/qualityprofiles/search', data).then(r => r.profiles);
+}): Promise<SearchQualityProfilesResponse> {
+  return getJSON('/api/qualityprofiles/search', data);
 }
 
 export function getQualityProfile(data: {

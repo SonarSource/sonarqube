@@ -22,9 +22,10 @@ import PageHeader from './PageHeader';
 import Evolution from './Evolution';
 import ProfilesList from './ProfilesList';
 import { Profile } from '../types';
+import { Actions } from '../../../api/quality-profiles';
 
 interface Props {
-  canAdmin: boolean;
+  actions: Actions;
   languages: Array<{ key: string; name: string }>;
   location: { query: { [p: string]: string } };
   onRequestFail: (reason: any) => void;
