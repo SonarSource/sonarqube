@@ -18,27 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import HealthItem from '../HealthItem';
-import { HealthType } from '../../../../../api/system';
 
-it('should render correctly', () => {
-  expect(
-    shallow(
-      <HealthItem biggerHealth={true} name="Foo" health={HealthType.RED} healthCauses={['foo']} />
-    )
-  ).toMatchSnapshot();
-});
+interface Props {
+  className?: string;
+  size?: number;
+}
 
-it('should not render health causes', () => {
-  expect(
-    shallow(<HealthItem health={HealthType.GREEN} healthCauses={['foo']} />)
-  ).toMatchSnapshot();
-  expect(shallow(<HealthItem health={HealthType.YELLOW} healthCauses={[]} />)).toMatchSnapshot();
-});
-
-it('should render multiple health causes', () => {
-  expect(
-    shallow(<HealthItem health={HealthType.YELLOW} healthCauses={['foo', 'bar']} />)
-  ).toMatchSnapshot();
-});
+export default function CloseIcon({ className, size = 16 }: Props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      height={size}
+      width={size}
+      viewBox="0 0 16 16">
+      <path
+        fill="currentColor"
+        d="M12.843 11.232q0 0.357-0.25 0.607l-1.214 1.214q-0.25 0.25-0.607 0.25t-0.607-0.25l-2.625-2.625-2.625 2.625q-0.25 0.25-0.607 0.25t-0.607-0.25l-1.214-1.214q-0.25-0.25-0.25-0.607t0.25-0.607l2.625-2.625-2.625-2.625q-0.25-0.25-0.25-0.607t0.25-0.607l1.214-1.214q0.25-0.25 0.607-0.25t0.607 0.25l2.625 2.625 2.625-2.625q0.25-0.25 0.607-0.25t0.607 0.25l1.214 1.214q0.25 0.25 0.25 0.607t-0.25 0.607l-2.625 2.625 2.625 2.625q0.25 0.25 0.25 0.607z"
+      />
+    </svg>
+  );
+}

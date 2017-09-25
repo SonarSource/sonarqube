@@ -67,4 +67,20 @@ describe('getSystemLogsLevel', () => {
       } as ClusterSysInfo)
     ).toBe('DEBUG');
   });
+
+  it('should not fail if the log informations are not there yet', () => {
+    expect(
+      u.getSystemLogsLevel({
+        System: { 'High Availability': true },
+        'Application Nodes': [{ Name: 'App 1' }, { Name: 'App 2' }]
+      } as ClusterSysInfo)
+    ).toBe('INFO');
+    expect(
+      u.getSystemLogsLevel({
+        System: { 'High Availability': true },
+        'Application Nodes': [{ 'Compute Engine Logging': {} }, { Name: 'App 2' }]
+      } as ClusterSysInfo)
+    ).toBe('INFO');
+    expect(u.getSystemLogsLevel({ System: {} } as SysInfo)).toBe('INFO');
+  });
 });
