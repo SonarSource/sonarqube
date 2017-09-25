@@ -30,7 +30,6 @@ import { Profile } from '../types';
 import Tooltip from '../../../components/controls/Tooltip';
 
 interface Props {
-  canAdmin: boolean;
   onRequestFail: (reason: any) => void;
   organization: string | null;
   profile: Profile;
@@ -139,23 +138,20 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
         <td className="quality-profiles-table-date thin nowrap text-right">
           {this.renderUsageDate()}
         </td>
-        {this.props.canAdmin && (
-          <td className="quality-profiles-table-actions thin nowrap text-right">
-            <div className="dropdown">
-              <button className="dropdown-toggle" data-toggle="dropdown">
-                <i className="icon-dropdown" />
-              </button>
-              <ProfileActions
-                canAdmin={this.props.canAdmin}
-                fromList={true}
-                onRequestFail={this.props.onRequestFail}
-                organization={this.props.organization}
-                profile={this.props.profile}
-                updateProfiles={this.props.updateProfiles}
-              />
-            </div>
-          </td>
-        )}
+        <td className="quality-profiles-table-actions thin nowrap text-right">
+          <div className="dropdown">
+            <button className="dropdown-toggle" data-toggle="dropdown">
+              <i className="icon-dropdown" />
+            </button>
+            <ProfileActions
+              fromList={true}
+              onRequestFail={this.props.onRequestFail}
+              organization={this.props.organization}
+              profile={this.props.profile}
+              updateProfiles={this.props.updateProfiles}
+            />
+          </div>
+        </td>
       </tr>
     );
   }
