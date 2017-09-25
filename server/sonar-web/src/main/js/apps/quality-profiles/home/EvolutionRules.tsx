@@ -103,7 +103,7 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
     );
 
     return (
-      <div className="quality-profile-box quality-profiles-evolution-rules">
+      <div className="boxed-group boxed-group-inner quality-profiles-evolution-rules">
         <div className="clearfix">
           <strong className="pull-left">{translate('quality_profiles.latest_new_rules')}</strong>
         </div>

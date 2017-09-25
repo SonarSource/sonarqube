@@ -113,8 +113,8 @@ export default class ComparisonContainer extends React.PureComponent<Props, Stat
     const { left, right, inLeft, inRight, modified } = this.state;
 
     return (
-      <div className="quality-profile-box js-profile-comparison">
-        <header className="spacer-bottom">
+      <div className="boxed-group boxed-group-inner js-profile-comparison">
+        <header>
           <ComparisonForm
             withKey={withKey}
             profile={profile}
@@ -130,14 +130,16 @@ export default class ComparisonContainer extends React.PureComponent<Props, Stat
         right != null &&
         inRight != null &&
         modified != null && (
-          <ComparisonResults
-            left={left}
-            right={right}
-            inLeft={inLeft}
-            inRight={inRight}
-            modified={modified}
-            organization={this.props.organization}
-          />
+          <div className="spacer-top">
+            <ComparisonResults
+              left={left}
+              right={right}
+              inLeft={inLeft}
+              inRight={inRight}
+              modified={modified}
+              organization={this.props.organization}
+            />
+          </div>
         )}
       </div>
     );
