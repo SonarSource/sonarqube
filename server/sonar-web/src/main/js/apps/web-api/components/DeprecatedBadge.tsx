@@ -23,8 +23,8 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default function DeprecatedBadge({ since }: { since?: string }) {
   const label = since
-    ? translateWithParameters('api_documentation.depracated_since_x', since)
-    : translate('api_documentation.depracated');
+    ? translateWithParameters('api_documentation.deprecated_since_x', since)
+    : translate('api_documentation.deprecated');
   return (
     <Tooltip overlay={translate('api_documentation.deprecation_tooltip')}>
       <span className="badge badge-warning">{label}</span>
